@@ -45,15 +45,15 @@ subroutine test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__() ->
         let tmp%14#0: uint64 = (txn ApplicationID)
         let tmp%15#0: bool = (!= tmp%14#0 0u)
         (assert tmp%15#0) // can only call when not creating
-        let tmp%16#0: bytes = (txna ApplicationArgs 1)
-        let tmp%17#0: bytes = ((extract 2 0) tmp%16#0)
-        let to_encode%1#0: bytes = test_cases.compile.apps.HelloOtherConstants.greet(tmp%17#0)
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let tmp%16#0: bytes = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
+        let to_encode%1#0: bytes = test_cases.compile.apps.HelloOtherConstants.greet(tmp%16#0)
         let length%0#0: uint64 = (len to_encode%1#0)
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%1#0)
-        let tmp%18#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
-        (log tmp%18#0)
+        let tmp%17#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
+        (log tmp%17#0)
         return 1u
     block@5: // switch_case_default_L76
         goto block@6
@@ -66,7 +66,7 @@ subroutine test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__() ->
 
 subroutine test_cases.compile.apps.HelloOtherConstants.__init__() -> void:
     block@0: // L77
-        (app_global_put "greeting" TemplateVar[bytes](TMPL_GREETING))
+        (app_global_put "greeting" TemplateVar[string](TMPL_GREETING))
         (app_global_put "num" TemplateVar[biguint](TMPL_NUM))
         (app_global_put "address" TemplateVar[bytes[32]](TMPL_ACCOUNT))
         (app_global_put "method" TemplateVar[bytes](TMPL_METHOD))
@@ -80,14 +80,15 @@ subroutine test_cases.compile.apps.HelloOtherConstants.delete() -> void:
     block@0: // L87
         return 
 
-subroutine test_cases.compile.apps.HelloOtherConstants.greet(name: bytes) -> bytes:
+subroutine test_cases.compile.apps.HelloOtherConstants.greet(name: string) -> bytes:
     block@0: // L91
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num")
         (assert maybe_exists%0#0) // check self.num exists
         let tmp%0#0: biguint = (b+ maybe_value%0#0 48b)
         let tmp%1#0: uint64 = (len tmp%0#0)
         let tmp%2#0: uint64 = (- tmp%1#0 1u)
-        let num_alpha#0: bytes = (extract3 tmp%0#0 tmp%2#0 1u)
+        let read_bytes%0#0: bytes = (extract3 tmp%0#0 tmp%2#0 1u) // on error: Index access is out of bounds
+        let num_alpha#0: bytes = read_bytes%0#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%1#0) // check self.greeting exists
         let tmp%3#0: bytes = (concat maybe_value%1#0 0x20)

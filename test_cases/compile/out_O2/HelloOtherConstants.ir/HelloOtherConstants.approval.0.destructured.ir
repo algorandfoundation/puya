@@ -3,7 +3,7 @@ main test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
     block@1: // call __init___L1
-        (app_global_put "greeting" TemplateVar[bytes](TMPL_GREETING))
+        (app_global_put "greeting" TemplateVar[string](TMPL_GREETING))
         (app_global_put "num" TemplateVar[biguint](TMPL_NUM))
         (app_global_put "address" TemplateVar[bytes[32]](TMPL_ACCOUNT))
         (app_global_put "method" TemplateVar[bytes](TMPL_METHOD))
@@ -40,14 +40,14 @@ main test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init:
         (assert tmp%13#0) // OnCompletion is not NoOp
         let tmp%14#0: uint64 = (txn ApplicationID)
         (assert tmp%14#0) // can only call when not creating
-        let tmp%16#0: bytes = (txna ApplicationArgs 1)
-        let name#0: bytes = ((extract 2 0) tmp%16#0)
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let name#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num")
         (assert maybe_exists%0#0) // check self.num exists
         let tmp%0#3: biguint = (b+ maybe_value%0#0 48b)
         let tmp%1#1: uint64 = (len tmp%0#3)
         let tmp%2#1: uint64 = (- tmp%1#1 1u)
-        let num_alpha#0: bytes = (extract3 tmp%0#3 tmp%2#1 1u)
+        let num_alpha#0: bytes = (extract3 tmp%0#3 tmp%2#1 1u) // on error: Index access is out of bounds
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%1#0) // check self.greeting exists
         let tmp%3#1: bytes = (concat maybe_value%1#0 0x20)
@@ -63,8 +63,8 @@ main test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init:
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%7#1)
-        let tmp%18#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
-        (log tmp%18#0)
+        let tmp%17#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
+        (log tmp%17#0)
         let test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__%0#0
         goto block@9

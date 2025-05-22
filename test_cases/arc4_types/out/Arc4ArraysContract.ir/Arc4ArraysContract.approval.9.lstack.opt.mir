@@ -1,0 +1,302 @@
+// Op                                                                                         Stack (out)
+// test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // arc4_types/array.py:26
+        // total = UInt64(0)
+        int 0                                                                                 0
+        v-store total#0
+        int 0                                                                                 0
+        v-store item_index_internal%0#0
+        b main_for_header@1
+
+    main_for_header@1:
+        // arc4_types/array.py:27
+        // for uint8_item in dynamic_uint8_array:
+        v-load item_index_internal%0#0                                                        item_index_internal%0#0
+        int 2                                                                                 item_index_internal%0#0,2
+        <                                                                                     continue_looping%0#0
+        bz main_after_for@4 ; b main_for_body@2
+
+    main_for_body@2:
+        // arc4_types/array.py:27
+        // for uint8_item in dynamic_uint8_array:
+        byte 0x0102                                                                           0x0102
+        // arc4_types/array.py:28
+        // total += uint8_item.native
+        v-load item_index_internal%0#0                                                        0x0102,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                                                item_index_internal%0#0,0x0102,item_index_internal%0#0 (copy)
+        getbyte                                                                               item_index_internal%0#0,tmp%0#0
+        v-load total#0                                                                        item_index_internal%0#0,tmp%0#0,total#0
+        l-load tmp%0#0 1                                                                      item_index_internal%0#0,total#0,tmp%0#0
+        +                                                                                     item_index_internal%0#0,total#0
+        v-store total#0                                                                       item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                      item_index_internal%0#0
+        int 1                                                                                 item_index_internal%0#0,1
+        +                                                                                     item_index_internal%0#0
+        v-store item_index_internal%0#0
+        b main_for_header@1
+
+    main_after_for@4:
+        // arc4_types/array.py:30
+        // assert total == 3, "Total should be sum of dynamic_uint8_array items"
+        v-load total#0                                                                        total#0
+        int 3                                                                                 total#0,3
+        ==                                                                                    tmp%1#0
+        assert // Total should be sum of dynamic_uint8_array items
+        int 0                                                                                 0
+        v-store item_index_internal%1#0
+        b main_for_header@5
+
+    main_for_header@5:
+        // arc4_types/array.py:32
+        // for uint16_item in aliased_dynamic:
+        v-load item_index_internal%1#0                                                        item_index_internal%1#0
+        int 1                                                                                 item_index_internal%1#0,1
+        <                                                                                     continue_looping%1#0
+        bz main_after_for@8 ; b main_for_body@6
+
+    main_for_body@6:
+        // arc4_types/array.py:32
+        // for uint16_item in aliased_dynamic:
+        v-load item_index_internal%1#0                                                        item_index_internal%1#0
+        l-store-copy item_index_internal%1#0 0                                                item_index_internal%1#0,item_index_internal%1#0 (copy)
+        int 2                                                                                 item_index_internal%1#0,item_index_internal%1#0 (copy),2
+        *                                                                                     item_index_internal%1#0,item_offset%1#0
+        byte 0x0001                                                                           item_index_internal%1#0,item_offset%1#0,0x0001
+        // arc4_types/array.py:33
+        // total += uint16_item.native
+        l-load item_offset%1#0 1                                                              item_index_internal%1#0,0x0001,item_offset%1#0
+        extract_uint16                                                                        item_index_internal%1#0,tmp%2#0
+        v-load total#0                                                                        item_index_internal%1#0,tmp%2#0,total#0
+        l-load tmp%2#0 1                                                                      item_index_internal%1#0,total#0,tmp%2#0
+        +                                                                                     item_index_internal%1#0,total#0
+        v-store total#0                                                                       item_index_internal%1#0
+        l-load item_index_internal%1#0 0                                                      item_index_internal%1#0
+        int 1                                                                                 item_index_internal%1#0,1
+        +                                                                                     item_index_internal%1#0
+        v-store item_index_internal%1#0
+        b main_for_header@5
+
+    main_after_for@8:
+        // arc4_types/array.py:34
+        // assert total == 4, "Total should now include sum of aliased_dynamic items"
+        v-load total#0                                                                        total#0
+        int 4                                                                                 total#0,4
+        ==                                                                                    tmp%3#0
+        assert // Total should now include sum of aliased_dynamic items
+        // arc4_types/array.py:38
+        // result = String("")
+        byte ""                                                                               ""
+        v-store result#0
+        int 0                                                                                 item_index_internal%2#0
+        v-store index#0
+        b main_for_header@9
+
+    main_for_header@9:
+        // arc4_types/array.py:39
+        // for index, string_item in uenumerate(dynamic_string_array):
+        v-load index#0                                                                        index#0
+        int 2                                                                                 index#0,2
+        <                                                                                     continue_looping%2#0
+        bz main_after_for@15 ; b main_for_body@10
+
+    main_for_body@10:
+        // arc4_types/array.py:39
+        // for index, string_item in uenumerate(dynamic_string_array):
+        v-load index#0                                                                        index#0
+        l-store-copy index#0 0                                                                index#0,index#0 (copy)
+        int 2                                                                                 index#0,index#0 (copy),2
+        *                                                                                     index#0,item_offset_offset%1#0
+        byte 0x0004000b000548656c6c6f0005576f726c64                                           index#0,item_offset_offset%1#0,0x0004000b000548656c6c6f0005576f726c64
+        l-load item_offset_offset%1#0 1                                                       index#0,0x0004000b000548656c6c6f0005576f726c64,item_offset_offset%1#0
+        extract_uint16                                                                        index#0,item_offset%3#0
+        byte 0x0004000b000548656c6c6f0005576f726c64                                           index#0,item_offset%3#0,0x0004000b000548656c6c6f0005576f726c64
+        l-load-copy item_offset%3#0 1                                                         index#0,item_offset%3#0,0x0004000b000548656c6c6f0005576f726c64,item_offset%3#0 (copy)
+        extract_uint16                                                                        index#0,item_offset%3#0,item_length%1#0
+        int 2                                                                                 index#0,item_offset%3#0,item_length%1#0,2
+        +                                                                                     index#0,item_offset%3#0,item_head_tail_length%1#0
+        byte 0x0004000b000548656c6c6f0005576f726c64                                           index#0,item_offset%3#0,item_head_tail_length%1#0,0x0004000b000548656c6c6f0005576f726c64
+        l-load item_offset%3#0 2                                                              index#0,item_head_tail_length%1#0,0x0004000b000548656c6c6f0005576f726c64,item_offset%3#0
+        l-load item_head_tail_length%1#0 2                                                    index#0,0x0004000b000548656c6c6f0005576f726c64,item_offset%3#0,item_head_tail_length%1#0
+        extract3                                                                              index#0,string_item#0
+        v-store string_item#0                                                                 index#0
+        // arc4_types/array.py:40
+        // if index == 0:
+        l-load index#0 0                                                                      index#0
+        bz main_if_body@11 ; b main_else_body@12
+
+    main_if_body@11:
+        // arc4_types/array.py:41
+        // result = string_item.native
+        v-load string_item#0                                                                  string_item#0
+        extract 2 0                                                                           result#0
+        v-store result#0
+        b main_after_if_else@13
+
+    main_else_body@12:
+        // arc4_types/array.py:43
+        // result += " " + string_item.native
+        v-load string_item#0                                                                  string_item#0
+        extract 2 0                                                                           tmp%8#0
+        byte " "                                                                              tmp%8#0," "
+        l-load tmp%8#0 1                                                                      " ",tmp%8#0
+        concat                                                                                tmp%9#0
+        v-load result#0                                                                       tmp%9#0,result#0
+        l-load tmp%9#0 1                                                                      result#0,tmp%9#0
+        concat                                                                                result#0
+        v-store result#0
+        b main_after_if_else@13
+
+    main_after_if_else@13:
+        v-load index#0                                                                        index#0
+        int 1                                                                                 index#0,1
+        +                                                                                     item_index_internal%2#0
+        v-store index#0
+        b main_for_header@9
+
+    main_after_for@15:
+        // arc4_types/array.py:45
+        // assert result == "Hello World"
+        v-load result#0                                                                       result#0
+        byte "Hello World"                                                                    result#0,"Hello World"
+        ==                                                                                    tmp%10#0
+        assert
+        int 0                                                                                 0
+        v-store item_index_internal%3#0
+        b main_for_header@16
+
+    main_for_header@16:
+        // arc4_types/array.py:49
+        // for uint32_item in static_uint32_array:
+        v-load item_index_internal%3#0                                                        item_index_internal%3#0
+        int 4                                                                                 item_index_internal%3#0,4
+        <                                                                                     continue_looping%3#0
+        bz main_after_for@19 ; b main_for_body@17
+
+    main_for_body@17:
+        // arc4_types/array.py:49
+        // for uint32_item in static_uint32_array:
+        v-load item_index_internal%3#0                                                        item_index_internal%3#0
+        l-store-copy item_index_internal%3#0 0                                                item_index_internal%3#0,item_index_internal%3#0 (copy)
+        int 4                                                                                 item_index_internal%3#0,item_index_internal%3#0 (copy),4
+        *                                                                                     item_index_internal%3#0,item_offset%4#0
+        // arc4_types/array.py:47
+        // static_uint32_array = StaticArray(UInt32(1), UInt32(10), UInt32(255), UInt32(128))
+        byte 0x000000010000000a000000ff00000080                                               item_index_internal%3#0,item_offset%4#0,0x000000010000000a000000ff00000080
+        // arc4_types/array.py:50
+        // total += uint32_item.native
+        l-load item_offset%4#0 1                                                              item_index_internal%3#0,0x000000010000000a000000ff00000080,item_offset%4#0
+        extract_uint32                                                                        item_index_internal%3#0,tmp%11#0
+        v-load total#0                                                                        item_index_internal%3#0,tmp%11#0,total#0
+        l-load tmp%11#0 1                                                                     item_index_internal%3#0,total#0,tmp%11#0
+        +                                                                                     item_index_internal%3#0,total#0
+        v-store total#0                                                                       item_index_internal%3#0
+        l-load item_index_internal%3#0 0                                                      item_index_internal%3#0
+        int 1                                                                                 item_index_internal%3#0,1
+        +                                                                                     item_index_internal%3#0
+        v-store item_index_internal%3#0
+        b main_for_header@16
+
+    main_after_for@19:
+        // arc4_types/array.py:52
+        // assert total == 4 + 1 + 10 + 255 + 128
+        v-load total#0                                                                        total#0
+        int 398                                                                               total#0,398
+        ==                                                                                    tmp%12#0
+        assert
+        // arc4_types/array.py:62
+        // result = String("")
+        byte ""                                                                               ""
+        v-store result#0
+        int 0                                                                                 item_index_internal%4#0
+        v-store index#0
+        b main_for_header@20
+
+    main_for_header@20:
+        // arc4_types/array.py:63
+        // for index, string_item in uenumerate(static_string_array):
+        v-load index#0                                                                        index#0
+        int 2                                                                                 index#0,2
+        <                                                                                     continue_looping%4#0
+        bz main_after_for@26 ; b main_for_body@21
+
+    main_for_body@21:
+        // arc4_types/array.py:63
+        // for index, string_item in uenumerate(static_string_array):
+        v-load index#0                                                                        index#0
+        l-store-copy index#0 0                                                                index#0,index#0 (copy)
+        int 2                                                                                 index#0,index#0 (copy),2
+        *                                                                                     index#0,item_offset_offset%2#0
+        // arc4_types/array.py:60
+        // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
+        byte 0x0004000a000450696e670004506f6e67                                               index#0,item_offset_offset%2#0,0x0004000a000450696e670004506f6e67
+        // arc4_types/array.py:63
+        // for index, string_item in uenumerate(static_string_array):
+        l-load item_offset_offset%2#0 1                                                       index#0,0x0004000a000450696e670004506f6e67,item_offset_offset%2#0
+        extract_uint16                                                                        index#0,item_offset%5#0
+        // arc4_types/array.py:60
+        // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
+        byte 0x0004000a000450696e670004506f6e67                                               index#0,item_offset%5#0,0x0004000a000450696e670004506f6e67
+        // arc4_types/array.py:63
+        // for index, string_item in uenumerate(static_string_array):
+        l-load-copy item_offset%5#0 1                                                         index#0,item_offset%5#0,0x0004000a000450696e670004506f6e67,item_offset%5#0 (copy)
+        extract_uint16                                                                        index#0,item_offset%5#0,item_length%2#0
+        int 2                                                                                 index#0,item_offset%5#0,item_length%2#0,2
+        +                                                                                     index#0,item_offset%5#0,item_head_tail_length%2#0
+        // arc4_types/array.py:60
+        // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
+        byte 0x0004000a000450696e670004506f6e67                                               index#0,item_offset%5#0,item_head_tail_length%2#0,0x0004000a000450696e670004506f6e67
+        // arc4_types/array.py:63
+        // for index, string_item in uenumerate(static_string_array):
+        l-load item_offset%5#0 2                                                              index#0,item_head_tail_length%2#0,0x0004000a000450696e670004506f6e67,item_offset%5#0
+        l-load item_head_tail_length%2#0 2                                                    index#0,0x0004000a000450696e670004506f6e67,item_offset%5#0,item_head_tail_length%2#0
+        extract3                                                                              index#0,string_item#0
+        v-store string_item#0                                                                 index#0
+        // arc4_types/array.py:64
+        // if index == 0:
+        l-load index#0 0                                                                      index#0
+        bz main_if_body@22 ; b main_else_body@23
+
+    main_if_body@22:
+        // arc4_types/array.py:65
+        // result = string_item.native
+        v-load string_item#0                                                                  string_item#0
+        extract 2 0                                                                           result#0
+        v-store result#0
+        b main_after_if_else@24
+
+    main_else_body@23:
+        // arc4_types/array.py:67
+        // result += " " + string_item.native
+        v-load string_item#0                                                                  string_item#0
+        extract 2 0                                                                           tmp%18#0
+        byte " "                                                                              tmp%18#0," "
+        l-load tmp%18#0 1                                                                     " ",tmp%18#0
+        concat                                                                                tmp%19#0
+        v-load result#0                                                                       tmp%19#0,result#0
+        l-load tmp%19#0 1                                                                     result#0,tmp%19#0
+        concat                                                                                result#0
+        v-store result#0
+        b main_after_if_else@24
+
+    main_after_if_else@24:
+        v-load index#0                                                                        index#0
+        int 1                                                                                 index#0,1
+        +                                                                                     item_index_internal%4#0
+        v-store index#0
+        b main_for_header@20
+
+    main_after_for@26:
+        // arc4_types/array.py:69
+        // assert result == "Ping Pong"
+        v-load result#0                                                                       result#0
+        byte "Ping Pong"                                                                      result#0,"Ping Pong"
+        ==                                                                                    tmp%20#0
+        assert
+        // arc4_types/array.py:73
+        // return True
+        int 1                                                                                 1
+        return
+
+

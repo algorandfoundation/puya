@@ -98,12 +98,12 @@ subroutine main:
         assert // can only call when not creating
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
-        txna ApplicationArgs 1                                                                        tmp%16#0
-        l-load tmp%16#0 0                                                                             tmp%16#0
-        extract 2 0                                                                                   tmp%17#0
+        txna ApplicationArgs 1                                                                        reinterpret_Encoded(len+utf8[])%0#0
+        l-load reinterpret_Encoded(len+utf8[])%0#0 0                                                  reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                                                                   tmp%16#0
         // compile/apps.py:91
         // @arc4.abimethod()
-        l-load tmp%17#0 0                                                                             tmp%17#0
+        l-load tmp%16#0 0                                                                             tmp%16#0
         callsub greet                                                                                 to_encode%1#0
         l-load-copy to_encode%1#0 0                                                                   to_encode%1#0,to_encode%1#0 (copy)
         len                                                                                           to_encode%1#0,length%0#0
@@ -116,8 +116,8 @@ subroutine main:
         concat                                                                                        encoded_value%0#0
         byte 0x151f7c75                                                                               encoded_value%0#0,0x151f7c75
         l-load encoded_value%0#0 1                                                                    0x151f7c75,encoded_value%0#0
-        concat                                                                                        tmp%18#0
-        l-load tmp%18#0 0                                                                             tmp%18#0
+        concat                                                                                        tmp%17#0
+        l-load tmp%17#0 0                                                                             tmp%17#0
         log
         int 1                                                                                         1
         l-store test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__%0#0 0                test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__%0#0
@@ -160,7 +160,7 @@ subroutine greet:
         l-load tmp%0#0 1                                                                              (𝕡) name#0 | tmp%2#0,tmp%0#0
         l-load tmp%2#0 1                                                                              (𝕡) name#0 | tmp%0#0,tmp%2#0
         int 1                                                                                         (𝕡) name#0 | tmp%0#0,tmp%2#0,1
-        extract3                                                                                      (𝕡) name#0 | num_alpha#0
+        extract3 // on error: Index access is out of bounds                                           (𝕡) name#0 | num_alpha#0
         // compile/apps.py:95
         // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
         int 0                                                                                         (𝕡) name#0 | num_alpha#0,0

@@ -3,7 +3,7 @@
 
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
 main:
-    intcblock 0 1 7 8
+    intcblock 0 1 7 12
     bytecblock 0x00 0x
 
 main_block@0:
@@ -222,6 +222,10 @@ main_block@0:
     assert
     // arc4_types/bool.py:35
     // assert static_boolean_array[0] == ARC4Bool(True), "Single boolean can be unpacked"
+    intc_0 // 0
+    intc_3 // 12
+    <
+    assert // Index access is out of bounds
     dup
     intc_0 // 0
     getbit
@@ -237,11 +241,11 @@ main_block@0:
     assert // Single boolean can be unpacked
     // arc4_types/bool.py:36
     // assert static_boolean_array[-1] == ARC4Bool(True), "Single boolean can be unpacked"
-    pushint 12 // 12
+    intc_3 // 12
     intc_1 // 1
     -
     dup
-    pushint 12 // 12
+    intc_3 // 12
     <
     assert // Index access is out of bounds
     getbit
@@ -340,7 +344,7 @@ main_block@0:
     swap
     concat
     pushint 5 // 5
-    intc_3 // 8
+    pushint 8 // 8
     callsub dynamic_array_concat_bits
     // arc4_types/bool.py:48
     // assert dynamic_boolean_array.bytes == Bytes.from_hex("0005A8")
@@ -422,14 +426,14 @@ dynamic_array_concat_bits_block@0:
     swap
     intc_2 // 7
     +
-    intc_3 // 8
+    pushint 8 // 8
     /
     dup
     cover 3
     swap
     intc_2 // 7
     +
-    intc_3 // 8
+    pushint 8 // 8
     /
     dup
     cover 3

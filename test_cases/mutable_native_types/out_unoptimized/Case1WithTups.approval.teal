@@ -41,6 +41,11 @@ create_box_block@0:
     box_get
     assert // check self.tup_bag exists
     txn Sender
+    dup
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     swap
     pushint 136 // 136
     uncover 2
@@ -113,19 +118,15 @@ add_tup_block@0:
     intc_1 // 8
     intc 4 // 128
     extract3 // on error: Index access is out of bounds
-    // mutable_native_types/case1_with_tups.py:46
-    // def add_tup(self, tup: NamedTup) -> None:
     frame_dig -2
     itob
-    frame_dig -1
-    itob
-    swap
-    // mutable_native_types/case1_with_tups.py:49
-    // self.tup_bag.value.items[self.tup_bag.value.count] = tup
     bytec_1 // 0x
     swap
     concat
-    swap
+    frame_dig -1
+    itob
+    concat
+    bytec_1 // 0x
     concat
     bytec_0 // "tup_bag"
     box_get
@@ -206,7 +207,7 @@ get_tup_block@0:
     intc_2 // 16
     *
     intc_2 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     intc_0 // 0
     intc_1 // 8
@@ -265,7 +266,7 @@ sum_for_body@2:
     intc_2 // 16
     *
     intc_2 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     intc_0 // 0
     intc_1 // 8
@@ -380,10 +381,11 @@ add_fixed_tups_for_header@1:
 add_fixed_tups_for_body@2:
     // mutable_native_types/case1_with_tups.py:73
     // for tup in tups:
-    frame_dig -1
     frame_dig 0
     intc_2 // 16
     *
+    frame_dig -1
+    swap
     intc_2 // 16
     extract3 // on error: Index access is out of bounds
     dup
@@ -458,7 +460,7 @@ set_a_for_body@2:
     intc_2 // 16
     *
     intc_2 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     intc_1 // 8
     dup
     extract3 // on error: Index access is out of bounds
@@ -475,17 +477,13 @@ set_a_for_body@2:
     swap
     frame_dig -1
     itob
-    // mutable_native_types/case1_with_tups.py:80
-    // tup = self.tup_bag.value.items[i]
-    uncover 3
-    itob
-    swap
-    // mutable_native_types/case1_with_tups.py:81
-    // self.tup_bag.value.items[i] = tup._replace(a=a)
     bytec_1 // 0x
     swap
     concat
-    swap
+    uncover 3
+    itob
+    concat
+    bytec_1 // 0x
     concat
     dig 3
     intc_1 // 8
@@ -566,7 +564,7 @@ set_b_for_body@2:
     intc_2 // 16
     *
     intc_2 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     intc_0 // 0
     intc_1 // 8
     extract3 // on error: Index access is out of bounds
@@ -581,19 +579,15 @@ set_b_for_body@2:
     intc 4 // 128
     extract3 // on error: Index access is out of bounds
     swap
-    // mutable_native_types/case1_with_tups.py:87
-    // tup = self.tup_bag.value.items[i]
     uncover 2
     itob
-    // mutable_native_types/case1_with_tups.py:88
-    // self.tup_bag.value.items[i] = tup._replace(b=b)
-    frame_dig -1
-    itob
-    swap
     bytec_1 // 0x
     swap
     concat
-    swap
+    frame_dig -1
+    itob
+    concat
+    bytec_1 // 0x
     concat
     dig 3
     intc_1 // 8
@@ -659,12 +653,13 @@ get_3_tups_block@0:
     extract3 // on error: Index access is out of bounds
     // mutable_native_types/case1_with_tups.py:97
     // items[start],
-    dup
     frame_dig -1
     intc_2 // 16
     *
+    dig 1
+    swap
     intc_2 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     intc_0 // 0
     intc_1 // 8
@@ -681,12 +676,12 @@ get_3_tups_block@0:
     frame_dig -1
     intc_3 // 1
     +
+    intc_2 // 16
+    *
     dig 1
     swap
     intc_2 // 16
-    *
-    intc_2 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     intc_0 // 0
     intc_1 // 8
@@ -706,7 +701,7 @@ get_3_tups_block@0:
     intc_2 // 16
     *
     intc_2 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     intc_0 // 0
     intc_1 // 8
@@ -717,42 +712,6 @@ get_3_tups_block@0:
     dup
     extract3 // on error: Index access is out of bounds
     btoi
-    // mutable_native_types/case1_with_tups.py:97
-    // items[start],
-    uncover 5
-    itob
-    uncover 5
-    itob
-    swap
-    bytec_1 // 0x
-    swap
-    concat
-    swap
-    concat
-    // mutable_native_types/case1_with_tups.py:98
-    // items[start + 1],
-    uncover 4
-    itob
-    uncover 4
-    itob
-    swap
-    bytec_1 // 0x
-    swap
-    concat
-    swap
-    concat
-    // mutable_native_types/case1_with_tups.py:99
-    // items[start + 2],
-    uncover 3
-    itob
-    uncover 3
-    itob
-    swap
-    bytec_1 // 0x
-    swap
-    concat
-    swap
-    concat
     // mutable_native_types/case1_with_tups.py:95-101
     // return FixedArray[NamedTup, typing.Literal[3]](
     //     (
@@ -761,15 +720,42 @@ get_3_tups_block@0:
     //         items[start + 2],
     //     )
     // )
+    uncover 5
+    itob
     bytec_1 // 0x
-    uncover 3
+    swap
+    concat
+    uncover 5
+    itob
+    concat
+    bytec_1 // 0x
+    concat
+    bytec_1 // 0x
+    swap
+    concat
+    uncover 4
+    itob
+    bytec_1 // 0x
+    swap
+    concat
+    uncover 4
+    itob
+    concat
+    bytec_1 // 0x
+    concat
     concat
     uncover 2
-    concat
-    swap
-    concat
+    itob
     bytec_1 // 0x
     swap
+    concat
+    uncover 2
+    itob
+    concat
+    bytec_1 // 0x
+    concat
+    concat
+    bytec_1 // 0x
     concat
     retsub
 
@@ -823,12 +809,13 @@ get_all_tups_for_body@2:
     // result.append(items[i])
     frame_dig 0
     extract 2 0
-    frame_dig 1
     frame_dig 3
     intc_2 // 16
     *
+    frame_dig 1
+    swap
     intc_2 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     intc_0 // 0
     intc_1 // 8
@@ -848,7 +835,11 @@ get_all_tups_for_body@2:
     itob
     concat
     bytec_1 // 0x
+    concat
+    bytec_1 // 0x
     swap
+    concat
+    bytec_1 // 0x
     concat
     concat
     dup
@@ -1120,13 +1111,13 @@ approval_program_get_tup_route@6:
     callsub get_tup
     swap
     itob
-    swap
-    itob
-    swap
     bytec_1 // 0x
     swap
     concat
     swap
+    itob
+    concat
+    bytec_1 // 0x
     concat
     bytec_2 // 0x151f7c75
     swap

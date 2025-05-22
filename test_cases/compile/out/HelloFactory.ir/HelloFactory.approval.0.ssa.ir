@@ -18,7 +18,7 @@ subroutine test_cases.compile.factory.HelloFactory.__puya_arc4_router__() -> boo
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let tmp%7#0: bytes[32] = test_cases.compile.factory.HelloFactory.test_logicsig()
+        let tmp%7#0: Encoded(uint8[32]) = test_cases.compile.factory.HelloFactory.test_logicsig()
         let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
         (log tmp%8#0)
         return 1u
@@ -150,10 +150,10 @@ subroutine test_cases.compile.factory.HelloFactory.__puya_arc4_router__() -> boo
     block@21: // after_if_else_L25
         return 0u
 
-subroutine test_cases.compile.factory.HelloFactory.test_logicsig() -> bytes[32]:
+subroutine test_cases.compile.factory.HelloFactory.test_logicsig() -> Encoded(uint8[32]):
     block@0: // L26
-        let reinterpret_bytes[32]%0#0: bytes[32] = compiled_logicsig('test_cases.compile.apps.always_approve_sig')
-        return reinterpret_bytes[32]%0#0
+        let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = compiled_logicsig('test_cases.compile.apps.always_approve_sig')
+        return reinterpret_Encoded(uint8[32])%0#0
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> void:
     block@0: // L30
@@ -362,11 +362,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         let txn.StateProofPK#0: bytes = itxn[txn#0].StateProofPK
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
-        let tmp%0#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let tmp%0#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%0#0
+        let result#0: Encoded(len+utf8[]) = tmp%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -439,7 +439,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() -> void:
     block@0: // L61
-        let greeting#0: bytes = "hey"
+        let greeting#0: string = "hey"
         let (compiled.approval_program.0#0: bytes, compiled.approval_program.1#0: bytes, compiled.clear_state_program.0#0: bytes, compiled.clear_state_program.1#0: bytes, compiled.extra_program_pages#0: uint64, compiled.global_uints#0: uint64, compiled.global_bytes#0: uint64, compiled.local_uints#0: uint64, compiled.local_bytes#0: uint64) = (compiled_contract('test_cases.compile.apps.HelloTmpl', field=ApprovalProgramPages, program_page=0, GREETING=greeting#0), compiled_contract('test_cases.compile.apps.HelloTmpl', field=ApprovalProgramPages, program_page=1, GREETING=greeting#0), compiled_contract('test_cases.compile.apps.HelloTmpl', field=ClearStateProgramPages, program_page=0, GREETING=greeting#0), compiled_contract('test_cases.compile.apps.HelloTmpl', field=ClearStateProgramPages, program_page=1, GREETING=greeting#0), compiled_contract('test_cases.compile.apps.HelloTmpl', field=ExtraProgramPages, program_page=None, GREETING=greeting#0), compiled_contract('test_cases.compile.apps.HelloTmpl', field=GlobalNumUint, program_page=None, GREETING=greeting#0), compiled_contract('test_cases.compile.apps.HelloTmpl', field=GlobalNumByteSlice, program_page=None, GREETING=greeting#0), compiled_contract('test_cases.compile.apps.HelloTmpl', field=LocalNumUint, program_page=None, GREETING=greeting#0), compiled_contract('test_cases.compile.apps.HelloTmpl', field=LocalNumByteSlice, program_page=None, GREETING=greeting#0))
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)
@@ -649,11 +649,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         let txn.StateProofPK#0: bytes = itxn[txn#0].StateProofPK
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
-        let tmp%0#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let tmp%0#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%0#0
+        let result#0: Encoded(len+utf8[]) = tmp%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -929,11 +929,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         let txn.StateProofPK#0: bytes = itxn[txn#0].StateProofPK
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
-        let tmp%0#0: bytes = ((extract 4 0) txn.LastLog#0)
+        let tmp%0#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = tmp%0#0
+        let result#0: Encoded(len+utf8[]) = tmp%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -1207,11 +1207,11 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         let txn.StateProofPK#0: bytes = itxn[txn#0].StateProofPK
         let txn.NumApprovalProgramPages#0: uint64 = itxn[txn#0].NumApprovalProgramPages
         let txn.NumClearStateProgramPages#0: uint64 = itxn[txn#0].NumClearStateProgramPages
-        let tmp%0#0: bytes[8] = ((extract 4 0) txn.LastLog#0)
+        let tmp%0#0: Encoded(uint64) = ((extract 4 0) txn.LastLog#0)
         let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes[8] = tmp%0#0
+        let result#0: Encoded(uint64) = tmp%0#0
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
         let inner_txn_params%2%%param_Fee_idx_0#0: uint64 = 0u
@@ -1436,12 +1436,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
     block@2: // next_txn_L166
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
         let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
-        let result#0: bytes = tmp%3#0
+        let result#0: string = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
         let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
@@ -1726,12 +1726,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
     block@2: // next_txn_L187
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
         let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
-        let result#0: bytes = tmp%3#0
+        let result#0: string = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
         let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
@@ -2016,12 +2016,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
     block@2: // next_txn_L210
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
         let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
-        let result#0: bytes = tmp%3#0
+        let result#0: string = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
         let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
@@ -2301,7 +2301,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
     block@2: // next_txn_L227
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -2614,12 +2614,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
     block@2: // next_txn_L256
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%4#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tmp%4#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
         let tmp%5#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return
         let tmp%7#0: bytes = ((extract 2 0) tmp%4#0)
-        let result#0: bytes = tmp%7#0
+        let result#0: string = tmp%7#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
         let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
@@ -2903,12 +2903,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
     block@2: // next_txn_L280
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
         let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
-        let result#0: bytes = tmp%3#0
+        let result#0: string = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
         let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender
@@ -3113,12 +3113,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
     block@4: // next_txn_L287
         itxn_submit
         let awst_tmp%1#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%5#0: bytes = ((extract 4 0) awst_tmp%1#0)
+        let tmp%5#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%1#0)
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
         (assert tmp%7#0) // application log value is not the result of an ABI return
         let tmp%8#0: bytes = ((extract 2 0) tmp%5#0)
-        let result#1: bytes = tmp%8#0
+        let result#1: string = tmp%8#0
         let _txn#1: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#1: bool = 1u
         let _txn.Sender#1: bytes[32] = itxn[_txn#1].Sender
@@ -3402,7 +3402,7 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
     block@2: // next_txn_L314
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: Encoded(len+uint8[]) = ((extract 4 0) awst_tmp%0#0)
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
@@ -3701,12 +3701,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params()
     block@2: // next_txn_L338
         itxn_submit
         let awst_tmp%0#0: bytes = itxn[itxn_group_idx(0)].LastLog
-        let tmp%0#0: bytes = ((extract 4 0) awst_tmp%0#0)
+        let tmp%0#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
         let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
         let tmp%3#0: bytes = ((extract 2 0) tmp%0#0)
-        let result#0: bytes = tmp%3#0
+        let result#0: string = tmp%3#0
         let _txn#0: itxn_group_idx = itxn_group_idx(0)
         let _txn._is_last#0: bool = 1u
         let _txn.Sender#0: bytes[32] = itxn[_txn#0].Sender

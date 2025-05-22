@@ -664,15 +664,16 @@ test_static_elements_block@0:
     bytec_0 // 0x
     swap
     concat
+    swap
     // arc4_dynamic_arrays/contract.py:44
     // struct1 = StaticStruct(get_uint1(), byte_array1.copy())
     callsub get_uint1
-    uncover 2
-    swap
     bytec_0 // 0x
     swap
     concat
     swap
+    concat
+    bytec_0 // 0x
     concat
     // arc4_dynamic_arrays/contract.py:45
     // struct2 = StaticStruct(get_uint2(), byte_array2.copy())
@@ -683,6 +684,8 @@ test_static_elements_block@0:
     swap
     concat
     swap
+    concat
+    bytec_0 // 0x
     concat
     swap
     // arc4_dynamic_arrays/contract.py:46
@@ -721,7 +724,7 @@ test_static_elements_block@0:
     pushint 10 // 10
     *
     pushint 10 // 10
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     log
     // arc4_dynamic_arrays/contract.py:50
     // log(array[1])
@@ -731,7 +734,7 @@ test_static_elements_block@0:
     pushint 10 // 10
     *
     pushint 10 // 10
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     log
     // arc4_dynamic_arrays/contract.py:52
     // assert array.pop() == struct2
@@ -760,23 +763,26 @@ test_dynamic_elements_block@0:
     callsub get_string1
     callsub get_string2
     swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
+    len
+    intc_3 // 4
+    +
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    swap
-    dup
-    len
-    intc_3 // 4
-    +
-    itob
-    extract 6 2
     uncover 2
-    swap
+    uncover 3
     concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     swap
     concat
@@ -785,23 +791,26 @@ test_dynamic_elements_block@0:
     callsub get_string3
     callsub get_string1
     swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
+    len
+    intc_3 // 4
+    +
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    swap
-    dup
-    len
-    intc_3 // 4
-    +
-    itob
-    extract 6 2
     uncover 2
-    swap
+    uncover 3
     concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     swap
     concat
@@ -846,11 +855,8 @@ test_dynamic_elements_block@0:
     dig 1
     intc_0 // 0
     extract_uint16
-    swap
     uncover 2
     extract 2 0
-    uncover 2
-    swap
     intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
@@ -882,7 +888,7 @@ test_dynamic_elements_block@0:
     +
     swap
     dig 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     swap
     dig 2
     len
@@ -920,7 +926,7 @@ test_dynamic_elements_block@0:
     +
     swap
     dig 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     swap
     dig 2
     len
@@ -958,7 +964,7 @@ test_dynamic_elements_block@0:
     +
     swap
     dig 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     swap
     dig 2
     len
@@ -1022,15 +1028,20 @@ test_mixed_single_dynamic_elements_block@0:
     callsub get_string1
     swap
     callsub get_uint2
+    cover 2
+    bytec_0 // 0x
+    swap
+    concat
     swap
     bytec_0 // 0x
     swap
     concat
+    swap
     pushint 18 // 18
     itob
     extract 6 2
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
@@ -1040,15 +1051,20 @@ test_mixed_single_dynamic_elements_block@0:
     callsub get_string2
     swap
     callsub get_uint1
+    cover 2
+    bytec_0 // 0x
+    swap
+    concat
     swap
     bytec_0 // 0x
     swap
     concat
+    swap
     pushint 18 // 18
     itob
     extract 6 2
     concat
-    swap
+    uncover 2
     concat
     swap
     concat
@@ -1072,11 +1088,8 @@ test_mixed_single_dynamic_elements_block@0:
     dig 2
     intc_0 // 0
     extract_uint16
-    swap
     uncover 3
     extract 2 0
-    uncover 2
-    swap
     intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
@@ -1094,11 +1107,8 @@ test_mixed_single_dynamic_elements_block@0:
     dig 1
     intc_0 // 0
     extract_uint16
-    swap
     uncover 2
     extract 2 0
-    uncover 2
-    swap
     intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
@@ -1130,7 +1140,7 @@ test_mixed_single_dynamic_elements_block@0:
     +
     swap
     dig 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     swap
     dig 2
     len
@@ -1168,7 +1178,7 @@ test_mixed_single_dynamic_elements_block@0:
     +
     swap
     dig 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     swap
     dig 2
     len
@@ -1217,7 +1227,7 @@ test_mixed_multiple_dynamic_elements_block@0:
     callsub get_u16_arr1
     cover 3
     callsub get_uint1
-    cover 3
+    cover 4
     // arc4_dynamic_arrays/contract.py:91-93
     // struct1 = MixedMultipleStruct(
     //     get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
@@ -1225,24 +1235,30 @@ test_mixed_multiple_dynamic_elements_block@0:
     bytec_0 // 0x
     swap
     concat
-    pushint 28 // 28
-    itob
-    extract 6 2
-    concat
+    swap
+    bytec_0 // 0x
     dig 1
+    concat
+    cover 2
     len
     pushint 28 // 28
     +
     swap
+    pushint 28 // 28
+    itob
+    extract 6 2
+    concat
+    uncover 3
+    concat
+    uncover 2
     uncover 3
     concat
     swap
+    uncover 2
     itob
     extract 6 2
     concat
     uncover 2
-    concat
-    swap
     concat
     swap
     concat
@@ -1256,7 +1272,7 @@ test_mixed_multiple_dynamic_elements_block@0:
     callsub get_u16_arr2
     cover 3
     callsub get_uint2
-    cover 3
+    cover 4
     // arc4_dynamic_arrays/contract.py:94-96
     // struct2 = MixedMultipleStruct(
     //     get_uint2(), get_string2(), get_uint1(), get_u16_arr2(), get_uint2()
@@ -1264,24 +1280,30 @@ test_mixed_multiple_dynamic_elements_block@0:
     bytec_0 // 0x
     swap
     concat
-    pushint 28 // 28
-    itob
-    extract 6 2
-    concat
+    swap
+    bytec_0 // 0x
     dig 1
+    concat
+    cover 2
     len
     pushint 28 // 28
     +
     swap
+    pushint 28 // 28
+    itob
+    extract 6 2
+    concat
+    uncover 3
+    concat
+    uncover 2
     uncover 3
     concat
     swap
+    uncover 2
     itob
     extract 6 2
     concat
     uncover 2
-    concat
-    swap
     concat
     swap
     concat
@@ -1342,7 +1364,7 @@ test_mixed_multiple_dynamic_elements_block@0:
     +
     swap
     dig 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     swap
     dig 2
     len
@@ -1380,7 +1402,7 @@ test_mixed_multiple_dynamic_elements_block@0:
     +
     swap
     dig 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     swap
     dig 2
     len
@@ -1438,28 +1460,33 @@ test_nested_struct_replacement_block@0:
     concat
     swap
     concat
+    bytec_0 // 0x
+    concat
     // arc4_dynamic_arrays/contract.py:109
     // two = DynamicStruct(get_string1(), get_string2())
     callsub get_string1
     callsub get_string2
     swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
+    len
+    intc_3 // 4
+    +
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    swap
-    dup
-    len
-    intc_3 // 4
-    +
-    itob
-    extract 6 2
     uncover 2
-    swap
+    uncover 3
     concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     swap
     concat
@@ -1482,6 +1509,8 @@ test_nested_struct_replacement_block@0:
     concat
     swap
     concat
+    bytec_0 // 0x
+    concat
     // arc4_dynamic_arrays/contract.py:112
     // get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
     callsub get_uint1
@@ -1492,7 +1521,7 @@ test_nested_struct_replacement_block@0:
     callsub get_u16_arr1
     cover 3
     callsub get_uint1
-    cover 3
+    cover 4
     // arc4_dynamic_arrays/contract.py:111-113
     // four = MixedMultipleStruct(
     //     get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
@@ -1500,24 +1529,30 @@ test_nested_struct_replacement_block@0:
     bytec_0 // 0x
     swap
     concat
-    pushint 28 // 28
-    itob
-    extract 6 2
-    concat
+    swap
+    bytec_0 // 0x
     dig 1
+    concat
+    cover 2
     len
     pushint 28 // 28
     +
     swap
+    pushint 28 // 28
+    itob
+    extract 6 2
+    concat
+    uncover 3
+    concat
+    uncover 2
     uncover 3
     concat
     swap
+    uncover 2
     itob
     extract 6 2
     concat
     uncover 2
-    concat
-    swap
     concat
     swap
     concat
@@ -1526,23 +1561,26 @@ test_nested_struct_replacement_block@0:
     callsub get_string1
     callsub get_string2
     swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
+    len
+    intc_3 // 4
+    +
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    swap
-    dup
-    len
-    intc_3 // 4
-    +
-    itob
-    extract 6 2
     uncover 2
-    swap
+    uncover 3
     concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     swap
     concat
@@ -1577,36 +1615,46 @@ test_nested_struct_replacement_block@0:
     bytec_0 // 0x
     uncover 2
     concat
+    swap
+    bytec_0 // 0x
+    dig 3
+    concat
+    cover 2
+    uncover 3
+    len
+    pushint 26 // 26
+    +
+    cover 2
     pushint 26 // 26
     itob
     extract 6 2
+    uncover 2
+    swap
     concat
-    dig 2
+    uncover 4
+    concat
+    uncover 3
+    dig 5
+    concat
+    cover 2
+    uncover 5
     len
-    pushint 26 // 26
+    dig 4
     +
     swap
     uncover 4
-    concat
-    swap
-    dup
     itob
     extract 6 2
-    uncover 2
-    swap
-    concat
-    swap
-    dig 5
-    len
-    +
-    itob
-    extract 6 2
-    concat
-    uncover 2
     concat
     uncover 3
+    uncover 4
     concat
+    swap
     uncover 2
+    itob
+    extract 6 2
+    concat
+    swap
     concat
     cover 5
     // arc4_dynamic_arrays/contract.py:123
@@ -1617,23 +1665,26 @@ test_nested_struct_replacement_block@0:
     callsub get_string2
     callsub get_string1
     swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
+    len
+    intc_3 // 4
+    +
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    swap
-    dup
-    len
-    intc_3 // 4
-    +
-    itob
-    extract 6 2
     uncover 2
-    swap
+    uncover 3
     concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     swap
     concat
@@ -1656,34 +1707,41 @@ test_nested_struct_replacement_block@0:
     bytec_0 // 0x
     uncover 4
     concat
+    swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    cover 2
+    len
+    pushint 26 // 26
+    +
+    cover 2
     pushint 26 // 26
     itob
     extract 6 2
     concat
-    dig 1
-    len
-    pushint 26 // 26
-    +
-    swap
     uncover 3
     concat
     swap
-    dup
-    itob
-    extract 6 2
-    uncover 2
-    swap
-    concat
-    swap
     dig 3
+    concat
+    cover 2
+    uncover 3
     len
+    dig 2
     +
+    swap
+    uncover 2
     itob
     extract 6 2
     concat
-    swap
+    uncover 2
+    uncover 3
     concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     swap
     concat
@@ -1775,28 +1833,33 @@ test_nested_tuple_modification_block@0:
     concat
     swap
     concat
+    bytec_0 // 0x
+    concat
     // arc4_dynamic_arrays/contract.py:136
     // two = DynamicStruct(get_string1(), get_string2())
     callsub get_string1
     callsub get_string2
     swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
+    len
+    intc_3 // 4
+    +
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    swap
-    dup
-    len
-    intc_3 // 4
-    +
-    itob
-    extract 6 2
     uncover 2
-    swap
+    uncover 3
     concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     swap
     concat
@@ -1819,6 +1882,8 @@ test_nested_tuple_modification_block@0:
     concat
     swap
     concat
+    bytec_0 // 0x
+    concat
     // arc4_dynamic_arrays/contract.py:139
     // get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
     callsub get_uint1
@@ -1829,7 +1894,7 @@ test_nested_tuple_modification_block@0:
     callsub get_u16_arr1
     cover 3
     callsub get_uint1
-    cover 3
+    cover 4
     // arc4_dynamic_arrays/contract.py:138-140
     // four1 = MixedMultipleStruct(
     //     get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
@@ -1837,24 +1902,30 @@ test_nested_tuple_modification_block@0:
     bytec_0 // 0x
     swap
     concat
-    pushint 28 // 28
-    itob
-    extract 6 2
-    concat
+    swap
+    bytec_0 // 0x
     dig 1
+    concat
+    cover 2
     len
     pushint 28 // 28
     +
     swap
+    pushint 28 // 28
+    itob
+    extract 6 2
+    concat
+    uncover 3
+    concat
+    uncover 2
     uncover 3
     concat
     swap
+    uncover 2
     itob
     extract 6 2
     concat
     uncover 2
-    concat
-    swap
     concat
     swap
     concat
@@ -1877,7 +1948,6 @@ test_nested_tuple_modification_block@0:
     pushbytes 0x007b
     concat
     bytec_0 // 0x
-    swap
     concat
     concat
     dup
@@ -1888,10 +1958,10 @@ test_nested_tuple_modification_block@0:
     extract 6 2
     swap
     concat
-    swap
     // arc4_dynamic_arrays/contract.py:146
     // get_uint1(),
     callsub get_uint1
+    cover 3
     // arc4_dynamic_arrays/contract.py:141-147
     // four2 = MixedMultipleStruct(
     //     get_uint1(),
@@ -1903,22 +1973,28 @@ test_nested_tuple_modification_block@0:
     bytec_0 // 0x
     uncover 2
     concat
-    pushint 28 // 28
-    itob
-    extract 6 2
-    concat
+    bytec_0 // 0x
     dig 3
+    concat
+    cover 2
+    uncover 3
     len
     pushint 28 // 28
     +
     swap
-    uncover 5
-    concat
-    swap
+    pushint 28 // 28
     itob
     extract 6 2
     concat
+    uncover 5
+    concat
+    uncover 3
+    uncover 3
+    concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     uncover 2
     concat
@@ -1929,23 +2005,26 @@ test_nested_tuple_modification_block@0:
     callsub get_string1
     callsub get_string2
     swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
+    len
+    intc_3 // 4
+    +
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    swap
-    dup
-    len
-    intc_3 // 4
-    +
-    itob
-    extract 6 2
     uncover 2
-    swap
+    uncover 3
     concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     swap
     concat
@@ -1982,36 +2061,46 @@ test_nested_tuple_modification_block@0:
     bytec_0 // 0x
     uncover 2
     concat
+    swap
+    bytec_0 // 0x
+    dig 3
+    concat
+    cover 2
+    uncover 3
+    len
+    pushint 26 // 26
+    +
+    cover 2
     pushint 26 // 26
     itob
     extract 6 2
+    uncover 2
+    swap
     concat
-    dig 2
+    uncover 4
+    concat
+    uncover 3
+    dig 5
+    concat
+    cover 2
+    uncover 5
     len
-    pushint 26 // 26
+    dig 4
     +
     swap
     uncover 4
-    concat
-    swap
-    dup
     itob
     extract 6 2
-    uncover 2
-    swap
-    concat
-    swap
-    dig 5
-    len
-    +
-    itob
-    extract 6 2
-    concat
-    uncover 2
     concat
     uncover 3
+    uncover 4
     concat
+    swap
     uncover 2
+    itob
+    extract 6 2
+    concat
+    swap
     concat
     cover 5
     // arc4_dynamic_arrays/contract.py:160
@@ -2042,34 +2131,41 @@ test_nested_tuple_modification_block@0:
     bytec_0 // 0x
     swap
     concat
+    swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    cover 2
+    len
+    pushint 26 // 26
+    +
+    cover 2
     pushint 26 // 26
     itob
     extract 6 2
     concat
-    dig 1
-    len
-    pushint 26 // 26
-    +
-    swap
     uncover 3
     concat
     swap
-    dup
-    itob
-    extract 6 2
-    uncover 2
-    swap
-    concat
-    swap
     dig 3
+    concat
+    cover 2
+    uncover 3
     len
+    dig 2
     +
+    swap
+    uncover 2
     itob
     extract 6 2
     concat
-    swap
+    uncover 2
+    uncover 3
     concat
     swap
+    uncover 2
+    itob
+    extract 6 2
     concat
     swap
     concat
@@ -2099,11 +2195,12 @@ test_nested_tuple_modification_block@0:
     substring3
     intc_1 // 2
     callsub dynamic_array_pop_fixed_size
-    bury 1
-    dig 1
+    cover 2
+    pop
+    dup
     pushint 18 // 18
     extract_uint16
-    uncover 2
+    swap
     intc_0 // 0
     uncover 2
     extract3

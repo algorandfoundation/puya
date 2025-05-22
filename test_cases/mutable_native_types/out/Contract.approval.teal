@@ -4,7 +4,7 @@
 // test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 48
-    bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" 0x0000 "box_map"
+    bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map"
     txn ApplicationID
     bnz main_after_if_else@2
     // mutable_native_types/contract.py:69
@@ -36,11 +36,6 @@ main:
     txn NumAppArgs
     intc_1 // 1
     +
-    swap
-    itob
-    swap
-    itob
-    concat
     // mutable_native_types/contract.py:67-72
     // # storage
     // self.nested = NestedStruct(
@@ -48,9 +43,14 @@ main:
     //     FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
     //     NamedTup(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
     // )
-    cover 2
+    uncover 3
+    uncover 3
     concat
-    swap
+    uncover 2
+    itob
+    uncover 2
+    itob
+    concat
     concat
     // mutable_native_types/contract.py:67-68
     // # storage
@@ -71,11 +71,6 @@ main:
     // mutable_native_types/contract.py:79
     // a=Txn.num_app_args,
     dup
-    itob
-    // mutable_native_types/contract.py:80
-    // b=Txn.num_app_args,
-    swap
-    itob
     // mutable_native_types/contract.py:78-84
     // self.dyn = DynamicStruct(
     //     a=Txn.num_app_args,
@@ -84,6 +79,9 @@ main:
     //     d=String(),
     //     e=NativeArray[arc4.Byte](),
     // )
+    itob
+    swap
+    itob
     concat
     pushbytes 0x0016
     concat
@@ -91,41 +89,7 @@ main:
     concat
     pushbytes 0x001a
     concat
-    // mutable_native_types/contract.py:81
-    // c=Bytes(),
-    bytec 7 // 0x0000
-    // mutable_native_types/contract.py:78-84
-    // self.dyn = DynamicStruct(
-    //     a=Txn.num_app_args,
-    //     b=Txn.num_app_args,
-    //     c=Bytes(),
-    //     d=String(),
-    //     e=NativeArray[arc4.Byte](),
-    // )
-    concat
-    // mutable_native_types/contract.py:82
-    // d=String(),
-    bytec 7 // 0x0000
-    // mutable_native_types/contract.py:78-84
-    // self.dyn = DynamicStruct(
-    //     a=Txn.num_app_args,
-    //     b=Txn.num_app_args,
-    //     c=Bytes(),
-    //     d=String(),
-    //     e=NativeArray[arc4.Byte](),
-    // )
-    concat
-    // mutable_native_types/contract.py:83
-    // e=NativeArray[arc4.Byte](),
-    bytec 7 // 0x0000
-    // mutable_native_types/contract.py:78-84
-    // self.dyn = DynamicStruct(
-    //     a=Txn.num_app_args,
-    //     b=Txn.num_app_args,
-    //     c=Bytes(),
-    //     d=String(),
-    //     e=NativeArray[arc4.Byte](),
-    // )
+    pushbytes 0x000000000000
     concat
     // mutable_native_types/contract.py:78
     // self.dyn = DynamicStruct(
@@ -433,7 +397,7 @@ increment_payment:
     *
     dup2
     intc_3 // 48
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     pushint 40 // 40
     extract_uint64
@@ -488,7 +452,7 @@ create_storage:
     extract 0 16 // on error: Index access is out of bounds
     frame_dig -1
     itob
-    bytec 8 // "box_map"
+    bytec 7 // "box_map"
     swap
     concat
     dup
@@ -507,11 +471,9 @@ local_struct:
     txn Sender
     pushint 1234 // 1234
     itob
+    concat
     pushint 567 // 567
     itob
-    cover 2
-    concat
-    swap
     concat
     // mutable_native_types/contract.py:130-132
     // # python equivalent to typescript destructuring e.g.
@@ -570,7 +532,7 @@ delete_storage:
     // del self.box_map[box_key]
     frame_dig -1
     itob
-    bytec 8 // "box_map"
+    bytec 7 // "box_map"
     swap
     concat
     box_del
@@ -633,7 +595,7 @@ struct_arg:
     // self.box_map[box_key].fixed_a = a
     frame_dig -2
     itob
-    bytec 8 // "box_map"
+    bytec 7 // "box_map"
     swap
     concat
     dup

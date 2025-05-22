@@ -143,9 +143,6 @@ main_for_header@30:
     cover 2
     intc_2 // 8
     *
-    intc_2 // 8
-    extract3
-    intc_0 // 0
     extract_uint64
     dig 2
     +
@@ -226,7 +223,6 @@ main_for_header@24:
     *
     intc_2 // 8
     extract3
-    extract 0 8
     bytec_2 // 0x
     b!=
     dig 12
@@ -292,9 +288,9 @@ main_for_header@12:
     %
     !
     bytec_3 // 0x00
-    pushbytes 0x80
+    intc_0 // 0
     uncover 2
-    select
+    setbit
     dig 19
     swap
     concat // on error: max array length exceeded
@@ -405,8 +401,7 @@ main_test_extend_from_tuple_route@9:
     dig 2
     swap
     intc_3 // 16
-    extract3
-    extract 0 16
+    extract3 // on error: index access is out of bounds
     dup
     uncover 4
     ==
@@ -427,7 +422,7 @@ main_test_extend_from_tuple_route@9:
     intc_3 // 16
     *
     intc_3 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     uncover 2
     ==
     assert
@@ -458,12 +453,14 @@ main_test_array_route@5:
     callsub xtra
     uncover 14
     itob
-    pushbytes 0x00000000000000000000000000000000
-    swap
-    concat
     uncover 14
     itob
     concat
+    dig 13
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     uncover 13
     concat
     uncover 12
@@ -472,13 +469,16 @@ main_test_array_route@5:
     len
     pushint 64 // 64
     <=
-    assert // value is bigger than 64 bytes
+    assert // overflow
     pushint 64 // 64
     bzero
     uncover 12
     dig 1
     b|
     uncover 2
+    swap
+    concat
+    pushbytes 0x00000000000000000000000000000000
     swap
     concat
     uncover 14
@@ -488,22 +488,27 @@ main_test_array_route@5:
     concat
     uncover 12
     itob
-    concat
-    uncover 11
+    uncover 12
     itob
+    concat
+    dig 11
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    uncover 11
     concat
     uncover 10
     concat
-    uncover 9
-    concat
-    dig 8
+    dig 9
     len
     pushint 64 // 64
     <=
-    assert // value is bigger than 64 bytes
-    uncover 8
-    dig 3
+    assert // overflow
+    uncover 9
+    dig 4
     b|
+    concat
     concat
     concat
     uncover 7
@@ -513,22 +518,27 @@ main_test_array_route@5:
     concat
     uncover 7
     itob
-    concat
-    uncover 6
+    uncover 7
     itob
+    concat
+    dig 6
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    uncover 6
     concat
     uncover 5
     concat
-    uncover 4
-    concat
-    dig 3
+    dig 4
     len
     pushint 64 // 64
     <=
-    assert // value is bigger than 64 bytes
-    uncover 3
-    uncover 3
+    assert // overflow
+    uncover 4
+    uncover 4
     b|
+    concat
     concat
     concat
     bury 19
@@ -547,9 +557,10 @@ main_for_header@6:
     intc 4 // 144
     *
     intc 4 // 144
-    extract3
+    extract3 // on error: index access is out of bounds
+    extract 16 128 // on error: Index access is out of bounds
     dup
-    pushint 24 // 24
+    intc_2 // 8
     extract_uint64
     dig 2
     intc_1 // 1
@@ -559,7 +570,7 @@ main_for_header@6:
     ==
     assert
     swap
-    extract 64 16
+    extract 48 16 // on error: Index access is out of bounds
     dup
     extract 0 8 // on error: Index access is out of bounds
     uncover 3
@@ -596,11 +607,11 @@ main_after_for@8:
     pushbytes "a"
     swap
     box_put
-    extract 0 144
+    extract 0 144 // on error: index access is out of bounds
     dup
     bury 22
     dup
-    extract 0 8
+    extract 0 8 // on error: Index access is out of bounds
     bury 21
     intc_2 // 8
     extract_uint64
@@ -620,9 +631,9 @@ main_for_header@39:
     intc 4 // 144
     *
     intc 4 // 144
-    extract3
+    extract3 // on error: index access is out of bounds
     dupn 2
-    extract 0 8
+    extract 0 8 // on error: Index access is out of bounds
     swap
     intc_2 // 8
     extract_uint64

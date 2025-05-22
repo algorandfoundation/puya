@@ -4,7 +4,7 @@
 // test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 48
-    bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" 0x0000 "box_map"
+    bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map"
     pushbytes ""
     dup
     txn ApplicationID
@@ -32,14 +32,14 @@ main:
     txn NumAppArgs
     intc_1 // 1
     +
-    swap
+    uncover 3
+    uncover 3
+    concat
+    uncover 2
     itob
-    swap
+    uncover 2
     itob
     concat
-    cover 2
-    concat
-    swap
     concat
     bytec_0 // "nested"
     swap
@@ -56,11 +56,7 @@ main:
     concat
     pushbytes 0x001a
     concat
-    bytec 7 // 0x0000
-    concat
-    bytec 7 // 0x0000
-    concat
-    bytec 7 // 0x0000
+    pushbytes 0x000000000000
     concat
     pushbytes "dyn"
     swap
@@ -244,7 +240,7 @@ main_struct_arg_route@11:
     box_put
     swap
     itob
-    bytec 8 // "box_map"
+    bytec 7 // "box_map"
     swap
     concat
     dup
@@ -273,7 +269,7 @@ main_delete_storage_route@10:
     box_del
     pop
     itob
-    bytec 8 // "box_map"
+    bytec 7 // "box_map"
     swap
     concat
     box_del
@@ -290,11 +286,9 @@ main_local_struct_route@9:
     txn Sender
     pushint 1234 // 1234
     itob
+    concat
     pushint 567 // 567
     itob
-    cover 2
-    concat
-    swap
     concat
     dup
     extract 0 32 // on error: Index access is out of bounds
@@ -349,7 +343,7 @@ main_create_storage_route@8:
     extract 0 16 // on error: Index access is out of bounds
     swap
     itob
-    bytec 8 // "box_map"
+    bytec 7 // "box_map"
     swap
     concat
     dup
@@ -387,7 +381,7 @@ main_increment_payment_route@7:
     *
     dup2
     intc_3 // 48
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     pushint 40 // 40
     extract_uint64

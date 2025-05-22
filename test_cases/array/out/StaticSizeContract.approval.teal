@@ -309,16 +309,22 @@ test_array:
     // array/static_size.py:47
     // Point(x=x2, y=y2, other=self.xtra()),
     callsub xtra
-    // array/static_size.py:45
-    // Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
+    // array/static_size.py:44-48
+    // path = Array(
+    //     Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
+    //     Point(x=x1, y=y1, other=self.xtra()),
+    //     Point(x=x2, y=y2, other=self.xtra()),
+    // )
     uncover 14
     itob
-    pushbytes 0x00000000000000000000000000000000
-    swap
-    concat
     uncover 14
     itob
     concat
+    dig 13
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
     uncover 13
     concat
     uncover 12
@@ -327,7 +333,7 @@ test_array:
     len
     pushint 64 // 64
     <=
-    assert // value is bigger than 64 bytes
+    assert // overflow
     pushint 64 // 64
     bzero
     uncover 12
@@ -336,8 +342,9 @@ test_array:
     uncover 2
     swap
     concat
-    // array/static_size.py:46
-    // Point(x=x1, y=y1, other=self.xtra()),
+    pushbytes 0x00000000000000000000000000000000
+    swap
+    concat
     frame_dig -3
     itob
     frame_dig -4
@@ -345,32 +352,29 @@ test_array:
     concat
     uncover 12
     itob
-    concat
-    uncover 11
+    uncover 12
     itob
+    concat
+    dig 11
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    uncover 11
     concat
     uncover 10
     concat
-    uncover 9
-    concat
-    dig 8
+    dig 9
     len
     pushint 64 // 64
     <=
-    assert // value is bigger than 64 bytes
-    uncover 8
-    dig 3
+    assert // overflow
+    uncover 9
+    dig 4
     b|
     concat
-    // array/static_size.py:44-48
-    // path = Array(
-    //     Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
-    //     Point(x=x1, y=y1, other=self.xtra()),
-    //     Point(x=x2, y=y2, other=self.xtra()),
-    // )
     concat
-    // array/static_size.py:47
-    // Point(x=x2, y=y2, other=self.xtra()),
+    concat
     frame_dig -1
     itob
     frame_dig -2
@@ -378,29 +382,28 @@ test_array:
     concat
     uncover 7
     itob
-    concat
-    uncover 6
+    uncover 7
     itob
+    concat
+    dig 6
+    len
+    pushint 32 // 32
+    ==
+    assert // invalid size
+    uncover 6
     concat
     uncover 5
     concat
-    uncover 4
-    concat
-    dig 3
+    dig 4
     len
     pushint 64 // 64
     <=
-    assert // value is bigger than 64 bytes
-    uncover 3
-    uncover 3
+    assert // overflow
+    uncover 4
+    uncover 4
     b|
     concat
-    // array/static_size.py:44-48
-    // path = Array(
-    //     Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
-    //     Point(x=x1, y=y1, other=self.xtra()),
-    //     Point(x=x2, y=y2, other=self.xtra()),
-    // )
+    concat
     concat
     // array/static_size.py:49
     // for i in urange(3):
@@ -422,9 +425,10 @@ test_array_for_header@1:
     intc 4 // 144
     *
     intc 4 // 144
-    extract3
+    extract3 // on error: index access is out of bounds
+    extract 16 128 // on error: Index access is out of bounds
     dup
-    pushint 24 // 24
+    intc_2 // 8
     extract_uint64
     dig 2
     intc_1 // 1
@@ -436,7 +440,7 @@ test_array_for_header@1:
     // array/static_size.py:51
     // assert path[i].other.d.foo == i + 2
     swap
-    extract 64 16
+    extract 48 16 // on error: Index access is out of bounds
     dup
     extract 0 8 // on error: Index access is out of bounds
     uncover 3
@@ -479,11 +483,11 @@ test_array_after_for@4:
     box_put
     // array/static_size.py:150
     // last_point = path[0]
-    extract 0 144
+    extract 0 144 // on error: index access is out of bounds
     dup
     frame_bury 0
     dup
-    extract 0 8
+    extract 0 8 // on error: Index access is out of bounds
     frame_bury 1
     intc_2 // 8
     extract_uint64
@@ -511,9 +515,9 @@ test_array_for_header@6:
     intc 4 // 144
     *
     intc 4 // 144
-    extract3
+    extract3 // on error: index access is out of bounds
     dupn 2
-    extract 0 8
+    extract 0 8 // on error: Index access is out of bounds
     swap
     intc_2 // 8
     extract_uint64
@@ -636,8 +640,7 @@ test_extend_from_tuple:
     dig 2
     swap
     intc_3 // 16
-    extract3
-    extract 0 16
+    extract3 // on error: index access is out of bounds
     // array/static_size.py:62
     // assert last == some_more[1]
     dup
@@ -664,7 +667,7 @@ test_extend_from_tuple:
     intc_3 // 16
     *
     intc_3 // 16
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     uncover 2
     ==
     assert
@@ -730,9 +733,9 @@ test_bool_array_for_header@1:
     %
     !
     bytec_3 // 0x00
-    pushbytes 0x80
+    intc_0 // 0
     uncover 2
-    select
+    setbit
     frame_dig 4
     swap
     concat // on error: max array length exceeded
@@ -875,7 +878,6 @@ test_arc4_conversion_for_header@5:
     *
     intc_2 // 8
     extract3
-    extract 0 8
     // array/static_size.py:99
     // if val:
     bytec_2 // 0x
@@ -952,9 +954,6 @@ sum_array_for_header@1:
     cover 2
     intc_2 // 8
     *
-    intc_2 // 8
-    extract3
-    intc_0 // 0
     // array/static_size.py:114
     // total += item.native
     extract_uint64
