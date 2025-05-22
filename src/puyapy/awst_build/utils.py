@@ -271,12 +271,6 @@ def maybe_resolve_literal(
     return operand
 
 
-def resolve_literal(operand: InstanceBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
-    target_type_builder = builder_for_type(target_type, operand.source_location)
-    assert isinstance(target_type_builder, LiteralConverter)
-    return operand.resolve_literal(target_type_builder)
-
-
 def determine_base_type(
     first: pytypes.PyType, *rest: pytypes.PyType, location: SourceLocation
 ) -> pytypes.PyType:

@@ -99,12 +99,6 @@ class TypeBuilder(CallableBuilder, LiteralConverter, typing.Generic[_TPyType_co]
         return dummy_value(self.produces(), location)
 
     @typing.override
-    def try_convert_literal(
-        self, literal: LiteralBuilder, location: SourceLocation
-    ) -> InstanceBuilder | None:
-        return None
-
-    @typing.override
     @typing.final
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
         from puyapy.awst_build.eb._utils import constant_bool_and_error
