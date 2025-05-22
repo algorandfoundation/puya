@@ -61,6 +61,7 @@ from puya.ir.models import (
     SubroutineReturn,
     TemplateVar,
     UInt64Constant,
+    Undefined,
     Value,
     ValueProvider,
     ValueTuple,
@@ -151,15 +152,6 @@ class FunctionIRBuilder(
         # will effectively be a copy. We assign the copy to a new register in case it is
         # mutated.
         match expr.value.wtype:
-            case wtypes.ARC4Type():
-                # Arc4 encoded types are value types
-                original_value = self.visit_and_materialise_single(expr.value)
-                return assign_temp(
-                    temp_description="copy",
-                    source=original_value,
-                    source_location=expr.source_location,
-                    context=self.context,
-                )
             case wtypes.ReferenceArray():
                 loc = expr.source_location
                 original_slot = self.visit_and_materialise_single(expr.value)
@@ -167,10 +159,17 @@ class FunctionIRBuilder(
                 value = mem.read_slot(self.context, original_slot, loc)
                 mem.write_slot(self.context, new_slot, value, loc)
                 return new_slot
-
-        raise InternalError(
-            f"Invalid source wtype for Copy {expr.value.wtype}", expr.source_location
-        )
+            case _:
+                original_value_vp = self.visit_expr(expr.value)
+                original_value = self.materialise_value_provider_as_value_or_tuple(
+                    original_value_vp, "tmp"
+                )
+                return assign_temp(
+                    temp_description="copy",
+                    source=original_value,
+                    source_location=expr.source_location,
+                    context=self.context,
+                )
 
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> TExpression:
         value = self.visit_and_materialise_single(expr.value)
@@ -730,8 +729,6 @@ class FunctionIRBuilder(
             )
 
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.WStructType):
-            raise NotImplementedError
         if isinstance(expr.base.wtype, wtypes.WTuple):
             index = expr.base.wtype.name_to_index(expr.name, expr.source_location)
             tup = self.visit_and_materialise(expr.base)
@@ -776,7 +773,10 @@ class FunctionIRBuilder(
             arc4_array_type = effective_array_encoding(sliceable_type, expr.base.source_location)
             array = self.context.visitor.visit_and_materialise_single(expr.base)
             _, data = arc4.invoke_arc4_array_pop(
-                self.context, arc4_array_type.element_type, array, expr.source_location
+                self.context,
+                wtype_to_arc4_wtype(arc4_array_type.element_type, expr.source_location),
+                array,
+                expr.source_location,
             )
             return data
         else:
@@ -853,7 +853,7 @@ class FunctionIRBuilder(
             return arc4.maybe_decode_arc4_value_provider(
                 self.context,
                 encoded_read_vp,
-                arc4_array_type.element_type,
+                wtype_to_arc4_wtype(arc4_array_type.element_type, expr.source_location),
                 indexable_wtype.element_type,
                 expr.source_location,
                 temp_description="arc4_item",
@@ -1135,14 +1135,19 @@ class FunctionIRBuilder(
                         self.context.block_builder.active_block,
                     )
                 )
-        return_types = [r.ir_type for r in result]
-        if [t.avm_type for t in return_types] != [
-            t.avm_type for t in self.context.subroutine.returns
+        actual_return_types = [r.ir_type for r in result]
+        expected_return_types = self.context.subroutine.returns
+        if [t.avm_type for t in actual_return_types] != [
+            t.avm_type for t in expected_return_types
         ]:
-            raise CodeError(
-                f"invalid return type {return_types}, expected {self.context.subroutine.returns}",
-                statement.source_location,
+            logger.error(
+                f"invalid return type {actual_return_types}, expected {expected_return_types}",
+                location=statement.source_location,
             )
+            result = [
+                Undefined(ir_type=ir_type, source_location=statement.source_location)
+                for ir_type in expected_return_types
+            ]
         self.context.block_builder.terminate(
             SubroutineReturn(
                 source_location=statement.source_location,
@@ -1259,8 +1264,6 @@ class FunctionIRBuilder(
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
         match expr.wtype:
-            case wtypes.WStructType():
-                raise NotImplementedError
             case wtypes.ARC4Struct() as arc4_struct_wtype:
                 return arc4.encode_arc4_struct(self.context, expr, arc4_struct_wtype)
             case _:
@@ -1295,7 +1298,7 @@ class FunctionIRBuilder(
                 self.context,
                 value,
                 expr.value.wtype,
-                arc4_wtype.element_type,
+                wtype_to_arc4_wtype(arc4_wtype.element_type, expr.source_location),
                 expr.source_location,
             )
         return arc4.arc4_replace_array_item(
@@ -1303,7 +1306,7 @@ class FunctionIRBuilder(
             base_expr=expr.base,
             index_value_expr=expr.index,
             wtype=arc4_wtype,
-            value=arc4_value,
+            value_vp=arc4_value,
             source_location=expr.source_location,
         )
 
@@ -1413,9 +1416,10 @@ class FunctionIRBuilder(
         try:
             (value,) = values
         except ValueError as ex:
+            expr_str = expr.accept(ToCodeVisitor())
             raise InternalError(
                 "visit_and_materialise_single should not be used when"
-                f" an expression could be multi-valued, expression was: {expr}",
+                f" an expression could be multi-valued, expression was: {expr_str}",
                 expr.source_location,
             ) from ex
         return value
@@ -1472,29 +1476,24 @@ class FunctionIRBuilder(
         if materialise_as is None or not (source and source.types):
             result = source
         else:
-            values = self.materialise_value_provider(source, description=materialise_as)
-            if len(values) == 1:
-                (result,) = values
-            else:
-                result = ValueTuple(values=values, source_location=expr.source_location)
+            result = self.materialise_value_provider_as_value_or_tuple(
+                source, description=materialise_as
+            )
         self._visited_exprs[expr_id] = result
         return result
 
-    def materialise_value_provider(
+    def materialise_value_provider_as_value_or_tuple(
         self, provider: ValueProvider, description: str | Sequence[str]
-    ) -> list[Value]:
+    ) -> Value | ValueTuple:
         """
-        Given a ValueProvider with arity of N, return a Value sequence of length N.
+        Given a ValueProvider with arity of N
+        return a Value if N = 1, else a ValueTuple of length N.
 
-        Anything which is already a Value is passed through without change.
-
+        Anything which is already a Value or ValueTuple is passed through without change.
         Otherwise, the result is assigned to a temporary register, which is returned
         """
-        if isinstance(provider, Value):
-            return [provider]
-
-        if isinstance(provider, ValueTuple):
-            return list(provider.values)
+        if isinstance(provider, Value | ValueTuple):
+            return provider
 
         ir_types = provider.types
         if not ir_types:
@@ -1517,7 +1516,24 @@ class FunctionIRBuilder(
             # TODO: should this be the source location of the site forcing materialisation?
             assignment_location=provider.source_location,
         )
-        return list[Value](targets)
+        try:
+            (value,) = targets
+        except ValueError:
+            return ValueTuple(values=targets, source_location=provider.source_location)
+        else:
+            return value
+
+    def materialise_value_provider(
+        self, provider: ValueProvider, description: str | Sequence[str]
+    ) -> list[Value]:
+        """
+        Given a ValueProvider with arity of N, return a Value sequence of length N.
+        """
+        value_or_tuple = self.materialise_value_provider_as_value_or_tuple(provider, description)
+        if isinstance(value_or_tuple, Value):
+            return [value_or_tuple]
+        else:
+            return list(value_or_tuple.values)
 
 
 def create_uint64_binary_op(

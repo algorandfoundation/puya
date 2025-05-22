@@ -455,11 +455,7 @@ class Copy(Expression):
     Create a new copy of 'value'
     """
 
-    value: Expression = attrs.field(
-        validator=expression_has_wtype(
-            wtypes.ARC4Type, wtypes.ReferenceArray, wtypes.WInnerTransactionFields
-        )
-    )
+    value: Expression = attrs.field()
     wtype: WType = attrs.field(init=False)
 
     @wtype.default
@@ -834,7 +830,7 @@ class SubmitInnerTransaction(Expression):
 @attrs.frozen
 class FieldExpression(Expression):
     base: Expression = attrs.field(
-        validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct, wtypes.WTuple)
+        validator=expression_has_wtype(wtypes.ARC4Struct, wtypes.WTuple)
     )
     name: str
     wtype: wtypes.WType = attrs.field(init=False)
@@ -842,7 +838,7 @@ class FieldExpression(Expression):
     @wtype.default
     def _wtype_factory(self) -> wtypes.WType:
         dataclass_type = self.base.wtype
-        assert isinstance(dataclass_type, wtypes.WStructType | wtypes.ARC4Struct | wtypes.WTuple)
+        assert isinstance(dataclass_type, wtypes.ARC4Struct | wtypes.WTuple)
         try:
             return dataclass_type.fields[self.name]
         except KeyError:
@@ -1797,7 +1793,7 @@ class StateDelete(Expression):
 
 @attrs.frozen
 class NewStruct(Expression):
-    wtype: wtypes.WStructType | wtypes.ARC4Struct
+    wtype: wtypes.ARC4Struct
     values: Mapping[str, Expression] = attrs.field(converter=immutabledict)
 
     @values.validator
