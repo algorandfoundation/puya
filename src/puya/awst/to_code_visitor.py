@@ -690,6 +690,14 @@ class ToCodeVisitor(
     def visit_emit(self, expr: nodes.Emit) -> str:
         return f"emit({expr.signature!r}, {expr.value.accept(self)})"
 
+    @typing.override
+    def visit_comma_expression(self, expr: nodes.CommaExpression) -> str:
+        tuple_expr = nodes.TupleExpression.from_items(
+            expr.expressions,
+            expr.source_location,
+        )
+        return tuple_expr.accept(self) + "[-1]"
+
 
 def _indent(lines: Iterable[str], indent_size: str = "  ") -> Iterator[str]:
     yield from (f"{indent_size}{line}" for line in lines)
