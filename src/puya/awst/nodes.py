@@ -611,8 +611,8 @@ class SizeOf(Expression):
     Emits an error if type is dynamically sized
     """
 
-    size_wtype: wtypes.WType
-    wtype: wtypes.WType = attrs.field(default=wtypes.uint64_wtype, init=False)
+    size_wtype: WType
+    wtype: WType = attrs.field(default=wtypes.uint64_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_size_of(self)
@@ -675,7 +675,7 @@ class CheckedMaybe(Expression):
 
     expr: Expression
     comment: str
-    wtype: wtypes.WType = attrs.field(init=False)
+    wtype: WType = attrs.field(init=False)
     source_location: SourceLocation = attrs.field(init=False)
 
     @source_location.default
@@ -683,7 +683,7 @@ class CheckedMaybe(Expression):
         return self.expr.source_location
 
     @wtype.default
-    def _wtype(self) -> wtypes.WType:
+    def _wtype(self) -> WType:
         match self.expr.wtype:
             case wtypes.WTuple(types=(wtype, wtypes.bool_wtype)):
                 return wtype
@@ -745,10 +745,10 @@ class TupleItemExpression(Expression):
 
     base: Expression
     index: int
-    wtype: wtypes.WType = attrs.field(init=False)
+    wtype: WType = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.WType:
+    def _wtype(self) -> WType:
         base_wtype = self.base.wtype
         if not isinstance(base_wtype, wtypes.WTuple | wtypes.ARC4Tuple):
             raise InternalError(
@@ -827,7 +827,7 @@ class SubmitInnerTransaction(Expression):
     wtype: WType = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.WType:
+    def _wtype(self) -> WType:
         txn_types = []
         for expr in self.itxns:
             if not isinstance(expr.wtype, wtypes.WInnerTransactionFields):
@@ -850,10 +850,10 @@ class FieldExpression(Expression):
         validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct, wtypes.WTuple)
     )
     name: str
-    wtype: wtypes.WType = attrs.field(init=False)
+    wtype: WType = attrs.field(init=False)
 
     @wtype.default
-    def _wtype_factory(self) -> wtypes.WType:
+    def _wtype_factory(self) -> WType:
         dataclass_type = self.base.wtype
         assert isinstance(dataclass_type, wtypes.WStructType | wtypes.ARC4Struct | wtypes.WTuple)
         try:
@@ -1039,7 +1039,7 @@ class BoxPrefixedKeyExpression(Expression):
 
     prefix: Expression
     key: Expression
-    wtype: wtypes.WType = attrs.field(default=wtypes.box_key, init=False)
+    wtype: WType = attrs.field(default=wtypes.box_key, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_box_prefixed_key_expression(self)
@@ -1134,7 +1134,7 @@ class ArrayLength(Expression):
     array: Expression = attrs.field(
         validator=expression_has_wtype(wtypes.NativeArray, wtypes.ARC4Array)
     )
-    wtype: wtypes.WType = attrs.field(default=wtypes.uint64_wtype, init=False)
+    wtype: WType = attrs.field(default=wtypes.uint64_wtype, init=False)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_array_length(self)
@@ -1203,10 +1203,10 @@ class AssignmentExpression(Expression):
 
     target: Lvalue = attrs.field()
     value: Expression = attrs.field()
-    wtype: wtypes.WType = attrs.field(init=False)
+    wtype: WType = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.WType:
+    def _wtype(self) -> WType:
         return self.target.wtype
 
     @value.validator
@@ -1355,8 +1355,8 @@ class SubroutineCallExpression(Expression):
 @attrs.frozen
 class PuyaLibData:
     id: str
-    params: Mapping[str, wtypes.WType]
-    wtype: wtypes.WType
+    params: Mapping[str, WType]
+    wtype: WType
 
 
 class PuyaLibFunction(enum.Enum):
@@ -1376,10 +1376,10 @@ class PuyaLibFunction(enum.Enum):
 class PuyaLibCall(Expression):
     func: PuyaLibFunction
     args: Sequence[CallArg] = attrs.field(default=(), converter=tuple[CallArg, ...])
-    wtype: wtypes.WType = attrs.field(init=False)
+    wtype: WType = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.WType:
+    def _wtype(self) -> WType:
         return self.func.value.wtype
 
     @args.validator
@@ -1496,7 +1496,7 @@ class BytesUnaryOperation(Expression):
     wtype: WType = attrs.field(init=False)
 
     @wtype.default
-    def _wtype_factory(self) -> wtypes.WType:
+    def _wtype_factory(self) -> WType:
         match self.op:
             case BytesUnaryOperator.bit_invert:
                 return self.expr.wtype
@@ -2198,7 +2198,7 @@ class ARC4ABIMethodConfig:
     source_location: SourceLocation
     allowed_completion_types: Sequence[OnCompletionAction] = attrs.field(
         default=(OnCompletionAction.NoOp,),
-        converter=tuple[OnCompletionAction],
+        converter=tuple[OnCompletionAction, ...],
         validator=attrs.validators.min_len(1),
     )
     create: ARC4CreateOption = ARC4CreateOption.disallow
