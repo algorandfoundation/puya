@@ -416,3 +416,8 @@ class FunctionTraverser(
     @typing.override
     def visit_emit(self, expr: awst_nodes.Emit) -> None:
         expr.value.accept(self)
+
+    @typing.override
+    def visit_comma_expression(self, expr: awst_nodes.CommaExpression) -> None:
+        for inner in expr.expressions:
+            inner.accept(self)
