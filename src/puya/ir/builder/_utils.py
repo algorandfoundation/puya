@@ -273,6 +273,16 @@ class OpFactory:
         )
         return result
 
+    def lt(self, a: Value | int, b: Value | int, temp_desc: str = "lt") -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.lt,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
     def lte(self, a: Value | int, b: Value | int, temp_desc: str = "lte") -> Register:
         result = assign_intrinsic_op(
             self.context,
