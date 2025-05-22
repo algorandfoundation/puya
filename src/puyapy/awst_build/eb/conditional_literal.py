@@ -41,7 +41,7 @@ class ConditionalLiteralBuilder(InstanceBuilder):
     @typing.override
     @property
     def pytype(self) -> pytypes.PyType:
-        return self._true_literal.pytype
+        return self._pytype
 
     @typing.override
     def resolve(self) -> Expression:
