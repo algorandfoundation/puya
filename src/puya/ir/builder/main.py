@@ -183,14 +183,14 @@ class FunctionIRBuilder(
         ir_type = wtype_to_ir_type(
             expr.wtype, source_location=expr.source_location, allow_aggregate=True
         )
-        encoding = wtype_to_encoding(expr.value.wtype)
+        encoding = wtype_to_encoding(expr.value.wtype, expr.source_location)
         return arc4.decode_arc4_value(self.context, value, encoding, ir_type, expr.source_location)
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         loc = expr.source_location
         value = self.visit_expr(expr.value)
         value_ir_type, value_encoding = wtype_to_ir_type_and_encoding(expr.value.wtype, loc)
-        encoding = wtype_to_encoding(expr.wtype)
+        encoding = wtype_to_encoding(expr.wtype, loc)
         return arc4.encode_value_provider(self.context, value, value_ir_type, encoding, loc)
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
@@ -721,7 +721,7 @@ class FunctionIRBuilder(
             )
         elif isinstance(expr.base.wtype, wtypes.ARC4Tuple):
             base = self.visit_and_materialise_single(expr.base)
-            tuple_encoding = wtype_to_encoding(expr.base.wtype)
+            tuple_encoding = wtype_to_encoding(expr.base.wtype, expr.source_location)
             expect(tuple_encoding, TupleEncoding)
             item_ir_type = wtype_to_ir_type(
                 expr.base.wtype.types[expr.index], expr.source_location
@@ -793,7 +793,7 @@ class FunctionIRBuilder(
                     expr.source_location,
                 )
             array = self.context.visitor.visit_and_materialise_single(expr.base)
-            array_encoding = wtype_to_encoding(sliceable_type)
+            array_encoding = wtype_to_encoding(sliceable_type, loc)
             _, data = arc4.invoke_arc4_array_pop(
                 self.context,
                 array_encoding,
@@ -927,7 +927,7 @@ class FunctionIRBuilder(
                 source_location=expr.source_location,
             )
             items_tuple = TupleExpression.from_items(expr.values, expr.source_location)
-            array_encoding = wtype_to_encoding(expr.wtype)
+            array_encoding = wtype_to_encoding(expr.wtype, expr.source_location)
             return arc4.dynamic_array_concat_and_convert(
                 self.context,
                 array_encoding=array_encoding,
@@ -941,7 +941,7 @@ class FunctionIRBuilder(
             assert isinstance(array_slot_type, SlotType)
             array_type = array_slot_type.contents
             assert isinstance(array_type, EncodedType)
-            array_encoding = wtype_to_encoding(expr.wtype)
+            array_encoding = wtype_to_encoding(expr.wtype, expr.source_location)
             assert array_encoding == array_type.encoding, "expected encodings to match"
             if expr.values:
                 array_contents = arrays.get_array_encoded_items(
@@ -1213,7 +1213,7 @@ class FunctionIRBuilder(
         self, statement: awst_nodes.BytesAugmentedAssignment
     ) -> TStatement:
         if statement.target.wtype == wtypes.arc4_string_alias:
-            array_encoding = wtype_to_encoding(statement.target.wtype)
+            array_encoding = wtype_to_encoding(statement.target.wtype, statement.source_location)
             assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
             value: ValueProvider = arc4.dynamic_array_concat_and_convert(
                 self.context,
@@ -1259,7 +1259,7 @@ class FunctionIRBuilder(
         ]
 
         struct_value_provider = ValueTuple(values=elements, source_location=loc)
-        struct_encoding = wtype_to_encoding(expr.wtype)
+        struct_encoding = wtype_to_encoding(expr.wtype, loc)
         struct_ir_type = AggregateIRType(
             elements=[wtype_to_ir_type_and_encoding(t, loc)[0] for t in expr.wtype.fields.values()]
         )
@@ -1291,7 +1291,7 @@ class FunctionIRBuilder(
 
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
         value = self.context.visitor.visit_expr(expr.value)
-        array_encoding = wtype_to_encoding(expr.wtype)
+        array_encoding = wtype_to_encoding(expr.wtype, expr.source_location)
         assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
         element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
             expr.wtype.element_type, expr.source_location
@@ -1308,7 +1308,7 @@ class FunctionIRBuilder(
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
         assert expr.left.wtype == expr.wtype, "AWST validation requires result type == left type"
-        array_encoding = wtype_to_encoding(expr.wtype)
+        array_encoding = wtype_to_encoding(expr.wtype, expr.source_location)
 
         return arc4.dynamic_array_concat_and_convert(
             self.context,
@@ -1320,7 +1320,7 @@ class FunctionIRBuilder(
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
         if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
-            array_encoding = wtype_to_encoding(expr.base.wtype)
+            array_encoding = wtype_to_encoding(expr.base.wtype, expr.source_location)
             concat_result = arc4.dynamic_array_concat_and_convert(
                 self.context,
                 array_encoding=array_encoding,
@@ -1347,7 +1347,7 @@ class FunctionIRBuilder(
             assert isinstance(array_slot_type, SlotType)
             array_type = array_slot_type.contents
             assert isinstance(array_type, EncodedType)
-            array_encoding = wtype_to_encoding(expr.base.wtype)
+            array_encoding = wtype_to_encoding(expr.base.wtype, expr.source_location)
             assert array_encoding == array_type.encoding, "expected encodings to match"
             values = arrays.get_array_encoded_items(
                 self.context, expr.other, array_encoding.element
@@ -1366,7 +1366,7 @@ class FunctionIRBuilder(
         assert isinstance(
             expr.array.wtype, wtypes.NativeArray | wtypes.ARC4Array
         ), "expected array wtype"
-        array_encoding = wtype_to_encoding(expr.array.wtype)
+        array_encoding = wtype_to_encoding(expr.array.wtype, expr.source_location)
         return arrays.get_array_length(self.context, array_encoding, value, expr.source_location)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:

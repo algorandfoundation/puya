@@ -899,7 +899,7 @@ def handle_arc4_assign(
             ) as base_expr,
             index=index_value,
         ):
-            array_encoding = wtype_to_encoding(array_wtype)
+            array_encoding = wtype_to_encoding(array_wtype, source_location)
             assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
             element_ir_type = wtype_to_ir_type(
                 array_wtype.element_type, source_location=source_location, allow_aggregate=True
@@ -1131,13 +1131,13 @@ def _get_iterable_element_type_and_encoding(
         element_ir_type = wtype_to_ir_type(element_wtype, loc, allow_aggregate=True)
         # note: need to use iter wtype to determine encoding,
         # as the aggregate type affects the encoding
-        element_encoding = wtype_to_encoding(iter_wtype).element
+        element_encoding = wtype_to_encoding(iter_wtype, loc).element
     elif isinstance(iter_wtype, wtypes.ARC4Tuple | wtypes.WTuple):
         element_wtype, *other_arc4 = set(iter_wtype.types)
         if other_arc4:
             raise CodeError("only homogenous tuples can be iterated", loc)
         element_ir_type = wtype_to_ir_type(element_wtype, loc, allow_aggregate=True)
-        element_encoding = wtype_to_encoding(element_wtype)
+        element_encoding = wtype_to_encoding(element_wtype, loc)
     else:
         raise CodeError("unsupported type for iteration", loc)
 
@@ -1198,7 +1198,7 @@ def pop_arc4_array(
     source_location = expr.source_location
 
     base = context.visitor.visit_and_materialise_single(expr.base)
-    array_encoding = wtype_to_encoding(array_wtype)
+    array_encoding = wtype_to_encoding(array_wtype, source_location)
     popped, data = invoke_arc4_array_pop(context, array_encoding, base, source_location)
     handle_arc4_assign(
         context,
@@ -1448,7 +1448,7 @@ def _arc4_replace_struct_item(
         raise CodeError(f"Invalid arc4.Struct field name {field_name}", source_location) from None
 
     item_wtype = wtype.types[index_int]
-    tuple_encoding = wtype_to_encoding(wtype)
+    tuple_encoding = wtype_to_encoding(wtype, source_location)
     value_ir_type, _ = wtype_to_ir_type_and_encoding(item_wtype, source_location)
     return _arc4_replace_tuple_item(
         context, base_expr, index_int, tuple_encoding, value_ir_type, value, source_location
@@ -1705,7 +1705,7 @@ def _get_arc4_array_tail_data_and_item_count(
         head_and_tail = stack_value
         item_count = UInt64Constant(value=len(wtype.types), source_location=source_location)
     elif isinstance(wtype, wtypes.ARC4Array | wtypes.StackArray | wtypes.ReferenceArray):
-        array_encoding = wtype_to_encoding(wtype)
+        array_encoding = wtype_to_encoding(wtype, source_location)
         if isinstance(wtype, wtypes.ReferenceArray):
             array = read_slot(context, stack_value, source_location)
         else:
@@ -1874,7 +1874,7 @@ def _concat_dynamic_array_fixed_size(
                 expr_value = context.visitor.visit_and_materialise_single(expr)
                 return factory.extract_to_end(expr_value, 2, "expr_value_trimmed")
             case wtypes.WTuple(types=types):
-                element_encoding = wtype_to_encoding(types[0])
+                element_encoding = wtype_to_encoding(types[0], expr.source_location)
                 return get_array_encoded_items(
                     context,
                     expr,
