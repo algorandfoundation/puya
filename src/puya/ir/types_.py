@@ -88,6 +88,7 @@ class IRType:
 class PrimitiveIRType(IRType, enum.StrEnum):
     bytes = enum.auto()
     uint64 = enum.auto()
+    string = enum.auto()
     bool = enum.auto()
     biguint = enum.auto()
     itxn_group_idx = enum.auto()  # the group index of the result
@@ -111,7 +112,7 @@ class PrimitiveIRType(IRType, enum.StrEnum):
         match self:
             case PrimitiveIRType.uint64 | PrimitiveIRType.bool:
                 return AVMType.uint64
-            case PrimitiveIRType.bytes | PrimitiveIRType.biguint:
+            case PrimitiveIRType.bytes | PrimitiveIRType.biguint | PrimitiveIRType.string:
                 return AVMType.bytes
             case PrimitiveIRType.any:
                 return AVMType.any
@@ -165,27 +166,31 @@ class Encoding(abc.ABC):
     @abc.abstractmethod
     def name(self) -> str: ...
 
+    @property
+    @abc.abstractmethod
+    def num_bits(self) -> int | None: ...
+
     @cached_property
+    @typing.final
     def num_bytes(self) -> int | None:
         bits = self.num_bits
         if bits is None:
             return None
         return bits_to_bytes(bits)
 
-    @property
-    @abc.abstractmethod
-    def num_bits(self) -> int | None: ...
-
     @cached_property
+    @typing.final
     def is_dynamic(self) -> bool:
         return self.num_bytes is None
 
     @cached_property
+    @typing.final
     def checked_num_bytes(self) -> int:
         assert self.num_bytes is not None, "expected statically sized type"
         return self.num_bytes
 
     @cached_property
+    @typing.final
     def checked_num_bits(self) -> int:
         assert self.num_bits is not None, "expected statically sized type"
         return self.num_bits
@@ -197,10 +202,6 @@ class Encoding(abc.ABC):
 @attrs.frozen(str=False)
 class BoolEncoding(Encoding):
     packed: bool
-
-    @cached_property
-    def num_bytes(self) -> int:
-        return bits_to_bytes(self.num_bits)
 
     @cached_property
     def num_bits(self) -> int:
@@ -222,16 +223,23 @@ class UIntEncoding(Encoding):
     n: int
 
     @cached_property
-    def num_bytes(self) -> int:
-        return bits_to_bytes(self.num_bits)
-
-    @cached_property
     def num_bits(self) -> int:
         return self.n
 
     @cached_property
     def name(self) -> str:
         return f"uint{self.n}"
+
+
+@attrs.frozen(str=False)
+class UTF8Encoding(Encoding):
+    @cached_property
+    def num_bits(self) -> int:
+        return 8
+
+    @cached_property
+    def name(self) -> str:
+        return "utf8"
 
 
 @attrs.frozen(str=False)
@@ -268,10 +276,6 @@ class ArrayEncoding(Encoding):
 @attrs.frozen(str=False)
 class DynamicArrayEncoding(ArrayEncoding):
     length_header: bool = attrs.field()
-
-    @cached_property
-    def num_bytes(self) -> None:
-        return None
 
     @cached_property
     def num_bits(self) -> None:
@@ -457,11 +461,15 @@ def wtype_to_ir_type(
             return PrimitiveIRType.itxn_group_idx
         case wtypes.WInnerTransactionFields():
             return PrimitiveIRType.itxn_field_set
+        case wtypes.string_wtype:
+            return PrimitiveIRType.string
         case wtypes.ReferenceArray():
             array_type = wtype_to_encoded_ir_type(wtype)
             return SlotType(array_type)
-        case wtypes.ARC4Type() | wtypes.StackArray() | wtypes.account_wtype:
+        case wtypes.ARC4Type() | wtypes.StackArray():
             return wtype_to_encoded_ir_type(wtype)
+        case wtypes.account_wtype:
+            return SizedBytesType(32)
         case wtypes.WTuple(types=types) if allow_aggregate:
             return AggregateIRType(
                 elements=[
@@ -497,6 +505,8 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
             return BoolEncoding(packed=False)
         elif wtype == wtypes.account_wtype:
             return wtypes.BytesWType(length=32).accept(self)
+        elif wtype == wtypes.string_wtype:
+            return wtypes.arc4_string_alias.accept(self)
         if wtype.persistable:
             if wtype.scalar_type == AVMType.bytes:
                 return wtypes.bytes_wtype.accept(self)
@@ -536,6 +546,8 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         return DynamicArrayEncoding(element=element, length_header=False)
 
     def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> Encoding:
+        if wtype.arc4_alias == wtypes.arc4_string_alias.arc4_alias:
+            return DynamicArrayEncoding(element=UTF8Encoding(), length_header=True)
         return DynamicArrayEncoding(
             element=self._allow_packable_bool(wtype.element_type),
             length_header=True,
