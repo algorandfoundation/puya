@@ -17,7 +17,10 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._base import (
+    LiteralConvertingTypeBuilder,
+    NotIterableInstanceExpressionBuilder,
+)
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import compare_expr_bytes, dummy_statement
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
@@ -38,7 +41,7 @@ __all__ = [
 logger = log.get_logger(__name__)
 
 
-class ARC4StringTypeBuilder(ARC4TypeBuilder):
+class ARC4StringTypeBuilder(ARC4TypeBuilder, LiteralConvertingTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4StringType, location)
 

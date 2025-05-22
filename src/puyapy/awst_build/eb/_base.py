@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 import abc
 import typing
@@ -19,6 +19,7 @@ from puya.awst.nodes import (
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puyapy.awst_build import pytypes
+from puyapy.awst_build.eb._utils import constant_bool_and_error, dummy_statement, dummy_value
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
@@ -37,6 +38,7 @@ __all__ = [
     "GenericTypeBuilder",
     "InstanceExpressionBuilder",
     "NotIterableInstanceExpressionBuilder",
+    "LiteralConvertingTypeBuilder",
 ]
 
 _TPyType_co = typing_extensions.TypeVar(
@@ -50,16 +52,14 @@ logger = log.get_logger(__name__)
 
 
 class FunctionBuilder(CallableBuilder, abc.ABC):
-    @property
     @typing.final
+    @property
     def pytype(self) -> None:  # TODO: give function type
         return None
 
     @typing.override
     @typing.final
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        from puyapy.awst_build.eb._utils import constant_bool_and_error
-
         return constant_bool_and_error(value=True, location=location, negate=negate)
 
     @typing.override
@@ -68,7 +68,7 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
         raise CodeError("function attribute access is not supported", location)
 
 
-class TypeBuilder(CallableBuilder, LiteralConverter, typing.Generic[_TPyType_co], abc.ABC):
+class TypeBuilder(CallableBuilder, typing.Generic[_TPyType_co], abc.ABC):
     def __init__(self, pytype: _TPyType_co, location: SourceLocation):
         super().__init__(location)
         self._pytype = pytype
@@ -85,11 +85,23 @@ class TypeBuilder(CallableBuilder, LiteralConverter, typing.Generic[_TPyType_co]
 
     @typing.override
     @typing.final
+    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        return constant_bool_and_error(value=True, location=location, negate=negate)
+
+    @typing.override
+    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
+        raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
+
+
+class LiteralConvertingTypeBuilder(LiteralConverter, abc.ABC):
+    @abc.abstractmethod
+    def produces(self) -> pytypes.PyType: ...
+
+    @typing.override
+    @typing.final
     def convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation
     ) -> InstanceBuilder:
-        from puyapy.awst_build.eb._utils import dummy_value
-
         result = self.try_convert_literal(literal, location)
         if result is not None:
             return result
@@ -97,17 +109,6 @@ class TypeBuilder(CallableBuilder, LiteralConverter, typing.Generic[_TPyType_co]
             f"can't covert literal to {self.produces()}", location=literal.source_location
         )
         return dummy_value(self.produces(), location)
-
-    @typing.override
-    @typing.final
-    def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        from puyapy.awst_build.eb._utils import constant_bool_and_error
-
-        return constant_bool_and_error(value=True, location=location, negate=negate)
-
-    @typing.override
-    def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
-        raise CodeError(f"unrecognised member {name!r} of type '{self._pytype}'", location)
 
 
 class GenericTypeBuilder(CallableBuilder, abc.ABC):
@@ -124,8 +125,6 @@ class GenericTypeBuilder(CallableBuilder, abc.ABC):
     @typing.override
     @typing.final
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        from puyapy.awst_build.eb._utils import constant_bool_and_error
-
         return constant_bool_and_error(value=True, location=location, negate=negate)
 
 
@@ -168,8 +167,6 @@ class InstanceExpressionBuilder(
 
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
-        from puyapy.awst_build.eb._utils import dummy_statement
-
         logger.error(f"{self.pytype} is not valid as del target", location=location)
         return dummy_statement(location)
 
@@ -208,8 +205,6 @@ class InstanceExpressionBuilder(
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
     ) -> Statement:
-        from puyapy.awst_build.eb._utils import dummy_statement
-
         logger.error(f"{self.pytype} does not support augmented assignment", location=location)
         return dummy_statement(location)
 

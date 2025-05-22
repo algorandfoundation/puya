@@ -8,7 +8,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import TypeBuilder
+from puyapy.awst_build.eb._base import LiteralConvertingTypeBuilder, TypeBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
@@ -20,7 +20,9 @@ from puyapy.awst_build.eb.transaction.base import BaseTransactionExpressionBuild
 logger = log.get_logger(__name__)
 
 
-class GroupTransactionTypeBuilder(TypeBuilder[pytypes.GroupTransactionType]):
+class GroupTransactionTypeBuilder(
+    TypeBuilder[pytypes.GroupTransactionType], LiteralConvertingTypeBuilder
+):
     @typing.override
     def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation

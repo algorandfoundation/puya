@@ -22,7 +22,11 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder, TypeBuilder
+from puyapy.awst_build.eb._base import (
+    LiteralConvertingTypeBuilder,
+    NotIterableInstanceExpressionBuilder,
+    TypeBuilder,
+)
 from puyapy.awst_build.eb._utils import dummy_statement
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.interface import (
@@ -37,7 +41,7 @@ from puyapy.awst_build.eb.interface import (
 logger = log.get_logger(__name__)
 
 
-class UInt64TypeBuilder(TypeBuilder):
+class UInt64TypeBuilder(TypeBuilder, LiteralConvertingTypeBuilder):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.UInt64Type, location)
 

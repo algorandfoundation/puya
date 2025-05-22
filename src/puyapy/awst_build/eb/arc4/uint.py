@@ -17,7 +17,10 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import intrinsic_factory, pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._base import (
+    LiteralConvertingTypeBuilder,
+    NotIterableInstanceExpressionBuilder,
+)
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
@@ -37,7 +40,7 @@ __all__ = [
 logger = log.get_logger(__name__)
 
 
-class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType]):
+class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConvertingTypeBuilder):
     def __init__(self, pytype: pytypes.PyType, location: SourceLocation):
         assert isinstance(pytype, pytypes.ARC4UIntNType)
         super().__init__(pytype, location)

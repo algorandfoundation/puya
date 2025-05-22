@@ -16,7 +16,10 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._base import NotIterableInstanceExpressionBuilder
+from puyapy.awst_build.eb._base import (
+    LiteralConvertingTypeBuilder,
+    NotIterableInstanceExpressionBuilder,
+)
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
 from puyapy.awst_build.eb._utils import compare_bytes
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
@@ -36,7 +39,7 @@ __all__ = [
 logger = log.get_logger(__name__)
 
 
-class UFixedNxMTypeBuilder(ARC4TypeBuilder):
+class UFixedNxMTypeBuilder(ARC4TypeBuilder, LiteralConvertingTypeBuilder):
     @typing.override
     def try_convert_literal(
         self, literal: LiteralBuilder, location: SourceLocation

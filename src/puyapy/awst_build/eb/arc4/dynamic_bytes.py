@@ -15,6 +15,7 @@ from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
+from puyapy.awst_build.eb._base import LiteralConvertingTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.arc4.dynamic_array import DynamicArrayExpressionBuilder
@@ -25,7 +26,9 @@ from puyapy.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, Node
 logger = log.get_logger(__name__)
 
 
-class DynamicBytesTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
+class DynamicBytesTypeBuilder(
+    BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConvertingTypeBuilder
+):
     def __init__(self, location: SourceLocation):
         super().__init__(pytypes.ARC4DynamicBytesType, location)
 
