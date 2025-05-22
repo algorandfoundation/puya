@@ -81,7 +81,6 @@ class ConditionalLiteralBuilder(InstanceBuilder):
         self, true_b: InstanceBuilder, false_b: InstanceBuilder
     ) -> InstanceBuilder:
         result_pytype = _common_base(true_b.pytype, false_b.pytype, self.source_location)
-        result_pytype = true_b.pytype
         true_expr = true_b.resolve()
         false_expr = false_b.resolve()
         condition_expr = self._condition.resolve()
