@@ -148,7 +148,7 @@ class InstanceExpressionBuilder(
 
     @typing.override
     def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
-        return self.try_resolve_literal(converter)
+        return self
 
     @typing.override
     def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:

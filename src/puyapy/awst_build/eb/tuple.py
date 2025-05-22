@@ -196,12 +196,10 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
 
     @typing.override
     def resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
-        return self.try_resolve_literal(converter)
+        return self
 
     @typing.override
     def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder:
-        # even though this may contain literals, it's not homogenous, so we can't really
-        # resolve with a single converter currently...?
         return self
 
     @typing.override
