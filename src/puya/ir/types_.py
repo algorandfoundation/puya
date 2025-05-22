@@ -464,10 +464,10 @@ def wtype_to_ir_type(
         case wtypes.string_wtype:
             return PrimitiveIRType.string
         case wtypes.ReferenceArray():
-            array_type = wtype_to_encoded_ir_type(wtype)
+            array_type = wtype_to_encoded_ir_type(wtype, source_location)
             return SlotType(array_type)
         case wtypes.ARC4Type() | wtypes.StackArray():
-            return wtype_to_encoded_ir_type(wtype)
+            return wtype_to_encoded_ir_type(wtype, source_location)
         case wtypes.account_wtype:
             return SizedBytesType(32)
         case wtypes.WTuple(types=types) if allow_aggregate:
@@ -497,6 +497,9 @@ def wtype_to_ir_type(
 
 
 class _WTypeToEncoding(WTypeVisitor[Encoding]):
+    def __init__(self, loc: SourceLocation | None) -> None:
+        self.loc = loc
+
     def visit_basic_type(self, wtype: wtypes.WType) -> Encoding:
         if wtype == wtypes.biguint_wtype:
             return UIntEncoding(n=512)
@@ -512,13 +515,13 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
                 return wtypes.bytes_wtype.accept(self)
             elif wtype.scalar_type == AVMType.uint64:
                 return UIntEncoding(n=64)
-        self._unencodable(wtype)
+        self._unencodable()
 
     def visit_basic_arc4_type(self, wtype: wtypes.ARC4Type) -> Encoding:
         if wtype == wtypes.arc4_bool_wtype:
             # bools are only packable when in a tuple sequence or as an array element
             return BoolEncoding(packed=False)
-        self._unencodable(wtype)
+        self._unencodable()
 
     def visit_arc4_uint(self, wtype: wtypes.ARC4UIntN) -> Encoding:
         return UIntEncoding(n=wtype.n)
@@ -574,23 +577,21 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
             encoding = BoolEncoding(packed=True)
         return encoding
 
-    def visit_enumeration_type(self, wtype: wtypes.WEnumeration) -> Encoding:
-        self._unencodable(wtype)
+    def visit_enumeration_type(self, _: wtypes.WEnumeration) -> Encoding:
+        self._unencodable()
 
-    def visit_group_transaction_type(self, wtype: wtypes.WGroupTransaction) -> Encoding:
+    def visit_group_transaction_type(self, _: wtypes.WGroupTransaction) -> Encoding:
         # technically it could be encoded..., just not persisted
-        self._unencodable(wtype)
+        self._unencodable()
 
-    def visit_inner_transaction_type(self, wtype: wtypes.WInnerTransaction) -> Encoding:
-        self._unencodable(wtype)
+    def visit_inner_transaction_type(self, _: wtypes.WInnerTransaction) -> Encoding:
+        self._unencodable()
 
-    def visit_inner_transaction_fields_type(
-        self, wtype: wtypes.WInnerTransactionFields
-    ) -> Encoding:
-        self._unencodable(wtype)
+    def visit_inner_transaction_fields_type(self, _: wtypes.WInnerTransactionFields) -> Encoding:
+        self._unencodable()
 
-    def _unencodable(self, wtype: wtypes.WType) -> typing.Never:
-        raise InternalError(f"unencodable wtype: {wtype!s}")
+    def _unencodable(self) -> typing.Never:
+        raise CodeError("unencodable type", self.loc)
 
 
 def type_has_encoding(
@@ -644,43 +645,47 @@ def wtype_to_ir_type_and_encoding(
     wtype: wtypes.WType, loc: SourceLocation
 ) -> tuple[IRType, Encoding]:
     ir_type = wtype_to_ir_type(wtype, source_location=loc, allow_aggregate=True)
-    encoding = wtype.accept(_WTypeToEncoding())
+    encoding = wtype.accept(_WTypeToEncoding(loc))
     return ir_type, encoding
 
 
 @typing.overload
 def wtype_to_encoding(
-    wtype: wtypes.ARC4DynamicArray | wtypes.NativeArray,
+    wtype: wtypes.ARC4DynamicArray | wtypes.NativeArray, loc: SourceLocation | None
 ) -> DynamicArrayEncoding: ...
 
 
 @typing.overload
-def wtype_to_encoding(wtype: wtypes.ARC4StaticArray) -> FixedArrayEncoding: ...
-
-
-@typing.overload
-def wtype_to_encoding(wtype: wtypes.ARC4Array | wtypes.NativeArray) -> ArrayEncoding: ...
+def wtype_to_encoding(
+    wtype: wtypes.ARC4StaticArray, loc: SourceLocation | None
+) -> FixedArrayEncoding: ...
 
 
 @typing.overload
 def wtype_to_encoding(
-    wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct,
+    wtype: wtypes.ARC4Array | wtypes.NativeArray, loc: SourceLocation | None
+) -> ArrayEncoding: ...
+
+
+@typing.overload
+def wtype_to_encoding(
+    wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct, loc: SourceLocation | None
 ) -> TupleEncoding: ...
 
 
 @typing.overload
-def wtype_to_encoding(wtype: wtypes.WType) -> Encoding: ...
+def wtype_to_encoding(wtype: wtypes.WType, loc: SourceLocation | None) -> Encoding: ...
 
 
-def wtype_to_encoding(wtype: wtypes.WType) -> Encoding:
-    return wtype.accept(_WTypeToEncoding())
+def wtype_to_encoding(wtype: wtypes.WType, loc: SourceLocation | None) -> Encoding:
+    return wtype.accept(_WTypeToEncoding(loc))
 
 
-def wtype_to_encoded_ir_type(wtype: wtypes.WType) -> EncodedType:
+def wtype_to_encoded_ir_type(wtype: wtypes.WType, loc: SourceLocation) -> EncodedType:
     """
     Return the encoded IRType of a WType
     """
-    return EncodedType(wtype_to_encoding(wtype))
+    return EncodedType(wtype_to_encoding(wtype, loc))
 
 
 def get_wtype_arity(wtype: wtypes.WType) -> int:
