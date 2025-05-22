@@ -29,7 +29,6 @@ from puya.ir.types_ import (
     ArrayEncoding,
     PrimitiveIRType,
     wtype_to_encoding,
-    wtype_to_ir_type_and_encoding,
 )
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
@@ -185,10 +184,8 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_items=reverse_items,
             )
         case (wtypes.ARC4Array() | wtypes.StackArray()) as array_wtype:
-            array_encoding = wtype_to_encoding(array_wtype)
-            element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
-                array_wtype.element_type, statement.source_location
-            )
+            array_encoding = wtype_to_encoding(array_wtype, statement.source_location)
+
             assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
             iterator = arc4.build_for_in_array(
                 context,

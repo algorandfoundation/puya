@@ -181,7 +181,7 @@ def get_array_builder(
         element_ir_type = wtype_to_ir_type(
             wtype.element_type, source_location=loc, allow_aggregate=True
         )
-        array_encoding = wtype_to_encoding(wtype)
+        array_encoding = wtype_to_encoding(wtype, loc)
         match array_encoding:
             case ArrayEncoding(element=element) if _is_fixed_element(element):
                 return FixedElementArrayBuilder(
