@@ -22,7 +22,7 @@ from puya.ir.builder._utils import (
     assert_value,
     assign_intrinsic_op,
     assign_targets,
-    convert_constants,
+    invoke_puya_lib_subroutine,
     mktemp,
     undefined_value,
 )
@@ -47,7 +47,6 @@ from puya.ir.encodings import (
 from puya.ir.models import (
     BigUIntConstant,
     Intrinsic,
-    InvokeSubroutine,
     UInt64Constant,
     Undefined,
     Value,
@@ -936,7 +935,7 @@ def dynamic_array_concat_and_convert(
         )
     else:
         raise InternalError("unexpected element type", source_location)
-    invoke = _invoke_puya_lib_subroutine(
+    invoke = invoke_puya_lib_subroutine(
         context,
         full_name=PuyaLibIR(f"_puya_lib.arc4.{invoke_name}"),
         args=invoke_args,
@@ -1103,7 +1102,7 @@ def invoke_arc4_array_pop(
     assign_targets(
         context,
         targets=[popped, data],
-        source=_invoke_puya_lib_subroutine(
+        source=invoke_puya_lib_subroutine(
             context,
             full_name=PuyaLibIR(f"_puya_lib.arc4.{method_name}"),
             args=args,
@@ -1649,21 +1648,6 @@ def _get_arc4_array_tail(
     factory = OpFactory(context, source_location)
     start_of_tail = factory.mul(array_length, 2, "start_of_tail")
     return factory.extract_to_end(array_head_and_tail, start_of_tail, "data")
-
-
-def _invoke_puya_lib_subroutine(
-    context: IRRegisterContext,
-    *,
-    full_name: PuyaLibIR,
-    args: Sequence[Value | int | bytes],
-    source_location: SourceLocation,
-) -> InvokeSubroutine:
-    sub = context.resolve_embedded_func(full_name)
-    return InvokeSubroutine(
-        target=sub,
-        args=[convert_constants(arg, source_location) for arg in args],
-        source_location=source_location,
-    )
 
 
 def _get_arc4_tuple_head_size(encodings: Sequence[Encoding], *, round_end_result: bool) -> int:
