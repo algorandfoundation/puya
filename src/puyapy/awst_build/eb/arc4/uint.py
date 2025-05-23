@@ -25,12 +25,8 @@ from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuil
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import (
-    BuilderComparisonOp,
-    InstanceBuilder,
-    LiteralBuilder,
-    NodeBuilder,
-)
+from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puyapy.models import ConstantValue
 
 __all__ = [
     "UIntNTypeBuilder",
@@ -46,12 +42,14 @@ class UIntNTypeBuilder(ARC4TypeBuilder[pytypes.ARC4UIntNType], LiteralConverting
         super().__init__(pytype, location)
 
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
         pytype = self.produces()
-        match literal.value:
+        match value:
             case int(int_value):
                 if int_value < 0 or int_value.bit_length() > pytype.bits:
-                    logger.error(f"invalid {pytype} value", location=literal.source_location)
+                    logger.error(f"invalid {pytype} value", location=location)
                 # take int() of the value since it could match a bool also
                 expr = IntegerConstant(
                     value=int(int_value), wtype=pytype.wtype, source_location=self.source_location

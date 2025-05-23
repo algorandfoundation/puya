@@ -65,7 +65,7 @@ class LiteralBuilderImpl(LiteralBuilder):
 
     @typing.override
     def try_resolve_literal(self, converter: LiteralConverter) -> InstanceBuilder | None:
-        return converter.try_convert_literal(self)
+        return converter.try_convert_literal(self.value, self.source_location)
 
     @typing.override
     def resolve_lvalue(self) -> Lvalue:

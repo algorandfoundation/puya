@@ -21,7 +21,8 @@ from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.arc4.dynamic_array import DynamicArrayExpressionBuilder
 from puyapy.awst_build.eb.arc4.uint import UIntNTypeBuilder
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
-from puyapy.awst_build.eb.interface import InstanceBuilder, LiteralBuilder, NodeBuilder
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -33,13 +34,13 @@ class DynamicBytesTypeBuilder(
         super().__init__(pytypes.ARC4DynamicBytesType, location)
 
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case bytes(bytes_literal):
                 if len(bytes_literal) > (algo_constants.MAX_BYTES_LENGTH - 2):
-                    logger.error(
-                        "encoded bytes exceed max length", location=literal.source_location
-                    )
+                    logger.error("encoded bytes exceed max length", location=location)
 
                 bytes_expr = BytesConstant(
                     value=bytes_literal,

@@ -24,12 +24,8 @@ from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuil
 from puyapy.awst_build.eb._utils import compare_bytes
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
-from puyapy.awst_build.eb.interface import (
-    BuilderComparisonOp,
-    InstanceBuilder,
-    LiteralBuilder,
-    NodeBuilder,
-)
+from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puyapy.models import ConstantValue
 
 __all__ = [
     "UFixedNxMTypeBuilder",
@@ -41,13 +37,13 @@ logger = log.get_logger(__name__)
 
 class UFixedNxMTypeBuilder(ARC4TypeBuilder, LiteralConvertingTypeBuilder):
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case str(literal_value):
                 result = self._str_to_decimal_constant(
-                    literal_value,
-                    error_location=literal.source_location,
-                    location=self.source_location,
+                    literal_value, error_location=location, location=self.source_location
                 )
                 return UFixedNxMExpressionBuilder(result, self.produces())
         return None

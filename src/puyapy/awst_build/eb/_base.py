@@ -100,7 +100,7 @@ class LiteralConvertingTypeBuilder(LiteralConverter, abc.ABC):
     @typing.override
     @typing.final
     def convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder:
-        result = self.try_convert_literal(literal)
+        result = self.try_convert_literal(literal.value, literal.source_location)
         if result is not None:
             return result
         logger.error(

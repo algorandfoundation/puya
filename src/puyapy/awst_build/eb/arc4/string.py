@@ -28,7 +28,6 @@ from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     InstanceBuilder,
-    LiteralBuilder,
     NodeBuilder,
 )
 from puyapy.awst_build.eb.string import StringExpressionBuilder
@@ -38,6 +37,8 @@ __all__ = [
     "ARC4StringExpressionBuilder",
 ]
 
+from puyapy.models import ConstantValue
+
 logger = log.get_logger(__name__)
 
 
@@ -46,21 +47,21 @@ class ARC4StringTypeBuilder(ARC4TypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.ARC4StringType, location)
 
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case str(literal_value):
                 try:
                     bytes_value = literal_value.encode("utf8")
                 except UnicodeEncodeError as ex:
                     logger.error(  # noqa: TRY400
-                        f"invalid UTF-8 string (encoding error: {ex})",
-                        location=literal.source_location,
+                        f"invalid UTF-8 string (encoding error: {ex})", location=location
                     )
                 else:
                     if len(bytes_value) > (algo_constants.MAX_BYTES_LENGTH - 2):
                         logger.error(
-                            "encoded string exceeds max byte array length",
-                            location=literal.source_location,
+                            "encoded string exceeds max byte array length", location=location
                         )
                 return _arc4_str_literal(literal_value, self.source_location)
         return None

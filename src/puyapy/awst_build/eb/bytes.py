@@ -46,6 +46,7 @@ from puyapy.awst_build.eb.interface import (
     NodeBuilder,
 )
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -55,13 +56,13 @@ class BytesTypeBuilder(TypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.BytesType, location)
 
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case bytes(literal_value):
                 if len(literal_value) > algo_constants.MAX_BYTES_LENGTH:
-                    logger.error(
-                        "bytes constant exceeds max length", location=literal.source_location
-                    )
+                    logger.error("bytes constant exceeds max length", location=location)
 
                 expr = BytesConstant(
                     value=literal_value,

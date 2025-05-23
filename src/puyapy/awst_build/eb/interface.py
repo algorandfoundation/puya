@@ -275,11 +275,13 @@ class LiteralConverter(abc.ABC):
     def convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder: ...
 
     @abc.abstractmethod
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
         """
-        If the type of `literal.value` is correct, return a new instance, otherwise return `None`.
-        If the value is out of range or otherwise invalid, an error is logged,
-        but an instance is still returned.
+        If the type of `value` is correct, returns and InstanceBuilder, otherwise return `None`.
+        If the value is the correct type but out of range or otherwise invalid, an error is logged,
+        using location (which points to the source of the value), and a dummy instance is returned.
         """
 
 

@@ -34,11 +34,11 @@ from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
     BuilderComparisonOp,
     InstanceBuilder,
-    LiteralBuilder,
     NodeBuilder,
     StaticSizedCollectionBuilder,
 )
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -48,21 +48,21 @@ class StringTypeBuilder(BytesBackedTypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.StringType, location)
 
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case str(value):
                 try:
                     bytes_value = value.encode("utf8")
                 except UnicodeEncodeError as ex:
                     logger.error(  # noqa: TRY400
-                        f"invalid UTF-8 string (encoding error: {ex})",
-                        location=literal.source_location,
+                        f"invalid UTF-8 string (encoding error: {ex})", location=location
                     )
                 else:
                     if len(bytes_value) > algo_constants.MAX_BYTES_LENGTH:
                         logger.error(
-                            "string constant exceeds max byte array length",
-                            location=literal.source_location,
+                            "string constant exceeds max byte array length", location=location
                         )
                 expr = StringConstant(value=value, source_location=self.source_location)
                 return StringExpressionBuilder(expr)

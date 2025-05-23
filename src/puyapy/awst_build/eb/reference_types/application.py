@@ -9,12 +9,9 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import LiteralConvertingTypeBuilder, TypeBuilder
-from puyapy.awst_build.eb.interface import (
-    InstanceBuilder,
-    LiteralBuilder,
-    NodeBuilder,
-)
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.reference_types._base import UInt64BackedReferenceValueExpressionBuilder
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -24,11 +21,13 @@ class ApplicationTypeBuilder(TypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.ApplicationType, location)
 
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case int(int_value):
                 if int_value < 0 or int_value.bit_length() > 64:  # TODO: should this be 256?
-                    logger.error("invalid application ID", location=literal.source_location)
+                    logger.error("invalid application ID", location=location)
                 const = UInt64Constant(value=int_value, source_location=self.source_location)
                 expr = ReinterpretCast(
                     expr=const,

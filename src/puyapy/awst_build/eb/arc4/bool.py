@@ -16,12 +16,8 @@ from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuil
 from puyapy.awst_build.eb._utils import compare_bytes
 from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder, arc4_bool_bytes
 from puyapy.awst_build.eb.bool import BoolExpressionBuilder
-from puyapy.awst_build.eb.interface import (
-    BuilderComparisonOp,
-    InstanceBuilder,
-    LiteralBuilder,
-    NodeBuilder,
-)
+from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -31,8 +27,10 @@ class ARC4BoolTypeBuilder(ARC4TypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.ARC4BoolType, location)
 
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case bool(bool_literal):
                 return ARC4BoolExpressionBuilder(
                     BoolConstant(

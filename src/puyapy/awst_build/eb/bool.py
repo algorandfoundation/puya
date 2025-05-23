@@ -20,12 +20,8 @@ from puyapy.awst_build.eb._base import (
     NotIterableInstanceExpressionBuilder,
     TypeBuilder,
 )
-from puyapy.awst_build.eb.interface import (
-    BuilderComparisonOp,
-    InstanceBuilder,
-    LiteralBuilder,
-    NodeBuilder,
-)
+from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -35,8 +31,10 @@ class BoolTypeBuilder(TypeBuilder, LiteralConvertingTypeBuilder):
         super().__init__(pytypes.BoolType, location)
 
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case bool(literal_value):
                 expr = BoolConstant(value=literal_value, source_location=self.source_location)
                 return BoolExpressionBuilder(expr)

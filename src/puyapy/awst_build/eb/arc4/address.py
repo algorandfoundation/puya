@@ -21,13 +21,9 @@ from puyapy.awst_build.eb._base import LiteralConvertingTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
 from puyapy.awst_build.eb._utils import compare_expr_bytes
 from puyapy.awst_build.eb.arc4.static_array import StaticArrayExpressionBuilder
-from puyapy.awst_build.eb.interface import (
-    BuilderComparisonOp,
-    InstanceBuilder,
-    LiteralBuilder,
-    NodeBuilder,
-)
+from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.reference_types.account import AccountExpressionBuilder
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -37,14 +33,16 @@ class AddressTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType], LiteralConve
         super().__init__(pytypes.ARC4AddressType, location)
 
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case str(str_value):
                 if not utils.valid_address(str_value):
                     logger.error(
                         f"Invalid address value. Address literals should be"
                         f" {ENCODED_ADDRESS_LENGTH} characters and not include base32 padding",
-                        location=literal.source_location,
+                        location=location,
                     )
                 expr = AddressConstant(
                     value=str_value,

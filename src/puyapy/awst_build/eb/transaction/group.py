@@ -10,12 +10,9 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import LiteralConvertingTypeBuilder, TypeBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import (
-    InstanceBuilder,
-    LiteralBuilder,
-    NodeBuilder,
-)
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.eb.transaction.base import BaseTransactionExpressionBuilder
+from puyapy.models import ConstantValue
 
 logger = log.get_logger(__name__)
 
@@ -24,19 +21,20 @@ class GroupTransactionTypeBuilder(
     TypeBuilder[pytypes.GroupTransactionType], LiteralConvertingTypeBuilder
 ):
     @typing.override
-    def try_convert_literal(self, literal: LiteralBuilder) -> InstanceBuilder | None:
-        match literal.value:
+    def try_convert_literal(
+        self, value: ConstantValue, location: SourceLocation
+    ) -> InstanceBuilder | None:
+        match value:
             case int(int_value):
                 if int_value < 0:
                     logger.error(
-                        "transaction group index should be non-negative",
-                        location=literal.source_location,
+                        "transaction group index should be non-negative", location=location
                     )
                 elif int_value >= algo_constants.MAX_TRANSACTION_GROUP_SIZE:
                     logger.error(
                         "transaction group index should be"
                         f" less than {algo_constants.MAX_TRANSACTION_GROUP_SIZE}",
-                        location=literal.source_location,
+                        location=location,
                     )
                 typ = self.produces()
                 group_index = UInt64Constant(value=int_value, source_location=self.source_location)
