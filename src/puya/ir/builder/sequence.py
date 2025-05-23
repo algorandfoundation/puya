@@ -293,8 +293,9 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
         # note: at present, slot-backed arrays can only contain fixed elements
         if array_slot:
             mem.write_slot(self.context, array_slot, array, self.loc)
-
-        return array
+            return array_slot
+        else:
+            return array
 
 
 class DynamicElementArrayBuilder(_ArrayBuilderImpl):
