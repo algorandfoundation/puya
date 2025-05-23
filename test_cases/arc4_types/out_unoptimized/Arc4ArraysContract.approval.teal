@@ -4,7 +4,7 @@
 // test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 4
-    bytecblock 0x 0x000548656c6c6f 0x0002 0x0001 0x000450696e67
+    bytecblock 0x 0x000548656c6c6f " " 0x000450696e67
     intc_0 // 0
     dupn 4
     bytec_0 // ""
@@ -18,7 +18,11 @@ main_block@0:
     concat
     pushbytes 0x02
     concat
-    bytec_2 // 0x0002
+    bytec_0 // 0x
+    concat
+    intc_2 // 2
+    itob
+    extract 6 2
     swap
     concat
     dup
@@ -74,9 +78,13 @@ main_after_for@4:
     // arc4_types/array.py:31
     // aliased_dynamic = AliasedDynamicArray(UInt16(1))
     bytec_0 // 0x
-    bytec_3 // 0x0001
+    pushbytes 0x0001
     concat
-    bytec_3 // 0x0001
+    bytec_0 // 0x
+    concat
+    intc_1 // 1
+    itob
+    extract 6 2
     swap
     concat
     dup
@@ -130,24 +138,32 @@ main_after_for@8:
     assert // Total should now include sum of aliased_dynamic items
     // arc4_types/array.py:35
     // dynamic_string_array = DynamicArray[ARC4String](ARC4String("Hello"), ARC4String("World"))
+    bytec_0 // 0x
+    bytec_1 // 0x000548656c6c6f
+    concat
+    bytec_1 // 0x000548656c6c6f
+    len
+    intc_3 // 4
+    +
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    bytec_1 // 0x000548656c6c6f
-    len
-    intc_3 // 4
-    +
+    uncover 2
+    pushbytes 0x0005576f726c64
+    concat
+    swap
+    uncover 2
     itob
     extract 6 2
     concat
-    bytec_1 // 0x000548656c6c6f
+    swap
     concat
-    pushbytes 0x0005576f726c64
-    concat
-    bytec_2 // 0x0002
+    intc_2 // 2
+    itob
+    extract 6 2
     swap
     concat
     dup
@@ -260,7 +276,7 @@ main_else_body@12:
     // arc4_types/array.py:43
     // result += " " + string_item.native
     extract 2 0
-    pushbytes " "
+    bytec_2 // " "
     swap
     concat
     dig 13
@@ -288,7 +304,6 @@ main_after_for@15:
     pushbytes 0x00000080
     concat
     bytec_0 // 0x
-    swap
     concat
     bury 11
     intc_0 // 0
@@ -339,7 +354,6 @@ main_after_for@19:
     pushbytes 0x65
     concat
     bytec_0 // 0x
-    swap
     concat
     // arc4_types/array.py:58
     // assert (aliased_static[0].native + aliased_static[index].native) == 202
@@ -368,24 +382,27 @@ main_after_for@19:
     assert
     // arc4_types/array.py:60
     // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
+    bytec_0 // 0x
+    bytec_3 // 0x000450696e67
+    concat
+    bytec_3 // 0x000450696e67
+    len
+    intc_3 // 4
+    +
     intc_3 // 4
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    bytec 4 // 0x000450696e67
-    len
-    intc_3 // 4
-    +
+    uncover 2
+    pushbytes 0x0004506f6e67
+    concat
+    swap
+    uncover 2
     itob
     extract 6 2
     concat
-    bytec 4 // 0x000450696e67
-    concat
-    pushbytes 0x0004506f6e67
-    concat
-    bytec_0 // 0x
     swap
     concat
     bury 12
@@ -452,7 +469,7 @@ main_else_body@23:
     // arc4_types/array.py:67
     // result += " " + string_item.native
     extract 2 0
-    pushbytes " "
+    bytec_2 // " "
     swap
     concat
     dig 13

@@ -480,12 +480,12 @@ subroutine examples.box_storage.contract.BoxContract.slice_box() -> void:
 subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
     block@0: // L124
         let box_d#0: bytes = 0x64
-        let result%0#0: bytes = (concat 0x 0x00)
-        let result%1#0: bytes = (concat result%0#0 0x01)
-        let result%2#0: bytes = (concat result%1#0 0x02)
-        let result%3#0: bytes = (concat result%2#0 0x03)
-        let array_data%0#0: bytes = (concat 0x result%3#0)
-        (box_put box_d#0 array_data%0#0)
+        let encoded%0#0: Encoded((uint8)) = (concat 0x 0x00)
+        let encoded%1#0: Encoded((uint8,uint8)) = (concat encoded%0#0 0x01)
+        let encoded%2#0: Encoded((uint8,uint8,uint8)) = (concat encoded%1#0 0x02)
+        let encoded%3#0: Encoded((uint8,uint8,uint8,uint8)) = (concat encoded%2#0 0x03)
+        let encoded%4#0: bytes = (concat encoded%3#0 0x)
+        (box_put box_d#0 encoded%4#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_d#0)
         (assert maybe_exists%0#0) // check Box exists
         let bytes_offset%0#0: uint64 = (* 0u 1u)
