@@ -121,22 +121,6 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         self.loc = loc
         self.factory = OpFactory(context, loc)
 
-    def write_at_index(
-        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
-    ) -> ir.ValueProvider:
-        # TODO: remove this from base
-        from puya.ir.builder.arc4 import arc4_replace_array_item
-
-        return arc4_replace_array_item(
-            self.context,
-            array=array,
-            index=index,
-            array_encoding=self.array_encoding,
-            element_ir_type=self.element_ir_type,
-            value_vp=value,
-            source_location=self.loc,
-        )
-
     def iterator(self, array: ir.Value) -> ArrayIterator:
         length_vp = self.length(array)
         length = self.factory.materialise_single(length_vp, "array_length")
@@ -176,13 +160,36 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
                 source_location=self.loc,
             )
 
+    def _maybe_bounds_check(self, array: ir.Value, index: ir.Value) -> None:
+        if not self.assert_bounds:
+            return
+        # don't need to check bounds for slot-backed arrays since an invalid index will
+        # be out of bounds of the underlying bytes, and any nested elements will be extracted
+        # first and checked separately
+        if isinstance(self.array_ir_type, SlotType):
+            return
+        if (
+            isinstance(index, ir.UInt64Constant)
+            and self.array_encoding.size is not None
+            and index.value >= self.array_encoding.size
+        ):
+            logger.error("index access is out of bounds", location=self.loc)
+
+        array_length = self.factory.materialise_single(self.length(array), "array_length")
+        index_is_in_bounds = self.factory.lt(index, array_length)
+        assert_value(
+            self.context,
+            index_is_in_bounds,
+            error_message="index access is out of bounds",
+            source_location=self.loc,
+        )
+
 
 class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
-        if self.assert_bounds:
-            # this catches the edge case of bit arrays that are not a multiple of 8
-            # e.g. reading index 6 & 7 of an array that has a length of 6
-            _assert_index_in_bounds(self.factory, index, self.length(array))
+        # this catches the edge case of bit arrays that are not a multiple of 8
+        # e.g. reading index 6 & 7 of an array that has a length of 6
+        self._maybe_bounds_check(array, index)
 
         if self.array_encoding.length_header:
             # TODO: consider incrementing index by 16 instead
@@ -212,8 +219,27 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
     def write_at_index(
         self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
     ) -> ir.ValueProvider:
-        _todo("bit packed bool array write", array.source_location)
-        return super().write_at_index(array, index, value)
+        # this catches the edge case of bit arrays that are not a multiple of 8
+        # e.g. reading index 6 & 7 of an array that has a length of 6
+        self._maybe_bounds_check(array, index)
+
+        element_encoding = self.array_encoding.element
+        assert element_encoding.num_bits == 1, "expected bit packed bool"
+
+        if not self.array_encoding.length_header:
+            write_offset = index
+        else:
+            write_offset = self.factory.add(index, 16, "write_offset_with_length_header")
+
+        is_true = self.factory.materialise_single(value, "is_true")
+        if isinstance(self.element_ir_type, EncodedType):
+            is_true = self.factory.get_bit(is_true, 0, "is_true")
+        return self.factory.set_bit(
+            value=array,
+            index=write_offset,
+            bit=is_true,
+            temp_desc="updated_target",
+        )
 
 
 class FixedElementArrayBuilder(_ArrayBuilderImpl):
@@ -221,6 +247,12 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
         # note: at present, slot-backed arrays can only contain fixed elements
         if isinstance(self.array_ir_type, SlotType):
             array = mem.read_slot(self.factory.context, array, self.loc)
+
+        # TODO: is it safe to not bounds check on fixed element arrays?
+        #       in some cases yes, e.g. after an extract of the whole array
+        #       but in other cases no, e.g. txn arguments
+        #       perhaps we could assert the array len once and then trust the size after that?
+        # self._maybe_bounds_check(array, index)
         if self.array_encoding.length_header:
             # note: this could also be achieved by incrementing the offset by 2
             #       the current approach uses more space but less ops
@@ -239,8 +271,30 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
     def write_at_index(
         self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
     ) -> ir.ValueProvider:
-        _todo("fixed element array write", self.loc)
-        return super().write_at_index(array, index, value)
+        encoded = self._maybe_encode(value)
+        encoded = self.factory.materialise_single(encoded, "encoded_value")
+
+        # note: at present, slot-backed arrays can only contain fixed elements
+        array_slot = None
+        if isinstance(self.array_ir_type, SlotType):
+            array_slot = array
+            array = mem.read_slot(self.factory.context, array, self.loc)
+
+        # TODO: is it safe to not bounds check on fixed element arrays?
+        # self._maybe_bounds_check(array, index)
+
+        element_encoding = self.array_encoding.element
+
+        write_offset = self.factory.mul(index, element_encoding.checked_num_bytes, "write_offset")
+        if self.array_encoding.length_header:
+            write_offset = self.factory.add(write_offset, 2, "write_offset_with_length_header")
+
+        array = self.factory.replace(array, write_offset, encoded, "updated_array")
+        # note: at present, slot-backed arrays can only contain fixed elements
+        if array_slot:
+            mem.write_slot(self.context, array_slot, array, self.loc)
+
+        return array
 
 
 class DynamicElementArrayBuilder(_ArrayBuilderImpl):
@@ -257,8 +311,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         if self.array_encoding.length_header:
             array_head_and_tail = self.factory.extract_to_end(array, 2, "array_head_and_tail")
         if self.inner_element_size is not None:
-            if self.assert_bounds:
-                _assert_index_in_bounds(self.factory, index, self.length(array))
+            self._maybe_bounds_check(array, index)
             item = self._read_item_from_array_length_and_fixed_size(array_head_and_tail, index)
         else:
             # no _assert_index_in_bounds here as end offset calculation implicitly checks
@@ -349,6 +402,8 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
     ) -> ir.ValueProvider:
         from puya.ir.builder.arc4 import _invoke_puya_lib_subroutine
 
+        self._maybe_bounds_check(array, index)
+
         value = self._maybe_encode(value)
         value = self.factory.materialise_single(value, "encoded_value")
 
@@ -364,7 +419,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         if (
             isinstance(element_encoding, ArrayEncoding)
             and element_encoding.length_header
-            and element_encoding.size == 1
+            and element_encoding.element.num_bytes == 1
         ):
             # elements where their length header is also their size in bytes
             # e.g. string, byte[], uint8[]
@@ -411,27 +466,6 @@ class BytesIndexableBuilder(SequenceBuilder):
 
 
 # end region
-
-
-def _assert_index_in_bounds(
-    factory: OpFactory,
-    index: ir.Value,
-    length: ir.ValueProvider,
-) -> None:
-    match index, length:
-        case ir.UInt64Constant(value=index_int), ir.UInt64Constant(
-            value=length_int
-        ) if index_int >= length_int:
-            logger.error("index access is out of bounds", location=factory.source_location)
-
-    array_length = factory.materialise_single(length, "array_length")
-    index_is_in_bounds = factory.lt(index, array_length)
-    assert_value(
-        factory.context,
-        index_is_in_bounds,
-        error_message="index access is out of bounds",
-        source_location=factory.source_location,
-    )
 
 
 def _is_fixed_element(encoding: Encoding) -> bool:
