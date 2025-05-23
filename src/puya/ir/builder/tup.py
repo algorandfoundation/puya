@@ -6,8 +6,8 @@ from puya.ir.encodings import (
     TupleEncoding,
 )
 from puya.ir.types_ import (
-    AggregateIRType,
     IRType,
+    TupleIRType,
     wtype_to_ir_type_and_encoding,
 )
 from puya.parse import SourceLocation
@@ -60,7 +60,7 @@ class FixedEncodedTupleBuilder(TupleBuilder):
 
 def get_tuple_builder(tuple_type: wtypes.WType, loc: SourceLocation) -> TupleBuilder | None:
     tuple_ir_type, tuple_encoding = wtype_to_ir_type_and_encoding(tuple_type, loc)
-    if isinstance(tuple_ir_type, AggregateIRType):
+    if isinstance(tuple_ir_type, TupleIRType):
         return StackTupleBuilder(tuple_ir_type)
     match tuple_encoding:
         case TupleEncoding() as tup if tup.is_dynamic:
