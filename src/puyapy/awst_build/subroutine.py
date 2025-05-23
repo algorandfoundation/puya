@@ -22,7 +22,6 @@ from puya.awst.nodes import (
     BooleanBinaryOperation,
     BytesConstant,
     BytesEncoding,
-    ConditionalExpression,
     ContractMethod,
     Expression,
     ExpressionStatement,
@@ -54,7 +53,7 @@ from puyapy.awst_build.context import ASTConversionModuleContext
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 from puyapy.awst_build.eb.arc4 import ARC4ClientTypeBuilder
-from puyapy.awst_build.eb.conditional_literal import ConditionalLiteralBuilder
+from puyapy.awst_build.eb.conditional_literal import DeferredConditionalExpressionBuilder
 from puyapy.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
@@ -405,36 +404,12 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
     def visit_conditional_expr(self, expr: mypy.nodes.ConditionalExpr) -> NodeBuilder:
         expr_loc = self._location(expr)
         condition = expr.cond.accept(self).bool_eval(self._location(expr.cond))
-        true_b = require_instance_builder(expr.if_expr.accept(self))
-        false_b = require_instance_builder(expr.else_expr.accept(self))
-        if true_b.pytype <= false_b.pytype:
-            expr_pytype = true_b.pytype
-        elif false_b.pytype < true_b.pytype:
-            expr_pytype = false_b.pytype
-        else:
-            raise CodeError(
-                "incompatible result types for 'true' and 'false' expressions", expr_loc
-            )
+        true = require_instance_builder(expr.if_expr.accept(self))
+        false = require_instance_builder(expr.else_expr.accept(self))
 
-        if (
-            isinstance(expr_pytype, pytypes.LiteralOnlyType)
-            and isinstance(true_b, LiteralBuilder)
-            and isinstance(false_b, LiteralBuilder)
-        ):
-            return ConditionalLiteralBuilder(
-                true_literal=true_b,
-                false_literal=false_b,
-                condition=condition,
-                location=expr_loc,
-            )
-        else:
-            cond_expr = ConditionalExpression(
-                condition=condition.resolve(),
-                true_expr=true_b.resolve(),
-                false_expr=false_b.resolve(),
-                source_location=expr_loc,
-            )
-            return builder_for_instance(expr_pytype, cond_expr)
+        return DeferredConditionalExpressionBuilder.deferred_if_required(
+            true=true, false=false, condition=condition, location=expr_loc
+        )
 
     @typing.override
     def visit_comparison_expr(self, expr: mypy.nodes.ComparisonExpr) -> NodeBuilder:
