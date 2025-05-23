@@ -126,11 +126,14 @@ class TupleEncoding(Encoding):
 @attrs.frozen(str=False)
 class ArrayEncoding(Encoding):
     element: Encoding
+    size: int | None
+    length_header: bool
 
 
 @attrs.frozen(str=False)
 class DynamicArrayEncoding(ArrayEncoding):
     length_header: bool = attrs.field()
+    size: None = attrs.field(default=None, init=False)
 
     @cached_property
     def num_bits(self) -> None:
@@ -148,6 +151,7 @@ class DynamicArrayEncoding(ArrayEncoding):
 @attrs.frozen(str=False)
 class FixedArrayEncoding(ArrayEncoding):
     size: int
+    length_header: bool = attrs.field(default=False, init=False)
 
     @cached_property
     def num_bits(self) -> int | None:
