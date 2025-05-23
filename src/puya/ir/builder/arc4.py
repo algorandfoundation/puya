@@ -784,11 +784,13 @@ def handle_arc4_assign(
             element_ir_type = wtype_to_ir_type(
                 array_wtype.element_type, source_location=source_location, allow_aggregate=True
             )
+            array = context.visitor.visit_and_materialise_single(base_expr)
+            index = context.visitor.visit_and_materialise_single(index_value)
 
             item = arc4_replace_array_item(
                 context,
-                base_expr=base_expr,
-                index_value_expr=index_value,
+                array=array,
+                index=index,
                 array_encoding=array_encoding,
                 element_ir_type=element_ir_type,
                 value_vp=value,
@@ -1554,17 +1556,16 @@ def _encode_native_uint64_to_arc4(
 
 
 def arc4_replace_array_item(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     *,
-    base_expr: awst_nodes.Expression,
-    index_value_expr: awst_nodes.Expression,
+    array: Value,
+    index: Value,
     array_encoding: ArrayEncoding,
     element_ir_type: IRType,
     value_vp: ValueProvider,
     source_location: SourceLocation,
 ) -> Value:
     factory = OpFactory(context, source_location)
-    base = context.visitor.visit_and_materialise_single(base_expr)
     element_encoding = array_encoding.element
 
     # TODO: use ValueEncode
@@ -1574,9 +1575,7 @@ def arc4_replace_array_item(
         )
         value: Value = factory.materialise_single(encoded_vp, "encoded")
     else:
-        (value,) = context.visitor.materialise_value_provider(value_vp, "assigned_value")
-
-    index = context.visitor.visit_and_materialise_single(index_value_expr)
+        value = factory.materialise_single(value_vp, "assigned_value")
 
     def updated_result(method_name: str, args: list[Value | int | bytes]) -> Value:
         invoke = _invoke_puya_lib_subroutine(
@@ -1590,18 +1589,18 @@ def arc4_replace_array_item(
     if _is_byte_length_header(element_encoding):
         if isinstance(array_encoding, FixedArrayEncoding):
             return updated_result(
-                "static_array_replace_byte_length_head", [base, value, index, array_encoding.size]
+                "static_array_replace_byte_length_head", [array, value, index, array_encoding.size]
             )
         else:
-            return updated_result("dynamic_array_replace_byte_length_head", [base, value, index])
+            return updated_result("dynamic_array_replace_byte_length_head", [array, value, index])
     elif element_encoding.is_dynamic:
         if isinstance(array_encoding, FixedArrayEncoding):
             return updated_result(
-                "static_array_replace_dynamic_element", [base, value, index, array_encoding.size]
+                "static_array_replace_dynamic_element", [array, value, index, array_encoding.size]
             )
         elif isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header:
-            return updated_result("dynamic_array_replace_dynamic_element", [base, value, index])
-    array_length_vp = get_array_length(context, array_encoding, base, source_location)
+            return updated_result("dynamic_array_replace_dynamic_element", [array, value, index])
+    array_length_vp = get_array_length(context, array_encoding, array, source_location)
     array_length = factory.materialise_single(array_length_vp, "array_length")
     _assert_index_in_bounds(context, index, array_length, source_location)
     assert element_encoding.num_bytes is not None, "expected static element"
@@ -1617,9 +1616,10 @@ def arc4_replace_array_item(
     else:
         offset_per_item = element_num_bits // 8
 
-    if isinstance(index_value_expr, awst_nodes.IntegerConstant):
+    if isinstance(index, UInt64Constant):
+        # TODO: can leave this to the optimizer?
         write_offset: Value = UInt64Constant(
-            value=index_value_expr.value * offset_per_item + dynamic_offset,
+            value=index.value * offset_per_item + dynamic_offset,
             source_location=source_location,
         )
     else:
@@ -1643,13 +1643,13 @@ def arc4_replace_array_item(
     if element_num_bits == 1:
         is_true = factory.get_bit(value, 0, "is_true")
         updated_target = factory.set_bit(
-            value=base,
+            value=array,
             index=write_offset,
             bit=is_true,
             temp_desc="updated_target",
         )
     else:
-        updated_target = factory.replace(base, write_offset, value, "updated_target")
+        updated_target = factory.replace(array, write_offset, value, "updated_target")
     return updated_target
 
 
@@ -1800,13 +1800,13 @@ def _get_arc4_array_tail(
 
 
 def _invoke_puya_lib_subroutine(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     *,
     full_name: PuyaLibIR,
     args: Sequence[Value | int | bytes],
     source_location: SourceLocation,
 ) -> InvokeSubroutine:
-    sub = context.embedded_funcs_lookup[full_name]
+    sub = context.resolve_embedded_func(full_name)
     return InvokeSubroutine(
         target=sub,
         args=[convert_constants(arg, source_location) for arg in args],

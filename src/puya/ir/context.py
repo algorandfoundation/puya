@@ -135,6 +135,9 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
     def _block_builder_factory(self) -> BlocksBuilder:
         return BlocksBuilder(self.subroutine.parameters, self.function.source_location)
 
+    def resolve_embedded_func(self, full_name: str) -> Subroutine:
+        return self.embedded_funcs_lookup[full_name]
+
     def next_tmp_name(self, description: str) -> str:
         counter_value = next(self._tmp_counters[description])
         return f"{description}{TMP_VAR_INDICATOR}{counter_value}"

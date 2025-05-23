@@ -1,5 +1,4 @@
 import abc
-import typing
 from functools import cached_property
 
 from puya import log
@@ -46,8 +45,10 @@ class SequenceBuilder(abc.ABC):
         """Reads the value from the specified index and performs any decoding required"""
 
     @abc.abstractmethod
-    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.ValueProvider) -> None:
-        """Encodes the value and writes to the specified index"""
+    def write_at_index(
+        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
+    ) -> ir.ValueProvider:
+        """Encodes the value and writes to the specified index and returns the updated result"""
 
     @abc.abstractmethod
     def length(self, array: ir.Value) -> ir.ValueProvider:
@@ -123,8 +124,21 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
             isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header
         )
 
-    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.ValueProvider) -> None:
-        _todo("ARC-4 shim array write", array.source_location)
+    def write_at_index(
+        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
+    ) -> ir.ValueProvider:
+        # TODO: remove this from base
+        from puya.ir.builder.arc4 import arc4_replace_array_item
+
+        return arc4_replace_array_item(
+            self.context,
+            array=array,
+            index=index,
+            array_encoding=self.array_encoding,
+            element_ir_type=self.element_ir_type,
+            value_vp=value,
+            source_location=self.loc,
+        )
 
     def iterator(self, array: ir.Value) -> ArrayIterator:
         length_vp = self.length(array)
@@ -187,8 +201,11 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
         else:
             return item
 
-    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.ValueProvider) -> None:
+    def write_at_index(
+        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
+    ) -> ir.ValueProvider:
         _todo("bit packed bool array write", array.source_location)
+        return super().write_at_index(array, index, value)
 
 
 class FixedElementArrayBuilder(_ArrayBuilderImpl):
@@ -211,8 +228,11 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
         )
         return self._maybe_decode(encoded_element)
 
-    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.ValueProvider) -> None:
+    def write_at_index(
+        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
+    ) -> ir.ValueProvider:
         _todo("fixed element array write", self.loc)
+        return super().write_at_index(array, index, value)
 
 
 class DynamicElementArrayBuilder(_ArrayBuilderImpl):
@@ -316,8 +336,11 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         )
         return self.factory.substring3(array_head_and_tail, item_start_offset, item_end_offset)
 
-    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.ValueProvider) -> None:
+    def write_at_index(
+        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
+    ) -> ir.ValueProvider:
         _todo("dynamic element array write", array.source_location)
+        return super().write_at_index(array, index, value)
 
 
 class BytesIndexableBuilder(SequenceBuilder):
@@ -332,8 +355,9 @@ class BytesIndexableBuilder(SequenceBuilder):
 
     def write_at_index(
         self, array: ir.Value, index: ir.Value | int, value: ir.ValueProvider
-    ) -> None:
+    ) -> ir.ValueProvider:
         self._immutable()
+        return ir.Undefined(ir_type=array.ir_type, source_location=self.loc)
 
     def iterator(self, array: ir.Value) -> ArrayIterator:
         return ArrayIterator(
@@ -378,5 +402,5 @@ def _is_fixed_element(encoding: Encoding) -> bool:
     )
 
 
-def _todo(msg: str, loc: SourceLocation | None) -> typing.Never:
-    raise CodeError(msg, loc)
+def _todo(msg: str, loc: SourceLocation | None) -> None:
+    logger.warning(msg, location=loc)

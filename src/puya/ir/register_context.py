@@ -1,6 +1,6 @@
 import abc
 
-from puya.ir.models import Op, Register, ValueProvider
+from puya.ir.models import Op, Register, Subroutine, ValueProvider
 from puya.ir.types_ import IRType
 from puya.parse import SourceLocation
 
@@ -21,3 +21,6 @@ class IRRegisterContext(abc.ABC):
 
     @abc.abstractmethod
     def add_op(self, op: Op) -> None: ...
+
+    @abc.abstractmethod
+    def resolve_embedded_func(self, full_name: str) -> Subroutine: ...
