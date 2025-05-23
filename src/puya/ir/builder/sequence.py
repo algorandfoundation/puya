@@ -7,7 +7,7 @@ from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import mem
-from puya.ir.builder._utils import OpFactory, assert_value
+from puya.ir.builder._utils import OpFactory, assert_value, invoke_puya_lib_subroutine
 from puya.ir.builder.arrays import ArrayIterator
 from puya.ir.encodings import (
     ArrayEncoding,
@@ -401,8 +401,6 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
     def write_at_index(
         self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
     ) -> ir.ValueProvider:
-        from puya.ir.builder.arc4 import _invoke_puya_lib_subroutine
-
         self._maybe_bounds_check(array, index)
 
         value = self._maybe_encode(value)
@@ -428,7 +426,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         else:
             element_type = "dynamic_element"
         full_name = f"_puya_lib.arc4.{array_type}_array_replace_{element_type}"
-        invoke = _invoke_puya_lib_subroutine(
+        invoke = invoke_puya_lib_subroutine(
             self.context,
             full_name=full_name,
             args=args,
