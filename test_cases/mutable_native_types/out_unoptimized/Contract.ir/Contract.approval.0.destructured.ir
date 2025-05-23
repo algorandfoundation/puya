@@ -95,7 +95,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.__init__() -> void:
 
 subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() -> void:
     block@0: // L89
-        let arr_3#0: Encoded(uint64[3]) = (bzero 24u)
+        let materialized_values%0#0: Encoded(uint64[3]) = (bzero 24u)
+        let arr_3#0: Encoded(uint64[3]) = materialized_values%0#0
         let array%val_as_bytes%0#1: bytes[8] = (itob 0u)
         let encoded_value%0#0: Encoded(uint64) = array%val_as_bytes%0#1
         let write_offset%0#0: uint64 = (* 0u 8u)
@@ -183,8 +184,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         let encoded_element%0#0: bytes = (extract3 maybe_value%1#0 bytes_offset%0#0 48u) // on error: index access is out of bounds
         let encoded%0#0: bytes = (extract3 encoded_element%0#0 40u 8u) // on error: Index access is out of bounds
         let tmp%1#0: uint64 = (btoi encoded%0#0)
-        let assigned_value%0#0: uint64 = (+ tmp%1#0 amt#0)
-        let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#0)
+        let materialized_values%0#0: uint64 = (+ tmp%1#0 amt#0)
+        let val_as_bytes%0#0: bytes[8] = (itob materialized_values%0#0)
         let updated_data%0#0: bytes = (replace3 encoded_element%0#0 40u val_as_bytes%0#0)
         let write_offset%0#0: uint64 = (* index#0 48u)
         let updated_array%0#0: bytes = (replace3 maybe_value%1#0 write_offset%0#0 updated_data%0#0)
@@ -308,13 +309,16 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
     block@0: // L166
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let fixed_a#0: Encoded((uint64,uint64)) = (extract3 maybe_value%0#0 0u 16u) // on error: Index access is out of bounds
+        let materialized_values%0#0: bytes = (extract3 maybe_value%0#0 0u 16u) // on error: Index access is out of bounds
+        let fixed_a#0: Encoded((uint64,uint64)) = materialized_values%0#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%1#0) // check self.nested exists
-        let fixed_b#0: Encoded((uint64,uint64)) = (extract3 maybe_value%1#0 16u 16u) // on error: Index access is out of bounds
+        let materialized_values%1#0: bytes = (extract3 maybe_value%1#0 16u 16u) // on error: Index access is out of bounds
+        let fixed_b#0: Encoded((uint64,uint64)) = materialized_values%1#0
         let tmp%0#0: uint64 = test_cases.mutable_native_types.contract.add(fixed_a#0)
         let tmp%1#0: uint64 = test_cases.mutable_native_types.contract.add(fixed_b#0)
-        let result#0: uint64 = (+ tmp%0#0 tmp%1#0)
+        let materialized_values%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
+        let result#0: uint64 = materialized_values%2#0
         let tmp%2#0: bool = (< result#0 100u)
         let result#6: uint64 = result#0
         goto tmp%2#0 ? block@1 : block@2
@@ -328,8 +332,10 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
         let item1%1#0: uint64 = (btoi item1%0#0)
         let c#0: uint64 = item0%1#0
         let d#0: uint64 = item1%1#0
-        let result#0: uint64 = (+ result#0 c#0)
-        let result#0: uint64 = (+ result#0 d#0)
+        let materialized_values%3#0: uint64 = (+ result#0 c#0)
+        let result#0: uint64 = materialized_values%3#0
+        let materialized_values%4#0: uint64 = (+ result#0 d#0)
+        let result#0: uint64 = materialized_values%4#0
         let result#6: uint64 = result#0
         goto block@2
     block@2: // after_if_else_L171

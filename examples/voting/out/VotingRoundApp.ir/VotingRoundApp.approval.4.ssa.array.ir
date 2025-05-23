@@ -313,8 +313,8 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         itxn_submit
-        let materialized_values%1#0: uint64 = (itxn CreatedAssetID)
-        (app_global_put "nft_asset_id" materialized_values%1#0)
+        let materialized_values%10#0: uint64 = (itxn CreatedAssetID)
+        (app_global_put "nft_asset_id" materialized_values%10#0)
         return 
 
 subroutine examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> Encoded((uint64,uint64,uint64,uint64)):
@@ -340,8 +340,8 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         (assert tmp%0#0) // Not allowed to vote
         let tmp%1#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
         (assert tmp%1#0) // Voting not open
-        let materialized_values%0#1: bytes[32] = (txn Sender)
-        let (_%0#0: uint64, maybe_exists%0#1: bool) = (box_len materialized_values%0#1)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let (_%0#0: uint64, maybe_exists%0#1: bool) = (box_len materialized_values%0#0)
         let tmp%3#0: bool = (! maybe_exists%0#1)
         (assert tmp%3#0) // Already voted
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
@@ -390,13 +390,13 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         let tmp%1#1: bytes = (itob tmp%0#1)
         (box_replace "V" index#0 tmp%1#1)
         let cumulative_offset#2: uint64 = (+ cumulative_offset#1 options_count#0)
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        (box_del materialized_values%0#0)
-        (box_put materialized_values%0#0 answer_ids#0)
+        let materialized_values%5#0: bytes[32] = (txn Sender)
+        (box_del materialized_values%5#0)
+        (box_put materialized_values%5#0 answer_ids#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "voter_count")
         (assert maybe_exists%2#0) // check self.voter_count exists
-        let materialized_values%1#0: uint64 = (+ maybe_value%2#0 1u)
-        (app_global_put "voter_count" materialized_values%1#0)
+        let materialized_values%6#0: uint64 = (+ maybe_value%2#0 1u)
+        (app_global_put "voter_count" materialized_values%6#0)
         let question_index#2: uint64 = (+ question_index#1 1u)
         goto block@1
     block@4: // after_for_L195

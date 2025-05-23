@@ -334,15 +334,18 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:
         (assert tmp%4#0)
         let (_%4#0: uint64, maybe_exists%4#0: bool) = (box_len "blob")
         (assert maybe_exists%4#0) // has data
-        let sender_bytes#0: bytes = (txn Sender)
-        let app_address#0: bytes = (global CurrentApplicationAddress)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let sender_bytes#0: bytes = materialized_values%0#0
+        let materialized_values%1#0: bytes[32] = (global CurrentApplicationAddress)
+        let app_address#0: bytes = materialized_values%1#0
         (box_replace "blob" 0u sender_bytes#0)
         (box_resize "blob" 8000u)
         (box_splice "blob" 0u 0u app_address#0)
         (box_replace "blob" 64u 0x68656c6c6f)
         let tmp%5#0: uint64 = (len 0x68656c6c6f)
         let tmp%6#0: uint64 = (+ 64u tmp%5#0)
-        let prefix#0: bytes = (box_extract "blob" 0u tmp%6#0)
+        let materialized_values%2#0: bytes = (box_extract "blob" 0u tmp%6#0)
+        let prefix#0: bytes = materialized_values%2#0
         let tmp%7#0: bytes = (concat app_address#0 sender_bytes#0)
         let tmp%8#0: bytes = (concat tmp%7#0 0x68656c6c6f)
         let tmp%9#0: bool = (== prefix#0 tmp%8#0)

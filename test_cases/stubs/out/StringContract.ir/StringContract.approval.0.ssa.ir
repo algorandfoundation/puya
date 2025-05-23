@@ -20,8 +20,10 @@ main test_cases.stubs.string.StringContract.approval_program:
         let tmp%10#0: bool = (!= empty#0 non_empty#0)
         (assert tmp%10#0)
         let c#0: string = "c"
-        let c#1: string = (concat c#0 "d")
-        let c#2: string = (concat c#1 "e")
+        let materialized_values%0#0: bytes = (concat c#0 "d")
+        let c#1: string = materialized_values%0#0
+        let materialized_values%1#0: bytes = (concat c#1 "e")
+        let c#2: string = materialized_values%1#0
         let tmp%11#0: bool = (== c#2 "cde")
         (assert tmp%11#0)
         let tmp%12#0: bool = _puya_lib.bytes_.is_substring("brown fox", "The quick brown fox jumped over the lazy dog")
@@ -282,7 +284,8 @@ subroutine _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> bool:
     block@3: // if_body_L13
         return 1u
     block@4: // after_if_else_L12
-        let start#2: uint64 = (+ start#1 1u)
+        let materialized_values%0#0: uint64 = (+ start#1 1u)
+        let start#2: uint64 = materialized_values%0#0
         goto block@1
     block@5: // after_while_L11
         return 0u

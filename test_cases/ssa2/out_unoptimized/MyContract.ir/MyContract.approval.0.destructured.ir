@@ -1,7 +1,9 @@
 main test_cases.ssa2.contract.MyContract.approval_program:
     block@0: // L7
-        let a#0: uint64 = (+ 1u 2u)
-        let b#0: uint64 = (* 4u 5u)
+        let materialized_values%0#0: uint64 = (+ 1u 2u)
+        let a#0: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = (* 4u 5u)
+        let b#0: uint64 = materialized_values%1#0
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
@@ -9,8 +11,10 @@ main test_cases.ssa2.contract.MyContract.approval_program:
         let continue_looping%0#0: bool = (< i#0 5u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L16
-        let b#0: uint64 = (+ b#0 a#0)
-        let a#0: uint64 = (+ a#0 i#0)
+        let materialized_values%2#0: uint64 = (+ b#0 a#0)
+        let b#0: uint64 = materialized_values%2#0
+        let materialized_values%3#0: uint64 = (+ a#0 i#0)
+        let a#0: uint64 = materialized_values%3#0
         goto block@3
     block@3: // for_footer_L15
         let i#0: uint64 = (+ i#0 1u)
