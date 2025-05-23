@@ -10,19 +10,21 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import mem
 from puya.ir.builder._utils import OpFactory, assert_value
 from puya.ir.builder.arrays import ArrayIterator
-from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import (
+from puya.ir.encodings import (
     ArrayEncoding,
     BoolEncoding,
     DynamicArrayEncoding,
-    EncodedType,
     Encoding,
     FixedArrayEncoding,
+    wtype_to_encoding,
+)
+from puya.ir.register_context import IRRegisterContext
+from puya.ir.types_ import (
+    EncodedType,
     IRType,
     PrimitiveIRType,
     SlotType,
     type_has_encoding,
-    wtype_to_encoding,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
