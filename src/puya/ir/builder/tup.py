@@ -2,10 +2,12 @@ import abc
 
 from puya.awst import wtypes
 from puya.ir import models as ir
+from puya.ir.encodings import (
+    TupleEncoding,
+)
 from puya.ir.types_ import (
     AggregateIRType,
     IRType,
-    TupleEncoding,
     wtype_to_ir_type_and_encoding,
 )
 from puya.parse import SourceLocation

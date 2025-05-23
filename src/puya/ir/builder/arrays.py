@@ -11,15 +11,17 @@ from puya.ir import models as ir
 from puya.ir.builder._utils import OpFactory, assign_targets
 from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
+from puya.ir.encodings import (
+    ArrayEncoding,
+    DynamicArrayEncoding,
+    Encoding,
+    TupleEncoding,
+)
 from puya.ir.models import Value, ValueProvider
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
-    ArrayEncoding,
-    DynamicArrayEncoding,
     EncodedType,
-    Encoding,
     SlotType,
-    TupleEncoding,
     ir_type_to_ir_types,
     wtype_to_ir_type_and_encoding,
 )
