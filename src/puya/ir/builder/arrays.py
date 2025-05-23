@@ -21,7 +21,6 @@ from puya.ir.types_ import (
     SlotType,
     TupleEncoding,
     ir_type_to_ir_types,
-    type_has_encoding,
     wtype_to_ir_type_and_encoding,
 )
 from puya.parse import SourceLocation, sequential_source_locations_merge
@@ -105,51 +104,6 @@ def concat_arrays(
         "extended",
     )
     return result
-
-
-def build_for_in_array(
-    context: IRFunctionBuildContext,
-    array_expr: awst.Expression,
-    source_location: SourceLocation,
-) -> ArrayIterator:
-    # TODO: separate array ops from slot ops
-    factory = OpFactory(context, source_location)
-
-    array_slot = context.visitor.visit_and_materialise_single(array_expr)
-    array_loc = array_expr.source_location
-    array_contents = read_slot(context, array_slot, array_loc)
-    array_length_vp = ir.ArrayLength(array=array_contents, source_location=array_loc)
-    array_length = factory.materialise_single(array_length_vp, "array_length")
-    array_wtype = array_expr.wtype
-    assert isinstance(
-        array_wtype, wtypes.StackArray | wtypes.ReferenceArray | wtypes.ARC4Array
-    ), "expected array type"
-    element_wtype = array_wtype.element_type
-
-    element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
-        element_wtype, source_location
-    )
-
-    def _read_and_decode(index: ir.Value) -> ir.ValueProvider:
-        read_item = ir.ArrayReadIndex(
-            array=read_slot(context, array_slot, source_location),
-            index=index,
-            source_location=source_location,
-        )
-        if type_has_encoding(element_ir_type, element_encoding):
-            return read_item
-        else:
-            return ir.ValueDecode(
-                value=factory.materialise_single(read_item, "read_item"),
-                encoding=element_encoding,
-                decoded_type=element_ir_type,
-                source_location=source_location,
-            )
-
-    return ArrayIterator(
-        array_length=array_length,
-        get_value_at_index=_read_and_decode,
-    )
 
 
 def pop_array(
