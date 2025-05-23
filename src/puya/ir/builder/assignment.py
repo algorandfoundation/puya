@@ -9,20 +9,17 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, mem, storage
+from puya.ir.builder import arc4, sequence, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
-    OpFactory,
     assign,
     assign_targets,
-    assign_temp,
     get_implicit_return_is_original,
 )
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.types_ import (
     PrimitiveIRType,
     get_wtype_arity,
-    wtype_to_ir_type_and_encoding,
 )
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -55,7 +52,11 @@ def handle_assignment(
     *,
     is_nested_update: bool,
 ) -> Sequence[ir.Value]:
-    factory = OpFactory(context, assignment_location)
+    # force materialization of value to ensure correct ordering
+    value = context.visitor.materialise_value_provider_as_value_or_tuple(
+        value, "materialized_values"
+    )
+    source = list(value.values) if isinstance(value, ir.ValueTuple) else [value]
     match target:
         # special case: a nested update can cause a tuple item to be re-assigned
         # TODO: refactor this so that this special case is handled where it originates
@@ -89,9 +90,6 @@ def handle_assignment(
                 is_nested_update=is_nested_update,
             )
         case awst_nodes.TupleExpression() as tup_expr:
-            source = context.visitor.materialise_value_provider(
-                value, description="tuple_assignment"
-            )
             results = list[ir.Value]()
             for item in tup_expr.items:
                 arity = get_wtype_arity(item.wtype)
@@ -120,7 +118,6 @@ def handle_assignment(
         case awst_nodes.AppStateExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
-            source = context.visitor.materialise_value_provider(value, "materialized_values")
             key_value = context.visitor.visit_and_materialise_single(awst_key)
             codec = storage.get_storage_codec(
                 wtype, awst_nodes.AppStorageKind.app_global, field_location
@@ -137,7 +134,6 @@ def handle_assignment(
         case awst_nodes.AppAccountStateExpression(
             key=awst_key, account=account_expr, wtype=wtype, source_location=field_location
         ):
-            source = context.visitor.materialise_value_provider(value, "materialized_values")
             key_value = context.visitor.visit_and_materialise_single(awst_key)
             account = context.visitor.visit_and_materialise_single(account_expr)
             codec = storage.get_storage_codec(
@@ -155,7 +151,6 @@ def handle_assignment(
         case awst_nodes.BoxValueExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
-            source = context.visitor.materialise_value_provider(value, "materialized_values")
             key_value = context.visitor.visit_and_materialise_single(awst_key)
             codec = storage.get_storage_codec(wtype, awst_nodes.AppStorageKind.box, field_location)
             # del box first if size is dynamic
@@ -175,41 +170,16 @@ def handle_assignment(
             )
             return source
         case awst_nodes.IndexExpression() as ix_expr:
-            values = context.visitor.materialise_value_provider(
-                value, description="materialized_values"
-            )
-            if isinstance(ix_expr.base.wtype, wtypes.ReferenceArray):
-                elemment_wtype = ix_expr.base.wtype.element_type
-                array_slot = context.visitor.visit_and_materialise_single(
-                    ix_expr.base, "array_slot"
+            sequence_wtype = ix_expr.base.wtype
+            if isinstance(sequence_wtype, wtypes.ReferenceArray):
+                array = context.visitor.visit_and_materialise_single(ix_expr.base)
+                index = context.visitor.visit_and_materialise_single(ix_expr.index)
+                builder = sequence.get_sequence_builder(
+                    context, sequence_wtype, assignment_location
                 )
-                index = context.visitor.visit_and_materialise_single(ix_expr.index, "index")
-                array = mem.read_slot(context, array_slot, ix_expr.source_location)
-                value_type, encoding = wtype_to_ir_type_and_encoding(
-                    elemment_wtype, ix_expr.source_location
-                )
-                value_encode = ir.ValueEncode(
-                    values=values,
-                    value_type=value_type,
-                    encoding=encoding,
-                    source_location=ix_expr.source_location,
-                )
-                encoded_element = factory.materialise_single(value_encode, "encoded_element")
-                write_index = ir.ArrayWriteIndex(
-                    array=array,
-                    index=index,
-                    value=encoded_element,
-                    source_location=ix_expr.source_location,
-                )
-                updated_array = assign_temp(
-                    context,
-                    write_index,
-                    temp_description="updated_array",
-                    source_location=value.source_location,
-                )
-                mem.write_slot(context, array_slot, updated_array, ix_expr.source_location)
-                return values
-            elif isinstance(ix_expr.base.wtype, wtypes.ARC4Type):
+                builder.write_at_index(array, index, value)
+                return source
+            elif isinstance(sequence_wtype, wtypes.ARC4Type):
                 arc4.handle_arc4_assign(
                     context,
                     target=ix_expr,
@@ -217,7 +187,7 @@ def handle_assignment(
                     is_nested_update=is_nested_update,
                     source_location=assignment_location,
                 )
-                return values
+                return source
             else:
                 raise InternalError(
                     f"Indexed assignment operation IR lowering"
