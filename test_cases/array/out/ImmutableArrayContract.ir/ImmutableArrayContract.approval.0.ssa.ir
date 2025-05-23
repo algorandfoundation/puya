@@ -5,43 +5,62 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> <bytes, bytes>:
     block@0: // L25
-        let array_length#0: uint64 = (extract_uint16 array#0 0u)
-        let length_minus_1#0: uint64 = (- array_length#0 1u)
+        let materialized_values%0#0: uint64 = (extract_uint16 array#0 0u)
+        let array_length#0: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = (- array_length#0 1u)
+        let length_minus_1#0: uint64 = materialized_values%1#0
         let tmp%0#0: bytes = (itob length_minus_1#0)
         let tmp%1#0: bytes = ((extract 6 0) tmp%0#0)
-        let result#0: bytes = ((replace2 0) array#0 tmp%1#0)
-        let popped_location#0: uint64 = (+ length_minus_1#0 16u)
+        let materialized_values%2#0: bytes = ((replace2 0) array#0 tmp%1#0)
+        let result#0: bytes = materialized_values%2#0
+        let materialized_values%3#0: uint64 = (+ length_minus_1#0 16u)
+        let popped_location#0: uint64 = materialized_values%3#0
         let tmp%2#0: uint64 = (getbit result#0 popped_location#0)
-        let popped#0: bytes = (setbit 0x00 0u tmp%2#0)
-        let result#1: bytes = (setbit result#0 popped_location#0 0u)
+        let materialized_values%4#0: bytes = (setbit 0x00 0u tmp%2#0)
+        let popped#0: bytes = materialized_values%4#0
+        let materialized_values%5#0: bytes = (setbit result#0 popped_location#0 0u)
+        let result#1: bytes = materialized_values%5#0
         let tmp%3#0: uint64 = (+ length_minus_1#0 7u)
         let tmp%4#0: uint64 = (/ tmp%3#0 8u)
         let tmp%5#0: uint64 = (+ 2u tmp%4#0)
-        let result#2: bytes = (substring3 result#1 0u tmp%5#0)
+        let materialized_values%6#0: bytes = (substring3 result#1 0u tmp%5#0)
+        let result#2: bytes = materialized_values%6#0
         return popped#0 result#2
 
 subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
     block@0: // L44
-        let array_length#0: uint64 = (extract_uint16 array#0 0u)
-        let length_minus_1#0: uint64 = (- array_length#0 1u)
+        let materialized_values%0#0: uint64 = (extract_uint16 array#0 0u)
+        let array_length#0: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = (- array_length#0 1u)
+        let length_minus_1#0: uint64 = materialized_values%1#0
         let tmp%0#0: bytes = (itob length_minus_1#0)
         let tmp%1#0: bytes = ((extract 6 0) tmp%0#0)
-        let result#0: bytes = ((replace2 0) array#0 tmp%1#0)
+        let materialized_values%2#0: bytes = ((replace2 0) array#0 tmp%1#0)
+        let result#0: bytes = materialized_values%2#0
         let tmp%2#0: uint64 = (len result#0)
-        let item_location#0: uint64 = (- tmp%2#0 fixed_byte_size#0)
-        let popped#0: bytes = (extract3 result#0 item_location#0 fixed_byte_size#0)
-        let result#1: bytes = (substring3 result#0 0u item_location#0)
+        let materialized_values%3#0: uint64 = (- tmp%2#0 fixed_byte_size#0)
+        let item_location#0: uint64 = materialized_values%3#0
+        let materialized_values%4#0: bytes = (extract3 result#0 item_location#0 fixed_byte_size#0)
+        let popped#0: bytes = materialized_values%4#0
+        let materialized_values%5#0: bytes = (substring3 result#0 0u item_location#0)
+        let result#1: bytes = materialized_values%5#0
         return popped#0 result#1
 
 subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <bytes, bytes>:
     block@0: // L92
-        let array_length#0: uint64 = (extract_uint16 array#0 0u)
-        let length_minus_1#0: uint64 = (- array_length#0 1u)
-        let popped_header_offset#0: uint64 = (* length_minus_1#0 2u)
-        let head_and_tail#0: bytes = ((extract 2 0) array#0)
-        let popped_offset#0: uint64 = (extract_uint16 head_and_tail#0 popped_header_offset#0)
+        let materialized_values%0#0: uint64 = (extract_uint16 array#0 0u)
+        let array_length#0: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = (- array_length#0 1u)
+        let length_minus_1#0: uint64 = materialized_values%1#0
+        let materialized_values%2#0: uint64 = (* length_minus_1#0 2u)
+        let popped_header_offset#0: uint64 = materialized_values%2#0
+        let materialized_values%3#0: bytes = ((extract 2 0) array#0)
+        let head_and_tail#0: bytes = materialized_values%3#0
+        let materialized_values%4#0: uint64 = (extract_uint16 head_and_tail#0 popped_header_offset#0)
+        let popped_offset#0: uint64 = materialized_values%4#0
         let tmp%0#0: uint64 = (len head_and_tail#0)
-        let popped#0: bytes = (substring3 head_and_tail#0 popped_offset#0 tmp%0#0)
+        let materialized_values%5#0: bytes = (substring3 head_and_tail#0 popped_offset#0 tmp%0#0)
+        let popped#0: bytes = materialized_values%5#0
         let new_head#0: bytes = 0x
         let tmp%1#0: uint64 = (* length_minus_1#0 2u)
         (assert 2u) // Step cannot be zero
@@ -53,11 +72,14 @@ subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <by
         let continue_looping%0#0: bool = (< head_offset#1 tmp%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L111
-        let item_offset#0: uint64 = (extract_uint16 head_and_tail#0 head_offset#1)
-        let item_offset#1: uint64 = (- item_offset#0 2u)
+        let materialized_values%6#0: uint64 = (extract_uint16 head_and_tail#0 head_offset#1)
+        let item_offset#0: uint64 = materialized_values%6#0
+        let materialized_values%7#0: uint64 = (- item_offset#0 2u)
+        let item_offset#1: uint64 = materialized_values%7#0
         let tmp%2#0: bytes = (itob item_offset#1)
         let tmp%3#0: bytes = ((extract 6 2) tmp%2#0)
-        let new_head#2: bytes = (concat new_head#1 tmp%3#0)
+        let materialized_values%8#0: bytes = (concat new_head#1 tmp%3#0)
+        let new_head#2: bytes = materialized_values%8#0
         goto block@3
     block@3: // for_footer_L110
         let head_offset#2: uint64 = (+ head_offset#1 2u)
@@ -68,32 +90,42 @@ subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <by
         let tmp%6#0: bytes = (concat tmp%5#0 new_head#1)
         let tmp%7#0: uint64 = (+ popped_header_offset#0 2u)
         let tmp%8#0: bytes = (substring3 head_and_tail#0 tmp%7#0 popped_offset#0)
-        let updated#0: bytes = (concat tmp%6#0 tmp%8#0)
+        let materialized_values%9#0: bytes = (concat tmp%6#0 tmp%8#0)
+        let updated#0: bytes = materialized_values%9#0
         return popped#0 updated#0
 
 subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
     block@0: // L124
-        let array_length#0: uint64 = (extract_uint16 array#0 0u)
-        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let materialized_values%0#0: uint64 = (extract_uint16 array#0 0u)
+        let array_length#0: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = (+ array_length#0 new_items_count#0)
+        let new_array_length#0: uint64 = materialized_values%1#0
         let tmp%0#0: bytes = (itob new_array_length#0)
-        let new_array_length_b#0: bytes = ((extract 6 0) tmp%0#0)
-        let result#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
+        let materialized_values%2#0: bytes = ((extract 6 0) tmp%0#0)
+        let new_array_length_b#0: bytes = materialized_values%2#0
+        let materialized_values%3#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
+        let result#0: bytes = materialized_values%3#0
         let tmp%1#0: uint64 = (+ array_length#0 7u)
-        let current_bytes#0: uint64 = (/ tmp%1#0 8u)
+        let materialized_values%4#0: uint64 = (/ tmp%1#0 8u)
+        let current_bytes#0: uint64 = materialized_values%4#0
         let tmp%2#0: uint64 = (+ new_array_length#0 7u)
-        let required_bytes#0: uint64 = (/ tmp%2#0 8u)
+        let materialized_values%5#0: uint64 = (/ tmp%2#0 8u)
+        let required_bytes#0: uint64 = materialized_values%5#0
         let tmp%3#0: bool = (< current_bytes#0 required_bytes#0)
         goto tmp%3#0 ? block@1 : block@2
     block@1: // if_body_L148
         let tmp%4#0: uint64 = (- required_bytes#0 current_bytes#0)
         let tmp%5#0: bytes = (bzero tmp%4#0)
-        let result#1: bytes = (concat result#0 tmp%5#0)
+        let materialized_values%6#0: bytes = (concat result#0 tmp%5#0)
+        let result#1: bytes = materialized_values%6#0
         goto block@2
     block@2: // after_if_else_L147
         let result#4: bytes = φ(result#0 <- block@0, result#1 <- block@1)
         let read_offset#0: uint64 = 0u
-        let write_offset#0: uint64 = (+ array_length#0 16u)
-        let write_end#0: uint64 = (+ write_offset#0 new_items_count#0)
+        let materialized_values%7#0: uint64 = (+ array_length#0 16u)
+        let write_offset#0: uint64 = materialized_values%7#0
+        let materialized_values%8#0: uint64 = (+ write_offset#0 new_items_count#0)
+        let write_end#0: uint64 = materialized_values%8#0
         goto block@3
     block@3: // while_top_L153
         let write_offset#1: uint64 = φ(write_offset#0 <- block@2, write_offset#2 <- block@4)
@@ -103,19 +135,25 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         goto tmp%6#0 ? block@4 : block@5
     block@4: // while_body_L154
         let tmp%7#0: uint64 = (getbit new_items_bytes#0 read_offset#1)
-        let result#3: bytes = (setbit result#2 write_offset#1 tmp%7#0)
-        let write_offset#2: uint64 = (+ write_offset#1 1u)
-        let read_offset#2: uint64 = (+ read_offset#1 read_step#0)
+        let materialized_values%9#0: bytes = (setbit result#2 write_offset#1 tmp%7#0)
+        let result#3: bytes = materialized_values%9#0
+        let materialized_values%10#0: uint64 = (+ write_offset#1 1u)
+        let write_offset#2: uint64 = materialized_values%10#0
+        let materialized_values%11#0: uint64 = (+ read_offset#1 read_step#0)
+        let read_offset#2: uint64 = materialized_values%11#0
         goto block@3
     block@5: // after_while_L153
         return result#2
 
 subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
     block@0: // L161
-        let array_length#0: uint64 = (extract_uint16 array#0 0u)
-        let new_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let materialized_values%0#0: uint64 = (extract_uint16 array#0 0u)
+        let array_length#0: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = (+ array_length#0 new_items_count#0)
+        let new_length#0: uint64 = materialized_values%1#0
         let tmp%0#0: uint64 = (* array_length#0 2u)
-        let header_end#0: uint64 = (+ tmp%0#0 2u)
+        let materialized_values%2#0: uint64 = (+ tmp%0#0 2u)
+        let header_end#0: uint64 = materialized_values%2#0
         let tmp%1#0: bytes = (itob new_length#0)
         let tmp%2#0: bytes = ((extract 6 2) tmp%1#0)
         let tmp%3#0: bytes = (substring3 array#0 2u header_end#0)
@@ -133,7 +171,8 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
 subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
     block@0: // L193
         let new_head#0: bytes = 0x
-        let item_offset_adjustment#0: uint64 = (* new_items_count#0 2u)
+        let materialized_values%0#0: uint64 = (* new_items_count#0 2u)
+        let item_offset_adjustment#0: uint64 = materialized_values%0#0
         let tmp%0#0: uint64 = (* array_items_count#0 2u)
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = 0u
@@ -144,17 +183,20 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let continue_looping%0#0: bool = (< head_offset#1 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L204
-        let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#1)
+        let materialized_values%1#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#1)
+        let item_offset#0: uint64 = materialized_values%1#0
         let tmp%1#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
         let tmp%2#0: bytes = (itob tmp%1#0)
         let tmp%3#0: bytes = ((extract 6 2) tmp%2#0)
-        let new_head#2: bytes = (concat new_head#1 tmp%3#0)
+        let materialized_values%2#0: bytes = (concat new_head#1 tmp%3#0)
+        let new_head#2: bytes = materialized_values%2#0
         goto block@3
     block@3: // for_footer_L203
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@1
     block@4: // after_for_L203
-        let item_offset_adjustment#2: uint64 = (len array_head_and_tail#0)
+        let materialized_values%3#0: uint64 = (len array_head_and_tail#0)
+        let item_offset_adjustment#2: uint64 = materialized_values%3#0
         let tmp%4#0: uint64 = (* new_items_count#0 2u)
         (assert 2u) // Step cannot be zero
         let head_offset#3: uint64 = 0u
@@ -165,11 +207,13 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let continue_looping%1#0: bool = (< head_offset#4 tmp%4#0)
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L209
-        let item_offset#1: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#4)
+        let materialized_values%4#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#4)
+        let item_offset#1: uint64 = materialized_values%4#0
         let tmp%5#0: uint64 = (+ item_offset_adjustment#2 item_offset#1)
         let tmp%6#0: bytes = (itob tmp%5#0)
         let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
-        let new_head#4: bytes = (concat new_head#3 tmp%7#0)
+        let materialized_values%5#0: bytes = (concat new_head#3 tmp%7#0)
+        let new_head#4: bytes = materialized_values%5#0
         goto block@7
     block@7: // for_footer_L208
         let head_offset#5: uint64 = (+ head_offset#4 2u)
@@ -194,7 +238,8 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         let tmp%0#0: uint64 = (* length#0 2u)
         let tmp%1#0: uint64 = (* start_at_index#0 2u)
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
-        let tail_offset#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
+        let materialized_values%0#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
+        let tail_offset#0: uint64 = materialized_values%0#0
         let tmp%3#0: uint64 = (* length#0 2u)
         let tmp%4#0: uint64 = (* start_at_index#0 2u)
         (assert 2u) // Step cannot be zero
@@ -208,12 +253,16 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L332
         let tmp%5#0: bytes = (itob tail_offset#1)
-        let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%5#0)
-        let array_head_and_tail#2: bytes = (replace3 array_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
+        let materialized_values%1#0: bytes = ((extract 6 2) tmp%5#0)
+        let tail_offset_bytes#0: bytes = materialized_values%1#0
+        let materialized_values%2#0: bytes = (replace3 array_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
+        let array_head_and_tail#2: bytes = materialized_values%2#0
         let tmp%6#0: uint64 = (extract_uint16 array_head_and_tail#2 tail_offset#1)
         let tmp%7#0: uint64 = (+ tmp%6#0 2u)
-        let tail_offset#2: uint64 = (+ tail_offset#1 tmp%7#0)
-        let head_offset#2: uint64 = (+ head_offset#1 2u)
+        let materialized_values%3#0: uint64 = (+ tail_offset#1 tmp%7#0)
+        let tail_offset#2: uint64 = materialized_values%3#0
+        let materialized_values%4#0: uint64 = (+ head_offset#1 2u)
+        let head_offset#2: uint64 = materialized_values%4#0
         goto block@3
     block@3: // for_footer_L331
         let head_offset#3: uint64 = (+ head_offset#1 2u)
@@ -233,7 +282,8 @@ subroutine test_cases.array.immutable.times(n: uint64) -> string:
         let continue_looping%0#0: bool = (< _i#1 n#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L443
-        let result#2: string = (concat result#1 " ")
+        let materialized_values%0#0: bytes = (concat result#1 " ")
+        let result#2: string = materialized_values%0#0
         goto block@3
     block@3: // for_footer_L442
         let _i#2: uint64 = (+ _i#1 1u)
@@ -341,7 +391,8 @@ subroutine test_cases.array.immutable.sum_arr(arr: Encoded(len+uint64[])) -> uin
         let bytes_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
         let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
         let i#0: uint64 = decode<uint64>(encoded_element%0#0)
-        let total#2: uint64 = (+ total#1 i#0)
+        let materialized_values%0#0: uint64 = (+ total#1 i#0)
+        let total#2: uint64 = materialized_values%0#0
         goto block@3
     block@3: // for_footer_L471
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -685,7 +736,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%6#0: uint64 = decode<uint64>(encoded_element%0#0)
         let tmp%7#0: bool = (== tmp%6#0 42u)
         (assert tmp%7#0)
-        let arr#2: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#1, 5u)
+        let materialized_values%0#0: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#1, 5u)
+        let arr#2: Encoded(len+uint64[]) = materialized_values%0#0
         let tmp%8#0: uint64 = arr#2.length
         let tmp%9#0: bool = (== tmp%8#0 6u)
         (assert tmp%9#0)
@@ -725,7 +777,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%20#0: uint64 = decode<uint64>(encoded_element%3#0)
         let tmp%21#0: bool = (== tmp%20#0 42u)
         (assert tmp%21#0)
-        let arr#4: Encoded(len+uint64[]) = test_cases.array.immutable.pop_x(arr#3, 3u)
+        let materialized_values%1#0: Encoded(len+uint64[]) = test_cases.array.immutable.pop_x(arr#3, 3u)
+        let arr#4: Encoded(len+uint64[]) = materialized_values%1#0
         let tmp%22#0: uint64 = arr#4.length
         let tmp%23#0: bool = (== tmp%22#0 4u)
         (assert tmp%23#0)
@@ -737,7 +790,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%26#0: uint64 = decode<uint64>(encoded_element%4#0)
         let tmp%27#0: bool = (== tmp%26#0 2u)
         (assert tmp%27#0)
-        let arr#5: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#4, 10u)
+        let materialized_values%2#0: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#4, 10u)
+        let arr#5: Encoded(len+uint64[]) = materialized_values%2#0
         let tmp%28#0: uint64 = arr#5.length
         let tmp%29#0: bool = (== tmp%28#0 14u)
         (assert tmp%29#0)
@@ -824,7 +878,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(
         let tmp%9#0: biguint = decode<biguint>(encoded_element%0#0)
         let tmp%10#0: bool = (b== tmp%9#0 0b)
         (assert tmp%10#0)
-        let arr#2: Encoded(len+uint512[]) = test_cases.array.immutable.add_xb(arr#1, 5u)
+        let materialized_values%0#0: Encoded(len+uint512[]) = test_cases.array.immutable.add_xb(arr#1, 5u)
+        let arr#2: Encoded(len+uint512[]) = materialized_values%0#0
         let tmp%11#0: uint64 = arr#2.length
         let tmp%12#0: bool = (== tmp%11#0 6u)
         (assert tmp%12#0)
@@ -1132,10 +1187,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_nam
         let array_trimmed%0#0: bytes = ((extract 2 0) arr#1)
         let bytes_offset%0#0: uint64 = (* 0u 9u)
         let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 9u) // on error: index access is out of bounds
-        let (tuple_assignment%0#0: uint64, tuple_assignment%1#0: bool, tuple_assignment%2#0: bool) = decode<(uint64,bool,bool,)>(encoded_element%0#0)
-        let foo#0: uint64 = tuple_assignment%0#0
-        let bar#0: bool = tuple_assignment%1#0
-        let baz#0: bool = tuple_assignment%2#0
+        let (materialized_values%0#0: uint64, materialized_values%1#0: bool, materialized_values%2#0: bool) = decode<(uint64,bool,bool,)>(encoded_element%0#0)
+        let foo#0: uint64 = materialized_values%0#0
+        let bar#0: bool = materialized_values%1#0
+        let baz#0: bool = materialized_values%2#0
         let tmp%9#0: bool = (== foo#0 0u)
         (assert tmp%9#0)
         (assert bar#0)
@@ -1713,7 +1768,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let bytes_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
         let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
         let i#0: uint64 = decode<uint64>(encoded_element%0#0)
-        let sum1#2: uint64 = (+ sum1#1 i#0)
+        let materialized_values%0#0: uint64 = (+ sum1#1 i#0)
+        let sum1#2: uint64 = materialized_values%0#0
         goto block@3
     block@3: // for_footer_L338
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -1734,7 +1790,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let b#0: bool = is_true%0#0
         goto b#0 ? block@7 : block@8
     block@7: // if_body_L342
-        let sum2#2: uint64 = (+ sum2#1 1u)
+        let materialized_values%1#0: uint64 = (+ sum2#1 1u)
+        let sum2#2: uint64 = materialized_values%1#0
         goto block@8
     block@8: // after_if_else_L341
         let sum2#4: uint64 = φ(sum2#1 <- block@6, sum2#2 <- block@7)
@@ -1757,16 +1814,19 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let bytes_offset%1#0: uint64 = (* item_index_internal%2#1 9u)
         let encoded_element%1#0: bytes = (extract3 array_trimmed%2#0 bytes_offset%1#0 9u) // on error: index access is out of bounds
         let (tup.foo#0: uint64, tup.bar#0: bool, tup.baz#0: bool) = decode<(uint64,bool,bool,)>(encoded_element%1#0)
-        let sum3#2: uint64 = (+ sum3#1 tup.foo#0)
+        let materialized_values%2#0: uint64 = (+ sum3#1 tup.foo#0)
+        let sum3#2: uint64 = materialized_values%2#0
         goto tup.bar#0 ? block@13 : block@14
     block@13: // if_body_L346
-        let sum3#3: uint64 = (+ sum3#2 1u)
+        let materialized_values%3#0: uint64 = (+ sum3#2 1u)
+        let sum3#3: uint64 = materialized_values%3#0
         goto block@14
     block@14: // after_if_else_L345
         let sum3#4: uint64 = φ(sum3#2 <- block@12, sum3#3 <- block@13)
         goto tup.baz#0 ? block@15 : block@16
     block@15: // if_body_L348
-        let sum3#5: uint64 = (+ sum3#4 1u)
+        let materialized_values%4#0: uint64 = (+ sum3#4 1u)
+        let sum3#5: uint64 = materialized_values%4#0
         goto block@16
     block@16: // after_if_else_L347
         let sum3#9: uint64 = φ(sum3#4 <- block@14, sum3#5 <- block@15)
@@ -1798,9 +1858,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let substring3%0#0: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%0#0)
         let (dyn_tup.foo#0: uint64, dyn_tup.bar#0: string) = decode<(uint64,string,)>(substring3%0#0)
         let idx#0: uint64 = item_index_internal%3#1
-        let sum4#2: uint64 = (+ sum4#1 dyn_tup.foo#0)
+        let materialized_values%5#0: uint64 = (+ sum4#1 dyn_tup.foo#0)
+        let sum4#2: uint64 = materialized_values%5#0
         let tmp%0#0: uint64 = (len dyn_tup.bar#0)
-        let sum4#3: uint64 = (+ sum4#2 tmp%0#0)
+        let materialized_values%6#0: uint64 = (+ sum4#2 tmp%0#0)
+        let sum4#3: uint64 = materialized_values%6#0
         let tmp%1#0: uint64 = (len dyn_tup.bar#0)
         let tmp%2#0: bool = (== tmp%1#0 idx#0)
         (assert tmp%2#0) // expected string length to match index
