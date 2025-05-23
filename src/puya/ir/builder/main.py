@@ -1294,10 +1294,12 @@ class FunctionIRBuilder(
         element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
             expr.wtype.element_type, expr.source_location
         )
+        array = self.context.visitor.visit_and_materialise_single(expr.base)
+        index = self.context.visitor.visit_and_materialise_single(expr.index)
         return arc4.arc4_replace_array_item(
             self.context,
-            base_expr=expr.base,
-            index_value_expr=expr.index,
+            array=array,
+            index=index,
             array_encoding=array_encoding,
             element_ir_type=element_ir_type,
             value_vp=value,
