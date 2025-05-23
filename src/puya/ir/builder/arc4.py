@@ -538,12 +538,6 @@ class CheckedEncoding(ARC4Codec):
         return None
 
 
-def _is_known_alias(wtype: wtypes.ARC4Type, *, expected: wtypes.ARC4Type) -> bool:
-    # why? because arc4_name is not considered for structural equality, for reasons...
-    # and we can't use `is` because of JSON inputs...
-    return wtype == expected and wtype.arc4_alias == expected.arc4_alias
-
-
 def _get_arc4_codec(ir_type: IRType) -> ARC4Codec | None:
     match ir_type:
         case AggregateIRType() as aggregate:
@@ -1178,86 +1172,6 @@ def _is_byte_length_header(encoding: Encoding) -> bool:
     if _bit_packed_bool(encoding):
         return False
     return encoding.element.num_bytes == 1
-
-
-def _read_dynamic_item_using_length_from_arc4_container(
-    context: IRRegisterContext,
-    *,
-    array_head_and_tail: Value,
-    inner_element_size: int,
-    index: Value,
-    source_location: SourceLocation,
-) -> ValueProvider:
-    factory = OpFactory(context, source_location)
-    item_offset_offset = factory.mul(index, 2, "item_offset_offset")
-    item_start_offset = factory.extract_uint16(
-        array_head_and_tail, item_offset_offset, "item_offset"
-    )
-    item_length = factory.extract_uint16(array_head_and_tail, item_start_offset, "item_length")
-    item_length_in_bytes = factory.mul(item_length, inner_element_size, "item_length_in_bytes")
-    item_total_length = factory.add(item_length_in_bytes, 2, "item_head_tail_length")
-    return Intrinsic(
-        op=AVMOp.extract3,
-        args=[array_head_and_tail, item_start_offset, item_total_length],
-        source_location=source_location,
-    )
-
-
-def _read_dynamic_item_using_end_offset_from_arc4_container(
-    context: IRRegisterContext,
-    *,
-    array_length_vp: ValueProvider,
-    array_head_and_tail: Value,
-    index: Value,
-    source_location: SourceLocation,
-) -> ValueProvider:
-    factory = OpFactory(context, source_location)
-    item_offset_offset = factory.mul(index, 2, "item_offset_offset")
-    item_start_offset = factory.extract_uint16(
-        array_head_and_tail, item_offset_offset, "item_offset"
-    )
-
-    array_length = factory.materialise_single(array_length_vp, "array_length")
-    next_item_index = factory.add(index, 1, "next_index")
-    # three possible outcomes of this op will determine the end offset
-    # next_item_index < array_length -> has_next is true, use next_item_offset
-    # next_item_index == array_length -> has_next is false, use array_length
-    # next_item_index > array_length -> op will fail, comment provides context to error
-    has_next = factory.materialise_single(
-        Intrinsic(
-            op=AVMOp.sub,
-            args=[array_length, next_item_index],
-            source_location=source_location,
-            error_message="Index access is out of bounds",
-        ),
-        "has_next",
-    )
-    end_of_array = factory.len(array_head_and_tail, "end_of_array")
-    next_item_offset_offset = factory.mul(next_item_index, 2, "next_item_offset_offset")
-    # next_item_offset_offset will be past the array head when has_next is false, but this is ok as
-    # the value will not be used. Additionally, next_item_offset_offset will always be a valid
-    # offset in the overall array, because there will be at least 1 element (due to has_next
-    # checking out of bounds) and this element will be dynamically sized,
-    # which means it's data has at least one u16 in its header
-    # e.g. reading here...   has at least one u16 ........
-    #                    v                               v
-    # ArrayHead(u16, u16) ArrayTail(DynamicItemHead(... u16, ...), ..., DynamicItemTail, ...)
-    next_item_offset = factory.extract_uint16(
-        array_head_and_tail, next_item_offset_offset, "next_item_offset"
-    )
-
-    item_end_offset = factory.select(
-        false=end_of_array,
-        true=next_item_offset,
-        condition=has_next,
-        temp_desc="end_offset",
-        ir_type=PrimitiveIRType.uint64,
-    )
-    return Intrinsic(
-        op=AVMOp.substring3,
-        args=[array_head_and_tail, item_start_offset, item_end_offset],
-        source_location=source_location,
-    )
 
 
 def _encode_arc4_values_as_tuple(
