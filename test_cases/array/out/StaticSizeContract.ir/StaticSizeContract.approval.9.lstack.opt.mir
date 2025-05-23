@@ -541,7 +541,7 @@ subroutine test_array:
         l-store-copy len_%0#0 0                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,len_%0#0,len_%0#0 (copy)
         v-store len_%0#0                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,len_%0#0
         l-load len_%0#0 0                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,len_%0#0
-        itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,as_bytes%0#0
+        itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,as_bytes%1#0
         extract 6 2                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,len_16_bit%0#0
         l-load-copy slot_contents%3#0 1                                                           (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,len_16_bit%0#0,slot_contents%3#0 (copy)
         concat                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,concat_result%0#0
@@ -721,36 +721,36 @@ subroutine test_extend_from_tuple:
         // arr.extend(some_more)
         p-load some_more.0#0                                                                      (𝕡) some_more.0#0,some_more.1#0 | some_more.0#0 (copy)
         p-load some_more.1#0                                                                      (𝕡) some_more.0#0,some_more.1#0 | some_more.0#0 (copy),some_more.1#0 (copy)
-        concat                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0
-        l-load-copy encoded%1#0 0                                                                 (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,encoded%1#0 (copy)
-        pop 1                                                                                     (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0
+        concat                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0
+        l-load-copy encoded%2#0 0                                                                 (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,encoded%2#0 (copy)
+        pop 1                                                                                     (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0
         // array/static_size.py:61
         // last = arr[-1]
-        l-load-copy encoded%1#0 0                                                                 (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,encoded%1#0 (copy)
-        len                                                                                       (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%bytes_len%0#1
-        int 16                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%bytes_len%0#1,16
-        /                                                                                         (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1
-        l-load-copy array%array_len%0#1 0                                                         (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,array%array_len%0#1 (copy)
-        int 1                                                                                     (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,array%array_len%0#1 (copy),1
-        -                                                                                         (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,tmp%1#0
-        int 16                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,tmp%1#0,16
-        *                                                                                         (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,bytes_offset%0#0
-        l-load-copy encoded%1#0 2                                                                 (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,bytes_offset%0#0,encoded%1#0 (copy)
-        l-load bytes_offset%0#0 1                                                                 (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,encoded%1#0 (copy),bytes_offset%0#0
-        int 16                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,encoded%1#0 (copy),bytes_offset%0#0,16
-        extract3 // on error: index access is out of bounds                                       (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,last#0
+        l-load-copy encoded%2#0 0                                                                 (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,encoded%2#0 (copy)
+        len                                                                                       (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%bytes_len%0#1
+        int 16                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%bytes_len%0#1,16
+        /                                                                                         (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1
+        l-load-copy array%array_len%0#1 0                                                         (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,array%array_len%0#1 (copy)
+        int 1                                                                                     (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,array%array_len%0#1 (copy),1
+        -                                                                                         (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,tmp%1#0
+        int 16                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,tmp%1#0,16
+        *                                                                                         (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,bytes_offset%0#0
+        l-load-copy encoded%2#0 2                                                                 (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,bytes_offset%0#0,encoded%2#0 (copy)
+        l-load bytes_offset%0#0 1                                                                 (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,encoded%2#0 (copy),bytes_offset%0#0
+        int 16                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,encoded%2#0 (copy),bytes_offset%0#0,16
+        extract3 // on error: index access is out of bounds                                       (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,last#0
         // array/static_size.py:62
         // assert last == some_more[1]
-        l-load-copy last#0 0                                                                      (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,last#0,last#0 (copy)
-        p-load some_more.1#0                                                                      (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,last#0,last#0 (copy),some_more.1#0 (copy)
-        ==                                                                                        (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,last#0,tmp%2#0
-        assert                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,array%array_len%0#1,last#0
+        l-load-copy last#0 0                                                                      (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,last#0,last#0 (copy)
+        p-load some_more.1#0                                                                      (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,last#0,last#0 (copy),some_more.1#0 (copy)
+        ==                                                                                        (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,last#0,tmp%2#0
+        assert                                                                                    (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,array%array_len%0#1,last#0
         // array/static_size.py:63
         // result = arr.freeze()
-        l-load array%array_len%0#1 1                                                              (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,last#0,array%array_len%0#1
-        itob                                                                                      (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,last#0,as_bytes%0#0
-        extract 6 2                                                                               (𝕡) some_more.0#0,some_more.1#0 | encoded%1#0,last#0,len_16_bit%0#0
-        l-load encoded%1#0 2                                                                      (𝕡) some_more.0#0,some_more.1#0 | last#0,len_16_bit%0#0,encoded%1#0
+        l-load array%array_len%0#1 1                                                              (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,last#0,array%array_len%0#1
+        itob                                                                                      (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,last#0,as_bytes%1#0
+        extract 6 2                                                                               (𝕡) some_more.0#0,some_more.1#0 | encoded%2#0,last#0,len_16_bit%0#0
+        l-load encoded%2#0 2                                                                      (𝕡) some_more.0#0,some_more.1#0 | last#0,len_16_bit%0#0,encoded%2#0
         concat                                                                                    (𝕡) some_more.0#0,some_more.1#0 | last#0,result#0
         // array/static_size.py:64
         // assert result[-1] == last
@@ -790,7 +790,7 @@ subroutine test_extend_from_arc4_tuple:
         len                                                                                       (𝕡) some_more#0 | byte_len%0#0
         int 16                                                                                    (𝕡) some_more#0 | byte_len%0#0,16
         /                                                                                         (𝕡) some_more#0 | len_%0#0
-        itob                                                                                      (𝕡) some_more#0 | as_bytes%0#0
+        itob                                                                                      (𝕡) some_more#0 | as_bytes%1#0
         extract 6 2                                                                               (𝕡) some_more#0 | len_16_bit%0#0
         p-load some_more#0                                                                        (𝕡) some_more#0 | len_16_bit%0#0,some_more#0 (copy)
         concat                                                                                    (𝕡) some_more#0 | concat_result%0#0
@@ -1032,7 +1032,7 @@ subroutine test_arc4_conversion:
         len                                                                                       (𝕡) length#0 | slot_contents%5#0,byte_len%0#0
         int 8                                                                                     (𝕡) length#0 | slot_contents%5#0,byte_len%0#0,8
         /                                                                                         (𝕡) length#0 | slot_contents%5#0,len_%0#0
-        itob                                                                                      (𝕡) length#0 | slot_contents%5#0,as_bytes%0#0
+        itob                                                                                      (𝕡) length#0 | slot_contents%5#0,as_bytes%1#0
         extract 6 2                                                                               (𝕡) length#0 | slot_contents%5#0,len_16_bit%0#0
         l-load slot_contents%5#0 1                                                                (𝕡) length#0 | len_16_bit%0#0,slot_contents%5#0
         concat                                                                                    (𝕡) length#0 | arc4_arr#1

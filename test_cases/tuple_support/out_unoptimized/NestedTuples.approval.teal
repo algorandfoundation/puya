@@ -3,8 +3,8 @@
 
 // test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 8 1 2
-    bytecblock 0x 0x151f7c75 "Hi" "There" "build_nested_call_count" "box" "twm" 0x0000000000000001 0x00 0x0000000000000000 0x0001 "pwl" "hi"
+    intcblock 0 1 8 2
+    bytecblock 0x 0x151f7c75 "Hi" "There" "build_nested_call_count" "box" "twm" 0x0000000000000001 0x00 0x0000000000000000 "pwl" "hi"
 
 main_block@0:
     txn ApplicationID
@@ -128,7 +128,7 @@ test_intrinsics_block@0:
     frame_dig -1
     addw
     swap
-    intc_2 // 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:215
     // assert nt[0] == 1
     dup
@@ -278,7 +278,7 @@ test_nested_singles_block@0:
     // tuple_support/nested_tuples.py:256
     // assert s[1][0] == 1
     dup
-    intc_2 // 1
+    intc_1 // 1
     ==
     assert
     // tuple_support/nested_tuples.py:257
@@ -385,7 +385,7 @@ test_nested_singles_after_if_else@2:
     assert
     // tuple_support/nested_tuples.py:275
     // assert s[1][0] == (4 if reassign else 1)
-    intc_2 // 1
+    intc_1 // 1
     pushint 4 // 4
     frame_dig -1
     select
@@ -411,7 +411,11 @@ test_nested_mutation_block@0:
     //     arc4.UInt64(0),
     // ),
     concat
-    bytec 10 // 0x0001
+    bytec_0 // 0x
+    concat
+    intc_1 // 1
+    itob
+    extract 6 2
     swap
     concat
     // tuple_support/nested_tuples.py:287
@@ -425,7 +429,7 @@ test_nested_mutation_block@0:
     concat
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     /
     itob
     extract 6 2
@@ -457,7 +461,7 @@ test_nested_iteration_block@0:
     dup
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_2 // 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:294
     // y = UInt64(2)
     intc_3 // 2
@@ -484,7 +488,7 @@ test_nested_iteration_after_for@6:
     frame_bury 1
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_2 // 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:301
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 0
@@ -511,7 +515,7 @@ test_nested_iteration_after_for@12:
     // tuple_support/nested_tuples.py:304
     // assert total // 8 == 3
     frame_dig 2
-    intc_1 // 8
+    intc_2 // 8
     /
     pushint 3 // 3
     ==
@@ -537,17 +541,17 @@ test_nested_iteration_for_header_2@10:
     frame_bury 1
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_2 // 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:301
     // for a, b in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 0
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_2 // 1
+    intc_1 // 1
     b test_nested_iteration_for_body@7
 
 test_nested_iteration_for_header_1@9:
-    intc_2 // 1
+    intc_1 // 1
     frame_bury 1
     // tuple_support/nested_tuples.py:294
     // y = UInt64(2)
@@ -557,7 +561,7 @@ test_nested_iteration_for_header_1@9:
     frame_bury 0
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_2 // 1
+    intc_1 // 1
     b test_nested_iteration_for_body@7
 
 test_nested_iteration_for_header_3@5:
@@ -579,17 +583,17 @@ test_nested_iteration_for_header_2@4:
     frame_bury 3
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_2 // 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:297
     // for t in ((x, y), (y, x), (x, x), (y, y)):
     frame_bury 4
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_2 // 1
+    intc_1 // 1
     b test_nested_iteration_for_body@1
 
 test_nested_iteration_for_header_1@3:
-    intc_2 // 1
+    intc_1 // 1
     frame_bury 3
     // tuple_support/nested_tuples.py:294
     // y = UInt64(2)
@@ -599,7 +603,7 @@ test_nested_iteration_for_header_1@3:
     frame_bury 4
     // tuple_support/nested_tuples.py:293
     // x = UInt64(1)
-    intc_2 // 1
+    intc_1 // 1
     b test_nested_iteration_for_body@1
 
 
@@ -614,8 +618,13 @@ __init___block@0:
     app_global_put
     // tuple_support/nested_tuples.py:53
     // arr=arc4.DynamicArray[arc4.UInt64](),
-    pushbytes 0x0000
     bytec_0 // 0x
+    dup
+    concat
+    intc_0 // 0
+    itob
+    extract 6 2
+    swap
     concat
     // tuple_support/nested_tuples.py:52
     // self.twm = TupleWithMutable(
@@ -811,7 +820,7 @@ store_tuple_block@0:
     concat
     swap
     concat
-    bytec 11 // "pwl"
+    bytec 10 // "pwl"
     swap
     app_global_put
     retsub
@@ -824,7 +833,7 @@ load_tuple_block@0:
     // tuple_support/nested_tuples.py:67
     // return self.pwl
     intc_0 // 0
-    bytec 11 // "pwl"
+    bytec 10 // "pwl"
     app_global_get_ex
     assert // check self.pwl exists
     dup
@@ -840,12 +849,12 @@ load_tuple_block@0:
     substring3
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     cover 2
     dup
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     swap
@@ -861,12 +870,12 @@ load_tuple_block@0:
     substring3
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
     dup
-    intc_1 // 8
+    intc_2 // 8
     extract_uint16
     swap
     dup
@@ -920,7 +929,7 @@ store_tuple_in_box_block@0:
     // tuple_support/nested_tuples.py:71
     // self.box[key] = key._replace(b=key.b + 1)
     frame_dig -1
-    intc_2 // 1
+    intc_1 // 1
     +
     frame_dig -2
     itob
@@ -1004,11 +1013,11 @@ load_tuple_from_box_block@0:
     assert // check self.box entry exists
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     btoi
@@ -1052,11 +1061,11 @@ maybe_load_tuple_from_box_ternary_true@1:
     frame_dig 2
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     btoi
@@ -1126,11 +1135,11 @@ load_tuple_from_box_or_default_ternary_true@1:
     frame_dig 3
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     btoi
@@ -1187,11 +1196,11 @@ load_tuple_from_local_state_or_default_ternary_true@1:
     frame_dig 3
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     btoi
@@ -1229,7 +1238,11 @@ mutate_local_tuple_block@0:
     bytec_0 // 0x
     bytec 9 // 0x0000000000000000
     concat
-    bytec 10 // 0x0001
+    bytec_0 // 0x
+    concat
+    intc_1 // 1
+    itob
+    extract 6 2
     swap
     concat
     // tuple_support/nested_tuples.py:105
@@ -1243,7 +1256,7 @@ mutate_local_tuple_block@0:
     concat
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     /
     itob
     extract 6 2
@@ -1260,7 +1273,7 @@ mutate_local_tuple_block@0:
     concat
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     /
     itob
     extract 6 2
@@ -1268,7 +1281,7 @@ mutate_local_tuple_block@0:
     concat
     // tuple_support/nested_tuples.py:107
     // for i in urange(3):
-    intc_2 // 1
+    intc_1 // 1
     assert // Step cannot be zero
     intc_0 // 0
 
@@ -1288,9 +1301,9 @@ mutate_local_tuple_for_body@2:
     frame_dig 1
     dup
     cover 2
-    intc_1 // 8
+    intc_2 // 8
     *
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: index access is out of bounds
     swap
     itob
@@ -1301,7 +1314,7 @@ mutate_local_tuple_for_footer@3:
     // tuple_support/nested_tuples.py:107
     // for i in urange(3):
     frame_dig 1
-    intc_2 // 1
+    intc_1 // 1
     +
     frame_bury 1
     b mutate_local_tuple_for_header@1
@@ -1364,7 +1377,7 @@ mutate_tuple_in_storage_currently_supported_method_block@0:
     concat
     dup
     len
-    intc_1 // 8
+    intc_2 // 8
     /
     itob
     extract 6 2
@@ -1388,12 +1401,12 @@ mutate_tuple_in_storage_currently_supported_method_block@0:
     substring3
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
     dup
-    intc_1 // 8
+    intc_2 // 8
     extract_uint16
     swap
     dup
@@ -1527,7 +1540,7 @@ run_tests_block@0:
     intc_3 // 2
     // tuple_support/nested_tuples.py:124
     // y = (UInt64(1), x)
-    intc_2 // 1
+    intc_1 // 1
     // tuple_support/nested_tuples.py:122
     // x = (String("Hi"), String("There"))
     bytec_2 // "Hi"
@@ -1561,7 +1574,7 @@ run_tests_block@0:
     intc_3 // 2
     ==
     swap
-    intc_2 // 1
+    intc_1 // 1
     ==
     &&
     assert
@@ -1572,7 +1585,7 @@ run_tests_block@0:
     assert
     // tuple_support/nested_tuples.py:136
     // test_intrinsics(UInt64(1), UInt64(2))
-    intc_2 // 1
+    intc_1 // 1
     intc_3 // 2
     callsub test_intrinsics
     // tuple_support/nested_tuples.py:137
@@ -1580,12 +1593,12 @@ run_tests_block@0:
     callsub test_nested_slicing
     // tuple_support/nested_tuples.py:138
     // test_nested_singles(UInt64(1), reassign=True)
-    intc_2 // 1
+    intc_1 // 1
     dup
     callsub test_nested_singles
     // tuple_support/nested_tuples.py:139
     // test_nested_singles(UInt64(1), reassign=False)
-    intc_2 // 1
+    intc_1 // 1
     intc_0 // 0
     callsub test_nested_singles
     // tuple_support/nested_tuples.py:140
@@ -1593,7 +1606,7 @@ run_tests_block@0:
     callsub test_nested_mutation
     // tuple_support/nested_tuples.py:124
     // y = (UInt64(1), x)
-    intc_2 // 1
+    intc_1 // 1
     dup
     // tuple_support/nested_tuples.py:142
     // assert z[2] == y
@@ -1623,7 +1636,7 @@ run_tests_block@0:
     callsub test_single_evaluation_nested
     // tuple_support/nested_tuples.py:147
     // return True
-    intc_2 // 1
+    intc_1 // 1
     retsub
 
 
@@ -1706,15 +1719,15 @@ build_nested_block@0:
     bytec 4 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
-    intc_2 // 1
+    intc_1 // 1
     +
     bytec 4 // "build_nested_call_count"
     swap
     app_global_put
     // tuple_support/nested_tuples.py:169
     // return (String("hi"), UInt64(1)), Bytes(b"hmmm")
-    bytec 12 // "hi"
-    intc_2 // 1
+    bytec 11 // "hi"
+    intc_1 // 1
     pushbytes 0x686d6d6d
     retsub
 
@@ -1759,7 +1772,7 @@ test_single_evaluation_nested_ternary_true@1:
 test_single_evaluation_nested_ternary_merge@3:
     // tuple_support/nested_tuples.py:175
     // assert result[0][0] == "hi"
-    bytec 12 // "hi"
+    bytec 11 // "hi"
     ==
     assert
     // tuple_support/nested_tuples.py:176
@@ -1768,7 +1781,7 @@ test_single_evaluation_nested_ternary_merge@3:
     bytec 4 // "build_nested_call_count"
     app_global_get_ex
     assert // check self.build_nested_call_count exists
-    intc_2 // 1
+    intc_1 // 1
     ==
     assert
     retsub
@@ -1843,12 +1856,12 @@ approval_program_nested_named_tuple_params_route@16:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
     dup
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     swap
@@ -1864,12 +1877,12 @@ approval_program_nested_named_tuple_params_route@16:
     substring3
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
     dup
-    intc_1 // 8
+    intc_2 // 8
     extract_uint16
     swap
     dup
@@ -1967,7 +1980,7 @@ approval_program_nested_named_tuple_params_route@16:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_named_tuple_route@15:
@@ -1986,12 +1999,12 @@ approval_program_named_tuple_route@15:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
     dup
-    intc_1 // 8
+    intc_2 // 8
     extract_uint16
     swap
     dup
@@ -2067,7 +2080,7 @@ approval_program_named_tuple_route@15:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_nested_tuple_params_route@14:
@@ -2121,10 +2134,10 @@ approval_program_nested_tuple_params_route@14:
     extract 2 0
     swap
     intc_3 // 2
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     // tuple_support/nested_tuples.py:149
@@ -2191,7 +2204,7 @@ approval_program_nested_tuple_params_route@14:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_run_tests_route@13:
@@ -2214,7 +2227,7 @@ approval_program_run_tests_route@13:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_mutate_tuple_in_storage_currently_supported_method_route@12:
@@ -2229,7 +2242,7 @@ approval_program_mutate_tuple_in_storage_currently_supported_method_route@12:
     !=
     assert // can only call when not creating
     callsub mutate_tuple_in_storage_currently_supported_method
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_mutate_local_tuple_route@11:
@@ -2318,7 +2331,7 @@ approval_program_mutate_local_tuple_route@11:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_load_tuple_from_local_state_or_default_route@10:
@@ -2353,7 +2366,7 @@ approval_program_load_tuple_from_local_state_or_default_route@10:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_load_tuple_from_box_or_default_route@9:
@@ -2372,11 +2385,11 @@ approval_program_load_tuple_from_box_or_default_route@9:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     btoi
@@ -2397,7 +2410,7 @@ approval_program_load_tuple_from_box_or_default_route@9:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_maybe_load_tuple_from_box_route@8:
@@ -2416,11 +2429,11 @@ approval_program_maybe_load_tuple_from_box_route@8:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     btoi
@@ -2452,7 +2465,7 @@ approval_program_maybe_load_tuple_from_box_route@8:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_load_tuple_from_box_route@7:
@@ -2471,11 +2484,11 @@ approval_program_load_tuple_from_box_route@7:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     btoi
@@ -2496,7 +2509,7 @@ approval_program_load_tuple_from_box_route@7:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_is_tuple_in_box_route@6:
@@ -2515,11 +2528,11 @@ approval_program_is_tuple_in_box_route@6:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     btoi
@@ -2534,7 +2547,7 @@ approval_program_is_tuple_in_box_route@6:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_store_tuple_in_box_route@5:
@@ -2553,18 +2566,18 @@ approval_program_store_tuple_in_box_route@5:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     btoi
     // tuple_support/nested_tuples.py:69
     // @arc4.abimethod()
     callsub store_tuple_in_box
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_load_tuple_route@4:
@@ -2670,7 +2683,7 @@ approval_program_load_tuple_route@4:
     swap
     concat
     log
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_store_tuple_route@3:
@@ -2700,12 +2713,12 @@ approval_program_store_tuple_route@3:
     substring3
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     cover 2
     dup
-    intc_1 // 8
+    intc_2 // 8
     dup
     extract3 // on error: Index access is out of bounds
     swap
@@ -2721,12 +2734,12 @@ approval_program_store_tuple_route@3:
     substring3
     dup
     intc_0 // 0
-    intc_1 // 8
+    intc_2 // 8
     extract3 // on error: Index access is out of bounds
     btoi
     swap
     dup
-    intc_1 // 8
+    intc_2 // 8
     extract_uint16
     swap
     dup
@@ -2769,7 +2782,7 @@ approval_program_store_tuple_route@3:
     uncover 5
     uncover 5
     callsub store_tuple
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26
 
 approval_program_bare_routing@19:
@@ -2794,5 +2807,5 @@ approval_program___algopy_default_create@20:
 approval_program_block@21:
 
 approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_default_create@22:
-    intc_2 // 1
+    intc_1 // 1
     b approval_program_after_inlined_test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__@26

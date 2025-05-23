@@ -249,8 +249,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let slot_contents%3#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
         let byte_len%0#0: uint64 = (len slot_contents%3#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 144u)
-        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let as_bytes%1#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 slot_contents%3#0)
         (box_del "a")
         (box_put "a" concat_result%0#0)
@@ -308,18 +308,18 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
 subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple(some_more.0: Encoded((uint64,uint64)), some_more.1: Encoded((uint64,uint64))) -> Encoded(len+(uint64,uint64)[]):
     block@0: // L57
         let arr#0: Encoded((uint64,uint64)[])* = new()
-        let encoded%1#0: Encoded(((uint64,uint64),(uint64,uint64))) = (concat some_more.0#0 some_more.1#0)
-        write(arr#0, encoded%1#0)
-        let array%bytes_len%0#1: uint64 = (len encoded%1#0)
+        let encoded%2#0: Encoded(((uint64,uint64),(uint64,uint64))) = (concat some_more.0#0 some_more.1#0)
+        write(arr#0, encoded%2#0)
+        let array%bytes_len%0#1: uint64 = (len encoded%2#0)
         let array%array_len%0#1: uint64 = (/ array%bytes_len%0#1 16u)
         let tmp%1#0: uint64 = (- array%array_len%0#1 1u)
         let bytes_offset%0#0: uint64 = (* tmp%1#0 16u)
-        let last#0: Encoded((uint64,uint64)) = (extract3 encoded%1#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
+        let last#0: Encoded((uint64,uint64)) = (extract3 encoded%2#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
         let tmp%2#0: bool = (== last#0 some_more.1#0)
         (assert tmp%2#0)
-        let as_bytes%0#0: bytes[8] = (itob array%array_len%0#1)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let result#0: Encoded(len+(uint64,uint64)[]) = (concat len_16_bit%0#0 encoded%1#0)
+        let as_bytes%1#0: bytes[8] = (itob array%array_len%0#1)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let result#0: Encoded(len+(uint64,uint64)[]) = (concat len_16_bit%0#0 encoded%2#0)
         let array%array_length%0#1: uint64 = (extract_uint16 result#0 0u)
         let tmp%4#0: uint64 = (- array%array_length%0#1 1u)
         let array_trimmed%0#0: bytes = ((extract 2 0) result#0)
@@ -335,8 +335,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4
         write(arr#0, some_more#0)
         let byte_len%0#0: uint64 = (len some_more#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 16u)
-        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let as_bytes%1#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let concat_result%0#0: bytes = (concat len_16_bit%0#0 some_more#0)
         return concat_result%0#0
 
@@ -437,8 +437,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let slot_contents%5#0: Encoded(uint64[]) = read(arr#0)
         let byte_len%0#0: uint64 = (len slot_contents%5#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 8u)
-        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let as_bytes%1#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let arc4_arr#1: Encoded(len+uint64[]) = (concat len_16_bit%0#0 slot_contents%5#0)
         return arc4_arr#1
 

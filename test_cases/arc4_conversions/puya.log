@@ -384,9 +384,6 @@ debug: Sealing block@0
 debug: Terminated block@0
 debug: Building IR for function test_cases.arc4_conversions.contract.my_dyn_struct_arc4
 debug: Sealing block@0
-arc4_conversions/contract.py:226:9 debug: encountered already materialized expression (arc4_encode(value, arc4.uint64)), reusing result: val_as_bytes%0#0
-arc4_conversions/contract.py:226:42 debug: encountered already materialized expression (reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>())), reusing result: reinterpret_Encoded(uint8[32])%0#0
-arc4_conversions/contract.py:226:55 debug: encountered already materialized expression (arc4_encode(reinterpret_cast<bytes>(txn<Sender>()), arc4.dynamic_array<arc4.uint8>)), reusing result: encoded_value%0#0
 arc4_conversions/contract.py:225:12 debug: redundant encode operation from uint64 to uint64
 arc4_conversions/contract.py:225:12 debug: redundant encode operation from uint8[32] to uint8[32]
 arc4_conversions/contract.py:225:12 debug: redundant encode operation from len+uint8[] to len+uint8[]
@@ -642,9 +639,15 @@ debug: Building IR for function test_cases.arc4_conversions.contract.TestContrac
 debug: Sealing block@0
 debug: Terminated block@0
 debug: Sealing block@1
+arc4_conversions/contract.py:157:26 debug: redundant encode operation from (uint64,uint8[32],len+uint8[]) to (uint64,uint8[32],len+uint8[])
+arc4_conversions/contract.py:157:26 debug: redundant encode operation from (uint64,uint8[32],len+uint8[]) to (uint64,uint8[32],len+uint8[])
+arc4_conversions/contract.py:157:26 debug: redundant encode operation from (uint64,uint8[32],len+uint8[]) to (uint64,uint8[32],len+uint8[])
 arc4_conversions/contract.py:162:60 debug: redundant encode operation from len+(uint64,uint8[32],len+uint8[])[] to len+(uint64,uint8[32],len+uint8[])[]
 debug: Terminated block@1
 debug: Sealing block@2
+arc4_conversions/contract.py:164:26 debug: redundant encode operation from (uint64,uint8[32],len+uint8[]) to (uint64,uint8[32],len+uint8[])
+arc4_conversions/contract.py:164:26 debug: redundant encode operation from (uint64,uint8[32],len+uint8[]) to (uint64,uint8[32],len+uint8[])
+arc4_conversions/contract.py:164:26 debug: redundant encode operation from (uint64,uint8[32],len+uint8[]) to (uint64,uint8[32],len+uint8[])
 debug: Terminated block@2
 debug: Sealing block@3
 debug: Terminated block@3
@@ -692,6 +695,7 @@ debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_byte_length_h
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_bits
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head
+debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head
 debug: removing unused subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element
 debug: removing unused subroutine _puya_lib.arc4.static_array_replace_dynamic_element
@@ -3649,7 +3653,6 @@ debug: Output IR to arc4_conversions/out/TestContract.ir/TestContract.approval.0
 debug: Output IR to arc4_conversions/out/TestContract.ir/TestContract.clear.0.ssa.ir
 debug: optimizing approval program of test_cases.arc4_conversions.contract.TestContract at level 1
 debug: Begin optimization pass 1/100
-debug: marking single-use function _puya_lib.arc4.dynamic_array_concat_dynamic_element for inlining
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: inlining call to test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__ in algopy.arc4.ARC4Contract.approval_program
@@ -3687,50 +3690,6 @@ debug: Removed empty block: block@10
 debug: Removed empty block: block@14
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Found equivalence set: materialized_values%0#0, item_offset_adjustment#0
-debug: selected item_offset_adjustment#0 from equivalence set
-debug: Found equivalence set: materialized_values%1#0, item_offset#0
-debug: selected item_offset#0 from equivalence set
-debug: Found equivalence set: materialized_values%2#0, new_head#2
-debug: selected new_head#2 from equivalence set
-debug: Found equivalence set: materialized_values%3#0, item_offset_adjustment#2
-debug: selected item_offset_adjustment#2 from equivalence set
-debug: Found equivalence set: materialized_values%4#0, item_offset#1
-debug: selected item_offset#1 from equivalence set
-debug: Found equivalence set: materialized_values%5#0, new_head#4
-debug: selected new_head#4 from equivalence set
-debug: Copy propagation made 6 modifications
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@3 with block@2 in block@1
-debug: Merged linear block@3 into block@2
-debug: Replaced predecessor block@7 with block@6 in block@5
-debug: Merged linear block@7 into block@6
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%4#0: uint64 = (* new_items_count#0 2u) with copy of existing registers (Register(source_location=INTERNAL:202:4-26, ir_type=uint64, name='item_offset_adjustment', version=0),)
-debug: Replacing redundant declaration let tmp%12#0: uint64 = (* array_items_count#0 2u) with copy of existing registers (Register(source_location=INTERNAL:203:33-64, ir_type=uint64, name='tmp%0', version=0),)
-debug: Replacing redundant declaration let tmp%13#0: uint64 = (len array_head_and_tail#0) with copy of existing registers (Register(source_location=INTERNAL:207:4-26, ir_type=uint64, name='item_offset_adjustment', version=2),)
-debug: Replacing redundant declaration let tmp%16#0: uint64 = (* new_items_count#0 2u) with copy of existing registers (Register(source_location=INTERNAL:208:33-62, ir_type=uint64, name='tmp%4', version=0),)
-debug: Found equivalence set: item_offset_adjustment#0, tmp%4#0, tmp%16#0
-debug: selected item_offset_adjustment#0 from equivalence set
-debug: Found equivalence set: tmp%0#0, tmp%12#0
-debug: selected tmp%0#0 from equivalence set
-debug: Found equivalence set: item_offset_adjustment#2, tmp%13#0
-debug: selected item_offset_adjustment#2 from equivalence set
-debug: Copy propagation made 4 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.arc4_conversions.contract.my_struct
 debug: Optimizer: Perform Subroutine Inlining
@@ -5197,18 +5156,18 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: materialized_values%0#0, app#0, inner_txn_params%1%%param_ApplicationID_idx_0#0, inner_txn_params%2%%param_ApplicationID_idx_0#0, inner_txn_params%3%%param_ApplicationID_idx_0#0, inner_txn_params%4%%param_ApplicationID_idx_0#0
 debug: selected app#0 from equivalence set
-debug: Found equivalence set: concat_result%0#0, arr#0, inner_txn_params%1%%param_ApplicationArgs_idx_1#0
+debug: Found equivalence set: encoded%4#0, arr#0, inner_txn_params%1%%param_ApplicationArgs_idx_1#0
 debug: selected arr#0 from equivalence set
 debug: Found equivalence set: materialized_values%1#0, expected_bytes#0
 debug: selected expected_bytes#0 from equivalence set
 debug: Found equivalence set: encoded_value%0#0, inner_txn_params%1%%param_ApplicationArgs_idx_2#0
 debug: selected encoded_value%0#0 from equivalence set
-debug: Found equivalence set: encoded%8#0, inner_txn_params%2%%param_ApplicationArgs_idx_1#0
-debug: selected encoded%8#0 from equivalence set
+debug: Found equivalence set: encoded%9#0, inner_txn_params%2%%param_ApplicationArgs_idx_1#0
+debug: selected encoded%9#0 from equivalence set
 debug: Found equivalence set: encoded_value%1#0, inner_txn_params%2%%param_ApplicationArgs_idx_2#0
 debug: selected encoded_value%1#0 from equivalence set
-debug: Found equivalence set: encoded%12#0, inner_txn_params%3%%param_ApplicationArgs_idx_1#0
-debug: selected encoded%12#0 from equivalence set
+debug: Found equivalence set: encoded%13#0, inner_txn_params%3%%param_ApplicationArgs_idx_1#0
+debug: selected encoded%13#0 from equivalence set
 debug: Found equivalence set: encoded_value%2#0, inner_txn_params%3%%param_ApplicationArgs_idx_2#0
 debug: selected encoded_value%2#0 from equivalence set
 debug: Copy propagation made 13 modifications
@@ -5490,11 +5449,9 @@ debug: Removing unused variable inner_txn_params%4%%Applications_length#0
 debug: Removing unused variable inner_txn_params%4%%ApprovalProgramPages_length#0
 debug: Removing unused variable inner_txn_params%4%%ClearStateProgramPages_length#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x0000 0x) to 0x0000
-debug: Simplified ((extract 2 0) 0x0000) to 0x
 debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
 debug: Simplified (concat encoded%2#0 0x) to encoded%2#0
-debug: Simplified (concat 0x encoded%2#0) to encoded%2#0
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0003
 debug: Simplified (concat 0x0003 tmp%5#0) to 0x000300000000000000
 debug: Simplified (concat 0x000300000000000000 0x01) to 0x00030000000000000001
 debug: Simplified (concat 0x00030000000000000001 tmp%8#0) to 0x0003000000000000000100000000000000
@@ -5505,13 +5462,13 @@ debug: Simplified (len 0x0003000000000000000100000000000000020000000000000003) t
 debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x001a
 debug: Simplified (concat 0x001a 0x0003000000000000000100000000000000020000000000000003) to 0x001a0003000000000000000100000000000000020000000000000003
 debug: Simplified (concat 0x val_as_bytes%3#0) to val_as_bytes%3#0
-debug: Simplified (concat encoded%6#0 0x) to encoded%6#0
+debug: Simplified (concat encoded%7#0 0x) to encoded%7#0
 debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0003
 debug: Simplified (len 0x0003000000000000000100000000000000020000000000000003) to 26u
 debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x001a
 debug: Simplified (concat 0x001a 0x0003000000000000000100000000000000020000000000000003) to 0x001a0003000000000000000100000000000000020000000000000003
 debug: Simplified (concat 0x val_as_bytes%6#0) to val_as_bytes%6#0
-debug: Simplified (concat encoded%11#0 0x) to encoded%11#0
+debug: Simplified (concat encoded%12#0 0x) to encoded%12#0
 debug: Simplified (len 0x0003000000000000000100000000000000020000000000000003) to 26u
 debug: Simplified (>= 2u 26u) to 0u
 debug: Simplified (select 2u 26u 0u) to 2u
@@ -5537,23 +5494,26 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let tmp%8#0: bytes = (bzero 7u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:108:26-37, ir_type=bytes, name='tmp%5', version=0),)
 debug: Replacing redundant declaration let tmp%11#0: bytes = (bzero 7u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:108:26-37, ir_type=bytes, name='tmp%5', version=0),)
+debug: Replacing redundant declaration let as_bytes%2#0: bytes[8] = (itob 3u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:106:14-90, ir_type=bytes[8], name='as_bytes%0', version=0),)
 debug: Replacing redundant declaration let as_bytes%3#0: bytes[8] = (itob 26u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:110:59-73, ir_type=bytes[8], name='as_bytes%1', version=0),)
 debug: Found equivalence set: val_as_bytes%0#0, encoded%0#0
 debug: selected val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: encoded%2#0, encoded%3#0, concatenated%0#0
+debug: Found equivalence set: encoded%2#0, encoded%3#0
 debug: selected encoded%2#0 from equivalence set
 debug: Found equivalence set: tmp%5#0, tmp%8#0, tmp%11#0
 debug: selected tmp%5#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%3#0, encoded%4#0
+debug: Found equivalence set: val_as_bytes%3#0, encoded%5#0
 debug: selected val_as_bytes%3#0 from equivalence set
-debug: Found equivalence set: encoded%6#0, encoded%7#0
-debug: selected encoded%6#0 from equivalence set
+debug: Found equivalence set: encoded%7#0, encoded%8#0
+debug: selected encoded%7#0 from equivalence set
+debug: Found equivalence set: as_bytes%0#0, as_bytes%2#0
+debug: selected as_bytes%0#0 from equivalence set
 debug: Found equivalence set: as_bytes%1#0, as_bytes%3#0
 debug: selected as_bytes%1#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%6#0, encoded%9#0
+debug: Found equivalence set: val_as_bytes%6#0, encoded%10#0
 debug: selected val_as_bytes%6#0 from equivalence set
-debug: Found equivalence set: encoded%11#0, encoded%12#0
-debug: selected encoded%11#0 from equivalence set
+debug: Found equivalence set: encoded%12#0, encoded%13#0
+debug: selected encoded%12#0 from equivalence set
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding
 debug: Optimizer: Perform Subroutine Inlining
@@ -5562,14 +5522,14 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: materialized_values%0#0, app#0, inner_txn_params%1%%param_ApplicationID_idx_0#0, inner_txn_params%2%%param_ApplicationID_idx_0#0, inner_txn_params%3%%param_ApplicationID_idx_0#0
 debug: selected app#0 from equivalence set
-debug: Found equivalence set: concat_result%0#0, arr#0, inner_txn_params%1%%param_ApplicationArgs_idx_1#0
+debug: Found equivalence set: encoded%13#0, arr#0, inner_txn_params%1%%param_ApplicationArgs_idx_1#0
 debug: selected arr#0 from equivalence set
 debug: Found equivalence set: materialized_values%1#0, expected_bytes#0
 debug: selected expected_bytes#0 from equivalence set
 debug: Found equivalence set: encoded_value%0#0, inner_txn_params%1%%param_ApplicationArgs_idx_2#0
 debug: selected encoded_value%0#0 from equivalence set
-debug: Found equivalence set: encoded%25#0, inner_txn_params%2%%param_ApplicationArgs_idx_1#0
-debug: selected encoded%25#0 from equivalence set
+debug: Found equivalence set: encoded%26#0, inner_txn_params%2%%param_ApplicationArgs_idx_1#0
+debug: selected encoded%26#0 from equivalence set
 debug: Found equivalence set: encoded_value%1#0, inner_txn_params%2%%param_ApplicationArgs_idx_2#0
 debug: selected encoded_value%1#0 from equivalence set
 debug: Copy propagation made 10 modifications
@@ -5796,8 +5756,6 @@ debug: Removing unused variable inner_txn_params%3%%Applications_length#0
 debug: Removing unused variable inner_txn_params%3%%ApprovalProgramPages_length#0
 debug: Removing unused variable inner_txn_params%3%%ClearStateProgramPages_length#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x0000 0x) to 0x0000
-debug: Simplified ((extract 2 0) 0x0000) to 0x
 debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
 debug: Simplified (concat encoded%1#0 0x) to encoded%1#0
 debug: Simplified (concat 0x encoded%1#0) to encoded%1#0
@@ -5806,19 +5764,19 @@ debug: Simplified (concat encoded%5#0 0x) to encoded%5#0
 debug: Simplified (concat 0x val_as_bytes%2#0) to val_as_bytes%2#0
 debug: Simplified (concat encoded%9#0 0x) to encoded%9#0
 debug: Simplified (concat encoded%11#0 0x) to encoded%11#0
-debug: Simplified (concat 0x encoded%11#0) to encoded%11#0
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0003
 debug: Simplified (concat tmp%6#0 0x01) to 0x0000000000000001
 debug: Simplified (concat 0x0003 0x0000000000000001) to 0x00030000000000000001
 debug: Simplified (concat tmp%11#0 0x02) to 0x0000000000000002
 debug: Simplified (concat tmp%16#0 0x03) to 0x0000000000000003
 debug: Simplified (concat 0x val_as_bytes%3#0) to val_as_bytes%3#0
-debug: Simplified (concat encoded%14#0 0x) to encoded%14#0
-debug: Simplified (concat 0x encoded%14#0) to encoded%14#0
+debug: Simplified (concat encoded%15#0 0x) to encoded%15#0
+debug: Simplified (concat 0x encoded%15#0) to encoded%15#0
 debug: Simplified (concat 0x val_as_bytes%4#0) to val_as_bytes%4#0
-debug: Simplified (concat encoded%18#0 0x) to encoded%18#0
+debug: Simplified (concat encoded%19#0 0x) to encoded%19#0
 debug: Simplified (concat 0x val_as_bytes%5#0) to val_as_bytes%5#0
-debug: Simplified (concat encoded%22#0 0x) to encoded%22#0
-debug: Simplified (concat encoded%24#0 0x) to encoded%24#0
+debug: Simplified (concat encoded%23#0 0x) to encoded%23#0
+debug: Simplified (concat encoded%25#0 0x) to encoded%25#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -5848,55 +5806,48 @@ debug: Found equivalence set: val_as_bytes%2#0, encoded%8#0
 debug: selected val_as_bytes%2#0 from equivalence set
 debug: Found equivalence set: encoded%9#0, encoded%10#0
 debug: selected encoded%9#0 from equivalence set
-debug: Found equivalence set: encoded%11#0, encoded%12#0, concatenated%0#0
+debug: Found equivalence set: encoded%11#0, encoded%12#0
 debug: selected encoded%11#0 from equivalence set
 debug: Found equivalence set: tmp%6#0, tmp%11#0, tmp%16#0
 debug: selected tmp%6#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%3#0, encoded%13#0
+debug: Found equivalence set: val_as_bytes%3#0, encoded%14#0
 debug: selected val_as_bytes%3#0 from equivalence set
-debug: Found equivalence set: encoded%14#0, encoded%15#0, encoded%16#0
-debug: selected encoded%14#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%4#0, encoded%17#0
+debug: Found equivalence set: encoded%15#0, encoded%16#0, encoded%17#0
+debug: selected encoded%15#0 from equivalence set
+debug: Found equivalence set: val_as_bytes%4#0, encoded%18#0
 debug: selected val_as_bytes%4#0 from equivalence set
-debug: Found equivalence set: encoded%18#0, encoded%19#0
-debug: selected encoded%18#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%5#0, encoded%21#0
+debug: Found equivalence set: encoded%19#0, encoded%20#0
+debug: selected encoded%19#0 from equivalence set
+debug: Found equivalence set: val_as_bytes%5#0, encoded%22#0
 debug: selected val_as_bytes%5#0 from equivalence set
-debug: Found equivalence set: encoded%22#0, encoded%23#0
-debug: selected encoded%22#0 from equivalence set
-debug: Found equivalence set: encoded%24#0, encoded%25#0
-debug: selected encoded%24#0 from equivalence set
+debug: Found equivalence set: encoded%23#0, encoded%24#0
+debug: selected encoded%23#0 from equivalence set
+debug: Found equivalence set: encoded%25#0, encoded%26#0
+debug: selected encoded%25#0 from equivalence set
 debug: Found equivalence set: length%3#0, length%7#0
 debug: selected length%3#0 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
 debug: Optimizer: Perform Subroutine Inlining
-arc4_conversions/contract.py:154:15 debug: inlining call to _puya_lib.arc4.dynamic_array_concat_dynamic_element in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: materialized_values%0#0, app#0, inner_txn_params%1%%param_ApplicationID_idx_0#0, inner_txn_params%2%%param_ApplicationID_idx_0#0, inner_txn_params%3%%param_ApplicationID_idx_0#0
 debug: selected app#0 from equivalence set
-debug: Found equivalence set: l_count%0#0, array_items_count#0
-debug: selected array_items_count#0 from equivalence set
-debug: Found equivalence set: l_head_and_tail%0#0, array_head_and_tail#0
-debug: selected array_head_and_tail#0 from equivalence set
-debug: Found equivalence set: result%5#0, new_head_and_tail#0
-debug: selected new_head_and_tail#0 from equivalence set
-debug: Found equivalence set: tmp%19#1, concat_result%0#0, arr#0, inner_txn_params%1%%param_ApplicationArgs_idx_1#0
+debug: Found equivalence set: encoded%16#0, arr#0, inner_txn_params%1%%param_ApplicationArgs_idx_1#0
 debug: selected arr#0 from equivalence set
-debug: Found equivalence set: array_data%1#0, expected_bytes#0
+debug: Found equivalence set: encoded%21#0, expected_bytes#0
 debug: selected expected_bytes#0 from equivalence set
 debug: Found equivalence set: encoded_value%3#0, inner_txn_params%1%%param_ApplicationArgs_idx_2#0
 debug: selected encoded_value%3#0 from equivalence set
-debug: Found equivalence set: array_data%2#0, expected_bytes#1
+debug: Found equivalence set: encoded%25#0, expected_bytes#1
 debug: selected expected_bytes#1 from equivalence set
-debug: Found equivalence set: encoded%15#0, inner_txn_params%2%%param_ApplicationArgs_idx_1#0
-debug: selected encoded%15#0 from equivalence set
+debug: Found equivalence set: encoded%41#0, inner_txn_params%2%%param_ApplicationArgs_idx_1#0
+debug: selected encoded%41#0 from equivalence set
 debug: Found equivalence set: encoded_value%7#0, inner_txn_params%2%%param_ApplicationArgs_idx_2#0
 debug: selected encoded_value%7#0 from equivalence set
-debug: Copy propagation made 14 modifications
+debug: Copy propagation made 11 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable inner_txn_params%0#0
@@ -5954,11 +5905,10 @@ debug: Removing unused variable inner_txn_params%0%%Accounts_length#0
 debug: Removing unused variable inner_txn_params%0%%Assets_length#0
 debug: Removing unused variable inner_txn_params%0%%Applications_length#0
 debug: Removing unused variable current_tail_offset%0#0
-debug: Removing unused variable current_tail_offset%1#0
 debug: Removing unused variable current_tail_offset%2#0
-debug: Removing unused variable tail_offset%2#0
-debug: Removing unused variable new_items_count#0
-debug: Removing unused variable tail_offset%5#0
+debug: Removing unused variable current_tail_offset%4#0
+debug: Removing unused variable current_tail_offset%5#0
+debug: Removing unused variable current_tail_offset%8#0
 debug: Removing unused variable inner_txn_params%1#0
 debug: Removing unused variable inner_txn_params%1%%param_Fee_idx_0#0
 debug: Removing unused variable inner_txn_params%1%%Fee_length#0
@@ -6014,16 +5964,16 @@ debug: Removing unused variable inner_txn_params%1%%Assets_length#0
 debug: Removing unused variable inner_txn_params%1%%Applications_length#0
 debug: Removing unused variable inner_txn_params%1%%ApprovalProgramPages_length#0
 debug: Removing unused variable inner_txn_params%1%%ClearStateProgramPages_length#0
-debug: Removing unused variable tail_offset%8#0
+debug: Removing unused variable current_tail_offset%11#0
 debug: Removing unused variable inner_txn_params%2#0
 debug: Removing unused variable inner_txn_params%2%%param_Fee_idx_0#0
 debug: Removing unused variable inner_txn_params%2%%Fee_length#0
 debug: Removing unused variable inner_txn_params%2%%param_TypeEnum_idx_0#0
 debug: Removing unused variable inner_txn_params%2%%TypeEnum_length#0
-debug: Removing unused variable current_tail_offset%3#0
-debug: Removing unused variable current_tail_offset%5#0
-debug: Removing unused variable current_tail_offset%7#0
-debug: Removing unused variable current_tail_offset%8#0
+debug: Removing unused variable current_tail_offset%12#0
+debug: Removing unused variable current_tail_offset%14#0
+debug: Removing unused variable current_tail_offset%16#0
+debug: Removing unused variable current_tail_offset%17#0
 debug: Removing unused variable inner_txn_params%2%%param_ApplicationArgs_idx_0#0
 debug: Removing unused variable inner_txn_params%2%%ApplicationArgs_length#0
 debug: Removing unused variable inner_txn_params%2%%ApplicationID_length#0
@@ -6131,101 +6081,109 @@ debug: Removing unused variable inner_txn_params%3%%Applications_length#0
 debug: Removing unused variable inner_txn_params%3%%ApprovalProgramPages_length#0
 debug: Removing unused variable inner_txn_params%3%%ClearStateProgramPages_length#0
 debug: Removing unused variable data_length%0#0
-debug: Removing unused variable data_length%1#0
 debug: Removing unused variable data_length%2#0
-debug: Removing unused variable next_item_len%2#0
-debug: Removing unused variable next_item_len%5#0
-debug: Removing unused variable next_item_len%8#0
-debug: Removing unused variable data_length%3#0
+debug: Removing unused variable data_length%4#0
 debug: Removing unused variable data_length%5#0
-debug: Removing unused variable data_length%7#0
 debug: Removing unused variable data_length%8#0
+debug: Removing unused variable data_length%11#0
+debug: Removing unused variable data_length%12#0
+debug: Removing unused variable data_length%14#0
+debug: Removing unused variable data_length%16#0
+debug: Removing unused variable data_length%17#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x0000 0x) to 0x0000
 debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
+debug: Simplified (concat 0x encoded_value%0#0) to encoded_value%0#0
 debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x002a
+debug: Simplified (concat 0x encoded%3#0) to encoded%3#0
+debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0006
+debug: Simplified (concat 0x 0x0006) to 0x0006
 debug: Simplified (concat 0x val_as_bytes%1#0) to val_as_bytes%1#0
-debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x002a
+debug: Simplified (concat 0x encoded_value%1#0) to encoded_value%1#0
+debug: Simplified ((extract 6 2) as_bytes%4#0) to 0x002a
 debug: Simplified (concat 0x val_as_bytes%2#0) to val_as_bytes%2#0
-debug: Simplified ((extract 6 2) as_bytes%5#0) to 0x002a
-debug: Simplified ((extract 6 2) as_bytes%6#0) to 0x0006
+debug: Simplified (concat 0x encoded_value%2#0) to encoded_value%2#0
+debug: Simplified ((extract 6 2) as_bytes%7#0) to 0x002a
+debug: Simplified ((extract 6 2) as_bytes%9#0) to 0x0003
+debug: Simplified (concat 0x tmp%9#0) to tmp%9#0
+debug: Simplified ((extract 6 2) as_bytes%10#0) to 0x0006
 debug: Simplified (concat 0x 0x0006) to 0x0006
-debug: Simplified ((extract 2 0) 0x0000) to 0x
-debug: Simplified (* 3u 2u) to 6u
-debug: Simplified (len 0x) to 0u
-debug: Simplified (+ 0u item_offset#1) to item_offset#1
-debug: Simplified ((extract 6 2) as_bytes%9#0) to 0x0006
+debug: Simplified ((extract 6 2) as_bytes%13#0) to 0x0003
+debug: Simplified (concat 0x tmp%12#0) to tmp%12#0
+debug: Simplified ((extract 6 2) as_bytes%15#0) to 0x0006
 debug: Simplified (concat 0x 0x0006) to 0x0006
-debug: Simplified ((extract 6 2) as_bytes%13#0) to 0x0006
-debug: Simplified (concat 0x 0x0006) to 0x0006
-debug: Simplified (concat 0x result%17#0) to result%17#0
 debug: Simplified (concat 0x val_as_bytes%3#0) to val_as_bytes%3#0
 debug: Simplified (concat 0x encoded_value%4#0) to encoded_value%4#0
-debug: Simplified ((extract 6 2) as_bytes%17#0) to 0x002a
-debug: Simplified (concat 0x encoded%3#0) to encoded%3#0
-debug: Simplified ((extract 6 2) as_bytes%18#0) to 0x0006
+debug: Simplified ((extract 6 2) as_bytes%19#0) to 0x002a
+debug: Simplified (concat 0x encoded%29#0) to encoded%29#0
+debug: Simplified ((extract 6 2) as_bytes%20#0) to 0x0006
 debug: Simplified (concat 0x 0x0006) to 0x0006
 debug: Simplified (concat 0x val_as_bytes%4#0) to val_as_bytes%4#0
 debug: Simplified (concat 0x encoded_value%5#0) to encoded_value%5#0
-debug: Simplified ((extract 6 2) as_bytes%20#0) to 0x002a
+debug: Simplified ((extract 6 2) as_bytes%22#0) to 0x002a
 debug: Simplified (concat 0x val_as_bytes%5#0) to val_as_bytes%5#0
 debug: Simplified (concat 0x encoded_value%6#0) to encoded_value%6#0
-debug: Simplified ((extract 6 2) as_bytes%23#0) to 0x002a
+debug: Simplified ((extract 6 2) as_bytes%25#0) to 0x002a
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@1 with block@0 in block@5
+debug: Replaced predecessor block@1 with block@0 in block@2
 debug: Merged linear block@1 into block@0
-debug: Replaced predecessor block@5 with block@0 in block@6
-debug: Merged linear block@5 into block@0
-debug: Replaced predecessor block@12 with block@11 in block@2
-debug: Merged linear block@12 into block@11
-debug: Replaced predecessor block@2 with block@11 in block@3
-debug: Merged linear block@2 into block@11
-debug: Replaced predecessor block@3 with block@11 in block@4
-debug: Merged linear block@3 into block@11
-debug: Merged linear block@4 into block@11
+debug: Replaced predecessor block@2 with block@0 in block@3
+debug: Merged linear block@2 into block@0
+debug: Replaced predecessor block@3 with block@0 in block@4
+debug: Merged linear block@3 into block@0
+debug: Merged linear block@4 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let as_bytes%3#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%1', version=0),)
-debug: Replacing redundant declaration let as_bytes%5#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%1', version=0),)
-debug: Replacing redundant declaration let as_bytes%13#0: bytes[8] = (itob 6u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:157-161:25-9, ir_type=bytes[8], name='as_bytes%9', version=0),)
-debug: Replacing redundant declaration let as_bytes%18#0: bytes[8] = (itob 6u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:157-161:25-9, ir_type=bytes[8], name='as_bytes%9', version=0),)
-debug: Replacing redundant declaration let as_bytes%20#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:171:12-90, ir_type=bytes[8], name='as_bytes%17', version=0),)
-debug: Replacing redundant declaration let as_bytes%23#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:171:12-90, ir_type=bytes[8], name='as_bytes%17', version=0),)
-debug: Replacing redundant declaration let as_bytes%9#0: bytes[8] = (itob 6u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%6', version=0),)
-debug: Replacing redundant declaration let as_bytes%17#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%1', version=0),)
-debug: Found equivalence set: val_as_bytes%0#0, encoded_tuple_buffer%0#0
+debug: Replacing redundant declaration let as_bytes%4#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%1', version=0),)
+debug: Replacing redundant declaration let as_bytes%7#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%1', version=0),)
+debug: Replacing redundant declaration let as_bytes%10#0: bytes[8] = (itob 6u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%2', version=0),)
+debug: Replacing redundant declaration let as_bytes%13#0: bytes[8] = (itob 3u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%9', version=0),)
+debug: Replacing redundant declaration let as_bytes%15#0: bytes[8] = (itob 6u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%2', version=0),)
+debug: Replacing redundant declaration let as_bytes%19#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%1', version=0),)
+debug: Replacing redundant declaration let as_bytes%20#0: bytes[8] = (itob 6u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%2', version=0),)
+debug: Replacing redundant declaration let as_bytes%22#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%1', version=0),)
+debug: Replacing redundant declaration let as_bytes%25#0: bytes[8] = (itob 42u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%1', version=0),)
+debug: Found equivalence set: val_as_bytes%0#0, encoded%0#0
 debug: selected val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%1#0, encoded_tuple_buffer%4#0
-debug: selected val_as_bytes%1#0 from equivalence set
-debug: Found equivalence set: as_bytes%1#0, as_bytes%3#0, as_bytes%5#0, as_bytes%17#0, as_bytes%20#0, as_bytes%23#0
-debug: selected as_bytes%1#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%2#0, encoded_tuple_buffer%8#0
-debug: selected val_as_bytes%2#0 from equivalence set
-debug: Found equivalence set: item_offset#1, tmp%5#1
-debug: selected item_offset#1 from equivalence set
-debug: Found equivalence set: as_bytes%6#0, as_bytes%9#0, as_bytes%13#0, as_bytes%18#0
-debug: selected as_bytes%6#0 from equivalence set
-debug: Found equivalence set: result%17#0, expected_bytes#1
-debug: selected expected_bytes#1 from equivalence set
-debug: Found equivalence set: val_as_bytes%3#0, encoded%0#0
-debug: selected val_as_bytes%3#0 from equivalence set
-debug: Found equivalence set: encoded_value%4#0, tail%0#0
-debug: selected encoded_value%4#0 from equivalence set
+debug: Found equivalence set: encoded_value%0#0, tail%0#0
+debug: selected encoded_value%0#0 from equivalence set
 debug: Found equivalence set: encoded%3#0, tail%1#0
 debug: selected encoded%3#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%4#0, encoded%5#0
+debug: Found equivalence set: val_as_bytes%1#0, encoded%5#0
+debug: selected val_as_bytes%1#0 from equivalence set
+debug: Found equivalence set: encoded_value%1#0, tail%2#0
+debug: selected encoded_value%1#0 from equivalence set
+debug: Found equivalence set: as_bytes%1#0, as_bytes%4#0, as_bytes%7#0, as_bytes%19#0, as_bytes%22#0, as_bytes%25#0
+debug: selected as_bytes%1#0 from equivalence set
+debug: Found equivalence set: val_as_bytes%2#0, encoded%10#0
+debug: selected val_as_bytes%2#0 from equivalence set
+debug: Found equivalence set: encoded_value%2#0, tail%4#0
+debug: selected encoded_value%2#0 from equivalence set
+debug: Found equivalence set: tmp%9#0, tail%6#0
+debug: selected tmp%9#0 from equivalence set
+debug: Found equivalence set: as_bytes%2#0, as_bytes%10#0, as_bytes%15#0, as_bytes%20#0
+debug: selected as_bytes%2#0 from equivalence set
+debug: Found equivalence set: as_bytes%9#0, as_bytes%13#0
+debug: selected as_bytes%9#0 from equivalence set
+debug: Found equivalence set: tmp%12#0, tail%9#0
+debug: selected tmp%12#0 from equivalence set
+debug: Found equivalence set: val_as_bytes%3#0, encoded%26#0
+debug: selected val_as_bytes%3#0 from equivalence set
+debug: Found equivalence set: encoded_value%4#0, tail%12#0
+debug: selected encoded_value%4#0 from equivalence set
+debug: Found equivalence set: encoded%29#0, tail%13#0
+debug: selected encoded%29#0 from equivalence set
+debug: Found equivalence set: val_as_bytes%4#0, encoded%31#0
 debug: selected val_as_bytes%4#0 from equivalence set
-debug: Found equivalence set: encoded_value%5#0, tail%2#0
+debug: Found equivalence set: encoded_value%5#0, tail%14#0
 debug: selected encoded_value%5#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%5#0, encoded%10#0
+debug: Found equivalence set: val_as_bytes%5#0, encoded%36#0
 debug: selected val_as_bytes%5#0 from equivalence set
-debug: Found equivalence set: encoded_value%6#0, tail%4#0
+debug: Found equivalence set: encoded_value%6#0, tail%16#0
 debug: selected encoded_value%6#0 from equivalence set
-debug: Copy propagation made 3 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed
 debug: Optimizer: Perform Subroutine Inlining
@@ -6439,7 +6397,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: removing unused subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element
 debug: removing unused subroutine test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__
 debug: Unused subroutines removed
 debug: Output IR to arc4_conversions/out/TestContract.ir/TestContract.approval.1.ssa.opt.ir
@@ -6692,8 +6649,8 @@ debug: Removing unused variable inner_txn_params%0%%param_GlobalNumByteSlice_idx
 debug: Removing unused variable inner_txn_params%0%%param_GlobalNumUint_idx_0#0
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumUint_idx_0#0
-debug: Removing unused variable array_data%0#0
-debug: Removing unused variable expr_value_trimmed%0#0
+debug: Removing unused variable as_bytes%0#0
+debug: Removing unused variable len_u16%0#0
 debug: Removing unused variable tmp%5#0
 debug: Removing unused variable tmp%6#0
 debug: Removing unused variable tmp%7#0
@@ -6705,8 +6662,7 @@ debug: Removing unused variable length%0#0
 debug: Removing unused variable as_bytes%1#0
 debug: Removing unused variable length_uint16%0#0
 debug: Removing unused variable encoded_value%0#0
-debug: Removing unused variable as_bytes%2#0
-debug: Removing unused variable len_u16%0#0
+debug: Removing unused variable len_u16%1#0
 debug: Removing unused variable length%1#0
 debug: Removing unused variable length_uint16%1#0
 debug: Removing unused variable encoded_value%1#0
@@ -6743,8 +6699,8 @@ debug: Removing unused variable inner_txn_params%0%%param_GlobalNumByteSlice_idx
 debug: Removing unused variable inner_txn_params%0%%param_GlobalNumUint_idx_0#0
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumUint_idx_0#0
-debug: Removing unused variable array_data%0#0
-debug: Removing unused variable expr_value_trimmed%0#0
+debug: Removing unused variable as_bytes%0#0
+debug: Removing unused variable len_u16%0#0
 debug: Removing unused variable tmp%6#0
 debug: Removing unused variable tmp%7#0
 debug: Removing unused variable tmp%8#0
@@ -6775,26 +6731,25 @@ debug: Removing unused variable inner_txn_params%0%%param_GlobalNumByteSlice_idx
 debug: Removing unused variable inner_txn_params%0%%param_GlobalNumUint_idx_0#0
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumByteSlice_idx_0#0
 debug: Removing unused variable inner_txn_params%0%%param_LocalNumUint_idx_0#0
-debug: Removing unused variable array_data%0#0
 debug: Removing unused variable as_bytes%1#0
 debug: Removing unused variable offset_as_uint16%0#0
+debug: Removing unused variable as_bytes%2#0
 debug: Removing unused variable offset_as_uint16%1#0
-debug: Removing unused variable offset_as_uint16%2#0
-debug: Removing unused variable as_bytes%6#0
-debug: Removing unused variable next_item_head%0#0
-debug: Removing unused variable result%0#0
-debug: Removing unused variable array_head_and_tail#0
-debug: Removing unused variable item_offset_adjustment#0
-debug: Removing unused variable item_offset_adjustment#2
-debug: Removing unused variable next_item_head%3#0
-debug: Removing unused variable result%6#0
-debug: Removing unused variable next_item_head%6#0
-debug: Removing unused variable result%12#0
-debug: Removing unused variable offset_as_uint16%3#0
-debug: Removing unused variable offset_as_uint16%4#0
 debug: Removing unused variable encoded%4#0
-debug: Removing unused variable offset_as_uint16%5#0
-debug: Removing unused variable offset_as_uint16%7#0
+debug: Removing unused variable offset_as_uint16%2#0
+debug: Removing unused variable offset_as_uint16%4#0
+debug: Removing unused variable as_bytes%9#0
+debug: Removing unused variable len_u16%0#0
+debug: Removing unused variable offset_as_uint16%6#0
+debug: Removing unused variable encoded%17#0
+debug: Removing unused variable len_u16%1#0
+debug: Removing unused variable offset_as_uint16%9#0
+debug: Removing unused variable encoded%22#0
+debug: Removing unused variable offset_as_uint16%12#0
+debug: Removing unused variable offset_as_uint16%13#0
+debug: Removing unused variable encoded%30#0
+debug: Removing unused variable offset_as_uint16%14#0
+debug: Removing unused variable offset_as_uint16%16#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -7073,118 +7028,118 @@ debug: Copy propagation made 3 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
 debug: Optimizer: Perform Subroutine Inlining
-arc4_conversions/contract.py:171:14 debug: inlining call to test_cases.arc4_conversions.contract.my_dyn_struct in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
-arc4_conversions/contract.py:171:40 debug: inlining call to test_cases.arc4_conversions.contract.my_dyn_struct in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
-arc4_conversions/contract.py:171:66 debug: inlining call to test_cases.arc4_conversions.contract.my_dyn_struct in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
 arc4_conversions/contract.py:155:13 debug: inlining call to test_cases.arc4_conversions.contract.my_dyn_struct in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
 arc4_conversions/contract.py:155:39 debug: inlining call to test_cases.arc4_conversions.contract.my_dyn_struct in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
 arc4_conversions/contract.py:155:65 debug: inlining call to test_cases.arc4_conversions.contract.my_dyn_struct in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
+arc4_conversions/contract.py:171:14 debug: inlining call to test_cases.arc4_conversions.contract.my_dyn_struct in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
+arc4_conversions/contract.py:171:40 debug: inlining call to test_cases.arc4_conversions.contract.my_dyn_struct in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
+arc4_conversions/contract.py:171:66 debug: inlining call to test_cases.arc4_conversions.contract.my_dyn_struct in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#5, tmp%1#0
-debug: selected tmp%0#5 from equivalence set
-debug: Found equivalence set: tmp%1#5, tmp%2#0
-debug: selected tmp%1#5 from equivalence set
-debug: Found equivalence set: tmp%0#6, tmp%4#0
-debug: selected tmp%0#6 from equivalence set
-debug: Found equivalence set: tmp%1#6, tmp%5#0
-debug: selected tmp%1#6 from equivalence set
-debug: Found equivalence set: tmp%0#7, tmp%7#0
-debug: selected tmp%0#7 from equivalence set
-debug: Found equivalence set: tmp%1#7, tmp%8#0
-debug: selected tmp%1#7 from equivalence set
-debug: Found equivalence set: tmp%0#2, tmp%16#0
+debug: Found equivalence set: tmp%0#1, tmp%1#0
+debug: selected tmp%0#1 from equivalence set
+debug: Found equivalence set: tmp%1#1, tmp%2#0
+debug: selected tmp%1#1 from equivalence set
+debug: Found equivalence set: tmp%0#2, tmp%4#0
 debug: selected tmp%0#2 from equivalence set
-debug: Found equivalence set: tmp%1#2, tmp%17#0
+debug: Found equivalence set: tmp%1#2, tmp%5#0
 debug: selected tmp%1#2 from equivalence set
-debug: Found equivalence set: tmp%0#3, tmp%19#0
+debug: Found equivalence set: tmp%0#3, tmp%7#0
 debug: selected tmp%0#3 from equivalence set
-debug: Found equivalence set: tmp%1#3, tmp%20#0
+debug: Found equivalence set: tmp%1#3, tmp%8#0
 debug: selected tmp%1#3 from equivalence set
-debug: Found equivalence set: tmp%0#4, tmp%22#0
+debug: Found equivalence set: tmp%0#4, tmp%16#0
 debug: selected tmp%0#4 from equivalence set
-debug: Found equivalence set: tmp%1#4, tmp%23#0
+debug: Found equivalence set: tmp%1#4, tmp%17#0
 debug: selected tmp%1#4 from equivalence set
+debug: Found equivalence set: tmp%0#5, tmp%19#0
+debug: selected tmp%0#5 from equivalence set
+debug: Found equivalence set: tmp%1#5, tmp%20#0
+debug: selected tmp%1#5 from equivalence set
+debug: Found equivalence set: tmp%0#6, tmp%22#0
+debug: selected tmp%0#6 from equivalence set
+debug: Found equivalence set: tmp%1#6, tmp%23#0
+debug: selected tmp%1#6 from equivalence set
 debug: Copy propagation made 24 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable value#3
-debug: Removing unused variable tmp%0#0
-debug: Removing unused variable value#4
-debug: Removing unused variable tmp%3#0
-debug: Removing unused variable value#5
-debug: Removing unused variable tmp%6#0
 debug: Removing unused variable value#0
-debug: Removing unused variable tmp%15#0
+debug: Removing unused variable tmp%0#0
 debug: Removing unused variable value#1
-debug: Removing unused variable tmp%18#0
+debug: Removing unused variable tmp%3#0
 debug: Removing unused variable value#2
+debug: Removing unused variable tmp%6#0
+debug: Removing unused variable value#3
+debug: Removing unused variable tmp%15#0
+debug: Removing unused variable value#4
+debug: Removing unused variable tmp%18#0
+debug: Removing unused variable value#5
 debug: Removing unused variable tmp%21#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (len tmp%0#5) to 32u
+debug: Simplified (len tmp%0#1) to 32u
 debug: Simplified (== 32u 32u) to 1u
-debug: Simplified (len tmp%1#5) to 32u
+debug: Simplified (len tmp%1#1) to 32u
 debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0020
-debug: Simplified (len tmp%0#6) to 32u
-debug: Simplified (== 32u 32u) to 1u
-debug: Simplified (len tmp%1#6) to 32u
-debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0020
-debug: Simplified (len tmp%0#7) to 32u
-debug: Simplified (== 32u 32u) to 1u
-debug: Simplified (len tmp%1#7) to 32u
-debug: Simplified ((extract 6 2) as_bytes%4#0) to 0x0020
 debug: Simplified (len tmp%0#2) to 32u
 debug: Simplified (== 32u 32u) to 1u
 debug: Simplified (len tmp%1#2) to 32u
-debug: Simplified ((extract 6 2) as_bytes%16#0) to 0x0020
+debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x0020
 debug: Simplified (len tmp%0#3) to 32u
 debug: Simplified (== 32u 32u) to 1u
 debug: Simplified (len tmp%1#3) to 32u
-debug: Simplified ((extract 6 2) as_bytes%19#0) to 0x0020
+debug: Simplified ((extract 6 2) as_bytes%6#0) to 0x0020
 debug: Simplified (len tmp%0#4) to 32u
 debug: Simplified (== 32u 32u) to 1u
 debug: Simplified (len tmp%1#4) to 32u
-debug: Simplified ((extract 6 2) as_bytes%22#0) to 0x0020
+debug: Simplified ((extract 6 2) as_bytes%18#0) to 0x0020
+debug: Simplified (len tmp%0#5) to 32u
+debug: Simplified (== 32u 32u) to 1u
+debug: Simplified (len tmp%1#5) to 32u
+debug: Simplified ((extract 6 2) as_bytes%21#0) to 0x0020
+debug: Simplified (len tmp%0#6) to 32u
+debug: Simplified (== 32u 32u) to 1u
+debug: Simplified (len tmp%1#6) to 32u
+debug: Simplified ((extract 6 2) as_bytes%24#0) to 0x0020
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@18 with block@0 in block@19
-debug: Merged linear block@18 into block@0
-debug: Replaced predecessor block@19 with block@0 in block@20
-debug: Merged linear block@19 into block@0
-debug: Replaced predecessor block@20 with block@0 in block@21
-debug: Merged linear block@20 into block@0
-debug: Replaced predecessor block@21 with block@0 in block@22
-debug: Merged linear block@21 into block@0
-debug: Replaced predecessor block@22 with block@0 in block@23
-debug: Merged linear block@22 into block@0
-debug: Replaced predecessor block@23 with block@0 in block@6
-debug: Merged linear block@23 into block@0
-debug: Replaced predecessor block@12 with block@11 in block@13
-debug: Merged linear block@12 into block@11
-debug: Replaced predecessor block@13 with block@11 in block@14
-debug: Merged linear block@13 into block@11
-debug: Replaced predecessor block@14 with block@11 in block@15
-debug: Merged linear block@14 into block@11
-debug: Replaced predecessor block@15 with block@11 in block@16
-debug: Merged linear block@15 into block@11
-debug: Replaced predecessor block@16 with block@11 in block@17
-debug: Merged linear block@16 into block@11
-debug: Merged linear block@17 into block@11
+debug: Replaced predecessor block@1 with block@0 in block@2
+debug: Merged linear block@1 into block@0
+debug: Replaced predecessor block@2 with block@0 in block@3
+debug: Merged linear block@2 into block@0
+debug: Replaced predecessor block@3 with block@0 in block@4
+debug: Merged linear block@3 into block@0
+debug: Replaced predecessor block@4 with block@0 in block@5
+debug: Merged linear block@4 into block@0
+debug: Replaced predecessor block@5 with block@0 in block@6
+debug: Merged linear block@5 into block@0
+debug: Replaced predecessor block@6 with block@0 in block@7
+debug: Merged linear block@6 into block@0
+debug: Replaced predecessor block@7 with block@0 in block@8
+debug: Merged linear block@7 into block@0
+debug: Replaced predecessor block@8 with block@0 in block@9
+debug: Merged linear block@8 into block@0
+debug: Replaced predecessor block@9 with block@0 in block@10
+debug: Merged linear block@9 into block@0
+debug: Replaced predecessor block@10 with block@0 in block@11
+debug: Merged linear block@10 into block@0
+debug: Replaced predecessor block@11 with block@0 in block@12
+debug: Merged linear block@11 into block@0
+debug: Merged linear block@12 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let as_bytes%2#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:155:12-36, ir_type=bytes[8], name='as_bytes%0', version=0),)
-debug: Replacing redundant declaration let as_bytes%4#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:155:12-36, ir_type=bytes[8], name='as_bytes%0', version=0),)
-debug: Replacing redundant declaration let as_bytes%19#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:171:12-90, ir_type=bytes[8], name='as_bytes%16', version=0),)
-debug: Replacing redundant declaration let as_bytes%22#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:171:12-90, ir_type=bytes[8], name='as_bytes%16', version=0),)
-debug: Replacing redundant declaration let val_as_bytes%3#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:155:12-36, ir_type=bytes[8], name='val_as_bytes%0', version=0),)
-debug: Replacing redundant declaration let as_bytes%16#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:155:12-36, ir_type=bytes[8], name='as_bytes%0', version=0),)
-debug: Replacing redundant declaration let val_as_bytes%4#0: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:155:38-62, ir_type=bytes[8], name='val_as_bytes%1', version=0),)
-debug: Replacing redundant declaration let val_as_bytes%5#0: bytes[8] = (itob 3u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:155:64-88, ir_type=bytes[8], name='val_as_bytes%2', version=0),)
-debug: Found equivalence set: as_bytes%0#0, as_bytes%2#0, as_bytes%4#0, as_bytes%16#0, as_bytes%19#0, as_bytes%22#0
+debug: Replacing redundant declaration let as_bytes%3#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let as_bytes%6#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let val_as_bytes%3#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='val_as_bytes%0', version=0),)
+debug: Replacing redundant declaration let as_bytes%18#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let val_as_bytes%4#0: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='val_as_bytes%1', version=0),)
+debug: Replacing redundant declaration let as_bytes%21#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let val_as_bytes%5#0: bytes[8] = (itob 3u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='val_as_bytes%2', version=0),)
+debug: Replacing redundant declaration let as_bytes%24#0: bytes[8] = (itob 32u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:154-156:14-9, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Found equivalence set: as_bytes%0#0, as_bytes%3#0, as_bytes%6#0, as_bytes%18#0, as_bytes%21#0, as_bytes%24#0
 debug: selected as_bytes%0#0 from equivalence set
 debug: Found equivalence set: val_as_bytes%0#0, val_as_bytes%3#0
 debug: selected val_as_bytes%0#0 from equivalence set
@@ -7685,317 +7640,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array%array_length%0#1, array_items_count#0
-debug: selected array_items_count#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract_uint16 0x0000 0u) to 0u
-debug: Simplified (* 0u 2u) to 0u
-debug: Simplified (+ 0u 3u) to 3u
-debug: Simplified ((extract 6 2) tmp%9#1) to 0x0003
-debug: Simplified (substring3 0x 0u 0u) to 0x
-debug: Simplified (concat tmp%11#1 0x) to tmp%11#1
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%9#1: bytes = (itob 3u) with copy of existing registers (Register(source_location=arc4_conversions/contract.py:155:64-88, ir_type=bytes[8], name='val_as_bytes%2', version=0),)
-debug: Found equivalence set: val_as_bytes%2#0, tmp%9#1
-debug: selected val_as_bytes%2#0 from equivalence set
-debug: Found equivalence set: tmp%11#1, tmp%15#1
-debug: selected tmp%11#1 from equivalence set
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Output IR to arc4_conversions/out/TestContract.ir/TestContract.approval.6.ssa.array.opt.ir
-debug: Begin optimization pass 2/100
-debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_items_count#0
-debug: Removing unused variable tmp%0#1
-debug: Removing unused variable tmp%8#1
-debug: Removing unused variable tmp%10#1
-debug: Removing unused variable tmp%14#1
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Output IR to arc4_conversions/out/TestContract.ir/TestContract.approval.7.ssa.array.opt.ir
-debug: Begin optimization pass 3/100
-debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -8023,7 +7667,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 3, ending loop
+debug: No optimizations performed in pass 1, ending loop
 debug: optimizing clear program of test_cases.arc4_conversions.contract.TestContract at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
@@ -8054,7 +7698,7 @@ arc4_conversions/contract.py:126 debug: auto reserving slots in test_cases.arc4_
 arc4_conversions/contract.py:150 debug: auto reserving slots in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding, []
 arc4_conversions/contract.py:178 debug: auto reserving slots in test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed, []
 debug: Slot allocation not required
-debug: Output IR to arc4_conversions/out/TestContract.ir/TestContract.approval.8.ssa.slot.ir
+debug: Output IR to arc4_conversions/out/TestContract.ir/TestContract.approval.6.ssa.slot.ir
 debug: removing local static slots in clear program of test_cases.arc4_conversions.contract.TestContract
 debug: auto reserving slots in algopy.arc4.ARC4Contract.clear_state_program, []
 debug: Slot allocation not required
@@ -8117,55 +7761,15 @@ debug: Performing SSA IR destructuring for test_cases.arc4_conversions.contract.
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding using strategy RootOperandGrouping
+debug: Coalescing tmp%0#1 with [tmp%0#4]
 debug: Coalescing tmp%0#2 with [tmp%0#5]
 debug: Coalescing tmp%0#3 with [tmp%0#6]
-debug: Coalescing tmp%0#4 with [tmp%0#7]
+debug: Coalescing tmp%1#1 with [tmp%1#4]
 debug: Coalescing tmp%1#2 with [tmp%1#5]
 debug: Coalescing tmp%1#3 with [tmp%1#6]
-debug: Coalescing tmp%1#4 with [tmp%1#7]
-debug: Coalescing new_head#0 with [new_head#7, new_head#1, new_head#2, new_head#10, new_head#3, new_head#4]
-debug: Coalescing head_offset#0 with [head_offset#8, head_offset#1, head_offset#2, head_offset#3, head_offset#11, head_offset#4, head_offset#5]
-debug: Coalescing item_offset#0 with [item_offset#1]
-debug: Coalescing tmp%11#0 with [tmp%11#1]
 debug: Coalescing expected_bytes#0 with [expected_bytes#1]
-debug: Coalescing resulted in 55 replacement/s
+debug: Coalescing resulted in 15 replacement/s
 debug: Sequentializing parallel copies in test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
-debug: loc: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: pred: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: ready: 
-debug: to_do: head_offset#0, new_head#0
-debug: * to_do new_head#0
-debug: * to_do head_offset#0
-debug: loc: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: pred: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: ready: 
-debug: to_do: head_offset#0, new_head#0
-debug: * to_do new_head#0
-debug: * to_do head_offset#0
-debug: loc: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: pred: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: ready: 
-debug: to_do: head_offset#0, new_head#0
-debug: * to_do new_head#0
-debug: * to_do head_offset#0
-debug: loc: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: pred: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: ready: 
-debug: to_do: head_offset#0, new_head#0
-debug: * to_do new_head#0
-debug: * to_do head_offset#0
-debug: loc: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: pred: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: ready: 
-debug: to_do: head_offset#0, new_head#0
-debug: * to_do new_head#0
-debug: * to_do head_offset#0
-debug: loc: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: pred: {head_offset#0=head_offset#0, new_head#0=new_head#0}
-debug: ready: 
-debug: to_do: head_offset#0, new_head#0
-debug: * to_do new_head#0
-debug: * to_do head_offset#0
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed
 debug: Converting to CSSA
@@ -8175,7 +7779,7 @@ debug: Coalescing sender#0 with [sender#1, sender#2]
 debug: Coalescing resulted in 5 replacement/s
 debug: Sequentializing parallel copies in test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed
 debug: Performing post-SSA optimizations at level 1
-debug: Output IR to arc4_conversions/out/TestContract.ir/TestContract.approval.9.destructured.ir
+debug: Output IR to arc4_conversions/out/TestContract.ir/TestContract.approval.7.destructured.ir
 debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.clear_state_program
 debug: Converting to CSSA
 debug: Removing Phi nodes
@@ -8382,470 +7986,430 @@ debug: Inserted test_array_uint64_encoding_block@0.ops[15]: 'l-store-copy tmp%1#
 debug: Replaced test_array_uint64_encoding_block@0.ops[17]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
 debug: Inserted test_array_uint64_encoding_block@0.ops[22]: 'l-store-copy tmp%3#0 0'
 debug: Replaced test_array_uint64_encoding_block@0.ops[24]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[44]: 'l-store-copy encoded%2#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[46]: 'v-load encoded%2#0' with 'l-load encoded%2#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[48]: 'l-store-copy byte_len%0#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[50]: 'v-load byte_len%0#0' with 'l-load byte_len%0#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[53]: 'l-store-copy len_%0#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[55]: 'v-load len_%0#0' with 'l-load len_%0#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[57]: 'l-store-copy as_bytes%0#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[59]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[61]: 'l-store-copy len_16_bit%0#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[63]: 'v-load len_16_bit%0#0' with 'l-load len_16_bit%0#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[85]: 'l-store-copy tmp%14#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[87]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[92]: 'l-store-copy tmp%16#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[94]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[136]: 'l-store-copy tmp%19#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[138]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[143]: 'l-store-copy tmp%21#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[145]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[67]: 'l-store-copy tmp%14#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[69]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[74]: 'l-store-copy tmp%16#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[76]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[118]: 'l-store-copy tmp%19#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[120]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[125]: 'l-store-copy tmp%21#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[127]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
 debug: Inserted test_array_uint64_encoding_block@0.ops[33]: 'l-store-copy val_as_bytes%1#0 0'
 debug: Replaced test_array_uint64_encoding_block@0.ops[36]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
 debug: Inserted test_array_uint64_encoding_block@0.ops[41]: 'l-store-copy val_as_bytes%2#0 0'
 debug: Replaced test_array_uint64_encoding_block@0.ops[44]: 'v-load val_as_bytes%2#0' with 'l-load val_as_bytes%2#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[105]: 'l-store-copy val_as_bytes%4#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[108]: 'v-load val_as_bytes%4#0' with 'l-load val_as_bytes%4#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[113]: 'l-store-copy val_as_bytes%5#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[116]: 'v-load val_as_bytes%5#0' with 'l-load val_as_bytes%5#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[118]: 'l-store-copy encoded%6#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[121]: 'v-load encoded%6#0' with 'l-load encoded%6#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[159]: 'l-store-copy val_as_bytes%7#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[162]: 'v-load val_as_bytes%7#0' with 'l-load val_as_bytes%7#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[167]: 'l-store-copy val_as_bytes%8#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[170]: 'v-load val_as_bytes%8#0' with 'l-load val_as_bytes%8#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[46]: 'l-store-copy encoded%2#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[49]: 'v-load encoded%2#0' with 'l-load encoded%2#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[88]: 'l-store-copy val_as_bytes%4#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[91]: 'v-load val_as_bytes%4#0' with 'l-load val_as_bytes%4#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[96]: 'l-store-copy val_as_bytes%5#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[99]: 'v-load val_as_bytes%5#0' with 'l-load val_as_bytes%5#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[101]: 'l-store-copy encoded%7#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[104]: 'v-load encoded%7#0' with 'l-load encoded%7#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[142]: 'l-store-copy val_as_bytes%7#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[145]: 'v-load val_as_bytes%7#0' with 'l-load val_as_bytes%7#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[150]: 'l-store-copy val_as_bytes%8#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[153]: 'v-load val_as_bytes%8#0' with 'l-load val_as_bytes%8#0'
 debug: Inserted test_array_uint64_encoding_block@0.ops[30]: 'l-store-copy val_as_bytes%0#0 0'
 debug: Replaced test_array_uint64_encoding_block@0.ops[36]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted test_array_uint64_encoding_block@0.ops[39]: 'l-store-copy encoded%1#0 0'
 debug: Replaced test_array_uint64_encoding_block@0.ops[45]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[104]: 'l-store-copy val_as_bytes%3#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[110]: 'v-load val_as_bytes%3#0' with 'l-load val_as_bytes%3#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[113]: 'l-store-copy encoded%5#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[119]: 'v-load encoded%5#0' with 'l-load encoded%5#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[160]: 'l-store-copy val_as_bytes%6#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[166]: 'v-load val_as_bytes%6#0' with 'l-load val_as_bytes%6#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[169]: 'l-store-copy encoded%10#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[175]: 'v-load encoded%10#0' with 'l-load encoded%10#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[127]: 'l-store-copy encoded%8#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[133]: 'v-load encoded%8#0' with 'l-load encoded%8#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[179]: 'l-store-copy encoded%11#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[185]: 'v-load encoded%11#0' with 'l-load encoded%11#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[70]: 'l-store-copy arr#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[77]: 'v-load arr#0' with 'l-load arr#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[87]: 'l-store-copy val_as_bytes%3#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[93]: 'v-load val_as_bytes%3#0' with 'l-load val_as_bytes%3#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[96]: 'l-store-copy encoded%6#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[102]: 'v-load encoded%6#0' with 'l-load encoded%6#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[143]: 'l-store-copy val_as_bytes%6#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[149]: 'v-load val_as_bytes%6#0' with 'l-load val_as_bytes%6#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[152]: 'l-store-copy encoded%11#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[158]: 'v-load encoded%11#0' with 'l-load encoded%11#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[110]: 'l-store-copy encoded%9#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[116]: 'v-load encoded%9#0' with 'l-load encoded%9#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[162]: 'l-store-copy encoded%12#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[168]: 'v-load encoded%12#0' with 'l-load encoded%12#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[53]: 'l-store-copy arr#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[60]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted test_array_uint64_encoding_block@0.ops[20]: 'l-store-copy tmp%2#0 0'
 debug: Replaced test_array_uint64_encoding_block@0.ops[33]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[96]: 'l-store-copy tmp%15#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[109]: 'v-load tmp%15#0' with 'l-load tmp%15#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[154]: 'l-store-copy tmp%20#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[167]: 'v-load tmp%20#0' with 'l-load tmp%20#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[79]: 'l-store-copy tmp%15#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[92]: 'v-load tmp%15#0' with 'l-load tmp%15#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[137]: 'l-store-copy tmp%20#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[150]: 'v-load tmp%20#0' with 'l-load tmp%20#0'
 debug: Inserted test_array_uint64_encoding_block@0.ops[28]: 'l-store-copy tmp%4#0 1'
 debug: Replaced test_array_uint64_encoding_block@0.ops[43]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[105]: 'l-store-copy tmp%17#0 1'
-debug: Replaced test_array_uint64_encoding_block@0.ops[120]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[164]: 'l-store-copy tmp%22#0 1'
-debug: Replaced test_array_uint64_encoding_block@0.ops[179]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[88]: 'l-store-copy tmp%17#0 1'
+debug: Replaced test_array_uint64_encoding_block@0.ops[103]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[147]: 'l-store-copy tmp%22#0 1'
+debug: Replaced test_array_uint64_encoding_block@0.ops[162]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
 debug: Inserted test_array_uint64_encoding_block@0.ops[13]: 'l-store-copy tmp%0#0 0'
 debug: Replaced test_array_uint64_encoding_block@0.ops[31]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[91]: 'l-store-copy tmp%13#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[109]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[151]: 'l-store-copy tmp%18#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[169]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[54]: 'l-store-copy encoded%2#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[72]: 'v-load encoded%2#0' with 'l-load encoded%2#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[193]: 'l-store-copy app#0 1'
-debug: Replaced test_array_uint64_encoding_block@0.ops[209]: 'v-load app#0' with 'l-load app#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[138]: 'l-store-copy app#0 1'
-debug: Replaced test_array_uint64_encoding_block@0.ops[193]: 'v-load app#0' with 'l-load app#0'
-debug: Inserted test_array_uint64_encoding_block@0.ops[78]: 'l-store-copy app#0 1'
-debug: Replaced test_array_uint64_encoding_block@0.ops[138]: 'v-load app#0' with 'l-load app#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[74]: 'l-store-copy tmp%13#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[92]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[134]: 'l-store-copy tmp%18#0 0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[152]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[175]: 'l-store-copy app#0 1'
+debug: Replaced test_array_uint64_encoding_block@0.ops[191]: 'v-load app#0' with 'l-load app#0'
 debug: Inserted test_array_uint64_encoding_block@0.ops[11]: 'l-store-copy app#0 0'
-debug: Replaced test_array_uint64_encoding_block@0.ops[78]: 'v-load app#0' with 'l-load app#0'
+debug: Replaced test_array_uint64_encoding_block@0.ops[60]: 'v-load app#0' with 'l-load app#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[121]: 'l-store-copy app#0 1'
+debug: Replaced test_array_uint64_encoding_block@0.ops[176]: 'v-load app#0' with 'l-load app#0'
+debug: Inserted test_array_uint64_encoding_block@0.ops[61]: 'l-store-copy app#0 1'
+debug: Replaced test_array_uint64_encoding_block@0.ops[121]: 'v-load app#0' with 'l-load app#0'
 debug: Inserted test_array_static_encoding_block@0.ops[20]: 'l-store-copy val_as_bytes%0#0 0'
 debug: Replaced test_array_static_encoding_block@0.ops[22]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted test_array_static_encoding_block@0.ops[28]: 'l-store-copy val_as_bytes%1#0 0'
 debug: Replaced test_array_static_encoding_block@0.ops[30]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
 debug: Inserted test_array_static_encoding_block@0.ops[40]: 'l-store-copy val_as_bytes%2#0 0'
 debug: Replaced test_array_static_encoding_block@0.ops[42]: 'v-load val_as_bytes%2#0' with 'l-load val_as_bytes%2#0'
-debug: Inserted test_array_static_encoding_block@0.ops[49]: 'l-store-copy encoded%11#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[51]: 'v-load encoded%11#0' with 'l-load encoded%11#0'
-debug: Inserted test_array_static_encoding_block@0.ops[53]: 'l-store-copy byte_len%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[55]: 'v-load byte_len%0#0' with 'l-load byte_len%0#0'
-debug: Inserted test_array_static_encoding_block@0.ops[58]: 'l-store-copy len_%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[60]: 'v-load len_%0#0' with 'l-load len_%0#0'
-debug: Inserted test_array_static_encoding_block@0.ops[62]: 'l-store-copy as_bytes%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[64]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
-debug: Inserted test_array_static_encoding_block@0.ops[66]: 'l-store-copy len_16_bit%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[68]: 'v-load len_16_bit%0#0' with 'l-load len_16_bit%0#0'
-debug: Inserted test_array_static_encoding_block@0.ops[77]: 'l-store-copy tmp%10#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[79]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted test_array_static_encoding_block@0.ops[88]: 'l-store-copy tmp%15#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[90]: 'v-load tmp%15#0' with 'l-load tmp%15#0'
-debug: Inserted test_array_static_encoding_block@0.ops[103]: 'l-store-copy length%3#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[105]: 'v-load length%3#0' with 'l-load length%3#0'
-debug: Inserted test_array_static_encoding_block@0.ops[107]: 'l-store-copy as_bytes%1#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[109]: 'v-load as_bytes%1#0' with 'l-load as_bytes%1#0'
-debug: Inserted test_array_static_encoding_block@0.ops[111]: 'l-store-copy length_uint16%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[113]: 'v-load length_uint16%0#0' with 'l-load length_uint16%0#0'
-debug: Inserted test_array_static_encoding_block@0.ops[170]: 'l-store-copy to_encode%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[172]: 'v-load to_encode%0#0' with 'l-load to_encode%0#0'
-debug: Inserted test_array_static_encoding_block@0.ops[174]: 'l-store-copy length%8#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[176]: 'v-load length%8#0' with 'l-load length%8#0'
-debug: Inserted test_array_static_encoding_block@0.ops[178]: 'l-store-copy as_bytes%2#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[180]: 'v-load as_bytes%2#0' with 'l-load as_bytes%2#0'
-debug: Inserted test_array_static_encoding_block@0.ops[182]: 'l-store-copy length_uint16%1#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[184]: 'v-load length_uint16%1#0' with 'l-load length_uint16%1#0'
+debug: Inserted test_array_static_encoding_block@0.ops[59]: 'l-store-copy tmp%10#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[61]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted test_array_static_encoding_block@0.ops[70]: 'l-store-copy tmp%15#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[72]: 'v-load tmp%15#0' with 'l-load tmp%15#0'
+debug: Inserted test_array_static_encoding_block@0.ops[85]: 'l-store-copy length%3#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[87]: 'v-load length%3#0' with 'l-load length%3#0'
+debug: Inserted test_array_static_encoding_block@0.ops[89]: 'l-store-copy as_bytes%1#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[91]: 'v-load as_bytes%1#0' with 'l-load as_bytes%1#0'
+debug: Inserted test_array_static_encoding_block@0.ops[93]: 'l-store-copy length_uint16%0#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[95]: 'v-load length_uint16%0#0' with 'l-load length_uint16%0#0'
+debug: Inserted test_array_static_encoding_block@0.ops[152]: 'l-store-copy to_encode%0#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[154]: 'v-load to_encode%0#0' with 'l-load to_encode%0#0'
+debug: Inserted test_array_static_encoding_block@0.ops[156]: 'l-store-copy length%8#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[158]: 'v-load length%8#0' with 'l-load length%8#0'
+debug: Inserted test_array_static_encoding_block@0.ops[160]: 'l-store-copy as_bytes%2#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[162]: 'v-load as_bytes%2#0' with 'l-load as_bytes%2#0'
+debug: Inserted test_array_static_encoding_block@0.ops[164]: 'l-store-copy length_uint16%1#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[166]: 'v-load length_uint16%1#0' with 'l-load length_uint16%1#0'
 debug: Inserted test_array_static_encoding_block@0.ops[33]: 'l-store-copy encoded%5#0 0'
 debug: Replaced test_array_static_encoding_block@0.ops[36]: 'v-load encoded%5#0' with 'l-load encoded%5#0'
 debug: Inserted test_array_static_encoding_block@0.ops[46]: 'l-store-copy encoded%9#0 0'
 debug: Replaced test_array_static_encoding_block@0.ops[49]: 'v-load encoded%9#0' with 'l-load encoded%9#0'
-debug: Inserted test_array_static_encoding_block@0.ops[75]: 'l-store-copy tmp%9#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[78]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
-debug: Inserted test_array_static_encoding_block@0.ops[87]: 'l-store-copy tmp%14#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[90]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
-debug: Inserted test_array_static_encoding_block@0.ops[99]: 'l-store-copy tmp%19#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[102]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
-debug: Inserted test_array_static_encoding_block@0.ops[104]: 'l-store-copy expected_bytes#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[107]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
-debug: Inserted test_array_static_encoding_block@0.ops[150]: 'l-store-copy encoded%18#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[153]: 'v-load encoded%18#0' with 'l-load encoded%18#0'
-debug: Inserted test_array_static_encoding_block@0.ops[159]: 'l-store-copy encoded%22#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[162]: 'v-load encoded%22#0' with 'l-load encoded%22#0'
-debug: Inserted test_array_static_encoding_block@0.ops[173]: 'l-store-copy bounded_index%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[176]: 'v-load bounded_index%0#0' with 'l-load bounded_index%0#0'
-debug: Inserted test_array_static_encoding_block@0.ops[85]: 'l-store-copy tmp%13#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[90]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
-debug: Inserted test_array_static_encoding_block@0.ops[98]: 'l-store-copy tmp%18#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[103]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
-debug: Inserted test_array_static_encoding_block@0.ops[170]: 'l-store-copy is_out_of_bounds%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[174]: 'v-load is_out_of_bounds%0#0' with 'l-load is_out_of_bounds%0#0'
-debug: Inserted test_array_static_encoding_block@0.ops[169]: 'l-store-copy length%3#0 1'
-debug: Replaced test_array_static_encoding_block@0.ops[174]: 'v-load length%3#0' with 'l-load length%3#0'
-debug: Inserted test_array_static_encoding_block@0.ops[148]: 'l-store-copy encoded%14#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[155]: 'v-load encoded%14#0' with 'l-load encoded%14#0'
-debug: Inserted test_array_static_encoding_block@0.ops[158]: 'l-store-copy encoded%20#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[165]: 'v-load encoded%20#0' with 'l-load encoded%20#0'
-debug: Inserted test_array_static_encoding_block@0.ops[140]: 'l-store-copy tmp%0#1 0'
-debug: Replaced test_array_static_encoding_block@0.ops[147]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted test_array_static_encoding_block@0.ops[178]: 'l-store-copy length%3#0 2'
-debug: Replaced test_array_static_encoding_block@0.ops[185]: 'v-load length%3#0' with 'l-load length%3#0'
-debug: Inserted test_array_static_encoding_block@0.ops[124]: 'l-store-copy encoded_value%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[132]: 'v-load encoded_value%0#0' with 'l-load encoded_value%0#0'
-debug: Inserted test_array_static_encoding_block@0.ops[205]: 'l-store-copy encoded_value%1#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[213]: 'v-load encoded_value%1#0' with 'l-load encoded_value%1#0'
+debug: Inserted test_array_static_encoding_block@0.ops[51]: 'l-store-copy encoded%11#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[54]: 'v-load encoded%11#0' with 'l-load encoded%11#0'
+debug: Inserted test_array_static_encoding_block@0.ops[58]: 'l-store-copy tmp%9#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[61]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
+debug: Inserted test_array_static_encoding_block@0.ops[70]: 'l-store-copy tmp%14#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[73]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
+debug: Inserted test_array_static_encoding_block@0.ops[82]: 'l-store-copy tmp%19#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[85]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
+debug: Inserted test_array_static_encoding_block@0.ops[87]: 'l-store-copy expected_bytes#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[90]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
+debug: Inserted test_array_static_encoding_block@0.ops[133]: 'l-store-copy encoded%19#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[136]: 'v-load encoded%19#0' with 'l-load encoded%19#0'
+debug: Inserted test_array_static_encoding_block@0.ops[142]: 'l-store-copy encoded%23#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[145]: 'v-load encoded%23#0' with 'l-load encoded%23#0'
+debug: Inserted test_array_static_encoding_block@0.ops[156]: 'l-store-copy bounded_index%0#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[159]: 'v-load bounded_index%0#0' with 'l-load bounded_index%0#0'
+debug: Inserted test_array_static_encoding_block@0.ops[68]: 'l-store-copy tmp%13#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[73]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted test_array_static_encoding_block@0.ops[81]: 'l-store-copy tmp%18#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[86]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
+debug: Inserted test_array_static_encoding_block@0.ops[153]: 'l-store-copy is_out_of_bounds%0#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[157]: 'v-load is_out_of_bounds%0#0' with 'l-load is_out_of_bounds%0#0'
+debug: Inserted test_array_static_encoding_block@0.ops[152]: 'l-store-copy length%3#0 1'
+debug: Replaced test_array_static_encoding_block@0.ops[157]: 'v-load length%3#0' with 'l-load length%3#0'
+debug: Inserted test_array_static_encoding_block@0.ops[131]: 'l-store-copy encoded%15#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[138]: 'v-load encoded%15#0' with 'l-load encoded%15#0'
+debug: Inserted test_array_static_encoding_block@0.ops[141]: 'l-store-copy encoded%21#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[148]: 'v-load encoded%21#0' with 'l-load encoded%21#0'
+debug: Inserted test_array_static_encoding_block@0.ops[123]: 'l-store-copy tmp%0#1 0'
+debug: Replaced test_array_static_encoding_block@0.ops[130]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
+debug: Inserted test_array_static_encoding_block@0.ops[161]: 'l-store-copy length%3#0 2'
+debug: Replaced test_array_static_encoding_block@0.ops[168]: 'v-load length%3#0' with 'l-load length%3#0'
+debug: Inserted test_array_static_encoding_block@0.ops[107]: 'l-store-copy encoded_value%0#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[115]: 'v-load encoded_value%0#0' with 'l-load encoded_value%0#0'
+debug: Inserted test_array_static_encoding_block@0.ops[188]: 'l-store-copy encoded_value%1#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[196]: 'v-load encoded_value%1#0' with 'l-load encoded_value%1#0'
 debug: Inserted test_array_static_encoding_block@0.ops[25]: 'l-store-copy encoded%1#0 0'
 debug: Replaced test_array_static_encoding_block@0.ops[36]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
 debug: Inserted test_array_static_encoding_block@0.ops[39]: 'l-store-copy encoded%7#0 0'
 debug: Replaced test_array_static_encoding_block@0.ops[50]: 'v-load encoded%7#0' with 'l-load encoded%7#0'
-debug: Inserted test_array_static_encoding_block@0.ops[146]: 'l-store-copy tmp%0#2 1'
-debug: Replaced test_array_static_encoding_block@0.ops[156]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
+debug: Inserted test_array_static_encoding_block@0.ops[129]: 'l-store-copy tmp%0#2 1'
+debug: Replaced test_array_static_encoding_block@0.ops[139]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
 debug: Inserted test_array_static_encoding_block@0.ops[13]: 'l-store-copy tmp%0#1 0'
 debug: Replaced test_array_static_encoding_block@0.ops[24]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted test_array_static_encoding_block@0.ops[113]: 'l-store-copy expected_bytes#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[126]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
-debug: Inserted test_array_static_encoding_block@0.ops[196]: 'l-store-copy to_encode%0#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[209]: 'v-load to_encode%0#0' with 'l-load to_encode%0#0'
+debug: Inserted test_array_static_encoding_block@0.ops[96]: 'l-store-copy expected_bytes#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[109]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
+debug: Inserted test_array_static_encoding_block@0.ops[179]: 'l-store-copy to_encode%0#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[192]: 'v-load to_encode%0#0' with 'l-load to_encode%0#0'
 debug: Inserted test_array_static_encoding_block@0.ops[16]: 'l-store-copy tmp%0#2 1'
 debug: Replaced test_array_static_encoding_block@0.ops[34]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
-debug: Inserted test_array_static_encoding_block@0.ops[58]: 'l-store-copy encoded%11#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[76]: 'v-load encoded%11#0' with 'l-load encoded%11#0'
-debug: Inserted test_array_static_encoding_block@0.ops[153]: 'l-store-copy tmp%0#3 2'
-debug: Replaced test_array_static_encoding_block@0.ops[171]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
-debug: Inserted test_array_static_encoding_block@0.ops[217]: 'l-store-copy app#0 1'
-debug: Replaced test_array_static_encoding_block@0.ops[233]: 'v-load app#0' with 'l-load app#0'
+debug: Inserted test_array_static_encoding_block@0.ops[135]: 'l-store-copy tmp%0#3 2'
+debug: Replaced test_array_static_encoding_block@0.ops[153]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
+debug: Inserted test_array_static_encoding_block@0.ops[199]: 'l-store-copy app#0 1'
+debug: Replaced test_array_static_encoding_block@0.ops[215]: 'v-load app#0' with 'l-load app#0'
 debug: Inserted test_array_static_encoding_block@0.ops[19]: 'l-store-copy tmp%0#3 2'
 debug: Replaced test_array_static_encoding_block@0.ops[49]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
-debug: Inserted test_array_static_encoding_block@0.ops[179]: 'l-store-copy encoded%24#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[223]: 'v-load encoded%24#0' with 'l-load encoded%24#0'
-debug: Inserted test_array_static_encoding_block@0.ops[79]: 'l-store-copy arr#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[138]: 'v-load arr#0' with 'l-load arr#0'
-debug: Inserted test_array_static_encoding_block@0.ops[122]: 'l-store-copy length%3#0 2'
-debug: Replaced test_array_static_encoding_block@0.ops[184]: 'v-load length%3#0' with 'l-load length%3#0'
-debug: Inserted test_array_static_encoding_block@0.ops[132]: 'l-store-copy expected_bytes#0 3'
-debug: Replaced test_array_static_encoding_block@0.ops[197]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
-debug: Inserted test_array_static_encoding_block@0.ops[137]: 'l-store-copy app#0 4'
-debug: Replaced test_array_static_encoding_block@0.ops[222]: 'v-load app#0' with 'l-load app#0'
+debug: Inserted test_array_static_encoding_block@0.ops[161]: 'l-store-copy encoded%25#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[205]: 'v-load encoded%25#0' with 'l-load encoded%25#0'
+debug: Inserted test_array_static_encoding_block@0.ops[61]: 'l-store-copy arr#0 0'
+debug: Replaced test_array_static_encoding_block@0.ops[120]: 'v-load arr#0' with 'l-load arr#0'
+debug: Inserted test_array_static_encoding_block@0.ops[104]: 'l-store-copy length%3#0 2'
+debug: Replaced test_array_static_encoding_block@0.ops[166]: 'v-load length%3#0' with 'l-load length%3#0'
+debug: Inserted test_array_static_encoding_block@0.ops[114]: 'l-store-copy expected_bytes#0 3'
+debug: Replaced test_array_static_encoding_block@0.ops[179]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
+debug: Inserted test_array_static_encoding_block@0.ops[119]: 'l-store-copy app#0 4'
+debug: Replaced test_array_static_encoding_block@0.ops[204]: 'v-load app#0' with 'l-load app#0'
 debug: Inserted test_array_static_encoding_block@0.ops[11]: 'l-store-copy app#0 0'
-debug: Replaced test_array_static_encoding_block@0.ops[137]: 'v-load app#0' with 'l-load app#0'
+debug: Replaced test_array_static_encoding_block@0.ops[119]: 'v-load app#0' with 'l-load app#0'
 debug: Inserted test_array_static_encoding_block@0.ops[50]: 'l-store-copy val_as_bytes%2#0 3'
-debug: Replaced test_array_static_encoding_block@0.ops[177]: 'v-load val_as_bytes%2#0' with 'l-load val_as_bytes%2#0'
+debug: Replaced test_array_static_encoding_block@0.ops[159]: 'v-load val_as_bytes%2#0' with 'l-load val_as_bytes%2#0'
 debug: Inserted test_array_static_encoding_block@0.ops[36]: 'l-store-copy val_as_bytes%1#0 4'
-debug: Replaced test_array_static_encoding_block@0.ops[168]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
+debug: Replaced test_array_static_encoding_block@0.ops[150]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
 debug: Inserted test_array_static_encoding_block@0.ops[27]: 'l-store-copy val_as_bytes%0#0 4'
-debug: Replaced test_array_static_encoding_block@0.ops[164]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[34]: 'l-store-copy encoded_tuple_buffer%1#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[36]: 'v-load encoded_tuple_buffer%1#0' with 'l-load encoded_tuple_buffer%1#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[39]: 'l-store-copy encoded_tuple_buffer%2#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[41]: 'v-load encoded_tuple_buffer%2#0' with 'l-load encoded_tuple_buffer%2#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[55]: 'l-store-copy encoded_tuple_buffer%5#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[57]: 'v-load encoded_tuple_buffer%5#0' with 'l-load encoded_tuple_buffer%5#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[60]: 'l-store-copy encoded_tuple_buffer%6#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[62]: 'v-load encoded_tuple_buffer%6#0' with 'l-load encoded_tuple_buffer%6#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[76]: 'l-store-copy encoded_tuple_buffer%9#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[78]: 'v-load encoded_tuple_buffer%9#0' with 'l-load encoded_tuple_buffer%9#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[81]: 'l-store-copy encoded_tuple_buffer%10#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[83]: 'v-load encoded_tuple_buffer%10#0' with 'l-load encoded_tuple_buffer%10#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[93]: 'l-store-copy tail_offset%0#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[95]: 'v-load tail_offset%0#0' with 'l-load tail_offset%0#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[97]: 'l-store-copy as_bytes%7#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[99]: 'v-load as_bytes%7#0' with 'l-load as_bytes%7#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[112]: 'l-store-copy tail_offset%1#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[114]: 'v-load tail_offset%1#0' with 'l-load tail_offset%1#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[116]: 'l-store-copy as_bytes%8#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[118]: 'v-load as_bytes%8#0' with 'l-load as_bytes%8#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[124]: 'l-store-copy result%2#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[126]: 'v-load result%2#0' with 'l-load result%2#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[129]: 'l-store-copy result%3#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[131]: 'v-load result%3#0' with 'l-load result%3#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[134]: 'l-store-copy result%4#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[136]: 'v-load result%4#0' with 'l-load result%4#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[89]: 'l-store-copy next_item_len%0#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[92]: 'v-load next_item_len%0#0' with 'l-load next_item_len%0#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[102]: 'l-store-copy next_item_head%1#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[105]: 'v-load next_item_head%1#0' with 'l-load next_item_head%1#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[110]: 'l-store-copy next_item_len%1#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[113]: 'v-load next_item_len%1#0' with 'l-load next_item_len%1#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[123]: 'l-store-copy next_item_head%2#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[126]: 'v-load next_item_head%2#0' with 'l-load next_item_head%2#0'
+debug: Replaced test_array_static_encoding_block@0.ops[146]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted test_array_dynamic_encoding_block@0.ops[26]: 'l-store-copy val_as_bytes%0#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[32]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[48]: 'l-store-copy val_as_bytes%1#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[54]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[70]: 'l-store-copy val_as_bytes%2#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[76]: 'v-load val_as_bytes%2#0' with 'l-load val_as_bytes%2#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[31]: 'l-store-copy encoded_value%0#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[28]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[39]: 'l-store-copy encoded%2#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[41]: 'v-load encoded%2#0' with 'l-load encoded%2#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[44]: 'l-store-copy encoded%3#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[46]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[55]: 'l-store-copy val_as_bytes%1#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[57]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[68]: 'l-store-copy encoded%7#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[70]: 'v-load encoded%7#0' with 'l-load encoded%7#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[87]: 'l-store-copy as_bytes%5#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[89]: 'v-load as_bytes%5#0' with 'l-load as_bytes%5#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[98]: 'l-store-copy val_as_bytes%2#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[100]: 'v-load val_as_bytes%2#0' with 'l-load val_as_bytes%2#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[111]: 'l-store-copy encoded%12#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[113]: 'v-load encoded%12#0' with 'l-load encoded%12#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[123]: 'l-store-copy as_bytes%8#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[125]: 'v-load as_bytes%8#0' with 'l-load as_bytes%8#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[131]: 'l-store-copy encoded%14#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[133]: 'v-load encoded%14#0' with 'l-load encoded%14#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[170]: 'l-store-copy as_bytes%11#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[172]: 'v-load as_bytes%11#0' with 'l-load as_bytes%11#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[185]: 'l-store-copy as_bytes%12#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[187]: 'v-load as_bytes%12#0' with 'l-load as_bytes%12#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[193]: 'l-store-copy encoded%19#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[195]: 'v-load encoded%19#0' with 'l-load encoded%19#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[206]: 'l-store-copy length%6#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[208]: 'v-load length%6#0' with 'l-load length%6#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[210]: 'l-store-copy as_bytes%14#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[212]: 'v-load as_bytes%14#0' with 'l-load as_bytes%14#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[214]: 'l-store-copy length_uint16%3#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[216]: 'v-load length_uint16%3#0' with 'l-load length_uint16%3#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[262]: 'l-store-copy as_bytes%16#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[264]: 'v-load as_bytes%16#0' with 'l-load as_bytes%16#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[277]: 'l-store-copy as_bytes%17#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[279]: 'v-load as_bytes%17#0' with 'l-load as_bytes%17#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[285]: 'l-store-copy encoded%24#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[287]: 'v-load encoded%24#0' with 'l-load encoded%24#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[315]: 'l-store-copy encoded%28#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[317]: 'v-load encoded%28#0' with 'l-load encoded%28#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[320]: 'l-store-copy encoded%29#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[322]: 'v-load encoded%29#0' with 'l-load encoded%29#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[340]: 'l-store-copy encoded%33#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[342]: 'v-load encoded%33#0' with 'l-load encoded%33#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[359]: 'l-store-copy as_bytes%23#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[361]: 'v-load as_bytes%23#0' with 'l-load as_bytes%23#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[379]: 'l-store-copy encoded%38#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[381]: 'v-load encoded%38#0' with 'l-load encoded%38#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[391]: 'l-store-copy as_bytes%26#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[393]: 'v-load as_bytes%26#0' with 'l-load as_bytes%26#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[399]: 'l-store-copy encoded%40#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[401]: 'v-load encoded%40#0' with 'l-load encoded%40#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[407]: 'l-store-copy length%13#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[409]: 'v-load length%13#0' with 'l-load length%13#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[411]: 'l-store-copy as_bytes%27#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[413]: 'v-load as_bytes%27#0' with 'l-load as_bytes%27#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[415]: 'l-store-copy length_uint16%7#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[417]: 'v-load length_uint16%7#0' with 'l-load length_uint16%7#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[48]: 'l-store-copy data_length%1#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[51]: 'v-load data_length%1#0' with 'l-load data_length%1#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[74]: 'l-store-copy encoded%8#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[77]: 'v-load encoded%8#0' with 'l-load encoded%8#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[82]: 'l-store-copy data_length%3#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[85]: 'v-load data_length%3#0' with 'l-load data_length%3#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[94]: 'l-store-copy offset_as_uint16%3#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[97]: 'v-load offset_as_uint16%3#0' with 'l-load offset_as_uint16%3#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[120]: 'l-store-copy encoded%13#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[123]: 'v-load encoded%13#0' with 'l-load encoded%13#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[132]: 'l-store-copy offset_as_uint16%5#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[135]: 'v-load offset_as_uint16%5#0' with 'l-load offset_as_uint16%5#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[142]: 'l-store-copy encoded%15#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[145]: 'v-load encoded%15#0' with 'l-load encoded%15#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[159]: 'l-store-copy data_length%6#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[162]: 'v-load data_length%6#0' with 'l-load data_length%6#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[171]: 'l-store-copy data_length%7#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[174]: 'v-load data_length%7#0' with 'l-load data_length%7#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[183]: 'l-store-copy offset_as_uint16%7#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[186]: 'v-load offset_as_uint16%7#0' with 'l-load offset_as_uint16%7#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[199]: 'l-store-copy offset_as_uint16%8#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[202]: 'v-load offset_as_uint16%8#0' with 'l-load offset_as_uint16%8#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[209]: 'l-store-copy encoded%20#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[212]: 'v-load encoded%20#0' with 'l-load encoded%20#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[214]: 'l-store-copy expected_bytes#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[217]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[257]: 'l-store-copy data_length%9#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[260]: 'v-load data_length%9#0' with 'l-load data_length%9#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[269]: 'l-store-copy data_length%10#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[272]: 'v-load data_length%10#0' with 'l-load data_length%10#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[281]: 'l-store-copy offset_as_uint16%10#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[284]: 'v-load offset_as_uint16%10#0' with 'l-load offset_as_uint16%10#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[297]: 'l-store-copy offset_as_uint16%11#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[300]: 'v-load offset_as_uint16%11#0' with 'l-load offset_as_uint16%11#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[341]: 'l-store-copy data_length%13#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[344]: 'v-load data_length%13#0' with 'l-load data_length%13#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[363]: 'l-store-copy encoded%34#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[366]: 'v-load encoded%34#0' with 'l-load encoded%34#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[371]: 'l-store-copy data_length%15#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[374]: 'v-load data_length%15#0' with 'l-load data_length%15#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[383]: 'l-store-copy offset_as_uint16%15#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[386]: 'v-load offset_as_uint16%15#0' with 'l-load offset_as_uint16%15#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[405]: 'l-store-copy encoded%39#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[408]: 'v-load encoded%39#0' with 'l-load encoded%39#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[417]: 'l-store-copy offset_as_uint16%17#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[420]: 'v-load offset_as_uint16%17#0' with 'l-load offset_as_uint16%17#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[78]: 'l-store-copy encoded%8#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[81]: 'v-load encoded%8#0' with 'l-load encoded%8#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[168]: 'l-store-copy tmp%10#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[171]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[267]: 'l-store-copy tmp%13#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[270]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[370]: 'l-store-copy encoded%34#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[373]: 'v-load encoded%34#0' with 'l-load encoded%34#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[86]: 'l-store-copy current_tail_offset%1#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[90]: 'v-load current_tail_offset%1#0' with 'l-load current_tail_offset%1#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[177]: 'l-store-copy current_tail_offset%6#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[181]: 'v-load current_tail_offset%6#0' with 'l-load current_tail_offset%6#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[277]: 'l-store-copy current_tail_offset%9#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[281]: 'v-load current_tail_offset%9#0' with 'l-load current_tail_offset%9#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[381]: 'l-store-copy current_tail_offset%13#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[385]: 'v-load current_tail_offset%13#0' with 'l-load current_tail_offset%13#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[31]: 'l-store-copy encoded%1#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[37]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[62]: 'l-store-copy encoded%6#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[68]: 'v-load encoded%6#0' with 'l-load encoded%6#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[111]: 'l-store-copy encoded%11#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[117]: 'v-load encoded%11#0' with 'l-load encoded%11#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[333]: 'l-store-copy encoded%27#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[339]: 'v-load encoded%27#0' with 'l-load encoded%27#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[360]: 'l-store-copy encoded%32#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[366]: 'v-load encoded%32#0' with 'l-load encoded%32#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[405]: 'l-store-copy encoded%37#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[411]: 'v-load encoded%37#0' with 'l-load encoded%37#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[36]: 'l-store-copy encoded_value%0#0 1'
 debug: Replaced test_array_dynamic_encoding_block@0.ops[44]: 'v-load encoded_value%0#0' with 'l-load encoded_value%0#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[54]: 'l-store-copy encoded_value%1#0 1'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[67]: 'v-load encoded_value%1#0' with 'l-load encoded_value%1#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[77]: 'l-store-copy encoded_value%2#0 1'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[90]: 'v-load encoded_value%2#0' with 'l-load encoded_value%2#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[15]: 'l-store-copy tmp%1#2 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[30]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[104]: 'l-store-copy tail_offset%0#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[120]: 'v-load tail_offset%0#0' with 'l-load tail_offset%0#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[115]: 'l-store-copy result%1#0 1'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[134]: 'v-load result%1#0' with 'l-load result%1#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[13]: 'l-store-copy tmp%0#2 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[36]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[119]: 'l-store-copy encoded_tuple_buffer%7#0 2'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[147]: 'v-load encoded_tuple_buffer%7#0' with 'l-load encoded_tuple_buffer%7#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[21]: 'l-store-copy tmp%1#3 2'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[55]: 'v-load tmp%1#3' with 'l-load tmp%1#3'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[19]: 'l-store-copy tmp%0#3 2'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[61]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[98]: 'l-store-copy encoded_tuple_buffer%3#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[145]: 'v-load encoded_tuple_buffer%3#0' with 'l-load encoded_tuple_buffer%3#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[73]: 'l-store-copy encoded_tuple_buffer%7#0 0'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[122]: 'v-load encoded_tuple_buffer%7#0' with 'l-load encoded_tuple_buffer%7#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[50]: 'l-store-copy encoded_tuple_buffer%3#0 2'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[99]: 'v-load encoded_tuple_buffer%3#0' with 'l-load encoded_tuple_buffer%3#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[27]: 'l-store-copy tmp%1#4 4'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[82]: 'v-load tmp%1#4' with 'l-load tmp%1#4'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[99]: 'l-store-copy encoded_tuple_buffer%11#0 2'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[159]: 'v-load encoded_tuple_buffer%11#0' with 'l-load encoded_tuple_buffer%11#0'
-debug: Inserted test_array_dynamic_encoding_block@0.ops[25]: 'l-store-copy tmp%0#4 4'
-debug: Replaced test_array_dynamic_encoding_block@0.ops[88]: 'v-load tmp%0#4' with 'l-load tmp%0#4'
-debug: Inserted test_array_dynamic_encoding_for_header@6.ops[3]: 'l-store-copy continue_looping%0#0 0'
-debug: Replaced test_array_dynamic_encoding_for_header@6.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted test_array_dynamic_encoding_for_body@7.ops[7]: 'l-store-copy tmp%1#1 0'
-debug: Replaced test_array_dynamic_encoding_for_body@7.ops[9]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
-debug: Inserted test_array_dynamic_encoding_for_body@7.ops[11]: 'l-store-copy tmp%2#1 0'
-debug: Replaced test_array_dynamic_encoding_for_body@7.ops[13]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
-debug: Inserted test_array_dynamic_encoding_for_body@7.ops[3]: 'l-store-copy item_offset#0 0'
-debug: Replaced test_array_dynamic_encoding_for_body@7.ops[6]: 'v-load item_offset#0' with 'l-load item_offset#0'
-debug: Inserted test_array_dynamic_encoding_for_body@7.ops[16]: 'l-store-copy tmp%3#1 0'
-debug: Replaced test_array_dynamic_encoding_for_body@7.ops[19]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
-debug: Inserted test_array_dynamic_encoding_for_body@7.ops[2]: 'l-store-copy head_offset#0 1'
-debug: Replaced test_array_dynamic_encoding_for_body@7.ops[23]: 'v-load head_offset#0' with 'l-load head_offset#0'
-debug: Inserted test_array_dynamic_encoding_for_header@9.ops[3]: 'l-store-copy continue_looping%1#0 0'
-debug: Replaced test_array_dynamic_encoding_for_header@9.ops[5]: 'v-load continue_looping%1#0' with 'l-load continue_looping%1#0'
-debug: Inserted test_array_dynamic_encoding_for_body@10.ops[3]: 'l-store-copy item_offset#0 0'
-debug: Replaced test_array_dynamic_encoding_for_body@10.ops[5]: 'v-load item_offset#0' with 'l-load item_offset#0'
-debug: Inserted test_array_dynamic_encoding_for_body@10.ops[7]: 'l-store-copy tmp%6#1 0'
-debug: Replaced test_array_dynamic_encoding_for_body@10.ops[9]: 'v-load tmp%6#1' with 'l-load tmp%6#1'
-debug: Inserted test_array_dynamic_encoding_for_body@10.ops[11]: 'l-store-copy tmp%7#1 0'
-debug: Replaced test_array_dynamic_encoding_for_body@10.ops[14]: 'v-load tmp%7#1' with 'l-load tmp%7#1'
-debug: Inserted test_array_dynamic_encoding_for_body@10.ops[2]: 'l-store-copy head_offset#0 1'
-debug: Replaced test_array_dynamic_encoding_for_body@10.ops[18]: 'v-load head_offset#0' with 'l-load head_offset#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[31]: 'l-store-copy tail_offset%3#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[33]: 'v-load tail_offset%3#0' with 'l-load tail_offset%3#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[35]: 'l-store-copy as_bytes%10#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[37]: 'v-load as_bytes%10#0' with 'l-load as_bytes%10#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[50]: 'l-store-copy tail_offset%4#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[52]: 'v-load tail_offset%4#0' with 'l-load tail_offset%4#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[54]: 'l-store-copy as_bytes%11#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[56]: 'v-load as_bytes%11#0' with 'l-load as_bytes%11#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[62]: 'l-store-copy result%8#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[64]: 'v-load result%8#0' with 'l-load result%8#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[67]: 'l-store-copy result%9#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[69]: 'v-load result%9#0' with 'l-load result%9#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[72]: 'l-store-copy result%10#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[74]: 'v-load result%10#0' with 'l-load result%10#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[85]: 'l-store-copy length%6#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[87]: 'v-load length%6#0' with 'l-load length%6#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[89]: 'l-store-copy as_bytes%12#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[91]: 'v-load as_bytes%12#0' with 'l-load as_bytes%12#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[93]: 'l-store-copy length_uint16%3#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[95]: 'v-load length_uint16%3#0' with 'l-load length_uint16%3#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[127]: 'l-store-copy tail_offset%6#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[129]: 'v-load tail_offset%6#0' with 'l-load tail_offset%6#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[131]: 'l-store-copy as_bytes%14#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[133]: 'v-load as_bytes%14#0' with 'l-load as_bytes%14#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[146]: 'l-store-copy tail_offset%7#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[148]: 'v-load tail_offset%7#0' with 'l-load tail_offset%7#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[150]: 'l-store-copy as_bytes%15#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[152]: 'v-load as_bytes%15#0' with 'l-load as_bytes%15#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[158]: 'l-store-copy result%14#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[160]: 'v-load result%14#0' with 'l-load result%14#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[163]: 'l-store-copy result%15#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[165]: 'v-load result%15#0' with 'l-load result%15#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[168]: 'l-store-copy result%16#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[170]: 'v-load result%16#0' with 'l-load result%16#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[198]: 'l-store-copy encoded%2#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[200]: 'v-load encoded%2#0' with 'l-load encoded%2#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[203]: 'l-store-copy encoded%3#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[205]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[223]: 'l-store-copy encoded%7#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[225]: 'v-load encoded%7#0' with 'l-load encoded%7#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[242]: 'l-store-copy as_bytes%21#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[244]: 'v-load as_bytes%21#0' with 'l-load as_bytes%21#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[262]: 'l-store-copy encoded%12#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[264]: 'v-load encoded%12#0' with 'l-load encoded%12#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[274]: 'l-store-copy as_bytes%24#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[276]: 'v-load as_bytes%24#0' with 'l-load as_bytes%24#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[282]: 'l-store-copy encoded%14#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[284]: 'v-load encoded%14#0' with 'l-load encoded%14#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[290]: 'l-store-copy length%13#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[292]: 'v-load length%13#0' with 'l-load length%13#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[294]: 'l-store-copy as_bytes%25#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[296]: 'v-load as_bytes%25#0' with 'l-load as_bytes%25#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[298]: 'l-store-copy length_uint16%7#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[300]: 'v-load length_uint16%7#0' with 'l-load length_uint16%7#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[11]: 'l-store-copy tmp%18#1 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[14]: 'v-load tmp%18#1' with 'l-load tmp%18#1'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[28]: 'l-store-copy next_item_len%3#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[31]: 'v-load next_item_len%3#0' with 'l-load next_item_len%3#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[41]: 'l-store-copy next_item_head%4#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[44]: 'v-load next_item_head%4#0' with 'l-load next_item_head%4#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[49]: 'l-store-copy next_item_len%4#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[52]: 'v-load next_item_len%4#0' with 'l-load next_item_len%4#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[62]: 'l-store-copy next_item_head%5#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[65]: 'v-load next_item_head%5#0' with 'l-load next_item_head%5#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[82]: 'l-store-copy result%11#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[85]: 'v-load result%11#0' with 'l-load result%11#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[87]: 'l-store-copy expected_bytes#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[90]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[130]: 'l-store-copy next_item_len%6#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[133]: 'v-load next_item_len%6#0' with 'l-load next_item_len%6#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[143]: 'l-store-copy next_item_head%7#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[146]: 'v-load next_item_head%7#0' with 'l-load next_item_head%7#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[151]: 'l-store-copy next_item_len%7#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[154]: 'v-load next_item_len%7#0' with 'l-load next_item_len%7#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[164]: 'l-store-copy next_item_head%8#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[167]: 'v-load next_item_head%8#0' with 'l-load next_item_head%8#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[218]: 'l-store-copy data_length%4#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[221]: 'v-load data_length%4#0' with 'l-load data_length%4#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[240]: 'l-store-copy encoded%8#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[243]: 'v-load encoded%8#0' with 'l-load encoded%8#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[248]: 'l-store-copy data_length%6#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[251]: 'v-load data_length%6#0' with 'l-load data_length%6#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[260]: 'l-store-copy offset_as_uint16%6#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[263]: 'v-load offset_as_uint16%6#0' with 'l-load offset_as_uint16%6#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[282]: 'l-store-copy encoded%13#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[285]: 'v-load encoded%13#0' with 'l-load encoded%13#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[294]: 'l-store-copy offset_as_uint16%8#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[297]: 'v-load offset_as_uint16%8#0' with 'l-load offset_as_uint16%8#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[5]: 'l-store-copy new_head_and_tail#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[8]: 'v-load new_head_and_tail#0' with 'l-load new_head_and_tail#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[7]: 'l-store-copy tmp%17#1 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[11]: 'v-load tmp%17#1' with 'l-load tmp%17#1'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[246]: 'l-store-copy encoded%8#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[249]: 'v-load encoded%8#0' with 'l-load encoded%8#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[254]: 'l-store-copy current_tail_offset%4#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[258]: 'v-load current_tail_offset%4#0' with 'l-load current_tail_offset%4#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[203]: 'l-store-copy encoded%1#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[209]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[230]: 'l-store-copy encoded%6#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[236]: 'v-load encoded%6#0' with 'l-load encoded%6#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[275]: 'l-store-copy encoded%11#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[281]: 'v-load encoded%11#0' with 'l-load encoded%11#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[208]: 'l-store-copy encoded_value%4#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[216]: 'v-load encoded_value%4#0' with 'l-load encoded_value%4#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[236]: 'l-store-copy encoded_value%5#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[244]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[282]: 'l-store-copy encoded_value%6#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[290]: 'v-load encoded_value%6#0' with 'l-load encoded_value%6#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[21]: 'l-store-copy tmp%9#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[29]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[108]: 'l-store-copy encoded_value%3#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[116]: 'v-load encoded_value%3#0' with 'l-load encoded_value%3#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[125]: 'l-store-copy tmp%12#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[133]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[333]: 'l-store-copy encoded_value%7#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[341]: 'v-load encoded_value%7#0' with 'l-load encoded_value%7#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[3]: 'l-store-copy tmp%11#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[16]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[95]: 'l-store-copy expected_bytes#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[108]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[321]: 'l-store-copy expected_bytes#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[334]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[194]: 'l-store-copy tmp%0#2 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[207]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[303]: 'l-store-copy tail%5#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[319]: 'v-load tail%5#0' with 'l-load tail%5#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[40]: 'l-store-copy tail_offset%3#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[56]: 'v-load tail_offset%3#0' with 'l-load tail_offset%3#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[146]: 'l-store-copy tail_offset%6#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[162]: 'v-load tail_offset%6#0' with 'l-load tail_offset%6#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[51]: 'l-store-copy result%7#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[70]: 'v-load result%7#0' with 'l-load result%7#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[158]: 'l-store-copy result%13#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[177]: 'v-load result%13#0' with 'l-load result%13#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[201]: 'l-store-copy tmp%1#2 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[217]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[346]: 'l-store-copy app#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[362]: 'v-load app#0' with 'l-load app#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[326]: 'l-store-copy encoded%15#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[351]: 'v-load encoded%15#0' with 'l-load encoded%15#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[26]: 'l-store-copy tmp%10#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[54]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[134]: 'l-store-copy tmp%13#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[162]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[55]: 'l-store-copy tmp%10#0 2'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[83]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[164]: 'l-store-copy tmp%13#0 2'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[192]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[236]: 'l-store-copy encoded%3#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[264]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[243]: 'l-store-copy current_tail_offset%4#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[274]: 'v-load current_tail_offset%4#0' with 'l-load current_tail_offset%4#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[290]: 'l-store-copy encoded%9#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[325]: 'v-load encoded%9#0' with 'l-load encoded%9#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[208]: 'l-store-copy tmp%0#3 2'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[247]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[279]: 'l-store-copy current_tail_offset%6#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[319]: 'v-load current_tail_offset%6#0' with 'l-load current_tail_offset%6#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[211]: 'l-store-copy tmp%1#3 3'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[253]: 'v-load tmp%1#3' with 'l-load tmp%1#3'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[271]: 'l-store-copy tail%3#0 2'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[316]: 'v-load tail%3#0' with 'l-load tail%3#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[32]: 'l-store-copy tmp%9#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[79]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[142]: 'l-store-copy tmp%12#0 1'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[189]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[30]: 'l-store-copy tmp%11#0 2'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[90]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[141]: 'l-store-copy tmp%14#0 2'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[201]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[218]: 'l-store-copy tmp%0#4 4'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[302]: 'v-load tmp%0#4' with 'l-load tmp%0#4'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[221]: 'l-store-copy tmp%1#4 5'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[308]: 'v-load tmp%1#4' with 'l-load tmp%1#4'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[19]: 'l-store-copy arr#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[123]: 'v-load arr#0' with 'l-load arr#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[204]: 'l-store-copy expected_bytes#0 0'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[347]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
-debug: Inserted test_array_dynamic_encoding_after_for@11.ops[120]: 'l-store-copy app#0 2'
-debug: Replaced test_array_dynamic_encoding_after_for@11.ops[366]: 'v-load app#0' with 'l-load app#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[68]: 'l-store-copy encoded_value%1#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[76]: 'v-load encoded_value%1#0' with 'l-load encoded_value%1#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[118]: 'l-store-copy encoded_value%2#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[126]: 'v-load encoded_value%2#0' with 'l-load encoded_value%2#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[341]: 'l-store-copy encoded_value%4#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[349]: 'v-load encoded_value%4#0' with 'l-load encoded_value%4#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[369]: 'l-store-copy encoded_value%5#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[377]: 'v-load encoded_value%5#0' with 'l-load encoded_value%5#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[415]: 'l-store-copy encoded_value%6#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[423]: 'v-load encoded_value%6#0' with 'l-load encoded_value%6#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[158]: 'l-store-copy tmp%9#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[166]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[167]: 'l-store-copy tmp%9#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[175]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[244]: 'l-store-copy encoded_value%3#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[252]: 'v-load encoded_value%3#0' with 'l-load encoded_value%3#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[261]: 'l-store-copy tmp%12#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[269]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[270]: 'l-store-copy tmp%12#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[278]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[468]: 'l-store-copy encoded_value%7#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[476]: 'v-load encoded_value%7#0' with 'l-load encoded_value%7#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[174]: 'l-store-copy current_tail_offset%6#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[185]: 'v-load current_tail_offset%6#0' with 'l-load current_tail_offset%6#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[278]: 'l-store-copy current_tail_offset%9#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[289]: 'v-load current_tail_offset%9#0' with 'l-load current_tail_offset%9#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[231]: 'l-store-copy expected_bytes#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[244]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[457]: 'l-store-copy expected_bytes#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[470]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[201]: 'l-store-copy encoded%18#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[215]: 'v-load encoded%18#0' with 'l-load encoded%18#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[307]: 'l-store-copy encoded%23#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[321]: 'v-load encoded%23#0' with 'l-load encoded%23#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[133]: 'l-store-copy tail%5#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[149]: 'v-load tail%5#0' with 'l-load tail%5#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[163]: 'l-store-copy tmp%10#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[179]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[208]: 'l-store-copy tail%8#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[224]: 'v-load tail%8#0' with 'l-load tail%8#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[271]: 'l-store-copy tmp%13#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[287]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[316]: 'l-store-copy tail%11#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[332]: 'v-load tail%11#0' with 'l-load tail%11#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[337]: 'l-store-copy tmp%0#1 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[350]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[446]: 'l-store-copy tail%17#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[462]: 'v-load tail%17#0' with 'l-load tail%17#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[340]: 'l-store-copy tmp%1#1 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[356]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[13]: 'l-store-copy tmp%0#1 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[30]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[192]: 'l-store-copy current_tail_offset%7#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[212]: 'v-load current_tail_offset%7#0' with 'l-load current_tail_offset%7#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[301]: 'l-store-copy current_tail_offset%10#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[321]: 'v-load current_tail_offset%10#0' with 'l-load current_tail_offset%10#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[488]: 'l-store-copy app#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[504]: 'v-load app#0' with 'l-load app#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[16]: 'l-store-copy tmp%1#1 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[36]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[184]: 'l-store-copy tail%7#0 2'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[209]: 'v-load tail%7#0' with 'l-load tail%7#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[294]: 'l-store-copy tail%10#0 2'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[319]: 'v-load tail%10#0' with 'l-load tail%10#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[471]: 'l-store-copy encoded%41#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[496]: 'v-load encoded%41#0' with 'l-load encoded%41#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[377]: 'l-store-copy encoded%29#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[405]: 'v-load encoded%29#0' with 'l-load encoded%29#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[384]: 'l-store-copy current_tail_offset%13#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[415]: 'v-load current_tail_offset%13#0' with 'l-load current_tail_offset%13#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[51]: 'l-store-copy encoded%3#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[83]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[58]: 'l-store-copy current_tail_offset%1#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[93]: 'v-load current_tail_offset%1#0' with 'l-load current_tail_offset%1#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[433]: 'l-store-copy encoded%35#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[468]: 'v-load encoded%35#0' with 'l-load encoded%35#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[109]: 'l-store-copy encoded%9#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[148]: 'v-load encoded%9#0' with 'l-load encoded%9#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[172]: 'l-store-copy tmp%11#0 2'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[214]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[283]: 'l-store-copy tmp%14#0 2'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[325]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[354]: 'l-store-copy tmp%0#2 2'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[393]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[425]: 'l-store-copy current_tail_offset%15#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[465]: 'v-load current_tail_offset%15#0' with 'l-load current_tail_offset%15#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[357]: 'l-store-copy tmp%1#2 3'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[399]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[97]: 'l-store-copy current_tail_offset%3#0 1'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[141]: 'v-load current_tail_offset%3#0' with 'l-load current_tail_offset%3#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[418]: 'l-store-copy tail%15#0 2'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[463]: 'v-load tail%15#0' with 'l-load tail%15#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[19]: 'l-store-copy tmp%0#2 2'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[66]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[89]: 'l-store-copy tail%3#0 2'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[138]: 'v-load tail%3#0' with 'l-load tail%3#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[22]: 'l-store-copy tmp%1#2 3'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[72]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[364]: 'l-store-copy tmp%0#3 4'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[448]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[367]: 'l-store-copy tmp%1#3 5'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[454]: 'v-load tmp%1#3' with 'l-load tmp%1#3'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[25]: 'l-store-copy tmp%0#3 4'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[121]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[28]: 'l-store-copy tmp%1#3 5'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[127]: 'v-load tmp%1#3' with 'l-load tmp%1#3'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[167]: 'l-store-copy arr#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[271]: 'v-load arr#0' with 'l-load arr#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[352]: 'l-store-copy expected_bytes#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[495]: 'v-load expected_bytes#0' with 'l-load expected_bytes#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[268]: 'l-store-copy app#0 2'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[514]: 'v-load app#0' with 'l-load app#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[11]: 'l-store-copy app#0 0'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[268]: 'v-load app#0' with 'l-load app#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[123]: 'l-store-copy val_as_bytes%2#0 6'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[455]: 'v-load val_as_bytes%2#0' with 'l-load val_as_bytes%2#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[70]: 'l-store-copy val_as_bytes%1#0 7'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[407]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
+debug: Inserted test_array_dynamic_encoding_block@0.ops[36]: 'l-store-copy val_as_bytes%0#0 7'
+debug: Replaced test_array_dynamic_encoding_block@0.ops[378]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted test_bytes_to_fixed_block@0.ops[13]: 'l-store-copy sender#0 0'
 debug: Replaced test_bytes_to_fixed_block@0.ops[15]: 'v-load sender#0' with 'l-load sender#0'
 debug: Inserted test_bytes_to_fixed_if_body@2.ops[1]: 'l-store-copy sender#0 0'
@@ -8873,10 +8437,7 @@ debug: shared x-stack for main_test_array_dynamic_encoding_route@8 -> main_after
 debug: shared x-stack for main_test_bytes_to_fixed_route@9 -> main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17: tmp%0#0
 debug: shared x-stack for main___algopy_default_create@13 -> main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17: tmp%0#0
 debug: shared x-stack for main_after_if_else@16 -> main_after_inlined_test_cases.arc4_conversions.contract.TestContract.__puya_arc4_router__@17: tmp%0#0
-debug: Found 4 edge set/s for test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding
 debug: Found 1 edge set/s for test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed
-debug: test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding f-stack entry: []
-debug: test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding f-stack on first store: ['app#0', 'val_as_bytes%0#0', 'val_as_bytes%1#0', 'val_as_bytes%2#0', 'new_head_and_tail#0', 'new_head#0', 'head_offset#0']
 debug: test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed f-stack entry: []
 debug: test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed f-stack on first store: ['app#0', 'sender#0', 'sender#5']
 debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.approval_program() -> uint64:
@@ -8916,10 +8477,6 @@ arc4_conversions/contract.py:126 debug: optimizing TEAL subroutine blocks test_c
 debug: inlining single reference block test_array_static_encoding_block@0 into test_array_static_encoding
 arc4_conversions/contract.py:150 debug: optimizing TEAL subroutine blocks test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding() -> void:
 debug: inlining single reference block test_array_dynamic_encoding_block@0 into test_array_dynamic_encoding
-debug: inlining single reference block test_array_dynamic_encoding_for_body@7 into test_array_dynamic_encoding_for_header@6
-debug: inlining single reference block test_array_dynamic_encoding_for_body@10 into test_array_dynamic_encoding_for_header@9
-debug: removing explicit jump to fall-through block test_array_dynamic_encoding_for_header@6
-debug: removing explicit jump to fall-through block test_array_dynamic_encoding_for_header@9
 arc4_conversions/contract.py:178 debug: optimizing TEAL subroutine blocks test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed(wrong_size: uint64) -> void:
 debug: inlining single reference block test_bytes_to_fixed_block@0 into test_bytes_to_fixed
 debug: inlining single reference block test_bytes_to_fixed_if_body@2 into test_bytes_to_fixed

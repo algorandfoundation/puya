@@ -383,13 +383,16 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups() -> Encoded(len+(uint64,uint64)[]):
     block@0: // L103
+        let encoded%0#0: bytes = 0x
+        let as_bytes%0#0: bytes[8] = (itob 0u)
+        let len_u16%0#0: bytes = 0x0000
         let result#0: Encoded(len+(uint64,uint64)[]) = 0x0000
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let items#0: Encoded((uint64,uint64)[8]) = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let encoded%0#0: bytes = ((extract 0 8) maybe_value%1#0) // on error: Index access is out of bounds
+        let encoded%2#0: bytes = ((extract 0 8) maybe_value%1#0) // on error: Index access is out of bounds
         let tmp%1#0: uint64 = (extract_uint64 maybe_value%1#0 0u)
         let i#0: uint64 = 0u
         goto block@1
@@ -402,13 +405,13 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) result#1)
         let bytes_offset%0#0: uint64 = (* i#1 16u)
         let encoded_element%0#0: bytes = (extract3 items#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let encoded%1#0: Encoded(((uint64,uint64))) = encoded_element%0#0
-        let encoded%2#0: bytes = encoded_element%0#0
+        let encoded%3#0: Encoded(((uint64,uint64))) = encoded_element%0#0
+        let encoded%4#0: bytes = encoded_element%0#0
         let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded_element%0#0)
         let byte_len%0#0: uint64 = (len concatenated%0#0)
         let len_%0#0: uint64 = (/ byte_len%0#0 16u)
-        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let as_bytes%1#0: bytes[8] = (itob len_%0#0)
+        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let result#2: Encoded(len+(uint64,uint64)[]) = (concat len_16_bit%0#0 concatenated%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1

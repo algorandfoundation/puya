@@ -5,29 +5,29 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
 
 subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutating_copies() -> void:
     block@0: // L33
-        let result%0#0: bytes = (concat 0x 0x01)
-        let result%1#0: bytes = (concat result%0#0 0x02)
-        let result%2#0: bytes = (concat result%1#0 0x03)
-        let result%3#0: bytes = (concat result%2#0 0x04)
-        let array_data%0#0: bytes = (concat 0x result%3#0)
-        let my_array#0: Encoded(uint8[4]) = array_data%0#0
+        let encoded%0#0: Encoded((uint8)) = (concat 0x 0x01)
+        let encoded%1#0: Encoded((uint8,uint8)) = (concat encoded%0#0 0x02)
+        let encoded%2#0: Encoded((uint8,uint8,uint8)) = (concat encoded%1#0 0x03)
+        let encoded%3#0: Encoded((uint8,uint8,uint8,uint8)) = (concat encoded%2#0 0x04)
+        let encoded%4#0: bytes = (concat encoded%3#0 0x)
+        let my_array#0: Encoded(uint8[4]) = encoded%4#0
         let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u 1u)
-        let encoded%0#0: Encoded((bool1)) = (concat 0x encoded_bool%0#0)
-        let encoded%1#0: Encoded((bool1,uint8)) = (concat encoded%0#0 0x32)
+        let encoded%5#0: Encoded((bool1)) = (concat 0x encoded_bool%0#0)
+        let encoded%6#0: Encoded((bool1,uint8)) = (concat encoded%5#0 0x32)
         let tail%0#0: bytes = (concat 0x 0x00054861707079)
         let data_length%0#0: uint64 = (len 0x00054861707079)
         let current_tail_offset%0#0: uint64 = (+ 6u data_length%0#0)
         let as_bytes%0#0: bytes[8] = (itob 6u)
         let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded%2#0: Encoded((bool1,uint8,len+utf8[])) = (concat encoded%1#0 offset_as_uint16%0#0)
+        let encoded%7#0: Encoded((bool1,uint8,len+utf8[])) = (concat encoded%6#0 offset_as_uint16%0#0)
         let tail%1#0: bytes = (concat tail%0#0 0x000444617973)
         let data_length%1#0: uint64 = (len 0x000444617973)
         let current_tail_offset%1#0: uint64 = (+ current_tail_offset%0#0 data_length%1#0)
         let as_bytes%1#0: bytes[8] = (itob current_tail_offset%0#0)
         let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let encoded%3#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = (concat encoded%2#0 offset_as_uint16%1#0)
-        let encoded%4#0: bytes = (concat encoded%3#0 tail%1#0)
-        let my_struct#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = encoded%4#0
+        let encoded%8#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = (concat encoded%7#0 offset_as_uint16%1#0)
+        let encoded%9#0: bytes = (concat encoded%8#0 tail%1#0)
+        let my_struct#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = encoded%9#0
         let copy%0#0: Encoded(uint8[4]) = my_array#0
         let my_array_copy#0: Encoded(uint8[4]) = copy%0#0
         let copy%1#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = my_struct#0
@@ -201,9 +201,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let tmp%27#0: bool = (b== reinterpret_biguint%34#0 reinterpret_biguint%35#0)
         (assert tmp%27#0)
         let copy%12#0: Encoded(uint8[4]) = my_array#4
-        let encoded%5#0: Encoded((uint8[4])) = (concat 0x copy%12#0)
-        let encoded%6#0: bytes = (concat encoded%5#0 0x)
-        let nested#0: Encoded((uint8[4])) = encoded%6#0
+        let encoded%10#0: Encoded((uint8[4])) = (concat 0x copy%12#0)
+        let encoded%11#0: bytes = (concat encoded%10#0 0x)
+        let nested#0: Encoded((uint8[4])) = encoded%11#0
         let tmp%28#0: bytes = (extract3 nested#0 0u 4u) // on error: Index access is out of bounds
         let copy%13#0: bytes = tmp%28#0
         let (other_routine_2%4#0: Encoded(uint8[4]), other_routine_2%5#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(copy%13#0)
