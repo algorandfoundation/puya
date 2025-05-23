@@ -10,12 +10,12 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import BigUIntBinaryOperator, TupleExpression, UInt64BinaryOperator
+from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_types import effective_array_encoding, wtype_to_arc4_wtype
+from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, arrays, flow_control, mem, sequence, storage
 from puya.ir.builder._tuple_util import get_tuple_item_values
@@ -906,53 +906,31 @@ class FunctionIRBuilder(
         return storage.visit_state_exists(self.context, expr.field, expr.source_location)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
-        factory = OpFactory(self.context, expr.source_location)
-        # delegate for ARC-4 arrays
-        if isinstance(expr.wtype, wtypes.ARC4Array):
-            return arc4.encode_arc4_exprs_as_array(
-                self.context, expr.wtype, expr.values, expr.source_location
-            )
-        # handle native arrays
-        if isinstance(expr.wtype, wtypes.StackArray):
-            encoded_type = effective_array_encoding(expr.wtype, expr.source_location)
-            # stack arrays are effectively ARC-4 encoded, values might need converting
-            if not expr.values:
-                return arc4.encode_arc4_exprs_as_array(
-                    self.context, encoded_type, expr.values, expr.source_location
-                )
-            empty_array_expr = awst_nodes.NewArray(
-                values=(),
-                wtype=encoded_type,
-                source_location=expr.source_location,
-            )
-            items_tuple = TupleExpression.from_items(expr.values, expr.source_location)
-            array_encoding = wtype_to_encoding(expr.wtype, expr.source_location)
-            return arc4.dynamic_array_concat_and_convert(
-                self.context,
-                array_encoding=array_encoding,
-                array_expr=empty_array_expr,
-                iter_expr=items_tuple,
-                source_location=expr.source_location,
-            )
-        else:
-            loc = expr.source_location
+        loc = expr.source_location
+
+        array_encoding = wtype_to_encoding(expr.wtype, loc)
+        # initialize array with a tuple of provided elements
+        tuple_expr = awst_nodes.TupleExpression.from_items(expr.values, loc)
+        tuple_ir_type = wtype_to_ir_type(tuple_expr.wtype, loc, allow_aggregate=True)
+        tuple_value_provider = self.visit_expr(tuple_expr)
+        tuple_values = self.materialise_value_provider_as_value_or_tuple(
+            tuple_value_provider, "array_values"
+        )
+        encoded_array = arc4.encode_value_provider(
+            self.context, tuple_values, tuple_ir_type, array_encoding, loc
+        )
+        (encoded_array,) = self.context.visitor.materialise_value_provider(
+            encoded_array, "encoded_array"
+        )
+        if isinstance(expr.wtype, wtypes.ARC4Array | wtypes.StackArray):
+            return encoded_array
+        elif isinstance(expr.wtype, wtypes.ReferenceArray):
             array_slot_type = wtype_to_ir_type(expr.wtype, expr.source_location)
-            assert isinstance(array_slot_type, SlotType)
-            array_type = array_slot_type.contents
-            assert isinstance(array_type, EncodedType)
-            array_encoding = wtype_to_encoding(expr.wtype, expr.source_location)
-            assert array_encoding == array_type.encoding, "expected encodings to match"
-            if expr.values:
-                array_contents = arrays.get_array_encoded_items(
-                    self.context,
-                    awst_nodes.TupleExpression.from_items(expr.values, expr.source_location),
-                    element_encoding=array_encoding.element,
-                )
-            else:
-                array_contents = factory.constant(b"", ir_type=array_type)
             slot = mem.new_slot(self.context, array_slot_type, loc)
-            mem.write_slot(self.context, slot, array_contents, loc)
+            mem.write_slot(self.context, slot, encoded_array, loc)
             return slot
+        else:
+            typing.assert_never(expr.wtype)
 
     def visit_bytes_comparison_expression(
         self, expr: awst_nodes.BytesComparisonExpression
