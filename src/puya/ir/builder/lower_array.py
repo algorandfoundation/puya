@@ -1,7 +1,7 @@
 import itertools
 import typing
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 
 import attrs
 
@@ -12,13 +12,13 @@ from puya.ir import (
     models as ir,
 )
 from puya.ir.builder import arc4
-from puya.ir.builder._utils import OpFactory
+from puya.ir.builder._utils import OpFactory, assign_targets
 from puya.ir.encodings import (
     DynamicArrayEncoding,
     Encoding,
     FixedArrayEncoding,
 )
-from puya.ir.models import Subroutine
+from puya.ir.models import Register, Subroutine, Value, ValueProvider, ValueTuple
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType
 from puya.ir.visitor import IRTraverser
@@ -61,6 +61,30 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     def resolve_embedded_func(self, full_name: str) -> Subroutine:
         # TODO: might not need this if ArrayRead and ArrayWrite are removed
         raise InternalError(f"TODO: allow resolving embedded functions: {full_name}")
+
+    def materialise_value_provider(
+        self, value_provider: ValueProvider, description: str | Sequence[str]
+    ) -> list[Value]:
+        if isinstance(value_provider, Value):
+            return [value_provider]
+        elif isinstance(value_provider, ValueTuple):
+            return list(value_provider.values)
+        descriptions = (
+            [description] * len(value_provider.types)
+            if isinstance(description, str)
+            else description
+        )
+        targets: list[Register] = [
+            self.new_register(self.next_tmp_name(desc), ir_type, value_provider.source_location)
+            for ir_type, desc in zip(value_provider.types, descriptions, strict=True)
+        ]
+        assign_targets(
+            self,
+            source=value_provider,
+            targets=targets,
+            assignment_location=value_provider.source_location,
+        )
+        return list(targets)
 
     @typing.override
     def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
