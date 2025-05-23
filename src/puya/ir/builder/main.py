@@ -1247,14 +1247,14 @@ class FunctionIRBuilder(
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
         loc = expr.source_location
-        # ensure order of evaluation is correct
-        for value in expr.values.values():
-            self.context.visitor.visit_and_materialise(value)
+        # evaluate struct in order of declaration
+        elements_by_name = {
+            name: self.context.visitor.visit_and_materialise(value)
+            for name, value in expr.values.items()
+        }
         # construct elements in correct layout
         elements = [
-            element
-            for field_name in expr.wtype.fields
-            for element in self.context.visitor.visit_and_materialise(expr.values[field_name])
+            element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
         ]
 
         struct_value_provider = ValueTuple(values=elements, source_location=loc)
