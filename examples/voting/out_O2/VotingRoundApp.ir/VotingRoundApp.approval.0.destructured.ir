@@ -216,8 +216,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         itxn_submit
-        let materialized_values%1#0: uint64 = (itxn CreatedAssetID)
-        (app_global_put "nft_asset_id" materialized_values%1#0)
+        let materialized_values%10#0: uint64 = (itxn CreatedAssetID)
+        (app_global_put "nft_asset_id" materialized_values%10#0)
         let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
         goto block@26
@@ -233,8 +233,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
         let to_encode%1#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
         let val_as_bytes%1#0: bytes[8] = (itob to_encode%1#0)
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#0)
+        let materialized_values%0#2: bytes[32] = (txn Sender)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#2)
         let val_as_bytes%2#0: bytes[8] = (itob maybe_exists%0#0)
         let to_encode%3#0: uint64 = (global LatestTimestamp)
         let val_as_bytes%3#0: bytes[8] = (itob to_encode%3#0)
@@ -265,8 +265,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (assert tmp%0#0) // Not allowed to vote
         let tmp%1#1: bool = examples.voting.voting.VotingRoundApp.voting_open()
         (assert tmp%1#1) // Voting not open
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#0)
+        let materialized_values%0#2: bytes[32] = (txn Sender)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#2)
         let tmp%3#1: bool = (! maybe_exists%0#0)
         (assert tmp%3#1) // Already voted
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
@@ -309,13 +309,13 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%1#2: bytes = (itob tmp%0#2)
         (box_replace "V" index#0 tmp%1#2)
         let cumulative_offset#0: uint64 = (+ cumulative_offset#0 options_count#0)
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        (box_del materialized_values%0#0)
-        (box_put materialized_values%0#0 answer_ids#0)
+        let materialized_values%5#0: bytes[32] = (txn Sender)
+        (box_del materialized_values%5#0)
+        (box_put materialized_values%5#0 answer_ids#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "voter_count")
         (assert maybe_exists%2#0) // check self.voter_count exists
-        let materialized_values%1#0: uint64 = (+ maybe_value%2#0 1u)
-        (app_global_put "voter_count" materialized_values%1#0)
+        let materialized_values%6#0: uint64 = (+ maybe_value%2#0 1u)
+        (app_global_put "voter_count" materialized_values%6#0)
         let question_index#0: uint64 = (+ question_index#0 1u)
         goto block@22
     block@24: // after_for_L195

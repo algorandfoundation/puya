@@ -309,15 +309,15 @@ subroutine quicksort_window:
         l-load slot_contents%3#0 2                                                    (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,bytes_offset%1#0,tmp%9#0,array%val_as_bytes%0#1,slot_contents%3#0
         l-load bytes_offset%1#0 3                                                     (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,tmp%9#0,array%val_as_bytes%0#1,slot_contents%3#0,bytes_offset%1#0
         l-load array%val_as_bytes%0#1 2                                               (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,tmp%9#0,slot_contents%3#0,bytes_offset%1#0,array%val_as_bytes%0#1
-        replace3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,tmp%9#0,array%updated_array%0#1
-        l-load tmp%9#0 1                                                              (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,array%updated_array%0#1,tmp%9#0
-        itob                                                                          (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,array%updated_array%0#1,array%val_as_bytes%1#1
-        l-load array%updated_array%0#1 1                                              (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,array%val_as_bytes%1#1,array%updated_array%0#1
-        l-load bytes_offset%2#0 2                                                     (𝕡) arr#0,window_left#0,window_right#0 | array%val_as_bytes%1#1,array%updated_array%0#1,bytes_offset%2#0
-        l-load array%val_as_bytes%1#1 2                                               (𝕡) arr#0,window_left#0,window_right#0 | array%updated_array%0#1,bytes_offset%2#0,array%val_as_bytes%1#1
-        replace3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | array%updated_array%1#1
-        p-load arr#0                                                                  (𝕡) arr#0,window_left#0,window_right#0 | array%updated_array%1#1,arr#0 (copy)
-        l-load array%updated_array%1#1 1                                              (𝕡) arr#0,window_left#0,window_right#0 | arr#0 (copy),array%updated_array%1#1
+        replace3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,tmp%9#0,updated_array%0#0
+        l-load tmp%9#0 1                                                              (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,updated_array%0#0,tmp%9#0
+        itob                                                                          (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,updated_array%0#0,array%val_as_bytes%1#1
+        l-load updated_array%0#0 1                                                    (𝕡) arr#0,window_left#0,window_right#0 | bytes_offset%2#0,array%val_as_bytes%1#1,updated_array%0#0
+        l-load bytes_offset%2#0 2                                                     (𝕡) arr#0,window_left#0,window_right#0 | array%val_as_bytes%1#1,updated_array%0#0,bytes_offset%2#0
+        l-load array%val_as_bytes%1#1 2                                               (𝕡) arr#0,window_left#0,window_right#0 | updated_array%0#0,bytes_offset%2#0,array%val_as_bytes%1#1
+        replace3                                                                      (𝕡) arr#0,window_left#0,window_right#0 | updated_array%1#0
+        p-load arr#0                                                                  (𝕡) arr#0,window_left#0,window_right#0 | updated_array%1#0,arr#0 (copy)
+        l-load updated_array%1#0 1                                                    (𝕡) arr#0,window_left#0,window_right#0 | arr#0 (copy),updated_array%1#0
         stores                                                                        (𝕡) arr#0,window_left#0,window_right#0 |
         // array/uint64.py:204
         // left += 1
@@ -820,50 +820,50 @@ subroutine test_array:
         itob                                                                          arr#0,array%array_contents%5#1,array%val_as_bytes%0#1
         l-load array%array_contents%5#1 1                                             arr#0,array%val_as_bytes%0#1,array%array_contents%5#1
         l-load array%val_as_bytes%0#1 1                                               arr#0,array%array_contents%5#1,array%val_as_bytes%0#1
-        replace2 0                                                                    arr#0,array%updated_array%0#1
-        l-load arr#0 1                                                                array%updated_array%0#1,arr#0
-        l-load-copy array%updated_array%0#1 1                                         array%updated_array%0#1,arr#0,array%updated_array%0#1 (copy)
-        stores                                                                        array%updated_array%0#1
+        replace2 0                                                                    arr#0,updated_array%0#0
+        l-load arr#0 1                                                                updated_array%0#0,arr#0
+        l-load-copy updated_array%0#0 1                                               updated_array%0#0,arr#0,updated_array%0#0 (copy)
+        stores                                                                        updated_array%0#0
         // array/uint64.py:36
         // assert arr.length == 17
-        l-load-copy array%updated_array%0#1 0                                         array%updated_array%0#1,array%updated_array%0#1 (copy)
-        len                                                                           array%updated_array%0#1,array%bytes_len%13#1
-        int 8                                                                         array%updated_array%0#1,array%bytes_len%13#1,8
-        /                                                                             array%updated_array%0#1,array%array_len%13#1
-        l-load-copy array%array_len%13#1 0                                            array%updated_array%0#1,array%array_len%13#1,array%array_len%13#1 (copy)
-        int 17                                                                        array%updated_array%0#1,array%array_len%13#1,array%array_len%13#1 (copy),17
-        ==                                                                            array%updated_array%0#1,array%array_len%13#1,tmp%43#0
-        assert                                                                        array%updated_array%0#1,array%array_len%13#1
+        l-load-copy updated_array%0#0 0                                               updated_array%0#0,updated_array%0#0 (copy)
+        len                                                                           updated_array%0#0,array%bytes_len%13#1
+        int 8                                                                         updated_array%0#0,array%bytes_len%13#1,8
+        /                                                                             updated_array%0#0,array%array_len%13#1
+        l-load-copy array%array_len%13#1 0                                            updated_array%0#0,array%array_len%13#1,array%array_len%13#1 (copy)
+        int 17                                                                        updated_array%0#0,array%array_len%13#1,array%array_len%13#1 (copy),17
+        ==                                                                            updated_array%0#0,array%array_len%13#1,tmp%43#0
+        assert                                                                        updated_array%0#0,array%array_len%13#1
         // array/uint64.py:37
         // assert arr[0] == 44
-        l-load-copy array%updated_array%0#1 1                                         array%updated_array%0#1,array%array_len%13#1,array%updated_array%0#1 (copy)
-        int 0                                                                         array%updated_array%0#1,array%array_len%13#1,array%updated_array%0#1 (copy),0
-        extract_uint64                                                                array%updated_array%0#1,array%array_len%13#1,tmp%44#0
-        int 44                                                                        array%updated_array%0#1,array%array_len%13#1,tmp%44#0,44
-        ==                                                                            array%updated_array%0#1,array%array_len%13#1,tmp%45#0
-        assert                                                                        array%updated_array%0#1,array%array_len%13#1
+        l-load-copy updated_array%0#0 1                                               updated_array%0#0,array%array_len%13#1,updated_array%0#0 (copy)
+        int 0                                                                         updated_array%0#0,array%array_len%13#1,updated_array%0#0 (copy),0
+        extract_uint64                                                                updated_array%0#0,array%array_len%13#1,tmp%44#0
+        int 44                                                                        updated_array%0#0,array%array_len%13#1,tmp%44#0,44
+        ==                                                                            updated_array%0#0,array%array_len%13#1,tmp%45#0
+        assert                                                                        updated_array%0#0,array%array_len%13#1
         // array/uint64.py:38
         // assert arr[-2] == 99
-        l-load-copy array%array_len%13#1 0                                            array%updated_array%0#1,array%array_len%13#1,array%array_len%13#1 (copy)
-        int 2                                                                         array%updated_array%0#1,array%array_len%13#1,array%array_len%13#1 (copy),2
-        -                                                                             array%updated_array%0#1,array%array_len%13#1,tmp%47#0
-        int 8                                                                         array%updated_array%0#1,array%array_len%13#1,tmp%47#0,8
-        *                                                                             array%updated_array%0#1,array%array_len%13#1,bytes_offset%9#0
-        l-load-copy array%updated_array%0#1 2                                         array%updated_array%0#1,array%array_len%13#1,bytes_offset%9#0,array%updated_array%0#1 (copy)
-        l-load bytes_offset%9#0 1                                                     array%updated_array%0#1,array%array_len%13#1,array%updated_array%0#1 (copy),bytes_offset%9#0
-        extract_uint64                                                                array%updated_array%0#1,array%array_len%13#1,tmp%48#0
-        int 99                                                                        array%updated_array%0#1,array%array_len%13#1,tmp%48#0,99
-        ==                                                                            array%updated_array%0#1,array%array_len%13#1,tmp%49#0
-        assert                                                                        array%updated_array%0#1,array%array_len%13#1
+        l-load-copy array%array_len%13#1 0                                            updated_array%0#0,array%array_len%13#1,array%array_len%13#1 (copy)
+        int 2                                                                         updated_array%0#0,array%array_len%13#1,array%array_len%13#1 (copy),2
+        -                                                                             updated_array%0#0,array%array_len%13#1,tmp%47#0
+        int 8                                                                         updated_array%0#0,array%array_len%13#1,tmp%47#0,8
+        *                                                                             updated_array%0#0,array%array_len%13#1,bytes_offset%9#0
+        l-load-copy updated_array%0#0 2                                               updated_array%0#0,array%array_len%13#1,bytes_offset%9#0,updated_array%0#0 (copy)
+        l-load bytes_offset%9#0 1                                                     updated_array%0#0,array%array_len%13#1,updated_array%0#0 (copy),bytes_offset%9#0
+        extract_uint64                                                                updated_array%0#0,array%array_len%13#1,tmp%48#0
+        int 99                                                                        updated_array%0#0,array%array_len%13#1,tmp%48#0,99
+        ==                                                                            updated_array%0#0,array%array_len%13#1,tmp%49#0
+        assert                                                                        updated_array%0#0,array%array_len%13#1
         // array/uint64.py:39
         // assert arr[-1] == 100
-        l-load array%array_len%13#1 0                                                 array%updated_array%0#1,array%array_len%13#1
-        int 1                                                                         array%updated_array%0#1,array%array_len%13#1,1
-        -                                                                             array%updated_array%0#1,tmp%51#0
-        int 8                                                                         array%updated_array%0#1,tmp%51#0,8
-        *                                                                             array%updated_array%0#1,bytes_offset%10#0
-        l-load array%updated_array%0#1 1                                              bytes_offset%10#0,array%updated_array%0#1
-        l-load bytes_offset%10#0 1                                                    array%updated_array%0#1,bytes_offset%10#0
+        l-load array%array_len%13#1 0                                                 updated_array%0#0,array%array_len%13#1
+        int 1                                                                         updated_array%0#0,array%array_len%13#1,1
+        -                                                                             updated_array%0#0,tmp%51#0
+        int 8                                                                         updated_array%0#0,tmp%51#0,8
+        *                                                                             updated_array%0#0,bytes_offset%10#0
+        l-load updated_array%0#0 1                                                    bytes_offset%10#0,updated_array%0#0
+        l-load bytes_offset%10#0 1                                                    updated_array%0#0,bytes_offset%10#0
         extract_uint64                                                                tmp%52#0
         int 100                                                                       tmp%52#0,100
         ==                                                                            tmp%53#0
@@ -1282,53 +1282,53 @@ subroutine test_array_evaluation_order:
         callsub append_length_and_return                                              arr#0,materialized_values%0#0,tmp%18#0
         loads                                                                         arr#0,materialized_values%0#0,slot_contents%12#0
         int 0                                                                         arr#0,materialized_values%0#0,slot_contents%12#0,0
-        extract_uint64                                                                arr#0,materialized_values%0#0,index%0#0
-        l-load-copy arr#0 2                                                           arr#0,materialized_values%0#0,index%0#0,arr#0 (copy)
-        loads                                                                         arr#0,materialized_values%0#0,index%0#0,slot_contents%13#0
-        l-load materialized_values%0#0 2                                              arr#0,index%0#0,slot_contents%13#0,materialized_values%0#0
-        itob                                                                          arr#0,index%0#0,slot_contents%13#0,array%val_as_bytes%0#1
-        l-load index%0#0 2                                                            arr#0,slot_contents%13#0,array%val_as_bytes%0#1,index%0#0
-        int 8                                                                         arr#0,slot_contents%13#0,array%val_as_bytes%0#1,index%0#0,8
-        *                                                                             arr#0,slot_contents%13#0,array%val_as_bytes%0#1,array%bytes_index%0#1
-        l-load slot_contents%13#0 2                                                   arr#0,array%val_as_bytes%0#1,array%bytes_index%0#1,slot_contents%13#0
-        l-load array%bytes_index%0#1 1                                                arr#0,array%val_as_bytes%0#1,slot_contents%13#0,array%bytes_index%0#1
-        l-load array%val_as_bytes%0#1 2                                               arr#0,slot_contents%13#0,array%bytes_index%0#1,array%val_as_bytes%0#1
-        replace3                                                                      arr#0,array%updated_array%0#1
-        l-load arr#0 1                                                                array%updated_array%0#1,arr#0
-        l-load-copy array%updated_array%0#1 1                                         array%updated_array%0#1,arr#0,array%updated_array%0#1 (copy)
-        stores                                                                        array%updated_array%0#1
+        extract_uint64                                                                arr#0,materialized_values%0#0,tmp%19#0
+        l-load materialized_values%0#0 1                                              arr#0,tmp%19#0,materialized_values%0#0
+        itob                                                                          arr#0,tmp%19#0,array%val_as_bytes%0#1
+        l-load-copy arr#0 2                                                           arr#0,tmp%19#0,array%val_as_bytes%0#1,arr#0 (copy)
+        loads                                                                         arr#0,tmp%19#0,array%val_as_bytes%0#1,slot_contents%13#0
+        l-load tmp%19#0 2                                                             arr#0,array%val_as_bytes%0#1,slot_contents%13#0,tmp%19#0
+        int 8                                                                         arr#0,array%val_as_bytes%0#1,slot_contents%13#0,tmp%19#0,8
+        *                                                                             arr#0,array%val_as_bytes%0#1,slot_contents%13#0,write_offset%0#0
+        l-load slot_contents%13#0 1                                                   arr#0,array%val_as_bytes%0#1,write_offset%0#0,slot_contents%13#0
+        l-load write_offset%0#0 1                                                     arr#0,array%val_as_bytes%0#1,slot_contents%13#0,write_offset%0#0
+        l-load array%val_as_bytes%0#1 2                                               arr#0,slot_contents%13#0,write_offset%0#0,array%val_as_bytes%0#1
+        replace3                                                                      arr#0,updated_array%0#0
+        l-load arr#0 1                                                                updated_array%0#0,arr#0
+        l-load-copy updated_array%0#0 1                                               updated_array%0#0,arr#0,updated_array%0#0 (copy)
+        stores                                                                        updated_array%0#0
         // array/uint64.py:111
         // assert arr.length == 8
-        l-load-copy array%updated_array%0#1 0                                         array%updated_array%0#1,array%updated_array%0#1 (copy)
-        len                                                                           array%updated_array%0#1,array%bytes_len%2#1
-        int 8                                                                         array%updated_array%0#1,array%bytes_len%2#1,8
-        /                                                                             array%updated_array%0#1,array%array_len%2#1
-        int 8                                                                         array%updated_array%0#1,array%array_len%2#1,8
-        ==                                                                            array%updated_array%0#1,tmp%20#0
-        assert                                                                        array%updated_array%0#1
+        l-load-copy updated_array%0#0 0                                               updated_array%0#0,updated_array%0#0 (copy)
+        len                                                                           updated_array%0#0,array%bytes_len%2#1
+        int 8                                                                         updated_array%0#0,array%bytes_len%2#1,8
+        /                                                                             updated_array%0#0,array%array_len%2#1
+        int 8                                                                         updated_array%0#0,array%array_len%2#1,8
+        ==                                                                            updated_array%0#0,tmp%21#0
+        assert                                                                        updated_array%0#0
         // array/uint64.py:112
         // assert arr[6] == 6
-        l-load-copy array%updated_array%0#1 0                                         array%updated_array%0#1,array%updated_array%0#1 (copy)
-        int 48                                                                        array%updated_array%0#1,array%updated_array%0#1 (copy),48
-        extract_uint64                                                                array%updated_array%0#1,tmp%21#0
-        int 6                                                                         array%updated_array%0#1,tmp%21#0,6
-        ==                                                                            array%updated_array%0#1,tmp%22#0
-        assert                                                                        array%updated_array%0#1
+        l-load-copy updated_array%0#0 0                                               updated_array%0#0,updated_array%0#0 (copy)
+        int 48                                                                        updated_array%0#0,updated_array%0#0 (copy),48
+        extract_uint64                                                                updated_array%0#0,tmp%22#0
+        int 6                                                                         updated_array%0#0,tmp%22#0,6
+        ==                                                                            updated_array%0#0,tmp%23#0
+        assert                                                                        updated_array%0#0
         // array/uint64.py:113
         // assert arr[7] == 7
-        l-load-copy array%updated_array%0#1 0                                         array%updated_array%0#1,array%updated_array%0#1 (copy)
-        int 56                                                                        array%updated_array%0#1,array%updated_array%0#1 (copy),56
-        extract_uint64                                                                array%updated_array%0#1,tmp%23#0
-        int 7                                                                         array%updated_array%0#1,tmp%23#0,7
-        ==                                                                            array%updated_array%0#1,tmp%24#0
-        assert                                                                        array%updated_array%0#1
+        l-load-copy updated_array%0#0 0                                               updated_array%0#0,updated_array%0#0 (copy)
+        int 56                                                                        updated_array%0#0,updated_array%0#0 (copy),56
+        extract_uint64                                                                updated_array%0#0,tmp%24#0
+        int 7                                                                         updated_array%0#0,tmp%24#0,7
+        ==                                                                            updated_array%0#0,tmp%25#0
+        assert                                                                        updated_array%0#0
         // array/uint64.py:114
         // assert arr[3] == 6
-        l-load array%updated_array%0#1 0                                              array%updated_array%0#1
-        int 24                                                                        array%updated_array%0#1,24
-        extract_uint64                                                                tmp%25#0
-        int 6                                                                         tmp%25#0,6
-        ==                                                                            tmp%26#0
+        l-load updated_array%0#0 0                                                    updated_array%0#0
+        int 24                                                                        updated_array%0#0,24
+        extract_uint64                                                                tmp%26#0
+        int 6                                                                         tmp%26#0,6
+        ==                                                                            tmp%27#0
         assert
         retsub
 
@@ -1811,35 +1811,34 @@ subroutine test_unobserved_write:
         itob                                                                          arr#0,slot_contents%0#0,last#0,array%val_as_bytes%0#1
         l-load last#0 1                                                               arr#0,slot_contents%0#0,array%val_as_bytes%0#1,last#0
         int 8                                                                         arr#0,slot_contents%0#0,array%val_as_bytes%0#1,last#0,8
-        *                                                                             arr#0,slot_contents%0#0,array%val_as_bytes%0#1,array%bytes_index%0#1
-        l-load slot_contents%0#0 2                                                    arr#0,array%val_as_bytes%0#1,array%bytes_index%0#1,slot_contents%0#0
-        l-load-copy array%bytes_index%0#1 1                                           arr#0,array%val_as_bytes%0#1,array%bytes_index%0#1,slot_contents%0#0,array%bytes_index%0#1 (copy)
-        l-load array%val_as_bytes%0#1 3                                               arr#0,array%bytes_index%0#1,slot_contents%0#0,array%bytes_index%0#1 (copy),array%val_as_bytes%0#1
-        replace3                                                                      arr#0,array%bytes_index%0#1,array%updated_array%0#1
-        l-load-copy arr#0 2                                                           arr#0,array%bytes_index%0#1,array%updated_array%0#1,arr#0 (copy)
-        l-load array%updated_array%0#1 1                                              arr#0,array%bytes_index%0#1,arr#0 (copy),array%updated_array%0#1
-        stores                                                                        arr#0,array%bytes_index%0#1
+        *                                                                             arr#0,slot_contents%0#0,array%val_as_bytes%0#1,write_offset%0#0
+        l-load slot_contents%0#0 2                                                    arr#0,array%val_as_bytes%0#1,write_offset%0#0,slot_contents%0#0
+        l-load-copy write_offset%0#0 1                                                arr#0,array%val_as_bytes%0#1,write_offset%0#0,slot_contents%0#0,write_offset%0#0 (copy)
+        l-load array%val_as_bytes%0#1 3                                               arr#0,write_offset%0#0,slot_contents%0#0,write_offset%0#0 (copy),array%val_as_bytes%0#1
+        replace3                                                                      arr#0,write_offset%0#0,updated_array%0#0
+        l-load-copy arr#0 2                                                           arr#0,write_offset%0#0,updated_array%0#0,arr#0 (copy)
+        l-load updated_array%0#0 1                                                    arr#0,write_offset%0#0,arr#0 (copy),updated_array%0#0
+        stores                                                                        arr#0,write_offset%0#0
         // array/uint64.py:178
         // assert_last_is_zero(arr)
-        l-load-copy arr#0 1                                                           arr#0,array%bytes_index%0#1,arr#0 (copy)
-        callsub assert_last_is_zero                                                   arr#0,array%bytes_index%0#1
+        l-load-copy arr#0 1                                                           arr#0,write_offset%0#0,arr#0 (copy)
+        callsub assert_last_is_zero                                                   arr#0,write_offset%0#0
         // array/uint64.py:179
         // arr[last] = UInt64(1)  # write
-        l-load-copy arr#0 1                                                           arr#0,array%bytes_index%0#1,arr#0 (copy)
-        loads                                                                         arr#0,array%bytes_index%0#1,slot_contents%2#0
-        int 1                                                                         arr#0,array%bytes_index%0#1,slot_contents%2#0,1
-        itob                                                                          arr#0,array%bytes_index%0#1,slot_contents%2#0,array%val_as_bytes%1#1
-        l-load slot_contents%2#0 1                                                    arr#0,array%bytes_index%0#1,array%val_as_bytes%1#1,slot_contents%2#0
-        l-load-copy array%bytes_index%0#1 2                                           arr#0,array%bytes_index%0#1,array%val_as_bytes%1#1,slot_contents%2#0,array%bytes_index%0#1 (copy)
-        l-load array%val_as_bytes%1#1 2                                               arr#0,array%bytes_index%0#1,slot_contents%2#0,array%bytes_index%0#1 (copy),array%val_as_bytes%1#1
-        replace3                                                                      arr#0,array%bytes_index%0#1,array%updated_array%1#1
-        l-load arr#0 2                                                                array%bytes_index%0#1,array%updated_array%1#1,arr#0
-        l-load-copy array%updated_array%1#1 1                                         array%bytes_index%0#1,array%updated_array%1#1,arr#0,array%updated_array%1#1 (copy)
-        stores                                                                        array%bytes_index%0#1,array%updated_array%1#1
+        int 1                                                                         arr#0,write_offset%0#0,1
+        itob                                                                          arr#0,write_offset%0#0,array%val_as_bytes%1#1
+        l-load-copy arr#0 2                                                           arr#0,write_offset%0#0,array%val_as_bytes%1#1,arr#0 (copy)
+        loads                                                                         arr#0,write_offset%0#0,array%val_as_bytes%1#1,slot_contents%2#0
+        l-load-copy write_offset%0#0 2                                                arr#0,write_offset%0#0,array%val_as_bytes%1#1,slot_contents%2#0,write_offset%0#0 (copy)
+        l-load array%val_as_bytes%1#1 2                                               arr#0,write_offset%0#0,slot_contents%2#0,write_offset%0#0 (copy),array%val_as_bytes%1#1
+        replace3                                                                      arr#0,write_offset%0#0,updated_array%1#0
+        l-load arr#0 2                                                                write_offset%0#0,updated_array%1#0,arr#0
+        l-load-copy updated_array%1#0 1                                               write_offset%0#0,updated_array%1#0,arr#0,updated_array%1#0 (copy)
+        stores                                                                        write_offset%0#0,updated_array%1#0
         // array/uint64.py:180
         // assert arr[last] == 1
-        l-load array%updated_array%1#1 0                                              array%bytes_index%0#1,array%updated_array%1#1
-        l-load array%bytes_index%0#1 1                                                array%updated_array%1#1,array%bytes_index%0#1
+        l-load updated_array%1#0 0                                                    write_offset%0#0,updated_array%1#0
+        l-load write_offset%0#0 1                                                     updated_array%1#0,write_offset%0#0
         extract_uint64                                                                tmp%1#0
         int 1                                                                         tmp%1#0,1
         ==                                                                            tmp%2#0

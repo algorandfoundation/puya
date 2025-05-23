@@ -11,27 +11,36 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
 
 subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
     block@0: // L124
-        let array_length#0: uint64 = (extract_uint16 array#0 0u)
-        let new_array_length#0: uint64 = (+ array_length#0 new_items_count#0)
+        let materialized_values%0#0: uint64 = (extract_uint16 array#0 0u)
+        let array_length#0: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = (+ array_length#0 new_items_count#0)
+        let new_array_length#0: uint64 = materialized_values%1#0
         let tmp%0#0: bytes = (itob new_array_length#0)
-        let new_array_length_b#0: bytes = ((extract 6 0) tmp%0#0)
-        let result#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
+        let materialized_values%2#0: bytes = ((extract 6 0) tmp%0#0)
+        let new_array_length_b#0: bytes = materialized_values%2#0
+        let materialized_values%3#0: bytes = ((replace2 0) array#0 new_array_length_b#0)
+        let result#0: bytes = materialized_values%3#0
         let tmp%1#0: uint64 = (+ array_length#0 7u)
-        let current_bytes#0: uint64 = (/ tmp%1#0 8u)
+        let materialized_values%4#0: uint64 = (/ tmp%1#0 8u)
+        let current_bytes#0: uint64 = materialized_values%4#0
         let tmp%2#0: uint64 = (+ new_array_length#0 7u)
-        let required_bytes#0: uint64 = (/ tmp%2#0 8u)
+        let materialized_values%5#0: uint64 = (/ tmp%2#0 8u)
+        let required_bytes#0: uint64 = materialized_values%5#0
         let tmp%3#0: bool = (< current_bytes#0 required_bytes#0)
         goto tmp%3#0 ? block@1 : block@2
     block@1: // if_body_L148
         let tmp%4#0: uint64 = (- required_bytes#0 current_bytes#0)
         let tmp%5#0: bytes = (bzero tmp%4#0)
-        let result#1: bytes = (concat result#0 tmp%5#0)
+        let materialized_values%6#0: bytes = (concat result#0 tmp%5#0)
+        let result#1: bytes = materialized_values%6#0
         goto block@2
     block@2: // after_if_else_L147
         let result#4: bytes = φ(result#0 <- block@0, result#1 <- block@1)
         let read_offset#0: uint64 = 0u
-        let write_offset#0: uint64 = (+ array_length#0 16u)
-        let write_end#0: uint64 = (+ write_offset#0 new_items_count#0)
+        let materialized_values%7#0: uint64 = (+ array_length#0 16u)
+        let write_offset#0: uint64 = materialized_values%7#0
+        let materialized_values%8#0: uint64 = (+ write_offset#0 new_items_count#0)
+        let write_end#0: uint64 = materialized_values%8#0
         goto block@3
     block@3: // while_top_L153
         let write_offset#1: uint64 = φ(write_offset#0 <- block@2, write_offset#2 <- block@4)
@@ -41,9 +50,12 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         goto tmp%6#0 ? block@4 : block@5
     block@4: // while_body_L154
         let tmp%7#0: uint64 = (getbit new_items_bytes#0 read_offset#1)
-        let result#3: bytes = (setbit result#2 write_offset#1 tmp%7#0)
-        let write_offset#2: uint64 = (+ write_offset#1 1u)
-        let read_offset#2: uint64 = (+ read_offset#1 read_step#0)
+        let materialized_values%9#0: bytes = (setbit result#2 write_offset#1 tmp%7#0)
+        let result#3: bytes = materialized_values%9#0
+        let materialized_values%10#0: uint64 = (+ write_offset#1 1u)
+        let write_offset#2: uint64 = materialized_values%10#0
+        let materialized_values%11#0: uint64 = (+ read_offset#1 read_step#0)
+        let read_offset#2: uint64 = materialized_values%11#0
         goto block@3
     block@5: // after_while_L153
         return result#2
@@ -53,7 +65,8 @@ subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64
         let slot_contents%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
         let bytes_offset%0#0: uint64 = (* 0u 144u)
         let encoded_element%0#0: bytes = (extract3 slot_contents%0#0 bytes_offset%0#0 144u) // on error: index access is out of bounds
-        let (last_point.x#0: Encoded(uint64), last_point.y#0: uint64, last_point.other.a#0: uint64, last_point.other.b#0: uint64, last_point.other.c#0: bytes[32], last_point.other.d#0: Encoded((uint64,uint64)), last_point.other.e#0: biguint) = decode<(Encoded(uint64),uint64,(uint64,uint64,bytes[32],Encoded((uint64,uint64)),biguint,),)>(encoded_element%0#0)
+        let (materialized_values%0#0: Encoded(uint64), materialized_values%1#0: uint64, materialized_values%2#0: uint64, materialized_values%3#0: uint64, materialized_values%4#0: bytes[32], materialized_values%5#0: Encoded((uint64,uint64)), materialized_values%6#0: biguint) = decode<(Encoded(uint64),uint64,(uint64,uint64,bytes[32],Encoded((uint64,uint64)),biguint,),)>(encoded_element%0#0)
+        let (last_point.x#0: Encoded(uint64), last_point.y#0: uint64, last_point.other.a#0: uint64, last_point.other.b#0: uint64, last_point.other.c#0: bytes[32], last_point.other.d#0: Encoded((uint64,uint64)), last_point.other.e#0: biguint) = (materialized_values%0#0, materialized_values%1#0, materialized_values%2#0, materialized_values%3#0, materialized_values%4#0, materialized_values%5#0, materialized_values%6#0)
         let length#0: uint64 = 0u
         let slot_contents%1#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
         let tmp%0#0: uint64 = slot_contents%1#0.length
@@ -69,7 +82,8 @@ subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64
         let slot_contents%2#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
         let bytes_offset%1#0: uint64 = (* point_idx#1 144u)
         let encoded_element%1#0: bytes = (extract3 slot_contents%2#0 bytes_offset%1#0 144u) // on error: index access is out of bounds
-        let (point.x#0: Encoded(uint64), point.y#0: uint64, point.other.a#0: uint64, point.other.b#0: uint64, point.other.c#0: bytes[32], point.other.d#0: Encoded((uint64,uint64)), point.other.e#0: biguint) = decode<(Encoded(uint64),uint64,(uint64,uint64,bytes[32],Encoded((uint64,uint64)),biguint,),)>(encoded_element%1#0)
+        let (materialized_values%7#0: Encoded(uint64), materialized_values%8#0: uint64, materialized_values%9#0: uint64, materialized_values%10#0: uint64, materialized_values%11#0: bytes[32], materialized_values%12#0: Encoded((uint64,uint64)), materialized_values%13#0: biguint) = decode<(Encoded(uint64),uint64,(uint64,uint64,bytes[32],Encoded((uint64,uint64)),biguint,),)>(encoded_element%1#0)
+        let (point.x#0: Encoded(uint64), point.y#0: uint64, point.other.a#0: uint64, point.other.b#0: uint64, point.other.c#0: bytes[32], point.other.d#0: Encoded((uint64,uint64)), point.other.e#0: biguint) = (materialized_values%7#0, materialized_values%8#0, materialized_values%9#0, materialized_values%10#0, materialized_values%11#0, materialized_values%12#0, materialized_values%13#0)
         let reinterpret_biguint%0#0: biguint = point.x#0
         let reinterpret_biguint%1#0: biguint = last_point.x#0
         let tmp%1#0: bool = (b< reinterpret_biguint%0#0 reinterpret_biguint%1#0)
@@ -77,22 +91,26 @@ subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64
     block@3: // if_body_L155
         let tmp%2#0: uint64 = (btoi last_point.x#0)
         let tmp%3#0: uint64 = (btoi point.x#0)
-        let dx#0: uint64 = (- tmp%2#0 tmp%3#0)
+        let materialized_values%14#0: uint64 = (- tmp%2#0 tmp%3#0)
+        let dx#0: uint64 = materialized_values%14#0
         goto block@5
     block@4: // else_body_L157
         let tmp%4#0: uint64 = (btoi point.x#0)
         let tmp%5#0: uint64 = (btoi last_point.x#0)
-        let dx#1: uint64 = (- tmp%4#0 tmp%5#0)
+        let materialized_values%15#0: uint64 = (- tmp%4#0 tmp%5#0)
+        let dx#1: uint64 = materialized_values%15#0
         goto block@5
     block@5: // after_if_else_L154
         let dx#3: uint64 = φ(dx#0 <- block@3, dx#1 <- block@4)
         let tmp%6#0: bool = (< point.y#0 last_point.y#0)
         goto tmp%6#0 ? block@6 : block@7
     block@6: // if_body_L159
-        let dy#0: uint64 = (- last_point.y#0 point.y#0)
+        let materialized_values%16#0: uint64 = (- last_point.y#0 point.y#0)
+        let dy#0: uint64 = materialized_values%16#0
         goto block@8
     block@7: // else_body_L161
-        let dy#1: uint64 = (- point.y#0 last_point.y#0)
+        let materialized_values%17#0: uint64 = (- point.y#0 last_point.y#0)
+        let dy#1: uint64 = materialized_values%17#0
         goto block@8
     block@8: // after_if_else_L158
         let dy#2: uint64 = φ(dy#0 <- block@6, dy#1 <- block@7)
@@ -100,7 +118,8 @@ subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64
         let tmp%8#0: uint64 = (* dy#2 dy#2)
         let tmp%9#0: uint64 = (+ tmp%7#0 tmp%8#0)
         let tmp%10#0: uint64 = (sqrt tmp%9#0)
-        let length#4: uint64 = (+ length#3 tmp%10#0)
+        let materialized_values%18#0: uint64 = (+ length#3 tmp%10#0)
+        let length#4: uint64 = materialized_values%18#0
         goto block@9
     block@9: // for_footer_L152
         let point_idx#2: uint64 = (+ point_idx#1 1u)
@@ -477,7 +496,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_bool_array(lengt
         let val#0: bool = decode<bool>(encoded_element%0#0)
         goto val#0 ? block@7 : block@8
     block@7: // if_body_L86
-        let count#2: uint64 = (+ count#1 1u)
+        let materialized_values%0#0: uint64 = (+ count#1 1u)
+        let count#2: uint64 = materialized_values%0#0
         goto block@8
     block@8: // after_if_else_L85
         let count#3: uint64 = φ(count#1 <- block@6, count#2 <- block@7)
@@ -541,7 +561,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let tmp%5#0: bool = (b!= reinterpret_biguint%0#0 0b)
         goto tmp%5#0 ? block@7 : block@8
     block@7: // if_body_L100
-        let count#2: uint64 = (+ count#1 1u)
+        let materialized_values%0#0: uint64 = (+ count#1 1u)
+        let count#2: uint64 = materialized_values%0#0
         goto block@8
     block@8: // after_if_else_L99
         let count#3: uint64 = φ(count#1 <- block@6, count#2 <- block@7)
@@ -589,7 +610,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: E
         let encoded_element%0#0: bytes = (extract3 slot_contents%2#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
         let item#0: Encoded(uint64) = encoded_element%0#0
         let tmp%0#0: uint64 = (btoi item#0)
-        let total#2: uint64 = (+ total#1 tmp%0#0)
+        let materialized_values%0#0: uint64 = (+ total#1 tmp%0#0)
+        let total#2: uint64 = materialized_values%0#0
         goto block@3
     block@3: // for_footer_L113
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)

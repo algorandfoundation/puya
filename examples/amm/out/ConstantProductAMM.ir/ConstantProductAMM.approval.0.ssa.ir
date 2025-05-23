@@ -32,13 +32,16 @@ subroutine examples.amm.contract.tokens_to_mint(pool_balance: uint64, a_balance:
         let tmp%4#0: uint64 = (- tmp%3#0 1000u)
         return tmp%4#0
     block@6: // after_if_else_L332
-        let issued#0: uint64 = (- 10000000000u pool_balance#0)
+        let materialized_values%0#0: uint64 = (- 10000000000u pool_balance#0)
+        let issued#0: uint64 = materialized_values%0#0
         let tmp%5#0: uint64 = (* 1000u a_amount#0)
         let tmp%6#0: uint64 = (- a_balance#0 a_amount#0)
-        let a_ratio#0: uint64 = (/ tmp%5#0 tmp%6#0)
+        let materialized_values%1#0: uint64 = (/ tmp%5#0 tmp%6#0)
+        let a_ratio#0: uint64 = materialized_values%1#0
         let tmp%7#0: uint64 = (* 1000u b_amount#0)
         let tmp%8#0: uint64 = (- b_balance#0 b_amount#0)
-        let b_ratio#0: uint64 = (/ tmp%7#0 tmp%8#0)
+        let materialized_values%2#0: uint64 = (/ tmp%7#0 tmp%8#0)
+        let b_ratio#0: uint64 = materialized_values%2#0
         let tmp%9#0: bool = (< a_ratio#0 b_ratio#0)
         goto tmp%9#0 ? block@7 : block@8
     block@7: // if_body_L338
@@ -53,7 +56,8 @@ subroutine examples.amm.contract.tokens_to_mint(pool_balance: uint64, a_balance:
 subroutine examples.amm.contract.tokens_to_burn(pool_balance: uint64, supply: uint64, amount: uint64) -> uint64:
     block@0: // L343
         let tmp%0#0: uint64 = (- 10000000000u pool_balance#0)
-        let issued#0: uint64 = (- tmp%0#0 amount#0)
+        let materialized_values%0#0: uint64 = (- tmp%0#0 amount#0)
+        let issued#0: uint64 = materialized_values%0#0
         let tmp%1#0: uint64 = (* supply#0 amount#0)
         let tmp%2#0: uint64 = (/ tmp%1#0 issued#0)
         return tmp%2#0
@@ -63,9 +67,11 @@ subroutine examples.amm.contract.tokens_to_swap(in_amount: uint64, in_supply: ui
         let tmp%0#0: uint64 = (- in_supply#0 in_amount#0)
         let tmp%1#0: uint64 = (* 1000u tmp%0#0)
         let tmp%2#0: uint64 = (* in_amount#0 995u)
-        let in_total#0: uint64 = (+ tmp%1#0 tmp%2#0)
+        let materialized_values%0#0: uint64 = (+ tmp%1#0 tmp%2#0)
+        let in_total#0: uint64 = materialized_values%0#0
         let tmp%3#0: uint64 = (* in_amount#0 995u)
-        let out_total#0: uint64 = (* tmp%3#0 out_supply#0)
+        let materialized_values%1#0: uint64 = (* tmp%3#0 out_supply#0)
+        let out_total#0: uint64 = materialized_values%1#0
         let tmp%4#0: uint64 = (/ out_total#0 in_total#0)
         return tmp%4#0
 
@@ -375,7 +381,8 @@ subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer:
         let tmp%25#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
         let tmp%26#0: uint64 = ((gtxns AssetAmount) a_xfer#0)
         let tmp%27#0: uint64 = ((gtxns AssetAmount) b_xfer#0)
-        let to_mint#0: uint64 = examples.amm.contract.tokens_to_mint(tmp%23#0, tmp%24#0, tmp%25#0, tmp%26#0, tmp%27#0)
+        let materialized_values%0#0: uint64 = examples.amm.contract.tokens_to_mint(tmp%23#0, tmp%24#0, tmp%25#0, tmp%26#0, tmp%27#0)
+        let to_mint#0: uint64 = materialized_values%0#0
         let tmp%28#0: bool = (> to_mint#0 0u)
         (assert tmp%28#0) // send amount too low
         let tmp%29#0: bytes[32] = (txn Sender)
@@ -416,13 +423,16 @@ subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool
         let tmp%11#0: bytes[32] = (txn Sender)
         let tmp%12#0: bool = (== tmp%10#0 tmp%11#0)
         (assert tmp%12#0) // sender invalid
-        let pool_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_pool_balance()
+        let materialized_values%0#0: uint64 = examples.amm.contract.ConstantProductAMM._current_pool_balance()
+        let pool_balance#0: uint64 = materialized_values%0#0
         let tmp%13#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
         let tmp%14#0: uint64 = ((gtxns AssetAmount) pool_xfer#0)
-        let a_amt#0: uint64 = examples.amm.contract.tokens_to_burn(pool_balance#0, tmp%13#0, tmp%14#0)
+        let materialized_values%1#0: uint64 = examples.amm.contract.tokens_to_burn(pool_balance#0, tmp%13#0, tmp%14#0)
+        let a_amt#0: uint64 = materialized_values%1#0
         let tmp%15#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
         let tmp%16#0: uint64 = ((gtxns AssetAmount) pool_xfer#0)
-        let b_amt#0: uint64 = examples.amm.contract.tokens_to_burn(pool_balance#0, tmp%15#0, tmp%16#0)
+        let materialized_values%2#0: uint64 = examples.amm.contract.tokens_to_burn(pool_balance#0, tmp%15#0, tmp%16#0)
+        let b_amt#0: uint64 = materialized_values%2#0
         let tmp%17#0: bytes[32] = (txn Sender)
         let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%4#0) // check self.asset_a exists
@@ -459,15 +469,19 @@ subroutine examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_as
         let tmp%7#0: uint64 = ((gtxns XferAsset) swap_xfer#0)
         switch tmp%7#0 {maybe_value%2#0 => block@1, maybe_value%3#0 => block@2, * => block@3}
     block@1: // switch_case_0_L233
-        let in_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
-        let out_supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
+        let materialized_values%0#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
+        let in_supply#0: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
+        let out_supply#0: uint64 = materialized_values%1#0
         let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%4#0) // check self.asset_a exists
         let out_asset#0: uint64 = maybe_value%4#0
         goto block@4
     block@2: // switch_case_1_L237
-        let in_supply#1: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
-        let out_supply#1: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
+        let materialized_values%2#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
+        let in_supply#1: uint64 = materialized_values%2#0
+        let materialized_values%3#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
+        let out_supply#1: uint64 = materialized_values%3#0
         let (maybe_value%5#0: uint64, maybe_exists%5#0: bool) = (app_global_get_ex 0u "asset_b")
         (assert maybe_exists%5#0) // check self.asset_b exists
         let out_asset#1: uint64 = maybe_value%5#0
@@ -479,7 +493,8 @@ subroutine examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_as
         let out_supply#2: uint64 = φ(out_supply#0 <- block@1, out_supply#1 <- block@2)
         let out_asset#2: uint64 = φ(out_asset#0 <- block@1, out_asset#1 <- block@2)
         let tmp%8#0: uint64 = ((gtxns AssetAmount) swap_xfer#0)
-        let to_swap#0: uint64 = examples.amm.contract.tokens_to_swap(tmp%8#0, in_supply#2, out_supply#2)
+        let materialized_values%4#0: uint64 = examples.amm.contract.tokens_to_swap(tmp%8#0, in_supply#2, out_supply#2)
+        let to_swap#0: uint64 = materialized_values%4#0
         let tmp%9#0: bool = (> to_swap#0 0u)
         (assert tmp%9#0) // send amount too low
         let tmp%10#0: bytes[32] = (txn Sender)
@@ -497,11 +512,13 @@ subroutine examples.amm.contract.ConstantProductAMM._check_bootstrapped() -> voi
 
 subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
     block@0: // L255
-        let a_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
-        let b_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
+        let materialized_values%0#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
+        let a_balance#0: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
+        let b_balance#0: uint64 = materialized_values%1#0
         let tmp%0#0: uint64 = (* a_balance#0 1000u)
-        let materialized_values%0#0: uint64 = (/ tmp%0#0 b_balance#0)
-        (app_global_put "ratio" materialized_values%0#0)
+        let materialized_values%2#0: uint64 = (/ tmp%0#0 b_balance#0)
+        (app_global_put "ratio" materialized_values%2#0)
         return 
 
 subroutine examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:

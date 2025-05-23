@@ -362,18 +362,18 @@ subroutine create_box:
         assert // box already exists
         // mutable_native_types/case1_with_tups.py:38
         // self.tup_bag.value.owner = Txn.sender
-        byte "tup_bag"                                                                                        "tup_bag"
-        box_get                                                                                               maybe_value%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                             maybe_value%0#0,maybe_exists%0#0
-        assert // check self.tup_bag exists                                                                   maybe_value%0#0
-        txn Sender                                                                                            maybe_value%0#0,assigned_value%0#0
-        l-load maybe_value%0#0 1                                                                              assigned_value%0#0,maybe_value%0#0
-        l-load assigned_value%0#0 1                                                                           maybe_value%0#0,assigned_value%0#0
+        txn Sender                                                                                            materialized_values%0#0
+        byte "tup_bag"                                                                                        materialized_values%0#0,"tup_bag"
+        box_get                                                                                               materialized_values%0#0,maybe_value%0#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                                             materialized_values%0#0,maybe_value%0#0,maybe_exists%0#0
+        assert // check self.tup_bag exists                                                                   materialized_values%0#0,maybe_value%0#0
+        l-load maybe_value%0#0 0                                                                              materialized_values%0#0,maybe_value%0#0
+        l-load materialized_values%0#0 1                                                                      maybe_value%0#0,materialized_values%0#0
         replace2 136                                                                                          updated_data%0#0
         // mutable_native_types/case1_with_tups.py:39
         // self.tup_bag.value.app = Global.current_application_id
-        global CurrentApplicationID                                                                           updated_data%0#0,assigned_value%1#0
-        l-load assigned_value%1#0 0                                                                           updated_data%0#0,assigned_value%1#0
+        global CurrentApplicationID                                                                           updated_data%0#0,materialized_values%1#0
+        l-load materialized_values%1#0 0                                                                      updated_data%0#0,materialized_values%1#0
         itob                                                                                                  updated_data%0#0,val_as_bytes%0#0
         l-load updated_data%0#0 1                                                                             val_as_bytes%0#0,updated_data%0#0
         l-load val_as_bytes%0#0 1                                                                             updated_data%0#0,val_as_bytes%0#0
@@ -448,8 +448,8 @@ subroutine add_tup:
         extract_uint64                                                                                        (𝕡) tup.a#0,tup.b#0 | updated_data%0#0,tmp%4#0
         l-load tmp%4#0 0                                                                                      (𝕡) tup.a#0,tup.b#0 | updated_data%0#0,tmp%4#0
         int 1                                                                                                 (𝕡) tup.a#0,tup.b#0 | updated_data%0#0,tmp%4#0,1
-        +                                                                                                     (𝕡) tup.a#0,tup.b#0 | updated_data%0#0,assigned_value%0#0
-        l-load assigned_value%0#0 0                                                                           (𝕡) tup.a#0,tup.b#0 | updated_data%0#0,assigned_value%0#0
+        +                                                                                                     (𝕡) tup.a#0,tup.b#0 | updated_data%0#0,materialized_values%0#0
+        l-load materialized_values%0#0 0                                                                      (𝕡) tup.a#0,tup.b#0 | updated_data%0#0,materialized_values%0#0
         itob                                                                                                  (𝕡) tup.a#0,tup.b#0 | updated_data%0#0,val_as_bytes%0#0
         l-load updated_data%0#0 1                                                                             (𝕡) tup.a#0,tup.b#0 | val_as_bytes%0#0,updated_data%0#0
         l-load val_as_bytes%0#0 1                                                                             (𝕡) tup.a#0,tup.b#0 | updated_data%0#0,val_as_bytes%0#0

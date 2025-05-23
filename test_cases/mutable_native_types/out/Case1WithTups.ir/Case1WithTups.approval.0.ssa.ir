@@ -176,18 +176,18 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_
     block@0: // L35
         let tmp%0#0: bool = (box_create "tup_bag" 176u)
         (assert tmp%0#0) // box already exists
+        let materialized_values%0#0: bytes[32] = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let assigned_value%0#0: bytes[32] = (txn Sender)
-        let length%0#0: uint64 = (len assigned_value%0#0)
+        let length%0#0: uint64 = (len materialized_values%0#0)
         let lengths_equal%0#0: bool = (== length%0#0 32u)
         (assert lengths_equal%0#0) // invalid size
-        let updated_data%0#0: bytes = (replace3 maybe_value%0#0 136u assigned_value%0#0)
+        let updated_data%0#0: bytes = (replace3 maybe_value%0#0 136u materialized_values%0#0)
         (box_put "tup_bag" updated_data%0#0)
+        let materialized_values%1#0: uint64 = (global CurrentApplicationID)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let assigned_value%1#0: uint64 = (global CurrentApplicationID)
-        let val_as_bytes%0#0: bytes[8] = (itob assigned_value%1#0)
+        let val_as_bytes%0#0: bytes[8] = (itob materialized_values%1#0)
         let updated_data%1#0: bytes = (replace3 maybe_value%1#0 168u val_as_bytes%0#0)
         (box_put "tup_bag" updated_data%1#0)
         return 
@@ -225,8 +225,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         (assert maybe_exists%3#0) // check self.tup_bag exists
         let encoded%2#0: bytes = (extract3 maybe_value%3#0 0u 8u) // on error: Index access is out of bounds
         let tmp%4#0: uint64 = (btoi encoded%2#0)
-        let assigned_value%0#0: uint64 = (+ tmp%4#0 1u)
-        let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#0)
+        let materialized_values%0#0: uint64 = (+ tmp%4#0 1u)
+        let val_as_bytes%0#0: bytes[8] = (itob materialized_values%0#0)
         let updated_data%1#0: bytes = (replace3 maybe_value%3#0 0u val_as_bytes%0#0)
         (box_put "tup_bag" updated_data%1#0)
         return 
@@ -268,9 +268,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -
         let tmp%1#0: bytes = (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds
         let bytes_offset%0#0: uint64 = (* i#1 16u)
         let encoded_element%0#0: bytes = (extract3 tmp%1#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let (tup.a#0: uint64, tup.b#0: uint64) = decode<(uint64,uint64,)>(encoded_element%0#0)
-        let total#2: uint64 = (+ total#1 tup.a#0)
-        let total#3: uint64 = (+ total#2 tup.b#0)
+        let (materialized_values%0#0: uint64, materialized_values%1#0: uint64) = decode<(uint64,uint64,)>(encoded_element%0#0)
+        let (tup.a#0: uint64, tup.b#0: uint64) = (materialized_values%0#0, materialized_values%1#0)
+        let materialized_values%2#0: uint64 = (+ total#1 tup.a#0)
+        let total#2: uint64 = materialized_values%2#0
+        let materialized_values%3#0: uint64 = (+ total#2 tup.b#0)
+        let total#3: uint64 = materialized_values%3#0
         goto block@3
     block@3: // for_footer_L60
         let i#2: uint64 = (+ i#1 1u)
@@ -343,7 +346,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let tmp%1#0: bytes = (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds
         let bytes_offset%0#0: uint64 = (* i#1 16u)
         let encoded_element%0#0: bytes = (extract3 tmp%1#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let (tup.a#0: uint64, tup.b#0: uint64) = decode<(uint64,uint64,)>(encoded_element%0#0)
+        let (materialized_values%0#0: uint64, materialized_values%1#0: uint64) = decode<(uint64,uint64,)>(encoded_element%0#0)
+        let (tup.a#0: uint64, tup.b#0: uint64) = (materialized_values%0#0, materialized_values%1#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%2#0) // check self.tup_bag exists
         let tmp%2#0: bytes = (extract3 maybe_value%2#0 8u 128u) // on error: Index access is out of bounds
@@ -379,7 +383,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let tmp%1#0: bytes = (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds
         let bytes_offset%0#0: uint64 = (* i#1 16u)
         let encoded_element%0#0: bytes = (extract3 tmp%1#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let (tup.a#0: uint64, tup.b#0: uint64) = decode<(uint64,uint64,)>(encoded_element%0#0)
+        let (materialized_values%0#0: uint64, materialized_values%1#0: uint64) = decode<(uint64,uint64,)>(encoded_element%0#0)
+        let (tup.a#0: uint64, tup.b#0: uint64) = (materialized_values%0#0, materialized_values%1#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%2#0) // check self.tup_bag exists
         let tmp%2#0: bytes = (extract3 maybe_value%2#0 8u 128u) // on error: Index access is out of bounds

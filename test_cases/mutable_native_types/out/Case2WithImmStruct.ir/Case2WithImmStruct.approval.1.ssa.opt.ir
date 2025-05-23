@@ -151,16 +151,16 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L35
         let tmp%0#0: bool = (box_create "tup_bag" 176u)
         (assert tmp%0#0) // box already exists
+        let materialized_values%0#0: bytes[32] = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let assigned_value%0#0: bytes[32] = (txn Sender)
         let length%0#0: uint64 = 32u
         let lengths_equal%0#0: bool = 1u
-        let updated_data%0#0: bytes = ((replace2 136) maybe_value%0#0 assigned_value%0#0)
+        let updated_data%0#0: bytes = ((replace2 136) maybe_value%0#0 materialized_values%0#0)
+        let materialized_values%1#0: uint64 = (global CurrentApplicationID)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (updated_data%0#0, 1u)
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let assigned_value%1#0: uint64 = (global CurrentApplicationID)
-        let val_as_bytes%0#0: bytes[8] = (itob assigned_value%1#0)
+        let val_as_bytes%0#0: bytes[8] = (itob materialized_values%1#0)
         let updated_data%1#0: bytes = ((replace2 168) maybe_value%1#0 val_as_bytes%0#0)
         (box_put "tup_bag" updated_data%1#0)
         return 
@@ -196,8 +196,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         (assert maybe_exists%3#0) // check self.tup_bag exists
         let encoded%2#0: bytes = ((extract 0 8) maybe_value%3#0) // on error: Index access is out of bounds
         let tmp%4#0: uint64 = (extract_uint64 maybe_value%3#0 0u)
-        let assigned_value%0#0: uint64 = (+ tmp%4#0 1u)
-        let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#0)
+        let materialized_values%0#0: uint64 = (+ tmp%4#0 1u)
+        let val_as_bytes%0#0: bytes[8] = (itob materialized_values%0#0)
         let updated_data%1#0: bytes = ((replace2 0) maybe_value%3#0 val_as_bytes%0#0)
         (box_put "tup_bag" updated_data%1#0)
         return 

@@ -117,7 +117,8 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_singles(one: uint6
         let tmp%8#0: bool = (== t.0#0 one#0)
         (assert tmp%8#0)
         let s1#0: uint64 = s.1.0#0
-        let s1#0: uint64 = (+ s1#0 one#0)
+        let materialized_values%0#0: uint64 = (+ s1#0 one#0)
+        let s1#0: uint64 = materialized_values%0#0
         let select%2#0: uint64 = (select 2u 5u reassign#0)
         let tmp%9#0: bool = (== s1#0 select%2#0)
         (assert tmp%9#0)
@@ -158,7 +159,8 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_iteration() -> voi
         let a#0: uint64 = t.0#0
         let b#0: uint64 = t.1#0
         let tmp%0#0: uint64 = (+ a#0 b#0)
-        let total#0: uint64 = (+ total#0 tmp%0#0)
+        let materialized_values%0#0: uint64 = (+ total#0 tmp%0#0)
+        let total#0: uint64 = materialized_values%0#0
         goto block@2
     block@2: // for_footer_L297
         goto_nth [block@3, block@4, block@5][loop_counter%0#0] else goto block@6
@@ -184,7 +186,8 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_iteration() -> voi
         goto block@7
     block@7: // for_body_L302
         let tmp%1#0: uint64 = (+ a#0 b#0)
-        let total#0: uint64 = (+ total#0 tmp%1#0)
+        let materialized_values%1#0: uint64 = (+ total#0 tmp%1#0)
+        let total#0: uint64 = materialized_values%1#0
         goto block@8
     block@8: // for_footer_L301
         goto_nth [block@9, block@10, block@11][loop_counter%1#0] else goto block@12
@@ -421,7 +424,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_local_state_or_default(key: string) -> <uint64, uint64>:
     block@0: // L90
-        let local#0: bytes = test_cases.tuple_support.nested_tuples.echo(key#0)
+        let materialized_values%0#0: string = test_cases.tuple_support.nested_tuples.echo(key#0)
+        let local#0: bytes = materialized_values%0#0
         let tmp%0#0: bytes[32] = test_cases.tuple_support.nested_tuples.get_sender_inefficiently()
         let (tmp%1#0: uint64, tmp%2#0: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u local#0)
@@ -566,12 +570,12 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests() -> bo
         (assert tmp%2#0)
         let tmp%3#0: bool = (== "There" "There")
         (assert tmp%3#0)
-        let (tuple_assignment%0#0: string, tuple_assignment%1#0: uint64, tuple_assignment%2#0: uint64, tuple_assignment%3#0: uint64, tuple_assignment%4#0: string) = test_cases.tuple_support.nested_tuples.test_rearrange("Hi", 0u, 2u, 1u, "Hi", "There", "There")
-        let a#0: string = tuple_assignment%0#0
-        let b#0: uint64 = tuple_assignment%1#0
-        let c#0: uint64 = tuple_assignment%2#0
-        let d#0: uint64 = tuple_assignment%3#0
-        let e#0: string = tuple_assignment%4#0
+        let (materialized_values%0#0: string, materialized_values%1#0: uint64, materialized_values%2#0: uint64, materialized_values%3#0: uint64, materialized_values%4#0: string) = test_cases.tuple_support.nested_tuples.test_rearrange("Hi", 0u, 2u, 1u, "Hi", "There", "There")
+        let a#0: string = materialized_values%0#0
+        let b#0: uint64 = materialized_values%1#0
+        let c#0: uint64 = materialized_values%2#0
+        let d#0: uint64 = materialized_values%3#0
+        let e#0: string = materialized_values%4#0
         let tmp%4#0: bool = (== a#0 "Hi")
         let tmp%5#0: bool = (== b#0 0u)
         let tmp%6#0: bool = (&& tmp%4#0 tmp%5#0)

@@ -109,7 +109,8 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
     block@1: // if_body_L88
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bid")
         (assert maybe_exists%2#0) // check self.previous_bid exists
-        let amount#0: uint64 = (- amount#0 maybe_value%2#0)
+        let materialized_values%0#0: uint64 = (- amount#0 maybe_value%2#0)
+        let amount#0: uint64 = materialized_values%0#0
         let amount#5: uint64 = amount#0
         goto block@2
     block@2: // after_if_else_L87
@@ -124,9 +125,9 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
         goto block@3
     block@3: // next_txn_L90
         itxn_submit
-        let materialized_values%0#0: uint64 = (- original_amount#0 amount#0)
+        let materialized_values%1#0: uint64 = (- original_amount#0 amount#0)
         let tmp%3#0: bytes[32] = (txn Sender)
-        (app_local_put tmp%3#0 "claim" materialized_values%0#0)
+        (app_local_put tmp%3#0 "claim" materialized_values%1#0)
         return 
 
 subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:
