@@ -1449,9 +1449,9 @@ subroutine test_iteration:
         v-load item_index_internal%0#0                                                slot_contents%3#0,item_index_internal%0#0
         l-store-copy item_index_internal%0#0 1                                        item_index_internal%0#0,slot_contents%3#0,item_index_internal%0#0 (copy)
         int 8                                                                         item_index_internal%0#0,slot_contents%3#0,item_index_internal%0#0 (copy),8
-        *                                                                             item_index_internal%0#0,slot_contents%3#0,array%bytes_index%0#1
-        l-load slot_contents%3#0 1                                                    item_index_internal%0#0,array%bytes_index%0#1,slot_contents%3#0
-        l-load array%bytes_index%0#1 1                                                item_index_internal%0#0,slot_contents%3#0,array%bytes_index%0#1
+        *                                                                             item_index_internal%0#0,slot_contents%3#0,bytes_offset%0#0
+        l-load slot_contents%3#0 1                                                    item_index_internal%0#0,bytes_offset%0#0,slot_contents%3#0
+        l-load bytes_offset%0#0 1                                                     item_index_internal%0#0,slot_contents%3#0,bytes_offset%0#0
         extract_uint64                                                                item_index_internal%0#0,value#0
         // array/uint64.py:132
         // assert value >= last, "array is not sorted"
@@ -1494,9 +1494,9 @@ subroutine test_iteration:
         v-load idx#0                                                                  slot_contents%5#0,idx#0
         l-store-copy idx#0 1                                                          idx#0,slot_contents%5#0,idx#0 (copy)
         int 8                                                                         idx#0,slot_contents%5#0,idx#0 (copy),8
-        *                                                                             idx#0,slot_contents%5#0,array%bytes_index%1#1
-        l-load slot_contents%5#0 1                                                    idx#0,array%bytes_index%1#1,slot_contents%5#0
-        l-load array%bytes_index%1#1 1                                                idx#0,slot_contents%5#0,array%bytes_index%1#1
+        *                                                                             idx#0,slot_contents%5#0,bytes_offset%1#0
+        l-load slot_contents%5#0 1                                                    idx#0,bytes_offset%1#0,slot_contents%5#0
+        l-load bytes_offset%1#0 1                                                     idx#0,slot_contents%5#0,bytes_offset%1#0
         extract_uint64                                                                idx#0,value#0
         // array/uint64.py:137
         // assert value == idx, "incorrect array value"
@@ -1537,9 +1537,9 @@ subroutine test_iteration:
         l-store slot_contents%7#0 1                                                   slot_contents%7#0,reverse_index_internal%2#1
         l-load reverse_index_internal%2#1 0                                           slot_contents%7#0,reverse_index_internal%2#1
         int 8                                                                         slot_contents%7#0,reverse_index_internal%2#1,8
-        *                                                                             slot_contents%7#0,array%bytes_index%2#1
-        l-load slot_contents%7#0 1                                                    array%bytes_index%2#1,slot_contents%7#0
-        l-load array%bytes_index%2#1 1                                                slot_contents%7#0,array%bytes_index%2#1
+        *                                                                             slot_contents%7#0,bytes_offset%2#0
+        l-load slot_contents%7#0 1                                                    bytes_offset%2#0,slot_contents%7#0
+        l-load bytes_offset%2#0 1                                                     slot_contents%7#0,bytes_offset%2#0
         extract_uint64                                                                value#0
         // array/uint64.py:141
         // assert value <= last, "array is not sorted"
@@ -1636,29 +1636,29 @@ subroutine test_iteration:
         // array/uint64.py:151
         // assert combined_arr[0] == 0
         l-load-copy combined_arr#0 0                                                  combined_arr#0,combined_arr#0 (copy)
-        extract 2 8                                                                   combined_arr#0,encoded_element%0#0
-        byte 0x0000000000000000                                                       combined_arr#0,encoded_element%0#0,0x0000000000000000
+        extract 2 8                                                                   combined_arr#0,encoded_element%3#0
+        byte 0x0000000000000000                                                       combined_arr#0,encoded_element%3#0,0x0000000000000000
         b==                                                                           combined_arr#0,tmp%7#0
         assert                                                                        combined_arr#0
         // array/uint64.py:152
         // assert combined_arr[4] == 4
         l-load-copy combined_arr#0 0                                                  combined_arr#0,combined_arr#0 (copy)
-        extract 34 8                                                                  combined_arr#0,encoded_element%1#0
-        byte 0x0000000000000004                                                       combined_arr#0,encoded_element%1#0,0x0000000000000004
+        extract 34 8                                                                  combined_arr#0,encoded_element%4#0
+        byte 0x0000000000000004                                                       combined_arr#0,encoded_element%4#0,0x0000000000000004
         b==                                                                           combined_arr#0,tmp%8#0
         assert                                                                        combined_arr#0
         // array/uint64.py:153
         // assert combined_arr[5] == 0
         l-load-copy combined_arr#0 0                                                  combined_arr#0,combined_arr#0 (copy)
-        extract 42 8                                                                  combined_arr#0,encoded_element%2#0
-        byte 0x0000000000000000                                                       combined_arr#0,encoded_element%2#0,0x0000000000000000
+        extract 42 8                                                                  combined_arr#0,encoded_element%5#0
+        byte 0x0000000000000000                                                       combined_arr#0,encoded_element%5#0,0x0000000000000000
         b==                                                                           combined_arr#0,tmp%9#0
         assert                                                                        combined_arr#0
         // array/uint64.py:154
         // assert combined_arr[9] == 4
         l-load combined_arr#0 0                                                       combined_arr#0
-        extract 74 8                                                                  encoded_element%3#0
-        byte 0x0000000000000004                                                       encoded_element%3#0,0x0000000000000004
+        extract 74 8                                                                  encoded_element%6#0
+        byte 0x0000000000000004                                                       encoded_element%6#0,0x0000000000000004
         b==                                                                           tmp%10#0
         assert
         retsub
@@ -1767,9 +1767,9 @@ subroutine test_quicksort:
         v-load item_index_internal%1#0                                                slot_contents%4#0,item_index_internal%1#0
         l-store-copy item_index_internal%1#0 1                                        item_index_internal%1#0,slot_contents%4#0,item_index_internal%1#0 (copy)
         int 8                                                                         item_index_internal%1#0,slot_contents%4#0,item_index_internal%1#0 (copy),8
-        *                                                                             item_index_internal%1#0,slot_contents%4#0,array%bytes_index%0#1
-        l-load slot_contents%4#0 1                                                    item_index_internal%1#0,array%bytes_index%0#1,slot_contents%4#0
-        l-load array%bytes_index%0#1 1                                                item_index_internal%1#0,slot_contents%4#0,array%bytes_index%0#1
+        *                                                                             item_index_internal%1#0,slot_contents%4#0,bytes_offset%0#0
+        l-load slot_contents%4#0 1                                                    item_index_internal%1#0,bytes_offset%0#0,slot_contents%4#0
+        l-load bytes_offset%0#0 1                                                     item_index_internal%1#0,slot_contents%4#0,bytes_offset%0#0
         extract_uint64                                                                item_index_internal%1#0,value#0
         // array/uint64.py:170
         // assert value >= last, "array is not sorted"

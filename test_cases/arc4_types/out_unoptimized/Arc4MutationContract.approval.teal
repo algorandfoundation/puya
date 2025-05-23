@@ -672,6 +672,12 @@ array_of_array_dynamic_block@0:
     extract 6 2
     swap
     concat
+    dig 1
+    intc_0 // 0
+    extract_uint16
+    intc_0 // 0
+    >
+    assert // index access is out of bounds
     intc_0 // 0
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:80
@@ -708,15 +714,19 @@ array_of_array_dynamic_block@0:
     uncover 2
     uncover 2
     extract3
-    dup
-    intc_0 // 0
-    extract_uint16
     intc_1 // 1
-    >
-    assert // Index access is out of bounds
-    pushint 3 // 3
+    dup
+    *
+    intc_2 // 2
+    +
     bytec_1 // 0x00
     replace3
+    dig 1
+    intc_0 // 0
+    extract_uint16
+    intc_0 // 0
+    >
+    assert // index access is out of bounds
     intc_0 // 0
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:83
@@ -782,10 +792,9 @@ array_of_array_static_block@0:
     concat
     intc_0 // 0
     intc_2 // 2
-    <
-    assert // Index access is out of bounds
+    *
+    uncover 2
     swap
-    intc_0 // 0
     uncover 2
     replace3
     // arc4_types/mutation.py:95
@@ -804,18 +813,15 @@ array_of_array_static_block@0:
     intc_2 // 2
     extract3 // on error: index access is out of bounds
     intc_0 // 0
-    intc_2 // 2
-    <
-    assert // Index access is out of bounds
-    intc_0 // 0
+    intc_1 // 1
+    *
     bytec 5 // 0x01
     replace3
     intc_1 // 1
     intc_2 // 2
-    <
-    assert // Index access is out of bounds
+    *
+    uncover 2
     swap
-    intc_2 // 2
     uncover 2
     replace3
     // arc4_types/mutation.py:98
@@ -842,13 +848,11 @@ index_assign_block@0:
     concat
     // arc4_types/mutation.py:103
     // dynamic_uint8_array[0] = UInt8(255)
-    dup
     intc_0 // 0
-    extract_uint16
-    intc_0 // 0
-    >
-    assert // Index access is out of bounds
+    intc_1 // 1
+    *
     intc_2 // 2
+    +
     bytec 13 // 0xff
     replace3
     // arc4_types/mutation.py:104
@@ -869,10 +873,8 @@ index_assign_block@0:
     // arc4_types/mutation.py:106
     // static_uint8_array[1] = UInt8(255)
     intc_1 // 1
-    intc_2 // 2
-    <
-    assert // Index access is out of bounds
-    intc_1 // 1
+    dup
+    *
     bytec 13 // 0xff
     replace3
     // arc4_types/mutation.py:107
@@ -915,12 +917,15 @@ index_assign_block@0:
     extract_uint16
     intc_0 // 0
     >
-    assert // Index access is out of bounds
-    swap
+    assert // index access is out of bounds
+    intc_0 // 0
+    pushint 16 // 16
+    +
+    uncover 2
     intc_0 // 0
     getbit
-    swap
-    pushint 16 // 16
+    uncover 2
+    uncover 2
     uncover 2
     setbit
     // arc4_types/mutation.py:111
@@ -960,7 +965,7 @@ index_assign_block@0:
     intc_1 // 1
     intc_2 // 2
     <
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
     intc_0 // 0
     getbit
     swap
@@ -2504,6 +2509,14 @@ dynamic_array_string_block@0:
     bytec 11 // 0x0008
     swap
     concat
+    // arc4_types/mutation.py:233
+    // dynamic_string_array[3] = hello
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 3 // 3
+    >
+    assert // index access is out of bounds
     // arc4_types/mutation.py:215
     // hello = String("Hello")
     bytec_2 // 0x000548656c6c6f
@@ -2511,6 +2524,14 @@ dynamic_array_string_block@0:
     // dynamic_string_array[3] = hello
     pushint 3 // 3
     callsub dynamic_array_replace_byte_length_head
+    // arc4_types/mutation.py:234
+    // dynamic_string_array[5] = hello
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 5 // 5
+    >
+    assert // index access is out of bounds
     // arc4_types/mutation.py:215
     // hello = String("Hello")
     bytec_2 // 0x000548656c6c6f

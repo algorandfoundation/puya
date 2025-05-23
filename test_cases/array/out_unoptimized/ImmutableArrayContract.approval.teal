@@ -1368,7 +1368,7 @@ sum_arr_for_body@2:
     intc_3 // 8
     *
     intc_3 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     btoi
     // array/immutable.py:472
     // total += i
@@ -1648,14 +1648,13 @@ test_uint64_array_block@0:
     // arr = arr.replace(2, UInt64(23))
     pushint 23 // 23
     itob
-    dig 1
-    intc_0 // 0
-    extract_uint16
     intc_2 // 2
-    >
-    assert // Index access is out of bounds
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    uncover 2
     swap
-    pushint 18 // 18
     uncover 2
     replace3
     // array/immutable.py:113
@@ -2013,13 +2012,12 @@ test_bool_array_if_body@5:
     // assert not arr[0], "expected element 0 to be False"
     frame_dig 0
     dup
-    extract 2 0
-    swap
     intc_0 // 0
     extract_uint16
     intc_0 // 0
     >
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
+    extract 2 0
     intc_0 // 0
     getbit
     !
@@ -2038,13 +2036,12 @@ test_bool_array_if_body@7:
     // assert not arr[1], "expected element 1 to be False"
     frame_dig 0
     dup
-    extract 2 0
-    swap
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     >
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
+    extract 2 0
     intc_1 // 1
     getbit
     !
@@ -2063,13 +2060,12 @@ test_bool_array_if_body@9:
     // assert arr[2], "expected element 2 to be True"
     frame_dig 0
     dup
-    extract 2 0
-    swap
     intc_0 // 0
     extract_uint16
     intc_2 // 2
     >
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
+    extract 2 0
     intc_2 // 2
     getbit
     assert // expected element 2 to be True
@@ -2090,13 +2086,15 @@ test_bool_array_if_body@11:
     -
     frame_dig 0
     dup
-    extract 2 0
     cover 2
     intc_0 // 0
     extract_uint16
     dig 1
     >
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
+    swap
+    extract 2 0
+    swap
     getbit
     !
     assert // expected last element to be False
@@ -2504,6 +2502,9 @@ test_fixed_size_named_tuple_array_after_for@4:
     getbit
     uncover 2
     swap
+    cover 2
+    cover 2
+    cover 2
     cover 2
     // array/immutable.py:195
     // assert foo == 0
@@ -4218,7 +4219,7 @@ sum_uints_and_lengths_and_trues_for_body@2:
     intc_3 // 8
     *
     intc_3 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     btoi
     // array/immutable.py:339
     // sum1 += i
@@ -4310,7 +4311,7 @@ sum_uints_and_lengths_and_trues_for_body@12:
     pushint 9 // 9
     *
     pushint 9 // 9
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     intc_0 // 0
     intc_3 // 8
@@ -4426,7 +4427,7 @@ sum_uints_and_lengths_and_trues_for_body@20:
     +
     swap
     dig 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     swap
     dig 2
     len
@@ -5271,23 +5272,18 @@ test_immutable_arc4_block@0:
     // array/immutable.py:435
     // imm = imm.replace(imm.length - 1, imm[0])
     frame_dig -1
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    -
+    frame_dig -1
     extract 2 0
     intc_0 // 0
     pushint 16 // 16
     *
     pushint 16 // 16
     extract3 // on error: index access is out of bounds
-    frame_dig -1
-    intc_0 // 0
-    extract_uint16
-    intc_1 // 1
-    -
-    frame_dig -1
-    intc_0 // 0
-    extract_uint16
-    dig 1
-    >
-    assert // Index access is out of bounds
+    swap
     pushint 16 // 16
     *
     intc_2 // 2

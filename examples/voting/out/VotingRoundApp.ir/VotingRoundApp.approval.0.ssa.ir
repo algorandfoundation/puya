@@ -246,9 +246,10 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L133
-        let array_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%5#0)
-        let item_offset%0#0: uint64 = (* item_index_internal%0#1 1u)
-        let question_options#0: Encoded(uint8) = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
+        let array_trimmed%0#0: bytes = ((extract 2 0) maybe_value%5#0)
+        let bytes_offset%0#0: uint64 = (* item_index_internal%0#1 1u)
+        let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 1u) // on error: index access is out of bounds
+        let question_options#0: Encoded(uint8) = encoded_element%0#0
         let question_index#0: uint64 = item_index_internal%0#1
         let tmp%12#0: bool = (> question_index#0 0u)
         goto tmp%12#0 ? block@3 : block@4
@@ -528,9 +529,10 @@ subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_coun
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L224
-        let array_head_and_tail%0#0: bytes = ((extract 2 0) option_counts#0)
-        let item_offset%0#0: uint64 = (* item_index_internal%0#1 1u)
-        let item#0: Encoded(uint8) = (extract3 array_head_and_tail%0#0 item_offset%0#0 1u) // on error: Index access is out of bounds
+        let array_trimmed%0#0: bytes = ((extract 2 0) option_counts#0)
+        let bytes_offset%0#0: uint64 = (* item_index_internal%0#1 1u)
+        let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 1u) // on error: index access is out of bounds
+        let item#0: Encoded(uint8) = encoded_element%0#0
         let tmp%4#0: uint64 = (btoi item#0)
         let total_options#2: uint64 = (+ total_options#1 tmp%4#0)
         goto block@3

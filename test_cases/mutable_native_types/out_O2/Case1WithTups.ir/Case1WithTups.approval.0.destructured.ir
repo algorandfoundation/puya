@@ -68,10 +68,10 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tmp%2#0: bytes = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
         let bytes_offset%0#0: uint64 = (* index#0 16u)
         let encoded_element%0#0: bytes = (extract3 tmp%2#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let item0%1#0: uint64 = (extract_uint64 encoded_element%0#0 0u)
-        let item1%1#0: uint64 = (extract_uint64 encoded_element%0#0 8u)
-        let val_as_bytes%1#0: bytes[8] = (itob item0%1#0)
-        let val_as_bytes%2#0: bytes[8] = (itob item1%1#0)
+        let array%item0%1#1: uint64 = (extract_uint64 encoded_element%0#0 0u)
+        let array%item1%1#1: uint64 = (extract_uint64 encoded_element%0#0 8u)
+        let val_as_bytes%1#0: bytes[8] = (itob array%item0%1#1)
+        let val_as_bytes%2#0: bytes[8] = (itob array%item1%1#1)
         let encoded%1#0: Encoded((uint64,uint64)) = (concat val_as_bytes%1#0 val_as_bytes%2#0)
         let tmp%21#0: bytes = (concat 0x151f7c75 encoded%1#0)
         (log tmp%21#0)
@@ -126,11 +126,11 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array%array_length%0#1)
         goto continue_looping%0#0 ? block@15 : block@16
     block@15: // for_body_L69
-        let array_head_and_tail%0#0: bytes = ((extract 2 0) tups#0)
-        let item_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
-        let encoded%0#5: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 16u) // on error: Index access is out of bounds
-        let tup.a#0: uint64 = (extract_uint64 encoded%0#5 0u)
-        let tup.b#1: uint64 = (extract_uint64 encoded%0#5 8u)
+        let array_trimmed%0#0: bytes = ((extract 2 0) tups#0)
+        let bytes_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
+        let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
+        let tup.a#0: uint64 = (extract_uint64 encoded_element%0#0 0u)
+        let tup.b#1: uint64 = (extract_uint64 encoded_element%0#0 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#0, tup.b#1)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@14
@@ -151,10 +151,10 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let continue_looping%0#0: bool = (< item_index_internal%0#0 3u)
         goto continue_looping%0#0 ? block@19 : block@16
     block@19: // for_body_L74
-        let item_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
-        let encoded%0#5: bytes = (extract3 tups#0 item_offset%0#0 16u) // on error: Index access is out of bounds
-        let tup.a#0: uint64 = (extract_uint64 encoded%0#5 0u)
-        let tup.b#1: uint64 = (extract_uint64 encoded%0#5 8u)
+        let bytes_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
+        let encoded_element%0#0: bytes = (extract3 tups#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
+        let tup.a#0: uint64 = (extract_uint64 encoded_element%0#0 0u)
+        let tup.b#1: uint64 = (extract_uint64 encoded_element%0#0 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#0, tup.b#1)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@18
@@ -182,13 +182,11 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let bytes_offset%0#0: uint64 = (* i#0 16u)
         let encoded_element%0#0: bytes = (extract3 tmp%1#3 bytes_offset%0#0 16u) // on error: index access is out of bounds
         let tup.b#1: uint64 = (extract_uint64 encoded_element%0#0 8u)
-        let val_as_bytes%0#0: bytes[8] = (itob a#0)
-        let val_as_bytes%1#0: bytes[8] = (itob tup.b#1)
-        let encoded%2#1: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let index_is_in_bounds%0#0: bool = (< i#0 8u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 encoded%2#1)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_target%0#0)
+        let array%val_as_bytes%0#1: bytes[8] = (itob a#0)
+        let array%val_as_bytes%1#1: bytes[8] = (itob tup.b#1)
+        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%val_as_bytes%0#1 array%val_as_bytes%1#1)
+        let updated_array%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 array%encoded%1#1)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@22
@@ -216,13 +214,11 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let bytes_offset%0#0: uint64 = (* i#0 16u)
         let encoded_element%0#0: bytes = (extract3 tmp%1#3 bytes_offset%0#0 16u) // on error: index access is out of bounds
         let tup.a#0: uint64 = (extract_uint64 encoded_element%0#0 0u)
-        let val_as_bytes%0#0: bytes[8] = (itob tup.a#0)
-        let val_as_bytes%1#0: bytes[8] = (itob b#0)
-        let encoded%2#1: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let index_is_in_bounds%0#0: bool = (< i#0 8u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 encoded%2#1)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_target%0#0)
+        let array%val_as_bytes%2#1: bytes[8] = (itob tup.a#0)
+        let array%val_as_bytes%3#1: bytes[8] = (itob b#0)
+        let array%encoded%4#1: Encoded((uint64,uint64)) = (concat array%val_as_bytes%2#1 array%val_as_bytes%3#1)
+        let updated_array%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 array%encoded%4#1)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@26
@@ -238,32 +234,32 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let tmp%0#2: uint64 = (extract_uint64 maybe_value%0#0 0u)
         let tmp%1#1: uint64 = (+ start#0 3u)
-        let tmp%2#1: bool = (>= tmp%0#2 tmp%1#1)
-        (assert tmp%2#1) // not enough items
+        let tmp%2#2: bool = (>= tmp%0#2 tmp%1#1)
+        (assert tmp%2#2) // not enough items
         let items#0: Encoded((uint64,uint64)[8]) = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
         let bytes_offset%0#0: uint64 = (* start#0 16u)
         let encoded_element%0#0: bytes = (extract3 items#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let item0%1#0: uint64 = (extract_uint64 encoded_element%0#0 0u)
-        let item1%1#0: uint64 = (extract_uint64 encoded_element%0#0 8u)
-        let tmp%4#1: uint64 = (+ start#0 1u)
-        let bytes_offset%1#0: uint64 = (* tmp%4#1 16u)
+        let array%item0%13#1: uint64 = (extract_uint64 encoded_element%0#0 0u)
+        let array%item1%13#1: uint64 = (extract_uint64 encoded_element%0#0 8u)
+        let tmp%6#1: uint64 = (+ start#0 1u)
+        let bytes_offset%1#0: uint64 = (* tmp%6#1 16u)
         let encoded_element%1#0: bytes = (extract3 items#0 bytes_offset%1#0 16u) // on error: index access is out of bounds
-        let item0%3#0: uint64 = (extract_uint64 encoded_element%1#0 0u)
-        let item1%3#0: uint64 = (extract_uint64 encoded_element%1#0 8u)
-        let tmp%5#0: uint64 = (+ start#0 2u)
-        let bytes_offset%2#0: uint64 = (* tmp%5#0 16u)
+        let array%item0%15#1: uint64 = (extract_uint64 encoded_element%1#0 0u)
+        let array%item1%15#1: uint64 = (extract_uint64 encoded_element%1#0 8u)
+        let tmp%9#0: uint64 = (+ start#0 2u)
+        let bytes_offset%2#0: uint64 = (* tmp%9#0 16u)
         let encoded_element%2#0: bytes = (extract3 items#0 bytes_offset%2#0 16u) // on error: index access is out of bounds
-        let item0%5#0: uint64 = (extract_uint64 encoded_element%2#0 0u)
-        let item1%5#0: uint64 = (extract_uint64 encoded_element%2#0 8u)
-        let val_as_bytes%0#0: bytes[8] = (itob item0%1#0)
-        let val_as_bytes%1#0: bytes[8] = (itob item1%1#0)
+        let array%item0%17#1: uint64 = (extract_uint64 encoded_element%2#0 0u)
+        let array%item1%17#1: uint64 = (extract_uint64 encoded_element%2#0 8u)
+        let val_as_bytes%0#0: bytes[8] = (itob array%item0%13#1)
+        let val_as_bytes%1#0: bytes[8] = (itob array%item1%13#1)
         let encoded%2#1: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let val_as_bytes%2#0: bytes[8] = (itob item0%3#0)
-        let val_as_bytes%3#0: bytes[8] = (itob item1%3#0)
+        let val_as_bytes%2#0: bytes[8] = (itob array%item0%15#1)
+        let val_as_bytes%3#0: bytes[8] = (itob array%item1%15#1)
         let encoded%6#0: Encoded((uint64,uint64)) = (concat val_as_bytes%2#0 val_as_bytes%3#0)
         let encoded%8#0: Encoded(((uint64,uint64),(uint64,uint64))) = (concat encoded%2#1 encoded%6#0)
-        let val_as_bytes%4#0: bytes[8] = (itob item0%5#0)
-        let val_as_bytes%5#0: bytes[8] = (itob item1%5#0)
+        let val_as_bytes%4#0: bytes[8] = (itob array%item0%17#1)
+        let val_as_bytes%5#0: bytes[8] = (itob array%item1%17#1)
         let encoded%10#0: Encoded((uint64,uint64)) = (concat val_as_bytes%4#0 val_as_bytes%5#0)
         let encoded%12#0: Encoded(((uint64,uint64),(uint64,uint64),(uint64,uint64))) = (concat encoded%8#0 encoded%10#0)
         let tmp%51#0: bytes = (concat 0x151f7c75 encoded%12#0)
@@ -291,10 +287,10 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let expr_value_trimmed%0#0: bytes = ((extract 2 0) result#0)
         let bytes_offset%0#0: uint64 = (* i#0 16u)
         let encoded_element%0#0: bytes = (extract3 items#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let item0%1#0: uint64 = (extract_uint64 encoded_element%0#0 0u)
-        let item1%1#0: uint64 = (extract_uint64 encoded_element%0#0 8u)
-        let val_as_bytes%0#0: bytes[8] = (itob item0%1#0)
-        let val_as_bytes%1#0: bytes[8] = (itob item1%1#0)
+        let array%item0%19#1: uint64 = (extract_uint64 encoded_element%0#0 0u)
+        let array%item1%19#1: uint64 = (extract_uint64 encoded_element%0#0 8u)
+        let val_as_bytes%0#0: bytes[8] = (itob array%item0%19#1)
+        let val_as_bytes%1#0: bytes[8] = (itob array%item1%19#1)
         let encoded%2#1: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
         let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%2#1)
         let byte_len%0#0: uint64 = (len concatenated%0#0)
@@ -336,16 +332,16 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let tmp%1#0: bool = (< tmp%0#0 8u)
         (assert tmp%1#0) // too many tups
         let tmp%2#0: bytes = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
-        let val_as_bytes%0#0: bytes[8] = (itob tup.a#0)
-        let val_as_bytes%1#0: bytes[8] = (itob tup.b#0)
-        let encoded%2#0: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
+        let array%val_as_bytes%0#1: bytes[8] = (itob tup.a#0)
+        let array%val_as_bytes%1#1: bytes[8] = (itob tup.b#0)
+        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%val_as_bytes%0#1 array%val_as_bytes%1#1)
         let write_offset%0#0: uint64 = (* tmp%0#0 16u)
-        let updated_target%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 encoded%2#0)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%0#0 updated_target%0#0)
+        let updated_array%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 array%encoded%1#1)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%0#0 updated_array%0#0)
         let tmp%4#0: uint64 = (extract_uint64 updated_data%0#0 0u)
         let assigned_value%0#0: uint64 = (+ tmp%4#0 1u)
-        let val_as_bytes%2#0: bytes[8] = (itob assigned_value%0#0)
-        let updated_data%1#0: bytes = ((replace2 0) updated_data%0#0 val_as_bytes%2#0)
+        let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#0)
+        let updated_data%1#0: bytes = ((replace2 0) updated_data%0#0 val_as_bytes%0#0)
         (box_put "tup_bag" updated_data%1#0)
         return 
 

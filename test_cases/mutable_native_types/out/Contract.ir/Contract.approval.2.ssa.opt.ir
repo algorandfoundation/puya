@@ -189,14 +189,23 @@ subroutine test_cases.mutable_native_types.contract.do_something(pay: Encoded((u
 subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() -> void:
     block@0: // L89
         let arr_3#0: Encoded(uint64[3]) = (bzero 24u)
-        let array_length%0#0: uint64 = arr_3#0.length
-        (assert array_length%0#0) // Index access is out of bounds
-        let array_length%2#0: uint64 = 0x000000000000000000000000000000000000000000000000.length
-        let index_is_in_bounds%1#0: bool = (< 1u array_length%2#0)
-        (assert index_is_in_bounds%1#0) // Index access is out of bounds
-        let array_length%4#0: uint64 = 0x000000000000000000000000000000010000000000000000.length
-        let index_is_in_bounds%2#0: bool = (< 2u array_length%4#0)
-        (assert index_is_in_bounds%2#0) // Index access is out of bounds
+        let encoded_value%0#0: Encoded(uint64) = encode<uint64>(0u)
+        let arr_3#1: Encoded(uint64[3]) = ((replace2 0) arr_3#0 encoded_value%0#0)
+        let encoded_value%1#0: Encoded(uint64) = encode<uint64>(1u)
+        let arr_3#2: Encoded(uint64[3]) = ((replace2 8) arr_3#1 encoded_value%1#0)
+        let encoded_value%2#0: Encoded(uint64) = encode<uint64>(2u)
+        let arr_3#3: Encoded(uint64[3]) = ((replace2 16) arr_3#2 encoded_value%2#0)
+        let tmp%0#0: bool = (== arr_3#3 0x000000000000000000000000000000010000000000000002)
+        (assert tmp%0#0) // should be the same
+        let tmp%1#0: uint64 = decode<uint64>(0x0000000000000001)
+        let tmp%2#0: bool = (== tmp%1#0 1u)
+        (assert tmp%2#0)
+        let tmp%3#0: uint64 = decode<uint64>(0x0000000000000001)
+        let tmp%4#0: bool = (== tmp%3#0 1u)
+        (assert tmp%4#0)
+        let tmp%5#0: uint64 = decode<uint64>(0x0000000000000001)
+        let tmp%6#0: bool = (== tmp%5#0 1u)
+        (assert tmp%6#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: Encoded((uint8[32],uint64,uint64))) -> void:
@@ -207,12 +216,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: En
         (assert tmp%0#0) // too many payments
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
-        let array_length%0#0: uint64 = maybe_value%1#0.length
-        let index_is_in_bounds%0#0: bool = (< maybe_value%0#0 array_length%0#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let write_offset%0#0: uint64 = (* maybe_value%0#0 48u)
-        let updated_target%0#0: bytes = (replace3 maybe_value%1#0 write_offset%0#0 pay#0)
-        (app_global_put "payments" updated_target%0#0)
+        let updated_array%0#0: bytes = (replace3 maybe_value%1#0 write_offset%0#0 pay#0)
+        (app_global_put "payments" updated_array%0#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%3#0) // check self.num_payments exists
         let materialized_values%0#0: uint64 = (+ maybe_value%3#0 1u)
@@ -233,11 +239,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         let assigned_value%0#0: uint64 = (+ tmp%1#0 amt#0)
         let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#0)
         let updated_data%0#0: bytes = ((replace2 40) encoded_element%0#0 val_as_bytes%0#0)
-        let array_length%0#0: uint64 = maybe_value%1#0.length
-        let index_is_in_bounds%0#0: bool = (< index#0 array_length%0#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 maybe_value%1#0 bytes_offset%0#0 updated_data%0#0)
-        (app_global_put "payments" updated_target%0#0)
+        let updated_array%0#0: bytes = (replace3 maybe_value%1#0 bytes_offset%0#0 updated_data%0#0)
+        (app_global_put "payments" updated_array%0#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_key: uint64) -> void:

@@ -1388,6 +1388,7 @@ debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%2#0
+debug: Removing unused variable data_length%2#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
 debug: Simplified (concat encoded%1#0 0x) to encoded%1#0
@@ -1414,7 +1415,6 @@ debug: Simplified (len 0x0000) to 2u
 debug: Simplified (+ 24u 2u) to 26u
 debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x0018
 debug: Simplified (concat 0x00000000 0x0000) to 0x000000000000
-debug: Simplified (len 0x0000) to 2u
 debug: Simplified ((extract 6 2) as_bytes%4#0) to 0x001a
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -1541,6 +1541,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%2#0
+debug: Removing unused variable data_length%2#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
 debug: Simplified (concat encoded%1#0 0x) to encoded%1#0
@@ -1567,7 +1568,6 @@ debug: Simplified (len 0x0000) to 2u
 debug: Simplified (+ 24u 2u) to 26u
 debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x0018
 debug: Simplified (concat 0x00000000 0x0000) to 0x000000000000
-debug: Simplified (len 0x0000) to 2u
 debug: Simplified ((extract 6 2) as_bytes%4#0) to 0x001a
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -1601,54 +1601,44 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Found equivalence set: updated_target%0#0, arr_3#1
+debug: Found equivalence set: updated_array%0#0, arr_3#1
 debug: selected arr_3#1 from equivalence set
-debug: Found equivalence set: array_length%2#0, array_length%3#0
-debug: selected array_length%2#0 from equivalence set
-debug: Found equivalence set: updated_target%1#0, arr_3#2
+debug: Found equivalence set: updated_array%1#0, arr_3#2
 debug: selected arr_3#2 from equivalence set
-debug: Found equivalence set: array_length%4#0, array_length%5#0
-debug: selected array_length%4#0 from equivalence set
-debug: Found equivalence set: updated_target%2#0, arr_3#3, copy%3#0, copy%4#0, arr_3_from_fixed#0
+debug: Found equivalence set: updated_array%2#0, arr_3#3, copy%3#0, copy%4#0, arr_3_from_fixed#0
 debug: selected arr_3#3 from equivalence set
 debug: Found equivalence set: encoded%3#0, arr_3_from_tuple#0
 debug: selected arr_3_from_tuple#0 from equivalence set
 debug: Found equivalence set: array_data%0#0, arr_3_from_full#0
 debug: selected arr_3_from_full#0 from equivalence set
-debug: Copy propagation made 9 modifications
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable copy%0#0
 debug: Removing unused variable copy%1#0
 debug: Removing unused variable copy%2#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (replace3 arr_3#0 0u val_as_bytes%0#0) to 0x000000000000000000000000000000000000000000000000
-debug: Simplified (replace3 0x000000000000000000000000000000000000000000000000 8u val_as_bytes%1#0) to 0x000000000000000000000000000000010000000000000000
-debug: Simplified (replace3 0x000000000000000000000000000000010000000000000000 16u val_as_bytes%2#0) to 0x000000000000000000000000000000010000000000000002
-debug: Simplified (concat 0x val_as_bytes%3#0) to val_as_bytes%3#0
-debug: Simplified (concat val_as_bytes%3#0 val_as_bytes%4#0) to 0x00000000000000000000000000000001
-debug: Simplified (concat 0x00000000000000000000000000000001 val_as_bytes%5#0) to 0x000000000000000000000000000000010000000000000002
+debug: Simplified (* 0u 8u) to 0u
+debug: Simplified (* 1u 8u) to 8u
+debug: Simplified (* 2u 8u) to 16u
+debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
+debug: Simplified (concat val_as_bytes%0#0 val_as_bytes%1#0) to 0x00000000000000000000000000000001
+debug: Simplified (concat 0x00000000000000000000000000000001 val_as_bytes%2#0) to 0x000000000000000000000000000000010000000000000002
 debug: Simplified (concat 0x000000000000000000000000000000010000000000000002 0x) to 0x000000000000000000000000000000010000000000000002
-debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
-debug: Simplified (concat 0x val_as_bytes%6#0) to val_as_bytes%6#0
-debug: Simplified (concat val_as_bytes%6#0 val_as_bytes%7#0) to 0x00000000000000010000000000000001
-debug: Simplified (concat 0x00000000000000010000000000000001 val_as_bytes%8#0) to 0x000000000000000100000000000000010000000000000001
+debug: Simplified (concat 0x val_as_bytes%3#0) to val_as_bytes%3#0
+debug: Simplified (concat val_as_bytes%3#0 val_as_bytes%4#0) to 0x00000000000000010000000000000001
+debug: Simplified (concat 0x00000000000000010000000000000001 val_as_bytes%5#0) to 0x000000000000000100000000000000010000000000000001
 debug: Simplified (concat 0x 0x000000000000000100000000000000010000000000000001) to 0x000000000000000100000000000000010000000000000001
 debug: Simplified (* 0u 8u) to 0u
 debug: Simplified (extract3 0x000000000000000100000000000000010000000000000001 0u 8u) // on error: index access is out of bounds to 0x0000000000000001
-debug: Simplified (btoi 0x0000000000000001) to 1u
-debug: Simplified (== 1u 1u) to 1u
 debug: Simplified (* 1u 8u) to 8u
 debug: Simplified (extract3 0x000000000000000100000000000000010000000000000001 8u 8u) // on error: index access is out of bounds to 0x0000000000000001
-debug: Simplified (btoi 0x0000000000000001) to 1u
-debug: Simplified (== 1u 1u) to 1u
 debug: Simplified (* 2u 8u) to 16u
 debug: Simplified (extract3 0x000000000000000100000000000000010000000000000001 16u 8u) // on error: index access is out of bounds to 0x0000000000000001
-debug: Simplified (btoi 0x0000000000000001) to 1u
-debug: Simplified (== 1u 1u) to 1u
-debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
+debug: Simplified (== arr_3#3 arr_3#3) to 1u
+debug: Simplified (replace3 arr_3#0 0u encoded_value%0#0) to ((replace2 0) arr_3#0 encoded_value%0#0)
+debug: Simplified (replace3 arr_3#1 8u encoded_value%1#0) to ((replace2 8) arr_3#1 encoded_value%1#0)
+debug: Simplified (replace3 arr_3#2 16u encoded_value%2#0) to ((replace2 16) arr_3#2 encoded_value%2#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1656,18 +1646,13 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let val_as_bytes%3#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:92:8-28, ir_type=bytes[8], name='val_as_bytes%0', version=0),)
-debug: Replacing redundant declaration let val_as_bytes%4#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:93:8-28, ir_type=bytes[8], name='val_as_bytes%1', version=0),)
-debug: Replacing redundant declaration let val_as_bytes%5#0: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:94:8-28, ir_type=bytes[8], name='val_as_bytes%2', version=0),)
-debug: Replacing redundant declaration let val_as_bytes%6#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:93:8-28, ir_type=bytes[8], name='val_as_bytes%1', version=0),)
-debug: Replacing redundant declaration let val_as_bytes%7#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:93:8-28, ir_type=bytes[8], name='val_as_bytes%1', version=0),)
-debug: Replacing redundant declaration let val_as_bytes%8#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:93:8-28, ir_type=bytes[8], name='val_as_bytes%1', version=0),)
-debug: Found equivalence set: val_as_bytes%0#0, val_as_bytes%3#0, encoded%0#0
+debug: Replacing redundant declaration let val_as_bytes%3#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:96-98:27-9, ir_type=bytes[8], name='val_as_bytes%1', version=0),)
+debug: Replacing redundant declaration let val_as_bytes%4#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:96-98:27-9, ir_type=bytes[8], name='val_as_bytes%1', version=0),)
+debug: Replacing redundant declaration let val_as_bytes%5#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:96-98:27-9, ir_type=bytes[8], name='val_as_bytes%1', version=0),)
+debug: Found equivalence set: val_as_bytes%0#0, encoded%0#0
 debug: selected val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%1#0, val_as_bytes%4#0, val_as_bytes%6#0, val_as_bytes%7#0, val_as_bytes%8#0, result%0#0
+debug: Found equivalence set: val_as_bytes%1#0, val_as_bytes%3#0, val_as_bytes%4#0, val_as_bytes%5#0, result%0#0
 debug: selected val_as_bytes%1#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%2#0, val_as_bytes%5#0
-debug: selected val_as_bytes%2#0 from equivalence set
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.add_payment
 debug: Optimizer: Perform Subroutine Inlining
@@ -1676,9 +1661,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: pay#0, copy%0#0
 debug: selected pay#0 from equivalence set
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1696,9 +1679,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1971,7 +1951,6 @@ debug: Removing unused variable current_tail_offset%1#0
 debug: Removing unused variable as_bytes%3#0
 debug: Removing unused variable offset_as_uint16%1#0
 debug: Removing unused variable tail%2#0
-debug: Removing unused variable data_length%2#0
 debug: Removing unused variable as_bytes%4#0
 debug: Removing unused variable offset_as_uint16%2#0
 debug: Removing unused variable tmp%1#2
@@ -2069,32 +2048,24 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable write_offset%0#0
+debug: Removing unused variable write_offset%1#0
+debug: Removing unused variable write_offset%2#0
 debug: Removing unused variable val_as_bytes%0#0
-debug: Removing unused variable index_is_in_bounds%0#0
-debug: Removing unused variable arr_3#1
 debug: Removing unused variable val_as_bytes%1#0
-debug: Removing unused variable arr_3#2
-debug: Removing unused variable val_as_bytes%2#0
-debug: Removing unused variable arr_3#3
 debug: Removing unused variable encoded%1#0
+debug: Removing unused variable val_as_bytes%2#0
 debug: Removing unused variable encoded%2#0
 debug: Removing unused variable arr_3_from_tuple#0
-debug: Removing unused variable tmp%0#0
 debug: Removing unused variable result%1#0
 debug: Removing unused variable result%2#0
 debug: Removing unused variable arr_3_from_full#0
 debug: Removing unused variable bytes_offset%0#0
 debug: Removing unused variable encoded_element%0#0
-debug: Removing unused variable tmp%1#0
-debug: Removing unused variable tmp%2#0
 debug: Removing unused variable bytes_offset%1#0
 debug: Removing unused variable encoded_element%1#0
-debug: Removing unused variable tmp%3#0
-debug: Removing unused variable tmp%4#0
 debug: Removing unused variable bytes_offset%2#0
 debug: Removing unused variable encoded_element%2#0
-debug: Removing unused variable tmp%5#0
-debug: Removing unused variable tmp%6#0
 debug: Removing unused variable tmp%7#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -2114,7 +2085,7 @@ debug: Found equivalence set: maybe_value%0#0, maybe_value%2#0
 debug: selected maybe_value%0#0 from equivalence set
 debug: Found equivalence set: maybe_exists%0#0, maybe_exists%2#0
 debug: selected maybe_exists%0#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -2774,15 +2745,26 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%val_as_bytes%0#1, encoded_value%0#0
+debug: selected array%val_as_bytes%0#1 from equivalence set
+debug: Found equivalence set: array%val_as_bytes%1#1, encoded_value%1#0
+debug: selected array%val_as_bytes%1#1 from equivalence set
+debug: Found equivalence set: array%val_as_bytes%2#1, encoded_value%2#0
+debug: selected array%val_as_bytes%2#1 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable arr_3#0
-debug: Removing unused variable array_length%0#0
-debug: Removing unused variable array_length%2#0
-debug: Removing unused variable array_length%4#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (< 1u 3u) to 1u
-debug: Simplified (< 2u 3u) to 1u
+debug: Simplified ((replace2 0) arr_3#0 array%val_as_bytes%0#1) to 0x000000000000000000000000000000000000000000000000
+debug: Simplified ((replace2 8) 0x000000000000000000000000000000000000000000000000 array%val_as_bytes%1#1) to 0x000000000000000000000000000000010000000000000000
+debug: Simplified ((replace2 16) 0x000000000000000000000000000000010000000000000000 array%val_as_bytes%2#1) to 0x000000000000000000000000000000010000000000000002
+debug: Simplified (== 0x000000000000000000000000000000010000000000000002 0x000000000000000000000000000000010000000000000002) to 1u
+debug: Simplified (btoi 0x0000000000000001) to 1u
+debug: Simplified (== 1u 1u) to 1u
+debug: Simplified (btoi 0x0000000000000001) to 1u
+debug: Simplified (== 1u 1u) to 1u
+debug: Simplified (btoi 0x0000000000000001) to 1u
+debug: Simplified (== 1u 1u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -2798,7 +2780,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -2807,11 +2788,6 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let index_is_in_bounds%0#0: bool = (< maybe_value%0#0 8u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:111:15-55, ir_type=bool, name='tmp%0', version=0),)
-debug: Found equivalence set: tmp%0#0, index_is_in_bounds%0#0
-debug: selected tmp%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Removing redundant assert of tmp%0#0
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.increment_payment
 debug: Optimizer: Perform Subroutine Inlining
@@ -2820,7 +2796,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -2983,8 +2958,20 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable index_is_in_bounds%1#0
-debug: Removing unused variable index_is_in_bounds%2#0
+debug: Removing unused variable arr_3#0
+debug: Removing unused variable array%val_as_bytes%0#1
+debug: Removing unused variable arr_3#1
+debug: Removing unused variable array%val_as_bytes%1#1
+debug: Removing unused variable arr_3#2
+debug: Removing unused variable array%val_as_bytes%2#1
+debug: Removing unused variable arr_3#3
+debug: Removing unused variable tmp%0#0
+debug: Removing unused variable tmp%1#0
+debug: Removing unused variable tmp%2#0
+debug: Removing unused variable tmp%3#0
+debug: Removing unused variable tmp%4#0
+debug: Removing unused variable tmp%5#0
+debug: Removing unused variable tmp%6#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -3874,8 +3861,8 @@ debug: Inserted add_payment_block@0.ops[18]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced add_payment_block@0.ops[21]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
 debug: Inserted add_payment_block@0.ops[26]: 'l-store-copy write_offset%0#0 0'
 debug: Replaced add_payment_block@0.ops[29]: 'v-load write_offset%0#0' with 'l-load write_offset%0#0'
-debug: Inserted add_payment_block@0.ops[32]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced add_payment_block@0.ops[35]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
+debug: Inserted add_payment_block@0.ops[32]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced add_payment_block@0.ops[35]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
 debug: Inserted add_payment_block@0.ops[40]: 'l-store-copy maybe_exists%3#0 1'
 debug: Replaced add_payment_block@0.ops[43]: 'v-load maybe_exists%3#0' with 'l-load maybe_exists%3#0'
 debug: Inserted add_payment_block@0.ops[48]: 'l-store-copy materialized_values%0#0 0'
@@ -3896,8 +3883,6 @@ debug: Inserted increment_payment_block@0.ops[34]: 'l-store-copy tmp%1#0 0'
 debug: Replaced increment_payment_block@0.ops[36]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
 debug: Inserted increment_payment_block@0.ops[39]: 'l-store-copy assigned_value%0#0 0'
 debug: Replaced increment_payment_block@0.ops[41]: 'v-load assigned_value%0#0' with 'l-load assigned_value%0#0'
-debug: Inserted increment_payment_block@0.ops[51]: 'l-store-copy index_is_in_bounds%0#0 0'
-debug: Replaced increment_payment_block@0.ops[53]: 'v-load index_is_in_bounds%0#0' with 'l-load index_is_in_bounds%0#0'
 debug: Inserted increment_payment_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced increment_payment_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted increment_payment_block@0.ops[18]: 'l-store-copy maybe_exists%1#0 1'
@@ -3906,20 +3891,20 @@ debug: Inserted increment_payment_block@0.ops[26]: 'l-store-copy bytes_offset%0#
 debug: Replaced increment_payment_block@0.ops[29]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted increment_payment_block@0.ops[46]: 'l-store-copy val_as_bytes%0#0 0'
 debug: Replaced increment_payment_block@0.ops[49]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
-debug: Inserted increment_payment_block@0.ops[63]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced increment_payment_block@0.ops[66]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
+debug: Inserted increment_payment_block@0.ops[56]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced increment_payment_block@0.ops[59]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
+debug: Inserted increment_payment_block@0.ops[51]: 'l-store-copy updated_data%0#0 0'
+debug: Replaced increment_payment_block@0.ops[55]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
 debug: Inserted increment_payment_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced increment_payment_block@0.ops[10]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted increment_payment_block@0.ops[21]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced increment_payment_block@0.ops[30]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
-debug: Inserted increment_payment_block@0.ops[53]: 'l-store-copy updated_data%0#0 0'
-debug: Replaced increment_payment_block@0.ops[64]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
 debug: Inserted increment_payment_block@0.ops[37]: 'l-store-copy encoded_element%0#0 0'
 debug: Replaced increment_payment_block@0.ops[51]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
 debug: Inserted increment_payment_block@0.ops[31]: 'l-store-copy maybe_value%1#0 1'
-debug: Replaced increment_payment_block@0.ops[64]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Replaced increment_payment_block@0.ops[57]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
 debug: Inserted increment_payment_block@0.ops[33]: 'l-store-copy bytes_offset%0#0 2'
-debug: Replaced increment_payment_block@0.ops[66]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
+debug: Replaced increment_payment_block@0.ops[59]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted create_storage_block@0.ops[18]: 'l-store-copy tmp%0#0 0'
 debug: Replaced create_storage_block@0.ops[20]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted create_storage_block@0.ops[27]: 'l-store-copy tmp%1#0 0'
@@ -4306,9 +4291,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tup#0, tup%out#0, copy%0#0
 debug: selected tup#0 from equivalence set
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tup%is_original#0
@@ -4319,7 +4302,7 @@ debug: Simplified (btoi encoded%2#0) to (extract_uint64 maybe_value%3#0 0u)
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%2#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%2#0) // on error: Index access is out of bounds
-debug: Simplified (replace3 maybe_value%1#0 8u updated_target%0#0) to ((replace2 8) maybe_value%1#0 updated_target%0#0)
+debug: Simplified (replace3 maybe_value%1#0 8u updated_array%0#0) to ((replace2 8) maybe_value%1#0 updated_array%0#0)
 debug: Simplified (extract3 maybe_value%3#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%3#0) // on error: Index access is out of bounds
 debug: Simplified (replace3 maybe_value%3#0 0u val_as_bytes%0#0) to ((replace2 0) maybe_value%3#0 val_as_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
@@ -4435,9 +4418,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -4445,7 +4425,7 @@ debug: Simplified (btoi encoded%0#0) to (extract_uint64 maybe_value%0#0 0u)
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
 debug: Simplified (replace3 encoded_element%0#0 0u val_as_bytes%0#0) to ((replace2 0) encoded_element%0#0 val_as_bytes%0#0)
-debug: Simplified (replace3 maybe_value%1#0 8u updated_target%0#0) to ((replace2 8) maybe_value%1#0 updated_target%0#0)
+debug: Simplified (replace3 maybe_value%1#0 8u updated_array%0#0) to ((replace2 8) maybe_value%1#0 updated_array%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -4465,9 +4445,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -4475,7 +4452,7 @@ debug: Simplified (btoi encoded%0#0) to (extract_uint64 maybe_value%0#0 0u)
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
 debug: Simplified (replace3 encoded_element%0#0 8u val_as_bytes%0#0) to ((replace2 8) encoded_element%0#0 val_as_bytes%0#0)
-debug: Simplified (replace3 maybe_value%1#0 8u updated_target%0#0) to ((replace2 8) maybe_value%1#0 updated_target%0#0)
+debug: Simplified (replace3 maybe_value%1#0 8u updated_array%0#0) to ((replace2 8) maybe_value%1#0 updated_array%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -4612,6 +4589,7 @@ debug: Removing unused variable tmp%39#0
 debug: Removing unused variable tmp%44#0
 debug: Removing unused variable tmp%49#0
 debug: Removing unused variable tmp%56#0
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded((uint64,uint64)) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded((uint64,uint64))%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -4652,6 +4630,7 @@ debug: Removing unused variable tmp%39#0
 debug: Removing unused variable tmp%44#0
 debug: Removing unused variable tmp%49#0
 debug: Removing unused variable tmp%56#0
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded((uint64,uint64)) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded((uint64,uint64))%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -4686,6 +4665,7 @@ debug: Removing unused variable tmp%39#0
 debug: Removing unused variable tmp%44#0
 debug: Removing unused variable tmp%49#0
 debug: Removing unused variable tmp%56#0
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded((uint64,uint64)) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded((uint64,uint64))%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -4765,7 +4745,7 @@ debug: Removing redundant assert of maybe_exists%0#0
 debug: Replacing redundant declaration let tmp%3#0: uint64 = (extract_uint64 maybe_value%0#0 0u) with copy of existing registers (Register(source_location=mutable_native_types/case3_with_mutable_struct.py:48:15-39, ir_type=uint64, name='tmp%0', version=0),)
 debug: Found equivalence set: tmp%0#0, tmp%3#0
 debug: selected tmp%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_tup
 debug: Optimizer: Perform Subroutine Inlining
@@ -5249,7 +5229,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -5258,11 +5237,6 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let index_is_in_bounds%0#0: bool = (< tmp%0#0 8u) with copy of existing registers (Register(source_location=mutable_native_types/case3_with_mutable_struct.py:48:15-73, ir_type=bool, name='tmp%1', version=0),)
-debug: Found equivalence set: tmp%1#0, index_is_in_bounds%0#0
-debug: selected tmp%1#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Removing redundant assert of tmp%1#0
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_tup
 debug: Optimizer: Perform Subroutine Inlining
@@ -5340,7 +5314,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -5357,7 +5330,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -5753,7 +5725,7 @@ debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_a using strategy RootOperandGrouping
 debug: Coalescing i#0 with [i#5, i#1, i#2]
-debug: Coalescing resulted in 10 replacement/s
+debug: Coalescing resulted in 9 replacement/s
 debug: Sequentializing parallel copies in test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_a
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b
@@ -5761,7 +5733,7 @@ debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b using strategy RootOperandGrouping
 debug: Coalescing i#0 with [i#5, i#1, i#2]
-debug: Coalescing resulted in 10 replacement/s
+debug: Coalescing resulted in 9 replacement/s
 debug: Sequentializing parallel copies in test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_3_tups
@@ -5998,8 +5970,8 @@ debug: Inserted add_tup_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced add_tup_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted add_tup_block@0.ops[26]: 'l-store-copy write_offset%0#0 0'
 debug: Replaced add_tup_block@0.ops[29]: 'v-load write_offset%0#0' with 'l-load write_offset%0#0'
-debug: Inserted add_tup_block@0.ops[32]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced add_tup_block@0.ops[35]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
+debug: Inserted add_tup_block@0.ops[32]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced add_tup_block@0.ops[35]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
 debug: Inserted add_tup_block@0.ops[51]: 'l-store-copy val_as_bytes%0#0 0'
 debug: Replaced add_tup_block@0.ops[54]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted add_tup_block@0.ops[56]: 'l-store-copy updated_data%1#0 0'
@@ -6082,72 +6054,64 @@ debug: Inserted set_a_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced set_a_block@0.ops[9]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted set_a_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced set_a_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted set_a_for_body@2.ops[28]: 'l-store-copy index_is_in_bounds%0#0 0'
-debug: Replaced set_a_for_body@2.ops[30]: 'v-load index_is_in_bounds%0#0' with 'l-load index_is_in_bounds%0#0'
 debug: Inserted set_a_for_body@2.ops[2]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced set_a_for_body@2.ops[5]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
 debug: Inserted set_a_for_body@2.ops[13]: 'l-store-copy bytes_offset%0#0 0'
 debug: Replaced set_a_for_body@2.ops[16]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_a_for_body@2.ops[22]: 'l-store-copy val_as_bytes%0#0 0'
 debug: Replaced set_a_for_body@2.ops[25]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
-debug: Inserted set_a_for_body@2.ops[39]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced set_a_for_body@2.ops[42]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
-debug: Inserted set_a_for_body@2.ops[44]: 'l-store-copy updated_data%1#0 0'
-debug: Replaced set_a_for_body@2.ops[47]: 'v-load updated_data%1#0' with 'l-load updated_data%1#0'
+debug: Inserted set_a_for_body@2.ops[32]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced set_a_for_body@2.ops[35]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
+debug: Inserted set_a_for_body@2.ops[37]: 'l-store-copy updated_data%1#0 0'
+debug: Replaced set_a_for_body@2.ops[40]: 'v-load updated_data%1#0' with 'l-load updated_data%1#0'
 debug: Inserted set_a_for_body@2.ops[4]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced set_a_for_body@2.ops[8]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_a_for_body@2.ops[28]: 'l-store-copy updated_data%0#0 0'
+debug: Replaced set_a_for_body@2.ops[32]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
 debug: Inserted set_a_for_body@2.ops[20]: 'l-store-copy encoded_element%0#0 0'
 debug: Replaced set_a_for_body@2.ops[26]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
 debug: Inserted set_a_for_body@2.ops[10]: 'l-store-copy tmp%1#0 0'
 debug: Replaced set_a_for_body@2.ops[17]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_a_for_body@2.ops[30]: 'l-store-copy updated_data%0#0 0'
-debug: Replaced set_a_for_body@2.ops[41]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
-debug: Inserted set_a_for_body@2.ops[13]: 'l-store-copy i#0 1'
-debug: Replaced set_a_for_body@2.ops[33]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_a_for_body@2.ops[19]: 'l-store-copy tmp%1#0 2'
-debug: Replaced set_a_for_body@2.ops[41]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_a_for_body@2.ops[21]: 'l-store-copy bytes_offset%0#0 3'
-debug: Replaced set_a_for_body@2.ops[43]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
-debug: Inserted set_a_for_body@2.ops[36]: 'l-store-copy i#0 3'
-debug: Replaced set_a_for_body@2.ops[57]: 'v-load i#0' with 'l-load i#0'
+debug: Inserted set_a_for_body@2.ops[18]: 'l-store-copy tmp%1#0 1'
+debug: Replaced set_a_for_body@2.ops[33]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted set_a_for_body@2.ops[20]: 'l-store-copy bytes_offset%0#0 2'
+debug: Replaced set_a_for_body@2.ops[35]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_a_for_body@2.ops[9]: 'l-store-copy maybe_value%1#0 0'
-debug: Replaced set_a_for_body@2.ops[50]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Replaced set_a_for_body@2.ops[41]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_a_for_body@2.ops[14]: 'l-store-copy i#0 2'
+debug: Replaced set_a_for_body@2.ops[50]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted set_b_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced set_b_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted set_b_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced set_b_block@0.ops[9]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted set_b_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced set_b_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted set_b_for_body@2.ops[28]: 'l-store-copy index_is_in_bounds%0#0 0'
-debug: Replaced set_b_for_body@2.ops[30]: 'v-load index_is_in_bounds%0#0' with 'l-load index_is_in_bounds%0#0'
 debug: Inserted set_b_for_body@2.ops[2]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced set_b_for_body@2.ops[5]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
 debug: Inserted set_b_for_body@2.ops[13]: 'l-store-copy bytes_offset%0#0 0'
 debug: Replaced set_b_for_body@2.ops[16]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_b_for_body@2.ops[22]: 'l-store-copy val_as_bytes%0#0 0'
 debug: Replaced set_b_for_body@2.ops[25]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
-debug: Inserted set_b_for_body@2.ops[39]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced set_b_for_body@2.ops[42]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
-debug: Inserted set_b_for_body@2.ops[44]: 'l-store-copy updated_data%1#0 0'
-debug: Replaced set_b_for_body@2.ops[47]: 'v-load updated_data%1#0' with 'l-load updated_data%1#0'
+debug: Inserted set_b_for_body@2.ops[32]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced set_b_for_body@2.ops[35]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
+debug: Inserted set_b_for_body@2.ops[37]: 'l-store-copy updated_data%1#0 0'
+debug: Replaced set_b_for_body@2.ops[40]: 'v-load updated_data%1#0' with 'l-load updated_data%1#0'
 debug: Inserted set_b_for_body@2.ops[4]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced set_b_for_body@2.ops[8]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_b_for_body@2.ops[28]: 'l-store-copy updated_data%0#0 0'
+debug: Replaced set_b_for_body@2.ops[32]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
 debug: Inserted set_b_for_body@2.ops[20]: 'l-store-copy encoded_element%0#0 0'
 debug: Replaced set_b_for_body@2.ops[26]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
 debug: Inserted set_b_for_body@2.ops[10]: 'l-store-copy tmp%1#0 0'
 debug: Replaced set_b_for_body@2.ops[17]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_b_for_body@2.ops[30]: 'l-store-copy updated_data%0#0 0'
-debug: Replaced set_b_for_body@2.ops[41]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
-debug: Inserted set_b_for_body@2.ops[13]: 'l-store-copy i#0 1'
-debug: Replaced set_b_for_body@2.ops[33]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_b_for_body@2.ops[19]: 'l-store-copy tmp%1#0 2'
-debug: Replaced set_b_for_body@2.ops[41]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_b_for_body@2.ops[21]: 'l-store-copy bytes_offset%0#0 3'
-debug: Replaced set_b_for_body@2.ops[43]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
-debug: Inserted set_b_for_body@2.ops[36]: 'l-store-copy i#0 3'
-debug: Replaced set_b_for_body@2.ops[57]: 'v-load i#0' with 'l-load i#0'
+debug: Inserted set_b_for_body@2.ops[18]: 'l-store-copy tmp%1#0 1'
+debug: Replaced set_b_for_body@2.ops[33]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted set_b_for_body@2.ops[20]: 'l-store-copy bytes_offset%0#0 2'
+debug: Replaced set_b_for_body@2.ops[35]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_b_for_body@2.ops[9]: 'l-store-copy maybe_value%1#0 0'
-debug: Replaced set_b_for_body@2.ops[50]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Replaced set_b_for_body@2.ops[41]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_b_for_body@2.ops[14]: 'l-store-copy i#0 2'
+debug: Replaced set_b_for_body@2.ops[50]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted get_3_tups_block@0.ops[17]: 'l-store-copy tmp%2#0 0'
 debug: Replaced get_3_tups_block@0.ops[19]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted get_3_tups_block@0.ops[36]: 'l-store-copy tmp%4#0 0'
@@ -6474,9 +6438,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -6486,7 +6447,7 @@ debug: Simplified (btoi encoded%2#0) to (extract_uint64 maybe_value%3#0 0u)
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%2#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%2#0) // on error: Index access is out of bounds
-debug: Simplified (replace3 maybe_value%1#0 8u updated_target%0#0) to ((replace2 8) maybe_value%1#0 updated_target%0#0)
+debug: Simplified (replace3 maybe_value%1#0 8u updated_array%0#0) to ((replace2 8) maybe_value%1#0 updated_array%0#0)
 debug: Simplified (extract3 maybe_value%3#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%3#0) // on error: Index access is out of bounds
 debug: Simplified (replace3 maybe_value%3#0 0u val_as_bytes%0#0) to ((replace2 0) maybe_value%3#0 val_as_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
@@ -6556,6 +6517,9 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
+debug: Found equivalence set: encoded_element%0#0, tup#0
+debug: selected tup#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -6576,6 +6540,9 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
+debug: Found equivalence set: encoded_element%0#0, tup#0
+debug: selected tup#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -6596,9 +6563,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_element%0#0, tup#0
 debug: selected tup#0 from equivalence set
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -6610,7 +6575,7 @@ debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is 
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 tup#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) tup#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%2#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%2#0) // on error: Index access is out of bounds
-debug: Simplified (replace3 maybe_value%2#0 8u updated_target%0#0) to ((replace2 8) maybe_value%2#0 updated_target%0#0)
+debug: Simplified (replace3 maybe_value%2#0 8u updated_array%0#0) to ((replace2 8) maybe_value%2#0 updated_array%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -6637,9 +6602,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_element%0#0, tup#0
 debug: selected tup#0 from equivalence set
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -6651,7 +6614,7 @@ debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is 
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 tup#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) tup#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%2#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%2#0) // on error: Index access is out of bounds
-debug: Simplified (replace3 maybe_value%2#0 8u updated_target%0#0) to ((replace2 8) maybe_value%2#0 updated_target%0#0)
+debug: Simplified (replace3 maybe_value%2#0 8u updated_array%0#0) to ((replace2 8) maybe_value%2#0 updated_array%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -6935,7 +6898,7 @@ debug: Removing redundant assert of maybe_exists%0#0
 debug: Replacing redundant declaration let tmp%3#0: uint64 = (extract_uint64 maybe_value%0#0 0u) with copy of existing registers (Register(source_location=mutable_native_types/case2_with_immutable_struct.py:48:15-39, ir_type=uint64, name='tmp%0', version=0),)
 debug: Found equivalence set: tmp%0#0, tmp%3#0
 debug: selected tmp%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup
 debug: Optimizer: Perform Subroutine Inlining
@@ -7037,7 +7000,7 @@ debug: Removing redundant assert of maybe_exists%1#0
 debug: Replacing redundant declaration let tmp%3#0: bytes = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds with copy of existing registers (Register(source_location=mutable_native_types/case2_with_immutable_struct.py:80:18-42, ir_type=bytes, name='tmp%1', version=0),)
 debug: Found equivalence set: tmp%1#0, tmp%3#0
 debug: selected tmp%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b
 debug: Optimizer: Perform Subroutine Inlining
@@ -7065,7 +7028,7 @@ debug: Removing redundant assert of maybe_exists%1#0
 debug: Replacing redundant declaration let tmp%3#0: bytes = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds with copy of existing registers (Register(source_location=mutable_native_types/case2_with_immutable_struct.py:87:18-42, ir_type=bytes, name='tmp%1', version=0),)
 debug: Found equivalence set: tmp%1#0, tmp%3#0
 debug: selected tmp%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups
 debug: Optimizer: Perform Subroutine Inlining
@@ -7435,7 +7398,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -7444,11 +7406,6 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let index_is_in_bounds%0#0: bool = (< tmp%0#0 8u) with copy of existing registers (Register(source_location=mutable_native_types/case2_with_immutable_struct.py:48:15-73, ir_type=bool, name='tmp%1', version=0),)
-debug: Found equivalence set: tmp%1#0, index_is_in_bounds%0#0
-debug: selected tmp%1#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Removing redundant assert of tmp%1#0
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup
 debug: Optimizer: Perform Subroutine Inlining
@@ -7525,7 +7482,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -7542,7 +7498,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -7935,7 +7890,7 @@ debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a using strategy RootOperandGrouping
 debug: Coalescing i#0 with [i#5, i#1, i#2]
-debug: Coalescing resulted in 10 replacement/s
+debug: Coalescing resulted in 9 replacement/s
 debug: Sequentializing parallel copies in test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b
@@ -7943,7 +7898,7 @@ debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b using strategy RootOperandGrouping
 debug: Coalescing i#0 with [i#5, i#1, i#2]
-debug: Coalescing resulted in 10 replacement/s
+debug: Coalescing resulted in 9 replacement/s
 debug: Sequentializing parallel copies in test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups
@@ -8180,8 +8135,8 @@ debug: Inserted add_tup_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced add_tup_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted add_tup_block@0.ops[26]: 'l-store-copy write_offset%0#0 0'
 debug: Replaced add_tup_block@0.ops[29]: 'v-load write_offset%0#0' with 'l-load write_offset%0#0'
-debug: Inserted add_tup_block@0.ops[32]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced add_tup_block@0.ops[35]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
+debug: Inserted add_tup_block@0.ops[32]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced add_tup_block@0.ops[35]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
 debug: Inserted add_tup_block@0.ops[51]: 'l-store-copy val_as_bytes%0#0 0'
 debug: Replaced add_tup_block@0.ops[54]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted add_tup_block@0.ops[56]: 'l-store-copy updated_data%1#0 0'
@@ -8244,18 +8199,18 @@ debug: Inserted add_many_tups_for_header@1.ops[3]: 'l-store-copy continue_loopin
 debug: Replaced add_many_tups_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted add_many_tups_for_body@2.ops[11]: 'l-store-copy tup#0 0'
 debug: Replaced add_many_tups_for_body@2.ops[13]: 'v-load tup#0' with 'l-load tup#0'
-debug: Inserted add_many_tups_for_body@2.ops[6]: 'l-store-copy item_offset%0#0 0'
-debug: Replaced add_many_tups_for_body@2.ops[9]: 'v-load item_offset%0#0' with 'l-load item_offset%0#0'
-debug: Inserted add_many_tups_for_body@2.ops[2]: 'l-store-copy array_head_and_tail%0#0 0'
-debug: Replaced add_many_tups_for_body@2.ops[9]: 'v-load array_head_and_tail%0#0' with 'l-load array_head_and_tail%0#0'
+debug: Inserted add_many_tups_for_body@2.ops[6]: 'l-store-copy bytes_offset%0#0 0'
+debug: Replaced add_many_tups_for_body@2.ops[9]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
+debug: Inserted add_many_tups_for_body@2.ops[2]: 'l-store-copy array_trimmed%0#0 0'
+debug: Replaced add_many_tups_for_body@2.ops[9]: 'v-load array_trimmed%0#0' with 'l-load array_trimmed%0#0'
 debug: Inserted add_many_tups_for_body@2.ops[5]: 'l-store-copy item_index_internal%0#0 1'
 debug: Replaced add_many_tups_for_body@2.ops[18]: 'v-load item_index_internal%0#0' with 'l-load item_index_internal%0#0'
 debug: Inserted add_fixed_tups_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced add_fixed_tups_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted add_fixed_tups_for_body@2.ops[8]: 'l-store-copy tup#0 0'
 debug: Replaced add_fixed_tups_for_body@2.ops[10]: 'v-load tup#0' with 'l-load tup#0'
-debug: Inserted add_fixed_tups_for_body@2.ops[3]: 'l-store-copy item_offset%0#0 0'
-debug: Replaced add_fixed_tups_for_body@2.ops[6]: 'v-load item_offset%0#0' with 'l-load item_offset%0#0'
+debug: Inserted add_fixed_tups_for_body@2.ops[3]: 'l-store-copy bytes_offset%0#0 0'
+debug: Replaced add_fixed_tups_for_body@2.ops[6]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted add_fixed_tups_for_body@2.ops[1]: 'l-store-copy item_index_internal%0#0 0'
 debug: Replaced add_fixed_tups_for_body@2.ops[14]: 'v-load item_index_internal%0#0' with 'l-load item_index_internal%0#0'
 debug: Inserted set_a_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
@@ -8266,38 +8221,34 @@ debug: Inserted set_a_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced set_a_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted set_a_for_body@2.ops[17]: 'l-store-copy tup#0 0'
 debug: Replaced set_a_for_body@2.ops[19]: 'v-load tup#0' with 'l-load tup#0'
-debug: Inserted set_a_for_body@2.ops[36]: 'l-store-copy index_is_in_bounds%0#0 0'
-debug: Replaced set_a_for_body@2.ops[38]: 'v-load index_is_in_bounds%0#0' with 'l-load index_is_in_bounds%0#0'
 debug: Inserted set_a_for_body@2.ops[2]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced set_a_for_body@2.ops[5]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
 debug: Inserted set_a_for_body@2.ops[13]: 'l-store-copy bytes_offset%0#0 0'
 debug: Replaced set_a_for_body@2.ops[16]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_a_for_body@2.ops[30]: 'l-store-copy val_as_bytes%1#0 0'
 debug: Replaced set_a_for_body@2.ops[33]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted set_a_for_body@2.ops[47]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced set_a_for_body@2.ops[50]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
-debug: Inserted set_a_for_body@2.ops[52]: 'l-store-copy updated_data%0#0 0'
-debug: Replaced set_a_for_body@2.ops[55]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
+debug: Inserted set_a_for_body@2.ops[40]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced set_a_for_body@2.ops[43]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
+debug: Inserted set_a_for_body@2.ops[45]: 'l-store-copy updated_data%0#0 0'
+debug: Replaced set_a_for_body@2.ops[48]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
 debug: Inserted set_a_for_body@2.ops[4]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced set_a_for_body@2.ops[8]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_a_for_body@2.ops[36]: 'l-store-copy encoded%3#0 0'
+debug: Replaced set_a_for_body@2.ops[40]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
 debug: Inserted set_a_for_body@2.ops[25]: 'l-store-copy tmp%2#0 0'
 debug: Replaced set_a_for_body@2.ops[30]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted set_a_for_body@2.ops[29]: 'l-store-copy val_as_bytes%0#0 1'
 debug: Replaced set_a_for_body@2.ops[35]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted set_a_for_body@2.ops[10]: 'l-store-copy tmp%1#0 0'
 debug: Replaced set_a_for_body@2.ops[17]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_a_for_body@2.ops[39]: 'l-store-copy encoded%3#0 0'
-debug: Replaced set_a_for_body@2.ops[50]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
-debug: Inserted set_a_for_body@2.ops[42]: 'l-store-copy i#0 1'
-debug: Replaced set_a_for_body@2.ops[63]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_a_for_body@2.ops[13]: 'l-store-copy i#0 1'
-debug: Replaced set_a_for_body@2.ops[42]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_a_for_body@2.ops[19]: 'l-store-copy tmp%1#0 2'
-debug: Replaced set_a_for_body@2.ops[51]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_a_for_body@2.ops[21]: 'l-store-copy bytes_offset%0#0 3'
-debug: Replaced set_a_for_body@2.ops[53]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
+debug: Inserted set_a_for_body@2.ops[18]: 'l-store-copy tmp%1#0 1'
+debug: Replaced set_a_for_body@2.ops[42]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted set_a_for_body@2.ops[20]: 'l-store-copy bytes_offset%0#0 2'
+debug: Replaced set_a_for_body@2.ops[44]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_a_for_body@2.ops[9]: 'l-store-copy maybe_value%1#0 0'
-debug: Replaced set_a_for_body@2.ops[59]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Replaced set_a_for_body@2.ops[50]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_a_for_body@2.ops[14]: 'l-store-copy i#0 2'
+debug: Replaced set_a_for_body@2.ops[59]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted set_b_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced set_b_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted set_b_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
@@ -8308,36 +8259,32 @@ debug: Inserted set_b_for_body@2.ops[17]: 'l-store-copy tup#0 0'
 debug: Replaced set_b_for_body@2.ops[19]: 'v-load tup#0' with 'l-load tup#0'
 debug: Inserted set_b_for_body@2.ops[22]: 'l-store-copy tmp%2#0 0'
 debug: Replaced set_b_for_body@2.ops[24]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted set_b_for_body@2.ops[37]: 'l-store-copy index_is_in_bounds%0#0 0'
-debug: Replaced set_b_for_body@2.ops[39]: 'v-load index_is_in_bounds%0#0' with 'l-load index_is_in_bounds%0#0'
 debug: Inserted set_b_for_body@2.ops[2]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced set_b_for_body@2.ops[5]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
 debug: Inserted set_b_for_body@2.ops[13]: 'l-store-copy bytes_offset%0#0 0'
 debug: Replaced set_b_for_body@2.ops[16]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_b_for_body@2.ops[31]: 'l-store-copy val_as_bytes%1#0 0'
 debug: Replaced set_b_for_body@2.ops[34]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted set_b_for_body@2.ops[48]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced set_b_for_body@2.ops[51]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
-debug: Inserted set_b_for_body@2.ops[53]: 'l-store-copy updated_data%0#0 0'
-debug: Replaced set_b_for_body@2.ops[56]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
+debug: Inserted set_b_for_body@2.ops[41]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced set_b_for_body@2.ops[44]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
+debug: Inserted set_b_for_body@2.ops[46]: 'l-store-copy updated_data%0#0 0'
+debug: Replaced set_b_for_body@2.ops[49]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
 debug: Inserted set_b_for_body@2.ops[4]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced set_b_for_body@2.ops[8]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_b_for_body@2.ops[37]: 'l-store-copy encoded%3#0 0'
+debug: Replaced set_b_for_body@2.ops[41]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
 debug: Inserted set_b_for_body@2.ops[29]: 'l-store-copy val_as_bytes%0#0 0'
 debug: Replaced set_b_for_body@2.ops[35]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted set_b_for_body@2.ops[10]: 'l-store-copy tmp%1#0 0'
 debug: Replaced set_b_for_body@2.ops[17]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_b_for_body@2.ops[39]: 'l-store-copy encoded%3#0 0'
-debug: Replaced set_b_for_body@2.ops[50]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
-debug: Inserted set_b_for_body@2.ops[42]: 'l-store-copy i#0 1'
-debug: Replaced set_b_for_body@2.ops[63]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_b_for_body@2.ops[13]: 'l-store-copy i#0 1'
-debug: Replaced set_b_for_body@2.ops[42]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_b_for_body@2.ops[19]: 'l-store-copy tmp%1#0 2'
-debug: Replaced set_b_for_body@2.ops[51]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_b_for_body@2.ops[21]: 'l-store-copy bytes_offset%0#0 3'
-debug: Replaced set_b_for_body@2.ops[53]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
+debug: Inserted set_b_for_body@2.ops[18]: 'l-store-copy tmp%1#0 1'
+debug: Replaced set_b_for_body@2.ops[42]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted set_b_for_body@2.ops[20]: 'l-store-copy bytes_offset%0#0 2'
+debug: Replaced set_b_for_body@2.ops[44]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_b_for_body@2.ops[9]: 'l-store-copy maybe_value%1#0 0'
-debug: Replaced set_b_for_body@2.ops[59]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Replaced set_b_for_body@2.ops[50]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_b_for_body@2.ops[14]: 'l-store-copy i#0 2'
+debug: Replaced set_b_for_body@2.ops[59]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted get_3_tups_block@0.ops[17]: 'l-store-copy tmp%2#0 0'
 debug: Replaced get_3_tups_block@0.ops[19]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted get_3_tups_block@0.ops[36]: 'l-store-copy tmp%4#0 0'
@@ -8670,23 +8617,18 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (btoi encoded%0#0) to (extract_uint64 maybe_value%0#0 0u)
-debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
-debug: Simplified (concat encoded%2#0 0x) to encoded%2#0
-debug: Simplified (btoi encoded%4#0) to (extract_uint64 maybe_value%2#0 0u)
-debug: Simplified (btoi encoded%5#0) to (extract_uint64 maybe_value%3#0 0u)
+debug: Simplified (btoi encoded%1#0) to (extract_uint64 maybe_value%2#0 0u)
+debug: Simplified (btoi encoded%2#0) to (extract_uint64 maybe_value%3#0 0u)
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%2#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%2#0) // on error: Index access is out of bounds
-debug: Simplified (replace3 maybe_value%1#0 8u updated_target%0#0) to ((replace2 8) maybe_value%1#0 updated_target%0#0)
+debug: Simplified (replace3 maybe_value%1#0 8u updated_array%0#0) to ((replace2 8) maybe_value%1#0 updated_array%0#0)
 debug: Simplified (extract3 maybe_value%3#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%3#0) // on error: Index access is out of bounds
-debug: Simplified (replace3 maybe_value%3#0 0u val_as_bytes%2#0) to ((replace2 0) maybe_value%3#0 val_as_bytes%2#0)
+debug: Simplified (replace3 maybe_value%3#0 0u val_as_bytes%0#0) to ((replace2 0) maybe_value%3#0 val_as_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -8708,12 +8650,8 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (btoi encoded%0#0) to (extract_uint64 maybe_value%0#0 0u)
-debug: Simplified (btoi item0%0#0) to (extract_uint64 encoded_element%0#0 0u)
-debug: Simplified (btoi item1%0#0) to (extract_uint64 encoded_element%0#0 8u)
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -8728,21 +8666,12 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: item0%1#0, tup.a#0
-debug: selected tup.a#0 from equivalence set
-debug: Found equivalence set: item1%1#0, tup.b#0
-debug: selected tup.b#0 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (btoi encoded%0#0) to (extract_uint64 maybe_value%0#0 0u)
-debug: Simplified (btoi item0%0#0) to (extract_uint64 encoded_element%0#0 0u)
-debug: Simplified (btoi item1%0#0) to (extract_uint64 encoded_element%0#0 8u)
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -8760,18 +8689,9 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
-debug: Found equivalence set: item0%1#0, tup.a#0
-debug: selected tup.a#0 from equivalence set
-debug: Found equivalence set: item1%1#0, tup.b#0
-debug: selected tup.b#0 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (btoi item0%0#0) to (extract_uint64 encoded%0#0 0u)
-debug: Simplified (btoi item1%0#0) to (extract_uint64 encoded%0#0 8u)
-debug: Simplified (extract3 encoded%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -8789,18 +8709,9 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
-debug: Found equivalence set: item0%1#0, tup.a#0
-debug: selected tup.a#0 from equivalence set
-debug: Found equivalence set: item1%1#0, tup.b#0
-debug: selected tup.b#0 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (btoi item0%0#0) to (extract_uint64 encoded%0#0 0u)
-debug: Simplified (btoi item1%0#0) to (extract_uint64 encoded%0#0 8u)
-debug: Simplified (extract3 encoded%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -8816,27 +8727,14 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: item0%1#0, tup.a#0
-debug: selected tup.a#0 from equivalence set
-debug: Found equivalence set: item1%1#0, tup.b#0
-debug: selected tup.b#0 from equivalence set
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tup.a#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (btoi encoded%0#0) to (extract_uint64 maybe_value%0#0 0u)
-debug: Simplified (btoi item1%0#0) to (extract_uint64 encoded_element%0#0 8u)
-debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
-debug: Simplified (concat encoded%2#0 0x) to encoded%2#0
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%2#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%2#0) // on error: Index access is out of bounds
-debug: Simplified (replace3 maybe_value%2#0 8u updated_target%0#0) to ((replace2 8) maybe_value%2#0 updated_target%0#0)
+debug: Simplified (replace3 maybe_value%2#0 8u updated_array%0#0) to ((replace2 8) maybe_value%2#0 updated_array%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -8847,10 +8745,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let write_offset%0#0: uint64 = (* i#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/case1_with_tups.py:80:18-45, ir_type=uint64, name='bytes_offset%0', version=0),)
-debug: Found equivalence set: val_as_bytes%0#0, encoded%1#0
-debug: selected val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: encoded%2#0, encoded%3#0
-debug: selected encoded%2#0 from equivalence set
 debug: Found equivalence set: bytes_offset%0#0, write_offset%0#0
 debug: selected bytes_offset%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
@@ -8861,27 +8755,14 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: item0%1#0, tup.a#0
-debug: selected tup.a#0 from equivalence set
-debug: Found equivalence set: item1%1#0, tup.b#0
-debug: selected tup.b#0 from equivalence set
-debug: Found equivalence set: array_length%0#0, array_length%1#0
-debug: selected array_length%0#0 from equivalence set
-debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tup.b#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (btoi encoded%0#0) to (extract_uint64 maybe_value%0#0 0u)
-debug: Simplified (btoi item0%0#0) to (extract_uint64 encoded_element%0#0 0u)
-debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
-debug: Simplified (concat encoded%2#0 0x) to encoded%2#0
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%2#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%2#0) // on error: Index access is out of bounds
-debug: Simplified (replace3 maybe_value%2#0 8u updated_target%0#0) to ((replace2 8) maybe_value%2#0 updated_target%0#0)
+debug: Simplified (replace3 maybe_value%2#0 8u updated_array%0#0) to ((replace2 8) maybe_value%2#0 updated_array%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -8892,10 +8773,6 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let write_offset%0#0: uint64 = (* i#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/case1_with_tups.py:87:18-45, ir_type=uint64, name='bytes_offset%0', version=0),)
-debug: Found equivalence set: val_as_bytes%0#0, encoded%1#0
-debug: selected val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: encoded%2#0, encoded%3#0
-debug: selected encoded%2#0 from equivalence set
 debug: Found equivalence set: bytes_offset%0#0, write_offset%0#0
 debug: selected bytes_offset%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
@@ -8913,12 +8790,6 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (btoi encoded%0#0) to (extract_uint64 maybe_value%0#0 0u)
-debug: Simplified (btoi item0%0#0) to (extract_uint64 encoded_element%0#0 0u)
-debug: Simplified (btoi item1%0#0) to (extract_uint64 encoded_element%0#0 8u)
-debug: Simplified (btoi item0%2#0) to (extract_uint64 encoded_element%1#0 0u)
-debug: Simplified (btoi item1%2#0) to (extract_uint64 encoded_element%1#0 8u)
-debug: Simplified (btoi item0%4#0) to (extract_uint64 encoded_element%2#0 0u)
-debug: Simplified (btoi item1%4#0) to (extract_uint64 encoded_element%2#0 8u)
 debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
 debug: Simplified (concat encoded%2#0 0x) to encoded%2#0
 debug: Simplified (concat 0x encoded%2#0) to encoded%2#0
@@ -8929,12 +8800,6 @@ debug: Simplified (concat encoded%10#0 0x) to encoded%10#0
 debug: Simplified (concat encoded%12#0 0x) to encoded%12#0
 debug: Simplified (extract3 maybe_value%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%1#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%1#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%1#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%1#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%2#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%2#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%2#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%2#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -8961,16 +8826,12 @@ debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x0000 0x) to 0x0000
 debug: Simplified (btoi encoded%0#0) to (extract_uint64 maybe_value%1#0 0u)
-debug: Simplified (btoi item0%0#0) to (extract_uint64 encoded_element%0#0 0u)
-debug: Simplified (btoi item1%0#0) to (extract_uint64 encoded_element%0#0 8u)
 debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
 debug: Simplified (concat encoded%2#0 0x) to encoded%2#0
 debug: Simplified (concat 0x encoded%2#0) to encoded%2#0
 debug: Simplified (concat encoded%2#0 0x) to encoded%2#0
 debug: Simplified (extract3 maybe_value%0#0 8u 128u) // on error: Index access is out of bounds to ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
 debug: Simplified (extract3 maybe_value%1#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) maybe_value%1#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9185,19 +9046,15 @@ debug: Found equivalence set: maybe_value%0#0, maybe_value%1#0, maybe_value%2#0
 debug: selected maybe_value%0#0 from equivalence set
 debug: Found equivalence set: maybe_exists%0#0, maybe_exists%1#0, maybe_exists%2#0
 debug: selected maybe_exists%0#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%0#0, encoded%1#0
-debug: selected val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: encoded%2#0, encoded%3#0
-debug: selected encoded%2#0 from equivalence set
 debug: Found equivalence set: updated_data%0#0, maybe_value%3#0
 debug: selected updated_data%0#0 from equivalence set
 debug: Copy propagation made 9 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable encoded%0#0
-debug: Removing unused variable encoded%4#0
+debug: Removing unused variable encoded%1#0
 debug: Removing unused variable maybe_exists%3#0
-debug: Removing unused variable encoded%5#0
+debug: Removing unused variable encoded%2#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9211,7 +9068,7 @@ debug: Removing redundant assert of maybe_exists%0#0
 debug: Replacing redundant declaration let tmp%3#0: uint64 = (extract_uint64 maybe_value%0#0 0u) with copy of existing registers (Register(source_location=mutable_native_types/case1_with_tups.py:48:15-39, ir_type=uint64, name='tmp%0', version=0),)
 debug: Found equivalence set: tmp%0#0, tmp%3#0
 debug: selected tmp%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
 debug: Optimizer: Perform Subroutine Inlining
@@ -9226,8 +9083,6 @@ debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable encoded%0#0
-debug: Removing unused variable item0%0#0
-debug: Removing unused variable item1%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9246,8 +9101,6 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable encoded%0#0
-debug: Removing unused variable item0%0#0
-debug: Removing unused variable item1%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9264,8 +9117,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable item0%0#0
-debug: Removing unused variable item1%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9282,8 +9133,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable item0%0#0
-debug: Removing unused variable item1%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9306,8 +9155,6 @@ debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable encoded%0#0
-debug: Removing unused variable item0%0#0
-debug: Removing unused variable item1%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9320,7 +9167,7 @@ debug: Removing redundant assert of maybe_exists%1#0
 debug: Replacing redundant declaration let tmp%2#0: bytes = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds with copy of existing registers (Register(source_location=mutable_native_types/case1_with_tups.py:80:18-42, ir_type=bytes, name='tmp%1', version=0),)
 debug: Found equivalence set: tmp%1#0, tmp%2#0
 debug: selected tmp%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b
 debug: Optimizer: Perform Subroutine Inlining
@@ -9335,8 +9182,6 @@ debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable encoded%0#0
-debug: Removing unused variable item0%0#0
-debug: Removing unused variable item1%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9349,7 +9194,7 @@ debug: Removing redundant assert of maybe_exists%1#0
 debug: Replacing redundant declaration let tmp%2#0: bytes = ((extract 8 128) maybe_value%1#0) // on error: Index access is out of bounds with copy of existing registers (Register(source_location=mutable_native_types/case1_with_tups.py:87:18-42, ir_type=bytes, name='tmp%1', version=0),)
 debug: Found equivalence set: tmp%1#0, tmp%2#0
 debug: selected tmp%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups
 debug: Optimizer: Perform Subroutine Inlining
@@ -9378,12 +9223,6 @@ debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable encoded%0#0
-debug: Removing unused variable item0%0#0
-debug: Removing unused variable item1%0#0
-debug: Removing unused variable item0%2#0
-debug: Removing unused variable item1%2#0
-debug: Removing unused variable item0%4#0
-debug: Removing unused variable item1%4#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9411,8 +9250,6 @@ debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable encoded%0#0
-debug: Removing unused variable item0%0#0
-debug: Removing unused variable item1%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9737,10 +9574,14 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%encoded%2#1, encoded_value%0#0
+debug: selected array%encoded%2#1 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x array%val_as_bytes%0#1) to array%val_as_bytes%0#1
+debug: Simplified (concat array%encoded%1#1 0x) to array%encoded%1#1
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9748,20 +9589,24 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let index_is_in_bounds%0#0: bool = (< tmp%0#0 8u) with copy of existing registers (Register(source_location=mutable_native_types/case1_with_tups.py:48:15-73, ir_type=bool, name='tmp%1', version=0),)
-debug: Found equivalence set: tmp%1#0, index_is_in_bounds%0#0
-debug: selected tmp%1#0 from equivalence set
-debug: Copy propagation made 1 modifications
-debug: Removing redundant assert of tmp%1#0
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%item0%1#1, tmp%3#0
+debug: selected array%item0%1#1 from equivalence set
+debug: Found equivalence set: array%item1%1#1, tmp%4#0
+debug: selected array%item1%1#1 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (btoi array%item0%0#1) to (extract_uint64 encoded_element%0#0 0u)
+debug: Simplified (btoi array%item1%0#1) to (extract_uint64 encoded_element%0#0 8u)
+debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9775,9 +9620,18 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%item0%1#1, tup.a#0
+debug: selected tup.a#0 from equivalence set
+debug: Found equivalence set: array%item1%1#1, tup.b#0
+debug: selected tup.b#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (btoi array%item0%0#1) to (extract_uint64 encoded_element%0#0 0u)
+debug: Simplified (btoi array%item1%0#1) to (extract_uint64 encoded_element%0#0 8u)
+debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9793,10 +9647,18 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array%array_length%0#1, array_length%0#0
 debug: selected array%array_length%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Found equivalence set: array%item0%1#1, tup.a#0
+debug: selected tup.a#0 from equivalence set
+debug: Found equivalence set: array%item1%1#1, tup.b#0
+debug: selected tup.b#0 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (btoi array%item0%0#1) to (extract_uint64 encoded_element%0#0 0u)
+debug: Simplified (btoi array%item1%0#1) to (extract_uint64 encoded_element%0#0 8u)
+debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9810,10 +9672,19 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%item0%1#1, tup.a#0
+debug: selected tup.a#0 from equivalence set
+debug: Found equivalence set: array%item1%1#1, tup.b#0
+debug: selected tup.b#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_length%0#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (btoi array%item0%0#1) to (extract_uint64 encoded_element%0#0 0u)
+debug: Simplified (btoi array%item1%0#1) to (extract_uint64 encoded_element%0#0 8u)
+debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9827,10 +9698,22 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%item0%1#1, tup.a#0
+debug: selected tup.a#0 from equivalence set
+debug: Found equivalence set: array%item1%1#1, tup.b#0
+debug: selected tup.b#0 from equivalence set
+debug: Found equivalence set: array%encoded%2#1, encoded_value%0#0
+debug: selected array%encoded%2#1 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
+debug: Removing unused variable tup.a#0
+debug: Removing unused variable array%item0%0#1
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (btoi array%item1%0#1) to (extract_uint64 encoded_element%0#0 8u)
+debug: Simplified (concat 0x array%val_as_bytes%0#1) to array%val_as_bytes%0#1
+debug: Simplified (concat array%encoded%1#1 0x) to array%encoded%1#1
+debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9844,10 +9727,22 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%item0%1#1, tup.a#0
+debug: selected tup.a#0 from equivalence set
+debug: Found equivalence set: array%item1%1#1, tup.b#0
+debug: selected tup.b#0 from equivalence set
+debug: Found equivalence set: array%encoded%2#1, encoded_value%0#0
+debug: selected array%encoded%2#1 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_length%0#0
+debug: Removing unused variable tup.b#0
+debug: Removing unused variable array%item1%0#1
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (btoi array%item0%0#1) to (extract_uint64 encoded_element%0#0 0u)
+debug: Simplified (concat 0x array%val_as_bytes%0#1) to array%val_as_bytes%0#1
+debug: Simplified (concat array%encoded%1#1 0x) to array%encoded%1#1
+debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9861,9 +9756,34 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%item0%1#1, tmp%4#0
+debug: selected array%item0%1#1 from equivalence set
+debug: Found equivalence set: array%item1%1#1, tmp%5#0
+debug: selected array%item1%1#1 from equivalence set
+debug: Found equivalence set: array%item0%3#1, tmp%7#0
+debug: selected array%item0%3#1 from equivalence set
+debug: Found equivalence set: array%item1%3#1, tmp%8#0
+debug: selected array%item1%3#1 from equivalence set
+debug: Found equivalence set: array%item0%5#1, tmp%10#0
+debug: selected array%item0%5#1 from equivalence set
+debug: Found equivalence set: array%item1%5#1, tmp%11#0
+debug: selected array%item1%5#1 from equivalence set
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (btoi array%item0%0#1) to (extract_uint64 encoded_element%0#0 0u)
+debug: Simplified (btoi array%item1%0#1) to (extract_uint64 encoded_element%0#0 8u)
+debug: Simplified (btoi array%item0%2#1) to (extract_uint64 encoded_element%1#0 0u)
+debug: Simplified (btoi array%item1%2#1) to (extract_uint64 encoded_element%1#0 8u)
+debug: Simplified (btoi array%item0%4#1) to (extract_uint64 encoded_element%2#0 0u)
+debug: Simplified (btoi array%item1%4#1) to (extract_uint64 encoded_element%2#0 8u)
+debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%1#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%1#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%1#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%1#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%2#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%2#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%2#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%2#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9877,9 +9797,18 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%item0%1#1, tmp%2#0
+debug: selected array%item0%1#1 from equivalence set
+debug: Found equivalence set: array%item1%1#1, tmp%3#0
+debug: selected array%item1%1#1 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (btoi array%item0%0#1) to (extract_uint64 encoded_element%0#0 0u)
+debug: Simplified (btoi array%item1%0#1) to (extract_uint64 encoded_element%0#0 8u)
+debug: Simplified (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) encoded_element%0#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 encoded_element%0#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) encoded_element%0#0) // on error: Index access is out of bounds
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9906,6 +9835,246 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Output IR to mutable_native_types/out/Case1WithTups.ir/Case1WithTups.approval.4.ssa.array.opt.ir
 debug: Begin optimization pass 2/100
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%val_as_bytes%0#1, array%encoded%0#1
+debug: selected array%val_as_bytes%0#1 from equivalence set
+debug: Found equivalence set: array%encoded%1#1, array%encoded%2#1
+debug: selected array%encoded%1#1 from equivalence set
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%item0%0#1
+debug: Removing unused variable array%item1%0#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%item0%0#1
+debug: Removing unused variable array%item1%0#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%item0%0#1
+debug: Removing unused variable array%item1%0#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fixed_tups
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%item0%0#1
+debug: Removing unused variable array%item1%0#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%val_as_bytes%0#1, array%encoded%0#1
+debug: selected array%val_as_bytes%0#1 from equivalence set
+debug: Found equivalence set: array%encoded%1#1, array%encoded%2#1
+debug: selected array%encoded%1#1 from equivalence set
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%item1%0#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%val_as_bytes%0#1, array%encoded%0#1
+debug: selected array%val_as_bytes%0#1 from equivalence set
+debug: Found equivalence set: array%encoded%1#1, array%encoded%2#1
+debug: selected array%encoded%1#1 from equivalence set
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%item0%0#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%item0%0#1
+debug: Removing unused variable array%item1%0#1
+debug: Removing unused variable array%item0%2#1
+debug: Removing unused variable array%item1%2#1
+debug: Removing unused variable array%item0%4#1
+debug: Removing unused variable array%item1%4#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%item0%0#1
+debug: Removing unused variable array%item1%0#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Output IR to mutable_native_types/out/Case1WithTups.ir/Case1WithTups.approval.5.ssa.array.opt.ir
+debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -10114,7 +10283,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 2, ending loop
+debug: No optimizations performed in pass 3, ending loop
 debug: optimizing clear program of test_cases.mutable_native_types.case1_with_tups.Case1WithTups at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
@@ -10149,7 +10318,7 @@ mutable_native_types/case1_with_tups.py:90 debug: auto reserving slots in test_c
 mutable_native_types/case1_with_tups.py:103 debug: auto reserving slots in test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups, []
 mutable_native_types/case1_with_tups.py:112 debug: auto reserving slots in test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner, []
 debug: Slot allocation not required
-debug: Output IR to mutable_native_types/out/Case1WithTups.ir/Case1WithTups.approval.5.ssa.slot.ir
+debug: Output IR to mutable_native_types/out/Case1WithTups.ir/Case1WithTups.approval.6.ssa.slot.ir
 debug: removing local static slots in clear program of test_cases.mutable_native_types.case1_with_tups.Case1WithTups
 debug: auto reserving slots in algopy.arc4.ARC4Contract.clear_state_program, []
 debug: Slot allocation not required
@@ -10239,7 +10408,7 @@ debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a using strategy RootOperandGrouping
 debug: Coalescing i#0 with [i#5, i#1, i#2]
-debug: Coalescing resulted in 10 replacement/s
+debug: Coalescing resulted in 9 replacement/s
 debug: Sequentializing parallel copies in test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b
@@ -10247,7 +10416,7 @@ debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b using strategy RootOperandGrouping
 debug: Coalescing i#0 with [i#5, i#1, i#2]
-debug: Coalescing resulted in 10 replacement/s
+debug: Coalescing resulted in 9 replacement/s
 debug: Sequentializing parallel copies in test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups
@@ -10291,7 +10460,7 @@ debug: Coalescing local variables in test_cases.mutable_native_types.case1_with_
 debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner
 debug: Performing post-SSA optimizations at level 1
-debug: Output IR to mutable_native_types/out/Case1WithTups.ir/Case1WithTups.approval.6.destructured.ir
+debug: Output IR to mutable_native_types/out/Case1WithTups.ir/Case1WithTups.approval.7.destructured.ir
 debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.clear_state_program
 debug: Converting to CSSA
 debug: Removing Phi nodes
@@ -10496,22 +10665,22 @@ debug: Inserted add_tup_block@0.ops[54]: 'l-store-copy assigned_value%0#0 0'
 debug: Replaced add_tup_block@0.ops[56]: 'v-load assigned_value%0#0' with 'l-load assigned_value%0#0'
 debug: Inserted add_tup_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced add_tup_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
-debug: Inserted add_tup_block@0.ops[28]: 'l-store-copy val_as_bytes%1#0 0'
-debug: Replaced add_tup_block@0.ops[31]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
+debug: Inserted add_tup_block@0.ops[28]: 'l-store-copy array%val_as_bytes%1#1 0'
+debug: Replaced add_tup_block@0.ops[31]: 'v-load array%val_as_bytes%1#1' with 'l-load array%val_as_bytes%1#1'
 debug: Inserted add_tup_block@0.ops[37]: 'l-store-copy write_offset%0#0 0'
 debug: Replaced add_tup_block@0.ops[40]: 'v-load write_offset%0#0' with 'l-load write_offset%0#0'
-debug: Inserted add_tup_block@0.ops[43]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced add_tup_block@0.ops[46]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
-debug: Inserted add_tup_block@0.ops[62]: 'l-store-copy val_as_bytes%2#0 0'
-debug: Replaced add_tup_block@0.ops[65]: 'v-load val_as_bytes%2#0' with 'l-load val_as_bytes%2#0'
+debug: Inserted add_tup_block@0.ops[43]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced add_tup_block@0.ops[46]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
+debug: Inserted add_tup_block@0.ops[62]: 'l-store-copy val_as_bytes%0#0 0'
+debug: Replaced add_tup_block@0.ops[65]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted add_tup_block@0.ops[67]: 'l-store-copy updated_data%1#0 0'
 debug: Replaced add_tup_block@0.ops[70]: 'v-load updated_data%1#0' with 'l-load updated_data%1#0'
 debug: Inserted add_tup_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced add_tup_block@0.ops[9]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
-debug: Inserted add_tup_block@0.ops[26]: 'l-store-copy val_as_bytes%0#0 0'
-debug: Replaced add_tup_block@0.ops[32]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
-debug: Inserted add_tup_block@0.ops[35]: 'l-store-copy encoded%2#0 0'
-debug: Replaced add_tup_block@0.ops[44]: 'v-load encoded%2#0' with 'l-load encoded%2#0'
+debug: Inserted add_tup_block@0.ops[26]: 'l-store-copy array%val_as_bytes%0#1 0'
+debug: Replaced add_tup_block@0.ops[32]: 'v-load array%val_as_bytes%0#1' with 'l-load array%val_as_bytes%0#1'
+debug: Inserted add_tup_block@0.ops[35]: 'l-store-copy array%encoded%1#1 0'
+debug: Replaced add_tup_block@0.ops[44]: 'v-load array%encoded%1#1' with 'l-load array%encoded%1#1'
 debug: Inserted add_tup_block@0.ops[10]: 'l-store-copy maybe_value%0#0 0'
 debug: Replaced add_tup_block@0.ops[22]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted add_tup_block@0.ops[55]: 'l-store-copy updated_data%0#0 0'
@@ -10532,16 +10701,16 @@ debug: Inserted get_tup_block@0.ops[10]: 'l-store-copy tmp%0#0 0'
 debug: Replaced get_tup_block@0.ops[13]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted get_tup_block@0.ops[25]: 'l-store-copy bytes_offset%0#0 0'
 debug: Replaced get_tup_block@0.ops[28]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
-debug: Inserted get_tup_block@0.ops[40]: 'l-store-copy item1%1#0 0'
-debug: Replaced get_tup_block@0.ops[43]: 'v-load item1%1#0' with 'l-load item1%1#0'
+debug: Inserted get_tup_block@0.ops[40]: 'l-store-copy array%item1%1#1 0'
+debug: Replaced get_tup_block@0.ops[43]: 'v-load array%item1%1#1' with 'l-load array%item1%1#1'
 debug: Inserted get_tup_block@0.ops[4]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced get_tup_block@0.ops[8]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted get_tup_block@0.ops[35]: 'l-store-copy encoded_element%0#0 0'
 debug: Replaced get_tup_block@0.ops[39]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
 debug: Inserted get_tup_block@0.ops[22]: 'l-store-copy tmp%2#0 0'
 debug: Replaced get_tup_block@0.ops[29]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted get_tup_block@0.ops[39]: 'l-store-copy item0%1#0 1'
-debug: Replaced get_tup_block@0.ops[46]: 'v-load item0%1#0' with 'l-load item0%1#0'
+debug: Inserted get_tup_block@0.ops[39]: 'l-store-copy array%item0%1#1 1'
+debug: Replaced get_tup_block@0.ops[46]: 'v-load array%item0%1#1' with 'l-load array%item0%1#1'
 debug: Inserted get_tup_block@0.ops[9]: 'l-store-copy maybe_value%0#0 0'
 debug: Replaced get_tup_block@0.ops[21]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted sum_block@0.ops[4]: 'l-store-copy maybe_exists%0#0 1'
@@ -10572,30 +10741,30 @@ debug: Inserted sum_for_body@2.ops[13]: 'l-store-copy i#0 1'
 debug: Replaced sum_for_body@2.ops[44]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted add_many_tups_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced add_many_tups_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted add_many_tups_for_body@2.ops[11]: 'l-store-copy encoded%0#0 0'
-debug: Replaced add_many_tups_for_body@2.ops[13]: 'v-load encoded%0#0' with 'l-load encoded%0#0'
-debug: Inserted add_many_tups_for_body@2.ops[6]: 'l-store-copy item_offset%0#0 0'
-debug: Replaced add_many_tups_for_body@2.ops[9]: 'v-load item_offset%0#0' with 'l-load item_offset%0#0'
+debug: Inserted add_many_tups_for_body@2.ops[11]: 'l-store-copy encoded_element%0#0 0'
+debug: Replaced add_many_tups_for_body@2.ops[13]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
+debug: Inserted add_many_tups_for_body@2.ops[6]: 'l-store-copy bytes_offset%0#0 0'
+debug: Replaced add_many_tups_for_body@2.ops[9]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted add_many_tups_for_body@2.ops[21]: 'l-store-copy tup.b#0 0'
 debug: Replaced add_many_tups_for_body@2.ops[24]: 'v-load tup.b#0' with 'l-load tup.b#0'
-debug: Inserted add_many_tups_for_body@2.ops[15]: 'l-store-copy encoded%0#0 0'
-debug: Replaced add_many_tups_for_body@2.ops[19]: 'v-load encoded%0#0' with 'l-load encoded%0#0'
-debug: Inserted add_many_tups_for_body@2.ops[2]: 'l-store-copy array_head_and_tail%0#0 0'
-debug: Replaced add_many_tups_for_body@2.ops[9]: 'v-load array_head_and_tail%0#0' with 'l-load array_head_and_tail%0#0'
+debug: Inserted add_many_tups_for_body@2.ops[15]: 'l-store-copy encoded_element%0#0 0'
+debug: Replaced add_many_tups_for_body@2.ops[19]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
+debug: Inserted add_many_tups_for_body@2.ops[2]: 'l-store-copy array_trimmed%0#0 0'
+debug: Replaced add_many_tups_for_body@2.ops[9]: 'v-load array_trimmed%0#0' with 'l-load array_trimmed%0#0'
 debug: Inserted add_many_tups_for_body@2.ops[19]: 'l-store-copy tup.a#0 1'
 debug: Replaced add_many_tups_for_body@2.ops[26]: 'v-load tup.a#0' with 'l-load tup.a#0'
 debug: Inserted add_many_tups_for_body@2.ops[5]: 'l-store-copy item_index_internal%0#0 1'
 debug: Replaced add_many_tups_for_body@2.ops[30]: 'v-load item_index_internal%0#0' with 'l-load item_index_internal%0#0'
 debug: Inserted add_fixed_tups_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced add_fixed_tups_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted add_fixed_tups_for_body@2.ops[8]: 'l-store-copy encoded%0#0 0'
-debug: Replaced add_fixed_tups_for_body@2.ops[10]: 'v-load encoded%0#0' with 'l-load encoded%0#0'
-debug: Inserted add_fixed_tups_for_body@2.ops[3]: 'l-store-copy item_offset%0#0 0'
-debug: Replaced add_fixed_tups_for_body@2.ops[6]: 'v-load item_offset%0#0' with 'l-load item_offset%0#0'
+debug: Inserted add_fixed_tups_for_body@2.ops[8]: 'l-store-copy encoded_element%0#0 0'
+debug: Replaced add_fixed_tups_for_body@2.ops[10]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
+debug: Inserted add_fixed_tups_for_body@2.ops[3]: 'l-store-copy bytes_offset%0#0 0'
+debug: Replaced add_fixed_tups_for_body@2.ops[6]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted add_fixed_tups_for_body@2.ops[18]: 'l-store-copy tup.b#0 0'
 debug: Replaced add_fixed_tups_for_body@2.ops[21]: 'v-load tup.b#0' with 'l-load tup.b#0'
-debug: Inserted add_fixed_tups_for_body@2.ops[12]: 'l-store-copy encoded%0#0 0'
-debug: Replaced add_fixed_tups_for_body@2.ops[16]: 'v-load encoded%0#0' with 'l-load encoded%0#0'
+debug: Inserted add_fixed_tups_for_body@2.ops[12]: 'l-store-copy encoded_element%0#0 0'
+debug: Replaced add_fixed_tups_for_body@2.ops[16]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
 debug: Inserted add_fixed_tups_for_body@2.ops[15]: 'l-store-copy tup.a#0 1'
 debug: Replaced add_fixed_tups_for_body@2.ops[22]: 'v-load tup.a#0' with 'l-load tup.a#0'
 debug: Inserted add_fixed_tups_for_body@2.ops[1]: 'l-store-copy item_index_internal%0#0 0'
@@ -10608,38 +10777,34 @@ debug: Inserted set_a_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced set_a_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted set_a_for_body@2.ops[17]: 'l-store-copy encoded_element%0#0 0'
 debug: Replaced set_a_for_body@2.ops[19]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
-debug: Inserted set_a_for_body@2.ops[36]: 'l-store-copy index_is_in_bounds%0#0 0'
-debug: Replaced set_a_for_body@2.ops[38]: 'v-load index_is_in_bounds%0#0' with 'l-load index_is_in_bounds%0#0'
 debug: Inserted set_a_for_body@2.ops[2]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced set_a_for_body@2.ops[5]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
 debug: Inserted set_a_for_body@2.ops[13]: 'l-store-copy bytes_offset%0#0 0'
 debug: Replaced set_a_for_body@2.ops[16]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
-debug: Inserted set_a_for_body@2.ops[30]: 'l-store-copy val_as_bytes%1#0 0'
-debug: Replaced set_a_for_body@2.ops[33]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted set_a_for_body@2.ops[47]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced set_a_for_body@2.ops[50]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
-debug: Inserted set_a_for_body@2.ops[52]: 'l-store-copy updated_data%0#0 0'
-debug: Replaced set_a_for_body@2.ops[55]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
+debug: Inserted set_a_for_body@2.ops[30]: 'l-store-copy array%val_as_bytes%1#1 0'
+debug: Replaced set_a_for_body@2.ops[33]: 'v-load array%val_as_bytes%1#1' with 'l-load array%val_as_bytes%1#1'
+debug: Inserted set_a_for_body@2.ops[40]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced set_a_for_body@2.ops[43]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
+debug: Inserted set_a_for_body@2.ops[45]: 'l-store-copy updated_data%0#0 0'
+debug: Replaced set_a_for_body@2.ops[48]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
 debug: Inserted set_a_for_body@2.ops[4]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced set_a_for_body@2.ops[8]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_a_for_body@2.ops[36]: 'l-store-copy array%encoded%1#1 0'
+debug: Replaced set_a_for_body@2.ops[40]: 'v-load array%encoded%1#1' with 'l-load array%encoded%1#1'
 debug: Inserted set_a_for_body@2.ops[25]: 'l-store-copy tup.b#0 0'
 debug: Replaced set_a_for_body@2.ops[30]: 'v-load tup.b#0' with 'l-load tup.b#0'
-debug: Inserted set_a_for_body@2.ops[29]: 'l-store-copy val_as_bytes%0#0 1'
-debug: Replaced set_a_for_body@2.ops[35]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
+debug: Inserted set_a_for_body@2.ops[29]: 'l-store-copy array%val_as_bytes%0#1 1'
+debug: Replaced set_a_for_body@2.ops[35]: 'v-load array%val_as_bytes%0#1' with 'l-load array%val_as_bytes%0#1'
 debug: Inserted set_a_for_body@2.ops[10]: 'l-store-copy tmp%1#0 0'
 debug: Replaced set_a_for_body@2.ops[17]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_a_for_body@2.ops[39]: 'l-store-copy encoded%2#0 0'
-debug: Replaced set_a_for_body@2.ops[50]: 'v-load encoded%2#0' with 'l-load encoded%2#0'
-debug: Inserted set_a_for_body@2.ops[42]: 'l-store-copy i#0 1'
-debug: Replaced set_a_for_body@2.ops[63]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_a_for_body@2.ops[13]: 'l-store-copy i#0 1'
-debug: Replaced set_a_for_body@2.ops[42]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_a_for_body@2.ops[19]: 'l-store-copy tmp%1#0 2'
-debug: Replaced set_a_for_body@2.ops[51]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_a_for_body@2.ops[21]: 'l-store-copy bytes_offset%0#0 3'
-debug: Replaced set_a_for_body@2.ops[53]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
+debug: Inserted set_a_for_body@2.ops[18]: 'l-store-copy tmp%1#0 1'
+debug: Replaced set_a_for_body@2.ops[42]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted set_a_for_body@2.ops[20]: 'l-store-copy bytes_offset%0#0 2'
+debug: Replaced set_a_for_body@2.ops[44]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_a_for_body@2.ops[9]: 'l-store-copy maybe_value%1#0 0'
-debug: Replaced set_a_for_body@2.ops[59]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Replaced set_a_for_body@2.ops[50]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_a_for_body@2.ops[14]: 'l-store-copy i#0 2'
+debug: Replaced set_a_for_body@2.ops[59]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted set_b_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced set_b_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted set_b_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
@@ -10650,46 +10815,42 @@ debug: Inserted set_b_for_body@2.ops[17]: 'l-store-copy encoded_element%0#0 0'
 debug: Replaced set_b_for_body@2.ops[19]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
 debug: Inserted set_b_for_body@2.ops[22]: 'l-store-copy tup.a#0 0'
 debug: Replaced set_b_for_body@2.ops[24]: 'v-load tup.a#0' with 'l-load tup.a#0'
-debug: Inserted set_b_for_body@2.ops[37]: 'l-store-copy index_is_in_bounds%0#0 0'
-debug: Replaced set_b_for_body@2.ops[39]: 'v-load index_is_in_bounds%0#0' with 'l-load index_is_in_bounds%0#0'
 debug: Inserted set_b_for_body@2.ops[2]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced set_b_for_body@2.ops[5]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
 debug: Inserted set_b_for_body@2.ops[13]: 'l-store-copy bytes_offset%0#0 0'
 debug: Replaced set_b_for_body@2.ops[16]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
-debug: Inserted set_b_for_body@2.ops[31]: 'l-store-copy val_as_bytes%1#0 0'
-debug: Replaced set_b_for_body@2.ops[34]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted set_b_for_body@2.ops[48]: 'l-store-copy updated_target%0#0 0'
-debug: Replaced set_b_for_body@2.ops[51]: 'v-load updated_target%0#0' with 'l-load updated_target%0#0'
-debug: Inserted set_b_for_body@2.ops[53]: 'l-store-copy updated_data%0#0 0'
-debug: Replaced set_b_for_body@2.ops[56]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
+debug: Inserted set_b_for_body@2.ops[31]: 'l-store-copy array%val_as_bytes%1#1 0'
+debug: Replaced set_b_for_body@2.ops[34]: 'v-load array%val_as_bytes%1#1' with 'l-load array%val_as_bytes%1#1'
+debug: Inserted set_b_for_body@2.ops[41]: 'l-store-copy updated_array%0#0 0'
+debug: Replaced set_b_for_body@2.ops[44]: 'v-load updated_array%0#0' with 'l-load updated_array%0#0'
+debug: Inserted set_b_for_body@2.ops[46]: 'l-store-copy updated_data%0#0 0'
+debug: Replaced set_b_for_body@2.ops[49]: 'v-load updated_data%0#0' with 'l-load updated_data%0#0'
 debug: Inserted set_b_for_body@2.ops[4]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced set_b_for_body@2.ops[8]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
-debug: Inserted set_b_for_body@2.ops[29]: 'l-store-copy val_as_bytes%0#0 0'
-debug: Replaced set_b_for_body@2.ops[35]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
+debug: Inserted set_b_for_body@2.ops[37]: 'l-store-copy array%encoded%1#1 0'
+debug: Replaced set_b_for_body@2.ops[41]: 'v-load array%encoded%1#1' with 'l-load array%encoded%1#1'
+debug: Inserted set_b_for_body@2.ops[29]: 'l-store-copy array%val_as_bytes%0#1 0'
+debug: Replaced set_b_for_body@2.ops[35]: 'v-load array%val_as_bytes%0#1' with 'l-load array%val_as_bytes%0#1'
 debug: Inserted set_b_for_body@2.ops[10]: 'l-store-copy tmp%1#0 0'
 debug: Replaced set_b_for_body@2.ops[17]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_b_for_body@2.ops[39]: 'l-store-copy encoded%2#0 0'
-debug: Replaced set_b_for_body@2.ops[50]: 'v-load encoded%2#0' with 'l-load encoded%2#0'
-debug: Inserted set_b_for_body@2.ops[42]: 'l-store-copy i#0 1'
-debug: Replaced set_b_for_body@2.ops[63]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_b_for_body@2.ops[13]: 'l-store-copy i#0 1'
-debug: Replaced set_b_for_body@2.ops[42]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted set_b_for_body@2.ops[19]: 'l-store-copy tmp%1#0 2'
-debug: Replaced set_b_for_body@2.ops[51]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted set_b_for_body@2.ops[21]: 'l-store-copy bytes_offset%0#0 3'
-debug: Replaced set_b_for_body@2.ops[53]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
+debug: Inserted set_b_for_body@2.ops[18]: 'l-store-copy tmp%1#0 1'
+debug: Replaced set_b_for_body@2.ops[42]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted set_b_for_body@2.ops[20]: 'l-store-copy bytes_offset%0#0 2'
+debug: Replaced set_b_for_body@2.ops[44]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
 debug: Inserted set_b_for_body@2.ops[9]: 'l-store-copy maybe_value%1#0 0'
-debug: Replaced set_b_for_body@2.ops[59]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Replaced set_b_for_body@2.ops[50]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
+debug: Inserted set_b_for_body@2.ops[14]: 'l-store-copy i#0 2'
+debug: Replaced set_b_for_body@2.ops[59]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted get_3_tups_block@0.ops[17]: 'l-store-copy tmp%2#0 0'
 debug: Replaced get_3_tups_block@0.ops[19]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted get_3_tups_block@0.ops[32]: 'l-store-copy encoded_element%0#0 0'
 debug: Replaced get_3_tups_block@0.ops[34]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
-debug: Inserted get_3_tups_block@0.ops[45]: 'l-store-copy tmp%4#0 0'
-debug: Replaced get_3_tups_block@0.ops[47]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted get_3_tups_block@0.ops[45]: 'l-store-copy tmp%6#0 0'
+debug: Replaced get_3_tups_block@0.ops[47]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
 debug: Inserted get_3_tups_block@0.ops[55]: 'l-store-copy encoded_element%1#0 0'
 debug: Replaced get_3_tups_block@0.ops[57]: 'v-load encoded_element%1#0' with 'l-load encoded_element%1#0'
-debug: Inserted get_3_tups_block@0.ops[68]: 'l-store-copy tmp%5#0 0'
-debug: Replaced get_3_tups_block@0.ops[70]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
+debug: Inserted get_3_tups_block@0.ops[68]: 'l-store-copy tmp%9#0 0'
+debug: Replaced get_3_tups_block@0.ops[70]: 'v-load tmp%9#0' with 'l-load tmp%9#0'
 debug: Inserted get_3_tups_block@0.ops[78]: 'l-store-copy encoded_element%2#0 0'
 debug: Replaced get_3_tups_block@0.ops[80]: 'v-load encoded_element%2#0' with 'l-load encoded_element%2#0'
 debug: Inserted get_3_tups_block@0.ops[125]: 'l-store-copy encoded%12#0 0'
@@ -10742,18 +10903,18 @@ debug: Inserted get_3_tups_block@0.ops[36]: 'l-store-copy items#0 1'
 debug: Replaced get_3_tups_block@0.ops[61]: 'v-load items#0' with 'l-load items#0'
 debug: Inserted get_3_tups_block@0.ops[62]: 'l-store-copy items#0 1'
 debug: Replaced get_3_tups_block@0.ops[87]: 'v-load items#0' with 'l-load items#0'
-debug: Inserted get_3_tups_block@0.ops[101]: 'l-store-copy item1%5#0 0'
-debug: Replaced get_3_tups_block@0.ops[138]: 'v-load item1%5#0' with 'l-load item1%5#0'
-debug: Inserted get_3_tups_block@0.ops[97]: 'l-store-copy item0%5#0 1'
-debug: Replaced get_3_tups_block@0.ops[135]: 'v-load item0%5#0' with 'l-load item0%5#0'
-debug: Inserted get_3_tups_block@0.ops[76]: 'l-store-copy item1%3#0 1'
-debug: Replaced get_3_tups_block@0.ops[122]: 'v-load item1%3#0' with 'l-load item1%3#0'
-debug: Inserted get_3_tups_block@0.ops[72]: 'l-store-copy item0%3#0 2'
-debug: Replaced get_3_tups_block@0.ops[119]: 'v-load item0%3#0' with 'l-load item0%3#0'
-debug: Inserted get_3_tups_block@0.ops[50]: 'l-store-copy item1%1#0 1'
-debug: Replaced get_3_tups_block@0.ops[111]: 'v-load item1%1#0' with 'l-load item1%1#0'
-debug: Inserted get_3_tups_block@0.ops[46]: 'l-store-copy item0%1#0 2'
-debug: Replaced get_3_tups_block@0.ops[108]: 'v-load item0%1#0' with 'l-load item0%1#0'
+debug: Inserted get_3_tups_block@0.ops[101]: 'l-store-copy array%item1%5#1 0'
+debug: Replaced get_3_tups_block@0.ops[138]: 'v-load array%item1%5#1' with 'l-load array%item1%5#1'
+debug: Inserted get_3_tups_block@0.ops[97]: 'l-store-copy array%item0%5#1 1'
+debug: Replaced get_3_tups_block@0.ops[135]: 'v-load array%item0%5#1' with 'l-load array%item0%5#1'
+debug: Inserted get_3_tups_block@0.ops[76]: 'l-store-copy array%item1%3#1 1'
+debug: Replaced get_3_tups_block@0.ops[122]: 'v-load array%item1%3#1' with 'l-load array%item1%3#1'
+debug: Inserted get_3_tups_block@0.ops[72]: 'l-store-copy array%item0%3#1 2'
+debug: Replaced get_3_tups_block@0.ops[119]: 'v-load array%item0%3#1' with 'l-load array%item0%3#1'
+debug: Inserted get_3_tups_block@0.ops[50]: 'l-store-copy array%item1%1#1 1'
+debug: Replaced get_3_tups_block@0.ops[111]: 'v-load array%item1%1#1' with 'l-load array%item1%1#1'
+debug: Inserted get_3_tups_block@0.ops[46]: 'l-store-copy array%item0%1#1 2'
+debug: Replaced get_3_tups_block@0.ops[108]: 'v-load array%item0%1#1' with 'l-load array%item0%1#1'
 debug: Inserted get_all_tups_block@0.ops[4]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced get_all_tups_block@0.ops[7]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted get_all_tups_block@0.ops[6]: 'l-store-copy maybe_value%0#0 1'
@@ -10782,12 +10943,12 @@ debug: Inserted get_all_tups_for_body@2.ops[32]: 'l-store-copy encoded%2#0 0'
 debug: Replaced get_all_tups_for_body@2.ops[35]: 'v-load encoded%2#0' with 'l-load encoded%2#0'
 debug: Inserted get_all_tups_for_body@2.ops[15]: 'l-store-copy encoded_element%0#0 0'
 debug: Replaced get_all_tups_for_body@2.ops[19]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[22]: 'l-store-copy item1%1#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[27]: 'v-load item1%1#0' with 'l-load item1%1#0'
+debug: Inserted get_all_tups_for_body@2.ops[22]: 'l-store-copy array%item1%1#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[27]: 'v-load array%item1%1#1' with 'l-load array%item1%1#1'
 debug: Inserted get_all_tups_for_body@2.ops[26]: 'l-store-copy val_as_bytes%0#0 1'
 debug: Replaced get_all_tups_for_body@2.ops[32]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[18]: 'l-store-copy item0%1#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[25]: 'v-load item0%1#0' with 'l-load item0%1#0'
+debug: Inserted get_all_tups_for_body@2.ops[18]: 'l-store-copy array%item0%1#1 1'
+debug: Replaced get_all_tups_for_body@2.ops[25]: 'v-load array%item0%1#1' with 'l-load array%item0%1#1'
 debug: Inserted get_all_tups_for_body@2.ops[44]: 'l-store-copy concatenated%0#0 0'
 debug: Replaced get_all_tups_for_body@2.ops[62]: 'v-load concatenated%0#0' with 'l-load concatenated%0#0'
 debug: Inserted get_all_tups_for_body@2.ops[2]: 'l-store-copy expr_value_trimmed%0#0 0'

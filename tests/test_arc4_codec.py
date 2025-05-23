@@ -4,8 +4,9 @@ import pytest
 from puya.awst import nodes, wtypes
 from puya.context import CompileContext
 from puya.errors import log_exceptions
+from puya.ir.encodings import wtype_to_encoding
 from puya.ir.main import awst_to_ir
-from puya.ir.types_ import wtype_to_encoding, wtype_to_ir_type
+from puya.ir.types_ import wtype_to_ir_type
 from puya.log import LogLevel, logging_context
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
