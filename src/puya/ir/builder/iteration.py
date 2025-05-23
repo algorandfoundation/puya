@@ -7,7 +7,6 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, arrays
 from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
 from puya.ir.builder._utils import (
     assert_value,
@@ -15,6 +14,7 @@ from puya.ir.builder._utils import (
     assign_targets,
     assign_temp,
 )
+from puya.ir.builder.sequence import get_sequence_builder
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     ConditionalBranch,
@@ -26,9 +26,7 @@ from puya.ir.models import (
     ValueProvider,
 )
 from puya.ir.types_ import (
-    ArrayEncoding,
     PrimitiveIRType,
-    wtype_to_encoding,
 )
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
@@ -97,6 +95,7 @@ class LoopAssigner:
 
 
 def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.ForInLoop) -> None:
+    loc = statement.source_location
     sequence = statement.sequence
     has_enumerate = False
     reverse_items = False
@@ -149,67 +148,11 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
                 )
-        case wtypes.BytesWType():
-            bytes_value = context.visitor.visit_and_materialise_single(sequence)
-            byte_length = assign_temp(
-                context,
-                temp_description="bytes_length",
-                source=Intrinsic(
-                    op=AVMOp.len_,
-                    args=[bytes_value],
-                    source_location=statement.source_location,
-                ),
-                source_location=statement.source_location,
-            )
+        case (wtypes.ARC4Array() | wtypes.NativeArray() | wtypes.BytesWType()) as iterable_wtype:
+            builder = get_sequence_builder(context, iterable_wtype, loc, assert_bounds=False)
+            array = context.visitor.visit_and_materialise_single(sequence)
+            iterator = builder.iterator(array)
 
-            def get_byte_at_index(index_register: Value) -> ValueProvider:
-                return Intrinsic(
-                    op=AVMOp.extract3,
-                    args=[
-                        bytes_value,
-                        index_register,
-                        UInt64Constant(value=1, source_location=None),
-                    ],
-                    source_location=statement.items.source_location,
-                )
-
-            _iterate_indexable(
-                context,
-                loop_body=statement.loop_body,
-                indexable_size=byte_length,
-                get_value_at_index=get_byte_at_index,
-                assigner=assign_user_loop_vars,
-                statement_loc=statement.source_location,
-                reverse_index=reverse_index,
-                reverse_items=reverse_items,
-            )
-        case (wtypes.ARC4Array() | wtypes.StackArray()) as array_wtype:
-            array_encoding = wtype_to_encoding(array_wtype, statement.source_location)
-
-            assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
-            iterator = arc4.build_for_in_array(
-                context,
-                array_encoding,
-                sequence,
-                statement.source_location,
-            )
-
-            _iterate_indexable(
-                context,
-                loop_body=statement.loop_body,
-                indexable_size=iterator.array_length,
-                get_value_at_index=iterator.get_value_at_index,
-                assigner=assign_user_loop_vars,
-                statement_loc=statement.source_location,
-                reverse_index=reverse_index,
-                reverse_items=reverse_items,
-            )
-        case wtypes.ReferenceArray():
-            iterator = arrays.build_for_in_array(
-                context,
-                sequence,
-                statement.source_location,
-            )
             _iterate_indexable(
                 context,
                 loop_body=statement.loop_body,

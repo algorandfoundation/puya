@@ -27,7 +27,6 @@ from puya.ir.builder._utils import (
     undefined_value,
 )
 from puya.ir.builder.arrays import (
-    ArrayIterator,
     get_array_encoded_items,
     get_array_length,
 )
@@ -743,79 +742,6 @@ def _encode_arc4_values_as_array(
     return factory.concat(len_prefix, array_head_and_tail, "array_data")
 
 
-def arc4_array_index(
-    context: IRRegisterContext,
-    *,
-    array_encoding: ArrayEncoding,
-    item_type: IRType,
-    array: Value,
-    index: Value,
-    source_location: SourceLocation,
-    assert_bounds: bool = True,
-) -> ValueProvider:
-    # TODO: migrate to ArrayReadIndex
-    factory = OpFactory(context, source_location)
-    array_length_vp = get_array_length(context, array_encoding, array, source_location)
-    array_head_and_tail_vp = _get_arc4_array_head_and_tail(array_encoding, array, source_location)
-    array_head_and_tail = factory.materialise_single(array_head_and_tail_vp, "array_head_and_tail")
-    element_encoding = array_encoding.element
-
-    if element_encoding.is_dynamic:
-        inner_element_size = None
-        if isinstance(element_encoding, ArrayEncoding) and not element_encoding.element.is_dynamic:
-            inner_element_size = element_encoding.element.checked_num_bytes
-        if inner_element_size is not None:
-            if assert_bounds:
-                _assert_index_in_bounds(context, index, array_length_vp, source_location)
-            item = _read_dynamic_item_using_length_from_arc4_container(
-                context,
-                array_head_and_tail=array_head_and_tail,
-                inner_element_size=inner_element_size,
-                index=index,
-                source_location=source_location,
-            )
-        else:
-            # no _assert_index_in_bounds here as end offset calculation implicitly checks
-            item = _read_dynamic_item_using_end_offset_from_arc4_container(
-                context,
-                array_length_vp=array_length_vp,
-                array_head_and_tail=array_head_and_tail,
-                index=index,
-                source_location=source_location,
-            )
-        # TODO: use ValueDecode
-        if not type_has_encoding(item_type, element_encoding):
-            item = factory.materialise_single(item, "encoded")
-            item = decode_arc4_value(context, item, element_encoding, item_type, source_location)
-        return item
-    elif _bit_packed_bool(element_encoding):
-        if assert_bounds:
-            # this catches the edge case of bit arrays that are not a multiple of 8
-            # e.g. reading index 6 & 7 of an array that has a length of 6
-            _assert_index_in_bounds(context, index, array_length_vp, source_location)
-        return _read_and_decode_nth_bool_from_arc4_container(
-            context,
-            data=array_head_and_tail,
-            index=index,
-            target_ir_type=item_type,
-            source_location=source_location,
-        )
-    else:
-        item_num_bytes = element_encoding.checked_num_bytes
-        # no _assert_index_in_bounds here as static items will error on read if past end of array
-        item = _read_static_item_from_arc4_container(
-            data=array_head_and_tail,
-            offset=factory.mul(index, item_num_bytes, "item_offset"),
-            encoding=element_encoding,
-            source_location=source_location,
-        )
-        # TODO: use ValueDecode
-        if not type_has_encoding(item_type, element_encoding):
-            item = factory.materialise_single(item, "encoded")
-            item = decode_arc4_value(context, item, element_encoding, item_type, source_location)
-        return item
-
-
 def arc4_tuple_index(
     context: IRFunctionBuildContext,
     base: Value,
@@ -839,48 +765,6 @@ def arc4_tuple_index(
         encoded = factory.materialise_single(result, "encoded")
         result = decode_arc4_value(context, encoded, item_encoding, item_ir_type, source_location)
     return result
-
-
-def build_for_in_array(
-    context: IRFunctionBuildContext,
-    array_encoding: ArrayEncoding,
-    array_expr: awst_nodes.Expression,
-    source_location: SourceLocation,
-) -> ArrayIterator:
-    array_wtype = array_expr.wtype
-    assert isinstance(
-        array_wtype, wtypes.ARC4Array | wtypes.StackArray
-    ), f"expected array type {array_wtype=!s}"
-    if not array_wtype.element_type.immutable:
-        raise InternalError(
-            "Attempted iteration of an ARC-4 array of mutable objects", source_location
-        )
-    array = context.visitor.visit_and_materialise_single(array_expr)
-    length_vp = get_array_length(context, array_encoding, array, source_location)
-    array_length = assign_temp(
-        context,
-        length_vp,
-        temp_description="array_length",
-        source_location=source_location,
-    )
-    item_type = wtype_to_ir_type(
-        array_wtype.element_type, source_location=source_location, allow_aggregate=True
-    )
-
-    def _read_and_decode(index: Value) -> ValueProvider:
-        # TODO: split this into a read and a decode
-        value = arc4_array_index(
-            context,
-            array_encoding=array_encoding,
-            item_type=item_type,
-            array=array,
-            index=index,
-            source_location=source_location,
-            assert_bounds=False,
-        )
-        return value
-
-    return ArrayIterator(array_length=array_length, get_value_at_index=_read_and_decode)
 
 
 def handle_arc4_assign(

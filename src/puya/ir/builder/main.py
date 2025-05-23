@@ -17,7 +17,7 @@ from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_types import effective_array_encoding, wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, arrays, flow_control, mem, storage
+from puya.ir.builder import arc4, arrays, flow_control, mem, sequence, storage
 from puya.ir.builder._tuple_util import get_tuple_item_values
 from puya.ir.builder._utils import (
     OpFactory,
@@ -836,15 +836,13 @@ class FunctionIRBuilder(
         )
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
-        from puya.ir.builder.arrays2 import get_array_builder
-
         loc = expr.source_location
         indexable_wtype = expr.base.wtype
 
         index = self.visit_and_materialise_single(expr.index)
         base = self.visit_and_materialise_single(expr.base)
 
-        builder = get_array_builder(self.context, indexable_wtype, loc)
+        builder = sequence.get_sequence_builder(self.context, indexable_wtype, loc)
         return builder.read_at_index(base, index)
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
@@ -1362,12 +1360,13 @@ class FunctionIRBuilder(
             raise InternalError("unsupported array type for ArrayExtend", expr.source_location)
 
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
-        value = self.context.visitor.visit_and_materialise_single(expr.array)
-        assert isinstance(
-            expr.array.wtype, wtypes.NativeArray | wtypes.ARC4Array
-        ), "expected array wtype"
-        array_encoding = wtype_to_encoding(expr.array.wtype, expr.source_location)
-        return arrays.get_array_length(self.context, array_encoding, value, expr.source_location)
+        loc = expr.source_location
+        array_wtype = expr.array.wtype
+        assert isinstance(array_wtype, wtypes.NativeArray | wtypes.ARC4Array)
+        builder = sequence.get_sequence_builder(self.context, array_wtype, loc)
+
+        array = self.context.visitor.visit_and_materialise_single(expr.array)
+        return builder.length(array)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root
