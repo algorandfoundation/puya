@@ -160,13 +160,7 @@ class NativeTupleCodec(ARC4Codec):
                     # value is already encoded, so do nothing
                     if type_has_encoding(native_element, BoolEncoding):
                         pass
-                    elif value.atype != AVMType.uint64:
-                        raise InternalError(
-                            f"unexpected value for encoding bool,"
-                            f" {native_element=}, {element_encoding=}",
-                            loc,
-                        )
-                    else:
+                    elif value.atype == AVMType.uint64:
                         value = factory.set_bit(
                             value=ARC4_FALSE, index=0, bit=value, temp_desc="encoded_bit"
                         )
@@ -177,6 +171,12 @@ class NativeTupleCodec(ARC4Codec):
                         #    ir_type=PrimitiveIRType.bytes,
                         #    temp_desc="encoded_bit",
                         # )
+                    else:
+                        raise InternalError(
+                            f"unexpected value for encoding bool,"
+                            f" {native_element=}, {element_encoding=}",
+                            loc,
+                        )
                     bit_packed_index = 0
             else:
                 element_arity = get_type_arity(native_element)
@@ -215,7 +215,7 @@ class NativeTupleCodec(ARC4Codec):
                 loc,
             )
         encoded = factory.concat(encoded, tail, "encoded")
-        if isinstance(encoding, DynamicArrayEncoding) and encoding.length_header:
+        if encoding.length_header:
             len_u16 = factory.as_u16_bytes(len(native_elements), "len_u16")
             encoded = factory.concat(len_u16, encoded, "encoded", ir_type=EncodedType(encoding))
         return encoded
