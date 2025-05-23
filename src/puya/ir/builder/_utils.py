@@ -14,6 +14,7 @@ from puya.ir.models import (
     TMP_VAR_INDICATOR,
     BytesConstant,
     Intrinsic,
+    InvokeSubroutine,
     Register,
     UInt64Constant,
     Undefined,
@@ -584,3 +585,18 @@ def undefined_value(typ: wtypes.WType | IRType, loc: SourceLocation) -> ValuePro
             return value
         case _:
             return ValueTuple(values=values, source_location=loc)
+
+
+def invoke_puya_lib_subroutine(
+    context: IRRegisterContext,
+    *,
+    full_name: str,
+    args: Sequence[Value | int | bytes],
+    source_location: SourceLocation,
+) -> InvokeSubroutine:
+    sub = context.resolve_embedded_func(full_name)
+    return InvokeSubroutine(
+        target=sub,
+        args=[convert_constants(arg, source_location) for arg in args],
+        source_location=source_location,
+    )
