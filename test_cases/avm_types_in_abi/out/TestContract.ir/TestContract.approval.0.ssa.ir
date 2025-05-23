@@ -31,18 +31,18 @@ subroutine test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router_
         let is_true%0#0: uint64 = (getbit reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 0u)
         let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u is_true%0#0)
         let item0%0#0: bool = (getbit encoded_bool%0#0 0u)
-        let item1%0#0: bytes = (extract3 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 1u 8u) // on error: Index access is out of bounds
-        let item1%1#0: uint64 = (btoi item1%0#0)
+        let encoded_item1%0#0: bytes = (extract3 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 1u 8u) // on error: Index access is out of bounds
+        let item1%0#0: uint64 = (btoi encoded_item1%0#0)
         let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 9u)
         let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 75u)
-        let item2%0#0: bytes = (substring3 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item2%1#0: bytes = ((extract 2 0) item2%0#0)
-        let item3%0#0: bytes = (extract3 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 11u 64u) // on error: Index access is out of bounds
+        let encoded_item2%0#0: bytes = (substring3 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item2%0#0: bytes = ((extract 2 0) encoded_item2%0#0)
+        let encoded_item3%0#0: bytes = (extract3 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 11u 64u) // on error: Index access is out of bounds
         let item_start_offset%1#0: uint64 = (extract_uint16 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 75u)
         let item_end_offset%1#0: uint64 = (len reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0)
-        let item4%0#0: bytes = (substring3 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 item_start_offset%1#0 item_end_offset%1#0)
-        let item4%1#0: bytes = ((extract 2 0) item4%0#0)
-        let (to_encode%0#0: bool, to_encode%1#0: uint64, to_encode%2#0: bytes, to_encode%3#0: biguint, to_encode%4#0: string) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%7#0, tmp%8#0, tmp%9#0, reinterpret_Encoded(uint512)%0#0, tmp%10#0, item0%0#0, item1%1#0, item2%1#0, item3%0#0, item4%1#0)
+        let encoded_item4%0#0: bytes = (substring3 reinterpret_Encoded((bool1,uint64,len+uint8[],uint512,len+utf8[]))%0#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item4%0#0: bytes = ((extract 2 0) encoded_item4%0#0)
+        let (to_encode%0#0: bool, to_encode%1#0: uint64, to_encode%2#0: bytes, to_encode%3#0: biguint, to_encode%4#0: string) = test_cases.avm_types_in_abi.contract.TestContract.create(tmp%7#0, tmp%8#0, tmp%9#0, reinterpret_Encoded(uint512)%0#0, tmp%10#0, item0%0#0, item1%0#0, item2%0#0, encoded_item3%0#0, item4%0#0)
         let encoded_bit%0#0: bytes = (setbit 0x00 0u to_encode%0#0)
         let encoded%0#0: Encoded((bool1)) = (concat 0x encoded_bit%0#0)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%1#0)
@@ -86,8 +86,8 @@ subroutine test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router_
         (assert tmp%15#0) // can only call when not creating
         let reinterpret_Encoded((uint8,uint8[32]))%0#0: Encoded((uint8,uint8[32])) = (txna ApplicationArgs 1)
         let item0%1#0: bytes = (extract3 reinterpret_Encoded((uint8,uint8[32]))%0#0 0u 1u) // on error: Index access is out of bounds
-        let item1%2#0: bytes = (extract3 reinterpret_Encoded((uint8,uint8[32]))%0#0 1u 32u) // on error: Index access is out of bounds
-        let (to_encode%5#0: Encoded(uint8), to_encode%6#0: Encoded(uint8[32])) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%2#0)
+        let item1%1#0: bytes = (extract3 reinterpret_Encoded((uint8,uint8[32]))%0#0 1u 32u) // on error: Index access is out of bounds
+        let (to_encode%5#0: Encoded(uint8), to_encode%6#0: Encoded(uint8[32])) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(item0%1#0, item1%1#0)
         let encoded%6#0: Encoded((uint8)) = (concat 0x to_encode%5#0)
         let encoded%7#0: Encoded((uint8,uint8[32])) = (concat encoded%6#0 to_encode%6#0)
         let encoded%8#0: bytes = (concat encoded%7#0 0x)

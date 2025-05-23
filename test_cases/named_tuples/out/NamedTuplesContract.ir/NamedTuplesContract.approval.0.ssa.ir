@@ -66,18 +66,18 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_rout
         let tmp%14#0: bool = (!= tmp%13#0 0u)
         (assert tmp%14#0) // can only call when not creating
         let reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (txna ApplicationArgs 1)
-        let item0%0#0: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 0u 8u) // on error: Index access is out of bounds
-        let item0%1#0: uint64 = (btoi item0%0#0)
-        let item1%0#0: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 8u 64u) // on error: Index access is out of bounds
+        let encoded_item0%0#0: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 0u 8u) // on error: Index access is out of bounds
+        let item0%0#0: uint64 = (btoi encoded_item0%0#0)
+        let encoded_item1%0#0: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 8u 64u) // on error: Index access is out of bounds
         let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 72u)
         let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
-        let item2%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item2%1#0: bytes = ((extract 2 0) item2%0#0)
+        let encoded_item2%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 item_start_offset%0#0 item_end_offset%0#0)
+        let item2%0#0: bytes = ((extract 2 0) encoded_item2%0#0)
         let item_start_offset%1#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
         let item_end_offset%1#0: uint64 = (len reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0)
-        let item3%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 item_start_offset%1#0 item_end_offset%1#0)
-        let item3%1#0: bytes = ((extract 2 0) item3%0#0)
-        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(item0%1#0, item1%0#0, item2%1#0, item3%1#0)
+        let encoded_item3%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 item_start_offset%1#0 item_end_offset%1#0)
+        let item3%0#0: bytes = ((extract 2 0) encoded_item3%0#0)
+        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(item0%0#0, encoded_item1%0#0, item2%0#0, item3%0#0)
         return 1u
     block@4: // switch_case_default_L15
         goto block@5

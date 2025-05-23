@@ -228,13 +228,13 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let slot_contents%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
         let bytes_offset%0#0: uint64 = (* i#1 144u)
         let encoded_element%0#0: bytes = (extract3 slot_contents%0#0 bytes_offset%0#0 144u) // on error: index access is out of bounds
-        let array%item2%0#1: bytes = ((extract 16 128) encoded_element%0#0) // on error: Index access is out of bounds
-        let array%item1%2#1: bytes = ((extract 8 8) array%item2%0#1) // on error: Index access is out of bounds
-        let array%item1%3#1: uint64 = (extract_uint64 array%item2%0#1 8u)
+        let array%encoded_item2%0#1: bytes = ((extract 16 128) encoded_element%0#0) // on error: Index access is out of bounds
+        let array%encoded_item1%1#1: bytes = ((extract 8 8) array%encoded_item2%0#1) // on error: Index access is out of bounds
+        let array%item1%1#1: uint64 = (extract_uint64 array%encoded_item2%0#1 8u)
         let i#2: uint64 = (+ i#1 1u)
-        let tmp%23#0: bool = (== array%item1%3#1 i#2)
+        let tmp%23#0: bool = (== array%item1%1#1 i#2)
         (assert tmp%23#0)
-        let array%item3%1#1: bytes = ((extract 48 16) array%item2%0#1) // on error: Index access is out of bounds
+        let array%item3%1#1: bytes = ((extract 48 16) array%encoded_item2%0#1) // on error: Index access is out of bounds
         let reinterpret_biguint%0#0: biguint = ((extract 0 8) array%item3%1#1) // on error: Index access is out of bounds
         let tmp%31#0: uint64 = (+ i#1 2u)
         let tmp%32#0: biguint = (itob tmp%31#0)
@@ -257,7 +257,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         (box_put "a" concat_result%0#0)
         let encoded_element%0#1: bytes = ((extract 0 144) slot_contents%3#0) // on error: index access is out of bounds
         let last_point.x#0: Encoded(uint64) = ((extract 0 8) encoded_element%0#1) // on error: Index access is out of bounds
-        let array%item1%12#1: bytes = ((extract 8 8) encoded_element%0#1) // on error: Index access is out of bounds
+        let array%encoded_item1%6#1: bytes = ((extract 8 8) encoded_element%0#1) // on error: Index access is out of bounds
         let last_point.y#0: uint64 = (extract_uint64 encoded_element%0#1 8u)
         let length#0: uint64 = 0u
         let point_idx#0: uint64 = 1u
@@ -272,7 +272,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let bytes_offset%1#1: uint64 = (* point_idx#1 144u)
         let encoded_element%1#1: bytes = (extract3 slot_contents%2#1 bytes_offset%1#1 144u) // on error: index access is out of bounds
         let point.x#0: Encoded(uint64) = ((extract 0 8) encoded_element%1#1) // on error: Index access is out of bounds
-        let array%item1%16#1: bytes = ((extract 8 8) encoded_element%1#1) // on error: Index access is out of bounds
+        let array%encoded_item1%8#1: bytes = ((extract 8 8) encoded_element%1#1) // on error: Index access is out of bounds
         let point.y#0: uint64 = (extract_uint64 encoded_element%1#1 8u)
         let tmp%1#1: bool = (b< point.x#0 last_point.x#0)
         goto tmp%1#1 ? block@8 : block@9
