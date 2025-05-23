@@ -17,7 +17,6 @@ from puya.ir.builder._utils import (
     assert_value,
     assign_intrinsic_op,
     assign_targets,
-    assign_temp,
     convert_constants,
     mktemp,
     undefined_value,
@@ -1538,81 +1537,6 @@ def _encode_native_uint64_to_arc4(
     return factory.extract3(val_as_bytes, 8 - num_bytes, num_bytes, f"uint{num_bytes*8}")
 
 
-def arc4_replace_array_item(
-    context: IRRegisterContext,
-    *,
-    array: Value,
-    index: Value,
-    array_encoding: ArrayEncoding,
-    element_ir_type: IRType,
-    value_vp: ValueProvider,
-    source_location: SourceLocation,
-) -> Value:
-    factory = OpFactory(context, source_location)
-    element_encoding = array_encoding.element
-
-    # TODO: use ValueEncode
-    if not type_has_encoding(element_ir_type, element_encoding):
-        encoded_vp = encode_value_provider(
-            context, value_vp, element_ir_type, element_encoding, source_location
-        )
-        value: Value = factory.materialise_single(encoded_vp, "encoded")
-    else:
-        value = factory.materialise_single(value_vp, "assigned_value")
-
-    array_length_vp = get_array_length(context, array_encoding, array, source_location)
-    array_length = factory.materialise_single(array_length_vp, "array_length")
-    _assert_index_in_bounds(context, index, array_length, source_location)
-    assert element_encoding.num_bytes is not None, "expected static element"
-
-    if _bit_packed_bool(element_encoding):
-        element_num_bits = 1
-    else:
-        element_num_bits = element_encoding.num_bytes * 8
-    dynamic_offset = 0 if isinstance(array_encoding, FixedArrayEncoding) else 2
-    if element_num_bits == 1:
-        dynamic_offset *= 8  # convert offset to bits
-        offset_per_item = element_num_bits
-    else:
-        offset_per_item = element_num_bits // 8
-
-    if isinstance(index, UInt64Constant):
-        # TODO: can leave this to the optimizer?
-        write_offset: Value = UInt64Constant(
-            value=index.value * offset_per_item + dynamic_offset,
-            source_location=source_location,
-        )
-    else:
-        write_offset = assign_intrinsic_op(
-            context,
-            target="write_offset",
-            op=AVMOp.mul,
-            args=[index, offset_per_item],
-            source_location=source_location,
-        )
-        if dynamic_offset:
-            write_offset = assign_intrinsic_op(
-                context,
-                target=write_offset,
-                op=AVMOp.add,
-                args=[write_offset, dynamic_offset],
-                source_location=source_location,
-            )
-
-    factory = OpFactory(context, source_location)
-    if element_num_bits == 1:
-        is_true = factory.get_bit(value, 0, "is_true")
-        updated_target = factory.set_bit(
-            value=array,
-            index=write_offset,
-            bit=is_true,
-            temp_desc="updated_target",
-        )
-    else:
-        updated_target = factory.replace(array, write_offset, value, "updated_target")
-    return updated_target
-
-
 def _concat_dynamic_array_fixed_size(
     context: IRFunctionBuildContext,
     *,
@@ -1684,43 +1608,6 @@ def _arc4_items_as_arc4_tuple(
         result = factory.concat(result, item, "result")
 
     return result
-
-
-def _assert_index_in_bounds(
-    context: IRRegisterContext,
-    index: Value,
-    length: ValueProvider,
-    source_location: SourceLocation,
-) -> None:
-    if isinstance(index, UInt64Constant) and isinstance(length, UInt64Constant):
-        if 0 <= index.value < length.value:
-            return
-        raise CodeError("Index access is out of bounds", source_location)
-
-    array_length = assign_temp(
-        context,
-        source_location=source_location,
-        temp_description="array_length",
-        source=length,
-    )
-
-    index_is_in_bounds = assign_temp(
-        context,
-        source_location=source_location,
-        temp_description="index_is_in_bounds",
-        source=Intrinsic(
-            op=AVMOp.lt,
-            args=[index, array_length],
-            source_location=source_location,
-        ),
-    )
-
-    assert_value(
-        context,
-        index_is_in_bounds,
-        error_message="Index access is out of bounds",
-        source_location=source_location,
-    )
 
 
 def _get_arc4_array_head_and_tail(
