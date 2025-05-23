@@ -54,6 +54,7 @@ class SubroutineOptimization:
                 pass
         return did_modify
 
+
 def get_subroutine_optimizations(optimization_level: int) -> Iterable[SubroutineOptimization]:
     if optimization_level:
         return [
