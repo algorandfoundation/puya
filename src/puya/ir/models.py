@@ -22,13 +22,13 @@ from puya.ir.encodings import (
     TupleEncoding,
 )
 from puya.ir.types_ import (
-    AggregateIRType,
     AVMBytesEncoding,
     EncodedType,
     IRType,
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
+    TupleIRType,
     UnionType,
     ir_type_to_ir_types,
     type_has_encoding,
@@ -605,17 +605,17 @@ class ValueDecode(Op, ValueProvider):
 
 def _arity_matches(ir_type: IRType, encoding: Encoding, loc: SourceLocation) -> None:
     match ir_type:
-        case AggregateIRType(elements=elements) if isinstance(encoding, TupleEncoding) and len(
+        case TupleIRType(elements=elements) if isinstance(encoding, TupleEncoding) and len(
             elements
         ) == len(encoding.elements):
             for element, encoding_element in zip(elements, encoding.elements, strict=False):
                 _arity_matches(element, encoding_element, loc)
-        case AggregateIRType(elements=elements) if isinstance(
-            encoding, FixedArrayEncoding
-        ) and len(elements) == encoding.size:
+        case TupleIRType(elements=elements) if isinstance(encoding, FixedArrayEncoding) and len(
+            elements
+        ) == encoding.size:
             for element in elements:
                 _arity_matches(element, encoding.element, loc)
-        case AggregateIRType():
+        case TupleIRType():
             raise InternalError("type arity does not match encoding arity", loc)
         case _:
             pass

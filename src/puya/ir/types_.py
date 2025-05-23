@@ -132,9 +132,10 @@ class PrimitiveIRType(IRType, enum.StrEnum):
 
 
 @attrs.frozen(str=False, order=False)
-class AggregateIRType(IRType):
+class TupleIRType(IRType):
+    """Represents a type that contains one or more other IRTypes, allows nesting"""
+
     elements: Sequence[IRType] = attrs.field(converter=tuple[IRType, ...])
-    """Represents a type that is a combination of other types"""
 
     @property
     def name(self) -> str:
@@ -143,11 +144,11 @@ class AggregateIRType(IRType):
 
     @property
     def avm_type(self) -> AVMType:
-        raise InternalError("aggregate types cannot be mapped to an AVM stack type")
+        raise InternalError("tuple types cannot be mapped to a single AVM stack type")
 
     @property
     def maybe_avm_type(self) -> str:
-        return "aggregate"
+        return "tuple"
 
     @property
     def num_bytes(self) -> int | None:
@@ -183,7 +184,7 @@ class EncodedType(IRType):
 
 @attrs.frozen(str=False, order=False)
 class SlotType(IRType):
-    """Represents a scratch slot containing a value of another type"""
+    """Represents a slot containing a value of another type"""
 
     contents: IRType
 
@@ -315,15 +316,15 @@ def wtype_to_ir_type(
             return PrimitiveIRType.itxn_field_set
         case wtypes.string_wtype:
             return PrimitiveIRType.string
+        case wtypes.account_wtype:
+            return SizedBytesType(32)
         case wtypes.ReferenceArray():
             array_type = wtype_to_encoded_ir_type(wtype, source_location)
             return SlotType(array_type)
         case wtypes.ARC4Type() | wtypes.StackArray():
             return wtype_to_encoded_ir_type(wtype, source_location)
-        case wtypes.account_wtype:
-            return SizedBytesType(32)
         case wtypes.WTuple(types=types) if allow_aggregate:
-            return AggregateIRType(
+            return TupleIRType(
                 elements=[
                     wtype_to_ir_type(t, allow_aggregate=True, source_location=source_location)
                     for t in types
@@ -388,7 +389,7 @@ def sum_wtypes_arity(types: Sequence[wtypes.WType]) -> int:
 
 def get_type_arity(ir_type: IRType) -> int:
     """Returns the number of values this wtype represents on the stack"""
-    if isinstance(ir_type, AggregateIRType):
+    if isinstance(ir_type, TupleIRType):
         return sum_types_arity(ir_type.elements)
     else:
         return 1
@@ -424,7 +425,7 @@ def ir_type_to_ir_types(ir_type: IRType) -> list[IRType]:
 
     Generally only useful in converting return types, use in other cases demands caution.
     """
-    if isinstance(ir_type, AggregateIRType):
+    if isinstance(ir_type, TupleIRType):
         return [ir_type for typ in ir_type.elements for ir_type in ir_type_to_ir_types(typ)]
     else:
         return [ir_type]
