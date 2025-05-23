@@ -72,12 +72,12 @@ from puya.ir.models import (
     WriteSlot,
 )
 from puya.ir.types_ import (
-    AggregateIRType,
     AVMBytesEncoding,
     EncodedType,
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
+    TupleIRType,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_ir_type,
     wtype_to_ir_type_and_encoding,
@@ -1258,7 +1258,7 @@ class FunctionIRBuilder(
 
         struct_value_provider = ValueTuple(values=elements, source_location=loc)
         struct_encoding = wtype_to_encoding(expr.wtype, loc)
-        struct_ir_type = AggregateIRType(
+        struct_ir_type = TupleIRType(
             elements=[wtype_to_ir_type_and_encoding(t, loc)[0] for t in expr.wtype.fields.values()]
         )
         return arc4.encode_value_provider(
