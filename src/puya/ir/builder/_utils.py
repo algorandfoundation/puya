@@ -554,17 +554,6 @@ class OpFactory:
         )
         return result
 
-    def materialise_value_or_tuple(
-        self, value_provider: ValueProvider, description: str = "tmp"
-    ) -> Value | ValueTuple:
-        if isinstance(value_provider, Value | ValueTuple):
-            return value_provider
-        values = self.materialise_values(value_provider, description)
-        if len(values) == 1:
-            return values[0]
-        else:
-            return ValueTuple(values=values, source_location=self.source_location)
-
     def materialise_single(self, value_provider: ValueProvider, description: str = "tmp") -> Value:
         (single,) = self.materialise_values(value_provider, description)
         return single
@@ -575,23 +564,7 @@ class OpFactory:
     def materialise_values(
         self, value_provider: ValueProvider, description: str = "tmp"
     ) -> Sequence[Value]:
-        if isinstance(value_provider, Value):
-            return [value_provider]
-        elif isinstance(value_provider, ValueTuple):
-            return value_provider.values
-        targets: list[Register] = [
-            self.context.new_register(
-                self.context.next_tmp_name(description), ir_type, self.source_location
-            )
-            for ir_type in value_provider.types
-        ]
-        assign_targets(
-            self.context,
-            source=value_provider,
-            targets=targets,
-            assignment_location=self.source_location,
-        )
-        return targets
+        return self.context.materialise_value_provider(value_provider, description)
 
 
 def undefined_value(typ: wtypes.WType | IRType, loc: SourceLocation) -> ValueProvider:
