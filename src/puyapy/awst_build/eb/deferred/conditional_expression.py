@@ -57,32 +57,6 @@ class DeferredConditionalExpressionBuilder(InstanceBuilder[_DeferredTypes]):
     def pytype(self) -> _DeferredTypes:
         return self._pytype
 
-    @classmethod
-    def deferred_if_required(
-        cls,
-        *,
-        true: InstanceBuilder,
-        false: InstanceBuilder,
-        condition: InstanceBuilder,
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        result_type = determine_base_type(true.pytype, false.pytype, location=location)
-        if isinstance(result_type, _DeferredTypes):
-            return cls(
-                true=true,
-                false=false,
-                condition=condition,
-                location=location,
-                result_type=result_type,
-            )
-        resolved_expr = ConditionalExpression(
-            condition=condition.resolve(),
-            true_expr=true.resolve(),
-            false_expr=false.resolve(),
-            source_location=location,
-        )
-        return builder_for_instance(result_type, resolved_expr)
-
     @typing.override
     def resolve(self) -> Expression:
         true_expr = self._true.resolve()
@@ -132,7 +106,7 @@ class DeferredConditionalExpressionBuilder(InstanceBuilder[_DeferredTypes]):
     ) -> InstanceBuilder:
         location = coalesce(location, self.source_location)
         condition = coalesce(condition, self._condition)
-        return self.deferred_if_required(
+        return conditional_expression_builder(
             true=true, false=false, condition=condition, location=location
         )
 
@@ -270,3 +244,28 @@ class DeferredConditionalExpressionBuilder(InstanceBuilder[_DeferredTypes]):
     @typing.override
     def delete(self, location: SourceLocation) -> Statement:
         raise CodeError("invalid Python syntax: cannot delete conditional expression", location)
+
+
+def conditional_expression_builder(
+    *,
+    true: InstanceBuilder,
+    false: InstanceBuilder,
+    condition: InstanceBuilder,
+    location: SourceLocation,
+) -> InstanceBuilder:
+    result_type = determine_base_type(true.pytype, false.pytype, location=location)
+    if isinstance(result_type, _DeferredTypes):
+        return DeferredConditionalExpressionBuilder(
+            true=true,
+            false=false,
+            condition=condition,
+            location=location,
+            result_type=result_type,
+        )
+    resolved_expr = ConditionalExpression(
+        condition=condition.resolve(),
+        true_expr=true.resolve(),
+        false_expr=false.resolve(),
+        source_location=location,
+    )
+    return builder_for_instance(result_type, resolved_expr)

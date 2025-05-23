@@ -163,7 +163,7 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
         self, other: InstanceBuilder, op: BinaryBooleanOperator, location: SourceLocation
     ) -> InstanceBuilder:
         """Handle self and/or other"""
-        from puyapy.awst_build.eb.binary_bool_op import BinaryBoolOpBuilder
+        from puyapy.awst_build.eb.deferred.binary_bool_op import BinaryBoolOpBuilder
 
         return BinaryBoolOpBuilder(left=self, right=other, op=op, location=location)
 

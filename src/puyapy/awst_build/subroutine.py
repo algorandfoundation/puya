@@ -50,10 +50,12 @@ from puyapy import models
 from puyapy.awst_build import constants, pytypes
 from puyapy.awst_build.base_mypy_visitor import BaseMyPyExpressionVisitor, BaseMyPyStatementVisitor
 from puyapy.awst_build.context import ASTConversionModuleContext
-from puyapy.awst_build.eb import _expect as expect
+from puyapy.awst_build.eb import (
+    _expect as expect,
+    deferred,
+)
 from puyapy.awst_build.eb._literals import LiteralBuilderImpl
 from puyapy.awst_build.eb.arc4 import ARC4ClientTypeBuilder
-from puyapy.awst_build.eb.conditional_literal import DeferredConditionalExpressionBuilder
 from puyapy.awst_build.eb.contracts import (
     ContractSelfExpressionBuilder,
     ContractTypeExpressionBuilder,
@@ -407,7 +409,7 @@ class ExpressionASTConverter(BaseMyPyExpressionVisitor[NodeBuilder], abc.ABC):
         true = require_instance_builder(expr.if_expr.accept(self))
         false = require_instance_builder(expr.else_expr.accept(self))
 
-        return DeferredConditionalExpressionBuilder.deferred_if_required(
+        return deferred.conditional_expression_builder(
             true=true, false=false, condition=condition, location=expr_loc
         )
 
