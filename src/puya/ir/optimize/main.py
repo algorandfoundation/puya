@@ -55,6 +55,38 @@ class SubroutineOptimization:
         return did_modify
 
 
+# a = unused
+# b = a
+
+# using node
+# a, b = decode(encoded)
+# assert a
+# a, b = decode(encoded)
+# assert b
+
+# a, b = something(encoded[0]), something(encoded[1])
+# assert a
+# a, b = something(encoded[0]), something(encoded[1])
+# assert b
+
+# a, b = something(encoded[0]), something(encoded[1])
+# assert a
+# assert b
+
+# without node
+# a = something(encoded[0])
+# b = something(encoded[1])
+# assert a
+# a = something(encoded[0])
+# b = something(encoded[2])
+# assert b
+
+# a = something(encoded[0])
+# assert a
+# b = something(encoded[2])
+# assert b
+
+
 def get_subroutine_optimizations(optimization_level: int) -> Iterable[SubroutineOptimization]:
     if optimization_level:
         return [
@@ -63,7 +95,8 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(constant_replacer),
             SubroutineOptimization.from_function(copy_propagation),
             SubroutineOptimization.from_function(elide_itxn_field_calls),
-            SubroutineOptimization.from_function(remove_unused_variables),
+            # TODO: improve this algorithm instead of looping
+            SubroutineOptimization.from_function(remove_unused_variables, loop=True),
             SubroutineOptimization.from_function(intrinsic_simplifier),
             SubroutineOptimization.from_function(inner_txn_field_replacer),
             SubroutineOptimization.from_function(replace_compiled_references),
