@@ -6,6 +6,7 @@ from collections.abc import Iterator
 import attrs
 
 from puya import log
+from puya.errors import InternalError
 from puya.ir import (
     models,
     models as ir,
@@ -17,6 +18,7 @@ from puya.ir.encodings import (
     Encoding,
     FixedArrayEncoding,
 )
+from puya.ir.models import Subroutine
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType
 from puya.ir.visitor import IRTraverser
@@ -55,6 +57,10 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     _tmp_counters: defaultdict[str, Iterator[int]] = attrs.field(
         factory=lambda: defaultdict(itertools.count)
     )
+
+    def resolve_embedded_func(self, full_name: str) -> Subroutine:
+        # TODO: might not need this if ArrayRead and ArrayWrite are removed
+        raise InternalError(f"TODO: allow resolving embedded functions: {full_name}")
 
     @typing.override
     def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
