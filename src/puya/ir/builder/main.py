@@ -77,7 +77,6 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
-    TupleIRType,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_ir_type,
     wtype_to_ir_type_and_encoding,
@@ -178,34 +177,36 @@ class FunctionIRBuilder(
                 )
 
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> TExpression:
+        loc = expr.source_location
+
+        ir_type = wtype_to_ir_type(expr.wtype, loc, allow_aggregate=True)
+        encoding = wtype_to_encoding(expr.value.wtype, loc)
+
         value = self.visit_and_materialise_single(expr.value)
-        assert isinstance(
-            expr.value.wtype, wtypes.ARC4Type
-        ), f"ARC4Decode node should have value with ARC-4 type, got: {expr.value.wtype}"
-        ir_type = wtype_to_ir_type(
-            expr.wtype, source_location=expr.source_location, allow_aggregate=True
-        )
-        encoding = wtype_to_encoding(expr.value.wtype, expr.source_location)
-        return arc4.decode_arc4_value(self.context, value, encoding, ir_type, expr.source_location)
+        return arc4.decode_arc4_value(self.context, value, encoding, ir_type, loc)
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         loc = expr.source_location
-        value = self.visit_expr(expr.value)
+
         value_ir_type, value_encoding = wtype_to_ir_type_and_encoding(expr.value.wtype, loc)
         encoding = wtype_to_encoding(expr.wtype, loc)
+
+        value = self.visit_expr(expr.value)
         return arc4.encode_value_provider(self.context, value, value_ir_type, encoding, loc)
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
+        loc = size_of.source_location
+
         wtype = size_of.size_wtype
         if isinstance(wtype, wtypes.WTuple):
-            wtype = wtype_to_arc4_wtype(wtype, size_of.source_location)
-        ir_type = wtype_to_ir_type(wtype, size_of.source_location)
+            wtype = wtype_to_arc4_wtype(wtype, loc)
+        ir_type = wtype_to_ir_type(wtype, loc)
         if ir_type.num_bytes is None:
             logger.error(
-                f"{size_of.size_wtype} is dynamically sized", location=size_of.source_location
+                f"{size_of.size_wtype} is dynamically sized", location=loc
             )
         num_bytes = ir_type.num_bytes or 0
-        return UInt64Constant(value=num_bytes, source_location=size_of.source_location)
+        return UInt64Constant(value=num_bytes, source_location=loc)
 
     def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> TExpression:
         prefix = self.context.options.template_vars_prefix if expr.prefix is None else expr.prefix
