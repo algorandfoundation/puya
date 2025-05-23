@@ -9,6 +9,7 @@ from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import mem
 from puya.ir.builder._utils import OpFactory, assert_value
+from puya.ir.builder.arrays import ArrayIterator
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
     ArrayEncoding,
@@ -23,7 +24,6 @@ from puya.ir.types_ import (
     type_has_encoding,
     wtype_to_encoding,
     wtype_to_ir_type,
-    wtype_to_ir_type_and_encoding,
 )
 from puya.parse import SourceLocation
 
@@ -32,7 +32,11 @@ logger = log.get_logger(__name__)
 # ruff: noqa: ARG002
 
 
-class ArrayBuilder(abc.ABC):
+class SequenceBuilder(abc.ABC):
+    """
+    Builder interface for sequence operations for arrays, tuples and bytes
+    """
+
     # TODO: add slice abstraction here too?
 
     @abc.abstractmethod
@@ -45,10 +49,57 @@ class ArrayBuilder(abc.ABC):
 
     @abc.abstractmethod
     def length(self, array: ir.Value) -> ir.ValueProvider:
-        """Returns the number of elements in the array"""
+        """Returns the number of elements"""
+
+    @abc.abstractmethod
+    def iterator(self, array: ir.Value) -> ArrayIterator:
+        """Returns an iterator for all the items"""
 
 
-class _ArrayBuilderImpl(ArrayBuilder, abc.ABC):
+def get_sequence_builder(
+    context: IRRegisterContext,
+    wtype: wtypes.WType,
+    loc: SourceLocation,
+    *,
+    assert_bounds: bool = True,
+) -> SequenceBuilder:
+    if isinstance(wtype, wtypes.BytesWType):
+        return BytesIndexableBuilder(context, loc)
+    elif isinstance(wtype, wtypes.NativeArray | wtypes.ARC4Array):
+        array_ir_type = wtype_to_ir_type(wtype, source_location=loc)
+        element_ir_type = wtype_to_ir_type(
+            wtype.element_type, source_location=loc, allow_aggregate=True
+        )
+        array_encoding = wtype_to_encoding(wtype, loc)
+        builder_typ: type[_ArrayBuilderImpl] | None = None
+        match array_encoding:
+            # BitPackedBool is a more specific match than FixedElement so do that first
+            case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=True):
+                builder_typ = BitPackedBoolArrayBuilder
+            case FixedArrayEncoding(element=BoolEncoding(packed=True)):
+                builder_typ = BitPackedBoolArrayBuilder
+            case ArrayEncoding(element=Encoding(is_dynamic=False)):
+                builder_typ = FixedElementArrayBuilder
+            case ArrayEncoding(element=Encoding(is_dynamic=True)):
+                builder_typ = DynamicElementArrayBuilder
+                # TODO: maybe split DynamicElementArrayBuilder into two builders
+                # TODO: maybe ByteLengthHeaderElementArrayBuilder
+        if builder_typ is not None:
+            return builder_typ(
+                context,
+                array_ir_type=array_ir_type,
+                array_encoding=array_encoding,
+                element_ir_type=element_ir_type,
+                assert_bounds=assert_bounds,
+                loc=loc,
+            )
+    raise InternalError(f"unsupported array type: {wtype!s}", loc)
+
+
+# region implementations
+
+
+class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
     def __init__(
         self,
         context: IRRegisterContext,
@@ -73,7 +124,16 @@ class _ArrayBuilderImpl(ArrayBuilder, abc.ABC):
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.ValueProvider) -> None:
         _todo("ARC-4 shim array write", array.source_location)
 
+    def iterator(self, array: ir.Value) -> ArrayIterator:
+        length_vp = self.length(array)
+        length = self.factory.materialise_single(length_vp, "array_length")
+        return ArrayIterator(
+            array_length=length, get_value_at_index=lambda index: self.read_at_index(array, index)
+        )
+
     def length(self, array: ir.Value) -> ir.ValueProvider:
+        if isinstance(self.array_ir_type, SlotType):
+            array = mem.read_slot(self.factory.context, array, self.loc)
         return ir.ArrayLength(
             array=array,
             array_encoding=self.array_encoding,
@@ -258,99 +318,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         _todo("dynamic element array write", array.source_location)
 
 
-def get_array_builder(
-    context: IRRegisterContext,
-    wtype: wtypes.WType,
-    loc: SourceLocation,
-    *,
-    assert_bounds: bool = True,
-) -> ArrayBuilder:
-    if isinstance(wtype, wtypes.BytesWType):
-        return BytesArrayBuilder(context, loc)
-    elif isinstance(wtype, wtypes.NativeArray | wtypes.ARC4Array):
-        array_ir_type = wtype_to_ir_type(wtype, source_location=loc)
-        element_ir_type = wtype_to_ir_type(
-            wtype.element_type, source_location=loc, allow_aggregate=True
-        )
-        array_encoding = wtype_to_encoding(wtype, loc)
-        builder_typ: type[_ArrayBuilderImpl] | None = None
-        match array_encoding:
-            # BitPackedBool is a more specific match than FixedElement so do that first
-            case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=True):
-                builder_typ = BitPackedBoolArrayBuilder
-            case FixedArrayEncoding(element=BoolEncoding(packed=True)):
-                builder_typ = BitPackedBoolArrayBuilder
-            case ArrayEncoding(element=Encoding(is_dynamic=False)):
-                builder_typ = FixedElementArrayBuilder
-            case ArrayEncoding(element=Encoding(is_dynamic=True)):
-                builder_typ = DynamicElementArrayBuilder
-                # TODO: maybe split DynamicElementArrayBuilder into two builders
-                # TODO: maybe ByteLengthHeaderElementArrayBuilder
-        if builder_typ is not None:
-            return builder_typ(
-                context,
-                array_ir_type=array_ir_type,
-                array_encoding=array_encoding,
-                element_ir_type=element_ir_type,
-                assert_bounds=assert_bounds,
-                loc=loc,
-            )
-    raise InternalError(f"unsupported array type: {wtype!s}", loc)
-
-
-# region Dynamic arrays
-class DynamicArrayBuilder(abc.ABC):
-    @abc.abstractmethod
-    def concat(self, array: ir.Value, iterable: ir.ValueProvider) -> ir.Value:
-        """Returns the concatenation of an array and iterable"""
-
-    @abc.abstractmethod
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        """Appends value to the end of the array"""
-
-    @abc.abstractmethod
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
-        """
-        Removes the last item of an array
-
-        Returns the updated array and the removed item
-        """
-
-
-class FixedElementDynamicArrayBuilder(DynamicArrayBuilder):
-    def concat(self, array: ir.Value, iterable: ir.ValueProvider) -> ir.Value:
-        _todo("fixed element array concat", array.source_location)
-
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        _todo("fixed element array append", array.source_location)
-
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
-        _todo("fixed element array pop", array.source_location)
-
-
-class DynamicElementDynamicArrayBuilder(DynamicArrayBuilder):
-    def concat(self, array: ir.Value, iterable: ir.ValueProvider) -> ir.Value:
-        _todo("dynamic element array concat", array.source_location)
-
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        _todo("dynamic element array append", array.source_location)
-
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
-        _todo("dynamic element array pop", array.source_location)
-
-
-class BitPackedBoolDynamicArrayBuilder(DynamicArrayBuilder):
-    def concat(self, array: ir.Value, iterable: ir.ValueProvider) -> ir.Value:
-        _todo("bit packed bool array concat", array.source_location)
-
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        _todo("bit packed bool array append", array.source_location)
-
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
-        _todo("bit packed bool array pop", array.source_location)
-
-
-class BytesArrayBuilder(ArrayBuilder, DynamicArrayBuilder):
+class BytesIndexableBuilder(SequenceBuilder):
     def __init__(self, context: IRRegisterContext, loc: SourceLocation) -> None:
         self.loc = loc
         self.factory = OpFactory(context, loc)
@@ -365,48 +333,20 @@ class BytesArrayBuilder(ArrayBuilder, DynamicArrayBuilder):
     ) -> None:
         self._immutable()
 
+    def iterator(self, array: ir.Value) -> ArrayIterator:
+        return ArrayIterator(
+            array_length=self.length(array),
+            get_value_at_index=lambda index: self.factory.extract3(array, index, 1),
+        )
+
     def length(self, array: ir.Value) -> ir.Value:
         return self.factory.len(array, "bytes_length")
-
-    def concat(self, array: ir.Value, iterable: ir.ValueProvider) -> ir.Value:
-        other = self.factory.materialise_single(iterable, "other")
-        return self.factory.concat(array, other, "bytes_concat")
-
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        self._immutable()
-        return array
-
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
-        self._immutable()
-        return array, ir.Undefined(ir_type=PrimitiveIRType.bytes, source_location=None)
 
     def _immutable(self) -> None:
         raise CodeError("bytes array is immutable", location=self.loc)
 
 
-def get_dynamic_array_builder(
-    _context: IRRegisterContext,
-    array_type: wtypes.ARC4Array | wtypes.NativeArray,
-    loc: SourceLocation,
-) -> DynamicArrayBuilder | None:
-    element_ir_type, _ = wtype_to_ir_type_and_encoding(array_type.element_type, loc)
-    array_ir_type, array_encoding = wtype_to_ir_type_and_encoding(array_type, loc)
-    assert isinstance(array_encoding, DynamicArrayEncoding), "expected dynamic array encoding"
-    match array_encoding:
-        case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=length_header):
-            if length_header:
-                return BitPackedBoolDynamicArrayBuilder()
-            else:
-                return None  # not supported
-        case DynamicArrayEncoding(element=element) if element.is_dynamic:
-            return DynamicElementDynamicArrayBuilder()
-        case DynamicArrayEncoding(element=element) if not element.is_dynamic:
-            return FixedElementDynamicArrayBuilder()
-        case _:
-            return None
-
-
-# endregion
+# end region
 
 
 def _assert_index_in_bounds(
