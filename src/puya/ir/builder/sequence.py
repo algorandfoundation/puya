@@ -120,9 +120,6 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         self.assert_bounds = assert_bounds
         self.loc = loc
         self.factory = OpFactory(context, loc)
-        self.has_length_header = (
-            isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header
-        )
 
     def write_at_index(
         self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
@@ -168,6 +165,17 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
                 source_location=self.loc,
             )
 
+    def _maybe_encode(self, value: ir.ValueProvider) -> ir.ValueProvider:
+        if type_has_encoding(self.element_ir_type, self.array_encoding.element):
+            return value
+        else:
+            return ir.ValueEncode(
+                values=self.factory.materialise_values(value),
+                encoding=self.array_encoding.element,
+                value_type=self.element_ir_type,
+                source_location=self.loc,
+            )
+
 
 class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
@@ -176,7 +184,7 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
             # e.g. reading index 6 & 7 of an array that has a length of 6
             _assert_index_in_bounds(self.factory, index, self.length(array))
 
-        if self.has_length_header:
+        if self.array_encoding.length_header:
             # TODO: consider incrementing index by 16 instead
             array = self.factory.extract_to_end(array, 2, "array_trimmed")
         # index is the bit position
@@ -213,7 +221,7 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
         # note: at present, slot-backed arrays can only contain fixed elements
         if isinstance(self.array_ir_type, SlotType):
             array = mem.read_slot(self.factory.context, array, self.loc)
-        if self.has_length_header:
+        if self.array_encoding.length_header:
             # note: this could also be achieved by incrementing the offset by 2
             #       the current approach uses more space but less ops
             array = self.factory.extract_to_end(array, 2, "array_trimmed")
@@ -246,7 +254,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
 
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
         array_head_and_tail = array
-        if self.has_length_header:
+        if self.array_encoding.length_header:
             array_head_and_tail = self.factory.extract_to_end(array, 2, "array_head_and_tail")
         if self.inner_element_size is not None:
             if self.assert_bounds:
@@ -339,8 +347,38 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
     def write_at_index(
         self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
     ) -> ir.ValueProvider:
-        _todo("dynamic element array write", array.source_location)
-        return super().write_at_index(array, index, value)
+        from puya.ir.builder.arc4 import _invoke_puya_lib_subroutine
+
+        value = self._maybe_encode(value)
+        value = self.factory.materialise_single(value, "encoded_value")
+
+        element_encoding = self.array_encoding.element
+        assert element_encoding.is_dynamic
+
+        if self.array_encoding.size is not None:
+            array_type = "static"
+            args: list[ir.Value | int] = [array, value, index, self.array_encoding.size]
+        else:
+            array_type = "dynamic"
+            args = [array, value, index]
+        if (
+            isinstance(element_encoding, ArrayEncoding)
+            and element_encoding.length_header
+            and element_encoding.size == 1
+        ):
+            # elements where their length header is also their size in bytes
+            # e.g. string, byte[], uint8[]
+            element_type = "byte_length_head"
+        else:
+            element_type = "dynamic_element"
+        full_name = f"_puya_lib.arc4.{array_type}_array_replace_{element_type}"
+        invoke = _invoke_puya_lib_subroutine(
+            self.context,
+            full_name=full_name,
+            args=args,
+            source_location=self.loc,
+        )
+        return self.factory.materialise_single(invoke, "updated_array")
 
 
 class BytesIndexableBuilder(SequenceBuilder):

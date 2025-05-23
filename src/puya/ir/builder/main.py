@@ -839,10 +839,11 @@ class FunctionIRBuilder(
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         loc = expr.source_location
-        index = self.visit_and_materialise_single(expr.index)
-        base = self.visit_and_materialise_single(expr.base)
 
         builder = sequence.get_sequence_builder(self.context, expr.base.wtype, loc)
+        base = self.visit_and_materialise_single(expr.base)
+        index = self.visit_and_materialise_single(expr.index)
+
         return builder.read_at_index(base, index)
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
@@ -1288,23 +1289,14 @@ class FunctionIRBuilder(
             raise InternalError(f"Unsupported target for array pop: {expr.base.wtype}", loc)
 
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
-        value = self.context.visitor.visit_expr(expr.value)
-        array_encoding = wtype_to_encoding(expr.wtype, expr.source_location)
-        assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
-        element_ir_type, element_encoding = wtype_to_ir_type_and_encoding(
-            expr.wtype.element_type, expr.source_location
-        )
+        loc = expr.source_location
+
+        builder = sequence.get_sequence_builder(self.context, expr.base.wtype, loc)
         array = self.context.visitor.visit_and_materialise_single(expr.base)
         index = self.context.visitor.visit_and_materialise_single(expr.index)
-        return arc4.arc4_replace_array_item(
-            self.context,
-            array=array,
-            index=index,
-            array_encoding=array_encoding,
-            element_ir_type=element_ir_type,
-            value_vp=value,
-            source_location=expr.source_location,
-        )
+        value = self.context.visitor.visit_expr(expr.value)
+
+        return builder.write_at_index(array, index, value)
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
         assert expr.left.wtype == expr.wtype, "AWST validation requires result type == left type"

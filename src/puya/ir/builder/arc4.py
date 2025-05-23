@@ -11,6 +11,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
+from puya.ir.builder import sequence
 from puya.ir.builder._utils import (
     OpFactory,
     assert_value,
@@ -774,23 +775,10 @@ def handle_arc4_assign(
             ) as base_expr,
             index=index_value,
         ):
-            array_encoding = wtype_to_encoding(array_wtype, source_location)
-            assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
-            element_ir_type = wtype_to_ir_type(
-                array_wtype.element_type, source_location=source_location, allow_aggregate=True
-            )
             array = context.visitor.visit_and_materialise_single(base_expr)
             index = context.visitor.visit_and_materialise_single(index_value)
-
-            item = arc4_replace_array_item(
-                context,
-                array=array,
-                index=index,
-                array_encoding=array_encoding,
-                element_ir_type=element_ir_type,
-                value_vp=value,
-                source_location=source_location,
-            )
+            builder = sequence.get_sequence_builder(context, array_wtype, source_location)
+            item = builder.write_at_index(array, index, value)
             return handle_arc4_assign(
                 context,
                 target=base_expr,
@@ -1572,29 +1560,6 @@ def arc4_replace_array_item(
     else:
         value = factory.materialise_single(value_vp, "assigned_value")
 
-    def updated_result(method_name: str, args: list[Value | int | bytes]) -> Value:
-        invoke = _invoke_puya_lib_subroutine(
-            context,
-            full_name=f"_puya_lib.arc4.{method_name}",
-            args=args,
-            source_location=source_location,
-        )
-        return factory.materialise_single(invoke, "updated_value")
-
-    if _is_byte_length_header(element_encoding):
-        if isinstance(array_encoding, FixedArrayEncoding):
-            return updated_result(
-                "static_array_replace_byte_length_head", [array, value, index, array_encoding.size]
-            )
-        else:
-            return updated_result("dynamic_array_replace_byte_length_head", [array, value, index])
-    elif element_encoding.is_dynamic:
-        if isinstance(array_encoding, FixedArrayEncoding):
-            return updated_result(
-                "static_array_replace_dynamic_element", [array, value, index, array_encoding.size]
-            )
-        elif isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header:
-            return updated_result("dynamic_array_replace_dynamic_element", [array, value, index])
     array_length_vp = get_array_length(context, array_encoding, array, source_location)
     array_length = factory.materialise_single(array_length_vp, "array_length")
     _assert_index_in_bounds(context, index, array_length, source_location)
