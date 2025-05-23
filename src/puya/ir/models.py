@@ -14,19 +14,21 @@ from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, Variant
-from puya.ir.types_ import (
-    AggregateIRType,
+from puya.ir.encodings import (
     ArrayEncoding,
-    AVMBytesEncoding,
     DynamicArrayEncoding,
-    EncodedType,
     Encoding,
     FixedArrayEncoding,
+    TupleEncoding,
+)
+from puya.ir.types_ import (
+    AggregateIRType,
+    AVMBytesEncoding,
+    EncodedType,
     IRType,
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
-    TupleEncoding,
     UnionType,
     ir_type_to_ir_types,
     type_has_encoding,
