@@ -1225,23 +1225,34 @@ class FunctionIRBuilder(
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
         loc = expr.source_location
+
+        # struct is constructed from its tuple equivalent, so get tuple type info
+        tuple_wtype = wtypes.WTuple(types=expr.wtype.types, source_location=None)
+        tuple_ir_type = wtype_to_ir_type(tuple_wtype, loc, allow_aggregate=True)
+        tuple_encoding = wtype_to_encoding(tuple_wtype, loc)
+
+        # double check encodings match
+        struct_encoding = wtype_to_encoding(expr.wtype, loc)
+        assert (
+            tuple_encoding == struct_encoding
+        ), "expected struct encoding to match tuple encoding"
+
         # evaluate struct in order of declaration
         elements_by_name = {
             name: self.context.visitor.visit_and_materialise(value)
             for name, value in expr.values.items()
         }
-        # construct elements in correct layout
+        # ensure elements are in correct order
         elements = [
             element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
         ]
 
-        struct_value_provider = ValueTuple(values=elements, source_location=loc)
-        struct_encoding = wtype_to_encoding(expr.wtype, loc)
-        struct_ir_type = TupleIRType(
-            elements=[wtype_to_ir_type_and_encoding(t, loc)[0] for t in expr.wtype.fields.values()]
-        )
         return arc4.encode_value_provider(
-            self.context, struct_value_provider, struct_ir_type, struct_encoding, loc
+            self.context,
+            value_provider=ValueTuple(values=elements, source_location=loc),
+            value_type=tuple_ir_type,
+            encoding=tuple_encoding,
+            loc=loc,
         )
 
     def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
