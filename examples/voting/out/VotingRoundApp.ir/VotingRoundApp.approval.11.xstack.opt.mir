@@ -372,11 +372,11 @@ subroutine create:
         // voting/voting.py:223
         // for item in option_counts:
         p-load option_counts#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | option_counts#0 (copy)
-        extract 2 0                                                                               (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | array_head_and_tail%0#0
+        extract 2 0                                                                               (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | array_trimmed%0#0
         // voting/voting.py:224
         // total_options += item.native
-        v-load item_index_internal%0#0                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | array_head_and_tail%0#0,item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 1                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,array_head_and_tail%0#0,item_index_internal%0#0 (copy)
+        v-load item_index_internal%0#0                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | array_trimmed%0#0,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,array_trimmed%0#0,item_index_internal%0#0 (copy)
         getbyte                                                                                   (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,tmp%4#0
         v-load total_options#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,tmp%4#0,total_options#0
         l-load tmp%4#0 1                                                                          (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | item_index_internal%0#0,total_options#0,tmp%4#0
@@ -736,14 +736,14 @@ subroutine close:
         // voting/voting.py:132
         // for question_index, question_options in uenumerate(self.option_counts):
         v-load maybe_value%5#0                                                                    maybe_value%5#0
-        extract 2 0                                                                               array_head_and_tail%0#0
-        l-store-copy array_head_and_tail%0#0 0                                                    array_head_and_tail%0#0,array_head_and_tail%0#0 (copy)
-        v-store array_head_and_tail%0#0                                                           array_head_and_tail%0#0
-        l-load array_head_and_tail%0#0 0                                                          array_head_and_tail%0#0
-        v-load question_index#0                                                                   array_head_and_tail%0#0,question_index#0
-        l-store-copy question_index#0 1                                                           question_index#0,array_head_and_tail%0#0,question_index#0 (copy)
-        int 1                                                                                     question_index#0,array_head_and_tail%0#0,question_index#0 (copy),1
-        extract3 // on error: Index access is out of bounds                                       question_index#0,question_options#0
+        extract 2 0                                                                               array_trimmed%0#0
+        l-store-copy array_trimmed%0#0 0                                                          array_trimmed%0#0,array_trimmed%0#0 (copy)
+        v-store array_trimmed%0#0                                                                 array_trimmed%0#0
+        l-load array_trimmed%0#0 0                                                                array_trimmed%0#0
+        v-load question_index#0                                                                   array_trimmed%0#0,question_index#0
+        l-store-copy question_index#0 1                                                           question_index#0,array_trimmed%0#0,question_index#0 (copy)
+        int 1                                                                                     question_index#0,array_trimmed%0#0,question_index#0 (copy),1
+        extract3 // on error: index access is out of bounds                                       question_index#0,question_options#0
         v-store question_options#0                                                                question_index#0
         v-load note#0                                                                             question_index#0,note#0
         v-store note#17                                                                           question_index#0
@@ -786,8 +786,8 @@ subroutine close:
         v-store note#0
         // voting/voting.py:137
         // for option_index in urange(question_options.native):
-        v-load array_head_and_tail%0#0                                                            array_head_and_tail%0#0
-        v-load question_index#0                                                                   array_head_and_tail%0#0,question_index#0
+        v-load array_trimmed%0#0                                                                  array_trimmed%0#0
+        v-load question_index#0                                                                   array_trimmed%0#0,question_index#0
         getbyte                                                                                   tmp%14#0
         v-store tmp%14#0
         int 0                                                                                     0

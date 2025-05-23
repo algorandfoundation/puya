@@ -278,14 +278,12 @@ subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_copy() -> vo
         let item_start_offset%2#0: uint64 = (extract_uint16 tup#1 1u)
         let item_end_offset%2#0: uint64 = (len tup#1)
         let tmp%3#0: bytes = (substring3 tup#1 item_start_offset%2#0 item_end_offset%2#0)
-        let array_length%0#0: uint64 = tmp%3#0.length
-        let array_length%1#0: uint64 = array_length%0#0
-        let index_is_in_bounds%0#0: bool = (< 0u array_length%1#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 tmp%3#0 2u 0x01)
+        let write_offset%0#0: uint64 = (* 0u 1u)
+        let write_offset_with_length_header%0#0: uint64 = (+ write_offset%0#0 2u)
+        let updated_array%0#0: bytes = (replace3 tmp%3#0 write_offset_with_length_header%0#0 0x01)
         let item_offset%1#0: uint64 = (extract_uint16 tup#1 1u)
         let data_up_to_item%1#0: bytes = (extract3 tup#1 0u item_offset%1#0)
-        let updated_data%1#0: bytes = (concat data_up_to_item%1#0 updated_target%0#0)
+        let updated_data%1#0: bytes = (concat data_up_to_item%1#0 updated_array%0#0)
         let tup#2: Encoded((uint8,len+uint8[])) = updated_data%1#0
         let item_start_offset%3#0: uint64 = (extract_uint16 tup#2 1u)
         let item_end_offset%3#0: uint64 = (len tup#2)

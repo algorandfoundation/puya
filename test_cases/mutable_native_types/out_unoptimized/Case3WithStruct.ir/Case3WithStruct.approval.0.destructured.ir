@@ -59,11 +59,9 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         (assert maybe_exists%2#0) // check self.tup_bag exists
         let encoded%1#0: bytes = (extract3 maybe_value%2#0 0u 8u) // on error: Index access is out of bounds
         let tmp%3#0: uint64 = (btoi encoded%1#0)
-        let index_is_in_bounds%0#0: bool = (< tmp%3#0 8u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let write_offset%0#0: uint64 = (* tmp%3#0 16u)
-        let updated_target%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 copy%0#0)
-        let updated_data%0#0: bytes = (replace3 maybe_value%1#0 8u updated_target%0#0)
+        let updated_array%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 copy%0#0)
+        let updated_data%0#0: bytes = (replace3 maybe_value%1#0 8u updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%3#0) // check self.tup_bag exists
@@ -188,11 +186,9 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let encoded_element%0#0: bytes = (extract3 tmp%1#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
         let val_as_bytes%0#0: bytes[8] = (itob a#0)
         let updated_data%0#0: bytes = (replace3 encoded_element%0#0 0u val_as_bytes%0#0)
-        let index_is_in_bounds%0#0: bool = (< i#0 8u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let write_offset%0#0: uint64 = (* i#0 16u)
-        let updated_target%0#0: bytes = (replace3 tmp%1#0 write_offset%0#0 updated_data%0#0)
-        let updated_data%1#0: bytes = (replace3 maybe_value%1#0 8u updated_target%0#0)
+        let updated_array%0#0: bytes = (replace3 tmp%1#0 write_offset%0#0 updated_data%0#0)
+        let updated_data%1#0: bytes = (replace3 maybe_value%1#0 8u updated_array%0#0)
         (box_put "tup_bag" updated_data%1#0)
         goto block@3
     block@3: // for_footer_L79
@@ -222,11 +218,9 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let encoded_element%0#0: bytes = (extract3 tmp%1#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
         let val_as_bytes%0#0: bytes[8] = (itob b#0)
         let updated_data%0#0: bytes = (replace3 encoded_element%0#0 8u val_as_bytes%0#0)
-        let index_is_in_bounds%0#0: bool = (< i#0 8u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let write_offset%0#0: uint64 = (* i#0 16u)
-        let updated_target%0#0: bytes = (replace3 tmp%1#0 write_offset%0#0 updated_data%0#0)
-        let updated_data%1#0: bytes = (replace3 maybe_value%1#0 8u updated_target%0#0)
+        let updated_array%0#0: bytes = (replace3 tmp%1#0 write_offset%0#0 updated_data%0#0)
+        let updated_data%1#0: bytes = (replace3 maybe_value%1#0 8u updated_array%0#0)
         (box_put "tup_bag" updated_data%1#0)
         goto block@3
     block@3: // for_footer_L85

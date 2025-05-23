@@ -32,12 +32,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let my_array_copy#0: Encoded(uint8[4]) = copy%0#0
         let copy%1#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = my_struct#0
         let my_struct_copy#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = copy%1#0
-        let array_length%0#0: uint64 = my_array#0.length
-        let array_length%1#0: uint64 = array_length%0#0
-        let index_is_in_bounds%0#0: bool = (< 2u array_length%1#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 my_array#0 2u 0x05)
-        let my_array#1: Encoded(uint8[4]) = updated_target%0#0
+        let write_offset%0#0: uint64 = (* 2u 1u)
+        let updated_array%0#0: bytes = (replace3 my_array#0 write_offset%0#0 0x05)
+        let my_array#1: Encoded(uint8[4]) = updated_array%0#0
         let bytes_offset%0#0: uint64 = (* 2u 1u)
         let encoded_element%0#0: bytes = (extract3 my_array_copy#0 bytes_offset%0#0 1u) // on error: index access is out of bounds
         let reinterpret_biguint%0#0: biguint = encoded_element%0#0
@@ -219,12 +216,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
         let array%out#0: Encoded(uint8[4]) = array#0
         let struct%is_original#0: bool = 1u
         let struct%out#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = struct#0
-        let array_length%0#0: uint64 = array#0.length
-        let array_length%1#0: uint64 = array_length%0#0
-        let index_is_in_bounds%0#0: bool = (< 1u array_length%1#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 array#0 1u 0x05)
-        let array#1: Encoded(uint8[4]) = updated_target%0#0
+        let write_offset%0#0: uint64 = (* 1u 1u)
+        let updated_array%0#0: bytes = (replace3 array#0 write_offset%0#0 0x05)
+        let array#1: Encoded(uint8[4]) = updated_array%0#0
         goto array%is_original#0 ? block@1 : block@2
     block@1: // if_body_L1
         let array%out#1: Encoded(uint8[4]) = array#1
@@ -259,12 +253,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
         let array%out#0: Encoded(uint8[4]) = array#0
         let copy%0#0: Encoded(uint8[4]) = array#0
         let copy#0: Encoded(uint8[4]) = copy%0#0
-        let array_length%0#0: uint64 = array#0.length
-        let array_length%1#0: uint64 = array_length%0#0
-        let index_is_in_bounds%0#0: bool = (< 0u array_length%1#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 array#0 0u 0x0a)
-        let array#1: Encoded(uint8[4]) = updated_target%0#0
+        let write_offset%0#0: uint64 = (* 0u 1u)
+        let updated_array%0#0: bytes = (replace3 array#0 write_offset%0#0 0x0a)
+        let array#1: Encoded(uint8[4]) = updated_array%0#0
         goto array%is_original#0 ? block@1 : block@2
     block@1: // if_body_L1
         let array%out#1: Encoded(uint8[4]) = array#1
@@ -285,12 +276,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
         (assert no_overflow%0#0) // overflow
         let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
-        let array_length%0#0: uint64 = arrays.0#0.length
-        let array_length%1#0: uint64 = array_length%0#0
-        let index_is_in_bounds%0#0: bool = (< 0u array_length%1#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 arrays.0#0 0u uint8%0#0)
-        let arrays.0#1: Encoded(uint8[4]) = updated_target%0#0
+        let write_offset%0#0: uint64 = (* 0u 1u)
+        let updated_array%0#0: bytes = (replace3 arrays.0#0 write_offset%0#0 uint8%0#0)
+        let arrays.0#1: Encoded(uint8[4]) = updated_array%0#0
         goto arrays.0%is_original#0 ? block@1 : block@2
     block@1: // if_body_L1
         let arrays.0%out#1: Encoded(uint8[4]) = arrays.0#1
@@ -303,12 +291,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%1#0: bool = (<= bitlen%1#0 8u)
         (assert no_overflow%1#0) // overflow
         let uint8%1#0: bytes = (extract3 val_as_bytes%1#0 7u 1u)
-        let array_length%2#0: uint64 = arrays.1#0.length
-        let array_length%3#0: uint64 = array_length%2#0
-        let index_is_in_bounds%1#0: bool = (< 0u array_length%3#0)
-        (assert index_is_in_bounds%1#0) // Index access is out of bounds
-        let updated_target%1#0: bytes = (replace3 arrays.1#0 0u uint8%1#0)
-        let arrays.1#2: Encoded(uint8[4]) = updated_target%1#0
+        let write_offset%1#0: uint64 = (* 0u 1u)
+        let updated_array%1#0: bytes = (replace3 arrays.1#0 write_offset%1#0 uint8%1#0)
+        let arrays.1#2: Encoded(uint8[4]) = updated_array%1#0
         goto arrays.1%is_original#0 ? block@3 : block@4
     block@3: // if_body_L1
         let arrays.1%out#1: Encoded(uint8[4]) = arrays.1#2
@@ -321,12 +306,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%2#0: bool = (<= bitlen%2#0 8u)
         (assert no_overflow%2#0) // overflow
         let uint8%2#0: bytes = (extract3 val_as_bytes%2#0 7u 1u)
-        let array_length%4#0: uint64 = arrays.2#0.length
-        let array_length%5#0: uint64 = array_length%4#0
-        let index_is_in_bounds%2#0: bool = (< 0u array_length%5#0)
-        (assert index_is_in_bounds%2#0) // Index access is out of bounds
-        let updated_target%2#0: bytes = (replace3 arrays.2#0 0u uint8%2#0)
-        let arrays.2#3: Encoded(uint8[4]) = updated_target%2#0
+        let write_offset%2#0: uint64 = (* 0u 1u)
+        let updated_array%2#0: bytes = (replace3 arrays.2#0 write_offset%2#0 uint8%2#0)
+        let arrays.2#3: Encoded(uint8[4]) = updated_array%2#0
         goto arrays.2%is_original#0 ? block@5 : block@6
     block@5: // if_body_L1
         let arrays.2%out#1: Encoded(uint8[4]) = arrays.2#3
@@ -359,12 +341,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%3#0: bool = (<= bitlen%3#0 8u)
         (assert no_overflow%3#0) // overflow
         let uint8%3#0: bytes = (extract3 val_as_bytes%3#0 7u 1u)
-        let array_length%6#0: uint64 = arrays.0#1.length
-        let array_length%7#0: uint64 = array_length%6#0
-        let index_is_in_bounds%3#0: bool = (< 1u array_length%7#0)
-        (assert index_is_in_bounds%3#0) // Index access is out of bounds
-        let updated_target%3#0: bytes = (replace3 arrays.0#1 1u uint8%3#0)
-        let arrays.0#5: Encoded(uint8[4]) = updated_target%3#0
+        let write_offset%3#0: uint64 = (* 1u 1u)
+        let updated_array%3#0: bytes = (replace3 arrays.0#1 write_offset%3#0 uint8%3#0)
+        let arrays.0#5: Encoded(uint8[4]) = updated_array%3#0
         goto arrays.0%is_original#0 ? block@7 : block@8
     block@7: // if_body_L1
         let arrays.0%out#2: Encoded(uint8[4]) = arrays.0#5
@@ -377,12 +356,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%4#0: bool = (<= bitlen%4#0 8u)
         (assert no_overflow%4#0) // overflow
         let uint8%4#0: bytes = (extract3 val_as_bytes%4#0 7u 1u)
-        let array_length%8#0: uint64 = arrays.1#2.length
-        let array_length%9#0: uint64 = array_length%8#0
-        let index_is_in_bounds%4#0: bool = (< 1u array_length%9#0)
-        (assert index_is_in_bounds%4#0) // Index access is out of bounds
-        let updated_target%4#0: bytes = (replace3 arrays.1#2 1u uint8%4#0)
-        let arrays.1#6: Encoded(uint8[4]) = updated_target%4#0
+        let write_offset%4#0: uint64 = (* 1u 1u)
+        let updated_array%4#0: bytes = (replace3 arrays.1#2 write_offset%4#0 uint8%4#0)
+        let arrays.1#6: Encoded(uint8[4]) = updated_array%4#0
         goto arrays.1%is_original#0 ? block@9 : block@10
     block@9: // if_body_L1
         let arrays.1%out#2: Encoded(uint8[4]) = arrays.1#6
@@ -395,12 +371,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%5#0: bool = (<= bitlen%5#0 8u)
         (assert no_overflow%5#0) // overflow
         let uint8%5#0: bytes = (extract3 val_as_bytes%5#0 7u 1u)
-        let array_length%10#0: uint64 = arrays.2#3.length
-        let array_length%11#0: uint64 = array_length%10#0
-        let index_is_in_bounds%5#0: bool = (< 1u array_length%11#0)
-        (assert index_is_in_bounds%5#0) // Index access is out of bounds
-        let updated_target%5#0: bytes = (replace3 arrays.2#3 1u uint8%5#0)
-        let arrays.2#7: Encoded(uint8[4]) = updated_target%5#0
+        let write_offset%5#0: uint64 = (* 1u 1u)
+        let updated_array%5#0: bytes = (replace3 arrays.2#3 write_offset%5#0 uint8%5#0)
+        let arrays.2#7: Encoded(uint8[4]) = updated_array%5#0
         goto arrays.2%is_original#0 ? block@11 : block@12
     block@11: // if_body_L1
         let arrays.2%out#2: Encoded(uint8[4]) = arrays.2#7
@@ -451,12 +424,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%6#0: bool = (<= bitlen%6#0 8u)
         (assert no_overflow%6#0) // overflow
         let uint8%6#0: bytes = (extract3 val_as_bytes%6#0 7u 1u)
-        let array_length%12#0: uint64 = arrays.0#10.length
-        let array_length%13#0: uint64 = array_length%12#0
-        let index_is_in_bounds%6#0: bool = (< 1u array_length%13#0)
-        (assert index_is_in_bounds%6#0) // Index access is out of bounds
-        let updated_target%6#0: bytes = (replace3 arrays.0#10 1u uint8%6#0)
-        let arrays.0#14: Encoded(uint8[4]) = updated_target%6#0
+        let write_offset%6#0: uint64 = (* 1u 1u)
+        let updated_array%6#0: bytes = (replace3 arrays.0#10 write_offset%6#0 uint8%6#0)
+        let arrays.0#14: Encoded(uint8[4]) = updated_array%6#0
         goto arrays.0%is_original#5 ? block@21 : block@22
     block@21: // if_body_L1
         let arrays.0%out#4: Encoded(uint8[4]) = arrays.0#14
@@ -469,12 +439,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%7#0: bool = (<= bitlen%7#0 8u)
         (assert no_overflow%7#0) // overflow
         let uint8%7#0: bytes = (extract3 val_as_bytes%7#0 7u 1u)
-        let array_length%14#0: uint64 = arrays.1#11.length
-        let array_length%15#0: uint64 = array_length%14#0
-        let index_is_in_bounds%7#0: bool = (< 1u array_length%15#0)
-        (assert index_is_in_bounds%7#0) // Index access is out of bounds
-        let updated_target%7#0: bytes = (replace3 arrays.1#11 1u uint8%7#0)
-        let arrays.1#15: Encoded(uint8[4]) = updated_target%7#0
+        let write_offset%7#0: uint64 = (* 1u 1u)
+        let updated_array%7#0: bytes = (replace3 arrays.1#11 write_offset%7#0 uint8%7#0)
+        let arrays.1#15: Encoded(uint8[4]) = updated_array%7#0
         goto arrays.1%is_original#8 ? block@23 : block@24
     block@23: // if_body_L1
         let arrays.1%out#4: Encoded(uint8[4]) = arrays.1#15
@@ -487,12 +454,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutate
         let no_overflow%8#0: bool = (<= bitlen%8#0 8u)
         (assert no_overflow%8#0) // overflow
         let uint8%8#0: bytes = (extract3 val_as_bytes%8#0 7u 1u)
-        let array_length%16#0: uint64 = arrays.2#12.length
-        let array_length%17#0: uint64 = array_length%16#0
-        let index_is_in_bounds%8#0: bool = (< 1u array_length%17#0)
-        (assert index_is_in_bounds%8#0) // Index access is out of bounds
-        let updated_target%8#0: bytes = (replace3 arrays.2#12 1u uint8%8#0)
-        let arrays.2#16: Encoded(uint8[4]) = updated_target%8#0
+        let write_offset%8#0: uint64 = (* 1u 1u)
+        let updated_array%8#0: bytes = (replace3 arrays.2#12 write_offset%8#0 uint8%8#0)
+        let arrays.2#16: Encoded(uint8[4]) = updated_array%8#0
         goto arrays.2%is_original#11 ? block@25 : block@26
     block@25: // if_body_L1
         let arrays.2%out#4: Encoded(uint8[4]) = arrays.2#16

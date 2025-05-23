@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 2 1 0 4
+    intcblock 1 2 0 4
     bytecblock 0x 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004 0x00020000040000000000001200000000000000030003626565 0x000000000000000300120000040000000000000161 0x00040011000b48656c6c6f20576f726c64000161 0x000400070001610003626565
     txn NumAppArgs
     bz main_bare_routing@11
@@ -21,7 +21,7 @@ main_test_nested_tuple_modification_route@8:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_test_nested_struct_replacement_route@7:
@@ -30,7 +30,7 @@ main_test_nested_struct_replacement_route@7:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_test_mixed_multiple_dynamic_elements_route@6:
@@ -41,7 +41,7 @@ main_test_mixed_multiple_dynamic_elements_route@6:
     assert // can only call when not creating
     pushbytes 0x00020004002b0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a
     bytec_1 // 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
-    intc_1 // 1
+    intc_0 // 1
     callsub dynamic_array_replace_dynamic_element
     dup
     log
@@ -54,12 +54,12 @@ main_test_mixed_multiple_dynamic_elements_route@6:
     intc_2 // 0
     extract_uint16
     dup
-    intc_1 // 1
+    intc_0 // 1
     - // on error: index access is out of bounds
     dig 3
     len
     dig 4
-    intc_0 // 2
+    intc_1 // 2
     extract_uint16
     dup2
     uncover 4
@@ -70,7 +70,7 @@ main_test_mixed_multiple_dynamic_elements_route@6:
     substring3
     log
     uncover 2
-    intc_0 // 2
+    intc_1 // 2
     - // on error: index access is out of bounds
     dig 3
     intc_3 // 4
@@ -91,7 +91,7 @@ main_test_mixed_multiple_dynamic_elements_route@6:
     pushbytes 0x0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a
     ==
     assert
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_test_mixed_single_dynamic_elements_route@5:
@@ -102,7 +102,7 @@ main_test_mixed_single_dynamic_elements_route@5:
     assert // can only call when not creating
     intc_2 // 0
     bytec_0 // 0x
-    intc_1 // 1
+    intc_0 // 1
     bytec_2 // 0x00020000040000000000001200000000000000030003626565
     callsub dynamic_array_concat_dynamic_element
     dup
@@ -110,9 +110,13 @@ main_test_mixed_single_dynamic_elements_route@5:
     extract_uint16
     swap
     extract 2 0
-    intc_1 // 1
+    intc_0 // 1
     bytec_2 // 0x00020000040000000000001200000000000000030003626565
     callsub dynamic_array_concat_dynamic_element
+    dup
+    intc_2 // 0
+    extract_uint16
+    assert // index access is out of bounds
     bytec_3 // 0x000000000000000300120000040000000000000161
     intc_2 // 0
     callsub dynamic_array_replace_dynamic_element
@@ -127,12 +131,12 @@ main_test_mixed_single_dynamic_elements_route@5:
     intc_2 // 0
     extract_uint16
     dup
-    intc_1 // 1
+    intc_0 // 1
     - // on error: index access is out of bounds
     dig 3
     len
     dig 4
-    intc_0 // 2
+    intc_1 // 2
     extract_uint16
     dup2
     uncover 4
@@ -143,7 +147,7 @@ main_test_mixed_single_dynamic_elements_route@5:
     substring3
     log
     uncover 2
-    intc_0 // 2
+    intc_1 // 2
     - // on error: index access is out of bounds
     dig 3
     intc_3 // 4
@@ -164,7 +168,7 @@ main_test_mixed_single_dynamic_elements_route@5:
     bytec_3 // 0x000000000000000300120000040000000000000161
     ==
     assert
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_test_dynamic_elements_route@4:
@@ -173,13 +177,19 @@ main_test_dynamic_elements_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    intc_0 // 2
+    intc_1 // 2
     pushbytes 0x00040010000400070001610003626565000400070001610003626565
-    intc_1 // 1
+    intc_0 // 1
     pushbytes 0x0002000400070001610003626565
     callsub dynamic_array_concat_dynamic_element
+    dup
+    intc_2 // 0
+    extract_uint16
+    intc_0 // 1
+    >
+    assert // index access is out of bounds
     bytec 4 // 0x00040011000b48656c6c6f20576f726c64000161
-    intc_1 // 1
+    intc_0 // 1
     callsub dynamic_array_replace_dynamic_element
     dup
     log
@@ -192,12 +202,12 @@ main_test_dynamic_elements_route@4:
     intc_2 // 0
     extract_uint16
     dup
-    intc_1 // 1
+    intc_0 // 1
     - // on error: index access is out of bounds
     dig 3
     len
     dig 4
-    intc_0 // 2
+    intc_1 // 2
     extract_uint16
     dup2
     uncover 4
@@ -208,7 +218,7 @@ main_test_dynamic_elements_route@4:
     substring3
     log
     dig 2
-    intc_0 // 2
+    intc_1 // 2
     - // on error: index access is out of bounds
     dig 4
     intc_3 // 4
@@ -254,7 +264,7 @@ main_test_dynamic_elements_route@4:
     ==
     assert
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_test_static_elements_route@3:
@@ -269,7 +279,7 @@ main_test_static_elements_route@3:
     log
     pushbytes 0x00000400000000002aff
     log
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_bare_routing@11:
@@ -278,7 +288,7 @@ main_bare_routing@11:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -288,10 +298,10 @@ dynamic_array_pop_dynamic_element:
     frame_dig -1
     intc_2 // 0
     extract_uint16
-    intc_1 // 1
+    intc_0 // 1
     -
     dup
-    intc_0 // 2
+    intc_1 // 2
     *
     dup
     frame_dig -1
@@ -321,7 +331,7 @@ dynamic_array_pop_dynamic_element_for_header@1:
     dup
     cover 2
     extract_uint16
-    intc_0 // 2
+    intc_1 // 2
     -
     itob
     extract 6 2
@@ -329,7 +339,7 @@ dynamic_array_pop_dynamic_element_for_header@1:
     swap
     concat
     frame_bury 5
-    intc_0 // 2
+    intc_1 // 2
     +
     frame_bury 6
     b dynamic_array_pop_dynamic_element_for_header@1
@@ -341,7 +351,7 @@ dynamic_array_pop_dynamic_element_after_for@4:
     frame_dig 5
     concat
     frame_dig 1
-    intc_0 // 2
+    intc_1 // 2
     +
     frame_dig 2
     swap
@@ -360,10 +370,10 @@ dynamic_array_concat_dynamic_element:
     bytec_0 // ""
     dup
     frame_dig -2
-    intc_0 // 2
+    intc_1 // 2
     *
     frame_dig -4
-    intc_0 // 2
+    intc_1 // 2
     *
     intc_2 // 0
 
@@ -385,7 +395,7 @@ dynamic_array_concat_dynamic_element_for_header@1:
     swap
     concat
     frame_bury 1
-    intc_0 // 2
+    intc_1 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@1
@@ -415,7 +425,7 @@ dynamic_array_concat_dynamic_element_for_header@5:
     swap
     concat
     frame_bury 1
-    intc_0 // 2
+    intc_1 // 2
     +
     frame_bury 4
     b dynamic_array_concat_dynamic_element_for_header@5
@@ -454,15 +464,15 @@ dynamic_array_replace_dynamic_element:
     frame_dig -3
     extract 2 0
     frame_dig -1
-    intc_0 // 2
+    intc_1 // 2
     *
     dig 1
     swap
     extract_uint16
     frame_dig -1
-    intc_1 // 1
+    intc_0 // 1
     +
-    intc_0 // 2
+    intc_1 // 2
     *
     dup
     cover 4
@@ -474,7 +484,7 @@ dynamic_array_replace_dynamic_element:
     dig 4
     frame_dig -1
     -
-    intc_1 // 1
+    intc_0 // 1
     -
     dig 1
     uncover 3
@@ -498,7 +508,7 @@ dynamic_array_replace_dynamic_element:
     substring3
     concat
     swap
-    intc_0 // 2
+    intc_1 // 2
     *
 
 dynamic_array_replace_dynamic_element_for_header@2:
@@ -522,7 +532,7 @@ dynamic_array_replace_dynamic_element_for_header@2:
     swap
     replace3
     frame_bury 4
-    intc_0 // 2
+    intc_1 // 2
     +
     frame_bury 1
     b dynamic_array_replace_dynamic_element_for_header@2

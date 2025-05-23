@@ -6,10 +6,18 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let tmp%2#0: bool = (getbit encoded_bool%2#0 0u)
         (assert tmp%2#0) // conditional expr
         let array_length%0#0: uint64 = 12u
-        (assert array_length%0#0) // Index access is out of bounds
+        (assert array_length%0#0) // index access is out of bounds
+        let array%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u 1u)
+        let tmp%4#0: Encoded(bool8) = array%encoded_bool%0#1
+        let tmp%5#0: bool = (== tmp%4#0 0x80)
+        (assert tmp%5#0) // Single boolean can be unpacked
         let array_length%1#0: uint64 = 12u
-        let index_is_in_bounds%1#0: bool = (< 11u array_length%1#0)
-        (assert index_is_in_bounds%1#0) // Index access is out of bounds
+        let lt%1#0: bool = (< 11u array_length%1#0)
+        (assert lt%1#0) // index access is out of bounds
+        let array%encoded_bool%1#1: bytes[1] = (setbit 0x00 0u 1u)
+        let tmp%7#0: Encoded(bool8) = array%encoded_bool%1#1
+        let tmp%8#0: bool = (== tmp%7#0 0x80)
+        (assert tmp%8#0) // Single boolean can be unpacked
         let dynamic_boolean_array#1: Encoded(len+bool1[]) = test_cases.arc4_types.bool.get_arr()
         let array_length#0: uint64 = (extract_uint16 dynamic_boolean_array#1 0u)
         let new_array_length#0: uint64 = (+ array_length#0 5u)
@@ -46,8 +54,8 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let read_offset#2: uint64 = (+ read_offset#1 8u)
         goto block@6
     block@8: // after_while_L153
-        let tmp%8#0: bool = (== result#2 0x0005a8)
-        (assert tmp%8#0)
+        let tmp%10#0: bool = (== result#2 0x0005a8)
+        (assert tmp%10#0)
         return 1u
 
 subroutine test_cases.arc4_types.bool.get_arr() -> Encoded(len+bool1[]):

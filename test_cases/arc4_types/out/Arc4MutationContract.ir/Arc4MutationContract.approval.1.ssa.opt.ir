@@ -188,7 +188,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let as_bytes%1#1: bytes[8] = (itob 11u)
         let next_item_head%1#0: bytes = 0x000b
         let result%1#1: bytes = 0x0004000b
-        let next_item_len%1#0: uint64 = 7u
         let result%2#1: bytes = 0x0004000b000548656c6c6f
         let result%3#1: bytes = 0x0004000b000548656c6c6f0005576f726c64
         let dynamic_string_array#0: Encoded(len+len+utf8[][]) = 0x00020004000b000548656c6c6f0005576f726c64
@@ -242,7 +241,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let as_bytes%9#0: bytes[8] = (itob 59u)
         let next_item_head%9#0: bytes = 0x003b
         let result%11#1: bytes = 0x00100017001e00230028002f0036003b
-        let next_item_len%9#0: uint64 = 5u
         let result%12#1: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f
         let result%13#1: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f0005576f726c64
         let result%14#1: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f
@@ -284,7 +282,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tail_offset%16#0: uint64 = 59u
         let next_item_head%17#0: bytes = 0x003b
         let result%27#0: bytes = 0x00100017001e00230028002f0036003b
-        let next_item_len%17#0: uint64 = 5u
         let result%28#0: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f
         let result%29#0: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f0005576f726c64
         let result%30#0: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f
@@ -294,7 +291,13 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let result%34#0: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f
         let result%35#0: bytes = 0x00100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
         let dynamic_string_array#3: Encoded(len+len+utf8[][]) = 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
+        let array_length%1#0: uint64 = 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172.length
+        let lt%0#0: bool = (< 3u array_length%1#0)
+        (assert lt%0#0) // index access is out of bounds
         let dynamic_string_array#4: Encoded(len+len+utf8[][]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172, 0x000548656c6c6f, 3u)
+        let array_length%2#0: uint64 = dynamic_string_array#4.length
+        let lt%1#0: bool = (< 5u array_length%2#0)
+        (assert lt%1#0) // index access is out of bounds
         let dynamic_string_array#5: Encoded(len+len+utf8[][]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#4, 0x000548656c6c6f, 5u)
         let next_item_head%18#0: bytes = 0x0010
         let result%36#0: bytes = 0x0010
@@ -330,7 +333,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let as_bytes%25#0: bytes[8] = (itob 61u)
         let next_item_head%25#0: bytes = 0x003d
         let result%43#0: bytes = 0x00100017001e0023002a00310038003d
-        let next_item_len%25#0: uint64 = 5u
         let result%44#0: bytes = 0x00100017001e0023002a00310038003d000548656c6c6f
         let result%45#0: bytes = 0x00100017001e0023002a00310038003d000548656c6c6f0005576f726c64
         let result%46#0: bytes = 0x00100017001e0023002a00310038003d000548656c6c6f0005576f726c640003466f6f
@@ -376,7 +378,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let as_bytes%31#0: bytes[8] = (itob 45u)
         let next_item_head%31#0: bytes = 0x002d
         let result%57#0: bytes = 0x000c0013001a001f0026002d
-        let next_item_len%31#0: uint64 = 7u
         let result%58#0: bytes = 0x000c0013001a001f0026002d000548656c6c6f
         let result%59#0: bytes = 0x000c0013001a001f0026002d000548656c6c6f0005576f726c64
         let result%60#0: bytes = 0x000c0013001a001f0026002d000548656c6c6f0005576f726c640003466f6f
@@ -402,7 +403,7 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         (assert tmp%2#3)
         let array_head_and_tail%0#2: bytes = ((extract 2 0) array_of_array#2)
         let array_length%0#2: uint64 = array_of_array#2.length
-        let lt%0#0: bool = (< 0u array_length%0#2)
+        let lt%0#1: bool = (< 0u array_length%0#2)
         (assert array_length%0#2) // index access is out of bounds
         let item_offset_offset%0#0: uint64 = 0u
         let item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#2 0u)
@@ -417,23 +418,28 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let as_bytes%0#2: bytes[8] = (itob len_%0#1)
         let len_16_bit%0#1: bytes = ((extract 6 2) as_bytes%0#2)
         let concat_result%2#2: bytes = (concat len_16_bit%0#1 concatenated%0#1)
+        let array_length%1#1: uint64 = array_of_array#2.length
+        let lt%1#1: bool = (< 0u array_length%1#1)
+        (assert array_length%1#1) // index access is out of bounds
         let array_of_array#3: Encoded(len+len+uint8[][]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#2, concat_result%2#2, 0u)
         let tmp%3#3: bool = (== array_of_array#3 0x00020004000800020aff000110)
         (assert tmp%3#3)
         let array_head_and_tail%1#1: bytes = ((extract 2 0) array_of_array#3)
-        let array_length%1#0: uint64 = array_of_array#3.length
-        let lt%1#0: bool = (< 0u array_length%1#0)
-        (assert array_length%1#0) // index access is out of bounds
+        let array_length%2#1: uint64 = array_of_array#3.length
+        let lt%2#0: bool = (< 0u array_length%2#1)
+        (assert array_length%2#1) // index access is out of bounds
         let item_offset_offset%1#0: uint64 = 0u
         let item_offset%1#0: uint64 = (extract_uint16 array_head_and_tail%1#1 0u)
         let item_length%1#0: uint64 = (extract_uint16 array_head_and_tail%1#1 item_offset%1#0)
         let item_head_tail_length%1#0: uint64 = (+ item_length%1#0 2u)
         let item%1#0: bytes = (extract3 array_head_and_tail%1#1 item_offset%1#0 item_head_tail_length%1#0)
-        let array_length%2#0: uint64 = item%1#0.length
-        let index_is_in_bounds%0#0: bool = (< 1u array_length%2#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = ((replace2 3) item%1#0 0x00)
-        let array_of_array#4: Encoded(len+len+uint8[][]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#3, updated_target%0#0, 0u)
+        let write_offset%0#0: uint64 = 1u
+        let write_offset_with_length_header%0#0: uint64 = 3u
+        let updated_array%1#1: bytes = ((replace2 3) item%1#0 0x00)
+        let array_length%3#0: uint64 = array_of_array#3.length
+        let lt%3#0: bool = (< 0u array_length%3#0)
+        (assert array_length%3#0) // index access is out of bounds
+        let array_of_array#4: Encoded(len+len+uint8[][]) = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#3, updated_array%1#1, 0u)
         let tmp%4#3: bool = (== array_of_array#4 0x00020004000800020a00000110)
         (assert tmp%4#3)
         let result%0#3: bytes = 0x0a
@@ -449,36 +455,27 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let result%6#2: bytes = 0xff
         let result%7#2: bytes = 0xfffe
         let array_data%3#3: bytes = 0xfffe
-        let array_length%0#3: uint64 = 0x0a094080.length
-        let index_is_in_bounds%0#1: bool = (< 0u array_length%0#3)
-        (assert array_length%0#3) // Index access is out of bounds
+        let write_offset%0#1: uint64 = 0u
         let array_of_array#6: Encoded(uint8[2][2]) = 0xfffe4080
         let tmp%1#4: bool = 1u
         let bytes_offset%0#0: uint64 = 2u
         let encoded_element%0#0: bytes = 0x4080
-        let array_length%2#1: uint64 = 0x4080.length
-        let index_is_in_bounds%1#0: bool = (< 0u array_length%2#1)
-        (assert array_length%2#1) // Index access is out of bounds
-        let updated_target%1#0: bytes = 0x0180
-        let array_length%4#0: uint64 = 0xfffe4080.length
-        let index_is_in_bounds%2#0: bool = (< 1u array_length%4#0)
-        (assert index_is_in_bounds%2#0) // Index access is out of bounds
+        let write_offset%1#0: uint64 = 0u
+        let updated_array%1#2: bytes = 0x0180
+        let write_offset%2#0: uint64 = 2u
         let array_of_array#7: Encoded(uint8[2][2]) = 0xfffe0180
         let tmp%2#4: bool = 1u
         let result%0#4: bytes = 0x01
         let result%1#4: bytes = 0x0102
         let dynamic_uint8_array#5: Encoded(len+uint8[]) = 0x00020102
-        let array_length%0#4: uint64 = 0x00020102.length
-        let index_is_in_bounds%0#2: bool = (< 0u array_length%0#4)
-        (assert array_length%0#4) // Index access is out of bounds
+        let write_offset%0#2: uint64 = 0u
+        let write_offset_with_length_header%0#1: uint64 = 2u
         let dynamic_uint8_array#6: Encoded(len+uint8[]) = 0x0002ff02
         let tmp%0#5: bool = 1u
         let result%2#3: bytes = 0x01
         let result%3#3: bytes = 0x0102
         let static_uint8_array#0: Encoded(uint8[2]) = 0x0102
-        let array_length%2#2: uint64 = 0x0102.length
-        let index_is_in_bounds%1#1: bool = (< 1u array_length%2#2)
-        (assert index_is_in_bounds%1#1) // Index access is out of bounds
+        let write_offset%1#1: uint64 = 1u
         let static_uint8_array#1: Encoded(uint8[2]) = 0x01ff
         let tmp%1#5: bool = 1u
         let encoded_bool%0#1: bytes[1] = 0x80
@@ -488,9 +485,10 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array_head_and_tail%1#2: bytes = 0x80
         let dynamic_bool_array#6: Encoded(len+bool1[]) = 0x000280
         let encoded_bool%2#1: bytes[1] = 0x00
-        let array_length%4#1: uint64 = 0x000280.length
-        let index_is_in_bounds%2#1: bool = (< 0u array_length%4#1)
-        (assert array_length%4#1) // Index access is out of bounds
+        let array_length%0#3: uint64 = 0x000280.length
+        let lt%0#2: bool = (< 0u array_length%0#3)
+        (assert array_length%0#3) // index access is out of bounds
+        let write_offset_with_length_header%1#0: uint64 = 16u
         let is_true%1#1: uint64 = 0u
         let dynamic_bool_array#7: Encoded(len+bool1[]) = 0x000200
         let tmp%2#5: bool = 1u
@@ -501,9 +499,9 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array_head_and_tail%3#1: bytes = 0xc0
         let static_bool_array#0: Encoded(bool1[2]) = 0xc0
         let encoded_bool%5#1: bytes[1] = 0x00
-        let array_length%6#0: uint64 = 0xc0.length
-        let index_is_in_bounds%3#0: bool = (< 1u array_length%6#0)
-        (assert index_is_in_bounds%3#0) // Index access is out of bounds
+        let array_length%1#2: uint64 = 0xc0.length
+        let lt%1#2: bool = (< 1u array_length%1#2)
+        (assert lt%1#2) // index access is out of bounds
         let is_true%3#1: uint64 = 0u
         let static_bool_array#1: Encoded(bool1[2]) = 0x80
         let tmp%3#4: bool = 1u
@@ -516,7 +514,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let offset_as_uint16%0#0: bytes = 0x0006
         let encoded%2#1: Encoded((bool1,uint8,len+utf8[])) = 0x80320006
         let tail%1#0: bytes = 0x00054861707079000444617973
-        let data_length%1#0: uint64 = 6u
         let as_bytes%1#2: bytes[8] = (itob 13u)
         let offset_as_uint16%1#0: bytes = 0x000d
         let encoded%3#1: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = 0x80320006000d
@@ -534,7 +531,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let offset_as_uint16%2#0: bytes = 0x0006
         let encoded%7#0: Encoded((bool1,uint8,len+utf8[])) = 0x000c0006
         let tail%3#0: bytes = 0x00054861707079000444617973
-        let data_length%3#0: uint64 = 6u
         let offset_as_uint16%3#0: bytes = 0x000d
         let encoded%8#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = 0x000c0006000d
         let encoded%9#0: bytes = 0x000c0006000d00054861707079000444617973
@@ -565,7 +561,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let offset_as_uint16%4#0: bytes = 0x0006
         let encoded%12#0: Encoded((bool1,uint8,len+utf8[])) = 0x000c0006
         let tail%5#0: bytes = 0x0005486d6d6d6d00074f682077656c6c
-        let data_length%5#0: uint64 = 9u
         let offset_as_uint16%5#0: bytes = 0x000d
         let encoded%13#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = 0x000c0006000d
         let encoded%14#0: bytes = 0x000c0006000d0005486d6d6d6d00074f682077656c6c
@@ -608,27 +603,24 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tail_offset%0#2: uint64 = 11u
         let next_item_head%1#1: bytes = 0x000b
         let result%12#2: bytes = 0x0004000b
-        let next_item_len%1#1: uint64 = 7u
         let result%13#2: bytes = 0x0004000b000548656c6c6f
         let result%14#2: bytes = 0x0004000b000548656c6c6f0005576f726c64
         let hello_world#0: Encoded(len+len+utf8[][]) = 0x00020004000b000548656c6c6f0005576f726c64
         let as_bytes%4#2: bytes[8] = (itob 2u)
         let next_item_head%2#1: bytes = 0x0002
         let result%15#2: bytes = 0x0002
-        let next_item_len%2#1: uint64 = 7u
         let result%16#2: bytes = 0x0002000548656c6c6f
         let array_data%4#3: bytes = 0x00010002000548656c6c6f
         let next_item_head%3#1: bytes = 0x0002
         let result%17#2: bytes = 0x0002
-        let next_item_len%3#1: uint64 = 7u
         let result%18#2: bytes = 0x00020005576f726c64
         let array_data%5#0: bytes = 0x000100020005576f726c64
-        let array_length%0#5: uint64 = 0x000100020005576f726c64.length
+        let array_length%0#4: uint64 = 0x000100020005576f726c64.length
         let array_head_and_tail%0#4: bytes = 0x00020005576f726c64
-        let start_of_tail%0#1: uint64 = (* array_length%0#5 2u)
+        let start_of_tail%0#1: uint64 = (* array_length%0#4 2u)
         let total_length%0#1: uint64 = 9u
         let data%0#4: bytes = (substring3 0x00020005576f726c64 start_of_tail%0#1 9u)
-        let hello_world_concat#0: Encoded(len+len+utf8[][]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x00010002000548656c6c6f, data%0#4, array_length%0#5)
+        let hello_world_concat#0: Encoded(len+len+utf8[][]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x00010002000548656c6c6f, data%0#4, array_length%0#4)
         let tmp%2#6: bool = (== 0x00020004000b000548656c6c6f0005576f726c64 hello_world_concat#0)
         (assert tmp%2#6)
         return 1u

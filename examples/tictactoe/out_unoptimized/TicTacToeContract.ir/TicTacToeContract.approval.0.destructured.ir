@@ -52,15 +52,11 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         (assert maybe_exists%2#0) // check self.game exists
         let bytes_offset%0#0: uint64 = (* row#0 3u)
         let encoded_element%0#0: bytes = (extract3 maybe_value%0#0 bytes_offset%0#0 3u) // on error: index access is out of bounds
-        let index_is_in_bounds%0#0: bool = (< column#0 3u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let write_offset%0#0: uint64 = (* column#0 1u)
-        let updated_target%0#0: bytes = (replace3 encoded_element%0#0 write_offset%0#0 0x01)
-        let index_is_in_bounds%1#0: bool = (< row#0 3u)
-        (assert index_is_in_bounds%1#0) // Index access is out of bounds
+        let updated_array%0#0: bytes = (replace3 encoded_element%0#0 write_offset%0#0 0x01)
         let write_offset%1#0: uint64 = (* row#0 3u)
-        let updated_target%1#0: bytes = (replace3 maybe_value%0#0 write_offset%1#0 updated_target%0#0)
-        (app_global_put "game" updated_target%1#0)
+        let updated_array%1#0: bytes = (replace3 maybe_value%0#0 write_offset%1#0 updated_array%0#0)
+        (app_global_put "game" updated_array%1#0)
         (app_global_put "turns" 0u)
         return 
 
@@ -144,15 +140,11 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         (assert maybe_exists%1#0) // check self.game exists
         let bytes_offset%2#0: uint64 = (* row#0 3u)
         let encoded_element%2#0: bytes = (extract3 maybe_value%1#0 bytes_offset%2#0 3u) // on error: index access is out of bounds
-        let index_is_in_bounds%0#0: bool = (< column#0 3u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
         let write_offset%0#0: uint64 = (* column#0 1u)
-        let updated_target%0#0: bytes = (replace3 encoded_element%2#0 write_offset%0#0 player#0)
-        let index_is_in_bounds%1#0: bool = (< row#0 3u)
-        (assert index_is_in_bounds%1#0) // Index access is out of bounds
+        let updated_array%0#0: bytes = (replace3 encoded_element%2#0 write_offset%0#0 player#0)
         let write_offset%1#0: uint64 = (* row#0 3u)
-        let updated_target%1#0: bytes = (replace3 maybe_value%1#0 write_offset%1#0 updated_target%0#0)
-        (app_global_put "game" updated_target%1#0)
+        let updated_array%1#0: bytes = (replace3 maybe_value%1#0 write_offset%1#0 updated_array%0#0)
+        (app_global_put "game" updated_array%1#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%2#0) // check self.turns exists
         let materialized_values%0#0: uint64 = (+ maybe_value%2#0 1u)
