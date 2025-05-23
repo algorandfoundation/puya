@@ -5,10 +5,12 @@ from puya.awst import wtypes
 from puya.errors import CodeError
 from puya.ir import models as ir
 from puya.ir.builder._utils import OpFactory
-from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import (
+from puya.ir.encodings import (
     BoolEncoding,
     DynamicArrayEncoding,
+)
+from puya.ir.register_context import IRRegisterContext
+from puya.ir.types_ import (
     PrimitiveIRType,
     wtype_to_ir_type_and_encoding,
 )

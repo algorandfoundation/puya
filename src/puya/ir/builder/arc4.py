@@ -28,6 +28,17 @@ from puya.ir.builder.arrays import (
 from puya.ir.builder.assignment import handle_assignment
 from puya.ir.builder.mem import read_slot
 from puya.ir.context import IRFunctionBuildContext
+from puya.ir.encodings import (
+    ArrayEncoding,
+    BoolEncoding,
+    DynamicArrayEncoding,
+    Encoding,
+    FixedArrayEncoding,
+    TupleEncoding,
+    UIntEncoding,
+    UTF8Encoding,
+    wtype_to_encoding,
+)
 from puya.ir.models import (
     BigUIntConstant,
     Intrinsic,
@@ -41,21 +52,12 @@ from puya.ir.models import (
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
     AggregateIRType,
-    ArrayEncoding,
-    BoolEncoding,
-    DynamicArrayEncoding,
     EncodedType,
-    Encoding,
-    FixedArrayEncoding,
     IRType,
     PrimitiveIRType,
     SizedBytesType,
-    TupleEncoding,
-    UIntEncoding,
-    UTF8Encoding,
     get_type_arity,
     type_has_encoding,
-    wtype_to_encoding,
     wtype_to_ir_type,
     wtype_to_ir_type_and_encoding,
 )
@@ -823,11 +825,11 @@ def handle_arc4_assign(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
             index=index_value,
         ):
-            tuple_ir_type, tuple_encoding = wtype_to_ir_type_and_encoding(
-                tuple_wtype, source_location
-            )
-            value_ir_type, _ = wtype_to_ir_type_and_encoding(
-                tuple_wtype.types[index_value], source_location
+            tuple_encoding = wtype_to_encoding(tuple_wtype, source_location)
+            value_ir_type = wtype_to_ir_type(
+                tuple_wtype.types[index_value],
+                source_location=source_location,
+                allow_aggregate=True,
             )
             item = _arc4_replace_tuple_item(
                 context,

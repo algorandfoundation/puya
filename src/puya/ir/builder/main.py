@@ -44,6 +44,11 @@ from puya.ir.builder.callsub import (
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
 from puya.ir.context import IRBuildContext
+from puya.ir.encodings import (
+    ArrayEncoding,
+    TupleEncoding,
+    wtype_to_encoding,
+)
 from puya.ir.models import (
     AddressConstant,
     BigUIntConstant,
@@ -68,15 +73,12 @@ from puya.ir.models import (
 )
 from puya.ir.types_ import (
     AggregateIRType,
-    ArrayEncoding,
     AVMBytesEncoding,
     EncodedType,
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
-    TupleEncoding,
     bytes_enc_to_avm_bytes_enc,
-    wtype_to_encoding,
     wtype_to_ir_type,
     wtype_to_ir_type_and_encoding,
     wtype_to_ir_types,
@@ -837,12 +839,10 @@ class FunctionIRBuilder(
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         loc = expr.source_location
-        indexable_wtype = expr.base.wtype
-
         index = self.visit_and_materialise_single(expr.index)
         base = self.visit_and_materialise_single(expr.base)
 
-        builder = sequence.get_sequence_builder(self.context, indexable_wtype, loc)
+        builder = sequence.get_sequence_builder(self.context, expr.base.wtype, loc)
         return builder.read_at_index(base, index)
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
