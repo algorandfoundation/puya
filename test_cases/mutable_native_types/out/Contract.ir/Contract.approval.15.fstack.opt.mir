@@ -396,9 +396,9 @@ subroutine add_payment:
         l-load maybe_value%1#0 1                                                                  (𝕡) pay#0 | write_offset%0#0,maybe_value%1#0
         l-load write_offset%0#0 1                                                                 (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0
         p-load pay#0                                                                              (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0,pay#0 (copy)
-        replace3                                                                                  (𝕡) pay#0 | updated_target%0#0
-        byte "payments"                                                                           (𝕡) pay#0 | updated_target%0#0,"payments"
-        l-load updated_target%0#0 1                                                               (𝕡) pay#0 | "payments",updated_target%0#0
+        replace3                                                                                  (𝕡) pay#0 | updated_array%0#0
+        byte "payments"                                                                           (𝕡) pay#0 | updated_array%0#0,"payments"
+        l-load updated_array%0#0 1                                                                (𝕡) pay#0 | "payments",updated_array%0#0
         app_global_put                                                                            (𝕡) pay#0 |
         // mutable_native_types/contract.py:113
         // self.num_payments += 1
@@ -450,16 +450,12 @@ subroutine increment_payment:
         l-load encoded_element%0#0 1                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,val_as_bytes%0#0,encoded_element%0#0
         l-load val_as_bytes%0#0 1                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,val_as_bytes%0#0
         replace2 40                                                                               (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0
-        p-load index#0                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0,index#0 (copy)
-        int 8                                                                                     (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0,index#0 (copy),8
-        <                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0,index_is_in_bounds%0#0
-        assert // Index access is out of bounds                                                   (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0
         l-load maybe_value%1#0 2                                                                  (𝕡) index#0,amt#0 | bytes_offset%0#0,updated_data%0#0,maybe_value%1#0
         l-load bytes_offset%0#0 2                                                                 (𝕡) index#0,amt#0 | updated_data%0#0,maybe_value%1#0,bytes_offset%0#0
         l-load updated_data%0#0 2                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0
-        replace3                                                                                  (𝕡) index#0,amt#0 | updated_target%0#0
-        byte "payments"                                                                           (𝕡) index#0,amt#0 | updated_target%0#0,"payments"
-        l-load updated_target%0#0 1                                                               (𝕡) index#0,amt#0 | "payments",updated_target%0#0
+        replace3                                                                                  (𝕡) index#0,amt#0 | updated_array%0#0
+        byte "payments"                                                                           (𝕡) index#0,amt#0 | updated_array%0#0,"payments"
+        l-load updated_array%0#0 1                                                                (𝕡) index#0,amt#0 | "payments",updated_array%0#0
         app_global_put                                                                            (𝕡) index#0,amt#0 |
         retsub
 

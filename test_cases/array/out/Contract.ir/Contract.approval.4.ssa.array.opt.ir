@@ -127,6 +127,7 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let tmp%1#0: uint64 = (/ tmp%0#0 2u)
         let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
         let bytes_offset%0#0: uint64 = (* tmp%1#0 8u)
+        let encoded_element%0#0: bytes = (extract3 slot_contents%0#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
         let pivot#0: uint64 = (extract_uint64 slot_contents%0#0 bytes_offset%0#0)
         goto block@1
     block@1: // while_top_L190
@@ -137,6 +138,7 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let left#1: uint64 = φ(left#3 <- block@1, left#2 <- block@4)
         let slot_contents%1#0: Encoded(uint64[]) = read(arr#0)
         let bytes_offset%1#0: uint64 = (* left#1 8u)
+        let encoded_element%1#0: bytes = (extract3 slot_contents%1#0 bytes_offset%1#0 8u) // on error: index access is out of bounds
         let tmp%2#0: uint64 = (extract_uint64 slot_contents%1#0 bytes_offset%1#0)
         let tmp%3#0: bool = (< tmp%2#0 pivot#0)
         goto tmp%3#0 ? block@4 : block@5
@@ -149,6 +151,7 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let right#1: uint64 = φ(right#4 <- block@5, right#2 <- block@9)
         let slot_contents%2#0: Encoded(uint64[]) = read(arr#0)
         let bytes_offset%2#0: uint64 = (* right#1 8u)
+        let encoded_element%2#0: bytes = (extract3 slot_contents%2#0 bytes_offset%2#0 8u) // on error: index access is out of bounds
         let tmp%4#0: uint64 = (extract_uint64 slot_contents%2#0 bytes_offset%2#0)
         let tmp%5#0: bool = (< pivot#0 tmp%4#0)
         goto tmp%5#0 ? block@7 : block@10
@@ -162,7 +165,9 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         goto tmp%7#0 ? block@11 : block@16
     block@11: // if_body_L203
         let slot_contents%3#0: Encoded(uint64[]) = read(arr#0)
+        let encoded_element%3#0: bytes = (extract3 slot_contents%3#0 bytes_offset%2#0 8u) // on error: index access is out of bounds
         let tmp%8#0: uint64 = (extract_uint64 slot_contents%3#0 bytes_offset%2#0)
+        let encoded_element%4#0: bytes = (extract3 slot_contents%3#0 bytes_offset%1#0 8u) // on error: index access is out of bounds
         let tmp%9#0: uint64 = (extract_uint64 slot_contents%3#0 bytes_offset%1#0)
         let array%val_as_bytes%0#1: bytes[8] = (itob tmp%8#0)
         let array%updated_array%0#1: bytes = (replace3 slot_contents%3#0 bytes_offset%1#0 array%val_as_bytes%0#1)
@@ -239,6 +244,7 @@ subroutine test_cases.array.uint64.assert_last_is_zero(arr: Encoded(uint64[])*) 
         let array%array_len%0#1: uint64 = (/ array%bytes_len%0#1 8u)
         let tmp%1#0: uint64 = (- array%array_len%0#1 1u)
         let bytes_offset%0#0: uint64 = (* tmp%1#0 8u)
+        let encoded_element%0#0: bytes = (extract3 slot_contents%0#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
         let tmp%2#0: uint64 = (extract_uint64 slot_contents%0#0 bytes_offset%0#0)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0)
@@ -287,6 +293,7 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         let array%array_len%2#1: uint64 = 1u
         let tmp%5#0: uint64 = 0u
         let bytes_offset%0#0: uint64 = 0u
+        let encoded_element%0#0: bytes = 0x000000000000002a
         let tmp%6#0: uint64 = 42u
         let tmp%7#0: bool = 1u
         test_cases.array.uint64.add_x(arr#0, 5u)
@@ -297,6 +304,7 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         (assert tmp%9#0)
         let tmp%11#0: uint64 = (- array%array_len%3#1 1u)
         let bytes_offset%1#0: uint64 = (* tmp%11#0 8u)
+        let encoded_element%1#0: bytes = (extract3 slot_contents%5#0 bytes_offset%1#0 8u) // on error: index access is out of bounds
         let tmp%12#0: uint64 = (extract_uint64 slot_contents%5#0 bytes_offset%1#0)
         let tmp%13#0: bool = (== tmp%12#0 4u)
         (assert tmp%13#0)
@@ -331,6 +339,7 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         (assert tmp%15#0)
         let tmp%17#0: uint64 = (- array%array_len%5#1 1u)
         let bytes_offset%2#0: uint64 = (* tmp%17#0 8u)
+        let encoded_element%2#0: bytes = (extract3 slot_contents%8#0 bytes_offset%2#0 8u) // on error: index access is out of bounds
         let tmp%18#0: uint64 = (extract_uint64 slot_contents%8#0 bytes_offset%2#0)
         let tmp%19#0: bool = (== tmp%18#0 1u)
         (assert tmp%19#0)
@@ -342,9 +351,11 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         (assert tmp%21#0)
         let tmp%23#0: uint64 = (- array%array_len%7#1 1u)
         let bytes_offset%3#0: uint64 = (* tmp%23#0 8u)
+        let encoded_element%3#0: bytes = (extract3 array%array_contents%2#1 bytes_offset%3#0 8u) // on error: index access is out of bounds
         let tmp%24#0: uint64 = (extract_uint64 array%array_contents%2#1 bytes_offset%3#0)
         let tmp%25#0: bool = (== tmp%24#0 43u)
         (assert tmp%25#0)
+        let encoded_element%4#0: bytes = ((extract 0 8) array%array_contents%2#1) // on error: index access is out of bounds
         let tmp%26#0: uint64 = (extract_uint64 array%array_contents%2#1 0u)
         let tmp%27#0: bool = (== tmp%26#0 42u)
         (assert tmp%27#0)
@@ -356,6 +367,7 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         (assert tmp%29#0)
         let tmp%31#0: uint64 = (- array%array_len%9#1 1u)
         let bytes_offset%5#0: uint64 = (* tmp%31#0 8u)
+        let encoded_element%5#0: bytes = (extract3 slot_contents%16#0 bytes_offset%5#0 8u) // on error: index access is out of bounds
         let tmp%32#0: uint64 = (extract_uint64 slot_contents%16#0 bytes_offset%5#0)
         let tmp%33#0: bool = (== tmp%32#0 9u)
         (assert tmp%33#0)
@@ -366,11 +378,13 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         (assert tmp%35#0)
         let tmp%37#0: uint64 = (- array%array_len%11#1 1u)
         let bytes_offset%6#0: uint64 = (* tmp%37#0 8u)
+        let encoded_element%6#0: bytes = (extract3 array%array_contents%3#1 bytes_offset%6#0 8u) // on error: index access is out of bounds
         let tmp%38#0: uint64 = (extract_uint64 array%array_contents%3#1 bytes_offset%6#0)
         let tmp%39#0: bool = (== tmp%38#0 44u)
         (assert tmp%39#0)
         let array%array_contents%4#1: bytes = (concat array%array_contents%3#1 0x0000000000000063) // on error: max array length exceeded
         let array%array_contents%5#1: bytes = (concat array%array_contents%4#1 0x0000000000000064) // on error: max array length exceeded
+        let encoded_element%7#0: bytes = ((extract 0 8) array%array_contents%5#1) // on error: index access is out of bounds
         let tmp%41#0: uint64 = (extract_uint64 array%array_contents%5#1 0u)
         let materialized_values%0#0: uint64 = (+ tmp%41#0 2u)
         let array%val_as_bytes%0#1: bytes[8] = (itob materialized_values%0#0)
@@ -381,16 +395,19 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         let array%array_len%13#1: uint64 = (/ array%bytes_len%13#1 8u)
         let tmp%43#0: bool = (== array%array_len%13#1 17u)
         (assert tmp%43#0)
+        let encoded_element%9#0: bytes = ((extract 0 8) array%updated_array%0#1) // on error: index access is out of bounds
         let tmp%44#0: uint64 = (extract_uint64 array%updated_array%0#1 0u)
         let tmp%45#0: bool = (== tmp%44#0 44u)
         (assert tmp%45#0)
         let tmp%47#0: uint64 = (- array%array_len%13#1 2u)
         let bytes_offset%9#0: uint64 = (* tmp%47#0 8u)
+        let encoded_element%10#0: bytes = (extract3 array%updated_array%0#1 bytes_offset%9#0 8u) // on error: index access is out of bounds
         let tmp%48#0: uint64 = (extract_uint64 array%updated_array%0#1 bytes_offset%9#0)
         let tmp%49#0: bool = (== tmp%48#0 99u)
         (assert tmp%49#0)
         let tmp%51#0: uint64 = (- array%array_len%13#1 1u)
         let bytes_offset%10#0: uint64 = (* tmp%51#0 8u)
+        let encoded_element%11#0: bytes = (extract3 array%updated_array%0#1 bytes_offset%10#0 8u) // on error: index access is out of bounds
         let tmp%52#0: uint64 = (extract_uint64 array%updated_array%0#1 bytes_offset%10#0)
         let tmp%53#0: bool = (== tmp%52#0 100u)
         (assert tmp%53#0)
@@ -488,6 +505,7 @@ subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend() -> void
         (assert tmp%1#0)
         let tmp%3#0: uint64 = (- array%array_len%0#1 1u)
         let bytes_offset%0#0: uint64 = (* tmp%3#0 8u)
+        let encoded_element%0#0: bytes = (extract3 array%array_contents%1#1 bytes_offset%0#0 8u) // on error: index access is out of bounds
         let tmp%4#0: uint64 = (extract_uint64 array%array_contents%1#1 bytes_offset%0#0)
         let tmp%5#0: bool = (== tmp%4#0 5u)
         (assert tmp%5#0) // expected 5
@@ -498,6 +516,7 @@ subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend() -> void
         (assert tmp%7#0)
         let tmp%9#0: uint64 = (- array%array_len%2#1 1u)
         let bytes_offset%1#0: uint64 = (* tmp%9#0 8u)
+        let encoded_element%1#0: bytes = (extract3 slot_contents%6#0 bytes_offset%1#0 8u) // on error: index access is out of bounds
         let tmp%10#0: uint64 = (extract_uint64 slot_contents%6#0 bytes_offset%1#0)
         let tmp%11#0: bool = (== tmp%10#0 4u)
         (assert tmp%11#0) // expected 4
@@ -514,15 +533,19 @@ subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend() -> void
         (assert tmp%15#0)
         let tmp%17#0: uint64 = (- array%array_len%4#1 1u)
         let bytes_offset%2#0: uint64 = (* tmp%17#0 8u)
+        let encoded_element%2#0: bytes = (extract3 array%array_contents%2#1 bytes_offset%2#0 8u) // on error: index access is out of bounds
         let tmp%18#0: uint64 = (extract_uint64 array%array_contents%2#1 bytes_offset%2#0)
         let tmp%19#0: bool = (== tmp%18#0 4u)
         (assert tmp%19#0) // expected 4
+        let encoded_element%3#0: bytes = ((extract 32 8) array%array_contents%2#1) // on error: index access is out of bounds
         let tmp%20#0: uint64 = (extract_uint64 array%array_contents%2#1 32u)
         let tmp%21#0: bool = (== tmp%20#0 4u)
         (assert tmp%21#0) // expected 4
+        let encoded_element%4#0: bytes = ((extract 40 8) array%array_contents%2#1) // on error: index access is out of bounds
         let tmp%22#0: uint64 = (extract_uint64 array%array_contents%2#1 40u)
         let tmp%23#0: bool = (== tmp%22#0 5u)
         (assert tmp%23#0) // expected 4
+        let encoded_element%5#0: bytes = ((extract 48 8) array%array_contents%2#1) // on error: index access is out of bounds
         let tmp%24#0: uint64 = (extract_uint64 array%array_contents%2#1 48u)
         let tmp%25#0: bool = (! tmp%24#0)
         (assert tmp%25#0) // expected 4
@@ -544,21 +567,27 @@ subroutine test_cases.array.uint64.Contract.test_array_evaluation_order() -> voi
         let array%array_len%0#1: uint64 = (/ array%bytes_len%0#1 8u)
         let tmp%2#0: bool = (== array%array_len%0#1 6u)
         (assert tmp%2#0)
+        let encoded_element%0#0: bytes = ((extract 0 8) slot_contents%3#0) // on error: index access is out of bounds
         let tmp%3#0: uint64 = (extract_uint64 slot_contents%3#0 0u)
         let tmp%4#0: bool = (== tmp%3#0 3u)
         (assert tmp%4#0)
+        let encoded_element%1#0: bytes = ((extract 8 8) slot_contents%3#0) // on error: index access is out of bounds
         let tmp%5#0: uint64 = (extract_uint64 slot_contents%3#0 8u)
         let tmp%6#0: bool = (== tmp%5#0 1u)
         (assert tmp%6#0)
+        let encoded_element%2#0: bytes = ((extract 16 8) slot_contents%3#0) // on error: index access is out of bounds
         let tmp%7#0: uint64 = (extract_uint64 slot_contents%3#0 16u)
         let tmp%8#0: bool = (== tmp%7#0 2u)
         (assert tmp%8#0)
+        let encoded_element%3#0: bytes = ((extract 24 8) slot_contents%3#0) // on error: index access is out of bounds
         let tmp%9#0: uint64 = (extract_uint64 slot_contents%3#0 24u)
         let tmp%10#0: bool = (== tmp%9#0 3u)
         (assert tmp%10#0)
+        let encoded_element%4#0: bytes = ((extract 32 8) slot_contents%3#0) // on error: index access is out of bounds
         let tmp%11#0: uint64 = (extract_uint64 slot_contents%3#0 32u)
         let tmp%12#0: bool = (== tmp%11#0 1u)
         (assert tmp%12#0)
+        let encoded_element%5#0: bytes = ((extract 40 8) slot_contents%3#0) // on error: index access is out of bounds
         let tmp%13#0: uint64 = (extract_uint64 slot_contents%3#0 40u)
         let tmp%14#0: bool = (== tmp%13#0 2u)
         (assert tmp%14#0)
@@ -568,9 +597,11 @@ subroutine test_cases.array.uint64.Contract.test_array_evaluation_order() -> voi
         let array%array_len%1#1: uint64 = (/ array%bytes_len%1#1 8u)
         let tmp%17#0: uint64 = (- array%array_len%1#1 1u)
         let bytes_offset%6#0: uint64 = (* tmp%17#0 8u)
+        let encoded_element%6#0: bytes = (extract3 slot_contents%10#0 bytes_offset%6#0 8u) // on error: index access is out of bounds
         let materialized_values%0#0: uint64 = (extract_uint64 slot_contents%10#0 bytes_offset%6#0)
         let tmp%18#0: Encoded(uint64[])* = test_cases.array.uint64.append_length_and_return(arr#0)
         let slot_contents%12#0: Encoded(uint64[]) = read(tmp%18#0)
+        let encoded_element%7#0: bytes = ((extract 0 8) slot_contents%12#0) // on error: index access is out of bounds
         let index%0#0: uint64 = (extract_uint64 slot_contents%12#0 0u)
         let slot_contents%13#0: Encoded(uint64[]) = read(arr#0)
         let array%val_as_bytes%0#1: bytes[8] = (itob materialized_values%0#0)
@@ -581,12 +612,15 @@ subroutine test_cases.array.uint64.Contract.test_array_evaluation_order() -> voi
         let array%array_len%2#1: uint64 = (/ array%bytes_len%2#1 8u)
         let tmp%20#0: bool = (== array%array_len%2#1 8u)
         (assert tmp%20#0)
+        let encoded_element%9#0: bytes = ((extract 48 8) array%updated_array%0#1) // on error: index access is out of bounds
         let tmp%21#0: uint64 = (extract_uint64 array%updated_array%0#1 48u)
         let tmp%22#0: bool = (== tmp%21#0 6u)
         (assert tmp%22#0)
+        let encoded_element%10#0: bytes = ((extract 56 8) array%updated_array%0#1) // on error: index access is out of bounds
         let tmp%23#0: uint64 = (extract_uint64 array%updated_array%0#1 56u)
         let tmp%24#0: bool = (== tmp%23#0 7u)
         (assert tmp%24#0)
+        let encoded_element%11#0: bytes = ((extract 24 8) array%updated_array%0#1) // on error: index access is out of bounds
         let tmp%25#0: uint64 = (extract_uint64 array%updated_array%0#1 24u)
         let tmp%26#0: bool = (== tmp%25#0 6u)
         (assert tmp%26#0)
@@ -642,9 +676,9 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L132
         let slot_contents%3#0: Encoded(uint64[]) = read(arr#0)
-        let array%bytes_index%0#1: uint64 = (* item_index_internal%0#1 8u)
-        let array%value%0#1: bytes = (extract3 slot_contents%3#0 array%bytes_index%0#1 8u)
-        let value#0: uint64 = (extract_uint64 slot_contents%3#0 array%bytes_index%0#1)
+        let bytes_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
+        let encoded_element%0#0: bytes = (extract3 slot_contents%3#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
+        let value#0: uint64 = (extract_uint64 slot_contents%3#0 bytes_offset%0#0)
         let tmp%2#0: bool = (>= value#0 last#1)
         (assert tmp%2#0) // array is not sorted
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -661,9 +695,9 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         goto continue_looping%2#0 ? block@10 : block@12
     block@10: // for_body_L137
         let slot_contents%5#0: Encoded(uint64[]) = read(arr#0)
-        let array%bytes_index%1#1: uint64 = (* idx#0 8u)
-        let array%value%1#1: bytes = (extract3 slot_contents%5#0 array%bytes_index%1#1 8u)
-        let value#1: uint64 = (extract_uint64 slot_contents%5#0 array%bytes_index%1#1)
+        let bytes_offset%1#0: uint64 = (* idx#0 8u)
+        let encoded_element%1#0: bytes = (extract3 slot_contents%5#0 bytes_offset%1#0 8u) // on error: index access is out of bounds
+        let value#1: uint64 = (extract_uint64 slot_contents%5#0 bytes_offset%1#0)
         let tmp%3#0: bool = (== value#1 idx#0)
         (assert tmp%3#0) // incorrect array value
         let item_index_internal%1#2: uint64 = (+ idx#0 1u)
@@ -680,9 +714,9 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
     block@14: // for_body_L141
         let reverse_index_internal%2#2: uint64 = (- reverse_index_internal%2#1 1u)
         let slot_contents%7#0: Encoded(uint64[]) = read(arr#0)
-        let array%bytes_index%2#1: uint64 = (* reverse_index_internal%2#2 8u)
-        let array%value%2#1: bytes = (extract3 slot_contents%7#0 array%bytes_index%2#1 8u)
-        let value#2: uint64 = (extract_uint64 slot_contents%7#0 array%bytes_index%2#1)
+        let bytes_offset%2#0: uint64 = (* reverse_index_internal%2#2 8u)
+        let encoded_element%2#0: bytes = (extract3 slot_contents%7#0 bytes_offset%2#0 8u) // on error: index access is out of bounds
+        let value#2: uint64 = (extract_uint64 slot_contents%7#0 bytes_offset%2#0)
         let tmp%4#0: bool = (<= value#2 last#3)
         (assert tmp%4#0) // array is not sorted
         goto block@13
@@ -723,17 +757,17 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let array%array_length%0#1: uint64 = (extract_uint16 combined_arr#0 0u)
         let tmp%6#0: bool = (== array%array_length%0#1 10u)
         (assert tmp%6#0)
-        let encoded_element%0#0: bytes = ((extract 2 8) combined_arr#0)
-        let tmp%7#0: bool = (b== encoded_element%0#0 0x0000000000000000)
+        let encoded_element%3#0: bytes = ((extract 2 8) combined_arr#0)
+        let tmp%7#0: bool = (b== encoded_element%3#0 0x0000000000000000)
         (assert tmp%7#0)
-        let encoded_element%1#0: bytes = ((extract 34 8) combined_arr#0)
-        let tmp%8#0: bool = (b== encoded_element%1#0 0x0000000000000004)
+        let encoded_element%4#0: bytes = ((extract 34 8) combined_arr#0)
+        let tmp%8#0: bool = (b== encoded_element%4#0 0x0000000000000004)
         (assert tmp%8#0)
-        let encoded_element%2#0: bytes = ((extract 42 8) combined_arr#0)
-        let tmp%9#0: bool = (b== encoded_element%2#0 0x0000000000000000)
+        let encoded_element%5#0: bytes = ((extract 42 8) combined_arr#0)
+        let tmp%9#0: bool = (b== encoded_element%5#0 0x0000000000000000)
         (assert tmp%9#0)
-        let encoded_element%3#0: bytes = ((extract 74 8) combined_arr#0)
-        let tmp%10#0: bool = (b== encoded_element%3#0 0x0000000000000004)
+        let encoded_element%6#0: bytes = ((extract 74 8) combined_arr#0)
+        let tmp%10#0: bool = (b== encoded_element%6#0 0x0000000000000004)
         (assert tmp%10#0)
         return 
 
@@ -777,9 +811,9 @@ subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L170
         let slot_contents%4#0: Encoded(uint64[]) = read(rnd#0)
-        let array%bytes_index%0#1: uint64 = (* item_index_internal%1#1 8u)
-        let array%value%0#1: bytes = (extract3 slot_contents%4#0 array%bytes_index%0#1 8u)
-        let value#0: uint64 = (extract_uint64 slot_contents%4#0 array%bytes_index%0#1)
+        let bytes_offset%0#0: uint64 = (* item_index_internal%1#1 8u)
+        let encoded_element%0#0: bytes = (extract3 slot_contents%4#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
+        let value#0: uint64 = (extract_uint64 slot_contents%4#0 bytes_offset%0#0)
         let tmp%6#0: bool = (>= value#0 last#1)
         (assert tmp%6#0) // array is not sorted
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
@@ -803,6 +837,7 @@ subroutine test_cases.array.uint64.Contract.test_unobserved_write() -> void:
         let array%val_as_bytes%1#1: bytes[8] = (itob 1u)
         let array%updated_array%1#1: bytes = (replace3 slot_contents%2#0 array%bytes_index%0#1 array%val_as_bytes%1#1)
         write(arr#0, array%updated_array%1#1)
+        let encoded_element%2#0: bytes = (extract3 array%updated_array%1#1 array%bytes_index%0#1 8u) // on error: index access is out of bounds
         let tmp%1#0: uint64 = (extract_uint64 array%updated_array%1#1 array%bytes_index%0#1)
         let tmp%2#0: bool = (== tmp%1#0 1u)
         (assert tmp%2#0)

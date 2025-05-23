@@ -119,9 +119,9 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array%array_length%0#1)
         goto continue_looping%0#0 ? block@15 : block@16
     block@15: // for_body_L69
-        let array_head_and_tail%0#0: bytes = ((extract 2 0) tups#0)
-        let item_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
-        let tup#0: Encoded((uint64,uint64)) = (extract3 array_head_and_tail%0#0 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let array_trimmed%0#0: bytes = ((extract 2 0) tups#0)
+        let bytes_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
+        let tup#0: Encoded((uint64,uint64)) = (extract3 array_trimmed%0#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@14
@@ -142,8 +142,8 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let continue_looping%0#0: bool = (< item_index_internal%0#0 3u)
         goto continue_looping%0#0 ? block@19 : block@16
     block@19: // for_body_L74
-        let item_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
-        let tup#0: Encoded((uint64,uint64)) = (extract3 tups#0 item_offset%0#0 16u) // on error: Index access is out of bounds
+        let bytes_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
+        let tup#0: Encoded((uint64,uint64)) = (extract3 tups#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@18
@@ -174,10 +174,8 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let val_as_bytes%0#0: bytes[8] = (itob a#0)
         let val_as_bytes%1#0: bytes[8] = (itob tmp%2#2)
         let encoded%3#0: Encoded(((uint64,uint64),(uint64,uint64),(uint64,uint64))) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let index_is_in_bounds%0#0: bool = (< i#0 8u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 encoded%3#0)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_target%0#0)
+        let updated_array%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 encoded%3#0)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@22
@@ -208,10 +206,8 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let val_as_bytes%0#0: bytes[8] = (itob tmp%2#2)
         let val_as_bytes%1#0: bytes[8] = (itob b#0)
         let encoded%3#0: Encoded(((uint64,uint64),(uint64,uint64),(uint64,uint64))) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let index_is_in_bounds%0#0: bool = (< i#0 8u)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let updated_target%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 encoded%3#0)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_target%0#0)
+        let updated_array%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 encoded%3#0)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@26
@@ -306,8 +302,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         (assert tmp%1#0) // too many tups
         let tmp%2#0: bytes = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
         let write_offset%0#0: uint64 = (* tmp%0#0 16u)
-        let updated_target%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 tup#0)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%0#0 updated_target%0#0)
+        let updated_array%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 tup#0)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%0#0 updated_array%0#0)
         let tmp%4#0: uint64 = (extract_uint64 updated_data%0#0 0u)
         let assigned_value%0#0: uint64 = (+ tmp%4#0 1u)
         let val_as_bytes%0#0: bytes[8] = (itob assigned_value%0#0)

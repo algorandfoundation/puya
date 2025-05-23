@@ -181,9 +181,9 @@ subroutine main:
         l-load encoded%5#1 1                                                                        to_encode%5#0,encoded%6#1,encoded%5#1
         concat                                                                                      to_encode%5#0,encoded%7#0
         l-load-copy encoded%7#0 0                                                                   to_encode%5#0,encoded%7#0,encoded%7#0 (copy)
-        len                                                                                         to_encode%5#0,encoded%7#0,data_length%3#1
-        int 4                                                                                       to_encode%5#0,encoded%7#0,data_length%3#1,4
-        l-load data_length%3#1 1                                                                    to_encode%5#0,encoded%7#0,4,data_length%3#1
+        len                                                                                         to_encode%5#0,encoded%7#0,data_length%3#0
+        int 4                                                                                       to_encode%5#0,encoded%7#0,data_length%3#0,4
+        l-load data_length%3#0 1                                                                    to_encode%5#0,encoded%7#0,4,data_length%3#0
         +                                                                                           to_encode%5#0,encoded%7#0,current_tail_offset%3#0
         l-load encoded%7#0 1                                                                        to_encode%5#0,current_tail_offset%3#0,encoded%7#0
         l-load to_encode%5#0 2                                                                      current_tail_offset%3#0,encoded%7#0,to_encode%5#0
@@ -1414,47 +1414,46 @@ subroutine mutate_tuple_in_storage_currently_supported_method:
         l-load item_start_offset%0#0 2                                                              maybe_value%0#0,item_end_offset%0#0,maybe_value%0#0 (copy),item_start_offset%0#0
         l-load-copy item_end_offset%0#0 2                                                           maybe_value%0#0,item_end_offset%0#0,maybe_value%0#0 (copy),item_start_offset%0#0,item_end_offset%0#0 (copy)
         substring3                                                                                  maybe_value%0#0,item_end_offset%0#0,arr2#0
-        l-load-copy maybe_value%0#0 2                                                               maybe_value%0#0,item_end_offset%0#0,arr2#0,maybe_value%0#0 (copy)
-        len                                                                                         maybe_value%0#0,item_end_offset%0#0,arr2#0,item_end_offset%1#0
-        l-load maybe_value%0#0 3                                                                    item_end_offset%0#0,arr2#0,item_end_offset%1#0,maybe_value%0#0
-        l-load item_end_offset%0#0 3                                                                arr2#0,item_end_offset%1#0,maybe_value%0#0,item_end_offset%0#0
-        l-load item_end_offset%1#0 2                                                                arr2#0,maybe_value%0#0,item_end_offset%0#0,item_end_offset%1#0
-        substring3                                                                                  arr2#0,item1%0#0
-        l-load-copy item1%0#0 0                                                                     arr2#0,item1%0#0,item1%0#0 (copy)
-        int 8                                                                                       arr2#0,item1%0#0,item1%0#0 (copy),8
-        extract_uint16                                                                              arr2#0,item1%0#0,item_start_offset%2#0
-        l-load-copy item1%0#0 1                                                                     arr2#0,item1%0#0,item_start_offset%2#0,item1%0#0 (copy)
-        int 10                                                                                      arr2#0,item1%0#0,item_start_offset%2#0,item1%0#0 (copy),10
-        extract_uint16                                                                              arr2#0,item1%0#0,item_start_offset%2#0,item_end_offset%2#0
-        l-load-copy item1%0#0 2                                                                     arr2#0,item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item1%0#0 (copy)
-        len                                                                                         arr2#0,item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0
         // tuple_support/nested_tuples.py:117
         // arr2.append(arc4.UInt64(1))
-        l-load arr2#0 4                                                                             item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0
-        extract 2 0                                                                                 item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,expr_value_trimmed%0#0
-        byte 0x0000000000000001                                                                     item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,expr_value_trimmed%0#0,0x0000000000000001
-        concat                                                                                      item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,concatenated%0#0
-        l-load-copy concatenated%0#0 0                                                              item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,concatenated%0#0,concatenated%0#0 (copy)
-        len                                                                                         item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,concatenated%0#0,byte_len%0#0
-        int 8                                                                                       item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,concatenated%0#0,byte_len%0#0,8
-        /                                                                                           item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,concatenated%0#0,len_%0#0
-        itob                                                                                        item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,concatenated%0#0,as_bytes%0#0
-        extract 6 2                                                                                 item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,concatenated%0#0,len_16_bit%0#0
-        l-load concatenated%0#0 1                                                                   item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,len_16_bit%0#0,concatenated%0#0
-        concat                                                                                      item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0
+        extract 2 0                                                                                 maybe_value%0#0,item_end_offset%0#0,expr_value_trimmed%0#0
+        byte 0x0000000000000001                                                                     maybe_value%0#0,item_end_offset%0#0,expr_value_trimmed%0#0,0x0000000000000001
+        concat                                                                                      maybe_value%0#0,item_end_offset%0#0,concatenated%0#0
+        l-load-copy concatenated%0#0 0                                                              maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,concatenated%0#0 (copy)
+        len                                                                                         maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,byte_len%0#0
+        int 8                                                                                       maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,byte_len%0#0,8
+        /                                                                                           maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,len_%0#0
+        itob                                                                                        maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,as_bytes%0#0
+        extract 6 2                                                                                 maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,len_16_bit%0#0
+        l-load concatenated%0#0 1                                                                   maybe_value%0#0,item_end_offset%0#0,len_16_bit%0#0,concatenated%0#0
+        concat                                                                                      maybe_value%0#0,item_end_offset%0#0,arr2#0
         // tuple_support/nested_tuples.py:118
         // self.twm = self.twm._replace(arr=arr2.copy())
-        l-load-copy item1%0#0 4                                                                     item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0,item1%0#0 (copy)
-        int 0                                                                                       item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0,item1%0#0 (copy),0
-        extract_uint64                                                                              item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0,item0%5#0
-        l-load-copy item1%0#0 5                                                                     item1%0#0,item_start_offset%2#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0,item0%5#0,item1%0#0 (copy)
-        l-load item_start_offset%2#0 5                                                              item1%0#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0,item0%5#0,item1%0#0 (copy),item_start_offset%2#0
-        l-load-copy item_end_offset%2#0 5                                                           item1%0#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0,item0%5#0,item1%0#0 (copy),item_start_offset%2#0,item_end_offset%2#0 (copy)
-        substring3                                                                                  item1%0#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0,item0%5#0,item1%4#0
-        extract 2 0                                                                                 item1%0#0,item_end_offset%2#0,item_end_offset%3#0,arr2#0,item0%5#0,item1%5#0
-        l-load item1%0#0 5                                                                          item_end_offset%2#0,item_end_offset%3#0,arr2#0,item0%5#0,item1%5#0,item1%0#0
-        l-load item_end_offset%2#0 5                                                                item_end_offset%3#0,arr2#0,item0%5#0,item1%5#0,item1%0#0,item_end_offset%2#0
-        l-load item_end_offset%3#0 5                                                                arr2#0,item0%5#0,item1%5#0,item1%0#0,item_end_offset%2#0,item_end_offset%3#0
+        l-load-copy maybe_value%0#0 2                                                               maybe_value%0#0,item_end_offset%0#0,arr2#0,maybe_value%0#0 (copy)
+        len                                                                                         maybe_value%0#0,item_end_offset%0#0,arr2#0,item_end_offset%5#0
+        l-load maybe_value%0#0 3                                                                    item_end_offset%0#0,arr2#0,item_end_offset%5#0,maybe_value%0#0
+        l-load item_end_offset%0#0 3                                                                arr2#0,item_end_offset%5#0,maybe_value%0#0,item_end_offset%0#0
+        l-load item_end_offset%5#0 2                                                                arr2#0,maybe_value%0#0,item_end_offset%0#0,item_end_offset%5#0
+        substring3                                                                                  arr2#0,item1%3#0
+        l-load-copy item1%3#0 0                                                                     arr2#0,item1%3#0,item1%3#0 (copy)
+        int 0                                                                                       arr2#0,item1%3#0,item1%3#0 (copy),0
+        extract_uint64                                                                              arr2#0,item1%3#0,item0%5#0
+        l-load-copy item1%3#0 1                                                                     arr2#0,item1%3#0,item0%5#0,item1%3#0 (copy)
+        int 8                                                                                       arr2#0,item1%3#0,item0%5#0,item1%3#0 (copy),8
+        extract_uint16                                                                              arr2#0,item1%3#0,item0%5#0,item_start_offset%6#0
+        l-load-copy item1%3#0 2                                                                     arr2#0,item1%3#0,item0%5#0,item_start_offset%6#0,item1%3#0 (copy)
+        int 10                                                                                      arr2#0,item1%3#0,item0%5#0,item_start_offset%6#0,item1%3#0 (copy),10
+        extract_uint16                                                                              arr2#0,item1%3#0,item0%5#0,item_start_offset%6#0,item_end_offset%6#0
+        l-load-copy item1%3#0 3                                                                     arr2#0,item1%3#0,item0%5#0,item_start_offset%6#0,item_end_offset%6#0,item1%3#0 (copy)
+        l-load item_start_offset%6#0 2                                                              arr2#0,item1%3#0,item0%5#0,item_end_offset%6#0,item1%3#0 (copy),item_start_offset%6#0
+        l-load-copy item_end_offset%6#0 2                                                           arr2#0,item1%3#0,item0%5#0,item_end_offset%6#0,item1%3#0 (copy),item_start_offset%6#0,item_end_offset%6#0 (copy)
+        substring3                                                                                  arr2#0,item1%3#0,item0%5#0,item_end_offset%6#0,item1%4#0
+        extract 2 0                                                                                 arr2#0,item1%3#0,item0%5#0,item_end_offset%6#0,item1%5#0
+        l-load-copy item1%3#0 3                                                                     arr2#0,item1%3#0,item0%5#0,item_end_offset%6#0,item1%5#0,item1%3#0 (copy)
+        len                                                                                         arr2#0,item1%3#0,item0%5#0,item_end_offset%6#0,item1%5#0,item_end_offset%7#0
+        l-load item1%3#0 4                                                                          arr2#0,item0%5#0,item_end_offset%6#0,item1%5#0,item_end_offset%7#0,item1%3#0
+        l-load item_end_offset%6#0 3                                                                arr2#0,item0%5#0,item1%5#0,item_end_offset%7#0,item1%3#0,item_end_offset%6#0
+        l-load item_end_offset%7#0 2                                                                arr2#0,item0%5#0,item1%5#0,item1%3#0,item_end_offset%6#0,item_end_offset%7#0
         substring3                                                                                  arr2#0,item0%5#0,item1%5#0,item2%2#0
         extract 2 0                                                                                 arr2#0,item0%5#0,item1%5#0,item2%3#0
         l-load-copy arr2#0 3                                                                        arr2#0,item0%5#0,item1%5#0,item2%3#0,arr2#0 (copy)

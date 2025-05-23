@@ -173,7 +173,6 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let as_bytes%0#0: bytes[8] = (itob 2u)
         let next_item_head%0#0: bytes = 0x0002
         let result%0#0: bytes = 0x0002
-        let next_item_len%0#0: uint64 = 15u
         let result%1#0: bytes = 0x00020000000000000001000a000362617a
         let l_count%0#0: uint64 = maybe_value%0#0.length
         let l_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%0#0)
@@ -184,7 +183,6 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         (assert maybe_exists%1#0) // check self.loc exists for account
         let next_item_head%1#0: bytes = 0x0002
         let result%2#0: bytes = 0x0002
-        let next_item_len%1#0: uint64 = 15u
         let result%3#0: bytes = 0x00020000000000000001000a000362617a
         let l_count%1#0: uint64 = maybe_value%1#0.length
         let l_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#0)
@@ -194,7 +192,6 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         (assert maybe_exists%2#0) // check self.box exists
         let next_item_head%2#0: bytes = 0x0002
         let result%4#0: bytes = 0x0002
-        let next_item_len%2#0: uint64 = 15u
         let result%5#0: bytes = 0x00020000000000000001000a000362617a
         let l_count%2#0: uint64 = maybe_value%2#0.length
         let l_head_and_tail%2#0: bytes = ((extract 2 0) maybe_value%2#0)
@@ -207,7 +204,6 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         (assert maybe_exists%3#0) // check self.map entry exists
         let next_item_head%3#0: bytes = 0x0002
         let result%6#0: bytes = 0x0002
-        let next_item_len%3#0: uint64 = 15u
         let result%7#0: bytes = 0x00020000000000000001000a000362617a
         let l_count%3#0: uint64 = maybe_value%3#0.length
         let l_head_and_tail%3#0: bytes = ((extract 2 0) maybe_value%3#0)
@@ -234,17 +230,20 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let item_offset%1#0: uint64 = (extract_uint16 substring3%0#0 8u)
         let data_up_to_item%0#0: bytes = (extract3 substring3%0#0 0u item_offset%1#0)
         let updated_data%0#0: bytes = (concat data_up_to_item%0#0 0x00086d6f646966696564)
-        let updated_value%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%0#0, updated_data%0#0, 0u)
-        (app_global_put "glob" updated_value%0#0)
+        let array_length%1#0: uint64 = maybe_value%0#0.length
+        let lt%0#0: bool = (< 0u array_length%1#0)
+        (assert array_length%1#0) // index access is out of bounds
+        let updated_array%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%0#0, updated_data%0#0, 0u)
+        (app_global_put "glob" updated_array%0#0)
         let tmp%0#0: bytes[32] = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let array_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#0)
         let item_offset_offset%1#0: uint64 = 0u
         let item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%1#0 0u)
-        let array_length%1#0: uint64 = maybe_value%1#0.length
+        let array_length%2#0: uint64 = maybe_value%1#0.length
         let next_index%1#0: uint64 = 1u
-        let has_next%1#0: uint64 = (- array_length%1#0 1u) // on error: index access is out of bounds
+        let has_next%1#0: uint64 = (- array_length%2#0 1u) // on error: index access is out of bounds
         let end_of_array%1#0: uint64 = (len array_head_and_tail%1#0)
         let next_item_offset_offset%1#0: uint64 = 2u
         let next_item_offset%1#0: uint64 = (extract_uint16 array_head_and_tail%1#0 2u)
@@ -253,16 +252,19 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let item_offset%3#0: uint64 = (extract_uint16 substring3%1#0 8u)
         let data_up_to_item%1#0: bytes = (extract3 substring3%1#0 0u item_offset%3#0)
         let updated_data%1#0: bytes = (concat data_up_to_item%1#0 0x00086d6f646966696564)
-        let updated_value%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%1#0, updated_data%1#0, 0u)
-        (app_local_put tmp%0#0 "loc" updated_value%1#0)
+        let array_length%3#0: uint64 = maybe_value%1#0.length
+        let lt%1#0: bool = (< 0u array_length%3#0)
+        (assert array_length%3#0) // index access is out of bounds
+        let updated_array%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%1#0, updated_data%1#0, 0u)
+        (app_local_put tmp%0#0 "loc" updated_array%1#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box")
         (assert maybe_exists%2#0) // check self.box exists
         let array_head_and_tail%2#0: bytes = ((extract 2 0) maybe_value%2#0)
         let item_offset_offset%2#0: uint64 = 0u
         let item_offset%4#0: uint64 = (extract_uint16 array_head_and_tail%2#0 0u)
-        let array_length%2#0: uint64 = maybe_value%2#0.length
+        let array_length%4#0: uint64 = maybe_value%2#0.length
         let next_index%2#0: uint64 = 1u
-        let has_next%2#0: uint64 = (- array_length%2#0 1u) // on error: index access is out of bounds
+        let has_next%2#0: uint64 = (- array_length%4#0 1u) // on error: index access is out of bounds
         let end_of_array%2#0: uint64 = (len array_head_and_tail%2#0)
         let next_item_offset_offset%2#0: uint64 = 2u
         let next_item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%2#0 2u)
@@ -271,9 +273,12 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let item_offset%5#0: uint64 = (extract_uint16 substring3%2#0 8u)
         let data_up_to_item%2#0: bytes = (extract3 substring3%2#0 0u item_offset%5#0)
         let updated_data%2#0: bytes = (concat data_up_to_item%2#0 0x00086d6f646966696564)
-        let updated_value%2#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%2#0, updated_data%2#0, 0u)
+        let array_length%5#0: uint64 = maybe_value%2#0.length
+        let lt%2#0: bool = (< 0u array_length%5#0)
+        (assert array_length%5#0) // index access is out of bounds
+        let updated_array%2#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%2#0, updated_data%2#0, 0u)
         (box_del "box")
-        (box_put "box" updated_value%2#0)
+        (box_put "box" updated_array%2#0)
         let materialized_values%0#0: bytes[32] = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
@@ -281,9 +286,9 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let array_head_and_tail%3#0: bytes = ((extract 2 0) maybe_value%3#0)
         let item_offset_offset%3#0: uint64 = 0u
         let item_offset%6#0: uint64 = (extract_uint16 array_head_and_tail%3#0 0u)
-        let array_length%3#0: uint64 = maybe_value%3#0.length
+        let array_length%6#0: uint64 = maybe_value%3#0.length
         let next_index%3#0: uint64 = 1u
-        let has_next%3#0: uint64 = (- array_length%3#0 1u) // on error: index access is out of bounds
+        let has_next%3#0: uint64 = (- array_length%6#0 1u) // on error: index access is out of bounds
         let end_of_array%3#0: uint64 = (len array_head_and_tail%3#0)
         let next_item_offset_offset%3#0: uint64 = 2u
         let next_item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%3#0 2u)
@@ -292,9 +297,12 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let item_offset%7#0: uint64 = (extract_uint16 substring3%3#0 8u)
         let data_up_to_item%3#0: bytes = (extract3 substring3%3#0 0u item_offset%7#0)
         let updated_data%3#0: bytes = (concat data_up_to_item%3#0 0x00086d6f646966696564)
-        let updated_value%3#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%3#0, updated_data%3#0, 0u)
+        let array_length%7#0: uint64 = maybe_value%3#0.length
+        let lt%3#0: bool = (< 0u array_length%7#0)
+        (assert array_length%7#0) // index access is out of bounds
+        let updated_array%3#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%3#0, updated_data%3#0, 0u)
         (box_del box_prefixed_key%0#0)
-        (box_put box_prefixed_key%0#0 updated_value%3#0)
+        (box_put box_prefixed_key%0#0 updated_array%3#0)
         return 
 
 subroutine test_cases.state_mutations.contract.Contract.get() -> Encoded(len+(uint64,len+utf8[])[]):

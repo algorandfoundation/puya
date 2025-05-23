@@ -148,6 +148,16 @@ subroutine main:
         // dynamic_string_array[3] = hello
         int 3                                                                                              0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172,0x000548656c6c6f,3
         callsub dynamic_array_replace_byte_length_head                                                     dynamic_string_array#1
+        // arc4_types/mutation.py:234
+        // dynamic_string_array[5] = hello
+        l-load-copy dynamic_string_array#1 0                                                               dynamic_string_array#1,dynamic_string_array#1 (copy)
+        int 0                                                                                              dynamic_string_array#1,dynamic_string_array#1 (copy),0
+        extract_uint16                                                                                     dynamic_string_array#1,array%array_length%3#1
+        int 5                                                                                              dynamic_string_array#1,array%array_length%3#1,5
+        l-load array%array_length%3#1 1                                                                    dynamic_string_array#1,5,array%array_length%3#1
+        <                                                                                                  dynamic_string_array#1,lt%1#0
+        assert // index access is out of bounds                                                            dynamic_string_array#1
+        l-load dynamic_string_array#1 0                                                                    dynamic_string_array#1
         // arc4_types/mutation.py:215
         // hello = String("Hello")
         byte 0x000548656c6c6f                                                                              dynamic_string_array#1,0x000548656c6c6f
@@ -225,7 +235,7 @@ subroutine main:
         extract 2 0                                                                                        array_of_array#1,array_head_and_tail%0#1
         l-load-copy array_of_array#1 1                                                                     array_of_array#1,array_head_and_tail%0#1,array_of_array#1 (copy)
         int 0                                                                                              array_of_array#1,array_head_and_tail%0#1,array_of_array#1 (copy),0
-        extract_uint16                                                                                     array_of_array#1,array_head_and_tail%0#1,array%array_length%2#1
+        extract_uint16                                                                                     array_of_array#1,array_head_and_tail%0#1,array%array_length%4#1
         assert // index access is out of bounds                                                            array_of_array#1,array_head_and_tail%0#1
         l-load-copy array_head_and_tail%0#1 0                                                              array_of_array#1,array_head_and_tail%0#1,array_head_and_tail%0#1 (copy)
         int 0                                                                                              array_of_array#1,array_head_and_tail%0#1,array_head_and_tail%0#1 (copy),0
@@ -264,7 +274,7 @@ subroutine main:
         extract 2 0                                                                                        array_of_array#1,array_head_and_tail%1#1
         l-load-copy array_of_array#1 1                                                                     array_of_array#1,array_head_and_tail%1#1,array_of_array#1 (copy)
         int 0                                                                                              array_of_array#1,array_head_and_tail%1#1,array_of_array#1 (copy),0
-        extract_uint16                                                                                     array_of_array#1,array_head_and_tail%1#1,array%array_length%3#1
+        extract_uint16                                                                                     array_of_array#1,array_head_and_tail%1#1,array%array_length%6#1
         assert // index access is out of bounds                                                            array_of_array#1,array_head_and_tail%1#1
         l-load-copy array_head_and_tail%1#1 0                                                              array_of_array#1,array_head_and_tail%1#1,array_head_and_tail%1#1 (copy)
         int 0                                                                                              array_of_array#1,array_head_and_tail%1#1,array_head_and_tail%1#1 (copy),0
@@ -278,19 +288,11 @@ subroutine main:
         l-load item_offset%1#0 2                                                                           array_of_array#1,item_head_tail_length%1#0,array_head_and_tail%1#1,item_offset%1#0
         l-load item_head_tail_length%1#0 2                                                                 array_of_array#1,array_head_and_tail%1#1,item_offset%1#0,item_head_tail_length%1#0
         extract3                                                                                           array_of_array#1,item%1#0
-        l-load-copy item%1#0 0                                                                             array_of_array#1,item%1#0,item%1#0 (copy)
-        int 0                                                                                              array_of_array#1,item%1#0,item%1#0 (copy),0
-        extract_uint16                                                                                     array_of_array#1,item%1#0,array%array_length%4#1
-        int 1                                                                                              array_of_array#1,item%1#0,array%array_length%4#1,1
-        l-load array%array_length%4#1 1                                                                    array_of_array#1,item%1#0,1,array%array_length%4#1
-        <                                                                                                  array_of_array#1,item%1#0,index_is_in_bounds%0#0
-        assert // Index access is out of bounds                                                            array_of_array#1,item%1#0
-        l-load item%1#0 0                                                                                  array_of_array#1,item%1#0
         byte 0x00                                                                                          array_of_array#1,item%1#0,0x00
-        replace2 3                                                                                         array_of_array#1,updated_target%0#0
-        l-load array_of_array#1 1                                                                          updated_target%0#0,array_of_array#1
-        l-load updated_target%0#0 1                                                                        array_of_array#1,updated_target%0#0
-        int 0                                                                                              array_of_array#1,updated_target%0#0,0
+        replace2 3                                                                                         array_of_array#1,updated_array%1#1
+        l-load array_of_array#1 1                                                                          updated_array%1#1,array_of_array#1
+        l-load updated_array%1#1 1                                                                         array_of_array#1,updated_array%1#1
+        int 0                                                                                              array_of_array#1,updated_array%1#1,0
         callsub dynamic_array_replace_byte_length_head                                                     array_of_array#1
         // arc4_types/mutation.py:83
         // assert array_of_array.bytes == Bytes.from_hex("00020004000800020A00000110")

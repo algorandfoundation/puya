@@ -328,9 +328,9 @@ subroutine add_tup:
         l-load tmp%2#0 1                                                                                                       (𝕡) tup#0 | maybe_value%0#0,write_offset%0#0,tmp%2#0
         l-load write_offset%0#0 1                                                                                              (𝕡) tup#0 | maybe_value%0#0,tmp%2#0,write_offset%0#0
         p-load tup#0                                                                                                           (𝕡) tup#0 | maybe_value%0#0,tmp%2#0,write_offset%0#0,tup#0 (copy)
-        replace3                                                                                                               (𝕡) tup#0 | maybe_value%0#0,updated_target%0#0
-        l-load maybe_value%0#0 1                                                                                               (𝕡) tup#0 | updated_target%0#0,maybe_value%0#0
-        l-load updated_target%0#0 1                                                                                            (𝕡) tup#0 | maybe_value%0#0,updated_target%0#0
+        replace3                                                                                                               (𝕡) tup#0 | maybe_value%0#0,updated_array%0#0
+        l-load maybe_value%0#0 1                                                                                               (𝕡) tup#0 | updated_array%0#0,maybe_value%0#0
+        l-load updated_array%0#0 1                                                                                             (𝕡) tup#0 | maybe_value%0#0,updated_array%0#0
         replace2 8                                                                                                             (𝕡) tup#0 | updated_data%0#0
         // mutable_native_types/case2_with_immutable_struct.py:50
         // self.tup_bag.value.count += 1
@@ -479,15 +479,15 @@ subroutine add_many_tups:
         // mutable_native_types/case2_with_immutable_struct.py:68
         // for tup in tups:
         p-load tups#0                                                                                                          (𝕡) tups#0 | tups#0 (copy)
-        extract 2 0                                                                                                            (𝕡) tups#0 | array_head_and_tail%0#0
-        v-load item_index_internal%0#0                                                                                         (𝕡) tups#0 | array_head_and_tail%0#0,item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 1                                                                                 (𝕡) tups#0 | item_index_internal%0#0,array_head_and_tail%0#0,item_index_internal%0#0 (copy)
-        int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,array_head_and_tail%0#0,item_index_internal%0#0 (copy),16
-        *                                                                                                                      (𝕡) tups#0 | item_index_internal%0#0,array_head_and_tail%0#0,item_offset%0#0
-        l-load array_head_and_tail%0#0 1                                                                                       (𝕡) tups#0 | item_index_internal%0#0,item_offset%0#0,array_head_and_tail%0#0
-        l-load item_offset%0#0 1                                                                                               (𝕡) tups#0 | item_index_internal%0#0,array_head_and_tail%0#0,item_offset%0#0
-        int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,array_head_and_tail%0#0,item_offset%0#0,16
-        extract3 // on error: Index access is out of bounds                                                                    (𝕡) tups#0 | item_index_internal%0#0,tup#0
+        extract 2 0                                                                                                            (𝕡) tups#0 | array_trimmed%0#0
+        v-load item_index_internal%0#0                                                                                         (𝕡) tups#0 | array_trimmed%0#0,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                                                                                 (𝕡) tups#0 | item_index_internal%0#0,array_trimmed%0#0,item_index_internal%0#0 (copy)
+        int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,array_trimmed%0#0,item_index_internal%0#0 (copy),16
+        *                                                                                                                      (𝕡) tups#0 | item_index_internal%0#0,array_trimmed%0#0,bytes_offset%0#0
+        l-load array_trimmed%0#0 1                                                                                             (𝕡) tups#0 | item_index_internal%0#0,bytes_offset%0#0,array_trimmed%0#0
+        l-load bytes_offset%0#0 1                                                                                              (𝕡) tups#0 | item_index_internal%0#0,array_trimmed%0#0,bytes_offset%0#0
+        int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,array_trimmed%0#0,bytes_offset%0#0,16
+        extract3 // on error: index access is out of bounds                                                                    (𝕡) tups#0 | item_index_internal%0#0,tup#0
         // mutable_native_types/case2_with_immutable_struct.py:69
         // self.add_tup(tup)
         callsub add_tup                                                                                                        (𝕡) tups#0 | item_index_internal%0#0
@@ -522,11 +522,11 @@ subroutine add_fixed_tups:
         v-load item_index_internal%0#0                                                                                         (𝕡) tups#0 | item_index_internal%0#0
         l-store-copy item_index_internal%0#0 0                                                                                 (𝕡) tups#0 | item_index_internal%0#0,item_index_internal%0#0 (copy)
         int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,item_index_internal%0#0 (copy),16
-        *                                                                                                                      (𝕡) tups#0 | item_index_internal%0#0,item_offset%0#0
-        p-load tups#0                                                                                                          (𝕡) tups#0 | item_index_internal%0#0,item_offset%0#0,tups#0 (copy)
-        l-load item_offset%0#0 1                                                                                               (𝕡) tups#0 | item_index_internal%0#0,tups#0 (copy),item_offset%0#0
-        int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,tups#0 (copy),item_offset%0#0,16
-        extract3 // on error: Index access is out of bounds                                                                    (𝕡) tups#0 | item_index_internal%0#0,tup#0
+        *                                                                                                                      (𝕡) tups#0 | item_index_internal%0#0,bytes_offset%0#0
+        p-load tups#0                                                                                                          (𝕡) tups#0 | item_index_internal%0#0,bytes_offset%0#0,tups#0 (copy)
+        l-load bytes_offset%0#0 1                                                                                              (𝕡) tups#0 | item_index_internal%0#0,tups#0 (copy),bytes_offset%0#0
+        int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,tups#0 (copy),bytes_offset%0#0,16
+        extract3 // on error: index access is out of bounds                                                                    (𝕡) tups#0 | item_index_internal%0#0,tup#0
         // mutable_native_types/case2_with_immutable_struct.py:74
         // self.add_tup(tup)
         callsub add_tup                                                                                                        (𝕡) tups#0 | item_index_internal%0#0
@@ -576,34 +576,30 @@ subroutine set_a:
         l-load-copy maybe_value%1#0 0                                                                                          (𝕡) a#0 | maybe_value%1#0,maybe_value%1#0 (copy)
         extract 8 128 // on error: Index access is out of bounds                                                               (𝕡) a#0 | maybe_value%1#0,tmp%1#0
         v-load i#0                                                                                                             (𝕡) a#0 | maybe_value%1#0,tmp%1#0,i#0
-        l-store-copy i#0 1                                                                                                     (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,i#0 (copy)
-        int 16                                                                                                                 (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,i#0 (copy),16
-        *                                                                                                                      (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0
-        l-load-copy tmp%1#0 1                                                                                                  (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy)
-        l-load-copy bytes_offset%0#0 1                                                                                         (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy),bytes_offset%0#0 (copy)
-        int 16                                                                                                                 (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy),bytes_offset%0#0 (copy),16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tup#0
+        l-store-copy i#0 2                                                                                                     (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,i#0 (copy)
+        int 16                                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,i#0 (copy),16
+        *                                                                                                                      (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0
+        l-load-copy tmp%1#0 1                                                                                                  (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy)
+        l-load-copy bytes_offset%0#0 1                                                                                         (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy),bytes_offset%0#0 (copy)
+        int 16                                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy),bytes_offset%0#0 (copy),16
+        extract3 // on error: index access is out of bounds                                                                    (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tup#0
         // mutable_native_types/case2_with_immutable_struct.py:81
         // self.tup_bag.value.items[i] = tup._replace(a=a)
-        int 8                                                                                                                  (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tup#0,8
-        extract_uint64                                                                                                         (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%2#0
-        p-load a#0                                                                                                             (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%2#0,a#0 (copy)
-        itob                                                                                                                   (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%2#0,val_as_bytes%0#0
-        l-load tmp%2#0 1                                                                                                       (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,tmp%2#0
-        itob                                                                                                                   (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,val_as_bytes%1#0
-        l-load val_as_bytes%0#0 1                                                                                              (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%1#0,val_as_bytes%0#0
-        l-load val_as_bytes%1#0 1                                                                                              (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,val_as_bytes%1#0
-        concat                                                                                                                 (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
-        l-load-copy i#0 3                                                                                                      (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0,i#0 (copy)
-        int 8                                                                                                                  (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0,i#0 (copy),8
-        <                                                                                                                      (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0,index_is_in_bounds%0#0
-        assert // Index access is out of bounds                                                                                (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
-        l-load tmp%1#0 2                                                                                                       (𝕡) a#0 | maybe_value%1#0,i#0,bytes_offset%0#0,encoded%3#0,tmp%1#0
-        l-load bytes_offset%0#0 2                                                                                              (𝕡) a#0 | maybe_value%1#0,i#0,encoded%3#0,tmp%1#0,bytes_offset%0#0
-        l-load encoded%3#0 2                                                                                                   (𝕡) a#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
-        replace3                                                                                                               (𝕡) a#0 | maybe_value%1#0,i#0,updated_target%0#0
-        l-load maybe_value%1#0 2                                                                                               (𝕡) a#0 | i#0,updated_target%0#0,maybe_value%1#0
-        l-load updated_target%0#0 1                                                                                            (𝕡) a#0 | i#0,maybe_value%1#0,updated_target%0#0
+        int 8                                                                                                                  (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tup#0,8
+        extract_uint64                                                                                                         (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%2#0
+        p-load a#0                                                                                                             (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%2#0,a#0 (copy)
+        itob                                                                                                                   (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%2#0,val_as_bytes%0#0
+        l-load tmp%2#0 1                                                                                                       (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,tmp%2#0
+        itob                                                                                                                   (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,val_as_bytes%1#0
+        l-load val_as_bytes%0#0 1                                                                                              (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%1#0,val_as_bytes%0#0
+        l-load val_as_bytes%1#0 1                                                                                              (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,val_as_bytes%1#0
+        concat                                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
+        l-load tmp%1#0 2                                                                                                       (𝕡) a#0 | i#0,maybe_value%1#0,bytes_offset%0#0,encoded%3#0,tmp%1#0
+        l-load bytes_offset%0#0 2                                                                                              (𝕡) a#0 | i#0,maybe_value%1#0,encoded%3#0,tmp%1#0,bytes_offset%0#0
+        l-load encoded%3#0 2                                                                                                   (𝕡) a#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
+        replace3                                                                                                               (𝕡) a#0 | i#0,maybe_value%1#0,updated_array%0#0
+        l-load maybe_value%1#0 1                                                                                               (𝕡) a#0 | i#0,updated_array%0#0,maybe_value%1#0
+        l-load updated_array%0#0 1                                                                                             (𝕡) a#0 | i#0,maybe_value%1#0,updated_array%0#0
         replace2 8                                                                                                             (𝕡) a#0 | i#0,updated_data%0#0
         byte "tup_bag"                                                                                                         (𝕡) a#0 | i#0,updated_data%0#0,"tup_bag"
         l-load updated_data%0#0 1                                                                                              (𝕡) a#0 | i#0,"tup_bag",updated_data%0#0
@@ -656,33 +652,29 @@ subroutine set_b:
         l-load-copy maybe_value%1#0 0                                                                                          (𝕡) b#0 | maybe_value%1#0,maybe_value%1#0 (copy)
         extract 8 128 // on error: Index access is out of bounds                                                               (𝕡) b#0 | maybe_value%1#0,tmp%1#0
         v-load i#0                                                                                                             (𝕡) b#0 | maybe_value%1#0,tmp%1#0,i#0
-        l-store-copy i#0 1                                                                                                     (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,i#0 (copy)
-        int 16                                                                                                                 (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,i#0 (copy),16
-        *                                                                                                                      (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0
-        l-load-copy tmp%1#0 1                                                                                                  (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy)
-        l-load-copy bytes_offset%0#0 1                                                                                         (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy),bytes_offset%0#0 (copy)
-        int 16                                                                                                                 (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy),bytes_offset%0#0 (copy),16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tup#0
+        l-store-copy i#0 2                                                                                                     (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,i#0 (copy)
+        int 16                                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,i#0 (copy),16
+        *                                                                                                                      (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0
+        l-load-copy tmp%1#0 1                                                                                                  (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy)
+        l-load-copy bytes_offset%0#0 1                                                                                         (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy),bytes_offset%0#0 (copy)
+        int 16                                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%1#0 (copy),bytes_offset%0#0 (copy),16
+        extract3 // on error: index access is out of bounds                                                                    (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tup#0
         // mutable_native_types/case2_with_immutable_struct.py:88
         // self.tup_bag.value.items[i] = tup._replace(b=b)
-        int 0                                                                                                                  (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tup#0,0
-        extract_uint64                                                                                                         (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,tmp%2#0
-        itob                                                                                                                   (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0
-        p-load b#0                                                                                                             (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,b#0 (copy)
-        itob                                                                                                                   (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,val_as_bytes%1#0
-        l-load val_as_bytes%0#0 1                                                                                              (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%1#0,val_as_bytes%0#0
-        l-load val_as_bytes%1#0 1                                                                                              (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,val_as_bytes%1#0
-        concat                                                                                                                 (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
-        l-load-copy i#0 3                                                                                                      (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0,i#0 (copy)
-        int 8                                                                                                                  (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0,i#0 (copy),8
-        <                                                                                                                      (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0,index_is_in_bounds%0#0
-        assert // Index access is out of bounds                                                                                (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
-        l-load tmp%1#0 2                                                                                                       (𝕡) b#0 | maybe_value%1#0,i#0,bytes_offset%0#0,encoded%3#0,tmp%1#0
-        l-load bytes_offset%0#0 2                                                                                              (𝕡) b#0 | maybe_value%1#0,i#0,encoded%3#0,tmp%1#0,bytes_offset%0#0
-        l-load encoded%3#0 2                                                                                                   (𝕡) b#0 | maybe_value%1#0,i#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
-        replace3                                                                                                               (𝕡) b#0 | maybe_value%1#0,i#0,updated_target%0#0
-        l-load maybe_value%1#0 2                                                                                               (𝕡) b#0 | i#0,updated_target%0#0,maybe_value%1#0
-        l-load updated_target%0#0 1                                                                                            (𝕡) b#0 | i#0,maybe_value%1#0,updated_target%0#0
+        int 0                                                                                                                  (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tup#0,0
+        extract_uint64                                                                                                         (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,tmp%2#0
+        itob                                                                                                                   (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0
+        p-load b#0                                                                                                             (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,b#0 (copy)
+        itob                                                                                                                   (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,val_as_bytes%1#0
+        l-load val_as_bytes%0#0 1                                                                                              (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%1#0,val_as_bytes%0#0
+        l-load val_as_bytes%1#0 1                                                                                              (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,val_as_bytes%0#0,val_as_bytes%1#0
+        concat                                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
+        l-load tmp%1#0 2                                                                                                       (𝕡) b#0 | i#0,maybe_value%1#0,bytes_offset%0#0,encoded%3#0,tmp%1#0
+        l-load bytes_offset%0#0 2                                                                                              (𝕡) b#0 | i#0,maybe_value%1#0,encoded%3#0,tmp%1#0,bytes_offset%0#0
+        l-load encoded%3#0 2                                                                                                   (𝕡) b#0 | i#0,maybe_value%1#0,tmp%1#0,bytes_offset%0#0,encoded%3#0
+        replace3                                                                                                               (𝕡) b#0 | i#0,maybe_value%1#0,updated_array%0#0
+        l-load maybe_value%1#0 1                                                                                               (𝕡) b#0 | i#0,updated_array%0#0,maybe_value%1#0
+        l-load updated_array%0#0 1                                                                                             (𝕡) b#0 | i#0,maybe_value%1#0,updated_array%0#0
         replace2 8                                                                                                             (𝕡) b#0 | i#0,updated_data%0#0
         byte "tup_bag"                                                                                                         (𝕡) b#0 | i#0,updated_data%0#0,"tup_bag"
         l-load updated_data%0#0 1                                                                                              (𝕡) b#0 | i#0,"tup_bag",updated_data%0#0
