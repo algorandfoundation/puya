@@ -66,31 +66,6 @@ from puya.utils import bits_to_bytes, round_bits_to_nearest_bytes
 logger = log.get_logger(__name__)
 
 
-def maybe_decode_arc4_value_provider(
-    context: IRRegisterContext,
-    value_provider: ValueProvider,
-    encoding: Encoding,
-    target_type: IRType,
-    loc: SourceLocation,
-    *,
-    temp_description: str = "tmp",
-) -> ValueProvider:
-    """If the target type is not already the required ARC-4 type, then decode it.
-
-    This situation arises for example when indexing or iterating an array of "native" element
-    types, which are in fact ARC-4 encoded. For example, an array of what is typed as uint64
-    elements is actually byte encoded, thus in arc4.uint64 format and requires translation.
-
-    So this function should only ever be called if target type is already arc4 type,
-    or if the arc4 type can decode to the target type, any other situation results in a code error.
-    """
-    if type_has_encoding(target_type, encoding):
-        return value_provider
-    factory = OpFactory(context, loc)
-    value = factory.materialise_single(value_provider, temp_description)
-    return decode_arc4_value(context, value, encoding, target_type, loc)
-
-
 class ARC4Codec(abc.ABC):
     @abc.abstractmethod
     def encode(
@@ -1067,23 +1042,24 @@ def _decode_arc4_tuple_items(
     for index, (target_item_type, encoded_item_type) in enumerate(
         zip(target_type.elements, tuple_elements, strict=True)
     ):
-        item_value = _read_nth_item_of_arc4_heterogeneous_container(
+        encoded_item_value = _read_nth_item_of_arc4_heterogeneous_container(
             context,
             array_head_and_tail=value,
             tuple_item_types=tuple_elements,
             index=index,
             source_location=source_location,
         )
-        item_name = f"item{index}"
-        item_vp = maybe_decode_arc4_value_provider(
-            context,
-            item_value,
-            encoding=encoded_item_type,
-            target_type=target_item_type,
-            temp_description=item_name,
-            loc=source_location,
-        )
-        items.extend(factory.materialise_values(item_vp, item_name))
+        if type_has_encoding(target_item_type, encoded_item_type):
+            item_value = encoded_item_value
+        else:
+            item_value = decode_arc4_value(
+                context,
+                factory.materialise_single(encoded_item_value, f"encoded_item{index}"),
+                encoding=encoded_item_type,
+                target_type=target_item_type,
+                loc=source_location,
+            )
+        items.extend(factory.materialise_values(item_value, f"item{index}"))
     return ValueTuple(source_location=source_location, values=items)
 
 
