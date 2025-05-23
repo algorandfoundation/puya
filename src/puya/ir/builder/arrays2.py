@@ -2,8 +2,6 @@ import abc
 import typing
 from functools import cached_property
 
-import attrs
-
 from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
@@ -16,6 +14,7 @@ from puya.ir.types_ import (
     ArrayEncoding,
     BoolEncoding,
     DynamicArrayEncoding,
+    EncodedType,
     Encoding,
     FixedArrayEncoding,
     IRType,
@@ -49,40 +48,30 @@ class ArrayBuilder(abc.ABC):
         """Returns the number of elements in the array"""
 
 
-@attrs.frozen
-class _ArrayBuilderImpl(ArrayBuilder):
-    context: IRRegisterContext
-    array_ir_type: IRType
-    array_encoding: ArrayEncoding
-    element_ir_type: IRType
-    assert_bounds: bool
-    loc: SourceLocation
-
-    @cached_property
-    def factory(self) -> OpFactory:
-        return OpFactory(self.context, self.loc)
-
-    @cached_property
-    def has_length_header(self) -> bool:
-        return (
-            isinstance(self.array_encoding, DynamicArrayEncoding)
-            and self.array_encoding.length_header
-        )
-
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
-        from puya.ir.builder import arc4
-
-        return arc4.arc4_array_index(
-            self.context,
-            array_encoding=self.array_encoding,
-            item_type=self.element_ir_type,
-            array=array,
-            index=index,
-            source_location=self.loc,
+class _ArrayBuilderImpl(ArrayBuilder, abc.ABC):
+    def __init__(
+        self,
+        context: IRRegisterContext,
+        *,
+        array_ir_type: IRType,
+        array_encoding: ArrayEncoding,
+        element_ir_type: IRType,
+        assert_bounds: bool,
+        loc: SourceLocation,
+    ) -> None:
+        self.context = context
+        self.array_ir_type = array_ir_type
+        self.array_encoding = array_encoding
+        self.element_ir_type = element_ir_type
+        self.assert_bounds = assert_bounds
+        self.loc = loc
+        self.factory = OpFactory(context, loc)
+        self.has_length_header = (
+            isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header
         )
 
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.ValueProvider) -> None:
-        _todo("ARC-4 shim array read", array.source_location)
+        _todo("ARC-4 shim array write", array.source_location)
 
     def length(self, array: ir.Value) -> ir.ValueProvider:
         return ir.ArrayLength(
@@ -95,31 +84,46 @@ class _ArrayBuilderImpl(ArrayBuilder):
         if type_has_encoding(self.element_ir_type, self.array_encoding.element):
             return encoded_item
         else:
-            from puya.ir.builder import arc4
-
             encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
-            # TODO: why does decoding now give better TEAL than using ir.ValueDecode
-            #       and lowering later
-            return arc4.decode_arc4_value(
-                self.context,
+            return ir.ValueDecode(
                 value=encoded_item,
                 encoding=self.array_encoding.element,
-                target_type=self.element_ir_type,
-                loc=self.loc,
+                decoded_type=self.element_ir_type,
+                source_location=self.loc,
             )
-
-            # return ir.ValueDecode(
-            #    value=encoded_item,
-            #    encoding=self.array_encoding.element,
-            #    decoded_type=self.element_ir_type,
-            #    source_location=self.loc,
-            # )
 
 
 class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
-        logger.warning("TODO: bit packed bool array read", location=array.source_location)
-        return super().read_at_index(array, index)
+        if self.assert_bounds:
+            # this catches the edge case of bit arrays that are not a multiple of 8
+            # e.g. reading index 6 & 7 of an array that has a length of 6
+            _assert_index_in_bounds(self.factory, index, self.length(array))
+
+        if self.has_length_header:
+            # TODO: consider incrementing index by 16 instead
+            array = self.factory.extract_to_end(array, 2, "array_trimmed")
+        # index is the bit position
+        item = self.factory.materialise_single(
+            ir.Intrinsic(
+                op=AVMOp.getbit,
+                args=[array, index],
+                types=[PrimitiveIRType.bool],
+                source_location=self.loc,
+            ),
+            "is_true",
+        )
+        # bit packed bools are unique in that the retrieved value is a bool
+        # and depending on the element_ir_type may require encoding
+        if isinstance(self.element_ir_type, EncodedType):
+            return ir.ValueEncode(
+                values=[item],
+                value_type=item.ir_type,
+                encoding=self.element_ir_type.encoding,
+                source_location=self.loc,
+            )
+        else:
+            return item
 
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.ValueProvider) -> None:
         _todo("bit packed bool array write", array.source_location)
@@ -159,18 +163,17 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
             return element_encoding.element.checked_num_bytes
 
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
-        array_length = self.length(array)
         array_head_and_tail = array
         if self.has_length_header:
             array_head_and_tail = self.factory.extract_to_end(array, 2, "array_head_and_tail")
         if self.inner_element_size is not None:
             if self.assert_bounds:
-                _assert_index_in_bounds(self.factory, index, array_length)
+                _assert_index_in_bounds(self.factory, index, self.length(array))
             item = self._read_item_from_array_length_and_fixed_size(array_head_and_tail, index)
         else:
             # no _assert_index_in_bounds here as end offset calculation implicitly checks
             item = self._read_item_using_next_offset(
-                array_length_vp=array_length,
+                array_length_vp=self.length(array),
                 array_head_and_tail=array_head_and_tail,
                 index=index,
             )
