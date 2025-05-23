@@ -271,9 +271,12 @@ subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_copy() -> vo
         let item_start_offset%1#0: uint64 = (extract_uint16 tup#1 1u)
         let item_end_offset%1#0: uint64 = (len tup#1)
         let tmp%1#0: bytes = (substring3 tup#1 item_start_offset%1#0 item_end_offset%1#0)
-        let result%0#0: bytes = (concat 0x 0x00)
-        let array_data%0#0: bytes = (concat 0x0001 result%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 array_data%0#0)
+        let encoded%5#0: Encoded((uint8)) = (concat 0x 0x00)
+        let encoded%6#0: bytes = (concat encoded%5#0 0x)
+        let as_bytes%3#0: bytes[8] = (itob 1u)
+        let len_u16%0#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let encoded%7#0: Encoded(len+uint8[]) = (concat len_u16%0#0 encoded%6#0)
+        let tmp%2#0: bool = (== tmp%1#0 encoded%7#0)
         (assert tmp%2#0)
         let copy%0#0: Encoded((uint8,len+uint8[])) = tup#1
         let tup2#0: Encoded((uint8,len+uint8[])) = copy%0#0

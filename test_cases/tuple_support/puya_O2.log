@@ -540,6 +540,7 @@ debug: Replaced trivial Phi node: let one#1: uint64 = φ(one#0 <- block@0, one#0
 debug: Terminated block@2
 debug: Building IR for function test_cases.tuple_support.nested_tuples.test_nested_mutation
 debug: Sealing block@0
+tuple_support/nested_tuples.py:282:13 debug: redundant encode operation from uint64 to uint64
 tuple_support/nested_tuples.py:287:20 debug: redundant encode operation from uint64 to uint64
 debug: Terminated block@0
 debug: Building IR for function test_cases.tuple_support.nested_tuples.test_nested_iteration
@@ -1059,6 +1060,7 @@ debug: Added ternary_result%0.b#1 to Phi node: let ternary_result%0.b#2: uint64 
 debug: Terminated block@3
 debug: Building IR for function test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple
 debug: Sealing block@0
+tuple_support/nested_tuples.py:98:17 debug: redundant encode operation from uint64 to uint64
 tuple_support/nested_tuples.py:105:23 debug: redundant encode operation from uint64 to uint64
 tuple_support/nested_tuples.py:106:24 debug: redundant encode operation from uint64 to uint64
 debug: Terminated block@0
@@ -1273,8 +1275,14 @@ debug: inlining call to test_cases.tuple_support.tuple_support.TupleSupport.__in
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tuple_assignment%0#0, did_overflow#0
+debug: Found equivalence set: materialized_values%0#0, total#0
+debug: selected total#0 from equivalence set
+debug: Found equivalence set: materialized_values%1#0, did_overflow#0
 debug: selected did_overflow#0 from equivalence set
+debug: Found equivalence set: materialized_values%3#0, result.0#0
+debug: selected result.0#0 from equivalence set
+debug: Found equivalence set: materialized_values%4#0, result.1#0
+debug: selected result.1#0 from equivalence set
 debug: Found equivalence set: awst_tmp%0#0, ternary_result%0.0#0
 debug: selected awst_tmp%0#0 from equivalence set
 debug: Found equivalence set: awst_tmp%1#0, ternary_result%0.1#0
@@ -1283,15 +1291,15 @@ debug: Found equivalence set: ternary_result%0.0#2, m#0
 debug: selected m#0 from equivalence set
 debug: Found equivalence set: ternary_result%0.1#2, n#0
 debug: selected n#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%2#0, hi#0
+debug: Found equivalence set: materialized_values%5#0, hi#0
 debug: selected hi#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%3#0, mid#0
+debug: Found equivalence set: materialized_values%6#0, mid#0
 debug: selected mid#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%4#0, lo#0
+debug: Found equivalence set: materialized_values%7#0, lo#0
 debug: selected lo#0 from equivalence set
 debug: Found equivalence set: tmp%30#0, tmp%1#0
 debug: selected tmp%30#0 from equivalence set
-debug: Copy propagation made 9 modifications
+debug: Copy propagation made 12 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable a#0
@@ -1379,11 +1387,11 @@ debug: Removing unreachable phi arguments: ternary_result%0.1#1 <- block@8
 debug: Replacing trivial Phi node: let n#0: uint64 = φ(awst_tmp%1#0 <- block@6) (n#0) with awst_tmp%1#0
 debug: Deleting Phi assignment: let n#0: uint64 = φ(awst_tmp%1#0 <- block@6)
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let (result.0#0: uint64, result.1#0: uint64) = (addw 1u 2u) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:12:9-21, ir_type=uint64, name='did_overflow', version=0), Register(source_location=tuple_support/tuple_support.py:12:37-50, ir_type=uint64, name='tuple_assignment%1', version=0))
-debug: Replacing redundant declaration let (tmp%18#0: uint64, tmp%19#0: uint64) = (addw 1u 2u) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:12:9-21, ir_type=uint64, name='did_overflow', version=0), Register(source_location=tuple_support/tuple_support.py:12:37-50, ir_type=uint64, name='tuple_assignment%1', version=0))
+debug: Replacing redundant declaration let (result.0#0: uint64, result.1#0: uint64) = (addw 1u 2u) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:12:9-21, ir_type=uint64, name='did_overflow', version=0), Register(source_location=tuple_support/tuple_support.py:12:37-50, ir_type=uint64, name='materialized_values%2', version=0))
+debug: Replacing redundant declaration let (tmp%18#0: uint64, tmp%19#0: uint64) = (addw 1u 2u) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:12:9-21, ir_type=uint64, name='did_overflow', version=0), Register(source_location=tuple_support/tuple_support.py:12:37-50, ir_type=uint64, name='materialized_values%2', version=0))
 debug: Found equivalence set: did_overflow#0, result.0#0, tmp%18#0
 debug: selected did_overflow#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%1#0, result.1#0, tmp%19#0
+debug: Found equivalence set: materialized_values%2#0, result.1#0, tmp%19#0
 debug: selected result.1#0 from equivalence set
 debug: Copy propagation made 5 modifications
 debug: Replacing redundant declaration let tmp%3#0: bool = (! did_overflow#0) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:13:15-31, ir_type=bool, name='tmp%1', version=1),)
@@ -1517,7 +1525,9 @@ debug: Found equivalence set: arg.0#0, a#0
 debug: selected arg.0#0 from equivalence set
 debug: Found equivalence set: arg.1#0, b#0
 debug: selected arg.1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Found equivalence set: materialized_values%0#0, result#0
+debug: selected result#0 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1538,7 +1548,9 @@ debug: Found equivalence set: arg.0#0, b#0
 debug: selected arg.0#0 from equivalence set
 debug: Found equivalence set: arg.1#0, count#0
 debug: selected arg.1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Found equivalence set: materialized_values%0#0, result#2
+debug: selected result#2 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1559,11 +1571,13 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: values.0#0, value#0
 debug: selected values.0#0 from equivalence set
+debug: Found equivalence set: materialized_values%0#0, total#2
+debug: selected total#2 from equivalence set
 debug: Found equivalence set: values.1#0, value#2
 debug: selected values.1#0 from equivalence set
 debug: Found equivalence set: values.2#0, value#3
 debug: selected values.2#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1592,21 +1606,21 @@ debug: Found equivalence set: b.0#0, b_hi#0
 debug: selected b.0#0 from equivalence set
 debug: Found equivalence set: b.1#0, b_lo#0
 debug: selected b.1#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%0#0, lo_carry#0
+debug: Found equivalence set: materialized_values%0#0, lo_carry#0
 debug: selected lo_carry#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%1#0, c_lo#0
+debug: Found equivalence set: materialized_values%1#0, c_lo#0
 debug: selected c_lo#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%2#0, hi_carry1#0
+debug: Found equivalence set: materialized_values%2#0, hi_carry1#0
 debug: selected hi_carry1#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%3#0, c_mid#0
+debug: Found equivalence set: materialized_values%3#0, c_mid#0
 debug: selected c_mid#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%4#0, hi_carry2#0
+debug: Found equivalence set: materialized_values%4#0, hi_carry2#0
 debug: selected hi_carry2#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%5#0, c_mid#1
+debug: Found equivalence set: materialized_values%5#0, c_mid#1
 debug: selected c_mid#1 from equivalence set
-debug: Found equivalence set: tuple_assignment%6#0, did_overflow#0
+debug: Found equivalence set: materialized_values%6#0, did_overflow#0
 debug: selected did_overflow#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%7#0, c_hi#0
+debug: Found equivalence set: materialized_values%7#0, c_hi#0
 debug: selected c_hi#0 from equivalence set
 debug: Copy propagation made 12 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -1626,11 +1640,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: b#0, a#1
-debug: selected b#0 from equivalence set
-debug: Found equivalence set: a#0, b#1
+debug: Found equivalence set: materialized_values%0#0, a#0, b#1
 debug: selected a#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Found equivalence set: materialized_values%1#0, b#0, a#1
+debug: selected b#0 from equivalence set
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1720,8 +1734,14 @@ tuple_support/tuple_support.py:29:18 debug: inlining call to test_cases.tuple_su
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tuple_assignment%0#0, did_overflow#0
+debug: Found equivalence set: materialized_values%0#0, total#0
+debug: selected total#0 from equivalence set
+debug: Found equivalence set: materialized_values%1#0, did_overflow#0
 debug: selected did_overflow#0 from equivalence set
+debug: Found equivalence set: materialized_values%3#0, result.0#0
+debug: selected result.0#0 from equivalence set
+debug: Found equivalence set: materialized_values%4#0, result.1#0
+debug: selected result.1#0 from equivalence set
 debug: Found equivalence set: ternary_result%0.0#2, m#0
 debug: selected m#0 from equivalence set
 debug: Found equivalence set: ternary_result%0.1#2, n#0
@@ -1736,15 +1756,15 @@ debug: Found equivalence set: tmp%18#0, b.0#0
 debug: selected b.0#0 from equivalence set
 debug: Found equivalence set: tmp%19#0, b.1#0
 debug: selected b.1#0 from equivalence set
-debug: Found equivalence set: c_hi#0, tuple_assignment%2#0, hi#0
+debug: Found equivalence set: c_hi#0, materialized_values%5#0, hi#0
 debug: selected c_hi#0 from equivalence set
-debug: Found equivalence set: c_mid#1, tuple_assignment%3#0, mid#0
+debug: Found equivalence set: c_mid#1, materialized_values%6#0, mid#0
 debug: selected c_mid#1 from equivalence set
-debug: Found equivalence set: c_lo#0, tuple_assignment%4#0, lo#0
+debug: Found equivalence set: c_lo#0, materialized_values%7#0, lo#0
 debug: selected c_lo#0 from equivalence set
 debug: Found equivalence set: result#2, tmp%23#0
 debug: selected result#2 from equivalence set
-debug: Copy propagation made 12 modifications
+debug: Copy propagation made 15 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable a#0
@@ -1924,11 +1944,11 @@ debug: Removing unreachable phi arguments: ternary_result%0.1#1 <- block@5
 debug: Replacing trivial Phi node: let n#0: uint64 = φ(ternary_result%0.1#0 <- block@3) (n#0) with ternary_result%0.1#0
 debug: Deleting Phi assignment: let n#0: uint64 = φ(ternary_result%0.1#0 <- block@3)
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let (result.0#0: uint64, result.1#0: uint64) = (addw 1u 2u) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:12:9-21, ir_type=uint64, name='did_overflow', version=0), Register(source_location=tuple_support/tuple_support.py:12:37-50, ir_type=uint64, name='tuple_assignment%1', version=0))
-debug: Replacing redundant declaration let (b.0#0: uint64, b.1#0: uint64) = (addw 1u 2u) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:12:9-21, ir_type=uint64, name='did_overflow', version=0), Register(source_location=tuple_support/tuple_support.py:12:37-50, ir_type=uint64, name='tuple_assignment%1', version=0))
+debug: Replacing redundant declaration let (result.0#0: uint64, result.1#0: uint64) = (addw 1u 2u) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:12:9-21, ir_type=uint64, name='did_overflow', version=0), Register(source_location=tuple_support/tuple_support.py:12:37-50, ir_type=uint64, name='materialized_values%2', version=0))
+debug: Replacing redundant declaration let (b.0#0: uint64, b.1#0: uint64) = (addw 1u 2u) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:12:9-21, ir_type=uint64, name='did_overflow', version=0), Register(source_location=tuple_support/tuple_support.py:12:37-50, ir_type=uint64, name='materialized_values%2', version=0))
 debug: Found equivalence set: did_overflow#0, result.0#0, b.0#0
 debug: selected did_overflow#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%1#0, result.1#0, b.1#0
+debug: Found equivalence set: materialized_values%2#0, result.1#0, b.1#0
 debug: selected result.1#0 from equivalence set
 debug: Copy propagation made 5 modifications
 debug: Replacing redundant declaration let tmp%3#0: bool = (! did_overflow#0) with copy of existing registers (Register(source_location=tuple_support/tuple_support.py:13:15-31, ir_type=bool, name='tmp%1', version=0),)
@@ -2681,6 +2701,13 @@ tuple_support/tuple_comparisons.py:7:9 debug: inlining call to test_cases.tuple_
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: materialized_values%0#0, tmp#0
+debug: selected tmp#0 from equivalence set
+debug: Found equivalence set: materialized_values%1#0, tmp#1
+debug: selected tmp#1 from equivalence set
+debug: Found equivalence set: materialized_values%2#0, tmp#2
+debug: selected tmp#2 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp#3
@@ -2726,6 +2753,13 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: materialized_values%0#0, tmp#0
+debug: selected tmp#0 from equivalence set
+debug: Found equivalence set: materialized_values%1#0, tmp#1
+debug: selected tmp#1 from equivalence set
+debug: Found equivalence set: materialized_values%2#0, tmp#2
+debug: selected tmp#2 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -3073,30 +3107,32 @@ debug: Removing unused variable current_tail_offset%3#0
 debug: Removing unused variable data_length%2#0
 debug: Removing unused variable data_length%3#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x 0x) to 0x
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0000
 debug: Simplified (concat 0x0000 0x) to 0x0000
 debug: Simplified (concat 0x 0x0000) to 0x0000
 debug: Simplified (len 0x0000) to 2u
 debug: Simplified (+ 4u 2u) to 6u
-debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0004
+debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
 debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
 debug: Simplified (len 0x) to 0u
-debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0000
+debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0000
 debug: Simplified (concat 0x0000 0x) to 0x0000
 debug: Simplified (concat 0x 0x0000) to 0x0000
 debug: Simplified (len 0x0000) to 2u
 debug: Simplified (+ 12u 2u) to 14u
-debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x000c
+debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x000c
 debug: Simplified (concat val_as_bytes%0#0 0x000c) to 0x0000000000000000000c
 debug: Simplified (len "") to 0u
-debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x0000
+debug: Simplified ((extract 6 2) as_bytes%4#0) to 0x0000
 debug: Simplified (concat 0x0000 "") to 0x0000
 debug: Simplified (concat 0x0000 0x0000) to 0x00000000
-debug: Simplified ((extract 6 2) as_bytes%4#0) to 0x000e
+debug: Simplified ((extract 6 2) as_bytes%5#0) to 0x000e
 debug: Simplified (concat 0x0000000000000000000c 0x000e) to 0x0000000000000000000c000e
 debug: Simplified (concat 0x0000000000000000000c000e 0x00000000) to 0x0000000000000000000c000e00000000
 debug: Simplified (concat 0x0000 0x0000000000000000000c000e00000000) to 0x00000000000000000000000c000e00000000
-debug: Simplified ((extract 6 2) as_bytes%5#0) to 0x0006
+debug: Simplified ((extract 6 2) as_bytes%6#0) to 0x0006
 debug: Simplified (concat 0x0004 0x0006) to 0x00040006
 debug: Simplified (concat 0x00040006 0x00000000000000000000000c000e00000000) to 0x0004000600000000000000000000000c000e00000000
 debug: Optimizer: Inner Txn Field Replacer
@@ -3113,10 +3149,11 @@ debug: Merged linear block@4 into block@2
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let as_bytes%1#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:52:8-16, ir_type=bytes[8], name='val_as_bytes%0', version=0),)
-debug: Replacing redundant declaration let as_bytes%3#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:52:8-16, ir_type=bytes[8], name='val_as_bytes%0', version=0),)
-debug: Found equivalence set: val_as_bytes%0#0, encoded%1#0, as_bytes%1#0, as_bytes%3#0
-debug: selected val_as_bytes%0#0 from equivalence set
+debug: Replacing redundant declaration let val_as_bytes%0#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:53:16-48, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let as_bytes%2#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:53:16-48, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let as_bytes%4#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:53:16-48, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Found equivalence set: as_bytes%0#0, val_as_bytes%0#0, encoded%3#0, as_bytes%2#0, as_bytes%4#0
+debug: selected as_bytes%0#0 from equivalence set
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.tuple_support.nested_tuples.get_sender_inefficiently
 debug: Optimizer: Perform Subroutine Inlining
@@ -3308,7 +3345,9 @@ debug: Found equivalence set: s.0.0#2, s0.0#0
 debug: selected s.0.0#2 from equivalence set
 debug: Found equivalence set: s.1.0#2, s1#0
 debug: selected s.1.0#2 from equivalence set
-debug: Copy propagation made 6 modifications
+debug: Found equivalence set: materialized_values%0#0, s1#1
+debug: selected s1#1 from equivalence set
+debug: Copy propagation made 7 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -3336,7 +3375,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_data%0#0, x.0.0#0
+debug: Found equivalence set: encoded%2#0, x.0.0#0
 debug: selected x.0.0#0 from equivalence set
 debug: Found equivalence set: concat_result%0#0, x.0.0#1
 debug: selected x.0.0#1 from equivalence set
@@ -3345,6 +3384,8 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x 0x0000000000000000) to 0x0000000000000000
+debug: Simplified (concat 0x0000000000000000 0x) to 0x0000000000000000
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0001
 debug: Simplified (concat 0x0001 0x0000000000000000) to 0x00010000000000000000
 debug: Simplified ((extract 2 0) 0x00010000000000000000) to 0x0000000000000000
 debug: Simplified (concat 0x 0x0000000000000001) to 0x0000000000000001
@@ -3352,7 +3393,7 @@ debug: Simplified (concat 0x0000000000000001 0x) to 0x0000000000000001
 debug: Simplified (concat 0x0000000000000000 0x0000000000000001) to 0x00000000000000000000000000000001
 debug: Simplified (len 0x00000000000000000000000000000001) to 16u
 debug: Simplified (/ 16u 8u) to 2u
-debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0002
+debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0002
 debug: Simplified (concat 0x0002 0x00000000000000000000000000000001) to 0x000200000000000000000000000000000001
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -3371,7 +3412,11 @@ debug: Found equivalence set: t.0#1, a#0
 debug: selected t.0#1 from equivalence set
 debug: Found equivalence set: t.1#1, b#0
 debug: selected t.1#1 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Found equivalence set: materialized_values%0#0, total#2
+debug: selected total#2 from equivalence set
+debug: Found equivalence set: materialized_values%1#0, total#4
+debug: selected total#4 from equivalence set
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable x#0
@@ -3489,6 +3534,8 @@ debug: Found equivalence set: ternary_result%0.b#5, to_encode%13#0
 debug: selected ternary_result%0.b#5 from equivalence set
 debug: Found equivalence set: tmp%40#0, key#0
 debug: selected key#0 from equivalence set
+debug: Found equivalence set: materialized_values%0#1, local#0
+debug: selected local#0 from equivalence set
 debug: Found equivalence set: item0%1#2, ternary_result%0.a#0
 debug: selected item0%1#2 from equivalence set
 debug: Found equivalence set: item1%1#2, ternary_result%0.b#0
@@ -3501,7 +3548,7 @@ debug: Found equivalence set: ternary_result%0.a#2, to_encode%14#0
 debug: selected ternary_result%0.a#2 from equivalence set
 debug: Found equivalence set: ternary_result%0.b#2, to_encode%15#0
 debug: selected ternary_result%0.b#2 from equivalence set
-debug: Found equivalence set: array_data%0#0, twm.arr#0
+debug: Found equivalence set: encoded%2#2, twm.arr#0
 debug: selected twm.arr#0 from equivalence set
 debug: Found equivalence set: concat_result%0#1, twm.arr#1
 debug: selected twm.arr#1 from equivalence set
@@ -3513,15 +3560,15 @@ debug: Found equivalence set: item0%0#1, copy%0#0, arr2#0
 debug: selected arr2#0 from equivalence set
 debug: Found equivalence set: concat_result%0#0, arr2#1, copy%1#0
 debug: selected arr2#1 from equivalence set
-debug: Found equivalence set: tuple_assignment%0#0, a#2
+debug: Found equivalence set: materialized_values%0#0, a#2
 debug: selected a#2 from equivalence set
-debug: Found equivalence set: tuple_assignment%1#0, b#3
+debug: Found equivalence set: materialized_values%1#0, b#3
 debug: selected b#3 from equivalence set
-debug: Found equivalence set: tuple_assignment%2#0, c#2
+debug: Found equivalence set: materialized_values%2#0, c#2
 debug: selected c#2 from equivalence set
-debug: Found equivalence set: tuple_assignment%3#0, d#0
+debug: Found equivalence set: materialized_values%3#0, d#0
 debug: selected d#0 from equivalence set
-debug: Found equivalence set: tuple_assignment%4#0, e#0
+debug: Found equivalence set: materialized_values%4#0, e#0
 debug: selected e#0 from equivalence set
 debug: Found equivalence set: item0%16#0, args.0#0, s#0, to_encode%22#0
 debug: selected args.0#0 from equivalence set
@@ -3545,7 +3592,7 @@ debug: Found equivalence set: item1%20#0, args.child.b#0, b#0, to_encode%30#0
 debug: selected args.child.b#0 from equivalence set
 debug: Found equivalence set: item2%7#0, args.child.c#0, c#0, to_encode%31#0
 debug: selected args.child.c#0 from equivalence set
-debug: Copy propagation made 93 modifications
+debug: Copy propagation made 94 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%1#2
@@ -3626,7 +3673,7 @@ debug: Simplified (concat 0x val_as_bytes%0#7) to val_as_bytes%0#7
 debug: Simplified (concat 0x val_as_bytes%1#6) to val_as_bytes%1#6
 debug: Simplified (concat 0x encoded_value%0#2) to encoded_value%0#2
 debug: Simplified ((extract 6 2) as_bytes%1#3) to 0x000c
-debug: Simplified (concat 0x encoded%5#3) to encoded%5#3
+debug: Simplified (concat 0x encoded%5#4) to encoded%5#4
 debug: Simplified ((extract 6 2) as_bytes%4#2) to 0x0012
 debug: Simplified (concat 0x encoded%7#2) to encoded%7#2
 debug: Simplified ((extract 6 2) as_bytes%5#2) to 0x0004
@@ -3649,7 +3696,7 @@ debug: Simplified (btoi item1%4#0) to (extract_uint64 reinterpret_Encoded((uint6
 debug: Simplified (concat 0x val_as_bytes%0#6) to val_as_bytes%0#6
 debug: Simplified (concat encoded%1#7 0x) to encoded%1#7
 debug: Simplified (concat 0x val_as_bytes%2#1) to val_as_bytes%2#1
-debug: Simplified (concat encoded%4#2 0x) to encoded%4#2
+debug: Simplified (concat encoded%4#3 0x) to encoded%4#3
 debug: Simplified (== tmp%16#0 NoOp) to (! tmp%16#0)
 debug: Simplified (btoi item0%7#0) to (extract_uint64 reinterpret_Encoded((uint64,uint64))%1#0 0u)
 debug: Simplified (btoi item1%6#0) to (extract_uint64 reinterpret_Encoded((uint64,uint64))%1#0 8u)
@@ -3691,6 +3738,8 @@ debug: Simplified (concat 0x val_as_bytes%8#0) to val_as_bytes%8#0
 debug: Simplified (concat encoded%24#0 0x) to encoded%24#0
 debug: Simplified (== tmp%42#0 NoOp) to (! tmp%42#0)
 debug: Simplified (concat 0x 0x0000000000000000) to 0x0000000000000000
+debug: Simplified (concat 0x0000000000000000 0x) to 0x0000000000000000
+debug: Simplified ((extract 6 2) as_bytes%0#2) to 0x0001
 debug: Simplified (concat 0x0001 0x0000000000000000) to 0x00010000000000000000
 debug: Simplified ((extract 2 0) 0x00010000000000000000) to 0x0000000000000000
 debug: Simplified (concat 0x 0x0000000000000001) to 0x0000000000000001
@@ -3698,7 +3747,7 @@ debug: Simplified (concat 0x0000000000000001 0x) to 0x0000000000000001
 debug: Simplified (concat 0x0000000000000000 0x0000000000000001) to 0x00000000000000000000000000000001
 debug: Simplified (len 0x00000000000000000000000000000001) to 16u
 debug: Simplified (/ 16u 8u) to 2u
-debug: Simplified ((extract 6 2) as_bytes%0#2) to 0x0002
+debug: Simplified ((extract 6 2) as_bytes%1#2) to 0x0002
 debug: Simplified (concat 0x0002 0x00000000000000000000000000000001) to 0x000200000000000000000000000000000001
 debug: Simplified ((extract 2 0) 0x000200000000000000000000000000000001) to 0x00000000000000000000000000000001
 debug: Simplified (concat 0x 0x0000000000000002) to 0x0000000000000002
@@ -3706,7 +3755,7 @@ debug: Simplified (concat 0x0000000000000002 0x) to 0x0000000000000002
 debug: Simplified (concat 0x00000000000000000000000000000001 0x0000000000000002) to 0x000000000000000000000000000000010000000000000002
 debug: Simplified (len 0x000000000000000000000000000000010000000000000002) to 24u
 debug: Simplified (/ 24u 8u) to 3u
-debug: Simplified ((extract 6 2) as_bytes%1#2) to 0x0003
+debug: Simplified ((extract 6 2) as_bytes%2#2) to 0x0003
 debug: Simplified (concat 0x0003 0x000000000000000000000000000000010000000000000002) to 0x0003000000000000000000000000000000010000000000000002
 debug: Simplified ((extract 2 0) 0x0003000000000000000000000000000000010000000000000002) to 0x000000000000000000000000000000010000000000000002
 debug: Simplified (concat 0x 0x0003000000000000000000000000000000010000000000000002) to 0x0003000000000000000000000000000000010000000000000002
@@ -3899,8 +3948,8 @@ debug: Found equivalence set: val_as_bytes%1#6, encoded%2#8
 debug: selected val_as_bytes%1#6 from equivalence set
 debug: Found equivalence set: encoded_value%0#2, tail%0#2
 debug: selected encoded_value%0#2 from equivalence set
-debug: Found equivalence set: encoded%5#3, tail%2#2
-debug: selected encoded%5#3 from equivalence set
+debug: Found equivalence set: encoded%5#4, tail%2#2
+debug: selected encoded%5#4 from equivalence set
 debug: Found equivalence set: encoded%7#2, tail%3#2
 debug: selected encoded%7#2 from equivalence set
 debug: Found equivalence set: item_end_offset%2#2, item_start_offset%3#2
@@ -3921,8 +3970,8 @@ debug: Found equivalence set: val_as_bytes%0#6, encoded%0#7, val_as_bytes%2#1, e
 debug: selected val_as_bytes%0#6 from equivalence set
 debug: Found equivalence set: encoded%1#7, encoded%2#7
 debug: selected encoded%1#7 from equivalence set
-debug: Found equivalence set: encoded%4#2, encoded%5#2
-debug: selected encoded%4#2 from equivalence set
+debug: Found equivalence set: encoded%4#3, encoded%5#3
+debug: selected encoded%4#3 from equivalence set
 debug: Found equivalence set: val_as_bytes%0#5, encoded%0#6
 debug: selected val_as_bytes%0#5 from equivalence set
 debug: Found equivalence set: encoded%1#6, encoded%2#6
@@ -4004,30 +4053,32 @@ debug: Removing unused variable current_tail_offset%3#0
 debug: Removing unused variable data_length%2#0
 debug: Removing unused variable data_length%3#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x 0x) to 0x
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0000
 debug: Simplified (concat 0x0000 0x) to 0x0000
 debug: Simplified (concat 0x 0x0000) to 0x0000
 debug: Simplified (len 0x0000) to 2u
 debug: Simplified (+ 4u 2u) to 6u
-debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0004
+debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0004
 debug: Simplified (concat 0x 0x0004) to 0x0004
 debug: Simplified (concat 0x val_as_bytes%0#0) to val_as_bytes%0#0
 debug: Simplified (len 0x) to 0u
-debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0000
+debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0000
 debug: Simplified (concat 0x0000 0x) to 0x0000
 debug: Simplified (concat 0x 0x0000) to 0x0000
 debug: Simplified (len 0x0000) to 2u
 debug: Simplified (+ 12u 2u) to 14u
-debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x000c
+debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x000c
 debug: Simplified (concat val_as_bytes%0#0 0x000c) to 0x0000000000000000000c
 debug: Simplified (len "") to 0u
-debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x0000
+debug: Simplified ((extract 6 2) as_bytes%4#0) to 0x0000
 debug: Simplified (concat 0x0000 "") to 0x0000
 debug: Simplified (concat 0x0000 0x0000) to 0x00000000
-debug: Simplified ((extract 6 2) as_bytes%4#0) to 0x000e
+debug: Simplified ((extract 6 2) as_bytes%5#0) to 0x000e
 debug: Simplified (concat 0x0000000000000000000c 0x000e) to 0x0000000000000000000c000e
 debug: Simplified (concat 0x0000000000000000000c000e 0x00000000) to 0x0000000000000000000c000e00000000
 debug: Simplified (concat 0x0000 0x0000000000000000000c000e00000000) to 0x00000000000000000000000c000e00000000
-debug: Simplified ((extract 6 2) as_bytes%5#0) to 0x0006
+debug: Simplified ((extract 6 2) as_bytes%6#0) to 0x0006
 debug: Simplified (concat 0x0004 0x0006) to 0x00040006
 debug: Simplified (concat 0x00040006 0x00000000000000000000000c000e00000000) to 0x0004000600000000000000000000000c000e00000000
 debug: Optimizer: Inner Txn Field Replacer
@@ -4037,10 +4088,11 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let as_bytes%1#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:52:8-16, ir_type=bytes[8], name='val_as_bytes%0', version=0),)
-debug: Replacing redundant declaration let as_bytes%3#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:52:8-16, ir_type=bytes[8], name='val_as_bytes%0', version=0),)
-debug: Found equivalence set: val_as_bytes%0#0, encoded%1#0, as_bytes%1#0, as_bytes%3#0
-debug: selected val_as_bytes%0#0 from equivalence set
+debug: Replacing redundant declaration let val_as_bytes%0#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:53:16-48, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let as_bytes%2#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:53:16-48, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let as_bytes%4#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=tuple_support/nested_tuples.py:53:16-48, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Found equivalence set: as_bytes%0#0, val_as_bytes%0#0, encoded%3#0, as_bytes%2#0, as_bytes%4#0
+debug: selected as_bytes%0#0 from equivalence set
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple
 debug: Optimizer: Perform Subroutine Inlining
@@ -4239,6 +4291,8 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: materialized_values%0#0, local#0
+debug: selected local#0 from equivalence set
 debug: Found equivalence set: item0%1#0, ternary_result%0.a#0
 debug: selected item0%1#0 from equivalence set
 debug: Found equivalence set: item1%1#0, ternary_result%0.b#0
@@ -4247,7 +4301,7 @@ debug: Found equivalence set: tmp%1#0, ternary_result%0.a#1
 debug: selected tmp%1#0 from equivalence set
 debug: Found equivalence set: tmp%2#0, ternary_result%0.b#1
 debug: selected tmp%2#0 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -4269,7 +4323,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_data%0#0, twm.arr#0
+debug: Found equivalence set: encoded%2#0, twm.arr#0
 debug: selected twm.arr#0 from equivalence set
 debug: Found equivalence set: concat_result%0#0, twm.arr#1
 debug: selected twm.arr#1 from equivalence set
@@ -4285,6 +4339,8 @@ debug: Removing unused variable twm.child.b#0
 debug: Removing unused variable twm.child.c#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x 0x0000000000000000) to 0x0000000000000000
+debug: Simplified (concat 0x0000000000000000 0x) to 0x0000000000000000
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0001
 debug: Simplified (concat 0x0001 0x0000000000000000) to 0x00010000000000000000
 debug: Simplified ((extract 2 0) 0x00010000000000000000) to 0x0000000000000000
 debug: Simplified (concat 0x 0x0000000000000001) to 0x0000000000000001
@@ -4292,7 +4348,7 @@ debug: Simplified (concat 0x0000000000000001 0x) to 0x0000000000000001
 debug: Simplified (concat 0x0000000000000000 0x0000000000000001) to 0x00000000000000000000000000000001
 debug: Simplified (len 0x00000000000000000000000000000001) to 16u
 debug: Simplified (/ 16u 8u) to 2u
-debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0002
+debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0002
 debug: Simplified (concat 0x0002 0x00000000000000000000000000000001) to 0x000200000000000000000000000000000001
 debug: Simplified ((extract 2 0) 0x000200000000000000000000000000000001) to 0x00000000000000000000000000000001
 debug: Simplified (concat 0x 0x0000000000000002) to 0x0000000000000002
@@ -4300,7 +4356,7 @@ debug: Simplified (concat 0x0000000000000002 0x) to 0x0000000000000002
 debug: Simplified (concat 0x00000000000000000000000000000001 0x0000000000000002) to 0x000000000000000000000000000000010000000000000002
 debug: Simplified (len 0x000000000000000000000000000000010000000000000002) to 24u
 debug: Simplified (/ 24u 8u) to 3u
-debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0003
+debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0003
 debug: Simplified (concat 0x0003 0x000000000000000000000000000000010000000000000002) to 0x0003000000000000000000000000000000010000000000000002
 debug: Simplified ((extract 2 0) 0x0003000000000000000000000000000000010000000000000002) to 0x000000000000000000000000000000010000000000000002
 debug: Optimizer: Inner Txn Field Replacer
@@ -4434,11 +4490,11 @@ debug: Removing unused variable args.2.0#0
 debug: Removing unused variable args.2.1.0#0
 debug: Removing unused variable args.2.1.1#0
 debug: Removing unused variable _b#0
-debug: Removing unused variable tuple_assignment%0#0
-debug: Removing unused variable tuple_assignment%1#0
-debug: Removing unused variable tuple_assignment%2#0
-debug: Removing unused variable tuple_assignment%3#0
-debug: Removing unused variable tuple_assignment%4#0
+debug: Removing unused variable materialized_values%0#0
+debug: Removing unused variable materialized_values%1#0
+debug: Removing unused variable materialized_values%2#0
+debug: Removing unused variable materialized_values%3#0
+debug: Removing unused variable materialized_values%4#0
 debug: Removing unused variable a#0
 debug: Removing unused variable b#0
 debug: Removing unused variable c#0
@@ -4469,15 +4525,18 @@ debug: Removing unused variable tmp%3#4
 debug: Removing unused variable tmp%4#4
 debug: Removing unused variable tmp%5#4
 debug: Removing unused variable tmp%8#2
-debug: Removing unused variable result%0#0
-debug: Removing unused variable x.0.0#0
-debug: Removing unused variable expr_value_trimmed%0#0
 debug: Removing unused variable encoded%0#0
 debug: Removing unused variable encoded%1#0
+debug: Removing unused variable as_bytes%0#0
+debug: Removing unused variable len_u16%0#0
+debug: Removing unused variable x.0.0#0
+debug: Removing unused variable expr_value_trimmed%0#0
+debug: Removing unused variable encoded%3#0
+debug: Removing unused variable encoded%4#0
 debug: Removing unused variable concatenated%0#0
 debug: Removing unused variable byte_len%0#0
 debug: Removing unused variable len_%0#0
-debug: Removing unused variable as_bytes%0#0
+debug: Removing unused variable as_bytes%1#0
 debug: Removing unused variable len_16_bit%0#0
 debug: Removing unused variable x.0.0#1
 debug: Optimizer: Intrinsic Simplifier
@@ -4798,24 +4857,27 @@ debug: Removing unused variable tmp%39#0
 debug: Removing unused variable item0%0#2
 debug: Removing unused variable item1%0#2
 debug: Removing unused variable tmp%45#0
-debug: Removing unused variable result%0#0
-debug: Removing unused variable twm.arr#0
-debug: Removing unused variable expr_value_trimmed%0#1
 debug: Removing unused variable encoded%0#2
 debug: Removing unused variable encoded%1#2
+debug: Removing unused variable as_bytes%0#2
+debug: Removing unused variable len_u16%0#0
+debug: Removing unused variable twm.arr#0
+debug: Removing unused variable expr_value_trimmed%0#1
+debug: Removing unused variable encoded%3#2
+debug: Removing unused variable encoded%4#2
 debug: Removing unused variable concatenated%0#1
 debug: Removing unused variable byte_len%0#1
 debug: Removing unused variable len_%0#1
-debug: Removing unused variable as_bytes%0#2
+debug: Removing unused variable as_bytes%1#2
 debug: Removing unused variable len_16_bit%0#1
 debug: Removing unused variable twm.arr#1
 debug: Removing unused variable expr_value_trimmed%1#0
-debug: Removing unused variable encoded%2#2
-debug: Removing unused variable encoded%3#2
+debug: Removing unused variable encoded%5#2
+debug: Removing unused variable encoded%6#2
 debug: Removing unused variable concatenated%1#0
 debug: Removing unused variable byte_len%1#0
 debug: Removing unused variable len_%1#0
-debug: Removing unused variable as_bytes%1#2
+debug: Removing unused variable as_bytes%2#2
 debug: Removing unused variable len_16_bit%1#0
 debug: Removing unused variable twm.arr#2
 debug: Removing unused variable array_trimmed%0#0
@@ -4945,57 +5007,59 @@ debug: selected maybe_exists%0#0 from equivalence set
 debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_data%0#0
+debug: Removing unused variable encoded%0#0
+debug: Removing unused variable as_bytes%0#0
+debug: Removing unused variable len_u16%0#0
+debug: Removing unused variable encoded%1#0
 debug: Removing unused variable tail%0#0
 debug: Removing unused variable data_length%0#0
 debug: Removing unused variable current_tail_offset%0#0
-debug: Removing unused variable as_bytes%0#0
+debug: Removing unused variable as_bytes%1#0
 debug: Removing unused variable offset_as_uint16%0#0
-debug: Removing unused variable encoded%0#0
-debug: Removing unused variable val_as_bytes%0#0
+debug: Removing unused variable encoded%2#0
 debug: Removing unused variable length%0#0
 debug: Removing unused variable length_uint16%0#0
 debug: Removing unused variable encoded_value%0#0
 debug: Removing unused variable tail%1#0
 debug: Removing unused variable data_length%1#0
 debug: Removing unused variable current_tail_offset%1#0
-debug: Removing unused variable as_bytes%2#0
+debug: Removing unused variable as_bytes%3#0
 debug: Removing unused variable offset_as_uint16%1#0
-debug: Removing unused variable encoded%2#0
+debug: Removing unused variable encoded%4#0
 debug: Removing unused variable length%1#0
 debug: Removing unused variable length_uint16%1#0
 debug: Removing unused variable encoded_value%1#0
 debug: Removing unused variable tail%2#0
-debug: Removing unused variable as_bytes%4#0
-debug: Removing unused variable offset_as_uint16%2#0
-debug: Removing unused variable encoded%3#0
-debug: Removing unused variable encoded%4#0
-debug: Removing unused variable tail%3#0
 debug: Removing unused variable as_bytes%5#0
-debug: Removing unused variable offset_as_uint16%3#0
+debug: Removing unused variable offset_as_uint16%2#0
 debug: Removing unused variable encoded%5#0
 debug: Removing unused variable encoded%6#0
+debug: Removing unused variable tail%3#0
+debug: Removing unused variable as_bytes%6#0
+debug: Removing unused variable offset_as_uint16%3#0
+debug: Removing unused variable encoded%7#0
+debug: Removing unused variable encoded%8#0
 debug: Removing unused variable tmp%1#0
 debug: Removing unused variable tmp%6#0
 debug: Removing unused variable item0%1#0
 debug: Removing unused variable item0%3#0
-debug: Removing unused variable as_bytes%1#3
+debug: Removing unused variable as_bytes%1#4
 debug: Removing unused variable offset_as_uint16%0#3
-debug: Removing unused variable as_bytes%4#3
+debug: Removing unused variable as_bytes%4#2
 debug: Removing unused variable offset_as_uint16%2#3
 debug: Removing unused variable as_bytes%5#3
 debug: Removing unused variable offset_as_uint16%3#3
-debug: Removing unused variable encoded%8#2
+debug: Removing unused variable encoded%8#3
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable item0%1#6
 debug: Removing unused variable item0%3#2
-debug: Removing unused variable as_bytes%1#0
+debug: Removing unused variable as_bytes%1#1
 debug: Removing unused variable offset_as_uint16%0#1
-debug: Removing unused variable as_bytes%4#1
+debug: Removing unused variable as_bytes%4#0
 debug: Removing unused variable offset_as_uint16%2#1
 debug: Removing unused variable as_bytes%5#1
 debug: Removing unused variable offset_as_uint16%3#1
-debug: Removing unused variable encoded%8#0
+debug: Removing unused variable encoded%8#1
 debug: Removing unused variable tmp%15#0
 debug: Removing unused variable item0%5#0
 debug: Removing unused variable item1%4#0
@@ -5021,24 +5085,27 @@ debug: Removing unused variable tmp%39#0
 debug: Removing unused variable item0%0#2
 debug: Removing unused variable item1%0#2
 debug: Removing unused variable tmp%45#0
-debug: Removing unused variable result%0#0
+debug: Removing unused variable encoded%0#3
+debug: Removing unused variable encoded%1#3
+debug: Removing unused variable as_bytes%0#3
+debug: Removing unused variable len_u16%0#1
 debug: Removing unused variable twm.arr#0
 debug: Removing unused variable expr_value_trimmed%0#1
-debug: Removing unused variable encoded%0#3
-debug: Removing unused variable encoded%1#2
+debug: Removing unused variable encoded%3#2
+debug: Removing unused variable encoded%4#3
 debug: Removing unused variable concatenated%0#1
 debug: Removing unused variable byte_len%0#1
 debug: Removing unused variable len_%0#1
-debug: Removing unused variable as_bytes%0#3
+debug: Removing unused variable as_bytes%1#3
 debug: Removing unused variable len_16_bit%0#1
 debug: Removing unused variable twm.arr#1
 debug: Removing unused variable expr_value_trimmed%1#0
-debug: Removing unused variable encoded%2#3
-debug: Removing unused variable encoded%3#3
+debug: Removing unused variable encoded%5#3
+debug: Removing unused variable encoded%6#3
 debug: Removing unused variable concatenated%1#0
 debug: Removing unused variable byte_len%1#0
 debug: Removing unused variable len_%1#0
-debug: Removing unused variable as_bytes%1#2
+debug: Removing unused variable as_bytes%2#2
 debug: Removing unused variable len_16_bit%1#0
 debug: Removing unused variable twm.arr#2
 debug: Removing unused variable array_trimmed%0#0
@@ -5074,12 +5141,12 @@ debug: Removing unused variable encoded%32#0
 debug: Removing unused variable tmp%46#0
 debug: Removing unused variable tmp%50#0
 debug: Removing unused variable encoded%0#2
-debug: Removing unused variable encoded%1#1
+debug: Removing unused variable encoded%1#2
 debug: Removing unused variable item0%4#1
-debug: Removing unused variable as_bytes%1#1
+debug: Removing unused variable as_bytes%1#2
 debug: Removing unused variable offset_as_uint16%0#2
 debug: Removing unused variable encoded%2#2
-debug: Removing unused variable as_bytes%3#1
+debug: Removing unused variable as_bytes%3#2
 debug: Removing unused variable offset_as_uint16%1#2
 debug: Removing unused variable tmp%54#0
 debug: Removing unused variable tmp%3#1
@@ -5278,15 +5345,18 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable result%0#0
-debug: Removing unused variable x.0.0#0
-debug: Removing unused variable expr_value_trimmed%0#0
 debug: Removing unused variable encoded%0#0
 debug: Removing unused variable encoded%1#0
+debug: Removing unused variable as_bytes%0#0
+debug: Removing unused variable len_u16%0#0
+debug: Removing unused variable x.0.0#0
+debug: Removing unused variable expr_value_trimmed%0#0
+debug: Removing unused variable encoded%3#0
+debug: Removing unused variable encoded%4#0
 debug: Removing unused variable concatenated%0#0
 debug: Removing unused variable byte_len%0#0
 debug: Removing unused variable len_%0#0
-debug: Removing unused variable as_bytes%0#0
+debug: Removing unused variable as_bytes%1#0
 debug: Removing unused variable len_16_bit%0#0
 debug: Removing unused variable x.0.0#1
 debug: Optimizer: Intrinsic Simplifier
@@ -5381,24 +5451,27 @@ debug: Removing unused variable tmp%39#0
 debug: Removing unused variable item0%0#2
 debug: Removing unused variable item1%0#2
 debug: Removing unused variable tmp%45#0
-debug: Removing unused variable result%0#0
-debug: Removing unused variable twm.arr#0
-debug: Removing unused variable expr_value_trimmed%0#1
 debug: Removing unused variable encoded%0#2
 debug: Removing unused variable encoded%1#2
+debug: Removing unused variable as_bytes%0#2
+debug: Removing unused variable len_u16%0#0
+debug: Removing unused variable twm.arr#0
+debug: Removing unused variable expr_value_trimmed%0#1
+debug: Removing unused variable encoded%3#2
+debug: Removing unused variable encoded%4#2
 debug: Removing unused variable concatenated%0#1
 debug: Removing unused variable byte_len%0#1
 debug: Removing unused variable len_%0#1
-debug: Removing unused variable as_bytes%0#2
+debug: Removing unused variable as_bytes%1#2
 debug: Removing unused variable len_16_bit%0#1
 debug: Removing unused variable twm.arr#1
 debug: Removing unused variable expr_value_trimmed%1#0
-debug: Removing unused variable encoded%2#2
-debug: Removing unused variable encoded%3#2
+debug: Removing unused variable encoded%5#2
+debug: Removing unused variable encoded%6#2
 debug: Removing unused variable concatenated%1#0
 debug: Removing unused variable byte_len%1#0
 debug: Removing unused variable len_%1#0
-debug: Removing unused variable as_bytes%1#2
+debug: Removing unused variable as_bytes%2#2
 debug: Removing unused variable len_16_bit%1#0
 debug: Removing unused variable twm.arr#2
 debug: Removing unused variable array_trimmed%0#0
@@ -6524,8 +6597,8 @@ debug: Coalescing item1%1#0 with [item1%1#6]
 debug: Coalescing item_end_offset%3#0 with [item_end_offset%3#2]
 debug: Coalescing item2%1#0 with [item2%1#2]
 debug: Coalescing item_end_offset%4#0 with [item_end_offset%4#2]
-debug: Coalescing val_as_bytes%0#1 with [val_as_bytes%0#8, val_as_bytes%0#7, val_as_bytes%0#6, val_as_bytes%0#5, val_as_bytes%0#4, val_as_bytes%0#3, val_as_bytes%0#2]
-debug: Coalescing encoded%1#0 with [encoded%1#8, encoded%1#7, encoded%1#6, encoded%1#5, encoded%1#4, encoded%1#3]
+debug: Coalescing val_as_bytes%0#0 with [val_as_bytes%0#7, val_as_bytes%0#6, val_as_bytes%0#5, val_as_bytes%0#4, val_as_bytes%0#3, val_as_bytes%0#2, val_as_bytes%0#1]
+debug: Coalescing encoded%1#1 with [encoded%1#9, encoded%1#8, encoded%1#7, encoded%1#6, encoded%1#5, encoded%1#4]
 debug: Coalescing val_as_bytes%1#0 with [val_as_bytes%1#6, val_as_bytes%1#5, val_as_bytes%1#4, val_as_bytes%1#3, val_as_bytes%1#2, val_as_bytes%1#1]
 debug: Coalescing length%0#1 with [length%0#3, length%0#2]
 debug: Coalescing as_bytes%0#1 with [as_bytes%0#4, as_bytes%0#2]
@@ -6533,22 +6606,22 @@ debug: Coalescing length_uint16%0#1 with [length_uint16%0#3, length_uint16%0#2]
 debug: Coalescing encoded_value%0#1 with [encoded_value%0#3, encoded_value%0#2]
 debug: Coalescing data_length%0#1 with [data_length%0#3, data_length%0#2]
 debug: Coalescing current_tail_offset%0#1 with [current_tail_offset%0#3, current_tail_offset%0#2]
-debug: Coalescing encoded%3#1 with [encoded%3#5]
+debug: Coalescing encoded%3#0 with [encoded%3#4]
 debug: Coalescing length%1#1 with [length%1#3, length%1#2]
-debug: Coalescing as_bytes%2#1 with [as_bytes%2#3, as_bytes%2#2]
+debug: Coalescing as_bytes%2#0 with [as_bytes%2#3, as_bytes%2#1]
 debug: Coalescing length_uint16%1#1 with [length_uint16%1#3, length_uint16%1#2]
 debug: Coalescing encoded_value%1#1 with [encoded_value%1#3, encoded_value%1#2]
 debug: Coalescing tail%1#1 with [tail%1#3]
-debug: Coalescing as_bytes%3#0 with [as_bytes%3#2]
+debug: Coalescing as_bytes%3#1 with [as_bytes%3#3]
 debug: Coalescing offset_as_uint16%1#1 with [offset_as_uint16%1#3]
-debug: Coalescing encoded%4#1 with [encoded%4#4, encoded%4#3, encoded%4#2]
-debug: Coalescing encoded%5#1 with [encoded%5#4, encoded%5#2]
-debug: Coalescing encoded%6#1 with [encoded%6#3, encoded%6#2]
-debug: Coalescing encoded%7#0 with [encoded%7#2, encoded%7#1]
+debug: Coalescing encoded%4#1 with [encoded%4#5, encoded%4#4, encoded%4#2]
+debug: Coalescing encoded%5#1 with [encoded%5#5, encoded%5#2]
+debug: Coalescing encoded%6#1 with [encoded%6#4, encoded%6#2]
+debug: Coalescing encoded%7#1 with [encoded%7#3, encoded%7#2]
 debug: Coalescing data_length%3#0 with [data_length%3#2]
 debug: Coalescing current_tail_offset%3#0 with [current_tail_offset%3#2]
 debug: Coalescing tail%4#0 with [tail%4#1]
-debug: Coalescing as_bytes%6#0 with [as_bytes%6#2, as_bytes%6#1]
+debug: Coalescing as_bytes%6#1 with [as_bytes%6#3, as_bytes%6#2]
 debug: Coalescing offset_as_uint16%4#0 with [offset_as_uint16%4#1]
 debug: Coalescing encoded%9#0 with [encoded%9#1]
 debug: Coalescing encoded%10#0 with [encoded%10#1]
@@ -6795,8 +6868,8 @@ debug: Inserted main_store_tuple_route@5.ops[67]: 'l-store-copy item1%1#0 0'
 debug: Replaced main_store_tuple_route@5.ops[69]: 'v-load item1%1#0' with 'l-load item1%1#0'
 debug: Inserted main_store_tuple_route@5.ops[79]: 'l-store-copy item2%1#0 0'
 debug: Replaced main_store_tuple_route@5.ops[81]: 'v-load item2%1#0' with 'l-load item2%1#0'
-debug: Inserted main_store_tuple_route@5.ops[94]: 'l-store-copy val_as_bytes%0#1 0'
-debug: Replaced main_store_tuple_route@5.ops[96]: 'v-load val_as_bytes%0#1' with 'l-load val_as_bytes%0#1'
+debug: Inserted main_store_tuple_route@5.ops[94]: 'l-store-copy val_as_bytes%0#0 0'
+debug: Replaced main_store_tuple_route@5.ops[96]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted main_store_tuple_route@5.ops[105]: 'l-store-copy length%0#1 0'
 debug: Replaced main_store_tuple_route@5.ops[107]: 'v-load length%0#1' with 'l-load length%0#1'
 debug: Inserted main_store_tuple_route@5.ops[109]: 'l-store-copy as_bytes%0#1 0'
@@ -6807,20 +6880,20 @@ debug: Inserted main_store_tuple_route@5.ops[118]: 'l-store-copy encoded_value%0
 debug: Replaced main_store_tuple_route@5.ops[120]: 'v-load encoded_value%0#1' with 'l-load encoded_value%0#1'
 debug: Inserted main_store_tuple_route@5.ops[133]: 'l-store-copy length%1#1 0'
 debug: Replaced main_store_tuple_route@5.ops[135]: 'v-load length%1#1' with 'l-load length%1#1'
-debug: Inserted main_store_tuple_route@5.ops[137]: 'l-store-copy as_bytes%2#1 0'
-debug: Replaced main_store_tuple_route@5.ops[139]: 'v-load as_bytes%2#1' with 'l-load as_bytes%2#1'
+debug: Inserted main_store_tuple_route@5.ops[137]: 'l-store-copy as_bytes%2#0 0'
+debug: Replaced main_store_tuple_route@5.ops[139]: 'v-load as_bytes%2#0' with 'l-load as_bytes%2#0'
 debug: Inserted main_store_tuple_route@5.ops[141]: 'l-store-copy length_uint16%1#1 0'
 debug: Replaced main_store_tuple_route@5.ops[143]: 'v-load length_uint16%1#1' with 'l-load length_uint16%1#1'
-debug: Inserted main_store_tuple_route@5.ops[153]: 'l-store-copy as_bytes%3#0 0'
-debug: Replaced main_store_tuple_route@5.ops[155]: 'v-load as_bytes%3#0' with 'l-load as_bytes%3#0'
+debug: Inserted main_store_tuple_route@5.ops[153]: 'l-store-copy as_bytes%3#1 0'
+debug: Replaced main_store_tuple_route@5.ops[155]: 'v-load as_bytes%3#1' with 'l-load as_bytes%3#1'
 debug: Inserted main_store_tuple_route@5.ops[161]: 'l-store-copy encoded%4#1 0'
 debug: Replaced main_store_tuple_route@5.ops[163]: 'v-load encoded%4#1' with 'l-load encoded%4#1'
 debug: Inserted main_store_tuple_route@5.ops[170]: 'l-store-copy encoded%6#1 0'
 debug: Replaced main_store_tuple_route@5.ops[172]: 'v-load encoded%6#1' with 'l-load encoded%6#1'
-debug: Inserted main_store_tuple_route@5.ops[175]: 'l-store-copy encoded%7#0 0'
-debug: Replaced main_store_tuple_route@5.ops[177]: 'v-load encoded%7#0' with 'l-load encoded%7#0'
-debug: Inserted main_store_tuple_route@5.ops[190]: 'l-store-copy as_bytes%6#0 0'
-debug: Replaced main_store_tuple_route@5.ops[192]: 'v-load as_bytes%6#0' with 'l-load as_bytes%6#0'
+debug: Inserted main_store_tuple_route@5.ops[175]: 'l-store-copy encoded%7#1 0'
+debug: Replaced main_store_tuple_route@5.ops[177]: 'v-load encoded%7#1' with 'l-load encoded%7#1'
+debug: Inserted main_store_tuple_route@5.ops[190]: 'l-store-copy as_bytes%6#1 0'
+debug: Replaced main_store_tuple_route@5.ops[192]: 'v-load as_bytes%6#1' with 'l-load as_bytes%6#1'
 debug: Inserted main_store_tuple_route@5.ops[198]: 'l-store-copy encoded%9#0 0'
 debug: Replaced main_store_tuple_route@5.ops[200]: 'v-load encoded%9#0' with 'l-load encoded%9#0'
 debug: Inserted main_store_tuple_route@5.ops[208]: 'l-store-copy test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0 0'
@@ -6879,8 +6952,8 @@ debug: Inserted main_store_tuple_route@5.ops[70]: 'l-store-copy item_start_offse
 debug: Replaced main_store_tuple_route@5.ops[79]: 'v-load item_start_offset%2#0' with 'l-load item_start_offset%2#0'
 debug: Inserted main_store_tuple_route@5.ops[188]: 'l-store-copy encoded%5#1 0'
 debug: Replaced main_store_tuple_route@5.ops[196]: 'v-load encoded%5#1' with 'l-load encoded%5#1'
-debug: Inserted main_store_tuple_route@5.ops[201]: 'l-store-copy encoded%7#0 0'
-debug: Replaced main_store_tuple_route@5.ops[210]: 'v-load encoded%7#0' with 'l-load encoded%7#0'
+debug: Inserted main_store_tuple_route@5.ops[201]: 'l-store-copy encoded%7#1 0'
+debug: Replaced main_store_tuple_route@5.ops[210]: 'v-load encoded%7#1' with 'l-load encoded%7#1'
 debug: Inserted main_store_tuple_route@5.ops[79]: 'l-store-copy item2%0#0 2'
 debug: Replaced main_store_tuple_route@5.ops[88]: 'v-load item2%0#0' with 'l-load item2%0#0'
 debug: Inserted main_store_tuple_route@5.ops[82]: 'l-store-copy item_end_offset%2#0 3'
@@ -6899,8 +6972,8 @@ debug: Inserted main_store_tuple_route@5.ops[150]: 'l-store-copy current_tail_of
 debug: Replaced main_store_tuple_route@5.ops[179]: 'v-load current_tail_offset%0#1' with 'l-load current_tail_offset%0#1'
 debug: Inserted main_store_tuple_route@5.ops[144]: 'l-store-copy encoded_value%0#1 1'
 debug: Replaced main_store_tuple_route@5.ops[175]: 'v-load encoded_value%0#1' with 'l-load encoded_value%0#1'
-debug: Inserted main_store_tuple_route@5.ops[156]: 'l-store-copy encoded%3#1 2'
-debug: Replaced main_store_tuple_route@5.ops[189]: 'v-load encoded%3#1' with 'l-load encoded%3#1'
+debug: Inserted main_store_tuple_route@5.ops[156]: 'l-store-copy encoded%3#0 2'
+debug: Replaced main_store_tuple_route@5.ops[189]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
 debug: Inserted main_store_tuple_route@5.ops[88]: 'l-store-copy pwl.parent.child.b#0 2'
 debug: Replaced main_store_tuple_route@5.ops[126]: 'v-load pwl.parent.child.b#0' with 'l-load pwl.parent.child.b#0'
 debug: Inserted main_store_tuple_route@5.ops[65]: 'l-store-copy pwl.parent.child.a#0 1'
@@ -6915,8 +6988,8 @@ debug: Inserted main_store_tuple_route@5.ops[45]: 'l-store-copy pwl.parent.foo_a
 debug: Replaced main_store_tuple_route@5.ops[124]: 'v-load pwl.parent.foo_arc#0' with 'l-load pwl.parent.foo_arc#0'
 debug: Inserted main_store_tuple_route@5.ops[33]: 'l-store-copy item_end_offset%0#0 3'
 debug: Replaced main_store_tuple_route@5.ops[116]: 'v-load item_end_offset%0#0' with 'l-load item_end_offset%0#0'
-debug: Inserted main_store_tuple_route@5.ops[127]: 'l-store-copy encoded%1#0 3'
-debug: Replaced main_store_tuple_route@5.ops[207]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
+debug: Inserted main_store_tuple_route@5.ops[127]: 'l-store-copy encoded%1#1 3'
+debug: Replaced main_store_tuple_route@5.ops[207]: 'v-load encoded%1#1' with 'l-load encoded%1#1'
 debug: Inserted main_store_tuple_route@5.ops[119]: 'l-store-copy pwl.children#0 5'
 debug: Replaced main_store_tuple_route@5.ops[229]: 'v-load pwl.children#0' with 'l-load pwl.children#0'
 debug: Inserted main_load_tuple_route@6.ops[1]: 'l-store-copy tmp%7#0 0'
@@ -6933,8 +7006,8 @@ debug: Inserted main_load_tuple_route@6.ops[71]: 'l-store-copy item1%1#0 0'
 debug: Replaced main_load_tuple_route@6.ops[73]: 'v-load item1%1#0' with 'l-load item1%1#0'
 debug: Inserted main_load_tuple_route@6.ops[83]: 'l-store-copy item2%1#0 0'
 debug: Replaced main_load_tuple_route@6.ops[85]: 'v-load item2%1#0' with 'l-load item2%1#0'
-debug: Inserted main_load_tuple_route@6.ops[98]: 'l-store-copy val_as_bytes%0#1 0'
-debug: Replaced main_load_tuple_route@6.ops[100]: 'v-load val_as_bytes%0#1' with 'l-load val_as_bytes%0#1'
+debug: Inserted main_load_tuple_route@6.ops[98]: 'l-store-copy val_as_bytes%0#0 0'
+debug: Replaced main_load_tuple_route@6.ops[100]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted main_load_tuple_route@6.ops[109]: 'l-store-copy length%0#1 0'
 debug: Replaced main_load_tuple_route@6.ops[111]: 'v-load length%0#1' with 'l-load length%0#1'
 debug: Inserted main_load_tuple_route@6.ops[113]: 'l-store-copy as_bytes%0#1 0'
@@ -6945,20 +7018,20 @@ debug: Inserted main_load_tuple_route@6.ops[122]: 'l-store-copy encoded_value%0#
 debug: Replaced main_load_tuple_route@6.ops[124]: 'v-load encoded_value%0#1' with 'l-load encoded_value%0#1'
 debug: Inserted main_load_tuple_route@6.ops[137]: 'l-store-copy length%1#1 0'
 debug: Replaced main_load_tuple_route@6.ops[139]: 'v-load length%1#1' with 'l-load length%1#1'
-debug: Inserted main_load_tuple_route@6.ops[141]: 'l-store-copy as_bytes%2#1 0'
-debug: Replaced main_load_tuple_route@6.ops[143]: 'v-load as_bytes%2#1' with 'l-load as_bytes%2#1'
+debug: Inserted main_load_tuple_route@6.ops[141]: 'l-store-copy as_bytes%2#0 0'
+debug: Replaced main_load_tuple_route@6.ops[143]: 'v-load as_bytes%2#0' with 'l-load as_bytes%2#0'
 debug: Inserted main_load_tuple_route@6.ops[145]: 'l-store-copy length_uint16%1#1 0'
 debug: Replaced main_load_tuple_route@6.ops[147]: 'v-load length_uint16%1#1' with 'l-load length_uint16%1#1'
-debug: Inserted main_load_tuple_route@6.ops[157]: 'l-store-copy as_bytes%3#0 0'
-debug: Replaced main_load_tuple_route@6.ops[159]: 'v-load as_bytes%3#0' with 'l-load as_bytes%3#0'
+debug: Inserted main_load_tuple_route@6.ops[157]: 'l-store-copy as_bytes%3#1 0'
+debug: Replaced main_load_tuple_route@6.ops[159]: 'v-load as_bytes%3#1' with 'l-load as_bytes%3#1'
 debug: Inserted main_load_tuple_route@6.ops[165]: 'l-store-copy encoded%4#1 0'
 debug: Replaced main_load_tuple_route@6.ops[167]: 'v-load encoded%4#1' with 'l-load encoded%4#1'
 debug: Inserted main_load_tuple_route@6.ops[174]: 'l-store-copy encoded%6#1 0'
 debug: Replaced main_load_tuple_route@6.ops[176]: 'v-load encoded%6#1' with 'l-load encoded%6#1'
-debug: Inserted main_load_tuple_route@6.ops[179]: 'l-store-copy encoded%7#0 0'
-debug: Replaced main_load_tuple_route@6.ops[181]: 'v-load encoded%7#0' with 'l-load encoded%7#0'
-debug: Inserted main_load_tuple_route@6.ops[194]: 'l-store-copy as_bytes%6#0 0'
-debug: Replaced main_load_tuple_route@6.ops[196]: 'v-load as_bytes%6#0' with 'l-load as_bytes%6#0'
+debug: Inserted main_load_tuple_route@6.ops[179]: 'l-store-copy encoded%7#1 0'
+debug: Replaced main_load_tuple_route@6.ops[181]: 'v-load encoded%7#1' with 'l-load encoded%7#1'
+debug: Inserted main_load_tuple_route@6.ops[194]: 'l-store-copy as_bytes%6#1 0'
+debug: Replaced main_load_tuple_route@6.ops[196]: 'v-load as_bytes%6#1' with 'l-load as_bytes%6#1'
 debug: Inserted main_load_tuple_route@6.ops[202]: 'l-store-copy encoded%9#0 0'
 debug: Replaced main_load_tuple_route@6.ops[204]: 'v-load encoded%9#0' with 'l-load encoded%9#0'
 debug: Inserted main_load_tuple_route@6.ops[211]: 'l-store-copy tmp%11#0 0'
@@ -7023,8 +7096,8 @@ debug: Inserted main_load_tuple_route@6.ops[76]: 'l-store-copy item_start_offset
 debug: Replaced main_load_tuple_route@6.ops[85]: 'v-load item_start_offset%2#0' with 'l-load item_start_offset%2#0'
 debug: Inserted main_load_tuple_route@6.ops[194]: 'l-store-copy encoded%5#1 0'
 debug: Replaced main_load_tuple_route@6.ops[202]: 'v-load encoded%5#1' with 'l-load encoded%5#1'
-debug: Inserted main_load_tuple_route@6.ops[207]: 'l-store-copy encoded%7#0 0'
-debug: Replaced main_load_tuple_route@6.ops[216]: 'v-load encoded%7#0' with 'l-load encoded%7#0'
+debug: Inserted main_load_tuple_route@6.ops[207]: 'l-store-copy encoded%7#1 0'
+debug: Replaced main_load_tuple_route@6.ops[216]: 'v-load encoded%7#1' with 'l-load encoded%7#1'
 debug: Inserted main_load_tuple_route@6.ops[85]: 'l-store-copy item2%0#0 2'
 debug: Replaced main_load_tuple_route@6.ops[94]: 'v-load item2%0#0' with 'l-load item2%0#0'
 debug: Inserted main_load_tuple_route@6.ops[88]: 'l-store-copy item_end_offset%2#0 3'
@@ -7043,8 +7116,8 @@ debug: Inserted main_load_tuple_route@6.ops[156]: 'l-store-copy current_tail_off
 debug: Replaced main_load_tuple_route@6.ops[185]: 'v-load current_tail_offset%0#1' with 'l-load current_tail_offset%0#1'
 debug: Inserted main_load_tuple_route@6.ops[150]: 'l-store-copy encoded_value%0#1 1'
 debug: Replaced main_load_tuple_route@6.ops[181]: 'v-load encoded_value%0#1' with 'l-load encoded_value%0#1'
-debug: Inserted main_load_tuple_route@6.ops[162]: 'l-store-copy encoded%3#1 2'
-debug: Replaced main_load_tuple_route@6.ops[195]: 'v-load encoded%3#1' with 'l-load encoded%3#1'
+debug: Inserted main_load_tuple_route@6.ops[162]: 'l-store-copy encoded%3#0 2'
+debug: Replaced main_load_tuple_route@6.ops[195]: 'v-load encoded%3#0' with 'l-load encoded%3#0'
 debug: Inserted main_load_tuple_route@6.ops[94]: 'l-store-copy item1%2#2 2'
 debug: Replaced main_load_tuple_route@6.ops[132]: 'v-load item1%2#2' with 'l-load item1%2#2'
 debug: Inserted main_load_tuple_route@6.ops[71]: 'l-store-copy item0%4#2 1'
@@ -7059,8 +7132,8 @@ debug: Inserted main_load_tuple_route@6.ops[51]: 'l-store-copy item1%0#6 3'
 debug: Replaced main_load_tuple_route@6.ops[130]: 'v-load item1%0#6' with 'l-load item1%0#6'
 debug: Inserted main_load_tuple_route@6.ops[39]: 'l-store-copy item_end_offset%0#0 3'
 debug: Replaced main_load_tuple_route@6.ops[122]: 'v-load item_end_offset%0#0' with 'l-load item_end_offset%0#0'
-debug: Inserted main_load_tuple_route@6.ops[133]: 'l-store-copy encoded%1#0 3'
-debug: Replaced main_load_tuple_route@6.ops[213]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
+debug: Inserted main_load_tuple_route@6.ops[133]: 'l-store-copy encoded%1#1 3'
+debug: Replaced main_load_tuple_route@6.ops[213]: 'v-load encoded%1#1' with 'l-load encoded%1#1'
 debug: Inserted main_load_tuple_route@6.ops[125]: 'l-store-copy item1%3#1 5'
 debug: Replaced main_load_tuple_route@6.ops[235]: 'v-load item1%3#1' with 'l-load item1%3#1'
 debug: Inserted main_store_tuple_in_box_route@7.ops[1]: 'l-store-copy tmp%12#0 0'
@@ -7077,24 +7150,24 @@ debug: Inserted main_store_tuple_in_box_route@7.ops[55]: 'l-store-copy test_case
 debug: Replaced main_store_tuple_in_box_route@7.ops[57]: 'v-load test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0' with 'l-load test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0'
 debug: Inserted main_store_tuple_in_box_route@7.ops[35]: 'l-store-copy val_as_bytes%1#0 0'
 debug: Replaced main_store_tuple_in_box_route@7.ops[38]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted main_store_tuple_in_box_route@7.ops[40]: 'l-store-copy encoded%1#0 0'
-debug: Replaced main_store_tuple_in_box_route@7.ops[43]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
+debug: Inserted main_store_tuple_in_box_route@7.ops[40]: 'l-store-copy encoded%1#1 0'
+debug: Replaced main_store_tuple_in_box_route@7.ops[43]: 'v-load encoded%1#1' with 'l-load encoded%1#1'
 debug: Inserted main_store_tuple_in_box_route@7.ops[48]: 'l-store-copy val_as_bytes%3#0 0'
 debug: Replaced main_store_tuple_in_box_route@7.ops[51]: 'v-load val_as_bytes%3#0' with 'l-load val_as_bytes%3#0'
 debug: Inserted main_store_tuple_in_box_route@7.ops[53]: 'l-store-copy encoded%4#1 0'
 debug: Replaced main_store_tuple_in_box_route@7.ops[56]: 'v-load encoded%4#1' with 'l-load encoded%4#1'
 debug: Inserted main_store_tuple_in_box_route@7.ops[18]: 'l-store-copy reinterpret_Encoded((uint64,uint64))%0#0 0'
 debug: Replaced main_store_tuple_in_box_route@7.ops[22]: 'v-load reinterpret_Encoded((uint64,uint64))%0#0' with 'l-load reinterpret_Encoded((uint64,uint64))%0#0'
-debug: Inserted main_store_tuple_in_box_route@7.ops[33]: 'l-store-copy val_as_bytes%0#1 0'
-debug: Replaced main_store_tuple_in_box_route@7.ops[39]: 'v-load val_as_bytes%0#1' with 'l-load val_as_bytes%0#1'
+debug: Inserted main_store_tuple_in_box_route@7.ops[33]: 'l-store-copy val_as_bytes%0#0 0'
+debug: Replaced main_store_tuple_in_box_route@7.ops[39]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted main_store_tuple_in_box_route@7.ops[28]: 'l-store-copy key.b#0 0'
 debug: Replaced main_store_tuple_in_box_route@7.ops[36]: 'v-load key.b#0' with 'l-load key.b#0'
 debug: Inserted main_store_tuple_in_box_route@7.ops[48]: 'l-store-copy box_prefixed_key%0#0 0'
 debug: Replaced main_store_tuple_in_box_route@7.ops[59]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
 debug: Inserted main_store_tuple_in_box_route@7.ops[21]: 'l-store-copy key.a#0 1'
 debug: Replaced main_store_tuple_in_box_route@7.ops[33]: 'v-load key.a#0' with 'l-load key.a#0'
-debug: Inserted main_store_tuple_in_box_route@7.ops[42]: 'l-store-copy val_as_bytes%0#1 1'
-debug: Replaced main_store_tuple_in_box_route@7.ops[56]: 'v-load val_as_bytes%0#1' with 'l-load val_as_bytes%0#1'
+debug: Inserted main_store_tuple_in_box_route@7.ops[42]: 'l-store-copy val_as_bytes%0#0 1'
+debug: Replaced main_store_tuple_in_box_route@7.ops[56]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted main_store_tuple_in_box_route@7.ops[32]: 'l-store-copy tmp%0#2 2'
 debug: Replaced main_store_tuple_in_box_route@7.ops[53]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
 debug: Inserted main_is_tuple_in_box_route@8.ops[1]: 'l-store-copy tmp%16#0 0'
@@ -7113,16 +7186,16 @@ debug: Inserted main_is_tuple_in_box_route@8.ops[57]: 'l-store-copy test_cases.t
 debug: Replaced main_is_tuple_in_box_route@8.ops[59]: 'v-load test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0' with 'l-load test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0'
 debug: Inserted main_is_tuple_in_box_route@8.ops[30]: 'l-store-copy val_as_bytes%1#0 0'
 debug: Replaced main_is_tuple_in_box_route@8.ops[33]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted main_is_tuple_in_box_route@8.ops[35]: 'l-store-copy encoded%1#0 0'
-debug: Replaced main_is_tuple_in_box_route@8.ops[38]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
+debug: Inserted main_is_tuple_in_box_route@8.ops[35]: 'l-store-copy encoded%1#1 0'
+debug: Replaced main_is_tuple_in_box_route@8.ops[38]: 'v-load encoded%1#1' with 'l-load encoded%1#1'
 debug: Inserted main_is_tuple_in_box_route@8.ops[50]: 'l-store-copy encoded_bool%0#0 0'
 debug: Replaced main_is_tuple_in_box_route@8.ops[53]: 'v-load encoded_bool%0#0' with 'l-load encoded_bool%0#0'
 debug: Inserted main_is_tuple_in_box_route@8.ops[18]: 'l-store-copy reinterpret_Encoded((uint64,uint64))%1#0 0'
 debug: Replaced main_is_tuple_in_box_route@8.ops[22]: 'v-load reinterpret_Encoded((uint64,uint64))%1#0' with 'l-load reinterpret_Encoded((uint64,uint64))%1#0'
 debug: Inserted main_is_tuple_in_box_route@8.ops[25]: 'l-store-copy key.b#0 0'
 debug: Replaced main_is_tuple_in_box_route@8.ops[30]: 'v-load key.b#0' with 'l-load key.b#0'
-debug: Inserted main_is_tuple_in_box_route@8.ops[29]: 'l-store-copy val_as_bytes%0#1 1'
-debug: Replaced main_is_tuple_in_box_route@8.ops[35]: 'v-load val_as_bytes%0#1' with 'l-load val_as_bytes%0#1'
+debug: Inserted main_is_tuple_in_box_route@8.ops[29]: 'l-store-copy val_as_bytes%0#0 1'
+debug: Replaced main_is_tuple_in_box_route@8.ops[35]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted main_is_tuple_in_box_route@8.ops[47]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced main_is_tuple_in_box_route@8.ops[52]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted main_is_tuple_in_box_route@8.ops[21]: 'l-store-copy key.a#0 1'
@@ -7143,8 +7216,8 @@ debug: Inserted main_load_tuple_from_box_route@9.ops[72]: 'l-store-copy test_cas
 debug: Replaced main_load_tuple_from_box_route@9.ops[74]: 'v-load test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0' with 'l-load test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0'
 debug: Inserted main_load_tuple_from_box_route@9.ops[30]: 'l-store-copy val_as_bytes%1#0 0'
 debug: Replaced main_load_tuple_from_box_route@9.ops[33]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted main_load_tuple_from_box_route@9.ops[35]: 'l-store-copy encoded%1#0 0'
-debug: Replaced main_load_tuple_from_box_route@9.ops[38]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
+debug: Inserted main_load_tuple_from_box_route@9.ops[35]: 'l-store-copy encoded%1#1 0'
+debug: Replaced main_load_tuple_from_box_route@9.ops[38]: 'v-load encoded%1#1' with 'l-load encoded%1#1'
 debug: Inserted main_load_tuple_from_box_route@9.ops[44]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced main_load_tuple_from_box_route@9.ops[47]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted main_load_tuple_from_box_route@9.ops[62]: 'l-store-copy val_as_bytes%3#0 0'
@@ -7157,8 +7230,8 @@ debug: Inserted main_load_tuple_from_box_route@9.ops[18]: 'l-store-copy reinterp
 debug: Replaced main_load_tuple_from_box_route@9.ops[22]: 'v-load reinterpret_Encoded((uint64,uint64))%2#0' with 'l-load reinterpret_Encoded((uint64,uint64))%2#0'
 debug: Inserted main_load_tuple_from_box_route@9.ops[25]: 'l-store-copy key.b#0 0'
 debug: Replaced main_load_tuple_from_box_route@9.ops[30]: 'v-load key.b#0' with 'l-load key.b#0'
-debug: Inserted main_load_tuple_from_box_route@9.ops[29]: 'l-store-copy val_as_bytes%0#1 1'
-debug: Replaced main_load_tuple_from_box_route@9.ops[35]: 'v-load val_as_bytes%0#1' with 'l-load val_as_bytes%0#1'
+debug: Inserted main_load_tuple_from_box_route@9.ops[29]: 'l-store-copy val_as_bytes%0#0 1'
+debug: Replaced main_load_tuple_from_box_route@9.ops[35]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted main_load_tuple_from_box_route@9.ops[54]: 'l-store-copy maybe_value%0#0 0'
 debug: Replaced main_load_tuple_from_box_route@9.ops[58]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted main_load_tuple_from_box_route@9.ops[61]: 'l-store-copy item1%1#2 0'
@@ -7181,16 +7254,16 @@ debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[38]: 'l-store-copy b
 debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[40]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
 debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[30]: 'l-store-copy val_as_bytes%1#0 0'
 debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[33]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[35]: 'l-store-copy encoded%1#0 0'
-debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[38]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
+debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[35]: 'l-store-copy encoded%1#1 0'
+debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[38]: 'v-load encoded%1#1' with 'l-load encoded%1#1'
 debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[44]: 'l-store-copy exists#0 1'
 debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[47]: 'v-load exists#0' with 'l-load exists#0'
 debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[18]: 'l-store-copy reinterpret_Encoded((uint64,uint64))%3#0 0'
 debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[22]: 'v-load reinterpret_Encoded((uint64,uint64))%3#0' with 'l-load reinterpret_Encoded((uint64,uint64))%3#0'
 debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[25]: 'l-store-copy key.b#0 0'
 debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[30]: 'v-load key.b#0' with 'l-load key.b#0'
-debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[29]: 'l-store-copy val_as_bytes%0#1 1'
-debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[35]: 'v-load val_as_bytes%0#1' with 'l-load val_as_bytes%0#1'
+debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[29]: 'l-store-copy val_as_bytes%0#0 1'
+debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[35]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted main_maybe_load_tuple_from_box_route@10.ops[21]: 'l-store-copy key.a#0 1'
 debug: Replaced main_maybe_load_tuple_from_box_route@10.ops[28]: 'v-load key.a#0' with 'l-load key.a#0'
 debug: Inserted main_ternary_true@11.ops[7]: 'l-store-copy item1%1#2 0'
@@ -7227,16 +7300,16 @@ debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[15]: 'l-store-c
 debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[17]: 'v-load reinterpret_Encoded((uint64,uint64))%4#0' with 'l-load reinterpret_Encoded((uint64,uint64))%4#0'
 debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[30]: 'l-store-copy val_as_bytes%1#0 0'
 debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[33]: 'v-load val_as_bytes%1#0' with 'l-load val_as_bytes%1#0'
-debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[35]: 'l-store-copy encoded%1#0 0'
-debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[38]: 'v-load encoded%1#0' with 'l-load encoded%1#0'
+debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[35]: 'l-store-copy encoded%1#1 0'
+debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[38]: 'v-load encoded%1#1' with 'l-load encoded%1#1'
 debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[48]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[51]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[18]: 'l-store-copy reinterpret_Encoded((uint64,uint64))%4#0 0'
 debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[22]: 'v-load reinterpret_Encoded((uint64,uint64))%4#0' with 'l-load reinterpret_Encoded((uint64,uint64))%4#0'
 debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[25]: 'l-store-copy key.b#0 0'
 debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[30]: 'v-load key.b#0' with 'l-load key.b#0'
-debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[29]: 'l-store-copy val_as_bytes%0#1 1'
-debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[35]: 'v-load val_as_bytes%0#1' with 'l-load val_as_bytes%0#1'
+debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[29]: 'l-store-copy val_as_bytes%0#0 1'
+debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[35]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[21]: 'l-store-copy key.a#0 1'
 debug: Replaced main_load_tuple_from_box_or_default_route@14.ops[28]: 'v-load key.a#0' with 'l-load key.a#0'
 debug: Inserted main_load_tuple_from_box_or_default_route@14.ops[44]: 'l-store-copy box_prefixed_key%0#0 0'
@@ -7339,26 +7412,26 @@ debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[104]: 'v-load item2%2#1' with 'l-load item2%2#1'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[119]: 'l-store-copy length%0#1 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[121]: 'v-load length%0#1' with 'l-load length%0#1'
-debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[123]: 'l-store-copy as_bytes%2#1 0'
-debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[125]: 'v-load as_bytes%2#1' with 'l-load as_bytes%2#1'
+debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[123]: 'l-store-copy as_bytes%2#0 0'
+debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[125]: 'v-load as_bytes%2#0' with 'l-load as_bytes%2#0'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[127]: 'l-store-copy length_uint16%0#1 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[129]: 'v-load length_uint16%0#1' with 'l-load length_uint16%0#1'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[132]: 'l-store-copy encoded_value%0#1 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[134]: 'v-load encoded_value%0#1' with 'l-load encoded_value%0#1'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[147]: 'l-store-copy length%1#1 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[149]: 'v-load length%1#1' with 'l-load length%1#1'
-debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[151]: 'l-store-copy as_bytes%4#2 0'
-debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[153]: 'v-load as_bytes%4#2' with 'l-load as_bytes%4#2'
+debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[151]: 'l-store-copy as_bytes%4#1 0'
+debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[153]: 'v-load as_bytes%4#1' with 'l-load as_bytes%4#1'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[155]: 'l-store-copy length_uint16%1#1 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[157]: 'v-load length_uint16%1#1' with 'l-load length_uint16%1#1'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[167]: 'l-store-copy as_bytes%5#2 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[169]: 'v-load as_bytes%5#2' with 'l-load as_bytes%5#2'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[175]: 'l-store-copy encoded%5#1 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[177]: 'v-load encoded%5#1' with 'l-load encoded%5#1'
-debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[187]: 'l-store-copy as_bytes%6#0 0'
-debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[189]: 'v-load as_bytes%6#0' with 'l-load as_bytes%6#0'
-debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[195]: 'l-store-copy encoded%7#0 0'
-debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[197]: 'v-load encoded%7#0' with 'l-load encoded%7#0'
+debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[187]: 'l-store-copy as_bytes%6#1 0'
+debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[189]: 'v-load as_bytes%6#1' with 'l-load as_bytes%6#1'
+debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[195]: 'l-store-copy encoded%7#1 0'
+debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[197]: 'v-load encoded%7#1' with 'l-load encoded%7#1'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[205]: 'l-store-copy test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[207]: 'v-load test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0' with 'l-load test_cases.tuple_support.nested_tuples.NestedTuples.__puya_arc4_router__%0#0'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[17]: 'l-store-copy maybe_exists%0#0 1'
@@ -7375,8 +7448,8 @@ debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[188]: 'v-load encoded%6#1' with 'l-load encoded%6#1'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[197]: 'l-store-copy offset_as_uint16%3#2 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[200]: 'v-load offset_as_uint16%3#2' with 'l-load offset_as_uint16%3#2'
-debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[207]: 'l-store-copy encoded%8#1 0'
-debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[210]: 'v-load encoded%8#1' with 'l-load encoded%8#1'
+debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[207]: 'l-store-copy encoded%8#2 0'
+debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[210]: 'v-load encoded%8#2' with 'l-load encoded%8#2'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[19]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[23]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[30]: 'l-store-copy item_end_offset%0#0 0'
@@ -7419,8 +7492,8 @@ debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[225]: 'v-load tail%3#2' with 'l-load tail%3#2'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[51]: 'l-store-copy concatenated%0#0 0'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[69]: 'v-load concatenated%0#0' with 'l-load concatenated%0#0'
-debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[135]: 'l-store-copy val_as_bytes%0#1 0'
-debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[163]: 'v-load val_as_bytes%0#1' with 'l-load val_as_bytes%0#1'
+debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[135]: 'l-store-copy val_as_bytes%0#0 0'
+debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[163]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[110]: 'l-store-copy item1%5#1 2'
 debug: Replaced main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[138]: 'v-load item1%5#1' with 'l-load item1%5#1'
 debug: Inserted main_mutate_tuple_in_storage_currently_supported_method_route@26.ops[163]: 'l-store-copy current_tail_offset%1#2 1'

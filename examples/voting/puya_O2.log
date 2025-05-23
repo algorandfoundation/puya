@@ -503,10 +503,6 @@ debug: Sealing block@15
 debug: Terminated block@15
 debug: Building IR for function examples.voting.voting.VotingRoundApp.get_preconditions
 debug: Sealing block@0
-voting/voting.py:163:28 debug: encountered already materialized expression (arc4_encode(this::voting_open(), arc4.uint64)), reusing result: val_as_bytes%0#0
-voting/voting.py:164:32 debug: encountered already materialized expression (arc4_encode(this::allowed_to_vote(signature), arc4.uint64)), reusing result: val_as_bytes%1#0
-voting/voting.py:165:31 debug: encountered already materialized expression (arc4_encode(this::already_voted(), arc4.uint64)), reusing result: val_as_bytes%2#0
-voting/voting.py:166:26 debug: encountered already materialized expression (arc4_encode(global<LatestTimestamp>(), arc4.uint64)), reusing result: val_as_bytes%3#0
 voting/voting.py:162:16 debug: redundant encode operation from uint64 to uint64
 voting/voting.py:162:16 debug: redundant encode operation from uint64 to uint64
 voting/voting.py:162:16 debug: redundant encode operation from uint64 to uint64
@@ -705,6 +701,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: materialized_values%0#0, required_budget_with_buffer#0
+debug: selected required_budget_with_buffer#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -724,11 +723,13 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: materialized_values%0#0, radix#0
+debug: selected radix#0 from equivalence set
 debug: Found equivalence set: read_bytes%0#0, reinterpret_string%0#0
 debug: selected read_bytes%0#0 from equivalence set
 debug: Found equivalence set: read_bytes%1#0, reinterpret_string%1#0
 debug: selected read_bytes%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable digits#0
@@ -772,16 +773,36 @@ debug: Found equivalence set: store_option_counts%0#0, copy%0#2
 debug: selected store_option_counts%0#0 from equivalence set
 debug: Found equivalence set: gtxn_idx%0#0, fund_min_bal_req#1
 debug: selected fund_min_bal_req#1 from equivalence set
+debug: Found equivalence set: materialized_values%0#2, tally_box_size#0
+debug: selected tally_box_size#0 from equivalence set
+debug: Found equivalence set: materialized_values%1#2, min_balance_req#0
+debug: selected min_balance_req#0 from equivalence set
+debug: Found equivalence set: materialized_values%1#1, note#0
+debug: selected note#0 from equivalence set
 debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
 debug: Found equivalence set: encoded_element%0#1, question_options#0, reinterpret_biguint%0#0
 debug: selected question_options#0 from equivalence set
 debug: Found equivalence set: item_index_internal%0#1, question_index#3
 debug: selected question_index#3 from equivalence set
+debug: Found equivalence set: materialized_values%2#1, note#2
+debug: selected note#2 from equivalence set
+debug: Found equivalence set: materialized_values%3#1, note#4
+debug: selected note#4 from equivalence set
+debug: Found equivalence set: materialized_values%4#1, note#6
+debug: selected note#6 from equivalence set
+debug: Found equivalence set: materialized_values%5#1, votes_for_option#0
+debug: selected votes_for_option#0 from equivalence set
+debug: Found equivalence set: materialized_values%6#1, note#8
+debug: selected note#8 from equivalence set
+debug: Found equivalence set: materialized_values%7#0, current_index#3
+debug: selected current_index#3 from equivalence set
+debug: Found equivalence set: materialized_values%8#0, note#9
+debug: selected note#9 from equivalence set
+debug: Found equivalence set: materialized_values%9#0, note#11, inner_txn_params%0%%param_Note_idx_0#0
+debug: selected note#11 from equivalence set
 debug: Found equivalence set: maybe_value%7#0, inner_txn_params%0%%param_ConfigAssetURL_idx_0#0
 debug: selected maybe_value%7#0 from equivalence set
-debug: Found equivalence set: note#11, inner_txn_params%0%%param_Note_idx_0#0
-debug: selected note#11 from equivalence set
 debug: Found equivalence set: tmp%27#0, signature#1
 debug: selected signature#1 from equivalence set
 debug: Found equivalence set: encoded%4#0, tmp%28#0
@@ -792,7 +813,17 @@ debug: Found equivalence set: tmp%35#0, signature#0
 debug: selected signature#0 from equivalence set
 debug: Found equivalence set: reinterpret_Encoded(len+uint8[])%4#0, answer_ids#0, copy%0#0
 debug: selected answer_ids#0 from equivalence set
-debug: Copy propagation made 26 modifications
+debug: Found equivalence set: materialized_values%0#0, questions_count#0
+debug: selected questions_count#0 from equivalence set
+debug: Found equivalence set: materialized_values%1#0, min_bal_req#0
+debug: selected min_bal_req#0 from equivalence set
+debug: Found equivalence set: materialized_values%2#0, answer_option_index#0
+debug: selected answer_option_index#0 from equivalence set
+debug: Found equivalence set: materialized_values%3#0, options_count#0
+debug: selected options_count#0 from equivalence set
+debug: Found equivalence set: materialized_values%4#0, cumulative_offset#2
+debug: selected cumulative_offset#2 from equivalence set
+debug: Copy propagation made 42 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Not removing unused assignment since source is not marked as pure: let store_option_counts%0#0: Encoded(len+uint8[]) = examples.voting.voting.VotingRoundApp.store_option_counts(option_counts#0)
@@ -871,7 +902,7 @@ debug: Simplified (* question_index#1 1u) to question_index#1
 debug: Simplified (btoi encoded_element%0#0) to (getbyte array_trimmed%0#0 question_index#1)
 debug: Simplified (* question_index#1 1u) to question_index#1
 debug: Simplified (btoi encoded_element%1#0) to (getbyte array_trimmed%1#0 question_index#1)
-debug: Simplified (concat "" materialized_values%0#0) to materialized_values%0#0
+debug: Simplified (concat "" materialized_values%5#0) to materialized_values%5#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -936,7 +967,9 @@ debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
 debug: Found equivalence set: encoded_element%0#0, item#0
 debug: selected item#0 from equivalence set
-debug: Copy propagation made 6 modifications
+debug: Found equivalence set: materialized_values%0#0, total_options#2
+debug: selected total_options#2 from equivalence set
+debug: Copy propagation made 7 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable option_counts%is_original#0
@@ -961,6 +994,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: materialized_values%0#0, tally_box_size#0
+debug: selected tally_box_size#0 from equivalence set
+debug: Found equivalence set: materialized_values%1#0, min_balance_req#0
+debug: selected min_balance_req#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -977,17 +1015,33 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: materialized_values%1#0, note#0
+debug: selected note#0 from equivalence set
 debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
 debug: Found equivalence set: encoded_element%0#0, question_options#0, reinterpret_biguint%0#0
 debug: selected question_options#0 from equivalence set
 debug: Found equivalence set: item_index_internal%0#1, question_index#0
 debug: selected question_index#0 from equivalence set
+debug: Found equivalence set: materialized_values%2#0, note#2
+debug: selected note#2 from equivalence set
+debug: Found equivalence set: materialized_values%3#0, note#4
+debug: selected note#4 from equivalence set
+debug: Found equivalence set: materialized_values%4#0, note#6
+debug: selected note#6 from equivalence set
+debug: Found equivalence set: materialized_values%5#0, votes_for_option#0
+debug: selected votes_for_option#0 from equivalence set
+debug: Found equivalence set: materialized_values%6#0, note#8
+debug: selected note#8 from equivalence set
+debug: Found equivalence set: materialized_values%7#0, current_index#3
+debug: selected current_index#3 from equivalence set
+debug: Found equivalence set: materialized_values%8#0, note#9
+debug: selected note#9 from equivalence set
+debug: Found equivalence set: materialized_values%9#0, note#11, inner_txn_params%0%%param_Note_idx_0#0
+debug: selected note#11 from equivalence set
 debug: Found equivalence set: maybe_value%7#0, inner_txn_params%0%%param_ConfigAssetURL_idx_0#0
 debug: selected maybe_value%7#0 from equivalence set
-debug: Found equivalence set: note#11, inner_txn_params%0%%param_Note_idx_0#0
-debug: selected note#11 from equivalence set
-debug: Copy propagation made 8 modifications
+debug: Copy propagation made 17 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable reinterpret_biguint%1#0
@@ -1089,11 +1143,23 @@ voting/voting.py:200:13 debug: inlining call to examples.voting.voting.VotingRou
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: materialized_values%0#0, questions_count#0
+debug: selected questions_count#0 from equivalence set
+debug: Found equivalence set: materialized_values%1#0, min_bal_req#0
+debug: selected min_bal_req#0 from equivalence set
+debug: Found equivalence set: materialized_values%2#0, answer_option_index#0
+debug: selected answer_option_index#0 from equivalence set
+debug: Found equivalence set: materialized_values%3#0, options_count#0
+debug: selected options_count#0 from equivalence set
 debug: Found equivalence set: tmp%17#0, index#0
 debug: selected index#0 from equivalence set
+debug: Found equivalence set: materialized_values%0#1, current_vote#0
+debug: selected current_vote#0 from equivalence set
+debug: Found equivalence set: materialized_values%4#0, cumulative_offset#2
+debug: selected cumulative_offset#2 from equivalence set
 debug: Found equivalence set: answer_ids#0, copy%0#0
 debug: selected answer_ids#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1102,7 +1168,7 @@ debug: Simplified (* question_index#1 1u) to question_index#1
 debug: Simplified (btoi encoded_element%0#0) to (getbyte array_trimmed%0#0 question_index#1)
 debug: Simplified (* question_index#1 1u) to question_index#1
 debug: Simplified (btoi encoded_element%1#0) to (getbyte array_trimmed%1#0 question_index#1)
-debug: Simplified (concat "" materialized_values%0#0) to materialized_values%0#0
+debug: Simplified (concat "" materialized_values%5#0) to materialized_values%5#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1161,7 +1227,9 @@ debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
 debug: Found equivalence set: encoded_element%0#0, item#0
 debug: selected item#0 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Found equivalence set: materialized_values%0#0, total_options#2
+debug: selected total_options#2 from equivalence set
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable option_counts%is_original#0
@@ -1215,6 +1283,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: materialized_values%0#0, current_vote#0
+debug: selected current_vote#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1246,8 +1317,8 @@ debug: Found equivalence set: tmp%6#1, tmp%7#1
 debug: selected tmp%6#1 from equivalence set
 debug: Found equivalence set: question_index#1, bytes_offset%0#0, bytes_offset%1#0
 debug: selected question_index#1 from equivalence set
-debug: Found equivalence set: materialized_values%0#0, box_prefixed_key%0#0
-debug: selected materialized_values%0#0 from equivalence set
+debug: Found equivalence set: materialized_values%5#0, box_prefixed_key%0#0
+debug: selected materialized_values%5#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -1306,8 +1377,8 @@ debug: Found equivalence set: tmp%6#1, tmp%7#1
 debug: selected tmp%6#1 from equivalence set
 debug: Found equivalence set: question_index#1, bytes_offset%0#0, bytes_offset%1#0
 debug: selected question_index#1 from equivalence set
-debug: Found equivalence set: materialized_values%0#0, box_prefixed_key%0#0
-debug: selected materialized_values%0#0 from equivalence set
+debug: Found equivalence set: materialized_values%5#0, box_prefixed_key%0#0
+debug: selected materialized_values%5#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -1395,8 +1466,8 @@ debug: Found equivalence set: question_index#1, bytes_offset%0#0, bytes_offset%1
 debug: selected question_index#1 from equivalence set
 debug: Found equivalence set: tmp%17#1, index#0
 debug: selected index#0 from equivalence set
-debug: Found equivalence set: materialized_values%0#0, box_prefixed_key%0#0
-debug: selected materialized_values%0#0 from equivalence set
+debug: Found equivalence set: materialized_values%5#0, box_prefixed_key%0#0
+debug: selected materialized_values%5#0 from equivalence set
 debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -1702,10 +1773,10 @@ debug: marking simple function examples.voting.voting.VotingRoundApp.already_vot
 debug: marking simple function examples.voting.voting.VotingRoundApp.get_vote_from_box for inlining (complexity=2 <= threshold=3)
 debug: Optimizing subroutine examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init
 debug: Optimizer: Perform Subroutine Inlining
-voting/voting.py:245:9 debug: inlining call to examples.voting.voting.VotingRoundApp.get_vote_from_box in examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init
+voting/voting.py:245:24 debug: inlining call to examples.voting.voting.VotingRoundApp.get_vote_from_box in examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init
 voting/voting.py:180:20 debug: inlining call to examples.voting.voting.VotingRoundApp.already_voted in examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init
-voting/voting.py:165:31 debug: inlining call to examples.voting.voting.VotingRoundApp.already_voted in examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init
-voting/voting.py:140:21 debug: inlining call to examples.voting.voting.VotingRoundApp.get_vote_from_box in examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init
+voting/voting.py:165:43 debug: inlining call to examples.voting.voting.VotingRoundApp.already_voted in examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init
+voting/voting.py:140:40 debug: inlining call to examples.voting.voting.VotingRoundApp.get_vote_from_box in examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -2200,11 +2271,10 @@ debug: Coalescing current_index#0 with [current_index#9, current_index#5, curren
 debug: Coalescing question_index#0 with [question_index#4, question_index#3, question_index#7, question_index#1, question_index#2]
 debug: Coalescing option_index#0 with [option_index#5, option_index#1, option_index#2]
 debug: Coalescing tmp%0#9 with [tmp%0#10]
-debug: Coalescing materialized_values%1#0 with [materialized_values%1#1]
 debug: Coalescing signature#0 with [signature#1]
-debug: Coalescing materialized_values%0#0 with [materialized_values%0#3, materialized_values%0#2]
+debug: Coalescing materialized_values%0#2 with [materialized_values%0#3]
 debug: Coalescing cumulative_offset#0 with [cumulative_offset#5, cumulative_offset#1, cumulative_offset#2]
-debug: Coalescing resulted in 213 replacement/s
+debug: Coalescing resulted in 209 replacement/s
 debug: Sequentializing parallel copies in examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init
 debug: loc: {item_index_internal%0#0=item_index_internal%0#0, total_options#0=total_options#0}
 debug: pred: {item_index_internal%0#0=item_index_internal%0#0, total_options#0=total_options#0}
@@ -2581,8 +2651,8 @@ debug: Inserted main_after_for@19.ops[10]: 'l-store-copy maybe_exists%7#0 1'
 debug: Replaced main_after_for@19.ops[13]: 'v-load maybe_exists%7#0' with 'l-load maybe_exists%7#0'
 debug: Inserted main_after_for@19.ops[22]: 'l-store-copy maybe_exists%8#0 1'
 debug: Replaced main_after_for@19.ops[25]: 'v-load maybe_exists%8#0' with 'l-load maybe_exists%8#0'
-debug: Inserted main_after_for@19.ops[47]: 'l-store-copy materialized_values%1#0 0'
-debug: Replaced main_after_for@19.ops[50]: 'v-load materialized_values%1#0' with 'l-load materialized_values%1#0'
+debug: Inserted main_after_for@19.ops[47]: 'l-store-copy materialized_values%10#0 0'
+debug: Replaced main_after_for@19.ops[50]: 'v-load materialized_values%10#0' with 'l-load materialized_values%10#0'
 debug: Inserted main_after_for@19.ops[12]: 'l-store-copy maybe_value%6#0 1'
 debug: Replaced main_after_for@19.ops[17]: 'v-load maybe_value%6#0' with 'l-load maybe_value%6#0'
 debug: Inserted main_after_for@19.ops[25]: 'l-store-copy maybe_value%7#0 1'
@@ -2605,8 +2675,8 @@ debug: Inserted main_get_preconditions_route@20.ops[21]: 'l-store-copy to_encode
 debug: Replaced main_get_preconditions_route@20.ops[23]: 'v-load to_encode%0#0' with 'l-load to_encode%0#0'
 debug: Inserted main_get_preconditions_route@20.ops[28]: 'l-store-copy to_encode%1#0 0'
 debug: Replaced main_get_preconditions_route@20.ops[30]: 'v-load to_encode%1#0' with 'l-load to_encode%1#0'
-debug: Inserted main_get_preconditions_route@20.ops[34]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced main_get_preconditions_route@20.ops[36]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted main_get_preconditions_route@20.ops[34]: 'l-store-copy materialized_values%0#2 0'
+debug: Replaced main_get_preconditions_route@20.ops[36]: 'v-load materialized_values%0#2' with 'l-load materialized_values%0#2'
 debug: Inserted main_get_preconditions_route@20.ops[44]: 'l-store-copy to_encode%3#0 0'
 debug: Replaced main_get_preconditions_route@20.ops[46]: 'v-load to_encode%3#0' with 'l-load to_encode%3#0'
 debug: Inserted main_get_preconditions_route@20.ops[52]: 'l-store-copy encoded%1#0 0'
@@ -2651,8 +2721,8 @@ debug: Inserted main_vote_route@21.ops[46]: 'l-store-copy tmp%0#0 0'
 debug: Replaced main_vote_route@21.ops[48]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted main_vote_route@21.ops[51]: 'l-store-copy tmp%1#1 0'
 debug: Replaced main_vote_route@21.ops[53]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
-debug: Inserted main_vote_route@21.ops[56]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced main_vote_route@21.ops[58]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted main_vote_route@21.ops[56]: 'l-store-copy materialized_values%0#2 0'
+debug: Replaced main_vote_route@21.ops[58]: 'v-load materialized_values%0#2' with 'l-load materialized_values%0#2'
 debug: Inserted main_vote_route@21.ops[64]: 'l-store-copy tmp%3#1 0'
 debug: Replaced main_vote_route@21.ops[66]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
 debug: Inserted main_vote_route@21.ops[82]: 'l-store-copy array%array_length%5#1 0'
@@ -2711,8 +2781,8 @@ debug: Inserted main_for_body@23.ops[42]: 'l-store-copy current_vote#0 0'
 debug: Replaced main_for_body@23.ops[44]: 'v-load current_vote#0' with 'l-load current_vote#0'
 debug: Inserted main_for_body@23.ops[47]: 'l-store-copy tmp%0#2 0'
 debug: Replaced main_for_body@23.ops[49]: 'v-load tmp%0#2' with 'l-load tmp%0#2'
-debug: Inserted main_for_body@23.ops[61]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced main_for_body@23.ops[63]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted main_for_body@23.ops[61]: 'l-store-copy materialized_values%5#0 0'
+debug: Replaced main_for_body@23.ops[63]: 'v-load materialized_values%5#0' with 'l-load materialized_values%5#0'
 debug: Inserted main_for_body@23.ops[11]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced main_for_body@23.ops[14]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
 debug: Inserted main_for_body@23.ops[23]: 'l-store-copy options_count#0 0'
@@ -2721,14 +2791,14 @@ debug: Inserted main_for_body@23.ops[35]: 'l-store-copy index#0 0'
 debug: Replaced main_for_body@23.ops[38]: 'v-load index#0' with 'l-load index#0'
 debug: Inserted main_for_body@23.ops[75]: 'l-store-copy maybe_exists%2#0 1'
 debug: Replaced main_for_body@23.ops[78]: 'v-load maybe_exists%2#0' with 'l-load maybe_exists%2#0'
-debug: Inserted main_for_body@23.ops[83]: 'l-store-copy materialized_values%1#0 0'
-debug: Replaced main_for_body@23.ops[86]: 'v-load materialized_values%1#0' with 'l-load materialized_values%1#0'
+debug: Inserted main_for_body@23.ops[83]: 'l-store-copy materialized_values%6#0 0'
+debug: Replaced main_for_body@23.ops[86]: 'v-load materialized_values%6#0' with 'l-load materialized_values%6#0'
 debug: Inserted main_for_body@23.ops[13]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced main_for_body@23.ops[17]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
 debug: Inserted main_for_body@23.ops[55]: 'l-store-copy tmp%1#2 0'
 debug: Replaced main_for_body@23.ops[59]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
-debug: Inserted main_for_body@23.ops[69]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced main_for_body@23.ops[72]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted main_for_body@23.ops[69]: 'l-store-copy materialized_values%5#0 0'
+debug: Replaced main_for_body@23.ops[72]: 'v-load materialized_values%5#0' with 'l-load materialized_values%5#0'
 debug: Inserted main_for_body@23.ops[80]: 'l-store-copy maybe_value%2#0 1'
 debug: Replaced main_for_body@23.ops[84]: 'v-load maybe_value%2#0' with 'l-load maybe_value%2#0'
 debug: Inserted main_for_body@23.ops[27]: 'l-store-copy answer_option_index#0 1'

@@ -126,10 +126,13 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         goto block@1
     block@1: // next_txn_L18
         itxn_submit
-        let array_data%0#0: bytes = (concat 0x0000 0x)
-        let nested_arr#0: Encoded(len+len+uint64[][]) = array_data%0#0
-        let as_bytes%0#0: bytes[8] = (itob 2u)
-        let next_item_head%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded%0#0: bytes = (concat 0x 0x)
+        let as_bytes%0#0: bytes[8] = (itob 0u)
+        let len_u16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded%1#0: Encoded(len+len+uint64[][]) = (concat len_u16%0#0 encoded%0#0)
+        let nested_arr#0: Encoded(len+len+uint64[][]) = encoded%1#0
+        let as_bytes%1#0: bytes[8] = (itob 2u)
+        let next_item_head%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let result%0#0: bytes = (concat 0x next_item_head%0#0)
         let result%1#0: bytes = (concat result%0#0 arr#0)
         let array%array_length%0#1: uint64 = (extract_uint16 nested_arr#0 0u)
@@ -148,18 +151,21 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         goto block@2
     block@2: // next_txn_L22
         itxn_submit
-        let array_data%1#0: bytes = (concat 0x0000 0x)
-        let indirect_nested_arr#0: Encoded(len+(len+uint64[],uint64)[]) = array_data%1#0
+        let encoded%2#0: bytes = (concat 0x 0x)
+        let as_bytes%2#0: bytes[8] = (itob 0u)
+        let len_u16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let encoded%3#0: Encoded(len+(len+uint64[],uint64)[]) = (concat len_u16%1#0 encoded%2#0)
+        let indirect_nested_arr#0: Encoded(len+(len+uint64[],uint64)[]) = encoded%3#0
         let array%array_length%1#1: uint64 = (extract_uint16 arr#0 0u)
         let tmp%0#0: uint64 = array%array_length%1#1
         let val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
-        let as_bytes%1#0: bytes[8] = (itob 10u)
-        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let as_bytes%3#0: bytes[8] = (itob 10u)
+        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded_tuple_buffer%0#0: bytes = (concat 0x offset_as_uint16%0#0)
         let encoded_tuple_buffer%1#0: bytes = (concat encoded_tuple_buffer%0#0 val_as_bytes%0#0)
         let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 arr#0)
-        let as_bytes%2#0: bytes[8] = (itob 2u)
-        let next_item_head%1#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let as_bytes%4#0: bytes[8] = (itob 2u)
+        let next_item_head%1#0: bytes = ((extract 6 2) as_bytes%4#0)
         let result%2#0: bytes = (concat 0x next_item_head%1#0)
         let result%3#0: bytes = (concat result%2#0 encoded_tuple_buffer%2#0)
         let array%array_length%2#1: uint64 = (extract_uint16 indirect_nested_arr#0 0u)
