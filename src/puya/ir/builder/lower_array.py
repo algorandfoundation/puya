@@ -12,13 +12,13 @@ from puya.ir import (
 )
 from puya.ir.builder import arc4
 from puya.ir.builder._utils import OpFactory
-from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import (
+from puya.ir.encodings import (
     DynamicArrayEncoding,
     Encoding,
     FixedArrayEncoding,
-    IRType,
 )
+from puya.ir.register_context import IRRegisterContext
+from puya.ir.types_ import IRType
 from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation
