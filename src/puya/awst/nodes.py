@@ -1834,6 +1834,7 @@ class StateDelete(Expression):
 class NewStruct(Expression):
     wtype: wtypes.ARC4Struct
     values: Mapping[str, Expression] = attrs.field(converter=immutabledict)
+    """Evaluated in mapping order"""
 
     @values.validator
     def _validate_values(self, _instance: object, values: Mapping[str, Expression]) -> None:
