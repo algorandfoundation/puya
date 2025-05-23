@@ -51,11 +51,11 @@ from puya.ir.models import (
 )
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
-    AggregateIRType,
     EncodedType,
     IRType,
     PrimitiveIRType,
     SizedBytesType,
+    TupleIRType,
     get_type_arity,
     type_has_encoding,
     wtype_to_ir_type,
@@ -113,7 +113,7 @@ class ARC4Codec(abc.ABC):
 
 
 class NativeTupleCodec(ARC4Codec):
-    def __init__(self, native_type: AggregateIRType):
+    def __init__(self, native_type: TupleIRType):
         self.native_type = native_type
         self.homogenous = len(set(self.native_type.elements)) == 1
 
@@ -540,7 +540,7 @@ class CheckedEncoding(ARC4Codec):
 
 def _get_arc4_codec(ir_type: IRType) -> ARC4Codec | None:
     match ir_type:
-        case AggregateIRType() as aggregate:
+        case TupleIRType() as aggregate:
             return NativeTupleCodec(aggregate)
         case PrimitiveIRType.biguint:
             return BigUIntCodec()
@@ -1035,7 +1035,7 @@ def _encode_n_items_as_arc4_items(
     loc: SourceLocation,
 ) -> list[Value]:
     source_types = (
-        item_ir_type.elements if isinstance(item_ir_type, AggregateIRType) else (item_ir_type,)
+        item_ir_type.elements if isinstance(item_ir_type, TupleIRType) else (item_ir_type,)
     )
     item_arity = get_type_arity(item_ir_type)
     encoded_items = list[Value]()
@@ -1138,7 +1138,7 @@ def _decode_arc4_tuple_items(
     context: IRRegisterContext,
     tuple_elements: Sequence[Encoding],
     value: Value,
-    target_type: AggregateIRType,
+    target_type: TupleIRType,
     source_location: SourceLocation,
 ) -> ValueProvider:
     factory = OpFactory(context, source_location)
