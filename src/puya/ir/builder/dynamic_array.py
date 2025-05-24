@@ -19,6 +19,7 @@ from puya.ir.types_ import (
     IRType,
     SlotType,
     TupleIRType,
+    get_type_arity,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
@@ -53,7 +54,7 @@ def get_builder(
     wtype: wtypes.WType,
     loc: SourceLocation,
 ) -> DynamicArrayBuilder:
-    if isinstance(wtype, wtypes.ReferenceArray | wtypes.ARC4DynamicArray):
+    if isinstance(wtype, wtypes.NativeArray | wtypes.ARC4DynamicArray):
         array_ir_type = wtype_to_ir_type(wtype, source_location=loc)
         # only concerned with actual encoded of arrays, not where they are stored
         if isinstance(array_ir_type, SlotType):
@@ -110,7 +111,6 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def concat(
         self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
     ) -> ir.Value:
-        iterable_values = self.factory.materialise_values(iterable, "iterable")
         element_encoding = self.array_encoding.element
         # iterable is already encoded
         if isinstance(iterable_ir_type, EncodedType):
@@ -140,16 +140,29 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             encoded_iterable = iterable
         # iterable is an unencoded or tuple type
         else:
+            from puya.ir.builder import arc4
+
             # the iterable could be either
             # a tuple of compatible native elements
             # a tuple of compatible encoded elements
             # a value of compatible native elements
             # all of which can be encoded as a dynamic array of the element
-            encoded_iterable = ir.ValueEncode(
-                values=iterable_values,
-                value_type=self.element_ir_type,
+            # encoded_iterable = ir.ValueEncode(
+            #    values=iterable_values,
+            #    value_type=self.element_ir_type,
+            #    encoding=DynamicArrayEncoding(element=element_encoding, length_header=False),
+            #    source_location=self.loc,
+            # )
+            element_arity = get_type_arity(self.element_ir_type)
+            iterable_arity = get_type_arity(iterable_ir_type)
+            num_elements = iterable_arity // element_arity
+
+            encoded_iterable = arc4.encode_value_provider(
+                self.context,
+                value_provider=iterable,
+                value_type=TupleIRType(elements=[self.element_ir_type] * num_elements),
                 encoding=DynamicArrayEncoding(element=element_encoding, length_header=False),
-                source_location=self.loc,
+                loc=self.loc,
             )
 
         encoded_iterable = self.factory.materialise_single(encoded_iterable)
@@ -194,4 +207,4 @@ class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 
 
 def _todo(msg: str, loc: SourceLocation | None) -> typing.Never:
-    raise CodeError(msg, loc)
+    raise CodeError(f"TODO: {msg}", loc)
