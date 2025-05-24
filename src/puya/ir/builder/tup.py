@@ -26,7 +26,7 @@ class TupleBuilder(abc.ABC):
 
 
 class StackTupleBuilder(TupleBuilder):
-    def __init__(self, tuple_ir_type: IRType) -> None:
+    def __init__(self, tuple_ir_type: TupleIRType) -> None:
         self.tuple_ir_type = tuple_ir_type
 
     def read_at_index(self, tup: ir.ValueProvider, index: int) -> ir.ValueProvider:

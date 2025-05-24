@@ -467,7 +467,7 @@ class _ARC4StorageCodec(StorageCodec):
         self, *, declared_type: wtypes.WType, arc4_type: wtypes.ARC4Type, loc: SourceLocation
     ) -> None:
         self._declared_type = wtype_to_ir_type(
-            declared_type, source_location=loc, allow_aggregate=True
+            declared_type, source_location=loc, allow_tuple=True
         )
         self._encoded_type = wtype_to_encoded_ir_type(arc4_type, loc)
 
