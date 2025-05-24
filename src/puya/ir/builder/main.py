@@ -17,7 +17,7 @@ from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, arrays, flow_control, mem, sequence, storage
+from puya.ir.builder import arc4, arrays, dynamic_array, flow_control, mem, sequence, storage
 from puya.ir.builder._tuple_util import get_tuple_item_values
 from puya.ir.builder._utils import (
     OpFactory,
@@ -73,10 +73,8 @@ from puya.ir.models import (
 )
 from puya.ir.types_ import (
     AVMBytesEncoding,
-    EncodedType,
     PrimitiveIRType,
     SizedBytesType,
-    SlotType,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_ir_type,
     wtype_to_ir_type_and_encoding,
@@ -202,9 +200,7 @@ class FunctionIRBuilder(
             wtype = wtype_to_arc4_wtype(wtype, loc)
         ir_type = wtype_to_ir_type(wtype, loc)
         if ir_type.num_bytes is None:
-            logger.error(
-                f"{size_of.size_wtype} is dynamically sized", location=loc
-            )
+            logger.error(f"{size_of.size_wtype} is dynamically sized", location=loc)
         num_bytes = ir_type.num_bytes or 0
         return UInt64Constant(value=num_bytes, source_location=loc)
 
@@ -841,7 +837,7 @@ class FunctionIRBuilder(
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         loc = expr.source_location
 
-        builder = sequence.get_sequence_builder(self.context, expr.base.wtype, loc)
+        builder = sequence.get_builder(self.context, expr.base.wtype, loc)
         base = self.visit_and_materialise_single(expr.base)
         index = self.visit_and_materialise_single(expr.index)
 
@@ -1281,7 +1277,7 @@ class FunctionIRBuilder(
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
         loc = expr.source_location
 
-        builder = sequence.get_sequence_builder(self.context, expr.base.wtype, loc)
+        builder = sequence.get_builder(self.context, expr.base.wtype, loc)
         array = self.context.visitor.visit_and_materialise_single(expr.base)
         index = self.context.visitor.visit_and_materialise_single(expr.index)
         value = self.context.visitor.visit_expr(expr.value)
@@ -1301,19 +1297,23 @@ class FunctionIRBuilder(
         )
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
-            array_encoding = wtype_to_encoding(expr.base.wtype, expr.source_location)
-            concat_result = arc4.dynamic_array_concat_and_convert(
-                self.context,
-                array_encoding=array_encoding,
-                array_expr=expr.base,
-                iter_expr=expr.other,
-                source_location=expr.source_location,
-            )
+        loc = expr.source_location
+        array_wtype = expr.base.wtype
+
+        builder = dynamic_array.get_builder(self.context, array_wtype, loc)
+
+        array = self.context.visitor.visit_and_materialise_single(expr.base)
+        iterable_vp = self.context.visitor.visit_expr(expr.other)
+        iterable = self.context.visitor.materialise_value_provider_as_value_or_tuple(
+            iterable_vp, "iterable"
+        )
+
+        result = builder.concat(array, iterable)
+        if isinstance(array_wtype, wtypes.ARC4DynamicArray):
             return arc4.handle_arc4_assign(
                 self.context,
                 target=expr.base,
-                value=concat_result,
+                value=result,
                 is_nested_update=True,
                 source_location=expr.source_location,
             )
@@ -1324,30 +1324,16 @@ class FunctionIRBuilder(
             # 3. read slot to get data
             # 4. concat
             # 5. write slot
-            array_slot = self.context.visitor.visit_and_materialise_single(expr.base)
-            array_slot_type = array_slot.ir_type
-            assert isinstance(array_slot_type, SlotType)
-            array_type = array_slot_type.contents
-            assert isinstance(array_type, EncodedType)
-            array_encoding = wtype_to_encoding(expr.base.wtype, expr.source_location)
-            assert array_encoding == array_type.encoding, "expected encodings to match"
-            values = arrays.get_array_encoded_items(
-                self.context, expr.other, array_encoding.element
-            )
-            array_contents = mem.read_slot(self.context, array_slot, expr.source_location)
-            array_contents = arrays.concat_arrays(
-                self.context, array_contents, values, expr.source_location
-            )
-            mem.write_slot(self.context, array_slot, array_contents, expr.source_location)
-            return array_slot
+            mem.write_slot(self.context, array, result, expr.source_location)
+            return array
         else:
             raise InternalError("unsupported array type for ArrayExtend", expr.source_location)
 
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
         loc = expr.source_location
+
         array_wtype = expr.array.wtype
-        assert isinstance(array_wtype, wtypes.NativeArray | wtypes.ARC4Array)
-        builder = sequence.get_sequence_builder(self.context, array_wtype, loc)
+        builder = sequence.get_builder(self.context, array_wtype, loc)
 
         array = self.context.visitor.visit_and_materialise_single(expr.array)
         return builder.length(array)
