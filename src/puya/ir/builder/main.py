@@ -917,11 +917,11 @@ class FunctionIRBuilder(
         tuple_values = self.materialise_value_provider_as_value_or_tuple(
             tuple_value_provider, "array_values"
         )
-        encoded_array = arc4.encode_value_provider(
+        encoded_array_vp = arc4.encode_value_provider(
             self.context, tuple_values, tuple_ir_type, array_encoding, loc
         )
         (encoded_array,) = self.context.visitor.materialise_value_provider(
-            encoded_array, "encoded_array"
+            encoded_array_vp, "encoded_array"
         )
         if isinstance(expr.wtype, wtypes.ARC4Array | wtypes.StackArray):
             return encoded_array
