@@ -106,6 +106,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
 
 
 class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
+    @typing.override
     def concat(
         self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
     ) -> ir.Value:
@@ -163,26 +164,31 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             array = self.factory.replace(array, 0, array_len_u16)
         return array
 
+    @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
         _todo("fixed element array pop", array.source_location)
 
 
 class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
+    @typing.override
     def concat(
         self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
     ) -> ir.Value:
         _todo("dynamic element array concat", array.source_location)
 
+    @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
         _todo("dynamic element array pop", array.source_location)
 
 
 class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
+    @typing.override
     def concat(
         self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
     ) -> ir.Value:
         _todo("bit packed bool array concat", array.source_location)
 
+    @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
         _todo("bit packed bool array pop", array.source_location)
 
