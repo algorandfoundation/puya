@@ -45,7 +45,6 @@ from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.encodings import (
-    ArrayEncoding,
     TupleEncoding,
     wtype_to_encoding,
 )
@@ -1188,29 +1187,22 @@ class FunctionIRBuilder(
     def visit_bytes_augmented_assignment(
         self, statement: awst_nodes.BytesAugmentedAssignment
     ) -> TStatement:
+        loc = statement.source_location
+
+        target_value = self.visit_and_materialise_single(statement.target)
+        rhs = self.visit_and_materialise_single(statement.value)
         if statement.target.wtype == wtypes.arc4_string_alias:
-            array_encoding = wtype_to_encoding(statement.target.wtype, statement.source_location)
-            assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
-            value: ValueProvider = arc4.dynamic_array_concat_and_convert(
-                self.context,
-                array_encoding,
-                statement.target,
-                statement.value,
-                statement.source_location,
-            )
+            builder = dynamic_array.get_builder(self.context, statement.target.wtype, loc)
+            value: ValueProvider = builder.concat(target_value, rhs, rhs.ir_type)
         else:
-            target_value = self.visit_and_materialise_single(statement.target)
-            rhs = self.visit_and_materialise_single(statement.value)
-            value = create_bytes_binary_op(
-                statement.op, target_value, rhs, statement.source_location
-            )
+            value = create_bytes_binary_op(statement.op, target_value, rhs, loc)
 
         handle_assignment(
             self.context,
             target=statement.target,
             value=value,
             is_nested_update=False,
-            assignment_location=statement.source_location,
+            assignment_location=loc,
         )
 
     def visit_enumeration(self, expr: awst_nodes.Enumeration) -> TStatement:
