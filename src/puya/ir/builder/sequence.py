@@ -6,7 +6,6 @@ from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import mem
 from puya.ir.builder._utils import OpFactory, assert_value, invoke_puya_lib_subroutine
 from puya.ir.builder.arrays import ArrayIterator
 from puya.ir.encodings import (
@@ -129,8 +128,6 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         )
 
     def length(self, array: ir.Value) -> ir.ValueProvider:
-        if isinstance(self.array_ir_type, SlotType):
-            array = mem.read_slot(self.factory.context, array, self.loc)
         return ir.ArrayLength(
             array=array,
             array_encoding=self.array_encoding,
@@ -244,10 +241,6 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
 
 class FixedElementArrayBuilder(_ArrayBuilderImpl):
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
-        # note: at present, slot-backed arrays can only contain fixed elements
-        if isinstance(self.array_ir_type, SlotType):
-            array = mem.read_slot(self.factory.context, array, self.loc)
-
         # TODO: is it safe to not bounds check on fixed element arrays?
         #       in some cases yes, e.g. after an extract of the whole array
         #       but in other cases no, e.g. txn arguments
@@ -274,12 +267,6 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
         encoded = self._maybe_encode(value)
         encoded = self.factory.materialise_single(encoded, "encoded_value")
 
-        # note: at present, slot-backed arrays can only contain fixed elements
-        array_slot = None
-        if isinstance(self.array_ir_type, SlotType):
-            array_slot = array
-            array = mem.read_slot(self.factory.context, array, self.loc)
-
         # TODO: is it safe to not bounds check on fixed element arrays?
         # self._maybe_bounds_check(array, index)
 
@@ -290,12 +277,7 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
             write_offset = self.factory.add(write_offset, 2, "write_offset_with_length_header")
 
         array = self.factory.replace(array, write_offset, encoded, "updated_array")
-        # note: at present, slot-backed arrays can only contain fixed elements
-        if array_slot:
-            mem.write_slot(self.context, array_slot, array, self.loc)
-            return array_slot
-        else:
-            return array
+        return array
 
 
 class DynamicElementArrayBuilder(_ArrayBuilderImpl):
