@@ -210,7 +210,7 @@ class NativeTupleCodec(ARC4Codec):
                 loc,
             )
         encoded = factory.concat(encoded, tail, "encoded")
-        if encoding.length_header:
+        if isinstance(encoding, ArrayEncoding) and encoding.length_header:
             len_u16 = factory.as_u16_bytes(len(native_elements), "len_u16")
             encoded = factory.concat(len_u16, encoded, "encoded", ir_type=EncodedType(encoding))
         return encoded
@@ -683,7 +683,7 @@ def handle_arc4_assign(
         ):
             array = context.visitor.visit_and_materialise_single(base_expr)
             index = context.visitor.visit_and_materialise_single(index_value)
-            builder = sequence.get_sequence_builder(context, array_wtype, source_location)
+            builder = sequence.get_builder(context, array_wtype, source_location)
             item = builder.write_at_index(array, index, value)
             return handle_arc4_assign(
                 context,
