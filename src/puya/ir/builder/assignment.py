@@ -9,7 +9,7 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, sequence, storage
+from puya.ir.builder import arc4, mem, sequence, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     assign,
@@ -172,10 +172,15 @@ def handle_assignment(
         case awst_nodes.IndexExpression() as ix_expr:
             sequence_wtype = ix_expr.base.wtype
             if isinstance(sequence_wtype, wtypes.ReferenceArray):
-                array = context.visitor.visit_and_materialise_single(ix_expr.base)
+                array_slot = context.visitor.visit_and_materialise_single(ix_expr.base)
                 index = context.visitor.visit_and_materialise_single(ix_expr.index)
                 builder = sequence.get_builder(context, sequence_wtype, assignment_location)
-                builder.write_at_index(array, index, value)
+                array = mem.read_slot(context, array_slot, assignment_location)
+                array_contents = builder.write_at_index(array, index, value)
+                (array_contents,) = context.visitor.materialise_value_provider(
+                    array_contents, "array_contents"
+                )
+                mem.write_slot(context, array_slot, array_contents, assignment_location)
                 return source
             elif isinstance(sequence_wtype, wtypes.ARC4Type):
                 arc4.handle_arc4_assign(
