@@ -19,7 +19,9 @@ class TupleBuilder(abc.ABC):
         """Reads the value from the specified index and performs any decoding required"""
 
     @abc.abstractmethod
-    def write_at_index(self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider) -> None:
+    def write_at_index(
+        self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider
+    ) -> ir.ValueProvider:
         """Encodes the value and writes to the specified index"""
 
 
@@ -30,7 +32,9 @@ class StackTupleBuilder(TupleBuilder):
     def read_at_index(self, tup: ir.ValueProvider, index: int) -> ir.ValueProvider:
         raise NotImplementedError
 
-    def write_at_index(self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider) -> None:
+    def write_at_index(
+        self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider
+    ) -> ir.ValueProvider:
         raise NotImplementedError
 
 
@@ -42,7 +46,9 @@ class DynamicEncodedTupleBuilder(TupleBuilder):
     def read_at_index(self, tup: ir.ValueProvider, index: int) -> ir.ValueProvider:
         raise NotImplementedError
 
-    def write_at_index(self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider) -> None:
+    def write_at_index(
+        self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider
+    ) -> ir.ValueProvider:
         raise NotImplementedError
 
 
@@ -54,7 +60,9 @@ class FixedEncodedTupleBuilder(TupleBuilder):
     def read_at_index(self, tup: ir.ValueProvider, index: int) -> ir.ValueProvider:
         raise NotImplementedError
 
-    def write_at_index(self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider) -> None:
+    def write_at_index(
+        self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider
+    ) -> ir.ValueProvider:
         raise NotImplementedError
 
 

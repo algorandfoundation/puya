@@ -2,17 +2,20 @@ import abc
 import typing
 
 from puya.awst import wtypes
-from puya.errors import CodeError
+from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.builder._utils import OpFactory
 from puya.ir.encodings import (
     BoolEncoding,
     DynamicArrayEncoding,
+    Encoding,
+    wtype_to_encoding,
 )
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
+    IRType,
     PrimitiveIRType,
-    wtype_to_ir_type_and_encoding,
+    wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
 
@@ -22,14 +25,13 @@ from puya.parse import SourceLocation
 
 # region Dynamic arrays
 class DynamicArrayBuilder(abc.ABC):
+    # TODO: allow insert?
+
     @abc.abstractmethod
     def concat(self, array: ir.Value, iterable: ir.ValueProvider) -> ir.Value:
         """Returns the concatenation of an array and iterable"""
 
-    @abc.abstractmethod
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        """Appends value to the end of the array"""
-
+    # TODO: allow pop by index?
     @abc.abstractmethod
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
         """
@@ -39,34 +41,75 @@ class DynamicArrayBuilder(abc.ABC):
         """
 
 
-class FixedElementDynamicArrayBuilder(DynamicArrayBuilder):
+def get_builder(
+    context: IRRegisterContext,
+    wtype: wtypes.WType,
+    loc: SourceLocation,
+) -> DynamicArrayBuilder:
+    if isinstance(wtype, wtypes.ReferenceArray | wtypes.ARC4DynamicArray):
+        array_ir_type = wtype_to_ir_type(wtype, source_location=loc)
+        element_ir_type = wtype_to_ir_type(
+            wtype.element_type, source_location=loc, allow_aggregate=True
+        )
+        array_encoding = wtype_to_encoding(wtype, loc)
+        element_encoding = array_encoding.element
+        builder_typ: type[_DynamicArrayBuilderImpl]
+        match element_encoding:
+            # BitPackedBool is a more specific match than FixedElement so do that first
+            case BoolEncoding(packed=True):
+                builder_typ = BitPackedBoolDynamicArrayBuilder
+            case Encoding(is_dynamic=False):
+                builder_typ = FixedElementDynamicArrayBuilder
+            case _:
+                assert element_encoding.is_dynamic, "expected dynamic element"
+                builder_typ = DynamicElementDynamicArrayBuilder
+        return builder_typ(
+            context,
+            array_encoding=array_encoding,
+            array_ir_type=array_ir_type,
+            element_ir_type=element_ir_type,
+            loc=loc,
+        )
+
+    raise InternalError(f"unsupported array type: {wtype!s}", loc)
+
+
+class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
+    def __init__(
+        self,
+        context: IRRegisterContext,
+        *,
+        array_encoding: DynamicArrayEncoding,
+        array_ir_type: IRType,
+        element_ir_type: IRType,
+        loc: SourceLocation,
+    ) -> None:
+        self.context = context
+        self.array_encoding = array_encoding
+        self.array_ir_type = array_ir_type
+        self.element_ir_type = element_ir_type
+        self.loc = loc
+
+
+class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def concat(self, array: ir.Value, iterable: ir.ValueProvider) -> ir.Value:
         _todo("fixed element array concat", array.source_location)
-
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        _todo("fixed element array append", array.source_location)
 
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
         _todo("fixed element array pop", array.source_location)
 
 
-class DynamicElementDynamicArrayBuilder(DynamicArrayBuilder):
+class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def concat(self, array: ir.Value, iterable: ir.ValueProvider) -> ir.Value:
         _todo("dynamic element array concat", array.source_location)
-
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        _todo("dynamic element array append", array.source_location)
 
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
         _todo("dynamic element array pop", array.source_location)
 
 
-class BitPackedBoolDynamicArrayBuilder(DynamicArrayBuilder):
+class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def concat(self, array: ir.Value, iterable: ir.ValueProvider) -> ir.Value:
         _todo("bit packed bool array concat", array.source_location)
-
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        _todo("bit packed bool array append", array.source_location)
 
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
         _todo("bit packed bool array pop", array.source_location)
@@ -81,38 +124,12 @@ class BytesIndexableBuilder(DynamicArrayBuilder):
         other = self.factory.materialise_single(iterable, "other")
         return self.factory.concat(array, other, "bytes_concat")
 
-    def append(self, array: ir.Value, value: ir.ValueProvider) -> ir.Value:
-        self._immutable()
-        return array
-
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
         self._immutable()
         return array, ir.Undefined(ir_type=PrimitiveIRType.bytes, source_location=None)
 
     def _immutable(self) -> None:
         raise CodeError("bytes array is immutable", location=self.loc)
-
-
-def get_dynamic_array_builder(
-    _context: IRRegisterContext,
-    array_type: wtypes.ARC4Array | wtypes.NativeArray,
-    loc: SourceLocation,
-) -> DynamicArrayBuilder | None:
-    element_ir_type, _ = wtype_to_ir_type_and_encoding(array_type.element_type, loc)
-    array_ir_type, array_encoding = wtype_to_ir_type_and_encoding(array_type, loc)
-    assert isinstance(array_encoding, DynamicArrayEncoding), "expected dynamic array encoding"
-    match array_encoding:
-        case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=length_header):
-            if length_header:
-                return BitPackedBoolDynamicArrayBuilder()
-            else:
-                return None  # not supported
-        case DynamicArrayEncoding(element=element) if element.is_dynamic:
-            return DynamicElementDynamicArrayBuilder()
-        case DynamicArrayEncoding(element=element) if not element.is_dynamic:
-            return FixedElementDynamicArrayBuilder()
-        case _:
-            return None
 
 
 def _todo(msg: str, loc: SourceLocation | None) -> typing.Never:
