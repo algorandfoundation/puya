@@ -1,4 +1,5 @@
 import abc
+import typing
 from functools import cached_property
 
 from puya import log
@@ -29,8 +30,6 @@ from puya.ir.types_ import (
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
-# TODO: remove this
-# ruff: noqa: ARG002
 
 
 class SequenceBuilder(abc.ABC):
@@ -121,6 +120,7 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         self.loc = loc
         self.factory = OpFactory(context, loc)
 
+    @typing.override
     def iterator(self, array: ir.Value) -> ArrayIterator:
         length_vp = self.length(array)
         length = self.factory.materialise_single(length_vp, "array_length")
@@ -128,6 +128,7 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
             array_length=length, get_value_at_index=lambda index: self.read_at_index(array, index)
         )
 
+    @typing.override
     def length(self, array: ir.Value) -> ir.ValueProvider:
         return ir.ArrayLength(
             array=array,
@@ -184,6 +185,7 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
 
 
 class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
+    @typing.override
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
         # this catches the edge case of bit arrays that are not a multiple of 8
         # e.g. reading index 6 & 7 of an array that has a length of 6
@@ -214,6 +216,7 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
         else:
             return item
 
+    @typing.override
     def write_at_index(
         self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
     ) -> ir.ValueProvider:
@@ -241,6 +244,7 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
 
 
 class FixedElementArrayBuilder(_ArrayBuilderImpl):
+    @typing.override
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
         # TODO: is it safe to not bounds check on fixed element arrays?
         #       in some cases yes, e.g. after an extract of the whole array
@@ -262,6 +266,7 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
         )
         return self._maybe_decode(encoded_element)
 
+    @typing.override
     def write_at_index(
         self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
     ) -> ir.ValueProvider:
@@ -290,6 +295,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         else:
             return element_encoding.element.checked_num_bytes
 
+    @typing.override
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
         array_head_and_tail = array
         if self.array_encoding.length_header:
@@ -381,6 +387,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         )
         return self.factory.substring3(array_head_and_tail, item_start_offset, item_end_offset)
 
+    @typing.override
     def write_at_index(
         self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
     ) -> ir.ValueProvider:
@@ -423,23 +430,27 @@ class BytesIndexableBuilder(SequenceBuilder):
         self.loc = loc
         self.factory = OpFactory(context, loc)
 
+    @typing.override
     def read_at_index(self, array: ir.Value, index: ir.Value | int) -> ir.ValueProvider:
         return self.factory.extract3(
             array, index, 1, "read_bytes", error_message="Index access is out of bounds"
         )
 
+    @typing.override
     def write_at_index(
         self, array: ir.Value, index: ir.Value | int, value: ir.ValueProvider
     ) -> ir.ValueProvider:
         self._immutable()
         return ir.Undefined(ir_type=array.ir_type, source_location=self.loc)
 
+    @typing.override
     def iterator(self, array: ir.Value) -> ArrayIterator:
         return ArrayIterator(
             array_length=self.length(array),
             get_value_at_index=lambda index: self.factory.extract3(array, index, 1),
         )
 
+    @typing.override
     def length(self, array: ir.Value) -> ir.Value:
         return self.factory.len(array, "bytes_length")
 
