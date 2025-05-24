@@ -512,7 +512,7 @@ class CheckedEncoding(ARC4Codec):
         return None
 
 
-def _get_arc4_codec(ir_type: IRType) -> ARC4Codec | None:
+def _get_arc4_codec(ir_type: IRType | TupleIRType) -> ARC4Codec | None:
     match ir_type:
         case TupleIRType() as aggregate:
             return NativeTupleCodec(aggregate)
@@ -538,7 +538,7 @@ def decode_arc4_value(
     context: IRRegisterContext,
     value: Value,
     encoding: Encoding,
-    target_type: IRType,
+    target_type: IRType | TupleIRType,
     loc: SourceLocation,
 ) -> ValueProvider:
     # TODO: migrate to ValueDecode
@@ -560,7 +560,7 @@ def decode_arc4_value(
     return undefined_value(target_type, loc)
 
 
-def _encoding_or_name(typ: IRType) -> str:
+def _encoding_or_name(typ: IRType | TupleIRType) -> str:
     if isinstance(typ, EncodedType):
         return typ.encoding.name
     else:
@@ -571,7 +571,7 @@ def _encoding_or_name(typ: IRType) -> str:
 def encode_value_provider(
     context: IRRegisterContext,
     value_provider: ValueProvider,
-    value_type: IRType,
+    value_type: IRType | TupleIRType,
     encoding: Encoding,
     loc: SourceLocation,
 ) -> ValueProvider:
@@ -603,7 +603,7 @@ def encode_value_provider(
 def _encode_arc4_tuple_items(
     context: IRRegisterContext,
     elements: Sequence[Value],
-    item_types: Sequence[IRType],
+    item_types: Sequence[IRType | TupleIRType],
     encoding: TupleEncoding,
     loc: SourceLocation,
 ) -> list[Value]:
@@ -645,7 +645,7 @@ def arc4_tuple_index(
     base: Value,
     index: int,
     tuple_encoding: TupleEncoding,
-    item_ir_type: IRType,
+    item_ir_type: IRType | TupleIRType,
     source_location: SourceLocation,
 ) -> ValueProvider:
     item_encoding = tuple_encoding.elements[index]
@@ -719,7 +719,7 @@ def handle_arc4_assign(
             value_ir_type = wtype_to_ir_type(
                 tuple_wtype.types[index_value],
                 source_location=source_location,
-                allow_aggregate=True,
+                allow_tuple=True,
             )
             item = _arc4_replace_tuple_item(
                 context,
@@ -896,10 +896,10 @@ def _get_iterable_element_type_and_encoding(
     iter_wtype: wtypes.WType,
     array_encoding: ArrayEncoding,
     loc: SourceLocation,
-) -> tuple[IRType, Encoding]:
+) -> tuple[IRType | TupleIRType, Encoding]:
     if isinstance(iter_wtype, wtypes.ARC4Array | wtypes.NativeArray):
         element_wtype = iter_wtype.element_type
-        element_ir_type = wtype_to_ir_type(element_wtype, loc, allow_aggregate=True)
+        element_ir_type = wtype_to_ir_type(element_wtype, loc, allow_tuple=True)
         # note: need to use iter wtype to determine encoding,
         # as the aggregate type affects the encoding
         element_encoding = wtype_to_encoding(iter_wtype, loc).element
@@ -907,7 +907,7 @@ def _get_iterable_element_type_and_encoding(
         element_wtype, *other_arc4 = set(iter_wtype.types)
         if other_arc4:
             raise CodeError("only homogenous tuples can be iterated", loc)
-        element_ir_type = wtype_to_ir_type(element_wtype, loc, allow_aggregate=True)
+        element_ir_type = wtype_to_ir_type(element_wtype, loc, allow_tuple=True)
         element_encoding = wtype_to_encoding(element_wtype, loc)
     else:
         raise CodeError("unsupported type for iteration", loc)
@@ -926,7 +926,7 @@ def _get_iterable_element_type_and_encoding(
 def _encode_n_items_as_arc4_items(
     context: IRRegisterContext,
     items: Sequence[Value],
-    item_ir_type: IRType,
+    item_ir_type: IRType | TupleIRType,
     item_encoding: Encoding,
     loc: SourceLocation,
 ) -> list[Value]:
@@ -1152,7 +1152,7 @@ def _arc4_replace_tuple_item(
     base_expr: awst_nodes.Expression,
     index_int: int,
     tuple_encoding: TupleEncoding,
-    value_ir_type: IRType,
+    value_ir_type: IRType | TupleIRType,
     value: ValueProvider,
     source_location: SourceLocation,
 ) -> Value:
@@ -1363,7 +1363,7 @@ def _get_arc4_array_tail_data_and_item_count(
     context: IRFunctionBuildContext,
     expr: awst_nodes.Expression,
     element_encoding: Encoding,
-    element_ir_type: IRType,
+    element_ir_type: IRType | TupleIRType,
     source_location: SourceLocation,
 ) -> tuple[Value, Value]:
     """
