@@ -1288,54 +1288,69 @@ class FunctionIRBuilder(
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
         assert expr.left.wtype == expr.wtype, "AWST validation requires result type == left type"
-        array_encoding = wtype_to_encoding(expr.wtype, expr.source_location)
+        array, result = self._array_concat(expr.left, expr.right, expr.source_location)
+        return result
 
-        return arc4.dynamic_array_concat_and_convert(
-            self.context,
-            array_encoding=array_encoding,
-            array_expr=expr.left,
-            iter_expr=expr.right,
-            source_location=expr.source_location,
-        )
-
-    def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
+    def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> None:
         loc = expr.source_location
 
-        array_wtype = expr.base.wtype
-        builder = dynamic_array.get_builder(self.context, array_wtype, loc)
+        array, result = self._array_concat(expr.base, expr.other, loc)
+        array_ir_type = array.ir_type
 
-        array_or_slot = self.context.visitor.visit_and_materialise_single(expr.base)
-        array_ir_type = array_or_slot.ir_type
-        iterable_vp = self.context.visitor.visit_expr(expr.other)
-        iterable = self.context.visitor.materialise_value_provider_as_value_or_tuple(
-            iterable_vp, "iterable"
-        )
-
-        if isinstance(array_ir_type, SlotType):
-            # note: the order things are evaluated is important to be semantically correct
-            #       for reference arrays
-            # 1. base expr
-            # 2. other expr
-            # 3. read slot to get contents
-            # 4. concat
-            # 5. write slot with updated contents
-            array = mem.read_slot(self.context, array_or_slot, loc)
-        else:
-            array = array_or_slot
-        result = builder.concat(array, iterable)
+        # update array reference
         if isinstance(array_ir_type, EncodedType):
-            return arc4.handle_arc4_assign(
+            arc4.handle_arc4_assign(
                 self.context,
                 target=expr.base,
                 value=result,
                 is_nested_update=True,
-                source_location=expr.source_location,
+                source_location=loc,
             )
-        elif isinstance(array_or_slot, SlotType):
-            mem.write_slot(self.context, array, result, expr.source_location)
-            return array
+        elif isinstance(array_ir_type, SlotType):
+            # note: the order things are evaluated is important to be semantically correct
+            #       for reference arrays
+            # 1. array expr
+            # 2. iterable expr
+            # 3. read slot to get contents
+            # 4. concat
+            # 5. write slot with updated contents
+            # _array_concat should do steps 1-4, now need to update slot
+            mem.write_slot(self.context, array, result, loc)
         else:
-            raise InternalError("unsupported array type for ArrayExtend", expr.source_location)
+            raise InternalError("unsupported array type for ArrayExtend", loc)
+
+    def _array_concat(
+        self,
+        array_expr: awst_nodes.Expression,
+        iter_expr: awst_nodes.Expression,
+        loc: SourceLocation,
+    ) -> tuple[Value, Value]:
+        """
+        Concatenates an array and iterable expression
+
+        Returns the original array and the concatenation result
+        """
+
+        # get dynamic array builder
+        array_wtype = array_expr.wtype
+        iterable_wtype = iter_expr.wtype
+        builder = dynamic_array.get_builder(self.context, array_wtype, loc)
+
+        # materialise expressions
+        array_or_slot = self.context.visitor.visit_and_materialise_single(array_expr)
+        array_ir_type = array_or_slot.ir_type
+        iterable_vp = self.context.visitor.visit_expr(iter_expr)
+        iterable = self.context.visitor.materialise_value_provider_as_value_or_tuple(
+            iterable_vp, "iterable"
+        )
+        iterable_ir_type = wtype_to_ir_type(iterable_wtype, loc, allow_tuple=True)
+
+        # concat array
+        if isinstance(array_ir_type, SlotType):
+            array = mem.read_slot(self.context, array_or_slot, loc)
+        else:
+            array = array_or_slot
+        return array_or_slot, builder.concat(array, iterable, iterable_ir_type)
 
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
         loc = expr.source_location
