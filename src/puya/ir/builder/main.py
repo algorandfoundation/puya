@@ -73,8 +73,10 @@ from puya.ir.models import (
 )
 from puya.ir.types_ import (
     AVMBytesEncoding,
+    EncodedType,
     PrimitiveIRType,
     SizedBytesType,
+    SlotType,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_ir_type,
     wtype_to_ir_type_and_encoding,
@@ -1298,18 +1300,30 @@ class FunctionIRBuilder(
 
     def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
         loc = expr.source_location
-        array_wtype = expr.base.wtype
 
+        array_wtype = expr.base.wtype
         builder = dynamic_array.get_builder(self.context, array_wtype, loc)
 
-        array = self.context.visitor.visit_and_materialise_single(expr.base)
+        array_or_slot = self.context.visitor.visit_and_materialise_single(expr.base)
+        array_ir_type = array_or_slot.ir_type
         iterable_vp = self.context.visitor.visit_expr(expr.other)
         iterable = self.context.visitor.materialise_value_provider_as_value_or_tuple(
             iterable_vp, "iterable"
         )
 
+        if isinstance(array_ir_type, SlotType):
+            # note: the order things are evaluated is important to be semantically correct
+            #       for reference arrays
+            # 1. base expr
+            # 2. other expr
+            # 3. read slot to get contents
+            # 4. concat
+            # 5. write slot with updated contents
+            array = mem.read_slot(self.context, array_or_slot, loc)
+        else:
+            array = array_or_slot
         result = builder.concat(array, iterable)
-        if isinstance(array_wtype, wtypes.ARC4DynamicArray):
+        if isinstance(array_ir_type, EncodedType):
             return arc4.handle_arc4_assign(
                 self.context,
                 target=expr.base,
@@ -1317,13 +1331,7 @@ class FunctionIRBuilder(
                 is_nested_update=True,
                 source_location=expr.source_location,
             )
-        elif isinstance(expr.base.wtype, wtypes.ReferenceArray):
-            # note: the order things are evaluated is important to be semantically correct
-            # 1. base expr
-            # 2. other expr
-            # 3. read slot to get data
-            # 4. concat
-            # 5. write slot
+        elif isinstance(array_or_slot, SlotType):
             mem.write_slot(self.context, array, result, expr.source_location)
             return array
         else:
@@ -1336,6 +1344,9 @@ class FunctionIRBuilder(
         builder = sequence.get_builder(self.context, array_wtype, loc)
 
         array = self.context.visitor.visit_and_materialise_single(expr.array)
+        if isinstance(array.ir_type, SlotType):
+            array = mem.read_slot(self.context, array, loc)
+
         return builder.length(array)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
