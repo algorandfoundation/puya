@@ -117,7 +117,7 @@ class NativeTupleCodec(ARC4Codec):
         bit_packed_index = 0
         current_head_offset = 0
         values = list(factory.materialise_values(value_provider, "to_encode"))
-        encoded = factory.constant(b"")
+        head = factory.constant(b"")
         tail = factory.constant(b"")
         processed_encodings = list[Encoding]()
         header_size = _get_arc4_tuple_head_size(element_encodings, round_end_result=True)
@@ -144,12 +144,12 @@ class NativeTupleCodec(ARC4Codec):
                     bit_index = bit_packed_index % 8
                     if bit_index:
                         bit_index += (current_head_offset - 1) * 8
-                    bytes_to_set = encoded if bit_index else ARC4_FALSE
+                    bytes_to_set = head if bit_index else ARC4_FALSE
                     value = factory.set_bit(value=bytes_to_set, index=bit_index, bit=value)
                     # if bit_index is not 0, then just update encoded and continue
                     # as there is nothing to concat
                     if bit_index:
-                        encoded = value
+                        head = value
                         continue
                 else:
                     # value is already encoded, so do nothing
@@ -202,17 +202,17 @@ class NativeTupleCodec(ARC4Codec):
                 current_head_offset += element_encoding.checked_num_bytes
             processed_encodings.append(element_encoding)
             encoded_ir_type = EncodedType(TupleEncoding(processed_encodings))
-            encoded = factory.concat(encoded, value, "encoded", ir_type=encoded_ir_type)
+            head = factory.concat(head, value, "encoded", ir_type=encoded_ir_type)
         if values:
             raise InternalError(
                 f"unexpected remaining values for array encoding:"
                 f" {len(values)=}, {self.native_type=}, {encoding=}",
                 loc,
             )
-        encoded = factory.concat(encoded, tail, "encoded")
         if isinstance(encoding, ArrayEncoding) and encoding.length_header:
             len_u16 = factory.as_u16_bytes(len(native_elements), "len_u16")
-            encoded = factory.concat(len_u16, encoded, "encoded", ir_type=EncodedType(encoding))
+            head = factory.concat(len_u16, head, "encoded")
+        encoded = factory.concat(head, tail, "encoded", ir_type=EncodedType(encoding))
         return encoded
 
     @typing.override
