@@ -14,7 +14,7 @@ from puya.ir.builder._utils import (
     assign_targets,
     assign_temp,
 )
-from puya.ir.builder.sequence import get_sequence_builder
+from puya.ir.builder.sequence import get_builder
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     ConditionalBranch,
@@ -149,7 +149,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                     reverse_items=reverse_items,
                 )
         case (wtypes.ARC4Array() | wtypes.NativeArray() | wtypes.BytesWType()) as iterable_wtype:
-            builder = get_sequence_builder(context, iterable_wtype, loc, assert_bounds=False)
+            builder = get_builder(context, iterable_wtype, loc, assert_bounds=False)
             array = context.visitor.visit_and_materialise_single(sequence)
             iterator = builder.iterator(array)
 

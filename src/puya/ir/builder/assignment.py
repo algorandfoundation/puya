@@ -174,9 +174,7 @@ def handle_assignment(
             if isinstance(sequence_wtype, wtypes.ReferenceArray):
                 array = context.visitor.visit_and_materialise_single(ix_expr.base)
                 index = context.visitor.visit_and_materialise_single(ix_expr.index)
-                builder = sequence.get_sequence_builder(
-                    context, sequence_wtype, assignment_location
-                )
+                builder = sequence.get_builder(context, sequence_wtype, assignment_location)
                 builder.write_at_index(array, index, value)
                 return source
             elif isinstance(sequence_wtype, wtypes.ARC4Type):
