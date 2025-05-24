@@ -22,6 +22,7 @@ from puya.ir.types_ import (
     IRType,
     PrimitiveIRType,
     SlotType,
+    TupleIRType,
     type_has_encoding,
     wtype_to_ir_type,
 )
@@ -70,7 +71,7 @@ def get_builder(
     elif isinstance(wtype, wtypes.NativeArray | wtypes.ARC4Array):
         array_ir_type = wtype_to_ir_type(wtype, source_location=loc)
         element_ir_type = wtype_to_ir_type(
-            wtype.element_type, source_location=loc, allow_aggregate=True
+            wtype.element_type, source_location=loc, allow_tuple=True
         )
         array_encoding = wtype_to_encoding(wtype, loc)
         builder_typ: type[_ArrayBuilderImpl] | None = None
@@ -108,7 +109,7 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         *,
         array_ir_type: IRType,
         array_encoding: ArrayEncoding,
-        element_ir_type: IRType,
+        element_ir_type: IRType | TupleIRType,
         assert_bounds: bool,
         loc: SourceLocation,
     ) -> None:

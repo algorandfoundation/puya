@@ -179,7 +179,7 @@ class FunctionIRBuilder(
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> TExpression:
         loc = expr.source_location
 
-        ir_type = wtype_to_ir_type(expr.wtype, loc, allow_aggregate=True)
+        ir_type = wtype_to_ir_type(expr.wtype, loc, allow_tuple=True)
         encoding = wtype_to_encoding(expr.value.wtype, loc)
 
         value = self.visit_and_materialise_single(expr.value)
@@ -761,7 +761,7 @@ class FunctionIRBuilder(
             )
             assert isinstance(tuple_encoding, TupleEncoding), "expected tuple encoding"
             item_ir_type = wtype_to_ir_type(
-                expr.base.wtype.types[index], expr.source_location, allow_aggregate=True
+                expr.base.wtype.types[index], expr.source_location, allow_tuple=True
             )
             return arc4.arc4_tuple_index(
                 self.context,
@@ -910,7 +910,7 @@ class FunctionIRBuilder(
         array_encoding = wtype_to_encoding(expr.wtype, loc)
         # initialize array with a tuple of provided elements
         tuple_expr = awst_nodes.TupleExpression.from_items(expr.values, loc)
-        tuple_ir_type = wtype_to_ir_type(tuple_expr.wtype, loc, allow_aggregate=True)
+        tuple_ir_type = wtype_to_ir_type(tuple_expr.wtype, loc, allow_tuple=True)
         tuple_value_provider = self.visit_expr(tuple_expr)
         tuple_values = self.materialise_value_provider_as_value_or_tuple(
             tuple_value_provider, "array_values"
@@ -1227,7 +1227,7 @@ class FunctionIRBuilder(
 
         # struct is constructed from its tuple equivalent, so get tuple type info
         tuple_wtype = wtypes.WTuple(types=expr.wtype.types, source_location=None)
-        tuple_ir_type = wtype_to_ir_type(tuple_wtype, loc, allow_aggregate=True)
+        tuple_ir_type = wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
         tuple_encoding = wtype_to_encoding(tuple_wtype, loc)
 
         # double check encodings match

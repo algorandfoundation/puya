@@ -28,6 +28,7 @@ from puya.ir.types_ import (
     IRType,
     PrimitiveIRType,
     SizedBytesType,
+    TupleIRType,
     ir_type_to_ir_types,
     wtype_to_ir_types,
 )
@@ -568,7 +569,9 @@ class OpFactory:
         return self.context.materialise_value_provider(value_provider, description)
 
 
-def undefined_value(typ: wtypes.WType | IRType, loc: SourceLocation) -> ValueProvider:
+def undefined_value(
+    typ: wtypes.WType | IRType | TupleIRType, loc: SourceLocation
+) -> ValueProvider:
     """For a given WType, produce an "undefined" ValueProvider of the correct arity.
 
     It is invalid to request an "undefined" value of type void
