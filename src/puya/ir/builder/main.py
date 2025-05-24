@@ -842,6 +842,9 @@ class FunctionIRBuilder(
         base = self.visit_and_materialise_single(expr.base)
         index = self.visit_and_materialise_single(expr.index)
 
+        # read slot after evaluating index
+        if isinstance(base.ir_type, SlotType):
+            base = mem.read_slot(self.context, base, loc)
         return builder.read_at_index(base, index)
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
@@ -1336,6 +1339,10 @@ class FunctionIRBuilder(
             iterable_vp, "iterable"
         )
         iterable_ir_type = wtype_to_ir_type(iterable_wtype, loc, allow_tuple=True)
+        if isinstance(iterable_ir_type, SlotType):
+            assert isinstance(iterable, Value), "expected Value for SlotType"
+            iterable = mem.read_slot(self.context, iterable, loc)
+            iterable_ir_type = iterable_ir_type.contents
 
         # concat array
         if isinstance(array_ir_type, SlotType):
