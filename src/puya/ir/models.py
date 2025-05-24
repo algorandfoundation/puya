@@ -552,7 +552,7 @@ class ValueEncode(Op, ValueProvider):
     source_location: SourceLocation = attrs.field(eq=False)
     values: Sequence[Value]
     encoding: Encoding
-    value_type: IRType = attrs.field()
+    value_type: IRType | TupleIRType = attrs.field()
 
     @value_type.validator
     def _value_type_validator(self, _: object, value: IRType) -> None:
@@ -582,7 +582,7 @@ class ValueDecode(Op, ValueProvider):
     source_location: SourceLocation = attrs.field(eq=False)
     value: Value
     encoding: Encoding
-    decoded_type: IRType = attrs.field()
+    decoded_type: IRType | TupleIRType = attrs.field()
 
     @decoded_type.validator
     def _decoded_type_validator(self, _: object, value: IRType) -> None:
@@ -603,7 +603,7 @@ class ValueDecode(Op, ValueProvider):
         return visitor.visit_value_decode(self)
 
 
-def _arity_matches(ir_type: IRType, encoding: Encoding, loc: SourceLocation) -> None:
+def _arity_matches(ir_type: IRType | TupleIRType, encoding: Encoding, loc: SourceLocation) -> None:
     match ir_type:
         case TupleIRType(elements=elements) if isinstance(encoding, TupleEncoding) and len(
             elements
