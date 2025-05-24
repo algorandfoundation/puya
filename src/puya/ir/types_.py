@@ -39,6 +39,12 @@ class IRType:
     @abc.abstractmethod
     def name(self) -> str: ...
 
+    # TODO: consider removing this from IRType, as Encoding now covers a lot of what it used
+    #       to provide
+    #       May still be worth having SizedBytes, which can be used for types
+    #       where the size can be statically guaranteed
+    #       e.g. op code results, constants, and possibly values where the length has been checked
+    #       via an assert
     @property
     @abc.abstractmethod
     def num_bytes(self) -> int | None:
