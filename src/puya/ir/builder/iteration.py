@@ -1,4 +1,5 @@
 import typing
+from collections.abc import Callable
 
 from puya import log
 from puya.awst import (
@@ -7,6 +8,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
+from puya.ir.builder import mem
 from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
 from puya.ir.builder._utils import (
     assert_value,
@@ -27,6 +29,7 @@ from puya.ir.models import (
 )
 from puya.ir.types_ import (
     PrimitiveIRType,
+    SlotType,
 )
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
@@ -151,13 +154,33 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
         case (wtypes.ARC4Array() | wtypes.NativeArray() | wtypes.BytesWType()) as iterable_wtype:
             builder = get_builder(context, iterable_wtype, loc, assert_bounds=False)
             array = context.visitor.visit_and_materialise_single(sequence)
-            iterator = builder.iterator(array)
+
+            (indexable_size,) = context.visitor.materialise_value_provider(
+                builder.length(array), "array_length"
+            )
+
+            if isinstance(array.ir_type, SlotType):
+                # slot
+                def read_array() -> Value:
+                    return mem.read_slot(context, array, loc)
+            elif isinstance(array, Register):
+                # local var
+                array_reg = array
+
+                def read_array() -> Value:
+                    # TODO: this is better
+                    #       but does not account for the variable being reassigned
+                    return _refresh_mutated_variable(context, array_reg)
+            else:
+                # constant?
+                def read_array() -> Value:
+                    return array
 
             _iterate_indexable(
                 context,
                 loop_body=statement.loop_body,
-                indexable_size=iterator.array_length,
-                get_value_at_index=iterator.get_value_at_index,
+                indexable_size=indexable_size,
+                get_value_at_index=lambda index: builder.read_at_index(read_array(), index),
                 assigner=assign_user_loop_vars,
                 statement_loc=statement.source_location,
                 reverse_index=reverse_index,
@@ -418,7 +441,7 @@ def _iterate_indexable(
     assigner: LoopAssigner,
     statement_loc: SourceLocation,
     indexable_size: Value,
-    get_value_at_index: typing.Callable[[Value], ValueProvider],
+    get_value_at_index: Callable[[Value], ValueProvider],
     reverse_items: bool,
     reverse_index: bool,
 ) -> None:

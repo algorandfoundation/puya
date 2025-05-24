@@ -8,7 +8,6 @@ from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import OpFactory, assert_value, invoke_puya_lib_subroutine
-from puya.ir.builder.arrays import ArrayIterator
 from puya.ir.encodings import (
     ArrayEncoding,
     BoolEncoding,
@@ -52,10 +51,6 @@ class SequenceBuilder(abc.ABC):
     @abc.abstractmethod
     def length(self, array: ir.Value) -> ir.ValueProvider:
         """Returns the number of elements"""
-
-    @abc.abstractmethod
-    def iterator(self, array: ir.Value) -> ArrayIterator:
-        """Returns an iterator for all the items"""
 
 
 def get_builder(
@@ -119,14 +114,6 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         self.assert_bounds = assert_bounds
         self.loc = loc
         self.factory = OpFactory(context, loc)
-
-    @typing.override
-    def iterator(self, array: ir.Value) -> ArrayIterator:
-        length_vp = self.length(array)
-        length = self.factory.materialise_single(length_vp, "array_length")
-        return ArrayIterator(
-            array_length=length, get_value_at_index=lambda index: self.read_at_index(array, index)
-        )
 
     @typing.override
     def length(self, array: ir.Value) -> ir.ValueProvider:
@@ -442,13 +429,6 @@ class BytesIndexableBuilder(SequenceBuilder):
     ) -> ir.ValueProvider:
         self._immutable()
         return ir.Undefined(ir_type=array.ir_type, source_location=self.loc)
-
-    @typing.override
-    def iterator(self, array: ir.Value) -> ArrayIterator:
-        return ArrayIterator(
-            array_length=self.length(array),
-            get_value_at_index=lambda index: self.factory.extract3(array, index, 1),
-        )
 
     @typing.override
     def length(self, array: ir.Value) -> ir.Value:
