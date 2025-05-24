@@ -59,7 +59,7 @@ class SequenceBuilder(abc.ABC):
         """Returns an iterator for all the items"""
 
 
-def get_sequence_builder(
+def get_builder(
     context: IRRegisterContext,
     wtype: wtypes.WType,
     loc: SourceLocation,
