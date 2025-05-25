@@ -568,6 +568,22 @@ class OpFactory:
     ) -> Sequence[Value]:
         return self.context.materialise_value_provider(value_provider, description)
 
+    def as_ir_type(self, value: ValueProvider, ir_type: IRType) -> Value:
+        (value_ir_type,) = value.types
+        if value_ir_type == ir_type:
+            return self.materialise_single(value)
+        else:
+            target = mktemp(
+                self.context, ir_type, self.source_location, description=f"as_{ir_type!s}"
+            )
+            assign_targets(
+                self.context,
+                source=value,
+                targets=[target],
+                assignment_location=self.source_location,
+            )
+            return target
+
 
 def undefined_value(
     typ: wtypes.WType | IRType | TupleIRType, loc: SourceLocation
