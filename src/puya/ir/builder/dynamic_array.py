@@ -5,13 +5,17 @@ from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
-from puya.ir.builder._utils import OpFactory, invoke_puya_lib_subroutine
+from puya.ir.builder._utils import (
+    OpFactory,
+    invoke_puya_lib_subroutine,
+)
 from puya.ir.encodings import (
     ArrayEncoding,
     BoolEncoding,
     DynamicArrayEncoding,
     Encoding,
     TupleEncoding,
+    UTF8Encoding,
 )
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
@@ -20,7 +24,6 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     SlotType,
     TupleIRType,
-    get_type_arity,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
@@ -63,9 +66,13 @@ def get_builder(
         assert isinstance(array_ir_type, EncodedType), "expected EncodedType"
         array_encoding = array_ir_type.encoding
         assert isinstance(array_encoding, DynamicArrayEncoding), "expected DynamicArray encoding"
-        element_ir_type = wtype_to_ir_type(
-            wtype.element_type, source_location=loc, allow_tuple=True
-        )
+        # TODO: find a better way to handle these cases
+        if array_encoding.element in (UTF8Encoding(), BoolEncoding(packed=True)):
+            element_ir_type: IRType | TupleIRType = EncodedType(encoding=array_encoding.element)
+        else:
+            element_ir_type = wtype_to_ir_type(
+                wtype.element_type, source_location=loc, allow_tuple=True
+            )
         element_encoding = array_encoding.element
         builder_typ: type[_DynamicArrayBuilderImpl]
         match element_encoding:
@@ -156,15 +163,17 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
         else:
             from puya.ir.builder import arc4
 
+            if not isinstance(iterable_ir_type, TupleIRType):
+                raise InternalError("expected tuple type for concatenation", self.loc)
             # the iterable could be either
             # a tuple of compatible native elements
             # a tuple of compatible encoded elements
-            # a value of compatible native elements
+            if len(set(iterable_ir_type.elements)) != 1:
+                raise InternalError("expected homogenous tuple for concatenation", self.loc)
             # all of which can be encoded as a dynamic array of the element
-            element_arity = get_type_arity(self.element_ir_type)
-            iterable_arity = get_type_arity(iterable_ir_type)
-            num_elements = iterable_arity // element_arity
-            iterable_length = ir.UInt64Constant(value=num_elements, source_location=self.loc)
+            iterable_length = ir.UInt64Constant(
+                value=len(iterable_ir_type.elements), source_location=self.loc
+            )
 
             # TODO: use ir.ValueEncode?
             # encoded_iterable = ir.ValueEncode(
@@ -176,12 +185,16 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
             encoded_iterable = arc4.encode_value_provider(
                 self.context,
                 value_provider=iterable,
-                value_type=TupleIRType(elements=[self.element_ir_type] * num_elements),
+                value_type=iterable_ir_type,
                 encoding=DynamicArrayEncoding(element=element_encoding, length_header=False),
                 loc=self.loc,
             )
 
         return iterable_length, encoded_iterable
+
+    def _as_array_type(self, value: ir.ValueProvider) -> ir.Value:
+        (ir_type,) = value.types
+        return self.factory.as_ir_type(value, self.array_ir_type)
 
 
 class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -191,7 +204,9 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     ) -> ir.Value:
         _, head_and_tail = self._get_iterable_length_and_head_tail(iterable, iterable_ir_type)
         head_and_tail = self.factory.materialise_single(head_and_tail)
-        updated_array = self.factory.concat(array, head_and_tail)
+        updated_array = self.factory.concat(
+            array, head_and_tail, ir_type=array.ir_type, error_message="max array length exceeded"
+        )
         if self.array_encoding.length_header:
             # TODO: if iterable is a tuple, would it be more efficient to just
             #       increment the length header by a constant?
@@ -202,7 +217,7 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             )
             array_len_u16 = self.factory.as_u16_bytes(array_len)
             updated_array = self.factory.replace(updated_array, 0, array_len_u16)
-        return updated_array
+        return self._as_array_type(updated_array)
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
@@ -214,7 +229,20 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def concat(
         self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
     ) -> ir.Value:
-        _todo("dynamic element byte length array concat", self.loc)
+        r_count, r_head_and_tail = self._get_iterable_length_and_head_tail(
+            iterable, iterable_ir_type
+        )
+        r_count = self.factory.materialise_single(r_count)
+        r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
+        start_of_tail = self.factory.mul(r_count, 2, "start_of_tail")
+        r_tail = self.factory.extract_to_end(r_head_and_tail, start_of_tail, "data")
+        invoke = invoke_puya_lib_subroutine(
+            self.context,
+            full_name="_puya_lib.arc4.dynamic_array_concat_byte_length_head",
+            args=[array, r_tail, r_count],
+            source_location=self.loc,
+        )
+        return self._as_array_type(invoke)
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
@@ -240,7 +268,7 @@ class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             args=[l_count, l_head_and_tail, r_count, r_head_and_tail],
             source_location=self.loc,
         )
-        return self.factory.materialise_single(invoke, "concat_result")
+        return self._as_array_type(invoke)
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
@@ -279,7 +307,7 @@ class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             args=[array, r_head_and_tail, r_count, 1 if iter_element_encoding.packed else 8],
             source_location=self.loc,
         )
-        return self.factory.materialise_single(invoke, "concat_result")
+        return self._as_array_type(invoke)
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:

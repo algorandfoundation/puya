@@ -72,7 +72,6 @@ from puya.ir.models import (
 )
 from puya.ir.types_ import (
     AVMBytesEncoding,
-    EncodedType,
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
@@ -466,33 +465,40 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
-    def visit_string_constant(self, expr: awst_nodes.StringConstant) -> BytesConstant:
+    def visit_string_constant(self, expr: awst_nodes.StringConstant) -> Value:
+        loc = expr.source_location
+
+        wtype = expr.wtype
         try:
             value = expr.value.encode("utf8")
         except UnicodeError:
             value = None
         if value is None:
-            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+            raise CodeError(f"invalid {wtype} value", loc)
 
-        match expr.wtype:
+        match wtype:
             case wtypes.string_wtype:
                 encoding = AVMBytesEncoding.utf8
             case wtypes.arc4_string_alias:
                 encoding = AVMBytesEncoding.base16
-                value = len(value).to_bytes(2) + value
             case _:
-                raise InternalError(
-                    f"Unexpected wtype {expr.wtype} for StringConstant", expr.source_location
-                )
+                raise InternalError(f"Unexpected wtype {wtype} for StringConstant", loc)
 
         if len(value) > algo_constants.MAX_BYTES_LENGTH:
-            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+            raise CodeError(f"invalid {wtype} value", loc)
 
-        return BytesConstant(
+        result: Value = BytesConstant(
             value=value,
             encoding=encoding,
+            ir_type=PrimitiveIRType.string,
             source_location=expr.source_location,
         )
+        if wtype == wtypes.arc4_string_alias:
+            encoded = arc4.encode_value_provider(
+                self.context, result, result.ir_type, wtype_to_encoding(wtype, loc), loc
+            )
+            (result,) = self.context.materialise_value_provider(encoded, "encoded")
+        return result
 
     @typing.override
     def visit_void_constant(self, expr: awst_nodes.VoidConstant) -> TExpression:
@@ -1290,18 +1296,9 @@ class FunctionIRBuilder(
         loc = expr.source_location
 
         array, result = self._array_concat(expr.base, expr.other, loc)
-        array_ir_type = array.ir_type
 
         # update array reference
-        if isinstance(array_ir_type, EncodedType):
-            arc4.handle_arc4_assign(
-                self.context,
-                target=expr.base,
-                value=result,
-                is_nested_update=True,
-                source_location=loc,
-            )
-        elif isinstance(array_ir_type, SlotType):
+        if isinstance(array.ir_type, SlotType):
             # note: the order things are evaluated is important to be semantically correct
             #       for reference arrays
             # 1. array expr
@@ -1312,7 +1309,13 @@ class FunctionIRBuilder(
             # _array_concat should do steps 1-4, now need to update slot
             mem.write_slot(self.context, array, result, loc)
         else:
-            raise InternalError("unsupported array type for ArrayExtend", loc)
+            arc4.handle_arc4_assign(
+                self.context,
+                target=expr.base,
+                value=result,
+                is_nested_update=True,
+                source_location=loc,
+            )
 
     def _array_concat(
         self,

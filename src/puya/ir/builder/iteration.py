@@ -155,10 +155,6 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
             builder = get_builder(context, iterable_wtype, loc, assert_bounds=False)
             array = context.visitor.visit_and_materialise_single(sequence)
 
-            (indexable_size,) = context.visitor.materialise_value_provider(
-                builder.length(array), "array_length"
-            )
-
             if isinstance(array.ir_type, SlotType):
                 # slot
                 def read_array() -> Value:
@@ -175,6 +171,10 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 # constant?
                 def read_array() -> Value:
                     return array
+
+            (indexable_size,) = context.visitor.materialise_value_provider(
+                builder.length(read_array()), "array_length"
+            )
 
             _iterate_indexable(
                 context,
