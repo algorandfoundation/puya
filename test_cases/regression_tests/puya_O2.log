@@ -385,6 +385,8 @@ debug: Looking for 'item_index_internal%0' in an unsealed block creating an inco
 debug: Created Phi assignment: let item_index_internal%0#1: uint64 = undefined while trying to resolve 'item_index_internal%0' in block@1
 debug: Terminated block@1
 debug: Sealing block@2
+debug: Looking for 'tmp%0' in an unsealed block creating an incomplete Phi: block@1
+debug: Created Phi assignment: let tmp%0#1: bytes[32] = undefined while trying to resolve 'tmp%0' in block@1
 debug: Looking for 'arr' in an unsealed block creating an incomplete Phi: block@1
 debug: Created Phi assignment: let arr#1: Encoded(uint64[])* = undefined while trying to resolve 'arr' in block@1
 debug: Terminated block@2
@@ -393,6 +395,11 @@ debug: Terminated block@3
 debug: Sealing block@1
 debug: Added item_index_internal%0#0 to Phi node: let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0) in block@0
 debug: Added item_index_internal%0#2 to Phi node: let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3) in block@3
+debug: Added tmp%0#0 to Phi node: let tmp%0#1: bytes[32] = φ(tmp%0#0 <- block@0) in block@0
+debug: Added tmp%0#1 to Phi node: let tmp%0#1: bytes[32] = φ(tmp%0#0 <- block@0, tmp%0#1 <- block@3) in block@3
+debug: Replacing trivial Phi node: let tmp%0#1: bytes[32] = φ(tmp%0#0 <- block@0, tmp%0#1 <- block@3) (tmp%0#1) with tmp%0#0
+debug: Deleting Phi assignment: let tmp%0#1: bytes[32] = φ(tmp%0#0 <- block@0, tmp%0#1 <- block@3)
+debug: Replaced trivial Phi node: let tmp%0#1: bytes[32] = φ(tmp%0#0 <- block@0, tmp%0#1 <- block@3) (tmp%0#1) with tmp%0#0 in current definition for 3 blocks
 debug: Added arr#0 to Phi node: let arr#1: Encoded(uint64[])* = φ(arr#0 <- block@0) in block@0
 debug: Added arr#1 to Phi node: let arr#1: Encoded(uint64[])* = φ(arr#0 <- block@0, arr#1 <- block@3) in block@3
 debug: Replacing trivial Phi node: let arr#1: Encoded(uint64[])* = φ(arr#0 <- block@0, arr#1 <- block@3) (arr#1) with arr#0
@@ -910,6 +917,9 @@ debug: Building IR for function test_cases.regression_tests.jira_241.Jira241.oh_
 debug: Sealing block@0
 debug: Terminated block@0
 regression_tests/jira_241.py:5:49 debug: Running optimizer at level 2 to encode compile time constant to bytes
+debug: Found equivalence set: encoded_bool%0#0, as_Encoded(bool8)%0#0
+debug: selected encoded_bool%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Simplified (setbit 0x00 0u 0u) to 0x00
 debug: Removing unused variable encoded_bool%0#0
 regression_tests/jira_241.py:9:49 debug: Building IR for ARC-4 method argument default constant
@@ -917,6 +927,9 @@ debug: Building IR for function test_cases.regression_tests.jira_241.Jira241.oh_
 debug: Sealing block@0
 debug: Terminated block@0
 regression_tests/jira_241.py:9:49 debug: Running optimizer at level 2 to encode compile time constant to bytes
+debug: Found equivalence set: encoded_bool%0#0, as_Encoded(bool8)%0#0
+debug: selected encoded_bool%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Simplified (setbit 0x00 0u 1u) to 0x80
 debug: Removing unused variable encoded_bool%0#0
 debug: Building IR for function test_cases.regression_tests.jira_241.Jira241.__puya_arc4_router__
@@ -1033,7 +1046,6 @@ debug: Sealing block@0
 debug: Terminated block@0
 debug: Building IR for function test_cases.regression_tests.jira_142.Jira142.battle
 debug: Sealing block@0
-regression_tests/jira_142.py:15:21 debug: redundant encode operation from uint64 to uint64
 debug: Terminated block@0
 debug: Sealing block@1
 debug: Terminated block@1
@@ -1306,10 +1318,8 @@ debug: Building IR for function test_cases.regression_tests.issue_118.Issue118.v
 debug: Sealing block@0
 debug: Terminated block@0
 debug: Sealing block@1
-regression_tests/issue_118.py:13:20 debug: redundant encode operation from len+utf8[] to len+utf8[]
 debug: Terminated block@1
 debug: Sealing block@2
-regression_tests/issue_118.py:14:16 debug: redundant encode operation from len+utf8[] to len+utf8[]
 debug: Terminated block@2
 debug: Building IR for function test_cases.regression_tests.issue_118.Issue118.__algopy_default_create
 debug: Sealing block@0
@@ -1772,9 +1782,11 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: bytes_length%0#0, reverse_index_internal%0#0
 debug: selected bytes_length%0#0 from equivalence set
-debug: Found equivalence set: extract%0#0, b#0
+debug: Found equivalence set: read_bytes%0#0, b#0
 debug: selected b#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Found equivalence set: val_as_bytes%0#0, as_Encoded(uint64)%0#0
+debug: selected val_as_bytes%0#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1918,9 +1930,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array%array_contents%0#1, extended%0#0
-debug: selected array%array_contents%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -2037,14 +2046,14 @@ debug: Inserted main_after_while@8.ops[4]: 'l-store-copy arr#0 0'
 debug: Replaced main_after_while@8.ops[7]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted append_to_array_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced append_to_array_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
+debug: Inserted append_to_array_for_body@2.ops[9]: 'l-store-copy val_as_bytes%0#0 0'
+debug: Replaced append_to_array_for_body@2.ops[12]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
+debug: Inserted append_to_array_for_body@2.ops[14]: 'l-store-copy concat%0#0 0'
+debug: Replaced append_to_array_for_body@2.ops[17]: 'v-load concat%0#0' with 'l-load concat%0#0'
 debug: Inserted append_to_array_for_body@2.ops[3]: 'l-store-copy tmp%1#0 0'
-debug: Replaced append_to_array_for_body@2.ops[5]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted append_to_array_for_body@2.ops[10]: 'l-store-copy slot_contents%0#0 0'
-debug: Replaced append_to_array_for_body@2.ops[12]: 'v-load slot_contents%0#0' with 'l-load slot_contents%0#0'
-debug: Inserted append_to_array_for_body@2.ops[15]: 'l-store-copy array%array_contents%0#1 0'
-debug: Replaced append_to_array_for_body@2.ops[18]: 'v-load array%array_contents%0#1' with 'l-load array%array_contents%0#1'
-debug: Inserted append_to_array_for_body@2.ops[7]: 'l-store-copy val_as_bytes%0#0 0'
-debug: Replaced append_to_array_for_body@2.ops[14]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
+debug: Replaced append_to_array_for_body@2.ops[8]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted append_to_array_for_body@2.ops[7]: 'l-store-copy slot_contents%0#0 1'
+debug: Replaced append_to_array_for_body@2.ops[13]: 'v-load slot_contents%0#0' with 'l-load slot_contents%0#0'
 debug: Inserted append_to_array_for_body@2.ops[2]: 'l-store-copy item_index_internal%0#0 1'
 debug: Replaced append_to_array_for_body@2.ops[22]: 'v-load item_index_internal%0#0' with 'l-load item_index_internal%0#0'
 debug: Inserted _puya_lib.mem.new_slot@entry.ops[2]: 'l-store-copy free_slot#0 0'
@@ -2081,6 +2090,9 @@ debug: inlining call to test_cases.regression_tests.leftover_branch.BranchElimin
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: val_as_bytes%0#0, as_Encoded(uint64)%0#0
+debug: selected val_as_bytes%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -2154,6 +2166,8 @@ debug: Found equivalence set: materialized_values%0#2, ahuh#8
 debug: selected ahuh#8 from equivalence set
 debug: Found equivalence set: ahuh#13, to_encode%0#0
 debug: selected ahuh#13 from equivalence set
+debug: Found equivalence set: val_as_bytes%0#0, as_Encoded(uint64)%0#0
+debug: selected val_as_bytes%0#0 from equivalence set
 debug: Found equivalence set: materialized_values%0#1, ahuh#2
 debug: selected ahuh#2 from equivalence set
 debug: Found equivalence set: reinterpret_Encoded(len+len+uint64[][])%0#0, nested_list#0
@@ -2176,7 +2190,7 @@ debug: Found equivalence set: materialized_values%3#0, total#3
 debug: selected total#3 from equivalence set
 debug: Found equivalence set: materialized_values%4#0, num_boosts#2
 debug: selected num_boosts#2 from equivalence set
-debug: Copy propagation made 17 modifications
+debug: Copy propagation made 18 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -4457,9 +4471,13 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: reinterpret_Encoded(len+uint256[])%0#0, values#0
 debug: selected values#0 from equivalence set
-debug: Found equivalence set: encoded_bool%0#0, val1#0
+debug: Found equivalence set: encoded_bool%0#0, as_Encoded(bool8)%0#0, val1#0
 debug: selected val1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+utf8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Found equivalence set: encoded_value%1#0, as_Encoded(len+utf8[])%1#0
+debug: selected encoded_value%1#0 from equivalence set
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%0#0
@@ -4469,12 +4487,18 @@ debug: Removing unused variable data_length%1#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== tmp%3#0 NoOp) to (! tmp%3#0)
 debug: Simplified (setbit 0x00 0u to_encode%0#0) to (setbit 0x00 0u tmp%0#1)
-debug: Simplified (concat 0x val1#0) to val1#0
-debug: Simplified (concat 0x 0x0000) to 0x0000
-debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0003
+debug: Simplified (len 0x) to 0u
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0000
+debug: Simplified (concat 0x0000 0x) to 0x0000
 debug: Simplified (concat 0x val1#0) to val1#0
 debug: Simplified (concat 0x 0x0000) to 0x0000
 debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0003
+debug: Simplified (len 0x) to 0u
+debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0000
+debug: Simplified (concat 0x0000 0x) to 0x0000
+debug: Simplified (concat 0x val1#0) to val1#0
+debug: Simplified (concat 0x 0x0000) to 0x0000
+debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x0003
 debug: Simplified (== tmp%10#0 0u) to (! tmp%10#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -4505,9 +4529,13 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: encoded_bool%0#0, val1#0
+debug: Found equivalence set: encoded_bool%0#0, as_Encoded(bool8)%0#0, val1#0
 debug: selected val1#0 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+utf8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Found equivalence set: encoded_value%1#0, as_Encoded(len+utf8[])%1#0
+debug: selected encoded_value%1#0 from equivalence set
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%0#0
@@ -4516,12 +4544,18 @@ debug: Removing unused variable data_length%0#0
 debug: Removing unused variable data_length%1#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (setbit 0x00 0u to_encode%0#0) to (setbit 0x00 0u tmp%0#0)
-debug: Simplified (concat 0x val1#0) to val1#0
-debug: Simplified (concat 0x 0x0000) to 0x0000
-debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0003
+debug: Simplified (len 0x) to 0u
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0000
+debug: Simplified (concat 0x0000 0x) to 0x0000
 debug: Simplified (concat 0x val1#0) to val1#0
 debug: Simplified (concat 0x 0x0000) to 0x0000
 debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0003
+debug: Simplified (len 0x) to 0u
+debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0000
+debug: Simplified (concat 0x0000 0x) to 0x0000
+debug: Simplified (concat 0x val1#0) to val1#0
+debug: Simplified (concat 0x 0x0000) to 0x0000
+debug: Simplified ((extract 6 2) as_bytes%3#0) to 0x0003
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -4567,11 +4601,19 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%1#0
 debug: Removing unused variable tmp%6#0
 debug: Removing unused variable to_encode%0#0
-debug: Removing unused variable tail%0#0
+debug: Removing unused variable length%0#0
 debug: Removing unused variable as_bytes%0#0
-debug: Removing unused variable offset_as_uint16%0#0
-debug: Removing unused variable tail%1#0
+debug: Removing unused variable length_uint16%0#0
+debug: Removing unused variable encoded_value%0#0
+debug: Removing unused variable tail%0#0
 debug: Removing unused variable as_bytes%1#0
+debug: Removing unused variable offset_as_uint16%0#0
+debug: Removing unused variable length%1#0
+debug: Removing unused variable as_bytes%2#0
+debug: Removing unused variable length_uint16%1#0
+debug: Removing unused variable encoded_value%1#0
+debug: Removing unused variable tail%1#0
+debug: Removing unused variable as_bytes%3#0
 debug: Removing unused variable offset_as_uint16%1#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -4599,11 +4641,19 @@ debug: selected val1#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable to_encode%0#0
-debug: Removing unused variable tail%0#0
+debug: Removing unused variable length%0#0
 debug: Removing unused variable as_bytes%0#0
-debug: Removing unused variable offset_as_uint16%0#0
-debug: Removing unused variable tail%1#0
+debug: Removing unused variable length_uint16%0#0
+debug: Removing unused variable encoded_value%0#0
+debug: Removing unused variable tail%0#0
 debug: Removing unused variable as_bytes%1#0
+debug: Removing unused variable offset_as_uint16%0#0
+debug: Removing unused variable length%1#0
+debug: Removing unused variable as_bytes%2#0
+debug: Removing unused variable length_uint16%1#0
+debug: Removing unused variable encoded_value%1#0
+debug: Removing unused variable tail%1#0
+debug: Removing unused variable as_bytes%3#0
 debug: Removing unused variable offset_as_uint16%1#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -4829,6 +4879,9 @@ debug: inlining call to test_cases.regression_tests.branch_to_proto.VRFVerifier.
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+uint8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%0#0
@@ -4899,7 +4952,9 @@ debug: Found equivalence set: tmp%0#1, to_encode%0#0
 debug: selected tmp%0#1 from equivalence set
 debug: Found equivalence set: tmp%1#1, to_encode%1#0
 debug: selected tmp%1#1 from equivalence set
-debug: Copy propagation made 6 modifications
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+uint8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%0#0
@@ -5260,6 +5315,11 @@ debug: inlining call to test_cases.regression_tests.biguint_opt.ConstBigIntToInt
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: val_as_bytes%0#0, as_Encoded(uint64)%0#0
+debug: selected val_as_bytes%0#0 from equivalence set
+debug: Found equivalence set: val_as_bytes%1#0, as_Encoded(uint64)%1#0
+debug: selected val_as_bytes%1#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -5301,9 +5361,13 @@ debug: Found equivalence set: materialized_values%0#1, abs_bound#2
 debug: selected abs_bound#2 from equivalence set
 debug: Found equivalence set: abs_bound#3, to_encode%0#0
 debug: selected abs_bound#3 from equivalence set
+debug: Found equivalence set: val_as_bytes%0#0, as_Encoded(uint64)%0#0
+debug: selected val_as_bytes%0#0 from equivalence set
 debug: Found equivalence set: materialized_values%0#0, abs_bound#0, to_encode%1#0
 debug: selected abs_bound#0 from equivalence set
-debug: Copy propagation made 5 modifications
+debug: Found equivalence set: val_as_bytes%1#0, as_Encoded(uint64)%1#0
+debug: selected val_as_bytes%1#0 from equivalence set
+debug: Copy propagation made 7 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable lower_bound#0

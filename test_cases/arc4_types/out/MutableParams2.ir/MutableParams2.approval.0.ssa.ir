@@ -43,36 +43,36 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.__puya_arc4_rout
 subroutine test_cases.arc4_types.mutable_params2.MutableParams2.test_array_rebinding() -> void:
     block@0: // L5
         let encoded%0#0: Encoded((uint8)) = (concat 0x 0x00)
-        let encoded%1#0: bytes = (concat encoded%0#0 0x)
         let as_bytes%0#0: bytes[8] = (itob 1u)
         let len_u16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded%2#0: Encoded(len+uint8[]) = (concat len_u16%0#0 encoded%1#0)
+        let encoded%1#0: bytes = (concat len_u16%0#0 encoded%0#0)
+        let encoded%2#0: Encoded(len+uint8[]) = (concat encoded%1#0 0x)
         let a#0: Encoded(len+uint8[]) = encoded%2#0
         let maybe_modify_array%0#0: Encoded(len+uint8[]) = test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a#0, 1u)
         let a#1: Encoded(len+uint8[]) = maybe_modify_array%0#0
         let encoded%3#0: Encoded((uint8)) = (concat 0x 0x00)
         let encoded%4#0: Encoded((uint8,uint8)) = (concat encoded%3#0 0x01)
-        let encoded%5#0: bytes = (concat encoded%4#0 0x)
         let as_bytes%1#0: bytes[8] = (itob 2u)
         let len_u16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let encoded%6#0: Encoded(len+uint8[]) = (concat len_u16%1#0 encoded%5#0)
+        let encoded%5#0: bytes = (concat len_u16%1#0 encoded%4#0)
+        let encoded%6#0: Encoded(len+uint8[]) = (concat encoded%5#0 0x)
         let tmp%0#0: bool = (== a#1 encoded%6#0)
         (assert tmp%0#0)
         let encoded%7#0: Encoded((uint8)) = (concat 0x 0x01)
-        let encoded%8#0: bytes = (concat encoded%7#0 0x)
         let as_bytes%2#0: bytes[8] = (itob 1u)
         let len_u16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let encoded%9#0: Encoded(len+uint8[]) = (concat len_u16%2#0 encoded%8#0)
+        let encoded%8#0: bytes = (concat len_u16%2#0 encoded%7#0)
+        let encoded%9#0: Encoded(len+uint8[]) = (concat encoded%8#0 0x)
         let a#2: Encoded(len+uint8[]) = encoded%9#0
         let maybe_modify_array%1#0: Encoded(len+uint8[]) = test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_array(a#2, 0u)
         let a#3: Encoded(len+uint8[]) = maybe_modify_array%1#0
         let encoded%10#0: Encoded((uint8)) = (concat 0x 0x01)
         let encoded%11#0: Encoded((uint8,uint8)) = (concat encoded%10#0 0x2a)
         let encoded%12#0: Encoded((uint8,uint8,uint8)) = (concat encoded%11#0 0x04)
-        let encoded%13#0: bytes = (concat encoded%12#0 0x)
         let as_bytes%3#0: bytes[8] = (itob 3u)
         let len_u16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let encoded%14#0: Encoded(len+uint8[]) = (concat len_u16%3#0 encoded%13#0)
+        let encoded%13#0: bytes = (concat len_u16%3#0 encoded%12#0)
+        let encoded%14#0: Encoded(len+uint8[]) = (concat encoded%13#0 0x)
         let tmp%1#0: bool = (== a#3 encoded%14#0)
         (assert tmp%1#0)
         return 
@@ -83,15 +83,17 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         let a%out#0: Encoded(len+uint8[]) = a#0
         goto assign_local#0 ? block@1 : block@10
     block@1: // if_body_L18
-        let expr_value_trimmed%0#0: bytes = ((extract 2 0) a#0)
         let encoded%0#0: Encoded((uint8)) = (concat 0x 0x01)
-        let encoded%1#0: bytes = (concat encoded%0#0 0x)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%1#0)
-        let len_%0#0: uint64 = (len concatenated%0#0)
-        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
-        let a#1: Encoded(len+uint8[]) = concat_result%0#0
+        let encoded%1#0: Encoded(uint8[]) = (concat encoded%0#0 0x)
+        let concat%0#0: Encoded(len+uint8[]) = (concat a#0 encoded%1#0) // on error: max array length exceeded
+        let extract_to_end%0#0: bytes = ((extract 2 0) concat%0#0)
+        let len%0#0: uint64 = (len extract_to_end%0#0)
+        let div_floor%0#0: uint64 = (/ len%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob div_floor%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = replace%0#0
+        let a#1: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         goto a%is_original#0 ? block@2 : block@3
     block@2: // if_body_L1
         let a%out#1: Encoded(len+uint8[]) = a#1
@@ -101,10 +103,10 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         let encoded%2#0: Encoded((uint8)) = (concat 0x 0x01)
         let encoded%3#0: Encoded((uint8,uint8)) = (concat encoded%2#0 0x02)
         let encoded%4#0: Encoded((uint8,uint8,uint8)) = (concat encoded%3#0 0x03)
-        let encoded%5#0: bytes = (concat encoded%4#0 0x)
         let as_bytes%1#0: bytes[8] = (itob 3u)
         let len_u16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let encoded%6#0: Encoded(len+uint8[]) = (concat len_u16%0#0 encoded%5#0)
+        let encoded%5#0: bytes = (concat len_u16%0#0 encoded%4#0)
+        let encoded%6#0: Encoded(len+uint8[]) = (concat encoded%5#0 0x)
         let a%is_original#1: bool = 0u
         let a#2: Encoded(len+uint8[]) = encoded%6#0
         goto a%is_original#1 ? block@4 : block@5
@@ -113,15 +115,17 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         goto block@5
     block@5: // after_if_else_L1
         let a%out#11: Encoded(len+uint8[]) = φ(a%out#12 <- block@3, a%out#2 <- block@4)
-        let expr_value_trimmed%1#0: bytes = ((extract 2 0) a#2)
         let encoded%7#0: Encoded((uint8)) = (concat 0x 0x04)
-        let encoded%8#0: bytes = (concat encoded%7#0 0x)
-        let concatenated%1#0: bytes = (concat expr_value_trimmed%1#0 encoded%8#0)
-        let len_%1#0: uint64 = (len concatenated%1#0)
-        let as_bytes%2#0: bytes[8] = (itob len_%1#0)
-        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
-        let a#4: Encoded(len+uint8[]) = concat_result%1#0
+        let encoded%8#0: Encoded(uint8[]) = (concat encoded%7#0 0x)
+        let concat%1#0: Encoded(len+uint8[]) = (concat a#2 encoded%8#0) // on error: max array length exceeded
+        let extract_to_end%1#0: bytes = ((extract 2 0) concat%1#0)
+        let len%1#0: uint64 = (len extract_to_end%1#0)
+        let div_floor%1#0: uint64 = (/ len%1#0 1u)
+        let as_bytes%2#0: bytes[8] = (itob div_floor%1#0)
+        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = replace%1#0
+        let a#4: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
         goto a%is_original#1 ? block@6 : block@7
     block@6: // if_body_L1
         let a%out#3: Encoded(len+uint8[]) = a#4
@@ -131,10 +135,10 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         let encoded%9#0: Encoded((uint8)) = (concat 0x 0x01)
         let encoded%10#0: Encoded((uint8,uint8)) = (concat encoded%9#0 0x02)
         let encoded%11#0: Encoded((uint8,uint8,uint8)) = (concat encoded%10#0 0x04)
-        let encoded%12#0: bytes = (concat encoded%11#0 0x)
         let as_bytes%3#0: bytes[8] = (itob 3u)
         let len_u16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let encoded%13#0: Encoded(len+uint8[]) = (concat len_u16%1#0 encoded%12#0)
+        let encoded%12#0: bytes = (concat len_u16%1#0 encoded%11#0)
+        let encoded%13#0: Encoded(len+uint8[]) = (concat encoded%12#0 0x)
         let a%is_original#3: bool = 0u
         let a#5: Encoded(len+uint8[]) = encoded%13#0
         goto a%is_original#3 ? block@8 : block@9
@@ -145,15 +149,17 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         let a%out#9: Encoded(len+uint8[]) = φ(a%out#10 <- block@7, a%out#4 <- block@8)
         goto block@13
     block@10: // else_body_L23
-        let expr_value_trimmed%2#0: bytes = ((extract 2 0) a#0)
         let encoded%14#0: Encoded((uint8)) = (concat 0x 0x2a)
-        let encoded%15#0: bytes = (concat encoded%14#0 0x)
-        let concatenated%2#0: bytes = (concat expr_value_trimmed%2#0 encoded%15#0)
-        let len_%2#0: uint64 = (len concatenated%2#0)
-        let as_bytes%4#0: bytes[8] = (itob len_%2#0)
-        let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%4#0)
-        let concat_result%2#0: bytes = (concat len_16_bit%2#0 concatenated%2#0)
-        let a#6: Encoded(len+uint8[]) = concat_result%2#0
+        let encoded%15#0: Encoded(uint8[]) = (concat encoded%14#0 0x)
+        let concat%2#0: Encoded(len+uint8[]) = (concat a#0 encoded%15#0) // on error: max array length exceeded
+        let extract_to_end%2#0: bytes = ((extract 2 0) concat%2#0)
+        let len%2#0: uint64 = (len extract_to_end%2#0)
+        let div_floor%2#0: uint64 = (/ len%2#0 1u)
+        let as_bytes%4#0: bytes[8] = (itob div_floor%2#0)
+        let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%4#0)
+        let replace%2#0: bytes = (replace3 concat%2#0 0u as_u16_bytes%2#0)
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = replace%2#0
+        let a#6: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%2#0
         goto a%is_original#0 ? block@11 : block@12
     block@11: // if_body_L1
         let a%out#5: Encoded(len+uint8[]) = a#6
@@ -165,15 +171,17 @@ subroutine test_cases.arc4_types.mutable_params2.MutableParams2.maybe_modify_arr
         let a#7: Encoded(len+uint8[]) = φ(a#5 <- block@9, a#6 <- block@12)
         let a%is_original#4: bool = φ(a%is_original#3 <- block@9, a%is_original#0 <- block@12)
         let a%out#8: Encoded(len+uint8[]) = φ(a%out#9 <- block@9, a%out#13 <- block@12)
-        let expr_value_trimmed%3#0: bytes = ((extract 2 0) a#7)
         let encoded%16#0: Encoded((uint8)) = (concat 0x 0x04)
-        let encoded%17#0: bytes = (concat encoded%16#0 0x)
-        let concatenated%3#0: bytes = (concat expr_value_trimmed%3#0 encoded%17#0)
-        let len_%3#0: uint64 = (len concatenated%3#0)
-        let as_bytes%5#0: bytes[8] = (itob len_%3#0)
-        let len_16_bit%3#0: bytes = ((extract 6 2) as_bytes%5#0)
-        let concat_result%3#0: bytes = (concat len_16_bit%3#0 concatenated%3#0)
-        let a#10: Encoded(len+uint8[]) = concat_result%3#0
+        let encoded%17#0: Encoded(uint8[]) = (concat encoded%16#0 0x)
+        let concat%3#0: Encoded(len+uint8[]) = (concat a#7 encoded%17#0) // on error: max array length exceeded
+        let extract_to_end%3#0: bytes = ((extract 2 0) concat%3#0)
+        let len%3#0: uint64 = (len extract_to_end%3#0)
+        let div_floor%3#0: uint64 = (/ len%3#0 1u)
+        let as_bytes%5#0: bytes[8] = (itob div_floor%3#0)
+        let as_u16_bytes%3#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let replace%3#0: bytes = (replace3 concat%3#0 0u as_u16_bytes%3#0)
+        let as_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = replace%3#0
+        let a#10: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%3#0
         goto a%is_original#4 ? block@14 : block@15
     block@14: // if_body_L1
         let a%out#6: Encoded(len+uint8[]) = a#10

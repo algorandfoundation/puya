@@ -1416,17 +1416,18 @@ subroutine mutate_tuple_in_storage_currently_supported_method:
         substring3                                                                                  maybe_value%0#0,item_end_offset%0#0,arr2#0
         // tuple_support/nested_tuples.py:117
         // arr2.append(arc4.UInt64(1))
-        extract 2 0                                                                                 maybe_value%0#0,item_end_offset%0#0,expr_value_trimmed%0#0
-        byte 0x0000000000000001                                                                     maybe_value%0#0,item_end_offset%0#0,expr_value_trimmed%0#0,0x0000000000000001
-        concat                                                                                      maybe_value%0#0,item_end_offset%0#0,concatenated%0#0
-        l-load-copy concatenated%0#0 0                                                              maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,concatenated%0#0 (copy)
-        len                                                                                         maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,byte_len%0#0
-        int 8                                                                                       maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,byte_len%0#0,8
-        /                                                                                           maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,len_%0#0
-        itob                                                                                        maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,as_bytes%0#0
-        extract 6 2                                                                                 maybe_value%0#0,item_end_offset%0#0,concatenated%0#0,len_16_bit%0#0
-        l-load concatenated%0#0 1                                                                   maybe_value%0#0,item_end_offset%0#0,len_16_bit%0#0,concatenated%0#0
-        concat                                                                                      maybe_value%0#0,item_end_offset%0#0,arr2#0
+        byte 0x0000000000000001                                                                     maybe_value%0#0,item_end_offset%0#0,arr2#0,0x0000000000000001
+        concat // on error: max array length exceeded                                               maybe_value%0#0,item_end_offset%0#0,concat%0#0
+        l-load-copy concat%0#0 0                                                                    maybe_value%0#0,item_end_offset%0#0,concat%0#0,concat%0#0 (copy)
+        extract 2 0                                                                                 maybe_value%0#0,item_end_offset%0#0,concat%0#0,extract_to_end%0#0
+        len                                                                                         maybe_value%0#0,item_end_offset%0#0,concat%0#0,len%0#0
+        int 8                                                                                       maybe_value%0#0,item_end_offset%0#0,concat%0#0,len%0#0,8
+        /                                                                                           maybe_value%0#0,item_end_offset%0#0,concat%0#0,div_floor%0#0
+        itob                                                                                        maybe_value%0#0,item_end_offset%0#0,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                 maybe_value%0#0,item_end_offset%0#0,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                         maybe_value%0#0,item_end_offset%0#0,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                   maybe_value%0#0,item_end_offset%0#0,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                  maybe_value%0#0,item_end_offset%0#0,arr2#0
         // tuple_support/nested_tuples.py:118
         // self.twm = self.twm._replace(arr=arr2.copy())
         l-load-copy maybe_value%0#0 2                                                               maybe_value%0#0,item_end_offset%0#0,arr2#0,maybe_value%0#0 (copy)

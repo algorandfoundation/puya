@@ -144,9 +144,9 @@ subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray() -> 
         let a.1#0: bytes[32] = (txn Sender)
         let tmp%2#0: bytes[32] = (txn Sender)
         let encoded%3#0: Encoded((uint8[32],uint8[32])) = (concat a.0#0 a.1#0)
-        let array%array_contents%0#1: bytes = (concat tmp%2#0 encoded%3#0) // on error: max array length exceeded
-        write(local.0, array%array_contents%0#1)
-        let encoded_element%0#0: bytes = ((extract 0 32) array%array_contents%0#1) // on error: index access is out of bounds
+        let concat%0#0: Encoded(uint8[32][]) = (concat tmp%2#0 encoded%3#0) // on error: max array length exceeded
+        write(local.0, concat%0#0)
+        let encoded_element%0#0: bytes = ((extract 0 32) concat%0#0) // on error: index access is out of bounds
         let bitAnd#0: bytes[32] = (b& a.0#0 encoded_element%0#0)
         let tmp%4#0: bytes[32] = (txn Sender)
         let tmp%5#0: bool = (== bitAnd#0 tmp%4#0)

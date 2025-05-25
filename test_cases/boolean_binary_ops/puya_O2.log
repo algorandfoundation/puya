@@ -807,6 +807,8 @@ debug: Looking for 'item_index_internal%0' in an unsealed block creating an inco
 debug: Created Phi assignment: let item_index_internal%0#1: uint64 = undefined while trying to resolve 'item_index_internal%0' in block@42
 debug: Terminated block@42
 debug: Sealing block@43
+debug: Looking for 'select%0' in an unsealed block creating an incomplete Phi: block@42
+debug: Created Phi assignment: let select%0#1: bytes = undefined while trying to resolve 'select%0' in block@42
 debug: Looking for 'bytes_to_iterate' in an unsealed block creating an incomplete Phi: block@42
 debug: Created Phi assignment: let bytes_to_iterate#1: bytes = undefined while trying to resolve 'bytes_to_iterate' in block@42
 debug: Terminated block@43
@@ -815,6 +817,11 @@ debug: Terminated block@44
 debug: Sealing block@42
 debug: Added item_index_internal%0#0 to Phi node: let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@41) in block@41
 debug: Added item_index_internal%0#2 to Phi node: let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@41, item_index_internal%0#2 <- block@44) in block@44
+debug: Added select%0#0 to Phi node: let select%0#1: bytes = φ(select%0#0 <- block@41) in block@41
+debug: Added select%0#1 to Phi node: let select%0#1: bytes = φ(select%0#0 <- block@41, select%0#1 <- block@44) in block@44
+debug: Replacing trivial Phi node: let select%0#1: bytes = φ(select%0#0 <- block@41, select%0#1 <- block@44) (select%0#1) with select%0#0
+debug: Deleting Phi assignment: let select%0#1: bytes = φ(select%0#0 <- block@41, select%0#1 <- block@44)
+debug: Replaced trivial Phi node: let select%0#1: bytes = φ(select%0#0 <- block@41, select%0#1 <- block@44) (select%0#1) with select%0#0 in current definition for 3 blocks
 debug: Added bytes_to_iterate#0 to Phi node: let bytes_to_iterate#1: bytes = φ(bytes_to_iterate#0 <- block@41) in block@41
 debug: Added bytes_to_iterate#1 to Phi node: let bytes_to_iterate#1: bytes = φ(bytes_to_iterate#0 <- block@41, bytes_to_iterate#1 <- block@44) in block@44
 debug: Replacing trivial Phi node: let bytes_to_iterate#1: bytes = φ(bytes_to_iterate#0 <- block@41, bytes_to_iterate#1 <- block@44) (bytes_to_iterate#1) with bytes_to_iterate#0
@@ -1133,7 +1140,7 @@ debug: Found equivalence set: or_result%0#5, ok#0
 debug: selected ok#0 from equivalence set
 debug: Found equivalence set: bytes_length%0#0, reverse_index_internal%0#0
 debug: selected bytes_length%0#0 from equivalence set
-debug: Found equivalence set: extract%0#0, b#1
+debug: Found equivalence set: read_bytes%0#0, b#1
 debug: selected b#1 from equivalence set
 debug: Found equivalence set: item_index_internal%0#1, idx#0
 debug: selected idx#0 from equivalence set
@@ -1534,8 +1541,8 @@ debug: Removing unreachable phi arguments: ternary_result%1#3 <- block@114
 debug: Replacing trivial Phi node: let z#1: uint64 = φ(select%5#0 <- block@113) (z#1) with select%5#0
 debug: Deleting Phi assignment: let z#1: uint64 = φ(select%5#0 <- block@113)
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let read_bytes%0#0: bytes = (extract3 0x616263 idx#0 1u) // on error: Index access is out of bounds with copy of existing registers (Register(source_location=boolean_binary_ops/contract.py:85:13-14, ir_type=bytes, name='b', version=1),)
-debug: Found equivalence set: b#1, read_bytes%0#0
+debug: Replacing redundant declaration let read_bytes%1#0: bytes = (extract3 0x616263 idx#0 1u) // on error: Index access is out of bounds with copy of existing registers (Register(source_location=boolean_binary_ops/contract.py:85:13-14, ir_type=bytes, name='b', version=1),)
+debug: Found equivalence set: b#1, read_bytes%1#0
 debug: selected b#1 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -1697,7 +1704,7 @@ debug: Found equivalence set: or_result%0#2, ok#0
 debug: selected ok#0 from equivalence set
 debug: Found equivalence set: bytes_length%0#0, reverse_index_internal%0#0
 debug: selected bytes_length%0#0 from equivalence set
-debug: Found equivalence set: extract%0#0, b#0
+debug: Found equivalence set: read_bytes%0#0, b#0
 debug: selected b#0 from equivalence set
 debug: Found equivalence set: item_index_internal%0#1, idx#0
 debug: selected idx#0 from equivalence set
@@ -1895,8 +1902,8 @@ debug: Removing unreachable phi arguments: ternary_result%5#0 <- block@46
 debug: Replacing trivial Phi node: let sequence#0: bytes = φ(ternary_result%5#1 <- block@45) (sequence#0) with ternary_result%5#1
 debug: Deleting Phi assignment: let sequence#0: bytes = φ(ternary_result%5#1 <- block@45)
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let read_bytes%0#0: bytes = (extract3 0x616263 idx#0 1u) // on error: Index access is out of bounds with copy of existing registers (Register(source_location=boolean_binary_ops/contract.py:85:13-14, ir_type=bytes, name='b', version=0),)
-debug: Found equivalence set: b#0, read_bytes%0#0
+debug: Replacing redundant declaration let read_bytes%1#0: bytes = (extract3 0x616263 idx#0 1u) // on error: Index access is out of bounds with copy of existing registers (Register(source_location=boolean_binary_ops/contract.py:85:13-14, ir_type=bytes, name='b', version=0),)
+debug: Found equivalence set: b#0, read_bytes%1#0
 debug: selected b#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -2145,7 +2152,7 @@ debug: Removing unused variable bytes_length%0#0
 debug: Removing unused variable tmp%43#0
 debug: Removing unused variable tmp%44#0
 debug: Removing unused variable select%1#1
-debug: Removing unused variable read_bytes%1#0
+debug: Removing unused variable read_bytes%2#0
 debug: Removing unused variable tmp%45#0
 debug: Removing unused variable tmp%46#0
 debug: Removing unused variable tmp%47#0

@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 2 1 4
-    bytecblock 0x
+    bytecblock 0x 0x61 0x626565 0x48656c6c6f20576f726c64
 
 main_block@0:
 
@@ -510,7 +510,12 @@ get_string1:
 get_string1_block@0:
     // arc4_dynamic_arrays/contract.py:174
     // return arc4.String("a")
-    pushbytes 0x000161
+    bytec_1 // 0x61
+    len
+    itob
+    extract 6 2
+    bytec_1 // 0x61
+    concat
     retsub
 
 
@@ -520,7 +525,12 @@ get_string2:
 get_string2_block@0:
     // arc4_dynamic_arrays/contract.py:179
     // return arc4.String("bee")
-    pushbytes 0x0003626565
+    bytec_2 // 0x626565
+    len
+    itob
+    extract 6 2
+    bytec_2 // 0x626565
+    concat
     retsub
 
 
@@ -530,7 +540,12 @@ get_string3:
 get_string3_block@0:
     // arc4_dynamic_arrays/contract.py:184
     // return arc4.String("Hello World")
-    pushbytes 0x000b48656c6c6f20576f726c64
+    bytec_3 // 0x48656c6c6f20576f726c64
+    len
+    itob
+    extract 6 2
+    bytec_3 // 0x48656c6c6f20576f726c64
+    concat
     retsub
 
 
@@ -607,12 +622,12 @@ get_u16_arr1_block@0:
     concat
     pushbytes 0x002a
     concat
-    bytec_0 // 0x
-    concat
     pushint 3 // 3
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     retsub
 
@@ -632,12 +647,12 @@ get_u16_arr2_block@0:
     concat
     pushbytes 0x0004
     concat
-    bytec_0 // 0x
-    concat
     intc_3 // 4
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     retsub
 
@@ -702,12 +717,12 @@ test_static_elements_block@0:
     concat
     uncover 2
     concat
-    bytec_0 // 0x
-    concat
     intc_1 // 2
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     // arc4_dynamic_arrays/contract.py:47
     // array[1] = struct2.copy()
@@ -843,21 +858,31 @@ test_dynamic_elements_block@0:
     uncover 3
     uncover 4
     concat
+    cover 2
     swap
-    uncover 2
     itob
     extract 6 2
-    concat
-    swap
     concat
     intc_1 // 2
     itob
     extract 6 2
     swap
     concat
+    swap
+    concat
     // arc4_dynamic_arrays/contract.py:60
     // array.append(struct1.copy())
     dig 1
+    swap
+    dup
+    intc_0 // 0
+    extract_uint16
+    cover 2
+    extract 2 0
+    swap
+    bytec_0 // 0x
+    swap
+    concat
     intc_1 // 2
     itob
     extract 6 2
@@ -866,11 +891,8 @@ test_dynamic_elements_block@0:
     concat
     swap
     concat
-    dig 1
-    intc_0 // 0
-    extract_uint16
     uncover 2
-    extract 2 0
+    uncover 2
     intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
@@ -1092,18 +1114,26 @@ test_mixed_single_dynamic_elements_block@0:
     concat
     // arc4_dynamic_arrays/contract.py:78
     // array = arc4.DynamicArray[MixedSingleStruct]()
-    bytec_0 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_0 // 0x
     concat
-    swap
+    bytec_0 // 0x
+    concat
     // arc4_dynamic_arrays/contract.py:79
     // array.append(struct2.copy())
+    dig 1
+    swap
     dup
+    intc_0 // 0
+    extract_uint16
+    cover 2
+    extract 2 0
+    swap
+    bytec_0 // 0x
+    swap
+    concat
     intc_1 // 2
     itob
     extract 6 2
@@ -1112,17 +1142,24 @@ test_mixed_single_dynamic_elements_block@0:
     concat
     swap
     concat
-    dig 2
-    intc_0 // 0
-    extract_uint16
-    uncover 3
-    extract 2 0
+    uncover 2
+    uncover 2
     intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
     // arc4_dynamic_arrays/contract.py:80
     // array.append(struct2.copy())
     dig 1
+    swap
+    dup
+    intc_0 // 0
+    extract_uint16
+    cover 2
+    extract 2 0
+    swap
+    bytec_0 // 0x
+    swap
+    concat
     intc_1 // 2
     itob
     extract 6 2
@@ -1131,11 +1168,8 @@ test_mixed_single_dynamic_elements_block@0:
     concat
     swap
     concat
-    dig 1
-    intc_0 // 0
-    extract_uint16
     uncover 2
-    extract 2 0
+    uncover 2
     intc_2 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
@@ -1365,16 +1399,16 @@ test_mixed_multiple_dynamic_elements_block@0:
     uncover 3
     uncover 4
     concat
+    cover 2
     swap
-    uncover 2
     itob
     extract 6 2
-    concat
-    swap
     concat
     intc_1 // 2
     itob
     extract 6 2
+    swap
+    concat
     swap
     concat
     // arc4_dynamic_arrays/contract.py:98
@@ -1988,25 +2022,27 @@ test_nested_tuple_modification_block@0:
     // arc4_dynamic_arrays/contract.py:145
     // get_u16_arr1() + (arc4.UInt16(123),),  # noqa: RUF005
     callsub get_u16_arr1
-    extract 2 0
     bytec_0 // 0x
     pushbytes 0x007b
     concat
     bytec_0 // 0x
     concat
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     intc_1 // 2
     /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // arc4_dynamic_arrays/contract.py:146
     // get_uint1(),
     callsub get_uint1
-    cover 3
+    cover 2
     // arc4_dynamic_arrays/contract.py:141-147
     // four2 = MixedMultipleStruct(
     //     get_uint1(),
@@ -2019,10 +2055,10 @@ test_nested_tuple_modification_block@0:
     uncover 2
     concat
     bytec_0 // 0x
-    dig 3
+    dig 4
     concat
     cover 2
-    uncover 3
+    uncover 4
     len
     pushint 28 // 28
     +

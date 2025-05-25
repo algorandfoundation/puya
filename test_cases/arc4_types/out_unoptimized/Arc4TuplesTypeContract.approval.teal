@@ -4,21 +4,34 @@
 // test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program() -> uint64:
 main:
     intcblock 0 1 9 10
-    bytecblock 0x00 0x 0x01 0x000568656c6c6f
+    bytecblock 0x00 0x 0x68656c6c6f 0x776f726c64
 
 main_block@0:
     // arc4_types/tuples.py:15
     // my_tuple = Tuple((UInt8(1), UInt8(2), String("hello"), String("world"), UInt8(255)))
+    bytec_2 // 0x68656c6c6f
+    len
+    itob
+    extract 6 2
+    bytec_2 // 0x68656c6c6f
+    concat
+    bytec_3 // 0x776f726c64
+    len
+    itob
+    extract 6 2
+    bytec_3 // 0x776f726c64
+    concat
+    swap
     bytec_1 // 0x
-    bytec_2 // 0x01
+    pushbytes 0x01
     concat
     pushbytes 0x02
     concat
     bytec_1 // 0x
-    bytec_3 // 0x000568656c6c6f
+    dig 2
     concat
+    cover 2
     swap
-    bytec_3 // 0x000568656c6c6f
     len
     pushint 7 // 7
     +
@@ -29,7 +42,7 @@ main_block@0:
     swap
     concat
     uncover 2
-    pushbytes 0x0005776f726c64
+    uncover 3
     concat
     cover 2
     swap
@@ -68,7 +81,7 @@ main_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 2
+    swap
     // arc4_types/tuples.py:26
     // Bool(True),
     bytec_0 // 0x00
@@ -148,7 +161,7 @@ main_block@0:
     //     )
     // )
     concat
-    uncover 2
+    uncover 3
     concat
     swap
     intc_0 // 0
@@ -709,13 +722,14 @@ test_stuff_block@0:
     swap
     btoi
     +
+    swap
     // arc4_types/tuples.py:65
     // text = c.native + " " + d.native
     uncover 2
     extract 2 0
     pushbytes " "
     concat
-    uncover 2
+    swap
     extract 2 0
     concat
     // arc4_types/tuples.py:67
@@ -768,19 +782,23 @@ test_copy_block@0:
     uncover 3
     uncover 3
     substring3
-    extract 2 0
     bytec_1 // 0x
     bytec_0 // 0x00
     concat
     bytec_1 // 0x
     concat
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
+    intc_1 // 1
+    /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     dig 1
     intc_1 // 1
     extract_uint16
@@ -806,12 +824,12 @@ test_copy_block@0:
     bytec_1 // 0x
     bytec_0 // 0x00
     concat
-    bytec_1 // 0x
-    concat
     intc_1 // 1
     itob
     extract 6 2
     swap
+    concat
+    bytec_1 // 0x
     concat
     ==
     assert
@@ -835,7 +853,7 @@ test_copy_block@0:
     *
     pushint 2 // 2
     +
-    bytec_2 // 0x01
+    pushbytes 0x01
     replace3
     dig 1
     intc_1 // 1

@@ -22,8 +22,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let result%1#0: bytes = (concat 0x0002 arr#0)
-        let nested_arr#1: Encoded(len+len+uint64[][]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, result%1#0)
+        let encoded%3#0: Encoded(len+uint64[][]) = (concat 0x0002 arr#0)
+        let nested_arr#1: Encoded(len+len+uint64[][]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, encoded%3#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[][])uint64")
@@ -31,12 +31,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let array%array_length%1#1: uint64 = (extract_uint16 arr#0 0u)
-        let val_as_bytes%0#0: bytes[8] = (itob array%array_length%1#1)
-        let encoded_tuple_buffer%1#0: bytes = (concat 0x000a val_as_bytes%0#0)
-        let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 arr#0)
-        let result%3#0: bytes = (concat 0x0002 encoded_tuple_buffer%2#0)
-        let concat_result%1#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, result%3#0)
+        let array%array_length%0#1: uint64 = (extract_uint16 arr#0 0u)
+        let val_as_bytes%0#0: bytes[8] = (itob array%array_length%0#1)
+        let encoded%7#0: Encoded((len+uint64[],uint64)) = (concat 0x000a val_as_bytes%0#0)
+        let encoded%8#0: Encoded((len+uint64[],uint64)) = (concat encoded%7#0 arr#0)
+        let encoded%10#0: Encoded((len+uint64[],uint64)[]) = (concat 0x0002 encoded%8#0)
+        let as_Encoded(len+(len+uint64[],uint64)[])%0#0: Encoded(len+(len+uint64[],uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, encoded%10#0)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call((uint64[],uint64)[])uint64")

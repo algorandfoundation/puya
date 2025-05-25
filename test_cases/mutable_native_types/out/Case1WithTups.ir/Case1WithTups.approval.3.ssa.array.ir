@@ -179,10 +179,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         (assert tmp%1#0) // too many tups
         let tmp%2#0: bytes = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
         let array%val_as_bytes%0#1: bytes[8] = (itob tup.a#0)
-        let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%val_as_bytes%0#1)
+        let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
+        let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%0#1)
         let array%val_as_bytes%1#1: bytes[8] = (itob tup.b#0)
-        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 array%val_as_bytes%1#1)
-        let array%encoded%2#1: bytes = (concat array%encoded%1#1 0x)
+        let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
+        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 array%as_Encoded(uint64)%1#1)
+        let array%encoded%2#1: Encoded((uint64,uint64)) = (concat array%encoded%1#1 0x)
         let encoded_value%0#0: Encoded((uint64,uint64)) = array%encoded%2#1
         let write_offset%0#0: uint64 = (* tmp%0#0 16u)
         let updated_array%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 encoded_value%0#0)
@@ -314,10 +316,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let array%item1%0#1: uint64 = (btoi array%encoded_item1%0#1)
         let (tup.a#0: uint64, tup.b#0: uint64) = (array%item0%0#1, array%item1%0#1)
         let array%val_as_bytes%0#1: bytes[8] = (itob a#0)
-        let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%val_as_bytes%0#1)
+        let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
+        let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%0#1)
         let array%val_as_bytes%1#1: bytes[8] = (itob tup.b#0)
-        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 array%val_as_bytes%1#1)
-        let array%encoded%2#1: bytes = (concat array%encoded%1#1 0x)
+        let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
+        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 array%as_Encoded(uint64)%1#1)
+        let array%encoded%2#1: Encoded((uint64,uint64)) = (concat array%encoded%1#1 0x)
         let encoded_value%0#0: Encoded((uint64,uint64)) = array%encoded%2#1
         let updated_array%0#0: bytes = (replace3 tmp%1#0 bytes_offset%0#0 encoded_value%0#0)
         let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#0 updated_array%0#0)
@@ -351,10 +355,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let array%item1%0#1: uint64 = (btoi array%encoded_item1%0#1)
         let (tup.a#0: uint64, tup.b#0: uint64) = (array%item0%0#1, array%item1%0#1)
         let array%val_as_bytes%0#1: bytes[8] = (itob tup.a#0)
-        let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%val_as_bytes%0#1)
+        let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
+        let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%0#1)
         let array%val_as_bytes%1#1: bytes[8] = (itob b#0)
-        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 array%val_as_bytes%1#1)
-        let array%encoded%2#1: bytes = (concat array%encoded%1#1 0x)
+        let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
+        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 array%as_Encoded(uint64)%1#1)
+        let array%encoded%2#1: Encoded((uint64,uint64)) = (concat array%encoded%1#1 0x)
         let encoded_value%0#0: Encoded((uint64,uint64)) = array%encoded%2#1
         let updated_array%0#0: bytes = (replace3 tmp%1#0 bytes_offset%0#0 encoded_value%0#0)
         let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#0 updated_array%0#0)
@@ -424,7 +430,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let continue_looping%0#0: bool = (< i#1 tmp%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L109
-        let expr_value_trimmed%0#0: bytes = ((extract 2 0) result#1)
         let bytes_offset%0#0: uint64 = (* i#1 16u)
         let encoded_element%0#0: bytes = (extract3 items#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
         let array%encoded_item0%0#1: bytes = (extract3 encoded_element%0#0 0u 8u) // on error: Index access is out of bounds
@@ -435,12 +440,13 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
         let val_as_bytes%1#0: bytes[8] = (itob tmp%3#0)
         let encoded%4#0: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%4#0)
-        let byte_len%0#0: uint64 = (len concatenated%0#0)
-        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
-        let as_bytes%1#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let result#2: Encoded(len+(uint64,uint64)[]) = (concat len_16_bit%0#0 concatenated%0#0)
+        let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#1 encoded%4#0) // on error: max array length exceeded
+        let extract_to_end%0#0: bytes = ((extract 2 0) concat%0#0)
+        let len%0#0: uint64 = (len extract_to_end%0#0)
+        let div_floor%0#0: uint64 = (/ len%0#0 16u)
+        let as_bytes%1#0: bytes[8] = (itob div_floor%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let result#2: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L108
