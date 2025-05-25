@@ -266,13 +266,15 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_is_a_b(a: bytes, b: 
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 a#0)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
         let length%1#0: uint64 = (len b#0)
         let as_bytes%1#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 b#0)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%1#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "is_a_b(byte[],byte[])void"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
-        let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%1#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 3u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -344,8 +346,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+        let length%0#0: uint64 = (len 0x7465737431)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x7465737431)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo(string)string"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057465737431
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -473,7 +480,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let _txn.StateProofPK#0: bytes = itxn[_txn#0].StateProofPK
         let _txn.NumApprovalProgramPages#0: uint64 = itxn[_txn#0].NumApprovalProgramPages
         let _txn.NumClearStateProgramPages#0: uint64 = itxn[_txn#0].NumClearStateProgramPages
-        let tmp%4#0: bool = (== result#0 0x000b6563686f3a207465737431)
+        let length%1#0: uint64 = (len 0x6563686f3a207465737431)
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x6563686f3a207465737431)
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%1#0
+        let tmp%4#0: bool = (== result#0 as_Encoded(len+utf8[])%1#0)
         (assert tmp%4#0)
         itxn_begin
         let inner_txn_params%1#0: itxn_field_set = itxn_field_set(1)
@@ -481,8 +493,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
+        let length%2#0: uint64 = (len 0x7465737432)
+        let as_bytes%2#0: bytes[8] = (itob length%2#0)
+        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x7465737432)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%2#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057465737432
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%2#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -610,7 +627,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let _txn.StateProofPK#1: bytes = itxn[_txn#1].StateProofPK
         let _txn.NumApprovalProgramPages#1: uint64 = itxn[_txn#1].NumApprovalProgramPages
         let _txn.NumClearStateProgramPages#1: uint64 = itxn[_txn#1].NumClearStateProgramPages
-        let tmp%8#0: bool = (== result#1 0x000b6563686f3a207465737432)
+        let length%3#0: uint64 = (len 0x6563686f3a207465737432)
+        let as_bytes%3#0: bytes[8] = (itob length%3#0)
+        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x6563686f3a207465737432)
+        let as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = encoded_value%3#0
+        let tmp%8#0: bool = (== result#1 as_Encoded(len+utf8[])%3#0)
         (assert tmp%8#0)
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
@@ -618,8 +640,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
+        let length%4#0: uint64 = (len 0x7465737433)
+        let as_bytes%4#0: bytes[8] = (itob length%4#0)
+        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x7465737433)
+        let as_Encoded(len+utf8[])%4#0: Encoded(len+utf8[]) = encoded_value%4#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo(string)string"
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057465737433
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%4#0
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -747,7 +774,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let _txn.StateProofPK#2: bytes = itxn[_txn#2].StateProofPK
         let _txn.NumApprovalProgramPages#2: uint64 = itxn[_txn#2].NumApprovalProgramPages
         let _txn.NumClearStateProgramPages#2: uint64 = itxn[_txn#2].NumClearStateProgramPages
-        let tmp%12#0: bool = (== result#2 0x000b6563686f3a207465737433)
+        let length%5#0: uint64 = (len 0x6563686f3a207465737433)
+        let as_bytes%5#0: bytes[8] = (itob length%5#0)
+        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 0x6563686f3a207465737433)
+        let as_Encoded(len+utf8[])%5#0: Encoded(len+utf8[]) = encoded_value%5#0
+        let tmp%12#0: bool = (== result#2 as_Encoded(len+utf8[])%5#0)
         (assert tmp%12#0)
         itxn_begin
         let inner_txn_params%3#0: itxn_field_set = itxn_field_set(3)
@@ -755,8 +787,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let inner_txn_params%3%%Fee_length#0: uint64 = 1u
         let inner_txn_params%3%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%3%%TypeEnum_length#0: uint64 = 1u
+        let length%6#0: uint64 = (len 0x7465737434)
+        let as_bytes%6#0: bytes[8] = (itob length%6#0)
+        let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%6#0)
+        let encoded_value%6#0: bytes = (concat length_uint16%6#0 0x7465737434)
+        let as_Encoded(len+utf8[])%6#0: Encoded(len+utf8[]) = encoded_value%6#0
         let inner_txn_params%3%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo(string)string"
-        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057465737434
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%6#0
         let inner_txn_params%3%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%3%%ApplicationID_length#0: uint64 = 1u
@@ -884,7 +921,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let _txn.StateProofPK#3: bytes = itxn[_txn#3].StateProofPK
         let _txn.NumApprovalProgramPages#3: uint64 = itxn[_txn#3].NumApprovalProgramPages
         let _txn.NumClearStateProgramPages#3: uint64 = itxn[_txn#3].NumClearStateProgramPages
-        let tmp%16#0: bool = (== result#3 0x000b6563686f3a207465737434)
+        let length%7#0: uint64 = (len 0x6563686f3a207465737434)
+        let as_bytes%7#0: bytes[8] = (itob length%7#0)
+        let length_uint16%7#0: bytes = ((extract 6 2) as_bytes%7#0)
+        let encoded_value%7#0: bytes = (concat length_uint16%7#0 0x6563686f3a207465737434)
+        let as_Encoded(len+utf8[])%7#0: Encoded(len+utf8[]) = encoded_value%7#0
+        let tmp%16#0: bool = (== result#3 as_Encoded(len+utf8[])%7#0)
         (assert tmp%16#0)
         itxn_begin
         let inner_txn_params%4#0: itxn_field_set = itxn_field_set(4)
@@ -892,8 +934,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let inner_txn_params%4%%Fee_length#0: uint64 = 1u
         let inner_txn_params%4%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%4%%TypeEnum_length#0: uint64 = 1u
+        let length%8#0: uint64 = (len 0x7465737435)
+        let as_bytes%8#0: bytes[8] = (itob length%8#0)
+        let length_uint16%8#0: bytes = ((extract 6 2) as_bytes%8#0)
+        let encoded_value%8#0: bytes = (concat length_uint16%8#0 0x7465737435)
+        let as_Encoded(len+utf8[])%8#0: Encoded(len+utf8[]) = encoded_value%8#0
         let inner_txn_params%4%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo(string)string"
-        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057465737435
+        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%8#0
         let inner_txn_params%4%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%4%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%4%%ApplicationID_length#0: uint64 = 1u
@@ -1021,7 +1068,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_selector_kind
         let _txn.StateProofPK#4: bytes = itxn[_txn#4].StateProofPK
         let _txn.NumApprovalProgramPages#4: uint64 = itxn[_txn#4].NumApprovalProgramPages
         let _txn.NumClearStateProgramPages#4: uint64 = itxn[_txn#4].NumClearStateProgramPages
-        let tmp%20#0: bool = (== result#4 0x000b6563686f3a207465737435)
+        let length%9#0: uint64 = (len 0x6563686f3a207465737435)
+        let as_bytes%9#0: bytes[8] = (itob length%9#0)
+        let length_uint16%9#0: bytes = ((extract 6 2) as_bytes%9#0)
+        let encoded_value%9#0: bytes = (concat length_uint16%9#0 0x6563686f3a207465737435)
+        let as_Encoded(len+utf8[])%9#0: Encoded(len+utf8[]) = encoded_value%9#0
+        let tmp%20#0: bool = (== result#4 as_Encoded(len+utf8[])%9#0)
         (assert tmp%20#0)
         return 
 
@@ -1033,8 +1085,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+        let length%0#0: uint64 = (len 0x7479706564202b2069676e6f7265)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x7479706564202b2069676e6f7265)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo(string)string"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[16] = 0x000e7479706564202b2069676e6f7265
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -1103,7 +1160,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         let tmp%4#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%5#0: bool = (== tmp%4#0 0x151f7c75)
         (assert tmp%5#0) // application log value is not the result of an ABI return
-        let tmp%6#0: bool = (== tmp%3#0 0x00146563686f3a207479706564202b2069676e6f7265)
+        let length%1#0: uint64 = (len 0x6563686f3a207479706564202b2069676e6f7265)
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x6563686f3a207479706564202b2069676e6f7265)
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%1#0
+        let tmp%6#0: bool = (== tmp%3#0 as_Encoded(len+utf8[])%1#0)
         (assert tmp%6#0)
         itxn_begin
         let inner_txn_params%1#0: itxn_field_set = itxn_field_set(1)
@@ -1111,8 +1173,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
+        let length%2#0: uint64 = (len 0x756e7479706564202b2069676e6f7265)
+        let as_bytes%2#0: bytes[8] = (itob length%2#0)
+        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x756e7479706564202b2069676e6f7265)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%2#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[18] = 0x0010756e7479706564202b2069676e6f7265
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%2#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -1176,7 +1243,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         let tmp%8#0: bytes = ((extract 0 4) awst_tmp%2#0)
         let tmp%9#0: bool = (== tmp%8#0 0x151f7c75)
         (assert tmp%9#0) // application log value is not the result of an ABI return
-        let tmp%10#0: bool = (== tmp%7#0 0x00166563686f3a20756e7479706564202b2069676e6f7265)
+        let length%3#0: uint64 = (len 0x6563686f3a20756e7479706564202b2069676e6f7265)
+        let as_bytes%3#0: bytes[8] = (itob length%3#0)
+        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x6563686f3a20756e7479706564202b2069676e6f7265)
+        let as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = encoded_value%3#0
+        let tmp%10#0: bool = (== tmp%7#0 as_Encoded(len+utf8[])%3#0)
         (assert tmp%10#0)
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)
@@ -1184,8 +1256,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
+        let length%4#0: uint64 = (len 0x7475706c65)
+        let as_bytes%4#0: bytes[8] = (itob length%4#0)
+        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x7475706c65)
+        let as_Encoded(len+utf8[])%4#0: Encoded(len+utf8[]) = encoded_value%4#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo(string)string"
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes[7] = 0x00057475706c65
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%4#0
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -1312,13 +1389,23 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         let result.1.StateProofPK#0: bytes = itxn[result.1#0].StateProofPK
         let result.1.NumApprovalProgramPages#0: uint64 = itxn[result.1#0].NumApprovalProgramPages
         let result.1.NumClearStateProgramPages#0: uint64 = itxn[result.1#0].NumClearStateProgramPages
-        let tmp%14#0: bool = (== result.0#0 0x000b6563686f3a207475706c65)
+        let length%5#0: uint64 = (len 0x6563686f3a207475706c65)
+        let as_bytes%5#0: bytes[8] = (itob length%5#0)
+        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 0x6563686f3a207475706c65)
+        let as_Encoded(len+utf8[])%5#0: Encoded(len+utf8[]) = encoded_value%5#0
+        let tmp%14#0: bool = (== result.0#0 as_Encoded(len+utf8[])%5#0)
         (assert tmp%14#0)
         let tmp%15#0: Encoded(len+utf8[]) = ((extract 4 0) result.1.LastLog#0)
         let tmp%16#0: bytes = ((extract 0 4) result.1.LastLog#0)
         let tmp%17#0: bool = (== tmp%16#0 0x151f7c75)
         (assert tmp%17#0) // application log value is not the result of an ABI return
-        let tmp%18#0: bool = (== tmp%15#0 0x000b6563686f3a207475706c65)
+        let length%6#0: uint64 = (len 0x6563686f3a207475706c65)
+        let as_bytes%6#0: bytes[8] = (itob length%6#0)
+        let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%6#0)
+        let encoded_value%6#0: bytes = (concat length_uint16%6#0 0x6563686f3a207475706c65)
+        let as_Encoded(len+utf8[])%6#0: Encoded(len+utf8[]) = encoded_value%6#0
+        let tmp%18#0: bool = (== tmp%15#0 as_Encoded(len+utf8[])%6#0)
         (assert tmp%18#0)
         itxn_begin
         let inner_txn_params%3#0: itxn_field_set = itxn_field_set(3)
@@ -1326,8 +1413,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         let inner_txn_params%3%%Fee_length#0: uint64 = 1u
         let inner_txn_params%3%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%3%%TypeEnum_length#0: uint64 = 1u
+        let length%7#0: uint64 = (len 0x756e7479706564)
+        let as_bytes%7#0: bytes[8] = (itob length%7#0)
+        let length_uint16%7#0: bytes = ((extract 6 2) as_bytes%7#0)
+        let encoded_value%7#0: bytes = (concat length_uint16%7#0 0x756e7479706564)
+        let as_Encoded(len+utf8[])%7#0: Encoded(len+utf8[]) = encoded_value%7#0
         let inner_txn_params%3%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo(string)string"
-        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes[9] = 0x0007756e7479706564
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%7#0
         let inner_txn_params%3%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%3%%ApplicationID_length#0: uint64 = 1u
@@ -1453,7 +1545,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_method_overload(app:
         let tmp%20#0: bytes = ((extract 0 4) txn_result.LastLog#0)
         let tmp%21#0: bool = (== tmp%20#0 0x151f7c75)
         (assert tmp%21#0) // application log value is not the result of an ABI return
-        let tmp%22#0: bool = (== tmp%19#0 0x000d6563686f3a20756e7479706564)
+        let length%8#0: uint64 = (len 0x6563686f3a20756e7479706564)
+        let as_bytes%8#0: bytes[8] = (itob length%8#0)
+        let length_uint16%8#0: bytes = ((extract 6 2) as_bytes%8#0)
+        let encoded_value%8#0: bytes = (concat length_uint16%8#0 0x6563686f3a20756e7479706564)
+        let as_Encoded(len+utf8[])%8#0: Encoded(len+utf8[]) = encoded_value%8#0
+        let tmp%22#0: bool = (== tmp%19#0 as_Encoded(len+utf8[])%8#0)
         (assert tmp%22#0)
         return 
 
@@ -1465,8 +1562,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(app: 
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+        let length%0#0: uint64 = (len 0x636f6e76657274656431)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x636f6e76657274656431)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "log(string)void"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[12] = 0x000a636f6e76657274656431
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -1862,12 +1964,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(app: 
         let inner_txn_params%3%%Fee_length#0: uint64 = 1u
         let inner_txn_params%3%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%3%%TypeEnum_length#0: uint64 = 1u
-        let length%0#0: uint64 = (len 0x34)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x34)
+        let length%1#0: uint64 = (len 0x34)
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x34)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%1#0
         let inner_txn_params%3%%param_ApplicationArgs_idx_0#0: bytes[4] = method "log(byte[])void"
-        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         let inner_txn_params%3%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%3%%ApplicationID_length#0: uint64 = 1u
@@ -2136,14 +2239,14 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(app: uin
         let encoded%1#0: Encoded((uint8,uint8)) = (concat encoded%0#0 0xad)
         let encoded%2#0: Encoded((uint8,uint8,uint8)) = (concat encoded%1#0 0xbe)
         let encoded%3#0: Encoded((uint8,uint8,uint8,uint8)) = (concat encoded%2#0 0xef)
-        let encoded%4#0: bytes = (concat encoded%3#0 0x)
+        let encoded%4#0: Encoded((uint8,uint8,uint8,uint8)) = (concat encoded%3#0 0x)
         let encoded%5#0: Encoded((uint8)) = (concat 0x 0x0f)
         let encoded%6#0: Encoded((uint8,uint8)) = (concat encoded%5#0 0x10)
         let encoded%7#0: Encoded((uint8,uint8,uint8)) = (concat encoded%6#0 0x11)
         let encoded%8#0: Encoded((uint8,uint8,uint8,uint8)) = (concat encoded%7#0 0x12)
         let encoded%9#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8))) = (concat encoded%8#0 encoded%4#0)
         let encoded%10#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)) = (concat encoded%9#0 0x14)
-        let encoded%11#0: bytes = (concat encoded%10#0 0x)
+        let encoded%11#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)) = (concat encoded%10#0 0x)
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]"
         let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[8] = 0x0000000000000001
         let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: bytes[8] = 0x0000000000000002
@@ -2159,7 +2262,7 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(app: uin
         let inner_txn_params%0%%param_ApplicationArgs_idx_12#0: bytes[8] = 0x000000000000000c
         let inner_txn_params%0%%param_ApplicationArgs_idx_13#0: bytes[8] = 0x000000000000000d
         let inner_txn_params%0%%param_ApplicationArgs_idx_14#0: bytes[8] = 0x000000000000000e
-        let inner_txn_params%0%%param_ApplicationArgs_idx_15#0: bytes = encoded%11#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_15#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)) = encoded%11#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 16u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -2314,8 +2417,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_void(app: uint64) ->
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+        let length%0#0: uint64 = (len 0x576f726c6431)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x576f726c6431)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "log(string)void"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[8] = 0x0006576f726c6431
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -2445,8 +2553,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_void(app: uint64) ->
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
+        let length%1#0: uint64 = (len 0x576f726c6432)
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x576f726c6432)
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%1#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "log(string)void"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[8] = 0x0006576f726c6432
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%1#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -2576,8 +2689,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_void(app: uint64) ->
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
+        let length%2#0: uint64 = (len 0x576f726c6433)
+        let as_bytes%2#0: bytes[8] = (itob length%2#0)
+        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x576f726c6433)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%2#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "log(string)void"
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes[8] = 0x0006576f726c6433
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%2#0
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -2707,8 +2825,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_void(app: uint64) ->
         let inner_txn_params%3%%Fee_length#0: uint64 = 1u
         let inner_txn_params%3%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%3%%TypeEnum_length#0: uint64 = 1u
+        let length%3#0: uint64 = (len 0x576f726c6434)
+        let as_bytes%3#0: bytes[8] = (itob length%3#0)
+        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x576f726c6434)
+        let as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = encoded_value%3#0
         let inner_txn_params%3%%param_ApplicationArgs_idx_0#0: bytes[4] = method "log(string)void"
-        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes[8] = 0x0006576f726c6434
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%3#0
         let inner_txn_params%3%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%3%%ApplicationID_length#0: uint64 = 1u
@@ -2999,8 +3122,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address(a
         let length%0#0: uint64 = (len to_encode%0#0)
         let lengths_equal%0#0: bool = (== length%0#0 32u)
         (assert lengths_equal%0#0) // invalid size
+        let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = to_encode%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "log(address)void"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[32] = to_encode%0#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(uint8[32]) = as_Encoded(uint8[32])%0#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -3135,8 +3259,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: u
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
+        let length%0#0: uint64 = (len 0x73)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x73)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_string(string)string"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[3] = 0x000173
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -3273,12 +3402,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: u
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let length%0#0: uint64 = (len "s")
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 "s")
+        let length%1#0: uint64 = (len "s")
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 "s")
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%1#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_string(string)string"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%1#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -3415,8 +3545,13 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: u
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
+        let length%2#0: uint64 = (len 0x73)
+        let as_bytes%2#0: bytes[8] = (itob length%2#0)
+        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x73)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%2#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_string(string)string"
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes[3] = 0x000173
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%2#0
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -3561,8 +3696,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(app: ui
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x62)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_bytes(byte[])byte[]"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%0#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -3703,8 +3839,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(app: ui
         let as_bytes%1#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x62)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%1#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_bytes(byte[])byte[]"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -3845,8 +3982,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_bytes(app: ui
         let as_bytes%2#0: bytes[8] = (itob length%2#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x62)
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = encoded_value%2#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_bytes(byte[])byte[]"
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%2#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%2#0
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -4126,8 +4264,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_uint64(app: u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
         let val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_uint64(uint64)uint64"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[8] = val_as_bytes%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(uint64) = as_Encoded(uint64)%0#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -4548,8 +4687,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_biguint(app: 
         (assert len_ok%0#0) // overflow
         let bzero%0#0: bytes = (bzero 64u)
         let arc4_encoded%0#0: bytes[64] = (b| 2b bzero%0#0)
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = arc4_encoded%0#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_biguint(uint512)uint512"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[64] = arc4_encoded%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(uint512) = as_Encoded(uint512)%0#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -4826,13 +4966,19 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let length%0#0: uint64 = (len 0x6231)
+        let length%0#0: uint64 = (len 0x7331)
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x6231)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x7331)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
+        let length%1#0: uint64 = (len 0x6231)
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x6231)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%1#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[4] = 0x00027331
-        let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%0#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_3#0: bytes[8] = 0x0000000000000001
         let inner_txn_params%0%%param_ApplicationArgs_idx_4#0: bytes[64] = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 5u
@@ -4994,25 +5140,29 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let length%1#0: uint64 = (len "s1")
-        let as_bytes%1#0: bytes[8] = (itob length%1#0)
-        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let encoded_value%1#0: bytes = (concat length_uint16%1#0 "s1")
-        let length%2#0: uint64 = (len 0x6231)
+        let length%2#0: uint64 = (len "s1")
         let as_bytes%2#0: bytes[8] = (itob length%2#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x6231)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 "s1")
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%2#0
+        let length%3#0: uint64 = (len 0x6231)
+        let as_bytes%3#0: bytes[8] = (itob length%3#0)
+        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x6231)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%3#0
         let val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         let value_len%0#0: uint64 = (len 2b)
         let len_ok%0#0: bool = (<= value_len%0#0 64u)
         (assert len_ok%0#0) // overflow
         let bzero%0#0: bytes = (bzero 64u)
         let arc4_encoded%0#0: bytes[64] = (b| 2b bzero%0#0)
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = arc4_encoded%0#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%2#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_3#0: bytes[8] = val_as_bytes%0#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_4#0: bytes[64] = arc4_encoded%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%1#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_3#0: Encoded(uint64) = as_Encoded(uint64)%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_4#0: Encoded(uint512) = as_Encoded(uint512)%0#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 5u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -5151,13 +5301,19 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let length%3#0: uint64 = (len 0x6231)
-        let as_bytes%3#0: bytes[8] = (itob length%3#0)
-        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x6231)
+        let length%4#0: uint64 = (len 0x7331)
+        let as_bytes%4#0: bytes[8] = (itob length%4#0)
+        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x7331)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%4#0
+        let length%5#0: uint64 = (len 0x6231)
+        let as_bytes%5#0: bytes[8] = (itob length%5#0)
+        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 0x6231)
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = encoded_value%5#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes[4] = 0x00027331
-        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%3#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%2#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%2#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_3#0: bytes[8] = 0x0000000000000001
         let inner_txn_params%2%%param_ApplicationArgs_idx_4#0: bytes[64] = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 5u
@@ -5298,13 +5454,19 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple(app: ui
         let inner_txn_params%3%%Fee_length#0: uint64 = 1u
         let inner_txn_params%3%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%3%%TypeEnum_length#0: uint64 = 1u
-        let length%4#0: uint64 = (len 0x6231)
-        let as_bytes%4#0: bytes[8] = (itob length%4#0)
-        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
-        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x6231)
+        let length%6#0: uint64 = (len 0x7331)
+        let as_bytes%6#0: bytes[8] = (itob length%6#0)
+        let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%6#0)
+        let encoded_value%6#0: bytes = (concat length_uint16%6#0 0x7331)
+        let as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = encoded_value%6#0
+        let length%7#0: uint64 = (len 0x6231)
+        let as_bytes%7#0: bytes[8] = (itob length%7#0)
+        let length_uint16%7#0: bytes = ((extract 6 2) as_bytes%7#0)
+        let encoded_value%7#0: bytes = (concat length_uint16%7#0 0x6231)
+        let as_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = encoded_value%7#0
         let inner_txn_params%3%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes[4] = 0x00027331
-        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%4#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%3#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%3#0
         let inner_txn_params%3%%param_ApplicationArgs_idx_3#0: bytes[8] = 0x0000000000000001
         let inner_txn_params%3%%param_ApplicationArgs_idx_4#0: bytes[64] = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         let inner_txn_params%3%%ApplicationArgs_length#0: uint64 = 5u
@@ -5501,13 +5663,19 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let length%0#0: uint64 = (len 0x6231)
+        let length%0#0: uint64 = (len 0x7331)
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x6231)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x7331)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
+        let length%1#0: uint64 = (len 0x6231)
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x6231)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%1#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes[4] = 0x00027331
-        let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%0#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_3#0: bytes[8] = 0x0000000000000001
         let inner_txn_params%0%%param_ApplicationArgs_idx_4#0: bytes[64] = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 5u
@@ -5669,25 +5837,29 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let length%1#0: uint64 = (len "s1")
-        let as_bytes%1#0: bytes[8] = (itob length%1#0)
-        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let encoded_value%1#0: bytes = (concat length_uint16%1#0 "s1")
-        let length%2#0: uint64 = (len 0x6231)
+        let length%2#0: uint64 = (len "s1")
         let as_bytes%2#0: bytes[8] = (itob length%2#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x6231)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 "s1")
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%2#0
+        let length%3#0: uint64 = (len 0x6231)
+        let as_bytes%3#0: bytes[8] = (itob length%3#0)
+        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x6231)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%3#0
         let val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         let value_len%0#0: uint64 = (len 2b)
         let len_ok%0#0: bool = (<= value_len%0#0 64u)
         (assert len_ok%0#0) // overflow
         let bzero%0#0: bytes = (bzero 64u)
         let arc4_encoded%0#0: bytes[64] = (b| 2b bzero%0#0)
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = arc4_encoded%0#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%2#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_3#0: bytes[8] = val_as_bytes%0#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_4#0: bytes[64] = arc4_encoded%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%1#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_3#0: Encoded(uint64) = as_Encoded(uint64)%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_4#0: Encoded(uint512) = as_Encoded(uint512)%0#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 5u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -5843,13 +6015,19 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let length%3#0: uint64 = (len 0x6231)
-        let as_bytes%3#0: bytes[8] = (itob length%3#0)
-        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x6231)
+        let length%4#0: uint64 = (len 0x7331)
+        let as_bytes%4#0: bytes[8] = (itob length%4#0)
+        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x7331)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%4#0
+        let length%5#0: uint64 = (len 0x6231)
+        let as_bytes%5#0: bytes[8] = (itob length%5#0)
+        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 0x6231)
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = encoded_value%5#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes[4] = 0x00027331
-        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%3#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%2#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%2#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_3#0: bytes[8] = 0x0000000000000001
         let inner_txn_params%2%%param_ApplicationArgs_idx_4#0: bytes[64] = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 5u
@@ -6007,13 +6185,19 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_tuple_method_
         let inner_txn_params%3%%Fee_length#0: uint64 = 1u
         let inner_txn_params%3%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%3%%TypeEnum_length#0: uint64 = 1u
-        let length%4#0: uint64 = (len 0x6231)
-        let as_bytes%4#0: bytes[8] = (itob length%4#0)
-        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
-        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x6231)
+        let length%6#0: uint64 = (len 0x7331)
+        let as_bytes%6#0: bytes[8] = (itob length%6#0)
+        let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%6#0)
+        let encoded_value%6#0: bytes = (concat length_uint16%6#0 0x7331)
+        let as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = encoded_value%6#0
+        let length%7#0: uint64 = (len 0x6231)
+        let as_bytes%7#0: bytes[8] = (itob length%7#0)
+        let length_uint16%7#0: bytes = ((extract 6 2) as_bytes%7#0)
+        let encoded_value%7#0: bytes = (concat length_uint16%7#0 0x6231)
+        let as_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = encoded_value%7#0
         let inner_txn_params%3%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)"
-        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes[4] = 0x00027331
-        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%4#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%3#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%3#0
         let inner_txn_params%3%%param_ApplicationArgs_idx_3#0: bytes[8] = 0x0000000000000001
         let inner_txn_params%3%%param_ApplicationArgs_idx_4#0: bytes[64] = 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002
         let inner_txn_params%3%%ApplicationArgs_length#0: uint64 = 5u
@@ -6175,47 +6359,58 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let length%0#0: uint64 = (len 0x33)
+        let length%0#0: uint64 = (len 0x7331)
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x33)
-        let tail%0#0: bytes = (concat 0x 0x00027331)
-        let data_length%0#0: uint64 = (len 0x00027331)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x7331)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
+        let length%1#0: uint64 = (len 0x7332)
+        let as_bytes%1#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x7332)
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%1#0
+        let length%2#0: uint64 = (len 0x33)
+        let as_bytes%2#0: bytes[8] = (itob length%2#0)
+        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x33)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%2#0
+        let tail%0#0: bytes = (concat 0x as_Encoded(len+utf8[])%0#0)
+        let data_length%0#0: uint64 = (len as_Encoded(len+utf8[])%0#0)
         let current_tail_offset%0#0: uint64 = (+ 4u data_length%0#0)
-        let as_bytes%1#0: bytes[8] = (itob 4u)
-        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let as_bytes%3#0: bytes[8] = (itob 4u)
+        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded%0#0: Encoded((len+utf8[])) = (concat 0x offset_as_uint16%0#0)
-        let tail%1#0: bytes = (concat tail%0#0 0x00027332)
-        let data_length%1#0: uint64 = (len 0x00027332)
+        let tail%1#0: bytes = (concat tail%0#0 as_Encoded(len+utf8[])%1#0)
+        let data_length%1#0: uint64 = (len as_Encoded(len+utf8[])%1#0)
         let current_tail_offset%1#0: uint64 = (+ current_tail_offset%0#0 data_length%1#0)
-        let as_bytes%2#0: bytes[8] = (itob current_tail_offset%0#0)
-        let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let as_bytes%4#0: bytes[8] = (itob current_tail_offset%0#0)
+        let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%4#0)
         let encoded%1#0: Encoded((len+utf8[],len+utf8[])) = (concat encoded%0#0 offset_as_uint16%1#0)
-        let encoded%2#0: bytes = (concat encoded%1#0 tail%1#0)
+        let encoded%2#0: Encoded((len+utf8[],len+utf8[])) = (concat encoded%1#0 tail%1#0)
         let tail%2#0: bytes = (concat 0x encoded%2#0)
         let data_length%2#0: uint64 = (len encoded%2#0)
         let current_tail_offset%2#0: uint64 = (+ 4u data_length%2#0)
-        let as_bytes%3#0: bytes[8] = (itob 4u)
-        let offset_as_uint16%2#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let as_bytes%5#0: bytes[8] = (itob 4u)
+        let offset_as_uint16%2#0: bytes = ((extract 6 2) as_bytes%5#0)
         let encoded%3#0: Encoded(((len+utf8[],len+utf8[]))) = (concat 0x offset_as_uint16%2#0)
         let encoded%4#0: Encoded((uint64)) = (concat 0x 0x0000000000000001)
         let encoded%5#0: Encoded((uint64,uint64)) = (concat encoded%4#0 0x0000000000000002)
-        let tail%3#0: bytes = (concat 0x encoded_value%0#0)
-        let data_length%3#0: uint64 = (len encoded_value%0#0)
+        let tail%3#0: bytes = (concat 0x as_Encoded(len+uint8[])%0#0)
+        let data_length%3#0: uint64 = (len as_Encoded(len+uint8[])%0#0)
         let current_tail_offset%3#0: uint64 = (+ 18u data_length%3#0)
-        let as_bytes%4#0: bytes[8] = (itob 18u)
-        let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%4#0)
+        let as_bytes%6#0: bytes[8] = (itob 18u)
+        let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%6#0)
         let encoded%6#0: Encoded((uint64,uint64,len+uint8[])) = (concat encoded%5#0 offset_as_uint16%3#0)
-        let encoded%7#0: bytes = (concat encoded%6#0 tail%3#0)
+        let encoded%7#0: Encoded((uint64,uint64,len+uint8[])) = (concat encoded%6#0 tail%3#0)
         let tail%4#0: bytes = (concat tail%2#0 encoded%7#0)
         let data_length%4#0: uint64 = (len encoded%7#0)
         let current_tail_offset%4#0: uint64 = (+ current_tail_offset%2#0 data_length%4#0)
-        let as_bytes%5#0: bytes[8] = (itob current_tail_offset%2#0)
-        let offset_as_uint16%4#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let as_bytes%7#0: bytes[8] = (itob current_tail_offset%2#0)
+        let offset_as_uint16%4#0: bytes = ((extract 6 2) as_bytes%7#0)
         let encoded%8#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = (concat encoded%3#0 offset_as_uint16%4#0)
-        let encoded%9#0: bytes = (concat encoded%8#0 tail%4#0)
+        let encoded%9#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = (concat encoded%8#0 tail%4#0)
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded%9#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = encoded%9#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -6370,7 +6565,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let bytez#0: bytes = result.1.2#0
         let tmp%3#0: bool = (== s1#0 "echo: s1")
         (assert tmp%3#0)
-        let tmp%4#0: bool = (== s2#0 0x00086563686f3a207332)
+        let length%3#0: uint64 = (len 0x6563686f3a207332)
+        let as_bytes%8#0: bytes[8] = (itob length%3#0)
+        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%8#0)
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x6563686f3a207332)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%3#0
+        let tmp%4#0: bool = (== s2#0 as_Encoded(len+utf8[])%2#0)
         (assert tmp%4#0)
         let tmp%5#0: bool = (== u64_1#0 2u)
         (assert tmp%5#0)
@@ -6386,52 +6586,60 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let length%1#0: uint64 = (len "s1")
-        let as_bytes%6#0: bytes[8] = (itob length%1#0)
-        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%6#0)
-        let encoded_value%1#0: bytes = (concat length_uint16%1#0 "s1")
-        let tail%5#0: bytes = (concat 0x encoded_value%1#0)
-        let data_length%5#0: uint64 = (len encoded_value%1#0)
+        let length%4#0: uint64 = (len 0x7332)
+        let as_bytes%9#0: bytes[8] = (itob length%4#0)
+        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%9#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x7332)
+        let as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = encoded_value%4#0
+        let length%5#0: uint64 = (len "s1")
+        let as_bytes%10#0: bytes[8] = (itob length%5#0)
+        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%10#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 "s1")
+        let as_Encoded(len+utf8[])%4#0: Encoded(len+utf8[]) = encoded_value%5#0
+        let tail%5#0: bytes = (concat 0x as_Encoded(len+utf8[])%4#0)
+        let data_length%5#0: uint64 = (len as_Encoded(len+utf8[])%4#0)
         let current_tail_offset%5#0: uint64 = (+ 4u data_length%5#0)
-        let as_bytes%7#0: bytes[8] = (itob 4u)
-        let offset_as_uint16%5#0: bytes = ((extract 6 2) as_bytes%7#0)
+        let as_bytes%11#0: bytes[8] = (itob 4u)
+        let offset_as_uint16%5#0: bytes = ((extract 6 2) as_bytes%11#0)
         let encoded%10#0: Encoded((len+utf8[])) = (concat 0x offset_as_uint16%5#0)
-        let tail%6#0: bytes = (concat tail%5#0 0x00027332)
-        let data_length%6#0: uint64 = (len 0x00027332)
+        let tail%6#0: bytes = (concat tail%5#0 as_Encoded(len+utf8[])%3#0)
+        let data_length%6#0: uint64 = (len as_Encoded(len+utf8[])%3#0)
         let current_tail_offset%6#0: uint64 = (+ current_tail_offset%5#0 data_length%6#0)
-        let as_bytes%8#0: bytes[8] = (itob current_tail_offset%5#0)
-        let offset_as_uint16%6#0: bytes = ((extract 6 2) as_bytes%8#0)
+        let as_bytes%12#0: bytes[8] = (itob current_tail_offset%5#0)
+        let offset_as_uint16%6#0: bytes = ((extract 6 2) as_bytes%12#0)
         let encoded%11#0: Encoded((len+utf8[],len+utf8[])) = (concat encoded%10#0 offset_as_uint16%6#0)
-        let encoded%12#0: bytes = (concat encoded%11#0 tail%6#0)
+        let encoded%12#0: Encoded((len+utf8[],len+utf8[])) = (concat encoded%11#0 tail%6#0)
         let tail%7#0: bytes = (concat 0x encoded%12#0)
         let data_length%7#0: uint64 = (len encoded%12#0)
         let current_tail_offset%7#0: uint64 = (+ 4u data_length%7#0)
-        let as_bytes%9#0: bytes[8] = (itob 4u)
-        let offset_as_uint16%7#0: bytes = ((extract 6 2) as_bytes%9#0)
+        let as_bytes%13#0: bytes[8] = (itob 4u)
+        let offset_as_uint16%7#0: bytes = ((extract 6 2) as_bytes%13#0)
         let encoded%13#0: Encoded(((len+utf8[],len+utf8[]))) = (concat 0x offset_as_uint16%7#0)
         let val_as_bytes%0#0: bytes[8] = (itob 1u)
-        let encoded%14#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
+        let encoded%14#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
         let encoded%15#0: Encoded((uint64,uint64)) = (concat encoded%14#0 0x0000000000000002)
-        let length%2#0: uint64 = (len 0x33)
-        let as_bytes%10#0: bytes[8] = (itob length%2#0)
-        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%10#0)
-        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x33)
-        let tail%8#0: bytes = (concat 0x encoded_value%2#0)
-        let data_length%8#0: uint64 = (len encoded_value%2#0)
+        let length%6#0: uint64 = (len 0x33)
+        let as_bytes%14#0: bytes[8] = (itob length%6#0)
+        let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%14#0)
+        let encoded_value%6#0: bytes = (concat length_uint16%6#0 0x33)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%6#0
+        let tail%8#0: bytes = (concat 0x as_Encoded(len+uint8[])%1#0)
+        let data_length%8#0: uint64 = (len as_Encoded(len+uint8[])%1#0)
         let current_tail_offset%8#0: uint64 = (+ 18u data_length%8#0)
-        let as_bytes%11#0: bytes[8] = (itob 18u)
-        let offset_as_uint16%8#0: bytes = ((extract 6 2) as_bytes%11#0)
+        let as_bytes%15#0: bytes[8] = (itob 18u)
+        let offset_as_uint16%8#0: bytes = ((extract 6 2) as_bytes%15#0)
         let encoded%16#0: Encoded((uint64,uint64,len+uint8[])) = (concat encoded%15#0 offset_as_uint16%8#0)
-        let encoded%17#0: bytes = (concat encoded%16#0 tail%8#0)
+        let encoded%17#0: Encoded((uint64,uint64,len+uint8[])) = (concat encoded%16#0 tail%8#0)
         let tail%9#0: bytes = (concat tail%7#0 encoded%17#0)
         let data_length%9#0: uint64 = (len encoded%17#0)
         let current_tail_offset%9#0: uint64 = (+ current_tail_offset%7#0 data_length%9#0)
-        let as_bytes%12#0: bytes[8] = (itob current_tail_offset%7#0)
-        let offset_as_uint16%9#0: bytes = ((extract 6 2) as_bytes%12#0)
+        let as_bytes%16#0: bytes[8] = (itob current_tail_offset%7#0)
+        let offset_as_uint16%9#0: bytes = ((extract 6 2) as_bytes%16#0)
         let encoded%18#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = (concat encoded%13#0 offset_as_uint16%9#0)
-        let encoded%19#0: bytes = (concat encoded%18#0 tail%9#0)
+        let encoded%19#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = (concat encoded%18#0 tail%9#0)
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded%19#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = encoded%19#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -6586,7 +6794,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let bytez#1: bytes = result.1.2#1
         let tmp%11#0: bool = (== s1#1 "echo: s1")
         (assert tmp%11#0)
-        let tmp%12#0: bool = (== s2#1 0x00086563686f3a207332)
+        let length%7#0: uint64 = (len 0x6563686f3a207332)
+        let as_bytes%17#0: bytes[8] = (itob length%7#0)
+        let length_uint16%7#0: bytes = ((extract 6 2) as_bytes%17#0)
+        let encoded_value%7#0: bytes = (concat length_uint16%7#0 0x6563686f3a207332)
+        let as_Encoded(len+utf8[])%5#0: Encoded(len+utf8[]) = encoded_value%7#0
+        let tmp%12#0: bool = (== s2#1 as_Encoded(len+utf8[])%5#0)
         (assert tmp%12#0)
         let tmp%13#0: bool = (== u64_1#1 2u)
         (assert tmp%13#0)
@@ -6602,47 +6815,58 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let inner_txn_params%2%%Fee_length#0: uint64 = 1u
         let inner_txn_params%2%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%2%%TypeEnum_length#0: uint64 = 1u
-        let tail%10#0: bytes = (concat 0x 0x0003733162)
-        let data_length%10#0: uint64 = (len 0x0003733162)
+        let length%8#0: uint64 = (len 0x733162)
+        let as_bytes%18#0: bytes[8] = (itob length%8#0)
+        let length_uint16%8#0: bytes = ((extract 6 2) as_bytes%18#0)
+        let encoded_value%8#0: bytes = (concat length_uint16%8#0 0x733162)
+        let as_Encoded(len+utf8[])%6#0: Encoded(len+utf8[]) = encoded_value%8#0
+        let length%9#0: uint64 = (len 0x733262)
+        let as_bytes%19#0: bytes[8] = (itob length%9#0)
+        let length_uint16%9#0: bytes = ((extract 6 2) as_bytes%19#0)
+        let encoded_value%9#0: bytes = (concat length_uint16%9#0 0x733262)
+        let as_Encoded(len+utf8[])%7#0: Encoded(len+utf8[]) = encoded_value%9#0
+        let tail%10#0: bytes = (concat 0x as_Encoded(len+utf8[])%6#0)
+        let data_length%10#0: uint64 = (len as_Encoded(len+utf8[])%6#0)
         let current_tail_offset%10#0: uint64 = (+ 4u data_length%10#0)
-        let as_bytes%13#0: bytes[8] = (itob 4u)
-        let offset_as_uint16%10#0: bytes = ((extract 6 2) as_bytes%13#0)
+        let as_bytes%20#0: bytes[8] = (itob 4u)
+        let offset_as_uint16%10#0: bytes = ((extract 6 2) as_bytes%20#0)
         let encoded%20#0: Encoded((len+utf8[])) = (concat 0x offset_as_uint16%10#0)
-        let tail%11#0: bytes = (concat tail%10#0 0x0003733262)
-        let data_length%11#0: uint64 = (len 0x0003733262)
+        let tail%11#0: bytes = (concat tail%10#0 as_Encoded(len+utf8[])%7#0)
+        let data_length%11#0: uint64 = (len as_Encoded(len+utf8[])%7#0)
         let current_tail_offset%11#0: uint64 = (+ current_tail_offset%10#0 data_length%11#0)
-        let as_bytes%14#0: bytes[8] = (itob current_tail_offset%10#0)
-        let offset_as_uint16%11#0: bytes = ((extract 6 2) as_bytes%14#0)
+        let as_bytes%21#0: bytes[8] = (itob current_tail_offset%10#0)
+        let offset_as_uint16%11#0: bytes = ((extract 6 2) as_bytes%21#0)
         let encoded%21#0: Encoded((len+utf8[],len+utf8[])) = (concat encoded%20#0 offset_as_uint16%11#0)
-        let encoded%22#0: bytes = (concat encoded%21#0 tail%11#0)
-        let length%3#0: uint64 = (len 0x3362)
-        let as_bytes%15#0: bytes[8] = (itob length%3#0)
-        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%15#0)
-        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x3362)
+        let encoded%22#0: Encoded((len+utf8[],len+utf8[])) = (concat encoded%21#0 tail%11#0)
+        let length%10#0: uint64 = (len 0x3362)
+        let as_bytes%22#0: bytes[8] = (itob length%10#0)
+        let length_uint16%10#0: bytes = ((extract 6 2) as_bytes%22#0)
+        let encoded_value%10#0: bytes = (concat length_uint16%10#0 0x3362)
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = encoded_value%10#0
         let encoded%23#0: Encoded((uint64)) = (concat 0x 0x000000000000000b)
         let encoded%24#0: Encoded((uint64,uint64)) = (concat encoded%23#0 0x0000000000000015)
-        let tail%12#0: bytes = (concat 0x encoded_value%3#0)
-        let data_length%12#0: uint64 = (len encoded_value%3#0)
+        let tail%12#0: bytes = (concat 0x as_Encoded(len+uint8[])%2#0)
+        let data_length%12#0: uint64 = (len as_Encoded(len+uint8[])%2#0)
         let current_tail_offset%12#0: uint64 = (+ 18u data_length%12#0)
-        let as_bytes%16#0: bytes[8] = (itob 18u)
-        let offset_as_uint16%12#0: bytes = ((extract 6 2) as_bytes%16#0)
+        let as_bytes%23#0: bytes[8] = (itob 18u)
+        let offset_as_uint16%12#0: bytes = ((extract 6 2) as_bytes%23#0)
         let encoded%25#0: Encoded((uint64,uint64,len+uint8[])) = (concat encoded%24#0 offset_as_uint16%12#0)
-        let encoded%26#0: bytes = (concat encoded%25#0 tail%12#0)
+        let encoded%26#0: Encoded((uint64,uint64,len+uint8[])) = (concat encoded%25#0 tail%12#0)
         let tail%13#0: bytes = (concat 0x encoded%22#0)
         let data_length%13#0: uint64 = (len encoded%22#0)
         let current_tail_offset%13#0: uint64 = (+ 4u data_length%13#0)
-        let as_bytes%17#0: bytes[8] = (itob 4u)
-        let offset_as_uint16%13#0: bytes = ((extract 6 2) as_bytes%17#0)
+        let as_bytes%24#0: bytes[8] = (itob 4u)
+        let offset_as_uint16%13#0: bytes = ((extract 6 2) as_bytes%24#0)
         let encoded%27#0: Encoded(((len+utf8[],len+utf8[]))) = (concat 0x offset_as_uint16%13#0)
         let tail%14#0: bytes = (concat tail%13#0 encoded%26#0)
         let data_length%14#0: uint64 = (len encoded%26#0)
         let current_tail_offset%14#0: uint64 = (+ current_tail_offset%13#0 data_length%14#0)
-        let as_bytes%18#0: bytes[8] = (itob current_tail_offset%13#0)
-        let offset_as_uint16%14#0: bytes = ((extract 6 2) as_bytes%18#0)
+        let as_bytes%25#0: bytes[8] = (itob current_tail_offset%13#0)
+        let offset_as_uint16%14#0: bytes = ((extract 6 2) as_bytes%25#0)
         let encoded%28#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = (concat encoded%27#0 offset_as_uint16%14#0)
-        let encoded%29#0: bytes = (concat encoded%28#0 tail%14#0)
+        let encoded%29#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = (concat encoded%28#0 tail%14#0)
         let inner_txn_params%2%%param_ApplicationArgs_idx_0#0: bytes[4] = method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))"
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes = encoded%29#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = encoded%29#0
         let inner_txn_params%2%%ApplicationArgs_length#0: uint64 = 2u
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%2%%ApplicationID_length#0: uint64 = 1u
@@ -6797,7 +7021,12 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_nested_tuples(app: u
         let bytez#2: bytes = result.1.2#2
         let tmp%19#0: bool = (== s1#2 "echo: s1b")
         (assert tmp%19#0)
-        let tmp%20#0: bool = (== s2#2 0x00096563686f3a20733262)
+        let length%11#0: uint64 = (len 0x6563686f3a20733262)
+        let as_bytes%26#0: bytes[8] = (itob length%11#0)
+        let length_uint16%11#0: bytes = ((extract 6 2) as_bytes%26#0)
+        let encoded_value%11#0: bytes = (concat length_uint16%11#0 0x6563686f3a20733262)
+        let as_Encoded(len+utf8[])%8#0: Encoded(len+utf8[]) = encoded_value%11#0
+        let tmp%20#0: bool = (== s2#2 as_Encoded(len+utf8[])%8#0)
         (assert tmp%20#0)
         let tmp%21#0: bool = (== u64_1#2 12u)
         (assert tmp%21#0)
@@ -7174,34 +7403,38 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(app: ui
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
         let val_as_bytes%0#0: bytes[8] = (itob 1u)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         let length%0#0: uint64 = (len "log 1")
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 "log 1")
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
-        let tail%0#0: bytes = (concat 0x encoded_value%0#0)
-        let data_length%0#0: uint64 = (len encoded_value%0#0)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
+        let tail%0#0: bytes = (concat 0x as_Encoded(len+utf8[])%0#0)
+        let data_length%0#0: uint64 = (len as_Encoded(len+utf8[])%0#0)
         let current_tail_offset%0#0: uint64 = (+ 10u data_length%0#0)
         let as_bytes%1#0: bytes[8] = (itob 10u)
         let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded%1#0: Encoded((uint64,len+utf8[])) = (concat encoded%0#0 offset_as_uint16%0#0)
-        let encoded%2#0: bytes = (concat encoded%1#0 tail%0#0)
+        let encoded%2#0: Encoded((uint64,len+utf8[])) = (concat encoded%1#0 tail%0#0)
         let val_as_bytes%1#0: bytes[8] = (itob 1u)
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = val_as_bytes%1#0
         let length%1#0: uint64 = (len "log 1")
         let as_bytes%2#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 "log 1")
-        let encoded%3#0: Encoded((uint64)) = (concat 0x val_as_bytes%1#0)
-        let tail%1#0: bytes = (concat 0x encoded_value%1#0)
-        let data_length%1#0: uint64 = (len encoded_value%1#0)
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%1#0
+        let encoded%3#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%1#0)
+        let tail%1#0: bytes = (concat 0x as_Encoded(len+utf8[])%1#0)
+        let data_length%1#0: uint64 = (len as_Encoded(len+utf8[])%1#0)
         let current_tail_offset%1#0: uint64 = (+ 10u data_length%1#0)
         let as_bytes%3#0: bytes[8] = (itob 10u)
         let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded%4#0: Encoded((uint64,len+utf8[])) = (concat encoded%3#0 offset_as_uint16%1#0)
-        let encoded%5#0: bytes = (concat encoded%4#0 tail%1#0)
+        let encoded%5#0: Encoded((uint64,len+utf8[])) = (concat encoded%4#0 tail%1#0)
         let inner_txn_params%0%%param_ApplicationArgs_idx_0#0: bytes[4] = method "logs_are_equal((uint64,string),(uint64,string))bool"
-        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: bytes = encoded%2#0
-        let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: bytes = encoded%5#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded((uint64,len+utf8[])) = encoded%2#0
+        let inner_txn_params%0%%param_ApplicationArgs_idx_2#0: Encoded((uint64,len+utf8[])) = encoded%5#0
         let inner_txn_params%0%%ApplicationArgs_length#0: uint64 = 3u
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%0%%ApplicationID_length#0: uint64 = 1u
@@ -7339,34 +7572,38 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(app: ui
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = appl
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
         let val_as_bytes%2#0: bytes[8] = (itob 2u)
+        let as_Encoded(uint64)%2#0: Encoded(uint64) = val_as_bytes%2#0
         let length%2#0: uint64 = (len "log 2")
         let as_bytes%4#0: bytes[8] = (itob length%2#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%4#0)
         let encoded_value%2#0: bytes = (concat length_uint16%2#0 "log 2")
-        let encoded%6#0: Encoded((uint64)) = (concat 0x val_as_bytes%2#0)
-        let tail%2#0: bytes = (concat 0x encoded_value%2#0)
-        let data_length%2#0: uint64 = (len encoded_value%2#0)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%2#0
+        let encoded%6#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%2#0)
+        let tail%2#0: bytes = (concat 0x as_Encoded(len+utf8[])%2#0)
+        let data_length%2#0: uint64 = (len as_Encoded(len+utf8[])%2#0)
         let current_tail_offset%2#0: uint64 = (+ 10u data_length%2#0)
         let as_bytes%5#0: bytes[8] = (itob 10u)
         let offset_as_uint16%2#0: bytes = ((extract 6 2) as_bytes%5#0)
         let encoded%7#0: Encoded((uint64,len+utf8[])) = (concat encoded%6#0 offset_as_uint16%2#0)
-        let encoded%8#0: bytes = (concat encoded%7#0 tail%2#0)
+        let encoded%8#0: Encoded((uint64,len+utf8[])) = (concat encoded%7#0 tail%2#0)
         let val_as_bytes%3#0: bytes[8] = (itob 1u)
+        let as_Encoded(uint64)%3#0: Encoded(uint64) = val_as_bytes%3#0
         let length%3#0: uint64 = (len "log 1")
         let as_bytes%6#0: bytes[8] = (itob length%3#0)
         let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%6#0)
         let encoded_value%3#0: bytes = (concat length_uint16%3#0 "log 1")
-        let encoded%9#0: Encoded((uint64)) = (concat 0x val_as_bytes%3#0)
-        let tail%3#0: bytes = (concat 0x encoded_value%3#0)
-        let data_length%3#0: uint64 = (len encoded_value%3#0)
+        let as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = encoded_value%3#0
+        let encoded%9#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%3#0)
+        let tail%3#0: bytes = (concat 0x as_Encoded(len+utf8[])%3#0)
+        let data_length%3#0: uint64 = (len as_Encoded(len+utf8[])%3#0)
         let current_tail_offset%3#0: uint64 = (+ 10u data_length%3#0)
         let as_bytes%7#0: bytes[8] = (itob 10u)
         let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%7#0)
         let encoded%10#0: Encoded((uint64,len+utf8[])) = (concat encoded%9#0 offset_as_uint16%3#0)
-        let encoded%11#0: bytes = (concat encoded%10#0 tail%3#0)
+        let encoded%11#0: Encoded((uint64,len+utf8[])) = (concat encoded%10#0 tail%3#0)
         let inner_txn_params%1%%param_ApplicationArgs_idx_0#0: bytes[4] = method "logs_are_equal((uint64,string),(uint64,string))bool"
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = encoded%8#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded%11#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded((uint64,len+utf8[])) = encoded%8#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded((uint64,len+utf8[])) = encoded%11#0
         let inner_txn_params%1%%ApplicationArgs_length#0: uint64 = 3u
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         let inner_txn_params%1%%ApplicationID_length#0: uint64 = 1u
@@ -7502,14 +7739,19 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_named_tuples(app: ui
 
 subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arc4_struct(app: uint64) -> void:
     block@0: // L372
+        let length%0#0: uint64 = (len 0x6c6f672031)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x6c6f672031)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
         let encoded%0#0: Encoded((uint64)) = (concat 0x 0x0000000000000001)
-        let tail%0#0: bytes = (concat 0x 0x00056c6f672031)
-        let data_length%0#0: uint64 = (len 0x00056c6f672031)
+        let tail%0#0: bytes = (concat 0x as_Encoded(len+utf8[])%0#0)
+        let data_length%0#0: uint64 = (len as_Encoded(len+utf8[])%0#0)
         let current_tail_offset%0#0: uint64 = (+ 10u data_length%0#0)
-        let as_bytes%0#0: bytes[8] = (itob 10u)
-        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let as_bytes%1#0: bytes[8] = (itob 10u)
+        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded%1#0: Encoded((uint64,len+utf8[])) = (concat encoded%0#0 offset_as_uint16%0#0)
-        let encoded%2#0: bytes = (concat encoded%1#0 tail%0#0)
+        let encoded%2#0: Encoded((uint64,len+utf8[])) = (concat encoded%1#0 tail%0#0)
         let log#0: Encoded((uint64,len+utf8[])) = encoded%2#0
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)

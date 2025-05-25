@@ -229,7 +229,8 @@ subroutine test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> b
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
-        let tmp%106#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
+        let tmp%106#0: bytes = (concat 0x151f7c75 as_Encoded(len+uint8[])%0#0)
         (log tmp%106#0)
         return 1u
     block@15: // method_with_more_than_15_args_route_L229
@@ -313,7 +314,8 @@ subroutine test_cases.abi_routing.contract.Reference.__puya_arc4_router__() -> b
         let as_bytes%1#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 to_encode%1#0)
-        let tmp%138#0: bytes = (concat 0x151f7c75 encoded_value%1#0)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%1#0
+        let tmp%138#0: bytes = (concat 0x151f7c75 as_Encoded(len+utf8[])%0#0)
         (log tmp%138#0)
         return 1u
     block@17: // switch_case_default_L24
@@ -343,7 +345,7 @@ subroutine test_cases.abi_routing.contract.Reference.__init__() -> void:
         let encoded%0#0: Encoded((uint8)) = (concat 0x 0x07)
         let encoded%1#0: Encoded((uint8,uint8)) = (concat encoded%0#0 0x08)
         let encoded%2#0: Encoded((uint8,uint8,uint8)) = (concat encoded%1#0 0x09)
-        let encoded%3#0: bytes = (concat encoded%2#0 0x)
+        let encoded%3#0: Encoded(uint8[3]) = (concat encoded%2#0 0x)
         (app_global_put "some_bytes" encoded%3#0)
         let materialized_values%0#0: bytes[32] = (txn Sender)
         (app_global_put "creator" materialized_values%0#0)
@@ -365,7 +367,8 @@ subroutine test_cases.abi_routing.contract.Reference.noop_with_uint64(a: Encoded
         let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
         (assert no_overflow%0#0) // overflow
         let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
-        return uint8%0#0
+        let as_Encoded(uint8)%0#0: Encoded(uint8) = uint8%0#0
+        return as_Encoded(uint8)%0#0
 
 subroutine test_cases.abi_routing.contract.Reference.opt_in(uint: uint64, bites: bytes) -> void:
     block@0: // L45
@@ -385,7 +388,8 @@ subroutine test_cases.abi_routing.contract.Reference.full_abi_config(a: Encoded(
         let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
         (assert no_overflow%0#0) // overflow
         let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
-        return uint8%0#0
+        let as_Encoded(uint8)%0#0: Encoded(uint8) = uint8%0#0
+        return as_Encoded(uint8)%0#0
 
 subroutine test_cases.abi_routing.contract.Reference.mixed_oca(a: Encoded(uint64)) -> Encoded(uint8):
     block@0: // L66
@@ -397,7 +401,8 @@ subroutine test_cases.abi_routing.contract.Reference.mixed_oca(a: Encoded(uint64
         let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
         (assert no_overflow%0#0) // overflow
         let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
-        return uint8%0#0
+        let as_Encoded(uint8)%0#0: Encoded(uint8) = uint8%0#0
+        return as_Encoded(uint8)%0#0
 
 subroutine test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
     block@0: // L79
@@ -510,7 +515,12 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_default_args(as
         let reinterpret_biguint%7#0: biguint = 0x0000007b
         let tmp%15#0: bool = (b== reinterpret_biguint%6#0 reinterpret_biguint%7#0)
         (assert tmp%15#0)
-        let tmp%16#0: bool = (== str_from_const#0 0x0003616263)
+        let length%0#0: uint64 = (len 0x616263)
+        let as_bytes%0#0: bytes[8] = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x616263)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
+        let tmp%16#0: bool = (== str_from_const#0 as_Encoded(len+utf8[])%0#0)
         (assert tmp%16#0)
         let tmp%17#0: bytes[32] = (txn Sender)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%17#0 0u "local_uint")
@@ -598,7 +608,8 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_more_than_15_ar
         let tmp%44#0: uint64 = (btoi v#0)
         let to_encode%0#0: uint64 = (+ tmp%43#0 tmp%44#0)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        return val_as_bytes%0#0
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
+        return as_Encoded(uint64)%0#0
 
 subroutine test_cases.abi_routing.contract.Reference.hello_with_algopy_string(name: string) -> string:
     block@0: // L295

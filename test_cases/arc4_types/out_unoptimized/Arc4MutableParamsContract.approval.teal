@@ -4,7 +4,7 @@
 // test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_program() -> uint64:
 main:
     intcblock 1 0 8 7
-    bytecblock 0x 0x05 0x00054861707079 0x000741415252474821
+    bytecblock 0x 0x4861707079 0x05 0x41415252474821 0x44617973
 
 main_block@0:
     // arc4_types/mutable_params.py:29
@@ -39,6 +39,23 @@ mutating_copies_block@0:
     intc_1 // 0
     intc_0 // 1
     setbit
+    // arc4_types/mutable_params.py:39
+    // s_val_1=String("Happy"),
+    bytec_1 // 0x4861707079
+    len
+    itob
+    extract 6 2
+    bytec_1 // 0x4861707079
+    concat
+    // arc4_types/mutable_params.py:40
+    // s_val_2=String("Days"),
+    bytec 4 // 0x44617973
+    len
+    itob
+    extract 6 2
+    bytec 4 // 0x44617973
+    concat
+    swap
     // arc4_types/mutable_params.py:36-41
     // my_struct = TestStruct(
     //     b_val=Bool(True),
@@ -47,7 +64,7 @@ mutating_copies_block@0:
     //     s_val_2=String("Days"),
     // )
     bytec_0 // 0x
-    swap
+    uncover 3
     concat
     // arc4_types/mutable_params.py:38
     // u_val=UInt8(50),
@@ -61,28 +78,10 @@ mutating_copies_block@0:
     // )
     concat
     bytec_0 // 0x
-    // arc4_types/mutable_params.py:39
-    // s_val_1=String("Happy"),
-    bytec_2 // 0x00054861707079
-    // arc4_types/mutable_params.py:36-41
-    // my_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    dig 2
     concat
+    cover 2
     swap
-    // arc4_types/mutable_params.py:39
-    // s_val_1=String("Happy"),
-    bytec_2 // 0x00054861707079
-    // arc4_types/mutable_params.py:36-41
-    // my_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
     len
     pushint 6 // 6
     +
@@ -93,16 +92,7 @@ mutating_copies_block@0:
     swap
     concat
     uncover 2
-    // arc4_types/mutable_params.py:40
-    // s_val_2=String("Days"),
-    pushbytes 0x000444617973
-    // arc4_types/mutable_params.py:36-41
-    // my_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    uncover 3
     concat
     swap
     uncover 2
@@ -126,7 +116,7 @@ mutating_copies_block@0:
     *
     uncover 2
     swap
-    bytec_1 // 0x05
+    bytec_2 // 0x05
     replace3
     swap
     // arc4_types/mutable_params.py:48
@@ -150,7 +140,7 @@ mutating_copies_block@0:
     swap
     intc_0 // 1
     extract3 // on error: index access is out of bounds
-    bytec_1 // 0x05
+    bytec_2 // 0x05
     b==
     assert // my_array should be mutated
     // arc4_types/mutable_params.py:51-52
@@ -179,7 +169,7 @@ mutating_copies_block@0:
     swap
     intc_0 // 1
     extract3 // on error: index access is out of bounds
-    bytec_1 // 0x05
+    bytec_2 // 0x05
     b==
     assert // my_array has been mutated by the subroutine
     // arc4_types/mutable_params.py:58
@@ -199,7 +189,12 @@ mutating_copies_block@0:
     // assert my_struct.s_val_1 == String(
     //     "AARRGH!"
     // ), "my_struct has been mutated by the subroutine"
-    bytec_3 // 0x000741415252474821
+    bytec_3 // 0x41415252474821
+    len
+    itob
+    extract 6 2
+    bytec_3 // 0x41415252474821
+    concat
     ==
     assert // my_struct has been mutated by the subroutine
     // arc4_types/mutable_params.py:62-63
@@ -242,7 +237,12 @@ mutating_copies_block@0:
     // assert my_struct_copy.s_val_1 == String(
     //     "Happy"
     // ), "my_struct_copy should not be mutated by the subroutine"
-    bytec_2 // 0x00054861707079
+    bytec_1 // 0x4861707079
+    len
+    itob
+    extract 6 2
+    bytec_1 // 0x4861707079
+    concat
     ==
     assert // my_struct_copy should not be mutated by the subroutine
     // arc4_types/mutable_params.py:73
@@ -557,7 +557,7 @@ other_routine_block@0:
     *
     frame_dig -2
     swap
-    bytec_1 // 0x05
+    bytec_2 // 0x05
     replace3
     frame_bury -2
     intc_0 // 1
@@ -568,6 +568,12 @@ other_routine_if_body@1:
 other_routine_after_if_else@2:
     // arc4_types/mutable_params.py:121
     // struct.s_val_1 = String("AARRGH!")
+    bytec_3 // 0x41415252474821
+    len
+    itob
+    extract 6 2
+    bytec_3 // 0x41415252474821
+    concat
     frame_dig -1
     pushint 2 // 2
     extract_uint16
@@ -585,15 +591,15 @@ other_routine_after_if_else@2:
     uncover 2
     substring3
     uncover 2
-    bytec_3 // 0x000741415252474821
+    dig 4
     concat
     swap
     concat
     swap
     uncover 2
     -
+    cover 2
     swap
-    bytec_3 // 0x000741415252474821
     len
     dig 1
     pushint 4 // 4

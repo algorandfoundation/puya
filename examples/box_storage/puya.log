@@ -400,7 +400,6 @@ debug: Terminated block@3
 debug: Sealing block@4
 debug: Terminated block@4
 debug: Sealing block@5
-box_storage/contract.py:98:6 debug: redundant encode operation from len+utf8[] to len+utf8[]
 debug: Terminated block@5
 debug: Sealing block@6
 debug: Terminated block@6
@@ -485,10 +484,6 @@ box_storage/contract.py:122:16 debug: encountered already materialized expressio
 debug: Terminated block@0
 debug: Building IR for function examples.box_storage.contract.BoxContract.arc4_box
 debug: Sealing block@0
-box_storage/contract.py:127:23 debug: redundant encode operation from uint8 to uint8
-box_storage/contract.py:127:23 debug: redundant encode operation from uint8 to uint8
-box_storage/contract.py:127:23 debug: redundant encode operation from uint8 to uint8
-box_storage/contract.py:127:23 debug: redundant encode operation from uint8 to uint8
 debug: Terminated block@0
 debug: Building IR for function examples.box_storage.contract.BoxContract.test_box_ref
 debug: Sealing block@0
@@ -670,6 +665,17 @@ debug: inlining call to examples.box_storage.contract.BoxContract.__algopy_defau
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: val_as_bytes%0#0, as_Encoded(uint64)%0#0
+debug: selected val_as_bytes%0#0 from equivalence set
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+uint8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Found equivalence set: val_as_bytes%1#0, as_Encoded(uint64)%1#0
+debug: selected val_as_bytes%1#0 from equivalence set
+debug: Found equivalence set: encoded_value%1#0, as_Encoded(len+utf8[])%0#0
+debug: selected encoded_value%1#0 from equivalence set
+debug: Found equivalence set: encoded_bool%0#0, as_Encoded(bool8)%0#0
+debug: selected encoded_bool%0#0 from equivalence set
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable current_tail_offset%1#0
@@ -817,16 +823,28 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+uint8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Found equivalence set: encoded_value%1#0, as_Encoded(len+utf8[])%0#0
+debug: selected encoded_value%1#0 from equivalence set
+debug: Found equivalence set: encoded_value%2#0, as_Encoded(len+utf8[])%1#0
+debug: selected encoded_value%2#0 from equivalence set
 debug: Found equivalence set: maybe_value_converted%1#0, a#0
 debug: selected a#0 from equivalence set
 debug: Found equivalence set: maybe_exists%3#0, a_exists#0
 debug: selected a_exists#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (len 0x3432) to 2u
 debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0002
+debug: Simplified (concat 0x0002 0x3432) to 0x00023432
+debug: Simplified (len 0x3432) to 2u
+debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0002
+debug: Simplified (concat 0x0002 0x3432) to 0x00023432
+debug: Simplified (len 0x3432) to 2u
+debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0002
 debug: Simplified (concat 0x0002 0x3432) to 0x00023432
 debug: Simplified (== a#0 0u) to (! a#0)
 debug: Optimizer: Inner Txn Field Replacer
@@ -836,6 +854,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let as_bytes%1#0: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=box_storage/contract.py:91:38-62, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let as_bytes%2#0: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=box_storage/contract.py:91:38-62, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Found equivalence set: as_bytes%0#0, as_bytes%1#0, as_bytes%2#0
+debug: selected as_bytes%0#0 from equivalence set
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 box_storage/contract.py:93:23 debug: replacing box read with cached value for key: "box_a"
 debug: Optimizing subroutine examples.box_storage.contract.BoxContract.read_boxes
@@ -887,11 +909,17 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+utf8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box_0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (select tmp%0#0 0u tmp%2#0) to (select tmp%0#0 0u tmp%0#0)
+debug: Simplified (len 0x48656c6c6f) to 5u
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0005
+debug: Simplified (concat 0x0005 0x48656c6c6f) to 0x000548656c6c6f
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1339,6 +1367,12 @@ debug: Removing unused variable length%0#0
 debug: Removing unused variable as_bytes%0#0
 debug: Removing unused variable length_uint16%0#0
 debug: Removing unused variable encoded_value%0#0
+debug: Removing unused variable length%1#0
+debug: Removing unused variable length_uint16%1#0
+debug: Removing unused variable encoded_value%1#0
+debug: Removing unused variable length%2#0
+debug: Removing unused variable length_uint16%2#0
+debug: Removing unused variable encoded_value%2#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -1393,6 +1427,10 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%2#0
+debug: Removing unused variable length%0#0
+debug: Removing unused variable as_bytes%0#0
+debug: Removing unused variable length_uint16%0#0
+debug: Removing unused variable encoded_value%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References

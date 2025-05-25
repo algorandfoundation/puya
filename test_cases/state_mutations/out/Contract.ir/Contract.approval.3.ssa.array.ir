@@ -162,37 +162,33 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
     block@0: // L36
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
-        let array%array_length%0#1: uint64 = (extract_uint16 maybe_value%0#0 0u)
-        let l_count%0#0: uint64 = array%array_length%0#1
-        let l_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%0#0)
-        let concat_result%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%0#0, l_head_and_tail%0#0, 1u, 0x00020000000000000001000a000362617a)
-        (app_global_put "glob" concat_result%0#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let extract_to_end%0#0: bytes = ((extract 2 0) maybe_value%0#0)
+        let as_Encoded(len+(uint64,len+utf8[])[])%0#0: Encoded(len+(uint64,len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, 0x00020000000000000001000a000362617a)
+        (app_global_put "glob" as_Encoded(len+(uint64,len+utf8[])[])%0#0)
         let tmp%0#0: bytes[32] = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
-        let array%array_length%1#1: uint64 = (extract_uint16 maybe_value%1#0 0u)
-        let l_count%1#0: uint64 = array%array_length%1#1
-        let l_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#0)
-        let concat_result%1#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%1#0, l_head_and_tail%1#0, 1u, 0x00020000000000000001000a000362617a)
-        (app_local_put tmp%0#0 "loc" concat_result%1#0)
+        let extract_uint16%1#0: uint64 = (extract_uint16 maybe_value%1#0 0u)
+        let extract_to_end%1#0: bytes = ((extract 2 0) maybe_value%1#0)
+        let as_Encoded(len+(uint64,len+utf8[])[])%1#0: Encoded(len+(uint64,len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, 0x00020000000000000001000a000362617a)
+        (app_local_put tmp%0#0 "loc" as_Encoded(len+(uint64,len+utf8[])[])%1#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box")
         (assert maybe_exists%2#0) // check self.box exists
-        let array%array_length%2#1: uint64 = (extract_uint16 maybe_value%2#0 0u)
-        let l_count%2#0: uint64 = array%array_length%2#1
-        let l_head_and_tail%2#0: bytes = ((extract 2 0) maybe_value%2#0)
-        let concat_result%2#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%2#0, l_head_and_tail%2#0, 1u, 0x00020000000000000001000a000362617a)
+        let extract_uint16%2#0: uint64 = (extract_uint16 maybe_value%2#0 0u)
+        let extract_to_end%2#0: bytes = ((extract 2 0) maybe_value%2#0)
+        let as_Encoded(len+(uint64,len+utf8[])[])%2#0: Encoded(len+(uint64,len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, 1u, 0x00020000000000000001000a000362617a)
         (box_del "box")
-        (box_put "box" concat_result%2#0)
+        (box_put "box" as_Encoded(len+(uint64,len+utf8[])[])%2#0)
         let materialized_values%1#0: bytes[32] = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%1#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.map entry exists
-        let array%array_length%3#1: uint64 = (extract_uint16 maybe_value%3#0 0u)
-        let l_count%3#0: uint64 = array%array_length%3#1
-        let l_head_and_tail%3#0: bytes = ((extract 2 0) maybe_value%3#0)
-        let concat_result%3#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(l_count%3#0, l_head_and_tail%3#0, 1u, 0x00020000000000000001000a000362617a)
+        let extract_uint16%3#0: uint64 = (extract_uint16 maybe_value%3#0 0u)
+        let extract_to_end%3#0: bytes = ((extract 2 0) maybe_value%3#0)
+        let as_Encoded(len+(uint64,len+utf8[])[])%3#0: Encoded(len+(uint64,len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, 0x00020000000000000001000a000362617a)
         (box_del box_prefixed_key%0#0)
-        (box_put box_prefixed_key%0#0 concat_result%3#0)
+        (box_put box_prefixed_key%0#0 as_Encoded(len+(uint64,len+utf8[])[])%3#0)
         return 
 
 subroutine test_cases.state_mutations.contract.Contract.modify() -> void:

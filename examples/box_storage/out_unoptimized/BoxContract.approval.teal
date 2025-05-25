@@ -4,7 +4,7 @@
 // examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 2 5
-    bytecblock 0x 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" "box_large" 0x64 0x68656c6c6f "0" 0x00 0x151f7c75 0x3432 "box_ref" "Hmmmmm" 0x00023432 "default"
+    bytecblock 0x 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" "box_large" 0x3432 0x64 0x68656c6c6f "0" 0x00 0x151f7c75 0x48656c6c6f "box_ref" "Hmmmmm" "default"
 
 main_block@0:
     txn ApplicationID
@@ -529,11 +529,11 @@ delete_boxes_block@0:
     assert
     // box_storage/contract.py:91
     // assert self.box_b.get(default=arc4.DynamicBytes(b"42")).native == b"42"
-    bytec 12 // 0x3432
+    bytec 7 // 0x3432
     len
     itob
     extract 6 2
-    bytec 12 // 0x3432
+    bytec 7 // 0x3432
     concat
     bytec 5 // "b"
     box_get
@@ -543,19 +543,30 @@ delete_boxes_block@0:
     uncover 2
     select
     extract 2 0
-    bytec 12 // 0x3432
+    bytec 7 // 0x3432
     ==
     assert
     // box_storage/contract.py:92
     // assert self.box_c.get(default=arc4.String("42")) == "42"
+    bytec 7 // 0x3432
+    len
+    itob
+    extract 6 2
+    bytec 7 // 0x3432
+    concat
     bytec_1 // 0x424f585f43
     box_get
     swap
-    bytec 15 // 0x00023432
+    uncover 2
     swap
     uncover 2
     select
-    bytec 15 // 0x00023432
+    bytec 7 // 0x3432
+    len
+    itob
+    extract 6 2
+    bytec 7 // 0x3432
+    concat
     ==
     assert
     // box_storage/contract.py:93
@@ -667,21 +678,21 @@ slice_box:
 slice_box_block@0:
     // box_storage/contract.py:117
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 9 // "0"
+    bytec 10 // "0"
     // box_storage/contract.py:118
     // box_0.value = Bytes(b"Testing testing 123")
     box_del
     pop
     // box_storage/contract.py:117
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 9 // "0"
+    bytec 10 // "0"
     // box_storage/contract.py:118
     // box_0.value = Bytes(b"Testing testing 123")
     pushbytes 0x54657374696e672074657374696e6720313233
     box_put
     // box_storage/contract.py:117
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 9 // "0"
+    bytec 10 // "0"
     // box_storage/contract.py:119
     // assert box_0.value[0:7] == b"Testing"
     box_len
@@ -706,7 +717,7 @@ slice_box_block@0:
     -
     // box_storage/contract.py:117
     // box_0 = Box(Bytes, key=String("0"))
-    bytec 9 // "0"
+    bytec 10 // "0"
     // box_storage/contract.py:119
     // assert box_0.value[0:7] == b"Testing"
     uncover 2
@@ -717,11 +728,17 @@ slice_box_block@0:
     assert
     // box_storage/contract.py:121
     // self.box_c.value = arc4.String("Hello")
+    bytec 13 // 0x48656c6c6f
+    len
+    itob
+    extract 6 2
+    bytec 13 // 0x48656c6c6f
+    concat
     bytec_1 // 0x424f585f43
     box_del
     pop
     bytec_1 // 0x424f585f43
-    pushbytes 0x000548656c6c6f
+    swap
     box_put
     // box_storage/contract.py:122
     // assert self.box_c.value.bytes[2:10] == b"Hello"
@@ -750,7 +767,7 @@ slice_box_block@0:
     uncover 2
     uncover 2
     box_extract
-    pushbytes 0x48656c6c6f
+    bytec 13 // 0x48656c6c6f
     ==
     assert
     retsub
@@ -763,7 +780,7 @@ arc4_box_block@0:
     // box_storage/contract.py:127
     // box_d.value = StaticInts(arc4.UInt8(0), arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3))
     bytec_0 // 0x
-    bytec 10 // 0x00
+    bytec 11 // 0x00
     concat
     pushbytes 0x01
     concat
@@ -775,14 +792,14 @@ arc4_box_block@0:
     concat
     // box_storage/contract.py:126
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
+    bytec 8 // 0x64
     // box_storage/contract.py:127
     // box_d.value = StaticInts(arc4.UInt8(0), arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3))
     swap
     box_put
     // box_storage/contract.py:126
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
+    bytec 8 // 0x64
     // box_storage/contract.py:129
     // assert box_d.value[0] == 0
     box_get
@@ -792,12 +809,12 @@ arc4_box_block@0:
     *
     intc_1 // 1
     extract3 // on error: index access is out of bounds
-    bytec 10 // 0x00
+    bytec 11 // 0x00
     b==
     assert
     // box_storage/contract.py:126
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
+    bytec 8 // 0x64
     // box_storage/contract.py:130
     // assert box_d.value[1] == 1
     box_get
@@ -812,7 +829,7 @@ arc4_box_block@0:
     assert
     // box_storage/contract.py:126
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
+    bytec 8 // 0x64
     // box_storage/contract.py:131
     // assert box_d.value[2] == 2
     box_get
@@ -827,7 +844,7 @@ arc4_box_block@0:
     assert
     // box_storage/contract.py:126
     // box_d = Box(StaticInts, key=Bytes(b"d"))
-    bytec 7 // 0x64
+    bytec 8 // 0x64
     // box_storage/contract.py:132
     // assert box_d.value[3] == 3
     box_get
@@ -941,13 +958,13 @@ test_box_ref_block@0:
     pushint 64 // 64
     // box_storage/contract.py:153
     // value_3 = Bytes(b"hello")
-    bytec 8 // 0x68656c6c6f
+    bytec 9 // 0x68656c6c6f
     // box_storage/contract.py:157
     // box_ref.replace(64, value_3)
     box_replace
     // box_storage/contract.py:153
     // value_3 = Bytes(b"hello")
-    bytec 8 // 0x68656c6c6f
+    bytec 9 // 0x68656c6c6f
     // box_storage/contract.py:158
     // prefix = box_ref.extract(0, 32 * 2 + value_3.length)
     len
@@ -968,7 +985,7 @@ test_box_ref_block@0:
     concat
     // box_storage/contract.py:153
     // value_3 = Bytes(b"hello")
-    bytec 8 // 0x68656c6c6f
+    bytec 9 // 0x68656c6c6f
     // box_storage/contract.py:159
     // assert prefix == app_address + sender_bytes + value_3
     concat
@@ -1063,19 +1080,19 @@ test_box_ref_block@0:
     // box_storage/contract.py:177-178
     // # instance box ref
     // self.box_ref.create(size=UInt64(32))
-    bytec 13 // "box_ref"
+    bytec 14 // "box_ref"
     pushint 32 // 32
     box_create
     pop
     // box_storage/contract.py:179
     // assert self.box_ref, "has data"
-    bytec 13 // "box_ref"
+    bytec 14 // "box_ref"
     box_len
     bury 1
     assert // has data
     // box_storage/contract.py:180
     // self.box_ref.delete()
-    bytec 13 // "box_ref"
+    bytec 14 // "box_ref"
     box_del
     pop
     retsub
@@ -1099,7 +1116,7 @@ box_map_test_block@0:
     pop
     // box_storage/contract.py:186
     // value = String("Hmmmmm")
-    bytec 14 // "Hmmmmm"
+    bytec 15 // "Hmmmmm"
     // box_storage/contract.py:187
     // self.box_map[key_0] = value
     box_put
@@ -1125,7 +1142,7 @@ box_map_test_block@0:
     assert // check self.box_map entry exists
     // box_storage/contract.py:186
     // value = String("Hmmmmm")
-    bytec 14 // "Hmmmmm"
+    bytec 15 // "Hmmmmm"
     // box_storage/contract.py:190
     // assert self.box_map[key_0].bytes.length == value.bytes.length
     len
@@ -1160,7 +1177,7 @@ box_map_test_block@0:
     assert // check self.box_map entry exists
     // box_storage/contract.py:186
     // value = String("Hmmmmm")
-    bytec 14 // "Hmmmmm"
+    bytec 15 // "Hmmmmm"
     // box_storage/contract.py:192
     // assert self.box_map.length(key_0) == value.bytes.length
     len
@@ -1234,7 +1251,7 @@ box_map_test_block@0:
     dup
     box_del
     pop
-    bytec 8 // "hello"
+    bytec 9 // "hello"
     box_put
     // box_storage/contract.py:200-201
     // # test box map not assigned to the class and passed to subroutine
@@ -1244,7 +1261,7 @@ box_map_test_block@0:
     // assert get_box_map_value_from_key_plus_1(tmp_box_map, UInt64(0)) == "hello"
     intc_0 // 0
     callsub get_box_map_value_from_key_plus_1
-    bytec 8 // "hello"
+    bytec 9 // "hello"
     ==
     assert
     // box_storage/contract.py:185
@@ -1412,11 +1429,11 @@ approval_program_box_map_exists_route@15:
     // box_storage/contract.py:218
     // @arc4.abimethod
     callsub box_map_exists
-    bytec 10 // 0x00
+    bytec 11 // 0x00
     intc_0 // 0
     uncover 2
     setbit
-    bytec 11 // 0x151f7c75
+    bytec 12 // 0x151f7c75
     swap
     concat
     log
@@ -1468,7 +1485,7 @@ approval_program_box_map_get_route@13:
     extract 6 2
     swap
     concat
-    bytec 11 // 0x151f7c75
+    bytec 12 // 0x151f7c75
     swap
     concat
     log
@@ -1573,7 +1590,7 @@ approval_program_boxes_exist_route@7:
     cover 3
     cover 2
     swap
-    bytec 10 // 0x00
+    bytec 11 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -1591,7 +1608,7 @@ approval_program_boxes_exist_route@7:
     setbit
     bytec_0 // 0x
     concat
-    bytec 11 // 0x151f7c75
+    bytec 12 // 0x151f7c75
     swap
     concat
     log
@@ -1650,7 +1667,7 @@ approval_program_read_boxes_route@6:
     concat
     swap
     concat
-    bytec 11 // 0x151f7c75
+    bytec 12 // 0x151f7c75
     swap
     concat
     log

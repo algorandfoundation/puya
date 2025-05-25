@@ -399,7 +399,6 @@ debug: Terminated block@3
 debug: Sealing block@4
 debug: Terminated block@4
 debug: Sealing block@5
-box_storage/contract.py:98:6 debug: redundant encode operation from len+utf8[] to len+utf8[]
 debug: Terminated block@5
 debug: Sealing block@6
 debug: Terminated block@6
@@ -484,10 +483,6 @@ box_storage/contract.py:122:16 debug: encountered already materialized expressio
 debug: Terminated block@0
 debug: Building IR for function examples.box_storage.contract.BoxContract.arc4_box
 debug: Sealing block@0
-box_storage/contract.py:127:23 debug: redundant encode operation from uint8 to uint8
-box_storage/contract.py:127:23 debug: redundant encode operation from uint8 to uint8
-box_storage/contract.py:127:23 debug: redundant encode operation from uint8 to uint8
-box_storage/contract.py:127:23 debug: redundant encode operation from uint8 to uint8
 debug: Terminated block@0
 debug: Building IR for function examples.box_storage.contract.BoxContract.test_box_ref
 debug: Sealing block@0
@@ -701,6 +696,12 @@ debug: Found equivalence set: reinterpret_Encoded(len+utf8[])%0#0, c#0
 debug: selected c#0 from equivalence set
 debug: Found equivalence set: maybe_value%0#6, copy%1#0, b_value#0
 debug: selected b_value#0 from equivalence set
+debug: Found equivalence set: encoded_value%0#7, as_Encoded(len+uint8[])%0#1
+debug: selected encoded_value%0#7 from equivalence set
+debug: Found equivalence set: encoded_value%1#2, as_Encoded(len+utf8[])%0#2
+debug: selected encoded_value%1#2 from equivalence set
+debug: Found equivalence set: encoded_value%2#1, as_Encoded(len+utf8[])%1#0
+debug: selected encoded_value%2#1 from equivalence set
 debug: Found equivalence set: maybe_value_converted%1#0, a#0
 debug: selected a#0 from equivalence set
 debug: Found equivalence set: maybe_exists%3#3, a_exists#0
@@ -715,6 +716,12 @@ debug: Found equivalence set: maybe_value%1#3, to_encode%2#0
 debug: selected maybe_value%1#3 from equivalence set
 debug: Found equivalence set: tmp%4#4, to_encode%3#0
 debug: selected tmp%4#4 from equivalence set
+debug: Found equivalence set: val_as_bytes%0#0, as_Encoded(uint64)%0#0
+debug: selected val_as_bytes%0#0 from equivalence set
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+uint8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Found equivalence set: val_as_bytes%1#0, as_Encoded(uint64)%1#0
+debug: selected val_as_bytes%1#0 from equivalence set
 debug: Found equivalence set: maybe_exists%0#5, to_encode%4#0
 debug: selected maybe_exists%0#5 from equivalence set
 debug: Found equivalence set: maybe_exists%1#3, to_encode%5#0
@@ -723,6 +730,8 @@ debug: Found equivalence set: maybe_exists%2#3, to_encode%6#0
 debug: selected maybe_exists%2#3 from equivalence set
 debug: Found equivalence set: maybe_exists%3#2, to_encode%7#0
 debug: selected maybe_exists%3#2 from equivalence set
+debug: Found equivalence set: encoded_value%0#6, as_Encoded(len+utf8[])%0#1
+debug: selected encoded_value%0#6 from equivalence set
 debug: Found equivalence set: encoded_element%0#0, reinterpret_biguint%0#0
 debug: selected encoded_element%0#0 from equivalence set
 debug: Found equivalence set: encoded_element%1#0, reinterpret_biguint%2#0
@@ -755,13 +764,17 @@ debug: Found equivalence set: tmp%52#0, key#2
 debug: selected key#2 from equivalence set
 debug: Found equivalence set: maybe_value%0#0, to_encode%8#0
 debug: selected maybe_value%0#0 from equivalence set
+debug: Found equivalence set: encoded_value%1#0, as_Encoded(len+utf8[])%0#0
+debug: selected encoded_value%1#0 from equivalence set
 debug: Found equivalence set: tmp%58#0, key#1
 debug: selected key#1 from equivalence set
 debug: Found equivalence set: tmp%63#0, key#0
 debug: selected key#0 from equivalence set
 debug: Found equivalence set: maybe_exists%0#0, to_encode%9#0
 debug: selected maybe_exists%0#0 from equivalence set
-debug: Copy propagation made 38 modifications
+debug: Found equivalence set: encoded_bool%0#0, as_Encoded(bool8)%0#0
+debug: selected encoded_bool%0#0 from equivalence set
+debug: Copy propagation made 48 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable large_box_ref#0
@@ -798,7 +811,13 @@ debug: Simplified (== 0x424f585f43 0x424f585f43) to 1u
 debug: Simplified (== "box_large" 0x626f785f6c61726765) to 1u
 debug: Simplified (== tmp%12#0 NoOp) to (! tmp%12#0)
 debug: Simplified (len 0x3432) to 2u
-debug: Simplified ((extract 6 2) as_bytes%0#1) to 0x0002
+debug: Simplified ((extract 6 2) as_bytes%0#2) to 0x0002
+debug: Simplified (concat 0x0002 0x3432) to 0x00023432
+debug: Simplified (len 0x3432) to 2u
+debug: Simplified ((extract 6 2) as_bytes%1#1) to 0x0002
+debug: Simplified (concat 0x0002 0x3432) to 0x00023432
+debug: Simplified (len 0x3432) to 2u
+debug: Simplified ((extract 6 2) as_bytes%2#1) to 0x0002
 debug: Simplified (concat 0x0002 0x3432) to 0x00023432
 debug: Simplified (== a#0 0u) to (! a#0)
 debug: Simplified (== tmp%16#0 NoOp) to (! tmp%16#0)
@@ -811,6 +830,9 @@ debug: Simplified (concat 0x encoded_bit%0#0) to encoded_bit%0#0
 debug: Simplified (concat set_bit%2#0 0x) to set_bit%2#0
 debug: Simplified (== tmp%26#0 NoOp) to (! tmp%26#0)
 debug: Simplified (select tmp%0#4 0u tmp%2#4) to (select tmp%0#4 0u tmp%0#4)
+debug: Simplified (len 0x48656c6c6f) to 5u
+debug: Simplified ((extract 6 2) as_bytes%0#1) to 0x0005
+debug: Simplified (concat 0x0005 0x48656c6c6f) to 0x000548656c6c6f
 debug: Simplified (== tmp%30#0 NoOp) to (! tmp%30#0)
 debug: Simplified (concat 0x 0x00) to 0x00
 debug: Simplified (concat 0x00 0x01) to 0x0001
@@ -914,13 +936,15 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let tmp%9#4: bytes = ((extract 2 0) b#0) with copy of existing registers (Register(source_location=box_storage/contract.py:46:27-35, ir_type=bytes, name='materialized_values%0', version=1),)
 debug: Replacing redundant declaration let tmp%18#2: uint64 = (len c#0) with copy of existing registers (Register(source_location=box_storage/contract.py:60:36-50, ir_type=uint64, name='tmp%7', version=4),)
-debug: Replacing redundant declaration let length%0#2: uint64 = (len c#0) with copy of existing registers (Register(source_location=box_storage/contract.py:60:36-50, ir_type=uint64, name='tmp%7', version=4),)
-debug: Replacing redundant declaration let length%1#1: uint64 = (len c#0) with copy of existing registers (Register(source_location=box_storage/contract.py:60:36-50, ir_type=uint64, name='tmp%7', version=4),)
+debug: Replacing redundant declaration let length%0#3: uint64 = (len c#0) with copy of existing registers (Register(source_location=box_storage/contract.py:60:36-50, ir_type=uint64, name='tmp%7', version=4),)
+debug: Replacing redundant declaration let length%1#2: uint64 = (len c#0) with copy of existing registers (Register(source_location=box_storage/contract.py:60:36-50, ir_type=uint64, name='tmp%7', version=4),)
 debug: Replacing redundant declaration let tmp%39#1: bytes = ((extract 2 0) b#0) with copy of existing registers (Register(source_location=box_storage/contract.py:46:27-35, ir_type=bytes, name='materialized_values%0', version=1),)
 debug: Replacing redundant declaration let tmp%45#1: bytes = ((extract 2 0) b#0) with copy of existing registers (Register(source_location=box_storage/contract.py:46:27-35, ir_type=bytes, name='materialized_values%0', version=1),)
 debug: Replacing redundant declaration let tmp%56#1: bytes = ((extract 2 0) b#0) with copy of existing registers (Register(source_location=box_storage/contract.py:46:27-35, ir_type=bytes, name='materialized_values%0', version=1),)
 debug: Replacing redundant declaration let tmp%65#1: bytes = ((extract 2 0) b#0) with copy of existing registers (Register(source_location=box_storage/contract.py:46:27-35, ir_type=bytes, name='materialized_values%0', version=1),)
 debug: Replacing redundant declaration let tmp%74#0: bytes = ((extract 2 0) b#0) with copy of existing registers (Register(source_location=box_storage/contract.py:46:27-35, ir_type=bytes, name='materialized_values%0', version=1),)
+debug: Replacing redundant declaration let as_bytes%1#1: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=box_storage/contract.py:91:38-62, ir_type=bytes[8], name='as_bytes%0', version=2),)
+debug: Replacing redundant declaration let as_bytes%2#1: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=box_storage/contract.py:91:38-62, ir_type=bytes[8], name='as_bytes%0', version=2),)
 debug: Replacing redundant declaration let encoded_value%1#1: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=box_storage/contract.py:187:21-26, ir_type=bytes[8], name='encoded_value%0', version=5),)
 debug: Replacing redundant declaration let encoded_value%2#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=box_storage/contract.py:187:21-26, ir_type=bytes[8], name='encoded_value%0', version=5),)
 debug: Replacing redundant declaration let encoded_value%3#0: bytes[8] = (itob 0u) with copy of existing registers (Register(source_location=box_storage/contract.py:187:21-26, ir_type=bytes[8], name='encoded_value%0', version=5),)
@@ -931,7 +955,7 @@ debug: Replacing redundant declaration let encoded_value%8#0: bytes[8] = (itob 1
 debug: Replacing redundant declaration let encoded_value%9#0: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=box_storage/contract.py:194:32-37, ir_type=bytes[8], name='encoded_value%5', version=0),)
 debug: Found equivalence set: materialized_values%0#1, tmp%9#4, tmp%39#1, tmp%45#1, tmp%56#1, tmp%65#1, tmp%74#0
 debug: selected materialized_values%0#1 from equivalence set
-debug: Found equivalence set: tmp%7#4, tmp%18#2, length%0#2, length%1#1
+debug: Found equivalence set: tmp%7#4, tmp%18#2, length%0#3, length%1#2
 debug: selected tmp%7#4 from equivalence set
 debug: Found equivalence set: tmp%25#1, tmp%26#1
 debug: selected tmp%25#1 from equivalence set
@@ -943,6 +967,8 @@ debug: Found equivalence set: tmp%62#1, tmp%63#1
 debug: selected tmp%62#1 from equivalence set
 debug: Found equivalence set: tmp%71#0, tmp%72#0
 debug: selected tmp%71#0 from equivalence set
+debug: Found equivalence set: as_bytes%0#2, as_bytes%1#1, as_bytes%2#1
+debug: selected as_bytes%0#2 from equivalence set
 debug: Found equivalence set: val_as_bytes%0#0, encoded%0#0
 debug: selected val_as_bytes%0#0 from equivalence set
 debug: Found equivalence set: encoded_value%0#0, tail%0#0
@@ -965,10 +991,10 @@ debug: Found equivalence set: encoded_value%0#1, box_prefixed_key%0#0
 debug: selected encoded_value%0#1 from equivalence set
 debug: Copy propagation made 27 modifications
 debug: Replacing redundant declaration let tmp%46#1: uint64 = (len materialized_values%0#1) with copy of existing registers (Register(source_location=box_storage/contract.py:61:36-51, ir_type=uint64, name='tmp%10', version=3),)
-debug: Replacing redundant declaration let length%2#0: uint64 = (len materialized_values%0#1) with copy of existing registers (Register(source_location=box_storage/contract.py:61:36-51, ir_type=uint64, name='tmp%10', version=3),)
+debug: Replacing redundant declaration let length%2#1: uint64 = (len materialized_values%0#1) with copy of existing registers (Register(source_location=box_storage/contract.py:61:36-51, ir_type=uint64, name='tmp%10', version=3),)
 debug: Replacing redundant declaration let length%3#0: uint64 = (len materialized_values%0#1) with copy of existing registers (Register(source_location=box_storage/contract.py:61:36-51, ir_type=uint64, name='tmp%10', version=3),)
 debug: Replacing redundant declaration let length%4#0: uint64 = (len materialized_values%0#1) with copy of existing registers (Register(source_location=box_storage/contract.py:61:36-51, ir_type=uint64, name='tmp%10', version=3),)
-debug: Found equivalence set: tmp%10#3, tmp%46#1, length%2#0, length%3#0, length%4#0
+debug: Found equivalence set: tmp%10#3, tmp%46#1, length%2#1, length%3#0, length%4#0
 debug: selected tmp%10#3 from equivalence set
 debug: Copy propagation made 8 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -1082,16 +1108,28 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+uint8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Found equivalence set: encoded_value%1#0, as_Encoded(len+utf8[])%0#0
+debug: selected encoded_value%1#0 from equivalence set
+debug: Found equivalence set: encoded_value%2#0, as_Encoded(len+utf8[])%1#0
+debug: selected encoded_value%2#0 from equivalence set
 debug: Found equivalence set: maybe_value_converted%1#0, a#0
 debug: selected a#0 from equivalence set
 debug: Found equivalence set: maybe_exists%3#0, a_exists#0
 debug: selected a_exists#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (len 0x3432) to 2u
 debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0002
+debug: Simplified (concat 0x0002 0x3432) to 0x00023432
+debug: Simplified (len 0x3432) to 2u
+debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0002
+debug: Simplified (concat 0x0002 0x3432) to 0x00023432
+debug: Simplified (len 0x3432) to 2u
+debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0002
 debug: Simplified (concat 0x0002 0x3432) to 0x00023432
 debug: Simplified (== a#0 0u) to (! a#0)
 debug: Optimizer: Inner Txn Field Replacer
@@ -1101,6 +1139,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let as_bytes%1#0: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=box_storage/contract.py:91:38-62, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Replacing redundant declaration let as_bytes%2#0: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=box_storage/contract.py:91:38-62, ir_type=bytes[8], name='as_bytes%0', version=0),)
+debug: Found equivalence set: as_bytes%0#0, as_bytes%1#0, as_bytes%2#0
+debug: selected as_bytes%0#0 from equivalence set
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 box_storage/contract.py:93:23 debug: replacing box read with cached value for key: "box_a"
 debug: Optimizing subroutine examples.box_storage.contract.BoxContract.read_boxes
@@ -1152,11 +1194,17 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+utf8[])%0#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box_0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (select tmp%0#0 0u tmp%2#0) to (select tmp%0#0 0u tmp%0#0)
+debug: Simplified (len 0x48656c6c6f) to 5u
+debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0005
+debug: Simplified (concat 0x0005 0x48656c6c6f) to 0x000548656c6c6f
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1439,10 +1487,16 @@ debug: Removing unused variable tmp%1#7
 debug: Removing unused variable tmp%2#7
 debug: Removing unused variable tmp%3#7
 debug: Removing unused variable tmp%15#0
-debug: Removing unused variable length%0#1
-debug: Removing unused variable as_bytes%0#1
-debug: Removing unused variable length_uint16%0#1
-debug: Removing unused variable encoded_value%0#6
+debug: Removing unused variable length%0#2
+debug: Removing unused variable as_bytes%0#2
+debug: Removing unused variable length_uint16%0#2
+debug: Removing unused variable encoded_value%0#7
+debug: Removing unused variable length%1#1
+debug: Removing unused variable length_uint16%1#1
+debug: Removing unused variable encoded_value%1#2
+debug: Removing unused variable length%2#0
+debug: Removing unused variable length_uint16%2#0
+debug: Removing unused variable encoded_value%2#1
 debug: Removing unused variable tmp%19#0
 debug: Removing unused variable tmp%0#6
 debug: Removing unused variable as_bytes%1#0
@@ -1450,6 +1504,10 @@ debug: Removing unused variable offset_as_uint16%0#0
 debug: Removing unused variable tmp%24#0
 debug: Removing unused variable tmp%29#0
 debug: Removing unused variable tmp%2#4
+debug: Removing unused variable length%0#1
+debug: Removing unused variable as_bytes%0#1
+debug: Removing unused variable length_uint16%0#1
+debug: Removing unused variable encoded_value%0#6
 debug: Removing unused variable tmp%33#0
 debug: Removing unused variable encoded%0#1
 debug: Removing unused variable encoded%1#1
@@ -1561,10 +1619,16 @@ debug: Removing unused variable tmp%1#7
 debug: Removing unused variable tmp%2#7
 debug: Removing unused variable tmp%3#7
 debug: Removing unused variable tmp%15#0
-debug: Removing unused variable length%0#1
-debug: Removing unused variable as_bytes%0#1
-debug: Removing unused variable length_uint16%0#1
-debug: Removing unused variable encoded_value%0#6
+debug: Removing unused variable length%0#2
+debug: Removing unused variable as_bytes%0#2
+debug: Removing unused variable length_uint16%0#2
+debug: Removing unused variable encoded_value%0#7
+debug: Removing unused variable length%1#1
+debug: Removing unused variable length_uint16%1#1
+debug: Removing unused variable encoded_value%1#2
+debug: Removing unused variable length%2#0
+debug: Removing unused variable length_uint16%2#0
+debug: Removing unused variable encoded_value%2#1
 debug: Removing unused variable tmp%19#0
 debug: Removing unused variable tmp%0#7
 debug: Removing unused variable as_bytes%1#0
@@ -1572,6 +1636,10 @@ debug: Removing unused variable offset_as_uint16%0#0
 debug: Removing unused variable tmp%24#0
 debug: Removing unused variable tmp%29#0
 debug: Removing unused variable tmp%2#4
+debug: Removing unused variable length%0#1
+debug: Removing unused variable as_bytes%0#1
+debug: Removing unused variable length_uint16%0#1
+debug: Removing unused variable encoded_value%0#6
 debug: Removing unused variable tmp%33#0
 debug: Removing unused variable encoded%0#1
 debug: Removing unused variable encoded%1#1
@@ -1719,10 +1787,16 @@ debug: Removing unused variable tmp%1#7
 debug: Removing unused variable tmp%2#7
 debug: Removing unused variable tmp%3#7
 debug: Removing unused variable tmp%15#0
-debug: Removing unused variable length%0#1
-debug: Removing unused variable as_bytes%0#1
-debug: Removing unused variable length_uint16%0#1
-debug: Removing unused variable encoded_value%0#6
+debug: Removing unused variable length%0#2
+debug: Removing unused variable as_bytes%0#2
+debug: Removing unused variable length_uint16%0#2
+debug: Removing unused variable encoded_value%0#7
+debug: Removing unused variable length%1#1
+debug: Removing unused variable length_uint16%1#1
+debug: Removing unused variable encoded_value%1#2
+debug: Removing unused variable length%2#0
+debug: Removing unused variable length_uint16%2#0
+debug: Removing unused variable encoded_value%2#1
 debug: Removing unused variable tmp%19#0
 debug: Removing unused variable tmp%0#5
 debug: Removing unused variable box#0
@@ -1731,6 +1805,10 @@ debug: Removing unused variable offset_as_uint16%0#0
 debug: Removing unused variable tmp%24#0
 debug: Removing unused variable tmp%29#0
 debug: Removing unused variable tmp%2#4
+debug: Removing unused variable length%0#1
+debug: Removing unused variable as_bytes%0#1
+debug: Removing unused variable length_uint16%0#1
+debug: Removing unused variable encoded_value%0#6
 debug: Removing unused variable tmp%33#0
 debug: Removing unused variable encoded%0#1
 debug: Removing unused variable encoded%1#1
@@ -1774,7 +1852,7 @@ debug: Simplified (b== 0x02 0x02) to 1u
 debug: Simplified ((extract 3 1) 0x00010203) // on error: index access is out of bounds to 0x03
 debug: Simplified (b== 0x03 0x03) to 1u
 debug: Simplified (+ 0u 1u) to 1u
-debug: Simplified (concat 0x encoded_value%0#8) to encoded_value%0#8
+debug: Simplified (concat 0x encoded_value%0#9) to encoded_value%0#9
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1793,10 +1871,10 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Removing redundant assert of maybe_exists%0#8
 debug: Replacing redundant declaration let a#0: uint64 = (btoi maybe_value%0#5) with copy of existing registers (Register(source_location=box_storage/contract.py:90:15-49, ir_type=uint64, name='maybe_value_converted%0', version=0),)
-debug: Replacing redundant declaration let encoded_value%0#8: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=box_storage/contract.py:194:32-37, ir_type=bytes[8], name='encoded_value%5', version=0),)
+debug: Replacing redundant declaration let encoded_value%0#9: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=box_storage/contract.py:194:32-37, ir_type=bytes[8], name='encoded_value%5', version=0),)
 debug: Found equivalence set: maybe_value_converted%0#0, a#0
 debug: selected a#0 from equivalence set
-debug: Found equivalence set: encoded_value%5#0, encoded_value%0#8, box_prefixed_key%0#0
+debug: Found equivalence set: encoded_value%5#0, encoded_value%0#9, box_prefixed_key%0#0
 debug: selected encoded_value%5#0 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -1838,7 +1916,7 @@ debug: Removing unused variable box_map#0
 debug: Removing unused variable key#4
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 1u) to 1u
-debug: Simplified (concat 0x encoded_value%0#8) to encoded_value%0#8
+debug: Simplified (concat 0x encoded_value%0#9) to encoded_value%0#9
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1858,8 +1936,8 @@ debug: Merged linear block@23 into block@13
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let encoded_value%0#8: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=box_storage/contract.py:194:32-37, ir_type=bytes[8], name='encoded_value%5', version=0),)
-debug: Found equivalence set: encoded_value%5#0, encoded_value%0#8, box_prefixed_key%0#0
+debug: Replacing redundant declaration let encoded_value%0#9: bytes[8] = (itob 1u) with copy of existing registers (Register(source_location=box_storage/contract.py:194:32-37, ir_type=bytes[8], name='encoded_value%5', version=0),)
+debug: Found equivalence set: encoded_value%5#0, encoded_value%0#9, box_prefixed_key%0#0
 debug: selected encoded_value%5#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -2110,12 +2188,12 @@ debug: Coalescing tmp%3#0 with [tmp%3#4]
 debug: Coalescing tmp%4#0 with [tmp%4#6, tmp%4#5, tmp%4#3, tmp%4#2, tmp%4#1]
 debug: Coalescing tmp%5#0 with [tmp%5#5, tmp%5#3]
 debug: Coalescing a#0 with [a#1]
-debug: Coalescing encoded_value%0#0 with [encoded_value%0#7, encoded_value%0#4, encoded_value%0#3, encoded_value%0#2, encoded_value%0#1]
+debug: Coalescing encoded_value%0#0 with [encoded_value%0#8, encoded_value%0#4, encoded_value%0#3, encoded_value%0#2, encoded_value%0#1]
 debug: Coalescing maybe_exists%0#0 with [maybe_exists%0#8, maybe_exists%0#10, maybe_exists%0#6, maybe_exists%0#5, maybe_exists%0#3, maybe_exists%0#1]
 debug: Coalescing maybe_value%2#1 with [maybe_value%2#2]
 debug: Coalescing maybe_exists%2#0 with [maybe_exists%2#5, maybe_exists%2#4, maybe_exists%2#3, maybe_exists%2#1]
 debug: Coalescing maybe_value_converted%0#1 with [maybe_value_converted%0#2]
-debug: Coalescing encoded_value%1#0 with [encoded_value%1#2]
+debug: Coalescing encoded_value%1#0 with [encoded_value%1#3]
 debug: Coalescing value%0#0 with [value%0#2, value%0#1, value%0#3]
 debug: Coalescing check%0#0 with [check%0#2, check%0#1, check%0#3]
 debug: Coalescing value%1#0 with [value%1#1]

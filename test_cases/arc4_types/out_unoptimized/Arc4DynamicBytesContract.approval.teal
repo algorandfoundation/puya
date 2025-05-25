@@ -23,12 +23,12 @@ main_block@0:
     concat
     pushbytes 0x01
     concat
-    bytec_0 // 0x
-    concat
     intc_2 // 3
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     dupn 2
     // arc4_types/dynamic_bytes.py:13
@@ -226,8 +226,6 @@ main_after_for@12:
     assert // Total should now include sum of dynamic_bytes3 items
     // arc4_types/dynamic_bytes.py:37
     // dynamic_bytes3.extend(DynamicBytes(b"abc"))
-    dig 8
-    extract 2 0
     bytec 5 // 0x616263
     len
     itob
@@ -235,13 +233,20 @@ main_after_for@12:
     bytec 5 // 0x616263
     concat
     extract 2 0
-    concat
+    dig 9
+    swap
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
+    intc_1 // 1
+    /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // arc4_types/dynamic_bytes.py:38
     // assert dynamic_bytes3.bytes == b"\x00\x05\x03\x04abc"
     dup
@@ -270,12 +275,12 @@ main_after_for@12:
     concat
     pushbytes 0x01
     concat
-    bytec_0 // 0x
-    concat
     intc_2 // 3
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     // arc4_types/dynamic_bytes.py:42
     // assert dynamic_bytes.native == Bytes.from_hex("030301")

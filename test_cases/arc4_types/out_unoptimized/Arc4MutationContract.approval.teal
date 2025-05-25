@@ -4,7 +4,7 @@
 // test_cases.arc4_types.mutation.Arc4MutationContract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 4
-    bytecblock 0x 0x00 0x000548656c6c6f 0x0003466f6f 0x0005576f726c64 0x01 0x02 0x32 0x0003426172 0x04 0xff 0x00054861707079 0x0005486d6d6d6d 0x03 0x0c 0x5a 0x000444617973 0x00074f682077656c6c
+    bytecblock 0x 0x00 0x01 0x02 0x32 0x04 0x48656c6c6f 0x576f726c64 0xff 0x4861707079 0x44617973 0x486d6d6d6d 0x4f682077656c6c 0x03 0x0c 0x5a 0x466f6f 0x426172
 
 main_block@0:
     // arc4_types/mutation.py:35
@@ -430,98 +430,119 @@ array_concat_block@0:
     // arc4_types/mutation.py:60
     // uint8_array = DynamicArray(UInt8(1), UInt8(2))
     bytec_0 // 0x
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     concat
-    bytec 6 // 0x02
-    concat
-    bytec_0 // 0x
+    bytec_3 // 0x02
     concat
     intc_2 // 2
     itob
     extract 6 2
     swap
     concat
+    bytec_0 // 0x
+    concat
     // arc4_types/mutation.py:61
     // array_concat_tuple = uint8_array + (UInt8(3), UInt8(4))  # noqa: RUF005
-    extract 2 0
     bytec_0 // 0x
     bytec 13 // 0x03
     concat
-    bytec 9 // 0x04
+    bytec 5 // 0x04
     concat
     bytec_0 // 0x
     concat
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
+    intc_1 // 1
+    /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // arc4_types/mutation.py:62
     // assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4))
     bytec_0 // 0x
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     concat
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     concat
     bytec 13 // 0x03
     concat
-    bytec 9 // 0x04
-    concat
-    bytec_0 // 0x
+    bytec 5 // 0x04
     concat
     intc_3 // 4
     itob
     extract 6 2
     swap
     concat
+    bytec_0 // 0x
+    concat
     dig 1
     ==
     assert
     // arc4_types/mutation.py:63
     // array_concat_tuple += (UInt8(5),)
-    extract 2 0
     bytec_0 // 0x
     pushbytes 0x05
     concat
     bytec_0 // 0x
     concat
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
+    intc_1 // 1
+    /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // arc4_types/mutation.py:64
     // assert array_concat_tuple == DynamicArray(UInt8(1), UInt8(2), UInt8(3), UInt8(4), UInt8(5))
     bytec_0 // 0x
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     concat
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     concat
     bytec 13 // 0x03
     concat
-    bytec 9 // 0x04
+    bytec 5 // 0x04
     concat
     pushbytes 0x05
-    concat
-    bytec_0 // 0x
     concat
     pushint 5 // 5
     itob
     extract 6 2
     swap
     concat
+    bytec_0 // 0x
+    concat
     ==
     assert
     // arc4_types/mutation.py:66
     // hello_world = DynamicArray(String("Hello"), String("World"))
-    bytec_0 // 0x
-    bytec_2 // 0x000548656c6c6f
+    bytec 6 // 0x48656c6c6f
+    len
+    itob
+    extract 6 2
+    bytec 6 // 0x48656c6c6f
     concat
-    bytec_2 // 0x000548656c6c6f
+    bytec 7 // 0x576f726c64
+    len
+    itob
+    extract 6 2
+    bytec 7 // 0x576f726c64
+    concat
+    swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
     len
     intc_3 // 4
     +
@@ -532,24 +553,30 @@ array_concat_block@0:
     swap
     concat
     uncover 2
-    bytec 4 // 0x0005576f726c64
+    uncover 3
     concat
+    cover 2
     swap
-    uncover 2
     itob
     extract 6 2
-    concat
-    swap
     concat
     intc_2 // 2
     itob
     extract 6 2
+    swap
+    concat
     swap
     concat
     // arc4_types/mutation.py:67
     // hello_world_concat = DynamicArray(String("Hello")) + DynamicArray(String("World"))
+    bytec 6 // 0x48656c6c6f
+    len
+    itob
+    extract 6 2
+    bytec 6 // 0x48656c6c6f
+    concat
     bytec_0 // 0x
-    bytec_2 // 0x000548656c6c6f
+    swap
     concat
     intc_2 // 2
     itob
@@ -557,15 +584,21 @@ array_concat_block@0:
     bytec_0 // 0x
     swap
     concat
-    swap
-    concat
     intc_1 // 1
     itob
     extract 6 2
     swap
     concat
+    swap
+    concat
+    bytec 7 // 0x576f726c64
+    len
+    itob
+    extract 6 2
+    bytec 7 // 0x576f726c64
+    concat
     bytec_0 // 0x
-    bytec 4 // 0x0005576f726c64
+    swap
     concat
     intc_2 // 2
     itob
@@ -573,29 +606,27 @@ array_concat_block@0:
     bytec_0 // 0x
     swap
     concat
-    swap
-    concat
     intc_1 // 1
     itob
     extract 6 2
+    swap
+    concat
     swap
     concat
     dup
-    intc_0 // 0
-    extract_uint16
-    swap
     extract 2 0
     swap
+    intc_0 // 0
+    extract_uint16
     dup
     intc_2 // 2
     *
-    swap
     dig 2
     len
     swap
     uncover 3
-    uncover 3
-    uncover 3
+    swap
+    uncover 2
     substring3
     uncover 2
     swap
@@ -614,13 +645,12 @@ array_of_array_dynamic:
 array_of_array_dynamic_block@0:
     // arc4_types/mutation.py:72
     // array_of_array = DynamicArray[DynamicArray[UInt8]]()
-    bytec_0 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_0 // 0x
+    concat
+    bytec_0 // 0x
     concat
     // arc4_types/mutation.py:73
     // assert array_of_array.bytes == Bytes.from_hex("0000")
@@ -633,16 +663,34 @@ array_of_array_dynamic_block@0:
     bytec_0 // 0x
     pushbytes 0x0a
     concat
-    bytec_0 // 0x
-    concat
     intc_1 // 1
     itob
     extract 6 2
     swap
     concat
     bytec_0 // 0x
+    concat
+    bytec_0 // 0x
     swap
     concat
+    intc_2 // 2
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    intc_1 // 1
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    swap
+    uncover 2
+    uncover 2
+    substring3
     intc_1 // 1
     callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:75
@@ -656,16 +704,34 @@ array_of_array_dynamic_block@0:
     bytec_0 // 0x
     pushbytes 0x10
     concat
-    bytec_0 // 0x
-    concat
     intc_1 // 1
     itob
     extract 6 2
     swap
     concat
     bytec_0 // 0x
+    concat
+    bytec_0 // 0x
     swap
     concat
+    intc_2 // 2
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    concat
+    intc_1 // 1
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    swap
+    uncover 2
+    uncover 2
+    substring3
     intc_1 // 1
     callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:77
@@ -702,19 +768,23 @@ array_of_array_dynamic_block@0:
     uncover 2
     uncover 2
     extract3
-    extract 2 0
     bytec_0 // 0x
-    bytec 10 // 0xff
+    bytec 8 // 0xff
     concat
     bytec_0 // 0x
     concat
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
+    intc_1 // 1
+    /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     dig 1
     intc_0 // 0
     extract_uint16
@@ -823,7 +893,7 @@ array_of_array_static_block@0:
     // arc4_types/mutation.py:94
     // array_of_array[0] = StaticArray[UInt8, typing.Literal[2]](UInt8(255), UInt8(254))
     bytec_0 // 0x
-    bytec 10 // 0xff
+    bytec 8 // 0xff
     concat
     pushbytes 0xfe
     concat
@@ -854,7 +924,7 @@ array_of_array_static_block@0:
     intc_0 // 0
     intc_1 // 1
     *
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     replace3
     intc_1 // 1
     intc_2 // 2
@@ -878,16 +948,16 @@ index_assign_block@0:
     // arc4_types/mutation.py:102
     // dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
     bytec_0 // 0x
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     concat
-    bytec 6 // 0x02
-    concat
-    bytec_0 // 0x
+    bytec_3 // 0x02
     concat
     intc_2 // 2
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     // arc4_types/mutation.py:103
     // dynamic_uint8_array[0] = UInt8(255)
@@ -896,7 +966,7 @@ index_assign_block@0:
     *
     intc_2 // 2
     +
-    bytec 10 // 0xff
+    bytec 8 // 0xff
     replace3
     // arc4_types/mutation.py:104
     // assert dynamic_uint8_array.bytes == Bytes.from_hex("0002ff02")
@@ -906,9 +976,9 @@ index_assign_block@0:
     // arc4_types/mutation.py:105
     // static_uint8_array = StaticArray(UInt8(1), UInt8(2))
     bytec_0 // 0x
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     concat
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     concat
     bytec_0 // 0x
     concat
@@ -917,7 +987,7 @@ index_assign_block@0:
     intc_1 // 1
     dup
     *
-    bytec 10 // 0xff
+    bytec 8 // 0xff
     replace3
     // arc4_types/mutation.py:107
     // assert static_uint8_array.bytes == Bytes.from_hex("01ff")
@@ -944,12 +1014,12 @@ index_assign_block@0:
     intc_1 // 1
     uncover 2
     setbit
-    bytec_0 // 0x
-    concat
     intc_2 // 2
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     // arc4_types/mutation.py:110
     // dynamic_bool_array[0] = Bool(False)
@@ -1035,6 +1105,23 @@ struct_assign_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
+    // arc4_types/mutation.py:121
+    // s_val_1=String("Happy"),
+    bytec 9 // 0x4861707079
+    len
+    itob
+    extract 6 2
+    bytec 9 // 0x4861707079
+    concat
+    // arc4_types/mutation.py:122
+    // s_val_2=String("Days"),
+    bytec 10 // 0x44617973
+    len
+    itob
+    extract 6 2
+    bytec 10 // 0x44617973
+    concat
+    swap
     // arc4_types/mutation.py:118-123
     // test_struct = TestStruct(
     //     b_val=Bool(True),
@@ -1043,11 +1130,11 @@ struct_assign_block@0:
     //     s_val_2=String("Days"),
     // )
     bytec_0 // 0x
-    swap
+    uncover 3
     concat
     // arc4_types/mutation.py:120
     // u_val=UInt8(50),
-    bytec 7 // 0x32
+    bytec 4 // 0x32
     // arc4_types/mutation.py:118-123
     // test_struct = TestStruct(
     //     b_val=Bool(True),
@@ -1057,28 +1144,10 @@ struct_assign_block@0:
     // )
     concat
     bytec_0 // 0x
-    // arc4_types/mutation.py:121
-    // s_val_1=String("Happy"),
-    bytec 11 // 0x00054861707079
-    // arc4_types/mutation.py:118-123
-    // test_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    dig 2
     concat
+    cover 2
     swap
-    // arc4_types/mutation.py:121
-    // s_val_1=String("Happy"),
-    bytec 11 // 0x00054861707079
-    // arc4_types/mutation.py:118-123
-    // test_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
     len
     pushint 6 // 6
     +
@@ -1089,16 +1158,7 @@ struct_assign_block@0:
     swap
     concat
     uncover 2
-    // arc4_types/mutation.py:122
-    // s_val_2=String("Days"),
-    bytec 16 // 0x000444617973
-    // arc4_types/mutation.py:118-123
-    // test_struct = TestStruct(
-    //     b_val=Bool(True),
-    //     u_val=UInt8(50),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    uncover 3
     concat
     swap
     uncover 2
@@ -1130,6 +1190,23 @@ struct_assign_block@0:
     intc_0 // 0
     dup
     setbit
+    // arc4_types/mutation.py:130
+    // s_val_1=String("Happy"),
+    bytec 9 // 0x4861707079
+    len
+    itob
+    extract 6 2
+    bytec 9 // 0x4861707079
+    concat
+    // arc4_types/mutation.py:131
+    // s_val_2=String("Days"),
+    bytec 10 // 0x44617973
+    len
+    itob
+    extract 6 2
+    bytec 10 // 0x44617973
+    concat
+    swap
     // arc4_types/mutation.py:127-132
     // assert test_struct == TestStruct(
     //     b_val=Bool(False),
@@ -1138,7 +1215,7 @@ struct_assign_block@0:
     //     s_val_2=String("Days"),
     // )
     bytec_0 // 0x
-    swap
+    uncover 3
     concat
     // arc4_types/mutation.py:129
     // u_val=UInt8(12),
@@ -1152,28 +1229,10 @@ struct_assign_block@0:
     // )
     concat
     bytec_0 // 0x
-    // arc4_types/mutation.py:130
-    // s_val_1=String("Happy"),
-    bytec 11 // 0x00054861707079
-    // arc4_types/mutation.py:127-132
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    dig 2
     concat
+    cover 2
     swap
-    // arc4_types/mutation.py:130
-    // s_val_1=String("Happy"),
-    bytec 11 // 0x00054861707079
-    // arc4_types/mutation.py:127-132
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
     len
     pushint 6 // 6
     +
@@ -1184,16 +1243,7 @@ struct_assign_block@0:
     swap
     concat
     uncover 2
-    // arc4_types/mutation.py:131
-    // s_val_2=String("Days"),
-    bytec 16 // 0x000444617973
-    // arc4_types/mutation.py:127-132
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Happy"),
-    //     s_val_2=String("Days"),
-    // )
+    uncover 3
     concat
     swap
     uncover 2
@@ -1207,6 +1257,13 @@ struct_assign_block@0:
     assert
     // arc4_types/mutation.py:133
     // test_struct.s_val_1 = String("Hmmmm")
+    bytec 11 // 0x486d6d6d6d
+    len
+    itob
+    extract 6 2
+    bytec 11 // 0x486d6d6d6d
+    concat
+    swap
     dup
     intc_2 // 2
     extract_uint16
@@ -1227,15 +1284,15 @@ struct_assign_block@0:
     uncover 3
     substring3
     uncover 3
-    bytec 12 // 0x0005486d6d6d6d
+    dig 4
     concat
     swap
     concat
     uncover 2
     uncover 2
     -
+    cover 2
     swap
-    bytec 12 // 0x0005486d6d6d6d
     len
     dig 1
     intc_3 // 4
@@ -1251,14 +1308,20 @@ struct_assign_block@0:
     replace3
     // arc4_types/mutation.py:134
     // test_struct.s_val_2 = String("Oh well")
-    dup
+    bytec 12 // 0x4f682077656c6c
+    len
+    itob
+    extract 6 2
+    bytec 12 // 0x4f682077656c6c
+    concat
+    dig 1
     intc_3 // 4
     extract_uint16
-    swap
+    uncover 2
     intc_0 // 0
     uncover 2
     extract3
-    bytec 17 // 0x00074f682077656c6c
+    swap
     concat
     // arc4_types/mutation.py:137
     // b_val=Bool(False),
@@ -1266,6 +1329,23 @@ struct_assign_block@0:
     intc_0 // 0
     dup
     setbit
+    // arc4_types/mutation.py:139
+    // s_val_1=String("Hmmmm"),
+    bytec 11 // 0x486d6d6d6d
+    len
+    itob
+    extract 6 2
+    bytec 11 // 0x486d6d6d6d
+    concat
+    // arc4_types/mutation.py:140
+    // s_val_2=String("Oh well"),
+    bytec 12 // 0x4f682077656c6c
+    len
+    itob
+    extract 6 2
+    bytec 12 // 0x4f682077656c6c
+    concat
+    swap
     // arc4_types/mutation.py:136-141
     // assert test_struct == TestStruct(
     //     b_val=Bool(False),
@@ -1274,7 +1354,7 @@ struct_assign_block@0:
     //     s_val_2=String("Oh well"),
     // )
     bytec_0 // 0x
-    swap
+    uncover 3
     concat
     // arc4_types/mutation.py:138
     // u_val=UInt8(12),
@@ -1288,28 +1368,10 @@ struct_assign_block@0:
     // )
     concat
     bytec_0 // 0x
-    // arc4_types/mutation.py:139
-    // s_val_1=String("Hmmmm"),
-    bytec 12 // 0x0005486d6d6d6d
-    // arc4_types/mutation.py:136-141
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Hmmmm"),
-    //     s_val_2=String("Oh well"),
-    // )
+    dig 2
     concat
+    cover 2
     swap
-    // arc4_types/mutation.py:139
-    // s_val_1=String("Hmmmm"),
-    bytec 12 // 0x0005486d6d6d6d
-    // arc4_types/mutation.py:136-141
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Hmmmm"),
-    //     s_val_2=String("Oh well"),
-    // )
     len
     pushint 6 // 6
     +
@@ -1320,16 +1382,7 @@ struct_assign_block@0:
     swap
     concat
     uncover 2
-    // arc4_types/mutation.py:140
-    // s_val_2=String("Oh well"),
-    bytec 17 // 0x00074f682077656c6c
-    // arc4_types/mutation.py:136-141
-    // assert test_struct == TestStruct(
-    //     b_val=Bool(False),
-    //     u_val=UInt8(12),
-    //     s_val_1=String("Hmmmm"),
-    //     s_val_2=String("Oh well"),
-    // )
+    uncover 3
     concat
     swap
     uncover 2
@@ -1350,47 +1403,51 @@ dynamic_array_fixed_size_block@0:
     // arc4_types/mutation.py:145
     // dynamic_uint8_array = DynamicArray[UInt8](UInt8(1), UInt8(2))
     bytec_0 // 0x
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     concat
-    bytec 6 // 0x02
-    concat
-    bytec_0 // 0x
+    bytec_3 // 0x02
     concat
     intc_2 // 2
     itob
     extract 6 2
     swap
     concat
+    bytec_0 // 0x
+    concat
     // arc4_types/mutation.py:146
     // dynamic_uint8_array.append(UInt8(50))
-    extract 2 0
     bytec_0 // 0x
-    bytec 7 // 0x32
+    bytec 4 // 0x32
     concat
     bytec_0 // 0x
     concat
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
+    intc_1 // 1
+    /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // arc4_types/mutation.py:147
     // assert dynamic_uint8_array == DynamicArray[UInt8](UInt8(1), UInt8(2), UInt8(50))
     bytec_0 // 0x
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     concat
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     concat
-    bytec 7 // 0x32
-    concat
-    bytec_0 // 0x
+    bytec 4 // 0x32
     concat
     pushint 3 // 3
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     dig 1
     ==
@@ -1399,15 +1456,18 @@ dynamic_array_fixed_size_block@0:
     // dynamic_uint8_array.extend(dynamic_uint8_array)
     dup
     extract 2 0
-    swap
-    extract 2 0
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
+    intc_1 // 1
+    /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -1415,7 +1475,7 @@ dynamic_array_fixed_size_block@0:
     bytec_0 // 0x
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -1423,7 +1483,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -1431,7 +1491,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec 7 // 0x32
+    bytec 4 // 0x32
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -1439,7 +1499,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -1447,7 +1507,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
@@ -1455,39 +1515,43 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:151
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
-    bytec 7 // 0x32
+    bytec 4 // 0x32
     // arc4_types/mutation.py:150-152
     // assert dynamic_uint8_array == DynamicArray[UInt8](
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50)
     // )
-    concat
-    bytec_0 // 0x
     concat
     pushint 6 // 6
     itob
     extract 6 2
     swap
     concat
+    bytec_0 // 0x
+    concat
     dig 1
     ==
     assert
     // arc4_types/mutation.py:153
     // dynamic_uint8_array.extend((UInt8(4), UInt8(90)))
-    extract 2 0
     bytec_0 // 0x
-    bytec 9 // 0x04
+    bytec 5 // 0x04
     concat
     bytec 15 // 0x5a
     concat
     bytec_0 // 0x
     concat
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
+    intc_1 // 1
+    /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -1495,7 +1559,7 @@ dynamic_array_fixed_size_block@0:
     bytec_0 // 0x
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -1503,7 +1567,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -1511,7 +1575,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 7 // 0x32
+    bytec 4 // 0x32
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -1519,7 +1583,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -1527,7 +1591,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -1535,7 +1599,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 7 // 0x32
+    bytec 4 // 0x32
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -1543,7 +1607,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:156
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
-    bytec 9 // 0x04
+    bytec 5 // 0x04
     // arc4_types/mutation.py:155-157
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
@@ -1556,13 +1620,13 @@ dynamic_array_fixed_size_block@0:
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4), UInt8(90)
     // )
-    concat
-    bytec_0 // 0x
     concat
     pushint 8 // 8
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     dig 1
     ==
@@ -1584,7 +1648,7 @@ dynamic_array_fixed_size_block@0:
     bytec_0 // 0x
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -1592,7 +1656,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -1600,7 +1664,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 7 // 0x32
+    bytec 4 // 0x32
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -1608,7 +1672,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 5 // 0x01
+    bytec_2 // 0x01
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -1616,7 +1680,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 6 // 0x02
+    bytec_3 // 0x02
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -1624,7 +1688,7 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 7 // 0x32
+    bytec 4 // 0x32
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
@@ -1632,18 +1696,18 @@ dynamic_array_fixed_size_block@0:
     concat
     // arc4_types/mutation.py:163
     // UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
-    bytec 9 // 0x04
+    bytec 5 // 0x04
     // arc4_types/mutation.py:162-164
     // assert dynamic_uint8_array == DynamicArray(
     //     UInt8(1), UInt8(2), UInt8(50), UInt8(1), UInt8(2), UInt8(50), UInt8(4)
     // )
-    concat
-    bytec_0 // 0x
     concat
     pushint 7 // 7
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     ==
     assert
@@ -1674,12 +1738,12 @@ dynamic_array_bool_block@0:
     intc_1 // 1
     uncover 2
     setbit
-    bytec_0 // 0x
-    concat
     intc_2 // 2
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     // arc4_types/mutation.py:169
     // assert dynamic_bool_array.bytes == Bytes.from_hex("000280")
@@ -1701,6 +1765,8 @@ dynamic_array_bool_block@0:
     uncover 2
     concat
     swap
+    concat
+    bytec_0 // 0x
     concat
     intc_2 // 2
     pushint 8 // 8
@@ -1725,7 +1791,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 2
+    swap
     bytec_1 // 0x00
     intc_0 // 0
     dup
@@ -1736,7 +1802,7 @@ dynamic_array_bool_block@0:
     //     Bool(True), Bool(False), Bool(True), Bool(False)
     // )
     bytec_0 // 0x
-    uncover 2
+    uncover 3
     concat
     swap
     intc_0 // 0
@@ -1759,12 +1825,12 @@ dynamic_array_bool_block@0:
     pushint 3 // 3
     uncover 2
     setbit
-    bytec_0 // 0x
-    concat
     intc_3 // 4
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     dig 1
     ==
@@ -1772,11 +1838,13 @@ dynamic_array_bool_block@0:
     // arc4_types/mutation.py:175
     // dynamic_bool_array.extend(dynamic_bool_array)
     dup
+    extract 2 0
+    swap
+    dup
     intc_0 // 0
     extract_uint16
     swap
-    dup
-    extract 2 0
+    uncover 2
     uncover 2
     intc_1 // 1
     callsub dynamic_array_concat_bits
@@ -1798,7 +1866,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 2
+    swap
     // arc4_types/mutation.py:181
     // Bool(False),
     bytec_1 // 0x00
@@ -1846,7 +1914,7 @@ dynamic_array_bool_block@0:
     //     Bool(False),
     // )
     bytec_0 // 0x
-    uncover 2
+    uncover 3
     concat
     swap
     intc_0 // 0
@@ -1897,12 +1965,12 @@ dynamic_array_bool_block@0:
     pushint 7 // 7
     uncover 2
     setbit
-    bytec_0 // 0x
-    concat
     pushint 8 // 8
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     dig 1
     ==
@@ -1915,6 +1983,8 @@ dynamic_array_bool_block@0:
     setbit
     bytec_0 // 0x
     swap
+    concat
+    bytec_0 // 0x
     concat
     intc_1 // 1
     pushint 8 // 8
@@ -1937,7 +2007,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 2
+    swap
     // arc4_types/mutation.py:193
     // Bool(False),
     bytec_1 // 0x00
@@ -1993,7 +2063,7 @@ dynamic_array_bool_block@0:
     //     Bool(True),
     // )
     bytec_0 // 0x
-    uncover 2
+    uncover 3
     concat
     swap
     intc_0 // 0
@@ -2052,12 +2122,12 @@ dynamic_array_bool_block@0:
     uncover 2
     setbit
     concat
-    bytec_0 // 0x
-    concat
     pushint 9 // 9
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     dig 1
     ==
@@ -2100,7 +2170,7 @@ dynamic_array_bool_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 2
+    swap
     // arc4_types/mutation.py:207
     // Bool(False),
     bytec_1 // 0x00
@@ -2140,7 +2210,7 @@ dynamic_array_bool_block@0:
     //     Bool(True),
     // )
     bytec_0 // 0x
-    uncover 2
+    uncover 3
     concat
     swap
     intc_0 // 0
@@ -2184,12 +2254,12 @@ dynamic_array_bool_block@0:
     pushint 6 // 6
     uncover 2
     setbit
-    bytec_0 // 0x
-    concat
     pushint 7 // 7
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     ==
     assert
@@ -2200,20 +2270,48 @@ dynamic_array_bool_block@0:
 dynamic_array_string:
 
 dynamic_array_string_block@0:
+    // arc4_types/mutation.py:215
+    // hello = String("Hello")
+    bytec 6 // 0x48656c6c6f
+    len
+    itob
+    extract 6 2
+    bytec 6 // 0x48656c6c6f
+    concat
+    // arc4_types/mutation.py:216
+    // world = String("World")
+    bytec 7 // 0x576f726c64
+    len
+    itob
+    extract 6 2
+    bytec 7 // 0x576f726c64
+    concat
+    swap
+    // arc4_types/mutation.py:217
+    // foo = String("Foo")
+    bytec 16 // 0x466f6f
+    len
+    itob
+    extract 6 2
+    bytec 16 // 0x466f6f
+    concat
+    cover 2
+    // arc4_types/mutation.py:218
+    // bar = String("Bar")
+    bytec 17 // 0x426172
+    len
+    itob
+    extract 6 2
+    bytec 17 // 0x426172
+    concat
+    cover 3
     // arc4_types/mutation.py:219
     // dynamic_string_array = DynamicArray(hello, world)
     bytec_0 // 0x
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:219
-    // dynamic_string_array = DynamicArray(hello, world)
+    dig 1
     concat
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:219
-    // dynamic_string_array = DynamicArray(hello, world)
+    swap
+    dup
     len
     intc_3 // 4
     +
@@ -2223,23 +2321,19 @@ dynamic_array_string_block@0:
     bytec_0 // 0x
     swap
     concat
-    uncover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:219
-    // dynamic_string_array = DynamicArray(hello, world)
+    uncover 3
+    dig 4
     concat
+    cover 2
     swap
-    uncover 2
     itob
     extract 6 2
-    concat
-    swap
     concat
     intc_2 // 2
     itob
     extract 6 2
+    swap
+    concat
     swap
     concat
     // arc4_types/mutation.py:220-222
@@ -2253,18 +2347,39 @@ dynamic_array_string_block@0:
     // arc4_types/mutation.py:223
     // dynamic_string_array.extend((foo, bar))
     bytec_0 // 0x
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:223
-    // dynamic_string_array.extend((foo, bar))
+    dig 4
     concat
-    // arc4_types/mutation.py:218
-    // bar = String("Bar")
-    bytec 8 // 0x0003426172
-    // arc4_types/mutation.py:223
-    // dynamic_string_array.extend((foo, bar))
+    swap
+    dig 4
+    len
+    intc_3 // 4
+    +
+    intc_3 // 4
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
     concat
+    uncover 3
+    dig 7
+    concat
+    swap
+    uncover 2
+    itob
+    extract 6 2
+    concat
+    swap
+    concat
+    intc_2 // 2
+    dup
+    *
+    swap
+    dup
+    len
+    swap
+    uncover 2
+    uncover 2
+    substring3
     intc_2 // 2
     callsub dynamic_array_concat_byte_length_head
     // arc4_types/mutation.py:225-227
@@ -2278,40 +2393,33 @@ dynamic_array_string_block@0:
     // arc4_types/mutation.py:229
     // dynamic_string_array.extend(dynamic_string_array)
     dup
-    intc_0 // 0
-    extract_uint16
-    dig 1
     extract 2 0
     swap
     dup
+    intc_0 // 0
+    extract_uint16
+    dup
     intc_2 // 2
     *
-    swap
-    dig 2
+    dig 3
     len
     swap
-    uncover 3
-    uncover 3
-    uncover 3
+    uncover 4
+    swap
+    uncover 2
     substring3
     uncover 2
     swap
     uncover 2
     callsub dynamic_array_concat_byte_length_head
+    cover 4
     // arc4_types/mutation.py:231
     // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
     bytec_0 // 0x
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    dig 1
     concat
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    swap
+    dup
     len
     pushint 16 // 16
     +
@@ -2323,162 +2431,126 @@ dynamic_array_string_block@0:
     swap
     concat
     cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    uncover 3
+    dig 4
     concat
-    cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    cover 3
+    dig 4
     len
-    dig 1
+    dig 2
     +
     cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:218
-    // bar = String("Bar")
-    bytec 8 // 0x0003426172
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:218
-    // bar = String("Bar")
-    bytec 8 // 0x0003426172
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
     swap
     itob
     extract 6 2
     uncover 2
     swap
     concat
-    uncover 2
-    // arc4_types/mutation.py:218
-    // bar = String("Bar")
-    bytec 8 // 0x0003426172
-    // arc4_types/mutation.py:231
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    cover 2
+    uncover 3
+    dig 5
     concat
+    cover 3
+    dig 5
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 6
+    concat
+    cover 3
+    dig 6
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 1
+    concat
+    cover 3
+    dup
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 4
+    concat
+    cover 3
+    dig 4
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 5
+    concat
+    cover 3
+    dig 5
+    len
+    dig 2
+    +
     swap
     uncover 2
     itob
     extract 6 2
-    concat
+    uncover 3
     swap
+    concat
+    uncover 3
+    dig 6
+    concat
+    cover 2
+    uncover 3
+    itob
+    extract 6 2
     concat
     pushint 8 // 8
     itob
     extract 6 2
     swap
     concat
+    uncover 2
+    concat
+    uncover 5
     ==
     assert
     // arc4_types/mutation.py:232
     // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
     bytec_0 // 0x
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    dig 1
     concat
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    swap
+    dup
     len
     pushint 16 // 16
     +
@@ -2490,145 +2562,115 @@ dynamic_array_string_block@0:
     swap
     concat
     cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    uncover 3
+    dig 4
     concat
-    cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    cover 3
+    dig 4
     len
-    dig 1
+    dig 2
     +
     cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:218
-    // bar = String("Bar")
-    bytec 8 // 0x0003426172
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:218
-    // bar = String("Bar")
-    bytec 8 // 0x0003426172
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
-    len
-    dig 1
-    +
     swap
     itob
     extract 6 2
     uncover 2
     swap
     concat
-    uncover 2
-    // arc4_types/mutation.py:218
-    // bar = String("Bar")
-    bytec 8 // 0x0003426172
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
+    cover 2
+    uncover 3
+    dig 5
     concat
+    cover 3
+    dig 5
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 6
+    concat
+    cover 3
+    dig 6
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 1
+    concat
+    cover 3
+    dup
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 4
+    concat
+    cover 3
+    dig 4
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 5
+    concat
+    cover 3
+    dig 5
+    len
+    dig 2
+    +
     swap
     uncover 2
     itob
     extract 6 2
-    concat
+    uncover 3
     swap
+    concat
+    uncover 3
+    dig 6
+    concat
+    cover 2
+    uncover 3
+    itob
+    extract 6 2
     concat
     pushint 8 // 8
     itob
     extract 6 2
     swap
+    concat
+    uncover 2
     concat
     // arc4_types/mutation.py:233
     // dynamic_string_array[3] = hello
@@ -2638,11 +2680,7 @@ dynamic_array_string_block@0:
     pushint 3 // 3
     >
     assert // index access is out of bounds
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:233
-    // dynamic_string_array[3] = hello
+    dig 1
     pushint 3 // 3
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:234
@@ -2653,33 +2691,19 @@ dynamic_array_string_block@0:
     pushint 5 // 5
     >
     assert // index access is out of bounds
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:234
-    // dynamic_string_array[5] = hello
+    dig 1
     pushint 5 // 5
     callsub dynamic_array_replace_byte_length_head
+    cover 3
     // arc4_types/mutation.py:236-238
     // assert dynamic_string_array == DynamicArray(
     //     hello, world, foo, hello, hello, hello, foo, bar
     // )
     bytec_0 // 0x
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
+    dig 1
     concat
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
+    swap
+    dup
     len
     pushint 16 // 16
     +
@@ -2691,211 +2715,141 @@ dynamic_array_string_block@0:
     swap
     concat
     cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
+    uncover 3
+    dig 4
     concat
-    cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
+    cover 3
+    dig 4
     len
-    dig 1
+    dig 2
     +
     cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
-    len
-    dig 1
-    +
     swap
     itob
     extract 6 2
     uncover 2
     swap
     concat
-    uncover 2
-    // arc4_types/mutation.py:218
-    // bar = String("Bar")
-    bytec 8 // 0x0003426172
-    // arc4_types/mutation.py:236-238
-    // assert dynamic_string_array == DynamicArray(
-    //     hello, world, foo, hello, hello, hello, foo, bar
-    // )
+    cover 2
+    uncover 3
+    dig 5
     concat
+    cover 3
+    dig 5
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 1
+    concat
+    cover 3
+    dup
+    len
+    dig 2
+    +
+    cover 4
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 3
+    swap
+    dig 1
+    concat
+    cover 3
+    dup
+    len
+    dig 2
+    +
+    cover 4
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 3
+    swap
+    dig 1
+    concat
+    cover 3
+    dup
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 5
+    concat
+    cover 3
+    dig 5
+    len
+    dig 2
+    +
     swap
     uncover 2
     itob
     extract 6 2
-    concat
+    uncover 3
     swap
+    concat
+    uncover 3
+    dig 7
+    concat
+    cover 2
+    uncover 3
+    itob
+    extract 6 2
     concat
     pushint 8 // 8
     itob
     extract 6 2
     swap
     concat
-    dig 1
+    uncover 2
+    concat
+    dig 4
     ==
     assert
     // arc4_types/mutation.py:240
     // assert dynamic_string_array.pop() == bar
+    uncover 3
     callsub dynamic_array_pop_byte_length_head
     swap
-    // arc4_types/mutation.py:218
-    // bar = String("Bar")
-    bytec 8 // 0x0003426172
-    // arc4_types/mutation.py:240
-    // assert dynamic_string_array.pop() == bar
+    uncover 5
     ==
     assert
     // arc4_types/mutation.py:241
     // assert dynamic_string_array.pop() == foo
     callsub dynamic_array_pop_byte_length_head
-    swap
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:241
-    // assert dynamic_string_array.pop() == foo
+    cover 3
+    dig 4
     ==
     assert
     // arc4_types/mutation.py:242
     // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
     bytec_0 // 0x
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
+    dig 1
     concat
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
+    swap
+    dup
     len
     pushint 12 // 12
     +
@@ -2907,104 +2861,82 @@ dynamic_array_string_block@0:
     swap
     concat
     cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
+    uncover 3
+    dig 4
     concat
-    cover 2
-    // arc4_types/mutation.py:216
-    // world = String("World")
-    bytec 4 // 0x0005576f726c64
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
+    cover 3
+    uncover 4
     len
-    dig 1
+    dig 2
     +
     cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
-    concat
-    cover 2
-    // arc4_types/mutation.py:217
-    // foo = String("Foo")
-    bytec_3 // 0x0003466f6f
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
-    len
-    dig 1
-    +
-    cover 3
-    itob
-    extract 6 2
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
-    concat
-    cover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
-    len
-    dig 1
-    +
     swap
     itob
     extract 6 2
     uncover 2
     swap
     concat
-    uncover 2
-    // arc4_types/mutation.py:215
-    // hello = String("Hello")
-    bytec_2 // 0x000548656c6c6f
-    // arc4_types/mutation.py:242
-    // assert dynamic_string_array == DynamicArray(hello, world, foo, hello, hello, hello)
+    cover 2
+    uncover 3
+    dig 5
     concat
+    cover 3
+    uncover 5
+    len
+    dig 2
+    +
+    cover 3
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 2
+    uncover 3
+    dig 1
+    concat
+    cover 3
+    dup
+    len
+    dig 2
+    +
+    cover 4
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    cover 3
+    swap
+    dig 1
+    concat
+    cover 3
+    dup
+    len
+    dig 2
+    +
     swap
     uncover 2
     itob
     extract 6 2
-    concat
+    uncover 3
     swap
+    concat
+    uncover 3
+    uncover 2
+    concat
+    cover 2
+    swap
+    itob
+    extract 6 2
     concat
     pushint 6 // 6
     itob
     extract 6 2
+    swap
+    concat
     swap
     concat
     ==

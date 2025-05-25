@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8 2
-    bytecblock 0x 0x151f7c75 0x6563686f3a20 0x00066563686f3a20
+    bytecblock 0x 0x151f7c75 0x6563686f3a20 0x01
 
 main_block@0:
 
@@ -885,17 +885,26 @@ echo:
 echo_block@0:
     // typed_abi_call/logger.py:38
     // return "echo: " + value
-    bytec_3 // 0x00066563686f3a20
-    extract 2 0
-    frame_dig -1
-    extract 2 0
-    concat
-    dup
+    bytec_2 // 0x6563686f3a20
     len
     itob
     extract 6 2
-    swap
+    bytec_2 // 0x6563686f3a20
     concat
+    frame_dig -1
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_1 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
     retsub
 
 
@@ -1093,7 +1102,7 @@ echo_native_biguint_block@0:
     // typed_abi_call/logger.py:86
     // return value + 1
     frame_dig -1
-    pushbytes 0x01
+    bytec_3 // 0x01
     b+
     retsub
 
@@ -1120,7 +1129,7 @@ echo_native_tuple_block@0:
     intc_1 // 1
     +
     frame_dig -1
-    pushbytes 0x01
+    bytec_3 // 0x01
     b+
     uncover 3
     uncover 3
@@ -1156,17 +1165,26 @@ echo_nested_tuple_block@0:
     swap
     concat
     cover 3
-    bytec_3 // 0x00066563686f3a20
-    extract 2 0
-    swap
-    extract 2 0
-    concat
-    dup
+    bytec_2 // 0x6563686f3a20
     len
     itob
     extract 6 2
-    swap
+    bytec_2 // 0x6563686f3a20
     concat
+    swap
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_1 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
     // typed_abi_call/logger.py:100
     // u64 + 1,
     swap

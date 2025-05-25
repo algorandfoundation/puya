@@ -24,19 +24,22 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%9#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
         let (to_encode%0#0: uint64, to_encode%1#0: biguint, to_encode%2#0: string, to_encode%3#0: bytes) = test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(tmp%7#0, reinterpret_Encoded(uint512)%0#0, tmp%8#0, tmp%9#0)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
         let value_len%0#0: uint64 = (len to_encode%1#0)
         let len_ok%0#0: bool = (<= value_len%0#0 64u)
         (assert len_ok%0#0) // overflow
         let bzero%0#0: bytes = (bzero 64u)
         let arc4_encoded%0#0: bytes[64] = (b| to_encode%1#0 bzero%0#0)
-        let encoded%1#0: Encoded((uint64,uint512)) = (concat encoded%0#0 arc4_encoded%0#0)
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = arc4_encoded%0#0
+        let encoded%1#0: Encoded((uint64,uint512)) = (concat encoded%0#0 as_Encoded(uint512)%0#0)
         let length%0#0: uint64 = (len to_encode%2#0)
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%2#0)
-        let tail%0#0: bytes = (concat 0x encoded_value%0#0)
-        let data_length%0#0: uint64 = (len encoded_value%0#0)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
+        let tail%0#0: bytes = (concat 0x as_Encoded(len+utf8[])%0#0)
+        let data_length%0#0: uint64 = (len as_Encoded(len+utf8[])%0#0)
         let current_tail_offset%0#0: uint64 = (+ 76u data_length%0#0)
         let as_bytes%1#0: bytes[8] = (itob 76u)
         let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
@@ -45,11 +48,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_bytes%2#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 to_encode%3#0)
-        let tail%1#0: bytes = (concat tail%0#0 encoded_value%1#0)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%1#0
+        let tail%1#0: bytes = (concat tail%0#0 as_Encoded(len+uint8[])%0#0)
         let as_bytes%3#0: bytes[8] = (itob current_tail_offset%0#0)
         let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded%3#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (concat encoded%2#0 offset_as_uint16%1#0)
-        let encoded%4#0: bytes = (concat encoded%3#0 tail%1#0)
+        let encoded%4#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (concat encoded%3#0 tail%1#0)
         let tmp%10#0: bytes = (concat 0x151f7c75 encoded%4#0)
         (log tmp%10#0)
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0: bool = 1u
