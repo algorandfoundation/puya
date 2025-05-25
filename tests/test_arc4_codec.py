@@ -16,7 +16,7 @@ def _encoding_name(wtype: wtypes.WType) -> str:
 
 
 def _ir_name(wtype: wtypes.WType) -> str:
-    return wtype_to_ir_type(wtype, SourceLocation(file=None, line=1), allow_aggregate=True).name
+    return wtype_to_ir_type(wtype, SourceLocation(file=None, line=1), allow_tuple=True).name
 
 
 uint8 = wtypes.ARC4UIntN(n=8)

@@ -186,10 +186,14 @@ class NativeTupleCodec(ARC4Codec):
                     element_values = values[:element_arity]
                     values = values[element_arity:]
                     element_value_or_tuple = ValueTuple(values=element_values, source_location=loc)
-                encoded_element_vp = encode_value_provider(
-                    context, element_value_or_tuple, native_element, element_encoding, loc
-                )
-                value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
+                if type_has_encoding(native_element, element_encoding):
+                    assert isinstance(element_value_or_tuple, Value), "expected Value"
+                    value = element_value_or_tuple
+                else:
+                    encoded_element_vp = encode_value_provider(
+                        context, element_value_or_tuple, native_element, element_encoding, loc
+                    )
+                    value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
                 if element_encoding.is_dynamic:
                     # append value to tail
                     tail = factory.concat(tail, value, "tail")
@@ -284,7 +288,10 @@ class ScalarCodec(ARC4Codec, abc.ABC):
     ) -> ValueProvider | None:
         factory = OpFactory(context, loc)
         (value,) = factory.materialise_values(value_provider, "to_encode")
-        return self.encode_value(context, value, encoding, loc)
+        result = self.encode_value(context, value, encoding, loc)
+        if result is None:
+            return None
+        return factory.as_ir_type(result, EncodedType(encoding))
 
     @abc.abstractmethod
     def encode_value(
