@@ -4,7 +4,7 @@
 // test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program() -> uint64:
 main:
     intcblock 0 1
-    bytecblock 0x 0x00 0x0000 0x0000000000000000
+    bytecblock 0x 0x00 0x0000 0x2e 0x0000000000000000
 
 main_block@0:
     // arc4_types/bool_eval.py:9
@@ -27,13 +27,23 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:12
     // assert not arc4.String("")
+    bytec_0 // 0x
+    len
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    concat
     bytec_2 // 0x0000
-    dup
     ==
     assert
     // arc4_types/bool_eval.py:13
     // assert arc4.String(".")
-    pushbytes 0x00012e
+    bytec_3 // 0x2e
+    len
+    itob
+    extract 6 2
+    bytec_3 // 0x2e
+    concat
     bytec_2 // 0x0000
     !=
     assert
@@ -87,7 +97,7 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:27
     // assert not arc4.UInt64(0)
-    bytec_3 // 0x0000000000000000
+    bytec 4 // 0x0000000000000000
     bytec_0 // 0x
     b==
     assert
@@ -183,13 +193,12 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:51
     // dynamic_arr = arc4.DynamicArray[arc4.UInt64]()
-    bytec_0 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_0 // 0x
+    concat
+    bytec_0 // 0x
     concat
     // arc4_types/bool_eval.py:52
     // assert not dynamic_arr
@@ -199,21 +208,23 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:53
     // dynamic_arr.append(arc4.UInt64(0))
-    extract 2 0
     bytec_0 // 0x
-    bytec_3 // 0x0000000000000000
+    bytec 4 // 0x0000000000000000
     concat
     bytec_0 // 0x
     concat
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     pushint 8 // 8
     /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // arc4_types/bool_eval.py:54
     // assert dynamic_arr
     bytec_2 // 0x0000

@@ -6,7 +6,8 @@ main test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
         let no_overflow%0#0: bool = (<= bitlen%0#0 8u)
         (assert no_overflow%0#0) // overflow
         let uint8%0#0: bytes = (extract3 val_as_bytes%0#0 7u 1u)
-        let int8_encoded#0: Encoded(uint8) = uint8%0#0
+        let as_Encoded(uint8)%0#0: Encoded(uint8) = uint8%0#0
+        let int8_encoded#0: Encoded(uint8) = as_Encoded(uint8)%0#0
         let materialized_values%0#0: uint64 = (btoi int8_encoded#0)
         let int8_decoded#0: uint64 = materialized_values%0#0
         let tmp%0#0: bool = (== uint8#0 int8_decoded#0)
@@ -120,7 +121,8 @@ main test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
         (assert len_ok%0#0) // overflow
         let bzero%0#0: bytes = (bzero 16u)
         let arc4_encoded%0#0: bytes[16] = (b| to_encode%0#0 bzero%0#0)
-        let arc4_biguint_dynamic#0: Encoded(uint128) = arc4_encoded%0#0
+        let as_Encoded(uint128)%0#0: Encoded(uint128) = arc4_encoded%0#0
+        let arc4_biguint_dynamic#0: Encoded(uint128) = as_Encoded(uint128)%0#0
         let tmp%41#0: bool = (b== biguint#0 arc4_biguint_const#0)
         (assert tmp%41#0)
         let tmp%42#0: uint64 = (len arc4_biguint_dynamic#0)
@@ -130,8 +132,9 @@ main test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
         let tmp%45#0: bool = (== tmp%44#0 64u)
         (assert tmp%45#0)
         let val_as_bytes%1#0: bytes[8] = (itob ClearState)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%1#0)
-        let encoded%1#0: bytes = (concat encoded%0#0 0x)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%1#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
+        let encoded%1#0: Encoded((uint64)) = (concat encoded%0#0 0x)
         let tup#0: Encoded((uint64)) = encoded%1#0
         let tmp%46#0: bytes = (extract3 tup#0 0u 8u) // on error: Index access is out of bounds
         let tmp%47#0: uint64 = (btoi tmp%46#0)

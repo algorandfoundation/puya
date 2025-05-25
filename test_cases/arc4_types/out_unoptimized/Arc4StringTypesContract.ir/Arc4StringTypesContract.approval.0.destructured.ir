@@ -4,7 +4,8 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x48656c6c6f20576f726c6421)
-        let some_bytes_as_string#0: Encoded(len+utf8[]) = encoded_value%0#0
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
+        let some_bytes_as_string#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
         let materialized_values%0#0: bytes = ((extract 2 0) some_bytes_as_string#0)
         let some_bytes_as_bytes_again#0: bytes = materialized_values%0#0
         let tmp%0#0: bool = (!= some_bytes_as_string#0 0x48656c6c6f20576f726c6421)
@@ -17,89 +18,199 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         (assert tmp%2#0) // Original bytes should match encoded if we strip the length header
         let tmp%3#0: bool = (== some_bytes_as_bytes_again#0 0x48656c6c6f20576f726c6421)
         (assert tmp%3#0)
-        let expr_value_trimmed%0#0: bytes = ((extract 2 0) 0x000548656c6c6f)
-        let expr_value_trimmed%1#0: bytes = ((extract 2 0) 0x000120)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)
-        let len_%0#0: uint64 = (len concatenated%0#0)
-        let as_bytes%1#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
-        let expr_value_trimmed%2#0: bytes = ((extract 2 0) concat_result%0#0)
-        let expr_value_trimmed%3#0: bytes = ((extract 2 0) 0x0006576f726c6421)
-        let concatenated%1#0: bytes = (concat expr_value_trimmed%2#0 expr_value_trimmed%3#0)
-        let len_%1#0: uint64 = (len concatenated%1#0)
-        let as_bytes%2#0: bytes[8] = (itob len_%1#0)
-        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
-        let tmp%4#0: bool = (== 0x000c48656c6c6f20576f726c6421 concat_result%1#0)
+        let length%2#0: uint64 = (len 0x48656c6c6f)
+        let as_bytes%1#0: bytes[8] = (itob length%2#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x48656c6c6f)
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%1#0
+        let hello#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%1#0
+        let length%3#0: uint64 = (len 0x20)
+        let as_bytes%2#0: bytes[8] = (itob length%3#0)
+        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x20)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%2#0
+        let space#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%2#0
+        let length%4#0: uint64 = (len 0x576f726c6421)
+        let as_bytes%3#0: bytes[8] = (itob length%4#0)
+        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x576f726c6421)
+        let as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = encoded_value%3#0
+        let world#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%3#0
+        let length%5#0: uint64 = (len 0x48656c6c6f20576f726c6421)
+        let as_bytes%4#0: bytes[8] = (itob length%5#0)
+        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x48656c6c6f20576f726c6421)
+        let as_Encoded(len+utf8[])%4#0: Encoded(len+utf8[]) = encoded_value%4#0
+        let extract_to_end%0#0: bytes = ((extract 2 0) space#0)
+        let concat%0#0: Encoded(len+utf8[]) = (concat hello#0 extract_to_end%0#0) // on error: max array length exceeded
+        let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
+        let len%0#0: uint64 = (len extract_to_end%1#0)
+        let div_floor%0#0: uint64 = (/ len%0#0 1u)
+        let as_bytes%5#0: bytes[8] = (itob div_floor%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
+        let as_Encoded(len+utf8[])%5#0: Encoded(len+utf8[]) = replace%0#0
+        let extract_to_end%2#0: bytes = ((extract 2 0) world#0)
+        let concat%1#0: Encoded(len+utf8[]) = (concat as_Encoded(len+utf8[])%5#0 extract_to_end%2#0) // on error: max array length exceeded
+        let extract_to_end%3#0: bytes = ((extract 2 0) concat%1#0)
+        let len%1#0: uint64 = (len extract_to_end%3#0)
+        let div_floor%1#0: uint64 = (/ len%1#0 1u)
+        let as_bytes%6#0: bytes[8] = (itob div_floor%1#0)
+        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%6#0)
+        let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
+        let as_Encoded(len+utf8[])%6#0: Encoded(len+utf8[]) = replace%1#0
+        let tmp%4#0: bool = (== as_Encoded(len+utf8[])%4#0 as_Encoded(len+utf8[])%6#0)
         (assert tmp%4#0)
-        let expr_value_trimmed%4#0: bytes = ((extract 2 0) 0x00026869)
-        let expr_value_trimmed%5#0: bytes = ((extract 2 0) 0x00026869)
-        let concatenated%2#0: bytes = (concat expr_value_trimmed%4#0 expr_value_trimmed%5#0)
-        let len_%2#0: uint64 = (len concatenated%2#0)
-        let as_bytes%3#0: bytes[8] = (itob len_%2#0)
-        let len_16_bit%2#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let concat_result%2#0: bytes = (concat len_16_bit%2#0 concatenated%2#0)
-        let thing#1: Encoded(len+utf8[]) = concat_result%2#0
-        let tmp%5#0: bool = (== thing#1 0x000468696869)
+        let length%6#0: uint64 = (len 0x6869)
+        let as_bytes%7#0: bytes[8] = (itob length%6#0)
+        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%7#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 0x6869)
+        let as_Encoded(len+utf8[])%7#0: Encoded(len+utf8[]) = encoded_value%5#0
+        let thing#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%7#0
+        let extract_to_end%4#0: bytes = ((extract 2 0) thing#0)
+        let concat%2#0: Encoded(len+utf8[]) = (concat thing#0 extract_to_end%4#0) // on error: max array length exceeded
+        let extract_to_end%5#0: bytes = ((extract 2 0) concat%2#0)
+        let len%2#0: uint64 = (len extract_to_end%5#0)
+        let div_floor%2#0: uint64 = (/ len%2#0 1u)
+        let as_bytes%8#0: bytes[8] = (itob div_floor%2#0)
+        let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%8#0)
+        let replace%2#0: bytes = (replace3 concat%2#0 0u as_u16_bytes%2#0)
+        let as_Encoded(len+utf8[])%8#0: Encoded(len+utf8[]) = replace%2#0
+        let thing#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%8#0
+        let length%7#0: uint64 = (len 0x68696869)
+        let as_bytes%9#0: bytes[8] = (itob length%7#0)
+        let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%9#0)
+        let encoded_value%6#0: bytes = (concat length_uint16%6#0 0x68696869)
+        let as_Encoded(len+utf8[])%9#0: Encoded(len+utf8[]) = encoded_value%6#0
+        let tmp%5#0: bool = (== thing#0 as_Encoded(len+utf8[])%9#0)
         (assert tmp%5#0)
-        let expr_value_trimmed%6#0: bytes = ((extract 2 0) 0x000161)
-        let expr_value_trimmed%7#0: bytes = ((extract 2 0) 0x000162)
-        let concatenated%3#0: bytes = (concat expr_value_trimmed%6#0 expr_value_trimmed%7#0)
-        let len_%3#0: uint64 = (len concatenated%3#0)
-        let as_bytes%4#0: bytes[8] = (itob len_%3#0)
-        let len_16_bit%3#0: bytes = ((extract 6 2) as_bytes%4#0)
-        let concat_result%3#0: bytes = (concat len_16_bit%3#0 concatenated%3#0)
-        let expr_value_trimmed%8#0: bytes = ((extract 2 0) concat_result%3#0)
-        let expr_value_trimmed%9#0: bytes = ((extract 2 0) 0x00026364)
-        let concatenated%4#0: bytes = (concat expr_value_trimmed%8#0 expr_value_trimmed%9#0)
-        let len_%4#0: uint64 = (len concatenated%4#0)
-        let as_bytes%5#0: bytes[8] = (itob len_%4#0)
-        let len_16_bit%4#0: bytes = ((extract 6 2) as_bytes%5#0)
-        let concat_result%4#0: bytes = (concat len_16_bit%4#0 concatenated%4#0)
-        let value#0: Encoded(len+utf8[]) = concat_result%4#0
-        let expr_value_trimmed%10#0: bytes = ((extract 2 0) value#0)
-        let expr_value_trimmed%11#0: bytes = ((extract 2 0) 0x000165)
-        let concatenated%5#0: bytes = (concat expr_value_trimmed%10#0 expr_value_trimmed%11#0)
-        let len_%5#0: uint64 = (len concatenated%5#0)
-        let as_bytes%6#0: bytes[8] = (itob len_%5#0)
-        let len_16_bit%5#0: bytes = ((extract 6 2) as_bytes%6#0)
-        let concat_result%5#0: bytes = (concat len_16_bit%5#0 concatenated%5#0)
-        let value#0: Encoded(len+utf8[]) = concat_result%5#0
-        let expr_value_trimmed%12#0: bytes = ((extract 2 0) value#0)
-        let expr_value_trimmed%13#0: bytes = ((extract 2 0) 0x000166)
-        let concatenated%6#0: bytes = (concat expr_value_trimmed%12#0 expr_value_trimmed%13#0)
-        let len_%6#0: uint64 = (len concatenated%6#0)
-        let as_bytes%7#0: bytes[8] = (itob len_%6#0)
-        let len_16_bit%6#0: bytes = ((extract 6 2) as_bytes%7#0)
-        let concat_result%6#0: bytes = (concat len_16_bit%6#0 concatenated%6#0)
-        let value#0: Encoded(len+utf8[]) = concat_result%6#0
-        let expr_value_trimmed%14#0: bytes = ((extract 2 0) value#0)
-        let expr_value_trimmed%15#0: bytes = ((extract 2 0) 0x000167)
-        let concatenated%7#0: bytes = (concat expr_value_trimmed%14#0 expr_value_trimmed%15#0)
-        let len_%7#0: uint64 = (len concatenated%7#0)
-        let as_bytes%8#0: bytes[8] = (itob len_%7#0)
-        let len_16_bit%7#0: bytes = ((extract 6 2) as_bytes%8#0)
-        let concat_result%7#0: bytes = (concat len_16_bit%7#0 concatenated%7#0)
-        let value#0: Encoded(len+utf8[]) = concat_result%7#0
-        let tmp%6#0: bool = (== 0x000761626364656667 value#0)
+        let length%8#0: uint64 = (len 0x61)
+        let as_bytes%10#0: bytes[8] = (itob length%8#0)
+        let length_uint16%7#0: bytes = ((extract 6 2) as_bytes%10#0)
+        let encoded_value%7#0: bytes = (concat length_uint16%7#0 0x61)
+        let as_Encoded(len+utf8[])%10#0: Encoded(len+utf8[]) = encoded_value%7#0
+        let length%9#0: uint64 = (len 0x62)
+        let as_bytes%11#0: bytes[8] = (itob length%9#0)
+        let length_uint16%8#0: bytes = ((extract 6 2) as_bytes%11#0)
+        let encoded_value%8#0: bytes = (concat length_uint16%8#0 0x62)
+        let as_Encoded(len+utf8[])%11#0: Encoded(len+utf8[]) = encoded_value%8#0
+        let extract_to_end%6#0: bytes = ((extract 2 0) as_Encoded(len+utf8[])%11#0)
+        let concat%3#0: Encoded(len+utf8[]) = (concat as_Encoded(len+utf8[])%10#0 extract_to_end%6#0) // on error: max array length exceeded
+        let extract_to_end%7#0: bytes = ((extract 2 0) concat%3#0)
+        let len%3#0: uint64 = (len extract_to_end%7#0)
+        let div_floor%3#0: uint64 = (/ len%3#0 1u)
+        let as_bytes%12#0: bytes[8] = (itob div_floor%3#0)
+        let as_u16_bytes%3#0: bytes = ((extract 6 2) as_bytes%12#0)
+        let replace%3#0: bytes = (replace3 concat%3#0 0u as_u16_bytes%3#0)
+        let as_Encoded(len+utf8[])%12#0: Encoded(len+utf8[]) = replace%3#0
+        let length%10#0: uint64 = (len 0x6364)
+        let as_bytes%13#0: bytes[8] = (itob length%10#0)
+        let length_uint16%9#0: bytes = ((extract 6 2) as_bytes%13#0)
+        let encoded_value%9#0: bytes = (concat length_uint16%9#0 0x6364)
+        let as_Encoded(len+utf8[])%13#0: Encoded(len+utf8[]) = encoded_value%9#0
+        let extract_to_end%8#0: bytes = ((extract 2 0) as_Encoded(len+utf8[])%13#0)
+        let concat%4#0: Encoded(len+utf8[]) = (concat as_Encoded(len+utf8[])%12#0 extract_to_end%8#0) // on error: max array length exceeded
+        let extract_to_end%9#0: bytes = ((extract 2 0) concat%4#0)
+        let len%4#0: uint64 = (len extract_to_end%9#0)
+        let div_floor%4#0: uint64 = (/ len%4#0 1u)
+        let as_bytes%14#0: bytes[8] = (itob div_floor%4#0)
+        let as_u16_bytes%4#0: bytes = ((extract 6 2) as_bytes%14#0)
+        let replace%4#0: bytes = (replace3 concat%4#0 0u as_u16_bytes%4#0)
+        let as_Encoded(len+utf8[])%14#0: Encoded(len+utf8[]) = replace%4#0
+        let value#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%14#0
+        let length%11#0: uint64 = (len 0x65)
+        let as_bytes%15#0: bytes[8] = (itob length%11#0)
+        let length_uint16%10#0: bytes = ((extract 6 2) as_bytes%15#0)
+        let encoded_value%10#0: bytes = (concat length_uint16%10#0 0x65)
+        let as_Encoded(len+utf8[])%15#0: Encoded(len+utf8[]) = encoded_value%10#0
+        let extract_to_end%10#0: bytes = ((extract 2 0) as_Encoded(len+utf8[])%15#0)
+        let concat%5#0: Encoded(len+utf8[]) = (concat value#0 extract_to_end%10#0) // on error: max array length exceeded
+        let extract_to_end%11#0: bytes = ((extract 2 0) concat%5#0)
+        let len%5#0: uint64 = (len extract_to_end%11#0)
+        let div_floor%5#0: uint64 = (/ len%5#0 1u)
+        let as_bytes%16#0: bytes[8] = (itob div_floor%5#0)
+        let as_u16_bytes%5#0: bytes = ((extract 6 2) as_bytes%16#0)
+        let replace%5#0: bytes = (replace3 concat%5#0 0u as_u16_bytes%5#0)
+        let as_Encoded(len+utf8[])%16#0: Encoded(len+utf8[]) = replace%5#0
+        let value#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%16#0
+        let length%12#0: uint64 = (len 0x66)
+        let as_bytes%17#0: bytes[8] = (itob length%12#0)
+        let length_uint16%11#0: bytes = ((extract 6 2) as_bytes%17#0)
+        let encoded_value%11#0: bytes = (concat length_uint16%11#0 0x66)
+        let as_Encoded(len+utf8[])%17#0: Encoded(len+utf8[]) = encoded_value%11#0
+        let extract_to_end%12#0: bytes = ((extract 2 0) as_Encoded(len+utf8[])%17#0)
+        let concat%6#0: Encoded(len+utf8[]) = (concat value#0 extract_to_end%12#0) // on error: max array length exceeded
+        let extract_to_end%13#0: bytes = ((extract 2 0) concat%6#0)
+        let len%6#0: uint64 = (len extract_to_end%13#0)
+        let div_floor%6#0: uint64 = (/ len%6#0 1u)
+        let as_bytes%18#0: bytes[8] = (itob div_floor%6#0)
+        let as_u16_bytes%6#0: bytes = ((extract 6 2) as_bytes%18#0)
+        let replace%6#0: bytes = (replace3 concat%6#0 0u as_u16_bytes%6#0)
+        let as_Encoded(len+utf8[])%18#0: Encoded(len+utf8[]) = replace%6#0
+        let value#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%18#0
+        let length%13#0: uint64 = (len 0x67)
+        let as_bytes%19#0: bytes[8] = (itob length%13#0)
+        let length_uint16%12#0: bytes = ((extract 6 2) as_bytes%19#0)
+        let encoded_value%12#0: bytes = (concat length_uint16%12#0 0x67)
+        let as_Encoded(len+utf8[])%19#0: Encoded(len+utf8[]) = encoded_value%12#0
+        let extract_to_end%14#0: bytes = ((extract 2 0) as_Encoded(len+utf8[])%19#0)
+        let concat%7#0: Encoded(len+utf8[]) = (concat value#0 extract_to_end%14#0) // on error: max array length exceeded
+        let extract_to_end%15#0: bytes = ((extract 2 0) concat%7#0)
+        let len%7#0: uint64 = (len extract_to_end%15#0)
+        let div_floor%7#0: uint64 = (/ len%7#0 1u)
+        let as_bytes%20#0: bytes[8] = (itob div_floor%7#0)
+        let as_u16_bytes%7#0: bytes = ((extract 6 2) as_bytes%20#0)
+        let replace%7#0: bytes = (replace3 concat%7#0 0u as_u16_bytes%7#0)
+        let as_Encoded(len+utf8[])%20#0: Encoded(len+utf8[]) = replace%7#0
+        let value#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%20#0
+        let length%14#0: uint64 = (len 0x61626364656667)
+        let as_bytes%21#0: bytes[8] = (itob length%14#0)
+        let length_uint16%13#0: bytes = ((extract 6 2) as_bytes%21#0)
+        let encoded_value%13#0: bytes = (concat length_uint16%13#0 0x61626364656667)
+        let as_Encoded(len+utf8[])%21#0: Encoded(len+utf8[]) = encoded_value%13#0
+        let tmp%6#0: bool = (== as_Encoded(len+utf8[])%21#0 value#0)
         (assert tmp%6#0)
-        let tmp%7#0: bytes = ((extract 2 0) 0x0000)
+        let length%15#0: uint64 = (len 0x)
+        let as_bytes%22#0: bytes[8] = (itob length%15#0)
+        let length_uint16%14#0: bytes = ((extract 6 2) as_bytes%22#0)
+        let encoded_value%14#0: bytes = (concat length_uint16%14#0 0x)
+        let as_Encoded(len+utf8[])%22#0: Encoded(len+utf8[]) = encoded_value%14#0
+        let tmp%7#0: bytes = ((extract 2 0) as_Encoded(len+utf8[])%22#0)
         let tmp%8#0: bool = (== tmp%7#0 "")
         (assert tmp%8#0)
-        let tmp%9#0: bytes = ((extract 2 0) 0x000568656c6c6f)
+        let length%16#0: uint64 = (len 0x68656c6c6f)
+        let as_bytes%23#0: bytes[8] = (itob length%16#0)
+        let length_uint16%15#0: bytes = ((extract 6 2) as_bytes%23#0)
+        let encoded_value%15#0: bytes = (concat length_uint16%15#0 0x68656c6c6f)
+        let as_Encoded(len+utf8[])%23#0: Encoded(len+utf8[]) = encoded_value%15#0
+        let tmp%9#0: bytes = ((extract 2 0) as_Encoded(len+utf8[])%23#0)
         let tmp%10#0: bool = (== tmp%9#0 "hello")
         (assert tmp%10#0)
         let tmp%11#0: uint64 = (txn NumAppArgs)
         let tmp%12#0: bool = (!= tmp%11#0 0u)
         goto tmp%12#0 ? block@1 : block@2
     block@1: // ternary_true_L41
-        let ternary_result%0#0: Encoded(len+utf8[]) = 0x0003617965
+        let length%17#0: uint64 = (len 0x617965)
+        let as_bytes%24#0: bytes[8] = (itob length%17#0)
+        let length_uint16%16#0: bytes = ((extract 6 2) as_bytes%24#0)
+        let encoded_value%16#0: bytes = (concat length_uint16%16#0 0x617965)
+        let as_Encoded(len+utf8[])%24#0: Encoded(len+utf8[]) = encoded_value%16#0
+        let ternary_result%0#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%24#0
         goto block@3
     block@2: // ternary_false_L41
-        let ternary_result%0#0: Encoded(len+utf8[]) = 0x0003626565
+        let length%18#0: uint64 = (len 0x626565)
+        let as_bytes%25#0: bytes[8] = (itob length%18#0)
+        let length_uint16%17#0: bytes = ((extract 6 2) as_bytes%25#0)
+        let encoded_value%17#0: bytes = (concat length_uint16%17#0 0x626565)
+        let as_Encoded(len+utf8[])%25#0: Encoded(len+utf8[]) = encoded_value%17#0
+        let ternary_result%0#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%25#0
         goto block@3
     block@3: // ternary_merge_L41
-        let tmp%13#0: bool = (== ternary_result%0#0 0x0003626565)
+        let length%19#0: uint64 = (len 0x626565)
+        let as_bytes%26#0: bytes[8] = (itob length%19#0)
+        let length_uint16%18#0: bytes = ((extract 6 2) as_bytes%26#0)
+        let encoded_value%18#0: bytes = (concat length_uint16%18#0 0x626565)
+        let as_Encoded(len+utf8[])%26#0: Encoded(len+utf8[]) = encoded_value%18#0
+        let tmp%13#0: bool = (== ternary_result%0#0 as_Encoded(len+utf8[])%26#0)
         (assert tmp%13#0)
         return 1u

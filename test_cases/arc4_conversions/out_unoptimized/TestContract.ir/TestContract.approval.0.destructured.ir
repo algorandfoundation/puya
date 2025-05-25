@@ -130,19 +130,21 @@ subroutine test_cases.arc4_conversions.contract.my_dyn_struct(value: uint64) -> 
 subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64) -> Encoded((uint64,uint8[32],len+uint8[])):
     block@0: // L223
         let val_as_bytes%0#0: bytes[8] = (itob value#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txn Sender)
         let to_encode%0#0: bytes[32] = (txn Sender)
         let length%0#0: uint64 = (len to_encode%0#0)
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
         let encoded%1#0: Encoded((uint64,uint8[32])) = (concat encoded%0#0 reinterpret_Encoded(uint8[32])%0#0)
-        let tail%0#0: bytes = (concat 0x encoded_value%0#0)
+        let tail%0#0: bytes = (concat 0x as_Encoded(len+uint8[])%0#0)
         let as_bytes%1#0: bytes[8] = (itob 42u)
         let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded%2#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%1#0 offset_as_uint16%0#0)
-        let encoded%3#0: bytes = (concat encoded%2#0 tail%0#0)
+        let encoded%3#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%2#0 tail%0#0)
         return encoded%3#0
 
 subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encoding() -> void:
@@ -170,7 +172,8 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%0#0
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_uint64(uint64,byte[])void")
@@ -186,12 +189,14 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         let as_bytes%1#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x48656c6c6f20576f726c64)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%1#0
         let length%2#0: uint64 = (len 0x000b48656c6c6f20576f726c64)
         let as_bytes%2#0: bytes[8] = (itob length%2#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x000b48656c6c6f20576f726c64)
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
-        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%2#0
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = encoded_value%2#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%2#0
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_dynamic_bytes(byte[],byte[])void")
@@ -203,15 +208,22 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
     block@3: // next_txn_L31
         itxn_submit
         itxn_begin
-        let length%3#0: uint64 = (len 0x000b48656c6c6f20576f726c64)
+        let length%3#0: uint64 = (len 0x48656c6c6f20576f726c64)
         let as_bytes%3#0: bytes[8] = (itob length%3#0)
         let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x000b48656c6c6f20576f726c64)
-        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%3#0
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x48656c6c6f20576f726c64)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%3#0
+        let length%4#0: uint64 = (len 0x000b48656c6c6f20576f726c64)
+        let as_bytes%4#0: bytes[8] = (itob length%4#0)
+        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x000b48656c6c6f20576f726c64)
+        let as_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = encoded_value%4#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%3#0
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%3%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_string(string,byte[])void")
-        ((itxn_field ApplicationArgs) 0x000b48656c6c6f20576f726c64)
+        ((itxn_field ApplicationArgs) inner_txn_params%3%%param_ApplicationArgs_idx_1#0)
         ((itxn_field ApplicationArgs) inner_txn_params%3%%param_ApplicationArgs_idx_2#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -224,13 +236,15 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
         (assert len_ok%0#0) // overflow
         let bzero%0#0: bytes = (bzero 64u)
         let arc4_encoded%0#0: bytes[64] = (b| 0b bzero%0#0)
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = arc4_encoded%0#0
         let to_encode%1#0: bytes = (bzero 64u)
-        let length%4#0: uint64 = (len to_encode%1#0)
-        let as_bytes%4#0: bytes[8] = (itob length%4#0)
-        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
-        let encoded_value%4#0: bytes = (concat length_uint16%4#0 to_encode%1#0)
-        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: bytes[64] = arc4_encoded%0#0
-        let inner_txn_params%4%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%4#0
+        let length%5#0: uint64 = (len to_encode%1#0)
+        let as_bytes%5#0: bytes[8] = (itob length%5#0)
+        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 to_encode%1#0)
+        let as_Encoded(len+uint8[])%4#0: Encoded(len+uint8[]) = encoded_value%5#0
+        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: Encoded(uint512) = as_Encoded(uint512)%0#0
+        let inner_txn_params%4%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%4#0
         let inner_txn_params%4%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%4%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_biguint(uint512,byte[])void")
@@ -242,11 +256,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_literal_encodi
     block@5: // next_txn_L39
         itxn_submit
         itxn_begin
-        let length%5#0: uint64 = (len 0x80)
-        let as_bytes%5#0: bytes[8] = (itob length%5#0)
-        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
-        let encoded_value%5#0: bytes = (concat length_uint16%5#0 0x80)
-        let inner_txn_params%5%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%5#0
+        let length%6#0: uint64 = (len 0x80)
+        let as_bytes%6#0: bytes[8] = (itob length%6#0)
+        let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%6#0)
+        let encoded_value%6#0: bytes = (concat length_uint16%6#0 0x80)
+        let as_Encoded(len+uint8[])%5#0: Encoded(len+uint8[]) = encoded_value%6#0
+        let inner_txn_params%5%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%5#0
         let inner_txn_params%5%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%5%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_bool(bool,byte[])void")
@@ -292,13 +307,15 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let to_encode%0#0: uint64 = (- tmp%0#0 1u)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         let to_encode%1#0: bytes = (bzero 8u)
         let length%0#0: uint64 = (len to_encode%1#0)
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%1#0)
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes[8] = val_as_bytes%0#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%0#0
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(uint64) = as_Encoded(uint64)%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_uint64(uint64,byte[])void")
@@ -315,14 +332,16 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         let as_bytes%1#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 to_encode%2#0)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%1#0
         let tmp%1#0: bytes = (txna ApplicationArgs 0)
         let to_encode%3#0: bytes = (concat 0x0004 tmp%1#0)
         let length%2#0: uint64 = (len to_encode%3#0)
         let as_bytes%2#0: bytes[8] = (itob length%2#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_value%2#0: bytes = (concat length_uint16%2#0 to_encode%3#0)
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
-        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%2#0
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = encoded_value%2#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%2#0
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_dynamic_bytes(byte[],byte[])void")
@@ -338,12 +357,14 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         let as_bytes%3#0: bytes[8] = (itob length%3#0)
         let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded_value%3#0: bytes = (concat length_uint16%3#0 "Hello World")
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%3#0
         let length%4#0: uint64 = (len 0x000b48656c6c6f20576f726c64)
         let as_bytes%4#0: bytes[8] = (itob length%4#0)
         let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
         let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x000b48656c6c6f20576f726c64)
-        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%3#0
-        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%4#0
+        let as_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = encoded_value%4#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%3#0
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%3%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_string(string,byte[])void")
@@ -360,13 +381,15 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         (assert len_ok%0#0) // overflow
         let bzero%0#0: bytes = (bzero 64u)
         let arc4_encoded%0#0: bytes[64] = (b| 0b bzero%0#0)
+        let as_Encoded(uint512)%0#0: Encoded(uint512) = arc4_encoded%0#0
         let to_encode%4#0: bytes = (bzero 64u)
         let length%5#0: uint64 = (len to_encode%4#0)
         let as_bytes%5#0: bytes[8] = (itob length%5#0)
         let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
         let encoded_value%5#0: bytes = (concat length_uint16%5#0 to_encode%4#0)
-        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: bytes[64] = arc4_encoded%0#0
-        let inner_txn_params%4%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%5#0
+        let as_Encoded(len+uint8[])%4#0: Encoded(len+uint8[]) = encoded_value%5#0
+        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: Encoded(uint512) = as_Encoded(uint512)%0#0
+        let inner_txn_params%4%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%4#0
         let inner_txn_params%4%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%4%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_biguint(uint512,byte[])void")
@@ -381,12 +404,14 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_native_encodin
         let tmp%2#0: uint64 = (txn NumAppArgs)
         let to_encode%5#0: bool = (== tmp%2#0 1u)
         let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u to_encode%5#0)
+        let as_Encoded(bool8)%0#0: Encoded(bool8) = encoded_bool%0#0
         let length%6#0: uint64 = (len 0x80)
         let as_bytes%6#0: bytes[8] = (itob length%6#0)
         let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%6#0)
         let encoded_value%6#0: bytes = (concat length_uint16%6#0 0x80)
-        let inner_txn_params%5%%param_ApplicationArgs_idx_1#0: bytes[1] = encoded_bool%0#0
-        let inner_txn_params%5%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%6#0
+        let as_Encoded(len+uint8[])%5#0: Encoded(len+uint8[]) = encoded_value%6#0
+        let inner_txn_params%5%%param_ApplicationArgs_idx_1#0: Encoded(bool8) = as_Encoded(bool8)%0#0
+        let inner_txn_params%5%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%5#0
         let inner_txn_params%5%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%5%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_bool(bool,byte[])void")
@@ -434,7 +459,8 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%0#0
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_uint64(uint64,byte[])void")
@@ -451,14 +477,16 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         let as_bytes%1#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 to_encode%1#0)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%1#0
         let tmp%0#0: bytes = (txna ApplicationArgs 0)
         let to_encode%2#0: bytes = (concat 0x0004 tmp%0#0)
         let length%2#0: uint64 = (len to_encode%2#0)
         let as_bytes%2#0: bytes[8] = (itob length%2#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_value%2#0: bytes = (concat length_uint16%2#0 to_encode%2#0)
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes = encoded_value%1#0
-        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%2#0
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = encoded_value%2#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%2#0
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_dynamic_bytes(byte[],byte[])void")
@@ -470,15 +498,22 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
     block@3: // next_txn_L82
         itxn_submit
         itxn_begin
-        let length%3#0: uint64 = (len 0x000b48656c6c6f20576f726c64)
+        let length%3#0: uint64 = (len 0x48656c6c6f20576f726c64)
         let as_bytes%3#0: bytes[8] = (itob length%3#0)
         let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x000b48656c6c6f20576f726c64)
-        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%3#0
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x48656c6c6f20576f726c64)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%3#0
+        let length%4#0: uint64 = (len 0x000b48656c6c6f20576f726c64)
+        let as_bytes%4#0: bytes[8] = (itob length%4#0)
+        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x000b48656c6c6f20576f726c64)
+        let as_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = encoded_value%4#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(len+utf8[]) = as_Encoded(len+utf8[])%0#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%3#0
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%3%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_string(string,byte[])void")
-        ((itxn_field ApplicationArgs) 0x000b48656c6c6f20576f726c64)
+        ((itxn_field ApplicationArgs) inner_txn_params%3%%param_ApplicationArgs_idx_1#0)
         ((itxn_field ApplicationArgs) inner_txn_params%3%%param_ApplicationArgs_idx_2#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -487,11 +522,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         itxn_submit
         itxn_begin
         let to_encode%3#0: bytes = (bzero 64u)
-        let length%4#0: uint64 = (len to_encode%3#0)
-        let as_bytes%4#0: bytes[8] = (itob length%4#0)
-        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%4#0)
-        let encoded_value%4#0: bytes = (concat length_uint16%4#0 to_encode%3#0)
-        let inner_txn_params%4%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%4#0
+        let length%5#0: uint64 = (len to_encode%3#0)
+        let as_bytes%5#0: bytes[8] = (itob length%5#0)
+        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 to_encode%3#0)
+        let as_Encoded(len+uint8[])%4#0: Encoded(len+uint8[]) = encoded_value%5#0
+        let inner_txn_params%4%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%4#0
         let inner_txn_params%4%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%4%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_biguint(uint512,byte[])void")
@@ -506,12 +542,14 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_arc4_encoding(
         let tmp%1#0: uint64 = (txn NumAppArgs)
         let to_encode%4#0: bool = (== tmp%1#0 1u)
         let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u to_encode%4#0)
-        let length%5#0: uint64 = (len 0x80)
-        let as_bytes%5#0: bytes[8] = (itob length%5#0)
-        let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%5#0)
-        let encoded_value%5#0: bytes = (concat length_uint16%5#0 0x80)
-        let inner_txn_params%5%%param_ApplicationArgs_idx_1#0: bytes[1] = encoded_bool%0#0
-        let inner_txn_params%5%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%5#0
+        let as_Encoded(bool8)%0#0: Encoded(bool8) = encoded_bool%0#0
+        let length%6#0: uint64 = (len 0x80)
+        let as_bytes%6#0: bytes[8] = (itob length%6#0)
+        let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%6#0)
+        let encoded_value%6#0: bytes = (concat length_uint16%6#0 0x80)
+        let as_Encoded(len+uint8[])%5#0: Encoded(len+uint8[]) = encoded_value%6#0
+        let inner_txn_params%5%%param_ApplicationArgs_idx_1#0: Encoded(bool8) = as_Encoded(bool8)%0#0
+        let inner_txn_params%5%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%5#0
         let inner_txn_params%5%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%5%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_bool(bool,byte[])void")
@@ -559,15 +597,18 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         let tmp%3#0: uint64 = (txn NumAppArgs)
         let tmp%4#0: uint64 = (+ tmp%3#0 2u)
         let val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
         let val_as_bytes%1#0: bytes[8] = (itob tmp%2#0)
-        let encoded%1#0: Encoded((uint64,uint64)) = (concat encoded%0#0 val_as_bytes%1#0)
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = val_as_bytes%1#0
+        let encoded%1#0: Encoded((uint64,uint64)) = (concat encoded%0#0 as_Encoded(uint64)%1#0)
         let val_as_bytes%2#0: bytes[8] = (itob tmp%4#0)
-        let encoded%2#0: Encoded((uint64,uint64,uint64)) = (concat encoded%1#0 val_as_bytes%2#0)
-        let encoded%3#0: bytes = (concat encoded%2#0 0x)
+        let as_Encoded(uint64)%2#0: Encoded(uint64) = val_as_bytes%2#0
+        let encoded%2#0: Encoded((uint64,uint64,uint64)) = (concat encoded%1#0 as_Encoded(uint64)%2#0)
         let as_bytes%0#0: bytes[8] = (itob 3u)
         let len_u16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded%4#0: Encoded(len+uint64[]) = (concat len_u16%0#0 encoded%3#0)
+        let encoded%3#0: bytes = (concat len_u16%0#0 encoded%2#0)
+        let encoded%4#0: Encoded(len+uint64[]) = (concat encoded%3#0 0x)
         let arr#0: Encoded(len+uint64[]) = encoded%4#0
         let tmp%5#0: bytes = (bzero 7u)
         let tmp%6#0: bytes = (concat 0x0003 tmp%5#0)
@@ -584,8 +625,9 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         let as_bytes%1#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 expected_bytes#0)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+uint64[]) = arr#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_dyn_array_uin64(uint64[],byte[])void")
@@ -603,21 +645,25 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         let tmp%16#0: uint64 = (txn NumAppArgs)
         let tmp%17#0: uint64 = (+ tmp%16#0 2u)
         let val_as_bytes%3#0: bytes[8] = (itob tmp%13#0)
-        let encoded%5#0: Encoded((uint64)) = (concat 0x val_as_bytes%3#0)
+        let as_Encoded(uint64)%3#0: Encoded(uint64) = val_as_bytes%3#0
+        let encoded%5#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%3#0)
         let val_as_bytes%4#0: bytes[8] = (itob tmp%15#0)
-        let encoded%6#0: Encoded((uint64,uint64)) = (concat encoded%5#0 val_as_bytes%4#0)
+        let as_Encoded(uint64)%4#0: Encoded(uint64) = val_as_bytes%4#0
+        let encoded%6#0: Encoded((uint64,uint64)) = (concat encoded%5#0 as_Encoded(uint64)%4#0)
         let val_as_bytes%5#0: bytes[8] = (itob tmp%17#0)
-        let encoded%7#0: Encoded((uint64,uint64,uint64)) = (concat encoded%6#0 val_as_bytes%5#0)
-        let encoded%8#0: bytes = (concat encoded%7#0 0x)
+        let as_Encoded(uint64)%5#0: Encoded(uint64) = val_as_bytes%5#0
+        let encoded%7#0: Encoded((uint64,uint64,uint64)) = (concat encoded%6#0 as_Encoded(uint64)%5#0)
         let as_bytes%2#0: bytes[8] = (itob 3u)
         let len_u16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let encoded%9#0: Encoded(len+uint64[]) = (concat len_u16%1#0 encoded%8#0)
+        let encoded%8#0: bytes = (concat len_u16%1#0 encoded%7#0)
+        let encoded%9#0: Encoded(len+uint64[]) = (concat encoded%8#0 0x)
         let length%1#0: uint64 = (len expected_bytes#0)
         let as_bytes%3#0: bytes[8] = (itob length%1#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 expected_bytes#0)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%1#0
         let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded(len+uint64[]) = encoded%9#0
-        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%1#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_dyn_array_uin64(uint64[],byte[])void")
@@ -635,12 +681,15 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         let tmp%21#0: uint64 = (txn NumAppArgs)
         let tmp%22#0: uint64 = (+ tmp%21#0 2u)
         let val_as_bytes%6#0: bytes[8] = (itob tmp%18#0)
-        let encoded%10#0: Encoded((uint64)) = (concat 0x val_as_bytes%6#0)
+        let as_Encoded(uint64)%6#0: Encoded(uint64) = val_as_bytes%6#0
+        let encoded%10#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%6#0)
         let val_as_bytes%7#0: bytes[8] = (itob tmp%20#0)
-        let encoded%11#0: Encoded((uint64,uint64)) = (concat encoded%10#0 val_as_bytes%7#0)
+        let as_Encoded(uint64)%7#0: Encoded(uint64) = val_as_bytes%7#0
+        let encoded%11#0: Encoded((uint64,uint64)) = (concat encoded%10#0 as_Encoded(uint64)%7#0)
         let val_as_bytes%8#0: bytes[8] = (itob tmp%22#0)
-        let encoded%12#0: Encoded((uint64,uint64,uint64)) = (concat encoded%11#0 val_as_bytes%8#0)
-        let encoded%13#0: bytes = (concat encoded%12#0 0x)
+        let as_Encoded(uint64)%8#0: Encoded(uint64) = val_as_bytes%8#0
+        let encoded%12#0: Encoded((uint64,uint64,uint64)) = (concat encoded%11#0 as_Encoded(uint64)%8#0)
+        let encoded%13#0: Encoded(uint64[3]) = (concat encoded%12#0 0x)
         let length%2#0: uint64 = (len expected_bytes#0)
         let is_out_of_bounds%0#0: bool = (>= 2u length%2#0)
         let bounded_index%0#0: uint64 = (select 2u length%2#0 is_out_of_bounds%0#0)
@@ -649,8 +698,9 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_uint64_e
         let as_bytes%4#0: bytes[8] = (itob length%3#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%4#0)
         let encoded_value%2#0: bytes = (concat length_uint16%2#0 to_encode%0#0)
-        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: bytes = encoded%13#0
-        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%2#0
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = encoded_value%2#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_1#0: Encoded(uint64[3]) = encoded%13#0
+        let inner_txn_params%3%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%2#0
         let inner_txn_params%3%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%3%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_static_array_uin64_3(uint64[3],byte[])void")
@@ -696,33 +746,39 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let (tmp%2#0: uint64, tmp%3#0: bytes[32]) = test_cases.arc4_conversions.contract.my_struct(2u)
         let (tmp%4#0: uint64, tmp%5#0: bytes[32]) = test_cases.arc4_conversions.contract.my_struct(3u)
         let val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
         let length%0#0: uint64 = (len tmp%1#0)
         let lengths_equal%0#0: bool = (== length%0#0 32u)
         (assert lengths_equal%0#0) // invalid size
-        let encoded%1#0: Encoded((uint64,uint8[32])) = (concat encoded%0#0 tmp%1#0)
-        let encoded%2#0: bytes = (concat encoded%1#0 0x)
+        let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = tmp%1#0
+        let encoded%1#0: Encoded((uint64,uint8[32])) = (concat encoded%0#0 as_Encoded(uint8[32])%0#0)
+        let encoded%2#0: Encoded((uint64,uint8[32])) = (concat encoded%1#0 0x)
         let encoded%3#0: Encoded(((uint64,uint8[32]))) = (concat 0x encoded%2#0)
         let val_as_bytes%1#0: bytes[8] = (itob tmp%2#0)
-        let encoded%4#0: Encoded((uint64)) = (concat 0x val_as_bytes%1#0)
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = val_as_bytes%1#0
+        let encoded%4#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%1#0)
         let length%1#0: uint64 = (len tmp%3#0)
         let lengths_equal%1#0: bool = (== length%1#0 32u)
         (assert lengths_equal%1#0) // invalid size
-        let encoded%5#0: Encoded((uint64,uint8[32])) = (concat encoded%4#0 tmp%3#0)
-        let encoded%6#0: bytes = (concat encoded%5#0 0x)
+        let as_Encoded(uint8[32])%1#0: Encoded(uint8[32]) = tmp%3#0
+        let encoded%5#0: Encoded((uint64,uint8[32])) = (concat encoded%4#0 as_Encoded(uint8[32])%1#0)
+        let encoded%6#0: Encoded((uint64,uint8[32])) = (concat encoded%5#0 0x)
         let encoded%7#0: Encoded(((uint64,uint8[32]),(uint64,uint8[32]))) = (concat encoded%3#0 encoded%6#0)
         let val_as_bytes%2#0: bytes[8] = (itob tmp%4#0)
-        let encoded%8#0: Encoded((uint64)) = (concat 0x val_as_bytes%2#0)
+        let as_Encoded(uint64)%2#0: Encoded(uint64) = val_as_bytes%2#0
+        let encoded%8#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%2#0)
         let length%2#0: uint64 = (len tmp%5#0)
         let lengths_equal%2#0: bool = (== length%2#0 32u)
         (assert lengths_equal%2#0) // invalid size
-        let encoded%9#0: Encoded((uint64,uint8[32])) = (concat encoded%8#0 tmp%5#0)
-        let encoded%10#0: bytes = (concat encoded%9#0 0x)
+        let as_Encoded(uint8[32])%2#0: Encoded(uint8[32]) = tmp%5#0
+        let encoded%9#0: Encoded((uint64,uint8[32])) = (concat encoded%8#0 as_Encoded(uint8[32])%2#0)
+        let encoded%10#0: Encoded((uint64,uint8[32])) = (concat encoded%9#0 0x)
         let encoded%11#0: Encoded(((uint64,uint8[32]),(uint64,uint8[32]),(uint64,uint8[32]))) = (concat encoded%7#0 encoded%10#0)
-        let encoded%12#0: bytes = (concat encoded%11#0 0x)
         let as_bytes%0#0: bytes[8] = (itob 3u)
         let len_u16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded%13#0: Encoded(len+(uint64,uint8[32])[]) = (concat len_u16%0#0 encoded%12#0)
+        let encoded%12#0: bytes = (concat len_u16%0#0 encoded%11#0)
+        let encoded%13#0: Encoded(len+(uint64,uint8[32])[]) = (concat encoded%12#0 0x)
         let arr#0: Encoded(len+(uint64,uint8[32])[]) = encoded%13#0
         let tmp%6#0: bytes = (bzero 7u)
         let tmp%7#0: bytes = (concat tmp%6#0 0x01)
@@ -745,8 +801,9 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let as_bytes%1#0: bytes[8] = (itob length%3#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 expected_bytes#0)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+(uint64,uint8[32])[]) = arr#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%0#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_dyn_array_struct((uint64,address)[],byte[])void")
@@ -762,30 +819,36 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let (tmp%22#0: uint64, tmp%23#0: bytes[32]) = test_cases.arc4_conversions.contract.my_struct(2u)
         let (tmp%24#0: uint64, tmp%25#0: bytes[32]) = test_cases.arc4_conversions.contract.my_struct(3u)
         let val_as_bytes%3#0: bytes[8] = (itob tmp%20#0)
-        let encoded%14#0: Encoded((uint64)) = (concat 0x val_as_bytes%3#0)
+        let as_Encoded(uint64)%3#0: Encoded(uint64) = val_as_bytes%3#0
+        let encoded%14#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%3#0)
         let length%4#0: uint64 = (len tmp%21#0)
         let lengths_equal%3#0: bool = (== length%4#0 32u)
         (assert lengths_equal%3#0) // invalid size
-        let encoded%15#0: Encoded((uint64,uint8[32])) = (concat encoded%14#0 tmp%21#0)
-        let encoded%16#0: bytes = (concat encoded%15#0 0x)
+        let as_Encoded(uint8[32])%3#0: Encoded(uint8[32]) = tmp%21#0
+        let encoded%15#0: Encoded((uint64,uint8[32])) = (concat encoded%14#0 as_Encoded(uint8[32])%3#0)
+        let encoded%16#0: Encoded((uint64,uint8[32])) = (concat encoded%15#0 0x)
         let encoded%17#0: Encoded(((uint64,uint8[32]))) = (concat 0x encoded%16#0)
         let val_as_bytes%4#0: bytes[8] = (itob tmp%22#0)
-        let encoded%18#0: Encoded((uint64)) = (concat 0x val_as_bytes%4#0)
+        let as_Encoded(uint64)%4#0: Encoded(uint64) = val_as_bytes%4#0
+        let encoded%18#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%4#0)
         let length%5#0: uint64 = (len tmp%23#0)
         let lengths_equal%4#0: bool = (== length%5#0 32u)
         (assert lengths_equal%4#0) // invalid size
-        let encoded%19#0: Encoded((uint64,uint8[32])) = (concat encoded%18#0 tmp%23#0)
-        let encoded%20#0: bytes = (concat encoded%19#0 0x)
+        let as_Encoded(uint8[32])%4#0: Encoded(uint8[32]) = tmp%23#0
+        let encoded%19#0: Encoded((uint64,uint8[32])) = (concat encoded%18#0 as_Encoded(uint8[32])%4#0)
+        let encoded%20#0: Encoded((uint64,uint8[32])) = (concat encoded%19#0 0x)
         let encoded%21#0: Encoded(((uint64,uint8[32]),(uint64,uint8[32]))) = (concat encoded%17#0 encoded%20#0)
         let val_as_bytes%5#0: bytes[8] = (itob tmp%24#0)
-        let encoded%22#0: Encoded((uint64)) = (concat 0x val_as_bytes%5#0)
+        let as_Encoded(uint64)%5#0: Encoded(uint64) = val_as_bytes%5#0
+        let encoded%22#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%5#0)
         let length%6#0: uint64 = (len tmp%25#0)
         let lengths_equal%5#0: bool = (== length%6#0 32u)
         (assert lengths_equal%5#0) // invalid size
-        let encoded%23#0: Encoded((uint64,uint8[32])) = (concat encoded%22#0 tmp%25#0)
-        let encoded%24#0: bytes = (concat encoded%23#0 0x)
+        let as_Encoded(uint8[32])%5#0: Encoded(uint8[32]) = tmp%25#0
+        let encoded%23#0: Encoded((uint64,uint8[32])) = (concat encoded%22#0 as_Encoded(uint8[32])%5#0)
+        let encoded%24#0: Encoded((uint64,uint8[32])) = (concat encoded%23#0 0x)
         let encoded%25#0: Encoded(((uint64,uint8[32]),(uint64,uint8[32]),(uint64,uint8[32]))) = (concat encoded%21#0 encoded%24#0)
-        let encoded%26#0: bytes = (concat encoded%25#0 0x)
+        let encoded%26#0: Encoded((uint64,uint8[32])[3]) = (concat encoded%25#0 0x)
         let length%7#0: uint64 = (len expected_bytes#0)
         let is_out_of_bounds%0#0: bool = (>= 2u length%7#0)
         let bounded_index%0#0: uint64 = (select 2u length%7#0 is_out_of_bounds%0#0)
@@ -794,8 +857,9 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let as_bytes%2#0: bytes[8] = (itob length%8#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 to_encode%0#0)
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes = encoded%26#0
-        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%1#0
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%1#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded((uint64,uint8[32])[3]) = encoded%26#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%1#0
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_static_array_struct((uint64,address)[3],byte[])void")
@@ -841,20 +905,23 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let (tmp%3#0: uint64, tmp%4#0: bytes[32], tmp%5#0: bytes) = test_cases.arc4_conversions.contract.my_dyn_struct(2u)
         let (tmp%6#0: uint64, tmp%7#0: bytes[32], tmp%8#0: bytes) = test_cases.arc4_conversions.contract.my_dyn_struct(3u)
         let val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
         let length%0#0: uint64 = (len tmp%1#0)
         let lengths_equal%0#0: bool = (== length%0#0 32u)
         (assert lengths_equal%0#0) // invalid size
-        let encoded%1#0: Encoded((uint64,uint8[32])) = (concat encoded%0#0 tmp%1#0)
+        let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = tmp%1#0
+        let encoded%1#0: Encoded((uint64,uint8[32])) = (concat encoded%0#0 as_Encoded(uint8[32])%0#0)
         let length%1#0: uint64 = (len tmp%2#0)
         let as_bytes%0#0: bytes[8] = (itob length%1#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%2#0)
-        let tail%0#0: bytes = (concat 0x encoded_value%0#0)
+        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
+        let tail%0#0: bytes = (concat 0x as_Encoded(len+uint8[])%0#0)
         let as_bytes%1#0: bytes[8] = (itob 42u)
         let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded%2#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%1#0 offset_as_uint16%0#0)
-        let encoded%3#0: bytes = (concat encoded%2#0 tail%0#0)
+        let encoded%3#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%2#0 tail%0#0)
         let tail%1#0: bytes = (concat 0x encoded%3#0)
         let data_length%1#0: uint64 = (len encoded%3#0)
         let current_tail_offset%1#0: uint64 = (+ 6u data_length%1#0)
@@ -862,20 +929,23 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded%4#0: Encoded(((uint64,uint8[32],len+uint8[]))) = (concat 0x offset_as_uint16%1#0)
         let val_as_bytes%1#0: bytes[8] = (itob tmp%3#0)
-        let encoded%5#0: Encoded((uint64)) = (concat 0x val_as_bytes%1#0)
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = val_as_bytes%1#0
+        let encoded%5#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%1#0)
         let length%2#0: uint64 = (len tmp%4#0)
         let lengths_equal%1#0: bool = (== length%2#0 32u)
         (assert lengths_equal%1#0) // invalid size
-        let encoded%6#0: Encoded((uint64,uint8[32])) = (concat encoded%5#0 tmp%4#0)
+        let as_Encoded(uint8[32])%1#0: Encoded(uint8[32]) = tmp%4#0
+        let encoded%6#0: Encoded((uint64,uint8[32])) = (concat encoded%5#0 as_Encoded(uint8[32])%1#0)
         let length%3#0: uint64 = (len tmp%5#0)
         let as_bytes%3#0: bytes[8] = (itob length%3#0)
         let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
         let encoded_value%1#0: bytes = (concat length_uint16%1#0 tmp%5#0)
-        let tail%2#0: bytes = (concat 0x encoded_value%1#0)
+        let as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = encoded_value%1#0
+        let tail%2#0: bytes = (concat 0x as_Encoded(len+uint8[])%1#0)
         let as_bytes%4#0: bytes[8] = (itob 42u)
         let offset_as_uint16%2#0: bytes = ((extract 6 2) as_bytes%4#0)
         let encoded%7#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%6#0 offset_as_uint16%2#0)
-        let encoded%8#0: bytes = (concat encoded%7#0 tail%2#0)
+        let encoded%8#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%7#0 tail%2#0)
         let tail%3#0: bytes = (concat tail%1#0 encoded%8#0)
         let data_length%3#0: uint64 = (len encoded%8#0)
         let current_tail_offset%3#0: uint64 = (+ current_tail_offset%1#0 data_length%3#0)
@@ -883,28 +953,31 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%5#0)
         let encoded%9#0: Encoded(((uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]))) = (concat encoded%4#0 offset_as_uint16%3#0)
         let val_as_bytes%2#0: bytes[8] = (itob tmp%6#0)
-        let encoded%10#0: Encoded((uint64)) = (concat 0x val_as_bytes%2#0)
+        let as_Encoded(uint64)%2#0: Encoded(uint64) = val_as_bytes%2#0
+        let encoded%10#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%2#0)
         let length%4#0: uint64 = (len tmp%7#0)
         let lengths_equal%2#0: bool = (== length%4#0 32u)
         (assert lengths_equal%2#0) // invalid size
-        let encoded%11#0: Encoded((uint64,uint8[32])) = (concat encoded%10#0 tmp%7#0)
+        let as_Encoded(uint8[32])%2#0: Encoded(uint8[32]) = tmp%7#0
+        let encoded%11#0: Encoded((uint64,uint8[32])) = (concat encoded%10#0 as_Encoded(uint8[32])%2#0)
         let length%5#0: uint64 = (len tmp%8#0)
         let as_bytes%6#0: bytes[8] = (itob length%5#0)
         let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%6#0)
         let encoded_value%2#0: bytes = (concat length_uint16%2#0 tmp%8#0)
-        let tail%4#0: bytes = (concat 0x encoded_value%2#0)
+        let as_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = encoded_value%2#0
+        let tail%4#0: bytes = (concat 0x as_Encoded(len+uint8[])%2#0)
         let as_bytes%7#0: bytes[8] = (itob 42u)
         let offset_as_uint16%4#0: bytes = ((extract 6 2) as_bytes%7#0)
         let encoded%12#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%11#0 offset_as_uint16%4#0)
-        let encoded%13#0: bytes = (concat encoded%12#0 tail%4#0)
+        let encoded%13#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%12#0 tail%4#0)
         let tail%5#0: bytes = (concat tail%3#0 encoded%13#0)
         let as_bytes%8#0: bytes[8] = (itob current_tail_offset%3#0)
         let offset_as_uint16%5#0: bytes = ((extract 6 2) as_bytes%8#0)
         let encoded%14#0: Encoded(((uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]))) = (concat encoded%9#0 offset_as_uint16%5#0)
-        let encoded%15#0: bytes = (concat encoded%14#0 tail%5#0)
         let as_bytes%9#0: bytes[8] = (itob 3u)
         let len_u16%0#0: bytes = ((extract 6 2) as_bytes%9#0)
-        let encoded%16#0: Encoded(len+(uint64,uint8[32],len+uint8[])[]) = (concat len_u16%0#0 encoded%15#0)
+        let encoded%15#0: bytes = (concat len_u16%0#0 encoded%14#0)
+        let encoded%16#0: Encoded(len+(uint64,uint8[32],len+uint8[])[]) = (concat encoded%15#0 tail%5#0)
         let arr#0: Encoded(len+(uint64,uint8[32],len+uint8[])[]) = encoded%16#0
         let tmp%9#0: Encoded((uint64,uint8[32],len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u)
         let tmp%10#0: Encoded((uint64,uint8[32],len+uint8[])) = test_cases.arc4_conversions.contract.my_dyn_struct_arc4(2u)
@@ -925,18 +998,19 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let as_bytes%12#0: bytes[8] = (itob current_tail_offset%7#0)
         let offset_as_uint16%8#0: bytes = ((extract 6 2) as_bytes%12#0)
         let encoded%19#0: Encoded(((uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]))) = (concat encoded%18#0 offset_as_uint16%8#0)
-        let encoded%20#0: bytes = (concat encoded%19#0 tail%8#0)
         let as_bytes%13#0: bytes[8] = (itob 3u)
         let len_u16%1#0: bytes = ((extract 6 2) as_bytes%13#0)
-        let encoded%21#0: Encoded(len+(uint64,uint8[32],len+uint8[])[]) = (concat len_u16%1#0 encoded%20#0)
+        let encoded%20#0: bytes = (concat len_u16%1#0 encoded%19#0)
+        let encoded%21#0: Encoded(len+(uint64,uint8[32],len+uint8[])[]) = (concat encoded%20#0 tail%8#0)
         let expected_bytes#0: bytes = encoded%21#0
         itxn_begin
         let length%6#0: uint64 = (len expected_bytes#0)
         let as_bytes%14#0: bytes[8] = (itob length%6#0)
         let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%14#0)
         let encoded_value%3#0: bytes = (concat length_uint16%3#0 expected_bytes#0)
+        let as_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = encoded_value%3#0
         let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(len+(uint64,uint8[32],len+uint8[])[]) = arr#0
-        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%3#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%3#0
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void")
@@ -966,27 +1040,30 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let as_bytes%17#0: bytes[8] = (itob current_tail_offset%10#0)
         let offset_as_uint16%11#0: bytes = ((extract 6 2) as_bytes%17#0)
         let encoded%24#0: Encoded(((uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]))) = (concat encoded%23#0 offset_as_uint16%11#0)
-        let encoded%25#0: bytes = (concat encoded%24#0 tail%11#0)
+        let encoded%25#0: Encoded((uint64,uint8[32],len+uint8[])[3]) = (concat encoded%24#0 tail%11#0)
         let expected_bytes#0: bytes = encoded%25#0
         itxn_begin
         let (tmp%15#0: uint64, tmp%16#0: bytes[32], tmp%17#0: bytes) = test_cases.arc4_conversions.contract.my_dyn_struct(1u)
         let (tmp%18#0: uint64, tmp%19#0: bytes[32], tmp%20#0: bytes) = test_cases.arc4_conversions.contract.my_dyn_struct(2u)
         let (tmp%21#0: uint64, tmp%22#0: bytes[32], tmp%23#0: bytes) = test_cases.arc4_conversions.contract.my_dyn_struct(3u)
         let val_as_bytes%3#0: bytes[8] = (itob tmp%15#0)
-        let encoded%26#0: Encoded((uint64)) = (concat 0x val_as_bytes%3#0)
+        let as_Encoded(uint64)%3#0: Encoded(uint64) = val_as_bytes%3#0
+        let encoded%26#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%3#0)
         let length%7#0: uint64 = (len tmp%16#0)
         let lengths_equal%3#0: bool = (== length%7#0 32u)
         (assert lengths_equal%3#0) // invalid size
-        let encoded%27#0: Encoded((uint64,uint8[32])) = (concat encoded%26#0 tmp%16#0)
+        let as_Encoded(uint8[32])%3#0: Encoded(uint8[32]) = tmp%16#0
+        let encoded%27#0: Encoded((uint64,uint8[32])) = (concat encoded%26#0 as_Encoded(uint8[32])%3#0)
         let length%8#0: uint64 = (len tmp%17#0)
         let as_bytes%18#0: bytes[8] = (itob length%8#0)
         let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%18#0)
         let encoded_value%4#0: bytes = (concat length_uint16%4#0 tmp%17#0)
-        let tail%12#0: bytes = (concat 0x encoded_value%4#0)
+        let as_Encoded(len+uint8[])%4#0: Encoded(len+uint8[]) = encoded_value%4#0
+        let tail%12#0: bytes = (concat 0x as_Encoded(len+uint8[])%4#0)
         let as_bytes%19#0: bytes[8] = (itob 42u)
         let offset_as_uint16%12#0: bytes = ((extract 6 2) as_bytes%19#0)
         let encoded%28#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%27#0 offset_as_uint16%12#0)
-        let encoded%29#0: bytes = (concat encoded%28#0 tail%12#0)
+        let encoded%29#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%28#0 tail%12#0)
         let tail%13#0: bytes = (concat 0x encoded%29#0)
         let data_length%13#0: uint64 = (len encoded%29#0)
         let current_tail_offset%13#0: uint64 = (+ 6u data_length%13#0)
@@ -994,20 +1071,23 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let offset_as_uint16%13#0: bytes = ((extract 6 2) as_bytes%20#0)
         let encoded%30#0: Encoded(((uint64,uint8[32],len+uint8[]))) = (concat 0x offset_as_uint16%13#0)
         let val_as_bytes%4#0: bytes[8] = (itob tmp%18#0)
-        let encoded%31#0: Encoded((uint64)) = (concat 0x val_as_bytes%4#0)
+        let as_Encoded(uint64)%4#0: Encoded(uint64) = val_as_bytes%4#0
+        let encoded%31#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%4#0)
         let length%9#0: uint64 = (len tmp%19#0)
         let lengths_equal%4#0: bool = (== length%9#0 32u)
         (assert lengths_equal%4#0) // invalid size
-        let encoded%32#0: Encoded((uint64,uint8[32])) = (concat encoded%31#0 tmp%19#0)
+        let as_Encoded(uint8[32])%4#0: Encoded(uint8[32]) = tmp%19#0
+        let encoded%32#0: Encoded((uint64,uint8[32])) = (concat encoded%31#0 as_Encoded(uint8[32])%4#0)
         let length%10#0: uint64 = (len tmp%20#0)
         let as_bytes%21#0: bytes[8] = (itob length%10#0)
         let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%21#0)
         let encoded_value%5#0: bytes = (concat length_uint16%5#0 tmp%20#0)
-        let tail%14#0: bytes = (concat 0x encoded_value%5#0)
+        let as_Encoded(len+uint8[])%5#0: Encoded(len+uint8[]) = encoded_value%5#0
+        let tail%14#0: bytes = (concat 0x as_Encoded(len+uint8[])%5#0)
         let as_bytes%22#0: bytes[8] = (itob 42u)
         let offset_as_uint16%14#0: bytes = ((extract 6 2) as_bytes%22#0)
         let encoded%33#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%32#0 offset_as_uint16%14#0)
-        let encoded%34#0: bytes = (concat encoded%33#0 tail%14#0)
+        let encoded%34#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%33#0 tail%14#0)
         let tail%15#0: bytes = (concat tail%13#0 encoded%34#0)
         let data_length%15#0: uint64 = (len encoded%34#0)
         let current_tail_offset%15#0: uint64 = (+ current_tail_offset%13#0 data_length%15#0)
@@ -1015,31 +1095,35 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let offset_as_uint16%15#0: bytes = ((extract 6 2) as_bytes%23#0)
         let encoded%35#0: Encoded(((uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]))) = (concat encoded%30#0 offset_as_uint16%15#0)
         let val_as_bytes%5#0: bytes[8] = (itob tmp%21#0)
-        let encoded%36#0: Encoded((uint64)) = (concat 0x val_as_bytes%5#0)
+        let as_Encoded(uint64)%5#0: Encoded(uint64) = val_as_bytes%5#0
+        let encoded%36#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%5#0)
         let length%11#0: uint64 = (len tmp%22#0)
         let lengths_equal%5#0: bool = (== length%11#0 32u)
         (assert lengths_equal%5#0) // invalid size
-        let encoded%37#0: Encoded((uint64,uint8[32])) = (concat encoded%36#0 tmp%22#0)
+        let as_Encoded(uint8[32])%5#0: Encoded(uint8[32]) = tmp%22#0
+        let encoded%37#0: Encoded((uint64,uint8[32])) = (concat encoded%36#0 as_Encoded(uint8[32])%5#0)
         let length%12#0: uint64 = (len tmp%23#0)
         let as_bytes%24#0: bytes[8] = (itob length%12#0)
         let length_uint16%6#0: bytes = ((extract 6 2) as_bytes%24#0)
         let encoded_value%6#0: bytes = (concat length_uint16%6#0 tmp%23#0)
-        let tail%16#0: bytes = (concat 0x encoded_value%6#0)
+        let as_Encoded(len+uint8[])%6#0: Encoded(len+uint8[]) = encoded_value%6#0
+        let tail%16#0: bytes = (concat 0x as_Encoded(len+uint8[])%6#0)
         let as_bytes%25#0: bytes[8] = (itob 42u)
         let offset_as_uint16%16#0: bytes = ((extract 6 2) as_bytes%25#0)
         let encoded%38#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%37#0 offset_as_uint16%16#0)
-        let encoded%39#0: bytes = (concat encoded%38#0 tail%16#0)
+        let encoded%39#0: Encoded((uint64,uint8[32],len+uint8[])) = (concat encoded%38#0 tail%16#0)
         let tail%17#0: bytes = (concat tail%15#0 encoded%39#0)
         let as_bytes%26#0: bytes[8] = (itob current_tail_offset%15#0)
         let offset_as_uint16%17#0: bytes = ((extract 6 2) as_bytes%26#0)
         let encoded%40#0: Encoded(((uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]))) = (concat encoded%35#0 offset_as_uint16%17#0)
-        let encoded%41#0: bytes = (concat encoded%40#0 tail%17#0)
+        let encoded%41#0: Encoded((uint64,uint8[32],len+uint8[])[3]) = (concat encoded%40#0 tail%17#0)
         let length%13#0: uint64 = (len expected_bytes#0)
         let as_bytes%27#0: bytes[8] = (itob length%13#0)
         let length_uint16%7#0: bytes = ((extract 6 2) as_bytes%27#0)
         let encoded_value%7#0: bytes = (concat length_uint16%7#0 expected_bytes#0)
-        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: bytes = encoded%41#0
-        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: bytes = encoded_value%7#0
+        let as_Encoded(len+uint8[])%7#0: Encoded(len+uint8[]) = encoded_value%7#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_1#0: Encoded((uint64,uint8[32],len+uint8[])[3]) = encoded%41#0
+        let inner_txn_params%2%%param_ApplicationArgs_idx_2#0: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%7#0
         let inner_txn_params%2%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%2%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void")
@@ -1096,7 +1180,8 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_bytes_to_fixed
         let length%0#0: uint64 = (len sender#0)
         let lengths_equal%0#0: bool = (== length%0#0 32u)
         (assert lengths_equal%0#0) // invalid size
-        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: bytes = sender#0
+        let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = sender#0
+        let inner_txn_params%1%%param_ApplicationArgs_idx_1#0: Encoded(uint8[32]) = as_Encoded(uint8[32])%0#0
         let inner_txn_params%1%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%1%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "check_static_bytes(byte[32])void")

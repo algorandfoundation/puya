@@ -925,21 +925,23 @@ subroutine echo:
         // typed_abi_call/logger.py:38
         // return "echo: " + value
         p-load value#0                                                                  (𝕡) value#0 | value#0 (copy)
-        extract 2 0                                                                     (𝕡) value#0 | expr_value_trimmed%1#0
-        byte 0x6563686f3a20                                                             (𝕡) value#0 | expr_value_trimmed%1#0,0x6563686f3a20
-        l-load expr_value_trimmed%1#0 1                                                 (𝕡) value#0 | 0x6563686f3a20,expr_value_trimmed%1#0
-        concat                                                                          (𝕡) value#0 | concatenated%0#0
-        l-load-copy concatenated%0#0 0                                                  (𝕡) value#0 | concatenated%0#0,concatenated%0#0 (copy)
-        len                                                                             (𝕡) value#0 | concatenated%0#0,len_%0#0
-        l-load len_%0#0 0                                                               (𝕡) value#0 | concatenated%0#0,len_%0#0
-        itob                                                                            (𝕡) value#0 | concatenated%0#0,as_bytes%0#0
-        l-load as_bytes%0#0 0                                                           (𝕡) value#0 | concatenated%0#0,as_bytes%0#0
-        extract 6 2                                                                     (𝕡) value#0 | concatenated%0#0,len_16_bit%0#0
-        l-load len_16_bit%0#0 0                                                         (𝕡) value#0 | concatenated%0#0,len_16_bit%0#0
-        l-load concatenated%0#0 1                                                       (𝕡) value#0 | len_16_bit%0#0,concatenated%0#0
-        concat                                                                          (𝕡) value#0 | concat_result%0#0
-        l-load concat_result%0#0 0                                                      (𝕡) value#0 | concat_result%0#0
-        retsub                                                                          concat_result%0#0
+        extract 2 0                                                                     (𝕡) value#0 | extract_to_end%0#0
+        byte 0x00066563686f3a20                                                         (𝕡) value#0 | extract_to_end%0#0,0x00066563686f3a20
+        l-load extract_to_end%0#0 1                                                     (𝕡) value#0 | 0x00066563686f3a20,extract_to_end%0#0
+        concat // on error: max array length exceeded                                   (𝕡) value#0 | concat%0#0
+        l-load-copy concat%0#0 0                                                        (𝕡) value#0 | concat%0#0,concat%0#0 (copy)
+        extract 2 0                                                                     (𝕡) value#0 | concat%0#0,extract_to_end%1#0
+        l-load extract_to_end%1#0 0                                                     (𝕡) value#0 | concat%0#0,extract_to_end%1#0
+        len                                                                             (𝕡) value#0 | concat%0#0,len%0#0
+        l-load len%0#0 0                                                                (𝕡) value#0 | concat%0#0,len%0#0
+        itob                                                                            (𝕡) value#0 | concat%0#0,as_bytes%1#0
+        l-load as_bytes%1#0 0                                                           (𝕡) value#0 | concat%0#0,as_bytes%1#0
+        extract 6 2                                                                     (𝕡) value#0 | concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                             (𝕡) value#0 | as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                       (𝕡) value#0 | concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                      (𝕡) value#0 | replace%0#0
+        l-load replace%0#0 0                                                            (𝕡) value#0 | replace%0#0
+        retsub                                                                          replace%0#0
 
 
 // test_cases.typed_abi_call.logger.Logger.log_uint64(value: bytes) -> void:
@@ -1118,50 +1120,52 @@ subroutine echo_nested_tuple:
         p-load tuple_of_tuples.0.0#0                                                    (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | "echo: ",tuple_of_tuples.0.0#0 (copy)
         concat                                                                          (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0
         p-load tuple_of_tuples.0.1#0                                                    (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,tuple_of_tuples.0.1#0 (copy)
-        extract 2 0                                                                     (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,expr_value_trimmed%1#0
-        byte 0x6563686f3a20                                                             (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,expr_value_trimmed%1#0,0x6563686f3a20
-        l-load expr_value_trimmed%1#0 1                                                 (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,0x6563686f3a20,expr_value_trimmed%1#0
-        concat                                                                          (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concatenated%0#0
-        l-load-copy concatenated%0#0 0                                                  (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concatenated%0#0,concatenated%0#0 (copy)
-        len                                                                             (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concatenated%0#0,len_%0#0
-        l-load len_%0#0 0                                                               (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concatenated%0#0,len_%0#0
-        itob                                                                            (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concatenated%0#0,as_bytes%0#0
-        l-load as_bytes%0#0 0                                                           (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concatenated%0#0,as_bytes%0#0
-        extract 6 2                                                                     (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concatenated%0#0,len_16_bit%0#0
-        l-load len_16_bit%0#0 0                                                         (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concatenated%0#0,len_16_bit%0#0
-        l-load concatenated%0#0 1                                                       (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,len_16_bit%0#0,concatenated%0#0
-        concat                                                                          (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0
+        extract 2 0                                                                     (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,extract_to_end%0#0
+        byte 0x00066563686f3a20                                                         (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,extract_to_end%0#0,0x00066563686f3a20
+        l-load extract_to_end%0#0 1                                                     (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,0x00066563686f3a20,extract_to_end%0#0
+        concat // on error: max array length exceeded                                   (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0
+        l-load-copy concat%0#0 0                                                        (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0,concat%0#0 (copy)
+        extract 2 0                                                                     (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0,extract_to_end%1#0
+        l-load extract_to_end%1#0 0                                                     (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0,extract_to_end%1#0
+        len                                                                             (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0,len%0#0
+        l-load len%0#0 0                                                                (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0,len%0#0
+        itob                                                                            (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0,as_bytes%1#0
+        l-load as_bytes%1#0 0                                                           (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0,as_bytes%1#0
+        extract 6 2                                                                     (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                             (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                       (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                      (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0
         // typed_abi_call/logger.py:100
         // u64 + 1,
-        p-load tuple_of_tuples.1.0#0                                                    (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tuple_of_tuples.1.0#0 (copy)
-        int 1                                                                           (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tuple_of_tuples.1.0#0 (copy),1
-        +                                                                               (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0
+        p-load tuple_of_tuples.1.0#0                                                    (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tuple_of_tuples.1.0#0 (copy)
+        int 1                                                                           (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tuple_of_tuples.1.0#0 (copy),1
+        +                                                                               (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0
         // typed_abi_call/logger.py:101
         // arc4.UInt64(arc4_u64.native + 1),
-        p-load tuple_of_tuples.1.1#0                                                    (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,tuple_of_tuples.1.1#0 (copy)
-        btoi                                                                            (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,tmp%2#0
-        l-load tmp%2#0 0                                                                (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,tmp%2#0
-        int 1                                                                           (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,tmp%2#0,1
-        +                                                                               (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,to_encode%0#0
-        l-load to_encode%0#0 0                                                          (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,to_encode%0#0
-        itob                                                                            (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,val_as_bytes%0#0
+        p-load tuple_of_tuples.1.1#0                                                    (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,tuple_of_tuples.1.1#0 (copy)
+        btoi                                                                            (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,tmp%2#0
+        l-load tmp%2#0 0                                                                (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,tmp%2#0
+        int 1                                                                           (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,tmp%2#0,1
+        +                                                                               (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,to_encode%0#0
+        l-load to_encode%0#0 0                                                          (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,to_encode%0#0
+        itob                                                                            (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,val_as_bytes%0#0
         // typed_abi_call/logger.py:102
         // b"echo: " + bytez,
-        byte 0x6563686f3a20                                                             (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,val_as_bytes%0#0,0x6563686f3a20
-        p-load tuple_of_tuples.1.2#0                                                    (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,val_as_bytes%0#0,0x6563686f3a20,tuple_of_tuples.1.2#0 (copy)
-        concat                                                                          (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,val_as_bytes%0#0,tmp%3#0
+        byte 0x6563686f3a20                                                             (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,val_as_bytes%0#0,0x6563686f3a20
+        p-load tuple_of_tuples.1.2#0                                                    (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,val_as_bytes%0#0,0x6563686f3a20,tuple_of_tuples.1.2#0 (copy)
+        concat                                                                          (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,val_as_bytes%0#0,tmp%3#0
         // typed_abi_call/logger.py:99-103
         // return ("echo: " + string, "echo: " + arc4_string), (
         //     u64 + 1,
         //     arc4.UInt64(arc4_u64.native + 1),
         //     b"echo: " + bytez,
         // )
-        l-load tmp%0#0 4                                                                (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | concat_result%0#0,tmp%1#0,val_as_bytes%0#0,tmp%3#0,tmp%0#0
-        l-load concat_result%0#0 4                                                      (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%1#0,val_as_bytes%0#0,tmp%3#0,tmp%0#0,concat_result%0#0
-        l-load tmp%1#0 4                                                                (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | val_as_bytes%0#0,tmp%3#0,tmp%0#0,concat_result%0#0,tmp%1#0
-        l-load val_as_bytes%0#0 4                                                       (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%3#0,tmp%0#0,concat_result%0#0,tmp%1#0,val_as_bytes%0#0
-        l-load tmp%3#0 4                                                                (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,concat_result%0#0,tmp%1#0,val_as_bytes%0#0,tmp%3#0
-        retsub                                                                          tmp%0#0,concat_result%0#0,tmp%1#0,val_as_bytes%0#0,tmp%3#0
+        l-load tmp%0#0 4                                                                (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | replace%0#0,tmp%1#0,val_as_bytes%0#0,tmp%3#0,tmp%0#0
+        l-load replace%0#0 4                                                            (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%1#0,val_as_bytes%0#0,tmp%3#0,tmp%0#0,replace%0#0
+        l-load tmp%1#0 4                                                                (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | val_as_bytes%0#0,tmp%3#0,tmp%0#0,replace%0#0,tmp%1#0
+        l-load val_as_bytes%0#0 4                                                       (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%3#0,tmp%0#0,replace%0#0,tmp%1#0,val_as_bytes%0#0
+        l-load tmp%3#0 4                                                                (𝕡) tuple_of_tuples.0.0#0,tuple_of_tuples.0.1#0,tuple_of_tuples.1.0#0,tuple_of_tuples.1.1#0,tuple_of_tuples.1.2#0 | tmp%0#0,replace%0#0,tmp%1#0,val_as_bytes%0#0,tmp%3#0
+        retsub                                                                          tmp%0#0,replace%0#0,tmp%1#0,val_as_bytes%0#0,tmp%3#0
 
 
 // test_cases.typed_abi_call.logger.Logger.return_args_after_14th(_a1: bytes, _a2: bytes, _a3: bytes, _a4: bytes, _a5: bytes, _a6: bytes, _a7: bytes, _a8: bytes, _a9: bytes, _a10: bytes, _a11: bytes, _a12: bytes, _a13: bytes, _a14: bytes, a15: bytes, a16: bytes, a17: bytes, a18: bytes, a19: bytes, a20: bytes) -> bytes:

@@ -572,28 +572,29 @@ test_array_for_footer@3:
 test_array_after_for@4:
     // array/static_size.py:54
     // Box(ImmutableArray[Point], key="a").value = path.freeze()
-    bytec_0 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_0 // 0x
     concat
-    extract 2 0
+    bytec_0 // 0x
+    concat
     frame_dig 0
     dup
     cover 2
     loads
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     intc 4 // 144
     /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     pushbytes "a"
     box_del
     pop
@@ -626,6 +627,8 @@ test_extend_from_tuple_block@0:
     stores
     // array/static_size.py:60
     // arr.extend(some_more)
+    dup
+    loads
     bytec_0 // 0x
     frame_dig -2
     concat
@@ -633,9 +636,6 @@ test_extend_from_tuple_block@0:
     concat
     bytec_0 // 0x
     concat
-    dig 1
-    loads
-    swap
     concat // on error: max array length exceeded
     dig 1
     swap
@@ -664,26 +664,27 @@ test_extend_from_tuple_block@0:
     assert
     // array/static_size.py:63
     // result = arr.freeze()
-    bytec_0 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_0 // 0x
     concat
-    extract 2 0
+    bytec_0 // 0x
+    concat
     uncover 2
     loads
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     intc_3 // 16
     /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // array/static_size.py:64
     // assert result[-1] == last
     dup
@@ -736,26 +737,27 @@ test_extend_from_arc4_tuple_block@0:
     stores
     // array/static_size.py:73
     // return arr.freeze()
-    bytec_0 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_0 // 0x
     concat
-    extract 2 0
+    bytec_0 // 0x
+    concat
     swap
     loads
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     intc_3 // 16
     /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     retsub
 
 
@@ -813,6 +815,11 @@ test_bool_array_for_body@2:
     %
     intc_0 // 0
     ==
+    frame_dig 4
+    dup
+    cover 2
+    loads
+    swap
     bytec_3 // 0x00
     intc_0 // 0
     uncover 2
@@ -822,11 +829,6 @@ test_bool_array_for_body@2:
     concat
     bytec_0 // 0x
     concat
-    frame_dig 4
-    dup
-    cover 2
-    loads
-    swap
     concat // on error: max array length exceeded
     stores
 
@@ -969,16 +971,16 @@ test_arc4_conversion_for_body@2:
     // arr.append(arc4.UInt64(i))
     frame_dig 6
     itob
-    bytec_0 // 0x
-    swap
-    concat
-    bytec_0 // 0x
-    concat
     frame_dig 4
     dup
     cover 2
     loads
     swap
+    bytec_0 // 0x
+    swap
+    concat
+    bytec_0 // 0x
+    concat
     concat // on error: max array length exceeded
     stores
 
@@ -1065,28 +1067,29 @@ test_arc4_conversion_for_footer@9:
 test_arc4_conversion_after_for@10:
     // array/static_size.py:102
     // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
-    bytec_0 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_0 // 0x
+    concat
+    bytec_0 // 0x
     concat
     // array/static_size.py:103
     // arc4_arr.extend(arr)
-    extract 2 0
     frame_dig 4
     loads
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     intc_2 // 8
     /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // array/static_size.py:105
     // return arc4_arr
     frame_bury 0
@@ -1110,15 +1113,12 @@ sum_array_block@0:
     dup
     uncover 2
     stores
-    dup
+    dupn 2
     // array/static_size.py:110
     // arr.extend(arc4_arr)
+    loads
     frame_dig -1
     extract 2 0
-    swap
-    dup
-    loads
-    uncover 2
     concat // on error: max array length exceeded
     dig 1
     swap
@@ -1283,14 +1283,14 @@ test_arc4_bool_block@0:
     intc_0 // 0
     uncover 2
     setbit
-    bytec_0 // 0x
-    swap
-    concat
-    bytec_0 // 0x
-    concat
     dig 1
     loads
     swap
+    bytec_0 // 0x
+    swap
+    concat
+    bytec_0 // 0x
+    concat
     concat // on error: max array length exceeded
     dig 1
     swap
@@ -1304,27 +1304,26 @@ test_arc4_bool_block@0:
     intc_0 // 0
     uncover 2
     setbit
-    bytec_0 // 0x
-    swap
-    concat
-    bytec_0 // 0x
-    concat
     dig 1
     loads
     swap
+    bytec_0 // 0x
+    swap
+    concat
+    bytec_0 // 0x
+    concat
     concat // on error: max array length exceeded
     dig 1
     swap
     stores
     // array/static_size.py:139
     // dyn_arr = arc4.DynamicArray[arc4.Bool]()
-    bytec_0 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_0 // 0x
+    concat
+    bytec_0 // 0x
     concat
     // array/static_size.py:140
     // dyn_arr.extend(arr)
@@ -1401,13 +1400,12 @@ test_arc4_bool_block@0:
     assert // expected correct value at 1
     // array/static_size.py:145
     // return arr.freeze()
-    bytec_0 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_0 // 0x
+    concat
+    bytec_0 // 0x
     concat
     swap
     loads

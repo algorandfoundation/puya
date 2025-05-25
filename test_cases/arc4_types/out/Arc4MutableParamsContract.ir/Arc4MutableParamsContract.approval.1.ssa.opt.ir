@@ -6,16 +6,24 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let encoded%3#0: Encoded((uint8,uint8,uint8,uint8)) = 0x01020304
         let my_array#0: Encoded(uint8[4]) = 0x01020304
         let encoded_bool%0#0: bytes[1] = 0x80
+        let length%0#0: uint64 = 5u
+        let as_bytes%0#0: bytes[8] = (itob 5u)
+        let length_uint16%0#0: bytes = 0x0005
+        let encoded_value%0#0: bytes = 0x00054861707079
+        let length%1#0: uint64 = 4u
+        let as_bytes%1#0: bytes[8] = (itob 4u)
+        let length_uint16%1#0: bytes = 0x0004
+        let encoded_value%1#0: bytes = 0x000444617973
         let encoded%5#0: Encoded((bool1)) = 0x80
         let encoded%6#0: Encoded((bool1,uint8)) = 0x8032
         let tail%0#0: bytes = 0x00054861707079
         let data_length%0#0: uint64 = 7u
         let current_tail_offset%0#0: uint64 = 13u
-        let as_bytes%0#0: bytes[8] = (itob 6u)
+        let as_bytes%2#0: bytes[8] = (itob 6u)
         let offset_as_uint16%0#0: bytes = 0x0006
         let encoded%7#0: Encoded((bool1,uint8,len+utf8[])) = 0x80320006
         let tail%1#0: bytes = 0x00054861707079000444617973
-        let as_bytes%1#0: bytes[8] = (itob 13u)
+        let as_bytes%3#0: bytes[8] = (itob 13u)
         let offset_as_uint16%1#0: bytes = 0x000d
         let encoded%8#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = 0x80320006000d
         let my_struct#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = 0x80320006000d00054861707079000444617973
@@ -38,6 +46,10 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let item_start_offset%0#0: uint64 = (extract_uint16 my_struct#1 2u)
         let item_end_offset%0#0: uint64 = (extract_uint16 my_struct#1 4u)
         let tmp%4#0: bytes = (substring3 my_struct#1 item_start_offset%0#0 item_end_offset%0#0)
+        let length%2#0: uint64 = 7u
+        let as_bytes%4#0: bytes[8] = (itob 7u)
+        let length_uint16%2#0: bytes = 0x0007
+        let encoded_value%2#0: bytes = 0x000741415252474821
         let tmp%5#0: bool = (== tmp%4#0 0x000741415252474821)
         (assert tmp%5#0) // my_struct has been mutated by the subroutine
         let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: Encoded(uint8[4]), other_routine%7#0: Encoded((bool1,uint8,len+utf8[],len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(0x01020304, 0x80320006000d00054861707079000444617973)
@@ -47,6 +59,9 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let item_start_offset%1#0: uint64 = 6u
         let item_end_offset%1#0: uint64 = 13u
         let tmp%7#0: bytes = 0x00054861707079
+        let length%3#0: uint64 = 5u
+        let length_uint16%3#0: bytes = 0x0005
+        let encoded_value%3#0: bytes = 0x00054861707079
         let tmp%8#0: bool = 1u
         let (my_array_copy_2#2: Encoded(uint8[4]), my_array_copy_2#1: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(0x01020304)
         let bytes_offset%4#0: uint64 = 0u
@@ -114,8 +129,6 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let encoded_element%17#0: bytes = ((extract 1 1) my_array_copy_3#2) // on error: index access is out of bounds
         let tmp%27#0: bool = (b== encoded_element%17#0 0xd0)
         (assert tmp%27#0)
-        let encoded%10#0: Encoded((uint8[4])) = my_array#4
-        let nested#0: Encoded((uint8[4])) = my_array#4
         let tmp%28#0: bytes = ((extract 0 4) my_array#4) // on error: Index access is out of bounds
         let (other_routine_2%4#0: Encoded(uint8[4]), other_routine_2%5#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(tmp%28#0)
         return 1u
@@ -124,6 +137,10 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
     block@0: // L118
         let write_offset%0#0: uint64 = 1u
         let array#1: Encoded(uint8[4]) = ((replace2 1) array#0 0x05)
+        let length%0#0: uint64 = 7u
+        let as_bytes%0#0: bytes[8] = (itob 7u)
+        let length_uint16%0#0: bytes = 0x0007
+        let encoded_value%0#0: bytes = 0x000741415252474821
         let item_offset%0#0: uint64 = (extract_uint16 struct#0 2u)
         let data_up_to_item%0#0: bytes = (extract3 struct#0 0u item_offset%0#0)
         let next_item_offset%0#0: uint64 = (extract_uint16 struct#0 4u)
@@ -136,8 +153,8 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
         let tail_offset%0#0: uint64 = (extract_uint16 updated_data%1#0 4u)
         let tail_offset%1#0: uint64 = (+ tail_offset%0#0 9u)
         let tail_offset%2#0: uint64 = (- tail_offset%1#0 item_length%0#0)
-        let as_bytes%0#0: bytes[8] = (itob tail_offset%2#0)
-        let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let as_bytes%1#0: bytes[8] = (itob tail_offset%2#0)
+        let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let struct#2: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = ((replace2 4) updated_data%1#0 tail_offset_bytes%0#0)
         return 1u 0u array#1 struct#2
 

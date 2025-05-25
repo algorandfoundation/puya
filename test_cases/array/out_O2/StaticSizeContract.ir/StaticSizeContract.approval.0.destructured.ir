@@ -25,8 +25,8 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let y2#0: uint64 = (btoi reinterpret_Encoded(uint64)%3#0)
         (app_global_put "count" 0u)
         let (tmp%0#2: uint64, tmp%1#4: uint64, tmp%2#0: bytes, tmp%3#1: bytes[32], tmp%4#5: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
-        let (tmp%5#0: uint64, tmp%6#1: uint64, tmp%7#2: bytes[32], tmp%8#2: Encoded((uint64,uint64)), tmp%9#2: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
-        let (tmp%10#0: uint64, tmp%11#2: uint64, tmp%12#2: bytes[32], tmp%13#2: Encoded((uint64,uint64)), tmp%14#2: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
+        let (tmp%5#0: uint64, tmp%6#3: uint64, tmp%7#2: bytes[32], tmp%8#2: Encoded((uint64,uint64)), tmp%9#2: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
+        let (tmp%10#0: uint64, tmp%11#2: uint64, tmp%12#1: bytes[32], tmp%13#2: Encoded((uint64,uint64)), tmp%14#2: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
         let val_as_bytes%1#0: bytes[8] = (itob tmp%0#2)
         let val_as_bytes%2#0: bytes[8] = (itob tmp%1#4)
         let encoded%3#3: Encoded((uint64,uint64)) = (concat val_as_bytes%1#0 val_as_bytes%2#0)
@@ -45,7 +45,7 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let val_as_bytes%3#0: bytes[8] = (itob y1#0)
         let encoded%12#0: Encoded((uint64,uint64)) = (concat x1#0 val_as_bytes%3#0)
         let val_as_bytes%4#0: bytes[8] = (itob tmp%5#0)
-        let val_as_bytes%5#0: bytes[8] = (itob tmp%6#1)
+        let val_as_bytes%5#0: bytes[8] = (itob tmp%6#3)
         let encoded%14#0: Encoded((uint64,uint64)) = (concat val_as_bytes%4#0 val_as_bytes%5#0)
         let length%1#0: uint64 = (len tmp%7#2)
         let lengths_equal%1#0: bool = (== length%1#0 32u)
@@ -64,10 +64,10 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let val_as_bytes%7#0: bytes[8] = (itob tmp%10#0)
         let val_as_bytes%8#0: bytes[8] = (itob tmp%11#2)
         let encoded%25#0: Encoded((uint64,uint64)) = (concat val_as_bytes%7#0 val_as_bytes%8#0)
-        let length%2#0: uint64 = (len tmp%12#2)
+        let length%2#0: uint64 = (len tmp%12#1)
         let lengths_equal%2#0: bool = (== length%2#0 32u)
         (assert lengths_equal%2#0) // invalid size
-        let encoded%26#0: Encoded((uint64,uint64,uint8[32])) = (concat encoded%25#0 tmp%12#2)
+        let encoded%26#0: Encoded((uint64,uint64,uint8[32])) = (concat encoded%25#0 tmp%12#1)
         let encoded%27#0: Encoded((uint64,uint64,uint8[32],(uint64,uint64))) = (concat encoded%26#0 tmp%13#2)
         let value_len%2#0: uint64 = (len tmp%14#2)
         let len_ok%2#0: bool = (<= value_len%2#0 64u)
@@ -106,21 +106,25 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         goto block@6
     block@8: // after_for_L49
         let slot_contents%3#0: Encoded(bool8[]) = read(local.0)
-        let byte_len%0#0: uint64 = (len slot_contents%3#0)
-        let len_%0#0: uint64 = (/ byte_len%0#0 144u)
-        let as_bytes%1#1: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#1)
-        let concat_result%0#2: bytes = (concat len_16_bit%0#0 slot_contents%3#0)
+        let concat%0#2: Encoded(uint64[]) = (concat 0x0000 slot_contents%3#0) // on error: max array length exceeded
+        let extract_to_end%0#0: bytes = ((extract 2 0) concat%0#2)
+        let len%0#0: uint64 = (len extract_to_end%0#0)
+        let div_floor%0#0: uint64 = (/ len%0#0 144u)
+        let as_bytes%1#1: bytes[8] = (itob div_floor%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%1#1)
+        let replace%0#1: bytes = ((replace2 0) concat%0#2 as_u16_bytes%0#0)
         (box_del "a")
-        (box_put "a" concat_result%0#2)
+        (box_put "a" replace%0#1)
         let encoded_element%0#2: bytes = ((extract 0 144) slot_contents%3#0) // on error: index access is out of bounds
         let last_point.x#0: Encoded(uint64) = ((extract 0 8) encoded_element%0#2) // on error: Index access is out of bounds
         let last_point.y#0: uint64 = (extract_uint64 encoded_element%0#2 8u)
         let length#0: uint64 = 0u
+        let array%bytes_len%0#1: uint64 = (len slot_contents%3#0)
+        let array%array_len%0#1: uint64 = (/ array%bytes_len%0#1 144u)
         let point_idx#0: uint64 = 1u
         goto block@39
     block@39: // for_header_L152
-        let continue_looping%0#0: bool = (< point_idx#0 len_%0#0)
+        let continue_looping%0#0: bool = (< point_idx#0 array%array_len%0#1)
         goto continue_looping%0#0 ? block@40 : block@47
     block@40: // for_body_L153
         let slot_contents%2#1: Encoded(uint64[]) = read(local.0)
@@ -141,8 +145,8 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let dx#0: uint64 = (- tmp%4#4 tmp%5#0)
         goto block@43
     block@43: // after_if_else_L154
-        let tmp%6#2: bool = (< point.y#0 last_point.y#0)
-        goto tmp%6#2 ? block@44 : block@45
+        let tmp%6#1: bool = (< point.y#0 last_point.y#0)
+        goto tmp%6#1 ? block@44 : block@45
     block@44: // if_body_L159
         let dy#0: uint64 = (- last_point.y#0 point.y#0)
         goto block@46
@@ -150,9 +154,9 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let dy#0: uint64 = (- point.y#0 last_point.y#0)
         goto block@46
     block@46: // after_if_else_L158
-        let tmp%7#3: uint64 = (* dx#0 dx#0)
+        let tmp%7#1: uint64 = (* dx#0 dx#0)
         let tmp%8#3: uint64 = (* dy#0 dy#0)
-        let tmp%9#3: uint64 = (+ tmp%7#3 tmp%8#3)
+        let tmp%9#3: uint64 = (+ tmp%7#1 tmp%8#3)
         let tmp%10#0: uint64 = (sqrt tmp%9#3)
         let length#0: uint64 = (+ length#0 tmp%10#0)
         let point_idx#0: uint64 = (+ point_idx#0 1u)
@@ -182,16 +186,20 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let last#0: Encoded((uint64,uint64)) = (extract3 encoded%2#4 bytes_offset%0#0 16u) // on error: index access is out of bounds
         let tmp%2#4: bool = (== last#0 some_more.1#0)
         (assert tmp%2#4)
-        let as_bytes%1#1: bytes[8] = (itob array%array_len%1#1)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#1)
-        let result#0: Encoded(len+(uint64,uint64)[]) = (concat len_16_bit%0#0 encoded%2#4)
+        let concat%1#0: Encoded(bool8[]) = (concat 0x0000 encoded%2#4) // on error: max array length exceeded
+        let extract_to_end%0#0: bytes = ((extract 2 0) concat%1#0)
+        let len%0#0: uint64 = (len extract_to_end%0#0)
+        let div_floor%0#0: uint64 = (/ len%0#0 16u)
+        let as_bytes%1#1: bytes[8] = (itob div_floor%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%1#1)
+        let result#0: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%1#0 as_u16_bytes%0#0)
         let array%array_length%0#1: uint64 = (extract_uint16 result#0 0u)
         let tmp%4#4: uint64 = (- array%array_length%0#1 1u)
         let array_trimmed%0#0: bytes = ((extract 2 0) result#0)
         let bytes_offset%1#0: uint64 = (* tmp%4#4 16u)
         let encoded_element%1#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%1#0 16u) // on error: index access is out of bounds
-        let tmp%5#1: bool = (== encoded_element%1#0 last#0)
-        (assert tmp%5#1)
+        let tmp%5#2: bool = (== encoded_element%1#0 last#0)
+        (assert tmp%5#2)
         let tmp%15#0: bytes = (concat 0x151f7c75 result#0)
         (log tmp%15#0)
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
@@ -205,12 +213,14 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         (assert tmp%18#0) // can only call when not creating
         let some_more#0: Encoded(((uint64,uint64),(uint64,uint64))) = (txna ApplicationArgs 1)
         write(local.2, some_more#0)
-        let byte_len%0#0: uint64 = (len some_more#0)
-        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
-        let as_bytes%1#1: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#1)
-        let concat_result%0#2: bytes = (concat len_16_bit%0#0 some_more#0)
-        let tmp%21#0: bytes = (concat 0x151f7c75 concat_result%0#2)
+        let concat%1#0: Encoded(bool8[]) = (concat 0x0000 some_more#0) // on error: max array length exceeded
+        let extract_to_end%0#0: bytes = ((extract 2 0) concat%1#0)
+        let len%0#0: uint64 = (len extract_to_end%0#0)
+        let div_floor%0#0: uint64 = (/ len%0#0 16u)
+        let as_bytes%1#1: bytes[8] = (itob div_floor%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%1#1)
+        let replace%0#1: bytes = ((replace2 0) concat%1#0 as_u16_bytes%0#0)
+        let tmp%21#0: bytes = (concat 0x151f7c75 replace%0#1)
         (log tmp%21#0)
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0
@@ -233,17 +243,17 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
     block@13: // for_body_L81
         let tmp%3#0: uint64 = (% i#0 2u)
         let tmp%4#0: bool = (! tmp%3#0)
-        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%4#0)
         let slot_contents%1#2: Encoded(uint64[]) = read(local.3)
-        let array%array_contents%2#1: bytes = (concat slot_contents%1#2 encoded_bool%0#0) // on error: max array length exceeded
-        write(local.3, array%array_contents%2#1)
+        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%4#0)
+        let concat%0#2: Encoded(uint64[]) = (concat slot_contents%1#2 encoded_bool%0#0) // on error: max array length exceeded
+        write(local.3, concat%0#2)
         let i#0: uint64 = (+ i#0 1u)
         goto block@12
     block@14: // after_for_L80
         let slot_contents%2#1: Encoded(uint64[]) = read(local.3)
         let array%bytes_len%3#1: uint64 = (len slot_contents%2#1)
-        let tmp%6#2: bool = (== array%bytes_len%3#1 length#0)
-        (assert tmp%6#2) // expected correct length
+        let tmp%6#1: bool = (== array%bytes_len%3#1 length#0)
+        (assert tmp%6#1) // expected correct length
         let count#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
         goto block@15
@@ -289,8 +299,8 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
     block@22: // for_body_L95
         let val_as_bytes%0#0: bytes[8] = (itob i#0)
         let slot_contents%1#2: Encoded(uint64[]) = read(local.4)
-        let array%array_contents%3#1: bytes = (concat slot_contents%1#2 val_as_bytes%0#0) // on error: max array length exceeded
-        write(local.4, array%array_contents%3#1)
+        let concat%0#2: Encoded(uint64[]) = (concat slot_contents%1#2 val_as_bytes%0#0) // on error: max array length exceeded
+        write(local.4, concat%0#2)
         let i#0: uint64 = (+ i#0 1u)
         goto block@21
     block@23: // after_for_L94
@@ -309,9 +319,9 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let slot_contents%4#0: Encoded(uint64[]) = read(local.4)
         let bytes_offset%0#0: uint64 = (* item_index_internal%0#0 8u)
         let val#0: Encoded(uint64) = (extract3 slot_contents%4#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let tmp%5#1: bool = (b!= val#0 0b)
+        let tmp%5#2: bool = (b!= val#0 0b)
         let count#13: uint64 = count#0
-        goto tmp%5#1 ? block@26 : block@27
+        goto tmp%5#2 ? block@26 : block@27
     block@26: // if_body_L100
         let count#0: uint64 = (+ count#0 1u)
         let count#13: uint64 = count#0
@@ -322,11 +332,13 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         goto block@24
     block@28: // after_for_L98
         let slot_contents%5#0: Encoded(uint64[]) = read(local.4)
-        let byte_len%0#0: uint64 = (len slot_contents%5#0)
-        let len_%0#0: uint64 = (/ byte_len%0#0 8u)
-        let as_bytes%1#1: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#1)
-        let arc4_arr#0: Encoded(len+uint64[]) = (concat len_16_bit%0#0 slot_contents%5#0)
+        let concat%1#0: Encoded(bool8[]) = (concat 0x0000 slot_contents%5#0) // on error: max array length exceeded
+        let extract_to_end%0#0: bytes = ((extract 2 0) concat%1#0)
+        let len%0#0: uint64 = (len extract_to_end%0#0)
+        let div_floor%0#0: uint64 = (/ len%0#0 8u)
+        let as_bytes%1#1: bytes[8] = (itob div_floor%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%1#1)
+        let arc4_arr#0: Encoded(len+uint64[]) = ((replace2 0) concat%1#0 as_u16_bytes%0#0)
         let tmp%34#0: bytes = (concat 0x151f7c75 arc4_arr#0)
         (log tmp%34#0)
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
@@ -339,10 +351,10 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let tmp%37#0: uint64 = (txn ApplicationID)
         (assert tmp%37#0) // can only call when not creating
         let arc4_arr#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let array_trimmed%0#0: bytes = ((extract 2 0) arc4_arr#0)
-        write(local.5, array_trimmed%0#0)
+        let extract_to_end%0#0: bytes = ((extract 2 0) arc4_arr#0)
+        write(local.5, extract_to_end%0#0)
         let total#0: uint64 = 0u
-        let array%bytes_len%8#1: uint64 = (len array_trimmed%0#0)
+        let array%bytes_len%8#1: uint64 = (len extract_to_end%0#0)
         let array%array_len%8#1: uint64 = (/ array%bytes_len%8#1 8u)
         let item_index_internal%0#0: uint64 = 0u
         goto block@30
@@ -377,40 +389,40 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let tmp%3#1: bytes[32] = (txn Receiver)
         let to_encode%1#1: bool = (!= tmp%2#0 tmp%3#1)
         let encoded_bool%1#0: bytes[1] = (setbit 0x00 0u to_encode%1#1)
-        let array%array_contents%6#1: bytes = (concat encoded_bool%0#0 encoded_bool%1#0) // on error: max array length exceeded
-        write(local.6, array%array_contents%6#1)
-        let array%bytes_len%9#1: uint64 = (len array%array_contents%6#1)
-        let dyn_arr#1: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, array%array_contents%6#1, array%bytes_len%9#1, 8u)
+        let concat%1#0: Encoded(bool8[]) = (concat encoded_bool%0#0 encoded_bool%1#0) // on error: max array length exceeded
+        write(local.6, concat%1#0)
+        let array%bytes_len%9#1: uint64 = (len concat%1#0)
+        let dyn_arr#1: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, concat%1#0, array%bytes_len%9#1, 8u)
         let array%array_length%1#1: uint64 = (extract_uint16 dyn_arr#1 0u)
-        let tmp%5#1: bool = (== array%array_length%1#1 2u)
-        (assert tmp%5#1) // expected correct length
-        let tmp%6#1: uint64 = (len dyn_arr#1)
-        let tmp%7#1: bool = (== tmp%6#1 3u)
-        (assert tmp%7#1) // expected 3 bytes
+        let tmp%6#1: bool = (== array%array_length%1#1 2u)
+        (assert tmp%6#1) // expected correct length
+        let tmp%7#1: uint64 = (len dyn_arr#1)
+        let tmp%8#1: bool = (== tmp%7#1 3u)
+        (assert tmp%8#1) // expected 3 bytes
         (assert array%array_length%1#1) // index access is out of bounds
         let array_trimmed%0#0: bytes = ((extract 2 0) dyn_arr#1)
         let is_true%0#0: bool = (getbit array_trimmed%0#0 0u)
         let array%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u is_true%0#0)
-        let tmp%9#1: bool = (getbit array%encoded_bool%0#1 0u)
-        let tmp%10#1: bytes[32] = (txn Sender)
-        let tmp%11#1: bytes[32] = (txn Receiver)
-        let tmp%12#1: bool = (== tmp%10#1 tmp%11#1)
-        let tmp%13#1: bool = (== tmp%9#1 tmp%12#1)
-        (assert tmp%13#1) // expected correct value at 0
+        let tmp%10#1: bool = (getbit array%encoded_bool%0#1 0u)
+        let tmp%11#1: bytes[32] = (txn Sender)
+        let tmp%12#1: bytes[32] = (txn Receiver)
+        let tmp%13#1: bool = (== tmp%11#1 tmp%12#1)
+        let tmp%14#1: bool = (== tmp%10#1 tmp%13#1)
+        (assert tmp%14#1) // expected correct value at 0
         let lt%1#0: bool = (< 1u array%array_length%1#1)
         (assert lt%1#0) // index access is out of bounds
         let is_true%1#0: bool = (getbit array_trimmed%0#0 1u)
         let array%encoded_bool%1#1: bytes[1] = (setbit 0x00 0u is_true%1#0)
-        let tmp%15#1: bool = (getbit array%encoded_bool%1#1 0u)
-        let tmp%16#1: bytes[32] = (txn Sender)
-        let tmp%17#1: bytes[32] = (txn Receiver)
-        let tmp%18#1: bool = (!= tmp%16#1 tmp%17#1)
-        let tmp%19#1: bool = (== tmp%15#1 tmp%18#1)
-        (assert tmp%19#1) // expected correct value at 1
+        let tmp%16#1: bool = (getbit array%encoded_bool%1#1 0u)
+        let tmp%17#1: bytes[32] = (txn Sender)
+        let tmp%18#1: bytes[32] = (txn Receiver)
+        let tmp%19#1: bool = (!= tmp%17#1 tmp%18#1)
+        let tmp%20#1: bool = (== tmp%16#1 tmp%19#1)
+        (assert tmp%20#1) // expected correct value at 1
         let slot_contents%3#0: Encoded(bool8[]) = read(local.6)
         let array%bytes_len%10#1: uint64 = (len slot_contents%3#0)
-        let concat_result%1#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, slot_contents%3#0, array%bytes_len%10#1, 8u)
-        let tmp%45#0: bytes = (concat 0x151f7c75 concat_result%1#0)
+        let as_Encoded(len+bool1[])%1#0: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, slot_contents%3#0, array%bytes_len%10#1, 8u)
+        let tmp%45#0: bytes = (concat 0x151f7c75 as_Encoded(len+bool1[])%1#0)
         (log tmp%45#0)
         let test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__%0#0

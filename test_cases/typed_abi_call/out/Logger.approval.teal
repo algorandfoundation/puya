@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0 64 8
-    bytecblock 0x151f7c75 0x6563686f3a20 0x0004 0x01
+    bytecblock 0x151f7c75 0x6563686f3a20 0x0004 0x00066563686f3a20
     // typed_abi_call/logger.py:30
     // class Logger(ARC4Contract):
     txn NumAppArgs
@@ -652,15 +652,15 @@ echo:
     // return "echo: " + value
     frame_dig -1
     extract 2 0
-    bytec_1 // 0x6563686f3a20
+    bytec_3 // 0x00066563686f3a20
     swap
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     retsub
 
 
@@ -821,7 +821,7 @@ echo_native_biguint:
     // typed_abi_call/logger.py:86
     // return value + 1
     frame_dig -1
-    bytec_3 // 0x01
+    pushbytes 0x01
     b+
     retsub
 
@@ -846,7 +846,7 @@ echo_native_tuple:
     intc_0 // 1
     +
     frame_dig -1
-    bytec_3 // 0x01
+    pushbytes 0x01
     b+
     retsub
 
@@ -866,15 +866,15 @@ echo_nested_tuple:
     concat
     frame_dig -4
     extract 2 0
-    bytec_1 // 0x6563686f3a20
+    bytec_3 // 0x00066563686f3a20
     swap
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     // typed_abi_call/logger.py:100
     // u64 + 1,
     frame_dig -3

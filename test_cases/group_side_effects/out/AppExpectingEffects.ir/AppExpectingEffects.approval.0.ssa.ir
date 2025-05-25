@@ -30,10 +30,12 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc
         (assert gtxn_type_matches%1#0) // transaction type is appl
         let (to_encode%0#0: uint64, to_encode%1#0: uint64) = test_cases.group_side_effects.contract.AppExpectingEffects.create_group(gtxn_idx%0#0, gtxn_idx%1#0)
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
         let val_as_bytes%1#0: bytes[8] = (itob to_encode%1#0)
-        let encoded%1#0: Encoded((uint64,uint64)) = (concat encoded%0#0 val_as_bytes%1#0)
-        let encoded%2#0: bytes = (concat encoded%1#0 0x)
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = val_as_bytes%1#0
+        let encoded%1#0: Encoded((uint64,uint64)) = (concat encoded%0#0 as_Encoded(uint64)%1#0)
+        let encoded%2#0: Encoded((uint64,uint64)) = (concat encoded%1#0 0x)
         let tmp%9#0: bytes = (concat 0x151f7c75 encoded%2#0)
         (log tmp%9#0)
         return 1u

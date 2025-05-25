@@ -104,7 +104,7 @@ subroutine test_cases.arc_56.contract.Contract.__puya_arc4_router__() -> bool:
         let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
         let encoded%2#0: Encoded(((len+uint8[],uint8),uint64,len+utf8[])) = (concat encoded%1#0 offset_as_uint16%1#0)
         let encoded%3#0: Encoded(((len+uint8[],uint8),uint64,len+utf8[],uint8)) = (concat encoded%2#0 to_encode%4#0)
-        let encoded%4#0: bytes = (concat encoded%3#0 tail%1#0)
+        let encoded%4#0: Encoded(((len+uint8[],uint8),uint64,len+utf8[],uint8)) = (concat encoded%3#0 tail%1#0)
         let tmp%34#0: bytes = (concat 0x151f7c75 encoded%4#0)
         (log tmp%34#0)
         return 1u
@@ -185,7 +185,7 @@ subroutine test_cases.arc_56.contract.Contract.emitter() -> void:
         let offset_as_uint16%0#0: bytes = 0x0003
         let encoded%0#0: Encoded((len+uint8[])) = 0x0003
         let encoded%1#0: Encoded((len+uint8[],uint8)) = 0x00032a
-        let encoded%2#0: bytes = 0x00032a000668656c6c6f31
+        let encoded%2#0: Encoded((len+uint8[],uint8)) = 0x00032a000668656c6c6f31
         let event%0#0: bytes = 0xd93f374e00032a000668656c6c6f31
         (log 0xd93f374e00032a000668656c6c6f31)
         let length%1#0: uint64 = 5u
@@ -199,7 +199,7 @@ subroutine test_cases.arc_56.contract.Contract.emitter() -> void:
         let offset_as_uint16%1#0: bytes = 0x0003
         let encoded%3#0: Encoded((len+uint8[])) = 0x0003
         let encoded%4#0: Encoded((len+uint8[],uint8)) = 0x00032a
-        let encoded%5#0: bytes = 0x00032a000668656c6c6f32
+        let encoded%5#0: Encoded((len+uint8[],uint8)) = 0x00032a000668656c6c6f32
         let tail%2#0: bytes = 0x000568656c6c6f
         let data_length%2#0: uint64 = 7u
         let current_tail_offset%2#0: uint64 = 11u
@@ -210,7 +210,7 @@ subroutine test_cases.arc_56.contract.Contract.emitter() -> void:
         let as_bytes%6#0: bytes[8] = (itob 11u)
         let offset_as_uint16%3#0: bytes = 0x000b
         let encoded%7#0: Encoded((len+utf8[],(len+uint8[],uint8))) = 0x0004000b
-        let encoded%8#0: bytes = 0x0004000b000568656c6c6f00032a000668656c6c6f32
+        let encoded%8#0: Encoded((len+utf8[],(len+uint8[],uint8))) = 0x0004000b000568656c6c6f00032a000668656c6c6f32
         let event%1#0: bytes = 0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32
         (log 0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32)
         return 
@@ -221,7 +221,7 @@ subroutine test_cases.arc_56.contract.Contract.conditional_emit(should_emit: boo
     block@1: // if_body_L117
         let encoded%0#0: Encoded((uint64)) = 0x000000000000002a
         let encoded%1#0: Encoded((uint64,uint64)) = 0x000000000000002a000000000000002b
-        let encoded%2#0: bytes = 0x000000000000002a000000000000002b
+        let encoded%2#0: Encoded((uint64,uint64)) = 0x000000000000002a000000000000002b
         let length%0#0: uint64 = 6u
         let as_bytes%0#0: bytes[8] = (itob 6u)
         let length_uint16%0#0: bytes = 0x0006
@@ -231,13 +231,13 @@ subroutine test_cases.arc_56.contract.Contract.conditional_emit(should_emit: boo
         let offset_as_uint16%0#0: bytes = 0x0003
         let encoded%3#0: Encoded((len+uint8[])) = 0x0003
         let encoded%4#0: Encoded((len+uint8[],uint8)) = 0x00032a
-        let encoded%5#0: bytes = 0x00032a000668656c6c6f33
+        let encoded%5#0: Encoded((len+uint8[],uint8)) = 0x00032a000668656c6c6f33
         let encoded%6#0: Encoded(((uint64,uint64))) = 0x000000000000002a000000000000002b
         let tail%1#0: bytes = 0x00032a000668656c6c6f33
         let as_bytes%2#0: bytes[8] = (itob 18u)
         let offset_as_uint16%1#0: bytes = 0x0012
         let encoded%7#0: Encoded(((uint64,uint64),(len+uint8[],uint8))) = 0x000000000000002a000000000000002b0012
-        let encoded%8#0: bytes = 0x000000000000002a000000000000002b001200032a000668656c6c6f33
+        let encoded%8#0: Encoded(((uint64,uint64),(len+uint8[],uint8))) = 0x000000000000002a000000000000002b001200032a000668656c6c6f33
         let event%0#0: bytes = 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33
         (log 0x11c547ba000000000000002a000000000000002b001200032a000668656c6c6f33)
         goto block@2
@@ -293,6 +293,10 @@ subroutine test_cases.arc_56.contract.Contract.with_constant_defaults(a: Encoded
         let item_length_in_bytes%0#0: uint64 = item_length%0#0
         let item_head_tail_length%0#0: uint64 = (+ item_length%0#0 2u)
         let item%0#0: bytes = (extract3 f#0 item_offset%0#0 item_head_tail_length%0#0)
+        let length%0#0: uint64 = 2u
+        let as_bytes%0#0: bytes[8] = (itob 2u)
+        let length_uint16%0#0: bytes = 0x0002
+        let encoded_value%0#0: bytes = 0x00026869
         let tmp%9#0: bool = (== item%0#0 0x00026869)
         (assert tmp%9#0)
         let tmp%10#0: uint64 = g#0.length

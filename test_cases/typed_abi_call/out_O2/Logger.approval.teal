@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 0 64 8
-    bytecblock 0x151f7c75 0x6563686f3a20 0x0004 0x01
+    bytecblock 0x151f7c75 0x6563686f3a20 0x00066563686f3a20 0x0004
     txn NumAppArgs
     bz main_bare_routing@24
     pushbytess 0xc77212bc 0x9bf81913 0xb862ee19 0x3c1058d9 0x6af45930 0xb4b4334e 0x6eed7ec3 0xb500e111 0xcd727b71 0x0437b17e 0x4a444c77 0x2659e818 0xa9fb6cf1 0xd8cc363b 0x16e03919 0xab271ce4 0xba0b4381 0xddd07185 0xdc4f1992 // method "is_a_b(byte[],byte[])void", method "echo(string)string", method "no_args()uint64", method "log(uint64)void", method "log(uint512)void", method "log(string)void", method "log(bool)void", method "log(byte[])void", method "log(asset,account,application)void", method "log(address)void", method "echo_native_string(string)string", method "echo_native_bytes(byte[])byte[]", method "echo_native_uint64(uint64)uint64", method "echo_native_biguint(uint512)uint512", method "echo_native_tuple(string,byte[],uint64,uint512)(string,byte[],uint64,uint512)", method "echo_nested_tuple(((string,string),(uint64,uint64,byte[])))((string,string),(uint64,uint64,byte[]))", method "return_args_after_14th(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)byte[]", method "logs_are_equal((uint64,string),(uint64,string))bool", method "echo_log_struct((uint64,string))(uint64,string)"
@@ -179,15 +179,15 @@ main_echo_nested_tuple_route@18:
     concat
     uncover 4
     extract 2 0
-    bytec_1 // 0x6563686f3a20
+    bytec_2 // 0x00066563686f3a20
     swap
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     uncover 3
     intc_0 // 1
     +
@@ -216,7 +216,7 @@ main_echo_nested_tuple_route@18:
     swap
     itob
     extract 6 2
-    bytec_2 // 0x0004
+    bytec_3 // 0x0004
     swap
     concat
     swap
@@ -246,7 +246,7 @@ main_echo_nested_tuple_route@18:
     swap
     itob
     extract 6 2
-    bytec_2 // 0x0004
+    bytec_3 // 0x0004
     swap
     concat
     swap
@@ -281,7 +281,7 @@ main_echo_native_tuple_route@17:
     intc_0 // 1
     +
     uncover 3
-    bytec_3 // 0x01
+    pushbytes 0x01
     b+
     dig 3
     len
@@ -337,7 +337,7 @@ main_echo_native_biguint_route@16:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    bytec_3 // 0x01
+    pushbytes 0x01
     b+
     dup
     len
@@ -540,15 +540,15 @@ main_echo_route@4:
     assert // can only call when not creating
     txna ApplicationArgs 1
     extract 2 0
-    bytec_1 // 0x6563686f3a20
+    bytec_2 // 0x00066563686f3a20
     swap
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     bytec_0 // 0x151f7c75
     swap
     concat

@@ -2,10 +2,10 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@0: // L24
         let encoded%0#0: Encoded((uint8)) = (concat 0x 0x01)
         let encoded%1#0: Encoded((uint8,uint8)) = (concat encoded%0#0 0x02)
-        let encoded%2#0: bytes = (concat encoded%1#0 0x)
         let as_bytes%0#0: bytes[8] = (itob 2u)
         let len_u16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded%3#0: Encoded(len+uint8[]) = (concat len_u16%0#0 encoded%2#0)
+        let encoded%2#0: bytes = (concat len_u16%0#0 encoded%1#0)
+        let encoded%3#0: Encoded(len+uint8[]) = (concat encoded%2#0 0x)
         let dynamic_uint8_array#0: Encoded(len+uint8[]) = encoded%3#0
         let total#0: uint64 = 0u
         let array%array_length%0#1: uint64 = (extract_uint16 dynamic_uint8_array#0 0u)
@@ -31,10 +31,10 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let tmp%1#0: bool = (== total#0 3u)
         (assert tmp%1#0) // Total should be sum of dynamic_uint8_array items
         let encoded%4#0: Encoded((uint16)) = (concat 0x 0x0001)
-        let encoded%5#0: bytes = (concat encoded%4#0 0x)
         let as_bytes%1#0: bytes[8] = (itob 1u)
         let len_u16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let encoded%6#0: Encoded(len+uint16[]) = (concat len_u16%1#0 encoded%5#0)
+        let encoded%5#0: bytes = (concat len_u16%1#0 encoded%4#0)
+        let encoded%6#0: Encoded(len+uint16[]) = (concat encoded%5#0 0x)
         let aliased_dynamic#0: Encoded(len+uint16[]) = encoded%6#0
         let array%array_length%1#1: uint64 = (extract_uint16 aliased_dynamic#0 0u)
         let array_length%1#0: uint64 = array%array_length%1#1
@@ -58,20 +58,30 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@8: // after_for_L32
         let tmp%3#0: bool = (== total#0 4u)
         (assert tmp%3#0) // Total should now include sum of aliased_dynamic items
-        let tail%0#0: bytes = (concat 0x 0x000548656c6c6f)
-        let data_length%0#0: uint64 = (len 0x000548656c6c6f)
+        let length%0#0: uint64 = (len 0x48656c6c6f)
+        let as_bytes%2#0: bytes[8] = (itob length%0#0)
+        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 0x48656c6c6f)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = encoded_value%0#0
+        let length%1#0: uint64 = (len 0x576f726c64)
+        let as_bytes%3#0: bytes[8] = (itob length%1#0)
+        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let encoded_value%1#0: bytes = (concat length_uint16%1#0 0x576f726c64)
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = encoded_value%1#0
+        let tail%0#0: bytes = (concat 0x as_Encoded(len+utf8[])%0#0)
+        let data_length%0#0: uint64 = (len as_Encoded(len+utf8[])%0#0)
         let current_tail_offset%0#0: uint64 = (+ 4u data_length%0#0)
-        let as_bytes%2#0: bytes[8] = (itob 4u)
-        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%2#0)
+        let as_bytes%4#0: bytes[8] = (itob 4u)
+        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%4#0)
         let encoded%7#0: Encoded((len+utf8[])) = (concat 0x offset_as_uint16%0#0)
-        let tail%1#0: bytes = (concat tail%0#0 0x0005576f726c64)
-        let as_bytes%3#0: bytes[8] = (itob current_tail_offset%0#0)
-        let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
+        let tail%1#0: bytes = (concat tail%0#0 as_Encoded(len+utf8[])%1#0)
+        let as_bytes%5#0: bytes[8] = (itob current_tail_offset%0#0)
+        let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%5#0)
         let encoded%8#0: Encoded((len+utf8[],len+utf8[])) = (concat encoded%7#0 offset_as_uint16%1#0)
-        let encoded%9#0: bytes = (concat encoded%8#0 tail%1#0)
-        let as_bytes%4#0: bytes[8] = (itob 2u)
-        let len_u16%2#0: bytes = ((extract 6 2) as_bytes%4#0)
-        let encoded%10#0: Encoded(len+len+utf8[][]) = (concat len_u16%2#0 encoded%9#0)
+        let as_bytes%6#0: bytes[8] = (itob 2u)
+        let len_u16%2#0: bytes = ((extract 6 2) as_bytes%6#0)
+        let encoded%9#0: bytes = (concat len_u16%2#0 encoded%8#0)
+        let encoded%10#0: Encoded(len+len+utf8[][]) = (concat encoded%9#0 tail%1#0)
         let dynamic_string_array#0: Encoded(len+len+utf8[][]) = encoded%10#0
         let array%array_length%2#1: uint64 = (extract_uint16 dynamic_string_array#0 0u)
         let tmp%4#0: uint64 = array%array_length%2#1
@@ -88,7 +98,12 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let item_length_in_bytes%0#0: uint64 = (* item_length%0#0 1u)
         let item_head_tail_length%0#0: uint64 = (+ item_length_in_bytes%0#0 2u)
         let item%0#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 item_head_tail_length%0#0)
-        let tmp%6#0: bool = (== item%0#0 0x000548656c6c6f)
+        let length%2#0: uint64 = (len 0x48656c6c6f)
+        let as_bytes%7#0: bytes[8] = (itob length%2#0)
+        let length_uint16%2#0: bytes = ((extract 6 2) as_bytes%7#0)
+        let encoded_value%2#0: bytes = (concat length_uint16%2#0 0x48656c6c6f)
+        let as_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = encoded_value%2#0
+        let tmp%6#0: bool = (== item%0#0 as_Encoded(len+utf8[])%2#0)
         (assert tmp%6#0)
         let result#0: string = ""
         let array%array_length%4#1: uint64 = (extract_uint16 dynamic_string_array#0 0u)
@@ -132,7 +147,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let encoded%12#0: Encoded((uint32,uint32)) = (concat encoded%11#0 0x0000000a)
         let encoded%13#0: Encoded((uint32,uint32,uint32)) = (concat encoded%12#0 0x000000ff)
         let encoded%14#0: Encoded((uint32,uint32,uint32,uint32)) = (concat encoded%13#0 0x00000080)
-        let encoded%15#0: bytes = (concat encoded%14#0 0x)
+        let encoded%15#0: Encoded(uint32[4]) = (concat encoded%14#0 0x)
         let static_uint32_array#0: Encoded(uint32[4]) = encoded%15#0
         let item_index_internal%3#0: uint64 = 0u
         goto block@16
@@ -154,7 +169,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let tmp%12#0: bool = (== total#0 398u)
         (assert tmp%12#0)
         let encoded%16#0: Encoded((uint8)) = (concat 0x 0x65)
-        let encoded%17#0: bytes = (concat encoded%16#0 0x)
+        let encoded%17#0: Encoded(uint8[1]) = (concat encoded%16#0 0x)
         let aliased_static#0: Encoded(uint8[1]) = encoded%17#0
         let bytes_offset%3#0: uint64 = (* 0u 1u)
         let encoded_element%3#0: bytes = (extract3 aliased_static#0 bytes_offset%3#0 1u) // on error: index access is out of bounds
@@ -165,17 +180,27 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let tmp%15#0: uint64 = (+ tmp%13#0 tmp%14#0)
         let tmp%16#0: bool = (== tmp%15#0 202u)
         (assert tmp%16#0)
-        let tail%2#0: bytes = (concat 0x 0x000450696e67)
-        let data_length%2#0: uint64 = (len 0x000450696e67)
+        let length%3#0: uint64 = (len 0x50696e67)
+        let as_bytes%8#0: bytes[8] = (itob length%3#0)
+        let length_uint16%3#0: bytes = ((extract 6 2) as_bytes%8#0)
+        let encoded_value%3#0: bytes = (concat length_uint16%3#0 0x50696e67)
+        let as_Encoded(len+utf8[])%3#0: Encoded(len+utf8[]) = encoded_value%3#0
+        let length%4#0: uint64 = (len 0x506f6e67)
+        let as_bytes%9#0: bytes[8] = (itob length%4#0)
+        let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%9#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 0x506f6e67)
+        let as_Encoded(len+utf8[])%4#0: Encoded(len+utf8[]) = encoded_value%4#0
+        let tail%2#0: bytes = (concat 0x as_Encoded(len+utf8[])%3#0)
+        let data_length%2#0: uint64 = (len as_Encoded(len+utf8[])%3#0)
         let current_tail_offset%2#0: uint64 = (+ 4u data_length%2#0)
-        let as_bytes%5#0: bytes[8] = (itob 4u)
-        let offset_as_uint16%2#0: bytes = ((extract 6 2) as_bytes%5#0)
+        let as_bytes%10#0: bytes[8] = (itob 4u)
+        let offset_as_uint16%2#0: bytes = ((extract 6 2) as_bytes%10#0)
         let encoded%18#0: Encoded((len+utf8[])) = (concat 0x offset_as_uint16%2#0)
-        let tail%3#0: bytes = (concat tail%2#0 0x0004506f6e67)
-        let as_bytes%6#0: bytes[8] = (itob current_tail_offset%2#0)
-        let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%6#0)
+        let tail%3#0: bytes = (concat tail%2#0 as_Encoded(len+utf8[])%4#0)
+        let as_bytes%11#0: bytes[8] = (itob current_tail_offset%2#0)
+        let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%11#0)
         let encoded%19#0: Encoded((len+utf8[],len+utf8[])) = (concat encoded%18#0 offset_as_uint16%3#0)
-        let encoded%20#0: bytes = (concat encoded%19#0 tail%3#0)
+        let encoded%20#0: Encoded(len+utf8[][2]) = (concat encoded%19#0 tail%3#0)
         let static_string_array#0: Encoded(len+utf8[][2]) = encoded%20#0
         let result#0: string = ""
         let item_index_internal%4#0: uint64 = 0u

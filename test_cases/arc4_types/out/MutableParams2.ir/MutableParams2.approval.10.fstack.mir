@@ -99,15 +99,16 @@ subroutine maybe_modify_array:
         // arc4_types/mutable_params2.py:18
         // a.append(arc4.Byte(1))  # v1: modify out
         p-load a#0                                                                                   (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0 (copy)
-        extract 2 0                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | expr_value_trimmed%0#0
-        byte 0x01                                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | expr_value_trimmed%0#0,0x01
-        concat                                                                                       (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%0#0
-        l-load-copy concatenated%0#0 0                                                               (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%0#0,concatenated%0#0 (copy)
-        len                                                                                          (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%0#0,len_%0#0
-        itob                                                                                         (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%0#0,as_bytes%0#0
-        extract 6 2                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%0#0,len_16_bit%0#0
-        l-load concatenated%0#0 1                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | len_16_bit%0#0,concatenated%0#0
-        concat                                                                                       (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0
+        byte 0x01                                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0 (copy),0x01
+        concat // on error: max array length exceeded                                                (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%0#0
+        l-load-copy concat%0#0 0                                                                     (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%0#0,concat%0#0 (copy)
+        extract 2 0                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%0#0,extract_to_end%0#0
+        len                                                                                          (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%0#0,len%0#0
+        itob                                                                                         (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                          (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                   (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0
         p-store a#0                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 |
         // arc4_types/mutable_params2.py:21
         // a = arc4.DynamicBytes(1, 2, 4)  # v4: local only
@@ -124,15 +125,16 @@ subroutine maybe_modify_array:
         // arc4_types/mutable_params2.py:23
         // a.append(arc4.Byte(42))  # v5: modify out
         p-load a#0                                                                                   (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0 (copy)
-        extract 2 0                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | expr_value_trimmed%2#0
-        byte 0x2a                                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | expr_value_trimmed%2#0,0x2a
-        concat                                                                                       (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%2#0
-        l-load-copy concatenated%2#0 0                                                               (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%2#0,concatenated%2#0 (copy)
-        len                                                                                          (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%2#0,len_%2#0
-        itob                                                                                         (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%2#0,as_bytes%4#0
-        extract 6 2                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%2#0,len_16_bit%2#0
-        l-load concatenated%2#0 1                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | len_16_bit%2#0,concatenated%2#0
-        concat                                                                                       (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0
+        byte 0x2a                                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0 (copy),0x2a
+        concat // on error: max array length exceeded                                                (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%2#0
+        l-load-copy concat%2#0 0                                                                     (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%2#0,concat%2#0 (copy)
+        extract 2 0                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%2#0,extract_to_end%2#0
+        len                                                                                          (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%2#0,len%2#0
+        itob                                                                                         (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%2#0,as_bytes%4#0
+        extract 6 2                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%2#0,as_u16_bytes%2#0
+        l-load concat%2#0 1                                                                          (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | as_u16_bytes%2#0,concat%2#0
+        l-load as_u16_bytes%2#0 1                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%2#0,as_u16_bytes%2#0
+        replace2 0                                                                                   (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0
         p-store a#0                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 |
         p-load a#0                                                                                   (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a%out#7
         l-store-copy a%out#7 0                                                                       (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a%out#7,a%out#7 (copy)
@@ -145,15 +147,16 @@ subroutine maybe_modify_array:
         // arc4_types/mutable_params2.py:25
         // a.append(arc4.Byte(4))  # v6: modify out IF not b ELSE local only
         p-load a#0                                                                                   (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0 (copy)
-        extract 2 0                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | expr_value_trimmed%3#0
-        byte 0x04                                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | expr_value_trimmed%3#0,0x04
-        concat                                                                                       (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%3#0
-        l-load-copy concatenated%3#0 0                                                               (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%3#0,concatenated%3#0 (copy)
-        len                                                                                          (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%3#0,len_%3#0
-        itob                                                                                         (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%3#0,as_bytes%5#0
-        extract 6 2                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concatenated%3#0,len_16_bit%3#0
-        l-load concatenated%3#0 1                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | len_16_bit%3#0,concatenated%3#0
-        concat                                                                                       (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0
+        byte 0x04                                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0 (copy),0x04
+        concat // on error: max array length exceeded                                                (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%3#0
+        l-load-copy concat%3#0 0                                                                     (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%3#0,concat%3#0 (copy)
+        extract 2 0                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%3#0,extract_to_end%3#0
+        len                                                                                          (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%3#0,len%3#0
+        itob                                                                                         (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%3#0,as_bytes%5#0
+        extract 6 2                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%3#0,as_u16_bytes%3#0
+        l-load concat%3#0 1                                                                          (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | as_u16_bytes%3#0,concat%3#0
+        l-load as_u16_bytes%3#0 1                                                                    (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | concat%3#0,as_u16_bytes%3#0
+        replace2 0                                                                                   (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a#0
         p-store a#0                                                                                  (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 |
         f-load a%is_original#0                                                                       (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 | a%is_original#0
         bz maybe_modify_array_after_if_else@15 ; b maybe_modify_array_if_body@14                     (𝕡) a#0,assign_local#0 | (𝕗) a%out#7,a%is_original#0 |

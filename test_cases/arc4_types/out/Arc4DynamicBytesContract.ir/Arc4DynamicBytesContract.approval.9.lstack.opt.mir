@@ -127,7 +127,7 @@ subroutine main:
         concat                                                                        encoded%7#0
         byte 0x0003                                                                   encoded%7#0,0x0003
         l-load encoded%7#0 1                                                          0x0003,encoded%7#0
-        concat                                                                        dynamic_bytes#1
+        concat                                                                        dynamic_bytes#2
         // arc4_types/dynamic_bytes.py:42
         // assert dynamic_bytes.native == Bytes.from_hex("030301")
         extract 2 0                                                                   tmp%19#0
@@ -143,20 +143,20 @@ subroutine main:
         // arc4_types/dynamic_bytes.py:44
         // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
         byte 0x000132                                                                 encoded_value%3#0
-        v-store dynamic_bytes#1
+        v-store dynamic_bytes#2
         b main_ternary_merge@15
 
     main_ternary_false@14:
         // arc4_types/dynamic_bytes.py:44
         // dynamic_bytes = DynamicBytes(b"2" if Txn.num_app_args else b"3")
         byte 0x000133                                                                 encoded_value%4#0
-        v-store dynamic_bytes#1
+        v-store dynamic_bytes#2
         b main_ternary_merge@15
 
     main_ternary_merge@15:
         // arc4_types/dynamic_bytes.py:45
         // assert dynamic_bytes.native == b"3"
-        v-load dynamic_bytes#1                                                        dynamic_bytes#1
+        v-load dynamic_bytes#2                                                        dynamic_bytes#2
         extract 2 0                                                                   tmp%23#0
         byte 0x33                                                                     tmp%23#0,0x33
         ==                                                                            tmp%24#0

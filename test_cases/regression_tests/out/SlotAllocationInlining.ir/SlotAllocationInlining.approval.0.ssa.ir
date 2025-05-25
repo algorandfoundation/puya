@@ -37,7 +37,7 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
 
 subroutine test_cases.regression_tests.slot_allocation_inlining.do_something_with_array() -> void:
     block@0: // L14
-        let encoded%0#0: bytes = (concat 0x 0x)
+        let encoded%0#0: Encoded(uint64[]) = (concat 0x 0x)
         let slot%0#0: Encoded(uint64[])* = new()
         write(slot%0#0, encoded%0#0)
         let arr#0: Encoded(uint64[])* = slot%0#0
@@ -60,15 +60,16 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(
         let continue_looping%0#0: bool = (< item_index_internal%0#1 bytes_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L25
-        let extract%0#0: bytes = (extract3 tmp%0#0 item_index_internal%0#1 1u)
-        let b#0: bytes = extract%0#0
+        let read_bytes%0#0: bytes = (extract3 tmp%0#0 item_index_internal%0#1 1u) // on error: Index access is out of bounds
+        let b#0: bytes = read_bytes%0#0
         let tmp%1#0: uint64 = (btoi b#0)
-        let val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
-        let encoded%1#0: bytes = (concat encoded%0#0 0x)
         let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
-        let extended%0#0: Encoded(uint64[]) = slot_contents%0#0.concat(encoded%1#0)
-        write(arr#0, extended%0#0)
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
+        let encoded%1#0: Encoded(uint64[]) = (concat encoded%0#0 0x)
+        let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 encoded%1#0) // on error: max array length exceeded
+        write(arr#0, concat%0#0)
         goto block@3
     block@3: // for_footer_L24
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)

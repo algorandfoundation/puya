@@ -60,8 +60,9 @@ create_box_block@0:
     global CurrentApplicationID
     bytec_0 // "tup_bag"
     box_get
-    assert // check self.tup_bag exists
     swap
+    cover 2
+    assert // check self.tup_bag exists
     itob
     swap
     pushint 168 // 168
@@ -653,13 +654,12 @@ get_all_tups:
 get_all_tups_block@0:
     // mutable_native_types/case2_with_immutable_struct.py:105
     // result = NativeArray[NamedTup]()
-    bytec_1 // 0x
-    dup
-    concat
     intc_0 // 0
     itob
     extract 6 2
-    swap
+    bytec_1 // 0x
+    concat
+    bytec_1 // 0x
     concat
     // mutable_native_types/case2_with_immutable_struct.py:106
     // items = self.tup_bag.value.items.copy()
@@ -695,8 +695,6 @@ get_all_tups_for_header@1:
 get_all_tups_for_body@2:
     // mutable_native_types/case2_with_immutable_struct.py:109
     // result.append(items[i])
-    frame_dig 0
-    extract 2 0
     frame_dig 3
     intc_2 // 16
     *
@@ -709,15 +707,20 @@ get_all_tups_for_body@2:
     concat
     bytec_1 // 0x
     concat
-    concat
+    frame_dig 0
+    swap
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     intc_2 // 16
     /
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     frame_bury 0
 
 get_all_tups_for_footer@3:

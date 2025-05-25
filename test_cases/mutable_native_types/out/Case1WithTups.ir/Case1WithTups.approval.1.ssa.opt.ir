@@ -63,7 +63,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_
         let encoded%0#0: Encoded((uint64)) = val_as_bytes%1#0
         let val_as_bytes%2#0: bytes[8] = (itob to_encode%2#0)
         let encoded%1#0: Encoded((uint64,uint64)) = (concat val_as_bytes%1#0 val_as_bytes%2#0)
-        let encoded%2#0: bytes = encoded%1#0
+        let encoded%2#0: Encoded((uint64,uint64)) = encoded%1#0
         let tmp%21#0: bytes = (concat 0x151f7c75 encoded%1#0)
         (log tmp%21#0)
         return 1u
@@ -386,28 +386,28 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         let encoded%1#0: Encoded((uint64)) = val_as_bytes%0#0
         let val_as_bytes%1#0: bytes[8] = (itob tmp%5#0)
         let encoded%2#0: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let encoded%3#0: bytes = encoded%2#0
+        let encoded%3#0: Encoded((uint64,uint64)) = encoded%2#0
         let encoded%4#0: Encoded(((uint64,uint64))) = encoded%2#0
         let val_as_bytes%2#0: bytes[8] = (itob tmp%7#0)
         let encoded%5#0: Encoded((uint64)) = val_as_bytes%2#0
         let val_as_bytes%3#0: bytes[8] = (itob tmp%8#0)
         let encoded%6#0: Encoded((uint64,uint64)) = (concat val_as_bytes%2#0 val_as_bytes%3#0)
-        let encoded%7#0: bytes = encoded%6#0
+        let encoded%7#0: Encoded((uint64,uint64)) = encoded%6#0
         let encoded%8#0: Encoded(((uint64,uint64),(uint64,uint64))) = (concat encoded%2#0 encoded%6#0)
         let val_as_bytes%4#0: bytes[8] = (itob tmp%10#0)
         let encoded%9#0: Encoded((uint64)) = val_as_bytes%4#0
         let val_as_bytes%5#0: bytes[8] = (itob tmp%11#0)
         let encoded%10#0: Encoded((uint64,uint64)) = (concat val_as_bytes%4#0 val_as_bytes%5#0)
-        let encoded%11#0: bytes = encoded%10#0
+        let encoded%11#0: Encoded((uint64,uint64)) = encoded%10#0
         let encoded%12#0: Encoded(((uint64,uint64),(uint64,uint64),(uint64,uint64))) = (concat encoded%8#0 encoded%10#0)
-        let encoded%13#0: bytes = encoded%12#0
+        let encoded%13#0: Encoded((uint64,uint64)[3]) = encoded%12#0
         return encoded%12#0
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups() -> Encoded(len+(uint64,uint64)[]):
     block@0: // L103
-        let encoded%0#0: bytes = 0x
         let as_bytes%0#0: bytes[8] = (itob 0u)
         let len_u16%0#0: bytes = 0x0000
+        let encoded%0#0: bytes = 0x0000
         let result#0: Encoded(len+(uint64,uint64)[]) = 0x0000
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
@@ -424,7 +424,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let continue_looping%0#0: bool = (< i#1 tmp%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L109
-        let expr_value_trimmed%0#0: bytes = ((extract 2 0) result#1)
         let bytes_offset%0#0: uint64 = (* i#1 16u)
         let encoded_element%0#0: bytes = (extract3 items#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
         let (tmp%2#0: uint64, tmp%3#0: uint64) = decode<(uint64,uint64,)>(encoded_element%0#0)
@@ -432,15 +431,16 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let encoded%3#0: Encoded((uint64)) = val_as_bytes%0#0
         let val_as_bytes%1#0: bytes[8] = (itob tmp%3#0)
         let encoded%4#0: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let encoded%5#0: bytes = encoded%4#0
+        let encoded%5#0: Encoded((uint64,uint64)) = encoded%4#0
         let encoded%6#0: Encoded(((uint64,uint64))) = encoded%4#0
-        let encoded%7#0: bytes = encoded%4#0
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 encoded%4#0)
-        let byte_len%0#0: uint64 = (len concatenated%0#0)
-        let len_%0#0: uint64 = (/ byte_len%0#0 16u)
-        let as_bytes%1#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let result#2: Encoded(len+(uint64,uint64)[]) = (concat len_16_bit%0#0 concatenated%0#0)
+        let encoded%7#0: Encoded((uint64,uint64)[]) = encoded%4#0
+        let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#1 encoded%4#0) // on error: max array length exceeded
+        let extract_to_end%0#0: bytes = ((extract 2 0) concat%0#0)
+        let len%0#0: uint64 = (len extract_to_end%0#0)
+        let div_floor%0#0: uint64 = (/ len%0#0 16u)
+        let as_bytes%1#0: bytes[8] = (itob div_floor%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let result#2: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L108

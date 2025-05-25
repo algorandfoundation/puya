@@ -37,7 +37,10 @@ main examples.local_state.local_state_contract.LocalStateContract.__algopy_entry
         (assert tmp%2#1)
         let (_%0#0: bytes, maybe_exists%0#3: bool) = (app_local_get_ex for_account#4 0u 0x6c6f63616c)
         (assert maybe_exists%0#3)
-        let tmp%5#1: bool = 1u
+        let (maybe_value%0#3: bytes, maybe_exists%0#4: bool) = (app_local_get_ex for_account#4 0u "local")
+        (assert maybe_exists%0#4) // check LocalState exists for account
+        let tmp%5#1: bool = (== maybe_value%0#3 result#1)
+        (assert tmp%5#1)
         (log result#1)
         goto block@20
     block@13: // else_body_L32

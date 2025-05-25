@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 6 3
-    bytecblock 0x 0x151f7c75 0x000158 0x000159
+    bytecblock 0x 0x58 0x59 0x5a 0x151f7c75
 
 main_block@0:
 
@@ -49,7 +49,7 @@ main_xyz_raw_route@4:
     !=
     assert // can only call when not creating
     callsub xyz_raw
-    bytec_1 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
@@ -68,7 +68,7 @@ main_xyz_route@3:
     !=
     assert // can only call when not creating
     callsub xyz
-    bytec_1 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
@@ -105,6 +105,32 @@ main_after_inlined_test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringA
 xyz:
 
 xyz_block@0:
+    // arc4_types/dynamic_string_array.py:8
+    // arc4.String("X"),
+    bytec_1 // 0x58
+    len
+    itob
+    extract 6 2
+    bytec_1 // 0x58
+    concat
+    // arc4_types/dynamic_string_array.py:9
+    // arc4.String("Y"),
+    bytec_2 // 0x59
+    len
+    itob
+    extract 6 2
+    bytec_2 // 0x59
+    concat
+    swap
+    // arc4_types/dynamic_string_array.py:10
+    // arc4.String("Z"),
+    bytec_3 // 0x5a
+    len
+    itob
+    extract 6 2
+    bytec_3 // 0x5a
+    concat
+    cover 2
     // arc4_types/dynamic_string_array.py:7-11
     // return arc4.DynamicArray(
     //     arc4.String("X"),
@@ -112,25 +138,9 @@ xyz_block@0:
     //     arc4.String("Z"),
     // )
     bytec_0 // 0x
-    // arc4_types/dynamic_string_array.py:8
-    // arc4.String("X"),
-    bytec_2 // 0x000158
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    dig 1
     concat
-    // arc4_types/dynamic_string_array.py:8
-    // arc4.String("X"),
-    bytec_2 // 0x000158
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    swap
     len
     intc_2 // 6
     +
@@ -142,26 +152,10 @@ xyz_block@0:
     swap
     concat
     cover 2
-    // arc4_types/dynamic_string_array.py:9
-    // arc4.String("Y"),
-    bytec_3 // 0x000159
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    dig 3
     concat
-    cover 2
-    // arc4_types/dynamic_string_array.py:9
-    // arc4.String("Y"),
-    bytec_3 // 0x000159
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    cover 3
+    uncover 2
     len
     dig 1
     +
@@ -172,26 +166,18 @@ xyz_block@0:
     swap
     concat
     uncover 2
-    // arc4_types/dynamic_string_array.py:10
-    // arc4.String("Z"),
-    pushbytes 0x00015a
-    // arc4_types/dynamic_string_array.py:7-11
-    // return arc4.DynamicArray(
-    //     arc4.String("X"),
-    //     arc4.String("Y"),
-    //     arc4.String("Z"),
-    // )
+    uncover 3
     concat
+    cover 2
     swap
-    uncover 2
     itob
     extract 6 2
-    concat
-    swap
     concat
     intc_3 // 3
     itob
     extract 6 2
+    swap
+    concat
     swap
     concat
     retsub
@@ -204,39 +190,39 @@ xyz_raw_block@0:
     // arc4_types/dynamic_string_array.py:16
     // arc4.DynamicArray(arc4.Byte(88)),
     bytec_0 // 0x
-    pushbytes 0x58
-    concat
-    bytec_0 // 0x
+    bytec_1 // 0x58
     concat
     intc_1 // 1
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     // arc4_types/dynamic_string_array.py:17
     // arc4.DynamicArray(arc4.Byte(89)),
     bytec_0 // 0x
-    pushbytes 0x59
-    concat
-    bytec_0 // 0x
+    bytec_2 // 0x59
     concat
     intc_1 // 1
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     swap
     // arc4_types/dynamic_string_array.py:18
     // arc4.DynamicArray(arc4.Byte(90)),
     bytec_0 // 0x
-    pushbytes 0x5a
-    concat
-    bytec_0 // 0x
+    bytec_3 // 0x5a
     concat
     intc_1 // 1
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     cover 2
     // arc4_types/dynamic_string_array.py:15-19
@@ -276,16 +262,16 @@ xyz_raw_block@0:
     uncover 2
     uncover 3
     concat
+    cover 2
     swap
-    uncover 2
     itob
     extract 6 2
-    concat
-    swap
     concat
     intc_3 // 3
     itob
     extract 6 2
+    swap
+    concat
     swap
     concat
     // arc4_types/dynamic_string_array.py:20

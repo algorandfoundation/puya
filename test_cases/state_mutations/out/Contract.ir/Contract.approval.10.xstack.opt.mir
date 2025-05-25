@@ -349,16 +349,16 @@ subroutine append:
         assert // check self.glob exists                                                     maybe_value%0#0
         l-load-copy maybe_value%0#0 0                                                        maybe_value%0#0,maybe_value%0#0 (copy)
         int 0                                                                                maybe_value%0#0,maybe_value%0#0 (copy),0
-        extract_uint16                                                                       maybe_value%0#0,array%array_length%0#1
-        l-load maybe_value%0#0 1                                                             array%array_length%0#1,maybe_value%0#0
-        extract 2 0                                                                          array%array_length%0#1,l_head_and_tail%0#0
-        l-load array%array_length%0#1 1                                                      l_head_and_tail%0#0,array%array_length%0#1
-        l-load l_head_and_tail%0#0 1                                                         array%array_length%0#1,l_head_and_tail%0#0
-        int 1                                                                                array%array_length%0#1,l_head_and_tail%0#0,1
-        byte 0x00020000000000000001000a000362617a                                            array%array_length%0#1,l_head_and_tail%0#0,1,0x00020000000000000001000a000362617a
-        callsub dynamic_array_concat_dynamic_element                                         concat_result%0#0
-        byte "glob"                                                                          concat_result%0#0,"glob"
-        l-load concat_result%0#0 1                                                           "glob",concat_result%0#0
+        extract_uint16                                                                       maybe_value%0#0,extract_uint16%0#0
+        l-load maybe_value%0#0 1                                                             extract_uint16%0#0,maybe_value%0#0
+        extract 2 0                                                                          extract_uint16%0#0,extract_to_end%0#0
+        l-load extract_uint16%0#0 1                                                          extract_to_end%0#0,extract_uint16%0#0
+        l-load extract_to_end%0#0 1                                                          extract_uint16%0#0,extract_to_end%0#0
+        int 1                                                                                extract_uint16%0#0,extract_to_end%0#0,1
+        byte 0x00020000000000000001000a000362617a                                            extract_uint16%0#0,extract_to_end%0#0,1,0x00020000000000000001000a000362617a
+        callsub dynamic_array_concat_dynamic_element                                         as_Encoded(len+(uint64,len+utf8[])[])%0#0
+        byte "glob"                                                                          as_Encoded(len+(uint64,len+utf8[])[])%0#0,"glob"
+        l-load as_Encoded(len+(uint64,len+utf8[])[])%0#0 1                                   "glob",as_Encoded(len+(uint64,len+utf8[])[])%0#0
         app_global_put
         // state_mutations/contract.py:40
         // self.loc[Txn.sender].append(struct.copy())
@@ -370,17 +370,17 @@ subroutine append:
         assert // check self.loc exists for account                                          tmp%0#0,maybe_value%1#0
         l-load-copy maybe_value%1#0 0                                                        tmp%0#0,maybe_value%1#0,maybe_value%1#0 (copy)
         int 0                                                                                tmp%0#0,maybe_value%1#0,maybe_value%1#0 (copy),0
-        extract_uint16                                                                       tmp%0#0,maybe_value%1#0,array%array_length%1#1
-        l-load maybe_value%1#0 1                                                             tmp%0#0,array%array_length%1#1,maybe_value%1#0
-        extract 2 0                                                                          tmp%0#0,array%array_length%1#1,l_head_and_tail%1#0
-        l-load array%array_length%1#1 1                                                      tmp%0#0,l_head_and_tail%1#0,array%array_length%1#1
-        l-load l_head_and_tail%1#0 1                                                         tmp%0#0,array%array_length%1#1,l_head_and_tail%1#0
-        int 1                                                                                tmp%0#0,array%array_length%1#1,l_head_and_tail%1#0,1
-        byte 0x00020000000000000001000a000362617a                                            tmp%0#0,array%array_length%1#1,l_head_and_tail%1#0,1,0x00020000000000000001000a000362617a
-        callsub dynamic_array_concat_dynamic_element                                         tmp%0#0,concat_result%1#0
-        l-load tmp%0#0 1                                                                     concat_result%1#0,tmp%0#0
-        byte "loc"                                                                           concat_result%1#0,tmp%0#0,"loc"
-        l-load concat_result%1#0 2                                                           tmp%0#0,"loc",concat_result%1#0
+        extract_uint16                                                                       tmp%0#0,maybe_value%1#0,extract_uint16%1#0
+        l-load maybe_value%1#0 1                                                             tmp%0#0,extract_uint16%1#0,maybe_value%1#0
+        extract 2 0                                                                          tmp%0#0,extract_uint16%1#0,extract_to_end%1#0
+        l-load extract_uint16%1#0 1                                                          tmp%0#0,extract_to_end%1#0,extract_uint16%1#0
+        l-load extract_to_end%1#0 1                                                          tmp%0#0,extract_uint16%1#0,extract_to_end%1#0
+        int 1                                                                                tmp%0#0,extract_uint16%1#0,extract_to_end%1#0,1
+        byte 0x00020000000000000001000a000362617a                                            tmp%0#0,extract_uint16%1#0,extract_to_end%1#0,1,0x00020000000000000001000a000362617a
+        callsub dynamic_array_concat_dynamic_element                                         tmp%0#0,as_Encoded(len+(uint64,len+utf8[])[])%1#0
+        l-load tmp%0#0 1                                                                     as_Encoded(len+(uint64,len+utf8[])[])%1#0,tmp%0#0
+        byte "loc"                                                                           as_Encoded(len+(uint64,len+utf8[])[])%1#0,tmp%0#0,"loc"
+        l-load as_Encoded(len+(uint64,len+utf8[])[])%1#0 2                                   tmp%0#0,"loc",as_Encoded(len+(uint64,len+utf8[])[])%1#0
         app_local_put
         // state_mutations/contract.py:41
         // self.box.value.append(struct.copy())
@@ -389,19 +389,19 @@ subroutine append:
         assert // check self.box exists                                                      maybe_value%2#0
         l-load-copy maybe_value%2#0 0                                                        maybe_value%2#0,maybe_value%2#0 (copy)
         int 0                                                                                maybe_value%2#0,maybe_value%2#0 (copy),0
-        extract_uint16                                                                       maybe_value%2#0,array%array_length%2#1
-        l-load maybe_value%2#0 1                                                             array%array_length%2#1,maybe_value%2#0
-        extract 2 0                                                                          array%array_length%2#1,l_head_and_tail%2#0
-        l-load array%array_length%2#1 1                                                      l_head_and_tail%2#0,array%array_length%2#1
-        l-load l_head_and_tail%2#0 1                                                         array%array_length%2#1,l_head_and_tail%2#0
-        int 1                                                                                array%array_length%2#1,l_head_and_tail%2#0,1
-        byte 0x00020000000000000001000a000362617a                                            array%array_length%2#1,l_head_and_tail%2#0,1,0x00020000000000000001000a000362617a
-        callsub dynamic_array_concat_dynamic_element                                         concat_result%2#0
-        byte "box"                                                                           concat_result%2#0,"box"
-        box_del                                                                              concat_result%2#0,{box_del}
-        pop 1                                                                                concat_result%2#0
-        byte "box"                                                                           concat_result%2#0,"box"
-        l-load concat_result%2#0 1                                                           "box",concat_result%2#0
+        extract_uint16                                                                       maybe_value%2#0,extract_uint16%2#0
+        l-load maybe_value%2#0 1                                                             extract_uint16%2#0,maybe_value%2#0
+        extract 2 0                                                                          extract_uint16%2#0,extract_to_end%2#0
+        l-load extract_uint16%2#0 1                                                          extract_to_end%2#0,extract_uint16%2#0
+        l-load extract_to_end%2#0 1                                                          extract_uint16%2#0,extract_to_end%2#0
+        int 1                                                                                extract_uint16%2#0,extract_to_end%2#0,1
+        byte 0x00020000000000000001000a000362617a                                            extract_uint16%2#0,extract_to_end%2#0,1,0x00020000000000000001000a000362617a
+        callsub dynamic_array_concat_dynamic_element                                         as_Encoded(len+(uint64,len+utf8[])[])%2#0
+        byte "box"                                                                           as_Encoded(len+(uint64,len+utf8[])[])%2#0,"box"
+        box_del                                                                              as_Encoded(len+(uint64,len+utf8[])[])%2#0,{box_del}
+        pop 1                                                                                as_Encoded(len+(uint64,len+utf8[])[])%2#0
+        byte "box"                                                                           as_Encoded(len+(uint64,len+utf8[])[])%2#0,"box"
+        l-load as_Encoded(len+(uint64,len+utf8[])[])%2#0 1                                   "box",as_Encoded(len+(uint64,len+utf8[])[])%2#0
         box_put
         // state_mutations/contract.py:42
         // self.map[Txn.sender].append(struct.copy())
@@ -414,19 +414,19 @@ subroutine append:
         assert // check self.map entry exists                                                box_prefixed_key%0#0,maybe_value%3#0
         l-load-copy maybe_value%3#0 0                                                        box_prefixed_key%0#0,maybe_value%3#0,maybe_value%3#0 (copy)
         int 0                                                                                box_prefixed_key%0#0,maybe_value%3#0,maybe_value%3#0 (copy),0
-        extract_uint16                                                                       box_prefixed_key%0#0,maybe_value%3#0,array%array_length%3#1
-        l-load maybe_value%3#0 1                                                             box_prefixed_key%0#0,array%array_length%3#1,maybe_value%3#0
-        extract 2 0                                                                          box_prefixed_key%0#0,array%array_length%3#1,l_head_and_tail%3#0
-        l-load array%array_length%3#1 1                                                      box_prefixed_key%0#0,l_head_and_tail%3#0,array%array_length%3#1
-        l-load l_head_and_tail%3#0 1                                                         box_prefixed_key%0#0,array%array_length%3#1,l_head_and_tail%3#0
-        int 1                                                                                box_prefixed_key%0#0,array%array_length%3#1,l_head_and_tail%3#0,1
-        byte 0x00020000000000000001000a000362617a                                            box_prefixed_key%0#0,array%array_length%3#1,l_head_and_tail%3#0,1,0x00020000000000000001000a000362617a
-        callsub dynamic_array_concat_dynamic_element                                         box_prefixed_key%0#0,concat_result%3#0
-        l-load-copy box_prefixed_key%0#0 1                                                   box_prefixed_key%0#0,concat_result%3#0,box_prefixed_key%0#0 (copy)
-        box_del                                                                              box_prefixed_key%0#0,concat_result%3#0,{box_del}
-        pop 1                                                                                box_prefixed_key%0#0,concat_result%3#0
-        l-load box_prefixed_key%0#0 1                                                        concat_result%3#0,box_prefixed_key%0#0
-        l-load concat_result%3#0 1                                                           box_prefixed_key%0#0,concat_result%3#0
+        extract_uint16                                                                       box_prefixed_key%0#0,maybe_value%3#0,extract_uint16%3#0
+        l-load maybe_value%3#0 1                                                             box_prefixed_key%0#0,extract_uint16%3#0,maybe_value%3#0
+        extract 2 0                                                                          box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0
+        l-load extract_uint16%3#0 1                                                          box_prefixed_key%0#0,extract_to_end%3#0,extract_uint16%3#0
+        l-load extract_to_end%3#0 1                                                          box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0
+        int 1                                                                                box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0,1
+        byte 0x00020000000000000001000a000362617a                                            box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0,1,0x00020000000000000001000a000362617a
+        callsub dynamic_array_concat_dynamic_element                                         box_prefixed_key%0#0,as_Encoded(len+(uint64,len+utf8[])[])%3#0
+        l-load-copy box_prefixed_key%0#0 1                                                   box_prefixed_key%0#0,as_Encoded(len+(uint64,len+utf8[])[])%3#0,box_prefixed_key%0#0 (copy)
+        box_del                                                                              box_prefixed_key%0#0,as_Encoded(len+(uint64,len+utf8[])[])%3#0,{box_del}
+        pop 1                                                                                box_prefixed_key%0#0,as_Encoded(len+(uint64,len+utf8[])[])%3#0
+        l-load box_prefixed_key%0#0 1                                                        as_Encoded(len+(uint64,len+utf8[])[])%3#0,box_prefixed_key%0#0
+        l-load as_Encoded(len+(uint64,len+utf8[])[])%3#0 1                                   box_prefixed_key%0#0,as_Encoded(len+(uint64,len+utf8[])[])%3#0
         box_put
         retsub
 

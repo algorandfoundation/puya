@@ -249,17 +249,21 @@ subroutine examples.voting.voting.VotingRoundApp.get_preconditions(signature: by
     block@0: // L160
         let to_encode%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
         let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
+        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         let to_encode%1#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
         let val_as_bytes%1#0: bytes[8] = (itob to_encode%1#0)
+        let as_Encoded(uint64)%1#0: Encoded(uint64) = val_as_bytes%1#0
         let to_encode%2#0: bool = examples.voting.voting.VotingRoundApp.already_voted()
         let val_as_bytes%2#0: bytes[8] = (itob to_encode%2#0)
+        let as_Encoded(uint64)%2#0: Encoded(uint64) = val_as_bytes%2#0
         let to_encode%3#0: uint64 = (global LatestTimestamp)
         let val_as_bytes%3#0: bytes[8] = (itob to_encode%3#0)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x val_as_bytes%0#0)
-        let encoded%1#0: Encoded((uint64,uint64)) = (concat encoded%0#0 val_as_bytes%1#0)
-        let encoded%2#0: Encoded((uint64,uint64,uint64)) = (concat encoded%1#0 val_as_bytes%2#0)
-        let encoded%3#0: Encoded((uint64,uint64,uint64,uint64)) = (concat encoded%2#0 val_as_bytes%3#0)
-        let encoded%4#0: bytes = (concat encoded%3#0 0x)
+        let as_Encoded(uint64)%3#0: Encoded(uint64) = val_as_bytes%3#0
+        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
+        let encoded%1#0: Encoded((uint64,uint64)) = (concat encoded%0#0 as_Encoded(uint64)%1#0)
+        let encoded%2#0: Encoded((uint64,uint64,uint64)) = (concat encoded%1#0 as_Encoded(uint64)%2#0)
+        let encoded%3#0: Encoded((uint64,uint64,uint64,uint64)) = (concat encoded%2#0 as_Encoded(uint64)%3#0)
+        let encoded%4#0: Encoded((uint64,uint64,uint64,uint64)) = (concat encoded%3#0 0x)
         return encoded%4#0
 
 subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: Encoded(len+uint8[])) -> void:

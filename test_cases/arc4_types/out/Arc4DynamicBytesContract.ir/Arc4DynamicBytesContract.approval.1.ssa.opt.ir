@@ -4,9 +4,9 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let encoded%0#0: Encoded((uint8)) = 0x02
         let encoded%1#0: Encoded((uint8,uint8)) = 0x0203
         let encoded%2#0: Encoded((uint8,uint8,uint8)) = 0x020301
-        let encoded%3#0: bytes = 0x020301
         let as_bytes%0#0: bytes[8] = (itob 3u)
         let len_u16%0#0: bytes = 0x0003
+        let encoded%3#0: bytes = 0x0003020301
         let dynamic_bytes#0: Encoded(len+uint8[]) = 0x0003020301
         let tmp%0#0: bytes = 0x020301
         let tmp%1#0: bool = 1u
@@ -77,15 +77,16 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
     block@12: // after_for_L32
         let tmp%13#0: bool = (== total#5 20u)
         (assert tmp%13#0) // Total should now include sum of dynamic_bytes3 items
-        let expr_value_trimmed%0#0: bytes = 0x0304
         let length%2#0: uint64 = 3u
         let length_uint16%2#0: bytes = 0x0003
         let encoded_value%2#0: bytes = 0x0003616263
-        let expr_value_trimmed%1#0: bytes = 0x616263
-        let concatenated%0#0: bytes = 0x0304616263
-        let len_%0#0: uint64 = 5u
+        let extract_to_end%0#0: bytes = 0x616263
+        let concat%0#0: Encoded(len+uint8[]) = 0x00020304616263
+        let extract_to_end%1#0: bytes = 0x0304616263
+        let len%0#0: uint64 = 5u
+        let div_floor%0#0: uint64 = 5u
         let as_bytes%4#0: bytes[8] = (itob 5u)
-        let len_16_bit%0#0: bytes = 0x0005
+        let as_u16_bytes%0#0: bytes = 0x0005
         let dynamic_bytes3#2: Encoded(len+uint8[]) = 0x00050304616263
         let tmp%14#0: bool = 1u
         let tmp%15#0: bytes = 0x0304616263
@@ -96,8 +97,8 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let encoded%6#0: Encoded((uint8,uint8)) = (concat select%0#0 0x03)
         let encoded%7#0: Encoded((uint8,uint8,uint8)) = (concat encoded%6#0 0x01)
         let len_u16%1#0: bytes = 0x0003
-        let dynamic_bytes#1: Encoded(len+uint8[]) = (concat 0x0003 encoded%7#0)
-        let tmp%19#0: bytes = ((extract 2 0) dynamic_bytes#1)
+        let dynamic_bytes#2: Encoded(len+uint8[]) = (concat 0x0003 encoded%7#0)
+        let tmp%19#0: bytes = ((extract 2 0) dynamic_bytes#2)
         let tmp%20#0: bool = (== tmp%19#0 0x030301)
         (assert tmp%20#0)
         let tmp%21#0: uint64 = (txn NumAppArgs)
@@ -116,8 +117,8 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let encoded_value%4#0: bytes = 0x000133
         goto block@15
     block@15: // ternary_merge_L44
-        let dynamic_bytes#2: Encoded(len+uint8[]) = φ(encoded_value%3#0 <- block@13, encoded_value%4#0 <- block@14)
-        let tmp%23#0: bytes = ((extract 2 0) dynamic_bytes#2)
+        let dynamic_bytes#3: Encoded(len+uint8[]) = φ(encoded_value%3#0 <- block@13, encoded_value%4#0 <- block@14)
+        let tmp%23#0: bytes = ((extract 2 0) dynamic_bytes#3)
         let tmp%24#0: bool = (== tmp%23#0 0x33)
         (assert tmp%24#0)
         return 1u

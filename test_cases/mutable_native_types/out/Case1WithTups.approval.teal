@@ -775,11 +775,8 @@ get_all_tups_for_header@1:
     bz get_all_tups_after_for@4
     // mutable_native_types/case1_with_tups.py:109
     // result.append(items[i])
-    frame_dig 0
-    extract 2 0
     frame_dig 3
     dup
-    cover 2
     intc_1 // 16
     *
     frame_dig 1
@@ -797,15 +794,17 @@ get_all_tups_for_header@1:
     swap
     itob
     concat
-    concat
+    frame_dig 0
+    swap
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
     intc_1 // 16
     /
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     frame_bury 0
     // mutable_native_types/case1_with_tups.py:107-108
     // # TODO: improve this once slicing is supported

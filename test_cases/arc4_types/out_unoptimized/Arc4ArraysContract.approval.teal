@@ -4,7 +4,7 @@
 // test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
 main:
     intcblock 0 1 2 4
-    bytecblock 0x 0x000548656c6c6f " " 0x000450696e67
+    bytecblock 0x 0x48656c6c6f 0x576f726c64 " " 0x50696e67 0x506f6e67
     intc_0 // 0
     dupn 4
     bytec_0 // ""
@@ -18,12 +18,12 @@ main_block@0:
     concat
     pushbytes 0x02
     concat
-    bytec_0 // 0x
-    concat
     intc_2 // 2
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     dup
     // arc4_types/array.py:26
@@ -80,12 +80,12 @@ main_after_for@4:
     bytec_0 // 0x
     pushbytes 0x0001
     concat
-    bytec_0 // 0x
-    concat
     intc_1 // 1
     itob
     extract 6 2
     swap
+    concat
+    bytec_0 // 0x
     concat
     dup
     bury 16
@@ -138,10 +138,23 @@ main_after_for@8:
     assert // Total should now include sum of aliased_dynamic items
     // arc4_types/array.py:35
     // dynamic_string_array = DynamicArray[ARC4String](ARC4String("Hello"), ARC4String("World"))
-    bytec_0 // 0x
-    bytec_1 // 0x000548656c6c6f
+    bytec_1 // 0x48656c6c6f
+    len
+    itob
+    extract 6 2
+    bytec_1 // 0x48656c6c6f
     concat
-    bytec_1 // 0x000548656c6c6f
+    bytec_2 // 0x576f726c64
+    len
+    itob
+    extract 6 2
+    bytec_2 // 0x576f726c64
+    concat
+    swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
     len
     intc_3 // 4
     +
@@ -152,18 +165,18 @@ main_after_for@8:
     swap
     concat
     uncover 2
-    pushbytes 0x0005576f726c64
+    uncover 3
     concat
+    cover 2
     swap
-    uncover 2
     itob
     extract 6 2
-    concat
-    swap
     concat
     intc_2 // 2
     itob
     extract 6 2
+    swap
+    concat
     swap
     concat
     dup
@@ -204,7 +217,12 @@ main_after_for@8:
     uncover 2
     uncover 2
     extract3
-    bytec_1 // 0x000548656c6c6f
+    bytec_1 // 0x48656c6c6f
+    len
+    itob
+    extract 6 2
+    bytec_1 // 0x48656c6c6f
+    concat
     ==
     assert
     // arc4_types/array.py:38
@@ -276,7 +294,7 @@ main_else_body@12:
     // arc4_types/array.py:43
     // result += " " + string_item.native
     extract 2 0
-    bytec_2 // " "
+    bytec_3 // " "
     swap
     concat
     dig 13
@@ -382,10 +400,23 @@ main_after_for@19:
     assert
     // arc4_types/array.py:60
     // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-    bytec_0 // 0x
-    bytec_3 // 0x000450696e67
+    bytec 4 // 0x50696e67
+    len
+    itob
+    extract 6 2
+    bytec 4 // 0x50696e67
     concat
-    bytec_3 // 0x000450696e67
+    bytec 5 // 0x506f6e67
+    len
+    itob
+    extract 6 2
+    bytec 5 // 0x506f6e67
+    concat
+    swap
+    bytec_0 // 0x
+    dig 1
+    concat
+    swap
     len
     intc_3 // 4
     +
@@ -396,7 +427,7 @@ main_after_for@19:
     swap
     concat
     uncover 2
-    pushbytes 0x0004506f6e67
+    uncover 3
     concat
     swap
     uncover 2
@@ -469,7 +500,7 @@ main_else_body@23:
     // arc4_types/array.py:67
     // result += " " + string_item.native
     extract 2 0
-    bytec_2 // " "
+    bytec_3 // " "
     swap
     concat
     dig 13
