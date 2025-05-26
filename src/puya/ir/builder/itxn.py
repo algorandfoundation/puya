@@ -241,7 +241,7 @@ class InnerTransactionBuilder:
         if not isinstance(itxn, Register | ITxnConstant):
             itxn_field_desc = {itxn_field.itxn.accept(ToCodeVisitor())}
             raise CodeError(
-                f"Could not resolve inner transaction group index for {itxn_field_desc}",
+                f"could not resolve inner transaction group index for {itxn_field_desc}",
                 src_loc,
             )
 
