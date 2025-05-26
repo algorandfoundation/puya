@@ -52,6 +52,7 @@ logger = log.get_logger(__name__)
 ARC4_TRUE = (1 << 7).to_bytes(1, "big")
 ARC4_FALSE = (0).to_bytes(1, "big")
 
+
 class ARC4Codec(abc.ABC):
     @abc.abstractmethod
     def encode(
@@ -226,7 +227,7 @@ class NativeTupleCodec(ARC4Codec):
         for index, (item_ir_type, item_encoding) in enumerate(
             zip(self.native_type.elements, elements, strict=True)
         ):
-            encoded = arc4_tuple_index(
+            encoded = read_tuple_index(
                 context,
                 base=value,
                 index=index,
@@ -644,7 +645,7 @@ def encode_value(
     )
 
 
-def arc4_tuple_index(
+def read_tuple_index(
     context: IRRegisterContext,
     base: Value,
     index: int,
@@ -682,7 +683,7 @@ def arc4_tuple_index(
         return factory.extract3(base, head_offset, item_encoding.checked_num_bytes)
 
 
-def update_tuple_item(
+def write_tuple_index(
     context: IRRegisterContext,
     base: Value,
     index_int: int,
