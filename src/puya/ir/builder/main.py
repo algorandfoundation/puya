@@ -4,6 +4,7 @@ from collections.abc import Iterator, Sequence
 import attrs
 
 import puya.awst.visitors
+import puya.ir.builder.assignment
 from puya import algo_constants, log, utils
 from puya.avm import AVMType
 from puya.awst import (
@@ -31,7 +32,11 @@ from puya.ir.builder._utils import (
     mktemp,
 )
 from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
-from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
+from puya.ir.builder.assignment import (
+    handle_arc4_assign,
+    handle_assignment,
+    handle_assignment_expr,
+)
 from puya.ir.builder.bytes import (
     visit_bytes_intersection_slice_expression,
     visit_bytes_slice_expression,
@@ -1220,7 +1225,7 @@ class FunctionIRBuilder(
         if isinstance(array_or_slot.ir_type, SlotType):
             mem.write_slot(self.context, array_or_slot, updated_array, loc)
         else:
-            arc4.handle_arc4_assign(
+            handle_arc4_assign(
                 self.context,
                 expr.base,
                 updated_array,
@@ -1261,7 +1266,7 @@ class FunctionIRBuilder(
             # _array_concat should do steps 1-4, now need to update slot
             mem.write_slot(self.context, array, result, loc)
         else:
-            arc4.handle_arc4_assign(
+            handle_arc4_assign(
                 self.context,
                 target=expr.base,
                 value=result,

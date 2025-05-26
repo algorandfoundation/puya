@@ -5,20 +5,13 @@ from itertools import zip_longest
 
 from puya import log
 from puya.avm import AVMType
-from puya.awst import (
-    nodes as awst_nodes,
-    wtypes,
-)
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import sequence
 from puya.ir.builder._utils import (
     OpFactory,
     assert_value,
     undefined_value,
 )
-from puya.ir.builder.assignment import handle_assignment
-from puya.ir.context import IRFunctionBuildContext
 from puya.ir.encodings import (
     ArrayEncoding,
     BoolEncoding,
@@ -28,7 +21,6 @@ from puya.ir.encodings import (
     TupleEncoding,
     UIntEncoding,
     UTF8Encoding,
-    wtype_to_encoding,
 )
 from puya.ir.models import (
     BigUIntConstant,
@@ -50,17 +42,15 @@ from puya.ir.types_ import (
     TupleIRType,
     get_type_arity,
     type_has_encoding,
-    wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes, round_bits_to_nearest_bytes
 
+logger = log.get_logger(__name__)
+
 # packed bits are packed starting with the left most bit
 ARC4_TRUE = (1 << 7).to_bytes(1, "big")
 ARC4_FALSE = (0).to_bytes(1, "big")
-
-logger = log.get_logger(__name__)
-
 
 class ARC4Codec(abc.ABC):
     @abc.abstractmethod
@@ -699,120 +689,13 @@ def arc4_tuple_index(
         return factory.extract3(base, head_offset, item_encoding.checked_num_bytes)
 
 
-def handle_arc4_assign(
-    context: IRFunctionBuildContext,
-    target: awst_nodes.Expression,
-    value: MultiValue,
-    source_location: SourceLocation,
-    *,
-    is_nested_update: bool,
-) -> Value:
-    result: Value
-    match target:
-        case awst_nodes.IndexExpression(
-            base=awst_nodes.Expression(
-                wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
-            ) as base_expr,
-            index=index_value,
-        ):
-            array = context.visitor.visit_and_materialise_single(base_expr)
-            index = context.visitor.visit_and_materialise_single(index_value)
-            builder = sequence.get_builder(context, array_wtype, source_location)
-            item = builder.write_at_index(array, index, value)
-            return handle_arc4_assign(
-                context,
-                target=base_expr,
-                value=item,
-                source_location=source_location,
-                is_nested_update=True,
-            )
-        case awst_nodes.FieldExpression(
-            base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
-            name=field_name,
-        ):
-            index_int = struct_wtype.names.index(field_name)
-
-            tuple_encoding = wtype_to_encoding(struct_wtype, source_location)
-            value_ir_type = wtype_to_ir_type(
-                struct_wtype.types[index_int],
-                source_location=source_location,
-                allow_tuple=True,
-            )
-            item = _arc4_replace_tuple_item(
-                context,
-                base_expr,
-                index_int,
-                tuple_encoding,
-                value_ir_type,
-                value,
-                source_location,
-            )
-            return handle_arc4_assign(
-                context,
-                target=base_expr,
-                value=item,
-                source_location=source_location,
-                is_nested_update=True,
-            )
-        case awst_nodes.TupleItemExpression(
-            base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
-            index=index_value,
-        ):
-            tuple_encoding = wtype_to_encoding(tuple_wtype, source_location)
-            value_ir_type = wtype_to_ir_type(
-                tuple_wtype.types[index_value],
-                source_location=source_location,
-                allow_tuple=True,
-            )
-            item = _arc4_replace_tuple_item(
-                context,
-                base_expr=base_expr,
-                index_int=index_value,
-                tuple_encoding=tuple_encoding,
-                value_ir_type=value_ir_type,
-                value=value,
-                source_location=source_location,
-            )
-            return handle_arc4_assign(
-                context,
-                target=base_expr,
-                value=item,
-                source_location=source_location,
-                is_nested_update=True,
-            )
-        # this function is sometimes invoked outside an assignment expr/stmt, which
-        # is how a non l-value expression can be possible
-        # TODO: refactor this so that this special case is handled where it originates
-        case (
-            awst_nodes.TupleItemExpression(wtype=wtypes.WType(immutable=False))
-            | awst_nodes.FieldExpression(wtype=wtypes.WType(immutable=False))
-        ):
-            (result,) = handle_assignment(
-                context,
-                target,
-                value=value,
-                assignment_location=source_location,
-                is_nested_update=True,
-            )
-            return result
-        case _:
-            (result,) = handle_assignment(
-                context,
-                target,
-                value=value,
-                assignment_location=source_location,
-                is_nested_update=is_nested_update,
-            )
-            return result
-
-
 def _bit_packed_bool(encoding: Encoding) -> typing.TypeGuard[BoolEncoding]:
     return isinstance(encoding, BoolEncoding) and encoding.packed
 
 
-def _arc4_replace_tuple_item(
-    context: IRFunctionBuildContext,
-    base_expr: awst_nodes.Expression,
+def update_tuple_item(
+    context: IRRegisterContext,
+    base: Value,
     index_int: int,
     tuple_encoding: TupleEncoding,
     value_ir_type: IRType | TupleIRType,
@@ -821,7 +704,6 @@ def _arc4_replace_tuple_item(
 ) -> Value:
     factory = OpFactory(context, source_location)
     tuple_items = tuple_encoding.elements
-    base = context.visitor.visit_and_materialise_single(base_expr)
     value = factory.materialise_single(value, "assigned_value")
     element_encoding = tuple_items[index_int]
     header_up_to_item = _get_arc4_tuple_head_size(
