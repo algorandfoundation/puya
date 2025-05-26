@@ -34,6 +34,7 @@ from puya.ir.encodings import (
 from puya.ir.models import (
     BigUIntConstant,
     Intrinsic,
+    MultiValue,
     UInt64Constant,
     Undefined,
     Value,
@@ -626,7 +627,7 @@ def arc4_tuple_index(
 def handle_arc4_assign(
     context: IRFunctionBuildContext,
     target: awst_nodes.Expression,
-    value: ValueProvider,
+    value: MultiValue,
     source_location: SourceLocation,
     *,
     is_nested_update: bool,

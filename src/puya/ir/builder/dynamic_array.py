@@ -40,13 +40,13 @@ class DynamicArrayBuilder(abc.ABC):
 
     @abc.abstractmethod
     def concat(
-        self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
+        self, array: ir.Value, iterable: ir.MultiValue, iterable_ir_type: IRType | TupleIRType
     ) -> ir.Value:
         """Returns the concatenation of an array and iterable"""
 
     # TODO: allow pop by index?
     @abc.abstractmethod
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
+    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
         """
         Removes the last item of an array
 
@@ -196,16 +196,18 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
     def _as_array_type(self, value: ir.ValueProvider) -> ir.Value:
         return self.factory.as_ir_type(value, self.array_ir_type)
 
-    def _maybe_decode(self, encoded_item: ir.Value) -> ir.ValueProvider:
+    def _maybe_decode(self, encoded_item: ir.Value) -> ir.MultiValue:
         if type_has_encoding(self.element_ir_type, self.array_encoding.element):
-            return encoded_item
+            return self.factory.materialise_single(encoded_item)
         else:
             encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
-            return ir.ValueDecode(
-                value=encoded_item,
-                encoding=self.array_encoding.element,
-                decoded_type=self.element_ir_type,
-                source_location=self.loc,
+            return self.factory.materialise_multi_value(
+                ir.ValueDecode(
+                    value=encoded_item,
+                    encoding=self.array_encoding.element,
+                    decoded_type=self.element_ir_type,
+                    source_location=self.loc,
+                )
             )
 
 
@@ -232,7 +234,7 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return self._as_array_type(updated_array)
 
     @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
+    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
         element_encoding = self.array_encoding.element
         if self.array_encoding.length_header:
             invoke = invoke_puya_lib_subroutine(
@@ -253,7 +255,7 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
     def concat(
-        self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
+        self, array: ir.Value, iterable: ir.MultiValue, iterable_ir_type: IRType | TupleIRType
     ) -> ir.Value:
         r_count, r_head_and_tail = self._get_iterable_length_and_head_tail(
             iterable, iterable_ir_type
@@ -271,7 +273,7 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return self._as_array_type(invoke)
 
     @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
+    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
         invoke = invoke_puya_lib_subroutine(
             self.context,
             full_name="_puya_lib.arc4.dynamic_array_pop_byte_length_head",
@@ -304,7 +306,7 @@ class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return self._as_array_type(invoke)
 
     @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
+    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
         invoke = invoke_puya_lib_subroutine(
             self.context,
             full_name="_puya_lib.arc4.dynamic_array_pop_dynamic_element",
@@ -350,7 +352,7 @@ class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return self._as_array_type(invoke)
 
     @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
+    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
         invoke = invoke_puya_lib_subroutine(
             self.context,
             full_name="_puya_lib.arc4.dynamic_array_pop_bit",
