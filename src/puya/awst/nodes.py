@@ -408,13 +408,21 @@ class TemplateVar(Expression):
         return visitor.visit_template_var(self)
 
 
+@attrs.frozen(kw_only=True, repr=False)
+class MethodSignature:
+    name: str
+    arg_types: Sequence[WType] = attrs.field(converter=tuple[WType, ...])
+    return_type: WType
+    source_location: SourceLocation
+
+
 @attrs.frozen(kw_only=True)
 class MethodConstant(Expression):
     wtype: WType = attrs.field(
         default=wtypes.bytes_wtype,
         validator=attrs.validators.in_([wtypes.bytes_wtype, wtypes.BytesWType(length=4)]),
     )
-    value: str
+    value: str | MethodSignature
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_method_constant(self)

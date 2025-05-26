@@ -1,6 +1,7 @@
 import typing
 
 from puya.awst import wtypes
+from puya.awst.nodes import MethodSignature
 from puya.awst.visitors import ARC4WTypeVisitor, WTypeVisitor
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
@@ -172,6 +173,14 @@ class ARC4NameWTypeVisitor(ARC4WTypeVisitor[str]):
 
 def get_arc4_name(wtype: wtypes.ARC4Type, *, use_alias: bool = False) -> str:
     return wtype.accept(ARC4NameWTypeVisitor(use_alias=use_alias))
+
+
+def method_signature_to_arc4(signature: MethodSignature) -> str:
+    args_type_names = ",".join(
+        wtype_to_arc4("argument", a, signature.source_location) for a in signature.arg_types
+    )
+    ret_type_name = wtype_to_arc4("return", signature.return_type, signature.source_location)
+    return f"{signature.name}({args_type_names}){ret_type_name}"
 
 
 def wtype_to_arc4(

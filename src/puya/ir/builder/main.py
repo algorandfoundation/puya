@@ -11,12 +11,12 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
+from puya.awst.nodes import BigUIntBinaryOperator, MethodSignature, UInt64BinaryOperator
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_types import wtype_to_arc4_wtype
+from puya.ir.arc4_types import method_signature_to_arc4, wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4, dynamic_array, flow_control, mem, sequence, storage, tup
 from puya.ir.builder._utils import (
@@ -701,7 +701,12 @@ class FunctionIRBuilder(
         return self._itxn.handle_inner_transaction_field(itxn_field)
 
     def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> TExpression:
-        return MethodConstant(value=expr.value, source_location=expr.source_location)
+        return MethodConstant(
+            value=method_signature_to_arc4(expr.value)
+            if isinstance(expr.value, MethodSignature)
+            else expr.value,
+            source_location=expr.source_location,
+        )
 
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> TExpression:
         items = list[Value]()

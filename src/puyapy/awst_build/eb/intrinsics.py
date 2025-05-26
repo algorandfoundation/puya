@@ -2,7 +2,7 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.awst.nodes import IntrinsicCall, MethodConstant
+from puya.awst.nodes import IntrinsicCall, MethodConstant, MethodSignature
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
@@ -57,18 +57,18 @@ class Arc4SignatureBuilder(FunctionBuilder):
                     return_type=abi_method_data.arc4_return_type,
                     source_location=location,
                 )
-                str_value = signature.method_selector
+                method_const_value: MethodSignature | str = signature.public_signature
             case _:
                 arg = expect.exactly_one_arg(args, location, default=expect.default_none)
                 if arg is None:
                     return dummy_value(pytypes.BytesType, location)
-                str_value = expect.simple_string_literal(
+                method_const_value = expect.simple_string_literal(
                     arg, default=expect.default_fixed_value("")
                 )
 
         return BytesExpressionBuilder(
             MethodConstant(
-                value=str_value,
+                value=method_const_value,
                 source_location=location,
             )
         )

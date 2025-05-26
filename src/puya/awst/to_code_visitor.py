@@ -10,6 +10,7 @@ from puya.awst.visitors import (
     StatementVisitor,
 )
 from puya.errors import InternalError
+from puya.ir.arc4_types import method_signature_to_arc4
 
 
 class ToCodeVisitor(
@@ -377,7 +378,12 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_method_constant(self, expr: nodes.MethodConstant) -> str:
-        return f'Method("{expr.value}")'
+        method_str = (
+            method_signature_to_arc4(expr.value)
+            if isinstance(expr.value, nodes.MethodSignature)
+            else expr.value
+        )
+        return f'Method("{method_str}")'
 
     @typing.override
     def visit_address_constant(self, expr: nodes.AddressConstant) -> str:

@@ -55,7 +55,7 @@ def _pytypes_to_arc4_arg_pytypes(
 
 @attrs.frozen(kw_only=True)
 class ARC4Signature:
-    source_location: SourceLocation | None
+    source_location: SourceLocation
     method_name: str
     arg_types: Sequence[pytypes.PyType] = attrs.field(
         converter=attrs.Converter(_pytypes_to_arc4_arg_pytypes, takes_self=True)  # type: ignore[misc]
@@ -71,6 +71,28 @@ class ARC4Signature:
         )
         return_type = arc4_utils.pytype_to_arc4(self.return_type, encode_resource_types=True)
         return f"{self.method_name}({args}){return_type}"
+
+    @property
+    def public_signature(self) -> awst_nodes.MethodSignature:
+        def on_error(bad_type: pytypes.PyType) -> typing.Never:
+            raise CodeError(
+                f"not an ARC-4 type or native equivalent: {bad_type}",
+                getattr(bad_type, "source_location", None),
+            )
+
+        return awst_nodes.MethodSignature(
+            name=self.method_name,
+            arg_types=tuple(
+                arc4_utils.pytype_to_arc4_pytype(
+                    t, on_error=on_error, encode_resource_types=False
+                ).checked_wtype(None)
+                for t in self.arg_types
+            ),
+            return_type=arc4_utils.pytype_to_arc4_pytype(
+                self.return_type, on_error=on_error, encode_resource_types=True
+            ).checked_wtype(None),
+            source_location=self.source_location,
+        )
 
     def convert_args(
         self,
