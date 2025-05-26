@@ -287,6 +287,16 @@ def wtype_to_ir_type(
 
 @typing.overload
 def wtype_to_ir_type(
+    wtype: wtypes.WTuple,
+    /,
+    source_location: SourceLocation,
+    *,
+    allow_tuple: typing.Literal[True] = True,
+) -> TupleIRType: ...
+
+
+@typing.overload
+def wtype_to_ir_type(
     wtype: wtypes.WType,
     /,
     source_location: SourceLocation,
