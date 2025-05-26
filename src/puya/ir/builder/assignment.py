@@ -9,17 +9,21 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, mem, sequence, storage
+from puya.ir.builder import mem, sequence, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     assign,
     assign_targets,
     get_implicit_return_is_original,
 )
+from puya.ir.builder.arc4 import write_tuple_index
 from puya.ir.context import IRFunctionBuildContext
+from puya.ir.encodings import wtype_to_encoding
+from puya.ir.models import MultiValue, Value
 from puya.ir.types_ import (
     PrimitiveIRType,
     get_wtype_arity,
+    wtype_to_ir_type,
 )
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -179,7 +183,7 @@ def handle_assignment(
                 mem.write_slot(context, array_slot, array_contents, assignment_location)
                 return source
             elif isinstance(sequence_wtype, wtypes.ARC4Type):
-                arc4.handle_arc4_assign(
+                handle_arc4_assign(
                     context,
                     target=ix_expr,
                     value=value,
@@ -196,7 +200,7 @@ def handle_assignment(
         case awst_nodes.FieldExpression() as field_expr:
             if isinstance(field_expr.base.wtype, wtypes.ARC4Struct):
                 return (
-                    arc4.handle_arc4_assign(
+                    handle_arc4_assign(
                         context,
                         target=field_expr,
                         value=value,
@@ -214,6 +218,115 @@ def handle_assignment(
             raise CodeError(
                 "expression is not valid as an assignment target", target.source_location
             )
+
+
+def handle_arc4_assign(
+    context: IRFunctionBuildContext,
+    target: awst_nodes.Expression,
+    value: MultiValue,
+    source_location: SourceLocation,
+    *,
+    is_nested_update: bool,
+) -> Value:
+    result: Value
+    match target:
+        case awst_nodes.IndexExpression(
+            base=awst_nodes.Expression(
+                wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
+            ) as base_expr,
+            index=index_value,
+        ):
+            array = context.visitor.visit_and_materialise_single(base_expr)
+            index = context.visitor.visit_and_materialise_single(index_value)
+            builder = sequence.get_builder(context, array_wtype, source_location)
+            item = builder.write_at_index(array, index, value)
+            return handle_arc4_assign(
+                context,
+                target=base_expr,
+                value=item,
+                source_location=source_location,
+                is_nested_update=True,
+            )
+        case awst_nodes.FieldExpression(
+            base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
+            name=field_name,
+        ):
+            base = context.visitor.visit_and_materialise_single(base_expr, "base")
+            index_int = struct_wtype.names.index(field_name)
+
+            tuple_encoding = wtype_to_encoding(struct_wtype, source_location)
+            value_ir_type = wtype_to_ir_type(
+                struct_wtype.types[index_int],
+                source_location=source_location,
+                allow_tuple=True,
+            )
+            item = write_tuple_index(
+                context,
+                base,
+                index_int,
+                tuple_encoding,
+                value_ir_type,
+                value,
+                source_location,
+            )
+            return handle_arc4_assign(
+                context,
+                target=base_expr,
+                value=item,
+                source_location=source_location,
+                is_nested_update=True,
+            )
+        case awst_nodes.TupleItemExpression(
+            base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
+            index=index_value,
+        ):
+            base = context.visitor.visit_and_materialise_single(base_expr, "base")
+            tuple_encoding = wtype_to_encoding(tuple_wtype, source_location)
+            value_ir_type = wtype_to_ir_type(
+                tuple_wtype.types[index_value],
+                source_location=source_location,
+                allow_tuple=True,
+            )
+            item = write_tuple_index(
+                context,
+                base=base,
+                index_int=index_value,
+                tuple_encoding=tuple_encoding,
+                value_ir_type=value_ir_type,
+                value=value,
+                source_location=source_location,
+            )
+            return handle_arc4_assign(
+                context,
+                target=base_expr,
+                value=item,
+                source_location=source_location,
+                is_nested_update=True,
+            )
+        # this function is sometimes invoked outside an assignment expr/stmt, which
+        # is how a non l-value expression can be possible
+        # TODO: refactor this so that this special case is handled where it originates
+        case (
+            awst_nodes.TupleItemExpression(wtype=wtypes.WType(immutable=False))
+            | awst_nodes.FieldExpression(wtype=wtypes.WType(immutable=False))
+        ):
+            (result,) = handle_assignment(
+                context,
+                target,
+                value=value,
+                assignment_location=source_location,
+                is_nested_update=True,
+            )
+            return result
+        case _:
+            (result,) = handle_assignment(
+                context,
+                target,
+                value=value,
+                assignment_location=source_location,
+                is_nested_update=is_nested_update,
+            )
+            return result
 
 
 def _handle_maybe_implicit_return_assignment(
