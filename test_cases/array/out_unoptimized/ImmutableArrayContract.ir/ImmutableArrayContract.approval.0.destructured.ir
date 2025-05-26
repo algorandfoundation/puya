@@ -679,8 +679,8 @@ subroutine test_cases.array.immutable.pop_x(arr: Encoded(len+uint64[]), x: uint6
         let continue_looping%0#0: bool = (< _i#0 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L457
-        let (popped%0#0: bytes, data%0#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#0, 8u)
-        let arr#0: Encoded(len+uint64[]) = data%0#0
+        let (tmp%0#0: bytes, tmp%1#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#0, 8u)
+        let arr#0: Encoded(len+uint64[]) = tmp%1#0
         goto block@3
     block@3: // for_footer_L456
         let _i#0: uint64 = (+ _i#0 1u)
@@ -1135,13 +1135,13 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let tmp%14#0: bool = (!= length#0 0u)
         goto tmp%14#0 ? block@13 : block@14
     block@13: // if_body_L164
-        let (popped%0#0: bytes, data%0#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(arr#0)
-        let arr#0: Encoded(len+bool1[]) = data%0#0
+        let (tmp%15#0: bytes, tmp%16#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(arr#0)
+        let arr#0: Encoded(len+bool1[]) = tmp%16#0
         let array%array_length%6#1: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%15#0: uint64 = array%array_length%6#1
-        let tmp%16#0: uint64 = (- length#0 1u)
-        let tmp%17#0: bool = (== tmp%15#0 tmp%16#0)
-        (assert tmp%17#0)
+        let tmp%17#0: uint64 = array%array_length%6#1
+        let tmp%18#0: uint64 = (- length#0 1u)
+        let tmp%19#0: bool = (== tmp%17#0 tmp%18#0)
+        (assert tmp%19#0)
         goto block@14
     block@14: // after_if_else_L163
         return 
@@ -1222,12 +1222,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         let tmp%12#0: bool = (== awst_tmp%3#0 6u)
         let tmp%13#0: bool = (&& tmp%11#0 tmp%12#0)
         (assert tmp%13#0)
-        let (popped%0#0: bytes, data%0#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#0, 16u)
-        let arr#0: Encoded(len+(uint64,uint64)[]) = data%0#0
+        let (tmp%14#0: bytes, tmp%15#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#0, 16u)
+        let arr#0: Encoded(len+(uint64,uint64)[]) = tmp%15#0
         let array%array_length%3#1: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%14#0: uint64 = array%array_length%3#1
-        let tmp%15#0: bool = (== tmp%14#0 4u)
-        (assert tmp%15#0)
+        let tmp%16#0: uint64 = array%array_length%3#1
+        let tmp%17#0: bool = (== tmp%16#0 4u)
+        (assert tmp%17#0)
         let array_trimmed%2#0: bytes = ((extract 2 0) arr#0)
         let bytes_offset%2#0: uint64 = (* 0u 16u)
         let encoded_element%2#0: bytes = (extract3 array_trimmed%2#0 bytes_offset%2#0 16u) // on error: index access is out of bounds
@@ -1237,15 +1237,15 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         let array%item1%2#1: uint64 = (btoi array%encoded_item1%2#1)
         let awst_tmp%4#0: uint64 = array%item0%2#1
         let awst_tmp%5#0: uint64 = array%item1%2#1
-        let tmp%16#0: bool = (== awst_tmp%4#0 1u)
-        let tmp%17#0: bool = (== awst_tmp%5#0 2u)
-        let tmp%18#0: bool = (&& tmp%16#0 tmp%17#0)
-        (assert tmp%18#0)
+        let tmp%18#0: bool = (== awst_tmp%4#0 1u)
+        let tmp%19#0: bool = (== awst_tmp%5#0 2u)
+        let tmp%20#0: bool = (&& tmp%18#0 tmp%19#0)
+        (assert tmp%20#0)
         let array%array_length%4#1: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%19#0: uint64 = array%array_length%4#1
-        let tmp%20#0: uint64 = (- tmp%19#0 1u)
+        let tmp%21#0: uint64 = array%array_length%4#1
+        let tmp%22#0: uint64 = (- tmp%21#0 1u)
         let array_trimmed%3#0: bytes = ((extract 2 0) arr#0)
-        let bytes_offset%3#0: uint64 = (* tmp%20#0 16u)
+        let bytes_offset%3#0: uint64 = (* tmp%22#0 16u)
         let encoded_element%3#0: bytes = (extract3 array_trimmed%3#0 bytes_offset%3#0 16u) // on error: index access is out of bounds
         let array%encoded_item0%3#1: bytes = (extract3 encoded_element%3#0 0u 8u) // on error: Index access is out of bounds
         let array%item0%3#1: uint64 = (btoi array%encoded_item0%3#1)
@@ -1253,10 +1253,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         let array%item1%3#1: uint64 = (btoi array%encoded_item1%3#1)
         let awst_tmp%6#0: uint64 = array%item0%3#1
         let awst_tmp%7#0: uint64 = array%item1%3#1
-        let tmp%21#0: bool = (== awst_tmp%6#0 4u)
-        let tmp%22#0: bool = (== awst_tmp%7#0 5u)
-        let tmp%23#0: bool = (&& tmp%21#0 tmp%22#0)
-        (assert tmp%23#0)
+        let tmp%23#0: bool = (== awst_tmp%6#0 4u)
+        let tmp%24#0: bool = (== awst_tmp%7#0 5u)
+        let tmp%25#0: bool = (&& tmp%23#0 tmp%24#0)
+        (assert tmp%25#0)
         (app_global_put "c" arr#0)
         return 
 
@@ -1435,12 +1435,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let i#0: uint64 = (+ i#0 1u)
         goto block@5
     block@8: // after_for_L209
-        let (popped%0#0: bytes, data%0#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
-        let arr#0: Encoded(len+(uint64,len+uint8[])[]) = data%0#0
+        let (tmp%14#0: bytes, tmp%15#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
+        let arr#0: Encoded(len+(uint64,len+uint8[])[]) = tmp%15#0
         let array%array_length%4#1: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%14#0: uint64 = array%array_length%4#1
-        let tmp%15#0: bool = (== tmp%14#0 4u)
-        (assert tmp%15#0)
+        let tmp%16#0: uint64 = array%array_length%4#1
+        let tmp%17#0: bool = (== tmp%16#0 4u)
+        (assert tmp%17#0)
         let array_head_and_tail%2#0: bytes = ((extract 2 0) arr#0)
         let item_offset_offset%2#0: uint64 = (* 0u 2u)
         let item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%2#0 item_offset_offset%2#0)
@@ -1461,20 +1461,20 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let array%item1%2#1: bytes = ((extract 2 0) array%encoded_item1%2#1)
         let awst_tmp%0#0: uint64 = array%item0%2#1
         let awst_tmp%1#0: bytes = array%item1%2#1
-        let tmp%16#0: bool = (== awst_tmp%0#0 1u)
-        let tmp%17#0: bytes = (bzero 0u)
-        let tmp%18#0: bool = (== awst_tmp%1#0 tmp%17#0)
-        let tmp%19#0: bool = (&& tmp%16#0 tmp%18#0)
-        (assert tmp%19#0) // expected 1, 0
+        let tmp%18#0: bool = (== awst_tmp%0#0 1u)
+        let tmp%19#0: bytes = (bzero 0u)
+        let tmp%20#0: bool = (== awst_tmp%1#0 tmp%19#0)
+        let tmp%21#0: bool = (&& tmp%18#0 tmp%20#0)
+        (assert tmp%21#0) // expected 1, 0
         let array%array_length%6#1: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%20#0: uint64 = array%array_length%6#1
-        let tmp%21#0: uint64 = (- tmp%20#0 1u)
+        let tmp%22#0: uint64 = array%array_length%6#1
+        let tmp%23#0: uint64 = (- tmp%22#0 1u)
         let array_head_and_tail%3#0: bytes = ((extract 2 0) arr#0)
-        let item_offset_offset%3#0: uint64 = (* tmp%21#0 2u)
+        let item_offset_offset%3#0: uint64 = (* tmp%23#0 2u)
         let item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%3#0 item_offset_offset%3#0)
         let array%array_length%7#1: uint64 = (extract_uint16 arr#0 0u)
         let array_length%3#0: uint64 = array%array_length%7#1
-        let next_index%3#0: uint64 = (+ tmp%21#0 1u)
+        let next_index%3#0: uint64 = (+ tmp%23#0 1u)
         let has_next%3#0: uint64 = (- array_length%3#0 next_index%3#0) // on error: index access is out of bounds
         let end_of_array%3#0: uint64 = (len array_head_and_tail%3#0)
         let next_item_offset_offset%3#0: uint64 = (* next_index%3#0 2u)
@@ -1489,11 +1489,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let array%item1%3#1: bytes = ((extract 2 0) array%encoded_item1%3#1)
         let awst_tmp%2#0: uint64 = array%item0%3#1
         let awst_tmp%3#0: bytes = array%item1%3#1
-        let tmp%22#0: bool = (== awst_tmp%2#0 4u)
-        let tmp%23#0: bytes = (bzero 3u)
-        let tmp%24#0: bool = (== awst_tmp%3#0 tmp%23#0)
-        let tmp%25#0: bool = (&& tmp%22#0 tmp%24#0)
-        (assert tmp%25#0) // expected 4, 3
+        let tmp%24#0: bool = (== awst_tmp%2#0 4u)
+        let tmp%25#0: bytes = (bzero 3u)
+        let tmp%26#0: bool = (== awst_tmp%3#0 tmp%25#0)
+        let tmp%27#0: bool = (&& tmp%24#0 tmp%26#0)
+        (assert tmp%27#0) // expected 4, 3
         (app_global_put "e" arr#0)
         return 
 
@@ -1598,12 +1598,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let i#0: uint64 = (+ i#0 1u)
         goto block@5
     block@8: // after_for_L228
-        let (popped%0#0: bytes, data%0#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
-        let arr#0: Encoded(len+(uint64,len+utf8[])[]) = data%0#0
+        let (tmp%14#0: bytes, tmp%15#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
+        let arr#0: Encoded(len+(uint64,len+utf8[])[]) = tmp%15#0
         let array%array_length%4#1: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%14#0: uint64 = array%array_length%4#1
-        let tmp%15#0: bool = (== tmp%14#0 4u)
-        (assert tmp%15#0)
+        let tmp%16#0: uint64 = array%array_length%4#1
+        let tmp%17#0: bool = (== tmp%16#0 4u)
+        (assert tmp%17#0)
         let array_head_and_tail%2#0: bytes = ((extract 2 0) arr#0)
         let item_offset_offset%2#0: uint64 = (* 0u 2u)
         let item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%2#0 item_offset_offset%2#0)
@@ -1624,19 +1624,19 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let array%item1%2#1: bytes = ((extract 2 0) array%encoded_item1%2#1)
         let awst_tmp%0#0: uint64 = array%item0%2#1
         let awst_tmp%1#0: string = array%item1%2#1
-        let tmp%16#0: bool = (== awst_tmp%0#0 1u)
-        let tmp%17#0: bool = (== awst_tmp%1#0 "")
-        let tmp%18#0: bool = (&& tmp%16#0 tmp%17#0)
-        (assert tmp%18#0) // expected 1, 0
+        let tmp%18#0: bool = (== awst_tmp%0#0 1u)
+        let tmp%19#0: bool = (== awst_tmp%1#0 "")
+        let tmp%20#0: bool = (&& tmp%18#0 tmp%19#0)
+        (assert tmp%20#0) // expected 1, 0
         let array%array_length%6#1: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%19#0: uint64 = array%array_length%6#1
-        let tmp%20#0: uint64 = (- tmp%19#0 1u)
+        let tmp%21#0: uint64 = array%array_length%6#1
+        let tmp%22#0: uint64 = (- tmp%21#0 1u)
         let array_head_and_tail%3#0: bytes = ((extract 2 0) arr#0)
-        let item_offset_offset%3#0: uint64 = (* tmp%20#0 2u)
+        let item_offset_offset%3#0: uint64 = (* tmp%22#0 2u)
         let item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%3#0 item_offset_offset%3#0)
         let array%array_length%7#1: uint64 = (extract_uint16 arr#0 0u)
         let array_length%3#0: uint64 = array%array_length%7#1
-        let next_index%3#0: uint64 = (+ tmp%20#0 1u)
+        let next_index%3#0: uint64 = (+ tmp%22#0 1u)
         let has_next%3#0: uint64 = (- array_length%3#0 next_index%3#0) // on error: index access is out of bounds
         let end_of_array%3#0: uint64 = (len array_head_and_tail%3#0)
         let next_item_offset_offset%3#0: uint64 = (* next_index%3#0 2u)
@@ -1651,10 +1651,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let array%item1%3#1: bytes = ((extract 2 0) array%encoded_item1%3#1)
         let awst_tmp%2#0: uint64 = array%item0%3#1
         let awst_tmp%3#0: string = array%item1%3#1
-        let tmp%21#0: bool = (== awst_tmp%2#0 4u)
-        let tmp%22#0: bool = (== awst_tmp%3#0 "   ")
-        let tmp%23#0: bool = (&& tmp%21#0 tmp%22#0)
-        (assert tmp%23#0) // expected 4, 3
+        let tmp%23#0: bool = (== awst_tmp%2#0 4u)
+        let tmp%24#0: bool = (== awst_tmp%3#0 "   ")
+        let tmp%25#0: bool = (&& tmp%23#0 tmp%24#0)
+        (assert tmp%25#0) // expected 4, 3
         (app_global_put "f" arr#0)
         return 
 
