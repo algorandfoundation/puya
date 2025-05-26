@@ -828,6 +828,9 @@ class ValueTuple(ValueProvider):
         return tuple(self.values)
 
 
+MultiValue = Value | ValueTuple
+
+
 @attrs.define(eq=False)
 class Assignment(Op):
     """

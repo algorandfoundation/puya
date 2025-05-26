@@ -15,6 +15,7 @@ from puya.ir.models import (
     BytesConstant,
     Intrinsic,
     InvokeSubroutine,
+    MultiValue,
     Register,
     UInt64Constant,
     Undefined,
@@ -583,6 +584,16 @@ class OpFactory:
                 assignment_location=self.source_location,
             )
             return target
+
+    def materialise_multi_value(self, result: ValueProvider) -> MultiValue:
+        if isinstance(result, MultiValue):
+            return result
+        else:
+            values = self.materialise_values(result)
+            if len(values) == 1:
+                return values[0]
+            else:
+                return ValueTuple(values=values, source_location=self.source_location)
 
 
 def undefined_value(
