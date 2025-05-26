@@ -168,9 +168,9 @@ subroutine new_game:
     new_game_after_if_else@4:                                                                                                  (𝕡) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:30
         // self.host = Txn.sender
-        txn Sender                                                                                                             (𝕡) move.0#0,move.1#0 | materialized_values%0#0
-        byte "host"                                                                                                            (𝕡) move.0#0,move.1#0 | materialized_values%0#0,"host"
-        l-load materialized_values%0#0 1                                                                                       (𝕡) move.0#0,move.1#0 | "host",materialized_values%0#0
+        txn Sender                                                                                                             (𝕡) move.0#0,move.1#0 | tmp%0#0
+        byte "host"                                                                                                            (𝕡) move.0#0,move.1#0 | tmp%0#0,"host"
+        l-load tmp%0#0 1                                                                                                       (𝕡) move.0#0,move.1#0 | "host",tmp%0#0
         app_global_put                                                                                                         (𝕡) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:31
         // self.game = Game.from_bytes(op.bzero(9))
@@ -183,7 +183,7 @@ subroutine new_game:
         // assert column < 3 and row < 3, "Move must be in range"
         p-load move.0#0                                                                                                        (𝕡) move.0#0,move.1#0 | move.0#0 (copy)
         int 3                                                                                                                  (𝕡) move.0#0,move.1#0 | move.0#0 (copy),3
-        <                                                                                                                      (𝕡) move.0#0,move.1#0 | tmp%0#0
+        <                                                                                                                      (𝕡) move.0#0,move.1#0 | tmp%1#0
         bz new_game_bool_false@7 ; b new_game_and_contd@5                                                                      (𝕡) move.0#0,move.1#0 |
 
     new_game_and_contd@5:                                                                                                      (𝕡) move.0#0,move.1#0 |
@@ -191,7 +191,7 @@ subroutine new_game:
         // assert column < 3 and row < 3, "Move must be in range"
         p-load move.1#0                                                                                                        (𝕡) move.0#0,move.1#0 | move.1#0 (copy)
         int 3                                                                                                                  (𝕡) move.0#0,move.1#0 | move.1#0 (copy),3
-        <                                                                                                                      (𝕡) move.0#0,move.1#0 | tmp%1#0
+        <                                                                                                                      (𝕡) move.0#0,move.1#0 | tmp%2#0
         bz new_game_bool_false@7 ; b new_game_bool_true@6                                                                      (𝕡) move.0#0,move.1#0 |
 
     new_game_bool_true@6:                                                                                                      (𝕡) move.0#0,move.1#0 |
@@ -255,9 +255,9 @@ subroutine join_game:
         assert // Host already has a challenger                                                                                (𝕡) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:40
         // self.challenger.value = Txn.sender
-        txn Sender                                                                                                             (𝕡) move.0#0,move.1#0 | materialized_values%0#0
-        byte "challenger"                                                                                                      (𝕡) move.0#0,move.1#0 | materialized_values%0#0,"challenger"
-        l-load materialized_values%0#0 1                                                                                       (𝕡) move.0#0,move.1#0 | "challenger",materialized_values%0#0
+        txn Sender                                                                                                             (𝕡) move.0#0,move.1#0 | tmp%1#0
+        byte "challenger"                                                                                                      (𝕡) move.0#0,move.1#0 | tmp%1#0,"challenger"
+        l-load tmp%1#0 1                                                                                                       (𝕡) move.0#0,move.1#0 | "challenger",tmp%1#0
         app_global_put                                                                                                         (𝕡) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:41
         // self.make_move(arc4.UInt8(CHALLENGER), move)
@@ -444,9 +444,9 @@ subroutine make_move:
         assert // check self.turns exists                                                                                      (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0,maybe_value%2#0
         l-load maybe_value%2#0 0                                                                                               (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0,maybe_value%2#0
         int 1                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0,maybe_value%2#0,1
-        +                                                                                                                      (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0,materialized_values%0#0
-        byte "turns"                                                                                                           (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0,materialized_values%0#0,"turns"
-        l-load materialized_values%0#0 1                                                                                       (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0,"turns",materialized_values%0#0
+        +                                                                                                                      (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0,tmp%3#0
+        byte "turns"                                                                                                           (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0,tmp%3#0,"turns"
+        l-load tmp%3#0 1                                                                                                       (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0,"turns",tmp%3#0
         app_global_put                                                                                                         (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | bytes_offset%0#0
         // tictactoe/tictactoe.py:74
         // g = self.game.copy()
@@ -490,11 +490,11 @@ subroutine make_move:
     make_move_if_body@12:                                                                                                      (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
         // tictactoe/tictactoe.py:77
         // return True
-        int 1                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%3#0
-        x-store tmp%3#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 |
+        int 1                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%4#0
+        x-store tmp%4#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 |
         // tictactoe/tictactoe.py:67
         // if self.did_win(player, column=column, row=row):
-        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 | 
+        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 | 
 
     make_move_after_if_else@13:                                                                                                (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
         // tictactoe/tictactoe.py:79
@@ -533,17 +533,17 @@ subroutine make_move:
         extract3 // on error: index access is out of bounds                                                                    (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | encoded_element%11#0
         f-load encoded_element%9#0                                                                                             (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | encoded_element%11#0,encoded_element%9#0
         l-load encoded_element%11#0 1                                                                                          (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | encoded_element%9#0,encoded_element%11#0
-        b==                                                                                                                    (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%3#0
+        b==                                                                                                                    (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%3#1
         bz make_move_after_if_else@16 ; b make_move_if_body@15                                                                 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
 
     make_move_if_body@15:                                                                                                      (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
         // tictactoe/tictactoe.py:80
         // return True
-        int 1                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%3#0
-        x-store tmp%3#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 |
+        int 1                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%4#0
+        x-store tmp%4#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 |
         // tictactoe/tictactoe.py:67
         // if self.did_win(player, column=column, row=row):
-        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 | 
+        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 | 
 
     make_move_after_if_else@16:                                                                                                (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
         // tictactoe/tictactoe.py:83
@@ -578,11 +578,11 @@ subroutine make_move:
     make_move_if_body@19:                                                                                                      (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
         // tictactoe/tictactoe.py:85
         // return True
-        int 1                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%3#0
-        x-store tmp%3#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 |
+        int 1                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%4#0
+        x-store tmp%4#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 |
         // tictactoe/tictactoe.py:67
         // if self.did_win(player, column=column, row=row):
-        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 | 
+        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 | 
 
     make_move_after_if_else@20:                                                                                                (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
         // tictactoe/tictactoe.py:86
@@ -607,25 +607,25 @@ subroutine make_move:
     make_move_if_body@22:                                                                                                      (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
         // tictactoe/tictactoe.py:87
         // return True
-        int 1                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%3#0
-        x-store tmp%3#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 |
+        int 1                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%4#0
+        x-store tmp%4#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 |
         // tictactoe/tictactoe.py:67
         // if self.did_win(player, column=column, row=row):
-        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 | 
+        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 | 
 
     make_move_after_if_else@24:                                                                                                (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
         // tictactoe/tictactoe.py:88
         // return False
-        int 0                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%3#0
-        x-store tmp%3#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 |
+        int 0                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%4#0
+        x-store tmp%4#0                                                                                                        (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 |
         // tictactoe/tictactoe.py:67
         // if self.did_win(player, column=column, row=row):
-        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 | 
+        b make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25 (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 | 
 
-    make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25:                                         (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%3#0 |
+    make_move_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win@25:                                         (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | (𝕏) tmp%4#0 |
         // tictactoe/tictactoe.py:67
         // if self.did_win(player, column=column, row=row):
-        x-load tmp%3#0                                                                                                         (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%3#0
+        x-load tmp%4#0                                                                                                         (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%4#0
         bz make_move_else_body@6 ; b make_move_if_body@5                                                                       (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
 
     make_move_if_body@5:                                                                                                       (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
@@ -645,7 +645,7 @@ subroutine make_move:
         assert // check self.turns exists                                                                                      (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | maybe_value%3#0
         l-load maybe_value%3#0 0                                                                                               (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | maybe_value%3#0
         int 9                                                                                                                  (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | maybe_value%3#0,9
-        ==                                                                                                                     (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%4#0
+        ==                                                                                                                     (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 | tmp%5#0
         bz make_move_after_if_else@9 ; b make_move_if_body@7                                                                   (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |
 
     make_move_if_body@7:                                                                                                       (𝕡) player#0,move.0#0,move.1#0 | (𝕗) encoded_element%0#0,encoded_element%3#0,encoded_element%6#0,encoded_element%8#0,encoded_element%9#0,g#0 |

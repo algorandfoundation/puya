@@ -10,20 +10,20 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
     block@0: // L193
         let new_head#0: bytes = 0x
         let item_offset_adjustment#0: uint64 = (* new_items_count#0 2u)
-        let tmp%0#0: uint64 = (* array_items_count#0 2u)
+        let tmp%1#0: uint64 = (* array_items_count#0 2u)
         let head_offset#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L203
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@2)
         let new_head#1: bytes = φ(new_head#0 <- block@0, new_head#2 <- block@2)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%0#0)
+        let continue_looping%0#0: bool = (< head_offset#1 tmp%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L204
         let item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#1)
-        let tmp%1#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
-        let tmp%2#0: bytes = (itob tmp%1#0)
-        let tmp%3#0: bytes = ((extract 6 2) tmp%2#0)
-        let new_head#2: bytes = (concat new_head#1 tmp%3#0)
+        let tmp%3#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
+        let tmp%4#0: bytes = (itob tmp%3#0)
+        let tmp%5#0: bytes = ((extract 6 2) tmp%4#0)
+        let new_head#2: bytes = (concat new_head#1 tmp%5#0)
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@1
     block@4: // after_for_L203
@@ -37,23 +37,23 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L209
         let item_offset#1: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#4)
-        let tmp%5#0: uint64 = (+ item_offset_adjustment#2 item_offset#1)
-        let tmp%6#0: bytes = (itob tmp%5#0)
-        let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
-        let new_head#4: bytes = (concat new_head#3 tmp%7#0)
+        let tmp%10#0: uint64 = (+ item_offset_adjustment#2 item_offset#1)
+        let tmp%11#0: bytes = (itob tmp%10#0)
+        let tmp%12#0: bytes = ((extract 6 2) tmp%11#0)
+        let new_head#4: bytes = (concat new_head#3 tmp%12#0)
         let head_offset#5: uint64 = (+ head_offset#4 2u)
         goto block@5
     block@8: // after_for_L208
-        let tmp%8#0: uint64 = (+ array_items_count#0 new_items_count#0)
-        let tmp%9#0: bytes = (itob tmp%8#0)
-        let tmp%10#0: bytes = ((extract 6 2) tmp%9#0)
-        let tmp%11#0: bytes = (concat tmp%10#0 new_head#3)
-        let tmp%14#0: bytes = (substring3 array_head_and_tail#0 tmp%0#0 item_offset_adjustment#2)
-        let tmp%15#0: bytes = (concat tmp%11#0 tmp%14#0)
-        let tmp%17#0: uint64 = (len new_head_and_tail#0)
-        let tmp%18#0: bytes = (substring3 new_head_and_tail#0 item_offset_adjustment#0 tmp%17#0)
-        let tmp%19#0: bytes = (concat tmp%15#0 tmp%18#0)
-        return tmp%19#0
+        let tmp%14#0: uint64 = (+ array_items_count#0 new_items_count#0)
+        let tmp%15#0: bytes = (itob tmp%14#0)
+        let tmp%16#0: bytes = ((extract 6 2) tmp%15#0)
+        let tmp%17#0: bytes = (concat tmp%16#0 new_head#3)
+        let tmp%20#0: bytes = (substring3 array_head_and_tail#0 tmp%1#0 item_offset_adjustment#2)
+        let tmp%21#0: bytes = (concat tmp%17#0 tmp%20#0)
+        let tmp%23#0: uint64 = (len new_head_and_tail#0)
+        let tmp%24#0: bytes = (substring3 new_head_and_tail#0 item_offset_adjustment#0 tmp%23#0)
+        let tmp%25#0: bytes = (concat tmp%21#0 tmp%24#0)
+        return tmp%25#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
     block@0: // L244
@@ -62,38 +62,38 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         let array_head_and_tail#0: bytes = ((extract 2 0) source#0)
         let tmp%0#1: uint64 = (* index#0 2u)
         let original_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#1)
-        let tmp%1#1: uint64 = (+ index#0 1u)
-        let head_offset#0: uint64 = (* tmp%1#1 2u)
+        let tmp%2#1: uint64 = (+ index#0 1u)
+        let head_offset#0: uint64 = (* tmp%2#1 2u)
         let next_item_offset#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#0)
         let end_of_tail#0: uint64 = (len array_head_and_tail#0)
-        let tmp%3#0: uint64 = (- array_length#0 index#0)
-        let is_before_end#0: uint64 = (- tmp%3#0 1u)
+        let tmp%6#0: uint64 = (- array_length#0 index#0)
+        let is_before_end#0: uint64 = (- tmp%6#0 1u)
         let end_offset#0: uint64 = (select end_of_tail#0 next_item_offset#0 is_before_end#0)
         let original_item_length#0: uint64 = (- end_offset#0 original_offset#0)
         let new_item_length#0: uint64 = (len new_item#0)
-        let tmp%4#0: bytes = (substring3 array_head_and_tail#0 0u original_offset#0)
-        let tmp%5#0: bytes = (concat tmp%4#0 new_item#0)
-        let tmp%6#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
-        let new_head_and_tail#0: bytes = (concat tmp%5#0 tmp%6#0)
-        let tmp%7#0: uint64 = (* array_length#0 2u)
+        let tmp%11#0: bytes = (substring3 array_head_and_tail#0 0u original_offset#0)
+        let tmp%12#0: bytes = (concat tmp%11#0 new_item#0)
+        let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
+        let new_head_and_tail#0: bytes = (concat tmp%12#0 tmp%13#0)
+        let tmp%15#0: uint64 = (* array_length#0 2u)
         goto block@2
     block@2: // for_header_L273
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
-        let continue_looping%0#0: bool = (< head_offset#1 tmp%7#0)
+        let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L274
         let tail_offset#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
         let tail_offset#1: uint64 = (+ tail_offset#0 new_item_length#0)
         let tail_offset#2: uint64 = (- tail_offset#1 original_item_length#0)
-        let tmp%10#0: bytes = (itob tail_offset#2)
-        let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%10#0)
+        let tmp%21#0: bytes = (itob tail_offset#2)
+        let tail_offset_bytes#0: bytes = ((extract 6 2) tmp%21#0)
         let new_head_and_tail#2: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@2
     block@5: // after_for_L273
-        let tmp%2#0: bytes = (concat size_b#0 new_head_and_tail#1)
-        return tmp%2#0
+        let tmp%4#0: bytes = (concat size_b#0 new_head_and_tail#1)
+        return tmp%4#0
 
 subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -> bool:
     block@0: // L22
@@ -188,8 +188,8 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let encoded%1#0: Encoded((uint64,len+utf8[])[]) = 0x00020000000000000001000a000362617a
         let as_Encoded(len+(uint64,len+utf8[])[])%0#0: Encoded(len+(uint64,len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, 0x00020000000000000001000a000362617a)
         (app_global_put "glob" as_Encoded(len+(uint64,len+utf8[])[])%0#0)
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
+        let tmp%1#0: bytes[32] = (txn Sender)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%1#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let extract_uint16%1#0: uint64 = (extract_uint16 maybe_value%1#0 0u)
         let extract_to_end%1#0: bytes = ((extract 2 0) maybe_value%1#0)
@@ -198,7 +198,7 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let encoded%2#0: Encoded(((uint64,len+utf8[]))) = 0x0002
         let encoded%3#0: Encoded((uint64,len+utf8[])[]) = 0x00020000000000000001000a000362617a
         let as_Encoded(len+(uint64,len+utf8[])[])%1#0: Encoded(len+(uint64,len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, 0x00020000000000000001000a000362617a)
-        (app_local_put tmp%0#0 "loc" as_Encoded(len+(uint64,len+utf8[])[])%1#0)
+        (app_local_put tmp%1#0 "loc" as_Encoded(len+(uint64,len+utf8[])[])%1#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box")
         (assert maybe_exists%2#0) // check self.box exists
         let extract_uint16%2#0: uint64 = (extract_uint16 maybe_value%2#0 0u)
@@ -210,8 +210,8 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let as_Encoded(len+(uint64,len+utf8[])[])%2#0: Encoded(len+(uint64,len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, 1u, 0x00020000000000000001000a000362617a)
         (box_del "box")
         (box_put "box" as_Encoded(len+(uint64,len+utf8[])[])%2#0)
-        let materialized_values%1#0: bytes[32] = (txn Sender)
-        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%1#0)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.map entry exists
         let extract_uint16%3#0: uint64 = (extract_uint16 maybe_value%3#0 0u)
@@ -234,11 +234,11 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
         let array_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%0#0)
+        let length%1#0: uint64 = maybe_value%0#0.length
         let item_offset_offset%0#0: uint64 = 0u
         let item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 0u)
-        let array_length%0#0: uint64 = maybe_value%0#0.length
         let next_index%0#0: uint64 = 1u
-        let has_next%0#0: uint64 = (- array_length%0#0 1u) // on error: index access is out of bounds
+        let has_next%0#0: uint64 = (- length%1#0 1u) // on error: index access is out of bounds
         let end_of_array%0#0: uint64 = (len array_head_and_tail%0#0)
         let next_item_offset_offset%0#0: uint64 = 2u
         let next_item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 2u)
@@ -247,23 +247,23 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let item_offset%1#0: uint64 = (extract_uint16 substring3%0#0 8u)
         let data_up_to_item%0#0: bytes = (extract3 substring3%0#0 0u item_offset%1#0)
         let updated_data%0#0: bytes = (concat data_up_to_item%0#0 0x00086d6f646966696564)
-        let array_length%1#0: uint64 = maybe_value%0#0.length
-        let lt%0#0: bool = (< 0u array_length%1#0)
-        (assert array_length%1#0) // index access is out of bounds
+        let length%2#0: uint64 = maybe_value%0#0.length
+        let lt%0#0: bool = (< 0u length%2#0)
+        (assert length%2#0) // index access is out of bounds
         let updated_array%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%0#0, updated_data%0#0, 0u)
         (app_global_put "glob" updated_array%0#0)
-        let length%1#0: uint64 = 8u
+        let length%3#0: uint64 = 8u
         let length_uint16%1#0: bytes = 0x0008
         let encoded_value%1#0: bytes = 0x00086d6f646966696564
         let tmp%0#0: bytes[32] = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let array_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#0)
+        let length%4#0: uint64 = maybe_value%1#0.length
         let item_offset_offset%1#0: uint64 = 0u
         let item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%1#0 0u)
-        let array_length%2#0: uint64 = maybe_value%1#0.length
         let next_index%1#0: uint64 = 1u
-        let has_next%1#0: uint64 = (- array_length%2#0 1u) // on error: index access is out of bounds
+        let has_next%1#0: uint64 = (- length%4#0 1u) // on error: index access is out of bounds
         let end_of_array%1#0: uint64 = (len array_head_and_tail%1#0)
         let next_item_offset_offset%1#0: uint64 = 2u
         let next_item_offset%1#0: uint64 = (extract_uint16 array_head_and_tail%1#0 2u)
@@ -272,22 +272,22 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let item_offset%3#0: uint64 = (extract_uint16 substring3%1#0 8u)
         let data_up_to_item%1#0: bytes = (extract3 substring3%1#0 0u item_offset%3#0)
         let updated_data%1#0: bytes = (concat data_up_to_item%1#0 0x00086d6f646966696564)
-        let array_length%3#0: uint64 = maybe_value%1#0.length
-        let lt%1#0: bool = (< 0u array_length%3#0)
-        (assert array_length%3#0) // index access is out of bounds
+        let length%5#0: uint64 = maybe_value%1#0.length
+        let lt%1#0: bool = (< 0u length%5#0)
+        (assert length%5#0) // index access is out of bounds
         let updated_array%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%1#0, updated_data%1#0, 0u)
         (app_local_put tmp%0#0 "loc" updated_array%1#0)
-        let length%2#0: uint64 = 8u
+        let length%6#0: uint64 = 8u
         let length_uint16%2#0: bytes = 0x0008
         let encoded_value%2#0: bytes = 0x00086d6f646966696564
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box")
         (assert maybe_exists%2#0) // check self.box exists
         let array_head_and_tail%2#0: bytes = ((extract 2 0) maybe_value%2#0)
+        let length%7#0: uint64 = maybe_value%2#0.length
         let item_offset_offset%2#0: uint64 = 0u
         let item_offset%4#0: uint64 = (extract_uint16 array_head_and_tail%2#0 0u)
-        let array_length%4#0: uint64 = maybe_value%2#0.length
         let next_index%2#0: uint64 = 1u
-        let has_next%2#0: uint64 = (- array_length%4#0 1u) // on error: index access is out of bounds
+        let has_next%2#0: uint64 = (- length%7#0 1u) // on error: index access is out of bounds
         let end_of_array%2#0: uint64 = (len array_head_and_tail%2#0)
         let next_item_offset_offset%2#0: uint64 = 2u
         let next_item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%2#0 2u)
@@ -296,13 +296,13 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let item_offset%5#0: uint64 = (extract_uint16 substring3%2#0 8u)
         let data_up_to_item%2#0: bytes = (extract3 substring3%2#0 0u item_offset%5#0)
         let updated_data%2#0: bytes = (concat data_up_to_item%2#0 0x00086d6f646966696564)
-        let array_length%5#0: uint64 = maybe_value%2#0.length
-        let lt%2#0: bool = (< 0u array_length%5#0)
-        (assert array_length%5#0) // index access is out of bounds
+        let length%8#0: uint64 = maybe_value%2#0.length
+        let lt%2#0: bool = (< 0u length%8#0)
+        (assert length%8#0) // index access is out of bounds
         let updated_array%2#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%2#0, updated_data%2#0, 0u)
         (box_del "box")
         (box_put "box" updated_array%2#0)
-        let length%3#0: uint64 = 8u
+        let length%9#0: uint64 = 8u
         let length_uint16%3#0: bytes = 0x0008
         let encoded_value%3#0: bytes = 0x00086d6f646966696564
         let materialized_values%0#0: bytes[32] = (txn Sender)
@@ -310,11 +310,11 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.map entry exists
         let array_head_and_tail%3#0: bytes = ((extract 2 0) maybe_value%3#0)
+        let length%10#0: uint64 = maybe_value%3#0.length
         let item_offset_offset%3#0: uint64 = 0u
         let item_offset%6#0: uint64 = (extract_uint16 array_head_and_tail%3#0 0u)
-        let array_length%6#0: uint64 = maybe_value%3#0.length
         let next_index%3#0: uint64 = 1u
-        let has_next%3#0: uint64 = (- array_length%6#0 1u) // on error: index access is out of bounds
+        let has_next%3#0: uint64 = (- length%10#0 1u) // on error: index access is out of bounds
         let end_of_array%3#0: uint64 = (len array_head_and_tail%3#0)
         let next_item_offset_offset%3#0: uint64 = 2u
         let next_item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%3#0 2u)
@@ -323,9 +323,9 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let item_offset%7#0: uint64 = (extract_uint16 substring3%3#0 8u)
         let data_up_to_item%3#0: bytes = (extract3 substring3%3#0 0u item_offset%7#0)
         let updated_data%3#0: bytes = (concat data_up_to_item%3#0 0x00086d6f646966696564)
-        let array_length%7#0: uint64 = maybe_value%3#0.length
-        let lt%3#0: bool = (< 0u array_length%7#0)
-        (assert array_length%7#0) // index access is out of bounds
+        let length%11#0: uint64 = maybe_value%3#0.length
+        let lt%3#0: bool = (< 0u length%11#0)
+        (assert length%11#0) // index access is out of bounds
         let updated_array%3#0: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%3#0, updated_data%3#0, 0u)
         (box_del box_prefixed_key%0#0)
         (box_put box_prefixed_key%0#0 updated_array%3#0)

@@ -103,13 +103,16 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let encoded%19#0: Encoded((uint64,uint64)) = (concat encoded%18#0 0x000000000000007b)
         let encoded%20#0: Encoded((uint64,uint64)) = (concat encoded%19#0 0x)
         let immutable2#0: Encoded((uint64,uint64)) = encoded%20#0
-        let reinterpret_biguint%0#0: biguint = (extract3 immutable2#0 8u 8u) // on error: Index access is out of bounds
-        let tmp%8#0: bool = (b== reinterpret_biguint%0#0 0x000000000000007b)
-        (assert tmp%8#0)
-        let reinterpret_biguint%2#0: biguint = (extract3 immutable2#0 0u 8u) // on error: Index access is out of bounds
-        let reinterpret_biguint%3#0: biguint = (extract3 immutable#0 0u 8u) // on error: Index access is out of bounds
-        let tmp%9#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+        let tmp%8#0: bytes = (extract3 immutable2#0 8u 8u) // on error: Index access is out of bounds
+        let reinterpret_biguint%0#0: biguint = tmp%8#0
+        let tmp%9#0: bool = (b== reinterpret_biguint%0#0 0x000000000000007b)
         (assert tmp%9#0)
+        let tmp%10#0: bytes = (extract3 immutable2#0 0u 8u) // on error: Index access is out of bounds
+        let reinterpret_biguint%2#0: biguint = tmp%10#0
+        let tmp%11#0: bytes = (extract3 immutable#0 0u 8u) // on error: Index access is out of bounds
+        let reinterpret_biguint%3#0: biguint = tmp%11#0
+        let tmp%12#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+        (assert tmp%12#0)
         return 1u
 
 subroutine test_cases.arc4_types.structs.add(v1: Encoded((uint64,uint64)), v2: Encoded((uint64,uint64))) -> <Encoded((uint64,uint64)), Encoded((uint64,uint64)), Encoded((uint64,uint64))>:

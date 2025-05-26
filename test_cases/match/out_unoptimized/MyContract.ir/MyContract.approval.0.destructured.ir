@@ -12,8 +12,8 @@ main test_cases.match.contract.MyContract.approval_program:
 
 subroutine test_cases.match.contract.MyContract.match_uint64() -> void:
     block@0: // L16
-        let materialized_values%0#0: uint64 = (txn NumAppArgs)
-        let n#0: uint64 = materialized_values%0#0
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let n#0: uint64 = tmp%0#0
         switch n#0 {0u => block@1, 10u => block@2, * => block@3}
     block@1: // switch_case_0_L21
         (log 0x48656c6c6f)
@@ -28,8 +28,8 @@ subroutine test_cases.match.contract.MyContract.match_uint64() -> void:
 
 subroutine test_cases.match.contract.MyContract.match_bytes() -> void:
     block@0: // L27
-        let materialized_values%0#0: bytes = (txna ApplicationArgs 0)
-        let n#0: bytes = materialized_values%0#0
+        let tmp%0#0: bytes = (txna ApplicationArgs 0)
+        let n#0: bytes = tmp%0#0
         switch n#0 {0x => block@1, 0x3130 => block@2, * => block@3}
     block@1: // switch_case_0_L32
         (log 0x48656c6c6f206279746573)
@@ -46,8 +46,8 @@ subroutine test_cases.match.contract.MyContract.match_biguint() -> void:
     block@0: // L38
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: biguint = (itob tmp%0#0)
-        let materialized_values%0#0: biguint = (b* tmp%1#0 10b)
-        let n#0: biguint = materialized_values%0#0
+        let tmp%2#0: biguint = (b* tmp%1#0 10b)
+        let n#0: biguint = tmp%2#0
         switch n#0 {0b => block@1, 10b => block@2, * => block@3}
     block@1: // switch_case_0_L43
         (log 0x48656c6c6f2062696775696e74)
@@ -62,8 +62,8 @@ subroutine test_cases.match.contract.MyContract.match_biguint() -> void:
 
 subroutine test_cases.match.contract.MyContract.match_address() -> void:
     block@0: // L49
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        let n#0: bytes[32] = materialized_values%0#0
+        let tmp%0#0: bytes[32] = (txn Sender)
+        let n#0: bytes[32] = tmp%0#0
         switch n#0 {addr AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ => block@1, addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA => block@2, * => block@3}
     block@1: // switch_case_0_L54
         (log 0x48656c6c6f2061646472657373)
@@ -78,8 +78,8 @@ subroutine test_cases.match.contract.MyContract.match_address() -> void:
 
 subroutine test_cases.match.contract.MyContract.match_attributes() -> void:
     block@0: // L60
-        let materialized_values%0#0: uint64 = (txn NumAppArgs)
-        let n#0: uint64 = materialized_values%0#0
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let n#0: uint64 = tmp%0#0
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "case_one")
         (assert maybe_exists%0#0) // check self.case_one exists
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "case_two")
@@ -100,8 +100,8 @@ subroutine test_cases.match.contract.MyContract.match_attributes() -> void:
 subroutine test_cases.match.contract.MyContract.match_bools() -> void:
     block@0: // L74
         let tmp%0#0: uint64 = (txn NumAppArgs)
-        let materialized_values%0#0: bool = (> tmp%0#0 0u)
-        let n#0: bool = materialized_values%0#0
+        let tmp%1#0: bool = (> tmp%0#0 0u)
+        let n#0: bool = tmp%1#0
         switch n#0 {1u => block@1, 0u => block@2, * => block@3}
     block@1: // switch_case_0_L79
         (log 0x48656c6c6f2054727565)

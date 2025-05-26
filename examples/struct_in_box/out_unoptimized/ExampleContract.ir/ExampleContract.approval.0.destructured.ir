@@ -80,9 +80,9 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: Encoded(uint64)) -> Encoded((len+utf8[],uint64,uint64)):
     block@0: // L11
-        let (materialized_values%0#0: bytes, materialized_values%1#0: bool) = (box_get user_id#0)
-        let box_data#0: bytes = materialized_values%0#0
-        let exists#0: bool = materialized_values%1#0
+        let (tmp%0#0: bytes, tmp%1#0: bool) = (box_get user_id#0)
+        let box_data#0: bytes = tmp%0#0
+        let exists#0: bool = tmp%1#0
         (assert exists#0) // User with that id does not exist
         let reinterpret_Encoded((len+utf8[],uint64,uint64))%0#0: Encoded((len+utf8[],uint64,uint64)) = box_data#0
         return reinterpret_Encoded((len+utf8[],uint64,uint64))%0#0
@@ -90,16 +90,16 @@ subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id
 subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: Encoded((len+utf8[],uint64,uint64))) -> Encoded((len+utf8[],uint64,uint64)):
     block@0: // L17
         let user%out#0: Encoded((len+utf8[],uint64,uint64)) = user#0
-        let materialized_values%0#0: bytes = (extract3 user#0 2u 8u) // on error: Index access is out of bounds
-        let box_key#0: bytes = materialized_values%0#0
+        let tmp%0#0: bytes = (extract3 user#0 2u 8u) // on error: Index access is out of bounds
+        let box_key#0: bytes = tmp%0#0
         (box_del box_key#0)
         (box_put box_key#0 user#0)
         return user%out#0
 
 subroutine examples.struct_in_box.contract.ExampleContract.box_exists(user_id: Encoded(uint64)) -> bool:
     block@0: // L25
-        let (materialized_values%0#0: bytes, materialized_values%1#0: bool) = (box_get user_id#0)
-        let exists#0: bool = materialized_values%1#0
+        let (tmp%0#0: bytes, tmp%1#0: bool) = (box_get user_id#0)
+        let exists#0: bool = tmp%1#0
         return exists#0
 
 subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[],uint64,uint64))) -> void:
@@ -113,8 +113,8 @@ subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encode
 
 subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: Encoded(uint64), asset: uint64) -> void:
     block@0: // L35
-        let materialized_values%0#0: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
-        let user#0: Encoded((len+utf8[],uint64,uint64)) = materialized_values%0#0
+        let tmp%0#0: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
+        let user#0: Encoded((len+utf8[],uint64,uint64)) = tmp%0#0
         let val_as_bytes%0#0: bytes[8] = (itob asset#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         let updated_data%0#0: bytes = (replace3 user#0 10u as_Encoded(uint64)%0#0)

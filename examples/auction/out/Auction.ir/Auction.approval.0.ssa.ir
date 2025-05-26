@@ -117,8 +117,8 @@ subroutine examples.auction.contract.Auction.__init__() -> void:
         (app_global_put "previous_bid" 0u)
         (app_global_put "asa_amount" 0u)
         (app_global_put "asa" 0u)
-        let materialized_values%0#0: bytes[32] = (global ZeroAddress)
-        (app_global_put "previous_bidder" materialized_values%0#0)
+        let tmp%0#0: bytes[32] = (global ZeroAddress)
+        (app_global_put "previous_bidder" tmp%0#0)
         return 
 
 subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
@@ -212,11 +212,11 @@ subroutine examples.auction.contract.Auction.start_auction(starting_price: uint6
         let tmp%5#0: bytes[32] = (global CurrentApplicationAddress)
         let tmp%6#0: bool = (== tmp%4#0 tmp%5#0)
         (assert tmp%6#0) // axfer must transfer to this app
-        let materialized_values%0#0: uint64 = ((gtxns AssetAmount) axfer#0)
-        (app_global_put "asa_amount" materialized_values%0#0)
-        let tmp%7#0: uint64 = (global LatestTimestamp)
-        let materialized_values%1#0: uint64 = (+ tmp%7#0 length#0)
-        (app_global_put "auction_end" materialized_values%1#0)
+        let tmp%7#0: uint64 = ((gtxns AssetAmount) axfer#0)
+        (app_global_put "asa_amount" tmp%7#0)
+        let tmp%8#0: uint64 = (global LatestTimestamp)
+        let tmp%9#0: uint64 = (+ tmp%8#0 length#0)
+        (app_global_put "auction_end" tmp%9#0)
         (app_global_put "previous_bid" starting_price#0)
         return 
 
@@ -240,13 +240,13 @@ subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
         (assert maybe_exists%1#0) // check self.previous_bid exists
         let tmp%6#0: bool = (> tmp%5#0 maybe_value%1#0)
         (assert tmp%6#0) // Bid must be higher than previous bid
-        let materialized_values%0#0: uint64 = ((gtxns Amount) pay#0)
-        (app_global_put "previous_bid" materialized_values%0#0)
-        let materialized_values%1#0: bytes[32] = ((gtxns Sender) pay#0)
-        (app_global_put "previous_bidder" materialized_values%1#0)
-        let materialized_values%2#0: uint64 = ((gtxns Amount) pay#0)
-        let tmp%7#0: bytes[32] = (txn Sender)
-        (app_local_put tmp%7#0 "claim" materialized_values%2#0)
+        let tmp%7#0: uint64 = ((gtxns Amount) pay#0)
+        (app_global_put "previous_bid" tmp%7#0)
+        let tmp%8#0: bytes[32] = ((gtxns Sender) pay#0)
+        (app_global_put "previous_bidder" tmp%8#0)
+        let tmp%9#0: uint64 = ((gtxns Amount) pay#0)
+        let tmp%10#0: bytes[32] = (txn Sender)
+        (app_local_put tmp%10#0 "claim" tmp%9#0)
         return 
 
 subroutine examples.auction.contract.Auction.claim_bids() -> void:
@@ -264,8 +264,8 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
     block@1: // if_body_L88
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bid")
         (assert maybe_exists%2#0) // check self.previous_bid exists
-        let materialized_values%0#0: uint64 = (- amount#0 maybe_value%2#0)
-        let amount#1: uint64 = materialized_values%0#0
+        let tmp%3#0: uint64 = (- amount#0 maybe_value%2#0)
+        let amount#1: uint64 = tmp%3#0
         goto block@2
     block@2: // after_if_else_L87
         let amount#2: uint64 = φ(amount#0 <- block@0, amount#1 <- block@1)
@@ -333,9 +333,9 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
         goto block@3
     block@3: // next_txn_L90
         itxn_submit
-        let materialized_values%1#0: uint64 = (- original_amount#0 amount#2)
-        let tmp%3#0: bytes[32] = (txn Sender)
-        (app_local_put tmp%3#0 "claim" materialized_values%1#0)
+        let tmp%4#0: uint64 = (- original_amount#0 amount#2)
+        let tmp%5#0: bytes[32] = (txn Sender)
+        (app_local_put tmp%5#0 "claim" tmp%4#0)
         return 
 
 subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:

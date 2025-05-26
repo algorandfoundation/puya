@@ -26,15 +26,15 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         (app_global_del "winner")
         goto block@9
     block@9: // after_if_else_L22
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        (app_global_put "host" materialized_values%0#0)
+        let tmp%0#6: bytes[32] = (txn Sender)
+        (app_global_put "host" tmp%0#6)
         let reinterpret_Encoded(uint8[3][3])%0#0: Encoded(uint8[3][3]) = (bzero 9u)
         (app_global_put "game" reinterpret_Encoded(uint8[3][3])%0#0)
-        let tmp%0#1: bool = (< move.0#0 3u)
-        goto tmp%0#1 ? block@10 : block@12
+        let tmp%1#4: bool = (< move.0#0 3u)
+        goto tmp%1#4 ? block@10 : block@12
     block@10: // and_contd_L33
-        let tmp%1#3: bool = (< move.1#0 3u)
-        goto tmp%1#3 ? block@11 : block@12
+        let tmp%2#2: bool = (< move.1#0 3u)
+        goto tmp%2#2 ? block@11 : block@12
     block@11: // bool_true_L33
         let and_result%0#0: bool = 1u
         goto block@13
@@ -66,8 +66,8 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         let (_%0#0: Encoded(uint8), maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         let tmp%0#1: bool = (! maybe_exists%0#0)
         (assert tmp%0#1) // Host already has a challenger
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        (app_global_put "challenger" materialized_values%0#0)
+        let tmp%1#3: bytes[32] = (txn Sender)
+        (app_global_put "challenger" tmp%1#3)
         examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x02, move.0#0, move.1#0)
         let examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#0
@@ -159,8 +159,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         (app_global_put "game" updated_array%1#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%2#0) // check self.turns exists
-        let materialized_values%0#0: uint64 = (+ maybe_value%2#0 1u)
-        (app_global_put "turns" materialized_values%0#0)
+        let tmp%3#0: uint64 = (+ maybe_value%2#0 1u)
+        (app_global_put "turns" tmp%3#0)
         let (g#0: Encoded(uint8[3][3]), maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%0#0) // check self.game exists
         let encoded_element%0#0: bytes = (extract3 g#0 bytes_offset%0#0 3u) // on error: index access is out of bounds
@@ -174,7 +174,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         goto tmp%1#0 ? block@12 : block@13
     block@12: // if_body_L77
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0: bool = 1u
-        let tmp%3#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0
+        let tmp%4#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0
         goto block@25
     block@13: // after_if_else_L76
         let encoded_element%6#0: bytes = ((extract 0 3) g#0) // on error: index access is out of bounds
@@ -186,8 +186,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
     block@14: // and_contd_L79
         let encoded_element%10#0: bytes = ((extract 6 3) g#0) // on error: index access is out of bounds
         let encoded_element%11#0: bytes = (extract3 encoded_element%10#0 move.0#0 1u) // on error: index access is out of bounds
-        let tmp%3#0: bool = (b== encoded_element%9#0 encoded_element%11#0)
-        goto tmp%3#0 ? block@12 : block@16
+        let tmp%3#1: bool = (b== encoded_element%9#0 encoded_element%11#0)
+        goto tmp%3#1 ? block@12 : block@16
     block@16: // after_if_else_L79
         let encoded_element%13#0: bytes = ((extract 1 1) encoded_element%8#0) // on error: index access is out of bounds
         let tmp%4#0: bool = (b== player#0 encoded_element%13#0)
@@ -212,18 +212,18 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         goto tmp%8#0 ? block@12 : block@24
     block@24: // after_if_else_L83
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0: bool = 0u
-        let tmp%3#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0
+        let tmp%4#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0
         goto block@25
     block@25: // after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win_L63
-        goto tmp%3#0 ? block@5 : block@6
+        goto tmp%4#0 ? block@5 : block@6
     block@5: // if_body_L68
         (app_global_put "winner" player#0)
         goto block@9
     block@6: // else_body_L69
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%3#0) // check self.turns exists
-        let tmp%4#0: bool = (== maybe_value%3#0 9u)
-        goto tmp%4#0 ? block@7 : block@9
+        let tmp%5#0: bool = (== maybe_value%3#0 9u)
+        goto tmp%5#0 ? block@7 : block@9
     block@7: // if_body_L70
         (app_global_put "winner" 0x03)
         goto block@9

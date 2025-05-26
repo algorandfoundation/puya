@@ -18,9 +18,9 @@ subroutine main:
         app_global_put
         // amm/contract.py:37
         // self.governor = Txn.sender
-        txn Sender                                                                                materialized_values%0#0
-        byte "governor"                                                                           materialized_values%0#0,"governor"
-        l-load materialized_values%0#0 1                                                          "governor",materialized_values%0#0
+        txn Sender                                                                                tmp%0#2
+        byte "governor"                                                                           tmp%0#2,"governor"
+        l-load tmp%0#2 1                                                                          "governor",tmp%0#2
         app_global_put
         // amm/contract.py:39
         // self.pool_token = Asset()
@@ -37,7 +37,7 @@ subroutine main:
     main_after_if_else@2:
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        txn NumAppArgs                                                                            tmp%0#2
+        txn NumAppArgs                                                                            tmp%0#3
         bz main_bare_routing@10 ; b main_abi_routing@4
 
     main_abi_routing@4:
@@ -101,11 +101,11 @@ subroutine main:
         l-load gtxn_idx%0#0 2                                                                     tmp%15#0,tmp%17#0,gtxn_idx%0#0
         l-load tmp%15#0 2                                                                         tmp%17#0,gtxn_idx%0#0,tmp%15#0
         l-load tmp%17#0 2                                                                         gtxn_idx%0#0,tmp%15#0,tmp%17#0
-        callsub bootstrap                                                                         to_encode%0#0
+        callsub bootstrap                                                                         tmp%18#0
         itob                                                                                      val_as_bytes%0#0
         byte 0x151f7c75                                                                           val_as_bytes%0#0,0x151f7c75
         l-load val_as_bytes%0#0 1                                                                 0x151f7c75,val_as_bytes%0#0
-        concat                                                                                    tmp%18#0
+        concat                                                                                    tmp%19#0
         log
         int 1                                                                                     tmp%0#0
         x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
@@ -120,23 +120,23 @@ subroutine main:
         //         "b_asset": "asset_b",
         //     },
         // )
-        txn OnCompletion                                                                          tmp%19#0
-        !                                                                                         tmp%20#0
+        txn OnCompletion                                                                          tmp%20#0
+        !                                                                                         tmp%21#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                         tmp%21#0
+        txn ApplicationID                                                                         tmp%22#0
         assert // can only call when not creating
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        txn GroupIndex                                                                            tmp%23#0
-        int 2                                                                                     tmp%23#0,2
+        txn GroupIndex                                                                            tmp%24#0
+        int 2                                                                                     tmp%24#0,2
         -                                                                                         gtxn_idx%1#0
         l-load-copy gtxn_idx%1#0 0                                                                gtxn_idx%1#0,gtxn_idx%1#0 (copy)
         gtxns TypeEnum                                                                            gtxn_idx%1#0,gtxn_type%1#0
         int axfer                                                                                 gtxn_idx%1#0,gtxn_type%1#0,axfer
         ==                                                                                        gtxn_idx%1#0,gtxn_type_matches%1#0
         assert // transaction type is axfer                                                       gtxn_idx%1#0
-        txn GroupIndex                                                                            gtxn_idx%1#0,tmp%24#0
-        int 1                                                                                     gtxn_idx%1#0,tmp%24#0,1
+        txn GroupIndex                                                                            gtxn_idx%1#0,tmp%25#0
+        int 1                                                                                     gtxn_idx%1#0,tmp%25#0,1
         -                                                                                         gtxn_idx%1#0,gtxn_idx%2#0
         l-load-copy gtxn_idx%2#0 0                                                                gtxn_idx%1#0,gtxn_idx%2#0,gtxn_idx%2#0 (copy)
         gtxns TypeEnum                                                                            gtxn_idx%1#0,gtxn_idx%2#0,gtxn_type%2#0
@@ -144,14 +144,14 @@ subroutine main:
         ==                                                                                        gtxn_idx%1#0,gtxn_idx%2#0,gtxn_type_matches%2#0
         assert // transaction type is axfer                                                       gtxn_idx%1#0,gtxn_idx%2#0
         txna ApplicationArgs 1                                                                    gtxn_idx%1#0,gtxn_idx%2#0,reinterpret_Encoded(uint8)%3#0
-        btoi                                                                                      gtxn_idx%1#0,gtxn_idx%2#0,tmp%25#0
-        txnas Assets                                                                              gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0
-        txna ApplicationArgs 2                                                                    gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0,reinterpret_Encoded(uint8)%4#0
-        btoi                                                                                      gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0,tmp%27#0
-        txnas Assets                                                                              gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0,tmp%28#0
-        txna ApplicationArgs 3                                                                    gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0,tmp%28#0,reinterpret_Encoded(uint8)%5#0
-        btoi                                                                                      gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0,tmp%28#0,tmp%29#0
-        txnas Assets                                                                              gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0,tmp%28#0,tmp%30#0
+        btoi                                                                                      gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0
+        txnas Assets                                                                              gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0
+        txna ApplicationArgs 2                                                                    gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0,reinterpret_Encoded(uint8)%4#0
+        btoi                                                                                      gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0,tmp%28#0
+        txnas Assets                                                                              gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0,tmp%29#0
+        txna ApplicationArgs 3                                                                    gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0,tmp%29#0,reinterpret_Encoded(uint8)%5#0
+        btoi                                                                                      gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0,tmp%29#0,tmp%30#0
+        txnas Assets                                                                              gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0,tmp%29#0,tmp%31#0
         // amm/contract.py:81-87
         // @arc4.abimethod(
         //     default_args={
@@ -160,11 +160,11 @@ subroutine main:
         //         "b_asset": "asset_b",
         //     },
         // )
-        l-load gtxn_idx%1#0 4                                                                     gtxn_idx%2#0,tmp%26#0,tmp%28#0,tmp%30#0,gtxn_idx%1#0
-        l-load gtxn_idx%2#0 4                                                                     tmp%26#0,tmp%28#0,tmp%30#0,gtxn_idx%1#0,gtxn_idx%2#0
-        l-load tmp%26#0 4                                                                         tmp%28#0,tmp%30#0,gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0
-        l-load tmp%28#0 4                                                                         tmp%30#0,gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0,tmp%28#0
-        l-load tmp%30#0 4                                                                         gtxn_idx%1#0,gtxn_idx%2#0,tmp%26#0,tmp%28#0,tmp%30#0
+        l-load gtxn_idx%1#0 4                                                                     gtxn_idx%2#0,tmp%27#0,tmp%29#0,tmp%31#0,gtxn_idx%1#0
+        l-load gtxn_idx%2#0 4                                                                     tmp%27#0,tmp%29#0,tmp%31#0,gtxn_idx%1#0,gtxn_idx%2#0
+        l-load tmp%27#0 4                                                                         tmp%29#0,tmp%31#0,gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0
+        l-load tmp%29#0 4                                                                         tmp%31#0,gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0,tmp%29#0
+        l-load tmp%31#0 4                                                                         gtxn_idx%1#0,gtxn_idx%2#0,tmp%27#0,tmp%29#0,tmp%31#0
         callsub mint
         int 1                                                                                     tmp%0#0
         x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
@@ -179,15 +179,15 @@ subroutine main:
         //         "b_asset": "asset_b",
         //     },
         // )
-        txn OnCompletion                                                                          tmp%31#0
-        !                                                                                         tmp%32#0
+        txn OnCompletion                                                                          tmp%32#0
+        !                                                                                         tmp%33#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                         tmp%33#0
+        txn ApplicationID                                                                         tmp%34#0
         assert // can only call when not creating
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        txn GroupIndex                                                                            tmp%35#0
-        int 1                                                                                     tmp%35#0,1
+        txn GroupIndex                                                                            tmp%36#0
+        int 1                                                                                     tmp%36#0,1
         -                                                                                         gtxn_idx%3#0
         l-load-copy gtxn_idx%3#0 0                                                                gtxn_idx%3#0,gtxn_idx%3#0 (copy)
         gtxns TypeEnum                                                                            gtxn_idx%3#0,gtxn_type%3#0
@@ -195,14 +195,14 @@ subroutine main:
         ==                                                                                        gtxn_idx%3#0,gtxn_type_matches%3#0
         assert // transaction type is axfer                                                       gtxn_idx%3#0
         txna ApplicationArgs 1                                                                    gtxn_idx%3#0,reinterpret_Encoded(uint8)%6#0
-        btoi                                                                                      gtxn_idx%3#0,tmp%36#0
-        txnas Assets                                                                              gtxn_idx%3#0,tmp%37#0
-        txna ApplicationArgs 2                                                                    gtxn_idx%3#0,tmp%37#0,reinterpret_Encoded(uint8)%7#0
-        btoi                                                                                      gtxn_idx%3#0,tmp%37#0,tmp%38#0
-        txnas Assets                                                                              gtxn_idx%3#0,tmp%37#0,tmp%39#0
-        txna ApplicationArgs 3                                                                    gtxn_idx%3#0,tmp%37#0,tmp%39#0,reinterpret_Encoded(uint8)%8#0
-        btoi                                                                                      gtxn_idx%3#0,tmp%37#0,tmp%39#0,tmp%40#0
-        txnas Assets                                                                              gtxn_idx%3#0,tmp%37#0,tmp%39#0,tmp%41#0
+        btoi                                                                                      gtxn_idx%3#0,tmp%37#0
+        txnas Assets                                                                              gtxn_idx%3#0,tmp%38#0
+        txna ApplicationArgs 2                                                                    gtxn_idx%3#0,tmp%38#0,reinterpret_Encoded(uint8)%7#0
+        btoi                                                                                      gtxn_idx%3#0,tmp%38#0,tmp%39#0
+        txnas Assets                                                                              gtxn_idx%3#0,tmp%38#0,tmp%40#0
+        txna ApplicationArgs 3                                                                    gtxn_idx%3#0,tmp%38#0,tmp%40#0,reinterpret_Encoded(uint8)%8#0
+        btoi                                                                                      gtxn_idx%3#0,tmp%38#0,tmp%40#0,tmp%41#0
+        txnas Assets                                                                              gtxn_idx%3#0,tmp%38#0,tmp%40#0,tmp%42#0
         // amm/contract.py:147-153
         // @arc4.abimethod(
         //     default_args={
@@ -211,10 +211,10 @@ subroutine main:
         //         "b_asset": "asset_b",
         //     },
         // )
-        l-load gtxn_idx%3#0 3                                                                     tmp%37#0,tmp%39#0,tmp%41#0,gtxn_idx%3#0
-        l-load tmp%37#0 3                                                                         tmp%39#0,tmp%41#0,gtxn_idx%3#0,tmp%37#0
-        l-load tmp%39#0 3                                                                         tmp%41#0,gtxn_idx%3#0,tmp%37#0,tmp%39#0
-        l-load tmp%41#0 3                                                                         gtxn_idx%3#0,tmp%37#0,tmp%39#0,tmp%41#0
+        l-load gtxn_idx%3#0 3                                                                     tmp%38#0,tmp%40#0,tmp%42#0,gtxn_idx%3#0
+        l-load tmp%38#0 3                                                                         tmp%40#0,tmp%42#0,gtxn_idx%3#0,tmp%38#0
+        l-load tmp%40#0 3                                                                         tmp%42#0,gtxn_idx%3#0,tmp%38#0,tmp%40#0
+        l-load tmp%42#0 3                                                                         gtxn_idx%3#0,tmp%38#0,tmp%40#0,tmp%42#0
         callsub burn
         int 1                                                                                     tmp%0#0
         x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
@@ -228,15 +228,15 @@ subroutine main:
         //         "b_asset": "asset_b",
         //     },
         // )
-        txn OnCompletion                                                                          tmp%42#0
-        !                                                                                         tmp%43#0
+        txn OnCompletion                                                                          tmp%43#0
+        !                                                                                         tmp%44#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                         tmp%44#0
+        txn ApplicationID                                                                         tmp%45#0
         assert // can only call when not creating
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        txn GroupIndex                                                                            tmp%46#0
-        int 1                                                                                     tmp%46#0,1
+        txn GroupIndex                                                                            tmp%47#0
+        int 1                                                                                     tmp%47#0,1
         -                                                                                         gtxn_idx%4#0
         l-load-copy gtxn_idx%4#0 0                                                                gtxn_idx%4#0,gtxn_idx%4#0 (copy)
         gtxns TypeEnum                                                                            gtxn_idx%4#0,gtxn_type%4#0
@@ -244,11 +244,11 @@ subroutine main:
         ==                                                                                        gtxn_idx%4#0,gtxn_type_matches%4#0
         assert // transaction type is axfer                                                       gtxn_idx%4#0
         txna ApplicationArgs 1                                                                    gtxn_idx%4#0,reinterpret_Encoded(uint8)%9#0
-        btoi                                                                                      gtxn_idx%4#0,tmp%47#0
-        txnas Assets                                                                              gtxn_idx%4#0,tmp%48#0
-        txna ApplicationArgs 2                                                                    gtxn_idx%4#0,tmp%48#0,reinterpret_Encoded(uint8)%10#0
-        btoi                                                                                      gtxn_idx%4#0,tmp%48#0,tmp%49#0
-        txnas Assets                                                                              gtxn_idx%4#0,tmp%48#0,tmp%50#0
+        btoi                                                                                      gtxn_idx%4#0,tmp%48#0
+        txnas Assets                                                                              gtxn_idx%4#0,tmp%49#0
+        txna ApplicationArgs 2                                                                    gtxn_idx%4#0,tmp%49#0,reinterpret_Encoded(uint8)%10#0
+        btoi                                                                                      gtxn_idx%4#0,tmp%49#0,tmp%50#0
+        txnas Assets                                                                              gtxn_idx%4#0,tmp%49#0,tmp%51#0
         // amm/contract.py:204-209
         // @arc4.abimethod(
         //     default_args={
@@ -256,9 +256,9 @@ subroutine main:
         //         "b_asset": "asset_b",
         //     },
         // )
-        l-load gtxn_idx%4#0 2                                                                     tmp%48#0,tmp%50#0,gtxn_idx%4#0
-        l-load tmp%48#0 2                                                                         tmp%50#0,gtxn_idx%4#0,tmp%48#0
-        l-load tmp%50#0 2                                                                         gtxn_idx%4#0,tmp%48#0,tmp%50#0
+        l-load gtxn_idx%4#0 2                                                                     tmp%49#0,tmp%51#0,gtxn_idx%4#0
+        l-load tmp%49#0 2                                                                         tmp%51#0,gtxn_idx%4#0,tmp%49#0
+        l-load tmp%51#0 2                                                                         gtxn_idx%4#0,tmp%49#0,tmp%51#0
         callsub swap
         int 1                                                                                     tmp%0#0
         x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
@@ -267,12 +267,12 @@ subroutine main:
     main_bare_routing@10:
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        txn OnCompletion                                                                          tmp%51#0
+        txn OnCompletion                                                                          tmp%52#0
         bz main___algopy_default_create@11 ; b main_after_if_else@12
 
     main___algopy_default_create@11:
-        txn ApplicationID                                                                         tmp%52#0
-        !                                                                                         tmp%53#0
+        txn ApplicationID                                                                         tmp%53#0
+        !                                                                                         tmp%54#0
         assert // can only call when creating
         int 1                                                                                     tmp%0#0
         x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
@@ -727,12 +727,12 @@ subroutine mint:
         int 1000                                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | 1000
         f-load a_amount#0                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | 1000,a_amount#0
         l-store-copy a_amount#0 1                                                                 (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_amount#0,1000,a_amount#0 (copy)
-        *                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_amount#0,tmp%5#1
-        f-load a_balance#0                                                                        (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_amount#0,tmp%5#1,a_balance#0
-        l-load a_amount#0 2                                                                       (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%5#1,a_balance#0,a_amount#0
-        -                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%5#1,tmp%6#1
-        l-load tmp%5#1 1                                                                          (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%6#1,tmp%5#1
-        l-load tmp%6#1 1                                                                          (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%5#1,tmp%6#1
+        *                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_amount#0,tmp%6#1
+        f-load a_balance#0                                                                        (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_amount#0,tmp%6#1,a_balance#0
+        l-load a_amount#0 2                                                                       (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%6#1,a_balance#0,a_amount#0
+        -                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%6#1,tmp%7#1
+        l-load tmp%6#1 1                                                                          (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%7#1,tmp%6#1
+        l-load tmp%7#1 1                                                                          (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%6#1,tmp%7#1
         /                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0
         l-store-copy a_ratio#0 0                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,a_ratio#0 (copy)
         f-store a_ratio#0                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0
@@ -741,12 +741,12 @@ subroutine mint:
         int 1000                                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,1000
         f-load b_amount#0                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,1000,b_amount#0
         l-store-copy b_amount#0 1                                                                 (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,1000,b_amount#0 (copy)
-        *                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%7#1
-        f-load b_balance#0                                                                        (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%7#1,b_balance#0
-        l-load b_amount#0 2                                                                       (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%7#1,b_balance#0,b_amount#0
-        -                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%7#1,tmp%8#1
-        l-load tmp%7#1 1                                                                          (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%8#1,tmp%7#1
-        l-load tmp%8#1 1                                                                          (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%7#1,tmp%8#1
+        *                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%9#1
+        f-load b_balance#0                                                                        (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_amount#0,tmp%9#1,b_balance#0
+        l-load b_amount#0 2                                                                       (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%9#1,b_balance#0,b_amount#0
+        -                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%9#1,tmp%10#1
+        l-load tmp%9#1 1                                                                          (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%10#1,tmp%9#1
+        l-load tmp%10#1 1                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,tmp%9#1,tmp%10#1
         /                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_ratio#0
         l-store-copy b_ratio#0 0                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_ratio#0,b_ratio#0 (copy)
         f-store b_ratio#0                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_ratio#0
@@ -754,7 +754,7 @@ subroutine mint:
         // if a_ratio < b_ratio:
         l-load a_ratio#0 1                                                                        (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | b_ratio#0,a_ratio#0
         l-load b_ratio#0 1                                                                        (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0,b_ratio#0
-        <                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%9#1
+        <                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | tmp%12#1
         bz mint_else_body@9 ; b mint_if_body@8                                                    (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 |
 
     mint_if_body@8:                                                                               (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 |
@@ -762,8 +762,8 @@ subroutine mint:
         // return a_ratio * issued // SCALE
         f-load a_ratio#0                                                                          (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | a_ratio#0
         x-load issued#0                                                                           (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | a_ratio#0,issued#0
-        *                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%10#1
-        int 1000                                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%10#1,1000
+        *                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%13#1
+        int 1000                                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%13#1,1000
         /                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0
         x-store to_mint#0                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) to_mint#0 |
         // amm/contract.py:134-140
@@ -781,8 +781,8 @@ subroutine mint:
         // return b_ratio * issued // SCALE
         f-load b_ratio#0                                                                          (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) issued#0 | b_ratio#0
         x-load issued#0                                                                           (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | b_ratio#0,issued#0
-        *                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%12#0
-        int 1000                                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%12#0,1000
+        *                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%15#1
+        int 1000                                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%15#1,1000
         /                                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0
         x-store to_mint#0                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | (𝕏) to_mint#0 |
         // amm/contract.py:134-140
@@ -803,14 +803,14 @@ subroutine mint:
         assert // send amount too low                                                             (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0
         // amm/contract.py:144
         // do_asset_transfer(receiver=Txn.sender, asset=self.pool_token, amount=to_mint)
-        txn Sender                                                                                (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%29#0
-        int 0                                                                                     (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%29#0,0
-        byte "pool_token"                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%29#0,0,"pool_token"
-        app_global_get_ex                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%29#0,maybe_value%5#0,maybe_exists%5#0
-        assert // check self.pool_token exists                                                    (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%29#0,maybe_value%5#0
-        l-load tmp%29#0 1                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,maybe_value%5#0,tmp%29#0
-        l-load maybe_value%5#0 1                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%29#0,maybe_value%5#0
-        l-load to_mint#0 2                                                                        (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%29#0,maybe_value%5#0,to_mint#0
+        txn Sender                                                                                (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%30#0
+        int 0                                                                                     (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%30#0,0
+        byte "pool_token"                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%30#0,0,"pool_token"
+        app_global_get_ex                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%30#0,maybe_value%5#0,maybe_exists%5#0
+        assert // check self.pool_token exists                                                    (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%30#0,maybe_value%5#0
+        l-load tmp%30#0 1                                                                         (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,maybe_value%5#0,tmp%30#0
+        l-load maybe_value%5#0 1                                                                  (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | to_mint#0,tmp%30#0,maybe_value%5#0
+        l-load to_mint#0 2                                                                        (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 | tmp%30#0,maybe_value%5#0,to_mint#0
         callsub do_asset_transfer                                                                 (𝕡) a_xfer#0,b_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | (𝕗) a_ratio#0,b_ratio#0,a_amount#0,b_amount#0,pool_balance#0,a_balance#0,b_balance#0 |
         // amm/contract.py:145
         // self._update_ratio()
@@ -907,8 +907,8 @@ subroutine burn:
         // return supply * amount // issued
         l-load supply#0 1                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,supply#0
         l-load-copy amount#0 2                                                                    (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,supply#0,amount#0 (copy)
-        *                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,tmp%1#1
-        l-load-copy issued#0 1                                                                    (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,tmp%1#1,issued#0 (copy)
+        *                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,tmp%2#1
+        l-load-copy issued#0 1                                                                    (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,tmp%2#1,issued#0 (copy)
         /                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | amount#0,issued#0,a_amt#0
         // amm/contract.py:193
         // supply=self._current_b_balance(),
@@ -916,30 +916,30 @@ subroutine burn:
         // amm/contract.py:346
         // return supply * amount // issued
         l-load amount#0 3                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | issued#0,a_amt#0,supply#0,amount#0
-        *                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | issued#0,a_amt#0,tmp%1#1
-        l-load issued#0 2                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,tmp%1#1,issued#0
+        *                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | issued#0,a_amt#0,tmp%2#1
+        l-load issued#0 2                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,tmp%2#1,issued#0
         /                                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0
         // amm/contract.py:198
         // do_asset_transfer(receiver=Txn.sender, asset=self.asset_a, amount=a_amt)
-        txn Sender                                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0
-        int 0                                                                                     (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,0
-        byte "asset_a"                                                                            (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,0,"asset_a"
-        app_global_get_ex                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,maybe_value%4#0,maybe_exists%4#0
-        assert // check self.asset_a exists                                                       (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,maybe_value%4#0
-        l-load tmp%17#0 1                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,maybe_value%4#0,tmp%17#0
-        l-load maybe_value%4#0 1                                                                  (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%17#0,maybe_value%4#0
-        l-load a_amt#0 3                                                                          (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%17#0,maybe_value%4#0,a_amt#0
+        txn Sender                                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%20#0
+        int 0                                                                                     (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%20#0,0
+        byte "asset_a"                                                                            (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%20#0,0,"asset_a"
+        app_global_get_ex                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%20#0,maybe_value%4#0,maybe_exists%4#0
+        assert // check self.asset_a exists                                                       (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%20#0,maybe_value%4#0
+        l-load tmp%20#0 1                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,maybe_value%4#0,tmp%20#0
+        l-load maybe_value%4#0 1                                                                  (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | a_amt#0,b_amt#0,tmp%20#0,maybe_value%4#0
+        l-load a_amt#0 3                                                                          (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%20#0,maybe_value%4#0,a_amt#0
         callsub do_asset_transfer                                                                 (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0
         // amm/contract.py:201
         // do_asset_transfer(receiver=Txn.sender, asset=self.asset_b, amount=b_amt)
-        txn Sender                                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0
-        int 0                                                                                     (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,0
-        byte "asset_b"                                                                            (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,0,"asset_b"
-        app_global_get_ex                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,maybe_value%5#0,maybe_exists%5#0
-        assert // check self.asset_b exists                                                       (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,maybe_value%5#0
-        l-load tmp%18#0 1                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,maybe_value%5#0,tmp%18#0
-        l-load maybe_value%5#0 1                                                                  (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%18#0,maybe_value%5#0
-        l-load b_amt#0 2                                                                          (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%18#0,maybe_value%5#0,b_amt#0
+        txn Sender                                                                                (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%21#0
+        int 0                                                                                     (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%21#0,0
+        byte "asset_b"                                                                            (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%21#0,0,"asset_b"
+        app_global_get_ex                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%21#0,maybe_value%5#0,maybe_exists%5#0
+        assert // check self.asset_b exists                                                       (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%21#0,maybe_value%5#0
+        l-load tmp%21#0 1                                                                         (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,maybe_value%5#0,tmp%21#0
+        l-load maybe_value%5#0 1                                                                  (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | b_amt#0,tmp%21#0,maybe_value%5#0
+        l-load b_amt#0 2                                                                          (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 | tmp%21#0,maybe_value%5#0,b_amt#0
         callsub do_asset_transfer                                                                 (𝕡) pool_xfer#0,pool_asset#0,a_asset#0,b_asset#0 |
         // amm/contract.py:202
         // self._update_ratio()
@@ -1093,9 +1093,9 @@ subroutine swap:
         assert // send amount too low                                                             (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0
         // amm/contract.py:248
         // do_asset_transfer(receiver=Txn.sender, asset=out_asset, amount=to_swap)
-        txn Sender                                                                                (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0,tmp%10#0
-        f-load out_asset#0                                                                        (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0,tmp%10#0,out_asset#0
-        l-load to_swap#0 2                                                                        (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | tmp%10#0,out_asset#0,to_swap#0
+        txn Sender                                                                                (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0,tmp%15#0
+        f-load out_asset#0                                                                        (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | to_swap#0,tmp%15#0,out_asset#0
+        l-load to_swap#0 2                                                                        (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 | tmp%15#0,out_asset#0,to_swap#0
         callsub do_asset_transfer                                                                 (𝕡) swap_xfer#0,a_asset#0,b_asset#0 | (𝕗) in_supply#0,out_asset#0,in_amount#0 |
         // amm/contract.py:249
         // self._update_ratio()
@@ -1116,11 +1116,11 @@ subroutine _update_ratio:
         // self.ratio = a_balance * SCALE // b_balance
         l-load a_balance#0 1                                                                      b_balance#0,a_balance#0
         int 1000                                                                                  b_balance#0,a_balance#0,1000
-        *                                                                                         b_balance#0,tmp%0#0
-        l-load b_balance#0 1                                                                      tmp%0#0,b_balance#0
-        /                                                                                         materialized_values%2#0
-        byte "ratio"                                                                              materialized_values%2#0,"ratio"
-        l-load materialized_values%2#0 1                                                          "ratio",materialized_values%2#0
+        *                                                                                         b_balance#0,tmp%2#0
+        l-load b_balance#0 1                                                                      tmp%2#0,b_balance#0
+        /                                                                                         tmp%3#0
+        byte "ratio"                                                                              tmp%3#0,"ratio"
+        l-load tmp%3#0 1                                                                          "ratio",tmp%3#0
         app_global_put
         retsub
 

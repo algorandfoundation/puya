@@ -767,7 +767,7 @@ debug: Found equivalence set: a#0, a#1
 debug: selected a#0 from equivalence set
 debug: Found equivalence set: b#0, b#1
 debug: selected b#0 from equivalence set
-debug: Found equivalence set: val_as_bytes%0#1, as_Encoded(uint64)%0#1, materialized_values%0#0, c#0
+debug: Found equivalence set: val_as_bytes%0#1, as_Encoded(uint64)%0#1, tmp%0#0, c#0
 debug: selected c#0 from equivalence set
 debug: Found equivalence set: val_as_bytes%0#0, as_Encoded(uint64)%0#0
 debug: selected val_as_bytes%0#0 from equivalence set
@@ -785,8 +785,8 @@ debug: Merged linear block@2 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let tmp%1#0: uint64 = (btoi b#0) with copy of existing registers (Register(source_location=everything/my_base.py:15:38-46, ir_type=uint64, name='tmp%1', version=1),)
-debug: Found equivalence set: tmp%1#1, tmp%1#0
+debug: Replacing redundant declaration let tmp%2#0: uint64 = (btoi b#0) with copy of existing registers (Register(source_location=everything/my_base.py:15:38-46, ir_type=uint64, name='tmp%1', version=1),)
+debug: Found equivalence set: tmp%1#1, tmp%2#0
 debug: selected tmp%1#1 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -1613,7 +1613,8 @@ debug: Performing SSA IR destructuring for test_cases.everything.contract.Everyt
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.everything.contract.Everything.create using strategy RootOperandGrouping
-debug: Coalescing resulted in 0 replacement/s
+debug: Coalescing tmp%0#0 with [tmp%0#1]
+debug: Coalescing resulted in 2 replacement/s
 debug: Sequentializing parallel copies in test_cases.everything.contract.Everything.create
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.everything.contract.Everything.register
@@ -1634,9 +1635,7 @@ debug: Performing SSA IR destructuring for test_cases.everything.contract.Everyt
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.everything.contract.Everything.calculate using strategy RootOperandGrouping
-debug: Coalescing tmp%0#0 with [tmp%0#1]
-debug: Coalescing to_encode%0#0 with [to_encode%0#1]
-debug: Coalescing resulted in 4 replacement/s
+debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in test_cases.everything.contract.Everything.calculate
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.everything.contract.Everything.close_out
@@ -1723,8 +1722,8 @@ debug: Inserted create_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
 debug: Replaced create_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted create_block@0.ops[6]: 'l-store-copy tmp%2#0 0'
 debug: Replaced create_block@0.ops[8]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted create_block@0.ops[11]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced create_block@0.ops[14]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted create_block@0.ops[11]: 'l-store-copy tmp%0#0 0'
+debug: Replaced create_block@0.ops[14]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted register_block@0.ops[1]: 'l-store-copy tmp%0#1 0'
 debug: Replaced register_block@0.ops[3]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
 debug: Inserted register_block@0.ops[6]: 'l-store-copy tmp%2#0 0'
@@ -1737,8 +1736,8 @@ debug: Inserted register_if_body@1.ops[4]: 'l-store-copy sender_name_existed#0 1
 debug: Replaced register_if_body@1.ops[7]: 'v-load sender_name_existed#0' with 'l-load sender_name_existed#0'
 debug: Inserted register_if_body@2.ops[3]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced register_if_body@2.ops[6]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
-debug: Inserted register_if_body@2.ops[11]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced register_if_body@2.ops[14]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted register_if_body@2.ops[11]: 'l-store-copy tmp%3#0 0'
+debug: Replaced register_if_body@2.ops[14]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
 debug: Inserted register_if_body@2.ops[5]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced register_if_body@2.ops[9]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
 debug: Inserted say_hello_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
@@ -1777,26 +1776,26 @@ debug: Inserted say_hello_after_if_else@2.ops[10]: 'l-store-copy concat%0#0 0'
 debug: Replaced say_hello_after_if_else@2.ops[26]: 'v-load concat%0#0' with 'l-load concat%0#0'
 debug: Inserted say_hello_after_if_else@2.ops[37]: 'l-store-copy concat%1#0 0'
 debug: Replaced say_hello_after_if_else@2.ops[53]: 'v-load concat%1#0' with 'l-load concat%1#0'
-debug: Inserted calculate_block@0.ops[9]: 'l-store-copy to_encode%0#0 0'
-debug: Replaced calculate_block@0.ops[11]: 'v-load to_encode%0#0' with 'l-load to_encode%0#0'
+debug: Inserted calculate_block@0.ops[9]: 'l-store-copy tmp%2#1 0'
+debug: Replaced calculate_block@0.ops[11]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
 debug: Inserted calculate_block@0.ops[13]: 'l-store-copy c#0 0'
 debug: Replaced calculate_block@0.ops[15]: 'v-load c#0' with 'l-load c#0'
-debug: Inserted calculate_block@0.ops[17]: 'l-store-copy tmp%0#0 0'
-debug: Replaced calculate_block@0.ops[19]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted calculate_block@0.ops[22]: 'l-store-copy to_encode%0#0 0'
-debug: Replaced calculate_block@0.ops[24]: 'v-load to_encode%0#0' with 'l-load to_encode%0#0'
+debug: Inserted calculate_block@0.ops[17]: 'l-store-copy tmp%1#0 0'
+debug: Replaced calculate_block@0.ops[19]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
+debug: Inserted calculate_block@0.ops[22]: 'l-store-copy tmp%3#0 0'
+debug: Replaced calculate_block@0.ops[24]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
 debug: Inserted calculate_block@0.ops[26]: 'l-store-copy val_as_bytes%0#0 0'
 debug: Replaced calculate_block@0.ops[28]: 'v-load val_as_bytes%0#0' with 'l-load val_as_bytes%0#0'
 debug: Inserted calculate_block@0.ops[5]: 'l-store-copy tmp%1#1 0'
 debug: Replaced calculate_block@0.ops[8]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
-debug: Inserted calculate_block@0.ops[2]: 'l-store-copy tmp%0#0 0'
-debug: Replaced calculate_block@0.ops[8]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted calculate_block@0.ops[2]: 'l-store-copy tmp%0#1 0'
+debug: Replaced calculate_block@0.ops[8]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
 debug: Inserted calculate_block@0.ops[10]: 'l-store-copy tmp%1#1 1'
 debug: Replaced calculate_block@0.ops[23]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
 debug: Inserted close_out_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced close_out_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
-debug: Inserted close_out_block@0.ops[11]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced close_out_block@0.ops[14]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted close_out_block@0.ops[11]: 'l-store-copy tmp%1#0 0'
+debug: Replaced close_out_block@0.ops[14]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
 debug: Inserted close_out_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced close_out_block@0.ops[9]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Found 2 edge set/s for test_cases.everything.contract.Everything.__algopy_entrypoint_with_init
@@ -1813,8 +1812,8 @@ debug: test_cases.everything.contract.Everything.say_hello f-stack entry: []
 debug: test_cases.everything.contract.Everything.say_hello f-stack on first store: ['name#0']
 debug: Inserted main_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced main_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
-debug: Inserted main_block@0.ops[11]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced main_block@0.ops[14]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted main_block@0.ops[11]: 'l-store-copy tmp%1#0 0'
+debug: Replaced main_block@0.ops[14]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
 debug: Inserted main_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced main_block@0.ops[9]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: optimizing TEAL subroutine ops test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
