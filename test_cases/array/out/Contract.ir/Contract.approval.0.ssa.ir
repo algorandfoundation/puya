@@ -220,14 +220,18 @@ subroutine test_cases.array.uint64.pop_x(arr: Encoded(uint64[])*, x: uint64, exp
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L264
         let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
-        let (pop%0#0: Encoded(uint64[]), pop%1#0: Encoded(uint64)) = slot_contents%0#0.pop()
-        let popped_item.0%0#0: uint64 = decode<uint64>(pop%1#0)
-        write(arr#0, pop%0#0)
-        let popped#0: uint64 = popped_item.0%0#0
+        let len%0#0: uint64 = (len slot_contents%0#0)
+        let sub%0#0: uint64 = (- len%0#0 8u)
+        let total_length%0#0: uint64 = (len slot_contents%0#0)
+        let data%0#0: bytes = (substring3 slot_contents%0#0 sub%0#0 total_length%0#0)
+        let extract%0#0: bytes = (extract3 slot_contents%0#0 0u sub%0#0)
+        write(arr#0, extract%0#0)
+        let materialized_values%0#0: uint64 = decode<uint64>(data%0#0)
+        let popped#0: uint64 = materialized_values%0#0
         let tmp%0#0: bool = (== popped#0 expected#1)
         (assert tmp%0#0)
-        let materialized_values%0#0: uint64 = (- expected#1 1u)
-        let expected#2: uint64 = materialized_values%0#0
+        let materialized_values%1#0: uint64 = (- expected#1 1u)
+        let expected#2: uint64 = materialized_values%1#0
         goto block@3
     block@3: // for_footer_L263
         let _i#2: uint64 = (+ _i#1 1u)

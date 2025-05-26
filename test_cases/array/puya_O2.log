@@ -4104,9 +4104,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: popped_item.0%0#0, popped#0
+debug: Found equivalence set: materialized_values%0#0, popped#0
 debug: selected popped#0 from equivalence set
-debug: Found equivalence set: materialized_values%0#0, expected#2
+debug: Found equivalence set: materialized_values%1#0, expected#2
 debug: selected expected#2 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -4121,6 +4121,10 @@ debug: Merged linear block@3 into block@2
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let total_length%0#0: uint64 = (len slot_contents%0#0) with copy of existing registers (Register(source_location=array/uint64.py:264:17-26, ir_type=uint64, name='len%0', version=0),)
+debug: Found equivalence set: len%0#0, total_length%0#0
+debug: selected len%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.array.uint64.append_length_and_return
 debug: Optimizer: Perform Subroutine Inlining
@@ -6092,10 +6096,6 @@ debug: Found equivalence set: array%array_len%3#1, tmp%8#4
 debug: selected array%array_len%3#1 from equivalence set
 debug: Found equivalence set: array%array_len%4#1, tmp%10#4
 debug: selected array%array_len%4#1 from equivalence set
-debug: Found equivalence set: array%array_contents%0#1, pop%0#0
-debug: selected array%array_contents%0#1 from equivalence set
-debug: Found equivalence set: array%value%0#1, pop%1#0
-debug: selected array%value%0#1 from equivalence set
 debug: Found equivalence set: array%array_len%5#1, tmp%14#3
 debug: selected array%array_len%5#1 from equivalence set
 debug: Found equivalence set: array%array_len%6#1, tmp%16#3
@@ -6170,7 +6170,7 @@ debug: Found equivalence set: array%val_as_bytes%2#1, array%as_Encoded(uint64)%2
 debug: selected array%val_as_bytes%2#1 from equivalence set
 debug: Found equivalence set: array%val_as_bytes%3#1, array%as_Encoded(uint64)%3#1, encoded_value%1#0
 debug: selected array%val_as_bytes%3#1 from equivalence set
-debug: Copy propagation made 44 modifications
+debug: Copy propagation made 42 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -6188,7 +6188,6 @@ debug: Simplified (extract3 0x000000000000002a 0u 8u) // on error: index access 
 debug: Simplified (btoi 0x000000000000002a) to 42u
 debug: Simplified (== 42u 42u) to 1u
 debug: Simplified (btoi encoded_element%1#3) to (extract_uint64 slot_contents%5#4 bytes_offset%1#3)
-debug: Simplified (btoi array%value%0#1) to (extract_uint64 slot_contents%0#9 array%bytes_index%0#1)
 debug: Simplified (btoi encoded_element%2#3) to (extract_uint64 slot_contents%8#3 bytes_offset%2#3)
 debug: Simplified (btoi encoded_element%3#3) to (extract_uint64 concat%1#6 bytes_offset%3#3)
 debug: Simplified (btoi encoded_element%4#3) to (extract_uint64 concat%1#6 0u)
@@ -6422,7 +6421,6 @@ debug: Removing unused variable encoded_element%0#5
 debug: Removing unused variable tmp%6#5
 debug: Removing unused variable tmp%7#4
 debug: Removing unused variable encoded_element%1#3
-debug: Removing unused variable array%value%0#1
 debug: Removing unused variable encoded_element%2#3
 debug: Removing unused variable encoded_element%3#3
 debug: Removing unused variable encoded_element%4#3
@@ -6716,6 +6714,7 @@ debug: Coalescing expected#0 with [expected#5, expected#1, expected#2]
 debug: Coalescing _i#0 with [_i#3, _i#8, _i#4, _i#5, _i#11, _i#1, _i#2]
 debug: Coalescing continue_looping%0#0 with [continue_looping%0#5, continue_looping%0#4, continue_looping%0#3, continue_looping%0#2, continue_looping%0#1]
 debug: Coalescing slot_contents%0#0 with [slot_contents%0#9, slot_contents%0#6, slot_contents%0#5, slot_contents%0#4, slot_contents%0#2, slot_contents%0#1]
+debug: Coalescing len%0#0 with [len%0#1]
 debug: Coalescing tmp%0#0 with [tmp%0#11, tmp%0#12]
 debug: Coalescing slot_contents%8#0 with [slot_contents%8#3]
 debug: Coalescing tmp%15#2 with [tmp%15#3]
@@ -6776,7 +6775,7 @@ debug: Coalescing tmp%3#1 with [tmp%3#2]
 debug: Coalescing reverse_index_internal%2#1 with [reverse_index_internal%2#4, reverse_index_internal%2#2]
 debug: Coalescing arc4_arr#0 with [arc4_arr#5, arc4_arr#1, arc4_arr#2]
 debug: Coalescing tmp%1#1 with [tmp%1#2]
-debug: Coalescing resulted in 466 replacement/s
+debug: Coalescing resulted in 469 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: loc: {_i#0=_i#0, expected#0=expected#0}
 debug: pred: {_i#0=_i#0, expected#0=expected#0}
@@ -7031,30 +7030,30 @@ debug: Inserted main_for_header@75.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced main_for_header@75.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted main_for_body@76.ops[2]: 'l-store-copy slot_contents%0#0 0'
 debug: Replaced main_for_body@76.ops[4]: 'v-load slot_contents%0#0' with 'l-load slot_contents%0#0'
-debug: Inserted main_for_body@76.ops[6]: 'l-store-copy array%array_bytes_length%0#1 0'
-debug: Replaced main_for_body@76.ops[8]: 'v-load array%array_bytes_length%0#1' with 'l-load array%array_bytes_length%0#1'
-debug: Inserted main_for_body@76.ops[11]: 'l-store-copy array%array_bytes_new_length%0#1 0'
-debug: Replaced main_for_body@76.ops[13]: 'v-load array%array_bytes_new_length%0#1' with 'l-load array%array_bytes_new_length%0#1'
-debug: Inserted main_for_body@76.ops[36]: 'l-store-copy tmp%0#0 0'
-debug: Replaced main_for_body@76.ops[38]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted main_for_body@76.ops[25]: 'l-store-copy array%bytes_index%0#1 0'
-debug: Replaced main_for_body@76.ops[28]: 'v-load array%bytes_index%0#1' with 'l-load array%bytes_index%0#1'
-debug: Inserted main_for_body@76.ops[30]: 'l-store-copy popped#0 0'
-debug: Replaced main_for_body@76.ops[35]: 'v-load popped#0' with 'l-load popped#0'
-debug: Inserted main_for_body@76.ops[37]: 'l-store-copy expected#0 1'
-debug: Replaced main_for_body@76.ops[43]: 'v-load expected#0' with 'l-load expected#0'
-debug: Inserted main_for_body@76.ops[14]: 'l-store-copy array%array_bytes_new_length%0#1 0'
-debug: Replaced main_for_body@76.ops[20]: 'v-load array%array_bytes_new_length%0#1' with 'l-load array%array_bytes_new_length%0#1'
-debug: Inserted main_for_body@76.ops[17]: 'l-store-copy array%array_new_length%0#1 1'
-debug: Replaced main_for_body@76.ops[24]: 'v-load array%array_new_length%0#1' with 'l-load array%array_new_length%0#1'
-debug: Inserted main_for_body@76.ops[20]: 'l-store-copy slot_contents%0#0 2'
-debug: Replaced main_for_body@76.ops[30]: 'v-load slot_contents%0#0' with 'l-load slot_contents%0#0'
-debug: Inserted main_for_body@76.ops[24]: 'l-store-copy array%array_contents%0#1 2'
-debug: Replaced main_for_body@76.ops[37]: 'v-load array%array_contents%0#1' with 'l-load array%array_contents%0#1'
+debug: Inserted main_for_body@76.ops[6]: 'l-store-copy len%0#0 0'
+debug: Replaced main_for_body@76.ops[8]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted main_for_body@76.ops[27]: 'l-store-copy popped#0 0'
+debug: Replaced main_for_body@76.ops[29]: 'v-load popped#0' with 'l-load popped#0'
+debug: Inserted main_for_body@76.ops[32]: 'l-store-copy tmp%0#0 0'
+debug: Replaced main_for_body@76.ops[34]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted main_for_body@76.ops[11]: 'l-store-copy sub%0#0 0'
+debug: Replaced main_for_body@76.ops[14]: 'v-load sub%0#0' with 'l-load sub%0#0'
+debug: Inserted main_for_body@76.ops[22]: 'l-store-copy extract%0#0 0'
+debug: Replaced main_for_body@76.ops[25]: 'v-load extract%0#0' with 'l-load extract%0#0'
+debug: Inserted main_for_body@76.ops[14]: 'l-store-copy slot_contents%0#0 1'
+debug: Replaced main_for_body@76.ops[19]: 'v-load slot_contents%0#0' with 'l-load slot_contents%0#0'
+debug: Inserted main_for_body@76.ops[34]: 'l-store-copy expected#0 1'
+debug: Replaced main_for_body@76.ops[40]: 'v-load expected#0' with 'l-load expected#0'
+debug: Inserted main_for_body@76.ops[9]: 'l-store-copy len%0#0 0'
+debug: Replaced main_for_body@76.ops[17]: 'v-load len%0#0' with 'l-load len%0#0'
+debug: Inserted main_for_body@76.ops[17]: 'l-store-copy sub%0#0 3'
+debug: Replaced main_for_body@76.ops[23]: 'v-load sub%0#0' with 'l-load sub%0#0'
 debug: Inserted main_for_body@76.ops[5]: 'l-store-copy slot_contents%0#0 0'
-debug: Replaced main_for_body@76.ops[20]: 'v-load slot_contents%0#0' with 'l-load slot_contents%0#0'
+debug: Replaced main_for_body@76.ops[15]: 'v-load slot_contents%0#0' with 'l-load slot_contents%0#0'
+debug: Inserted main_for_body@76.ops[21]: 'l-store-copy data%0#0 2'
+debug: Replaced main_for_body@76.ops[32]: 'v-load data%0#0' with 'l-load data%0#0'
 debug: Inserted main_for_body@76.ops[1]: 'l-store-copy arr#0 0'
-debug: Replaced main_for_body@76.ops[38]: 'v-load arr#0' with 'l-load arr#0'
+debug: Replaced main_for_body@76.ops[30]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted main_after_for@77.ops[2]: 'l-store-copy slot_contents%8#0 0'
 debug: Replaced main_after_for@77.ops[4]: 'v-load slot_contents%8#0' with 'l-load slot_contents%8#0'
 debug: Inserted main_after_for@77.ops[6]: 'l-store-copy array%bytes_len%5#1 0'
@@ -11488,7 +11487,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: data%0#0, arr#2
+debug: Found equivalence set: tmp%1#0, arr#2
 debug: selected arr#2 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -11630,7 +11629,7 @@ debug: Found equivalence set: encoded_bool%0#1, as_Encoded(bool8)%0#1
 debug: selected encoded_bool%0#1 from equivalence set
 debug: Found equivalence set: as_Encoded(len+bool1[])%0#1, arr#38
 debug: selected arr#38 from equivalence set
-debug: Found equivalence set: data%0#5, arr#43
+debug: Found equivalence set: tmp%16#5, arr#43
 debug: selected arr#43 from equivalence set
 debug: Found equivalence set: encoded%1#16, arr#32
 debug: selected arr#32 from equivalence set
@@ -11640,7 +11639,7 @@ debug: Found equivalence set: val_as_bytes%1#6, as_Encoded(uint64)%1#6
 debug: selected val_as_bytes%1#6 from equivalence set
 debug: Found equivalence set: replace%0#8, as_Encoded(len+(uint64,uint64)[])%0#0, arr#34
 debug: selected arr#34 from equivalence set
-debug: Found equivalence set: data%0#4, arr#35
+debug: Found equivalence set: tmp%15#4, arr#35
 debug: selected arr#35 from equivalence set
 debug: Found equivalence set: encoded%1#15, arr#29
 debug: selected arr#29 from equivalence set
@@ -11662,7 +11661,7 @@ debug: Found equivalence set: encoded_value%0#4, as_Encoded(len+uint8[])%0#0
 debug: selected encoded_value%0#4 from equivalence set
 debug: Found equivalence set: as_Encoded(len+(uint64,len+uint8[])[])%0#0, arr#26
 debug: selected arr#26 from equivalence set
-debug: Found equivalence set: data%0#3, arr#28
+debug: Found equivalence set: tmp%15#3, arr#28
 debug: selected arr#28 from equivalence set
 debug: Found equivalence set: encoded%1#13, arr#19
 debug: selected arr#19 from equivalence set
@@ -11672,7 +11671,7 @@ debug: Found equivalence set: encoded_value%0#3, as_Encoded(len+utf8[])%0#3
 debug: selected encoded_value%0#3 from equivalence set
 debug: Found equivalence set: as_Encoded(len+(uint64,len+utf8[])[])%0#2, arr#21
 debug: selected arr#21 from equivalence set
-debug: Found equivalence set: data%0#2, arr#23
+debug: Found equivalence set: tmp%15#2, arr#23
 debug: selected arr#23 from equivalence set
 debug: Found equivalence set: reinterpret_Encoded(len+uint64[])%0#0, arr#18
 debug: selected arr#18 from equivalence set
@@ -12838,9 +12837,9 @@ debug: Found equivalence set: as_Encoded(len+bool1[])%0#0, arr#2
 debug: selected arr#2 from equivalence set
 debug: Found equivalence set: arr#1, array#0
 debug: selected arr#1 from equivalence set
-debug: Found equivalence set: popped#0, popped%0#0
+debug: Found equivalence set: popped#0, tmp%15#0
 debug: selected popped#0 from equivalence set
-debug: Found equivalence set: result#2, data%0#0, arr#7
+debug: Found equivalence set: result#2, tmp%16#0, arr#7
 debug: selected result#2 from equivalence set
 debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -12881,7 +12880,7 @@ debug: Found equivalence set: val_as_bytes%1#0, as_Encoded(uint64)%1#0
 debug: selected val_as_bytes%1#0 from equivalence set
 debug: Found equivalence set: replace%0#0, as_Encoded(len+(uint64,uint64)[])%0#0, arr#2
 debug: selected arr#2 from equivalence set
-debug: Found equivalence set: data%0#0, arr#3
+debug: Found equivalence set: tmp%15#0, arr#3
 debug: selected arr#3 from equivalence set
 debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -12982,7 +12981,7 @@ debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+uint8[])%0#0
 debug: selected encoded_value%0#0 from equivalence set
 debug: Found equivalence set: as_Encoded(len+(uint64,len+uint8[])[])%0#0, arr#2
 debug: selected arr#2 from equivalence set
-debug: Found equivalence set: data%0#0, arr#4
+debug: Found equivalence set: tmp%15#0, arr#4
 debug: selected arr#4 from equivalence set
 debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -13071,7 +13070,7 @@ debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+utf8[])%0#0
 debug: selected encoded_value%0#0 from equivalence set
 debug: Found equivalence set: as_Encoded(len+(uint64,len+utf8[])[])%0#0, arr#2
 debug: selected arr#2 from equivalence set
-debug: Found equivalence set: data%0#0, arr#4
+debug: Found equivalence set: tmp%15#0, arr#4
 debug: selected arr#4 from equivalence set
 debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -15527,11 +15526,11 @@ debug: Found equivalence set: array%array_length%4#1, tmp%10#6
 debug: selected array%array_length%4#1 from equivalence set
 debug: Found equivalence set: array%array_length%5#1, tmp%14#7
 debug: selected array%array_length%5#1 from equivalence set
-debug: Found equivalence set: array%array_length%6#1, tmp%16#7
+debug: Found equivalence set: array%array_length%6#1, tmp%16#6
 debug: selected array%array_length%6#1 from equivalence set
 debug: Found equivalence set: array%array_length%7#1, tmp%22#5
 debug: selected array%array_length%7#1 from equivalence set
-debug: Found equivalence set: array%array_length%8#1, tmp%24#3
+debug: Found equivalence set: array%array_length%8#1, tmp%24#5
 debug: selected array%array_length%8#1 from equivalence set
 debug: Found equivalence set: array%array_length%9#1, tmp%28#2
 debug: selected array%array_length%9#1 from equivalence set
@@ -15557,15 +15556,15 @@ debug: Found equivalence set: array%array_length%17#1, tmp%11#5
 debug: selected array%array_length%17#1 from equivalence set
 debug: Found equivalence set: array%array_length%18#1, tmp%13#6
 debug: selected array%array_length%18#1 from equivalence set
-debug: Found equivalence set: encoded_element%1#2, tmp%15#6
+debug: Found equivalence set: encoded_element%1#2, tmp%15#2
 debug: selected encoded_element%1#2 from equivalence set
 debug: Found equivalence set: array%array_length%19#1, tmp%20#4
 debug: selected array%array_length%19#1 from equivalence set
 debug: Found equivalence set: array%array_length%20#1, tmp%22#4
 debug: selected array%array_length%20#1 from equivalence set
-debug: Found equivalence set: encoded_element%2#1, tmp%24#2
+debug: Found equivalence set: encoded_element%2#1, tmp%24#4
 debug: selected encoded_element%2#1 from equivalence set
-debug: Found equivalence set: encoded_element%3#1, tmp%26#1
+debug: Found equivalence set: encoded_element%3#1, tmp%26#2
 debug: selected encoded_element%3#1 from equivalence set
 debug: Found equivalence set: array%array_length%21#1, tmp%28#1
 debug: selected array%array_length%21#1 from equivalence set
@@ -15587,7 +15586,7 @@ debug: Found equivalence set: array%array_length%27#1, array_length%2#3
 debug: selected array%array_length%27#1 from equivalence set
 debug: Found equivalence set: array%array_length%28#1, array_length%3#3
 debug: selected array%array_length%28#1 from equivalence set
-debug: Found equivalence set: array%array_length%29#1, tmp%15#5
+debug: Found equivalence set: array%array_length%29#1, tmp%17#4
 debug: selected array%array_length%29#1 from equivalence set
 debug: Found equivalence set: array%array_length%30#1, tmp%0#13
 debug: selected array%array_length%30#1 from equivalence set
@@ -15603,13 +15602,13 @@ debug: Found equivalence set: array%item0%1#1, awst_tmp%2#2
 debug: selected array%item0%1#1 from equivalence set
 debug: Found equivalence set: array%item1%1#1, awst_tmp%3#2
 debug: selected array%item1%1#1 from equivalence set
-debug: Found equivalence set: array%array_length%33#1, tmp%14#4
+debug: Found equivalence set: array%array_length%33#1, tmp%16#4
 debug: selected array%array_length%33#1 from equivalence set
 debug: Found equivalence set: array%item0%2#1, awst_tmp%4#0
 debug: selected array%item0%2#1 from equivalence set
 debug: Found equivalence set: array%item1%2#1, awst_tmp%5#0
 debug: selected array%item1%2#1 from equivalence set
-debug: Found equivalence set: array%array_length%34#1, tmp%19#3
+debug: Found equivalence set: array%array_length%34#1, tmp%21#3
 debug: selected array%array_length%34#1 from equivalence set
 debug: Found equivalence set: array%item0%3#1, awst_tmp%6#0
 debug: selected array%item0%3#1 from equivalence set
@@ -15641,7 +15640,7 @@ debug: Found equivalence set: array%item0%6#1, tmp%10#2
 debug: selected array%item0%6#1 from equivalence set
 debug: Found equivalence set: array%item1%6#1, tmp%11#2
 debug: selected array%item1%6#1 from equivalence set
-debug: Found equivalence set: array%array_length%41#1, tmp%14#3
+debug: Found equivalence set: array%array_length%41#1, tmp%16#3
 debug: selected array%array_length%41#1 from equivalence set
 debug: Found equivalence set: array%array_length%42#1, array_length%2#2
 debug: selected array%array_length%42#1 from equivalence set
@@ -15649,7 +15648,7 @@ debug: Found equivalence set: array%item0%7#1, awst_tmp%0#1
 debug: selected array%item0%7#1 from equivalence set
 debug: Found equivalence set: array%item1%7#1, awst_tmp%1#1
 debug: selected array%item1%7#1 from equivalence set
-debug: Found equivalence set: array%array_length%43#1, tmp%20#2
+debug: Found equivalence set: array%array_length%43#1, tmp%22#2
 debug: selected array%array_length%43#1 from equivalence set
 debug: Found equivalence set: array%array_length%44#1, array_length%3#2
 debug: selected array%array_length%44#1 from equivalence set
@@ -15673,7 +15672,7 @@ debug: Found equivalence set: array%item0%10#1, tmp%10#1
 debug: selected array%item0%10#1 from equivalence set
 debug: Found equivalence set: array%item1%10#1, tmp%11#1
 debug: selected array%item1%10#1 from equivalence set
-debug: Found equivalence set: array%array_length%49#1, tmp%14#2
+debug: Found equivalence set: array%array_length%49#1, tmp%16#2
 debug: selected array%array_length%49#1 from equivalence set
 debug: Found equivalence set: array%array_length%50#1, array_length%2#1
 debug: selected array%array_length%50#1 from equivalence set
@@ -15681,7 +15680,7 @@ debug: Found equivalence set: array%item0%11#1, awst_tmp%0#0
 debug: selected array%item0%11#1 from equivalence set
 debug: Found equivalence set: array%item1%11#1, awst_tmp%1#0
 debug: selected array%item1%11#1 from equivalence set
-debug: Found equivalence set: array%array_length%51#1, tmp%19#1
+debug: Found equivalence set: array%array_length%51#1, tmp%21#1
 debug: selected array%array_length%51#1 from equivalence set
 debug: Found equivalence set: array%array_length%52#1, array_length%3#1
 debug: selected array%array_length%52#1 from equivalence set
@@ -15897,16 +15896,16 @@ debug: Found equivalence set: array%array_length%69#1, array%array_length%70#1
 debug: selected array%array_length%69#1 from equivalence set
 debug: Copy propagation made 29 modifications
 debug: Replacing redundant declaration let has_next%1#1: uint64 = (- array%array_length%38#1 i#34) // on error: index access is out of bounds with copy of existing registers (Register(source_location=array/immutable.py:210:19-25, ir_type=uint64, name='has_next%0', version=2),)
-debug: Replacing redundant declaration let tmp%21#2: uint64 = (- array%array_length%41#1 1u) with copy of existing registers (Register(source_location=array/immutable.py:215:15-21, ir_type=uint64, name='has_next%2', version=1),)
+debug: Replacing redundant declaration let tmp%23#2: uint64 = (- array%array_length%41#1 1u) with copy of existing registers (Register(source_location=array/immutable.py:215:15-21, ir_type=uint64, name='has_next%2', version=1),)
 debug: Replacing redundant declaration let has_next%1#0: uint64 = (- array%array_length%46#1 i#28) // on error: index access is out of bounds with copy of existing registers (Register(source_location=array/immutable.py:229:19-25, ir_type=uint64, name='has_next%0', version=1),)
-debug: Replacing redundant declaration let tmp%20#1: uint64 = (- array%array_length%49#1 1u) with copy of existing registers (Register(source_location=array/immutable.py:234:15-21, ir_type=uint64, name='has_next%2', version=0),)
+debug: Replacing redundant declaration let tmp%22#1: uint64 = (- array%array_length%49#1 1u) with copy of existing registers (Register(source_location=array/immutable.py:234:15-21, ir_type=uint64, name='has_next%2', version=0),)
 debug: Found equivalence set: has_next%0#2, has_next%1#1
 debug: selected has_next%0#2 from equivalence set
-debug: Found equivalence set: has_next%2#1, tmp%21#2
+debug: Found equivalence set: has_next%2#1, tmp%23#2
 debug: selected has_next%2#1 from equivalence set
 debug: Found equivalence set: has_next%0#1, has_next%1#0
 debug: selected has_next%0#1 from equivalence set
-debug: Found equivalence set: has_next%2#0, tmp%20#1
+debug: Found equivalence set: has_next%2#0, tmp%22#1
 debug: selected has_next%2#0 from equivalence set
 debug: Copy propagation made 6 modifications
 debug: Replacing redundant declaration let end_offset%1#1: uint64 = (select end_of_array%0#2 next_item_offset%0#2 has_next%0#2) with copy of existing registers (Register(source_location=array/immutable.py:210:19-25, ir_type=uint64, name='end_offset%0', version=2),)
@@ -16405,22 +16404,22 @@ debug: Coalescing len%1#0 with [len%1#3, len%1#2, len%1#1]
 debug: Coalescing div_floor%1#0 with [div_floor%1#3, div_floor%1#2, div_floor%1#1]
 debug: Coalescing as_bytes%2#6 with [as_bytes%2#7]
 debug: Coalescing as_u16_bytes%1#0 with [as_u16_bytes%1#3, as_u16_bytes%1#2, as_u16_bytes%1#1]
-debug: Coalescing tmp%15#1 with [tmp%15#7, tmp%15#4, tmp%15#3, tmp%15#2]
+debug: Coalescing tmp%15#1 with [tmp%15#3]
 debug: Coalescing tmp%17#5 with [tmp%17#6]
 debug: Coalescing array_trimmed%2#0 with [array_trimmed%2#4, array_trimmed%2#3, array_trimmed%2#2, array_trimmed%2#1]
 debug: Coalescing bytes_offset%2#1 with [bytes_offset%2#2]
-debug: Coalescing tmp%18#0 with [tmp%18#5]
-debug: Coalescing tmp%19#2 with [tmp%19#5]
-debug: Coalescing tmp%20#0 with [tmp%20#5, tmp%20#3]
-debug: Coalescing tmp%21#0 with [tmp%21#5, tmp%21#4, tmp%21#3, tmp%21#1]
+debug: Coalescing tmp%18#0 with [tmp%18#6, tmp%18#4]
+debug: Coalescing tmp%19#1 with [tmp%19#6, tmp%19#4, tmp%19#3]
+debug: Coalescing tmp%20#0 with [tmp%20#5]
+debug: Coalescing tmp%21#0 with [tmp%21#5, tmp%21#4, tmp%21#2]
 debug: Coalescing _i#0 with [_i#5, _i#1, _i#2]
 debug: Coalescing continue_looping%0#0 with [continue_looping%0#15, continue_looping%0#14, continue_looping%0#13, continue_looping%0#12, continue_looping%0#11, continue_looping%0#10, continue_looping%0#9, continue_looping%0#7, continue_looping%0#8, continue_looping%0#6, continue_looping%0#5, continue_looping%0#4, continue_looping%0#3, continue_looping%0#2, continue_looping%0#1]
-debug: Coalescing popped%0#0 with [popped%0#3, popped%0#2, popped%0#1]
+debug: Coalescing tmp%0#15 with [tmp%0#19]
 debug: Coalescing tmp%23#1 with [tmp%23#5, tmp%23#3]
 debug: Coalescing array_trimmed%4#0 with [array_trimmed%4#1]
 debug: Coalescing bytes_offset%4#0 with [bytes_offset%4#1]
-debug: Coalescing tmp%26#0 with [tmp%26#2]
-debug: Coalescing tmp%27#1 with [tmp%27#2]
+debug: Coalescing tmp%26#0 with [tmp%26#3]
+debug: Coalescing tmp%27#1 with [tmp%27#3, tmp%27#2]
 debug: Coalescing tmp%29#0 with [tmp%29#2, tmp%29#1]
 debug: Coalescing tmp%31#1 with [tmp%31#2]
 debug: Coalescing tmp%32#0 with [tmp%32#2]
@@ -16436,7 +16435,7 @@ debug: Coalescing tmp%38#0 with [tmp%38#2]
 debug: Coalescing tmp%41#0 with [tmp%41#2]
 debug: Coalescing tmp%42#0 with [tmp%42#2]
 debug: Coalescing test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0 with [test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#1, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#2, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#3, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#4, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#5, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#6, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#7, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#8, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#9, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#10, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#11, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#12, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#13, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#14, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#15, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#16, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#17, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#18, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#19, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#20, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#21, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#22, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#23, test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#24]
-debug: Coalescing tmp%0#0 with [tmp%0#18]
+debug: Coalescing tmp%0#0 with [tmp%0#20]
 debug: Coalescing tmp%8#0 with [tmp%8#4, tmp%8#3, tmp%8#2, tmp%8#1]
 debug: Coalescing tmp%2#2 with [tmp%2#8, tmp%2#7, tmp%2#6, tmp%2#3]
 debug: Coalescing arc4_encoded%0#0 with [arc4_encoded%0#1]
@@ -16455,9 +16454,9 @@ debug: Coalescing i#0 with [i#44, i#49, i#45, i#46, i#41, i#52, i#42, i#43, i#38
 debug: Coalescing i#18 with [i#40, i#31, i#34, i#25, i#28]
 debug: Coalescing tmp%12#0 with [tmp%12#6, tmp%12#4, tmp%12#1]
 debug: Coalescing encoded_element%1#0 with [encoded_element%1#2, encoded_element%1#1]
-debug: Coalescing tmp%16#1 with [tmp%16#6, tmp%16#4, tmp%16#3, tmp%16#2]
+debug: Coalescing tmp%16#1 with [tmp%16#5]
 debug: Coalescing encoded_element%2#0 with [encoded_element%2#1]
-debug: Coalescing tmp%25#0 with [tmp%25#3, tmp%25#2, tmp%25#1]
+debug: Coalescing tmp%25#0 with [tmp%25#5, tmp%25#4, tmp%25#2, tmp%25#1]
 debug: Coalescing encoded_element%3#0 with [encoded_element%3#1]
 debug: Coalescing tmp%3#2 with [tmp%3#9, tmp%3#7, tmp%3#3]
 debug: Coalescing encoded_bool%0#0 with [encoded_bool%0#1]
@@ -16466,13 +16465,15 @@ debug: Coalescing tmp%7#5 with [tmp%7#6]
 debug: Coalescing tmp%11#3 with [tmp%11#4]
 debug: Coalescing result#0 with [result#4, result#5, result#6, result#3, result#2, result#1]
 debug: Coalescing tmp%4#4 with [tmp%4#7]
-debug: Coalescing tmp%16#0 with [tmp%16#5]
-debug: Coalescing tmp%17#0 with [tmp%17#4, tmp%17#3, tmp%17#1]
+debug: Coalescing tmp%17#0 with [tmp%17#3, tmp%17#2, tmp%17#1]
 debug: Coalescing val_as_bytes%0#0 with [val_as_bytes%0#10, val_as_bytes%0#9, val_as_bytes%0#8, val_as_bytes%0#7, val_as_bytes%0#6, val_as_bytes%0#5, val_as_bytes%0#1]
 debug: Coalescing val_as_bytes%1#0 with [val_as_bytes%1#6, val_as_bytes%1#5, val_as_bytes%1#4, val_as_bytes%1#2, val_as_bytes%1#1]
 debug: Coalescing encoded%3#0 with [encoded%3#10, encoded%3#9, encoded%3#8, encoded%3#7]
+debug: Coalescing tmp%14#2 with [tmp%14#4, tmp%14#3]
 debug: Coalescing tmp%18#1 with [tmp%18#3, tmp%18#2]
-debug: Coalescing tmp%22#1 with [tmp%22#3, tmp%22#2]
+debug: Coalescing tmp%20#1 with [tmp%20#3, tmp%20#2]
+debug: Coalescing tmp%22#0 with [tmp%22#3]
+debug: Coalescing tmp%24#1 with [tmp%24#3, tmp%24#2]
 debug: Coalescing encoded_bit%0#0 with [encoded_bit%0#4, encoded_bit%0#3]
 debug: Coalescing set_bit%0#0 with [set_bit%0#4, set_bit%0#3]
 debug: Coalescing extract_uint16%0#0 with [extract_uint16%0#4, extract_uint16%0#3, extract_uint16%0#2, extract_uint16%0#1]
@@ -16541,7 +16542,7 @@ debug: Coalescing arg.1#0 with [arg.1#1]
 debug: Coalescing total_length%0#0 with [total_length%0#1]
 debug: Coalescing data%0#0 with [data%0#1]
 debug: Coalescing imm#0 with [imm#1]
-debug: Coalescing resulted in 1344 replacement/s
+debug: Coalescing resulted in 1342 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: loc: {_i#0=_i#0, arr#0=arr#0}
 debug: pred: {_i#0=_i#0, arr#0=arr#0}
@@ -17174,8 +17175,8 @@ debug: Inserted main_test_uint64_array_route@3.ops[92]: 'l-store-copy tmp%15#1 0
 debug: Replaced main_test_uint64_array_route@3.ops[94]: 'v-load tmp%15#1' with 'l-load tmp%15#1'
 debug: Inserted main_test_uint64_array_route@3.ops[110]: 'l-store-copy tmp%18#0 0'
 debug: Replaced main_test_uint64_array_route@3.ops[112]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
-debug: Inserted main_test_uint64_array_route@3.ops[115]: 'l-store-copy tmp%19#2 0'
-debug: Replaced main_test_uint64_array_route@3.ops[117]: 'v-load tmp%19#2' with 'l-load tmp%19#2'
+debug: Inserted main_test_uint64_array_route@3.ops[115]: 'l-store-copy tmp%19#1 0'
+debug: Replaced main_test_uint64_array_route@3.ops[117]: 'v-load tmp%19#1' with 'l-load tmp%19#1'
 debug: Inserted main_test_uint64_array_route@3.ops[122]: 'l-store-copy tmp%20#0 0'
 debug: Replaced main_test_uint64_array_route@3.ops[124]: 'v-load tmp%20#0' with 'l-load tmp%20#0'
 debug: Inserted main_test_uint64_array_route@3.ops[127]: 'l-store-copy tmp%21#0 0'
@@ -17270,8 +17271,8 @@ debug: Inserted main_after_for@165.ops[130]: 'l-store-copy bytes_offset%6#0 0'
 debug: Replaced main_after_for@165.ops[133]: 'v-load bytes_offset%6#0' with 'l-load bytes_offset%6#0'
 debug: Inserted main_after_for@165.ops[146]: 'l-store-copy array%val_as_bytes%0#1 0'
 debug: Replaced main_after_for@165.ops[149]: 'v-load array%val_as_bytes%0#1' with 'l-load array%val_as_bytes%0#1'
-debug: Inserted main_after_for@165.ops[15]: 'l-store-copy tmp%25#4 0'
-debug: Replaced main_after_for@165.ops[20]: 'v-load tmp%25#4' with 'l-load tmp%25#4'
+debug: Inserted main_after_for@165.ops[15]: 'l-store-copy tmp%25#6 0'
+debug: Replaced main_after_for@165.ops[20]: 'v-load tmp%25#6' with 'l-load tmp%25#6'
 debug: Inserted main_after_for@165.ops[57]: 'l-store-copy tmp%31#1 0'
 debug: Replaced main_after_for@165.ops[62]: 'v-load tmp%31#1' with 'l-load tmp%31#1'
 debug: Inserted main_after_for@165.ops[125]: 'l-store-copy tmp%37#2 0'
@@ -17388,8 +17389,8 @@ debug: Inserted main_after_for@160.ops[32]: 'l-store-copy tmp%16#1 0'
 debug: Replaced main_after_for@160.ops[34]: 'v-load tmp%16#1' with 'l-load tmp%16#1'
 debug: Inserted main_after_for@160.ops[37]: 'l-store-copy tmp%17#5 0'
 debug: Replaced main_after_for@160.ops[39]: 'v-load tmp%17#5' with 'l-load tmp%17#5'
-debug: Inserted main_after_for@160.ops[45]: 'l-store-copy tmp%19#4 0'
-debug: Replaced main_after_for@160.ops[47]: 'v-load tmp%19#4' with 'l-load tmp%19#4'
+debug: Inserted main_after_for@160.ops[45]: 'l-store-copy tmp%19#5 0'
+debug: Replaced main_after_for@160.ops[47]: 'v-load tmp%19#5' with 'l-load tmp%19#5'
 debug: Inserted main_after_for@160.ops[49]: 'l-store-copy value_len%1#0 0'
 debug: Replaced main_after_for@160.ops[51]: 'v-load value_len%1#0' with 'l-load value_len%1#0'
 debug: Inserted main_after_for@160.ops[54]: 'l-store-copy len_ok%1#0 0'
@@ -17446,8 +17447,8 @@ debug: Inserted main_after_for@160.ops[223]: 'l-store-copy test_cases.array.immu
 debug: Replaced main_after_for@160.ops[225]: 'v-load test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0'
 debug: Inserted main_after_for@160.ops[22]: 'l-store-copy bytes_offset%1#0 0'
 debug: Replaced main_after_for@160.ops[25]: 'v-load bytes_offset%1#0' with 'l-load bytes_offset%1#0'
-debug: Inserted main_after_for@160.ops[42]: 'l-store-copy tmp%18#4 0'
-debug: Replaced main_after_for@160.ops[45]: 'v-load tmp%18#4' with 'l-load tmp%18#4'
+debug: Inserted main_after_for@160.ops[42]: 'l-store-copy tmp%18#5 0'
+debug: Replaced main_after_for@160.ops[45]: 'v-load tmp%18#5' with 'l-load tmp%18#5'
 debug: Inserted main_after_for@160.ops[63]: 'l-store-copy arc4_encoded%1#0 0'
 debug: Replaced main_after_for@160.ops[66]: 'v-load arc4_encoded%1#0' with 'l-load arc4_encoded%1#0'
 debug: Inserted main_after_for@160.ops[89]: 'l-store-copy as_u16_bytes%1#0 0'
@@ -17476,8 +17477,8 @@ debug: Inserted main_after_for@160.ops[105]: 'l-store-copy array%array_length%19
 debug: Replaced main_after_for@160.ops[112]: 'v-load array%array_length%19#1' with 'l-load array%array_length%19#1'
 debug: Inserted main_after_for@160.ops[187]: 'l-store-copy array%array_length%21#1 0'
 debug: Replaced main_after_for@160.ops[194]: 'v-load array%array_length%21#1' with 'l-load array%array_length%21#1'
-debug: Inserted main_after_for@160.ops[53]: 'l-store-copy tmp%19#4 0'
-debug: Replaced main_after_for@160.ops[64]: 'v-load tmp%19#4' with 'l-load tmp%19#4'
+debug: Inserted main_after_for@160.ops[53]: 'l-store-copy tmp%19#5 0'
+debug: Replaced main_after_for@160.ops[64]: 'v-load tmp%19#5' with 'l-load tmp%19#5'
 debug: Inserted main_after_for@160.ops[141]: 'l-store-copy arr#0 0'
 debug: Replaced main_after_for@160.ops[152]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted main_after_for@160.ops[224]: 'l-store-copy arr#0 0'
@@ -17568,16 +17569,16 @@ debug: Inserted main_if_body@154.ops[28]: 'l-store-copy tmp%3#0 0'
 debug: Replaced main_if_body@154.ops[30]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
 debug: Inserted main_if_body@154.ops[42]: 'l-store-copy result#0 0'
 debug: Replaced main_if_body@154.ops[44]: 'v-load result#0' with 'l-load result#0'
-debug: Inserted main_if_body@154.ops[55]: 'l-store-copy tmp%17#0 0'
-debug: Replaced main_if_body@154.ops[57]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
+debug: Inserted main_if_body@154.ops[55]: 'l-store-copy tmp%19#1 0'
+debug: Replaced main_if_body@154.ops[57]: 'v-load tmp%19#1' with 'l-load tmp%19#1'
 debug: Inserted main_if_body@154.ops[11]: 'l-store-copy tmp%1#11 0'
 debug: Replaced main_if_body@154.ops[14]: 'v-load tmp%1#11' with 'l-load tmp%1#11'
 debug: Inserted main_if_body@154.ops[20]: 'l-store-copy popped_location#0 0'
 debug: Replaced main_if_body@154.ops[23]: 'v-load popped_location#0' with 'l-load popped_location#0'
 debug: Inserted main_if_body@154.ops[35]: 'l-store-copy tmp%4#4 0'
 debug: Replaced main_if_body@154.ops[38]: 'v-load tmp%4#4' with 'l-load tmp%4#4'
-debug: Inserted main_if_body@154.ops[54]: 'l-store-copy tmp%16#0 0'
-debug: Replaced main_if_body@154.ops[57]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
+debug: Inserted main_if_body@154.ops[54]: 'l-store-copy tmp%18#0 0'
+debug: Replaced main_if_body@154.ops[57]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
 debug: Inserted main_if_body@154.ops[40]: 'l-store-copy tmp%5#0 0'
 debug: Replaced main_if_body@154.ops[44]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
 debug: Inserted main_if_body@154.ops[16]: 'l-store-copy result#0 0'
@@ -17644,18 +17645,18 @@ debug: Inserted main_after_for@140.ops[76]: 'l-store-copy tmp%13#1 0'
 debug: Replaced main_after_for@140.ops[78]: 'v-load tmp%13#1' with 'l-load tmp%13#1'
 debug: Inserted main_after_for@140.ops[88]: 'l-store-copy array%array_length%33#1 0'
 debug: Replaced main_after_for@140.ops[90]: 'v-load array%array_length%33#1' with 'l-load array%array_length%33#1'
-debug: Inserted main_after_for@140.ops[93]: 'l-store-copy tmp%15#1 0'
-debug: Replaced main_after_for@140.ops[95]: 'v-load tmp%15#1' with 'l-load tmp%15#1'
+debug: Inserted main_after_for@140.ops[93]: 'l-store-copy tmp%17#0 0'
+debug: Replaced main_after_for@140.ops[95]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
 debug: Inserted main_after_for@140.ops[102]: 'l-store-copy encoded_element%2#0 0'
 debug: Replaced main_after_for@140.ops[104]: 'v-load encoded_element%2#0' with 'l-load encoded_element%2#0'
-debug: Inserted main_after_for@140.ops[123]: 'l-store-copy tmp%18#1 0'
-debug: Replaced main_after_for@140.ops[125]: 'v-load tmp%18#1' with 'l-load tmp%18#1'
-debug: Inserted main_after_for@140.ops[130]: 'l-store-copy tmp%20#0 0'
-debug: Replaced main_after_for@140.ops[132]: 'v-load tmp%20#0' with 'l-load tmp%20#0'
+debug: Inserted main_after_for@140.ops[123]: 'l-store-copy tmp%20#1 0'
+debug: Replaced main_after_for@140.ops[125]: 'v-load tmp%20#1' with 'l-load tmp%20#1'
+debug: Inserted main_after_for@140.ops[130]: 'l-store-copy tmp%22#0 0'
+debug: Replaced main_after_for@140.ops[132]: 'v-load tmp%22#0' with 'l-load tmp%22#0'
 debug: Inserted main_after_for@140.ops[140]: 'l-store-copy encoded_element%3#0 0'
 debug: Replaced main_after_for@140.ops[142]: 'v-load encoded_element%3#0' with 'l-load encoded_element%3#0'
-debug: Inserted main_after_for@140.ops[161]: 'l-store-copy tmp%23#1 0'
-debug: Replaced main_after_for@140.ops[163]: 'v-load tmp%23#1' with 'l-load tmp%23#1'
+debug: Inserted main_after_for@140.ops[161]: 'l-store-copy tmp%25#0 0'
+debug: Replaced main_after_for@140.ops[163]: 'v-load tmp%25#0' with 'l-load tmp%25#0'
 debug: Inserted main_after_for@140.ops[169]: 'l-store-copy test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0 0'
 debug: Replaced main_after_for@140.ops[171]: 'v-load test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0'
 debug: Inserted main_after_for@140.ops[34]: 'l-store-copy tmp%7#5 0'
@@ -17666,12 +17667,12 @@ debug: Inserted main_after_for@140.ops[74]: 'l-store-copy tmp%12#0 0'
 debug: Replaced main_after_for@140.ops[77]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
 debug: Inserted main_after_for@140.ops[86]: 'l-store-copy arr#0 1'
 debug: Replaced main_after_for@140.ops[89]: 'v-load arr#0' with 'l-load arr#0'
-debug: Inserted main_after_for@140.ops[123]: 'l-store-copy tmp%17#0 0'
-debug: Replaced main_after_for@140.ops[126]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
+debug: Inserted main_after_for@140.ops[123]: 'l-store-copy tmp%19#1 0'
+debug: Replaced main_after_for@140.ops[126]: 'v-load tmp%19#1' with 'l-load tmp%19#1'
 debug: Inserted main_after_for@140.ops[140]: 'l-store-copy bytes_offset%3#0 0'
 debug: Replaced main_after_for@140.ops[143]: 'v-load bytes_offset%3#0' with 'l-load bytes_offset%3#0'
-debug: Inserted main_after_for@140.ops[163]: 'l-store-copy tmp%22#1 0'
-debug: Replaced main_after_for@140.ops[166]: 'v-load tmp%22#1' with 'l-load tmp%22#1'
+debug: Inserted main_after_for@140.ops[163]: 'l-store-copy tmp%24#1 0'
+debug: Replaced main_after_for@140.ops[166]: 'v-load tmp%24#1' with 'l-load tmp%24#1'
 debug: Inserted main_after_for@140.ops[13]: 'l-store-copy arr#0 0'
 debug: Replaced main_after_for@140.ops[16]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted main_after_for@140.ops[103]: 'l-store-copy arr#0 0'
@@ -17700,14 +17701,14 @@ debug: Inserted main_after_for@140.ops[122]: 'l-store-copy array%item0%2#1 1'
 debug: Replaced main_after_for@140.ops[128]: 'v-load array%item0%2#1' with 'l-load array%item0%2#1'
 debug: Inserted main_after_for@140.ops[127]: 'l-store-copy array%item1%2#1 1'
 debug: Replaced main_after_for@140.ops[133]: 'v-load array%item1%2#1' with 'l-load array%item1%2#1'
-debug: Inserted main_after_for@140.ops[132]: 'l-store-copy tmp%16#1 1'
-debug: Replaced main_after_for@140.ops[139]: 'v-load tmp%16#1' with 'l-load tmp%16#1'
+debug: Inserted main_after_for@140.ops[132]: 'l-store-copy tmp%18#1 1'
+debug: Replaced main_after_for@140.ops[139]: 'v-load tmp%18#1' with 'l-load tmp%18#1'
 debug: Inserted main_after_for@140.ops[166]: 'l-store-copy array%item0%3#1 1'
 debug: Replaced main_after_for@140.ops[172]: 'v-load array%item0%3#1' with 'l-load array%item0%3#1'
 debug: Inserted main_after_for@140.ops[171]: 'l-store-copy array%item1%3#1 1'
 debug: Replaced main_after_for@140.ops[177]: 'v-load array%item1%3#1' with 'l-load array%item1%3#1'
-debug: Inserted main_after_for@140.ops[176]: 'l-store-copy tmp%21#0 1'
-debug: Replaced main_after_for@140.ops[183]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
+debug: Inserted main_after_for@140.ops[176]: 'l-store-copy tmp%23#1 1'
+debug: Replaced main_after_for@140.ops[183]: 'v-load tmp%23#1' with 'l-load tmp%23#1'
 debug: Inserted main_after_for@140.ops[1]: 'l-store-copy arr#0 0'
 debug: Replaced main_after_for@140.ops[13]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted main_after_for@140.ops[100]: 'l-store-copy arr#0 0'
@@ -17908,32 +17909,32 @@ debug: Inserted main_for_body@129.ops[17]: 'l-store-copy i#0 2'
 debug: Replaced main_for_body@129.ops[97]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted main_after_for@130.ops[7]: 'l-store-copy array%array_length%41#1 0'
 debug: Replaced main_after_for@130.ops[9]: 'v-load array%array_length%41#1' with 'l-load array%array_length%41#1'
-debug: Inserted main_after_for@130.ops[12]: 'l-store-copy tmp%15#1 0'
-debug: Replaced main_after_for@130.ops[14]: 'v-load tmp%15#1' with 'l-load tmp%15#1'
+debug: Inserted main_after_for@130.ops[12]: 'l-store-copy tmp%17#0 0'
+debug: Replaced main_after_for@130.ops[14]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
 debug: Inserted main_after_for@130.ops[18]: 'l-store-copy array_head_and_tail%2#0 0'
 debug: Replaced main_after_for@130.ops[20]: 'v-load array_head_and_tail%2#0' with 'l-load array_head_and_tail%2#0'
 debug: Inserted main_after_for@130.ops[44]: 'l-store-copy substring3%2#0 0'
 debug: Replaced main_after_for@130.ops[46]: 'v-load substring3%2#0' with 'l-load substring3%2#0'
 debug: Inserted main_after_for@130.ops[61]: 'l-store-copy array%encoded_item1%6#1 0'
 debug: Replaced main_after_for@130.ops[63]: 'v-load array%encoded_item1%6#1' with 'l-load array%encoded_item1%6#1'
-debug: Inserted main_after_for@130.ops[80]: 'l-store-copy tmp%19#2 0'
-debug: Replaced main_after_for@130.ops[82]: 'v-load tmp%19#2' with 'l-load tmp%19#2'
+debug: Inserted main_after_for@130.ops[80]: 'l-store-copy tmp%21#0 0'
+debug: Replaced main_after_for@130.ops[82]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
 debug: Inserted main_after_for@130.ops[117]: 'l-store-copy substring3%3#0 0'
 debug: Replaced main_after_for@130.ops[119]: 'v-load substring3%3#0' with 'l-load substring3%3#0'
 debug: Inserted main_after_for@130.ops[134]: 'l-store-copy array%encoded_item1%7#1 0'
 debug: Replaced main_after_for@130.ops[136]: 'v-load array%encoded_item1%7#1' with 'l-load array%encoded_item1%7#1'
-debug: Inserted main_after_for@130.ops[153]: 'l-store-copy tmp%25#0 0'
-debug: Replaced main_after_for@130.ops[155]: 'v-load tmp%25#0' with 'l-load tmp%25#0'
+debug: Inserted main_after_for@130.ops[153]: 'l-store-copy tmp%27#1 0'
+debug: Replaced main_after_for@130.ops[155]: 'v-load tmp%27#1' with 'l-load tmp%27#1'
 debug: Inserted main_after_for@130.ops[161]: 'l-store-copy test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0 0'
 debug: Replaced main_after_for@130.ops[163]: 'v-load test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0'
 debug: Inserted main_after_for@130.ops[2]: 'l-store-copy arr#0 1'
 debug: Replaced main_after_for@130.ops[5]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted main_after_for@130.ops[35]: 'l-store-copy next_item_offset%2#0 0'
 debug: Replaced main_after_for@130.ops[38]: 'v-load next_item_offset%2#0' with 'l-load next_item_offset%2#0'
-debug: Inserted main_after_for@130.ops[74]: 'l-store-copy tmp%17#2 0'
-debug: Replaced main_after_for@130.ops[77]: 'v-load tmp%17#2' with 'l-load tmp%17#2'
-debug: Inserted main_after_for@130.ops[79]: 'l-store-copy tmp%18#1 0'
-debug: Replaced main_after_for@130.ops[82]: 'v-load tmp%18#1' with 'l-load tmp%18#1'
+debug: Inserted main_after_for@130.ops[74]: 'l-store-copy tmp%19#2 0'
+debug: Replaced main_after_for@130.ops[77]: 'v-load tmp%19#2' with 'l-load tmp%19#2'
+debug: Inserted main_after_for@130.ops[79]: 'l-store-copy tmp%20#1 0'
+debug: Replaced main_after_for@130.ops[82]: 'v-load tmp%20#1' with 'l-load tmp%20#1'
 debug: Inserted main_after_for@130.ops[91]: 'l-store-copy item_offset_offset%3#0 0'
 debug: Replaced main_after_for@130.ops[94]: 'v-load item_offset_offset%3#0' with 'l-load item_offset_offset%3#0'
 debug: Inserted main_after_for@130.ops[100]: 'l-store-copy next_index%3#0 0'
@@ -17942,10 +17943,10 @@ debug: Inserted main_after_for@130.ops[109]: 'l-store-copy next_item_offset_offs
 debug: Replaced main_after_for@130.ops[112]: 'v-load next_item_offset_offset%3#0' with 'l-load next_item_offset_offset%3#0'
 debug: Inserted main_after_for@130.ops[114]: 'l-store-copy next_item_offset%3#0 0'
 debug: Replaced main_after_for@130.ops[117]: 'v-load next_item_offset%3#0' with 'l-load next_item_offset%3#0'
-debug: Inserted main_after_for@130.ops[153]: 'l-store-copy tmp%23#2 0'
-debug: Replaced main_after_for@130.ops[156]: 'v-load tmp%23#2' with 'l-load tmp%23#2'
-debug: Inserted main_after_for@130.ops[158]: 'l-store-copy tmp%24#1 0'
-debug: Replaced main_after_for@130.ops[161]: 'v-load tmp%24#1' with 'l-load tmp%24#1'
+debug: Inserted main_after_for@130.ops[153]: 'l-store-copy tmp%25#3 0'
+debug: Replaced main_after_for@130.ops[156]: 'v-load tmp%25#3' with 'l-load tmp%25#3'
+debug: Inserted main_after_for@130.ops[158]: 'l-store-copy tmp%26#1 0'
+debug: Replaced main_after_for@130.ops[161]: 'v-load tmp%26#1' with 'l-load tmp%26#1'
 debug: Inserted main_after_for@130.ops[30]: 'l-store-copy array_head_and_tail%2#0 0'
 debug: Replaced main_after_for@130.ops[33]: 'v-load array_head_and_tail%2#0' with 'l-load array_head_and_tail%2#0'
 debug: Inserted main_after_for@130.ops[42]: 'l-store-copy end_offset%2#0 0'
@@ -17980,14 +17981,14 @@ debug: Inserted main_after_for@130.ops[22]: 'l-store-copy array_head_and_tail%2#
 debug: Replaced main_after_for@130.ops[30]: 'v-load array_head_and_tail%2#0' with 'l-load array_head_and_tail%2#0'
 debug: Inserted main_after_for@130.ops[76]: 'l-store-copy array%item1%7#1 0'
 debug: Replaced main_after_for@130.ops[86]: 'v-load array%item1%7#1' with 'l-load array%item1%7#1'
-debug: Inserted main_after_for@130.ops[81]: 'l-store-copy tmp%16#1 1'
-debug: Replaced main_after_for@130.ops[92]: 'v-load tmp%16#1' with 'l-load tmp%16#1'
+debug: Inserted main_after_for@130.ops[81]: 'l-store-copy tmp%18#1 1'
+debug: Replaced main_after_for@130.ops[92]: 'v-load tmp%18#1' with 'l-load tmp%18#1'
 debug: Inserted main_after_for@130.ops[100]: 'l-store-copy has_next%2#0 0'
 debug: Replaced main_after_for@130.ops[109]: 'v-load has_next%2#0' with 'l-load has_next%2#0'
 debug: Inserted main_after_for@130.ops[165]: 'l-store-copy array%item1%8#1 0'
 debug: Replaced main_after_for@130.ops[175]: 'v-load array%item1%8#1' with 'l-load array%item1%8#1'
-debug: Inserted main_after_for@130.ops[170]: 'l-store-copy tmp%22#1 1'
-debug: Replaced main_after_for@130.ops[181]: 'v-load tmp%22#1' with 'l-load tmp%22#1'
+debug: Inserted main_after_for@130.ops[170]: 'l-store-copy tmp%24#1 1'
+debug: Replaced main_after_for@130.ops[181]: 'v-load tmp%24#1' with 'l-load tmp%24#1'
 debug: Inserted main_after_for@130.ops[36]: 'l-store-copy array_head_and_tail%2#0 1'
 debug: Replaced main_after_for@130.ops[47]: 'v-load array_head_and_tail%2#0' with 'l-load array_head_and_tail%2#0'
 debug: Inserted main_after_for@130.ops[126]: 'l-store-copy array_head_and_tail%2#0 1'
@@ -18126,30 +18127,30 @@ debug: Inserted main_for_body@121.ops[17]: 'l-store-copy i#0 2'
 debug: Replaced main_for_body@121.ops[92]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted main_after_for@122.ops[7]: 'l-store-copy array%array_length%49#1 0'
 debug: Replaced main_after_for@122.ops[9]: 'v-load array%array_length%49#1' with 'l-load array%array_length%49#1'
-debug: Inserted main_after_for@122.ops[12]: 'l-store-copy tmp%15#1 0'
-debug: Replaced main_after_for@122.ops[14]: 'v-load tmp%15#1' with 'l-load tmp%15#1'
+debug: Inserted main_after_for@122.ops[12]: 'l-store-copy tmp%17#0 0'
+debug: Replaced main_after_for@122.ops[14]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
 debug: Inserted main_after_for@122.ops[18]: 'l-store-copy array_head_and_tail%2#0 0'
 debug: Replaced main_after_for@122.ops[20]: 'v-load array_head_and_tail%2#0' with 'l-load array_head_and_tail%2#0'
 debug: Inserted main_after_for@122.ops[44]: 'l-store-copy substring3%2#0 0'
 debug: Replaced main_after_for@122.ops[46]: 'v-load substring3%2#0' with 'l-load substring3%2#0'
 debug: Inserted main_after_for@122.ops[61]: 'l-store-copy array%encoded_item1%10#1 0'
 debug: Replaced main_after_for@122.ops[63]: 'v-load array%encoded_item1%10#1' with 'l-load array%encoded_item1%10#1'
-debug: Inserted main_after_for@122.ops[77]: 'l-store-copy tmp%18#1 0'
-debug: Replaced main_after_for@122.ops[79]: 'v-load tmp%18#1' with 'l-load tmp%18#1'
+debug: Inserted main_after_for@122.ops[77]: 'l-store-copy tmp%20#1 0'
+debug: Replaced main_after_for@122.ops[79]: 'v-load tmp%20#1' with 'l-load tmp%20#1'
 debug: Inserted main_after_for@122.ops[114]: 'l-store-copy substring3%3#0 0'
 debug: Replaced main_after_for@122.ops[116]: 'v-load substring3%3#0' with 'l-load substring3%3#0'
 debug: Inserted main_after_for@122.ops[131]: 'l-store-copy array%encoded_item1%11#1 0'
 debug: Replaced main_after_for@122.ops[133]: 'v-load array%encoded_item1%11#1' with 'l-load array%encoded_item1%11#1'
-debug: Inserted main_after_for@122.ops[147]: 'l-store-copy tmp%23#1 0'
-debug: Replaced main_after_for@122.ops[149]: 'v-load tmp%23#1' with 'l-load tmp%23#1'
+debug: Inserted main_after_for@122.ops[147]: 'l-store-copy tmp%25#0 0'
+debug: Replaced main_after_for@122.ops[149]: 'v-load tmp%25#0' with 'l-load tmp%25#0'
 debug: Inserted main_after_for@122.ops[155]: 'l-store-copy test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0 0'
 debug: Replaced main_after_for@122.ops[157]: 'v-load test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0'
 debug: Inserted main_after_for@122.ops[2]: 'l-store-copy arr#0 1'
 debug: Replaced main_after_for@122.ops[5]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted main_after_for@122.ops[35]: 'l-store-copy next_item_offset%2#0 0'
 debug: Replaced main_after_for@122.ops[38]: 'v-load next_item_offset%2#0' with 'l-load next_item_offset%2#0'
-debug: Inserted main_after_for@122.ops[75]: 'l-store-copy tmp%17#0 0'
-debug: Replaced main_after_for@122.ops[78]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
+debug: Inserted main_after_for@122.ops[75]: 'l-store-copy tmp%19#1 0'
+debug: Replaced main_after_for@122.ops[78]: 'v-load tmp%19#1' with 'l-load tmp%19#1'
 debug: Inserted main_after_for@122.ops[87]: 'l-store-copy item_offset_offset%3#0 0'
 debug: Replaced main_after_for@122.ops[90]: 'v-load item_offset_offset%3#0' with 'l-load item_offset_offset%3#0'
 debug: Inserted main_after_for@122.ops[96]: 'l-store-copy next_index%3#0 0'
@@ -18158,8 +18159,8 @@ debug: Inserted main_after_for@122.ops[105]: 'l-store-copy next_item_offset_offs
 debug: Replaced main_after_for@122.ops[108]: 'v-load next_item_offset_offset%3#0' with 'l-load next_item_offset_offset%3#0'
 debug: Inserted main_after_for@122.ops[110]: 'l-store-copy next_item_offset%3#0 0'
 debug: Replaced main_after_for@122.ops[113]: 'v-load next_item_offset%3#0' with 'l-load next_item_offset%3#0'
-debug: Inserted main_after_for@122.ops[150]: 'l-store-copy tmp%22#1 0'
-debug: Replaced main_after_for@122.ops[153]: 'v-load tmp%22#1' with 'l-load tmp%22#1'
+debug: Inserted main_after_for@122.ops[150]: 'l-store-copy tmp%24#1 0'
+debug: Replaced main_after_for@122.ops[153]: 'v-load tmp%24#1' with 'l-load tmp%24#1'
 debug: Inserted main_after_for@122.ops[30]: 'l-store-copy array_head_and_tail%2#0 0'
 debug: Replaced main_after_for@122.ops[33]: 'v-load array_head_and_tail%2#0' with 'l-load array_head_and_tail%2#0'
 debug: Inserted main_after_for@122.ops[42]: 'l-store-copy end_offset%2#0 0'
@@ -18190,14 +18191,14 @@ debug: Inserted main_after_for@122.ops[60]: 'l-store-copy array%item_start_offse
 debug: Replaced main_after_for@122.ops[68]: 'v-load array%item_start_offset%6#1' with 'l-load array%item_start_offset%6#1'
 debug: Inserted main_after_for@122.ops[75]: 'l-store-copy array%item1%11#1 0'
 debug: Replaced main_after_for@122.ops[81]: 'v-load array%item1%11#1' with 'l-load array%item1%11#1'
-debug: Inserted main_after_for@122.ops[80]: 'l-store-copy tmp%16#1 1'
-debug: Replaced main_after_for@122.ops[87]: 'v-load tmp%16#1' with 'l-load tmp%16#1'
+debug: Inserted main_after_for@122.ops[80]: 'l-store-copy tmp%18#1 1'
+debug: Replaced main_after_for@122.ops[87]: 'v-load tmp%18#1' with 'l-load tmp%18#1'
 debug: Inserted main_after_for@122.ops[144]: 'l-store-copy array%item_start_offset%7#1 1'
 debug: Replaced main_after_for@122.ops[152]: 'v-load array%item_start_offset%7#1' with 'l-load array%item_start_offset%7#1'
 debug: Inserted main_after_for@122.ops[159]: 'l-store-copy array%item1%12#1 0'
 debug: Replaced main_after_for@122.ops[165]: 'v-load array%item1%12#1' with 'l-load array%item1%12#1'
-debug: Inserted main_after_for@122.ops[164]: 'l-store-copy tmp%21#0 1'
-debug: Replaced main_after_for@122.ops[171]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
+debug: Inserted main_after_for@122.ops[164]: 'l-store-copy tmp%23#1 1'
+debug: Replaced main_after_for@122.ops[171]: 'v-load tmp%23#1' with 'l-load tmp%23#1'
 debug: Inserted main_after_for@122.ops[22]: 'l-store-copy array_head_and_tail%2#0 0'
 debug: Replaced main_after_for@122.ops[30]: 'v-load array_head_and_tail%2#0' with 'l-load array_head_and_tail%2#0'
 debug: Inserted main_after_for@122.ops[96]: 'l-store-copy has_next%2#0 0'
