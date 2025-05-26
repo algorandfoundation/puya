@@ -5,6 +5,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
+from puya.ir.builder import arc4
 from puya.ir.builder._utils import (
     OpFactory,
     invoke_puya_lib_subroutine,
@@ -162,8 +163,6 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
             encoded_iterable = iterable
         # iterable is an unencoded or tuple type
         else:
-            from puya.ir.builder import arc4
-
             if not isinstance(iterable_ir_type, TupleIRType):
                 raise InternalError("expected tuple type for concatenation", self.loc)
             # the iterable could be either
