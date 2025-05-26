@@ -17,8 +17,7 @@ from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, dynamic_array, flow_control, mem, sequence, storage
-from puya.ir.builder._tuple_util import get_tuple_item_values
+from puya.ir.builder import arc4, dynamic_array, flow_control, mem, sequence, storage, tup
 from puya.ir.builder._utils import (
     OpFactory,
     assert_value,
@@ -45,7 +44,6 @@ from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.encodings import (
-    TupleEncoding,
     wtype_to_encoding,
 )
 from puya.ir.models import (
@@ -712,72 +710,28 @@ class FunctionIRBuilder(
         )
 
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.WTuple):
-            tup = self.visit_and_materialise(expr.base)
-            return get_tuple_item_values(
-                tuple_values=tup,
-                tuple_wtype=expr.base.wtype,
-                index=expr.index,
-                target_wtype=expr.wtype,
-                source_location=expr.source_location,
-            )
-        elif isinstance(expr.base.wtype, wtypes.ARC4Tuple):
-            base = self.visit_and_materialise_single(expr.base)
-            tuple_encoding = wtype_to_encoding(expr.base.wtype, expr.source_location)
-            expect(tuple_encoding, TupleEncoding)
-            item_ir_type = wtype_to_ir_type(
-                expr.base.wtype.types[expr.index], expr.source_location
-            )
-            return arc4.arc4_tuple_index(
-                self.context,
-                base=base,
-                index=expr.index,
-                tuple_encoding=tuple_encoding,
-                item_ir_type=item_ir_type,
-                source_location=expr.source_location,
-            )
-        else:
-            raise InternalError(
-                f"Tuple indexing operation IR lowering"
-                f" not implemented for base type {expr.base.wtype.name}",
-                expr.source_location,
-            )
+        loc = expr.source_location
+
+        builder = tup.get_builder(self.context, expr.base.wtype, loc)
+        value = self.context.visitor.visit_and_materialise_as_value_or_tuple(expr.base)
+        return builder.read_at_index(value, expr.index)
 
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.WTuple):
-            index = expr.base.wtype.name_to_index(expr.name, expr.source_location)
-            tup = self.visit_and_materialise(expr.base)
-            return get_tuple_item_values(
-                tuple_values=tup,
-                tuple_wtype=expr.base.wtype,
-                index=index,
-                target_wtype=expr.wtype,
-                source_location=expr.source_location,
-            )
-        if isinstance(expr.base.wtype, wtypes.ARC4Struct):
-            base = self.visit_and_materialise_single(expr.base)
-            index = expr.base.wtype.names.index(expr.name)
-            tuple_ir_type, tuple_encoding = wtype_to_ir_type_and_encoding(
-                expr.base.wtype, expr.source_location
-            )
-            assert isinstance(tuple_encoding, TupleEncoding), "expected tuple encoding"
-            item_ir_type = wtype_to_ir_type(
-                expr.base.wtype.types[index], expr.source_location, allow_tuple=True
-            )
-            return arc4.arc4_tuple_index(
-                self.context,
-                base=base,
-                index=index,
-                tuple_encoding=tuple_encoding,
-                item_ir_type=item_ir_type,
-                source_location=expr.source_location,
-            )
-        else:
-            raise InternalError(
-                f"Field access IR lowering"
-                f" not implemented for base type {expr.base.wtype.name}",
-                expr.source_location,
-            )
+        loc = expr.source_location
+
+        base_wtype = expr.base.wtype
+        match base_wtype:
+            case wtypes.WTuple(names=names) if names is not None:
+                pass
+            case wtypes.ARC4Struct(names=names):
+                pass
+            case _:
+                raise InternalError("expected wtype with named fields", loc)
+        builder = tup.get_builder(self.context, base_wtype, loc)
+        index = names.index(expr.name)
+        base = self.visit_and_materialise_as_value_or_tuple(expr.base)
+
+        return builder.read_at_index(base, index)
 
     def visit_intersection_slice_expression(
         self, expr: awst_nodes.IntersectionSliceExpression
@@ -821,16 +775,24 @@ class FunctionIRBuilder(
         expr: awst_nodes.SliceExpression | awst_nodes.IntersectionSliceExpression,
         base_wtype: wtypes.WTuple,
     ) -> TExpression:
-        tup = self.visit_and_materialise(expr.base)
+        loc = expr.source_location
+        builder = tup.get_builder(self.context, base_wtype, loc)
+
+        tup_value = self.visit_and_materialise_as_value_or_tuple(expr.base)
         start_i = extract_const_int(expr.begin_index) or 0
         end_i = extract_const_int(expr.end_index)
-        return get_tuple_item_values(
-            tuple_values=tup,
-            tuple_wtype=base_wtype,
-            index=(start_i, end_i),
-            target_wtype=expr.wtype,
-            source_location=expr.source_location,
-        )
+        if end_i is None:
+            end_i = len(base_wtype.types)
+
+        values = [
+            v
+            for index in range(start_i, end_i)
+            for v in self.context.materialise_value_provider(
+                builder.read_at_index(tup_value, index), "tup_slice"
+            )
+        ]
+
+        return ValueTuple(values=values, source_location=loc)
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         loc = expr.source_location
@@ -910,10 +872,7 @@ class FunctionIRBuilder(
         # initialize array with a tuple of provided elements
         tuple_expr = awst_nodes.TupleExpression.from_items(expr.values, loc)
         tuple_ir_type = wtype_to_ir_type(tuple_expr.wtype, loc, allow_tuple=True)
-        tuple_value_provider = self.visit_expr(tuple_expr)
-        tuple_values = self.materialise_value_provider_as_value_or_tuple(
-            tuple_value_provider, "array_values"
-        )
+        tuple_values = self.visit_and_materialise_as_value_or_tuple(tuple_expr)
         encoded_array_vp = arc4.encode_value_provider(
             self.context, tuple_values, tuple_ir_type, array_encoding, loc
         )
