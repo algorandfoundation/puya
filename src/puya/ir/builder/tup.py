@@ -90,7 +90,7 @@ class EncodedTupleBuilder(TupleBuilder):
             raise InternalError("expected single value", self.loc) from None
 
         # TODO: refactor arc4_tuple_index
-        tuple_item = arc4.arc4_tuple_index(
+        tuple_item = arc4.read_tuple_index(
             self.context,
             base=tup,
             index=index,
