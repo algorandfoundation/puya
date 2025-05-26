@@ -15,7 +15,6 @@ from puya.ir.builder import sequence
 from puya.ir.builder._utils import (
     OpFactory,
     assert_value,
-    assign_intrinsic_op,
     undefined_value,
 )
 from puya.ir.builder.assignment import handle_assignment
@@ -38,6 +37,7 @@ from puya.ir.models import (
     UInt64Constant,
     Undefined,
     Value,
+    ValueEncode,
     ValueProvider,
     ValueTuple,
 )
@@ -54,6 +54,10 @@ from puya.ir.types_ import (
 )
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes, round_bits_to_nearest_bytes
+
+# packed bits are packed starting with the left most bit
+ARC4_TRUE = (1 << 7).to_bytes(1, "big")
+ARC4_FALSE = (0).to_bytes(1, "big")
 
 logger = log.get_logger(__name__)
 
@@ -177,7 +181,7 @@ class NativeTupleCodec(ARC4Codec):
                     assert isinstance(element_value_or_tuple, Value), "expected Value"
                     value = element_value_or_tuple
                 else:
-                    encoded_element_vp = encode_value_provider(
+                    encoded_element_vp = encode_value(
                         context, element_value_or_tuple, native_element, element_encoding, loc
                     )
                     value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
@@ -227,9 +231,27 @@ class NativeTupleCodec(ARC4Codec):
                 elements = [element] * size
             case _:
                 return None
-        return _decode_arc4_tuple_items(
-            context, elements, value, target_type=self.native_type, source_location=loc
-        )
+        factory = OpFactory(context, loc)
+        items = list[Value]()
+        for index, (item_ir_type, item_encoding) in enumerate(
+            zip(self.native_type.elements, elements, strict=True)
+        ):
+            encoded = arc4_tuple_index(
+                context,
+                base=value,
+                index=index,
+                tuple_encoding=TupleEncoding(elements),
+                source_location=loc,
+            )
+            decoded_item = maybe_decode_value(
+                context,
+                encoded_item=encoded,
+                encoding=item_encoding,
+                target_type=item_ir_type,
+                loc=loc,
+            )
+            items.extend(factory.materialise_values(decoded_item, f"item{index}"))
+        return ValueTuple(values=items, source_location=loc)
         # TODO: is this any better?
         """
         factory = OpFactory(context, loc)
@@ -368,7 +390,10 @@ class BoolCodec(ScalarCodec):
     ) -> ValueProvider | None:
         match encoding:
             case BoolEncoding():
-                return _encode_arc4_bool(context, value, loc)
+                factory = OpFactory(context, loc)
+                # TODO: compare with select implementation
+                false = factory.constant(ARC4_FALSE)
+                return factory.set_bit(value=false, index=0, bit=value, temp_desc="encoded_bool")
             case UIntEncoding(n=bits):
                 num_bytes = bits // 8
                 return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
@@ -533,7 +558,44 @@ def _get_arc4_codec(ir_type: IRType | TupleIRType) -> ARC4Codec | None:
             return None
 
 
-def decode_arc4_value(
+def maybe_decode_value(
+    context: IRRegisterContext,
+    encoded_item: Value,
+    encoding: Encoding,
+    target_type: IRType | TupleIRType,
+    loc: SourceLocation,
+) -> MultiValue:
+    factory = OpFactory(context, loc)
+    encoded_item = factory.materialise_single(encoded_item, "encoded_item")
+    if encoded_item.ir_type.avm_type == AVMType.uint64 and type_has_encoding(
+        target_type, BoolEncoding(packed=False)
+    ):
+        # awkward case of bool1 -> bool8
+        return factory.materialise_single(
+            ValueEncode(
+                values=[encoded_item],
+                encoding=BoolEncoding(packed=False),
+                value_type=PrimitiveIRType.bool,
+                source_location=loc,
+            )
+        )
+    if type_has_encoding(target_type, encoding):
+        # no decoding required
+        return encoded_item
+    else:
+        # otherwise do a decode
+        return factory.materialise_multi_value(
+            decode_value(
+                context,
+                value=encoded_item,
+                encoding=encoding,
+                target_type=target_type,
+                loc=loc,
+            )
+        )
+
+
+def decode_value(
     context: IRRegisterContext,
     value: Value,
     encoding: Encoding,
@@ -567,7 +629,7 @@ def _encoding_or_name(typ: IRType | TupleIRType) -> str:
 
 
 # TODO: this becomes the lowering implementation for ir.ValueEncode
-def encode_value_provider(
+def encode_value(
     context: IRRegisterContext,
     value_provider: ValueProvider,
     value_type: IRType | TupleIRType,
@@ -604,24 +666,37 @@ def arc4_tuple_index(
     base: Value,
     index: int,
     tuple_encoding: TupleEncoding,
-    item_ir_type: IRType | TupleIRType,
     source_location: SourceLocation,
-) -> ValueProvider:
-    item_encoding = tuple_encoding.elements[index]
-
-    result = _read_nth_item_of_arc4_heterogeneous_container(
-        context,
-        array_head_and_tail=base,
-        tuple_item_types=tuple_encoding.elements,
-        index=index,
-        source_location=source_location,
+) -> Value:
+    factory = OpFactory(context, source_location)
+    tuple_item_types = tuple_encoding.elements
+    item_encoding = tuple_item_types[index]
+    head_up_to_item = _get_arc4_tuple_head_size(tuple_item_types[:index], round_end_result=False)
+    if _bit_packed_bool(item_encoding):
+        return factory.get_bit(base, head_up_to_item)
+    head_offset = UInt64Constant(
+        value=bits_to_bytes(head_up_to_item), source_location=source_location
     )
-    # TODO: use ValueDecode
-    if not type_has_encoding(item_ir_type, item_encoding):
-        factory = OpFactory(context, source_location)
-        encoded = factory.materialise_single(result, "encoded")
-        result = decode_arc4_value(context, encoded, item_encoding, item_ir_type, source_location)
-    return result
+    if item_encoding.is_dynamic:
+        item_start_offset = factory.extract_uint16(base, head_offset)
+
+        next_index = index + 1
+        for tuple_item_index, tuple_item_type in enumerate(
+            tuple_item_types[next_index:], start=next_index
+        ):
+            if tuple_item_type.is_dynamic:
+                head_up_to_next_dynamic_item = _get_arc4_tuple_head_size(
+                    tuple_item_types[:tuple_item_index], round_end_result=False
+                )
+                item_end_offset = factory.extract_uint16(
+                    base, bits_to_bytes(head_up_to_next_dynamic_item)
+                )
+                break
+        else:
+            item_end_offset = factory.len(base)
+        return factory.substring3(base, item_start_offset, item_end_offset)
+    else:
+        return factory.extract3(base, head_offset, item_encoding.checked_num_bytes)
 
 
 def handle_arc4_assign(
@@ -735,53 +810,6 @@ def _bit_packed_bool(encoding: Encoding) -> typing.TypeGuard[BoolEncoding]:
     return isinstance(encoding, BoolEncoding) and encoding.packed
 
 
-# packed bits are packed starting with the left most bit
-ARC4_TRUE = (1 << 7).to_bytes(1, "big")
-ARC4_FALSE = (0).to_bytes(1, "big")
-
-
-def _encode_arc4_bool(
-    context: IRRegisterContext, bit: Value, source_location: SourceLocation
-) -> Value:
-    factory = OpFactory(context, source_location)
-    # TODO: compare with select implementation
-    value = factory.constant(0x00.to_bytes(1, "big"))
-    return factory.set_bit(value=value, index=0, bit=bit, temp_desc="encoded_bool")
-
-
-def _decode_arc4_tuple_items(
-    context: IRRegisterContext,
-    tuple_elements: Sequence[Encoding],
-    value: Value,
-    target_type: TupleIRType,
-    source_location: SourceLocation,
-) -> ValueProvider:
-    factory = OpFactory(context, source_location)
-    items = list[Value]()
-    for index, (target_item_type, encoded_item_type) in enumerate(
-        zip(target_type.elements, tuple_elements, strict=True)
-    ):
-        encoded_item_value = _read_nth_item_of_arc4_heterogeneous_container(
-            context,
-            array_head_and_tail=value,
-            tuple_item_types=tuple_elements,
-            index=index,
-            source_location=source_location,
-        )
-        if type_has_encoding(target_item_type, encoded_item_type):
-            item_value = encoded_item_value
-        else:
-            item_value = decode_arc4_value(
-                context,
-                factory.materialise_single(encoded_item_value, f"encoded_item{index}"),
-                encoding=encoded_item_type,
-                target_type=target_item_type,
-                loc=source_location,
-            )
-        items.extend(factory.materialise_values(item_value, f"item{index}"))
-    return ValueTuple(source_location=source_location, values=items)
-
-
 def _arc4_replace_tuple_item(
     context: IRFunctionBuildContext,
     base_expr: awst_nodes.Expression,
@@ -803,7 +831,7 @@ def _arc4_replace_tuple_item(
 
     # TODO: use ValueEncode
     if not type_has_encoding(value_ir_type, element_encoding):
-        value_vp = encode_value_provider(
+        value_vp = encode_value(
             context,
             value,
             value_ir_type,
@@ -883,120 +911,9 @@ def _arc4_replace_tuple_item(
         return updated_data
 
 
-def _read_nth_item_of_arc4_heterogeneous_container(
-    context: IRRegisterContext,
-    *,
-    array_head_and_tail: Value,
-    tuple_item_types: Sequence[Encoding],
-    index: int,
-    source_location: SourceLocation,
-) -> ValueProvider:
-    item_encoding = tuple_item_types[index]
-    head_up_to_item = _get_arc4_tuple_head_size(tuple_item_types[:index], round_end_result=False)
-    if _bit_packed_bool(item_encoding):
-        return _read_and_decode_nth_bool_from_arc4_container(
-            context,
-            data=array_head_and_tail,
-            index=UInt64Constant(
-                value=head_up_to_item,
-                source_location=source_location,
-            ),
-            # TODO: at the moment this can result in double handling
-            target_ir_type=EncodedType(BoolEncoding(packed=False)),
-            source_location=source_location,
-        )
-    head_offset = UInt64Constant(
-        value=bits_to_bytes(head_up_to_item), source_location=source_location
-    )
-    if item_encoding.is_dynamic:
-        item_start_offset = assign_intrinsic_op(
-            context,
-            target="item_start_offset",
-            op=AVMOp.extract_uint16,
-            args=[array_head_and_tail, head_offset],
-            source_location=source_location,
-        )
-
-        next_index = index + 1
-        for tuple_item_index, tuple_item_type in enumerate(
-            tuple_item_types[next_index:], start=next_index
-        ):
-            if tuple_item_type.is_dynamic:
-                head_up_to_next_dynamic_item = _get_arc4_tuple_head_size(
-                    tuple_item_types[:tuple_item_index], round_end_result=False
-                )
-                next_dynamic_head_offset = UInt64Constant(
-                    value=bits_to_bytes(head_up_to_next_dynamic_item),
-                    source_location=source_location,
-                )
-                item_end_offset = assign_intrinsic_op(
-                    context,
-                    target="item_end_offset",
-                    op=AVMOp.extract_uint16,
-                    args=[array_head_and_tail, next_dynamic_head_offset],
-                    source_location=source_location,
-                )
-                break
-        else:
-            item_end_offset = assign_intrinsic_op(
-                context,
-                target="item_end_offset",
-                op=AVMOp.len_,
-                args=[array_head_and_tail],
-                source_location=source_location,
-            )
-        return Intrinsic(
-            op=AVMOp.substring3,
-            args=[array_head_and_tail, item_start_offset, item_end_offset],
-            source_location=source_location,
-        )
-    else:
-        return _read_static_item_from_arc4_container(
-            data=array_head_and_tail,
-            offset=head_offset,
-            encoding=item_encoding,
-            source_location=source_location,
-        )
-
-
-def _read_and_decode_nth_bool_from_arc4_container(
-    context: IRRegisterContext,
-    *,
-    data: Value,
-    index: Value,
-    target_ir_type: IRType,
-    source_location: SourceLocation,
-) -> Value:
-    # index is the bit position
-    factory = OpFactory(context, source_location)
-    item = factory.get_bit(data, index, "is_true")
-    if type_has_encoding(target_ir_type, BoolEncoding):
-        return _encode_arc4_bool(context, item, source_location)
-    elif target_ir_type != PrimitiveIRType.bool:
-        raise InternalError("unexpected target_ir_type for bool", source_location)
-    else:
-        return item
-
-
-def _read_static_item_from_arc4_container(
-    *,
-    data: Value,
-    offset: Value,
-    encoding: Encoding,
-    source_location: SourceLocation,
-) -> ValueProvider:
-    item_length = UInt64Constant(value=encoding.checked_num_bytes, source_location=source_location)
-    return Intrinsic(
-        op=AVMOp.extract3,
-        args=[data, offset, item_length],
-        source_location=source_location,
-        error_message="Index access is out of bounds",
-    )
-
-
 def _encode_native_uint64_to_arc4(
     context: IRRegisterContext, value: Value, num_bytes: int, source_location: SourceLocation
-) -> ValueProvider:
+) -> Value:
     assert value.atype == AVMType.uint64, "function expects a native uint64 type to encode"
     factory = OpFactory(context, source_location)
     val_as_bytes = factory.itob(value, "val_as_bytes")

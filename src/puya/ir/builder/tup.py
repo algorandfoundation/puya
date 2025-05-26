@@ -96,10 +96,18 @@ class EncodedTupleBuilder(TupleBuilder):
             base=tup,
             index=index,
             tuple_encoding=self.tuple_encoding,
-            item_ir_type=self.tuple_ir_type.elements[index],
             source_location=self.loc,
         )
-        return self.factory.materialise_multi_value(tuple_item)
+        item_encoding = self.tuple_encoding.elements[index]
+        item_ir_type = self.tuple_ir_type.elements[index]
+        encoded = self.factory.materialise_single(tuple_item, "encoded")
+        return arc4.maybe_decode_value(
+            self.context,
+            encoded_item=encoded,
+            encoding=item_encoding,
+            target_type=item_ir_type,
+            loc=self.loc,
+        )
 
     def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
         raise NotImplementedError

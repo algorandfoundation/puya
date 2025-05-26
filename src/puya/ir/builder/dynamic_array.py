@@ -183,7 +183,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
             #    encoding=DynamicArrayEncoding(element=element_encoding, length_header=False),
             #    source_location=self.loc,
             # )
-            encoded_iterable = arc4.encode_value_provider(
+            encoded_iterable = arc4.encode_value(
                 self.context,
                 value_provider=iterable,
                 value_type=iterable_ir_type,
