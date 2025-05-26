@@ -31,9 +31,9 @@ subroutine main:
         f-store me#0                                             (𝕗) me#0 |
         // augmented_assignment/contract.py:25
         // if op.Txn.on_completion == OnCompleteAction.OptIn:
-        txn OnCompletion                                         (𝕗) me#0 | tmp%0#1
-        int OptIn                                                (𝕗) me#0 | tmp%0#1,OptIn
-        ==                                                       (𝕗) me#0 | tmp%1#1
+        txn OnCompletion                                         (𝕗) me#0 | tmp%1#1
+        int OptIn                                                (𝕗) me#0 | tmp%1#1,OptIn
+        ==                                                       (𝕗) me#0 | tmp%2#0
         bz main_after_if_else@5 ; b main_if_body@4               (𝕗) me#0 |
 
     main_if_body@4:                                              (𝕗) me#0 |
@@ -76,10 +76,10 @@ subroutine main:
         assert // check self.my_uint exists for account          (𝕗) me#0 | n#0,me#0,bytes_to_add#0,maybe_value%0#0
         l-load maybe_value%0#0 0                                 (𝕗) me#0 | n#0,me#0,bytes_to_add#0,maybe_value%0#0
         l-load-copy n#0 3                                        (𝕗) me#0 | n#0,me#0,bytes_to_add#0,maybe_value%0#0,n#0 (copy)
-        +                                                        (𝕗) me#0 | n#0,me#0,bytes_to_add#0,materialized_values%3#0
-        l-load-copy me#0 2                                       (𝕗) me#0 | n#0,me#0,bytes_to_add#0,materialized_values%3#0,me#0 (copy)
-        byte "my_uint"                                           (𝕗) me#0 | n#0,me#0,bytes_to_add#0,materialized_values%3#0,me#0 (copy),"my_uint"
-        l-load materialized_values%3#0 2                         (𝕗) me#0 | n#0,me#0,bytes_to_add#0,me#0 (copy),"my_uint",materialized_values%3#0
+        +                                                        (𝕗) me#0 | n#0,me#0,bytes_to_add#0,tmp%5#0
+        l-load-copy me#0 2                                       (𝕗) me#0 | n#0,me#0,bytes_to_add#0,tmp%5#0,me#0 (copy)
+        byte "my_uint"                                           (𝕗) me#0 | n#0,me#0,bytes_to_add#0,tmp%5#0,me#0 (copy),"my_uint"
+        l-load tmp%5#0 2                                         (𝕗) me#0 | n#0,me#0,bytes_to_add#0,me#0 (copy),"my_uint",tmp%5#0
         app_local_put                                            (𝕗) me#0 | n#0,me#0,bytes_to_add#0
         // augmented_assignment/contract.py:35
         // self.my_bytes[me] += bytes_to_add
@@ -90,10 +90,10 @@ subroutine main:
         assert // check self.my_bytes exists for account         (𝕗) me#0 | n#0,me#0,bytes_to_add#0,maybe_value%1#0
         l-load maybe_value%1#0 0                                 (𝕗) me#0 | n#0,me#0,bytes_to_add#0,maybe_value%1#0
         l-load-copy bytes_to_add#0 1                             (𝕗) me#0 | n#0,me#0,bytes_to_add#0,maybe_value%1#0,bytes_to_add#0 (copy)
-        concat                                                   (𝕗) me#0 | n#0,me#0,bytes_to_add#0,materialized_values%4#0
-        l-load me#0 2                                            (𝕗) me#0 | n#0,bytes_to_add#0,materialized_values%4#0,me#0
-        byte "my_bytes"                                          (𝕗) me#0 | n#0,bytes_to_add#0,materialized_values%4#0,me#0,"my_bytes"
-        l-load materialized_values%4#0 2                         (𝕗) me#0 | n#0,bytes_to_add#0,me#0,"my_bytes",materialized_values%4#0
+        concat                                                   (𝕗) me#0 | n#0,me#0,bytes_to_add#0,tmp%6#0
+        l-load me#0 2                                            (𝕗) me#0 | n#0,bytes_to_add#0,tmp%6#0,me#0
+        byte "my_bytes"                                          (𝕗) me#0 | n#0,bytes_to_add#0,tmp%6#0,me#0,"my_bytes"
+        l-load tmp%6#0 2                                         (𝕗) me#0 | n#0,bytes_to_add#0,me#0,"my_bytes",tmp%6#0
         app_local_put                                            (𝕗) me#0 | n#0,bytes_to_add#0
         // augmented_assignment/contract.py:38
         // self.global_uint += n
@@ -103,9 +103,9 @@ subroutine main:
         assert // check self.global_uint exists                  (𝕗) me#0 | n#0,bytes_to_add#0,maybe_value%2#0
         l-load maybe_value%2#0 0                                 (𝕗) me#0 | n#0,bytes_to_add#0,maybe_value%2#0
         l-load n#0 2                                             (𝕗) me#0 | bytes_to_add#0,maybe_value%2#0,n#0
-        +                                                        (𝕗) me#0 | bytes_to_add#0,materialized_values%5#0
-        byte "global_uint"                                       (𝕗) me#0 | bytes_to_add#0,materialized_values%5#0,"global_uint"
-        l-load materialized_values%5#0 1                         (𝕗) me#0 | bytes_to_add#0,"global_uint",materialized_values%5#0
+        +                                                        (𝕗) me#0 | bytes_to_add#0,tmp%7#0
+        byte "global_uint"                                       (𝕗) me#0 | bytes_to_add#0,tmp%7#0,"global_uint"
+        l-load tmp%7#0 1                                         (𝕗) me#0 | bytes_to_add#0,"global_uint",tmp%7#0
         app_global_put                                           (𝕗) me#0 | bytes_to_add#0
         // augmented_assignment/contract.py:39
         // self.global_bytes += bytes_to_add
@@ -115,9 +115,9 @@ subroutine main:
         assert // check self.global_bytes exists                 (𝕗) me#0 | bytes_to_add#0,maybe_value%3#0
         l-load maybe_value%3#0 0                                 (𝕗) me#0 | bytes_to_add#0,maybe_value%3#0
         l-load bytes_to_add#0 1                                  (𝕗) me#0 | maybe_value%3#0,bytes_to_add#0
-        concat                                                   (𝕗) me#0 | materialized_values%6#0
-        byte "global_bytes"                                      (𝕗) me#0 | materialized_values%6#0,"global_bytes"
-        l-load materialized_values%6#0 1                         (𝕗) me#0 | "global_bytes",materialized_values%6#0
+        concat                                                   (𝕗) me#0 | tmp%8#0
+        byte "global_bytes"                                      (𝕗) me#0 | tmp%8#0,"global_bytes"
+        l-load tmp%8#0 1                                         (𝕗) me#0 | "global_bytes",tmp%8#0
         app_global_put                                           (𝕗) me#0 |
         // augmented_assignment/contract.py:41
         // self.counter = UInt64()
@@ -126,18 +126,18 @@ subroutine main:
         app_global_put                                           (𝕗) me#0 |
         // augmented_assignment/contract.py:43
         // self.my_uint[self.get_sender_with_side_effect()] += 1
-        callsub get_sender_with_side_effect                      (𝕗) me#0 | tmp%3#0
-        l-load-copy tmp%3#0 0                                    (𝕗) me#0 | tmp%3#0,tmp%3#0 (copy)
-        int 0                                                    (𝕗) me#0 | tmp%3#0,tmp%3#0 (copy),0
-        byte "my_uint"                                           (𝕗) me#0 | tmp%3#0,tmp%3#0 (copy),0,"my_uint"
-        app_local_get_ex                                         (𝕗) me#0 | tmp%3#0,maybe_value%5#0,maybe_exists%5#0
-        assert // check self.my_uint exists for account          (𝕗) me#0 | tmp%3#0,maybe_value%5#0
-        l-load maybe_value%5#0 0                                 (𝕗) me#0 | tmp%3#0,maybe_value%5#0
-        int 1                                                    (𝕗) me#0 | tmp%3#0,maybe_value%5#0,1
-        +                                                        (𝕗) me#0 | tmp%3#0,materialized_values%7#0
-        l-load tmp%3#0 1                                         (𝕗) me#0 | materialized_values%7#0,tmp%3#0
-        byte "my_uint"                                           (𝕗) me#0 | materialized_values%7#0,tmp%3#0,"my_uint"
-        l-load materialized_values%7#0 2                         (𝕗) me#0 | tmp%3#0,"my_uint",materialized_values%7#0
+        callsub get_sender_with_side_effect                      (𝕗) me#0 | tmp%10#0
+        l-load-copy tmp%10#0 0                                   (𝕗) me#0 | tmp%10#0,tmp%10#0 (copy)
+        int 0                                                    (𝕗) me#0 | tmp%10#0,tmp%10#0 (copy),0
+        byte "my_uint"                                           (𝕗) me#0 | tmp%10#0,tmp%10#0 (copy),0,"my_uint"
+        app_local_get_ex                                         (𝕗) me#0 | tmp%10#0,maybe_value%5#0,maybe_exists%5#0
+        assert // check self.my_uint exists for account          (𝕗) me#0 | tmp%10#0,maybe_value%5#0
+        l-load maybe_value%5#0 0                                 (𝕗) me#0 | tmp%10#0,maybe_value%5#0
+        int 1                                                    (𝕗) me#0 | tmp%10#0,maybe_value%5#0,1
+        +                                                        (𝕗) me#0 | tmp%10#0,tmp%11#0
+        l-load tmp%10#0 1                                        (𝕗) me#0 | tmp%11#0,tmp%10#0
+        byte "my_uint"                                           (𝕗) me#0 | tmp%11#0,tmp%10#0,"my_uint"
+        l-load tmp%11#0 2                                        (𝕗) me#0 | tmp%10#0,"my_uint",tmp%11#0
         app_local_put                                            (𝕗) me#0 |
         // augmented_assignment/contract.py:44
         // assert self.counter == 1, "this should not error"
@@ -147,22 +147,22 @@ subroutine main:
         assert // check self.counter exists                      (𝕗) me#0 | maybe_value%6#0
         l-load maybe_value%6#0 0                                 (𝕗) me#0 | maybe_value%6#0
         int 1                                                    (𝕗) me#0 | maybe_value%6#0,1
-        ==                                                       (𝕗) me#0 | tmp%4#0
+        ==                                                       (𝕗) me#0 | tmp%12#0
         assert // this should not error                          (𝕗) me#0 |
         // augmented_assignment/contract.py:45
         // self.my_uint[self.get_sender_with_side_effect()] -= 1
-        callsub get_sender_with_side_effect                      (𝕗) me#0 | tmp%5#0
-        l-load-copy tmp%5#0 0                                    (𝕗) me#0 | tmp%5#0,tmp%5#0 (copy)
-        int 0                                                    (𝕗) me#0 | tmp%5#0,tmp%5#0 (copy),0
-        byte "my_uint"                                           (𝕗) me#0 | tmp%5#0,tmp%5#0 (copy),0,"my_uint"
-        app_local_get_ex                                         (𝕗) me#0 | tmp%5#0,maybe_value%7#0,maybe_exists%7#0
-        assert // check self.my_uint exists for account          (𝕗) me#0 | tmp%5#0,maybe_value%7#0
-        l-load maybe_value%7#0 0                                 (𝕗) me#0 | tmp%5#0,maybe_value%7#0
-        int 1                                                    (𝕗) me#0 | tmp%5#0,maybe_value%7#0,1
-        -                                                        (𝕗) me#0 | tmp%5#0,materialized_values%8#0
-        l-load tmp%5#0 1                                         (𝕗) me#0 | materialized_values%8#0,tmp%5#0
-        byte "my_uint"                                           (𝕗) me#0 | materialized_values%8#0,tmp%5#0,"my_uint"
-        l-load materialized_values%8#0 2                         (𝕗) me#0 | tmp%5#0,"my_uint",materialized_values%8#0
+        callsub get_sender_with_side_effect                      (𝕗) me#0 | tmp%13#0
+        l-load-copy tmp%13#0 0                                   (𝕗) me#0 | tmp%13#0,tmp%13#0 (copy)
+        int 0                                                    (𝕗) me#0 | tmp%13#0,tmp%13#0 (copy),0
+        byte "my_uint"                                           (𝕗) me#0 | tmp%13#0,tmp%13#0 (copy),0,"my_uint"
+        app_local_get_ex                                         (𝕗) me#0 | tmp%13#0,maybe_value%7#0,maybe_exists%7#0
+        assert // check self.my_uint exists for account          (𝕗) me#0 | tmp%13#0,maybe_value%7#0
+        l-load maybe_value%7#0 0                                 (𝕗) me#0 | tmp%13#0,maybe_value%7#0
+        int 1                                                    (𝕗) me#0 | tmp%13#0,maybe_value%7#0,1
+        -                                                        (𝕗) me#0 | tmp%13#0,tmp%14#0
+        l-load tmp%13#0 1                                        (𝕗) me#0 | tmp%14#0,tmp%13#0
+        byte "my_uint"                                           (𝕗) me#0 | tmp%14#0,tmp%13#0,"my_uint"
+        l-load tmp%14#0 2                                        (𝕗) me#0 | tmp%13#0,"my_uint",tmp%14#0
         app_local_put                                            (𝕗) me#0 |
         // augmented_assignment/contract.py:46
         // assert self.counter == 2, "this should not error"
@@ -172,7 +172,7 @@ subroutine main:
         assert // check self.counter exists                      (𝕗) me#0 | maybe_value%8#0
         l-load maybe_value%8#0 0                                 (𝕗) me#0 | maybe_value%8#0
         int 2                                                    (𝕗) me#0 | maybe_value%8#0,2
-        ==                                                       (𝕗) me#0 | tmp%6#0
+        ==                                                       (𝕗) me#0 | tmp%15#0
         assert // this should not error                          (𝕗) me#0 |
         b main_after_if_else@7                                   (𝕗) me#0 |
 
@@ -194,13 +194,13 @@ subroutine get_sender_with_side_effect:
         assert // check self.counter exists                      maybe_value%0#0
         l-load maybe_value%0#0 0                                 maybe_value%0#0
         int 1                                                    maybe_value%0#0,1
-        +                                                        materialized_values%0#0
-        byte "counter"                                           materialized_values%0#0,"counter"
-        l-load materialized_values%0#0 1                         "counter",materialized_values%0#0
+        +                                                        tmp%0#0
+        byte "counter"                                           tmp%0#0,"counter"
+        l-load tmp%0#0 1                                         "counter",tmp%0#0
         app_global_put
         // augmented_assignment/contract.py:56
         // return op.Txn.sender
-        txn Sender                                               tmp%0#0
-        retsub                                                   tmp%0#0
+        txn Sender                                               tmp%1#0
+        retsub                                                   tmp%1#0
 
 

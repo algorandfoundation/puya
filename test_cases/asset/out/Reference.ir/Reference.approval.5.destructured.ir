@@ -27,15 +27,15 @@ main test_cases.asset.contract.Reference.__algopy_entrypoint_with_init:
         itxn_begin
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
-        let tmp%4#0: bytes = (global CurrentApplicationAddress)
-        ((itxn_field AssetReceiver) tmp%4#0)
+        let tmp%4#1: bytes[32] = (global CurrentApplicationAddress)
+        ((itxn_field AssetReceiver) tmp%4#1)
         ((itxn_field XferAsset) asset#0)
         itxn_submit
         goto block@11
     block@6: // else_body_L25
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        let tmp%5#0: bool = (== tmp%4#0 0x69735f6f707465645f696e)
-        (assert tmp%5#0) // Expected opt_in or is_opted_in
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        let tmp%6#0: bool = (== tmp%5#0 0x69735f6f707465645f696e)
+        (assert tmp%6#0) // Expected opt_in or is_opted_in
         let asset#0: uint64 = (txna Assets 0)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
         (assert maybe_exists%0#0) // check self.asa exists
@@ -55,12 +55,12 @@ main test_cases.asset.contract.Reference.__algopy_entrypoint_with_init:
         (assert tmp%3#0) // default frozen
         let (value%3#0: bytes, check%3#0: bool) = ((asset_params_get AssetUnitName) asset#0)
         (assert check%3#0) // asset exists
-        let tmp%4#1: bool = (== value%3#0 0x61)
-        (assert tmp%4#1) // unit_name
+        let tmp%4#0: bool = (== value%3#0 0x61)
+        (assert tmp%4#0) // unit_name
         let (value%4#0: bytes, check%4#0: bool) = ((asset_params_get AssetName) asset#0)
         (assert check%4#0) // asset exists
-        let tmp%5#0: bool = (== value%4#0 0x61737365742061)
-        (assert tmp%5#0) // name
+        let tmp%5#1: bool = (== value%4#0 0x61737365742061)
+        (assert tmp%5#1) // name
         let (value%5#0: bytes, check%5#0: bool) = ((asset_params_get AssetURL) asset#0)
         (assert check%5#0) // asset exists
         let tmp%6#0: bool = (== value%5#0 0x)

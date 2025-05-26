@@ -36,9 +36,9 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let nft_image_url#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%2#0)
         let tmp%0#0: bool = (< start_time#0 end_time#0)
         (assert tmp%0#0) // End time should be after start time
-        let tmp%1#4: uint64 = (global LatestTimestamp)
-        let tmp%2#4: bool = (>= end_time#0 tmp%1#4)
-        (assert tmp%2#4) // End time should be in the future
+        let tmp%1#3: uint64 = (global LatestTimestamp)
+        let tmp%2#5: bool = (>= end_time#0 tmp%1#3)
+        (assert tmp%2#5) // End time should be in the future
         (app_global_put "vote_id" vote_id#0)
         (app_global_put "snapshot_public_key" snapshot_public_key#0)
         (app_global_put "metadata_ipfs_cid" metadata_ipfs_cid#0)
@@ -48,8 +48,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (app_global_put "nft_image_url" nft_image_url#0)
         let array%array_length%0#1: uint64 = (extract_uint16 option_counts#0 0u)
         (assert array%array_length%0#1) // option_counts should be non-empty
-        let tmp%3#1: bool = (<= array%array_length%0#1 112u)
-        (assert tmp%3#1) // Can't have more than 112 questions
+        let tmp%1#1: bool = (<= array%array_length%0#1 112u)
+        (assert tmp%1#1) // Can't have more than 112 questions
         let total_options#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
         goto block@30
@@ -58,13 +58,13 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         goto continue_looping%0#0 ? block@31 : block@32
     block@31: // for_body_L224
         let array_trimmed%0#0: bytes = ((extract 2 0) option_counts#0)
-        let tmp%4#3: uint64 = (getbyte array_trimmed%0#0 item_index_internal%0#0)
-        let total_options#0: uint64 = (+ total_options#0 tmp%4#3)
+        let tmp%2#7: uint64 = (getbyte array_trimmed%0#0 item_index_internal%0#0)
+        let total_options#0: uint64 = (+ total_options#0 tmp%2#7)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@30
     block@32: // after_for_L223
-        let tmp%5#1: bool = (<= total_options#0 128u)
-        (assert tmp%5#1) // Can't have more than 128 vote options
+        let tmp%4#0: bool = (<= total_options#0 128u)
+        (assert tmp%4#0) // Can't have more than 128 vote options
         (app_global_put "option_counts" option_counts#0)
         (app_global_put "total_options" total_options#0)
         let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
@@ -86,22 +86,22 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = (! maybe_value%0#2)
         (assert tmp%0#0) // Must not be already bootstrapped
         (app_global_put "is_bootstrapped" 1u)
-        let tmp%1#2: bytes = ((gtxns Receiver) fund_min_bal_req#0)
+        let tmp%1#4: bytes[32] = ((gtxns Receiver) fund_min_bal_req#0)
         let tmp%2#0: bytes = (global CurrentApplicationAddress)
-        let tmp%3#1: bool = (== tmp%1#2 tmp%2#0)
+        let tmp%3#1: bool = (== tmp%1#4 tmp%2#0)
         (assert tmp%3#1) // Payment must be to app address
         let (maybe_value%1#2: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "total_options")
         (assert maybe_exists%1#0) // check self.total_options exists
         let tally_box_size#0: uint64 = (* maybe_value%1#2 8u)
-        let tmp%4#3: uint64 = (* tally_box_size#0 400u)
-        let min_balance_req#0: uint64 = (+ 203900u tmp%4#3)
-        let tmp%5#2: bytes = (itob min_balance_req#0)
-        (log tmp%5#2)
-        let tmp%6#3: uint64 = ((gtxns Amount) fund_min_bal_req#0)
-        let tmp%7#3: bool = (== tmp%6#3 min_balance_req#0)
-        (assert tmp%7#3) // Payment must be for the exact min balance requirement
-        let tmp%8#3: bool = (box_create "V" tally_box_size#0)
-        (assert tmp%8#3)
+        let tmp%5#0: uint64 = (* tally_box_size#0 400u)
+        let min_balance_req#0: uint64 = (+ 203900u tmp%5#0)
+        let tmp%7#2: bytes = (itob min_balance_req#0)
+        (log tmp%7#2)
+        let tmp%8#3: uint64 = ((gtxns Amount) fund_min_bal_req#0)
+        let tmp%9#3: bool = (== tmp%8#3 min_balance_req#0)
+        (assert tmp%9#3) // Payment must be for the exact min balance requirement
+        let tmp%10#3: bool = (box_create "V" tally_box_size#0)
+        (assert tmp%10#3)
         let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
         goto block@26
@@ -115,28 +115,28 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "close_time")
         let tmp%0#0: bool = (! maybe_exists%0#0)
         (assert tmp%0#0) // Already closed
-        let materialized_values%0#1: uint64 = (global LatestTimestamp)
-        (app_global_put "close_time" materialized_values%0#1)
+        let tmp%1#3: uint64 = (global LatestTimestamp)
+        (app_global_put "close_time" tmp%1#3)
         let (maybe_value%0#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "vote_id")
         (assert maybe_exists%1#0) // check self.vote_id exists
-        let tmp%1#2: bytes = (concat "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID " maybe_value%0#0)
-        let tmp%2#0: bytes = (concat tmp%1#2 ".\",\"properties\":{\"metadata\":\"ipfs://")
+        let tmp%2#0: bytes = (concat "{\"standard\":\"arc69\",\"description\":\"This is a voting result NFT for voting round with ID " maybe_value%0#0)
+        let tmp%3#3: bytes = (concat tmp%2#0 ".\",\"properties\":{\"metadata\":\"ipfs://")
         let (maybe_value%1#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "metadata_ipfs_cid")
         (assert maybe_exists%2#0) // check self.metadata_ipfs_cid exists
-        let tmp%3#2: bytes = (concat tmp%2#0 maybe_value%1#0)
-        let tmp%4#2: bytes = (concat tmp%3#2 "\",\"id\":\"")
-        let tmp%5#2: bytes = (concat tmp%4#2 maybe_value%0#0)
-        let tmp%6#2: bytes = (concat tmp%5#2 "\",\"quorum\":")
+        let tmp%4#2: bytes = (concat tmp%3#3 maybe_value%1#0)
+        let tmp%5#2: bytes = (concat tmp%4#2 "\",\"id\":\"")
+        let tmp%6#2: bytes = (concat tmp%5#2 maybe_value%0#0)
+        let tmp%7#2: bytes = (concat tmp%6#2 "\",\"quorum\":")
         let (maybe_value%3#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "quorum")
         (assert maybe_exists%4#0) // check self.quorum exists
-        let tmp%7#2: string = examples.voting.voting.itoa(maybe_value%3#0)
-        let tmp%8#2: bytes = (concat tmp%6#2 tmp%7#2)
-        let tmp%9#2: bytes = (concat tmp%8#2 ",\"voterCount\":")
+        let tmp%8#2: string = examples.voting.voting.itoa(maybe_value%3#0)
+        let tmp%9#1: bytes[32] = (concat tmp%7#2 tmp%8#2)
+        let tmp%10#1: bytes[32] = (concat tmp%9#1 ",\"voterCount\":")
         let (maybe_value%4#0: uint64, maybe_exists%5#0: bool) = (app_global_get_ex 0u "voter_count")
         (assert maybe_exists%5#0) // check self.voter_count exists
-        let tmp%10#2: string = examples.voting.voting.itoa(maybe_value%4#0)
-        let tmp%11#1: bytes[32] = (concat tmp%9#2 tmp%10#2)
-        let note#0: string = (concat tmp%11#1 ",\"tallies\":[")
+        let tmp%11#2: string = examples.voting.voting.itoa(maybe_value%4#0)
+        let tmp%12#1: bytes = (concat tmp%10#1 tmp%11#2)
+        let note#0: string = (concat tmp%12#1 ",\"tallies\":[")
         let current_index#0: uint64 = 0u
         let (maybe_value%5#0: bytes, maybe_exists%6#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%6#0) // check self.option_counts exists
@@ -158,17 +158,17 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         goto block@11
     block@11: // after_if_else_L133
         let note#0: string = note#17
-        let tmp%13#2: bool = (b> question_options#0 0x00)
+        let tmp%16#2: bool = (b> question_options#0 0x00)
         let current_index#15: uint64 = current_index#0
         let note#17: string = note#0
-        goto tmp%13#2 ? block@12 : block@18
+        goto tmp%16#2 ? block@12 : block@18
     block@12: // if_body_L136
         let note#0: string = (concat note#0 "[")
-        let tmp%14#0: uint64 = (getbyte array_trimmed%0#0 question_index#0)
+        let tmp%18#0: uint64 = (getbyte array_trimmed%0#0 question_index#0)
         let option_index#0: uint64 = 0u
         goto block@13
     block@13: // for_header_L137
-        let continue_looping%1#0: bool = (< option_index#0 tmp%14#0)
+        let continue_looping%1#0: bool = (< option_index#0 tmp%18#0)
         goto continue_looping%1#0 ? block@14 : block@17
     block@14: // for_body_L138
         let note#17: string = note#0
@@ -179,10 +179,10 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         goto block@16
     block@16: // after_if_else_L138
         let note#0: string = note#17
-        let tmp%0#9: bytes = (box_extract "V" current_index#0 8u)
-        let votes_for_option#0: uint64 = (btoi tmp%0#9)
-        let tmp%16#2: string = examples.voting.voting.itoa(votes_for_option#0)
-        let note#0: string = (concat note#0 tmp%16#2)
+        let tmp%0#8: bytes = (box_extract "V" current_index#0 8u)
+        let votes_for_option#0: uint64 = (btoi tmp%0#8)
+        let tmp%22#1: string = examples.voting.voting.itoa(votes_for_option#0)
+        let note#0: string = (concat note#0 tmp%22#1)
         let current_index#0: uint64 = (+ current_index#0 1u)
         let option_index#0: uint64 = (+ option_index#0 1u)
         goto block@13
@@ -216,8 +216,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) inner_txn_params%0%%param_Fee_idx_0#0)
         itxn_submit
-        let materialized_values%10#0: uint64 = (itxn CreatedAssetID)
-        (app_global_put "nft_asset_id" materialized_values%10#0)
+        let tmp%27#1: uint64 = (itxn CreatedAssetID)
+        (app_global_put "nft_asset_id" tmp%27#1)
         let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
         goto block@26
@@ -229,15 +229,15 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (assert tmp%25#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
         let signature#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%2#0)
-        let to_encode%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
-        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let to_encode%1#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
-        let val_as_bytes%1#0: bytes[8] = (itob to_encode%1#0)
-        let materialized_values%0#2: bytes[32] = (txn Sender)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#2)
+        let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
+        let tmp%1#1: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
+        let val_as_bytes%1#0: bytes[8] = (itob tmp%1#1)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#0)
         let val_as_bytes%2#0: bytes[8] = (itob maybe_exists%0#0)
-        let to_encode%3#0: uint64 = (global LatestTimestamp)
-        let val_as_bytes%3#0: bytes[8] = (itob to_encode%3#0)
+        let tmp%3#0: uint64 = (global LatestTimestamp)
+        let val_as_bytes%3#0: bytes[8] = (itob tmp%3#0)
         let encoded%1#0: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
         let encoded%2#0: Encoded((uint64,uint64,uint64)) = (concat encoded%1#0 val_as_bytes%2#0)
         let encoded%3#0: Encoded((uint64,uint64,uint64,uint64)) = (concat encoded%2#0 val_as_bytes%3#0)
@@ -265,28 +265,28 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (assert tmp%0#0) // Not allowed to vote
         let tmp%1#1: bool = examples.voting.voting.VotingRoundApp.voting_open()
         (assert tmp%1#1) // Voting not open
-        let materialized_values%0#2: bytes[32] = (txn Sender)
-        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#2)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#0)
         let tmp%3#1: bool = (! maybe_exists%0#0)
         (assert tmp%3#1) // Already voted
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%0#0) // check self.option_counts exists
         let questions_count#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let array%array_length%5#1: uint64 = (extract_uint16 answer_ids#0 0u)
-        let tmp%5#1: bool = (== array%array_length%5#1 questions_count#0)
-        (assert tmp%5#1) // Number of answers incorrect
-        let tmp%8#1: uint64 = (+ 34u array%array_length%5#1)
-        let tmp%9#1: uint64 = (* tmp%8#1 400u)
-        let min_bal_req#0: uint64 = (+ 2500u tmp%9#1)
-        let tmp%10#1: bytes[32] = ((gtxns Receiver) fund_min_bal_req#0)
-        let tmp%11#1: bytes[32] = (global CurrentApplicationAddress)
-        let tmp%12#1: bool = (== tmp%10#1 tmp%11#1)
-        (assert tmp%12#1) // Payment must be to app address
-        let tmp%13#1: bytes = (itob min_bal_req#0)
-        (log tmp%13#1)
-        let tmp%14#0: uint64 = ((gtxns Amount) fund_min_bal_req#0)
-        let tmp%15#0: bool = (== tmp%14#0 min_bal_req#0)
-        (assert tmp%15#0) // Payment must be the exact min balance
+        let tmp%4#0: bool = (== array%array_length%5#1 questions_count#0)
+        (assert tmp%4#0) // Number of answers incorrect
+        let tmp%6#1: uint64 = (+ 34u array%array_length%5#1)
+        let tmp%7#1: uint64 = (* tmp%6#1 400u)
+        let min_bal_req#0: uint64 = (+ 2500u tmp%7#1)
+        let tmp%9#1: bytes[32] = ((gtxns Receiver) fund_min_bal_req#0)
+        let tmp%10#1: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%11#1: bool = (== tmp%9#1 tmp%10#1)
+        (assert tmp%11#1) // Payment must be to app address
+        let tmp%12#1: bytes = (itob min_bal_req#0)
+        (log tmp%12#1)
+        let tmp%13#1: uint64 = ((gtxns Amount) fund_min_bal_req#0)
+        let tmp%14#1: bool = (== tmp%13#1 min_bal_req#0)
+        (assert tmp%14#1) // Payment must be the exact min balance
         let cumulative_offset#0: uint64 = 0u
         let question_index#0: uint64 = 0u
         goto block@22
@@ -300,22 +300,22 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         (assert maybe_exists%1#0) // check self.option_counts exists
         let array_trimmed%1#0: bytes = ((extract 2 0) maybe_value%1#0)
         let options_count#0: uint64 = (getbyte array_trimmed%1#0 question_index#0)
-        let tmp%16#1: bool = (< answer_option_index#0 options_count#0)
-        (assert tmp%16#1) // Answer option index invalid
+        let tmp%17#1: bool = (< answer_option_index#0 options_count#0)
+        (assert tmp%17#1) // Answer option index invalid
         let index#0: uint64 = (+ cumulative_offset#0 answer_option_index#0)
-        let tmp%0#9: bytes = (box_extract "V" index#0 8u)
-        let current_vote#0: uint64 = (btoi tmp%0#9)
-        let tmp%0#2: uint64 = (+ current_vote#0 1u)
-        let tmp%1#2: bytes = (itob tmp%0#2)
-        (box_replace "V" index#0 tmp%1#2)
+        let tmp%0#8: bytes = (box_extract "V" index#0 8u)
+        let current_vote#0: uint64 = (btoi tmp%0#8)
+        let tmp%1#3: uint64 = (+ current_vote#0 1u)
+        let tmp%2#0: bytes = (itob tmp%1#3)
+        (box_replace "V" index#0 tmp%2#0)
         let cumulative_offset#0: uint64 = (+ cumulative_offset#0 options_count#0)
-        let materialized_values%5#0: bytes[32] = (txn Sender)
-        (box_del materialized_values%5#0)
-        (box_put materialized_values%5#0 answer_ids#0)
+        let materialized_values%0#0: bytes[32] = (txn Sender)
+        (box_del materialized_values%0#0)
+        (box_put materialized_values%0#0 answer_ids#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "voter_count")
         (assert maybe_exists%2#0) // check self.voter_count exists
-        let materialized_values%6#0: uint64 = (+ maybe_value%2#0 1u)
-        (app_global_put "voter_count" materialized_values%6#0)
+        let tmp%20#1: uint64 = (+ maybe_value%2#0 1u)
+        (app_global_put "voter_count" tmp%20#1)
         let question_index#0: uint64 = (+ question_index#0 1u)
         goto block@22
     block@24: // after_for_L195
@@ -334,9 +334,9 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
         let required_budget_with_buffer#0: uint64 = (+ required_budget#0 10u)
         goto block@1
     block@1: // while_top_L20
-        let tmp%0#0: uint64 = (global OpcodeBudget)
-        let tmp%1#0: bool = (> required_budget_with_buffer#0 tmp%0#0)
-        goto tmp%1#0 ? block@2 : block@7
+        let tmp%1#0: uint64 = (global OpcodeBudget)
+        let tmp%2#0: bool = (> required_budget_with_buffer#0 tmp%1#0)
+        goto tmp%2#0 ? block@2 : block@7
     block@2: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
@@ -348,8 +348,8 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
         ((itxn_field Fee) 0u)
         goto block@6
     block@4: // switch_case_1_L30
-        let tmp%2#0: uint64 = (global MinTxnFee)
-        ((itxn_field Fee) tmp%2#0)
+        let tmp%3#0: uint64 = (global MinTxnFee)
+        ((itxn_field Fee) tmp%3#0)
         goto block@6
     block@6: // switch_case_next_L26
         itxn_submit
@@ -359,18 +359,18 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
 
 subroutine examples.voting.voting.itoa(i: uint64) -> string:
     block@0: // L249
-        let tmp%0#0: bool = (< i#0 10u)
-        goto tmp%0#0 ? block@1 : block@2
+        let tmp%1#0: bool = (< i#0 10u)
+        goto tmp%1#0 ? block@1 : block@2
     block@1: // if_body_L254
         let read_bytes%0#0: bytes = (extract3 0x30313233343536373839 i#0 1u) // on error: Index access is out of bounds
         return read_bytes%0#0
     block@2: // after_if_else_L253
-        let tmp%1#0: uint64 = (/ i#0 10u)
-        let tmp%2#0: string = examples.voting.voting.itoa(tmp%1#0)
-        let tmp%3#0: uint64 = (% i#0 10u)
-        let read_bytes%1#0: bytes = (extract3 0x30313233343536373839 tmp%3#0 1u) // on error: Index access is out of bounds
-        let tmp%4#0: bytes = (concat tmp%2#0 read_bytes%1#0)
-        return tmp%4#0
+        let tmp%2#0: uint64 = (/ i#0 10u)
+        let tmp%3#0: string = examples.voting.voting.itoa(tmp%2#0)
+        let tmp%4#0: uint64 = (% i#0 10u)
+        let read_bytes%1#0: bytes = (extract3 0x30313233343536373839 tmp%4#0 1u) // on error: Index access is out of bounds
+        let tmp%5#0: bytes = (concat tmp%3#0 read_bytes%1#0)
+        return tmp%5#0
 
 subroutine examples.voting.voting.VotingRoundApp.voting_open() -> bool:
     block@0: // L205

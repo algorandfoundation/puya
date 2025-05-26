@@ -858,11 +858,11 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types(app: uint6
 subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address(app: uint64) -> void:
     block@0: // L135
         itxn_begin
-        let to_encode%0#0: bytes[32] = (global CurrentApplicationAddress)
-        let length%0#0: uint64 = (len to_encode%0#0)
+        let tmp%0#0: bytes[32] = (global CurrentApplicationAddress)
+        let length%0#0: uint64 = (len tmp%0#0)
         let lengths_equal%0#0: bool = (== length%0#0 32u)
         (assert lengths_equal%0#0) // invalid size
-        let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = to_encode%0#0
+        let as_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = tmp%0#0
         let inner_txn_params%0%%param_ApplicationArgs_idx_1#0: Encoded(uint8[32]) = as_Encoded(uint8[32])%0#0
         let inner_txn_params%0%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%0%%param_ApplicationID_idx_0#0)
@@ -874,9 +874,9 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address(a
     block@1: // next_txn_L137
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes[32] = (global CurrentApplicationAddress)
-        let tmp%1#0: bool = (== txn.LastLog#0 tmp%0#0)
-        (assert tmp%1#0)
+        let tmp%1#0: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%2#0: bool = (== txn.LastLog#0 tmp%1#0)
+        (assert tmp%2#0)
         return 
 
 subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: uint64) -> void:
