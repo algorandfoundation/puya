@@ -6,9 +6,7 @@ from functools import cached_property
 import attrs
 
 from puya.avm import AVMType
-from puya.awst import (
-    wtypes,
-)
+from puya.awst import wtypes
 from puya.awst.visitors import WTypeVisitor
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
