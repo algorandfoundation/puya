@@ -553,7 +553,7 @@ debug: Simplified (== tmp%3#0 NoOp) to (! tmp%3#0)
 debug: Simplified (== tmp%7#0 NoOp) to (! tmp%7#0)
 debug: Simplified (== tmp%13#0 NoOp) to (! tmp%13#0)
 debug: Simplified (== tmp%20#0 0u) to (! tmp%20#0)
-debug: Simplified (extract3 user#3 2u 8u) // on error: Index access is out of bounds to ((extract 2 8) user#3) // on error: Index access is out of bounds
+debug: Simplified (extract3 user#3 2u 8u) to ((extract 2 8) user#3)
 debug: Simplified (replace3 user#0 10u val_as_bytes%0#0) to ((replace2 10) user#0 val_as_bytes%0#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -613,14 +613,14 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: user#0, user%out#0
 debug: selected user#0 from equivalence set
-debug: Found equivalence set: tmp%0#0, box_key#0
+debug: Found equivalence set: extract%0#0, box_key#0
 debug: selected box_key#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable user%is_original#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 user#0 2u 8u) // on error: Index access is out of bounds to ((extract 2 8) user#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 user#0 2u 8u) to ((extract 2 8) user#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -656,9 +656,9 @@ struct_in_box/contract.py:32:20 debug: inlining call to examples.struct_in_box.c
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#0, user_id#0
+debug: Found equivalence set: extract%0#0, user_id#0
 debug: selected user_id#0 from equivalence set
-debug: Found equivalence set: exists#0, tmp%1#0
+debug: Found equivalence set: exists#0, tmp%0#0
 debug: selected exists#0 from equivalence set
 debug: Found equivalence set: write_to_box%0#0, user#1
 debug: selected user#1 from equivalence set
@@ -667,7 +667,7 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Not removing unused assignment since source is not marked as pure: let user#1: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 user#0 2u 8u) // on error: Index access is out of bounds to ((extract 2 8) user#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 user#0 2u 8u) to ((extract 2 8) user#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -954,7 +954,7 @@ debug: Merged linear block@15 into block@5
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let box_key#1: bytes = ((extract 2 8) user#3) // on error: Index access is out of bounds with copy of existing registers (Register(source_location=struct_in_box/contract.py:26:25-45, ir_type=Encoded(uint64), name='user_id', version=2),)
+debug: Replacing redundant declaration let box_key#1: bytes = ((extract 2 8) user#3) with copy of existing registers (Register(source_location=struct_in_box/contract.py:26:25-45, ir_type=Encoded(uint64), name='user_id', version=2),)
 debug: Found equivalence set: user_id#2, box_key#1
 debug: selected user_id#2 from equivalence set
 debug: Copy propagation made 2 modifications
@@ -1113,8 +1113,8 @@ debug: Inserted main_add_user_route@3.ops[15]: 'l-store-copy user#1 0'
 debug: Replaced main_add_user_route@3.ops[17]: 'v-load user#1' with 'l-load user#1'
 debug: Inserted main_add_user_route@3.ops[19]: 'l-store-copy user_id#0 0'
 debug: Replaced main_add_user_route@3.ops[21]: 'v-load user_id#0' with 'l-load user_id#0'
-debug: Inserted main_add_user_route@3.ops[27]: 'l-store-copy tmp%2#1 0'
-debug: Replaced main_add_user_route@3.ops[29]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
+debug: Inserted main_add_user_route@3.ops[27]: 'l-store-copy tmp%1#1 0'
+debug: Replaced main_add_user_route@3.ops[29]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
 debug: Inserted main_add_user_route@3.ops[38]: 'l-store-copy examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0 0'
 debug: Replaced main_add_user_route@3.ops[40]: 'v-load examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0' with 'l-load examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0'
 debug: Inserted main_add_user_route@3.ops[23]: 'l-store-copy exists#0 1'

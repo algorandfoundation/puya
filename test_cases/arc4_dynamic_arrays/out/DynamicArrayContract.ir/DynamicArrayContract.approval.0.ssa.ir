@@ -1078,16 +1078,16 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let encoded%42#0: Encoded(((uint64,uint8[2]),(len+utf8[],len+utf8[]),(uint64,uint8[2]),(uint64,len+utf8[],uint64,len+uint16[],uint64),(len+utf8[],len+utf8[]))) = (concat encoded%41#0 offset_as_uint16%13#0)
         let encoded%43#0: Encoded(((uint64,uint8[2]),(len+utf8[],len+utf8[]),(uint64,uint8[2]),(uint64,len+utf8[],uint64,len+uint16[],uint64),(len+utf8[],len+utf8[]))) = (concat encoded%42#0 tail%13#0)
         let tup2#0: Encoded(((uint64,uint8[2]),(len+utf8[],len+utf8[]),(uint64,uint8[2]),(uint64,len+utf8[],uint64,len+uint16[],uint64),(len+utf8[],len+utf8[]))) = encoded%43#0
-        let item_start_offset%0#0: uint64 = (extract_uint16 tup2#0 22u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tup2#0 24u)
-        let tmp%20#0: bytes = (substring3 tup2#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%20#0 18u)
-        let item_end_offset%1#0: uint64 = (len tmp%20#0)
-        let tmp%21#0: bytes = (substring3 tmp%20#0 item_start_offset%1#0 item_end_offset%1#0)
-        let (tmp%22#0: bytes, tmp%23#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(tmp%21#0, 2u)
-        let item_offset%0#0: uint64 = (extract_uint16 tmp%20#0 18u)
-        let data_up_to_item%0#0: bytes = (extract3 tmp%20#0 0u item_offset%0#0)
-        let updated_data%0#0: bytes = (concat data_up_to_item%0#0 tmp%23#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 tup2#0 22u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 tup2#0 24u)
+        let substring3%0#0: bytes = (substring3 tup2#0 extract_uint16%0#0 extract_uint16%1#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 substring3%0#0 18u)
+        let len%1#0: uint64 = (len substring3%0#0)
+        let substring3%1#0: bytes = (substring3 substring3%0#0 extract_uint16%2#0 len%1#0)
+        let (tmp%20#0: bytes, tmp%21#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(substring3%1#0, 2u)
+        let item_offset%0#0: uint64 = (extract_uint16 substring3%0#0 18u)
+        let data_up_to_item%0#0: bytes = (extract3 substring3%0#0 0u item_offset%0#0)
+        let updated_data%0#0: bytes = (concat data_up_to_item%0#0 tmp%21#0)
         let item_offset%1#0: uint64 = (extract_uint16 tup2#0 22u)
         let data_up_to_item%1#0: bytes = (extract3 tup2#0 0u item_offset%1#0)
         let next_item_offset%0#0: uint64 = (extract_uint16 tup2#0 24u)
@@ -1104,8 +1104,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%15#0)
         let updated_data%3#0: bytes = (replace3 updated_data%2#0 24u tail_offset_bytes%0#0)
         let tup2#1: Encoded(((uint64,uint8[2]),(len+utf8[],len+utf8[]),(uint64,uint8[2]),(uint64,len+utf8[],uint64,len+uint16[],uint64),(len+utf8[],len+utf8[]))) = updated_data%3#0
-        let tmp%24#0: bool = (== tup1#0 tup2#1)
-        (assert tmp%24#0) // tup1 does not match tup2
+        let tmp%22#0: bool = (== tup1#0 tup2#1)
+        (assert tmp%22#0) // tup1 does not match tup2
         return 
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create() -> void:
