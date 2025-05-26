@@ -74,7 +74,6 @@ from puya.ir.types_ import (
     SlotType,
     bytes_enc_to_avm_bytes_enc,
     wtype_to_ir_type,
-    wtype_to_ir_type_and_encoding,
     wtype_to_ir_types,
 )
 from puya.ir.utils import format_tuple_index
@@ -175,16 +174,16 @@ class FunctionIRBuilder(
         encoding = wtype_to_encoding(expr.value.wtype, loc)
 
         value = self.visit_and_materialise_single(expr.value)
-        return arc4.decode_arc4_value(self.context, value, encoding, ir_type, loc)
+        return arc4.decode_value(self.context, value, encoding, ir_type, loc)
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         loc = expr.source_location
 
-        value_ir_type, value_encoding = wtype_to_ir_type_and_encoding(expr.value.wtype, loc)
+        value_ir_type = wtype_to_ir_type(expr.value.wtype, loc, allow_tuple=True)
         encoding = wtype_to_encoding(expr.wtype, loc)
 
         value = self.visit_and_materialise_as_value_or_tuple(expr.value)
-        return arc4.encode_value_provider(self.context, value, value_ir_type, encoding, loc)
+        return arc4.encode_value(self.context, value, value_ir_type, encoding, loc)
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
         loc = size_of.source_location
@@ -488,7 +487,7 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
         if wtype == wtypes.arc4_string_alias:
-            encoded = arc4.encode_value_provider(
+            encoded = arc4.encode_value(
                 self.context, result, result.ir_type, wtype_to_encoding(wtype, loc), loc
             )
             (result,) = self.context.materialise_value_provider(encoded, "encoded")
@@ -873,7 +872,7 @@ class FunctionIRBuilder(
         tuple_expr = awst_nodes.TupleExpression.from_items(expr.values, loc)
         tuple_ir_type = wtype_to_ir_type(tuple_expr.wtype, loc, allow_tuple=True)
         tuple_values = self.visit_and_materialise_as_value_or_tuple(tuple_expr)
-        encoded_array_vp = arc4.encode_value_provider(
+        encoded_array_vp = arc4.encode_value(
             self.context, tuple_values, tuple_ir_type, array_encoding, loc
         )
         (encoded_array,) = self.context.visitor.materialise_value_provider(
@@ -1197,7 +1196,7 @@ class FunctionIRBuilder(
             element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
         ]
 
-        return arc4.encode_value_provider(
+        return arc4.encode_value(
             self.context,
             value_provider=ValueTuple(values=elements, source_location=loc),
             value_type=tuple_ir_type,
