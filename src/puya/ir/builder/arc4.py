@@ -9,7 +9,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.errors import CodeError, InternalError
+from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence
 from puya.ir.builder._utils import (
@@ -50,7 +50,6 @@ from puya.ir.types_ import (
     get_type_arity,
     type_has_encoding,
     wtype_to_ir_type,
-    wtype_to_ir_type_and_encoding,
 )
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes, round_bits_to_nearest_bytes
@@ -655,13 +654,22 @@ def handle_arc4_assign(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
             name=field_name,
         ):
-            item = _arc4_replace_struct_item(
-                context,
-                base_expr=base_expr,
-                field_name=field_name,
-                wtype=struct_wtype,
-                value=value,
+            index_int = struct_wtype.names.index(field_name)
+
+            tuple_encoding = wtype_to_encoding(struct_wtype, source_location)
+            value_ir_type = wtype_to_ir_type(
+                struct_wtype.types[index_int],
                 source_location=source_location,
+                allow_tuple=True,
+            )
+            item = _arc4_replace_tuple_item(
+                context,
+                base_expr,
+                index_int,
+                tuple_encoding,
+                value_ir_type,
+                value,
+                source_location,
             )
             return handle_arc4_assign(
                 context,
@@ -771,29 +779,6 @@ def _decode_arc4_tuple_items(
             )
         items.extend(factory.materialise_values(item_value, f"item{index}"))
     return ValueTuple(source_location=source_location, values=items)
-
-
-def _arc4_replace_struct_item(
-    context: IRFunctionBuildContext,
-    base_expr: awst_nodes.Expression,
-    field_name: str,
-    wtype: wtypes.ARC4Struct,
-    value: ValueProvider,
-    source_location: SourceLocation,
-) -> Value:
-    if not isinstance(wtype, wtypes.ARC4Struct):
-        raise InternalError("Unsupported indexed assignment target", source_location)
-    try:
-        index_int = wtype.names.index(field_name)
-    except ValueError:
-        raise CodeError(f"Invalid arc4.Struct field name {field_name}", source_location) from None
-
-    item_wtype = wtype.types[index_int]
-    tuple_encoding = wtype_to_encoding(wtype, source_location)
-    value_ir_type, _ = wtype_to_ir_type_and_encoding(item_wtype, source_location)
-    return _arc4_replace_tuple_item(
-        context, base_expr, index_int, tuple_encoding, value_ir_type, value, source_location
-    )
 
 
 def _arc4_replace_tuple_item(
