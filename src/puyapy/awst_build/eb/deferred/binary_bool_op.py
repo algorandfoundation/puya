@@ -23,6 +23,43 @@ from puyapy.awst_build.eb.interface import (
 from puyapy.awst_build.utils import determine_base_type
 
 
+def binary_bool_op_builder(
+    *,
+    left: InstanceBuilder,
+    right: InstanceBuilder,
+    op: BinaryBooleanOperator,
+    location: SourceLocation,
+) -> InstanceBuilder:
+    # if either left or right is already a union, just produce another union
+    if isinstance(left.pytype, pytypes.UnionType) or isinstance(right.pytype, pytypes.UnionType):
+        # note if left and/or right are unions this constructor will expand them for us
+        result_type: pytypes.PyType = pytypes.UnionType([left.pytype, right.pytype], location)
+    else:
+        # otherwise, left and right are both non-union types, so try and
+        # compute a common base type, falling back to a union if not possible
+        result_type = determine_base_type(left.pytype, right.pytype, location=location)
+
+    if isinstance(result_type, pytypes.UnionType):
+        return BinaryBoolOpBuilder(
+            left=left, right=right, op=op, location=location, result_type=result_type
+        )
+
+    result_wtype = result_type.checked_wtype(location)
+
+    # (left:uint64 and right:uint64) => left_cache if not bool(left_cache := left) else right
+    # (left:uint64 or right:uint64) => left_cache if bool(left_cache := left) else right
+    left_cache = left.single_eval()
+    condition = left_cache.bool_eval(location, negate=op is BinaryBooleanOperator.and_)
+    expr_result = ConditionalExpression(
+        condition=condition.resolve(),
+        true_expr=left_cache.resolve(),
+        false_expr=right.resolve(),
+        wtype=result_wtype,
+        source_location=location,
+    )
+    return builder_for_instance(result_type, expr_result)
+
+
 class BinaryBoolOpBuilder(InstanceBuilder):
     """
     This builder works to defer the evaluation of a boolean binary op (ie and/or), because
