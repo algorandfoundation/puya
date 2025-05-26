@@ -8,8 +8,8 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import mem
-from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
+from puya.ir.builder import mem, tup
+from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     assert_value,
     assign_intrinsic_op,
@@ -534,9 +534,12 @@ def _iterate_tuple(
     reverse_index: bool,
     reverse_items: bool,
 ) -> None:
-    tuple_values = context.visitor.visit_and_materialise(tuple_expr)
-    assert isinstance(tuple_expr.wtype, wtypes.WTuple), "tuple_expr wtype must be WTuple"
     tuple_wtype = tuple_expr.wtype
+    assert isinstance(tuple_wtype, wtypes.WTuple), "tuple_expr wtype must be WTuple"
+
+    tuple_values = context.visitor.visit_and_materialise_as_value_or_tuple(tuple_expr)
+
+    tuple_builder = tup.get_builder(context, tuple_wtype, statement_loc)
     max_index = len(tuple_wtype.types) - 1
     loop_counter_name = context.next_tmp_name("loop_counter")
 
@@ -549,14 +552,9 @@ def _iterate_tuple(
             assignment_location=None,
         )
         item_index = loop_count if not reverse_items else (max_index - loop_count)
+        item_vp = tuple_builder.read_at_index(tuple_values, item_index)
         item_reg, index_reg = assigner.assign_user_loop_vars(
-            get_tuple_item_values(
-                tuple_values=tuple_values,
-                tuple_wtype=tuple_wtype,
-                index=item_index,
-                target_wtype=tuple_wtype.types[item_index],
-                source_location=statement_loc,
-            ),
+            item_vp,
             UInt64Constant(
                 value=loop_count if not reverse_index else (max_index - loop_count),
                 source_location=None,
