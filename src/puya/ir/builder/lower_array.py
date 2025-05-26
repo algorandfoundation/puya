@@ -95,7 +95,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
             value_provider = models.ValueTuple(
                 values=encode.values, source_location=encode.source_location
             )
-        return arc4.encode_value_provider(
+        return arc4.encode_value(
             self,
             value_provider,
             value_type=encode.value_type,
@@ -106,7 +106,7 @@ class _ArrayNodeReplacer(IRMutator, IRRegisterContext):
     @typing.override
     def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueProvider:
         self.modified = True
-        return arc4.decode_arc4_value(
+        return arc4.decode_value(
             self,
             decode.value,
             encoding=decode.encoding,

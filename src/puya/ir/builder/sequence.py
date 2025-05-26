@@ -8,6 +8,7 @@ from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import OpFactory, assert_value, invoke_puya_lib_subroutine
+from puya.ir.builder import arc4
 from puya.ir.encodings import (
     ArrayEncoding,
     BoolEncoding,
@@ -122,19 +123,14 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         )
         return self.factory.materialise_single(length, "length")
 
-    def _maybe_decode(self, encoded_item: ir.ValueProvider) -> ir.MultiValue:
-        if type_has_encoding(self.element_ir_type, self.array_encoding.element):
-            return self.factory.materialise_single(encoded_item)
-        else:
-            encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
-            return self.factory.materialise_multi_value(
-                ir.ValueDecode(
-                    value=encoded_item,
-                    encoding=self.array_encoding.element,
-                    decoded_type=self.element_ir_type,
-                    source_location=self.loc,
-                )
-            )
+    def _maybe_decode(self, value: ir.Value) -> ir.MultiValue:
+        return arc4.maybe_decode_value(
+            self.context,
+            encoded_item=value,
+            encoding=self.array_encoding.element,
+            target_type=self.element_ir_type,
+            loc=self.loc,
+        )
 
     def _maybe_encode(self, value: ir.ValueProvider) -> ir.MultiValue:
         if type_has_encoding(self.element_ir_type, self.array_encoding.element):
@@ -176,7 +172,7 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
 
 class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
     @typing.override
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.MultiValue:
         # this catches the edge case of bit arrays that are not a multiple of 8
         # e.g. reading index 6 & 7 of an array that has a length of 6
         self._maybe_bounds_check(array, index)
@@ -194,18 +190,7 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
             ),
             "is_true",
         )
-        # bit packed bools are unique in that the retrieved value is a bool
-        # and depending on the element_ir_type may require encoding
-        if isinstance(self.element_ir_type, EncodedType):
-            result = ir.ValueEncode(
-                values=[item],
-                value_type=item.ir_type,
-                encoding=self.element_ir_type.encoding,
-                source_location=self.loc,
-            )
-            return self.factory.materialise_single(result)
-        else:
-            return item
+        return self._maybe_decode(item)
 
     @typing.override
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.MultiValue) -> ir.Value:
@@ -297,7 +282,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
                 array_head_and_tail=array_head_and_tail,
                 index=index,
             )
-        return self._maybe_decode(item)
+        return self._maybe_decode(self.factory.materialise_single(item))
 
     def _read_item_from_array_length_and_fixed_size(
         self, array_head_and_tail: ir.Value, index: ir.Value

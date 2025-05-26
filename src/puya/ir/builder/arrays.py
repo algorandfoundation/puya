@@ -81,7 +81,7 @@ def get_array_encoded_items(
         assert isinstance(
             items.wtype, wtypes.WTuple
         ), f"assuming this is a tuple of elements to concat: {items.wtype}"
-        encoded = arc4.encode_value_provider(
+        encoded = arc4.encode_value(
             context,
             array_vp,
             value_ir_type,
