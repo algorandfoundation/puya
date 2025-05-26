@@ -117,16 +117,16 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (app_global_put 0x70 maybe_value%0#0)
         let (maybe_value%1#1: bytes, maybe_exists%1#1: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%1#1) // check self.nested exists
-        let tmp%0#5: bytes = (txn Sender)
-        (app_local_put tmp%0#5 0x6c maybe_value%1#1)
-        let tmp%1#5: bool = (box_create "box" 2064u)
-        (assert tmp%1#5) // expected box to not exist
-        let tmp%2#1: bytes = ((extract 0 16) maybe_value%1#1) // on error: Index access is out of bounds
+        let tmp%0#6: bytes[32] = (txn Sender)
+        (app_local_put tmp%0#6 0x6c maybe_value%1#1)
+        let tmp%1#6: bool = (box_create "box" 2064u)
+        (assert tmp%1#6) // expected box to not exist
+        let extract%0#1: bytes = ((extract 0 16) maybe_value%1#1)
         let encoded_value%0#1: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#1)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.box_map entry exists
-        let updated_data%0#0: bytes = ((replace2 0) maybe_value%3#0 tmp%2#1)
+        let updated_data%0#0: bytes = ((replace2 0) maybe_value%3#0 extract%0#1)
         (box_put box_prefixed_key%0#0 updated_data%0#0)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
@@ -137,12 +137,12 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert tmp%23#0) // OnCompletion is not NoOp
         let tmp%24#0: uint64 = (txn ApplicationID)
         (assert tmp%24#0) // can only call when not creating
-        let tmp%0#5: bytes = (txn Sender)
+        let tmp%0#6: bytes[32] = (txn Sender)
         let val_as_bytes%0#0: bytes[8] = (itob 1234u)
-        let encoded%1#0: Encoded((uint64,uint64)) = (concat tmp%0#5 val_as_bytes%0#0)
+        let encoded%1#0: Encoded((uint64,uint64)) = (concat tmp%0#6 val_as_bytes%0#0)
         let val_as_bytes%1#0: bytes[8] = (itob 567u)
         let a#0: Encoded((uint64,uint64)) = (concat encoded%1#0 val_as_bytes%1#0)
-        let foo#0: bytes[32] = ((extract 0 32) a#0) // on error: Index access is out of bounds
+        let foo#0: bytes[32] = ((extract 0 32) a#0)
         let bar#0: uint64 = (extract_uint64 a#0 32u)
         let baz#0: uint64 = (extract_uint64 a#0 40u)
         let tmp%3#3: bytes[32] = (global ZeroAddress)
@@ -165,8 +165,8 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let box_key#0: uint64 = (btoi reinterpret_Encoded(uint64)%3#0)
         (app_global_del 0x70)
-        let tmp%0#5: bytes = (txn Sender)
-        (app_local_del tmp%0#5 0x6c)
+        let tmp%0#6: bytes[32] = (txn Sender)
+        (app_local_del tmp%0#6 0x6c)
         (box_del "box")
         let encoded_value%0#1: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#1)
@@ -191,11 +191,11 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert maybe_exists%1#1) // check self.nested_proxy exists
         let updated_data%1#0: bytes = ((replace2 0) maybe_value%1#1 a#0)
         (app_global_put 0x70 updated_data%1#0)
-        let tmp%0#5: bytes = (txn Sender)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%0#5 0u 0x6c)
+        let tmp%0#6: bytes[32] = (txn Sender)
+        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%0#6 0u 0x6c)
         (assert maybe_exists%2#0) // check self.nested_local exists for account
         let updated_data%2#0: bytes = ((replace2 0) maybe_value%2#0 a#0)
-        (app_local_put tmp%0#5 0x6c updated_data%2#0)
+        (app_local_put tmp%0#6 0x6c updated_data%2#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "box")
         (assert maybe_exists%3#0) // check self.box exists
         let updated_data%3#0: bytes = ((replace2 0) maybe_value%3#0 a#0)
@@ -217,8 +217,8 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert tmp%40#0) // can only call when not creating
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let tmp%0#5: bytes = ((extract 0 16) maybe_value%0#0) // on error: Index access is out of bounds
-        let tmp%43#0: bytes = (concat 0x151f7c75 tmp%0#5)
+        let extract%0#1: bytes = ((extract 0 16) maybe_value%0#0)
+        let tmp%43#0: bytes = (concat 0x151f7c75 extract%0#1)
         (log tmp%43#0)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
@@ -231,11 +231,11 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert tmp%46#0) // can only call when not creating
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let encoded%0#1: bytes = ((extract 32 16) maybe_value%0#0) // on error: Index access is out of bounds
-        let item0%0#1: uint64 = (extract_uint64 encoded%0#1 0u)
-        let item1%0#1: uint64 = (extract_uint64 encoded%0#1 8u)
-        let val_as_bytes%0#0: bytes[8] = (itob item0%0#1)
-        let val_as_bytes%1#0: bytes[8] = (itob item1%0#1)
+        let extract%0#1: bytes = ((extract 32 16) maybe_value%0#0)
+        let tmp%0#2: uint64 = (extract_uint64 extract%0#1 0u)
+        let tmp%1#1: uint64 = (extract_uint64 extract%0#1 8u)
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%0#2)
+        let val_as_bytes%1#0: bytes[8] = (itob tmp%1#1)
         let encoded%1#0: Encoded((uint64,uint64)) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
         let tmp%50#0: bytes = (concat 0x151f7c75 encoded%1#0)
         (log tmp%50#0)
@@ -250,24 +250,24 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert tmp%53#0) // can only call when not creating
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let fixed_a#0: Encoded((uint64,uint64)) = ((extract 0 16) maybe_value%0#0) // on error: Index access is out of bounds
-        let fixed_b#0: Encoded((uint64,uint64)) = ((extract 16 16) maybe_value%0#0) // on error: Index access is out of bounds
+        let fixed_a#0: Encoded((uint64,uint64)) = ((extract 0 16) maybe_value%0#0)
+        let fixed_b#0: Encoded((uint64,uint64)) = ((extract 16 16) maybe_value%0#0)
         let tmp%0#2: uint64 = (extract_uint64 fixed_a#0 0u)
         let tmp%1#1: uint64 = (extract_uint64 fixed_a#0 8u)
         let tmp%2#0: uint64 = (+ tmp%0#2 tmp%1#1)
         let tmp%0#2: uint64 = (extract_uint64 fixed_b#0 0u)
         let tmp%1#1: uint64 = (extract_uint64 fixed_b#0 8u)
-        let tmp%2#8: uint64 = (+ tmp%0#2 tmp%1#1)
-        let result#0: uint64 = (+ tmp%2#0 tmp%2#8)
-        let tmp%5#2: bool = (< result#0 100u)
+        let tmp%2#7: uint64 = (+ tmp%0#2 tmp%1#1)
+        let result#0: uint64 = (+ tmp%2#0 tmp%2#7)
+        let tmp%3#2: bool = (< result#0 100u)
         let result#6: uint64 = result#0
-        goto tmp%5#2 ? block@15 : block@16
+        goto tmp%3#2 ? block@15 : block@16
     block@15: // if_body_L172
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%2#0) // check self.nested exists
-        let encoded%0#1: bytes = ((extract 32 16) maybe_value%2#0) // on error: Index access is out of bounds
-        let c#0: uint64 = (extract_uint64 encoded%0#1 0u)
-        let d#0: uint64 = (extract_uint64 encoded%0#1 8u)
+        let extract%2#0: bytes = ((extract 32 16) maybe_value%2#0)
+        let c#0: uint64 = (extract_uint64 extract%2#0 0u)
+        let d#0: uint64 = (extract_uint64 extract%2#0 8u)
         let result#0: uint64 = (+ result#0 c#0)
         let result#0: uint64 = (+ result#0 d#0)
         let result#6: uint64 = result#0

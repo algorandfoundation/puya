@@ -13,12 +13,12 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         (assert tmp%5#0) // can only call when not creating
         let tmp%0#1: bool = (box_create "tup_bag" 176u)
         (assert tmp%0#1) // box already exists
-        let tmp%1#3: bytes = (txn Sender)
+        let tmp%1#6: bytes[32] = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let updated_data%0#0: bytes = ((replace2 136) maybe_value%0#0 tmp%1#3)
-        let tmp%2#2: uint64 = (global CurrentApplicationID)
-        let val_as_bytes%0#0: bytes[8] = (itob tmp%2#2)
+        let updated_data%0#0: bytes = ((replace2 136) maybe_value%0#0 tmp%1#6)
+        let tmp%2#3: uint64 = (global CurrentApplicationID)
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%2#3)
         let updated_data%1#0: bytes = ((replace2 168) updated_data%0#0 val_as_bytes%0#0)
         (box_put "tup_bag" updated_data%1#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
@@ -61,11 +61,11 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let tmp%0#2: uint64 = (extract_uint64 maybe_value%0#0 0u)
-        let tmp%1#6: bool = (< index#0 tmp%0#2)
-        (assert tmp%1#6) // index out of bounds
-        let tmp%2#0: bytes = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
+        let tmp%1#5: bool = (< index#0 tmp%0#2)
+        (assert tmp%1#5) // index out of bounds
+        let extract%1#2: bytes = ((extract 8 128) maybe_value%0#0)
         let bytes_offset%0#0: uint64 = (* index#0 16u)
-        let encoded_element%0#0: bytes = (extract3 tmp%2#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
+        let encoded_element%0#0: bytes = (extract3 extract%1#2 bytes_offset%0#0 16u) // on error: index access is out of bounds
         let tmp%23#0: bytes = (concat 0x151f7c75 encoded_element%0#0)
         (log tmp%23#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
@@ -89,13 +89,13 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
     block@11: // for_body_L61
         let (maybe_value%1#2: bytes, maybe_exists%1#2: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#2) // check self.tup_bag exists
-        let tmp%1#3: bytes = ((extract 8 128) maybe_value%1#2) // on error: Index access is out of bounds
+        let extract%1#2: bytes = ((extract 8 128) maybe_value%1#2)
         let bytes_offset%0#0: uint64 = (* i#0 16u)
-        let tup#0: Encoded((uint64,uint64)) = (extract3 tmp%1#3 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let tmp%2#2: uint64 = (extract_uint64 tup#0 0u)
-        let total#0: uint64 = (+ total#0 tmp%2#2)
-        let tmp%4#1: uint64 = (extract_uint64 tup#0 8u)
-        let total#0: uint64 = (+ total#0 tmp%4#1)
+        let tup#0: Encoded((uint64,uint64)) = (extract3 extract%1#2 bytes_offset%0#0 16u) // on error: index access is out of bounds
+        let tmp%1#1: uint64 = (extract_uint64 tup#0 0u)
+        let total#0: uint64 = (+ total#0 tmp%1#1)
+        let tmp%3#0: uint64 = (extract_uint64 tup#0 8u)
+        let total#0: uint64 = (+ total#0 tmp%3#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@10
     block@12: // after_for_L60
@@ -167,14 +167,14 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
     block@23: // for_body_L80
         let (maybe_value%1#2: bytes, maybe_exists%1#2: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#2) // check self.tup_bag exists
-        let tmp%1#3: bytes = ((extract 8 128) maybe_value%1#2) // on error: Index access is out of bounds
+        let extract%1#2: bytes = ((extract 8 128) maybe_value%1#2)
         let bytes_offset%0#0: uint64 = (* i#0 16u)
-        let tup#0: Encoded((uint64,uint64)) = (extract3 tmp%1#3 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let tmp%2#2: uint64 = (extract_uint64 tup#0 8u)
+        let tup#0: Encoded((uint64,uint64)) = (extract3 extract%1#2 bytes_offset%0#0 16u) // on error: index access is out of bounds
+        let tmp%1#1: uint64 = (extract_uint64 tup#0 8u)
         let val_as_bytes%0#0: bytes[8] = (itob a#0)
-        let val_as_bytes%1#0: bytes[8] = (itob tmp%2#2)
-        let encoded%3#1: Encoded(((uint64,uint64),(uint64,uint64),(uint64,uint64))) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let updated_array%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 encoded%3#1)
+        let val_as_bytes%1#0: bytes[8] = (itob tmp%1#1)
+        let encoded%1#1: Encoded(((uint64,uint64),(uint64,uint64))) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
+        let updated_array%0#0: bytes = (replace3 extract%1#2 bytes_offset%0#0 encoded%1#1)
         let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let i#0: uint64 = (+ i#0 1u)
@@ -199,14 +199,14 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
     block@27: // for_body_L87
         let (maybe_value%1#2: bytes, maybe_exists%1#2: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#2) // check self.tup_bag exists
-        let tmp%1#3: bytes = ((extract 8 128) maybe_value%1#2) // on error: Index access is out of bounds
+        let extract%1#2: bytes = ((extract 8 128) maybe_value%1#2)
         let bytes_offset%0#0: uint64 = (* i#0 16u)
-        let tup#0: Encoded((uint64,uint64)) = (extract3 tmp%1#3 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let tmp%2#2: uint64 = (extract_uint64 tup#0 0u)
-        let val_as_bytes%0#0: bytes[8] = (itob tmp%2#2)
+        let tup#0: Encoded((uint64,uint64)) = (extract3 extract%1#2 bytes_offset%0#0 16u) // on error: index access is out of bounds
+        let tmp%1#1: uint64 = (extract_uint64 tup#0 0u)
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%1#1)
         let val_as_bytes%1#0: bytes[8] = (itob b#0)
-        let encoded%3#1: Encoded(((uint64,uint64),(uint64,uint64),(uint64,uint64))) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
-        let updated_array%0#0: bytes = (replace3 tmp%1#3 bytes_offset%0#0 encoded%3#1)
+        let encoded%1#1: Encoded(((uint64,uint64),(uint64,uint64))) = (concat val_as_bytes%0#0 val_as_bytes%1#0)
+        let updated_array%0#0: bytes = (replace3 extract%1#2 bytes_offset%0#0 encoded%1#1)
         let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#2 updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let i#0: uint64 = (+ i#0 1u)
@@ -225,18 +225,18 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let tmp%1#1: uint64 = (+ start#0 3u)
         let tmp%2#1: bool = (>= tmp%0#2 tmp%1#1)
         (assert tmp%2#1) // not enough items
-        let items#0: Encoded((uint64,uint64)[8]) = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
+        let items#0: Encoded((uint64,uint64)[8]) = ((extract 8 128) maybe_value%0#0)
         let bytes_offset%0#0: uint64 = (* start#0 16u)
         let encoded_element%0#0: bytes = (extract3 items#0 bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let tmp%4#1: uint64 = (+ start#0 1u)
-        let bytes_offset%1#0: uint64 = (* tmp%4#1 16u)
+        let tmp%3#0: uint64 = (+ start#0 1u)
+        let bytes_offset%1#0: uint64 = (* tmp%3#0 16u)
         let encoded_element%1#0: bytes = (extract3 items#0 bytes_offset%1#0 16u) // on error: index access is out of bounds
-        let tmp%5#0: uint64 = (+ start#0 2u)
-        let bytes_offset%2#0: uint64 = (* tmp%5#0 16u)
+        let tmp%4#1: uint64 = (+ start#0 2u)
+        let bytes_offset%2#0: uint64 = (* tmp%4#1 16u)
         let encoded_element%2#0: bytes = (extract3 items#0 bytes_offset%2#0 16u) // on error: index access is out of bounds
-        let encoded%2#1: Encoded(((uint64,uint64),(uint64,uint64))) = (concat encoded_element%0#0 encoded_element%1#0)
-        let encoded%3#1: Encoded(((uint64,uint64),(uint64,uint64),(uint64,uint64))) = (concat encoded%2#1 encoded_element%2#0)
-        let tmp%54#0: bytes = (concat 0x151f7c75 encoded%3#1)
+        let encoded%1#1: Encoded(((uint64,uint64),(uint64,uint64))) = (concat encoded_element%0#0 encoded_element%1#0)
+        let encoded%2#1: Encoded(((uint64,uint64),(uint64,uint64),(uint64,uint64))) = (concat encoded%1#1 encoded_element%2#0)
+        let tmp%54#0: bytes = (concat 0x151f7c75 encoded%2#1)
         (log tmp%54#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#1: bool = test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0
@@ -250,12 +250,12 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let result#0: Encoded(len+(uint64,uint64)[]) = 0x0000
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let items#0: Encoded((uint64,uint64)[8]) = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
-        let tmp%1#1: uint64 = (extract_uint64 maybe_value%0#0 0u)
+        let items#0: Encoded((uint64,uint64)[8]) = ((extract 8 128) maybe_value%0#0)
+        let tmp%0#2: uint64 = (extract_uint64 maybe_value%0#0 0u)
         let i#0: uint64 = 0u
         goto block@31
     block@31: // for_header_L108
-        let continue_looping%0#0: bool = (< i#0 tmp%1#1)
+        let continue_looping%0#0: bool = (< i#0 tmp%0#2)
         goto continue_looping%0#0 ? block@32 : block@33
     block@32: // for_body_L109
         let bytes_offset%0#0: uint64 = (* i#0 16u)
@@ -300,13 +300,13 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let tmp%0#0: uint64 = (extract_uint64 maybe_value%0#0 0u)
         let tmp%1#0: bool = (< tmp%0#0 8u)
         (assert tmp%1#0) // too many tups
-        let tmp%2#0: bytes = ((extract 8 128) maybe_value%0#0) // on error: Index access is out of bounds
+        let extract%1#0: bytes = ((extract 8 128) maybe_value%0#0)
         let write_offset%0#0: uint64 = (* tmp%0#0 16u)
-        let updated_array%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 tup#0)
+        let updated_array%0#0: bytes = (replace3 extract%1#0 write_offset%0#0 tup#0)
         let updated_data%0#0: bytes = ((replace2 8) maybe_value%0#0 updated_array%0#0)
-        let tmp%4#0: uint64 = (extract_uint64 updated_data%0#0 0u)
-        let tmp%5#0: uint64 = (+ tmp%4#0 1u)
-        let val_as_bytes%0#0: bytes[8] = (itob tmp%5#0)
+        let tmp%3#0: uint64 = (extract_uint64 updated_data%0#0 0u)
+        let tmp%4#0: uint64 = (+ tmp%3#0 1u)
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%4#0)
         let updated_data%1#0: bytes = ((replace2 0) updated_data%0#0 val_as_bytes%0#0)
         (box_put "tup_bag" updated_data%1#0)
         return 
@@ -315,9 +315,9 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L112
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let encoded%0#0: bytes = ((extract 136 32) maybe_value%0#0) // on error: Index access is out of bounds
+        let extract%0#0: bytes = ((extract 136 32) maybe_value%0#0)
         let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%1#0: bool = (== encoded%0#0 tmp%0#0)
+        let tmp%1#0: bool = (== extract%0#0 tmp%0#0)
         (assert tmp%1#0) // sender not authorized
         let tmp%2#0: uint64 = (extract_uint64 maybe_value%0#0 168u)
         let tmp%3#0: uint64 = (global CurrentApplicationID)

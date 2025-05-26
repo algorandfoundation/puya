@@ -963,10 +963,10 @@ debug: Found equivalence set: val_as_bytes%0#0, as_Encoded(uint64)%0#0
 debug: selected val_as_bytes%0#0 from equivalence set
 debug: Found equivalence set: reinterpret_Encoded((uint64,len+utf8[],(len+uint8[],uint8)))%1#0, arg#1
 debug: selected arg#1 from equivalence set
-debug: Found equivalence set: echo%1#0, tmp%1#4
+debug: Found equivalence set: echo%1#0, substring3%1#1
 debug: selected echo%1#0 from equivalence set
-debug: Found equivalence set: tmp%3#2, tmp%16#0
-debug: selected tmp%3#2 from equivalence set
+debug: Found equivalence set: substring3%2#0, tmp%16#0
+debug: selected substring3%2#0 from equivalence set
 debug: Found equivalence set: reinterpret_Encoded((uint64,len+utf8[],(len+uint8[],uint8)))%2#0, arg#0
 debug: selected arg#0 from equivalence set
 debug: Found equivalence set: encoded_value%0#3, as_Encoded(len+uint8[])%0#1
@@ -991,21 +991,25 @@ debug: Found equivalence set: tmp%45#0, c#0
 debug: selected c#0 from equivalence set
 debug: Found equivalence set: reinterpret_Encoded((uint64,uint64))%0#0, d#0
 debug: selected d#0 from equivalence set
-debug: Found equivalence set: item0%0#0, e.0#0
+debug: Found equivalence set: tmp%46#0, e.0#0
 debug: selected e.0#0 from equivalence set
-debug: Found equivalence set: item1%0#0, e.1#0
+debug: Found equivalence set: tmp%47#0, e.1#0
 debug: selected e.1#0 from equivalence set
 debug: Found equivalence set: reinterpret_Encoded(len+utf8[][2])%0#0, f#0
 debug: selected f#0 from equivalence set
 debug: Found equivalence set: reinterpret_Encoded(len+len+utf8[][])%0#0, g#0
 debug: selected g#0 from equivalence set
-debug: Found equivalence set: tmp%46#0, h#0
+debug: Found equivalence set: tmp%48#0, h#0
 debug: selected h#0 from equivalence set
-debug: Found equivalence set: tmp%47#0, i#0
+debug: Found equivalence set: tmp%49#0, i#0
 debug: selected i#0 from equivalence set
+debug: Found equivalence set: extract%0#1, reinterpret_biguint%1#0
+debug: selected extract%0#1 from equivalence set
+debug: Found equivalence set: extract%1#0, reinterpret_biguint%2#0
+debug: selected extract%1#0 from equivalence set
 debug: Found equivalence set: encoded_value%0#1, as_Encoded(len+utf8[])%0#1
 debug: selected encoded_value%0#1 from equivalence set
-debug: Copy propagation made 30 modifications
+debug: Copy propagation made 32 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%10#0
@@ -1080,22 +1084,22 @@ debug: Simplified (concat 0x tmp%35#0) to tmp%35#0
 debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x000d
 debug: Simplified (concat 0x 0x000d) to 0x000d
 debug: Simplified (== tmp%40#0 NoOp) to (! tmp%40#0)
-debug: Simplified (btoi encoded_item0%0#0) to (extract_uint64 reinterpret_Encoded((uint64,len+utf8[]))%0#0 0u)
+debug: Simplified (btoi extract%0#0) to (extract_uint64 reinterpret_Encoded((uint64,len+utf8[]))%0#0 0u)
 debug: Simplified (* 0u 2u) to 0u
 debug: Simplified (* item_length%0#0 1u) to item_length%0#0
 debug: Simplified (len 0x6869) to 2u
 debug: Simplified ((extract 6 2) as_bytes%0#1) to 0x0002
 debug: Simplified (concat 0x0002 0x6869) to 0x00026869
-debug: Simplified (== tmp%49#0 0u) to (! tmp%49#0)
-debug: Simplified (extract3 arg#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) arg#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 reinterpret_Encoded((uint64,len+utf8[]))%0#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) reinterpret_Encoded((uint64,len+utf8[]))%0#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 d#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) d#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 d#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) d#0) // on error: Index access is out of bounds
+debug: Simplified (== tmp%51#0 0u) to (! tmp%51#0)
+debug: Simplified (extract3 arg#0 0u 8u) to ((extract 0 8) arg#0)
+debug: Simplified (extract3 reinterpret_Encoded((uint64,len+utf8[]))%0#0 0u 8u) to ((extract 0 8) reinterpret_Encoded((uint64,len+utf8[]))%0#0)
+debug: Simplified (extract3 d#0 0u 8u) to ((extract 0 8) d#0)
+debug: Simplified (extract3 d#0 8u 8u) to ((extract 8 8) d#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: simplifying a switch with constants into goto nth
-debug: simplified terminator of block@12 from switch tmp%48#0 {0u => block@13, 1u => block@13, 5u => block@14, * => block@15} to goto_nth [block@13, block@13, block@15, block@15, block@15, block@14][tmp%48#0] else goto block@15
+debug: simplified terminator of block@12 from switch tmp%50#0 {0u => block@13, 1u => block@13, 5u => block@14, * => block@15} to goto_nth [block@13, block@13, block@15, block@15, block@15, block@14][tmp%50#0] else goto block@15
 debug: Optimizer: Remove Linear Jump
 debug: Replaced predecessor block@46 with block@2 in block@47
 debug: Merged linear block@46 into block@2
@@ -1138,16 +1142,16 @@ debug: Removed empty block: block@10
 debug: Removed empty block: block@15
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let item_start_offset%1#0: uint64 = (extract_uint16 arg#1 10u) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='item_start_offset%0', version=1),)
-debug: Replacing redundant declaration let item_end_offset%1#0: uint64 = (len arg#1) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='item_end_offset%0', version=1),)
-debug: Replacing redundant declaration let item_start_offset%2#0: uint64 = (extract_uint16 arg#1 10u) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='item_start_offset%0', version=1),)
-debug: Replacing redundant declaration let item_end_offset%2#0: uint64 = (len arg#1) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='item_end_offset%0', version=1),)
+debug: Replacing redundant declaration let extract_uint16%1#0: uint64 = (extract_uint16 arg#1 10u) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='extract_uint16%0', version=1),)
+debug: Replacing redundant declaration let len%1#0: uint64 = (len arg#1) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='len%0', version=1),)
+debug: Replacing redundant declaration let extract_uint16%2#0: uint64 = (extract_uint16 arg#1 10u) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='extract_uint16%0', version=1),)
+debug: Replacing redundant declaration let len%2#0: uint64 = (len arg#1) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='len%0', version=1),)
 debug: Replacing redundant declaration let as_bytes%3#0: bytes[8] = (itob 6u) with copy of existing registers (Register(source_location=arc_56/contract.py:106:35-63, ir_type=bytes[8], name='as_bytes%0', version=3),)
 debug: Replacing redundant declaration let as_bytes%4#0: bytes[8] = (itob 3u) with copy of existing registers (Register(source_location=arc_56/contract.py:106:18-84, ir_type=bytes[8], name='as_bytes%1', version=2),)
-debug: Found equivalence set: item_start_offset%0#1, item_start_offset%1#0, item_start_offset%2#0
-debug: selected item_start_offset%0#1 from equivalence set
-debug: Found equivalence set: item_end_offset%0#1, item_end_offset%1#0, item_end_offset%2#0
-debug: selected item_end_offset%0#1 from equivalence set
+debug: Found equivalence set: extract_uint16%0#1, extract_uint16%1#0, extract_uint16%2#0
+debug: selected extract_uint16%0#1 from equivalence set
+debug: Found equivalence set: len%0#1, len%1#0, len%2#0
+debug: selected len%0#1 from equivalence set
 debug: Found equivalence set: as_bytes%0#3, as_bytes%3#0
 debug: selected as_bytes%0#3 from equivalence set
 debug: Found equivalence set: as_bytes%1#2, as_bytes%4#0
@@ -1157,10 +1161,10 @@ debug: selected tmp%35#0 from equivalence set
 debug: Found equivalence set: item_length%0#0, item_length_in_bytes%0#0
 debug: selected item_length%0#0 from equivalence set
 debug: Copy propagation made 4 modifications
-debug: Replacing redundant declaration let tmp%1#3: bytes = (substring3 arg#1 item_start_offset%0#1 item_end_offset%0#1) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=bytes, name='tmp%0', version=3),)
-debug: Replacing redundant declaration let tmp%3#2: bytes = (substring3 arg#1 item_start_offset%0#1 item_end_offset%0#1) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=bytes, name='tmp%0', version=3),)
-debug: Found equivalence set: tmp%0#3, tmp%1#3, tmp%3#2
-debug: selected tmp%0#3 from equivalence set
+debug: Replacing redundant declaration let substring3%1#0: bytes = (substring3 arg#1 extract_uint16%0#1 len%0#1) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=bytes, name='substring3%0', version=1),)
+debug: Replacing redundant declaration let substring3%2#0: bytes = (substring3 arg#1 extract_uint16%0#1 len%0#1) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=bytes, name='substring3%0', version=1),)
+debug: Found equivalence set: substring3%0#1, substring3%1#0, substring3%2#0
+debug: selected substring3%0#1 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.arc_56.contract.Contract.__init__
@@ -1249,7 +1253,7 @@ arc_56/contract.py:97:30 debug: inlining call to test_cases.arc_56.contract.echo
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%1#0, s#0, echo%0#0, echo%1#0, tmp%1#1
+debug: Found equivalence set: substring3%1#0, s#0, echo%0#0, echo%1#0, substring3%1#1
 debug: selected s#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -1265,18 +1269,18 @@ debug: Merged linear block@2 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let item_start_offset%1#0: uint64 = (extract_uint16 arg#0 10u) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='item_start_offset%0', version=0),)
-debug: Replacing redundant declaration let item_end_offset%1#0: uint64 = (len arg#0) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='item_end_offset%0', version=0),)
-debug: Replacing redundant declaration let item_start_offset%2#0: uint64 = (extract_uint16 arg#0 10u) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='item_start_offset%0', version=0),)
-debug: Replacing redundant declaration let item_end_offset%2#0: uint64 = (len arg#0) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='item_end_offset%0', version=0),)
-debug: Found equivalence set: item_start_offset%0#0, item_start_offset%1#0, item_start_offset%2#0
-debug: selected item_start_offset%0#0 from equivalence set
-debug: Found equivalence set: item_end_offset%0#0, item_end_offset%1#0, item_end_offset%2#0
-debug: selected item_end_offset%0#0 from equivalence set
+debug: Replacing redundant declaration let extract_uint16%1#0: uint64 = (extract_uint16 arg#0 10u) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='extract_uint16%0', version=0),)
+debug: Replacing redundant declaration let len%1#0: uint64 = (len arg#0) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='len%0', version=0),)
+debug: Replacing redundant declaration let extract_uint16%2#0: uint64 = (extract_uint16 arg#0 10u) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='extract_uint16%0', version=0),)
+debug: Replacing redundant declaration let len%2#0: uint64 = (len arg#0) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=uint64, name='len%0', version=0),)
+debug: Found equivalence set: extract_uint16%0#0, extract_uint16%1#0, extract_uint16%2#0
+debug: selected extract_uint16%0#0 from equivalence set
+debug: Found equivalence set: len%0#0, len%1#0, len%2#0
+debug: selected len%0#0 from equivalence set
 debug: Copy propagation made 4 modifications
-debug: Replacing redundant declaration let s#0: Encoded((len+uint8[],uint8)) = (substring3 arg#0 item_start_offset%0#0 item_end_offset%0#0) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=bytes, name='tmp%0', version=0),)
-debug: Replacing redundant declaration let tmp%3#0: bytes = (substring3 arg#0 item_start_offset%0#0 item_end_offset%0#0) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=bytes, name='tmp%0', version=0),)
-debug: Found equivalence set: tmp%0#0, s#0, tmp%3#0
+debug: Replacing redundant declaration let s#0: Encoded((len+uint8[],uint8)) = (substring3 arg#0 extract_uint16%0#0 len%0#0) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=bytes, name='substring3%0', version=0),)
+debug: Replacing redundant declaration let substring3%2#0: bytes = (substring3 arg#0 extract_uint16%0#0 len%0#0) with copy of existing registers (Register(source_location=arc_56/contract.py:97:15-25, ir_type=bytes, name='substring3%0', version=0),)
+debug: Found equivalence set: substring3%0#0, s#0, substring3%2#0
 debug: selected s#0 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -1288,7 +1292,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 arg#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) arg#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 arg#0 0u 8u) to ((extract 0 8) arg#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1425,9 +1429,13 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: a#0, reinterpret_biguint%0#0
 debug: selected a#0 from equivalence set
+debug: Found equivalence set: extract%0#0, reinterpret_biguint%1#0
+debug: selected extract%0#0 from equivalence set
+debug: Found equivalence set: extract%1#0, reinterpret_biguint%2#0
+debug: selected extract%1#0 from equivalence set
 debug: Found equivalence set: encoded_value%0#0, as_Encoded(len+utf8[])%0#0
 debug: selected encoded_value%0#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -1436,8 +1444,8 @@ debug: Simplified (* item_length%0#0 1u) to item_length%0#0
 debug: Simplified (len 0x6869) to 2u
 debug: Simplified ((extract 6 2) as_bytes%0#0) to 0x0002
 debug: Simplified (concat 0x0002 0x6869) to 0x00026869
-debug: Simplified (extract3 d#0 0u 8u) // on error: Index access is out of bounds to ((extract 0 8) d#0) // on error: Index access is out of bounds
-debug: Simplified (extract3 d#0 8u 8u) // on error: Index access is out of bounds to ((extract 8 8) d#0) // on error: Index access is out of bounds
+debug: Simplified (extract3 d#0 0u 8u) to ((extract 0 8) d#0)
+debug: Simplified (extract3 d#0 8u 8u) to ((extract 8 8) d#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1522,7 +1530,7 @@ debug: Removing unused variable as_bytes%0#0
 debug: Removing unused variable offset_as_uint16%0#0
 debug: Removing unused variable encoded%0#0
 debug: Removing unused variable tmp%43#0
-debug: Removing unused variable encoded_item0%0#0
+debug: Removing unused variable extract%0#0
 debug: Removing unused variable tmp%1#1
 debug: Removing unused variable tmp%3#1
 debug: Removing unused variable tmp%6#1
@@ -1637,7 +1645,7 @@ debug: Removing unused variable as_bytes%0#0
 debug: Removing unused variable offset_as_uint16%0#0
 debug: Removing unused variable encoded%0#0
 debug: Removing unused variable tmp%43#0
-debug: Removing unused variable encoded_item0%0#0
+debug: Removing unused variable extract%0#0
 debug: Removing unused variable tmp%1#1
 debug: Removing unused variable tmp%3#1
 debug: Removing unused variable tmp%6#1
@@ -1684,7 +1692,7 @@ arc_56/contract.py:97:30 debug: inlining call to test_cases.arc_56.contract.echo
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#3, s#0, echo%0#0, echo%1#0
+debug: Found equivalence set: substring3%0#1, s#0, echo%0#0, echo%1#0
 debug: selected s#0 from equivalence set
 debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -1757,7 +1765,7 @@ debug: Removing unused variable as_bytes%0#0
 debug: Removing unused variable offset_as_uint16%0#0
 debug: Removing unused variable encoded%0#0
 debug: Removing unused variable tmp%43#0
-debug: Removing unused variable encoded_item0%0#0
+debug: Removing unused variable extract%0#0
 debug: Removing unused variable tmp%1#1
 debug: Removing unused variable tmp%3#1
 debug: Removing unused variable tmp%6#1
@@ -1791,7 +1799,7 @@ arc_56/contract.py:97:30 debug: inlining call to test_cases.arc_56.contract.echo
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tmp%0#5, s#0, echo%0#0, echo%1#0
+debug: Found equivalence set: substring3%0#1, s#0, echo%0#0, echo%1#0
 debug: selected s#0 from equivalence set
 debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -1836,7 +1844,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%2#2
+debug: Removing unused variable tmp%0#5
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -1955,15 +1963,15 @@ debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init using strategy RootOperandGrouping
 debug: Coalescing test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0 with [test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#1, test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#2, test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#3, test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#4, test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#5, test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#6, test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#7, test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#8, test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#9, test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#10]
-debug: Coalescing tmp%0#1 with [tmp%0#7, tmp%0#3]
+debug: Coalescing tmp%0#1 with [tmp%0#7, tmp%0#6, tmp%0#4, tmp%0#3]
 debug: Coalescing arg#0 with [arg#2, arg#1]
-debug: Coalescing item_start_offset%0#0 with [item_start_offset%0#2, item_start_offset%0#1]
-debug: Coalescing item_end_offset%0#0 with [item_end_offset%0#2, item_end_offset%0#1]
-debug: Coalescing tmp%0#4 with [tmp%0#6]
-debug: Coalescing tmp%1#2 with [tmp%1#5]
+debug: Coalescing extract_uint16%0#0 with [extract_uint16%0#2, extract_uint16%0#1]
+debug: Coalescing len%0#0 with [len%0#2, len%0#1]
+debug: Coalescing substring3%0#0 with [substring3%0#2]
+debug: Coalescing extract%0#1 with [extract%0#2]
 debug: Coalescing or_result%0#0 with [or_result%0#5, or_result%0#1, or_result%0#2]
 debug: Coalescing or_result%1#0 with [or_result%1#5, or_result%1#1, or_result%1#2]
-debug: Coalescing resulted in 68 replacement/s
+debug: Coalescing resulted in 72 replacement/s
 debug: Sequentializing parallel copies in test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init
 debug: Performing post-SSA optimizations at level 2
 debug: Removing duplicated block block@24 and updating references to block@12
@@ -1995,22 +2003,22 @@ debug: Inserted main_struct_arg_route@6.ops[5]: 'l-store-copy tmp%7#0 0'
 debug: Replaced main_struct_arg_route@6.ops[7]: 'v-load tmp%7#0' with 'l-load tmp%7#0'
 debug: Inserted main_struct_arg_route@6.ops[10]: 'l-store-copy tmp%8#0 0'
 debug: Replaced main_struct_arg_route@6.ops[12]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
-debug: Inserted main_struct_arg_route@6.ops[29]: 'l-store-copy tmp%0#4 0'
-debug: Replaced main_struct_arg_route@6.ops[31]: 'v-load tmp%0#4' with 'l-load tmp%0#4'
-debug: Inserted main_struct_arg_route@6.ops[34]: 'l-store-copy tmp%1#2 0'
-debug: Replaced main_struct_arg_route@6.ops[36]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
+debug: Inserted main_struct_arg_route@6.ops[29]: 'l-store-copy substring3%0#0 0'
+debug: Replaced main_struct_arg_route@6.ops[31]: 'v-load substring3%0#0' with 'l-load substring3%0#0'
+debug: Inserted main_struct_arg_route@6.ops[34]: 'l-store-copy tmp%0#1 0'
+debug: Replaced main_struct_arg_route@6.ops[36]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
 debug: Inserted main_struct_arg_route@6.ops[41]: 'l-store-copy test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0 0'
 debug: Replaced main_struct_arg_route@6.ops[43]: 'v-load test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0'
 debug: Inserted main_struct_arg_route@6.ops[15]: 'l-store-copy arg#0 0'
 debug: Replaced main_struct_arg_route@6.ops[19]: 'v-load arg#0' with 'l-load arg#0'
 debug: Inserted main_struct_arg_route@6.ops[24]: 'l-store-copy arg#0 0'
 debug: Replaced main_struct_arg_route@6.ops[27]: 'v-load arg#0' with 'l-load arg#0'
-debug: Inserted main_struct_arg_route@6.ops[26]: 'l-store-copy item_end_offset%0#0 1'
-debug: Replaced main_struct_arg_route@6.ops[30]: 'v-load item_end_offset%0#0' with 'l-load item_end_offset%0#0'
+debug: Inserted main_struct_arg_route@6.ops[26]: 'l-store-copy len%0#0 1'
+debug: Replaced main_struct_arg_route@6.ops[30]: 'v-load len%0#0' with 'l-load len%0#0'
 debug: Inserted main_struct_arg_route@6.ops[20]: 'l-store-copy arg#0 0'
 debug: Replaced main_struct_arg_route@6.ops[24]: 'v-load arg#0' with 'l-load arg#0'
-debug: Inserted main_struct_arg_route@6.ops[23]: 'l-store-copy item_start_offset%0#0 1'
-debug: Replaced main_struct_arg_route@6.ops[31]: 'v-load item_start_offset%0#0' with 'l-load item_start_offset%0#0'
+debug: Inserted main_struct_arg_route@6.ops[23]: 'l-store-copy extract_uint16%0#0 1'
+debug: Replaced main_struct_arg_route@6.ops[31]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
 debug: Inserted main_struct_arg_route@6.ops[18]: 'l-store-copy shared#0 1'
 debug: Replaced main_struct_arg_route@6.ops[38]: 'v-load shared#0' with 'l-load shared#0'
 debug: Inserted main_struct_return_route@7.ops[1]: 'l-store-copy tmp%12#0 0'
@@ -2029,12 +2037,12 @@ debug: Inserted main_struct_return_route@7.ops[28]: 'l-store-copy s#0 0'
 debug: Replaced main_struct_return_route@7.ops[31]: 'v-load s#0' with 'l-load s#0'
 debug: Inserted main_struct_return_route@7.ops[22]: 'l-store-copy arg#0 0'
 debug: Replaced main_struct_return_route@7.ops[25]: 'v-load arg#0' with 'l-load arg#0'
-debug: Inserted main_struct_return_route@7.ops[24]: 'l-store-copy item_end_offset%0#0 1'
-debug: Replaced main_struct_return_route@7.ops[28]: 'v-load item_end_offset%0#0' with 'l-load item_end_offset%0#0'
+debug: Inserted main_struct_return_route@7.ops[24]: 'l-store-copy len%0#0 1'
+debug: Replaced main_struct_return_route@7.ops[28]: 'v-load len%0#0' with 'l-load len%0#0'
 debug: Inserted main_struct_return_route@7.ops[18]: 'l-store-copy arg#0 0'
 debug: Replaced main_struct_return_route@7.ops[22]: 'v-load arg#0' with 'l-load arg#0'
-debug: Inserted main_struct_return_route@7.ops[21]: 'l-store-copy item_start_offset%0#0 1'
-debug: Replaced main_struct_return_route@7.ops[29]: 'v-load item_start_offset%0#0' with 'l-load item_start_offset%0#0'
+debug: Inserted main_struct_return_route@7.ops[21]: 'l-store-copy extract_uint16%0#0 1'
+debug: Replaced main_struct_return_route@7.ops[29]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
 debug: Inserted main_emits_error_route@8.ops[1]: 'l-store-copy tmp%18#0 0'
 debug: Replaced main_emits_error_route@8.ops[3]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
 debug: Inserted main_emits_error_route@8.ops[5]: 'l-store-copy tmp%19#0 0'
@@ -2043,10 +2051,10 @@ debug: Inserted main_emits_error_route@8.ops[10]: 'l-store-copy tmp%20#0 0'
 debug: Replaced main_emits_error_route@8.ops[12]: 'v-load tmp%20#0' with 'l-load tmp%20#0'
 debug: Inserted main_emits_error_route@8.ops[15]: 'l-store-copy arg#0 0'
 debug: Replaced main_emits_error_route@8.ops[17]: 'v-load arg#0' with 'l-load arg#0'
-debug: Inserted main_emits_error_route@8.ops[19]: 'l-store-copy tmp%0#4 0'
-debug: Replaced main_emits_error_route@8.ops[21]: 'v-load tmp%0#4' with 'l-load tmp%0#4'
-debug: Inserted main_emits_error_route@8.ops[24]: 'l-store-copy tmp%1#2 0'
-debug: Replaced main_emits_error_route@8.ops[26]: 'v-load tmp%1#2' with 'l-load tmp%1#2'
+debug: Inserted main_emits_error_route@8.ops[19]: 'l-store-copy extract%0#1 0'
+debug: Replaced main_emits_error_route@8.ops[21]: 'v-load extract%0#1' with 'l-load extract%0#1'
+debug: Inserted main_emits_error_route@8.ops[24]: 'l-store-copy tmp%0#1 0'
+debug: Replaced main_emits_error_route@8.ops[26]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
 debug: Inserted main_emits_error_route@8.ops[29]: 'l-store-copy test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0 0'
 debug: Replaced main_emits_error_route@8.ops[31]: 'v-load test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0'
 debug: Inserted main_emitter_route@9.ops[1]: 'l-store-copy tmp%22#0 0'
@@ -2131,8 +2139,8 @@ debug: Inserted main_with_constant_defaults_route@14.ops[23]: 'l-store-copy rein
 debug: Replaced main_with_constant_defaults_route@14.ops[25]: 'v-load reinterpret_Encoded(len+uint8[])%0#0' with 'l-load reinterpret_Encoded(len+uint8[])%0#0'
 debug: Inserted main_with_constant_defaults_route@14.ops[31]: 'l-store-copy reinterpret_Encoded((uint64,len+utf8[]))%0#0 0'
 debug: Replaced main_with_constant_defaults_route@14.ops[33]: 'v-load reinterpret_Encoded((uint64,len+utf8[]))%0#0' with 'l-load reinterpret_Encoded((uint64,len+utf8[]))%0#0'
-debug: Inserted main_with_constant_defaults_route@14.ops[48]: 'l-store-copy encoded_item1%0#0 0'
-debug: Replaced main_with_constant_defaults_route@14.ops[50]: 'v-load encoded_item1%0#0' with 'l-load encoded_item1%0#0'
+debug: Inserted main_with_constant_defaults_route@14.ops[48]: 'l-store-copy substring3%0#0 0'
+debug: Replaced main_with_constant_defaults_route@14.ops[50]: 'v-load substring3%0#0' with 'l-load substring3%0#0'
 debug: Inserted main_with_constant_defaults_route@14.ops[58]: 'l-store-copy reinterpret_Encoded(uint64)%2#0 0'
 debug: Replaced main_with_constant_defaults_route@14.ops[60]: 'v-load reinterpret_Encoded(uint64)%2#0' with 'l-load reinterpret_Encoded(uint64)%2#0'
 debug: Inserted main_with_constant_defaults_route@14.ops[64]: 'l-store-copy reinterpret_Encoded(uint64)%3#0 0'
@@ -2141,20 +2149,20 @@ debug: Inserted main_with_constant_defaults_route@14.ops[72]: 'l-store-copy tmp%
 debug: Replaced main_with_constant_defaults_route@14.ops[74]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
 debug: Inserted main_with_constant_defaults_route@14.ops[80]: 'l-store-copy tmp%2#1 0'
 debug: Replaced main_with_constant_defaults_route@14.ops[82]: 'v-load tmp%2#1' with 'l-load tmp%2#1'
-debug: Inserted main_with_constant_defaults_route@14.ops[86]: 'l-store-copy reinterpret_biguint%1#0 0'
-debug: Replaced main_with_constant_defaults_route@14.ops[88]: 'v-load reinterpret_biguint%1#0' with 'l-load reinterpret_biguint%1#0'
+debug: Inserted main_with_constant_defaults_route@14.ops[86]: 'l-store-copy extract%0#1 0'
+debug: Replaced main_with_constant_defaults_route@14.ops[88]: 'v-load extract%0#1' with 'l-load extract%0#1'
 debug: Inserted main_with_constant_defaults_route@14.ops[91]: 'l-store-copy tmp%4#1 0'
 debug: Replaced main_with_constant_defaults_route@14.ops[93]: 'v-load tmp%4#1' with 'l-load tmp%4#1'
 debug: Inserted main_with_constant_defaults_route@14.ops[42]: 'l-store-copy reinterpret_Encoded((uint64,len+utf8[]))%0#0 0'
 debug: Replaced main_with_constant_defaults_route@14.ops[45]: 'v-load reinterpret_Encoded((uint64,len+utf8[]))%0#0' with 'l-load reinterpret_Encoded((uint64,len+utf8[]))%0#0'
-debug: Inserted main_with_constant_defaults_route@14.ops[44]: 'l-store-copy item_end_offset%0#0 1'
-debug: Replaced main_with_constant_defaults_route@14.ops[48]: 'v-load item_end_offset%0#0' with 'l-load item_end_offset%0#0'
+debug: Inserted main_with_constant_defaults_route@14.ops[44]: 'l-store-copy len%0#0 1'
+debug: Replaced main_with_constant_defaults_route@14.ops[48]: 'v-load len%0#0' with 'l-load len%0#0'
 debug: Inserted main_with_constant_defaults_route@14.ops[34]: 'l-store-copy reinterpret_Encoded((uint64,len+utf8[]))%0#0 0'
 debug: Replaced main_with_constant_defaults_route@14.ops[38]: 'v-load reinterpret_Encoded((uint64,len+utf8[]))%0#0' with 'l-load reinterpret_Encoded((uint64,len+utf8[]))%0#0'
 debug: Inserted main_with_constant_defaults_route@14.ops[39]: 'l-store-copy reinterpret_Encoded((uint64,len+utf8[]))%0#0 0'
 debug: Replaced main_with_constant_defaults_route@14.ops[43]: 'v-load reinterpret_Encoded((uint64,len+utf8[]))%0#0' with 'l-load reinterpret_Encoded((uint64,len+utf8[]))%0#0'
-debug: Inserted main_with_constant_defaults_route@14.ops[42]: 'l-store-copy item_start_offset%0#0 1'
-debug: Replaced main_with_constant_defaults_route@14.ops[50]: 'v-load item_start_offset%0#0' with 'l-load item_start_offset%0#0'
+debug: Inserted main_with_constant_defaults_route@14.ops[42]: 'l-store-copy extract_uint16%0#0 1'
+debug: Replaced main_with_constant_defaults_route@14.ops[50]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
 debug: Inserted main_with_constant_defaults_route@14.ops[27]: 'l-store-copy c#0 0'
 debug: Replaced main_with_constant_defaults_route@14.ops[84]: 'v-load c#0' with 'l-load c#0'
 debug: Inserted main_with_constant_defaults_route@14.ops[15]: 'l-store-copy a#0 0'
@@ -2163,8 +2171,8 @@ debug: Inserted main_with_constant_defaults_route@14.ops[22]: 'l-store-copy b#0 
 debug: Replaced main_with_constant_defaults_route@14.ops[84]: 'v-load b#0' with 'l-load b#0'
 debug: Inserted main_with_constant_defaults_route@14.ops[32]: 'l-store-copy d#0 3'
 debug: Replaced main_with_constant_defaults_route@14.ops[93]: 'v-load d#0' with 'l-load d#0'
-debug: Inserted main_or_contd@15.ops[2]: 'l-store-copy reinterpret_biguint%2#0 0'
-debug: Replaced main_or_contd@15.ops[4]: 'v-load reinterpret_biguint%2#0' with 'l-load reinterpret_biguint%2#0'
+debug: Inserted main_or_contd@15.ops[2]: 'l-store-copy extract%1#0 0'
+debug: Replaced main_or_contd@15.ops[4]: 'v-load extract%1#0' with 'l-load extract%1#0'
 debug: Inserted main_or_contd@15.ops[7]: 'l-store-copy tmp%5#1 0'
 debug: Replaced main_or_contd@15.ops[9]: 'v-load tmp%5#1' with 'l-load tmp%5#1'
 debug: Inserted main_or_contd@19.ops[2]: 'l-store-copy tmp%7#1 0'
@@ -2195,12 +2203,12 @@ debug: Inserted main_bool_merge@22.ops[9]: 'l-store-copy f#0 1'
 debug: Replaced main_bool_merge@22.ops[19]: 'v-load f#0' with 'l-load f#0'
 debug: Inserted main_bool_merge@22.ops[11]: 'l-store-copy item_offset%0#0 2'
 debug: Replaced main_bool_merge@22.ops[21]: 'v-load item_offset%0#0' with 'l-load item_offset%0#0'
-debug: Inserted main_bare_routing@23.ops[1]: 'l-store-copy tmp%48#0 0'
-debug: Replaced main_bare_routing@23.ops[3]: 'v-load tmp%48#0' with 'l-load tmp%48#0'
-debug: Inserted main_transient@25.ops[1]: 'l-store-copy tmp%49#0 0'
-debug: Replaced main_transient@25.ops[3]: 'v-load tmp%49#0' with 'l-load tmp%49#0'
-debug: Inserted main_transient@25.ops[5]: 'l-store-copy tmp%50#0 0'
-debug: Replaced main_transient@25.ops[7]: 'v-load tmp%50#0' with 'l-load tmp%50#0'
+debug: Inserted main_bare_routing@23.ops[1]: 'l-store-copy tmp%50#0 0'
+debug: Replaced main_bare_routing@23.ops[3]: 'v-load tmp%50#0' with 'l-load tmp%50#0'
+debug: Inserted main_transient@25.ops[1]: 'l-store-copy tmp%51#0 0'
+debug: Replaced main_transient@25.ops[3]: 'v-load tmp%51#0' with 'l-load tmp%51#0'
+debug: Inserted main_transient@25.ops[5]: 'l-store-copy tmp%52#0 0'
+debug: Replaced main_transient@25.ops[7]: 'v-load tmp%52#0' with 'l-load tmp%52#0'
 debug: Inserted main_transient@25.ops[10]: 'l-store-copy test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0 0'
 debug: Replaced main_transient@25.ops[12]: 'v-load test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0'
 debug: Inserted main_after_if_else@26.ops[1]: 'l-store-copy test_cases.arc_56.contract.Contract.__puya_arc4_router__%0#0 0'

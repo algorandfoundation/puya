@@ -245,43 +245,43 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%96#0: uint64 = (txn ApplicationID)
         (assert tmp%96#0) // can only call when not creating
         let reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = (txna ApplicationArgs 1)
-        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0 0u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0 2u)
-        let encoded_item0%0#0: bytes = (substring3 reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item_start_offset%1#0: uint64 = (extract_uint16 encoded_item0%0#0 0u)
-        let item_end_offset%1#0: uint64 = (extract_uint16 encoded_item0%0#0 2u)
-        let encoded_item0%1#0: bytes = (substring3 encoded_item0%0#0 item_start_offset%1#0 item_end_offset%1#0)
-        let item0%0#0: bytes = ((extract 2 0) encoded_item0%1#0)
-        let item_end_offset%2#0: uint64 = (len encoded_item0%0#0)
-        let item1%0#0: bytes = (substring3 encoded_item0%0#0 item_end_offset%1#0 item_end_offset%2#0)
-        let item_end_offset%3#0: uint64 = (len reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0)
-        let encoded_item1%0#0: bytes = (substring3 reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0 item_end_offset%0#0 item_end_offset%3#0)
-        let item0%1#0: uint64 = (extract_uint64 encoded_item1%0#0 0u)
-        let item1%1#0: bytes = ((extract 8 8) encoded_item1%0#0) // on error: Index access is out of bounds
-        let item_start_offset%4#0: uint64 = (extract_uint16 encoded_item1%0#0 16u)
-        let item_end_offset%4#0: uint64 = (len encoded_item1%0#0)
-        let encoded_item2%0#0: bytes = (substring3 encoded_item1%0#0 item_start_offset%4#0 item_end_offset%4#0)
-        let item2%0#0: bytes = ((extract 2 0) encoded_item2%0#0)
-        let (tmp%98#0: string, tmp%99#0: Encoded(len+utf8[]), tmp%100#0: uint64, tmp%101#0: Encoded(uint64), tmp%102#0: bytes) = test_cases.typed_abi_call.logger.Logger.echo_nested_tuple(item0%0#0, item1%0#0, item0%1#0, item1%1#0, item2%0#0)
-        let length%4#0: uint64 = (len tmp%98#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0 0u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0 2u)
+        let substring3%0#0: bytes = (substring3 reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0 extract_uint16%0#0 extract_uint16%1#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 substring3%0#0 0u)
+        let extract_uint16%3#0: uint64 = (extract_uint16 substring3%0#0 2u)
+        let substring3%1#0: bytes = (substring3 substring3%0#0 extract_uint16%2#0 extract_uint16%3#0)
+        let tmp%98#0: bytes = ((extract 2 0) substring3%1#0)
+        let len%0#0: uint64 = (len substring3%0#0)
+        let substring3%2#0: bytes = (substring3 substring3%0#0 extract_uint16%3#0 len%0#0)
+        let len%1#0: uint64 = (len reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0)
+        let substring3%3#0: bytes = (substring3 reinterpret_Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[])))%0#0 extract_uint16%1#0 len%1#0)
+        let tmp%99#0: uint64 = (extract_uint64 substring3%3#0 0u)
+        let extract%1#0: bytes = ((extract 8 8) substring3%3#0)
+        let extract_uint16%6#0: uint64 = (extract_uint16 substring3%3#0 16u)
+        let len%2#0: uint64 = (len substring3%3#0)
+        let substring3%4#0: bytes = (substring3 substring3%3#0 extract_uint16%6#0 len%2#0)
+        let tmp%100#0: bytes = ((extract 2 0) substring3%4#0)
+        let (tmp%101#0: string, tmp%102#0: Encoded(len+utf8[]), tmp%103#0: uint64, tmp%104#0: Encoded(uint64), tmp%105#0: bytes) = test_cases.typed_abi_call.logger.Logger.echo_nested_tuple(tmp%98#0, substring3%2#0, tmp%99#0, extract%1#0, tmp%100#0)
+        let length%4#0: uint64 = (len tmp%101#0)
         let as_bytes%6#0: bytes[8] = (itob length%4#0)
         let length_uint16%4#0: bytes = ((extract 6 2) as_bytes%6#0)
-        let encoded_value%4#0: bytes = (concat length_uint16%4#0 tmp%98#0)
+        let encoded_value%4#0: bytes = (concat length_uint16%4#0 tmp%101#0)
         let data_length%2#0: uint64 = (len encoded_value%4#0)
         let current_tail_offset%2#0: uint64 = (+ 4u data_length%2#0)
-        let tail%3#0: bytes = (concat encoded_value%4#0 tmp%99#0)
+        let tail%3#0: bytes = (concat encoded_value%4#0 tmp%102#0)
         let as_bytes%8#0: bytes[8] = (itob current_tail_offset%2#0)
         let offset_as_uint16%3#0: bytes = ((extract 6 2) as_bytes%8#0)
         let encoded%6#0: Encoded((len+utf8[],len+utf8[])) = (concat 0x0004 offset_as_uint16%3#0)
         let encoded%7#0: Encoded((len+utf8[],len+utf8[])) = (concat encoded%6#0 tail%3#0)
         let data_length%4#0: uint64 = (len encoded%7#0)
         let current_tail_offset%4#0: uint64 = (+ 4u data_length%4#0)
-        let val_as_bytes%3#0: bytes[8] = (itob tmp%100#0)
-        let encoded%10#0: Encoded((uint64,uint64)) = (concat val_as_bytes%3#0 tmp%101#0)
-        let length%5#0: uint64 = (len tmp%102#0)
+        let val_as_bytes%3#0: bytes[8] = (itob tmp%103#0)
+        let encoded%10#0: Encoded((uint64,uint64)) = (concat val_as_bytes%3#0 tmp%104#0)
+        let length%5#0: uint64 = (len tmp%105#0)
         let as_bytes%10#0: bytes[8] = (itob length%5#0)
         let length_uint16%5#0: bytes = ((extract 6 2) as_bytes%10#0)
-        let encoded_value%5#0: bytes = (concat length_uint16%5#0 tmp%102#0)
+        let encoded_value%5#0: bytes = (concat length_uint16%5#0 tmp%105#0)
         let encoded%11#0: Encoded((uint64,uint64,len+uint8[])) = (concat encoded%10#0 0x0012)
         let encoded%12#0: Encoded((uint64,uint64,len+uint8[])) = (concat encoded%11#0 encoded_value%5#0)
         let tail%6#0: bytes = (concat encoded%7#0 encoded%12#0)
@@ -289,17 +289,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let offset_as_uint16%6#0: bytes = ((extract 6 2) as_bytes%12#0)
         let encoded%13#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = (concat 0x0004 offset_as_uint16%6#0)
         let encoded%14#0: Encoded(((len+utf8[],len+utf8[]),(uint64,uint64,len+uint8[]))) = (concat encoded%13#0 tail%6#0)
-        let tmp%103#0: bytes = (concat 0x151f7c75 encoded%14#0)
-        (log tmp%103#0)
+        let tmp%106#0: bytes = (concat 0x151f7c75 encoded%14#0)
+        (log tmp%106#0)
         let test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         goto block@29
     block@19: // return_args_after_14th_route_L105
-        let tmp%104#0: uint64 = (txn OnCompletion)
-        let tmp%105#0: bool = (! tmp%104#0)
-        (assert tmp%105#0) // OnCompletion is not NoOp
-        let tmp%106#0: uint64 = (txn ApplicationID)
-        (assert tmp%106#0) // can only call when not creating
+        let tmp%107#0: uint64 = (txn OnCompletion)
+        let tmp%108#0: bool = (! tmp%107#0)
+        (assert tmp%108#0) // OnCompletion is not NoOp
+        let tmp%109#0: uint64 = (txn ApplicationID)
+        (assert tmp%109#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let reinterpret_Encoded(uint64)%4#0: Encoded(uint64) = (txna ApplicationArgs 2)
         let reinterpret_Encoded(uint64)%5#0: Encoded(uint64) = (txna ApplicationArgs 3)
@@ -315,67 +315,67 @@ main algopy.arc4.ARC4Contract.approval_program:
         let reinterpret_Encoded(uint64)%15#0: Encoded(uint64) = (txna ApplicationArgs 13)
         let reinterpret_Encoded(uint64)%16#0: Encoded(uint64) = (txna ApplicationArgs 14)
         let reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%0#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)) = (txna ApplicationArgs 15)
-        let tmp%108#0: bytes = ((extract 0 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%0#0) // on error: Index access is out of bounds
+        let extract%2#0: bytes = ((extract 0 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%0#0)
         let reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%1#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)) = (txna ApplicationArgs 15)
-        let tmp%109#0: bytes = ((extract 1 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%1#0) // on error: Index access is out of bounds
+        let extract%3#0: bytes = ((extract 1 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%1#0)
         let reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%2#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)) = (txna ApplicationArgs 15)
-        let tmp%110#0: bytes = ((extract 2 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%2#0) // on error: Index access is out of bounds
+        let extract%4#0: bytes = ((extract 2 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%2#0)
         let reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%3#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)) = (txna ApplicationArgs 15)
-        let tmp%111#0: bytes = ((extract 3 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%3#0) // on error: Index access is out of bounds
+        let extract%5#0: bytes = ((extract 3 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%3#0)
         let reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%4#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)) = (txna ApplicationArgs 15)
-        let tmp%112#0: bytes = ((extract 4 4) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%4#0) // on error: Index access is out of bounds
+        let extract%6#0: bytes = ((extract 4 4) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%4#0)
         let reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%5#0: Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8)) = (txna ApplicationArgs 15)
-        let tmp%113#0: bytes = ((extract 8 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%5#0) // on error: Index access is out of bounds
-        let tmp%114#0: Encoded(len+uint8[]) = test_cases.typed_abi_call.logger.Logger.return_args_after_14th(reinterpret_Encoded(uint64)%3#0, reinterpret_Encoded(uint64)%4#0, reinterpret_Encoded(uint64)%5#0, reinterpret_Encoded(uint64)%6#0, reinterpret_Encoded(uint64)%7#0, reinterpret_Encoded(uint64)%8#0, reinterpret_Encoded(uint64)%9#0, reinterpret_Encoded(uint64)%10#0, reinterpret_Encoded(uint64)%11#0, reinterpret_Encoded(uint64)%12#0, reinterpret_Encoded(uint64)%13#0, reinterpret_Encoded(uint64)%14#0, reinterpret_Encoded(uint64)%15#0, reinterpret_Encoded(uint64)%16#0, tmp%108#0, tmp%109#0, tmp%110#0, tmp%111#0, tmp%112#0, tmp%113#0)
-        let tmp%115#0: bytes = (concat 0x151f7c75 tmp%114#0)
-        (log tmp%115#0)
+        let extract%7#0: bytes = ((extract 8 1) reinterpret_Encoded((uint8,uint8,uint8,uint8,(uint8,uint8,uint8,uint8),uint8))%5#0)
+        let tmp%111#0: Encoded(len+uint8[]) = test_cases.typed_abi_call.logger.Logger.return_args_after_14th(reinterpret_Encoded(uint64)%3#0, reinterpret_Encoded(uint64)%4#0, reinterpret_Encoded(uint64)%5#0, reinterpret_Encoded(uint64)%6#0, reinterpret_Encoded(uint64)%7#0, reinterpret_Encoded(uint64)%8#0, reinterpret_Encoded(uint64)%9#0, reinterpret_Encoded(uint64)%10#0, reinterpret_Encoded(uint64)%11#0, reinterpret_Encoded(uint64)%12#0, reinterpret_Encoded(uint64)%13#0, reinterpret_Encoded(uint64)%14#0, reinterpret_Encoded(uint64)%15#0, reinterpret_Encoded(uint64)%16#0, extract%2#0, extract%3#0, extract%4#0, extract%5#0, extract%6#0, extract%7#0)
+        let tmp%112#0: bytes = (concat 0x151f7c75 tmp%111#0)
+        (log tmp%112#0)
         let test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         goto block@29
     block@20: // logs_are_equal_route_L133
-        let tmp%116#0: uint64 = (txn OnCompletion)
-        let tmp%117#0: bool = (! tmp%116#0)
-        (assert tmp%117#0) // OnCompletion is not NoOp
-        let tmp%118#0: uint64 = (txn ApplicationID)
-        (assert tmp%118#0) // can only call when not creating
+        let tmp%113#0: uint64 = (txn OnCompletion)
+        let tmp%114#0: bool = (! tmp%113#0)
+        (assert tmp%114#0) // OnCompletion is not NoOp
+        let tmp%115#0: uint64 = (txn ApplicationID)
+        (assert tmp%115#0) // can only call when not creating
         let reinterpret_Encoded((uint64,len+utf8[]))%0#0: Encoded((uint64,len+utf8[])) = (txna ApplicationArgs 1)
-        let item0%2#0: uint64 = (extract_uint64 reinterpret_Encoded((uint64,len+utf8[]))%0#0 0u)
-        let item_start_offset%5#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,len+utf8[]))%0#0 8u)
-        let item_end_offset%5#0: uint64 = (len reinterpret_Encoded((uint64,len+utf8[]))%0#0)
-        let encoded_item1%1#0: bytes = (substring3 reinterpret_Encoded((uint64,len+utf8[]))%0#0 item_start_offset%5#0 item_end_offset%5#0)
-        let item1%2#0: bytes = ((extract 2 0) encoded_item1%1#0)
+        let tmp%117#0: uint64 = (extract_uint64 reinterpret_Encoded((uint64,len+utf8[]))%0#0 0u)
+        let extract_uint16%7#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,len+utf8[]))%0#0 8u)
+        let len%3#0: uint64 = (len reinterpret_Encoded((uint64,len+utf8[]))%0#0)
+        let substring3%5#0: bytes = (substring3 reinterpret_Encoded((uint64,len+utf8[]))%0#0 extract_uint16%7#0 len%3#0)
+        let tmp%118#0: bytes = ((extract 2 0) substring3%5#0)
         let reinterpret_Encoded((uint64,len+utf8[]))%1#0: Encoded((uint64,len+utf8[])) = (txna ApplicationArgs 2)
-        let item0%3#0: uint64 = (extract_uint64 reinterpret_Encoded((uint64,len+utf8[]))%1#0 0u)
-        let item_start_offset%6#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,len+utf8[]))%1#0 8u)
-        let item_end_offset%6#0: uint64 = (len reinterpret_Encoded((uint64,len+utf8[]))%1#0)
-        let encoded_item1%2#0: bytes = (substring3 reinterpret_Encoded((uint64,len+utf8[]))%1#0 item_start_offset%6#0 item_end_offset%6#0)
-        let item1%3#0: bytes = ((extract 2 0) encoded_item1%2#0)
-        let tmp%120#0: bool = test_cases.typed_abi_call.logger.Logger.logs_are_equal(item0%2#0, item1%2#0, item0%3#0, item1%3#0)
-        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%120#0)
-        let tmp%121#0: bytes = (concat 0x151f7c75 encoded_bool%0#0)
-        (log tmp%121#0)
+        let tmp%119#0: uint64 = (extract_uint64 reinterpret_Encoded((uint64,len+utf8[]))%1#0 0u)
+        let extract_uint16%8#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,len+utf8[]))%1#0 8u)
+        let len%4#0: uint64 = (len reinterpret_Encoded((uint64,len+utf8[]))%1#0)
+        let substring3%6#0: bytes = (substring3 reinterpret_Encoded((uint64,len+utf8[]))%1#0 extract_uint16%8#0 len%4#0)
+        let tmp%120#0: bytes = ((extract 2 0) substring3%6#0)
+        let tmp%121#0: bool = test_cases.typed_abi_call.logger.Logger.logs_are_equal(tmp%117#0, tmp%118#0, tmp%119#0, tmp%120#0)
+        let encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%121#0)
+        let tmp%122#0: bytes = (concat 0x151f7c75 encoded_bool%0#0)
+        (log tmp%122#0)
         let test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         goto block@29
     block@21: // echo_log_struct_route_L137
-        let tmp%122#0: uint64 = (txn OnCompletion)
-        let tmp%123#0: bool = (! tmp%122#0)
-        (assert tmp%123#0) // OnCompletion is not NoOp
-        let tmp%124#0: uint64 = (txn ApplicationID)
-        (assert tmp%124#0) // can only call when not creating
+        let tmp%123#0: uint64 = (txn OnCompletion)
+        let tmp%124#0: bool = (! tmp%123#0)
+        (assert tmp%124#0) // OnCompletion is not NoOp
+        let tmp%125#0: uint64 = (txn ApplicationID)
+        (assert tmp%125#0) // can only call when not creating
         let log#0: Encoded((uint64,len+utf8[])) = (txna ApplicationArgs 1)
-        let tmp%127#0: bytes = (concat 0x151f7c75 log#0)
-        (log tmp%127#0)
+        let tmp%128#0: bytes = (concat 0x151f7c75 log#0)
+        (log tmp%128#0)
         let test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         goto block@29
     block@24: // bare_routing_L30
-        let tmp%128#0: uint64 = (txn OnCompletion)
-        goto tmp%128#0 ? block@28 : block@25
+        let tmp%129#0: uint64 = (txn OnCompletion)
+        goto tmp%129#0 ? block@28 : block@25
     block@25: // __algopy_default_create_L1
-        let tmp%129#0: uint64 = (txn ApplicationID)
-        let tmp%130#0: bool = (! tmp%129#0)
-        (assert tmp%130#0) // can only call when creating
+        let tmp%130#0: uint64 = (txn ApplicationID)
+        let tmp%131#0: bool = (! tmp%130#0)
+        (assert tmp%131#0) // can only call when creating
         let test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.logger.Logger.__puya_arc4_router__%0#0
         goto block@29

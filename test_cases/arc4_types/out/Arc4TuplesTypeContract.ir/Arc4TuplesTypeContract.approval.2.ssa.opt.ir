@@ -1,4 +1,86 @@
 main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     block@0: // L14
-        let tmp%15#0: bool = 1u
+        let b#0: Encoded(bool8) = encode<bool8>(1u)
+        let c#0: Encoded(bool8) = encode<bool8>(0u)
+        let d#0: Encoded(bool8) = encode<bool8>(1u)
+        let e#0: Encoded(bool8) = encode<bool8>(1u)
+        let f#0: Encoded(bool8) = encode<bool8>(1u)
+        let g#0: Encoded(bool8) = encode<bool8>(1u)
+        let h#0: Encoded(bool8) = encode<bool8>(0u)
+        let i#0: Encoded(bool8) = encode<bool8>(1u)
+        let j#0: Encoded(bool8) = encode<bool8>(1u)
+        let tmp%14#0: bool = (!= b#0 0x00)
+        goto tmp%14#0 ? block@1 : block@8
+    block@1: // and_contd_L39
+        let tmp%15#0: bool = (!= d#0 0x00)
+        goto tmp%15#0 ? block@2 : block@8
+    block@2: // and_contd_L39
+        let tmp%16#0: bool = (!= e#0 0x00)
+        goto tmp%16#0 ? block@3 : block@8
+    block@3: // and_contd_L39
+        let tmp%17#0: bool = (!= f#0 0x00)
+        goto tmp%17#0 ? block@4 : block@8
+    block@4: // and_contd_L39
+        let tmp%18#0: bool = (!= g#0 0x00)
+        goto tmp%18#0 ? block@5 : block@8
+    block@5: // and_contd_L39
+        let tmp%19#0: bool = (!= i#0 0x00)
+        goto tmp%19#0 ? block@6 : block@8
+    block@6: // and_contd_L39
+        let tmp%20#0: bool = (!= j#0 0x00)
+        goto tmp%20#0 ? block@7 : block@8
+    block@7: // bool_true_L39
+        let and_result%0#0: bool = 1u
+        goto block@9
+    block@8: // bool_false_L39
+        let and_result%0#1: bool = 0u
+        goto block@9
+    block@9: // bool_merge_L39
+        let and_result%0#2: bool = φ(and_result%0#0 <- block@7, and_result%0#1 <- block@8)
+        (assert and_result%0#2) // b,d,e,f,g,i,j are true
+        let tmp%21#0: bool = (!= c#0 0x00)
+        goto tmp%21#0 ? block@11 : block@10
+    block@10: // or_contd_L40
+        let tmp%22#0: bool = (!= h#0 0x00)
+        goto tmp%22#0 ? block@11 : block@12
+    block@11: // bool_true_L40
+        let or_result%0#0: bool = 1u
+        goto block@13
+    block@12: // bool_false_L40
+        let or_result%0#1: bool = 0u
+        goto block@13
+    block@13: // bool_merge_L40
+        let or_result%0#2: bool = φ(or_result%0#0 <- block@11, or_result%0#1 <- block@12)
+        let tmp%23#0: bool = (! or_result%0#2)
+        (assert tmp%23#0) // c and h are false
+        let tmp%26#0: Encoded(bool8) = encode<bool8>(1u)
+        let tmp%27#0: Encoded(bool8) = encode<bool8>(0u)
+        let tmp%28#0: Encoded(bool8) = encode<bool8>(1u)
+        let tmp%29#0: Encoded(bool8) = encode<bool8>(1u)
+        let tmp%30#0: Encoded(bool8) = encode<bool8>(1u)
+        let tmp%31#0: Encoded(bool8) = encode<bool8>(1u)
+        let tmp%32#0: Encoded(bool8) = encode<bool8>(0u)
+        let tmp%33#0: Encoded(bool8) = encode<bool8>(1u)
+        let tmp%34#0: Encoded(bool8) = encode<bool8>(1u)
+        let encoded%12#0: Encoded((uint8,bool1)) = (concat 0x04 tmp%26#0)
+        let get_bit%26#0: uint64 = (getbit tmp%27#0 0u)
+        let set_bit%8#0: Encoded((uint8,bool1)) = (setbit encoded%12#0 9u get_bit%26#0)
+        let get_bit%27#0: uint64 = (getbit tmp%28#0 0u)
+        let set_bit%9#0: Encoded((uint8,bool1)) = (setbit set_bit%8#0 10u get_bit%27#0)
+        let get_bit%28#0: uint64 = (getbit tmp%29#0 0u)
+        let set_bit%10#0: Encoded((uint8,bool1)) = (setbit set_bit%9#0 11u get_bit%28#0)
+        let get_bit%29#0: uint64 = (getbit tmp%30#0 0u)
+        let set_bit%11#0: Encoded((uint8,bool1)) = (setbit set_bit%10#0 12u get_bit%29#0)
+        let get_bit%30#0: uint64 = (getbit tmp%31#0 0u)
+        let set_bit%12#0: Encoded((uint8,bool1)) = (setbit set_bit%11#0 13u get_bit%30#0)
+        let get_bit%31#0: uint64 = (getbit tmp%32#0 0u)
+        let set_bit%13#0: Encoded((uint8,bool1)) = (setbit set_bit%12#0 14u get_bit%31#0)
+        let get_bit%32#0: uint64 = (getbit tmp%33#0 0u)
+        let set_bit%14#0: Encoded((uint8,bool1)) = (setbit set_bit%13#0 15u get_bit%32#0)
+        let get_bit%33#0: uint64 = (getbit tmp%34#0 0u)
+        let set_bit%15#0: bytes = (setbit 0x00 0u get_bit%33#0)
+        let encoded%13#0: Encoded((uint8,bool1,bool1)) = (concat set_bit%14#0 set_bit%15#0)
+        let encoded%14#0: Encoded((uint8,bool1,bool1,uint8)) = (concat encoded%13#0 0x10)
+        let tmp%35#0: bool = (== 0x04bd8010 encoded%14#0)
+        (assert tmp%35#0)
         return 1u
