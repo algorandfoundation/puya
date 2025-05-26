@@ -3,6 +3,7 @@ import abc
 from puya.awst import wtypes
 from puya.errors import InternalError
 from puya.ir import models as ir
+from puya.ir.builder._utils import OpFactory
 from puya.ir.encodings import (
     TupleEncoding,
     wtype_to_encoding,
@@ -20,13 +21,11 @@ from puya.parse import SourceLocation
 
 class TupleBuilder(abc.ABC):
     @abc.abstractmethod
-    def read_at_index(self, tup: ir.MultiValue, index: int) -> ir.ValueProvider:
+    def read_at_index(self, tup: ir.MultiValue, index: int) -> ir.MultiValue:
         """Reads the value from the specified index and performs any decoding required"""
 
     @abc.abstractmethod
-    def write_at_index(
-        self, tup: ir.Value, index: int, value: ir.ValueProvider
-    ) -> ir.ValueProvider:
+    def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
         """Encodes the value and writes to the specified index"""
 
 
@@ -54,7 +53,7 @@ class StackTupleBuilder(TupleBuilder):
         self.tuple_ir_type = tuple_ir_type
         self.loc = loc
 
-    def read_at_index(self, tup: ir.Value | ir.ValueTuple, index: int) -> ir.ValueProvider:
+    def read_at_index(self, tup: ir.Value | ir.ValueTuple, index: int) -> ir.MultiValue:
         tuple_values = [tup] if isinstance(tup, ir.Value) else tup.values
         skip_values = sum_types_arity(self.tuple_ir_type.elements[:index])
         target_arity = get_type_arity(self.tuple_ir_type.elements[index])
@@ -65,9 +64,7 @@ class StackTupleBuilder(TupleBuilder):
         else:
             return ValueTuple(values=values, source_location=self.loc)
 
-    def write_at_index(
-        self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider
-    ) -> ir.ValueProvider:
+    def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
         raise NotImplementedError
 
 
@@ -83,8 +80,9 @@ class EncodedTupleBuilder(TupleBuilder):
         self.tuple_encoding = tuple_encoding
         self.tuple_ir_type = tuple_ir_type
         self.loc = loc
+        self.factory = OpFactory(self.context, self.loc)
 
-    def read_at_index(self, tup: ir.MultiValue, index: int) -> ir.ValueProvider:
+    def read_at_index(self, tup: ir.MultiValue, index: int) -> ir.MultiValue:
         from puya.ir.builder import arc4
 
         try:
@@ -93,7 +91,7 @@ class EncodedTupleBuilder(TupleBuilder):
             raise InternalError("expected single value", self.loc) from None
 
         # TODO: refactor arc4_tuple_index
-        return arc4.arc4_tuple_index(
+        tuple_item = arc4.arc4_tuple_index(
             self.context,
             base=tup,
             index=index,
@@ -101,8 +99,7 @@ class EncodedTupleBuilder(TupleBuilder):
             item_ir_type=self.tuple_ir_type.elements[index],
             source_location=self.loc,
         )
+        return self.factory.materialise_multi_value(tuple_item)
 
-    def write_at_index(
-        self, tup: ir.ValueProvider, index: int, value: ir.ValueProvider
-    ) -> ir.ValueProvider:
+    def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
         raise NotImplementedError
