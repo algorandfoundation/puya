@@ -34,7 +34,7 @@ def handle_assignment_expr(
     assignment_location: SourceLocation,
 ) -> Sequence[ir.Value]:
     # as per AWST node Value is evaluated before the target
-    expr_values = context.visitor.visit_expr(value)
+    expr_values = context.visitor.visit_and_materialise_as_value_or_tuple(value)
     return handle_assignment(
         context,
         target=target,
@@ -47,15 +47,11 @@ def handle_assignment_expr(
 def handle_assignment(
     context: IRFunctionBuildContext,
     target: awst_nodes.Expression,
-    value: ir.ValueProvider,
+    value: ir.MultiValue,
     assignment_location: SourceLocation,
     *,
     is_nested_update: bool,
 ) -> Sequence[ir.Value]:
-    # force materialization of value to ensure correct ordering
-    value = context.visitor.materialise_value_provider_as_value_or_tuple(
-        value, "materialized_values"
-    )
     source = list(value.values) if isinstance(value, ir.ValueTuple) else [value]
     match target:
         # special case: a nested update can cause a tuple item to be re-assigned
@@ -98,7 +94,7 @@ def handle_assignment(
                 if len(values) != arity:
                     raise CodeError("not enough values to unpack", assignment_location)
                 if arity == 1:
-                    nested_value: ir.ValueProvider = values[0]
+                    nested_value: ir.MultiValue = values[0]
                 else:
                     nested_value = ir.ValueTuple(
                         values=values, source_location=value.source_location

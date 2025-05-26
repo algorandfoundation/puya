@@ -39,17 +39,15 @@ class SequenceBuilder(abc.ABC):
     # TODO: add slice abstraction here too?
 
     @abc.abstractmethod
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.MultiValue:
         """Reads the value from the specified index and performs any decoding required"""
 
     @abc.abstractmethod
-    def write_at_index(
-        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
-    ) -> ir.ValueProvider:
+    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.MultiValue) -> ir.Value:
         """Encodes the value and writes to the specified index and returns the updated result"""
 
     @abc.abstractmethod
-    def length(self, array: ir.Value) -> ir.ValueProvider:
+    def length(self, array: ir.Value) -> ir.Value:
         """Returns the number of elements"""
 
 
@@ -116,34 +114,39 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         self.factory = OpFactory(context, loc)
 
     @typing.override
-    def length(self, array: ir.Value) -> ir.ValueProvider:
-        return ir.ArrayLength(
+    def length(self, array: ir.Value) -> ir.Value:
+        length = ir.ArrayLength(
             array=array,
             array_encoding=self.array_encoding,
             source_location=self.loc,
         )
+        return self.factory.materialise_single(length, "length")
 
-    def _maybe_decode(self, encoded_item: ir.ValueProvider) -> ir.ValueProvider:
+    def _maybe_decode(self, encoded_item: ir.ValueProvider) -> ir.MultiValue:
         if type_has_encoding(self.element_ir_type, self.array_encoding.element):
-            return encoded_item
+            return self.factory.materialise_single(encoded_item)
         else:
             encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
-            return ir.ValueDecode(
-                value=encoded_item,
-                encoding=self.array_encoding.element,
-                decoded_type=self.element_ir_type,
-                source_location=self.loc,
+            return self.factory.materialise_multi_value(
+                ir.ValueDecode(
+                    value=encoded_item,
+                    encoding=self.array_encoding.element,
+                    decoded_type=self.element_ir_type,
+                    source_location=self.loc,
+                )
             )
 
-    def _maybe_encode(self, value: ir.ValueProvider) -> ir.ValueProvider:
+    def _maybe_encode(self, value: ir.ValueProvider) -> ir.MultiValue:
         if type_has_encoding(self.element_ir_type, self.array_encoding.element):
-            return value
+            return self.factory.materialise_single(value)
         else:
-            return ir.ValueEncode(
-                values=self.factory.materialise_values(value),
-                encoding=self.array_encoding.element,
-                value_type=self.element_ir_type,
-                source_location=self.loc,
+            return self.factory.materialise_multi_value(
+                ir.ValueEncode(
+                    values=self.factory.materialise_values(value),
+                    encoding=self.array_encoding.element,
+                    value_type=self.element_ir_type,
+                    source_location=self.loc,
+                )
             )
 
     def _maybe_bounds_check(self, array: ir.Value, index: ir.Value) -> None:
@@ -173,7 +176,7 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
 
 class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
     @typing.override
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
         # this catches the edge case of bit arrays that are not a multiple of 8
         # e.g. reading index 6 & 7 of an array that has a length of 6
         self._maybe_bounds_check(array, index)
@@ -194,19 +197,18 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
         # bit packed bools are unique in that the retrieved value is a bool
         # and depending on the element_ir_type may require encoding
         if isinstance(self.element_ir_type, EncodedType):
-            return ir.ValueEncode(
+            result = ir.ValueEncode(
                 values=[item],
                 value_type=item.ir_type,
                 encoding=self.element_ir_type.encoding,
                 source_location=self.loc,
             )
+            return self.factory.materialise_single(result)
         else:
             return item
 
     @typing.override
-    def write_at_index(
-        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
-    ) -> ir.ValueProvider:
+    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.MultiValue) -> ir.Value:
         # this catches the edge case of bit arrays that are not a multiple of 8
         # e.g. reading index 6 & 7 of an array that has a length of 6
         self._maybe_bounds_check(array, index)
@@ -232,7 +234,7 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
 
 class FixedElementArrayBuilder(_ArrayBuilderImpl):
     @typing.override
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.MultiValue:
         # TODO: is it safe to not bounds check on fixed element arrays?
         #       in some cases yes, e.g. after an extract of the whole array
         #       but in other cases no, e.g. txn arguments
@@ -254,9 +256,7 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
         return self._maybe_decode(encoded_element)
 
     @typing.override
-    def write_at_index(
-        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
-    ) -> ir.ValueProvider:
+    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.MultiValue) -> ir.Value:
         encoded = self._maybe_encode(value)
         encoded = self.factory.materialise_single(encoded, "encoded_value")
 
@@ -283,7 +283,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
             return element_encoding.element.checked_num_bytes
 
     @typing.override
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.ValueProvider:
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.MultiValue:
         array_head_and_tail = array
         if self.array_encoding.length_header:
             array_head_and_tail = self.factory.extract_to_end(array, 2, "array_head_and_tail")
@@ -375,9 +375,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         return self.factory.substring3(array_head_and_tail, item_start_offset, item_end_offset)
 
     @typing.override
-    def write_at_index(
-        self, array: ir.Value, index: ir.Value, value: ir.ValueProvider
-    ) -> ir.ValueProvider:
+    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.MultiValue) -> ir.Value:
         self._maybe_bounds_check(array, index)
 
         value = self._maybe_encode(value)
@@ -418,15 +416,15 @@ class BytesIndexableBuilder(SequenceBuilder):
         self.factory = OpFactory(context, loc)
 
     @typing.override
-    def read_at_index(self, array: ir.Value, index: ir.Value | int) -> ir.ValueProvider:
+    def read_at_index(self, array: ir.Value, index: ir.Value | int) -> ir.MultiValue:
         return self.factory.extract3(
             array, index, 1, "read_bytes", error_message="Index access is out of bounds"
         )
 
     @typing.override
     def write_at_index(
-        self, array: ir.Value, index: ir.Value | int, value: ir.ValueProvider
-    ) -> ir.ValueProvider:
+        self, array: ir.Value, index: ir.Value | int, value: ir.MultiValue
+    ) -> ir.Value:
         self._immutable()
         return ir.Undefined(ir_type=array.ir_type, source_location=self.loc)
 
