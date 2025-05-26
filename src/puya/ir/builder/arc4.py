@@ -599,7 +599,7 @@ def encode_value_provider(
 
 
 def arc4_tuple_index(
-    context: IRFunctionBuildContext,
+    context: IRRegisterContext,
     base: Value,
     index: int,
     tuple_encoding: TupleEncoding,
