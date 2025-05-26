@@ -118,8 +118,8 @@ subroutine test_cases.everything.contract.Everything.register(name: Encoded(len+
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%1#0) // check self.counter exists
         let tmp%2#0: uint64 = test_cases.everything.my_base.multiplicative_identity()
-        let materialized_values%0#0: uint64 = (+ maybe_value%1#0 tmp%2#0)
-        (app_global_put "counter" materialized_values%0#0)
+        let tmp%3#0: uint64 = (+ maybe_value%1#0 tmp%2#0)
+        (app_global_put "counter" tmp%3#0)
         goto block@3
     block@3: // after_if_else_L52
         goto block@4
@@ -174,12 +174,12 @@ subroutine test_cases.everything.contract.Everything.say_hello() -> Encoded(len+
 
 subroutine test_cases.everything.contract.Everything.calculate(a: Encoded(uint64), b: Encoded(uint64)) -> Encoded(uint64):
     block@0: // L64
-        let materialized_values%0#0: Encoded(uint64) = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
-        let c#0: Encoded(uint64) = materialized_values%0#0
-        let tmp%0#0: uint64 = (btoi c#0)
-        let tmp%1#0: uint64 = (btoi b#0)
-        let to_encode%0#0: uint64 = (* tmp%0#0 tmp%1#0)
-        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
+        let tmp%0#0: Encoded(uint64) = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
+        let c#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = (btoi c#0)
+        let tmp%2#0: uint64 = (btoi b#0)
+        let tmp%3#0: uint64 = (* tmp%1#0 tmp%2#0)
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%3#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         return as_Encoded(uint64)%0#0
 
@@ -201,8 +201,8 @@ subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
         let tmp%0#0: uint64 = test_cases.everything.contract.positive_one()
-        let materialized_values%0#0: uint64 = (- maybe_value%0#0 tmp%0#0)
-        (app_global_put "counter" materialized_values%0#0)
+        let tmp%1#0: uint64 = (- maybe_value%0#0 tmp%0#0)
+        (app_global_put "counter" tmp%1#0)
         return 
 
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
@@ -214,13 +214,13 @@ subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: Encoded(uint6
     block@0: // L13
         let tmp%0#0: uint64 = (btoi a#0)
         let tmp%1#0: uint64 = (btoi b#0)
-        let to_encode%0#0: uint64 = (+ tmp%0#0 tmp%1#0)
-        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
+        let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         return as_Encoded(uint64)%0#0
 
 subroutine test_cases.everything.my_base.MyBase.remember_creator() -> void:
     block@0: // L7
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        (app_global_put "creator" materialized_values%0#0)
+        let tmp%0#0: bytes[32] = (txn Sender)
+        (app_global_put "creator" tmp%0#0)
         return 

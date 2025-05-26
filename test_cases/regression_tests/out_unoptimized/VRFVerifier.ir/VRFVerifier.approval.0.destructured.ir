@@ -21,21 +21,21 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%8#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%1#0)
         let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 3)
         let tmp%9#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%2#0)
-        let (to_encode%0#0: bytes, to_encode%1#0: bool) = test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(tmp%7#0, tmp%8#0, tmp%9#0)
-        let length%0#0: uint64 = (len to_encode%0#0)
+        let (tmp%10#0: bytes, tmp%11#0: bool) = test_cases.regression_tests.branch_to_proto.VRFVerifier.verify(tmp%7#0, tmp%8#0, tmp%9#0)
+        let length%0#0: uint64 = (len tmp%10#0)
         let as_bytes%0#0: bytes[8] = (itob length%0#0)
         let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
+        let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%10#0)
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = encoded_value%0#0
         let tail%0#0: bytes = (concat 0x as_Encoded(len+uint8[])%0#0)
         let as_bytes%1#0: bytes[8] = (itob 3u)
         let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%1#0)
         let encoded%0#0: Encoded((len+uint8[])) = (concat 0x offset_as_uint16%0#0)
-        let encoded_bit%0#0: bytes = (setbit 0x00 0u to_encode%1#0)
+        let encoded_bit%0#0: bytes = (setbit 0x00 0u tmp%11#0)
         let encoded%1#0: Encoded((len+uint8[],bool1)) = (concat encoded%0#0 encoded_bit%0#0)
         let encoded%2#0: Encoded((len+uint8[],bool1)) = (concat encoded%1#0 tail%0#0)
-        let tmp%10#0: bytes = (concat 0x151f7c75 encoded%2#0)
-        (log tmp%10#0)
+        let tmp%12#0: bytes = (concat 0x151f7c75 encoded%2#0)
+        (log tmp%12#0)
         let test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.regression_tests.branch_to_proto.VRFVerifier.__puya_arc4_router__%0#0
         goto block@11
@@ -44,12 +44,12 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@5: // switch_case_next_L4
         goto block@10
     block@6: // bare_routing_L4
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        switch tmp%11#0 {0u => block@7, * => block@8}
+        let tmp%13#0: uint64 = (txn OnCompletion)
+        switch tmp%13#0 {0u => block@7, * => block@8}
     block@7: // __algopy_default_create_L1
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (== tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when creating
+        let tmp%14#0: uint64 = (txn ApplicationID)
+        let tmp%15#0: bool = (== tmp%14#0 0u)
+        (assert tmp%15#0) // can only call when creating
         goto block@12
     block@12: // L1
         goto block@13
@@ -70,13 +70,13 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
     block@0: // L12
-        let materialized_values%0#0: uint64 = (+ required_budget#0 10u)
-        let required_budget_with_buffer#0: uint64 = materialized_values%0#0
+        let tmp%0#0: uint64 = (+ required_budget#0 10u)
+        let required_budget_with_buffer#0: uint64 = tmp%0#0
         goto block@1
     block@1: // while_top_L20
-        let tmp%0#0: uint64 = (global OpcodeBudget)
-        let tmp%1#0: bool = (> required_budget_with_buffer#0 tmp%0#0)
-        goto tmp%1#0 ? block@2 : block@7
+        let tmp%1#0: uint64 = (global OpcodeBudget)
+        let tmp%2#0: bool = (> required_budget_with_buffer#0 tmp%1#0)
+        goto tmp%2#0 ? block@2 : block@7
     block@2: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
@@ -88,8 +88,8 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
         ((itxn_field Fee) 0u)
         goto block@6
     block@4: // switch_case_1_L30
-        let tmp%2#0: uint64 = (global MinTxnFee)
-        ((itxn_field Fee) tmp%2#0)
+        let tmp%3#0: uint64 = (global MinTxnFee)
+        ((itxn_field Fee) tmp%3#0)
         goto block@6
     block@5: // switch_case_default_L26
         goto block@6

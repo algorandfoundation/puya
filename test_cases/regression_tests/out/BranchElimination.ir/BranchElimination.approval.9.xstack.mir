@@ -25,11 +25,11 @@ subroutine main:
         assert // OnCompletion is not NoOp
         txn ApplicationID                                                                                     tmp%5#0
         assert // can only call when not creating
-        callsub umm                                                                                           to_encode%0#0
+        callsub umm                                                                                           tmp%7#0
         itob                                                                                                  val_as_bytes%0#0
         byte 0x151f7c75                                                                                       val_as_bytes%0#0,0x151f7c75
         l-load val_as_bytes%0#0 1                                                                             0x151f7c75,val_as_bytes%0#0
-        concat                                                                                                tmp%7#0
+        concat                                                                                                tmp%8#0
         log
         int 1                                                                                                 test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                                       (𝕏) tmp%0#0 |
@@ -38,10 +38,10 @@ subroutine main:
     main_umm2_route@4:
         // regression_tests/leftover_branch.py:18
         // @arc4.abimethod
-        txn OnCompletion                                                                                      tmp%8#0
-        !                                                                                                     tmp%9#0
+        txn OnCompletion                                                                                      tmp%9#0
+        !                                                                                                     tmp%10#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                     tmp%10#0
+        txn ApplicationID                                                                                     tmp%11#0
         assert // can only call when not creating
         callsub umm2
         int 1                                                                                                 test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0
@@ -51,10 +51,10 @@ subroutine main:
     main_calculate_route@5:
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
-        txn OnCompletion                                                                                      tmp%12#0
-        !                                                                                                     tmp%13#0
+        txn OnCompletion                                                                                      tmp%13#0
+        !                                                                                                     tmp%14#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                     tmp%14#0
+        txn ApplicationID                                                                                     tmp%15#0
         assert // can only call when not creating
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
@@ -72,12 +72,12 @@ subroutine main:
     main_bare_routing@8:
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
-        txn OnCompletion                                                                                      tmp%16#0
+        txn OnCompletion                                                                                      tmp%17#0
         bz main___algopy_default_create@9 ; b main_after_if_else@12
 
     main___algopy_default_create@9:
-        txn ApplicationID                                                                                     tmp%17#0
-        !                                                                                                     tmp%18#0
+        txn ApplicationID                                                                                     tmp%18#0
+        !                                                                                                     tmp%19#0
         assert // can only call when creating
         int 1                                                                                                 test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                                       (𝕏) tmp%0#0 |
@@ -196,7 +196,7 @@ subroutine umm:
     umm_after_for@12:
         // regression_tests/leftover_branch.py:14
         // if hmm():
-        callsub hmm                                                                                           tmp%5#0
+        callsub hmm                                                                                           tmp%6#0
         bz umm_while_top@1 ; b umm_if_body@13
 
     umm_if_body@13:
@@ -263,7 +263,7 @@ subroutine umm2:
         v-store ahuh#0
         // regression_tests/leftover_branch.py:26
         // if hmm():
-        callsub hmm                                                                                           tmp%4#0
+        callsub hmm                                                                                           tmp%5#0
         bz umm2_while_top@1 ; b umm2_if_body@9
 
     umm2_if_body@9:
@@ -373,12 +373,12 @@ subroutine calculate:
         // if value >= threshold:
         l-load value#0 0                                                                                      (𝕡) nested_list#0,threshold#0 | value#0
         p-load threshold#0                                                                                    (𝕡) nested_list#0,threshold#0 | value#0,threshold#0 (copy)
-        b>=                                                                                                   (𝕡) nested_list#0,threshold#0 | tmp%3#0
-        v-load num_boosts#0                                                                                   (𝕡) nested_list#0,threshold#0 | tmp%3#0,num_boosts#0
-        v-store num_boosts#15                                                                                 (𝕡) nested_list#0,threshold#0 | tmp%3#0
-        v-load total#0                                                                                        (𝕡) nested_list#0,threshold#0 | tmp%3#0,total#0
-        v-store total#16                                                                                      (𝕡) nested_list#0,threshold#0 | tmp%3#0
-        l-load tmp%3#0 0                                                                                      (𝕡) nested_list#0,threshold#0 | tmp%3#0
+        b>=                                                                                                   (𝕡) nested_list#0,threshold#0 | tmp%1#0
+        v-load num_boosts#0                                                                                   (𝕡) nested_list#0,threshold#0 | tmp%1#0,num_boosts#0
+        v-store num_boosts#15                                                                                 (𝕡) nested_list#0,threshold#0 | tmp%1#0
+        v-load total#0                                                                                        (𝕡) nested_list#0,threshold#0 | tmp%1#0,total#0
+        v-store total#16                                                                                      (𝕡) nested_list#0,threshold#0 | tmp%1#0
+        l-load tmp%1#0 0                                                                                      (𝕡) nested_list#0,threshold#0 | tmp%1#0
         bz calculate_after_if_else@10 ; b calculate_if_body@5                                                 (𝕡) nested_list#0,threshold#0 |
 
     calculate_if_body@5:                                                                                      (𝕡) nested_list#0,threshold#0 |

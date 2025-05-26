@@ -570,17 +570,17 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_ref_types(app: uint6
 subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_account_to_address(app: uint64) -> void:
     block@0: // L135
         itxn_begin
-        let to_encode%0#0: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%0#0: bytes[32] = (global CurrentApplicationAddress)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "log(address)void")
-        ((itxn_field ApplicationArgs) to_encode%0#0)
+        ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes[32] = (global CurrentApplicationAddress)
-        let tmp%1#0: bool = (== txn.LastLog#0 tmp%0#0)
-        (assert tmp%1#0)
+        let tmp%1#0: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%2#0: bool = (== txn.LastLog#0 tmp%1#0)
+        (assert tmp%2#0)
         return 
 
 subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_native_string(app: uint64) -> void:

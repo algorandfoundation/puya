@@ -5,14 +5,14 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
     block@1: // call __init___L1
         (app_global_put "asset_a" 0u)
         (app_global_put "asset_b" 0u)
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        (app_global_put "governor" materialized_values%0#0)
+        let tmp%0#2: bytes[32] = (txn Sender)
+        (app_global_put "governor" tmp%0#2)
         (app_global_put "pool_token" 0u)
         (app_global_put "ratio" 0u)
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#2: uint64 = (txn NumAppArgs)
-        goto tmp%0#2 ? block@4 : block@10
+        let tmp%0#3: uint64 = (txn NumAppArgs)
+        goto tmp%0#3 ? block@4 : block@10
     block@4: // abi_routing_L27
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "set_governor(account)void" => block@5, method "bootstrap(pay,asset,asset)uint64" => block@6, method "mint(axfer,axfer,asset,asset,asset)void" => block@7, method "burn(axfer,asset,asset,asset)void" => block@8, method "swap(axfer,asset,asset)void" => block@9, * => block@12}
@@ -45,90 +45,90 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 2)
         let tmp%16#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
         let tmp%17#0: uint64 = ((txnas Assets) tmp%16#0)
-        let to_encode%0#0: uint64 = examples.amm.contract.ConstantProductAMM.bootstrap(gtxn_idx%0#0, tmp%15#0, tmp%17#0)
-        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let tmp%18#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
-        (log tmp%18#0)
+        let tmp%18#0: uint64 = examples.amm.contract.ConstantProductAMM.bootstrap(gtxn_idx%0#0, tmp%15#0, tmp%17#0)
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%18#0)
+        let tmp%19#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
+        (log tmp%19#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#1: bool = 1u
         goto block@13
     block@7: // mint_route_L81
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
-        let tmp%23#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%23#0 2u)
+        let tmp%20#0: uint64 = (txn OnCompletion)
+        let tmp%21#0: bool = (! tmp%20#0)
+        (assert tmp%21#0) // OnCompletion is not NoOp
+        let tmp%22#0: uint64 = (txn ApplicationID)
+        (assert tmp%22#0) // can only call when not creating
+        let tmp%24#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%1#0: uint64 = (- tmp%24#0 2u)
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 axfer)
         (assert gtxn_type_matches%1#0) // transaction type is axfer
-        let tmp%24#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%2#0: uint64 = (- tmp%24#0 1u)
+        let tmp%25#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%2#0: uint64 = (- tmp%25#0 1u)
         let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
         let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 axfer)
         (assert gtxn_type_matches%2#0) // transaction type is axfer
         let reinterpret_Encoded(uint8)%3#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%25#0: uint64 = (btoi reinterpret_Encoded(uint8)%3#0)
-        let tmp%26#0: uint64 = ((txnas Assets) tmp%25#0)
+        let tmp%26#0: uint64 = (btoi reinterpret_Encoded(uint8)%3#0)
+        let tmp%27#0: uint64 = ((txnas Assets) tmp%26#0)
         let reinterpret_Encoded(uint8)%4#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%27#0: uint64 = (btoi reinterpret_Encoded(uint8)%4#0)
-        let tmp%28#0: uint64 = ((txnas Assets) tmp%27#0)
+        let tmp%28#0: uint64 = (btoi reinterpret_Encoded(uint8)%4#0)
+        let tmp%29#0: uint64 = ((txnas Assets) tmp%28#0)
         let reinterpret_Encoded(uint8)%5#0: Encoded(uint8) = (txna ApplicationArgs 3)
-        let tmp%29#0: uint64 = (btoi reinterpret_Encoded(uint8)%5#0)
-        let tmp%30#0: uint64 = ((txnas Assets) tmp%29#0)
-        examples.amm.contract.ConstantProductAMM.mint(gtxn_idx%1#0, gtxn_idx%2#0, tmp%26#0, tmp%28#0, tmp%30#0)
+        let tmp%30#0: uint64 = (btoi reinterpret_Encoded(uint8)%5#0)
+        let tmp%31#0: uint64 = ((txnas Assets) tmp%30#0)
+        examples.amm.contract.ConstantProductAMM.mint(gtxn_idx%1#0, gtxn_idx%2#0, tmp%27#0, tmp%29#0, tmp%31#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#2: bool = 1u
         goto block@13
     block@8: // burn_route_L147
-        let tmp%31#0: uint64 = (txn OnCompletion)
-        let tmp%32#0: bool = (! tmp%31#0)
-        (assert tmp%32#0) // OnCompletion is not NoOp
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        (assert tmp%33#0) // can only call when not creating
-        let tmp%35#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%3#0: uint64 = (- tmp%35#0 1u)
+        let tmp%32#0: uint64 = (txn OnCompletion)
+        let tmp%33#0: bool = (! tmp%32#0)
+        (assert tmp%33#0) // OnCompletion is not NoOp
+        let tmp%34#0: uint64 = (txn ApplicationID)
+        (assert tmp%34#0) // can only call when not creating
+        let tmp%36#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%3#0: uint64 = (- tmp%36#0 1u)
         let gtxn_type%3#0: uint64 = ((gtxns TypeEnum) gtxn_idx%3#0)
         let gtxn_type_matches%3#0: bool = (== gtxn_type%3#0 axfer)
         (assert gtxn_type_matches%3#0) // transaction type is axfer
         let reinterpret_Encoded(uint8)%6#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%36#0: uint64 = (btoi reinterpret_Encoded(uint8)%6#0)
-        let tmp%37#0: uint64 = ((txnas Assets) tmp%36#0)
+        let tmp%37#0: uint64 = (btoi reinterpret_Encoded(uint8)%6#0)
+        let tmp%38#0: uint64 = ((txnas Assets) tmp%37#0)
         let reinterpret_Encoded(uint8)%7#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%38#0: uint64 = (btoi reinterpret_Encoded(uint8)%7#0)
-        let tmp%39#0: uint64 = ((txnas Assets) tmp%38#0)
+        let tmp%39#0: uint64 = (btoi reinterpret_Encoded(uint8)%7#0)
+        let tmp%40#0: uint64 = ((txnas Assets) tmp%39#0)
         let reinterpret_Encoded(uint8)%8#0: Encoded(uint8) = (txna ApplicationArgs 3)
-        let tmp%40#0: uint64 = (btoi reinterpret_Encoded(uint8)%8#0)
-        let tmp%41#0: uint64 = ((txnas Assets) tmp%40#0)
-        examples.amm.contract.ConstantProductAMM.burn(gtxn_idx%3#0, tmp%37#0, tmp%39#0, tmp%41#0)
+        let tmp%41#0: uint64 = (btoi reinterpret_Encoded(uint8)%8#0)
+        let tmp%42#0: uint64 = ((txnas Assets) tmp%41#0)
+        examples.amm.contract.ConstantProductAMM.burn(gtxn_idx%3#0, tmp%38#0, tmp%40#0, tmp%42#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#3: bool = 1u
         goto block@13
     block@9: // swap_route_L204
-        let tmp%42#0: uint64 = (txn OnCompletion)
-        let tmp%43#0: bool = (! tmp%42#0)
-        (assert tmp%43#0) // OnCompletion is not NoOp
-        let tmp%44#0: uint64 = (txn ApplicationID)
-        (assert tmp%44#0) // can only call when not creating
-        let tmp%46#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%4#0: uint64 = (- tmp%46#0 1u)
+        let tmp%43#0: uint64 = (txn OnCompletion)
+        let tmp%44#0: bool = (! tmp%43#0)
+        (assert tmp%44#0) // OnCompletion is not NoOp
+        let tmp%45#0: uint64 = (txn ApplicationID)
+        (assert tmp%45#0) // can only call when not creating
+        let tmp%47#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%4#0: uint64 = (- tmp%47#0 1u)
         let gtxn_type%4#0: uint64 = ((gtxns TypeEnum) gtxn_idx%4#0)
         let gtxn_type_matches%4#0: bool = (== gtxn_type%4#0 axfer)
         (assert gtxn_type_matches%4#0) // transaction type is axfer
         let reinterpret_Encoded(uint8)%9#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%47#0: uint64 = (btoi reinterpret_Encoded(uint8)%9#0)
-        let tmp%48#0: uint64 = ((txnas Assets) tmp%47#0)
+        let tmp%48#0: uint64 = (btoi reinterpret_Encoded(uint8)%9#0)
+        let tmp%49#0: uint64 = ((txnas Assets) tmp%48#0)
         let reinterpret_Encoded(uint8)%10#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%49#0: uint64 = (btoi reinterpret_Encoded(uint8)%10#0)
-        let tmp%50#0: uint64 = ((txnas Assets) tmp%49#0)
-        examples.amm.contract.ConstantProductAMM.swap(gtxn_idx%4#0, tmp%48#0, tmp%50#0)
+        let tmp%50#0: uint64 = (btoi reinterpret_Encoded(uint8)%10#0)
+        let tmp%51#0: uint64 = ((txnas Assets) tmp%50#0)
+        examples.amm.contract.ConstantProductAMM.swap(gtxn_idx%4#0, tmp%49#0, tmp%51#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#4: bool = 1u
         goto block@13
     block@10: // bare_routing_L27
-        let tmp%51#0: uint64 = (txn OnCompletion)
-        goto tmp%51#0 ? block@12 : block@11
+        let tmp%52#0: uint64 = (txn OnCompletion)
+        goto tmp%52#0 ? block@12 : block@11
     block@11: // __algopy_default_create_L1
-        let tmp%52#0: uint64 = (txn ApplicationID)
-        let tmp%53#0: bool = (! tmp%52#0)
-        (assert tmp%53#0) // can only call when creating
+        let tmp%53#0: uint64 = (txn ApplicationID)
+        let tmp%54#0: bool = (! tmp%53#0)
+        (assert tmp%54#0) // can only call when creating
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#5: bool = 1u
         goto block@13
     block@12: // after_if_else_L27
@@ -276,29 +276,29 @@ subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer:
         goto block@10
     block@7: // after_if_else_L332
         let issued#0: uint64 = (- 10000000000u pool_balance#0)
-        let tmp%5#1: uint64 = (* 1000u a_amount#0)
-        let tmp%6#1: uint64 = (- a_balance#0 a_amount#0)
-        let a_ratio#0: uint64 = (/ tmp%5#1 tmp%6#1)
-        let tmp%7#1: uint64 = (* 1000u b_amount#0)
-        let tmp%8#1: uint64 = (- b_balance#0 b_amount#0)
-        let b_ratio#0: uint64 = (/ tmp%7#1 tmp%8#1)
-        let tmp%9#1: bool = (< a_ratio#0 b_ratio#0)
-        goto tmp%9#1 ? block@8 : block@9
+        let tmp%6#1: uint64 = (* 1000u a_amount#0)
+        let tmp%7#1: uint64 = (- a_balance#0 a_amount#0)
+        let a_ratio#0: uint64 = (/ tmp%6#1 tmp%7#1)
+        let tmp%9#1: uint64 = (* 1000u b_amount#0)
+        let tmp%10#1: uint64 = (- b_balance#0 b_amount#0)
+        let b_ratio#0: uint64 = (/ tmp%9#1 tmp%10#1)
+        let tmp%12#1: bool = (< a_ratio#0 b_ratio#0)
+        goto tmp%12#1 ? block@8 : block@9
     block@8: // if_body_L338
-        let tmp%10#1: uint64 = (* a_ratio#0 issued#0)
-        let tmp%11#1: uint64 = (/ tmp%10#1 1000u)
+        let tmp%13#1: uint64 = (* a_ratio#0 issued#0)
+        let tmp%14#1: uint64 = (/ tmp%13#1 1000u)
         goto block@10
     block@9: // else_body_L340
-        let tmp%12#1: uint64 = (* b_ratio#0 issued#0)
-        let tmp%13#1: uint64 = (/ tmp%12#1 1000u)
+        let tmp%15#1: uint64 = (* b_ratio#0 issued#0)
+        let tmp%16#1: uint64 = (/ tmp%15#1 1000u)
         goto block@10
     block@10: // after_inlined_examples.amm.contract.tokens_to_mint_L81
-        let to_mint#0: uint64 = φ(tmp%4#1 <- block@6, tmp%11#1 <- block@8, tmp%13#1 <- block@9)
+        let to_mint#0: uint64 = φ(tmp%4#1 <- block@6, tmp%14#1 <- block@8, tmp%16#1 <- block@9)
         (assert to_mint#0) // send amount too low
-        let tmp%29#0: bytes[32] = (txn Sender)
+        let tmp%30#0: bytes[32] = (txn Sender)
         let (maybe_value%5#0: uint64, maybe_exists%5#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%5#0) // check self.pool_token exists
-        examples.amm.contract.do_asset_transfer(tmp%29#0, maybe_value%5#0, to_mint#0)
+        examples.amm.contract.do_asset_transfer(tmp%30#0, maybe_value%5#0, to_mint#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
         return 
 
@@ -334,19 +334,19 @@ subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool
         let supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
         let tmp%0#1: uint64 = (- 10000000000u pool_balance#0)
         let issued#0: uint64 = (- tmp%0#1 amount#0)
-        let tmp%1#1: uint64 = (* supply#0 amount#0)
-        let a_amt#0: uint64 = (/ tmp%1#1 issued#0)
+        let tmp%2#1: uint64 = (* supply#0 amount#0)
+        let a_amt#0: uint64 = (/ tmp%2#1 issued#0)
         let supply#1: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
-        let tmp%1#2: uint64 = (* supply#1 amount#0)
-        let b_amt#0: uint64 = (/ tmp%1#2 issued#0)
-        let tmp%17#0: bytes[32] = (txn Sender)
+        let tmp%2#2: uint64 = (* supply#1 amount#0)
+        let b_amt#0: uint64 = (/ tmp%2#2 issued#0)
+        let tmp%20#0: bytes[32] = (txn Sender)
         let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%4#0) // check self.asset_a exists
-        examples.amm.contract.do_asset_transfer(tmp%17#0, maybe_value%4#0, a_amt#0)
-        let tmp%18#0: bytes[32] = (txn Sender)
+        examples.amm.contract.do_asset_transfer(tmp%20#0, maybe_value%4#0, a_amt#0)
+        let tmp%21#0: bytes[32] = (txn Sender)
         let (maybe_value%5#0: uint64, maybe_exists%5#0: bool) = (app_global_get_ex 0u "asset_b")
         (assert maybe_exists%5#0) // check self.asset_b exists
-        examples.amm.contract.do_asset_transfer(tmp%18#0, maybe_value%5#0, b_amt#0)
+        examples.amm.contract.do_asset_transfer(tmp%21#0, maybe_value%5#0, b_amt#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
         return 
 
@@ -396,8 +396,8 @@ subroutine examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_as
         let out_total#0: uint64 = (* tmp%2#1 out_supply#2)
         let to_swap#0: uint64 = (/ out_total#0 in_total#0)
         (assert to_swap#0) // send amount too low
-        let tmp%10#0: bytes[32] = (txn Sender)
-        examples.amm.contract.do_asset_transfer(tmp%10#0, out_asset#2, to_swap#0)
+        let tmp%15#0: bytes[32] = (txn Sender)
+        examples.amm.contract.do_asset_transfer(tmp%15#0, out_asset#2, to_swap#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
         return 
 
@@ -405,9 +405,9 @@ subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
     block@0: // L255
         let a_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
         let b_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
-        let tmp%0#0: uint64 = (* a_balance#0 1000u)
-        let materialized_values%2#0: uint64 = (/ tmp%0#0 b_balance#0)
-        (app_global_put "ratio" materialized_values%2#0)
+        let tmp%2#0: uint64 = (* a_balance#0 1000u)
+        let tmp%3#0: uint64 = (/ tmp%2#0 b_balance#0)
+        (app_global_put "ratio" tmp%3#0)
         return 
 
 subroutine examples.amm.contract.ConstantProductAMM._check_is_governor() -> void:

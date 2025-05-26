@@ -1,8 +1,8 @@
 main test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program:
     block@2: // while_top_L20
-        let tmp%0#0: uint64 = (global OpcodeBudget)
-        let tmp%1#0: bool = (> 810u tmp%0#0)
-        goto tmp%1#0 ? block@3 : block@8
+        let tmp%1#0: uint64 = (global OpcodeBudget)
+        let tmp%2#0: bool = (> 810u tmp%1#0)
+        goto tmp%2#0 ? block@3 : block@8
     block@3: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
@@ -19,9 +19,9 @@ main test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining
         let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
         let array%bytes_len%0#1: uint64 = (len slot_contents%0#0)
         let array%array_len%0#1: uint64 = (/ array%bytes_len%0#1 8u)
-        let tmp%0#1: uint64 = array%array_len%0#1
-        let tmp%1#1: bool = (== tmp%0#1 32u)
-        (assert tmp%1#1) // expected array of length 32
+        let length%0#0: uint64 = array%array_len%0#1
+        let tmp%0#1: bool = (== length%0#0 32u)
+        (assert tmp%0#1) // expected array of length 32
         return 1u
 
 subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: Encoded(uint64[])*) -> void:

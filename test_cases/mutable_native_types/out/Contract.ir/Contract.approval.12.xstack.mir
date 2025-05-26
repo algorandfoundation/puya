@@ -120,9 +120,9 @@ subroutine main:
         // mutable_native_types/contract.py:87
         // self.payments = zero_bytes(FixedArray[Payment, typing.Literal[8]])
         int 384                                                                                   384
-        bzero                                                                                     materialized_values%0#0
-        byte "payments"                                                                           materialized_values%0#0,"payments"
-        l-load materialized_values%0#0 1                                                          "payments",materialized_values%0#0
+        bzero                                                                                     tmp%12#0
+        byte "payments"                                                                           tmp%12#0,"payments"
+        l-load tmp%12#0 1                                                                         "payments",tmp%12#0
         app_global_put
         b main_after_if_else@2
 
@@ -183,7 +183,7 @@ subroutine main:
         // mutable_native_types/contract.py:115
         // @arc4.abimethod()
         txn OnCompletion                                                                          tmp%11#0
-        !                                                                                         tmp%12#0
+        !                                                                                         tmp%12#1
         assert // OnCompletion is not NoOp
         txn ApplicationID                                                                         tmp%13#0
         assert // can only call when not creating
@@ -304,17 +304,17 @@ subroutine main:
         assert // OnCompletion is not NoOp
         txn ApplicationID                                                                         tmp%46#0
         assert // can only call when not creating
-        callsub tup_return                                                                        to_encode%0#0,to_encode%1#0
-        l-load to_encode%0#0 1                                                                    to_encode%1#0,to_encode%0#0
-        itob                                                                                      to_encode%1#0,val_as_bytes%0#0
-        l-load to_encode%1#0 1                                                                    val_as_bytes%0#0,to_encode%1#0
+        callsub tup_return                                                                        tmp%48#0,tmp%49#0
+        l-load tmp%48#0 1                                                                         tmp%49#0,tmp%48#0
+        itob                                                                                      tmp%49#0,val_as_bytes%0#0
+        l-load tmp%49#0 1                                                                         val_as_bytes%0#0,tmp%49#0
         itob                                                                                      val_as_bytes%0#0,val_as_bytes%1#0
         l-load val_as_bytes%0#0 1                                                                 val_as_bytes%1#0,val_as_bytes%0#0
         l-load val_as_bytes%1#0 1                                                                 val_as_bytes%0#0,val_as_bytes%1#0
         concat                                                                                    encoded%1#0
         byte 0x151f7c75                                                                           encoded%1#0,0x151f7c75
         l-load encoded%1#0 1                                                                      0x151f7c75,encoded%1#0
-        concat                                                                                    tmp%48#0
+        concat                                                                                    tmp%50#0
         log
         int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
@@ -323,16 +323,16 @@ subroutine main:
     main_calculate_sum_route@14:
         // mutable_native_types/contract.py:166
         // @arc4.abimethod()
-        txn OnCompletion                                                                          tmp%49#0
-        !                                                                                         tmp%50#0
+        txn OnCompletion                                                                          tmp%51#0
+        !                                                                                         tmp%52#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                         tmp%51#0
+        txn ApplicationID                                                                         tmp%53#0
         assert // can only call when not creating
-        callsub calculate_sum                                                                     to_encode%2#0
+        callsub calculate_sum                                                                     tmp%55#0
         itob                                                                                      val_as_bytes%2#0
         byte 0x151f7c75                                                                           val_as_bytes%2#0,0x151f7c75
         l-load val_as_bytes%2#0 1                                                                 0x151f7c75,val_as_bytes%2#0
-        concat                                                                                    tmp%53#0
+        concat                                                                                    tmp%56#0
         log
         int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
@@ -341,12 +341,12 @@ subroutine main:
     main_bare_routing@15:
         // mutable_native_types/contract.py:65
         // class Contract(arc4.ARC4Contract):
-        txn OnCompletion                                                                          tmp%54#0
+        txn OnCompletion                                                                          tmp%57#0
         bz main___algopy_default_create@16 ; b main_after_if_else@17
 
     main___algopy_default_create@16:
-        txn ApplicationID                                                                         tmp%55#0
-        !                                                                                         tmp%56#0
+        txn ApplicationID                                                                         tmp%58#0
+        !                                                                                         tmp%59#0
         assert // can only call when creating
         int 1                                                                                     test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                           (𝕏) tmp%0#0 |
@@ -408,9 +408,9 @@ subroutine add_payment:
         assert // check self.num_payments exists                                                  (𝕡) pay#0 | maybe_value%3#0
         l-load maybe_value%3#0 0                                                                  (𝕡) pay#0 | maybe_value%3#0
         int 1                                                                                     (𝕡) pay#0 | maybe_value%3#0,1
-        +                                                                                         (𝕡) pay#0 | materialized_values%0#0
-        byte "num_payments"                                                                       (𝕡) pay#0 | materialized_values%0#0,"num_payments"
-        l-load materialized_values%0#0 1                                                          (𝕡) pay#0 | "num_payments",materialized_values%0#0
+        +                                                                                         (𝕡) pay#0 | tmp%1#0
+        byte "num_payments"                                                                       (𝕡) pay#0 | tmp%1#0,"num_payments"
+        l-load tmp%1#0 1                                                                          (𝕡) pay#0 | "num_payments",tmp%1#0
         app_global_put                                                                            (𝕡) pay#0 |
         retsub
 
@@ -445,7 +445,7 @@ subroutine increment_payment:
         int 40                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,encoded_element%0#0 (copy),40
         extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%1#0
         p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%1#0,amt#0 (copy)
-        +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,materialized_values%0#0
+        +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%2#0
         itob                                                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,val_as_bytes%0#0
         l-load encoded_element%0#0 1                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,val_as_bytes%0#0,encoded_element%0#0
         l-load val_as_bytes%0#0 1                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,val_as_bytes%0#0
@@ -715,21 +715,21 @@ subroutine calculate_sum:
         // return val.a + val.b
         l-load-copy fixed_a#0 1                                                                   fixed_a#0,fixed_b#0,fixed_a#0 (copy)
         int 0                                                                                     fixed_a#0,fixed_b#0,fixed_a#0 (copy),0
-        extract_uint64                                                                            fixed_a#0,fixed_b#0,tmp%0#1
-        l-load fixed_a#0 2                                                                        fixed_b#0,tmp%0#1,fixed_a#0
-        int 8                                                                                     fixed_b#0,tmp%0#1,fixed_a#0,8
-        extract_uint64                                                                            fixed_b#0,tmp%0#1,tmp%1#1
-        l-load tmp%0#1 1                                                                          fixed_b#0,tmp%1#1,tmp%0#1
-        l-load tmp%1#1 1                                                                          fixed_b#0,tmp%0#1,tmp%1#1
+        extract_uint64                                                                            fixed_a#0,fixed_b#0,tmp%0#0
+        l-load fixed_a#0 2                                                                        fixed_b#0,tmp%0#0,fixed_a#0
+        int 8                                                                                     fixed_b#0,tmp%0#0,fixed_a#0,8
+        extract_uint64                                                                            fixed_b#0,tmp%0#0,tmp%1#0
+        l-load tmp%0#0 1                                                                          fixed_b#0,tmp%1#0,tmp%0#0
+        l-load tmp%1#0 1                                                                          fixed_b#0,tmp%0#0,tmp%1#0
         +                                                                                         fixed_b#0,tmp%2#1
         l-load-copy fixed_b#0 1                                                                   fixed_b#0,tmp%2#1,fixed_b#0 (copy)
         int 0                                                                                     fixed_b#0,tmp%2#1,fixed_b#0 (copy),0
-        extract_uint64                                                                            fixed_b#0,tmp%2#1,tmp%0#1
-        l-load fixed_b#0 2                                                                        tmp%2#1,tmp%0#1,fixed_b#0
-        int 8                                                                                     tmp%2#1,tmp%0#1,fixed_b#0,8
-        extract_uint64                                                                            tmp%2#1,tmp%0#1,tmp%1#1
-        l-load tmp%0#1 1                                                                          tmp%2#1,tmp%1#1,tmp%0#1
-        l-load tmp%1#1 1                                                                          tmp%2#1,tmp%0#1,tmp%1#1
+        extract_uint64                                                                            fixed_b#0,tmp%2#1,tmp%0#0
+        l-load fixed_b#0 2                                                                        tmp%2#1,tmp%0#0,fixed_b#0
+        int 8                                                                                     tmp%2#1,tmp%0#0,fixed_b#0,8
+        extract_uint64                                                                            tmp%2#1,tmp%0#0,tmp%1#0
+        l-load tmp%0#0 1                                                                          tmp%2#1,tmp%1#0,tmp%0#0
+        l-load tmp%1#0 1                                                                          tmp%2#1,tmp%0#0,tmp%1#0
         +                                                                                         tmp%2#1,tmp%2#2
         // mutable_native_types/contract.py:170
         // result = add(fixed_a) + add(fixed_b)
@@ -742,10 +742,10 @@ subroutine calculate_sum:
         // if result < 100:
         l-load-copy result#0 0                                                                    result#0,result#0 (copy)
         int 100                                                                                   result#0,result#0 (copy),100
-        <                                                                                         result#0,tmp%2#0
-        l-load result#0 1                                                                         tmp%2#0,result#0
-        v-store result#6                                                                          tmp%2#0
-        l-load tmp%2#0 0                                                                          tmp%2#0
+        <                                                                                         result#0,tmp%5#0
+        l-load result#0 1                                                                         tmp%5#0,result#0
+        v-store result#6                                                                          tmp%5#0
+        l-load tmp%5#0 0                                                                          tmp%5#0
         bz calculate_sum_after_if_else@2 ; b calculate_sum_if_body@1
 
     calculate_sum_if_body@1:
