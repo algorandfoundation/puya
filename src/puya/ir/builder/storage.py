@@ -476,7 +476,7 @@ class _ARC4StorageCodec(StorageCodec):
         self, context: IRFunctionBuildContext, values: Sequence[Value], loc: SourceLocation
     ) -> Value:
         value_tuple = ValueTuple(values=values, source_location=loc)
-        encoded_vp = arc4.encode_value_provider(
+        encoded_vp = arc4.encode_value(
             context, value_tuple, self._declared_type, self._encoded_type.encoding, loc
         )
         encoded, *rest = context.visitor.materialise_value_provider(
@@ -489,7 +489,7 @@ class _ARC4StorageCodec(StorageCodec):
     def decode(
         self, context: IRFunctionBuildContext, value: Value, loc: SourceLocation
     ) -> ValueProvider:
-        return arc4.decode_arc4_value(
+        return arc4.decode_value(
             context, value, self._encoded_type.encoding, self._declared_type, loc
         )
 
