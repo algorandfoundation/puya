@@ -611,13 +611,6 @@ def decode_value(
     return undefined_value(target_type, loc)
 
 
-def _encoding_or_name(typ: IRType | TupleIRType) -> str:
-    if isinstance(typ, EncodedType):
-        return typ.encoding.name
-    else:
-        return typ.name
-
-
 # TODO: this becomes the lowering implementation for ir.ValueEncode
 def encode_value(
     context: IRRegisterContext,
@@ -687,10 +680,6 @@ def arc4_tuple_index(
         return factory.substring3(base, item_start_offset, item_end_offset)
     else:
         return factory.extract3(base, head_offset, item_encoding.checked_num_bytes)
-
-
-def _bit_packed_bool(encoding: Encoding) -> typing.TypeGuard[BoolEncoding]:
-    return isinstance(encoding, BoolEncoding) and encoding.packed
 
 
 def update_tuple_item(
@@ -791,6 +780,17 @@ def update_tuple_item(
                 updated_data, header_up_to_dynamic_item // 8, tail_offset_bytes, "updated_data"
             )
         return updated_data
+
+
+def _bit_packed_bool(encoding: Encoding) -> typing.TypeGuard[BoolEncoding]:
+    return isinstance(encoding, BoolEncoding) and encoding.packed
+
+
+def _encoding_or_name(typ: IRType | TupleIRType) -> str:
+    if isinstance(typ, EncodedType):
+        return typ.encoding.name
+    else:
+        return typ.name
 
 
 def _encode_native_uint64_to_arc4(
