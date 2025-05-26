@@ -3,6 +3,7 @@ import abc
 from puya.awst import wtypes
 from puya.errors import InternalError
 from puya.ir import models as ir
+from puya.ir.builder import arc4
 from puya.ir.builder._utils import OpFactory
 from puya.ir.encodings import (
     TupleEncoding,
@@ -83,8 +84,6 @@ class EncodedTupleBuilder(TupleBuilder):
         self.factory = OpFactory(self.context, self.loc)
 
     def read_at_index(self, tup: ir.MultiValue, index: int) -> ir.MultiValue:
-        from puya.ir.builder import arc4
-
         try:
             (tup,) = self.context.materialise_value_provider(tup, "tup")
         except ValueError:
