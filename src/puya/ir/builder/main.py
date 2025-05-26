@@ -17,7 +17,7 @@ from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, arrays, dynamic_array, flow_control, mem, sequence, storage
+from puya.ir.builder import arc4, dynamic_array, flow_control, mem, sequence, storage
 from puya.ir.builder._tuple_util import get_tuple_item_values
 from puya.ir.builder._utils import (
     OpFactory,
@@ -68,7 +68,6 @@ from puya.ir.models import (
     Value,
     ValueProvider,
     ValueTuple,
-    WriteSlot,
 )
 from puya.ir.types_ import (
     AVMBytesEncoding,
@@ -799,13 +798,8 @@ class FunctionIRBuilder(
                     expr.source_location,
                 )
             array = self.context.visitor.visit_and_materialise_single(expr.base)
-            array_encoding = wtype_to_encoding(sliceable_type, loc)
-            _, data = arc4.invoke_arc4_array_pop(
-                self.context,
-                array_encoding,
-                array,
-                loc,
-            )
+            builder = dynamic_array.get_builder(self.context, sliceable_type, loc)
+            data, _ = builder.pop(array)
             return data
         else:
             raise InternalError(
@@ -1257,25 +1251,28 @@ class FunctionIRBuilder(
 
     def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
         loc = expr.source_location
-        if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
-            return arc4.pop_arc4_array(self.context, expr, expr.base.wtype)
-        elif isinstance(expr.base.wtype, wtypes.ReferenceArray):
-            slot = self.context.visitor.visit_and_materialise_single(expr.base)
-            contents = mem.read_slot(self.context, slot, expr.base.source_location)
-            element_wtype = expr.base.wtype.element_type
-            contents, popped_item = arrays.pop_array(
-                self.context, element_wtype, contents, expr.source_location
-            )
-            self.context.add_op(
-                WriteSlot(
-                    slot=slot,
-                    value=contents,
-                    source_location=expr.source_location,
-                )
-            )
-            return popped_item
+
+        array_wtype = expr.base.wtype
+        builder = dynamic_array.get_builder(self.context, array_wtype, loc)
+
+        array_or_slot = self.context.visitor.visit_and_materialise_single(expr.base)
+        if isinstance(array_or_slot.ir_type, SlotType):
+            array = mem.read_slot(self.context, array_or_slot, loc)
         else:
-            raise InternalError(f"Unsupported target for array pop: {expr.base.wtype}", loc)
+            array = array_or_slot
+        updated_array, popped_item = builder.pop(array)
+
+        if isinstance(array_or_slot.ir_type, SlotType):
+            mem.write_slot(self.context, array_or_slot, updated_array, loc)
+        else:
+            arc4.handle_arc4_assign(
+                self.context,
+                expr.base,
+                updated_array,
+                is_nested_update=True,
+                source_location=loc,
+            )
+        return popped_item
 
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
         loc = expr.source_location
