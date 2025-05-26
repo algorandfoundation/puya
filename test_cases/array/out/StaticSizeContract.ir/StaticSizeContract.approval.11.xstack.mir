@@ -77,13 +77,13 @@ subroutine main:
         // class StaticSizeContract(arc4.ARC4Contract):
         txna ApplicationArgs 1                                                                    reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0
         l-load-copy reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0 0                  reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0,reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0 (copy)
-        extract 0 16 // on error: Index access is out of bounds                                   reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0,item0%0#0
-        l-load reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0 1                       item0%0#0,reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0
-        extract 16 16 // on error: Index access is out of bounds                                  item0%0#0,item1%0#0
+        extract 0 16                                                                              reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0,extract%0#0
+        l-load reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0 1                       extract%0#0,reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0
+        extract 16 16                                                                             extract%0#0,extract%1#0
         // array/static_size.py:57
         // @arc4.abimethod()
-        l-load item0%0#0 1                                                                        item1%0#0,item0%0#0
-        l-load item1%0#0 1                                                                        item0%0#0,item1%0#0
+        l-load extract%0#0 1                                                                      extract%1#0,extract%0#0
+        l-load extract%1#0 1                                                                      extract%0#0,extract%1#0
         callsub test_extend_from_tuple                                                            tmp%15#0
         byte 0x151f7c75                                                                           tmp%15#0,0x151f7c75
         l-load tmp%15#0 1                                                                         0x151f7c75,tmp%15#0
@@ -489,42 +489,42 @@ subroutine test_array:
         l-load bytes_offset%0#0 1                                                                 (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,slot_contents%0#0,bytes_offset%0#0
         int 144                                                                                   (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,slot_contents%0#0,bytes_offset%0#0,144
         extract3 // on error: index access is out of bounds                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,encoded_element%0#0
-        extract 16 128 // on error: Index access is out of bounds                                 (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1
-        l-load-copy array%encoded_item2%0#1 0                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,array%encoded_item2%0#1 (copy)
-        int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,array%encoded_item2%0#1 (copy),8
-        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,array%item1%1#1
-        l-load-copy i#0 2                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,array%item1%1#1,i#0 (copy)
-        int 1                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,array%item1%1#1,i#0 (copy),1
-        +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,array%item1%1#1,i#2
-        l-load array%item1%1#1 1                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,i#2,array%item1%1#1
-        l-load-copy i#2 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,i#2,array%item1%1#1,i#2 (copy)
-        ==                                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,i#2,tmp%23#0
-        assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,array%encoded_item2%0#1,i#2
+        extract 16 128                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0
+        l-load-copy extract%2#0 0                                                                 (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,extract%2#0 (copy)
+        int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,extract%2#0 (copy),8
+        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,tmp%17#0
+        l-load-copy i#0 2                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,tmp%17#0,i#0 (copy)
+        int 1                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,tmp%17#0,i#0 (copy),1
+        +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,tmp%17#0,i#2
+        l-load tmp%17#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,i#2,tmp%17#0
+        l-load-copy i#2 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,i#2,tmp%17#0,i#2 (copy)
+        ==                                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,i#2,tmp%19#0
+        assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,extract%2#0,i#2
         // array/static_size.py:51
         // assert path[i].other.d.foo == i + 2
-        l-load array%encoded_item2%0#1 1                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,array%encoded_item2%0#1
-        extract 48 16 // on error: Index access is out of bounds                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,array%item3%1#1
-        l-load-copy array%item3%1#1 0                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,array%item3%1#1,array%item3%1#1 (copy)
-        extract 0 8 // on error: Index access is out of bounds                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,array%item3%1#1,tmp%31#0
-        l-load i#0 3                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%item3%1#1,tmp%31#0,i#0
-        int 2                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%item3%1#1,tmp%31#0,i#0,2
-        +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%item3%1#1,tmp%31#0,tmp%32#0
-        itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%item3%1#1,tmp%31#0,tmp%33#0
-        l-load tmp%31#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%item3%1#1,tmp%33#0,tmp%31#0
-        l-load tmp%33#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%item3%1#1,tmp%31#0,tmp%33#0
-        b==                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%item3%1#1,tmp%34#0
-        assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%item3%1#1
+        l-load extract%2#0 1                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,extract%2#0
+        extract 48 16                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,extract%14#0
+        l-load-copy extract%14#0 0                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,extract%14#0,extract%14#0 (copy)
+        extract 0 8                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | i#0,i#2,extract%14#0,extract%16#0
+        l-load i#0 3                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%14#0,extract%16#0,i#0
+        int 2                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%14#0,extract%16#0,i#0,2
+        +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%14#0,extract%16#0,tmp%23#0
+        itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%14#0,extract%16#0,tmp%24#0
+        l-load extract%16#0 1                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%14#0,tmp%24#0,extract%16#0
+        l-load tmp%24#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%14#0,extract%16#0,tmp%24#0
+        b==                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%14#0,tmp%25#0
+        assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%14#0
         // array/static_size.py:52
         // assert path[i].other.d.bar == (i + 1) * (i + 1)
-        l-load array%item3%1#1 0                                                                  (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,array%item3%1#1
-        extract 8 8 // on error: Index access is out of bounds                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%42#0
-        l-load-copy i#2 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%42#0,i#2 (copy)
-        l-load-copy i#2 2                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%42#0,i#2 (copy),i#2 (copy)
-        *                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%42#0,tmp%45#0
-        itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%42#0,tmp%46#0
-        l-load tmp%42#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%46#0,tmp%42#0
-        l-load tmp%46#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%42#0,tmp%46#0
-        b==                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%47#0
+        l-load extract%14#0 0                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%14#0
+        extract 8 8                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%25#0
+        l-load-copy i#2 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%25#0,i#2 (copy)
+        l-load-copy i#2 2                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%25#0,i#2 (copy),i#2 (copy)
+        *                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%25#0,tmp%31#0
+        itob                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%25#0,tmp%32#0
+        l-load extract%25#0 1                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%32#0,extract%25#0
+        l-load tmp%32#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,extract%25#0,tmp%32#0
+        b==                                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2,tmp%33#0
         assert                                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2
         l-load i#2 0                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | i#2
         v-store i#0                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 |
@@ -560,7 +560,7 @@ subroutine test_array:
         l-store-copy encoded_element%0#0 0                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,encoded_element%0#0,encoded_element%0#0 (copy)
         v-store encoded_element%0#0                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,encoded_element%0#0
         l-load-copy encoded_element%0#0 0                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,encoded_element%0#0,encoded_element%0#0 (copy)
-        extract 0 8 // on error: Index access is out of bounds                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,encoded_element%0#0,last_point.x#0
+        extract 0 8                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,encoded_element%0#0,last_point.x#0
         v-store last_point.x#0                                                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,encoded_element%0#0
         l-load encoded_element%0#0 0                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,encoded_element%0#0
         int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | slot_contents%3#0,encoded_element%0#0,8
@@ -603,7 +603,7 @@ subroutine test_array:
         l-store-copy encoded_element%1#1 0                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | encoded_element%1#1,encoded_element%1#1 (copy)
         x-store encoded_element%1#1                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | encoded_element%1#1
         l-load-copy encoded_element%1#1 0                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | encoded_element%1#1,encoded_element%1#1 (copy)
-        extract 0 8 // on error: Index access is out of bounds                                    (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | encoded_element%1#1,point.x#0
+        extract 0 8                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | encoded_element%1#1,point.x#0
         l-load encoded_element%1#1 1                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | point.x#0,encoded_element%1#1
         int 8                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | point.x#0,encoded_element%1#1,8
         extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | point.x#0,point.y#0
@@ -612,7 +612,7 @@ subroutine test_array:
         // if point.x < last_point.x:
         l-load point.x#0 0                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | point.x#0
         v-load last_point.x#0                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | point.x#0,last_point.x#0
-        b<                                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | tmp%14#1
+        b<                                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | tmp%6#1
         bz test_array_else_body@9 ; b test_array_if_body@8                                        (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 |
 
     test_array_if_body@8:                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 |
@@ -624,16 +624,16 @@ subroutine test_array:
         int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | encoded_element%0#0,0
         // array/static_size.py:155
         // dx = last_point.x.native - point.x.native
-        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | tmp%15#1
-        x-load encoded_element%1#1                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%15#1,encoded_element%1#1
+        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) encoded_element%1#1 | tmp%7#1
+        x-load encoded_element%1#1                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%7#1,encoded_element%1#1
         // array/static_size.py:153
         // point = path[point_idx]
-        int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%15#1,encoded_element%1#1,0
+        int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%7#1,encoded_element%1#1,0
         // array/static_size.py:155
         // dx = last_point.x.native - point.x.native
-        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%15#1,tmp%16#1
-        l-load tmp%15#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%16#1,tmp%15#1
-        l-load tmp%16#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%15#1,tmp%16#1
+        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%7#1,tmp%8#1
+        l-load tmp%7#1 1                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%8#1,tmp%7#1
+        l-load tmp%8#1 1                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%7#1,tmp%8#1
         -                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | dx#0
         v-store dx#0                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 |
         b test_array_after_if_else@10                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 |
@@ -647,16 +647,16 @@ subroutine test_array:
         int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | encoded_element%1#1,0
         // array/static_size.py:157
         // dx = point.x.native - last_point.x.native
-        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%18#1
-        v-load encoded_element%0#0                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%18#1,encoded_element%0#0
+        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%10#0
+        v-load encoded_element%0#0                                                                (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%10#0,encoded_element%0#0
         // array/static_size.py:150
         // last_point = path[0]
-        int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%18#1,encoded_element%0#0,0
+        int 0                                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%10#0,encoded_element%0#0,0
         // array/static_size.py:157
         // dx = point.x.native - last_point.x.native
-        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%18#1,tmp%19#1
-        l-load tmp%18#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%19#1,tmp%18#1
-        l-load tmp%19#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%18#1,tmp%19#1
+        extract_uint64                                                                            (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%10#0,tmp%11#0
+        l-load tmp%10#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%11#0,tmp%10#0
+        l-load tmp%11#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%10#0,tmp%11#0
         -                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | dx#0
         v-store dx#0                                                                              (𝕡) x1#0,y1#0,x2#0,y2#0 |
         b test_array_after_if_else@10                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 |
@@ -666,7 +666,7 @@ subroutine test_array:
         // if point.y < last_point.y:
         v-load point.y#0                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 | point.y#0
         v-load last_point.y#0                                                                     (𝕡) x1#0,y1#0,x2#0,y2#0 | point.y#0,last_point.y#0
-        <                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%21#1
+        <                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%13#1
         bz test_array_else_body@12 ; b test_array_if_body@11                                      (𝕡) x1#0,y1#0,x2#0,y2#0 |
 
     test_array_if_body@11:                                                                        (𝕡) x1#0,y1#0,x2#0,y2#0 |
@@ -693,17 +693,17 @@ subroutine test_array:
         v-load dx#0                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) dy#0 | dx#0
         l-store-copy dx#0 0                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) dy#0 | dx#0,dx#0 (copy)
         l-load dx#0 1                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) dy#0 | dx#0 (copy),dx#0
-        *                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) dy#0 | tmp%24#1
-        x-load dy#0                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%24#1,dy#0
-        l-store-copy dy#0 0                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%24#1,dy#0,dy#0 (copy)
-        l-load dy#0 1                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%24#1,dy#0 (copy),dy#0
-        *                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%24#1,tmp%25#1
-        l-load tmp%24#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%25#1,tmp%24#1
-        l-load tmp%25#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%24#1,tmp%25#1
-        +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%26#1
-        sqrt                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%27#1
-        v-load length#0                                                                           (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%27#1,length#0
-        l-load tmp%27#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | length#0,tmp%27#1
+        *                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | (𝕏) dy#0 | tmp%16#1
+        x-load dy#0                                                                               (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%16#1,dy#0
+        l-store-copy dy#0 0                                                                       (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%16#1,dy#0,dy#0 (copy)
+        l-load dy#0 1                                                                             (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%16#1,dy#0 (copy),dy#0
+        *                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%16#1,tmp%17#0
+        l-load tmp%16#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%17#0,tmp%16#1
+        l-load tmp%17#0 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%16#1,tmp%17#0
+        +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%18#1
+        sqrt                                                                                      (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%19#1
+        v-load length#0                                                                           (𝕡) x1#0,y1#0,x2#0,y2#0 | tmp%19#1,length#0
+        l-load tmp%19#1 1                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | length#0,tmp%19#1
         +                                                                                         (𝕡) x1#0,y1#0,x2#0,y2#0 | length#0
         v-store length#0                                                                          (𝕡) x1#0,y1#0,x2#0,y2#0 |
         // array/static_size.py:152

@@ -229,12 +229,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         (app_local_put tmp%0#0 0x6c maybe_value%1#0)
         let tmp%1#0: bool = (box_create "box" 2064u)
         (assert tmp%1#0) // expected box to not exist
-        let tmp%2#0: bytes = ((extract 0 16) maybe_value%1#0) // on error: Index access is out of bounds
+        let extract%0#0: bytes = ((extract 0 16) maybe_value%1#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.box_map entry exists
-        let updated_data%0#0: bytes = ((replace2 0) maybe_value%3#0 tmp%2#0)
+        let updated_data%0#0: bytes = ((replace2 0) maybe_value%3#0 extract%0#0)
         (box_put box_prefixed_key%0#0 updated_data%0#0)
         return 
 
@@ -245,7 +245,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.local_struct() -> E
         let encoded%1#0: Encoded((uint8[32],uint64)) = (concat tmp%0#0 val_as_bytes%0#0)
         let val_as_bytes%1#0: bytes[8] = (itob 567u)
         let a#0: Encoded((uint8[32],uint64,uint64)) = (concat encoded%1#0 val_as_bytes%1#0)
-        let foo#0: bytes[32] = ((extract 0 32) a#0) // on error: Index access is out of bounds
+        let foo#0: bytes[32] = ((extract 0 32) a#0)
         let bar#0: uint64 = (extract_uint64 a#0 32u)
         let baz#0: uint64 = (extract_uint64 a#0 40u)
         let tmp%3#0: bytes[32] = (global ZeroAddress)
@@ -298,39 +298,39 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> 
     block@0: // L158
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let tmp%0#0: bytes = ((extract 0 16) maybe_value%0#0) // on error: Index access is out of bounds
-        return tmp%0#0
+        let extract%0#0: bytes = ((extract 0 16) maybe_value%0#0)
+        return extract%0#0
 
 subroutine test_cases.mutable_native_types.contract.Contract.tup_return() -> <uint64, uint64>:
     block@0: // L162
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let encoded%0#0: bytes = ((extract 32 16) maybe_value%0#0) // on error: Index access is out of bounds
-        let item0%0#0: uint64 = (extract_uint64 encoded%0#0 0u)
-        let item1%0#0: uint64 = (extract_uint64 encoded%0#0 8u)
-        return item0%0#0 item1%0#0
+        let extract%0#0: bytes = ((extract 32 16) maybe_value%0#0)
+        let tmp%0#0: uint64 = (extract_uint64 extract%0#0 0u)
+        let tmp%1#0: uint64 = (extract_uint64 extract%0#0 8u)
+        return tmp%0#0 tmp%1#0
 
 subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> uint64:
     block@0: // L166
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let fixed_a#0: Encoded((uint64,uint64)) = ((extract 0 16) maybe_value%0#0) // on error: Index access is out of bounds
-        let fixed_b#0: Encoded((uint64,uint64)) = ((extract 16 16) maybe_value%0#0) // on error: Index access is out of bounds
-        let tmp%0#0: uint64 = (extract_uint64 fixed_a#0 0u)
-        let tmp%1#0: uint64 = (extract_uint64 fixed_a#0 8u)
-        let tmp%2#1: uint64 = (+ tmp%0#0 tmp%1#0)
-        let tmp%0#1: uint64 = (extract_uint64 fixed_b#0 0u)
-        let tmp%1#1: uint64 = (extract_uint64 fixed_b#0 8u)
-        let tmp%2#2: uint64 = (+ tmp%0#1 tmp%1#1)
-        let result#0: uint64 = (+ tmp%2#1 tmp%2#2)
-        let tmp%5#0: bool = (< result#0 100u)
-        goto tmp%5#0 ? block@1 : block@2
+        let fixed_a#0: Encoded((uint64,uint64)) = ((extract 0 16) maybe_value%0#0)
+        let fixed_b#0: Encoded((uint64,uint64)) = ((extract 16 16) maybe_value%0#0)
+        let tmp%0#1: uint64 = (extract_uint64 fixed_a#0 0u)
+        let tmp%1#1: uint64 = (extract_uint64 fixed_a#0 8u)
+        let tmp%2#0: uint64 = (+ tmp%0#1 tmp%1#1)
+        let tmp%0#2: uint64 = (extract_uint64 fixed_b#0 0u)
+        let tmp%1#2: uint64 = (extract_uint64 fixed_b#0 8u)
+        let tmp%2#1: uint64 = (+ tmp%0#2 tmp%1#2)
+        let result#0: uint64 = (+ tmp%2#0 tmp%2#1)
+        let tmp%3#0: bool = (< result#0 100u)
+        goto tmp%3#0 ? block@1 : block@2
     block@1: // if_body_L172
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%2#0) // check self.nested exists
-        let encoded%0#0: bytes = ((extract 32 16) maybe_value%2#0) // on error: Index access is out of bounds
-        let c#0: uint64 = (extract_uint64 encoded%0#0 0u)
-        let d#0: uint64 = (extract_uint64 encoded%0#0 8u)
+        let extract%2#0: bytes = ((extract 32 16) maybe_value%2#0)
+        let c#0: uint64 = (extract_uint64 extract%2#0 0u)
+        let d#0: uint64 = (extract_uint64 extract%2#0 8u)
         let result#1: uint64 = (+ result#0 c#0)
         let result#2: uint64 = (+ result#1 d#0)
         goto block@2

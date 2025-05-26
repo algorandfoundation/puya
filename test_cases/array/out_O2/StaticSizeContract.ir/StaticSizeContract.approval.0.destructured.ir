@@ -86,22 +86,22 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let slot_contents%0#6: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(local.0)
         let bytes_offset%0#0: uint64 = (* i#0 144u)
         let encoded_element%0#2: bytes = (extract3 slot_contents%0#6 bytes_offset%0#0 144u) // on error: index access is out of bounds
-        let array%encoded_item2%0#1: bytes = ((extract 16 128) encoded_element%0#2) // on error: Index access is out of bounds
-        let array%item1%1#1: uint64 = (extract_uint64 array%encoded_item2%0#1 8u)
+        let extract%2#0: bytes = ((extract 16 128) encoded_element%0#2)
+        let tmp%17#0: uint64 = (extract_uint64 extract%2#0 8u)
         let i#8: uint64 = (+ i#0 1u)
-        let tmp%23#1: bool = (== array%item1%1#1 i#8)
-        (assert tmp%23#1)
-        let array%item3%1#1: bytes = ((extract 48 16) array%encoded_item2%0#1) // on error: Index access is out of bounds
-        let tmp%31#1: bytes = ((extract 0 8) array%item3%1#1) // on error: Index access is out of bounds
-        let tmp%32#0: uint64 = (+ i#0 2u)
-        let tmp%33#1: biguint = (itob tmp%32#0)
-        let tmp%34#1: bool = (b== tmp%31#1 tmp%33#1)
-        (assert tmp%34#1)
-        let tmp%42#0: bytes = ((extract 8 8) array%item3%1#1) // on error: Index access is out of bounds
-        let tmp%45#0: uint64 = (* i#8 i#8)
-        let tmp%46#1: biguint = (itob tmp%45#0)
-        let tmp%47#1: bool = (b== tmp%42#0 tmp%46#1)
-        (assert tmp%47#1)
+        let tmp%19#2: bool = (== tmp%17#0 i#8)
+        (assert tmp%19#2)
+        let extract%14#0: bytes = ((extract 48 16) extract%2#0)
+        let extract%16#0: bytes = ((extract 0 8) extract%14#0)
+        let tmp%23#0: uint64 = (+ i#0 2u)
+        let tmp%24#1: biguint = (itob tmp%23#0)
+        let tmp%25#1: bool = (b== extract%16#0 tmp%24#1)
+        (assert tmp%25#1)
+        let extract%25#0: bytes = ((extract 8 8) extract%14#0)
+        let tmp%31#1: uint64 = (* i#8 i#8)
+        let tmp%32#1: biguint = (itob tmp%31#1)
+        let tmp%33#1: bool = (b== extract%25#0 tmp%32#1)
+        (assert tmp%33#1)
         let i#0: uint64 = i#8
         goto block@6
     block@8: // after_for_L49
@@ -116,7 +116,7 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         (box_del "a")
         (box_put "a" replace%0#1)
         let encoded_element%0#2: bytes = ((extract 0 144) slot_contents%3#0) // on error: index access is out of bounds
-        let last_point.x#0: Encoded(uint64) = ((extract 0 8) encoded_element%0#2) // on error: Index access is out of bounds
+        let last_point.x#0: Encoded(uint64) = ((extract 0 8) encoded_element%0#2)
         let last_point.y#0: uint64 = (extract_uint64 encoded_element%0#2 8u)
         let length#0: uint64 = 0u
         let array%bytes_len%0#1: uint64 = (len slot_contents%3#0)
@@ -130,23 +130,23 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let slot_contents%2#1: Encoded(uint64[]) = read(local.0)
         let bytes_offset%1#0: uint64 = (* point_idx#0 144u)
         let encoded_element%1#0: bytes = (extract3 slot_contents%2#1 bytes_offset%1#0 144u) // on error: index access is out of bounds
-        let point.x#0: Encoded(uint64) = ((extract 0 8) encoded_element%1#0) // on error: Index access is out of bounds
+        let point.x#0: Encoded(uint64) = ((extract 0 8) encoded_element%1#0)
         let point.y#0: uint64 = (extract_uint64 encoded_element%1#0 8u)
-        let tmp%14#1: bool = (b< point.x#0 last_point.x#0)
-        goto tmp%14#1 ? block@41 : block@42
+        let tmp%6#4: bool = (b< point.x#0 last_point.x#0)
+        goto tmp%6#4 ? block@41 : block@42
     block@41: // if_body_L155
-        let tmp%15#3: uint64 = (extract_uint64 encoded_element%0#2 0u)
-        let tmp%16#3: uint64 = (extract_uint64 encoded_element%1#0 0u)
-        let dx#0: uint64 = (- tmp%15#3 tmp%16#3)
+        let tmp%7#3: uint64 = (extract_uint64 encoded_element%0#2 0u)
+        let tmp%8#1: uint64 = (extract_uint64 encoded_element%1#0 0u)
+        let dx#0: uint64 = (- tmp%7#3 tmp%8#1)
         goto block@43
     block@42: // else_body_L157
-        let tmp%18#3: uint64 = (extract_uint64 encoded_element%1#0 0u)
-        let tmp%19#0: uint64 = (extract_uint64 encoded_element%0#2 0u)
-        let dx#0: uint64 = (- tmp%18#3 tmp%19#0)
+        let tmp%10#2: uint64 = (extract_uint64 encoded_element%1#0 0u)
+        let tmp%11#0: uint64 = (extract_uint64 encoded_element%0#2 0u)
+        let dx#0: uint64 = (- tmp%10#2 tmp%11#0)
         goto block@43
     block@43: // after_if_else_L154
-        let tmp%21#1: bool = (< point.y#0 last_point.y#0)
-        goto tmp%21#1 ? block@44 : block@45
+        let tmp%13#3: bool = (< point.y#0 last_point.y#0)
+        goto tmp%13#3 ? block@44 : block@45
     block@44: // if_body_L159
         let dy#0: uint64 = (- last_point.y#0 point.y#0)
         goto block@46
@@ -154,11 +154,11 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let dy#0: uint64 = (- point.y#0 last_point.y#0)
         goto block@46
     block@46: // after_if_else_L158
-        let tmp%24#2: uint64 = (* dx#0 dx#0)
-        let tmp%25#0: uint64 = (* dy#0 dy#0)
-        let tmp%26#2: uint64 = (+ tmp%24#2 tmp%25#0)
-        let tmp%27#2: uint64 = (sqrt tmp%26#2)
-        let length#0: uint64 = (+ length#0 tmp%27#2)
+        let tmp%16#2: uint64 = (* dx#0 dx#0)
+        let tmp%17#0: uint64 = (* dy#0 dy#0)
+        let tmp%18#2: uint64 = (+ tmp%16#2 tmp%17#0)
+        let tmp%19#0: uint64 = (sqrt tmp%18#2)
+        let length#0: uint64 = (+ length#0 tmp%19#0)
         let point_idx#0: uint64 = (+ point_idx#0 1u)
         goto block@39
     block@47: // after_for_L152
@@ -175,8 +175,8 @@ main test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_in
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
         let reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0: Encoded(((uint64,uint64),(uint64,uint64))) = (txna ApplicationArgs 1)
-        let some_more.0#0: Encoded((uint64,uint64)) = ((extract 0 16) reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0) // on error: Index access is out of bounds
-        let some_more.1#0: Encoded((uint64,uint64)) = ((extract 16 16) reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0) // on error: Index access is out of bounds
+        let some_more.0#0: Encoded((uint64,uint64)) = ((extract 0 16) reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0)
+        let some_more.1#0: Encoded((uint64,uint64)) = ((extract 16 16) reinterpret_Encoded(((uint64,uint64),(uint64,uint64)))%0#0)
         let encoded%2#4: Encoded(((uint64,uint64),(uint64,uint64))) = (concat some_more.0#0 some_more.1#0)
         write(local.1, encoded%2#4)
         let array%bytes_len%1#1: uint64 = (len encoded%2#4)

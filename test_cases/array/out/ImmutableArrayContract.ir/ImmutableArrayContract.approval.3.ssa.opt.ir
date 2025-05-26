@@ -220,9 +220,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%103#0: uint64 = (txn ApplicationID)
         (assert tmp%103#0) // can only call when not creating
         let reinterpret_Encoded((uint64,uint64))%1#0: Encoded((uint64,uint64)) = (txna ApplicationArgs 1)
-        let item0%0#0: bytes = ((extract 0 8) reinterpret_Encoded((uint64,uint64))%1#0) // on error: Index access is out of bounds
-        let item1%0#0: bytes = ((extract 8 8) reinterpret_Encoded((uint64,uint64))%1#0) // on error: Index access is out of bounds
-        let tmp%105#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_concat_with_native_tuple(item0%0#0, item1%0#0)
+        let extract%0#0: bytes = ((extract 0 8) reinterpret_Encoded((uint64,uint64))%1#0)
+        let extract%1#0: bytes = ((extract 8 8) reinterpret_Encoded((uint64,uint64))%1#0)
+        let tmp%105#0: Encoded(len+uint64[]) = test_cases.array.immutable.ImmutableArrayContract.test_concat_with_native_tuple(extract%0#0, extract%1#0)
         let tmp%106#0: bytes = (concat 0x151f7c75 tmp%105#0)
         (log tmp%106#0)
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#18: bool = 1u
@@ -246,12 +246,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%115#0: uint64 = (txn ApplicationID)
         (assert tmp%115#0) // can only call when not creating
         let reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0: Encoded((len+utf8[],len+utf8[])) = (txna ApplicationArgs 1)
-        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0 0u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0 2u)
-        let item0%1#0: bytes = (substring3 reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item_end_offset%1#0: uint64 = (len reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0)
-        let item1%1#0: bytes = (substring3 reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0 item_end_offset%0#0 item_end_offset%1#0)
-        let tmp%117#0: Encoded(len+len+utf8[][]) = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple(item0%1#0, item1%1#0)
+        let extract_uint16%0#0: uint64 = (extract_uint16 reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0 0u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0 2u)
+        let substring3%0#0: bytes = (substring3 reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0 extract_uint16%0#0 extract_uint16%1#0)
+        let len%0#0: uint64 = (len reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0)
+        let substring3%1#0: bytes = (substring3 reinterpret_Encoded((len+utf8[],len+utf8[]))%1#0 extract_uint16%1#0 len%0#0)
+        let tmp%117#0: Encoded(len+len+utf8[][]) = test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple(substring3%0#0, substring3%1#0)
         let tmp%118#0: bytes = (concat 0x151f7c75 tmp%117#0)
         (log tmp%118#0)
         let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#20: bool = 1u
@@ -521,8 +521,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let length%2#0: uint64 = 0x0001000000000000002a.length
         let tmp%2#0: uint64 = (- length%2#0 1u)
         let bytes_offset%0#0: uint64 = (* tmp%2#0 8u)
-        let encoded_element%0#0: bytes = (extract3 0x000000000000002a bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let tmp%3#0: uint64 = decode<uint64>(encoded_element%0#0)
+        let tmp%3#0: uint64 = (extract_uint64 0x000000000000002a bytes_offset%0#0)
         let tmp%4#0: bool = (== tmp%3#0 42u)
         (assert tmp%4#0)
         let arr#2: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(0x0001000000000000002a, 5u)
@@ -533,8 +532,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%7#0: uint64 = (- length%4#0 1u)
         let array_trimmed%1#0: bytes = ((extract 2 0) arr#2)
         let bytes_offset%1#0: uint64 = (* tmp%7#0 8u)
-        let encoded_element%1#0: bytes = (extract3 array_trimmed%1#0 bytes_offset%1#0 8u) // on error: index access is out of bounds
-        let tmp%8#0: uint64 = decode<uint64>(encoded_element%1#0)
+        let tmp%8#0: uint64 = (extract_uint64 array_trimmed%1#0 bytes_offset%1#0)
         let tmp%9#0: bool = (== tmp%8#0 4u)
         (assert tmp%9#0)
         let concat%1#0: Encoded(len+uint64[]) = (concat arr#2 0x000000000000002b) // on error: max array length exceeded
@@ -551,12 +549,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%11#0: uint64 = (- length%6#0 1u)
         let array_trimmed%2#0: bytes = ((extract 2 0) arr#3)
         let bytes_offset%2#0: uint64 = (* tmp%11#0 8u)
-        let encoded_element%2#0: bytes = (extract3 array_trimmed%2#0 bytes_offset%2#0 8u) // on error: index access is out of bounds
-        let tmp%12#0: uint64 = decode<uint64>(encoded_element%2#0)
+        let tmp%12#0: uint64 = (extract_uint64 array_trimmed%2#0 bytes_offset%2#0)
         let tmp%13#0: bool = (== tmp%12#0 43u)
         (assert tmp%13#0)
-        let encoded_element%3#0: bytes = ((extract 2 8) arr#3)
-        let tmp%14#0: uint64 = decode<uint64>(encoded_element%3#0)
+        let tmp%14#0: uint64 = (extract_uint64 arr#3 2u)
         let tmp%15#0: bool = (== tmp%14#0 42u)
         (assert tmp%15#0)
         let _i#0: uint64 = 0u
@@ -579,8 +575,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%18#0: uint64 = (- length%8#0 1u)
         let array_trimmed%4#0: bytes = ((extract 2 0) arr#9)
         let bytes_offset%4#0: uint64 = (* tmp%18#0 8u)
-        let encoded_element%4#0: bytes = (extract3 array_trimmed%4#0 bytes_offset%4#0 8u) // on error: index access is out of bounds
-        let tmp%19#0: uint64 = decode<uint64>(encoded_element%4#0)
+        let tmp%19#0: uint64 = (extract_uint64 array_trimmed%4#0 bytes_offset%4#0)
         let tmp%20#0: bool = (== tmp%19#0 2u)
         (assert tmp%20#0)
         let arr#5: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#9, 10u)
@@ -591,8 +586,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%23#0: uint64 = (- length%10#0 1u)
         let array_trimmed%5#0: bytes = ((extract 2 0) arr#5)
         let bytes_offset%5#0: uint64 = (* tmp%23#0 8u)
-        let encoded_element%5#0: bytes = (extract3 array_trimmed%5#0 bytes_offset%5#0 8u) // on error: index access is out of bounds
-        let tmp%24#0: uint64 = decode<uint64>(encoded_element%5#0)
+        let tmp%24#0: uint64 = (extract_uint64 array_trimmed%5#0 bytes_offset%5#0)
         let tmp%25#0: bool = (== tmp%24#0 9u)
         (assert tmp%25#0)
         let concat%2#0: Encoded(len+uint64[]) = (concat arr#5 0x000000000000002c) // on error: max array length exceeded
@@ -609,8 +603,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%27#0: uint64 = (- length%12#0 1u)
         let array_trimmed%6#0: bytes = ((extract 2 0) arr#6)
         let bytes_offset%6#0: uint64 = (* tmp%27#0 8u)
-        let encoded_element%6#0: bytes = (extract3 array_trimmed%6#0 bytes_offset%6#0 8u) // on error: index access is out of bounds
-        let tmp%28#0: uint64 = decode<uint64>(encoded_element%6#0)
+        let tmp%28#0: uint64 = (extract_uint64 array_trimmed%6#0 bytes_offset%6#0)
         let tmp%29#0: bool = (== tmp%28#0 44u)
         (assert tmp%29#0)
         let tmp%30#0: Encoded(uint64) = encode<uint64>(23u)
@@ -618,8 +611,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let length%13#0: uint64 = arr#7.length
         let tmp%31#0: bool = (== length%13#0 15u)
         (assert tmp%31#0)
-        let encoded_element%7#0: bytes = ((extract 18 8) arr#7)
-        let tmp%32#0: uint64 = decode<uint64>(encoded_element%7#0)
+        let tmp%32#0: uint64 = (extract_uint64 arr#7 18u)
         let tmp%33#0: bool = (== tmp%32#0 23u)
         (assert tmp%33#0)
         (app_global_put "a" arr#7)
@@ -650,9 +642,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(
         let array_trimmed%0#0: bytes = ((extract 2 0) arr#1)
         let bytes_offset%0#0: uint64 = (* tmp%5#0 64u)
         let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 64u) // on error: index access is out of bounds
-        let tmp%6#0: biguint = decode<biguint>(encoded_element%0#0)
-        let tmp%7#0: bool = (b== tmp%6#0 0b)
-        (assert tmp%7#0)
+        let tmp%6#0: bool = (b== encoded_element%0#0 0b)
+        (assert tmp%6#0)
         let i#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L463
@@ -674,23 +665,22 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(
         goto block@2
     block@4: // after_for_L463
         let length%3#0: uint64 = arr#6.length
-        let tmp%9#0: bool = (== length%3#0 6u)
-        (assert tmp%9#0)
+        let tmp%8#0: bool = (== length%3#0 6u)
+        (assert tmp%8#0)
         let length%4#0: uint64 = arr#6.length
-        let tmp%10#0: uint64 = (- length%4#0 1u)
+        let tmp%9#0: uint64 = (- length%4#0 1u)
         let array_trimmed%1#0: bytes = ((extract 2 0) arr#6)
-        let bytes_offset%1#0: uint64 = (* tmp%10#0 64u)
+        let bytes_offset%1#0: uint64 = (* tmp%9#0 64u)
         let encoded_element%1#0: bytes = (extract3 array_trimmed%1#0 bytes_offset%1#0 64u) // on error: index access is out of bounds
-        let tmp%11#0: biguint = decode<biguint>(encoded_element%1#0)
-        let tmp%12#0: bool = (b== tmp%11#0 4b)
-        (assert tmp%12#0)
-        let tmp%13#0: uint64 = (txn NumAppArgs)
-        let tmp%14#0: biguint = (itob tmp%13#0)
-        let tmp%15#0: biguint = (b- 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b tmp%14#0)
-        let value_len%1#0: uint64 = (len tmp%15#0)
+        let tmp%10#0: bool = (b== encoded_element%1#0 4b)
+        (assert tmp%10#0)
+        let tmp%11#0: uint64 = (txn NumAppArgs)
+        let tmp%12#0: biguint = (itob tmp%11#0)
+        let tmp%13#0: biguint = (b- 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b tmp%12#0)
+        let value_len%1#0: uint64 = (len tmp%13#0)
         let len_ok%1#0: bool = (<= value_len%1#0 64u)
         (assert len_ok%1#0) // overflow
-        let arc4_encoded%1#0: bytes[64] = (b| tmp%15#0 bzero%0#0)
+        let arc4_encoded%1#0: bytes[64] = (b| tmp%13#0 bzero%0#0)
         let concat%1#0: Encoded(len+uint512[]) = (concat arr#6 arc4_encoded%1#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%1#0)
         let len%1#0: uint64 = (len extract_to_end%1#0)
@@ -699,20 +689,18 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%2#0)
         let arr#3: Encoded(len+uint512[]) = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
         let length%5#0: uint64 = arr#3.length
-        let tmp%16#0: bool = (== length%5#0 7u)
-        (assert tmp%16#0)
+        let tmp%14#0: bool = (== length%5#0 7u)
+        (assert tmp%14#0)
         let length%6#0: uint64 = arr#3.length
-        let tmp%17#0: uint64 = (- length%6#0 1u)
+        let tmp%15#0: uint64 = (- length%6#0 1u)
         let array_trimmed%2#0: bytes = ((extract 2 0) arr#3)
-        let bytes_offset%2#0: uint64 = (* tmp%17#0 64u)
+        let bytes_offset%2#0: uint64 = (* tmp%15#0 64u)
         let encoded_element%2#0: bytes = (extract3 array_trimmed%2#0 bytes_offset%2#0 64u) // on error: index access is out of bounds
-        let tmp%18#0: biguint = decode<biguint>(encoded_element%2#0)
-        let tmp%19#0: bool = (b== tmp%18#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084094b)
-        (assert tmp%19#0)
+        let tmp%16#0: bool = (b== encoded_element%2#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084094b)
+        (assert tmp%16#0)
         let encoded_element%3#0: bytes = ((extract 2 64) arr#3)
-        let tmp%20#0: biguint = decode<biguint>(encoded_element%3#0)
-        let tmp%21#0: bool = (b== tmp%20#0 0b)
-        (assert tmp%21#0)
+        let tmp%17#0: bool = (b== encoded_element%3#0 0b)
+        (assert tmp%17#0)
         let concat%2#0: Encoded(len+uint512[]) = (concat arr#3 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) // on error: max array length exceeded
         let extract_to_end%2#0: bytes = ((extract 2 0) concat%2#0)
         let len%2#0: uint64 = (len extract_to_end%2#0)
@@ -721,20 +709,18 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(
         let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%3#0)
         let arr#4: Encoded(len+uint512[]) = ((replace2 0) concat%2#0 as_u16_bytes%2#0)
         let length%7#0: uint64 = arr#4.length
-        let tmp%22#0: bool = (== length%7#0 8u)
-        (assert tmp%22#0)
+        let tmp%18#0: bool = (== length%7#0 8u)
+        (assert tmp%18#0)
         let length%8#0: uint64 = arr#4.length
-        let tmp%23#0: uint64 = (- length%8#0 1u)
+        let tmp%19#0: uint64 = (- length%8#0 1u)
         let array_trimmed%4#0: bytes = ((extract 2 0) arr#4)
-        let bytes_offset%4#0: uint64 = (* tmp%23#0 64u)
+        let bytes_offset%4#0: uint64 = (* tmp%19#0 64u)
         let encoded_element%4#0: bytes = (extract3 array_trimmed%4#0 bytes_offset%4#0 64u) // on error: index access is out of bounds
-        let tmp%24#0: biguint = decode<biguint>(encoded_element%4#0)
-        let tmp%25#0: bool = (b== tmp%24#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
-        (assert tmp%25#0)
+        let tmp%20#0: bool = (b== encoded_element%4#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
+        (assert tmp%20#0)
         let encoded_element%5#0: bytes = ((extract 2 64) arr#4)
-        let tmp%26#0: biguint = decode<biguint>(encoded_element%5#0)
-        let tmp%27#0: bool = (b== tmp%26#0 0b)
-        (assert tmp%27#0)
+        let tmp%21#0: bool = (b== encoded_element%5#0 0b)
+        (assert tmp%21#0)
         (box_del 0x62696775696e74)
         (box_put 0x62696775696e74 arr#4)
         return 
@@ -769,44 +755,48 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         (assert length%2#0) // index access is out of bounds
         let array_trimmed%0#0: bytes = ((extract 2 0) arr#1)
         let is_true%0#0: bool = (getbit array_trimmed%0#0 0u)
-        let tmp%5#0: bool = (! is_true%0#0)
-        (assert tmp%5#0) // expected element 0 to be False
+        let tmp%5#0: bool = (getbit is_true%0#0 0u)
+        let tmp%6#0: bool = (! tmp%5#0)
+        (assert tmp%6#0) // expected element 0 to be False
         goto block@6
     block@6: // after_if_else_L153
-        let tmp%6#0: bool = (> length#0 1u)
-        goto tmp%6#0 ? block@7 : block@8
+        let tmp%7#0: bool = (> length#0 1u)
+        goto tmp%7#0 ? block@7 : block@8
     block@7: // if_body_L156
         let length%3#0: uint64 = arr#1.length
         let lt%1#0: bool = (< 1u length%3#0)
         (assert lt%1#0) // index access is out of bounds
         let array_trimmed%1#0: bytes = ((extract 2 0) arr#1)
         let is_true%1#0: bool = (getbit array_trimmed%1#0 1u)
-        let tmp%7#0: bool = (! is_true%1#0)
-        (assert tmp%7#0) // expected element 1 to be False
+        let tmp%8#0: bool = (getbit is_true%1#0 0u)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // expected element 1 to be False
         goto block@8
     block@8: // after_if_else_L155
-        let tmp%8#0: bool = (> length#0 2u)
-        goto tmp%8#0 ? block@9 : block@10
+        let tmp%10#0: bool = (> length#0 2u)
+        goto tmp%10#0 ? block@9 : block@10
     block@9: // if_body_L158
         let length%4#0: uint64 = arr#1.length
         let lt%2#0: bool = (< 2u length%4#0)
         (assert lt%2#0) // index access is out of bounds
         let array_trimmed%2#0: bytes = ((extract 2 0) arr#1)
         let is_true%2#0: bool = (getbit array_trimmed%2#0 2u)
-        (assert is_true%2#0) // expected element 2 to be True
+        let tmp%11#0: bool = (getbit is_true%2#0 0u)
+        (assert tmp%11#0) // expected element 2 to be True
         goto block@10
     block@10: // after_if_else_L157
-        let tmp%9#0: bool = (> length#0 3u)
-        goto tmp%9#0 ? block@11 : block@12
+        let tmp%12#0: bool = (> length#0 3u)
+        goto tmp%12#0 ? block@11 : block@12
     block@11: // if_body_L160
-        let tmp%10#0: uint64 = (- length#0 1u)
+        let tmp%13#0: uint64 = (- length#0 1u)
         let length%5#0: uint64 = arr#1.length
-        let lt%3#0: bool = (< tmp%10#0 length%5#0)
+        let lt%3#0: bool = (< tmp%13#0 length%5#0)
         (assert lt%3#0) // index access is out of bounds
         let array_trimmed%3#0: bytes = ((extract 2 0) arr#1)
-        let is_true%3#0: bool = (getbit array_trimmed%3#0 tmp%10#0)
-        let tmp%11#0: bool = (! is_true%3#0)
-        (assert tmp%11#0) // expected last element to be False
+        let is_true%3#0: bool = (getbit array_trimmed%3#0 tmp%13#0)
+        let tmp%14#0: bool = (getbit is_true%3#0 0u)
+        let tmp%15#0: bool = (! tmp%14#0)
+        (assert tmp%15#0) // expected last element to be False
         goto block@12
     block@12: // after_if_else_L159
         (app_global_put "g" arr#1)
@@ -824,9 +814,9 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let tmp%11#1: uint64 = (+ 2u tmp%10#1)
         let result#2: bytes = (substring3 result#1 0u tmp%11#1)
         let length%6#0: uint64 = result#2.length
-        let tmp%15#0: uint64 = (- length#0 1u)
-        let tmp%16#0: bool = (== length%6#0 tmp%15#0)
-        (assert tmp%16#0)
+        let tmp%19#0: uint64 = (- length#0 1u)
+        let tmp%20#0: bool = (== length%6#0 tmp%19#0)
+        (assert tmp%20#0)
         goto block@14
     block@14: // after_if_else_L163
         return 
@@ -864,7 +854,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         (assert tmp%3#0)
         let array_trimmed%0#0: bytes = ((extract 2 0) arr#1)
         let encoded_element%0#0: bytes = ((extract 2 16) arr#1)
-        let (tmp%4#0: uint64, tmp%5#0: uint64) = decode<(uint64,uint64,)>(encoded_element%0#0)
+        let tmp%4#0: uint64 = (extract_uint64 encoded_element%0#0 0u)
+        let tmp%5#0: uint64 = (extract_uint64 encoded_element%0#0 8u)
         let tmp%6#0: bool = (== tmp%4#0 1u)
         let tmp%7#0: bool = (== tmp%5#0 2u)
         let tmp%8#0: bool = (&& tmp%6#0 tmp%7#0)
@@ -873,7 +864,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         let tmp%9#0: uint64 = (- length%2#0 1u)
         let bytes_offset%1#0: uint64 = (* tmp%9#0 16u)
         let encoded_element%1#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%1#0 16u) // on error: index access is out of bounds
-        let (tmp%10#0: uint64, tmp%11#0: uint64) = decode<(uint64,uint64,)>(encoded_element%1#0)
+        let tmp%10#0: uint64 = (extract_uint64 encoded_element%1#0 0u)
+        let tmp%11#0: uint64 = (extract_uint64 encoded_element%1#0 8u)
         let tmp%12#0: bool = (== tmp%10#0 5u)
         let tmp%13#0: bool = (== tmp%11#0 6u)
         let tmp%14#0: bool = (&& tmp%12#0 tmp%13#0)
@@ -885,7 +877,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         (assert tmp%19#0)
         let array_trimmed%2#0: bytes = ((extract 2 0) arr#3)
         let encoded_element%2#0: bytes = ((extract 2 16) arr#3)
-        let (tmp%20#0: uint64, tmp%21#0: uint64) = decode<(uint64,uint64,)>(encoded_element%2#0)
+        let tmp%20#0: uint64 = (extract_uint64 encoded_element%2#0 0u)
+        let tmp%21#0: uint64 = (extract_uint64 encoded_element%2#0 8u)
         let tmp%22#0: bool = (== tmp%20#0 1u)
         let tmp%23#0: bool = (== tmp%21#0 2u)
         let tmp%24#0: bool = (&& tmp%22#0 tmp%23#0)
@@ -894,7 +887,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         let tmp%25#0: uint64 = (- length%4#0 1u)
         let bytes_offset%3#0: uint64 = (* tmp%25#0 16u)
         let encoded_element%3#0: bytes = (extract3 array_trimmed%2#0 bytes_offset%3#0 16u) // on error: index access is out of bounds
-        let (tmp%26#0: uint64, tmp%27#0: uint64) = decode<(uint64,uint64,)>(encoded_element%3#0)
+        let tmp%26#0: uint64 = (extract_uint64 encoded_element%3#0 0u)
+        let tmp%27#0: uint64 = (extract_uint64 encoded_element%3#0 8u)
         let tmp%28#0: bool = (== tmp%26#0 4u)
         let tmp%29#0: bool = (== tmp%27#0 5u)
         let tmp%30#0: bool = (&& tmp%28#0 tmp%29#0)
@@ -939,7 +933,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_nam
         let tmp%6#0: bool = (== length%1#0 5u)
         (assert tmp%6#0)
         let encoded_element%0#0: bytes = ((extract 2 9) arr#1)
-        let (foo#0: uint64, bar#0: bool, baz#0: bool) = decode<(uint64,bool,bool,)>(encoded_element%0#0)
+        let foo#0: uint64 = (extract_uint64 encoded_element%0#0 0u)
+        let get_bit%0#0: uint64 = (getbit encoded_element%0#0 64u)
+        let bar#0: bool = (getbit get_bit%0#0 0u)
+        let get_bit%1#0: uint64 = (getbit encoded_element%0#0 65u)
+        let baz#0: bool = (getbit get_bit%1#0 0u)
         let tmp%10#0: bool = (! foo#0)
         (assert tmp%10#0)
         (assert bar#0)
@@ -997,14 +995,17 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let next_item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 next_item_offset_offset%0#0)
         let end_offset%0#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%0#0)
         let substring3%0#0: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%0#0)
-        let (tmp%4#0: uint64, tmp%5#0: bytes) = decode<(uint64,bytes,)>(substring3%0#0)
+        let tmp%4#0: uint64 = (extract_uint64 substring3%0#0 0u)
         let tmp%7#0: bool = (== tmp%4#0 i#5)
         (assert tmp%7#0) // expected 1st element to be correct
         let length%4#0: uint64 = arr#1.length
         let has_next%1#0: uint64 = (- length%4#0 i#5) // on error: index access is out of bounds
         let end_offset%1#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%1#0)
-        let substring3%1#0: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%1#0)
-        let (tmp%8#0: uint64, tmp%9#0: bytes) = decode<(uint64,bytes,)>(substring3%1#0)
+        let substring3%2#0: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%1#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 substring3%2#0 8u)
+        let len%1#0: uint64 = (len substring3%2#0)
+        let substring3%3#0: bytes = (substring3 substring3%2#0 extract_uint16%2#0 len%1#0)
+        let tmp%9#0: bytes = ((extract 2 0) substring3%3#0)
         let tmp%10#0: uint64 = (len tmp%9#0)
         let tmp%11#0: bool = (== tmp%10#0 i#4)
         (assert tmp%11#0) // expected 2nd element to be correct
@@ -1022,8 +1023,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let end_of_array%2#0: uint64 = (len array_head_and_tail%2#0)
         let next_item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%2#0 2u)
         let end_offset%2#0: uint64 = (select end_of_array%2#0 next_item_offset%2#0 has_next%2#0)
-        let substring3%2#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%2#0 end_offset%2#0)
-        let (tmp%17#0: uint64, tmp%18#0: bytes) = decode<(uint64,bytes,)>(substring3%2#0)
+        let substring3%4#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%2#0 end_offset%2#0)
+        let tmp%17#0: uint64 = (extract_uint64 substring3%4#0 0u)
+        let extract_uint16%3#0: uint64 = (extract_uint16 substring3%4#0 8u)
+        let len%2#0: uint64 = (len substring3%4#0)
+        let substring3%5#0: bytes = (substring3 substring3%4#0 extract_uint16%3#0 len%2#0)
+        let tmp%18#0: bytes = ((extract 2 0) substring3%5#0)
         let tmp%19#0: bool = (== tmp%17#0 1u)
         let tmp%20#0: bytes = (bzero 0u)
         let tmp%21#0: bool = (== tmp%18#0 tmp%20#0)
@@ -1039,8 +1044,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let next_item_offset_offset%3#0: uint64 = (* next_index%3#0 2u)
         let next_item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%2#0 next_item_offset_offset%3#0)
         let end_offset%3#0: uint64 = (select end_of_array%2#0 next_item_offset%3#0 has_next%3#0)
-        let substring3%3#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%3#0 end_offset%3#0)
-        let (tmp%24#0: uint64, tmp%25#0: bytes) = decode<(uint64,bytes,)>(substring3%3#0)
+        let substring3%6#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%3#0 end_offset%3#0)
+        let tmp%24#0: uint64 = (extract_uint64 substring3%6#0 0u)
+        let extract_uint16%4#0: uint64 = (extract_uint16 substring3%6#0 8u)
+        let len%3#0: uint64 = (len substring3%6#0)
+        let substring3%7#0: bytes = (substring3 substring3%6#0 extract_uint16%4#0 len%3#0)
+        let tmp%25#0: bytes = ((extract 2 0) substring3%7#0)
         let tmp%26#0: bool = (== tmp%24#0 4u)
         let tmp%27#0: bytes = (bzero 3u)
         let tmp%28#0: bool = (== tmp%25#0 tmp%27#0)
@@ -1099,14 +1108,17 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let next_item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 next_item_offset_offset%0#0)
         let end_offset%0#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%0#0)
         let substring3%0#0: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%0#0)
-        let (tmp%4#0: uint64, tmp%5#0: string) = decode<(uint64,string,)>(substring3%0#0)
+        let tmp%4#0: uint64 = (extract_uint64 substring3%0#0 0u)
         let tmp%7#0: bool = (== tmp%4#0 i#5)
         (assert tmp%7#0) // expected 1st element to be correct
         let length%4#0: uint64 = arr#1.length
         let has_next%1#0: uint64 = (- length%4#0 i#5) // on error: index access is out of bounds
         let end_offset%1#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%1#0)
-        let substring3%1#0: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%1#0)
-        let (tmp%8#0: uint64, tmp%9#0: string) = decode<(uint64,string,)>(substring3%1#0)
+        let substring3%2#0: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%1#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 substring3%2#0 8u)
+        let len%1#0: uint64 = (len substring3%2#0)
+        let substring3%3#0: bytes = (substring3 substring3%2#0 extract_uint16%2#0 len%1#0)
+        let tmp%9#0: bytes = ((extract 2 0) substring3%3#0)
         let tmp%10#0: string = test_cases.array.immutable.times(i#4)
         let tmp%11#0: bool = (== tmp%9#0 tmp%10#0)
         (assert tmp%11#0) // expected 2nd element to be correct
@@ -1124,8 +1136,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let end_of_array%2#0: uint64 = (len array_head_and_tail%2#0)
         let next_item_offset%2#0: uint64 = (extract_uint16 array_head_and_tail%2#0 2u)
         let end_offset%2#0: uint64 = (select end_of_array%2#0 next_item_offset%2#0 has_next%2#0)
-        let substring3%2#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%2#0 end_offset%2#0)
-        let (tmp%17#0: uint64, tmp%18#0: string) = decode<(uint64,string,)>(substring3%2#0)
+        let substring3%4#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%2#0 end_offset%2#0)
+        let tmp%17#0: uint64 = (extract_uint64 substring3%4#0 0u)
+        let extract_uint16%3#0: uint64 = (extract_uint16 substring3%4#0 8u)
+        let len%2#0: uint64 = (len substring3%4#0)
+        let substring3%5#0: bytes = (substring3 substring3%4#0 extract_uint16%3#0 len%2#0)
+        let tmp%18#0: bytes = ((extract 2 0) substring3%5#0)
         let tmp%19#0: bool = (== tmp%17#0 1u)
         let tmp%20#0: bool = (== tmp%18#0 "")
         let tmp%21#0: bool = (&& tmp%19#0 tmp%20#0)
@@ -1140,8 +1156,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let next_item_offset_offset%3#0: uint64 = (* next_index%3#0 2u)
         let next_item_offset%3#0: uint64 = (extract_uint16 array_head_and_tail%2#0 next_item_offset_offset%3#0)
         let end_offset%3#0: uint64 = (select end_of_array%2#0 next_item_offset%3#0 has_next%3#0)
-        let substring3%3#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%3#0 end_offset%3#0)
-        let (tmp%23#0: uint64, tmp%24#0: string) = decode<(uint64,string,)>(substring3%3#0)
+        let substring3%6#0: bytes = (substring3 array_head_and_tail%2#0 item_offset%3#0 end_offset%3#0)
+        let tmp%23#0: uint64 = (extract_uint64 substring3%6#0 0u)
+        let extract_uint16%4#0: uint64 = (extract_uint16 substring3%6#0 8u)
+        let len%3#0: uint64 = (len substring3%6#0)
+        let substring3%7#0: bytes = (substring3 substring3%6#0 extract_uint16%4#0 len%3#0)
+        let tmp%24#0: bytes = ((extract 2 0) substring3%7#0)
         let tmp%25#0: bool = (== tmp%23#0 4u)
         let tmp%26#0: bool = (== tmp%24#0 "   ")
         let tmp%27#0: bool = (&& tmp%25#0 tmp%26#0)
@@ -1227,8 +1247,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(a
     block@15: // for_body_L472
         let array_trimmed%0#0: bytes = ((extract 2 0) inner_arr#0)
         let bytes_offset%0#0: uint64 = (* item_index_internal%0#4 8u)
-        let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let i#3: uint64 = decode<uint64>(encoded_element%0#0)
+        let i#3: uint64 = (extract_uint64 array_trimmed%0#0 bytes_offset%0#0)
         let total#2: uint64 = (+ total#1 i#3)
         let item_index_internal%0#5: uint64 = (+ item_index_internal%0#4 1u)
         goto block@14
@@ -1366,8 +1385,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
     block@2: // for_body_L339
         let array_trimmed%0#0: bytes = ((extract 2 0) arr1#0)
         let bytes_offset%0#0: uint64 = (* item_index_internal%0#1 8u)
-        let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let i#0: uint64 = decode<uint64>(encoded_element%0#0)
+        let i#0: uint64 = (extract_uint64 array_trimmed%0#0 bytes_offset%0#0)
         let sum1#2: uint64 = (+ sum1#1 i#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
@@ -1382,7 +1400,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         goto continue_looping%1#0 ? block@6 : block@10
     block@6: // for_body_L341
         let array_trimmed%1#0: bytes = ((extract 2 0) arr2#0)
-        let b#0: bool = (getbit array_trimmed%1#0 item_index_internal%1#1)
+        let is_true%0#0: bool = (getbit array_trimmed%1#0 item_index_internal%1#1)
+        let b#0: bool = (getbit is_true%0#0 0u)
         goto b#0 ? block@7 : block@8
     block@7: // if_body_L342
         let sum2#2: uint64 = (+ sum2#1 1u)
@@ -1404,7 +1423,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let array_trimmed%2#0: bytes = ((extract 2 0) arr3#0)
         let bytes_offset%1#0: uint64 = (* item_index_internal%2#1 9u)
         let encoded_element%1#0: bytes = (extract3 array_trimmed%2#0 bytes_offset%1#0 9u) // on error: index access is out of bounds
-        let (tup.foo#0: uint64, tup.bar#0: bool, tup.baz#0: bool) = decode<(uint64,bool,bool,)>(encoded_element%1#0)
+        let tup.foo#0: uint64 = (extract_uint64 encoded_element%1#0 0u)
+        let get_bit%0#0: uint64 = (getbit encoded_element%1#0 64u)
+        let tup.bar#0: bool = (getbit get_bit%0#0 0u)
+        let get_bit%1#0: uint64 = (getbit encoded_element%1#0 65u)
+        let tup.baz#0: bool = (getbit get_bit%1#0 0u)
         let sum3#2: uint64 = (+ sum3#1 tup.foo#0)
         goto tup.bar#0 ? block@13 : block@14
     block@13: // if_body_L346
@@ -1441,12 +1464,16 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let next_item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 next_item_offset_offset%0#0)
         let end_offset%0#0: uint64 = (select end_of_array%0#0 next_item_offset%0#0 has_next%0#0)
         let substring3%0#0: bytes = (substring3 array_head_and_tail%0#0 item_offset%0#0 end_offset%0#0)
-        let (dyn_tup.foo#0: uint64, dyn_tup.bar#0: string) = decode<(uint64,string,)>(substring3%0#0)
+        let dyn_tup.foo#0: uint64 = (extract_uint64 substring3%0#0 0u)
+        let extract_uint16%0#0: uint64 = (extract_uint16 substring3%0#0 8u)
+        let len%0#0: uint64 = (len substring3%0#0)
+        let substring3%1#0: bytes = (substring3 substring3%0#0 extract_uint16%0#0 len%0#0)
+        let dyn_tup.bar#0: string = ((extract 2 0) substring3%1#0)
         let sum4#2: uint64 = (+ sum4#1 dyn_tup.foo#0)
-        let tmp%12#0: uint64 = (len dyn_tup.bar#0)
-        let sum4#3: uint64 = (+ sum4#2 tmp%12#0)
-        let tmp%15#0: bool = (== tmp%12#0 idx#0)
-        (assert tmp%15#0) // expected string length to match index
+        let tmp%13#0: uint64 = (len dyn_tup.bar#0)
+        let sum4#3: uint64 = (+ sum4#2 tmp%13#0)
+        let tmp%16#0: bool = (== tmp%13#0 idx#0)
+        (assert tmp%16#0) // expected string length to match index
         goto block@19
     block@22: // after_for_L349
         return sum1#1 sum2#1 sum3#1 sum4#1

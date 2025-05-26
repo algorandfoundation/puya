@@ -67,18 +67,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%18#0: bool = (!= tmp%17#0 0u)
         (assert tmp%18#0) // can only call when not creating
         let reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (txna ApplicationArgs 1)
-        let encoded_item0%0#0: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 0u 8u) // on error: Index access is out of bounds
-        let item0%0#0: uint64 = (btoi encoded_item0%0#0)
-        let encoded_item1%0#0: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 8u 64u) // on error: Index access is out of bounds
-        let item_start_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 72u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
-        let encoded_item2%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item2%0#0: bytes = ((extract 2 0) encoded_item2%0#0)
-        let item_start_offset%1#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
-        let item_end_offset%1#0: uint64 = (len reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0)
-        let encoded_item3%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 item_start_offset%1#0 item_end_offset%1#0)
-        let item3%0#0: bytes = ((extract 2 0) encoded_item3%0#0)
-        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(item0%0#0, encoded_item1%0#0, item2%0#0, item3%0#0)
+        let extract%0#0: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 0u 8u)
+        let tmp%19#0: uint64 = (btoi extract%0#0)
+        let extract%1#0: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 8u 64u)
+        let extract_uint16%0#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 72u)
+        let extract_uint16%1#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
+        let substring3%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 extract_uint16%0#0 extract_uint16%1#0)
+        let tmp%20#0: bytes = ((extract 2 0) substring3%0#0)
+        let extract_uint16%2#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
+        let len%0#0: uint64 = (len reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0)
+        let substring3%1#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 extract_uint16%2#0 len%0#0)
+        let tmp%21#0: bytes = ((extract 2 0) substring3%1#0)
+        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(tmp%19#0, extract%1#0, tmp%20#0, tmp%21#0)
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0
         goto block@12
@@ -87,12 +87,12 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@6: // switch_case_next_L15
         goto block@11
     block@7: // bare_routing_L15
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        switch tmp%19#0 {0u => block@8, * => block@9}
+        let tmp%22#0: uint64 = (txn OnCompletion)
+        switch tmp%22#0 {0u => block@8, * => block@9}
     block@8: // __algopy_default_create_L1
-        let tmp%20#0: uint64 = (txn ApplicationID)
-        let tmp%21#0: bool = (== tmp%20#0 0u)
-        (assert tmp%21#0) // can only call when creating
+        let tmp%23#0: uint64 = (txn ApplicationID)
+        let tmp%24#0: bool = (== tmp%23#0 0u)
+        (assert tmp%24#0) // can only call when creating
         goto block@13
     block@13: // L1
         goto block@14

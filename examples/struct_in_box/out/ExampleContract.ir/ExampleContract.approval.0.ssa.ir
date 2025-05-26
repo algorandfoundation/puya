@@ -79,8 +79,8 @@ subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: En
     block@0: // L17
         let user%is_original#0: bool = 1u
         let user%out#0: Encoded((len+utf8[],uint64,uint64)) = user#0
-        let tmp%0#0: bytes = (extract3 user#0 2u 8u) // on error: Index access is out of bounds
-        let box_key#0: bytes = tmp%0#0
+        let extract%0#0: bytes = (extract3 user#0 2u 8u)
+        let box_key#0: bytes = extract%0#0
         (box_del box_key#0)
         (box_put box_key#0 user#0)
         return user%out#0
@@ -94,10 +94,10 @@ subroutine examples.struct_in_box.contract.ExampleContract.box_exists(user_id: E
 
 subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[],uint64,uint64))) -> void:
     block@0: // L30
-        let tmp%0#0: bytes = (extract3 user#0 2u 8u) // on error: Index access is out of bounds
-        let tmp%1#0: bool = examples.struct_in_box.contract.ExampleContract.box_exists(tmp%0#0)
-        let tmp%2#0: bool = (! tmp%1#0)
-        (assert tmp%2#0) // User with id must not exist
+        let extract%0#0: bytes = (extract3 user#0 2u 8u)
+        let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.box_exists(extract%0#0)
+        let tmp%1#0: bool = (! tmp%0#0)
+        (assert tmp%1#0) // User with id must not exist
         let write_to_box%0#0: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
         let user#1: Encoded((len+utf8[],uint64,uint64)) = write_to_box%0#0
         return 
