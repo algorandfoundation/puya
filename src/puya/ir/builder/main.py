@@ -162,10 +162,7 @@ class FunctionIRBuilder(
                 mem.write_slot(self.context, new_slot, value, loc)
                 return new_slot
             case _:
-                original_value_vp = self.visit_expr(expr.value)
-                original_value = self.materialise_value_provider_as_value_or_tuple(
-                    original_value_vp, "tmp"
-                )
+                original_value = self.visit_and_materialise_as_value_or_tuple(expr.value)
                 return assign_temp(
                     temp_description="copy",
                     source=original_value,
@@ -188,7 +185,7 @@ class FunctionIRBuilder(
         value_ir_type, value_encoding = wtype_to_ir_type_and_encoding(expr.value.wtype, loc)
         encoding = wtype_to_encoding(expr.wtype, loc)
 
-        value = self.visit_expr(expr.value)
+        value = self.visit_and_materialise_as_value_or_tuple(expr.value)
         return arc4.encode_value_provider(self.context, value, value_ir_type, encoding, loc)
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
@@ -319,7 +316,7 @@ class FunctionIRBuilder(
         handle_assignment(
             self.context,
             target=expr.target,
-            value=new_value,
+            value=self.materialise_value_provider_as_value_or_tuple(new_value, "tmp"),
             is_nested_update=False,
             assignment_location=expr.source_location,
         )
@@ -343,7 +340,7 @@ class FunctionIRBuilder(
         handle_assignment(
             self.context,
             target=expr.target,
-            value=new_value,
+            value=self.materialise_value_provider_as_value_or_tuple(new_value, "tmp"),
             is_nested_update=False,
             assignment_location=expr.source_location,
         )
@@ -1167,7 +1164,7 @@ class FunctionIRBuilder(
         handle_assignment(
             self.context,
             target=statement.target,
-            value=expr,
+            value=self.materialise_value_provider_as_value_or_tuple(expr, "tmp"),
             is_nested_update=False,
             assignment_location=statement.source_location,
         )
@@ -1182,7 +1179,7 @@ class FunctionIRBuilder(
         handle_assignment(
             self.context,
             target=statement.target,
-            value=expr,
+            value=self.materialise_value_provider_as_value_or_tuple(expr, "tmp"),
             is_nested_update=False,
             assignment_location=statement.source_location,
         )
@@ -1203,7 +1200,7 @@ class FunctionIRBuilder(
         handle_assignment(
             self.context,
             target=statement.target,
-            value=value,
+            value=self.materialise_value_provider_as_value_or_tuple(value, "tmp"),
             is_nested_update=False,
             assignment_location=loc,
         )
@@ -1280,7 +1277,7 @@ class FunctionIRBuilder(
         builder = sequence.get_builder(self.context, expr.base.wtype, loc)
         array = self.context.visitor.visit_and_materialise_single(expr.base)
         index = self.context.visitor.visit_and_materialise_single(expr.index)
-        value = self.context.visitor.visit_expr(expr.value)
+        value = self.context.visitor.visit_and_materialise_as_value_or_tuple(expr.value)
 
         return builder.write_at_index(array, index, value)
 
@@ -1334,10 +1331,7 @@ class FunctionIRBuilder(
         # materialise expressions
         array_or_slot = self.context.visitor.visit_and_materialise_single(array_expr)
         array_ir_type = array_or_slot.ir_type
-        iterable_vp = self.context.visitor.visit_expr(iter_expr)
-        iterable = self.context.visitor.materialise_value_provider_as_value_or_tuple(
-            iterable_vp, "iterable"
-        )
+        iterable = self.context.visitor.visit_and_materialise_as_value_or_tuple(iter_expr)
         iterable_ir_type = wtype_to_ir_type(iterable_wtype, loc, allow_tuple=True)
         if isinstance(iterable_ir_type, SlotType):
             assert isinstance(iterable, Value), "expected Value for SlotType"
@@ -1413,6 +1407,19 @@ class FunctionIRBuilder(
                 expr.source_location,
             ) from ex
         return value
+
+    def visit_and_materialise_as_value_or_tuple(
+        self, expr: awst_nodes.Expression, temp_description: str | Sequence[str] = "tmp"
+    ) -> Value | ValueTuple:
+        value_seq_or_provider = self._visit_and_check_for_double_eval(
+            expr, materialise_as=temp_description
+        )
+        if value_seq_or_provider is None:
+            raise InternalError(
+                "No value produced by expression IR conversion", expr.source_location
+            )
+        assert isinstance(value_seq_or_provider, Value | ValueTuple)
+        return value_seq_or_provider
 
     def visit_and_materialise(
         self, expr: awst_nodes.Expression, temp_description: str | Sequence[str] = "tmp"
@@ -1600,7 +1607,3 @@ def create_bytes_binary_op(
                 source_location=source_location,
             )
     raise InternalError("Unsupported BytesBinaryOperator: " + op)
-
-
-def expect(obj: object, typ: type) -> None:
-    assert isinstance(obj, typ), f"expected {typ.__name__}, got: {obj}"
