@@ -24,6 +24,7 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     SlotType,
     TupleIRType,
+    type_has_encoding,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
@@ -193,8 +194,19 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
         return iterable_length, encoded_iterable
 
     def _as_array_type(self, value: ir.ValueProvider) -> ir.Value:
-        (ir_type,) = value.types
         return self.factory.as_ir_type(value, self.array_ir_type)
+
+    def _maybe_decode(self, encoded_item: ir.Value) -> ir.ValueProvider:
+        if type_has_encoding(self.element_ir_type, self.array_encoding.element):
+            return encoded_item
+        else:
+            encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
+            return ir.ValueDecode(
+                value=encoded_item,
+                encoding=self.array_encoding.element,
+                decoded_type=self.element_ir_type,
+                source_location=self.loc,
+            )
 
 
 class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -221,7 +233,21 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
-        _todo("fixed element array pop", self.loc)
+        element_encoding = self.array_encoding.element
+        if self.array_encoding.length_header:
+            invoke = invoke_puya_lib_subroutine(
+                self.context,
+                full_name="_puya_lib.arc4.dynamic_array_pop_fixed_size",
+                args=[array, element_encoding.checked_num_bytes],
+                source_location=self.loc,
+            )
+            popped, data = self.factory.materialise_values(invoke)
+        else:
+            array_bytes_len = self.factory.len(array)
+            start_offset = self.factory.sub(array_bytes_len, element_encoding.checked_num_bytes)
+            popped = self.factory.extract_to_end(array, start_offset)
+            data = self.factory.extract3(array, 0, start_offset)
+        return data, self._maybe_decode(popped)
 
 
 class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -246,7 +272,14 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
-        _todo("dynamic element byte length array pop", self.loc)
+        invoke = invoke_puya_lib_subroutine(
+            self.context,
+            full_name="_puya_lib.arc4.dynamic_array_pop_byte_length_head",
+            args=[array],
+            source_location=self.loc,
+        )
+        popped, data = self.factory.materialise_values(invoke)
+        return data, self._maybe_decode(popped)
 
 
 class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -272,7 +305,14 @@ class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
-        _todo("dynamic element array pop", self.loc)
+        invoke = invoke_puya_lib_subroutine(
+            self.context,
+            full_name="_puya_lib.arc4.dynamic_array_pop_dynamic_element",
+            args=[array],
+            source_location=self.loc,
+        )
+        popped, data = self.factory.materialise_values(invoke)
+        return data, self._maybe_decode(popped)
 
 
 class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -311,8 +351,11 @@ class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.ValueProvider]:
-        _todo("bit packed bool array pop", self.loc)
-
-
-def _todo(msg: str, loc: SourceLocation | None) -> typing.Never:
-    raise CodeError(f"TODO: {msg}", loc)
+        invoke = invoke_puya_lib_subroutine(
+            self.context,
+            full_name="_puya_lib.arc4.dynamic_array_pop_bit",
+            args=[array],
+            source_location=self.loc,
+        )
+        popped, data = self.factory.materialise_values(invoke)
+        return data, self._maybe_decode(popped)

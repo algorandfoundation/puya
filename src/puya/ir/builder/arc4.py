@@ -16,9 +16,6 @@ from puya.ir.builder._utils import (
     OpFactory,
     assert_value,
     assign_intrinsic_op,
-    assign_targets,
-    invoke_puya_lib_subroutine,
-    mktemp,
     undefined_value,
 )
 from puya.ir.builder.assignment import handle_assignment
@@ -729,61 +726,6 @@ def _bit_packed_bool(encoding: Encoding) -> typing.TypeGuard[BoolEncoding]:
     return isinstance(encoding, BoolEncoding) and encoding.packed
 
 
-def pop_arc4_array(
-    context: IRFunctionBuildContext,
-    expr: awst_nodes.ArrayPop,
-    array_wtype: wtypes.ARC4DynamicArray,
-) -> ValueProvider:
-    source_location = expr.source_location
-
-    base = context.visitor.visit_and_materialise_single(expr.base)
-    array_encoding = wtype_to_encoding(array_wtype, source_location)
-    popped, data = invoke_arc4_array_pop(context, array_encoding, base, source_location)
-    handle_arc4_assign(
-        context,
-        target=expr.base,
-        value=data,
-        is_nested_update=True,
-        source_location=source_location,
-    )
-
-    return popped
-
-
-def invoke_arc4_array_pop(
-    context: IRFunctionBuildContext,
-    array_encoding: DynamicArrayEncoding,
-    base: Value,
-    source_location: SourceLocation,
-) -> tuple[Value, Value]:
-    element_encoding = array_encoding.element
-    args: list[Value | int | bytes] = [base]
-    if _bit_packed_bool(element_encoding):
-        method_name = "dynamic_array_pop_bit"
-    elif _is_byte_length_header(element_encoding):  # TODO: multi_byte_length prefix?
-        method_name = "dynamic_array_pop_byte_length_head"
-    elif element_encoding.is_dynamic:
-        method_name = "dynamic_array_pop_dynamic_element"
-    else:
-        method_name = "dynamic_array_pop_fixed_size"
-        args.append(element_encoding.checked_num_bytes)
-
-    popped = mktemp(context, PrimitiveIRType.bytes, source_location, description="popped")
-    data = mktemp(context, PrimitiveIRType.bytes, source_location, description="data")
-    assign_targets(
-        context,
-        targets=[popped, data],
-        source=invoke_puya_lib_subroutine(
-            context,
-            full_name=f"_puya_lib.arc4.{method_name}",
-            args=args,
-            source_location=source_location,
-        ),
-        assignment_location=source_location,
-    )
-    return popped, data
-
-
 # packed bits are packed starting with the left most bit
 ARC4_TRUE = (1 << 7).to_bytes(1, "big")
 ARC4_FALSE = (0).to_bytes(1, "big")
@@ -829,14 +771,6 @@ def _decode_arc4_tuple_items(
             )
         items.extend(factory.materialise_values(item_value, f"item{index}"))
     return ValueTuple(source_location=source_location, values=items)
-
-
-def _is_byte_length_header(encoding: Encoding) -> bool:
-    if not isinstance(encoding, DynamicArrayEncoding) or not encoding.length_header:
-        return False
-    if _bit_packed_bool(encoding):
-        return False
-    return encoding.element.num_bytes == 1
 
 
 def _arc4_replace_struct_item(
