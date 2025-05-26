@@ -377,15 +377,6 @@ def type_has_encoding(
         return typ.encoding == encoding
 
 
-# TODO: get rid of this
-def wtype_to_ir_type_and_encoding(
-    wtype: wtypes.WType, loc: SourceLocation
-) -> tuple[IRType | TupleIRType, Encoding]:
-    ir_type = wtype_to_ir_type(wtype, source_location=loc, allow_tuple=True)
-    encoding = wtype_to_encoding(wtype, loc)
-    return ir_type, encoding
-
-
 def wtype_to_encoded_ir_type(wtype: wtypes.WType, loc: SourceLocation) -> EncodedType:
     """
     Return the encoded IRType of a WType
