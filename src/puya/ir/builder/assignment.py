@@ -11,20 +11,12 @@ from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import mem, sequence, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
-from puya.ir.builder._utils import (
-    assign,
-    assign_targets,
-    get_implicit_return_is_original,
-)
+from puya.ir.builder._utils import assign, assign_targets, get_implicit_return_is_original
 from puya.ir.builder.arc4 import write_tuple_index
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.models import MultiValue, Value
-from puya.ir.types_ import (
-    PrimitiveIRType,
-    get_wtype_arity,
-    wtype_to_ir_type,
-)
+from puya.ir.types_ import PrimitiveIRType, get_wtype_arity, wtype_to_ir_type
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
