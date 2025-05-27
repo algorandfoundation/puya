@@ -5,6 +5,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder import arc4
 from puya.ir.builder._utils import (
     OpFactory,
@@ -238,7 +239,7 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         if self.array_encoding.length_header:
             invoke = invoke_puya_lib_subroutine(
                 self.context,
-                full_name="_puya_lib.arc4.dynamic_array_pop_fixed_size",
+                full_name=PuyaLibIR.dynamic_array_pop_fixed_size,
                 args=[array, element_encoding.checked_num_bytes],
                 source_location=self.loc,
             )
@@ -265,7 +266,7 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         r_tail = self.factory.extract_to_end(r_head_and_tail, start_of_tail, "data")
         invoke = invoke_puya_lib_subroutine(
             self.context,
-            full_name="_puya_lib.arc4.dynamic_array_concat_byte_length_head",
+            full_name=PuyaLibIR.dynamic_array_concat_byte_length_head,
             args=[array, r_tail, r_count],
             source_location=self.loc,
         )
@@ -275,7 +276,7 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
         invoke = invoke_puya_lib_subroutine(
             self.context,
-            full_name="_puya_lib.arc4.dynamic_array_pop_byte_length_head",
+            full_name=PuyaLibIR.dynamic_array_pop_byte_length_head,
             args=[array],
             source_location=self.loc,
         )
@@ -298,7 +299,7 @@ class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
         invoke = invoke_puya_lib_subroutine(
             self.context,
-            full_name="_puya_lib.arc4.dynamic_array_concat_dynamic_element",
+            full_name=PuyaLibIR.dynamic_array_concat_dynamic_element,
             args=[l_count, l_head_and_tail, r_count, r_head_and_tail],
             source_location=self.loc,
         )
@@ -308,7 +309,7 @@ class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
         invoke = invoke_puya_lib_subroutine(
             self.context,
-            full_name="_puya_lib.arc4.dynamic_array_pop_dynamic_element",
+            full_name=PuyaLibIR.dynamic_array_pop_dynamic_element,
             args=[array],
             source_location=self.loc,
         )
@@ -344,7 +345,7 @@ class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
         invoke = invoke_puya_lib_subroutine(
             self.context,
-            full_name="_puya_lib.arc4.dynamic_array_concat_bits",
+            full_name=PuyaLibIR.dynamic_array_concat_bits,
             args=[array, r_head_and_tail, r_count, 1 if iter_element_encoding.packed else 8],
             source_location=self.loc,
         )
@@ -354,7 +355,7 @@ class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
         invoke = invoke_puya_lib_subroutine(
             self.context,
-            full_name="_puya_lib.arc4.dynamic_array_pop_bit",
+            full_name=PuyaLibIR.dynamic_array_pop_bit,
             args=[array],
             source_location=self.loc,
         )

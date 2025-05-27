@@ -1,6 +1,7 @@
 import abc
 from collections.abc import Sequence
 
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.models import Op, Register, Subroutine, Value, ValueProvider
 from puya.ir.types_ import IRType
 from puya.parse import SourceLocation
@@ -24,7 +25,7 @@ class IRRegisterContext(abc.ABC):
     def add_op(self, op: Op) -> None: ...
 
     @abc.abstractmethod
-    def resolve_embedded_func(self, full_name: str) -> Subroutine: ...
+    def resolve_embedded_func(self, full_name: PuyaLibIR) -> Subroutine: ...
 
     @abc.abstractmethod
     def materialise_value_provider(
