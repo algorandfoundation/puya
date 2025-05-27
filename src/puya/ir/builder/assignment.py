@@ -290,7 +290,7 @@ def handle_arc4_assign(
             item = write_tuple_index(
                 context,
                 base=base,
-                index_int=index_value,
+                index=index_value,
                 tuple_encoding=tuple_encoding,
                 value_ir_type=value_ir_type,
                 value=value,
