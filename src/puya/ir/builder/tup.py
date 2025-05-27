@@ -1,5 +1,7 @@
 import abc
+import typing
 
+from puya import log
 from puya.awst import wtypes
 from puya.errors import InternalError
 from puya.ir import models as ir
@@ -15,10 +17,13 @@ from puya.ir.types_ import (
     TupleIRType,
     get_type_arity,
     sum_types_arity,
+    type_has_encoding,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
+
+logger = log.get_logger(__name__)
 
 
 class TupleBuilder(abc.ABC):
@@ -55,6 +60,7 @@ class StackTupleBuilder(TupleBuilder):
         self.tuple_ir_type = tuple_ir_type
         self.loc = loc
 
+    @typing.override
     def read_at_index(self, tup: ir.Value | ir.ValueTuple, index: int) -> ir.MultiValue:
         tuple_values = [tup] if isinstance(tup, ir.Value) else tup.values
         skip_values = sum_types_arity(self.tuple_ir_type.elements[:index])
@@ -66,8 +72,10 @@ class StackTupleBuilder(TupleBuilder):
         else:
             return ValueTuple(values=values, source_location=self.loc)
 
+    @typing.override
     def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
-        raise NotImplementedError
+        logger.error("tuples are immutable", locations=self.loc)
+        return tup
 
 
 class EncodedTupleBuilder(TupleBuilder):
@@ -84,6 +92,7 @@ class EncodedTupleBuilder(TupleBuilder):
         self.loc = loc
         self.factory = OpFactory(self.context, self.loc)
 
+    @typing.override
     def read_at_index(self, tup: ir.MultiValue, index: int) -> ir.MultiValue:
         try:
             (tup,) = self.context.materialise_value_provider(tup, "tup")
@@ -127,5 +136,90 @@ class EncodedTupleBuilder(TupleBuilder):
             loc=self.loc,
         )
 
+    @typing.override
     def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
-        raise NotImplementedError
+        value_ir_type = self.tuple_ir_type.elements[index]
+        value = self.factory.materialise_single(value, "assigned_value")
+        element_encoding = self.tuple_encoding.elements[index]
+
+        # TODO: use ValueEncode
+        if not type_has_encoding(value_ir_type, element_encoding):
+            value_vp = arc4.encode_value(
+                self.context,
+                value,
+                value_ir_type,
+                element_encoding,
+                self.loc,
+            )
+            value = self.factory.materialise_single(value_vp, "encoded")
+        if element_encoding.is_bit:
+            # Use Set bit
+            is_true = self.factory.get_bit(value, 0, "is_true")
+            return self.factory.set_bit(
+                value=tup,
+                index=self.tuple_encoding.get_head_bit_offset(index),
+                bit=is_true,
+                temp_desc="updated_data",
+            )
+        header_up_to_item_bytes = bits_to_bytes(self.tuple_encoding.get_head_bit_offset(index))
+        if not element_encoding.is_dynamic:
+            return self.factory.replace(
+                tup,
+                header_up_to_item_bytes,
+                value,
+                "updated_data",
+            )
+        else:
+            assert element_encoding.is_dynamic, "expected dynamic encoding"
+            dynamic_indices = [
+                index for index, t in enumerate(self.tuple_encoding.elements) if t.is_dynamic
+            ]
+
+            item_offset = self.factory.extract_uint16(tup, header_up_to_item_bytes, "item_offset")
+            data_up_to_item = self.factory.extract3(tup, 0, item_offset, "data_up_to_item")
+            dynamic_indices_after_item = [i for i in dynamic_indices if i > index]
+
+            if not dynamic_indices_after_item:
+                # This is the last dynamic type in the tuple
+                # No need to update headers - just replace the data
+                return self.factory.concat(data_up_to_item, value, "updated_data")
+            header_up_to_next_dynamic_item = bits_to_bytes(
+                self.tuple_encoding.get_head_bit_offset(dynamic_indices_after_item[0])
+            )
+
+            # update tail portion with new item
+            next_item_offset = self.factory.extract_uint16(
+                tup,
+                header_up_to_next_dynamic_item,
+                "next_item_offset",
+            )
+            total_data_length = self.factory.len(tup, "total_data_length")
+            data_beyond_item = self.factory.substring3(
+                tup,
+                next_item_offset,
+                total_data_length,
+                "data_beyond_item",
+            )
+            updated_data = self.factory.concat(data_up_to_item, value, "updated_data")
+            updated_data = self.factory.concat(updated_data, data_beyond_item, "updated_data")
+
+            # loop through head and update any offsets after modified item
+            item_length = self.factory.sub(next_item_offset, item_offset, "item_length")
+            new_value_length = self.factory.len(value, "new_value_length")
+            for dynamic_index in dynamic_indices_after_item:
+                header_up_to_dynamic_item = bits_to_bytes(
+                    self.tuple_encoding.get_head_bit_offset(dynamic_index)
+                )
+
+                tail_offset = self.factory.extract_uint16(
+                    updated_data, header_up_to_dynamic_item, "tail_offset"
+                )
+                # have to add the new length and then subtract the original to avoid underflow
+                tail_offset = self.factory.add(tail_offset, new_value_length, "tail_offset")
+                tail_offset = self.factory.sub(tail_offset, item_length, "tail_offset")
+                tail_offset_bytes = self.factory.as_u16_bytes(tail_offset, "tail_offset_bytes")
+
+                updated_data = self.factory.replace(
+                    updated_data, header_up_to_dynamic_item, tail_offset_bytes, "updated_data"
+                )
+            return updated_data
