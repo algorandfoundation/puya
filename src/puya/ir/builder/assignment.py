@@ -164,11 +164,10 @@ def handle_assignment(
             if isinstance(sequence_wtype, wtypes.ReferenceArray):
                 array_slot = context.visitor.visit_and_materialise_single(ix_expr.base)
                 index = context.visitor.visit_and_materialise_single(ix_expr.index)
-                builder = sequence.get_builder(context, sequence_wtype, assignment_location)
                 array = mem.read_slot(context, array_slot, assignment_location)
-                array_contents = builder.write_at_index(array, index, value)
-                (array_contents,) = context.visitor.materialise_value_provider(
-                    array_contents, "array_contents"
+                values = context.visitor.materialise_value_provider(value, "array_contents")
+                array_contents = sequence.encode_and_write_index(
+                    context, sequence_wtype, array, index, values, assignment_location
                 )
                 mem.write_slot(context, array_slot, array_contents, assignment_location)
                 return source
@@ -228,8 +227,10 @@ def handle_arc4_assign(
         ):
             array = context.visitor.visit_and_materialise_single(base_expr)
             index = context.visitor.visit_and_materialise_single(index_value)
-            builder = sequence.get_builder(context, array_wtype, source_location)
-            item = builder.write_at_index(array, index, value)
+            values = context.visitor.materialise_value_provider(value, "values")
+            item = sequence.encode_and_write_index(
+                context, array_wtype, array, index, values, source_location
+            )
             return handle_arc4_assign(
                 context,
                 target=base_expr,

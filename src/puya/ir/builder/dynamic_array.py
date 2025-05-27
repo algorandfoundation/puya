@@ -26,7 +26,6 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     SlotType,
     TupleIRType,
-    type_has_encoding,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
@@ -197,7 +196,9 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
         return self.factory.as_ir_type(value, self.array_ir_type)
 
     def _maybe_decode(self, encoded_item: ir.Value) -> ir.MultiValue:
-        if type_has_encoding(self.element_ir_type, self.array_encoding.element):
+        if not arc4.requires_conversion(
+            self.element_ir_type, self.array_encoding.element, "decode"
+        ):
             return self.factory.materialise_single(encoded_item)
         else:
             encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
