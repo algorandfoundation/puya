@@ -11,12 +11,8 @@ from puya.ir import (
     models as ir,
 )
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder import arc4, sequence
 from puya.ir.builder._utils import OpFactory, assign_targets
-from puya.ir.encodings import (
-    DynamicArrayEncoding,
-    FixedArrayEncoding,
-)
+from puya.ir.builder.aggregates import arc4_codecs, sequence
 from puya.ir.models import Register, Subroutine, Value, ValueProvider, ValueTuple
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType
@@ -89,15 +85,9 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
     @typing.override
     def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
         self.modified = True
-        if len(encode.values) == 1:
-            value_provider: models.ValueTuple | models.Value = encode.values[0]
-        else:
-            value_provider = models.ValueTuple(
-                values=encode.values, source_location=encode.source_location
-            )
-        return arc4.encode_value(
+        return arc4_codecs.encode_value(
             self,
-            value_provider,
+            values=encode.values,
             value_type=encode.value_type,
             encoding=encode.encoding,
             loc=encode.source_location,
@@ -106,7 +96,7 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
     @typing.override
     def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueProvider:
         self.modified = True
-        return arc4.decode_value(
+        return arc4_codecs.decode_value(
             self,
             decode.value,
             encoding=decode.encoding,
@@ -120,7 +110,7 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
 
         loc = read.source_location
 
-        builder = sequence.get_builder_from_ir_types(
+        builder = sequence.get_builder(
             self,
             array_encoding=read.array_encoding,
             assert_bounds=read.check_bounds,
@@ -134,7 +124,7 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
 
         loc = write.source_location
 
-        builder = sequence.get_builder_from_ir_types(
+        builder = sequence.get_builder(
             self,
             array_encoding=write.array_encoding,
             loc=loc,
@@ -152,19 +142,6 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
             error_message="max array length exceeded",
         )
         return array_contents
-
-    @typing.override
-    def visit_array_length(self, length: ir.ArrayLength) -> ir.Value:
-        self.modified = True
-        factory = OpFactory(self, length.source_location)
-        array_encoding = length.array_encoding
-        if isinstance(array_encoding, FixedArrayEncoding):
-            return factory.constant(array_encoding.size)
-        elif isinstance(array_encoding, DynamicArrayEncoding) and array_encoding.length_header:
-            return factory.extract_uint16(length.array, 0, "array_length")
-        assert isinstance(array_encoding, DynamicArrayEncoding), "expected dynamic array"
-        bytes_len = factory.len(length.array, "bytes_len")
-        return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")
 
     # region IRRegisterContext
 

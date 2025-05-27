@@ -26,6 +26,7 @@ logger = log.get_logger(__name__)
 
 
 class TupleBuilder(abc.ABC):
+    # TODO: consider taking and returning Sequence[Value] instead of ir.MultiValue
     @abc.abstractmethod
     def read_at_index(self, tup: ir.MultiValue, index: int) -> ir.MultiValue:
         """Reads the value from the specified index and performs any decoding required"""
@@ -127,30 +128,33 @@ class EncodedTupleBuilder(TupleBuilder):
             encoded = self.factory.substring3(tup, item_start_offset, item_end_offset)
         item_encoding = self.tuple_encoding.elements[index]
         item_ir_type = self.tuple_ir_type.elements[index]
-        return arc4.maybe_decode_value(
-            self.context,
-            encoded_item=encoded,
-            encoding=item_encoding,
-            target_type=item_ir_type,
-            loc=self.loc,
-        )
+        if not arc4.requires_conversion(item_ir_type, item_encoding, "decode"):
+            return encoded
+        else:
+            encoded_vp = ir.ValueDecode(
+                value=encoded,
+                encoding=item_encoding,
+                decoded_type=item_ir_type,
+                source_location=self.loc,
+            )
+            return self.factory.materialise_multi_value(encoded_vp)
 
     @typing.override
     def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
         value_ir_type = self.tuple_ir_type.elements[index]
-        value = self.factory.materialise_single(value, "assigned_value")
+        values = self.factory.materialise_values(value, "assigned_value")
         element_encoding = self.tuple_encoding.elements[index]
 
-        # TODO: use ValueEncode
-        if arc4.requires_conversion(value_ir_type, element_encoding, "encode"):
-            value_vp = arc4.encode_value(
-                self.context,
-                value,
-                value_ir_type,
-                element_encoding,
-                self.loc,
+        if not arc4.requires_conversion(value_ir_type, element_encoding, "encode"):
+            (value,) = values
+        else:
+            encoded_vp = ir.ValueEncode(
+                values=values,
+                value_type=value_ir_type,
+                encoding=element_encoding,
+                source_location=self.loc,
             )
-            value = self.factory.materialise_single(value_vp, "encoded")
+            value = self.factory.materialise_single(encoded_vp, "encoded")
         if element_encoding.is_bit:
             # Use Set bit
             is_true = self.factory.get_bit(value, 0, "is_true")
