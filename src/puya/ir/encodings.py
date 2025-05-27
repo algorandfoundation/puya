@@ -103,6 +103,14 @@ class UTF8Encoding(Encoding):
 @attrs.frozen(str=False)
 class TupleEncoding(Encoding):
     elements: Sequence[Encoding] = attrs.field(converter=tuple[Encoding, ...])
+    names: Sequence[str] | None = attrs.field(default=None, eq=False)
+
+    @names.validator
+    def _names_validator(self, _: object, value: Sequence[str] | None):
+        if value is None:
+            return
+        if len(value) != len(self.elements):
+            raise InternalError("expected names to match elements if provided")
 
     def get_head_bit_offset(self, index: int | None) -> int:
         bit_size = 0
@@ -246,13 +254,17 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         )
 
     def visit_tuple_type(self, wtype: wtypes.WTuple) -> Encoding:
-        return TupleEncoding(elements=[self._allow_packable_bool(t) for t in wtype.types])
+        return TupleEncoding(
+            elements=[self._allow_packable_bool(t) for t in wtype.types], names=wtype.names
+        )
 
     def visit_arc4_tuple(self, wtype: wtypes.ARC4Tuple) -> Encoding:
         return TupleEncoding(elements=[self._allow_packable_bool(t) for t in wtype.types])
 
     def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> Encoding:
-        return TupleEncoding(elements=[self._allow_packable_bool(t) for t in wtype.types])
+        return TupleEncoding(
+            elements=[self._allow_packable_bool(t) for t in wtype.types], names=wtype.names
+        )
 
     def _allow_packable_bool(self, wtype: wtypes.WType) -> Encoding:
         encoding = wtype.accept(self)
