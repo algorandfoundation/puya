@@ -9,6 +9,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import (
     TMP_VAR_INDICATOR,
@@ -620,9 +621,9 @@ def undefined_value(
 def invoke_puya_lib_subroutine(
     context: IRRegisterContext,
     *,
-    full_name: str,
+    full_name: PuyaLibIR,
     args: Sequence[Value | int | bytes],
-    source_location: SourceLocation,
+    source_location: SourceLocation | None,
 ) -> InvokeSubroutine:
     sub = context.resolve_embedded_func(full_name)
     return InvokeSubroutine(

@@ -258,7 +258,7 @@ def _lower_array_ir(
 ) -> None:
     logger.debug(f"lowering array IR nodes in {program.kind} program of {ref}")
     for sub in program.all_subroutines:
-        lower_aggregate_nodes(sub)
+        lower_aggregate_nodes(program, sub)
         sub.validate_with_ssa()
     if context.options.output_ssa_ir:
         render_program(context, program, qualifier="ssa.array")

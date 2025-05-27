@@ -136,7 +136,7 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
     def _block_builder_factory(self) -> BlocksBuilder:
         return BlocksBuilder(self.subroutine.parameters, self.function.source_location)
 
-    def resolve_embedded_func(self, full_name: str) -> Subroutine:
+    def resolve_embedded_func(self, full_name: PuyaLibIR) -> Subroutine:
         return self.embedded_funcs_lookup[full_name]
 
     def materialise_value_provider(
