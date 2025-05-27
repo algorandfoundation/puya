@@ -48,9 +48,7 @@ from puya.ir.builder.callsub import (
 from puya.ir.builder.iteration import handle_for_in_loop
 from puya.ir.builder.itxn import InnerTransactionBuilder
 from puya.ir.context import IRBuildContext
-from puya.ir.encodings import (
-    wtype_to_encoding,
-)
+from puya.ir.encodings import wtype_to_encoding
 from puya.ir.models import (
     AddressConstant,
     BigUIntConstant,
