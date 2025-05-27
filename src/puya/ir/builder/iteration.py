@@ -8,7 +8,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import mem, tup
+from puya.ir.builder import mem, sequence, tup
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     assert_value,
@@ -16,8 +16,8 @@ from puya.ir.builder._utils import (
     assign_targets,
     assign_temp,
 )
-from puya.ir.builder.sequence import get_builder
 from puya.ir.context import IRFunctionBuildContext
+from puya.ir.encodings import wtype_to_encoding
 from puya.ir.models import (
     ConditionalBranch,
     GotoNth,
@@ -99,22 +99,22 @@ class LoopAssigner:
 
 def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.ForInLoop) -> None:
     loc = statement.source_location
-    sequence = statement.sequence
+    sequence_ = statement.sequence
     has_enumerate = False
     reverse_items = False
     reverse_index = False
 
     while True:
-        match sequence:
+        match sequence_:
             case awst_nodes.Enumeration():
                 if has_enumerate:
                     raise CodeError(
-                        "Nested enumeration is not currently supported", sequence.source_location
+                        "Nested enumeration is not currently supported", sequence_.source_location
                     )
-                sequence = sequence.expr
+                sequence_ = sequence_.expr
                 has_enumerate = True
             case awst_nodes.Reversed():
-                sequence = sequence.expr
+                sequence_ = sequence_.expr
                 reverse_items = not reverse_items
                 if not has_enumerate:
                     reverse_index = not reverse_index
@@ -127,14 +127,14 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
         has_enumerate=has_enumerate,
     )
 
-    match sequence.wtype:
-        case wtypes.uint64_range_wtype if isinstance(sequence, awst_nodes.Range):
+    match sequence_.wtype:
+        case wtypes.uint64_range_wtype if isinstance(sequence_, awst_nodes.Range):
             _iterate_urange(
                 context,
                 loop_body=statement.loop_body,
                 assigner=assign_user_loop_vars,
                 statement_loc=statement.source_location,
-                urange=sequence,
+                urange=sequence_,
                 reverse_items=reverse_items,
                 reverse_index=reverse_index,
             )
@@ -146,41 +146,75 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                     context,
                     loop_body=statement.loop_body,
                     assigner=assign_user_loop_vars,
-                    tuple_expr=sequence,
+                    tuple_expr=sequence_,
                     statement_loc=statement.source_location,
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
                 )
-        case (wtypes.ARC4Array() | wtypes.NativeArray() | wtypes.BytesWType()) as iterable_wtype:
-            builder = get_builder(context, iterable_wtype, loc, assert_bounds=False)
-            array = context.visitor.visit_and_materialise_single(sequence)
+        case wtypes.BytesWType():
+            bytes_value = context.visitor.visit_and_materialise_single(sequence_)
+            byte_length = assign_temp(
+                context,
+                temp_description="bytes_length",
+                source=Intrinsic(
+                    op=AVMOp.len_,
+                    args=[bytes_value],
+                    source_location=statement.source_location,
+                ),
+                source_location=statement.source_location,
+            )
+
+            def get_byte_at_index(index_register: Value) -> ValueProvider:
+                return Intrinsic(
+                    op=AVMOp.extract3,
+                    args=[
+                        bytes_value,
+                        index_register,
+                        UInt64Constant(value=1, source_location=None),
+                    ],
+                    source_location=statement.items.source_location,
+                )
+
+            _iterate_indexable(
+                context,
+                loop_body=statement.loop_body,
+                indexable_size=byte_length,
+                get_value_at_index=get_byte_at_index,
+                assigner=assign_user_loop_vars,
+                statement_loc=statement.source_location,
+                reverse_index=reverse_index,
+                reverse_items=reverse_items,
+            )
+        case (wtypes.ARC4Array() | wtypes.NativeArray()) as iterable_wtype:
+            array = context.visitor.visit_and_materialise_single(sequence_)
 
             if isinstance(array.ir_type, SlotType):
                 # slot
                 def read_array() -> Value:
                     return mem.read_slot(context, array, loc)
-            elif isinstance(array, Register):
-                # local var
-                array_reg = array
-
-                def read_array() -> Value:
-                    # TODO: this is better
-                    #       but does not account for the variable being reassigned
-                    return _refresh_mutated_variable(context, array_reg)
             else:
-                # constant?
+                # TODO: consider when array is a register and needs refreshing
                 def read_array() -> Value:
                     return array
 
+            array_encoding = wtype_to_encoding(iterable_wtype, loc)
             (indexable_size,) = context.visitor.materialise_value_provider(
-                builder.length(read_array()), "array_length"
+                sequence.get_length(
+                    context,
+                    array_encoding,
+                    read_array(),
+                    loc,
+                ),
+                "array_length",
             )
 
             _iterate_indexable(
                 context,
                 loop_body=statement.loop_body,
                 indexable_size=indexable_size,
-                get_value_at_index=lambda index: builder.read_at_index(read_array(), index),
+                get_value_at_index=lambda index: sequence.read_index_and_decode(
+                    context, iterable_wtype, read_array(), index, loc, check_bounds=False
+                ),
                 assigner=assign_user_loop_vars,
                 statement_loc=statement.source_location,
                 reverse_index=reverse_index,

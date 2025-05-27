@@ -182,7 +182,7 @@ def get_transform_pipeline(
     ref = artifact_ir.metadata.ref
     return [
         functools.partial(_optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.opt"),
-        functools.partial(_lower_array_ir, ref=ref),
+        functools.partial(_lower_aggregate_ir, ref=ref),
         functools.partial(
             _optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.array.opt"
         ),
@@ -247,7 +247,7 @@ def _optimize_program_ir(
     )
 
 
-def _lower_array_ir(
+def _lower_aggregate_ir(
     context: ArtifactCompileContext,
     program: Program,
     *,
