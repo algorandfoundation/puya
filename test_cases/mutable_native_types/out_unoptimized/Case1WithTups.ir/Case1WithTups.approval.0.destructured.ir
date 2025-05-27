@@ -54,11 +54,11 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         (assert tmp%1#0) // too many tups
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let extract%1#0: bytes = (extract3 maybe_value%1#0 0u 8u)
-        let tmp%2#0: uint64 = (btoi extract%1#0)
+        let extract%1#0: bytes = (extract3 maybe_value%1#0 8u 128u)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%2#0) // check self.tup_bag exists
-        let extract%2#0: bytes = (extract3 maybe_value%2#0 8u 128u)
+        let extract%2#0: bytes = (extract3 maybe_value%2#0 0u 8u)
+        let tmp%2#0: uint64 = (btoi extract%2#0)
         let array%val_as_bytes%0#1: bytes[8] = (itob tup.a#0)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%0#1)
@@ -66,17 +66,17 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
         let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 array%as_Encoded(uint64)%1#1)
         let array%encoded%2#1: Encoded((uint64,uint64)) = (concat array%encoded%1#1 0x)
-        let tmp%3#0: Encoded((uint64,uint64)) = array%encoded%2#1
+        let tmp%5#0: Encoded((uint64,uint64)) = array%encoded%2#1
         let write_offset%0#0: uint64 = (* tmp%2#0 16u)
-        let updated_array%0#0: bytes = (replace3 extract%2#0 write_offset%0#0 tmp%3#0)
-        let updated_data%0#0: bytes = (replace3 maybe_value%2#0 8u updated_array%0#0)
+        let updated_array%0#0: bytes = (replace3 extract%1#0 write_offset%0#0 tmp%5#0)
+        let updated_data%0#0: bytes = (replace3 maybe_value%1#0 8u updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%3#0) // check self.tup_bag exists
-        let extract%3#0: bytes = (extract3 maybe_value%3#0 0u 8u)
-        let tmp%4#0: uint64 = (btoi extract%3#0)
-        let tmp%5#0: uint64 = (+ tmp%4#0 1u)
-        let val_as_bytes%0#0: bytes[8] = (itob tmp%5#0)
+        let extract%5#0: bytes = (extract3 maybe_value%3#0 0u 8u)
+        let tmp%6#0: uint64 = (btoi extract%5#0)
+        let tmp%7#0: uint64 = (+ tmp%6#0 1u)
+        let val_as_bytes%0#0: bytes[8] = (itob tmp%7#0)
         let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
         let updated_data%1#0: bytes = (replace3 maybe_value%3#0 0u as_Encoded(uint64)%0#0)
         (box_put "tup_bag" updated_data%1#0)
@@ -220,9 +220,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
         let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 array%as_Encoded(uint64)%1#1)
         let array%encoded%2#1: Encoded((uint64,uint64)) = (concat array%encoded%1#1 0x)
-        let tmp%3#0: Encoded((uint64,uint64)) = array%encoded%2#1
+        let tmp%5#0: Encoded((uint64,uint64)) = array%encoded%2#1
         let write_offset%0#0: uint64 = (* i#0 16u)
-        let updated_array%0#0: bytes = (replace3 extract%4#0 write_offset%0#0 tmp%3#0)
+        let updated_array%0#0: bytes = (replace3 extract%4#0 write_offset%0#0 tmp%5#0)
         let updated_data%0#0: bytes = (replace3 maybe_value%2#0 8u updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         goto block@3
@@ -264,9 +264,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
         let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 array%as_Encoded(uint64)%1#1)
         let array%encoded%2#1: Encoded((uint64,uint64)) = (concat array%encoded%1#1 0x)
-        let tmp%3#0: Encoded((uint64,uint64)) = array%encoded%2#1
+        let tmp%5#0: Encoded((uint64,uint64)) = array%encoded%2#1
         let write_offset%0#0: uint64 = (* i#0 16u)
-        let updated_array%0#0: bytes = (replace3 extract%4#0 write_offset%0#0 tmp%3#0)
+        let updated_array%0#0: bytes = (replace3 extract%4#0 write_offset%0#0 tmp%5#0)
         let updated_data%0#0: bytes = (replace3 maybe_value%2#0 8u updated_array%0#0)
         (box_put "tup_bag" updated_data%0#0)
         goto block@3

@@ -217,39 +217,39 @@ subroutine test_cases.mutable_native_types.contract.Contract.__puya_arc4_router_
 subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() -> void:
     block@0: // L89
         let arr_3#0: Encoded(uint64[3]) = (bzero 24u)
-        let tmp%1#0: Encoded(uint64) = encode<uint64>(0u)
+        let tmp%2#0: Encoded(uint64) = encode<uint64>(0u)
         let write_offset%0#0: uint64 = 0u
-        let arr_3#1: Encoded(uint64[3]) = ((replace2 0) arr_3#0 tmp%1#0)
-        let tmp%2#0: Encoded(uint64) = encode<uint64>(1u)
+        let arr_3#1: Encoded(uint64[3]) = ((replace2 0) arr_3#0 tmp%2#0)
+        let tmp%4#0: Encoded(uint64) = encode<uint64>(1u)
         let write_offset%1#0: uint64 = 8u
-        let arr_3#2: Encoded(uint64[3]) = ((replace2 8) arr_3#1 tmp%2#0)
-        let tmp%3#0: Encoded(uint64) = encode<uint64>(2u)
+        let arr_3#2: Encoded(uint64[3]) = ((replace2 8) arr_3#1 tmp%4#0)
+        let tmp%6#0: Encoded(uint64) = encode<uint64>(2u)
         let write_offset%2#0: uint64 = 16u
-        let arr_3#3: Encoded(uint64[3]) = ((replace2 16) arr_3#2 tmp%3#0)
+        let arr_3#3: Encoded(uint64[3]) = ((replace2 16) arr_3#2 tmp%6#0)
         let val_as_bytes%0#0: bytes[8] = (itob 0u)
         let val_as_bytes%1#0: bytes[8] = (itob 1u)
         let encoded%1#0: Encoded((uint64,uint64)) = 0x00000000000000000000000000000001
         let val_as_bytes%2#0: bytes[8] = (itob 2u)
         let encoded%2#0: Encoded((uint64,uint64,uint64)) = 0x000000000000000000000000000000010000000000000002
         let arr_3_from_tuple#0: Encoded(uint64[3]) = 0x000000000000000000000000000000010000000000000002
-        let tmp%4#0: bool = (== arr_3#3 0x000000000000000000000000000000010000000000000002)
-        (assert tmp%4#0) // should be the same
+        let tmp%7#0: bool = (== arr_3#3 0x000000000000000000000000000000010000000000000002)
+        (assert tmp%7#0) // should be the same
         let encoded%5#0: Encoded((uint64,uint64)) = 0x00000000000000010000000000000001
         let encoded%6#0: Encoded((uint64,uint64,uint64)) = 0x000000000000000100000000000000010000000000000001
         let arr_3_from_full#0: Encoded(uint64[3]) = 0x000000000000000100000000000000010000000000000001
-        let bytes_offset%0#0: uint64 = 0u
-        let encoded_element%0#0: bytes = 0x0000000000000001
-        let tmp%5#0: uint64 = 1u
-        let tmp%6#0: bool = 1u
-        let bytes_offset%1#0: uint64 = 8u
-        let encoded_element%1#0: bytes = 0x0000000000000001
-        let tmp%7#0: uint64 = 1u
-        let tmp%8#0: bool = 1u
-        let bytes_offset%2#0: uint64 = 16u
-        let encoded_element%2#0: bytes = 0x0000000000000001
-        let tmp%9#0: uint64 = 1u
-        let tmp%10#0: bool = 1u
+        let bytes_offset%3#0: uint64 = 0u
+        let encoded_element%3#0: bytes = 0x0000000000000001
+        let tmp%8#0: uint64 = 1u
+        let tmp%9#0: bool = 1u
+        let bytes_offset%4#0: uint64 = 8u
+        let encoded_element%4#0: bytes = 0x0000000000000001
+        let tmp%10#0: uint64 = 1u
         let tmp%11#0: bool = 1u
+        let bytes_offset%5#0: uint64 = 16u
+        let encoded_element%5#0: bytes = 0x0000000000000001
+        let tmp%12#0: uint64 = 1u
+        let tmp%13#0: bool = 1u
+        let tmp%14#0: bool = 1u
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: Encoded((uint8[32],uint64,uint64))) -> void:
@@ -258,12 +258,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: En
         (assert maybe_exists%0#0) // check self.num_payments exists
         let tmp%0#0: bool = (< maybe_value%0#0 8u)
         (assert tmp%0#0) // too many payments
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
-        (assert maybe_exists%1#0) // check self.num_payments exists
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "payments")
-        (assert maybe_exists%2#0) // check self.payments exists
-        let write_offset%0#0: uint64 = (* maybe_value%1#0 48u)
-        let updated_array%0#0: bytes = (replace3 maybe_value%2#0 write_offset%0#0 pay#0)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
+        (assert maybe_exists%1#0) // check self.payments exists
+        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
+        (assert maybe_exists%2#0) // check self.num_payments exists
+        let write_offset%0#0: uint64 = (* maybe_value%2#0 48u)
+        let updated_array%0#0: bytes = (replace3 maybe_value%1#0 write_offset%0#0 pay#0)
         (app_global_put "payments" updated_array%0#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%3#0) // check self.num_payments exists

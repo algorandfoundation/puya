@@ -184,14 +184,14 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         (assert tmp%1#0) // too many tups
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let extract%1#0: bytes = ((extract 0 8) maybe_value%1#0)
-        let tmp%2#0: uint64 = (extract_uint64 maybe_value%1#0 0u)
+        let extract%1#0: bytes = ((extract 8 128) maybe_value%1#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%2#0) // check self.tup_bag exists
-        let extract%2#0: bytes = ((extract 8 128) maybe_value%2#0)
+        let extract%2#0: bytes = ((extract 0 8) maybe_value%2#0)
+        let tmp%2#0: uint64 = (extract_uint64 maybe_value%2#0 0u)
         let write_offset%0#0: uint64 = (* tmp%2#0 16u)
-        let updated_array%0#0: bytes = (replace3 extract%2#0 write_offset%0#0 tup#0)
-        let updated_data%0#0: bytes = ((replace2 8) maybe_value%2#0 updated_array%0#0)
+        let updated_array%0#0: bytes = (replace3 extract%1#0 write_offset%0#0 tup#0)
+        let updated_data%0#0: bytes = ((replace2 8) maybe_value%1#0 updated_array%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (updated_data%0#0, 1u)
         (assert maybe_exists%3#0) // check self.tup_bag exists
         let extract%3#0: bytes = ((extract 0 8) maybe_value%3#0)
