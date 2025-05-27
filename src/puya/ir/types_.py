@@ -366,17 +366,6 @@ def wtype_to_ir_type(
             typing.assert_never(wtype.scalar_type)
 
 
-def type_has_encoding(
-    typ: IRType | TupleIRType, encoding: Encoding | type[Encoding]
-) -> typing.TypeGuard[EncodedType]:
-    if not isinstance(typ, EncodedType):
-        return False
-    elif isinstance(encoding, type):
-        return isinstance(typ.encoding, encoding)
-    else:
-        return typ.encoding == encoding
-
-
 def wtype_to_encoded_ir_type(wtype: wtypes.WType, loc: SourceLocation) -> EncodedType:
     """
     Return the encoded IRType of a WType

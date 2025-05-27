@@ -1,10 +1,12 @@
 import abc
 import typing
+from collections.abc import Sequence
 from functools import cached_property
 
 from puya import log
+from puya.avm import AVMType
 from puya.awst import wtypes
-from puya.errors import CodeError, InternalError
+from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
@@ -20,12 +22,7 @@ from puya.ir.encodings import (
 )
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
-    EncodedType,
-    IRType,
     PrimitiveIRType,
-    SlotType,
-    TupleIRType,
-    type_has_encoding,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
@@ -41,56 +38,137 @@ class SequenceBuilder(abc.ABC):
     # TODO: add slice abstraction here too?
 
     @abc.abstractmethod
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.MultiValue:
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
         """Reads the value from the specified index and performs any decoding required"""
 
     @abc.abstractmethod
-    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.MultiValue) -> ir.Value:
+    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
         """Encodes the value and writes to the specified index and returns the updated result"""
 
-    @abc.abstractmethod
-    def length(self, array: ir.Value) -> ir.Value:
-        """Returns the number of elements"""
 
-
-def get_builder(
+def get_builder_from_ir_types(
     context: IRRegisterContext,
-    wtype: wtypes.WType,
+    array_encoding: ArrayEncoding,
+    loc: SourceLocation | None,
+    *,
+    assert_bounds: bool | None = None,
+) -> SequenceBuilder:
+    builder_typ: type[_ArrayBuilderImpl]
+
+    if assert_bounds is None:
+        # dynamic elements or bit-packed elements could access invalid indexes
+        # fixed sized elements don't have this issue as the underling bytes won't be big enough
+        # if an invalid index is used
+        # note: this assumption may no longer hold if reading nested aggregates
+        assert_bounds = array_encoding.element.is_dynamic or array_encoding.element.is_bit
+
+    match array_encoding:
+        # BitPackedBool is a more specific match than FixedElement so do that first
+        case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=True):
+            builder_typ = BitPackedBoolArrayBuilder
+        case FixedArrayEncoding(element=BoolEncoding(packed=True)):
+            builder_typ = BitPackedBoolArrayBuilder
+        case ArrayEncoding(element=Encoding(is_dynamic=False)):
+            builder_typ = FixedElementArrayBuilder
+        case ArrayEncoding(element=Encoding(is_dynamic=True)):
+            builder_typ = DynamicElementArrayBuilder
+        # TODO: maybe split DynamicElementArrayBuilder into two builders
+        # TODO: maybe ByteLengthHeaderElementArrayBuilder
+        case _:
+            raise InternalError(f"unsupported array encoding: {array_encoding!s}", loc)
+    return builder_typ(
+        context,
+        array_encoding=array_encoding,
+        assert_bounds=assert_bounds,
+        loc=loc,
+    )
+
+
+def read_index_and_decode(
+    context: IRRegisterContext,
+    indexable_wtype: wtypes.ARC4Array | wtypes.NativeArray,
+    array: ir.Value,
+    index: ir.Value,
     loc: SourceLocation,
     *,
-    assert_bounds: bool = True,
-) -> SequenceBuilder:
-    if isinstance(wtype, wtypes.BytesWType):
-        return BytesIndexableBuilder(context, loc)
-    elif isinstance(wtype, wtypes.NativeArray | wtypes.ARC4Array):
-        array_ir_type = wtype_to_ir_type(wtype, source_location=loc)
-        element_ir_type = wtype_to_ir_type(
-            wtype.element_type, source_location=loc, allow_tuple=True
+    check_bounds: bool = True,
+) -> ir.ValueProvider:
+    array_encoding = wtype_to_encoding(indexable_wtype, loc)
+    element_ir_type = wtype_to_ir_type(
+        indexable_wtype.element_type, source_location=loc, allow_tuple=True
+    )
+    read_index = ir.ArrayReadIndex(
+        array=array,
+        array_encoding=array_encoding,
+        index=index,
+        source_location=loc,
+        check_bounds=check_bounds,
+    )
+    (array_item,) = context.materialise_value_provider(read_index, "array_item")
+    element_encoding = array_encoding.element
+    if not arc4.requires_conversion(element_ir_type, element_encoding, "decode"):
+        return array_item
+    else:
+        return ir.ValueDecode(
+            value=array_item,
+            encoding=element_encoding,
+            decoded_type=element_ir_type,
+            source_location=loc,
         )
-        array_encoding = wtype_to_encoding(wtype, loc)
-        builder_typ: type[_ArrayBuilderImpl] | None = None
-        match array_encoding:
-            # BitPackedBool is a more specific match than FixedElement so do that first
-            case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=True):
-                builder_typ = BitPackedBoolArrayBuilder
-            case FixedArrayEncoding(element=BoolEncoding(packed=True)):
-                builder_typ = BitPackedBoolArrayBuilder
-            case ArrayEncoding(element=Encoding(is_dynamic=False)):
-                builder_typ = FixedElementArrayBuilder
-            case ArrayEncoding(element=Encoding(is_dynamic=True)):
-                builder_typ = DynamicElementArrayBuilder
-                # TODO: maybe split DynamicElementArrayBuilder into two builders
-                # TODO: maybe ByteLengthHeaderElementArrayBuilder
-        if builder_typ is not None:
-            return builder_typ(
-                context,
-                array_ir_type=array_ir_type,
-                array_encoding=array_encoding,
-                element_ir_type=element_ir_type,
-                assert_bounds=assert_bounds,
-                loc=loc,
-            )
-    raise InternalError(f"unsupported array type: {wtype!s}", loc)
+
+
+def encode_and_write_index(
+    context: IRRegisterContext,
+    indexable_wtype: wtypes.ARC4Array | wtypes.NativeArray,
+    array: ir.Value,
+    index: ir.Value,
+    values: Sequence[ir.Value],
+    loc: SourceLocation,
+) -> ir.Value:
+    array_encoding = wtype_to_encoding(indexable_wtype, loc)
+    element_ir_type = wtype_to_ir_type(
+        indexable_wtype.element_type, source_location=loc, allow_tuple=True
+    )
+    element_encoding = array_encoding.element
+    if not arc4.requires_conversion(element_ir_type, element_encoding, "encode"):
+        (encoded_value,) = values
+    else:
+        (encoded_value,) = context.materialise_value_provider(
+            ir.ValueEncode(
+                values=values,
+                encoding=element_encoding,
+                value_type=element_ir_type,
+                source_location=loc,
+            ),
+            "encoded_value",
+        )
+
+    write_index = ir.ArrayWriteIndex(
+        array=array,
+        array_encoding=array_encoding,
+        index=index,
+        value=encoded_value,
+        source_location=loc,
+    )
+    (result,) = context.materialise_value_provider(write_index, "updated_array")
+    return result
+
+
+def get_length(
+    context: IRRegisterContext,
+    array_encoding: ArrayEncoding,
+    array: ir.Value,
+    loc: SourceLocation | None,
+) -> ir.Value:
+    # how length is calculated depends on the array type, rather than the element type
+    factory = OpFactory(context, loc)
+    if isinstance(array_encoding, FixedArrayEncoding):
+        return factory.constant(array_encoding.size)
+    elif array_encoding.length_header:
+        return factory.extract_uint16(array, 0, "array_length")
+    assert array_encoding.size is None, "expected dynamic array"
+    bytes_len = factory.len(array, "bytes_len")
+    return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")
 
 
 # region implementations
@@ -101,58 +179,18 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         self,
         context: IRRegisterContext,
         *,
-        array_ir_type: IRType,
         array_encoding: ArrayEncoding,
-        element_ir_type: IRType | TupleIRType,
         assert_bounds: bool,
-        loc: SourceLocation,
+        loc: SourceLocation | None,
     ) -> None:
         self.context = context
-        self.array_ir_type = array_ir_type
         self.array_encoding = array_encoding
-        self.element_ir_type = element_ir_type
         self.assert_bounds = assert_bounds
         self.loc = loc
         self.factory = OpFactory(context, loc)
 
-    @typing.override
-    def length(self, array: ir.Value) -> ir.Value:
-        length = ir.ArrayLength(
-            array=array,
-            array_encoding=self.array_encoding,
-            source_location=self.loc,
-        )
-        return self.factory.materialise_single(length, "length")
-
-    def _maybe_decode(self, value: ir.Value) -> ir.MultiValue:
-        return arc4.maybe_decode_value(
-            self.context,
-            encoded_item=value,
-            encoding=self.array_encoding.element,
-            target_type=self.element_ir_type,
-            loc=self.loc,
-        )
-
-    def _maybe_encode(self, value: ir.ValueProvider) -> ir.MultiValue:
-        if type_has_encoding(self.element_ir_type, self.array_encoding.element):
-            return self.factory.materialise_single(value)
-        else:
-            return self.factory.materialise_multi_value(
-                ir.ValueEncode(
-                    values=self.factory.materialise_values(value),
-                    encoding=self.array_encoding.element,
-                    value_type=self.element_ir_type,
-                    source_location=self.loc,
-                )
-            )
-
     def _maybe_bounds_check(self, array: ir.Value, index: ir.Value) -> None:
         if not self.assert_bounds:
-            return
-        # don't need to check bounds for slot-backed arrays since an invalid index will
-        # be out of bounds of the underlying bytes, and any nested elements will be extracted
-        # first and checked separately
-        if isinstance(self.array_ir_type, SlotType):
             return
         if (
             isinstance(index, ir.UInt64Constant)
@@ -161,7 +199,7 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         ):
             logger.error("index access is out of bounds", location=self.loc)
 
-        array_length = self.factory.materialise_single(self.length(array), "array_length")
+        array_length = self.factory.materialise_single(self._length(array), "array_length")
         index_is_in_bounds = self.factory.lt(index, array_length)
         assert_value(
             self.context,
@@ -170,10 +208,13 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
             source_location=self.loc,
         )
 
+    def _length(self, array: ir.Value) -> ir.Value:
+        return get_length(self.context, self.array_encoding, array, self.loc)
+
 
 class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
     @typing.override
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.MultiValue:
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
         # this catches the edge case of bit arrays that are not a multiple of 8
         # e.g. reading index 6 & 7 of an array that has a length of 6
         self._maybe_bounds_check(array, index)
@@ -182,7 +223,7 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
             # TODO: consider incrementing index by 16 instead
             array = self.factory.extract_to_end(array, 2, "array_trimmed")
         # index is the bit position
-        item = self.factory.materialise_single(
+        return self.factory.materialise_single(
             ir.Intrinsic(
                 op=AVMOp.getbit,
                 args=[array, index],
@@ -191,10 +232,9 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
             ),
             "is_true",
         )
-        return self._maybe_decode(item)
 
     @typing.override
-    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.MultiValue) -> ir.Value:
+    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
         # this catches the edge case of bit arrays that are not a multiple of 8
         # e.g. reading index 6 & 7 of an array that has a length of 6
         self._maybe_bounds_check(array, index)
@@ -208,8 +248,8 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
             write_offset = self.factory.add(index, 16, "write_offset_with_length_header")
 
         is_true = self.factory.materialise_single(value, "is_true")
-        if isinstance(self.element_ir_type, EncodedType):
-            is_true = self.factory.get_bit(is_true, 0, "is_true")
+        if is_true.atype == AVMType.bytes:
+            is_true = self.factory.get_bit(is_true, 0)
         return self.factory.set_bit(
             value=array,
             index=write_offset,
@@ -220,7 +260,7 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
 
 class FixedElementArrayBuilder(_ArrayBuilderImpl):
     @typing.override
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.MultiValue:
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
         # TODO: is it safe to not bounds check on fixed element arrays?
         #       in some cases yes, e.g. after an extract of the whole array
         #       but in other cases no, e.g. txn arguments
@@ -232,20 +272,16 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
             array = self.factory.extract_to_end(array, 2, "array_trimmed")
         element_num_bytes = self.array_encoding.element.checked_num_bytes
         offset = self.factory.mul(index, element_num_bytes, "bytes_offset")
-        encoded_element = self.factory.extract3(
+        return self.factory.extract3(
             array,
             offset,
             element_num_bytes,
             "encoded_element",
             error_message="index access is out of bounds",
         )
-        return self._maybe_decode(encoded_element)
 
     @typing.override
-    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.MultiValue) -> ir.Value:
-        encoded = self._maybe_encode(value)
-        encoded = self.factory.materialise_single(encoded, "encoded_value")
-
+    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
         # TODO: is it safe to not bounds check on fixed element arrays?
         # self._maybe_bounds_check(array, index)
 
@@ -255,7 +291,7 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
         if self.array_encoding.length_header:
             write_offset = self.factory.add(write_offset, 2, "write_offset_with_length_header")
 
-        array = self.factory.replace(array, write_offset, encoded, "updated_array")
+        array = self.factory.replace(array, write_offset, value, "updated_array")
         return array
 
 
@@ -269,7 +305,7 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
             return element_encoding.element.checked_num_bytes
 
     @typing.override
-    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.MultiValue:
+    def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
         array_head_and_tail = array
         if self.array_encoding.length_header:
             array_head_and_tail = self.factory.extract_to_end(array, 2, "array_head_and_tail")
@@ -279,11 +315,11 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         else:
             # no _assert_index_in_bounds here as end offset calculation implicitly checks
             item = self._read_item_using_next_offset(
-                array_length_vp=self.length(array),
+                array_length_vp=self._length(array),
                 array_head_and_tail=array_head_and_tail,
                 index=index,
             )
-        return self._maybe_decode(self.factory.materialise_single(item))
+        return self.factory.materialise_single(item)
 
     def _read_item_from_array_length_and_fixed_size(
         self, array_head_and_tail: ir.Value, index: ir.Value
@@ -361,10 +397,9 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
         return self.factory.substring3(array_head_and_tail, item_start_offset, item_end_offset)
 
     @typing.override
-    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.MultiValue) -> ir.Value:
+    def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
         self._maybe_bounds_check(array, index)
 
-        value = self._maybe_encode(value)
         value = self.factory.materialise_single(value, "encoded_value")
 
         element_encoding = self.array_encoding.element
@@ -386,40 +421,13 @@ class DynamicElementArrayBuilder(_ArrayBuilderImpl):
             element_type = "byte_length_head"
         else:
             element_type = "dynamic_element"
-        full_name = f"_puya_lib.arc4.{array_type}_array_replace_{element_type}"
         invoke = invoke_puya_lib_subroutine(
             self.context,
-            full_name=full_name,
+            full_name=PuyaLibIR[f"{array_type}_array_replace_{element_type}"],
             args=args,
             source_location=self.loc,
         )
         return self.factory.materialise_single(invoke, "updated_array")
-
-
-class BytesIndexableBuilder(SequenceBuilder):
-    def __init__(self, context: IRRegisterContext, loc: SourceLocation) -> None:
-        self.loc = loc
-        self.factory = OpFactory(context, loc)
-
-    @typing.override
-    def read_at_index(self, array: ir.Value, index: ir.Value | int) -> ir.MultiValue:
-        return self.factory.extract3(
-            array, index, 1, "read_bytes", error_message="Index access is out of bounds"
-        )
-
-    @typing.override
-    def write_at_index(
-        self, array: ir.Value, index: ir.Value | int, value: ir.MultiValue
-    ) -> ir.Value:
-        self._immutable()
-        return ir.Undefined(ir_type=array.ir_type, source_location=self.loc)
-
-    @typing.override
-    def length(self, array: ir.Value) -> ir.Value:
-        return self.factory.len(array, "bytes_length")
-
-    def _immutable(self) -> None:
-        raise CodeError("bytes array is immutable", location=self.loc)
 
 
 # end region

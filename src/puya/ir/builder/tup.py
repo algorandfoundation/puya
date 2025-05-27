@@ -17,7 +17,6 @@ from puya.ir.types_ import (
     TupleIRType,
     get_type_arity,
     sum_types_arity,
-    type_has_encoding,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
@@ -143,7 +142,7 @@ class EncodedTupleBuilder(TupleBuilder):
         element_encoding = self.tuple_encoding.elements[index]
 
         # TODO: use ValueEncode
-        if not type_has_encoding(value_ir_type, element_encoding):
+        if arc4.requires_conversion(value_ir_type, element_encoding, "encode"):
             value_vp = arc4.encode_value(
                 self.context,
                 value,

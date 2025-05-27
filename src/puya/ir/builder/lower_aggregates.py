@@ -1,21 +1,20 @@
 import itertools
 import typing
 from collections import defaultdict
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 
 import attrs
 
 from puya import log
-from puya.errors import InternalError
 from puya.ir import (
     models,
     models as ir,
 )
-from puya.ir.builder import arc4
+from puya.ir._puya_lib import PuyaLibIR
+from puya.ir.builder import arc4, sequence
 from puya.ir.builder._utils import OpFactory, assign_targets
 from puya.ir.encodings import (
     DynamicArrayEncoding,
-    Encoding,
     FixedArrayEncoding,
 )
 from puya.ir.models import Register, Subroutine, Value, ValueProvider, ValueTuple
@@ -30,7 +29,7 @@ logger = log.get_logger(__name__)
 
 def lower_aggregate_nodes(program: ir.Program, subroutine: ir.Subroutine) -> bool:
     existing_versions = _VersionGatherer.gather(subroutine)
-    embedded_funcs = {PuyaLibIR[s.id]: s for s in program.subroutines if s.id in PuyaLibIR}
+    embedded_funcs = {PuyaLibIR(s.id): s for s in program.subroutines if s.id in PuyaLibIR}
     replacer = _AggregateNodeReplacer(versions=existing_versions, embedded_funcs=embedded_funcs)
     for block in subroutine.body:
         replacer.visit_block(block)
@@ -118,42 +117,29 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
     @typing.override
     def visit_array_read_index(self, read: ir.ArrayReadIndex) -> ir.ValueProvider:
         self.modified = True
-        return self._read_item(
-            read.array, read.index, read.array_encoding.element, read.source_location
+
+        loc = read.source_location
+
+        builder = sequence.get_builder_from_ir_types(
+            self,
+            array_encoding=read.array_encoding,
+            assert_bounds=read.check_bounds,
+            loc=loc,
         )
+        return builder.read_at_index(read.array, read.index)
 
     @typing.override
     def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> ir.Value:
         self.modified = True
-        element_encoding = write.array_encoding.element
-        element_size = element_encoding.checked_num_bytes
 
-        factory = OpFactory(self, write.source_location)
-        bytes_index = factory.mul(write.index, element_size, "bytes_index")
-        return factory.replace(write.array, bytes_index, write.value, "updated_array")
+        loc = write.source_location
 
-    @typing.override
-    def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueProvider:
-        self.modified = True
-        element_encoding = pop.array_encoding.element
-        element_size = element_encoding.checked_num_bytes
-
-        factory = OpFactory(self, pop.source_location)
-        array_bytes_length = factory.len(pop.array, "array_bytes_length")
-        array_bytes_new_length = factory.sub(
-            array_bytes_length, element_size, "array_bytes_new_length"
+        builder = sequence.get_builder_from_ir_types(
+            self,
+            array_encoding=write.array_encoding,
+            loc=loc,
         )
-        array_new_length = factory.div_floor(
-            array_bytes_new_length, element_size, "array_new_length"
-        )
-        array_contents = factory.extract3(
-            pop.array,
-            0,
-            array_bytes_new_length,
-            "array_contents",
-        )
-        item = self._read_item(pop.array, array_new_length, element_encoding, pop.source_location)
-        return ir.ValueTuple(values=(array_contents, item), source_location=pop.source_location)
+        return builder.write_at_index(write.array, write.index, write.value)
 
     @typing.override
     def visit_array_concat(self, append: ir.ArrayConcat) -> ir.Register:
@@ -179,19 +165,6 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
         assert isinstance(array_encoding, DynamicArrayEncoding), "expected dynamic array"
         bytes_len = factory.len(length.array, "bytes_len")
         return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")
-
-    def _read_item(
-        self,
-        array: ir.Value,
-        index: ir.Value,
-        encoding: Encoding,
-        loc: SourceLocation | None,
-    ) -> ir.Value:
-        factory = OpFactory(self, loc)
-        element_size = encoding.checked_num_bytes
-        bytes_index = factory.mul(index, element_size, "bytes_index")
-        item_bytes = factory.extract3(array, bytes_index, element_size, "value")
-        return item_bytes
 
     # region IRRegisterContext
 

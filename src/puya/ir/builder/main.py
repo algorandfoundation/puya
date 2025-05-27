@@ -799,14 +799,25 @@ class FunctionIRBuilder(
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         loc = expr.source_location
 
-        builder = sequence.get_builder(self.context, expr.base.wtype, loc)
         base = self.visit_and_materialise_single(expr.base)
         index = self.visit_and_materialise_single(expr.index)
+
+        indexable_wtype = expr.base.wtype
+        factory = OpFactory(self.context, loc)
+        if isinstance(indexable_wtype, wtypes.BytesWType):
+            # note: the below works because Bytes is immutable, so this index expression
+            # can never appear as an assignment target
+            return factory.extract3(base, index, 1)
+
+        assert isinstance(
+            indexable_wtype, wtypes.NativeArray | wtypes.ARC4Array
+        ), "expected array type"
 
         # read slot after evaluating index
         if isinstance(base.ir_type, SlotType):
             base = mem.read_slot(self.context, base, loc)
-        return builder.read_at_index(base, index)
+
+        return sequence.read_index_and_decode(self.context, indexable_wtype, base, index, loc)
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
         return flow_control.handle_conditional_expression(self.context, expr)
@@ -1235,12 +1246,16 @@ class FunctionIRBuilder(
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
         loc = expr.source_location
 
-        builder = sequence.get_builder(self.context, expr.base.wtype, loc)
+        array_wtype = expr.base.wtype
+        assert isinstance(array_wtype, wtypes.StackArray), "expected StackArray"
+
         array = self.context.visitor.visit_and_materialise_single(expr.base)
         index = self.context.visitor.visit_and_materialise_single(expr.index)
-        value = self.context.visitor.visit_and_materialise_as_value_or_tuple(expr.value)
+        values = self.context.visitor.visit_and_materialise(expr.value)
 
-        return builder.write_at_index(array, index, value)
+        return sequence.encode_and_write_index(
+            self.context, array_wtype, array, index, values, loc
+        )
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
         assert expr.left.wtype == expr.wtype, "AWST validation requires result type == left type"
@@ -1310,13 +1325,16 @@ class FunctionIRBuilder(
         loc = expr.source_location
 
         array_wtype = expr.array.wtype
-        builder = sequence.get_builder(self.context, array_wtype, loc)
+        assert isinstance(
+            array_wtype, wtypes.NativeArray | wtypes.ARC4Array
+        ), "expected array wtype"
 
         array = self.context.visitor.visit_and_materialise_single(expr.array)
         if isinstance(array.ir_type, SlotType):
             array = mem.read_slot(self.context, array, loc)
 
-        return builder.length(array)
+        array_encoding = wtype_to_encoding(array_wtype, loc)
+        return sequence.get_length(self.context, array_encoding, array, loc)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root

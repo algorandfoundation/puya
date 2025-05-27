@@ -29,7 +29,7 @@ def visit_puya_lib_call_expression(
     context: IRFunctionBuildContext, call: awst_nodes.PuyaLibCall
 ) -> ValueProvider | None:
     try:
-        full_name = PuyaLibIR[call.func.value.id]
+        full_name = PuyaLibIR(call.func.value.id)
     except KeyError:
         raise CodeError(f"invalid puya_lib {call.func.name}", call.source_location) from None
     target = context.resolve_embedded_func(full_name)

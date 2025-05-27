@@ -31,7 +31,6 @@ from puya.ir.types_ import (
     TupleIRType,
     UnionType,
     ir_type_to_ir_types,
-    type_has_encoding,
 )
 from puya.ir.visitor import IRVisitor
 from puya.parse import SourceLocation
@@ -463,10 +462,14 @@ class _ArrayOp(Op, ValueProvider):
 @attrs.define(eq=False)
 class ArrayReadIndex(_ArrayOp):
     index: Value = attrs.field(validator=_is_uint64_type)
+    check_bounds: bool = True
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (EncodedType(self.array_encoding.element),)
+        if self.array_encoding.element.is_bit:
+            return (PrimitiveIRType.bool,)
+        else:
+            return (EncodedType(self.array_encoding.element),)
 
     def _frozen_data(self) -> object:
         return self.array, self.index, self.types
@@ -479,11 +482,6 @@ class ArrayReadIndex(_ArrayOp):
 class ArrayWriteIndex(_ArrayOp):
     index: Value = attrs.field(validator=_is_uint64_type)
     value: Value = attrs.field()
-
-    @value.validator
-    def _value_validator(self, _attr: object, value: Value) -> None:
-        if value.ir_type != EncodedType(self.array_encoding.element):
-            raise InternalError("expected value to be encoded", self.source_location)
 
     def _frozen_data(self) -> object:
         return self.array, self.index, self.value
@@ -586,10 +584,6 @@ class ValueDecode(Op, ValueProvider):
 
     @decoded_type.validator
     def _decoded_type_validator(self, _: object, value: IRType) -> None:
-        if type_has_encoding(value, self.encoding):
-            raise InternalError(
-                f"redundant decode {value=}, {self.encoding=}", self.source_location
-            )
         _arity_matches(value, self.encoding, self.source_location)
 
     def _frozen_data(self) -> object:
