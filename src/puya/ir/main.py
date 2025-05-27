@@ -20,7 +20,7 @@ from puya.ir._contract_metadata import build_contract_metadata
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import make_subroutine
 from puya.ir.arc4_router import AWSTContractMethodSignature
-from puya.ir.builder.lower_array import lower_array_nodes
+from puya.ir.builder.lower_aggregates import lower_aggregate_nodes
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
@@ -258,7 +258,7 @@ def _lower_array_ir(
 ) -> None:
     logger.debug(f"lowering array IR nodes in {program.kind} program of {ref}")
     for sub in program.all_subroutines:
-        lower_array_nodes(sub)
+        lower_aggregate_nodes(sub)
         sub.validate_with_ssa()
     if context.options.output_ssa_ir:
         render_program(context, program, qualifier="ssa.array")
