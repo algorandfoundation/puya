@@ -1,6 +1,8 @@
 import typing
 from collections.abc import Sequence
 
+import attrs
+
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,
@@ -37,6 +39,60 @@ def handle_assignment_expr(
     )
 
 
+@attrs.frozen
+class _ConstantIndexOperand:
+    index: int
+    source_location: SourceLocation
+    field_name: str | None = None
+
+
+_IndexOperand = awst_nodes.Expression | _ConstantIndexOperand
+_AssignmentTargetBaseExpr = awst_nodes.VarExpression | awst_nodes.StorageExpression
+
+
+def _extract_write_path(
+    target: awst_nodes.Expression,
+) -> tuple[awst_nodes.Expression, list[_IndexOperand]]:
+    assert not isinstance(target, awst_nodes.TupleExpression)
+
+    indexes = list[_IndexOperand]()
+    while True:
+        match target:
+            case awst_nodes.TupleItemExpression():
+                indexes.append(
+                    _ConstantIndexOperand(
+                        index=target.index, source_location=target.source_location
+                    )
+                )
+                target = target.base
+            case awst_nodes.IndexExpression():
+                indexes.append(target.index)
+                target = target.base
+            case awst_nodes.FieldExpression(
+                base=awst_nodes.Expression(
+                    wtype=wtypes.ARC4Struct(names=names) | wtypes.WTuple(names=[*names])
+                )
+            ):
+                index_int = names.index(target.name)
+                indexes.append(
+                    _ConstantIndexOperand(
+                        index=index_int,
+                        source_location=target.source_location,
+                        field_name=target.name,
+                    )
+                )
+                target = target.base
+            case awst_nodes.FieldExpression():
+                raise InternalError(
+                    f"unimplemented field expression to index conversion for wtype: {target.base.wtype}",
+                    target.source_location,
+                )
+            case _:
+                break
+    indexes.reverse()
+    return target, indexes
+
+
 def handle_assignment(
     context: IRFunctionBuildContext,
     target: awst_nodes.Expression,
@@ -46,6 +102,51 @@ def handle_assignment(
     is_nested_update: bool,
 ) -> Sequence[ir.Value]:
     source = list(value.values) if isinstance(value, ir.ValueTuple) else [value]
+
+    if isinstance(target, awst_nodes.TupleExpression):
+        results = list[ir.Value]()
+        for item in target.items:
+            arity = get_wtype_arity(item.wtype)
+            values = source[:arity]
+            del source[:arity]
+            if len(values) != arity:
+                raise CodeError("not enough values to unpack", assignment_location)
+            if arity == 1:
+                nested_value: ir.MultiValue = values[0]
+            else:
+                nested_value = ir.ValueTuple(values=values, source_location=value.source_location)
+            results.extend(
+                handle_assignment(
+                    context,
+                    target=item,
+                    value=nested_value,
+                    is_nested_update=False,
+                    assignment_location=assignment_location,
+                )
+            )
+        if source:
+            raise CodeError("too many values to unpack", assignment_location)
+        return results
+
+    base_target, index_sources = _extract_write_path(target)
+    base_eval: _AssignmentTargetBaseExpr | Sequence[ir.Value]
+    if isinstance(base_target, awst_nodes.VarExpression):
+        base_eval = base_target
+    elif isinstance(base_target, awst_nodes.StorageExpression):
+        base_eval = base_target
+        context.visitor.visit_and_materialise_single(base_target.key)
+        if isinstance(base_target, awst_nodes.AppAccountStateExpression):
+            context.visitor.visit_and_materialise_single(base_target.account)
+    else:
+        base_eval = context.visitor.visit_and_materialise(base_target, "assignment_base")
+    index_ops = list[ir.Value | _ConstantIndexOperand]()
+    for index_src in index_sources:
+        if isinstance(index_src, awst_nodes.Expression):
+            index_ops.append(context.visitor.visit_and_materialise_single(index_src, "index"))
+        else:
+            index_ops.append(index_src)
+    assert base_eval is not None
+
     match target:
         case awst_nodes.TupleItemExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
@@ -149,32 +250,32 @@ def handle_assignment(
                 assignment_loc=assignment_location,
                 is_nested_update=is_nested_update,
             )
-        case awst_nodes.TupleExpression() as tup_expr:
-            results = list[ir.Value]()
-            for item in tup_expr.items:
-                arity = get_wtype_arity(item.wtype)
-                values = source[:arity]
-                del source[:arity]
-                if len(values) != arity:
-                    raise CodeError("not enough values to unpack", assignment_location)
-                if arity == 1:
-                    nested_value: ir.MultiValue = values[0]
-                else:
-                    nested_value = ir.ValueTuple(
-                        values=values, source_location=value.source_location
-                    )
-                results.extend(
-                    handle_assignment(
-                        context,
-                        target=item,
-                        value=nested_value,
-                        is_nested_update=False,
-                        assignment_location=assignment_location,
-                    )
-                )
-            if source:
-                raise CodeError("too many values to unpack", assignment_location)
-            return results
+        # case awst_nodes.TupleExpression() as tup_expr:
+        #     results = list[ir.Value]()
+        #     for item in tup_expr.items:
+        #         arity = get_wtype_arity(item.wtype)
+        #         values = source[:arity]
+        #         del source[:arity]
+        #         if len(values) != arity:
+        #             raise CodeError("not enough values to unpack", assignment_location)
+        #         if arity == 1:
+        #             nested_value: ir.MultiValue = values[0]
+        #         else:
+        #             nested_value = ir.ValueTuple(
+        #                 values=values, source_location=value.source_location
+        #             )
+        #         results.extend(
+        #             handle_assignment(
+        #                 context,
+        #                 target=item,
+        #                 value=nested_value,
+        #                 is_nested_update=False,
+        #                 assignment_location=assignment_location,
+        #             )
+        #         )
+        #     if source:
+        #         raise CodeError("too many values to unpack", assignment_location)
+        #     return results
         case awst_nodes.AppStateExpression(
             key=awst_key, wtype=wtype, source_location=field_location
         ):
