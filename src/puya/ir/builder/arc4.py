@@ -27,7 +27,6 @@ from puya.ir.models import (
     UInt64Constant,
     Undefined,
     Value,
-    ValueEncode,
     ValueProvider,
     ValueTuple,
 )
@@ -39,7 +38,6 @@ from puya.ir.types_ import (
     SizedBytesType,
     TupleIRType,
     get_type_arity,
-    type_has_encoding,
 )
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
@@ -84,18 +82,18 @@ class NativeTupleCodec(ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        native_elements = self.native_type.elements
+        element_ir_types = self.native_type.elements
         match encoding:
             case TupleEncoding(elements=element_encodings) as tuple_encoding if len(
                 element_encodings
-            ) == len(native_elements):
+            ) == len(element_ir_types):
                 pass
             case FixedArrayEncoding(element=element_encoding, size=size) if size == len(
-                native_elements
+                element_ir_types
             ):
                 tuple_encoding = TupleEncoding([element_encoding] * size)
             case DynamicArrayEncoding(element=element_encoding):
-                tuple_encoding = TupleEncoding([element_encoding] * len(native_elements))
+                tuple_encoding = TupleEncoding([element_encoding] * len(element_ir_types))
             case _:
                 return None
         factory = OpFactory(context, loc)
@@ -108,8 +106,8 @@ class NativeTupleCodec(ARC4Codec):
         header_size_bits = tuple_encoding.get_head_bit_offset(None)
         header_size = bits_to_bytes(header_size_bits)
         current_tail_offset = factory.constant(header_size)
-        for native_element, element_encoding in zip(
-            native_elements, tuple_encoding.elements, strict=True
+        for element_ir_type, element_encoding in zip(
+            element_ir_types, tuple_encoding.elements, strict=True
         ):
             # special handling to bitpack consecutive bools, this will bit pack both native bools
             # and ARC-4 bools
@@ -117,15 +115,10 @@ class NativeTupleCodec(ARC4Codec):
                 value = values.pop(0)
                 # sequential bits in the same tuple are bit-packed
                 if processed_encodings and processed_encodings[-1] == element_encoding:
-                    # ensure value is a bool
-                    if type_has_encoding(native_element, BoolEncoding):
+                    # if element is an encoded bool then read the bit
+                    # outside an array bool elements should not be packed
+                    if value.atype == AVMType.bytes:
                         value = factory.get_bit(value, 0)
-                    elif value.atype != AVMType.uint64:
-                        raise InternalError(
-                            f"unexpected value for encoding bool,"
-                            f" {native_element=}, {element_encoding=}",
-                            loc,
-                        )
                     bit_packed_index += 1
                     bit_index = bit_packed_index % 8
                     if bit_index:
@@ -138,43 +131,27 @@ class NativeTupleCodec(ARC4Codec):
                         head = value
                         continue
                 else:
-                    # value is already encoded, so do nothing
-                    if type_has_encoding(native_element, BoolEncoding):
-                        pass
-                    elif value.atype == AVMType.uint64:
+                    if value.atype == AVMType.uint64:
                         value = factory.set_bit(
                             value=ARC4_FALSE, index=0, bit=value, temp_desc="encoded_bit"
                         )
-                        # value = factory.select(
-                        #    false=ARC4_FALSE,
-                        #    true=ARC4_TRUE,
-                        #    condition=value,
-                        #    ir_type=PrimitiveIRType.bytes,
-                        #    temp_desc="encoded_bit",
-                        # )
-                    else:
-                        raise InternalError(
-                            f"unexpected value for encoding bool,"
-                            f" {native_element=}, {element_encoding=}",
-                            loc,
-                        )
                     bit_packed_index = 0
             else:
-                element_arity = get_type_arity(native_element)
+                element_arity = get_type_arity(element_ir_type)
                 if element_arity == 1:
                     element_value_or_tuple: Value | ValueTuple = values.pop(0)
                 else:
                     element_values = values[:element_arity]
                     values = values[element_arity:]
                     element_value_or_tuple = ValueTuple(values=element_values, source_location=loc)
-                if type_has_encoding(native_element, element_encoding):
-                    assert isinstance(element_value_or_tuple, Value), "expected Value"
-                    value = element_value_or_tuple
-                else:
+                if requires_conversion(element_ir_type, element_encoding, "encode"):
                     encoded_element_vp = encode_value(
-                        context, element_value_or_tuple, native_element, element_encoding, loc
+                        context, element_value_or_tuple, element_ir_type, element_encoding, loc
                     )
                     value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
+                else:
+                    assert isinstance(element_value_or_tuple, Value), "expected Value"
+                    value = element_value_or_tuple
                 if element_encoding.is_dynamic:
                     # append value to tail
                     tail = factory.concat(tail, value, "tail")
@@ -200,7 +177,7 @@ class NativeTupleCodec(ARC4Codec):
                 loc,
             )
         if isinstance(encoding, ArrayEncoding) and encoding.length_header:
-            len_u16 = factory.as_u16_bytes(len(native_elements), "len_u16")
+            len_u16 = factory.as_u16_bytes(len(element_ir_types), "len_u16")
             head = factory.concat(len_u16, head, "encoded")
         encoded = factory.concat(head, tail, "encoded", ir_type=EncodedType(encoding))
         return encoded
@@ -332,6 +309,9 @@ class UInt64Codec(ScalarCodec):
 
 
 class BoolCodec(ScalarCodec):
+    def __init__(self, ir_type: IRType) -> None:
+        self.ir_type = ir_type
+
     @typing.override
     def encode_value(
         self,
@@ -341,12 +321,12 @@ class BoolCodec(ScalarCodec):
         loc: SourceLocation,
     ) -> ValueProvider | None:
         match encoding:
-            case BoolEncoding():
+            case BoolEncoding() if self.ir_type == PrimitiveIRType.bool:
                 factory = OpFactory(context, loc)
                 # TODO: compare with select implementation
                 false = factory.constant(ARC4_FALSE)
                 return factory.set_bit(value=false, index=0, bit=value, temp_desc="encoded_bool")
-            case UIntEncoding(n=bits):
+            case UIntEncoding(n=bits) if self.ir_type == PrimitiveIRType.bool:
                 num_bytes = bits // 8
                 return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
         return None
@@ -360,14 +340,19 @@ class BoolCodec(ScalarCodec):
         loc: SourceLocation,
     ) -> ValueProvider | None:
         match encoding:
-            case BoolEncoding():
+            case BoolEncoding(packed=True) if self.ir_type == EncodedType(
+                BoolEncoding(packed=False)
+            ):
+                encoder = BoolCodec(PrimitiveIRType.bool)
+                return encoder.encode(context, value, BoolEncoding(packed=False), loc)
+            case BoolEncoding() if self.ir_type == PrimitiveIRType.bool:
                 return Intrinsic(
                     op=AVMOp.getbit,
                     args=[value, UInt64Constant(value=0, source_location=None)],
                     types=(PrimitiveIRType.bool,),
                     source_location=loc,
                 )
-            case UIntEncoding():
+            case UIntEncoding() if self.ir_type == PrimitiveIRType.bool:
                 return Intrinsic(
                     op=AVMOp.neq_bytes,
                     args=[value, BigUIntConstant(value=0, source_location=None)],
@@ -471,7 +456,7 @@ class CheckedEncoding(ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if type_has_encoding(self.native_type, encoding):
+        if not requires_conversion(self.native_type, encoding, "encode"):
             return value_provider
         return None
 
@@ -483,7 +468,7 @@ class CheckedEncoding(ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if type_has_encoding(self.native_type, encoding):
+        if not requires_conversion(self.native_type, encoding, "decode"):
             return value
         return None
 
@@ -494,8 +479,8 @@ def _get_arc4_codec(ir_type: IRType | TupleIRType) -> ARC4Codec | None:
             return NativeTupleCodec(aggregate)
         case PrimitiveIRType.biguint:
             return BigUIntCodec()
-        case PrimitiveIRType.bool:
-            return BoolCodec()
+        case PrimitiveIRType.bool | EncodedType(BoolEncoding(packed=False)):
+            return BoolCodec(ir_type)
         case PrimitiveIRType.string:
             return BytesCodec(UTF8Encoding())
         case EncodedType():
@@ -510,6 +495,23 @@ def _get_arc4_codec(ir_type: IRType | TupleIRType) -> ARC4Codec | None:
             return None
 
 
+def requires_conversion(
+    typ: IRType | TupleIRType, encoding: Encoding, action: typing.Literal["encode", "decode"]
+) -> bool:
+    if typ == PrimitiveIRType.bool and isinstance(encoding, BoolEncoding):
+        return True
+    elif isinstance(typ, EncodedType):
+        typ_is_bool8 = isinstance(typ.encoding, BoolEncoding) and not typ.encoding.packed
+        encoding_is_bool1 = encoding.is_bit
+        if typ_is_bool8 and encoding_is_bool1 and action == "encode":
+            return False
+        # are encodings different?
+        return typ.encoding != encoding
+    # otherwise requires conversion
+    else:
+        return True
+
+
 def maybe_decode_value(
     context: IRRegisterContext,
     encoded_item: Value,
@@ -519,19 +521,7 @@ def maybe_decode_value(
 ) -> MultiValue:
     factory = OpFactory(context, loc)
     encoded_item = factory.materialise_single(encoded_item, "encoded_item")
-    if encoded_item.ir_type.avm_type == AVMType.uint64 and type_has_encoding(
-        target_type, BoolEncoding(packed=False)
-    ):
-        # awkward case of bool1 -> bool8
-        return factory.materialise_single(
-            ValueEncode(
-                values=[encoded_item],
-                encoding=BoolEncoding(packed=False),
-                value_type=PrimitiveIRType.bool,
-                source_location=loc,
-            )
-        )
-    if type_has_encoding(target_type, encoding):
+    if not requires_conversion(target_type, encoding, "decode"):
         # no decoding required
         return encoded_item
     else:
@@ -555,12 +545,6 @@ def decode_value(
     loc: SourceLocation,
 ) -> ValueProvider:
     # TODO: migrate to ValueDecode
-    if type_has_encoding(target_type, BoolEncoding) and isinstance(encoding, BoolEncoding):
-        logger.warning(
-            f"TODO: ignoring bool packing for {_encoding_or_name(target_type)}, {encoding=!s}",
-            location=loc,
-        )
-        return value
     codec = _get_arc4_codec(target_type)
     if codec is not None:
         result = codec.decode(context, value, encoding, loc)
@@ -581,15 +565,9 @@ def encode_value(
     encoding: Encoding,
     loc: SourceLocation,
 ) -> ValueProvider:
-    if type_has_encoding(value_type, encoding):
+    if not requires_conversion(value_type, encoding, "encode"):
         logger.debug(
             f"redundant encode operation from {_encoding_or_name(value_type)} to {encoding!s}",
-            location=loc,
-        )
-        return value_provider
-    if type_has_encoding(value_type, BoolEncoding) and isinstance(encoding, BoolEncoding):
-        logger.warning(
-            f"TODO: ignoring bool packing for {_encoding_or_name(value_type)}, {encoding=!s}",
             location=loc,
         )
         return value_provider
