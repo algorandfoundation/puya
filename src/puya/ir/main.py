@@ -20,7 +20,7 @@ from puya.ir._contract_metadata import build_contract_metadata
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import make_subroutine
 from puya.ir.arc4_router import AWSTContractMethodSignature
-from puya.ir.builder.lower_aggregates import lower_aggregate_nodes
+from puya.ir.builder.aggregates.main import lower_aggregate_nodes
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa

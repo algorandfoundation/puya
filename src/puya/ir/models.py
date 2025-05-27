@@ -30,6 +30,7 @@ from puya.ir.types_ import (
     SlotType,
     TupleIRType,
     UnionType,
+    get_type_arity,
     ir_type_to_ir_types,
 )
 from puya.ir.visitor import IRVisitor
@@ -553,14 +554,15 @@ class ValueEncode(Op, ValueProvider):
     value_type: IRType | TupleIRType = attrs.field()
 
     @value_type.validator
-    def _value_type_validator(self, _: object, value: IRType) -> None:
-        ir_types = ir_type_to_ir_types(value)
-        if len(ir_types) != len(self.values):
+    def _value_type_validator(self, _: object, value: IRType | TupleIRType) -> None:
+        type_arity = get_type_arity(value)
+        if type_arity != len(self.values):
             raise InternalError(
                 "expected value_type arity to match values arity", self.source_location
             )
-        if value == EncodedType(self.encoding):
-            raise InternalError("nothing to encode", self.source_location)
+        # TODO: re-enable this after removing StackArray
+        # if value == EncodedType(self.encoding):
+        #    raise InternalError("nothing to encode", self.source_location)
 
     def _frozen_data(self) -> object:
         return self.values, self.value_type, self.encoding
@@ -628,19 +630,6 @@ class ArrayPop(_ArrayOp):
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_array_pop(self)
-
-
-@attrs.define(eq=False)
-class ArrayLength(_ArrayOp):
-    def _frozen_data(self) -> object:
-        return self.array
-
-    @property
-    def types(self) -> Sequence[IRType]:
-        return (PrimitiveIRType.uint64,)
-
-    def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_length(self)
 
 
 @attrs.define(eq=False)
