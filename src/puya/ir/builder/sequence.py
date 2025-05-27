@@ -6,6 +6,7 @@ from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import arc4
 from puya.ir.builder._utils import OpFactory, assert_value, invoke_puya_lib_subroutine
