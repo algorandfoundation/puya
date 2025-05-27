@@ -9,14 +9,12 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import mem, sequence, storage
+from puya.ir.builder import mem, sequence, storage, tup
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import assign, assign_targets, get_implicit_return_is_original
-from puya.ir.builder.arc4 import write_tuple_index
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.encodings import wtype_to_encoding
 from puya.ir.models import MultiValue, Value
-from puya.ir.types_ import PrimitiveIRType, get_wtype_arity, wtype_to_ir_type
+from puya.ir.types_ import PrimitiveIRType, get_wtype_arity
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -246,21 +244,9 @@ def handle_arc4_assign(
             base = context.visitor.visit_and_materialise_single(base_expr, "base")
             index_int = struct_wtype.names.index(field_name)
 
-            tuple_encoding = wtype_to_encoding(struct_wtype, source_location)
-            value_ir_type = wtype_to_ir_type(
-                struct_wtype.types[index_int],
-                source_location=source_location,
-                allow_tuple=True,
-            )
-            item = write_tuple_index(
-                context,
-                base,
-                index_int,
-                tuple_encoding,
-                value_ir_type,
-                value,
-                source_location,
-            )
+            tup_builder = tup.get_builder(context, struct_wtype, source_location)
+            item = tup_builder.write_at_index(base, index_int, value)
+
             return handle_arc4_assign(
                 context,
                 target=base_expr,
@@ -270,24 +256,13 @@ def handle_arc4_assign(
             )
         case awst_nodes.TupleItemExpression(
             base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
-            index=index_value,
+            index=index_int,
         ):
             base = context.visitor.visit_and_materialise_single(base_expr, "base")
-            tuple_encoding = wtype_to_encoding(tuple_wtype, source_location)
-            value_ir_type = wtype_to_ir_type(
-                tuple_wtype.types[index_value],
-                source_location=source_location,
-                allow_tuple=True,
-            )
-            item = write_tuple_index(
-                context,
-                base=base,
-                index=index_value,
-                tuple_encoding=tuple_encoding,
-                value_ir_type=value_ir_type,
-                value=value,
-                source_location=source_location,
-            )
+
+            tup_builder = tup.get_builder(context, tuple_wtype, source_location)
+            item = tup_builder.write_at_index(base, index_int, value)
+
             return handle_arc4_assign(
                 context,
                 target=base_expr,
