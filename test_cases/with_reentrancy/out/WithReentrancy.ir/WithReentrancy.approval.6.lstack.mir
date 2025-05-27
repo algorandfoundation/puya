@@ -44,9 +44,9 @@ subroutine itoa:
         // return digits[i]
         p-load i#0                                           (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
         int 1                                                (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
-        extract3 // on error: Index access is out of bounds  (𝕡) i#0 | read_bytes%0#0
-        l-load read_bytes%0#0 0                              (𝕡) i#0 | read_bytes%0#0
-        retsub                                               read_bytes%0#0
+        extract3                                             (𝕡) i#0 | extract%0#0
+        l-load extract%0#0 0                                 (𝕡) i#0 | extract%0#0
+        retsub                                               extract%0#0
 
     itoa_after_if_else@2:                                    (𝕡) i#0 |
         // with_reentrancy/contract.py:22
@@ -74,9 +74,9 @@ subroutine itoa:
         // return itoa(i // radix) + digits[i % radix]
         l-load tmp%4#0 1                                     (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0
         int 1                                                (𝕡) i#0 | tmp%3#0,0x30313233343536373839,tmp%4#0,1
-        extract3 // on error: Index access is out of bounds  (𝕡) i#0 | tmp%3#0,read_bytes%1#0
-        l-load tmp%3#0 1                                     (𝕡) i#0 | read_bytes%1#0,tmp%3#0
-        l-load read_bytes%1#0 1                              (𝕡) i#0 | tmp%3#0,read_bytes%1#0
+        extract3                                             (𝕡) i#0 | tmp%3#0,extract%1#0
+        l-load tmp%3#0 1                                     (𝕡) i#0 | extract%1#0,tmp%3#0
+        l-load extract%1#0 1                                 (𝕡) i#0 | tmp%3#0,extract%1#0
         concat                                               (𝕡) i#0 | tmp%5#0
         l-load tmp%5#0 0                                     (𝕡) i#0 | tmp%5#0
         retsub                                               tmp%5#0

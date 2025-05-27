@@ -198,8 +198,6 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         (box_replace "box_large" 4096u 0x000000000000002a)
         let (b_value#0: Encoded(len+uint8[]), maybe_exists%0#0: bool) = (box_get "b")
         (assert maybe_exists%0#0) // check self.box_b exists
-        let array%array_length%0#1: uint64 = (extract_uint16 b_value#0 0u)
-        let tmp%2#0: bool = 1u
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box_a")
         (assert maybe_exists%2#0) // check self.box_a exists
         let maybe_value_converted%0#0: uint64 = (btoi maybe_value%2#0)
@@ -226,15 +224,15 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let tmp%11#0: bool = (== value%3#0 tmp%10#0)
         (assert tmp%11#0)
         let tmp%12#0: bytes = (box_extract 0x424f585f43 0u 1u)
-        let read_bytes%0#0: bytes = ((extract 0 1) c#0) // on error: Index access is out of bounds
-        let tmp%13#0: bool = (== tmp%12#0 read_bytes%0#0)
+        let extract%0#0: bytes = ((extract 0 1) c#0)
+        let tmp%13#0: bool = (== tmp%12#0 extract%0#0)
         (assert tmp%13#0)
         let (tmp%14#0: uint64, tmp%15#0: bool) = (box_len 0x424f585f43)
         let tmp%16#0: uint64 = (- tmp%14#0 1u)
         let tmp%17#0: bytes = (box_extract 0x424f585f43 tmp%16#0 1u)
         let tmp%19#0: uint64 = (- tmp%7#0 1u)
-        let read_bytes%1#0: bytes = (extract3 c#0 tmp%19#0 1u) // on error: Index access is out of bounds
-        let tmp%20#0: bool = (== tmp%17#0 read_bytes%1#0)
+        let extract%1#0: bytes = (extract3 c#0 tmp%19#0 1u)
+        let tmp%20#0: bool = (== tmp%17#0 extract%1#0)
         (assert tmp%20#0)
         let (tmp%21#0: uint64, tmp%22#0: bool) = (box_len 0x424f585f43)
         let tmp%23#0: bool = (< 1u tmp%21#0)
@@ -257,15 +255,15 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let tmp%37#0: bool = (== tmp%35#0 tmp%36#0)
         (assert tmp%37#0)
         let tmp%38#0: bytes = (box_extract "box_d" 0u 1u)
-        let read_bytes%2#0: bytes = ((extract 2 1) b#0)
-        let tmp%40#0: bool = (== tmp%38#0 read_bytes%2#0)
+        let extract%2#0: bytes = ((extract 2 1) b#0)
+        let tmp%40#0: bool = (== tmp%38#0 extract%2#0)
         (assert tmp%40#0)
         let (tmp%41#0: uint64, tmp%42#0: bool) = (box_len "box_d")
         let tmp%43#0: uint64 = (- tmp%41#0 1u)
         let tmp%44#0: bytes = (box_extract "box_d" tmp%43#0 1u)
         let tmp%47#0: uint64 = (- tmp%10#0 1u)
-        let read_bytes%3#0: bytes = (extract3 tmp%0#0 tmp%47#0 1u) // on error: Index access is out of bounds
-        let tmp%48#0: bool = (== tmp%44#0 read_bytes%3#0)
+        let extract%3#0: bytes = (extract3 tmp%0#0 tmp%47#0 1u)
+        let tmp%48#0: bool = (== tmp%44#0 extract%3#0)
         (assert tmp%48#0)
         let (tmp%49#0: uint64, tmp%50#0: bool) = (box_len "box_d")
         let tmp%51#0: bool = (< 1u tmp%49#0)
@@ -380,6 +378,18 @@ subroutine examples.box_storage.contract.BoxContract.slice_box() -> void:
 subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
     block@0: // L124
         (box_put 0x64 0x00010203)
+        let array%bytes_offset%0#1: uint64 = 0u
+        let array%encoded_element%0#1: bytes = 0x00
+        let tmp%0#0: bool = 1u
+        let array%bytes_offset%1#1: uint64 = 1u
+        let array%encoded_element%1#1: bytes = 0x01
+        let tmp%1#0: bool = 1u
+        let array%bytes_offset%2#1: uint64 = 2u
+        let array%encoded_element%2#1: bytes = 0x02
+        let tmp%2#0: bool = 1u
+        let array%bytes_offset%3#1: uint64 = 3u
+        let array%encoded_element%3#1: bytes = 0x03
+        let tmp%3#0: bool = 1u
         return 
 
 subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:

@@ -3393,6 +3393,8 @@ debug: Simplified (len 0x00000000000000000000000000000001) to 16u
 debug: Simplified (/ 16u 8u) to 2u
 debug: Simplified ((extract 6 2) as_bytes%1#0) to 0x0002
 debug: Simplified (replace3 0x000100000000000000000000000000000001 0u 0x0002) to 0x000200000000000000000000000000000001
+debug: Simplified (extract_uint16 0x000200000000000000000000000000000001 0u) to 2u
+debug: Simplified (== 2u 2u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -4030,8 +4032,8 @@ debug: Found equivalence set: replace%0#0, as_Encoded(len+uint64[])%0#0, twm.arr
 debug: selected twm.arr#1 from equivalence set
 debug: Found equivalence set: replace%1#0, as_Encoded(len+uint64[])%1#0, twm.arr#2
 debug: selected twm.arr#2 from equivalence set
-debug: Found equivalence set: encoded_element%0#0, reinterpret_biguint%0#0
-debug: selected encoded_element%0#0 from equivalence set
+debug: Found equivalence set: array_item%0#0, reinterpret_biguint%0#0
+debug: selected array_item%0#0 from equivalence set
 debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -4059,7 +4061,6 @@ debug: Simplified (len 0x000000000000000000000000000000010000000000000002) to 24
 debug: Simplified (/ 24u 8u) to 3u
 debug: Simplified ((extract 6 2) as_bytes%2#0) to 0x0003
 debug: Simplified (replace3 0x0002000000000000000000000000000000010000000000000002 0u 0x0003) to 0x0003000000000000000000000000000000010000000000000002
-debug: Simplified ((extract 2 0) 0x0003000000000000000000000000000000010000000000000002) to 0x000000000000000000000000000000010000000000000002
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -4231,6 +4232,8 @@ debug: Removing unused variable div_floor%0#0
 debug: Removing unused variable as_bytes%1#0
 debug: Removing unused variable as_u16_bytes%0#0
 debug: Removing unused variable x.0.0#1
+debug: Removing unused variable array_length%0#0
+debug: Removing unused variable tmp%0#2
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== "There" "There") to 1u
 debug: Simplified (== "Hi" "Hi") to 1u
@@ -5027,7 +5030,6 @@ debug: Removing unused variable div_floor%1#0
 debug: Removing unused variable as_bytes%2#0
 debug: Removing unused variable as_u16_bytes%1#0
 debug: Removing unused variable twm.arr#2
-debug: Removing unused variable array_trimmed%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -6318,9 +6320,13 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%encoded_element%0#1, array_item%0#0
+debug: selected array%encoded_element%0#1 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified ((extract 2 0) 0x0003000000000000000000000000000000010000000000000002) to 0x000000000000000000000000000000010000000000000002
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -6350,15 +6356,10 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array%array_length%0#1, length%0#0
-debug: selected array%array_length%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Don't know how to simplify 1 addw 2
-debug: Simplified (extract_uint16 0x000200000000000000000000000000000001 0u) to 2u
-debug: Simplified (== 2u 2u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -6586,6 +6587,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%array_trimmed%0#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -6618,8 +6620,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array%array_length%0#1
-debug: Removing unused variable tmp%0#2
 debug: Optimizer: Intrinsic Simplifier
 debug: Don't know how to simplify 1 addw 2
 debug: Optimizer: Inner Txn Field Replacer
@@ -8212,12 +8212,12 @@ debug: Inserted mutate_local_tuple_for_header@1.ops[3]: 'l-store-copy continue_l
 debug: Replaced mutate_local_tuple_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted mutate_local_tuple_for_body@2.ops[15]: 'l-store-copy tmp%1#0 0'
 debug: Replaced mutate_local_tuple_for_body@2.ops[17]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted mutate_local_tuple_for_body@2.ops[3]: 'l-store-copy bytes_offset%0#0 0'
-debug: Replaced mutate_local_tuple_for_body@2.ops[6]: 'v-load bytes_offset%0#0' with 'l-load bytes_offset%0#0'
+debug: Inserted mutate_local_tuple_for_body@2.ops[3]: 'l-store-copy array%bytes_offset%0#1 0'
+debug: Replaced mutate_local_tuple_for_body@2.ops[6]: 'v-load array%bytes_offset%0#1' with 'l-load array%bytes_offset%0#1'
 debug: Inserted mutate_local_tuple_for_body@2.ops[12]: 'l-store-copy tmp%0#0 0'
 debug: Replaced mutate_local_tuple_for_body@2.ops[15]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted mutate_local_tuple_for_body@2.ops[9]: 'l-store-copy encoded_element%0#0 0'
-debug: Replaced mutate_local_tuple_for_body@2.ops[15]: 'v-load encoded_element%0#0' with 'l-load encoded_element%0#0'
+debug: Inserted mutate_local_tuple_for_body@2.ops[9]: 'l-store-copy array%encoded_element%0#1 0'
+debug: Replaced mutate_local_tuple_for_body@2.ops[15]: 'v-load array%encoded_element%0#1' with 'l-load array%encoded_element%0#1'
 debug: Inserted mutate_local_tuple_for_body@2.ops[1]: 'l-store-copy i#0 0'
 debug: Replaced mutate_local_tuple_for_body@2.ops[12]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted mutate_local_tuple_for_body@2.ops[13]: 'l-store-copy i#0 1'

@@ -47,15 +47,15 @@ subroutine examples.voting.voting.itoa(i: uint64) -> string:
         let tmp%1#0: bool = (< i#0 radix#0)
         goto tmp%1#0 ? block@1 : block@2
     block@1: // if_body_L254
-        let read_bytes%0#0: bytes = (extract3 0x30313233343536373839 i#0 1u) // on error: Index access is out of bounds
-        let reinterpret_string%0#0: string = read_bytes%0#0
+        let extract%0#0: bytes = (extract3 0x30313233343536373839 i#0 1u)
+        let reinterpret_string%0#0: string = extract%0#0
         return reinterpret_string%0#0
     block@2: // after_if_else_L253
         let tmp%2#0: uint64 = (/ i#0 radix#0)
         let tmp%3#0: string = examples.voting.voting.itoa(tmp%2#0)
         let tmp%4#0: uint64 = (% i#0 radix#0)
-        let read_bytes%1#0: bytes = (extract3 0x30313233343536373839 tmp%4#0 1u) // on error: Index access is out of bounds
-        let reinterpret_string%1#0: string = read_bytes%1#0
+        let extract%1#0: bytes = (extract3 0x30313233343536373839 tmp%4#0 1u)
+        let reinterpret_string%1#0: string = extract%1#0
         let tmp%5#0: bytes = (concat tmp%3#0 reinterpret_string%1#0)
         return tmp%5#0
 
@@ -144,18 +144,18 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         let current_index#0: uint64 = 0u
         let (maybe_value%5#0: bytes, maybe_exists%6#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%6#0) // check self.option_counts exists
-        let array%array_length%0#1: uint64 = (extract_uint16 maybe_value%5#0 0u)
-        let length%0#0: uint64 = array%array_length%0#1
+        let array_length%0#0: uint64 = (extract_uint16 maybe_value%5#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L132
-        let continue_looping%0#0: bool = (< item_index_internal%0#0 length%0#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L133
-        let array_trimmed%0#0: bytes = ((extract 2 0) maybe_value%5#0)
-        let bytes_offset%0#0: uint64 = (* item_index_internal%0#0 1u)
-        let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 1u) // on error: index access is out of bounds
-        let question_options#0: Encoded(uint8) = encoded_element%0#0
+        let array%array_trimmed%0#1: bytes = ((extract 2 0) maybe_value%5#0)
+        let array%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 1u)
+        let array%encoded_element%0#1: bytes = (extract3 array%array_trimmed%0#1 array%bytes_offset%0#1 1u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint8) = array%encoded_element%0#1
+        let question_options#0: Encoded(uint8) = array_item%0#0
         let question_index#0: uint64 = item_index_internal%0#0
         let tmp%14#0: bool = (> question_index#0 0u)
         let note#17: string = note#0
@@ -278,16 +278,13 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         (assert tmp%3#0) // Already voted
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%0#0) // check self.option_counts exists
-        let array%array_length%0#1: uint64 = (extract_uint16 maybe_value%0#0 0u)
-        let length%0#0: uint64 = array%array_length%0#1
-        let questions_count#0: uint64 = length%0#0
-        let array%array_length%1#1: uint64 = (extract_uint16 answer_ids#0 0u)
-        let length%1#0: uint64 = array%array_length%1#1
-        let tmp%4#0: bool = (== length%1#0 questions_count#0)
+        let array_length%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let questions_count#0: uint64 = array_length%0#0
+        let array_length%1#0: uint64 = (extract_uint16 answer_ids#0 0u)
+        let tmp%4#0: bool = (== array_length%1#0 questions_count#0)
         (assert tmp%4#0) // Number of answers incorrect
-        let array%array_length%2#1: uint64 = (extract_uint16 answer_ids#0 0u)
-        let length%2#0: uint64 = array%array_length%2#1
-        let tmp%5#0: uint64 = (* 1u length%2#0)
+        let array_length%2#0: uint64 = (extract_uint16 answer_ids#0 0u)
+        let tmp%5#0: uint64 = (* 1u array_length%2#0)
         let tmp%6#0: uint64 = (+ 34u tmp%5#0)
         let tmp%7#0: uint64 = (* tmp%6#0 400u)
         let tmp%8#0: uint64 = (+ 2500u tmp%7#0)
@@ -309,17 +306,19 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         let continue_looping%0#0: bool = (< question_index#0 questions_count#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L197
-        let array_trimmed%0#0: bytes = ((extract 2 0) answer_ids#0)
-        let bytes_offset%0#0: uint64 = (* question_index#0 1u)
-        let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 1u) // on error: index access is out of bounds
-        let tmp%15#0: uint64 = (btoi encoded_element%0#0)
+        let array%array_trimmed%0#1: bytes = ((extract 2 0) answer_ids#0)
+        let array%bytes_offset%0#1: uint64 = (* question_index#0 1u)
+        let array%encoded_element%0#1: bytes = (extract3 array%array_trimmed%0#1 array%bytes_offset%0#1 1u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint8) = array%encoded_element%0#1
+        let tmp%15#0: uint64 = (btoi array_item%0#0)
         let answer_option_index#0: uint64 = tmp%15#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%1#0) // check self.option_counts exists
-        let array_trimmed%1#0: bytes = ((extract 2 0) maybe_value%1#0)
-        let bytes_offset%1#0: uint64 = (* question_index#0 1u)
-        let encoded_element%1#0: bytes = (extract3 array_trimmed%1#0 bytes_offset%1#0 1u) // on error: index access is out of bounds
-        let tmp%16#0: uint64 = (btoi encoded_element%1#0)
+        let array%array_trimmed%1#1: bytes = ((extract 2 0) maybe_value%1#0)
+        let array%bytes_offset%1#1: uint64 = (* question_index#0 1u)
+        let array%encoded_element%1#1: bytes = (extract3 array%array_trimmed%1#1 array%bytes_offset%1#1 1u) // on error: index access is out of bounds
+        let array_item%1#0: Encoded(uint8) = array%encoded_element%1#1
+        let tmp%16#0: uint64 = (btoi array_item%1#0)
         let options_count#0: uint64 = tmp%16#0
         let tmp%17#0: bool = (< answer_option_index#0 options_count#0)
         (assert tmp%17#0) // Answer option index invalid
@@ -381,27 +380,25 @@ subroutine examples.voting.voting.VotingRoundApp.already_voted() -> bool:
 subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_counts: Encoded(len+uint8[])) -> Encoded(len+uint8[]):
     block@0: // L217
         let option_counts%out#0: Encoded(len+uint8[]) = option_counts#0
-        let array%array_length%0#1: uint64 = (extract_uint16 option_counts#0 0u)
-        let length%0#0: uint64 = array%array_length%0#1
-        let tmp%0#0: bool = (!= length%0#0 0u)
+        let array_length%0#0: uint64 = (extract_uint16 option_counts#0 0u)
+        let tmp%0#0: bool = (!= array_length%0#0 0u)
         (assert tmp%0#0) // option_counts should be non-empty
-        let array%array_length%1#1: uint64 = (extract_uint16 option_counts#0 0u)
-        let length%1#0: uint64 = array%array_length%1#1
-        let tmp%1#0: bool = (<= length%1#0 112u)
+        let array_length%1#0: uint64 = (extract_uint16 option_counts#0 0u)
+        let tmp%1#0: bool = (<= array_length%1#0 112u)
         (assert tmp%1#0) // Can't have more than 112 questions
         let total_options#0: uint64 = 0u
-        let array%array_length%2#1: uint64 = (extract_uint16 option_counts#0 0u)
-        let length%2#0: uint64 = array%array_length%2#1
+        let array_length%2#0: uint64 = (extract_uint16 option_counts#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L223
-        let continue_looping%0#0: bool = (< item_index_internal%0#0 length%2#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%2#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L224
-        let array_trimmed%0#0: bytes = ((extract 2 0) option_counts#0)
-        let bytes_offset%0#0: uint64 = (* item_index_internal%0#0 1u)
-        let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 1u) // on error: index access is out of bounds
-        let item#0: Encoded(uint8) = encoded_element%0#0
+        let array%array_trimmed%0#1: bytes = ((extract 2 0) option_counts#0)
+        let array%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 1u)
+        let array%encoded_element%0#1: bytes = (extract3 array%array_trimmed%0#1 array%bytes_offset%0#1 1u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint8) = array%encoded_element%0#1
+        let item#0: Encoded(uint8) = array_item%0#0
         let tmp%2#0: uint64 = (btoi item#0)
         let tmp%3#0: uint64 = (+ total_options#0 tmp%2#0)
         let total_options#0: uint64 = tmp%3#0
