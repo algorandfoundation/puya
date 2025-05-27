@@ -1,7 +1,4 @@
 import abc
-import typing
-from collections.abc import Sequence
-from itertools import zip_longest
 
 from puya.awst import wtypes
 from puya.errors import InternalError
@@ -9,8 +6,6 @@ from puya.ir import models as ir
 from puya.ir.builder import arc4
 from puya.ir.builder._utils import OpFactory
 from puya.ir.encodings import (
-    BoolEncoding,
-    Encoding,
     TupleEncoding,
     wtype_to_encoding,
 )
@@ -23,7 +18,7 @@ from puya.ir.types_ import (
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
-from puya.utils import bits_to_bytes, round_bits_to_nearest_bytes
+from puya.utils import bits_to_bytes
 
 
 class TupleBuilder(abc.ABC):
@@ -97,8 +92,8 @@ class EncodedTupleBuilder(TupleBuilder):
 
         tuple_item_types = self.tuple_encoding.elements
         item_encoding = tuple_item_types[index]
-        head_up_to_item = _get_head_bit_offset(tuple_item_types[:index])
-        if _bit_packed_bool(item_encoding):
+        head_up_to_item = self.tuple_encoding.get_head_bit_offset(index)
+        if item_encoding.is_bit:
             encoded = self.factory.get_bit(tup, head_up_to_item)
         elif not item_encoding.is_dynamic:
             head_offset = bits_to_bytes(head_up_to_item)
@@ -112,8 +107,8 @@ class EncodedTupleBuilder(TupleBuilder):
                 tuple_item_types[next_index:], start=next_index
             ):
                 if tuple_item_type.is_dynamic:
-                    head_up_to_next_dynamic_item = _get_head_bit_offset(
-                        tuple_item_types[:tuple_item_index]
+                    head_up_to_next_dynamic_item = self.tuple_encoding.get_head_bit_offset(
+                        tuple_item_index
                     )
                     item_end_offset = self.factory.extract_uint16(
                         tup, bits_to_bytes(head_up_to_next_dynamic_item)
@@ -134,24 +129,3 @@ class EncodedTupleBuilder(TupleBuilder):
 
     def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
         raise NotImplementedError
-
-# TODO: can these be properties of Encoding / TupleEncoding?
-def _bit_packed_bool(encoding: Encoding) -> typing.TypeGuard[BoolEncoding]:
-    return isinstance(encoding, BoolEncoding) and encoding.packed
-
-
-def _get_head_bit_offset(encodings: Sequence[Encoding]) -> int:
-    bit_size = 0
-    for encoding, next_encoding in zip_longest(encodings, encodings[1:]):
-        encoding_is_bit_packed_bool = _bit_packed_bool(encoding)
-        if encoding.is_dynamic:
-            size = 16
-        elif encoding_is_bit_packed_bool:
-            size = 1
-        else:
-            size = encoding.checked_num_bytes * 8
-        bit_size += size
-        # move to the next byte if bit-packing has ended
-        if encoding_is_bit_packed_bool and next_encoding != encoding and next_encoding:
-            bit_size = round_bits_to_nearest_bytes(bit_size)
-    return bit_size

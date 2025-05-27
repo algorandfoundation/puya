@@ -10,7 +10,7 @@ from puya.awst import wtypes
 from puya.awst.visitors import WTypeVisitor
 from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
-from puya.utils import bits_to_bytes
+from puya.utils import bits_to_bytes, round_bits_to_nearest_bytes
 
 
 @attrs.frozen(str=False)
@@ -35,6 +35,11 @@ class Encoding(abc.ABC):
     @typing.final
     def is_dynamic(self) -> bool:
         return self.num_bytes is None
+
+    @cached_property
+    @typing.final
+    def is_bit(self) -> bool:
+        return self.num_bits == 1
 
     @cached_property
     @typing.final
@@ -98,6 +103,18 @@ class UTF8Encoding(Encoding):
 @attrs.frozen(str=False)
 class TupleEncoding(Encoding):
     elements: Sequence[Encoding] = attrs.field(converter=tuple[Encoding, ...])
+
+    def get_head_bit_offset(self, index: int | None) -> int:
+        bit_size = 0
+        for encoding in self.elements[:index]:
+            # may need to round to the next byte if bit-packing has ended
+            if not encoding.is_bit:
+                bit_size = round_bits_to_nearest_bytes(bit_size)
+            if encoding.is_dynamic:
+                bit_size += 16
+            else:
+                bit_size += encoding.checked_num_bits
+        return bit_size
 
     @cached_property
     def num_bits(self) -> int | None:

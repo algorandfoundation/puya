@@ -1,7 +1,5 @@
 import abc
 import typing
-from collections.abc import Sequence
-from itertools import zip_longest
 
 from puya import log
 from puya.avm import AVMType
@@ -44,7 +42,7 @@ from puya.ir.types_ import (
     type_has_encoding,
 )
 from puya.parse import SourceLocation
-from puya.utils import round_bits_to_nearest_bytes
+from puya.utils import bits_to_bytes
 
 logger = log.get_logger(__name__)
 
@@ -88,16 +86,16 @@ class NativeTupleCodec(ARC4Codec):
     ) -> ValueProvider | None:
         native_elements = self.native_type.elements
         match encoding:
-            case TupleEncoding(elements=element_encodings) if len(element_encodings) == len(
-                native_elements
-            ):
+            case TupleEncoding(elements=element_encodings) as tuple_encoding if len(
+                element_encodings
+            ) == len(native_elements):
                 pass
             case FixedArrayEncoding(element=element_encoding, size=size) if size == len(
                 native_elements
             ):
-                element_encodings = [element_encoding] * size
+                tuple_encoding = TupleEncoding([element_encoding] * size)
             case DynamicArrayEncoding(element=element_encoding):
-                element_encodings = [element_encoding] * len(native_elements)
+                tuple_encoding = TupleEncoding([element_encoding] * len(native_elements))
             case _:
                 return None
         factory = OpFactory(context, loc)
@@ -107,14 +105,15 @@ class NativeTupleCodec(ARC4Codec):
         head = factory.constant(b"")
         tail = factory.constant(b"")
         processed_encodings = list[Encoding]()
-        header_size = _get_arc4_tuple_head_size(element_encodings, round_end_result=True)
-        current_tail_offset = factory.constant(header_size // 8)
+        header_size_bits = tuple_encoding.get_head_bit_offset(None)
+        header_size = bits_to_bytes(header_size_bits)
+        current_tail_offset = factory.constant(header_size)
         for native_element, element_encoding in zip(
-            native_elements, element_encodings, strict=True
+            native_elements, tuple_encoding.elements, strict=True
         ):
             # special handling to bitpack consecutive bools, this will bit pack both native bools
             # and ARC-4 bools
-            if _bit_packed_bool(element_encoding):
+            if element_encoding.is_bit:
                 value = values.pop(0)
                 # sequential bits in the same tuple are bit-packed
                 if processed_encodings and processed_encodings[-1] == element_encoding:
@@ -607,23 +606,19 @@ def encode_value(
     )
 
 
+# TODO: move to tup builder
 def write_tuple_index(
     context: IRRegisterContext,
     base: Value,
-    index_int: int,
+    index: int,
     tuple_encoding: TupleEncoding,
     value_ir_type: IRType | TupleIRType,
     value: ValueProvider,
     source_location: SourceLocation,
 ) -> Value:
     factory = OpFactory(context, source_location)
-    tuple_items = tuple_encoding.elements
     value = factory.materialise_single(value, "assigned_value")
-    element_encoding = tuple_items[index_int]
-    header_up_to_item = _get_arc4_tuple_head_size(
-        tuple_items[0:index_int],
-        round_end_result=not _bit_packed_bool(element_encoding),
-    )
+    element_encoding = tuple_encoding.elements[index]
 
     # TODO: use ValueEncode
     if not type_has_encoding(value_ir_type, element_encoding):
@@ -635,43 +630,45 @@ def write_tuple_index(
             source_location,
         )
         value = factory.materialise_single(value_vp, "encoded")
-    if _bit_packed_bool(element_encoding):
+    if element_encoding.is_bit:
         # Use Set bit
         is_true = factory.get_bit(value, 0, "is_true")
         return factory.set_bit(
             value=base,
-            index=header_up_to_item,
+            index=tuple_encoding.get_head_bit_offset(index),
             bit=is_true,
             temp_desc="updated_data",
         )
-    elif not element_encoding.is_dynamic:
+    header_up_to_item_bytes = bits_to_bytes(tuple_encoding.get_head_bit_offset(index))
+    if not element_encoding.is_dynamic:
         return factory.replace(
             base,
-            header_up_to_item // 8,
+            header_up_to_item_bytes,
             value,
             "updated_data",
         )
     else:
         assert element_encoding.is_dynamic, "expected dynamic encoding"
-        dynamic_indices = [index for index, t in enumerate(tuple_items) if t.is_dynamic]
+        dynamic_indices = [
+            index for index, t in enumerate(tuple_encoding.elements) if t.is_dynamic
+        ]
 
-        item_offset = factory.extract_uint16(base, header_up_to_item // 8, "item_offset")
+        item_offset = factory.extract_uint16(base, header_up_to_item_bytes, "item_offset")
         data_up_to_item = factory.extract3(base, 0, item_offset, "data_up_to_item")
-        dynamic_indices_after_item = [i for i in dynamic_indices if i > index_int]
+        dynamic_indices_after_item = [i for i in dynamic_indices if i > index]
 
         if not dynamic_indices_after_item:
             # This is the last dynamic type in the tuple
             # No need to update headers - just replace the data
             return factory.concat(data_up_to_item, value, "updated_data")
-        header_up_to_next_dynamic_item = _get_arc4_tuple_head_size(
-            tuple_items[: dynamic_indices_after_item[0]],
-            round_end_result=True,
+        header_up_to_next_dynamic_item = bits_to_bytes(
+            tuple_encoding.get_head_bit_offset(dynamic_indices_after_item[0])
         )
 
         # update tail portion with new item
         next_item_offset = factory.extract_uint16(
             base,
-            header_up_to_next_dynamic_item // 8,
+            header_up_to_next_dynamic_item,
             "next_item_offset",
         )
         total_data_length = factory.len(base, "total_data_length")
@@ -688,13 +685,12 @@ def write_tuple_index(
         item_length = factory.sub(next_item_offset, item_offset, "item_length")
         new_value_length = factory.len(value, "new_value_length")
         for dynamic_index in dynamic_indices_after_item:
-            header_up_to_dynamic_item = _get_arc4_tuple_head_size(
-                tuple_items[:dynamic_index],
-                round_end_result=True,
+            header_up_to_dynamic_item = bits_to_bytes(
+                tuple_encoding.get_head_bit_offset(dynamic_index)
             )
 
             tail_offset = factory.extract_uint16(
-                updated_data, header_up_to_dynamic_item // 8, "tail_offset"
+                updated_data, header_up_to_dynamic_item, "tail_offset"
             )
             # have to add the new length and then subtract the original to avoid underflow
             tail_offset = factory.add(tail_offset, new_value_length, "tail_offset")
@@ -702,13 +698,9 @@ def write_tuple_index(
             tail_offset_bytes = factory.as_u16_bytes(tail_offset, "tail_offset_bytes")
 
             updated_data = factory.replace(
-                updated_data, header_up_to_dynamic_item // 8, tail_offset_bytes, "updated_data"
+                updated_data, header_up_to_dynamic_item, tail_offset_bytes, "updated_data"
             )
         return updated_data
-
-
-def _bit_packed_bool(encoding: Encoding) -> typing.TypeGuard[BoolEncoding]:
-    return isinstance(encoding, BoolEncoding) and encoding.packed
 
 
 def _encoding_or_name(typ: IRType | TupleIRType) -> str:
@@ -735,22 +727,3 @@ def _encode_native_uint64_to_arc4(
     no_overflow = factory.lte(bit_len, num_bytes * 8, "no_overflow")
     assert_value(context, no_overflow, source_location=source_location, error_message="overflow")
     return factory.extract3(val_as_bytes, 8 - num_bytes, num_bytes, f"uint{num_bytes*8}")
-
-
-def _get_arc4_tuple_head_size(encodings: Sequence[Encoding], *, round_end_result: bool) -> int:
-    bit_size = 0
-    for encoding, next_encoding in zip_longest(encodings, encodings[1:]):
-        if encoding.is_dynamic:
-            size = 16
-        elif _bit_packed_bool(encoding):
-            size = 1
-        else:
-            size = encoding.checked_num_bytes * 8
-        bit_size += size
-        if (
-            _bit_packed_bool(encoding)
-            and next_encoding != encoding
-            and (round_end_result or next_encoding)
-        ):
-            bit_size = round_bits_to_nearest_bytes(bit_size)
-    return bit_size
