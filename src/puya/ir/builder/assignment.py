@@ -13,7 +13,6 @@ from puya.ir.builder import mem, sequence, storage, tup
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import assign, assign_targets, get_implicit_return_is_original
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import MultiValue, Value
 from puya.ir.types_ import PrimitiveIRType, get_wtype_arity
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -48,6 +47,71 @@ def handle_assignment(
 ) -> Sequence[ir.Value]:
     source = list(value.values) if isinstance(value, ir.ValueTuple) else [value]
     match target:
+        case awst_nodes.TupleItemExpression(
+            base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
+            index=index_int,
+        ):
+            base = context.visitor.visit_and_materialise_single(base_expr, "base")
+
+            tup_builder = tup.get_builder(context, tuple_wtype, assignment_location)
+            item4 = tup_builder.write_at_index(base, index_int, value)
+
+            handle_assignment(
+                context,
+                target=base_expr,
+                value=item4,
+                assignment_location=assignment_location,
+                is_nested_update=True,
+            )
+            return source
+        case awst_nodes.IndexExpression(
+            base=awst_nodes.Expression(wtype=sequence_wtype) as base_expr, index=index_value
+        ):
+            array_or_slot = context.visitor.visit_and_materialise_single(base_expr)
+            index = context.visitor.visit_and_materialise_single(index_value)
+            builder = sequence.get_builder(context, sequence_wtype, assignment_location)
+            if isinstance(sequence_wtype, wtypes.ReferenceArray):
+                array = mem.read_slot(context, array_or_slot, assignment_location)
+                array_contents = builder.write_at_index(array, index, value)
+                (array_contents,) = context.visitor.materialise_value_provider(
+                    array_contents, "array_contents"
+                )
+                mem.write_slot(context, array_or_slot, array_contents, assignment_location)
+                return source
+            elif isinstance(sequence_wtype, wtypes.ARC4Array):
+                array_contents = builder.write_at_index(array_or_slot, index, value)
+                handle_assignment(
+                    context,
+                    target=base_expr,
+                    value=array_contents,
+                    assignment_location=assignment_location,
+                    is_nested_update=True,
+                )
+                return source
+            else:
+                raise InternalError(
+                    f"Indexed assignment operation IR lowering"
+                    f" not implemented for base type {base_expr.wtype.name}",
+                    assignment_location,
+                )
+        case awst_nodes.FieldExpression(
+            base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
+            name=field_name,
+        ):
+            base = context.visitor.visit_and_materialise_single(base_expr, "base")
+            index_int = struct_wtype.names.index(field_name)
+
+            tup_builder = tup.get_builder(context, struct_wtype, assignment_location)
+            item3 = tup_builder.write_at_index(base, index_int, value)
+
+            handle_assignment(
+                context,
+                target=base_expr,
+                value=item3,
+                assignment_location=assignment_location,
+                is_nested_update=True,
+            )
+            return source
         # special case: a nested update can cause a tuple item to be re-assigned
         # TODO: refactor this so that this special case is handled where it originates
         case (
@@ -68,6 +132,12 @@ def handle_assignment(
                 var_loc=var_loc,
                 assignment_loc=assignment_location,
                 is_nested_update=is_nested_update,
+            )
+        case awst_nodes.FieldExpression() as field_expr:
+            raise InternalError(
+                f"Field assignment operation IR lowering"
+                f" not implemented for base type {field_expr.base.wtype.name}",
+                assignment_location,
             )
         case awst_nodes.VarExpression(name=base_name, source_location=var_loc, wtype=var_type):
             return _handle_maybe_implicit_return_assignment(
@@ -159,141 +229,10 @@ def handle_assignment(
                 )
             )
             return source
-        case awst_nodes.IndexExpression() as ix_expr:
-            sequence_wtype = ix_expr.base.wtype
-            if isinstance(sequence_wtype, wtypes.ReferenceArray):
-                array_slot = context.visitor.visit_and_materialise_single(ix_expr.base)
-                index = context.visitor.visit_and_materialise_single(ix_expr.index)
-                builder = sequence.get_builder(context, sequence_wtype, assignment_location)
-                array = mem.read_slot(context, array_slot, assignment_location)
-                array_contents = builder.write_at_index(array, index, value)
-                (array_contents,) = context.visitor.materialise_value_provider(
-                    array_contents, "array_contents"
-                )
-                mem.write_slot(context, array_slot, array_contents, assignment_location)
-                return source
-            elif isinstance(sequence_wtype, wtypes.ARC4Type):
-                handle_arc4_assign(
-                    context,
-                    target=ix_expr,
-                    value=value,
-                    is_nested_update=is_nested_update,
-                    source_location=assignment_location,
-                )
-                return source
-            else:
-                raise InternalError(
-                    f"Indexed assignment operation IR lowering"
-                    f" not implemented for base type {ix_expr.base.wtype.name}",
-                    assignment_location,
-                )
-        case awst_nodes.FieldExpression() as field_expr:
-            if isinstance(field_expr.base.wtype, wtypes.ARC4Struct):
-                return (
-                    handle_arc4_assign(
-                        context,
-                        target=field_expr,
-                        value=value,
-                        is_nested_update=is_nested_update,
-                        source_location=assignment_location,
-                    ),
-                )
-            else:
-                raise InternalError(
-                    f"Field assignment operation IR lowering"
-                    f" not implemented for base type {field_expr.base.wtype.name}",
-                    assignment_location,
-                )
         case _:
             raise CodeError(
                 "expression is not valid as an assignment target", target.source_location
             )
-
-
-def handle_arc4_assign(
-    context: IRFunctionBuildContext,
-    target: awst_nodes.Expression,
-    value: MultiValue,
-    source_location: SourceLocation,
-    *,
-    is_nested_update: bool,
-) -> Value:
-    result: Value
-    match target:
-        case awst_nodes.IndexExpression(
-            base=awst_nodes.Expression(
-                wtype=wtypes.ARC4DynamicArray() | wtypes.ARC4StaticArray() as array_wtype
-            ) as base_expr,
-            index=index_value,
-        ):
-            array = context.visitor.visit_and_materialise_single(base_expr)
-            index = context.visitor.visit_and_materialise_single(index_value)
-            builder = sequence.get_builder(context, array_wtype, source_location)
-            item = builder.write_at_index(array, index, value)
-            return handle_arc4_assign(
-                context,
-                target=base_expr,
-                value=item,
-                source_location=source_location,
-                is_nested_update=True,
-            )
-        case awst_nodes.FieldExpression(
-            base=awst_nodes.Expression(wtype=wtypes.ARC4Struct() as struct_wtype) as base_expr,
-            name=field_name,
-        ):
-            base = context.visitor.visit_and_materialise_single(base_expr, "base")
-            index_int = struct_wtype.names.index(field_name)
-
-            tup_builder = tup.get_builder(context, struct_wtype, source_location)
-            item = tup_builder.write_at_index(base, index_int, value)
-
-            return handle_arc4_assign(
-                context,
-                target=base_expr,
-                value=item,
-                source_location=source_location,
-                is_nested_update=True,
-            )
-        case awst_nodes.TupleItemExpression(
-            base=awst_nodes.Expression(wtype=wtypes.ARC4Tuple() as tuple_wtype) as base_expr,
-            index=index_int,
-        ):
-            base = context.visitor.visit_and_materialise_single(base_expr, "base")
-
-            tup_builder = tup.get_builder(context, tuple_wtype, source_location)
-            item = tup_builder.write_at_index(base, index_int, value)
-
-            return handle_arc4_assign(
-                context,
-                target=base_expr,
-                value=item,
-                source_location=source_location,
-                is_nested_update=True,
-            )
-        # this function is sometimes invoked outside an assignment expr/stmt, which
-        # is how a non l-value expression can be possible
-        # TODO: refactor this so that this special case is handled where it originates
-        case (
-            awst_nodes.TupleItemExpression(wtype=wtypes.WType(immutable=False))
-            | awst_nodes.FieldExpression(wtype=wtypes.WType(immutable=False))
-        ):
-            (result,) = handle_assignment(
-                context,
-                target,
-                value=value,
-                assignment_location=source_location,
-                is_nested_update=True,
-            )
-            return result
-        case _:
-            (result,) = handle_assignment(
-                context,
-                target,
-                value=value,
-                assignment_location=source_location,
-                is_nested_update=is_nested_update,
-            )
-            return result
 
 
 def _handle_maybe_implicit_return_assignment(

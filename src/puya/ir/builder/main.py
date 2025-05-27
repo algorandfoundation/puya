@@ -33,7 +33,6 @@ from puya.ir.builder._utils import (
 )
 from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
 from puya.ir.builder.assignment import (
-    handle_arc4_assign,
     handle_assignment,
     handle_assignment_expr,
 )
@@ -1223,12 +1222,12 @@ class FunctionIRBuilder(
         if isinstance(array_or_slot.ir_type, SlotType):
             mem.write_slot(self.context, array_or_slot, updated_array, loc)
         else:
-            handle_arc4_assign(
+            handle_assignment(
                 self.context,
                 expr.base,
                 updated_array,
                 is_nested_update=True,
-                source_location=loc,
+                assignment_location=loc,
             )
         return popped_item
 
@@ -1264,12 +1263,12 @@ class FunctionIRBuilder(
             # _array_concat should do steps 1-4, now need to update slot
             mem.write_slot(self.context, array, result, loc)
         else:
-            handle_arc4_assign(
+            handle_assignment(
                 self.context,
                 target=expr.base,
                 value=result,
                 is_nested_update=True,
-                source_location=loc,
+                assignment_location=loc,
             )
 
     def _array_concat(
