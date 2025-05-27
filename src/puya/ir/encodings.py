@@ -106,7 +106,7 @@ class TupleEncoding(Encoding):
     names: Sequence[str] | None = attrs.field(default=None, eq=False)
 
     @names.validator
-    def _names_validator(self, _: object, value: Sequence[str] | None):
+    def _names_validator(self, _: object, value: Sequence[str] | None) -> None:
         if value is None:
             return
         if len(value) != len(self.elements):
