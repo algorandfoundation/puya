@@ -12,7 +12,6 @@ from puya.awst import (
 from puya.errors import InternalError
 from puya.ir.arc4_types import effective_array_encoding, maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     OpFactory,
@@ -27,6 +26,8 @@ from puya.ir.models import (
     Intrinsic,
     UInt64Constant,
     Value,
+    ValueDecode,
+    ValueEncode,
     ValueProvider,
     ValueTuple,
 )
@@ -475,9 +476,11 @@ class _ARC4StorageCodec(StorageCodec):
     def encode(
         self, context: IRFunctionBuildContext, values: Sequence[Value], loc: SourceLocation
     ) -> Value:
-        value_tuple = ValueTuple(values=values, source_location=loc)
-        encoded_vp = arc4.encode_value(
-            context, value_tuple, self._declared_type, self._encoded_type.encoding, loc
+        encoded_vp = ValueEncode(
+            values=values,
+            value_type=self._declared_type,
+            encoding=self._encoded_type.encoding,
+            source_location=loc,
         )
         encoded, *rest = context.visitor.materialise_value_provider(
             encoded_vp, "encoded_for_storage"
@@ -489,8 +492,11 @@ class _ARC4StorageCodec(StorageCodec):
     def decode(
         self, context: IRFunctionBuildContext, value: Value, loc: SourceLocation
     ) -> ValueProvider:
-        return arc4.decode_value(
-            context, value, self._encoded_type.encoding, self._declared_type, loc
+        return ValueDecode(
+            value=value,
+            encoding=self._encoded_type.encoding,
+            decoded_type=self._declared_type,
+            source_location=loc,
         )
 
     @cached_property
