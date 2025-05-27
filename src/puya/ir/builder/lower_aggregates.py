@@ -28,9 +28,10 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 
-def lower_aggregate_nodes(subroutine: ir.Subroutine) -> bool:
+def lower_aggregate_nodes(program: ir.Program, subroutine: ir.Subroutine) -> bool:
     existing_versions = _VersionGatherer.gather(subroutine)
-    replacer = _AggregateNodeReplacer(versions=existing_versions)
+    embedded_funcs = {PuyaLibIR[s.id]: s for s in program.subroutines if s.id in PuyaLibIR}
+    replacer = _AggregateNodeReplacer(versions=existing_versions, embedded_funcs=embedded_funcs)
     for block in subroutine.body:
         replacer.visit_block(block)
     return replacer.modified
@@ -57,10 +58,10 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
     _tmp_counters: defaultdict[str, Iterator[int]] = attrs.field(
         factory=lambda: defaultdict(itertools.count)
     )
+    _embedded_funcs: Mapping[PuyaLibIR, Subroutine]
 
-    def resolve_embedded_func(self, full_name: str) -> Subroutine:
-        # TODO: might not need this if ArrayRead and ArrayWrite are removed
-        raise InternalError(f"TODO: allow resolving embedded functions: {full_name}")
+    def resolve_embedded_func(self, full_name: PuyaLibIR) -> Subroutine:
+        return self._embedded_funcs[full_name]
 
     def materialise_value_provider(
         self, value_provider: ValueProvider, description: str | Sequence[str]
