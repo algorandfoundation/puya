@@ -133,10 +133,6 @@ class ToTextVisitor(IRVisitor[str]):
         return f"{pop.array.accept(self)}.pop()"
 
     @typing.override
-    def visit_array_length(self, pop: models.ArrayLength) -> str:
-        return f"{pop.array.accept(self)}.length"
-
-    @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:
         callee = intrinsic.op.code
         immediates = list(map(str, intrinsic.immediates))

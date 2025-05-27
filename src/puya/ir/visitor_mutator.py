@@ -124,10 +124,6 @@ class IRMutator(IRVisitor[t.Any]):
         pop.array = pop.array.accept(self)
         return pop
 
-    def visit_array_length(self, length: models.ArrayLength) -> models.ValueProvider:
-        length.array = length.array.accept(self)
-        return length
-
     def visit_phi(self, phi: models.Phi) -> models.Phi | None:
         phi.register = self.visit_register(phi.register)
         phi.args = [self.visit_phi_argument(a) for a in phi.args]
