@@ -212,9 +212,9 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         (assert maybe_exists%0#0) // check self.box_b exists
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (b_value#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.box_b exists
-        let length%0#0: uint64 = maybe_value%1#0.length
-        let length%1#0: uint64 = b_value#0.length
-        let tmp%2#0: bool = (== length%0#0 length%1#0)
+        let array_length%0#0: uint64 = (extract_uint16 maybe_value%1#0 0u)
+        let array_length%1#0: uint64 = (extract_uint16 b_value#0 0u)
+        let tmp%2#0: bool = (== array_length%0#0 array_length%1#0)
         (assert tmp%2#0) // direct reference should match copy
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box_a")
         (assert maybe_exists%2#0) // check self.box_a exists
@@ -242,15 +242,15 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let tmp%11#0: bool = (== value%3#0 tmp%10#0)
         (assert tmp%11#0)
         let tmp%12#0: bytes = (box_extract 0x424f585f43 0u 1u)
-        let read_bytes%0#0: bytes = ((extract 0 1) c#0) // on error: Index access is out of bounds
-        let tmp%13#0: bool = (== tmp%12#0 read_bytes%0#0)
+        let extract%0#0: bytes = ((extract 0 1) c#0)
+        let tmp%13#0: bool = (== tmp%12#0 extract%0#0)
         (assert tmp%13#0)
         let (tmp%14#0: uint64, tmp%15#0: bool) = (box_len 0x424f585f43)
         let tmp%16#0: uint64 = (- tmp%14#0 1u)
         let tmp%17#0: bytes = (box_extract 0x424f585f43 tmp%16#0 1u)
         let tmp%19#0: uint64 = (- tmp%7#0 1u)
-        let read_bytes%1#0: bytes = (extract3 c#0 tmp%19#0 1u) // on error: Index access is out of bounds
-        let tmp%20#0: bool = (== tmp%17#0 read_bytes%1#0)
+        let extract%1#0: bytes = (extract3 c#0 tmp%19#0 1u)
+        let tmp%20#0: bool = (== tmp%17#0 extract%1#0)
         (assert tmp%20#0)
         let (tmp%21#0: uint64, tmp%22#0: bool) = (box_len 0x424f585f43)
         let tmp%23#0: bool = (< 1u tmp%21#0)
@@ -273,15 +273,15 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let tmp%37#0: bool = (== tmp%35#0 tmp%36#0)
         (assert tmp%37#0)
         let tmp%38#0: bytes = (box_extract "box_d" 0u 1u)
-        let read_bytes%2#0: bytes = ((extract 2 1) b#0)
-        let tmp%40#0: bool = (== tmp%38#0 read_bytes%2#0)
+        let extract%2#0: bytes = ((extract 2 1) b#0)
+        let tmp%40#0: bool = (== tmp%38#0 extract%2#0)
         (assert tmp%40#0)
         let (tmp%41#0: uint64, tmp%42#0: bool) = (box_len "box_d")
         let tmp%43#0: uint64 = (- tmp%41#0 1u)
         let tmp%44#0: bytes = (box_extract "box_d" tmp%43#0 1u)
         let tmp%47#0: uint64 = (- tmp%10#0 1u)
-        let read_bytes%3#0: bytes = (extract3 tmp%0#0 tmp%47#0 1u) // on error: Index access is out of bounds
-        let tmp%48#0: bool = (== tmp%44#0 read_bytes%3#0)
+        let extract%3#0: bytes = (extract3 tmp%0#0 tmp%47#0 1u)
+        let tmp%48#0: bool = (== tmp%44#0 extract%3#0)
         (assert tmp%48#0)
         let (tmp%49#0: uint64, tmp%50#0: bool) = (box_len "box_d")
         let tmp%51#0: bool = (< 1u tmp%49#0)
@@ -429,27 +429,23 @@ subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
         (box_put 0x64 0x00010203)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (0x00010203, 1u)
         (assert maybe_exists%0#0) // check Box exists
-        let bytes_offset%0#0: uint64 = 0u
-        let encoded_element%0#0: bytes = ((extract 0 1) maybe_value%0#0) // on error: index access is out of bounds
-        let tmp%0#0: bool = (b== encoded_element%0#0 0x00)
+        let array_item%0#0: Encoded(uint8) = maybe_value%0#0[0u]
+        let tmp%0#0: bool = (b== array_item%0#0 0x00)
         (assert tmp%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (0x00010203, 1u)
         (assert maybe_exists%1#0) // check Box exists
-        let bytes_offset%1#0: uint64 = 1u
-        let encoded_element%1#0: bytes = ((extract 1 1) maybe_value%1#0) // on error: index access is out of bounds
-        let tmp%1#0: bool = (b== encoded_element%1#0 0x01)
+        let array_item%1#0: Encoded(uint8) = maybe_value%1#0[1u]
+        let tmp%1#0: bool = (b== array_item%1#0 0x01)
         (assert tmp%1#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (0x00010203, 1u)
         (assert maybe_exists%2#0) // check Box exists
-        let bytes_offset%2#0: uint64 = 2u
-        let encoded_element%2#0: bytes = ((extract 2 1) maybe_value%2#0) // on error: index access is out of bounds
-        let tmp%2#0: bool = (b== encoded_element%2#0 0x02)
+        let array_item%2#0: Encoded(uint8) = maybe_value%2#0[2u]
+        let tmp%2#0: bool = (b== array_item%2#0 0x02)
         (assert tmp%2#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (0x00010203, 1u)
         (assert maybe_exists%3#0) // check Box exists
-        let bytes_offset%3#0: uint64 = 3u
-        let encoded_element%3#0: bytes = ((extract 3 1) maybe_value%3#0) // on error: index access is out of bounds
-        let tmp%3#0: bool = (b== encoded_element%3#0 0x03)
+        let array_item%3#0: Encoded(uint8) = maybe_value%3#0[3u]
+        let tmp%3#0: bool = (b== array_item%3#0 0x03)
         (assert tmp%3#0)
         return 
 

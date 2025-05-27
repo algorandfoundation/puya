@@ -475,13 +475,13 @@ subroutine add_payment:
         assert // check self.payments exists                                                      (𝕡) pay#0 | maybe_value%0#0,maybe_value%1#0
         l-load maybe_value%0#0 1                                                                  (𝕡) pay#0 | maybe_value%1#0,maybe_value%0#0
         int 48                                                                                    (𝕡) pay#0 | maybe_value%1#0,maybe_value%0#0,48
-        *                                                                                         (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0
-        l-load maybe_value%1#0 1                                                                  (𝕡) pay#0 | write_offset%0#0,maybe_value%1#0
-        l-load write_offset%0#0 1                                                                 (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0
-        p-load pay#0                                                                              (𝕡) pay#0 | maybe_value%1#0,write_offset%0#0,pay#0 (copy)
-        replace3                                                                                  (𝕡) pay#0 | updated_array%0#0
-        byte "payments"                                                                           (𝕡) pay#0 | updated_array%0#0,"payments"
-        l-load updated_array%0#0 1                                                                (𝕡) pay#0 | "payments",updated_array%0#0
+        *                                                                                         (𝕡) pay#0 | maybe_value%1#0,array%write_offset%0#1
+        l-load maybe_value%1#0 1                                                                  (𝕡) pay#0 | array%write_offset%0#1,maybe_value%1#0
+        l-load array%write_offset%0#1 1                                                           (𝕡) pay#0 | maybe_value%1#0,array%write_offset%0#1
+        p-load pay#0                                                                              (𝕡) pay#0 | maybe_value%1#0,array%write_offset%0#1,pay#0 (copy)
+        replace3                                                                                  (𝕡) pay#0 | array%updated_array%0#1
+        byte "payments"                                                                           (𝕡) pay#0 | array%updated_array%0#1,"payments"
+        l-load array%updated_array%0#1 1                                                          (𝕡) pay#0 | "payments",array%updated_array%0#1
         app_global_put                                                                            (𝕡) pay#0 |
         // mutable_native_types/contract.py:113
         // self.num_payments += 1
@@ -523,28 +523,28 @@ subroutine increment_payment:
         assert // check self.payments exists                                                      (𝕡) index#0,amt#0 | maybe_value%1#0
         p-load index#0                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,index#0 (copy)
         int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,index#0 (copy),48
-        *                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0
-        l-load-copy maybe_value%1#0 1                                                             (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,maybe_value%1#0 (copy)
-        l-load-copy bytes_offset%0#0 1                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,maybe_value%1#0 (copy),bytes_offset%0#0 (copy)
-        int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,maybe_value%1#0 (copy),bytes_offset%0#0 (copy),48
-        extract3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0
-        l-load-copy encoded_element%0#0 0                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,encoded_element%0#0 (copy)
-        int 40                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,encoded_element%0#0 (copy),40
-        extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%1#0
-        l-load tmp%1#0 0                                                                          (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%1#0
-        p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%1#0,amt#0 (copy)
-        +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%2#0
-        l-load tmp%2#0 0                                                                          (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,tmp%2#0
-        itob                                                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,val_as_bytes%0#0
-        l-load encoded_element%0#0 1                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,val_as_bytes%0#0,encoded_element%0#0
-        l-load val_as_bytes%0#0 1                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,encoded_element%0#0,val_as_bytes%0#0
-        replace2 40                                                                               (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0
-        l-load maybe_value%1#0 2                                                                  (𝕡) index#0,amt#0 | bytes_offset%0#0,updated_data%0#0,maybe_value%1#0
-        l-load bytes_offset%0#0 2                                                                 (𝕡) index#0,amt#0 | updated_data%0#0,maybe_value%1#0,bytes_offset%0#0
-        l-load updated_data%0#0 2                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,bytes_offset%0#0,updated_data%0#0
-        replace3                                                                                  (𝕡) index#0,amt#0 | updated_array%0#0
-        byte "payments"                                                                           (𝕡) index#0,amt#0 | updated_array%0#0,"payments"
-        l-load updated_array%0#0 1                                                                (𝕡) index#0,amt#0 | "payments",updated_array%0#0
+        *                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1
+        l-load-copy maybe_value%1#0 1                                                             (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,maybe_value%1#0 (copy)
+        l-load-copy array%bytes_offset%0#1 1                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,maybe_value%1#0 (copy),array%bytes_offset%0#1 (copy)
+        int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,maybe_value%1#0 (copy),array%bytes_offset%0#1 (copy),48
+        extract3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1
+        l-load-copy array%encoded_element%0#1 0                                                   (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,array%encoded_element%0#1 (copy)
+        int 40                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,array%encoded_element%0#1 (copy),40
+        extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,tmp%1#0
+        l-load tmp%1#0 0                                                                          (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,tmp%1#0
+        p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,tmp%1#0,amt#0 (copy)
+        +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,tmp%2#0
+        l-load tmp%2#0 0                                                                          (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,tmp%2#0
+        itob                                                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,val_as_bytes%0#0
+        l-load array%encoded_element%0#1 1                                                        (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,val_as_bytes%0#0,array%encoded_element%0#1
+        l-load val_as_bytes%0#0 1                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,val_as_bytes%0#0
+        replace2 40                                                                               (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,updated_data%0#0
+        l-load maybe_value%1#0 2                                                                  (𝕡) index#0,amt#0 | array%bytes_offset%0#1,updated_data%0#0,maybe_value%1#0
+        l-load array%bytes_offset%0#1 2                                                           (𝕡) index#0,amt#0 | updated_data%0#0,maybe_value%1#0,array%bytes_offset%0#1
+        l-load updated_data%0#0 2                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,updated_data%0#0
+        replace3                                                                                  (𝕡) index#0,amt#0 | array%updated_array%0#1
+        byte "payments"                                                                           (𝕡) index#0,amt#0 | array%updated_array%0#1,"payments"
+        l-load array%updated_array%0#1 1                                                          (𝕡) index#0,amt#0 | "payments",array%updated_array%0#1
         app_global_put                                                                            (𝕡) index#0,amt#0 |
         retsub
 

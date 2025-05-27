@@ -43,8 +43,9 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.do_something_wit
         let arr#0: Encoded(uint64[])* = slot%0#0
         test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr#0)
         let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
-        let length%0#0: uint64 = slot_contents%0#0.length
-        let tmp%0#0: bool = (== length%0#0 32u)
+        let bytes_len%0#0: uint64 = (len slot_contents%0#0)
+        let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
+        let tmp%0#0: bool = (== array_len%0#0 32u)
         (assert tmp%0#0) // expected array of length 32
         return 
 
@@ -60,8 +61,7 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(
         let continue_looping%0#0: bool = (< item_index_internal%0#1 bytes_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L25
-        let read_bytes%0#0: bytes = (extract3 tmp%0#0 item_index_internal%0#1 1u) // on error: Index access is out of bounds
-        let b#0: bytes = read_bytes%0#0
+        let b#0: bytes = (extract3 tmp%0#0 item_index_internal%0#1 1u)
         let tmp%1#0: uint64 = (btoi b#0)
         let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
         let val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)

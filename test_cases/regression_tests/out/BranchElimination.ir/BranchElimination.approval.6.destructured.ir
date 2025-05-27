@@ -151,32 +151,32 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
     block@0: // L29
         let total#0: uint64 = 0u
         let num_boosts#0: uint64 = 0u
-        let array%array_length%0#1: uint64 = (extract_uint16 nested_list#0 0u)
+        let array_length%0#0: uint64 = (extract_uint16 nested_list#0 0u)
         let i#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L38
-        let continue_looping%0#0: bool = (< i#0 array%array_length%0#1)
+        let continue_looping%0#0: bool = (< i#0 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L39
-        let array_head_and_tail%0#0: bytes = ((extract 2 0) nested_list#0)
+        let array%array_head_and_tail%0#1: bytes = ((extract 2 0) nested_list#0)
         (assert continue_looping%0#0) // index access is out of bounds
-        let item_offset_offset%0#0: uint64 = (* i#0 2u)
-        let item_offset%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 item_offset_offset%0#0)
-        let item_length%0#0: uint64 = (extract_uint16 array_head_and_tail%0#0 item_offset%0#0)
-        let item_length_in_bytes%0#0: uint64 = (* item_length%0#0 8u)
-        let item_head_tail_length%0#0: uint64 = (+ item_length_in_bytes%0#0 2u)
-        let inner_list#0: Encoded(len+uint64[]) = (extract3 array_head_and_tail%0#0 item_offset%0#0 item_head_tail_length%0#0)
-        let array%array_length%2#1: uint64 = (extract_uint16 inner_list#0 0u)
-        let last_inner_list_index#0: uint64 = (- array%array_length%2#1 1u)
+        let array%item_offset_offset%0#1: uint64 = (* i#0 2u)
+        let array%item_offset%0#1: uint64 = (extract_uint16 array%array_head_and_tail%0#1 array%item_offset_offset%0#1)
+        let array%item_length%0#1: uint64 = (extract_uint16 array%array_head_and_tail%0#1 array%item_offset%0#1)
+        let array%item_length_in_bytes%0#1: uint64 = (* array%item_length%0#1 8u)
+        let array%item_head_tail_length%0#1: uint64 = (+ array%item_length_in_bytes%0#1 2u)
+        let inner_list#0: Encoded(len+uint64[]) = (extract3 array%array_head_and_tail%0#1 array%item_offset%0#1 array%item_head_tail_length%0#1)
+        let array_length%1#0: uint64 = (extract_uint16 inner_list#0 0u)
+        let last_inner_list_index#0: uint64 = (- array_length%1#0 1u)
         let j#0: uint64 = 0u
         goto block@3
     block@3: // for_header_L41
-        let continue_looping%1#0: bool = (< j#0 array%array_length%2#1)
+        let continue_looping%1#0: bool = (< j#0 array_length%1#0)
         goto continue_looping%1#0 ? block@4 : block@12
     block@4: // for_body_L42
-        let array_trimmed%0#0: bytes = ((extract 2 0) inner_list#0)
-        let bytes_offset%0#0: uint64 = (* j#0 8u)
-        let value#0: Encoded(uint64) = (extract3 array_trimmed%0#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
+        let array%array_trimmed%0#1: bytes = ((extract 2 0) inner_list#0)
+        let array%bytes_offset%0#1: uint64 = (* j#0 8u)
+        let value#0: Encoded(uint64) = (extract3 array%array_trimmed%0#1 array%bytes_offset%0#1 8u) // on error: index access is out of bounds
         let tmp%1#0: bool = (b>= value#0 threshold#0)
         let num_boosts#15: uint64 = num_boosts#0
         let total#16: uint64 = total#0
@@ -189,8 +189,8 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
     block@6: // if_body_L46
         let total#0: uint64 = (+ total#0 1u)
         let tmp%4#0: uint64 = (+ j#0 1u)
-        let bytes_offset%1#0: uint64 = (* tmp%4#0 8u)
-        let next_value#0: Encoded(uint64) = (extract3 array_trimmed%0#0 bytes_offset%1#0 8u) // on error: index access is out of bounds
+        let array%bytes_offset%1#1: uint64 = (* tmp%4#0 8u)
+        let next_value#0: Encoded(uint64) = (extract3 array%array_trimmed%0#1 array%bytes_offset%1#1 8u) // on error: index access is out of bounds
         let tmp%5#0: bool = (b< value#0 next_value#0)
         let num_boosts#15: uint64 = num_boosts#0
         let total#16: uint64 = total#0

@@ -150,8 +150,8 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void
         let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
         let x.0.0#1: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
-        let length%0#0: uint64 = x.0.0#1.length
-        let tmp%0#0: bool = (== length%0#0 2u)
+        let array_length%0#0: uint64 = (extract_uint16 x.0.0#1 0u)
+        let tmp%0#0: bool = (== array_length%0#0 2u)
         (assert tmp%0#0)
         return 
 
@@ -1013,10 +1013,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let continue_looping%0#0: bool = (< i#1 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L108
-        let array_trimmed%0#0: bytes = ((extract 2 0) twm.arr#2)
-        let bytes_offset%0#0: uint64 = (* i#1 8u)
-        let encoded_element%0#0: bytes = (extract3 array_trimmed%0#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let reinterpret_biguint%0#0: biguint = encoded_element%0#0
+        let array_item%0#0: Encoded(uint64) = twm.arr#2[i#1]
+        let reinterpret_biguint%0#0: biguint = array_item%0#0
         let tmp%0#0: biguint = (itob i#1)
         let tmp%1#0: bool = (b== reinterpret_biguint%0#0 tmp%0#0)
         (assert tmp%1#0)

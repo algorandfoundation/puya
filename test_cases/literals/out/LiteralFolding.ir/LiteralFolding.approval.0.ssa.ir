@@ -121,20 +121,17 @@ subroutine test_cases.literals.folding.tuples() -> void:
         let encoded%1#0: Encoded((uint64,uint64)) = (concat encoded%0#0 0x0000000000000062)
         let encoded%2#0: Encoded((uint64,uint64,uint64)) = (concat encoded%1#0 0x0000000000000063)
         let encoded%3#0: Encoded(uint64[3]) = (concat encoded%2#0 0x)
-        let bytes_offset%0#0: uint64 = (* 0u 8u)
-        let encoded_element%0#0: bytes = (extract3 encoded%3#0 bytes_offset%0#0 8u) // on error: index access is out of bounds
-        let reinterpret_biguint%0#0: biguint = encoded_element%0#0
+        let array_item%0#0: Encoded(uint64) = encoded%3#0[0u]
+        let reinterpret_biguint%0#0: biguint = array_item%0#0
         let reinterpret_biguint%1#0: biguint = 0x0000000000000061
         let tmp%5#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
-        let bytes_offset%1#0: uint64 = (* 1u 8u)
-        let encoded_element%1#0: bytes = (extract3 encoded%3#0 bytes_offset%1#0 8u) // on error: index access is out of bounds
-        let reinterpret_biguint%2#0: biguint = encoded_element%1#0
+        let array_item%1#0: Encoded(uint64) = encoded%3#0[1u]
+        let reinterpret_biguint%2#0: biguint = array_item%1#0
         let tmp%6#0: biguint = (itob 98u)
         let tmp%7#0: bool = (b== reinterpret_biguint%2#0 tmp%6#0)
         let tmp%8#0: bool = (&& tmp%5#0 tmp%7#0)
-        let bytes_offset%2#0: uint64 = (* 2u 8u)
-        let encoded_element%2#0: bytes = (extract3 encoded%3#0 bytes_offset%2#0 8u) // on error: index access is out of bounds
-        let reinterpret_biguint%3#0: biguint = encoded_element%2#0
+        let array_item%2#0: Encoded(uint64) = encoded%3#0[2u]
+        let reinterpret_biguint%3#0: biguint = array_item%2#0
         let reinterpret_biguint%4#0: biguint = 0x0000000000000063
         let tmp%9#0: bool = (b== reinterpret_biguint%3#0 reinterpret_biguint%4#0)
         let tmp%10#0: bool = (&& tmp%8#0 tmp%9#0)

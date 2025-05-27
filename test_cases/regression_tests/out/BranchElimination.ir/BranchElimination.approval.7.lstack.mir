@@ -331,8 +331,8 @@ subroutine calculate:
         // for i in urange(nested_list.length):
         p-load nested_list#0                                                                                  (𝕡) nested_list#0,threshold#0 | nested_list#0 (copy)
         int 0                                                                                                 (𝕡) nested_list#0,threshold#0 | nested_list#0 (copy),0
-        extract_uint16                                                                                        (𝕡) nested_list#0,threshold#0 | array%array_length%0#1
-        v-store array%array_length%0#1                                                                        (𝕡) nested_list#0,threshold#0 |
+        extract_uint16                                                                                        (𝕡) nested_list#0,threshold#0 | array_length%0#0
+        v-store array_length%0#0                                                                              (𝕡) nested_list#0,threshold#0 |
         int 0                                                                                                 (𝕡) nested_list#0,threshold#0 | 0
         v-store i#0                                                                                           (𝕡) nested_list#0,threshold#0 |
         b calculate_for_header@1                                                                              (𝕡) nested_list#0,threshold#0 |
@@ -341,7 +341,7 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:38
         // for i in urange(nested_list.length):
         v-load i#0                                                                                            (𝕡) nested_list#0,threshold#0 | i#0
-        v-load array%array_length%0#1                                                                         (𝕡) nested_list#0,threshold#0 | i#0,array%array_length%0#1
+        v-load array_length%0#0                                                                               (𝕡) nested_list#0,threshold#0 | i#0,array_length%0#0
         <                                                                                                     (𝕡) nested_list#0,threshold#0 | continue_looping%0#0
         l-store-copy continue_looping%0#0 0                                                                   (𝕡) nested_list#0,threshold#0 | continue_looping%0#0,continue_looping%0#0 (copy)
         v-store continue_looping%0#0                                                                          (𝕡) nested_list#0,threshold#0 | continue_looping%0#0
@@ -352,27 +352,27 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:39
         // inner_list = nested_list[i].copy()
         p-load nested_list#0                                                                                  (𝕡) nested_list#0,threshold#0 | nested_list#0 (copy)
-        extract 2 0                                                                                           (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0
-        v-load continue_looping%0#0                                                                           (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,continue_looping%0#0
-        assert // index access is out of bounds                                                               (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0
-        v-load i#0                                                                                            (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,i#0
-        int 2                                                                                                 (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,i#0,2
-        *                                                                                                     (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset_offset%0#0
-        l-load-copy array_head_and_tail%0#0 1                                                                 (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset_offset%0#0,array_head_and_tail%0#0 (copy)
-        l-load item_offset_offset%0#0 1                                                                       (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,array_head_and_tail%0#0 (copy),item_offset_offset%0#0
-        extract_uint16                                                                                        (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0
-        l-load-copy array_head_and_tail%0#0 1                                                                 (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,array_head_and_tail%0#0 (copy)
-        l-load-copy item_offset%0#0 1                                                                         (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,array_head_and_tail%0#0 (copy),item_offset%0#0 (copy)
-        extract_uint16                                                                                        (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,item_length%0#0
-        l-load item_length%0#0 0                                                                              (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,item_length%0#0
-        int 8                                                                                                 (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,item_length%0#0,8
-        *                                                                                                     (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,item_length_in_bytes%0#0
-        l-load item_length_in_bytes%0#0 0                                                                     (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,item_length_in_bytes%0#0
-        int 2                                                                                                 (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,item_length_in_bytes%0#0,2
-        +                                                                                                     (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,item_head_tail_length%0#0
-        l-load array_head_and_tail%0#0 2                                                                      (𝕡) nested_list#0,threshold#0 | item_offset%0#0,item_head_tail_length%0#0,array_head_and_tail%0#0
-        l-load item_offset%0#0 2                                                                              (𝕡) nested_list#0,threshold#0 | item_head_tail_length%0#0,array_head_and_tail%0#0,item_offset%0#0
-        l-load item_head_tail_length%0#0 2                                                                    (𝕡) nested_list#0,threshold#0 | array_head_and_tail%0#0,item_offset%0#0,item_head_tail_length%0#0
+        extract 2 0                                                                                           (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1
+        v-load continue_looping%0#0                                                                           (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,continue_looping%0#0
+        assert // index access is out of bounds                                                               (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1
+        v-load i#0                                                                                            (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,i#0
+        int 2                                                                                                 (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,i#0,2
+        *                                                                                                     (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset_offset%0#1
+        l-load-copy array%array_head_and_tail%0#1 1                                                           (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset_offset%0#1,array%array_head_and_tail%0#1 (copy)
+        l-load array%item_offset_offset%0#1 1                                                                 (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%array_head_and_tail%0#1 (copy),array%item_offset_offset%0#1
+        extract_uint16                                                                                        (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1
+        l-load-copy array%array_head_and_tail%0#1 1                                                           (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%array_head_and_tail%0#1 (copy)
+        l-load-copy array%item_offset%0#1 1                                                                   (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%array_head_and_tail%0#1 (copy),array%item_offset%0#1 (copy)
+        extract_uint16                                                                                        (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%item_length%0#1
+        l-load array%item_length%0#1 0                                                                        (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%item_length%0#1
+        int 8                                                                                                 (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%item_length%0#1,8
+        *                                                                                                     (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%item_length_in_bytes%0#1
+        l-load array%item_length_in_bytes%0#1 0                                                               (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%item_length_in_bytes%0#1
+        int 2                                                                                                 (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%item_length_in_bytes%0#1,2
+        +                                                                                                     (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%item_head_tail_length%0#1
+        l-load array%array_head_and_tail%0#1 2                                                                (𝕡) nested_list#0,threshold#0 | array%item_offset%0#1,array%item_head_tail_length%0#1,array%array_head_and_tail%0#1
+        l-load array%item_offset%0#1 2                                                                        (𝕡) nested_list#0,threshold#0 | array%item_head_tail_length%0#1,array%array_head_and_tail%0#1,array%item_offset%0#1
+        l-load array%item_head_tail_length%0#1 2                                                              (𝕡) nested_list#0,threshold#0 | array%array_head_and_tail%0#1,array%item_offset%0#1,array%item_head_tail_length%0#1
         extract3                                                                                              (𝕡) nested_list#0,threshold#0 | inner_list#0
         l-store-copy inner_list#0 0                                                                           (𝕡) nested_list#0,threshold#0 | inner_list#0,inner_list#0 (copy)
         v-store inner_list#0                                                                                  (𝕡) nested_list#0,threshold#0 | inner_list#0
@@ -380,11 +380,11 @@ subroutine calculate:
         // last_inner_list_index = inner_list.length - 1
         l-load inner_list#0 0                                                                                 (𝕡) nested_list#0,threshold#0 | inner_list#0
         int 0                                                                                                 (𝕡) nested_list#0,threshold#0 | inner_list#0,0
-        extract_uint16                                                                                        (𝕡) nested_list#0,threshold#0 | array%array_length%2#1
-        l-store-copy array%array_length%2#1 0                                                                 (𝕡) nested_list#0,threshold#0 | array%array_length%2#1,array%array_length%2#1 (copy)
-        v-store array%array_length%2#1                                                                        (𝕡) nested_list#0,threshold#0 | array%array_length%2#1
-        l-load array%array_length%2#1 0                                                                       (𝕡) nested_list#0,threshold#0 | array%array_length%2#1
-        int 1                                                                                                 (𝕡) nested_list#0,threshold#0 | array%array_length%2#1,1
+        extract_uint16                                                                                        (𝕡) nested_list#0,threshold#0 | array_length%1#0
+        l-store-copy array_length%1#0 0                                                                       (𝕡) nested_list#0,threshold#0 | array_length%1#0,array_length%1#0 (copy)
+        v-store array_length%1#0                                                                              (𝕡) nested_list#0,threshold#0 | array_length%1#0
+        l-load array_length%1#0 0                                                                             (𝕡) nested_list#0,threshold#0 | array_length%1#0
+        int 1                                                                                                 (𝕡) nested_list#0,threshold#0 | array_length%1#0,1
         -                                                                                                     (𝕡) nested_list#0,threshold#0 | last_inner_list_index#0
         v-store last_inner_list_index#0                                                                       (𝕡) nested_list#0,threshold#0 |
         // regression_tests/leftover_branch.py:41
@@ -397,7 +397,7 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:41
         // for j in urange(inner_list.length):
         v-load j#0                                                                                            (𝕡) nested_list#0,threshold#0 | j#0
-        v-load array%array_length%2#1                                                                         (𝕡) nested_list#0,threshold#0 | j#0,array%array_length%2#1
+        v-load array_length%1#0                                                                               (𝕡) nested_list#0,threshold#0 | j#0,array_length%1#0
         <                                                                                                     (𝕡) nested_list#0,threshold#0 | continue_looping%1#0
         l-load continue_looping%1#0 0                                                                         (𝕡) nested_list#0,threshold#0 | continue_looping%1#0
         bz calculate_after_for@12 ; b calculate_for_body@4                                                    (𝕡) nested_list#0,threshold#0 |
@@ -406,15 +406,15 @@ subroutine calculate:
         // regression_tests/leftover_branch.py:42
         // value = inner_list[j]
         v-load inner_list#0                                                                                   (𝕡) nested_list#0,threshold#0 | inner_list#0
-        extract 2 0                                                                                           (𝕡) nested_list#0,threshold#0 | array_trimmed%0#0
-        l-store-copy array_trimmed%0#0 0                                                                      (𝕡) nested_list#0,threshold#0 | array_trimmed%0#0,array_trimmed%0#0 (copy)
-        v-store array_trimmed%0#0                                                                             (𝕡) nested_list#0,threshold#0 | array_trimmed%0#0
-        v-load j#0                                                                                            (𝕡) nested_list#0,threshold#0 | array_trimmed%0#0,j#0
-        int 8                                                                                                 (𝕡) nested_list#0,threshold#0 | array_trimmed%0#0,j#0,8
-        *                                                                                                     (𝕡) nested_list#0,threshold#0 | array_trimmed%0#0,bytes_offset%0#0
-        l-load array_trimmed%0#0 1                                                                            (𝕡) nested_list#0,threshold#0 | bytes_offset%0#0,array_trimmed%0#0
-        l-load bytes_offset%0#0 1                                                                             (𝕡) nested_list#0,threshold#0 | array_trimmed%0#0,bytes_offset%0#0
-        int 8                                                                                                 (𝕡) nested_list#0,threshold#0 | array_trimmed%0#0,bytes_offset%0#0,8
+        extract 2 0                                                                                           (𝕡) nested_list#0,threshold#0 | array%array_trimmed%0#1
+        l-store-copy array%array_trimmed%0#1 0                                                                (𝕡) nested_list#0,threshold#0 | array%array_trimmed%0#1,array%array_trimmed%0#1 (copy)
+        v-store array%array_trimmed%0#1                                                                       (𝕡) nested_list#0,threshold#0 | array%array_trimmed%0#1
+        v-load j#0                                                                                            (𝕡) nested_list#0,threshold#0 | array%array_trimmed%0#1,j#0
+        int 8                                                                                                 (𝕡) nested_list#0,threshold#0 | array%array_trimmed%0#1,j#0,8
+        *                                                                                                     (𝕡) nested_list#0,threshold#0 | array%array_trimmed%0#1,array%bytes_offset%0#1
+        l-load array%array_trimmed%0#1 1                                                                      (𝕡) nested_list#0,threshold#0 | array%bytes_offset%0#1,array%array_trimmed%0#1
+        l-load array%bytes_offset%0#1 1                                                                       (𝕡) nested_list#0,threshold#0 | array%array_trimmed%0#1,array%bytes_offset%0#1
+        int 8                                                                                                 (𝕡) nested_list#0,threshold#0 | array%array_trimmed%0#1,array%bytes_offset%0#1,8
         extract3 // on error: index access is out of bounds                                                   (𝕡) nested_list#0,threshold#0 | value#0
         l-store-copy value#0 0                                                                                (𝕡) nested_list#0,threshold#0 | value#0,value#0 (copy)
         v-store value#0                                                                                       (𝕡) nested_list#0,threshold#0 | value#0
@@ -460,10 +460,10 @@ subroutine calculate:
         +                                                                                                     (𝕡) nested_list#0,threshold#0 | total#0,tmp%4#0
         l-load tmp%4#0 0                                                                                      (𝕡) nested_list#0,threshold#0 | total#0,tmp%4#0
         int 8                                                                                                 (𝕡) nested_list#0,threshold#0 | total#0,tmp%4#0,8
-        *                                                                                                     (𝕡) nested_list#0,threshold#0 | total#0,bytes_offset%1#0
-        v-load array_trimmed%0#0                                                                              (𝕡) nested_list#0,threshold#0 | total#0,bytes_offset%1#0,array_trimmed%0#0
-        l-load bytes_offset%1#0 1                                                                             (𝕡) nested_list#0,threshold#0 | total#0,array_trimmed%0#0,bytes_offset%1#0
-        int 8                                                                                                 (𝕡) nested_list#0,threshold#0 | total#0,array_trimmed%0#0,bytes_offset%1#0,8
+        *                                                                                                     (𝕡) nested_list#0,threshold#0 | total#0,array%bytes_offset%1#1
+        v-load array%array_trimmed%0#1                                                                        (𝕡) nested_list#0,threshold#0 | total#0,array%bytes_offset%1#1,array%array_trimmed%0#1
+        l-load array%bytes_offset%1#1 1                                                                       (𝕡) nested_list#0,threshold#0 | total#0,array%array_trimmed%0#1,array%bytes_offset%1#1
+        int 8                                                                                                 (𝕡) nested_list#0,threshold#0 | total#0,array%array_trimmed%0#1,array%bytes_offset%1#1,8
         extract3 // on error: index access is out of bounds                                                   (𝕡) nested_list#0,threshold#0 | total#0,next_value#0
         // regression_tests/leftover_branch.py:48
         // if value < next_value:
