@@ -6,7 +6,7 @@ from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder import arc4
+from puya.ir.builder import arc4, sequence
 from puya.ir.builder._utils import (
     OpFactory,
     invoke_puya_lib_subroutine,
@@ -135,10 +135,8 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
                 and iterable_encoding.element == element_encoding
             ):
                 materialised_iterable = self.factory.materialise_single(iterable)
-                iterable_length: ir.ValueProvider = ir.ArrayLength(
-                    array=materialised_iterable,
-                    array_encoding=iterable_encoding,
-                    source_location=self.loc,
+                iterable_length: ir.ValueProvider = sequence.get_length(
+                    self.context, iterable_encoding, materialised_iterable, self.loc
                 )
                 if iterable_encoding.length_header:
                     iterable = self.factory.extract_to_end(materialised_iterable, 2)
@@ -175,19 +173,11 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
                 value=len(iterable_ir_type.elements), source_location=self.loc
             )
 
-            # TODO: use ir.ValueEncode?
-            # encoded_iterable = ir.ValueEncode(
-            #    values=self.factory.materialise_values(iterable),
-            #    value_type=TupleIRType(elements=[self.element_ir_type] * num_elements),
-            #    encoding=DynamicArrayEncoding(element=element_encoding, length_header=False),
-            #    source_location=self.loc,
-            # )
-            encoded_iterable = arc4.encode_value(
-                self.context,
-                value_provider=iterable,
+            encoded_iterable = ir.ValueEncode(
+                values=self.factory.materialise_values(iterable),
                 value_type=iterable_ir_type,
                 encoding=DynamicArrayEncoding(element=element_encoding, length_header=False),
-                loc=self.loc,
+                source_location=self.loc,
             )
 
         return iterable_length, encoded_iterable

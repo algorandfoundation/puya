@@ -18,7 +18,7 @@ from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, dynamic_array, flow_control, mem, sequence, storage, tup
+from puya.ir.builder import dynamic_array, flow_control, mem, sequence, storage, tup
 from puya.ir.builder._utils import (
     OpFactory,
     assert_value,
@@ -67,6 +67,8 @@ from puya.ir.models import (
     UInt64Constant,
     Undefined,
     Value,
+    ValueDecode,
+    ValueEncode,
     ValueProvider,
     ValueTuple,
 )
@@ -177,7 +179,9 @@ class FunctionIRBuilder(
         encoding = wtype_to_encoding(expr.value.wtype, loc)
 
         value = self.visit_and_materialise_single(expr.value)
-        return arc4.decode_value(self.context, value, encoding, ir_type, loc)
+        return ValueDecode(
+            value=value, encoding=encoding, decoded_type=ir_type, source_location=loc
+        )
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         loc = expr.source_location
@@ -185,8 +189,11 @@ class FunctionIRBuilder(
         value_ir_type = wtype_to_ir_type(expr.value.wtype, loc, allow_tuple=True)
         encoding = wtype_to_encoding(expr.wtype, loc)
 
-        value = self.visit_and_materialise_as_value_or_tuple(expr.value)
-        return arc4.encode_value(self.context, value, value_ir_type, encoding, loc)
+        values = self.visit_and_materialise(expr.value)
+
+        return ValueEncode(
+            values=values, value_type=value_ir_type, encoding=encoding, source_location=loc
+        )
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
         loc = size_of.source_location
@@ -490,8 +497,11 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
         if wtype == wtypes.arc4_string_alias:
-            encoded = arc4.encode_value(
-                self.context, result, result.ir_type, wtype_to_encoding(wtype, loc), loc
+            encoded = ValueEncode(
+                values=[result],
+                value_type=result.ir_type,
+                encoding=wtype_to_encoding(wtype, loc),
+                source_location=loc,
             )
             (result,) = self.context.materialise_value_provider(encoded, "encoded")
         return result
@@ -885,9 +895,12 @@ class FunctionIRBuilder(
         # initialize array with a tuple of provided elements
         tuple_expr = awst_nodes.TupleExpression.from_items(expr.values, loc)
         tuple_ir_type = wtype_to_ir_type(tuple_expr.wtype, loc, allow_tuple=True)
-        tuple_values = self.visit_and_materialise_as_value_or_tuple(tuple_expr)
-        encoded_array_vp = arc4.encode_value(
-            self.context, tuple_values, tuple_ir_type, array_encoding, loc
+        tuple_values = self.visit_and_materialise(tuple_expr)
+        encoded_array_vp = ValueEncode(
+            values=tuple_values,
+            value_type=tuple_ir_type,
+            encoding=array_encoding,
+            source_location=loc,
         )
         (encoded_array,) = self.context.visitor.materialise_value_provider(
             encoded_array_vp, "encoded_array"
@@ -1210,12 +1223,11 @@ class FunctionIRBuilder(
             element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
         ]
 
-        return arc4.encode_value(
-            self.context,
-            value_provider=ValueTuple(values=elements, source_location=loc),
+        return ValueEncode(
+            values=elements,
             value_type=tuple_ir_type,
             encoding=tuple_encoding,
-            loc=loc,
+            source_location=loc,
         )
 
     def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
