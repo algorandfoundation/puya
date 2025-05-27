@@ -32,7 +32,9 @@ class TupleBuilder(abc.ABC):
         """Reads the value from the specified index and performs any decoding required"""
 
     @abc.abstractmethod
-    def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
+    def write_at_index(
+        self, tup: ir.MultiValue, index: int, value: ir.MultiValue
+    ) -> ir.MultiValue:
         """Encodes the value and writes to the specified index"""
 
 
@@ -73,9 +75,16 @@ class StackTupleBuilder(TupleBuilder):
             return ValueTuple(values=values, source_location=self.loc)
 
     @typing.override
-    def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
-        logger.error("tuples are immutable", locations=self.loc)
-        return tup
+    def write_at_index(
+        self, tup: ir.MultiValue, index: int, value: ir.MultiValue
+    ) -> ir.MultiValue:
+        curr = tup.values if isinstance(tup, ir.ValueTuple) else [tup]
+        new_targets = []
+        for r in curr:
+            assert isinstance(r, ir.Register)
+            new_targets.append(self.context.new_register(r.name, r.ir_type, r.source_location))
+        self.context.add_assignment(targets=new_targets, source=value, loc=None)
+        return value
 
 
 class EncodedTupleBuilder(TupleBuilder):
@@ -137,7 +146,9 @@ class EncodedTupleBuilder(TupleBuilder):
         )
 
     @typing.override
-    def write_at_index(self, tup: ir.Value, index: int, value: ir.MultiValue) -> ir.Value:
+    def write_at_index(self, tup: ir.MultiValue, index: int, value: ir.MultiValue) -> ir.Value:
+        assert isinstance(tup, ir.Value)
+
         value_ir_type = self.tuple_ir_type.elements[index]
         value = self.factory.materialise_single(value, "assigned_value")
         element_encoding = self.tuple_encoding.elements[index]
