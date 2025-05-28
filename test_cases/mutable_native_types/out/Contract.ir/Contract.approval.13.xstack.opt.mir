@@ -443,9 +443,9 @@ subroutine increment_payment:
         extract3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1
         l-load-copy array%encoded_element%0#1 0                                                   (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,array%encoded_element%0#1 (copy)
         int 40                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,array%encoded_element%0#1 (copy),40
-        extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,tmp%1#0
-        p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,tmp%1#0,amt#0 (copy)
-        +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,tmp%2#0
+        extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,values%0#0
+        p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,values%0#0,amt#0 (copy)
+        +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,tmp%1#0
         itob                                                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,array%val_as_bytes%0#1
         l-load array%encoded_element%0#1 1                                                        (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%val_as_bytes%0#1,array%encoded_element%0#1
         l-load array%val_as_bytes%0#1 1                                                           (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,array%val_as_bytes%0#1
@@ -537,10 +537,10 @@ subroutine local_struct:
         extract_uint64                                                                            a#0,foo#0,bar#0,baz#0
         // mutable_native_types/contract.py:133
         // assert foo, "use foo"
-        global ZeroAddress                                                                        a#0,foo#0,bar#0,baz#0,tmp%5#0
-        l-load foo#0 3                                                                            a#0,bar#0,baz#0,tmp%5#0,foo#0
-        l-load tmp%5#0 1                                                                          a#0,bar#0,baz#0,foo#0,tmp%5#0
-        !=                                                                                        a#0,bar#0,baz#0,tmp%6#0
+        global ZeroAddress                                                                        a#0,foo#0,bar#0,baz#0,tmp%2#0
+        l-load foo#0 3                                                                            a#0,bar#0,baz#0,tmp%2#0,foo#0
+        l-load tmp%2#0 1                                                                          a#0,bar#0,baz#0,foo#0,tmp%2#0
+        !=                                                                                        a#0,bar#0,baz#0,tmp%3#0
         assert // use foo                                                                         a#0,bar#0,baz#0
         // mutable_native_types/contract.py:134
         // assert bar, "use bar"
@@ -715,26 +715,26 @@ subroutine calculate_sum:
         // return val.a + val.b
         l-load-copy fixed_a#0 1                                                                   fixed_a#0,fixed_b#0,fixed_a#0 (copy)
         int 0                                                                                     fixed_a#0,fixed_b#0,fixed_a#0 (copy),0
-        extract_uint64                                                                            fixed_a#0,fixed_b#0,tmp%0#1
-        l-load fixed_a#0 2                                                                        fixed_b#0,tmp%0#1,fixed_a#0
-        int 8                                                                                     fixed_b#0,tmp%0#1,fixed_a#0,8
-        extract_uint64                                                                            fixed_b#0,tmp%0#1,tmp%1#1
-        l-load tmp%0#1 1                                                                          fixed_b#0,tmp%1#1,tmp%0#1
-        l-load tmp%1#1 1                                                                          fixed_b#0,tmp%0#1,tmp%1#1
-        +                                                                                         fixed_b#0,tmp%2#0
-        l-load-copy fixed_b#0 1                                                                   fixed_b#0,tmp%2#0,fixed_b#0 (copy)
-        int 0                                                                                     fixed_b#0,tmp%2#0,fixed_b#0 (copy),0
-        extract_uint64                                                                            fixed_b#0,tmp%2#0,tmp%0#1
-        l-load fixed_b#0 2                                                                        tmp%2#0,tmp%0#1,fixed_b#0
-        int 8                                                                                     tmp%2#0,tmp%0#1,fixed_b#0,8
-        extract_uint64                                                                            tmp%2#0,tmp%0#1,tmp%1#1
-        l-load tmp%0#1 1                                                                          tmp%2#0,tmp%1#1,tmp%0#1
-        l-load tmp%1#1 1                                                                          tmp%2#0,tmp%0#1,tmp%1#1
-        +                                                                                         tmp%2#0,tmp%2#1
+        extract_uint64                                                                            fixed_a#0,fixed_b#0,values%0#0
+        l-load fixed_a#0 2                                                                        fixed_b#0,values%0#0,fixed_a#0
+        int 8                                                                                     fixed_b#0,values%0#0,fixed_a#0,8
+        extract_uint64                                                                            fixed_b#0,values%0#0,values%1#0
+        l-load values%0#0 1                                                                       fixed_b#0,values%1#0,values%0#0
+        l-load values%1#0 1                                                                       fixed_b#0,values%0#0,values%1#0
+        +                                                                                         fixed_b#0,tmp%0#1
+        l-load-copy fixed_b#0 1                                                                   fixed_b#0,tmp%0#1,fixed_b#0 (copy)
+        int 0                                                                                     fixed_b#0,tmp%0#1,fixed_b#0 (copy),0
+        extract_uint64                                                                            fixed_b#0,tmp%0#1,values%0#0
+        l-load fixed_b#0 2                                                                        tmp%0#1,values%0#0,fixed_b#0
+        int 8                                                                                     tmp%0#1,values%0#0,fixed_b#0,8
+        extract_uint64                                                                            tmp%0#1,values%0#0,values%1#0
+        l-load values%0#0 1                                                                       tmp%0#1,values%1#0,values%0#0
+        l-load values%1#0 1                                                                       tmp%0#1,values%0#0,values%1#0
+        +                                                                                         tmp%0#1,tmp%0#2
         // mutable_native_types/contract.py:170
         // result = add(fixed_a) + add(fixed_b)
-        l-load tmp%2#0 1                                                                          tmp%2#1,tmp%2#0
-        l-load tmp%2#1 1                                                                          tmp%2#0,tmp%2#1
+        l-load tmp%0#1 1                                                                          tmp%0#2,tmp%0#1
+        l-load tmp%0#2 1                                                                          tmp%0#1,tmp%0#2
         +                                                                                         result#0
         l-store-copy result#0 0                                                                   result#0,result#0 (copy)
         v-store result#0                                                                          result#0

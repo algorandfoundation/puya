@@ -111,17 +111,19 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let as_bytes%0#0: bytes[8] = (itob len%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let tuple_item%1#1: Encoded(len+uint8[]) = tup#0[1]
         let tup#1: Encoded((uint8,len+uint8[])) = tup#0.update(1, replace%0#0)
-        let tuple_item%1#1: Encoded(len+uint8[]) = tup#1[1]
-        let encoded_array%0#0: Encoded(len+uint8[]) = encode<len+uint8[]>(0x00)
-        let tmp%3#2: bool = (== tuple_item%1#1 encoded_array%0#0)
-        (assert tmp%3#2)
         let tuple_item%2#1: Encoded(len+uint8[]) = tup#1[1]
-        let updated_array%0#0: Encoded(len+uint8[]) = tuple_item%2#1.update(0u, 0x01)
+        let encoded_array%0#0: Encoded(len+uint8[]) = encode<len+uint8[]>(0x00)
+        let tmp%3#2: bool = (== tuple_item%2#1 encoded_array%0#0)
+        (assert tmp%3#2)
+        let tuple_item%3#0: Encoded(len+uint8[]) = tup#1[1]
+        let array_item%0#0: Encoded(uint8) = tuple_item%3#0[0u]
+        let updated_array%0#0: Encoded(len+uint8[]) = tuple_item%3#0.update(0u, 0x01)
         let tup#2: Encoded((uint8,len+uint8[])) = tup#1.update(1, updated_array%0#0)
-        let tuple_item%3#0: Encoded(len+uint8[]) = tup#2[1]
-        let tuple_item%4#0: Encoded(len+uint8[]) = tup#1[1]
-        let tmp%4#2: bool = (!= tuple_item%3#0 tuple_item%4#0)
+        let tuple_item%4#0: Encoded(len+uint8[]) = tup#2[1]
+        let tuple_item%5#0: Encoded(len+uint8[]) = tup#1[1]
+        let tmp%4#2: bool = (!= tuple_item%4#0 tuple_item%5#0)
         (assert tmp%4#2)
         return 1u
 

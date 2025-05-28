@@ -538,7 +538,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let twm.arr#1: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
+        let (twm.arr#1: Encoded(len+uint64[]), twm.child.a#1: uint64, twm.child.b#1: bytes, twm.child.c#1: string) = (as_Encoded(len+uint64[])%0#0, twm.child.a#0, twm.child.b#0, twm.child.c#0)
         let tmp%1#0: Encoded(uint64[]) = encode<uint64[]>(0x0000000000000002)
         let concat%1#0: Encoded(len+uint64[]) = (concat twm.arr#1 tmp%1#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%1#0)
@@ -548,7 +548,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
         let as_Encoded(len+uint64[])%1#0: Encoded(len+uint64[]) = replace%1#0
-        let twm.arr#2: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%1#0
+        let (twm.arr#2: Encoded(len+uint64[]), twm.child.a#2: uint64, twm.child.b#2: bytes, twm.child.c#2: string) = (as_Encoded(len+uint64[])%1#0, twm.child.a#1, twm.child.b#1, twm.child.c#1)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
@@ -567,7 +567,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L107
-        return twm.arr#2 twm.child.a#0 twm.child.b#0 twm.child.c#0
+        return twm.arr#2 twm.child.a#2 twm.child.b#2 twm.child.c#2
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_storage_currently_supported_method() -> void:
     block@0: // L114

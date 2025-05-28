@@ -252,7 +252,7 @@ quicksort_window:
     // def quicksort_window(arr: Array[UInt64], window_left: UInt64, window_right: UInt64) -> None:
     proto 3 0
     bytec_0 // ""
-    dup
+    dupn 2
 
 quicksort_window_block@0:
     // array/uint64.py:185
@@ -277,10 +277,12 @@ quicksort_window_block@0:
     btoi
 
 quicksort_window_while_top@1:
-    frame_dig 2
-    frame_bury 0
     frame_dig 3
     frame_bury 1
+    frame_dig -3
+    frame_bury 0
+    frame_dig 4
+    frame_bury 2
     // array/uint64.py:188-190
     // # partition window around pivot, so everything to the left is less
     // # and everything to the right is more or equal
@@ -296,23 +298,23 @@ quicksort_window_while_top@3:
     // while arr[left] < pivot:
     frame_dig -3
     loads
-    frame_dig 2
+    frame_dig 3
     intc_0 // 8
     *
     intc_0 // 8
     extract3 // on error: index access is out of bounds
     btoi
-    frame_dig 4
+    frame_dig 5
     <
     bz quicksort_window_after_while@5
 
 quicksort_window_while_body@4:
     // array/uint64.py:193
     // left += 1
-    frame_dig 2
+    frame_dig 3
     intc_1 // 1
     +
-    frame_bury 2
+    frame_bury 3
     b quicksort_window_while_top@3
 
 quicksort_window_after_while@5:
@@ -323,13 +325,13 @@ quicksort_window_while_top@6:
     // while pivot < arr[right]:
     frame_dig -3
     loads
-    frame_dig 3
+    frame_dig 4
     intc_0 // 8
     *
     intc_0 // 8
     extract3 // on error: index access is out of bounds
     btoi
-    frame_dig 4
+    frame_dig 5
     >
     bz quicksort_window_after_while@10
 
@@ -337,7 +339,7 @@ quicksort_window_while_body@7:
     // array/uint64.py:196-197
     // # break out of loop if right would go negative
     // if not right:
-    frame_dig 3
+    frame_dig 4
     intc_2 // 0
     ==
     bz quicksort_window_after_if_else@9
@@ -345,17 +347,21 @@ quicksort_window_while_body@7:
 quicksort_window_if_body@8:
 
 quicksort_window_block@21:
-    frame_dig 2
-    frame_bury 0
     frame_dig 3
     frame_bury 1
+    frame_dig -3
+    frame_bury 0
+    frame_dig 4
+    frame_bury 2
 
 quicksort_window_after_while@22:
-    frame_dig 0
-    frame_bury 2
     frame_dig 1
-    dup
     frame_bury 3
+    frame_dig 0
+    frame_bury -3
+    frame_dig 2
+    dup
+    frame_bury 4
     // array/uint64.py:227-228
     // # sort left half of window
     // if window_left < right:
@@ -368,14 +374,14 @@ quicksort_window_if_body@23:
     // quicksort_window(arr, window_left, right)
     frame_dig -3
     frame_dig -2
-    frame_dig 3
+    frame_dig 4
     callsub quicksort_window
 
 quicksort_window_after_if_else@24:
     // array/uint64.py:230-231
     // # sort right half of window
     // if left < window_right:
-    frame_dig 2
+    frame_dig 3
     frame_dig -1
     <
     bz quicksort_window_after_if_else@26
@@ -384,7 +390,7 @@ quicksort_window_if_body@25:
     // array/uint64.py:232
     // quicksort_window(arr, left, window_right)
     frame_dig -3
-    frame_dig 2
+    frame_dig 3
     frame_dig -1
     callsub quicksort_window
 
@@ -394,18 +400,18 @@ quicksort_window_after_if_else@26:
 quicksort_window_after_if_else@9:
     // array/uint64.py:199
     // right -= 1
-    frame_dig 3
+    frame_dig 4
     intc_1 // 1
     -
-    frame_bury 3
+    frame_bury 4
     b quicksort_window_while_top@6
 
 quicksort_window_after_while@10:
     // array/uint64.py:201-202
     // # if window isn't empty then swap values and move window in
     // if left < right:
-    frame_dig 2
     frame_dig 3
+    frame_dig 4
     <
     bz quicksort_window_after_if_else@16
 
@@ -414,7 +420,7 @@ quicksort_window_if_body@11:
     // arr[left], arr[right] = arr[right], arr[left]
     frame_dig -3
     loads
-    frame_dig 3
+    frame_dig 4
     dup
     cover 2
     intc_0 // 8
@@ -424,7 +430,7 @@ quicksort_window_if_body@11:
     btoi
     frame_dig -3
     loads
-    frame_dig 2
+    frame_dig 3
     dup
     cover 3
     intc_0 // 8
@@ -433,6 +439,9 @@ quicksort_window_if_body@11:
     extract3 // on error: index access is out of bounds
     btoi
     cover 2
+    frame_dig -3
+    loads
+    pop
     frame_dig -3
     loads
     swap
@@ -447,6 +456,9 @@ quicksort_window_if_body@11:
     frame_dig -3
     swap
     stores
+    frame_dig -3
+    loads
+    pop
     frame_dig -3
     loads
     uncover 2
@@ -465,7 +477,7 @@ quicksort_window_if_body@11:
     // left += 1
     intc_1 // 1
     +
-    frame_bury 2
+    frame_bury 3
     // array/uint64.py:205-206
     // # break out of loop if right would go negative
     // if not right:
@@ -474,10 +486,12 @@ quicksort_window_if_body@11:
     bz quicksort_window_after_if_else@13
 
 quicksort_window_if_body@12:
-    frame_dig 2
-    frame_bury 0
     frame_dig 3
     frame_bury 1
+    frame_dig -3
+    frame_bury 0
+    frame_dig 4
+    frame_bury 2
     // array/uint64.py:207
     // break
     b quicksort_window_after_while@22
@@ -485,15 +499,15 @@ quicksort_window_if_body@12:
 quicksort_window_after_if_else@13:
     // array/uint64.py:208
     // right -= 1
-    frame_dig 3
+    frame_dig 4
     intc_1 // 1
     -
     dup
-    frame_bury 3
+    frame_bury 4
     // array/uint64.py:209-210
     // # explicit continue to avoid hitting outer break
     // if left <= right:
-    frame_dig 2
+    frame_dig 3
     >=
     bz quicksort_window_after_if_else@15
 
@@ -503,10 +517,12 @@ quicksort_window_if_body@14:
     b quicksort_window_while_top@1
 
 quicksort_window_after_if_else@15:
-    frame_dig 2
-    frame_bury 0
     frame_dig 3
     frame_bury 1
+    frame_dig -3
+    frame_bury 0
+    frame_dig 4
+    frame_bury 2
     // array/uint64.py:212-214
     // # loop always ends in this scenario
     // # and an explict break consumes fewer ops
@@ -517,42 +533,44 @@ quicksort_window_after_if_else@16:
     // array/uint64.py:215-216
     // # if window is just one item, don't bother swapping, but still adjust window
     // if left == right:
-    frame_dig 2
     frame_dig 3
+    frame_dig 4
     ==
     bz quicksort_window_after_if_else@20
 
 quicksort_window_if_body@17:
     // array/uint64.py:217
     // left += 1
-    frame_dig 2
+    frame_dig 3
     intc_1 // 1
     +
-    frame_bury 2
+    frame_bury 3
     // array/uint64.py:218-219
     // # don't decrement right if it would go negative
     // if right:
-    frame_dig 3
+    frame_dig 4
     dup
     intc_2 // 0
     !=
     swap
-    frame_bury 1
+    frame_bury 2
     bz quicksort_window_after_if_else@19
 
 quicksort_window_if_body@18:
     // array/uint64.py:220
     // right -= 1
-    frame_dig 3
+    frame_dig 4
     intc_1 // 1
     -
-    frame_bury 1
+    frame_bury 2
 
 quicksort_window_after_if_else@19:
-    frame_dig 1
     frame_dig 2
-    frame_bury 0
+    frame_dig 3
     frame_bury 1
+    frame_dig -3
+    frame_bury 0
+    frame_bury 2
     // array/uint64.py:221-223
     // # loop always ends in this scenario
     // # and an explict break consumes fewer ops
@@ -1151,6 +1169,9 @@ test_array_block@0:
     btoi
     pushint 2 // 2
     +
+    dig 1
+    loads
+    pop
     dig 1
     loads
     swap
@@ -1885,10 +1906,12 @@ test_array_evaluation_order_block@0:
     btoi
     dig 2
     loads
-    swap
+    pop
+    dig 2
+    loads
     uncover 2
     itob
-    swap
+    uncover 2
     intc_0 // 8
     *
     uncover 2
@@ -2550,13 +2573,15 @@ test_unobserved_write_block@0:
     // arr[last] = UInt64(0)  # write
     dig 1
     loads
-    swap
+    pop
+    dig 1
+    loads
     intc_2 // 0
     itob
-    dig 1
+    dig 2
     intc_0 // 8
     *
-    uncover 3
+    uncover 2
     swap
     uncover 2
     replace3
@@ -2569,6 +2594,9 @@ test_unobserved_write_block@0:
     callsub assert_last_is_zero
     // array/uint64.py:179
     // arr[last] = UInt64(1)  # write
+    dig 1
+    loads
+    pop
     dig 1
     loads
     intc_1 // 1
