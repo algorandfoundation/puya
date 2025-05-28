@@ -6,11 +6,11 @@ from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder import arc4, sequence
 from puya.ir.builder._utils import (
     OpFactory,
     invoke_puya_lib_subroutine,
 )
+from puya.ir.builder.sequence import get_length, requires_conversion
 from puya.ir.encodings import (
     ArrayEncoding,
     BoolEncoding,
@@ -31,8 +31,6 @@ from puya.ir.types_ import (
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
-# TODO: remove this
-# ruff: noqa: ARG002
 
 
 # region Dynamic arrays
@@ -135,7 +133,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
                 and iterable_encoding.element == element_encoding
             ):
                 materialised_iterable = self.factory.materialise_single(iterable)
-                iterable_length: ir.ValueProvider = sequence.get_length(
+                iterable_length: ir.ValueProvider = get_length(
                     self.context, iterable_encoding, materialised_iterable, self.loc
                 )
                 if iterable_encoding.length_header:
@@ -186,9 +184,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
         return self.factory.as_ir_type(value, self.array_ir_type)
 
     def _maybe_decode(self, encoded_item: ir.Value) -> ir.MultiValue:
-        if not arc4.requires_conversion(
-            self.element_ir_type, self.array_encoding.element, "decode"
-        ):
+        if not requires_conversion(self.element_ir_type, self.array_encoding.element, "decode"):
             return self.factory.materialise_single(encoded_item)
         else:
             encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
