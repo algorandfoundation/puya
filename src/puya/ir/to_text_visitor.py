@@ -107,13 +107,29 @@ class ToTextVisitor(IRVisitor[str]):
 
     @typing.override
     def visit_array_read_index(self, read: models.ArrayReadIndex) -> str:
-        return f"{read.array.accept(self)}[{read.index.accept(self)}]"
+        base = read.array.accept(self)
+        index = read.index.accept(self)
+        return f"{base}[{index}]"
 
     @typing.override
     def visit_array_write_index(self, write: models.ArrayWriteIndex) -> str:
-        return (
-            f"{write.array.accept(self)}[{write.index.accept(self)}] = {write.value.accept(self)}"
-        )
+        base = write.array.accept(self)
+        index = write.index.accept(self)
+        value = write.value.accept(self)
+        return f"{base}.update({index}, {value})"
+
+    @typing.override
+    def visit_tuple_read_index(self, read: models.TupleReadIndex) -> str:
+        base = read.base.accept(self)
+        index = ", ".join(map(str, read.indexes))
+        return f"{base}[{index}]"
+
+    @typing.override
+    def visit_tuple_write_index(self, write: models.TupleWriteIndex) -> str:
+        base = write.base.accept(self)
+        index = ", ".join(map(str, write.indexes))
+        value = write.value.accept(self)
+        return f"{base}.update({index}, {value})"
 
     @typing.override
     def visit_array_concat(self, concat: models.ArrayConcat) -> str:

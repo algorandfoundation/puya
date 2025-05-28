@@ -9,7 +9,7 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import mem, sequence, storage, tup
+from puya.ir.builder import mem, sequence, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import assign, assign_targets, get_implicit_return_is_original
 from puya.ir.context import IRFunctionBuildContext
@@ -244,14 +244,20 @@ def handle_arc4_assign(
         ):
             base = context.visitor.visit_and_materialise_single(base_expr, "base")
             index_int = struct_wtype.names.index(field_name)
-
-            tup_builder = tup.get_builder(context, struct_wtype, source_location)
-            item = tup_builder.write_at_index(base, index_int, value)
+            values = context.visitor.materialise_value_provider(value, "values")
+            updated_base = sequence.encode_and_write_tuple_index(
+                context,
+                struct_wtype,
+                base,
+                index_int,
+                values,
+                source_location,
+            )
 
             return handle_arc4_assign(
                 context,
                 target=base_expr,
-                value=item,
+                value=updated_base,
                 source_location=source_location,
                 is_nested_update=True,
             )
@@ -260,14 +266,20 @@ def handle_arc4_assign(
             index=index_int,
         ):
             base = context.visitor.visit_and_materialise_single(base_expr, "base")
-
-            tup_builder = tup.get_builder(context, tuple_wtype, source_location)
-            item = tup_builder.write_at_index(base, index_int, value)
+            values = context.visitor.materialise_value_provider(value, "values")
+            updated_base = sequence.encode_and_write_tuple_index(
+                context,
+                tuple_wtype,
+                base,
+                index_int,
+                values,
+                source_location,
+            )
 
             return handle_arc4_assign(
                 context,
                 target=base_expr,
-                value=item,
+                value=updated_base,
                 source_location=source_location,
                 is_nested_update=True,
             )
