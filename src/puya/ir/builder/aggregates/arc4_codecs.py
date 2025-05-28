@@ -46,10 +46,56 @@ from puya.utils import bits_to_bytes
 logger = log.get_logger(__name__)
 
 
-ARC4_FALSE = (0).to_bytes(1, "big")
+def decode_value(
+    context: IRRegisterContext,
+    value: Value,
+    encoding: Encoding,
+    target_type: IRType | TupleIRType,
+    loc: SourceLocation,
+) -> ValueProvider:
+    codec = _get_arc4_codec(target_type)
+    if codec is not None:
+        result = codec.decode(context, value, encoding, loc)
+        if result is not None:
+            return result
+    logger.error(
+        f"cannot decode from {encoding!s} to {_encoding_or_name(target_type)}",
+        location=loc,
+    )
+    return undefined_value(target_type, loc)
 
 
-class ARC4Codec(abc.ABC):
+def encode_value(
+    context: IRRegisterContext,
+    values: Sequence[Value],
+    value_type: IRType | TupleIRType,
+    encoding: Encoding,
+    loc: SourceLocation,
+) -> ValueProvider:
+    if not requires_conversion(value_type, encoding, "encode"):
+        logger.debug(
+            f"redundant encode operation from {_encoding_or_name(value_type)} to {encoding!s}",
+            location=loc,
+        )
+        (value,) = values
+        return value
+    codec = _get_arc4_codec(value_type)
+
+    if codec is not None:
+        result = codec.encode(context, values, encoding, loc)
+        if result is not None:
+            return result
+    logger.error(f"cannot encode {_encoding_or_name(value_type)} to {encoding!s}", location=loc)
+    return Undefined(
+        ir_type=PrimitiveIRType.bytes,
+        source_location=loc,
+    )
+
+
+_ARC4_FALSE = (0).to_bytes(1, "big")
+
+
+class _ARC4Codec(abc.ABC):
     @abc.abstractmethod
     def encode(
         self,
@@ -69,7 +115,7 @@ class ARC4Codec(abc.ABC):
     ) -> ValueProvider | None: ...
 
 
-class NativeTupleCodec(ARC4Codec):
+class _NativeTupleCodec(_ARC4Codec):
     def __init__(self, native_type: TupleIRType):
         self.native_type = native_type
         self.homogenous = len(set(self.native_type.elements)) == 1
@@ -123,7 +169,7 @@ class NativeTupleCodec(ARC4Codec):
                     bit_index = bit_packed_index % 8
                     if bit_index:
                         bit_index += (current_head_offset - 1) * 8
-                    bytes_to_set = head if bit_index else ARC4_FALSE
+                    bytes_to_set = head if bit_index else _ARC4_FALSE
                     value = factory.set_bit(value=bytes_to_set, index=bit_index, bit=value)
                     # if bit_index is not 0, then just update encoded and continue
                     # as there is nothing to concat
@@ -133,7 +179,7 @@ class NativeTupleCodec(ARC4Codec):
                 else:
                     if value.atype == AVMType.uint64:
                         value = factory.set_bit(
-                            value=ARC4_FALSE, index=0, bit=value, temp_desc="encoded_bit"
+                            value=_ARC4_FALSE, index=0, bit=value, temp_desc="encoded_bit"
                         )
                     bit_packed_index = 0
             else:
@@ -228,7 +274,7 @@ class NativeTupleCodec(ARC4Codec):
         return ValueTuple(values=items, source_location=loc)
 
 
-class ScalarCodec(ARC4Codec, abc.ABC):
+class _ScalarCodec(_ARC4Codec, abc.ABC):
     @typing.override
     @typing.final
     def encode(
@@ -255,7 +301,7 @@ class ScalarCodec(ARC4Codec, abc.ABC):
     ) -> ValueProvider | None: ...
 
 
-class BigUIntCodec(ScalarCodec):
+class _BigUIntCodec(_ScalarCodec):
     @typing.override
     def encode_value(
         self,
@@ -289,7 +335,7 @@ class BigUIntCodec(ScalarCodec):
         return None
 
 
-class UInt64Codec(ScalarCodec):
+class _UInt64Codec(_ScalarCodec):
     @typing.override
     def encode_value(
         self,
@@ -322,7 +368,7 @@ class UInt64Codec(ScalarCodec):
         return None
 
 
-class BoolCodec(ScalarCodec):
+class _BoolCodec(_ScalarCodec):
     def __init__(self, ir_type: IRType) -> None:
         self.ir_type = ir_type
 
@@ -338,7 +384,7 @@ class BoolCodec(ScalarCodec):
             case BoolEncoding() if self.ir_type == PrimitiveIRType.bool:
                 factory = OpFactory(context, loc)
                 # TODO: compare with select implementation
-                false = factory.constant(ARC4_FALSE)
+                false = factory.constant(_ARC4_FALSE)
                 return factory.set_bit(value=false, index=0, bit=value, temp_desc="encoded_bool")
             case UIntEncoding(n=bits) if self.ir_type == PrimitiveIRType.bool:
                 num_bytes = bits // 8
@@ -357,7 +403,7 @@ class BoolCodec(ScalarCodec):
             case BoolEncoding(packed=True) if self.ir_type == EncodedType(
                 BoolEncoding(packed=False)
             ):
-                encoder = BoolCodec(PrimitiveIRType.bool)
+                encoder = _BoolCodec(PrimitiveIRType.bool)
                 return encoder.encode_value(context, value, BoolEncoding(packed=False), loc)
             case BoolEncoding() if self.ir_type == PrimitiveIRType.bool:
                 return Intrinsic(
@@ -376,7 +422,7 @@ class BoolCodec(ScalarCodec):
         return None
 
 
-class BytesCodec(ScalarCodec):
+class _BytesCodec(_ScalarCodec):
     def __init__(self, element: UIntEncoding | UTF8Encoding):
         self.element = element
 
@@ -458,7 +504,7 @@ class AccountCodec(ARC4Codec):
 """
 
 
-class CheckedEncoding(ARC4Codec):
+class _CheckedEncoding(_ARC4Codec):
     def __init__(self, native_type: IRType):
         self.native_type: typing.Final = native_type
 
@@ -488,72 +534,26 @@ class CheckedEncoding(ARC4Codec):
         return None
 
 
-def _get_arc4_codec(ir_type: IRType | TupleIRType) -> ARC4Codec | None:
+def _get_arc4_codec(ir_type: IRType | TupleIRType) -> _ARC4Codec | None:
     match ir_type:
         case TupleIRType() as aggregate:
-            return NativeTupleCodec(aggregate)
+            return _NativeTupleCodec(aggregate)
         case PrimitiveIRType.biguint:
-            return BigUIntCodec()
+            return _BigUIntCodec()
         case PrimitiveIRType.bool | EncodedType(BoolEncoding(packed=False)):
-            return BoolCodec(ir_type)
+            return _BoolCodec(ir_type)
         case PrimitiveIRType.string:
-            return BytesCodec(UTF8Encoding())
+            return _BytesCodec(UTF8Encoding())
         case EncodedType():
             # TODO: this is the equivalent to the old StackArray check
             #       but probably isn't necessary any more
-            return CheckedEncoding(ir_type)
+            return _CheckedEncoding(ir_type)
         case PrimitiveIRType.bytes | SizedBytesType():
-            return BytesCodec(UIntEncoding(n=8))
+            return _BytesCodec(UIntEncoding(n=8))
         case _ if ir_type.maybe_avm_type == AVMType.uint64:
-            return UInt64Codec()
+            return _UInt64Codec()
         case _:
             return None
-
-
-def decode_value(
-    context: IRRegisterContext,
-    value: Value,
-    encoding: Encoding,
-    target_type: IRType | TupleIRType,
-    loc: SourceLocation,
-) -> ValueProvider:
-    codec = _get_arc4_codec(target_type)
-    if codec is not None:
-        result = codec.decode(context, value, encoding, loc)
-        if result is not None:
-            return result
-    logger.error(
-        f"cannot decode from {encoding!s} to {_encoding_or_name(target_type)}",
-        location=loc,
-    )
-    return undefined_value(target_type, loc)
-
-
-def encode_value(
-    context: IRRegisterContext,
-    values: Sequence[Value],
-    value_type: IRType | TupleIRType,
-    encoding: Encoding,
-    loc: SourceLocation,
-) -> ValueProvider:
-    if not requires_conversion(value_type, encoding, "encode"):
-        logger.debug(
-            f"redundant encode operation from {_encoding_or_name(value_type)} to {encoding!s}",
-            location=loc,
-        )
-        (value,) = values
-        return value
-    codec = _get_arc4_codec(value_type)
-
-    if codec is not None:
-        result = codec.encode(context, values, encoding, loc)
-        if result is not None:
-            return result
-    logger.error(f"cannot encode {_encoding_or_name(value_type)} to {encoding!s}", location=loc)
-    return Undefined(
-        ir_type=PrimitiveIRType.bytes,
-        source_location=loc,
-    )
 
 
 def _encoding_or_name(typ: IRType | TupleIRType) -> str:
