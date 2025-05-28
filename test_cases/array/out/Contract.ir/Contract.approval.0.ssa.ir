@@ -112,6 +112,7 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let pivot#0: uint64 = tmp%2#0
         goto block@1
     block@1: // while_top_L190
+        let arr#2: Encoded(uint64[])* = φ(arr#0 <- block@0, arr#5 <- block@14)
         let left#3: uint64 = φ(left#0 <- block@0, left#5 <- block@14)
         let right#4: uint64 = φ(right#0 <- block@0, right#5 <- block@14)
         goto 1u ? block@2 : block@22
@@ -119,7 +120,7 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         goto block@3
     block@3: // while_top_L192
         let left#1: uint64 = φ(left#3 <- block@2, left#2 <- block@4)
-        let slot_contents%1#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%1#0: Encoded(uint64[]) = read(arr#2)
         let array_item%1#0: Encoded(uint64) = slot_contents%1#0[left#1]
         let tmp%3#0: uint64 = decode<uint64>(array_item%1#0)
         let tmp%4#0: bool = (< tmp%3#0 pivot#0)
@@ -132,7 +133,7 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         goto block@6
     block@6: // while_top_L195
         let right#1: uint64 = φ(right#4 <- block@5, right#2 <- block@9)
-        let slot_contents%2#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%2#0: Encoded(uint64[]) = read(arr#2)
         let array_item%2#0: Encoded(uint64) = slot_contents%2#0[right#1]
         let tmp%6#0: uint64 = decode<uint64>(array_item%2#0)
         let tmp%7#0: bool = (< pivot#0 tmp%6#0)
@@ -150,46 +151,54 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let tmp%10#0: bool = (< left#1 right#1)
         goto tmp%10#0 ? block@11 : block@16
     block@11: // if_body_L203
-        let slot_contents%3#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%3#0: Encoded(uint64[]) = read(arr#2)
         let array_item%3#0: Encoded(uint64) = slot_contents%3#0[right#1]
         let tmp%11#0: uint64 = decode<uint64>(array_item%3#0)
-        let slot_contents%4#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%4#0: Encoded(uint64[]) = read(arr#2)
         let array_item%4#0: Encoded(uint64) = slot_contents%4#0[left#1]
         let tmp%12#0: uint64 = decode<uint64>(array_item%4#0)
-        let slot_contents%5#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%5#0: Encoded(uint64[]) = read(arr#2)
+        let array_item%5#0: Encoded(uint64) = slot_contents%5#0[left#1]
+        let tmp%13#0: uint64 = decode<uint64>(array_item%5#0)
+        let slot_contents%6#0: Encoded(uint64[]) = read(arr#2)
         let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%11#0)
-        let updated_array%0#0: Encoded(uint64[]) = slot_contents%5#0.update(left#1, encoded_value%0#0)
-        write(arr#0, updated_array%0#0)
-        let slot_contents%6#0: Encoded(uint64[]) = read(arr#0)
+        let updated_array%0#0: Encoded(uint64[]) = slot_contents%6#0.update(left#1, encoded_value%0#0)
+        write(arr#2, updated_array%0#0)
+        let arr#4: Encoded(uint64[])* = arr#2
+        let slot_contents%7#0: Encoded(uint64[]) = read(arr#4)
+        let array_item%6#0: Encoded(uint64) = slot_contents%7#0[right#1]
+        let tmp%14#0: uint64 = decode<uint64>(array_item%6#0)
+        let slot_contents%8#0: Encoded(uint64[]) = read(arr#4)
         let encoded_value%1#0: Encoded(uint64) = encode<uint64>(tmp%12#0)
-        let updated_array%1#0: Encoded(uint64[]) = slot_contents%6#0.update(right#1, encoded_value%1#0)
-        write(arr#0, updated_array%1#0)
-        let tmp%13#0: uint64 = (+ left#1 1u)
-        let left#5: uint64 = tmp%13#0
-        let tmp%14#0: bool = (== right#1 0u)
-        goto tmp%14#0 ? block@12 : block@13
+        let updated_array%1#0: Encoded(uint64[]) = slot_contents%8#0.update(right#1, encoded_value%1#0)
+        write(arr#4, updated_array%1#0)
+        let arr#5: Encoded(uint64[])* = arr#4
+        let tmp%15#0: uint64 = (+ left#1 1u)
+        let left#5: uint64 = tmp%15#0
+        let tmp%16#0: bool = (== right#1 0u)
+        goto tmp%16#0 ? block@12 : block@13
     block@12: // if_body_L207
         goto block@22
     block@13: // after_if_else_L206
-        let tmp%15#0: uint64 = (- right#1 1u)
-        let right#5: uint64 = tmp%15#0
-        let tmp%16#0: bool = (<= left#5 right#5)
-        goto tmp%16#0 ? block@14 : block@15
+        let tmp%17#0: uint64 = (- right#1 1u)
+        let right#5: uint64 = tmp%17#0
+        let tmp%18#0: bool = (<= left#5 right#5)
+        goto tmp%18#0 ? block@14 : block@15
     block@14: // if_body_L211
         goto block@1
     block@15: // after_if_else_L210
         goto block@22
     block@16: // after_if_else_L202
-        let tmp%17#0: bool = (== left#1 right#1)
-        goto tmp%17#0 ? block@17 : block@20
+        let tmp%19#0: bool = (== left#1 right#1)
+        goto tmp%19#0 ? block@17 : block@20
     block@17: // if_body_L217
-        let tmp%18#0: uint64 = (+ left#1 1u)
-        let left#6: uint64 = tmp%18#0
-        let tmp%19#0: bool = (!= right#1 0u)
-        goto tmp%19#0 ? block@18 : block@19
+        let tmp%20#0: uint64 = (+ left#1 1u)
+        let left#6: uint64 = tmp%20#0
+        let tmp%21#0: bool = (!= right#1 0u)
+        goto tmp%21#0 ? block@18 : block@19
     block@18: // if_body_L220
-        let tmp%20#0: uint64 = (- right#1 1u)
-        let right#6: uint64 = tmp%20#0
+        let tmp%22#0: uint64 = (- right#1 1u)
+        let right#6: uint64 = tmp%22#0
         goto block@19
     block@19: // after_if_else_L219
         let right#8: uint64 = φ(right#1 <- block@17, right#6 <- block@18)
@@ -200,17 +209,18 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         goto block@22
     block@22: // after_while_L190
         let right#7: uint64 = φ(right#4 <- block@1, right#1 <- block@12, right#5 <- block@15, right#8 <- block@19, right#1 <- block@21)
+        let arr#6: Encoded(uint64[])* = φ(arr#2 <- block@1, arr#5 <- block@12, arr#5 <- block@15, arr#2 <- block@19, arr#2 <- block@21)
         let left#8: uint64 = φ(left#3 <- block@1, left#5 <- block@12, left#5 <- block@15, left#6 <- block@19, left#1 <- block@21)
-        let tmp%21#0: bool = (< window_left#0 right#7)
-        goto tmp%21#0 ? block@23 : block@24
+        let tmp%23#0: bool = (< window_left#0 right#7)
+        goto tmp%23#0 ? block@23 : block@24
     block@23: // if_body_L229
-        test_cases.array.uint64.quicksort_window(arr#0, window_left#0, right#7)
+        test_cases.array.uint64.quicksort_window(arr#6, window_left#0, right#7)
         goto block@24
     block@24: // after_if_else_L228
-        let tmp%22#0: bool = (< left#8 window_right#0)
-        goto tmp%22#0 ? block@25 : block@26
+        let tmp%24#0: bool = (< left#8 window_right#0)
+        goto tmp%24#0 ? block@25 : block@26
     block@25: // if_body_L232
-        test_cases.array.uint64.quicksort_window(arr#0, left#8, window_right#0)
+        test_cases.array.uint64.quicksort_window(arr#6, left#8, window_right#0)
         goto block@26
     block@26: // after_if_else_L231
         return 
@@ -578,37 +588,40 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         let tmp%31#0: uint64 = decode<uint64>(array_item%7#0)
         let tmp%32#0: uint64 = (+ tmp%31#0 2u)
         let slot_contents%24#0: Encoded(uint64[]) = read(tmp%30#0)
+        let array_item%8#0: Encoded(uint64) = slot_contents%24#0[0u]
+        let tmp%33#0: uint64 = decode<uint64>(array_item%8#0)
+        let slot_contents%25#0: Encoded(uint64[]) = read(tmp%30#0)
         let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%32#0)
-        let updated_array%0#0: Encoded(uint64[]) = slot_contents%24#0.update(0u, encoded_value%0#0)
+        let updated_array%0#0: Encoded(uint64[]) = slot_contents%25#0.update(0u, encoded_value%0#0)
         write(tmp%30#0, updated_array%0#0)
-        let slot_contents%25#0: Encoded(uint64[]) = read(arr#0)
-        let bytes_len%13#0: uint64 = (len slot_contents%25#0)
-        let array_len%13#0: uint64 = (/ bytes_len%13#0 8u)
-        let tmp%33#0: bool = (== array_len%13#0 17u)
-        (assert tmp%33#0)
         let slot_contents%26#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%8#0: Encoded(uint64) = slot_contents%26#0[0u]
-        let tmp%34#0: uint64 = decode<uint64>(array_item%8#0)
-        let tmp%35#0: bool = (== tmp%34#0 44u)
-        (assert tmp%35#0)
+        let bytes_len%13#0: uint64 = (len slot_contents%26#0)
+        let array_len%13#0: uint64 = (/ bytes_len%13#0 8u)
+        let tmp%34#0: bool = (== array_len%13#0 17u)
+        (assert tmp%34#0)
         let slot_contents%27#0: Encoded(uint64[]) = read(arr#0)
-        let bytes_len%14#0: uint64 = (len slot_contents%27#0)
-        let array_len%14#0: uint64 = (/ bytes_len%14#0 8u)
-        let tmp%36#0: uint64 = (- array_len%14#0 2u)
+        let array_item%9#0: Encoded(uint64) = slot_contents%27#0[0u]
+        let tmp%35#0: uint64 = decode<uint64>(array_item%9#0)
+        let tmp%36#0: bool = (== tmp%35#0 44u)
+        (assert tmp%36#0)
         let slot_contents%28#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%9#0: Encoded(uint64) = slot_contents%28#0[tmp%36#0]
-        let tmp%37#0: uint64 = decode<uint64>(array_item%9#0)
-        let tmp%38#0: bool = (== tmp%37#0 99u)
-        (assert tmp%38#0)
+        let bytes_len%14#0: uint64 = (len slot_contents%28#0)
+        let array_len%14#0: uint64 = (/ bytes_len%14#0 8u)
+        let tmp%37#0: uint64 = (- array_len%14#0 2u)
         let slot_contents%29#0: Encoded(uint64[]) = read(arr#0)
-        let bytes_len%15#0: uint64 = (len slot_contents%29#0)
-        let array_len%15#0: uint64 = (/ bytes_len%15#0 8u)
-        let tmp%39#0: uint64 = (- array_len%15#0 1u)
+        let array_item%10#0: Encoded(uint64) = slot_contents%29#0[tmp%37#0]
+        let tmp%38#0: uint64 = decode<uint64>(array_item%10#0)
+        let tmp%39#0: bool = (== tmp%38#0 99u)
+        (assert tmp%39#0)
         let slot_contents%30#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%10#0: Encoded(uint64) = slot_contents%30#0[tmp%39#0]
-        let tmp%40#0: uint64 = decode<uint64>(array_item%10#0)
-        let tmp%41#0: bool = (== tmp%40#0 100u)
-        (assert tmp%41#0)
+        let bytes_len%15#0: uint64 = (len slot_contents%30#0)
+        let array_len%15#0: uint64 = (/ bytes_len%15#0 8u)
+        let tmp%40#0: uint64 = (- array_len%15#0 1u)
+        let slot_contents%31#0: Encoded(uint64[]) = read(arr#0)
+        let array_item%11#0: Encoded(uint64) = slot_contents%31#0[tmp%40#0]
+        let tmp%41#0: uint64 = decode<uint64>(array_item%11#0)
+        let tmp%42#0: bool = (== tmp%41#0 100u)
+        (assert tmp%42#0)
         return 
 
 subroutine test_cases.array.uint64.Contract.test_array_extend() -> void:
@@ -878,29 +891,33 @@ subroutine test_cases.array.uint64.Contract.test_array_evaluation_order() -> voi
         let array_item%7#0: Encoded(uint64) = slot_contents%12#0[0u]
         let tmp%20#0: uint64 = decode<uint64>(array_item%7#0)
         let slot_contents%13#0: Encoded(uint64[]) = read(arr#0)
-        let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%18#0)
-        let updated_array%0#0: Encoded(uint64[]) = slot_contents%13#0.update(tmp%20#0, encoded_value%0#0)
-        write(arr#0, updated_array%0#0)
+        let array_item%8#0: Encoded(uint64) = slot_contents%13#0[tmp%20#0]
+        let tmp%21#0: uint64 = decode<uint64>(array_item%8#0)
         let slot_contents%14#0: Encoded(uint64[]) = read(arr#0)
-        let bytes_len%3#0: uint64 = (len slot_contents%14#0)
+        let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%18#0)
+        let updated_array%0#0: Encoded(uint64[]) = slot_contents%14#0.update(tmp%20#0, encoded_value%0#0)
+        write(arr#0, updated_array%0#0)
+        let arr#1: Encoded(uint64[])* = arr#0
+        let slot_contents%15#0: Encoded(uint64[]) = read(arr#1)
+        let bytes_len%3#0: uint64 = (len slot_contents%15#0)
         let array_len%3#0: uint64 = (/ bytes_len%3#0 8u)
-        let tmp%21#0: bool = (== array_len%3#0 8u)
-        (assert tmp%21#0)
-        let slot_contents%15#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%8#0: Encoded(uint64) = slot_contents%15#0[6u]
-        let tmp%22#0: uint64 = decode<uint64>(array_item%8#0)
-        let tmp%23#0: bool = (== tmp%22#0 6u)
-        (assert tmp%23#0)
-        let slot_contents%16#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%9#0: Encoded(uint64) = slot_contents%16#0[7u]
-        let tmp%24#0: uint64 = decode<uint64>(array_item%9#0)
-        let tmp%25#0: bool = (== tmp%24#0 7u)
-        (assert tmp%25#0)
-        let slot_contents%17#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%10#0: Encoded(uint64) = slot_contents%17#0[3u]
-        let tmp%26#0: uint64 = decode<uint64>(array_item%10#0)
-        let tmp%27#0: bool = (== tmp%26#0 6u)
-        (assert tmp%27#0)
+        let tmp%22#0: bool = (== array_len%3#0 8u)
+        (assert tmp%22#0)
+        let slot_contents%16#0: Encoded(uint64[]) = read(arr#1)
+        let array_item%9#0: Encoded(uint64) = slot_contents%16#0[6u]
+        let tmp%23#0: uint64 = decode<uint64>(array_item%9#0)
+        let tmp%24#0: bool = (== tmp%23#0 6u)
+        (assert tmp%24#0)
+        let slot_contents%17#0: Encoded(uint64[]) = read(arr#1)
+        let array_item%10#0: Encoded(uint64) = slot_contents%17#0[7u]
+        let tmp%25#0: uint64 = decode<uint64>(array_item%10#0)
+        let tmp%26#0: bool = (== tmp%25#0 7u)
+        (assert tmp%26#0)
+        let slot_contents%18#0: Encoded(uint64[]) = read(arr#1)
+        let array_item%11#0: Encoded(uint64) = slot_contents%18#0[3u]
+        let tmp%27#0: uint64 = decode<uint64>(array_item%11#0)
+        let tmp%28#0: bool = (== tmp%27#0 6u)
+        (assert tmp%28#0)
         return 
 
 subroutine test_cases.array.uint64.Contract.test_allocations(num: uint64) -> void:
@@ -968,9 +985,10 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
     block@6: // for_body_L132
         let slot_contents%3#0: Encoded(uint64[]) = read(arr#0)
         let array_item%0#0: Encoded(uint64) = slot_contents%3#0[item_index_internal%0#1]
-        let value#0: uint64 = decode<uint64>(array_item%0#0)
-        let tmp%2#0: bool = (>= value#0 last#1)
-        (assert tmp%2#0) // array is not sorted
+        let tmp%2#0: uint64 = decode<uint64>(array_item%0#0)
+        let value#0: uint64 = tmp%2#0
+        let tmp%3#0: bool = (>= value#0 last#1)
+        (assert tmp%3#0) // array is not sorted
         let last#2: uint64 = value#0
         goto block@7
     block@7: // for_footer_L131
@@ -990,10 +1008,11 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
     block@10: // for_body_L137
         let slot_contents%5#0: Encoded(uint64[]) = read(arr#0)
         let array_item%1#0: Encoded(uint64) = slot_contents%5#0[item_index_internal%1#1]
-        let value#1: uint64 = decode<uint64>(array_item%1#0)
+        let tmp%4#0: uint64 = decode<uint64>(array_item%1#0)
+        let value#1: uint64 = tmp%4#0
         let idx#0: uint64 = item_index_internal%1#1
-        let tmp%3#0: bool = (== value#1 idx#0)
-        (assert tmp%3#0) // incorrect array value
+        let tmp%5#0: bool = (== value#1 idx#0)
+        (assert tmp%5#0) // incorrect array value
         goto block@11
     block@11: // for_footer_L136
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
@@ -1014,9 +1033,10 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let reverse_index_internal%2#2: uint64 = (- reverse_index_internal%2#1 1u)
         let slot_contents%7#0: Encoded(uint64[]) = read(arr#0)
         let array_item%2#0: Encoded(uint64) = slot_contents%7#0[reverse_index_internal%2#2]
-        let value#2: uint64 = decode<uint64>(array_item%2#0)
-        let tmp%4#0: bool = (<= value#2 last#3)
-        (assert tmp%4#0) // array is not sorted
+        let tmp%6#0: uint64 = decode<uint64>(array_item%2#0)
+        let value#2: uint64 = tmp%6#0
+        let tmp%7#0: bool = (<= value#2 last#3)
+        (assert tmp%7#0) // array is not sorted
         let last#4: uint64 = value#2
         goto block@15
     block@15: // for_footer_L140
@@ -1037,9 +1057,9 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let continue_looping%4#0: bool = (< i#1 5u)
         goto continue_looping%4#0 ? block@18 : block@20
     block@18: // for_body_L147
-        let tmp%5#0: Encoded(uint64) = encode<uint64>(i#1)
-        let tmp%6#0: Encoded(uint64[]) = encode<uint64[]>(tmp%5#0)
-        let concat%1#0: Encoded(len+uint64[]) = (concat arc4_arr#1 tmp%6#0) // on error: max array length exceeded
+        let tmp%8#0: Encoded(uint64) = encode<uint64>(i#1)
+        let tmp%9#0: Encoded(uint64[]) = encode<uint64[]>(tmp%8#0)
+        let concat%1#0: Encoded(len+uint64[]) = (concat arc4_arr#1 tmp%9#0) // on error: max array length exceeded
         let extract_to_end%0#0: bytes = ((extract 2 0) concat%1#0)
         let len%0#0: uint64 = (len extract_to_end%0#0)
         let div_floor%0#0: uint64 = (/ len%0#0 8u)
@@ -1048,10 +1068,10 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let replace%0#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%0#0)
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
         let arc4_arr#2: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
-        let tmp%7#0: Encoded(uint64) = encode<uint64>(i#1)
+        let tmp%10#0: Encoded(uint64) = encode<uint64>(i#1)
         let slot_contents%8#0: Encoded(uint64[]) = read(native_arr#0)
-        let tmp%8#0: Encoded(uint64[]) = encode<uint64[]>(tmp%7#0)
-        let concat%2#0: Encoded(uint64[]) = (concat slot_contents%8#0 tmp%8#0) // on error: max array length exceeded
+        let tmp%11#0: Encoded(uint64[]) = encode<uint64[]>(tmp%10#0)
+        let concat%2#0: Encoded(uint64[]) = (concat slot_contents%8#0 tmp%11#0) // on error: max array length exceeded
         write(native_arr#0, concat%2#0)
         goto block@19
     block@19: // for_footer_L146
@@ -1071,28 +1091,28 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let as_Encoded(len+uint64[])%1#0: Encoded(len+uint64[]) = replace%1#0
         let combined_arr#0: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%1#0
         let array_length%0#0: uint64 = (extract_uint16 combined_arr#0 0u)
-        let tmp%9#0: bool = (== array_length%0#0 10u)
-        (assert tmp%9#0)
+        let tmp%12#0: bool = (== array_length%0#0 10u)
+        (assert tmp%12#0)
         let array_item%3#0: Encoded(uint64) = combined_arr#0[0u]
         let reinterpret_biguint%0#0: biguint = array_item%3#0
         let reinterpret_biguint%1#0: biguint = 0x0000000000000000
-        let tmp%10#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
-        (assert tmp%10#0)
+        let tmp%13#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        (assert tmp%13#0)
         let array_item%4#0: Encoded(uint64) = combined_arr#0[4u]
         let reinterpret_biguint%2#0: biguint = array_item%4#0
         let reinterpret_biguint%3#0: biguint = 0x0000000000000004
-        let tmp%11#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
-        (assert tmp%11#0)
+        let tmp%14#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+        (assert tmp%14#0)
         let array_item%5#0: Encoded(uint64) = combined_arr#0[5u]
         let reinterpret_biguint%4#0: biguint = array_item%5#0
         let reinterpret_biguint%5#0: biguint = 0x0000000000000000
-        let tmp%12#0: bool = (b== reinterpret_biguint%4#0 reinterpret_biguint%5#0)
-        (assert tmp%12#0)
+        let tmp%15#0: bool = (b== reinterpret_biguint%4#0 reinterpret_biguint%5#0)
+        (assert tmp%15#0)
         let array_item%6#0: Encoded(uint64) = combined_arr#0[9u]
         let reinterpret_biguint%6#0: biguint = array_item%6#0
         let reinterpret_biguint%7#0: biguint = 0x0000000000000004
-        let tmp%13#0: bool = (b== reinterpret_biguint%6#0 reinterpret_biguint%7#0)
-        (assert tmp%13#0)
+        let tmp%16#0: bool = (b== reinterpret_biguint%6#0 reinterpret_biguint%7#0)
+        (assert tmp%16#0)
         return 
 
 subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
@@ -1147,9 +1167,10 @@ subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
     block@6: // for_body_L170
         let slot_contents%4#0: Encoded(uint64[]) = read(rnd#0)
         let array_item%0#0: Encoded(uint64) = slot_contents%4#0[item_index_internal%1#1]
-        let value#0: uint64 = decode<uint64>(array_item%0#0)
-        let tmp%5#0: bool = (>= value#0 last#1)
-        (assert tmp%5#0) // array is not sorted
+        let tmp%5#0: uint64 = decode<uint64>(array_item%0#0)
+        let value#0: uint64 = tmp%5#0
+        let tmp%6#0: bool = (>= value#0 last#1)
+        (assert tmp%6#0) // array is not sorted
         let last#2: uint64 = value#0
         goto block@7
     block@7: // for_footer_L169
@@ -1168,19 +1189,27 @@ subroutine test_cases.array.uint64.Contract.test_unobserved_write() -> void:
         let tmp%1#0: uint64 = (- array_len%0#0 1u)
         let last#0: uint64 = tmp%1#0
         let slot_contents%1#0: Encoded(uint64[]) = read(arr#0)
-        let encoded_value%0#0: Encoded(uint64) = encode<uint64>(0u)
-        let updated_array%0#0: Encoded(uint64[]) = slot_contents%1#0.update(last#0, encoded_value%0#0)
-        write(arr#0, updated_array%0#0)
-        test_cases.array.uint64.assert_last_is_zero(arr#0)
-        let slot_contents%2#0: Encoded(uint64[]) = read(arr#0)
-        let encoded_value%1#0: Encoded(uint64) = encode<uint64>(1u)
-        let updated_array%1#0: Encoded(uint64[]) = slot_contents%2#0.update(last#0, encoded_value%1#0)
-        write(arr#0, updated_array%1#0)
-        let slot_contents%3#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%0#0: Encoded(uint64) = slot_contents%3#0[last#0]
+        let array_item%0#0: Encoded(uint64) = slot_contents%1#0[last#0]
         let tmp%2#0: uint64 = decode<uint64>(array_item%0#0)
-        let tmp%3#0: bool = (== tmp%2#0 1u)
-        (assert tmp%3#0)
+        let slot_contents%2#0: Encoded(uint64[]) = read(arr#0)
+        let encoded_value%0#0: Encoded(uint64) = encode<uint64>(0u)
+        let updated_array%0#0: Encoded(uint64[]) = slot_contents%2#0.update(last#0, encoded_value%0#0)
+        write(arr#0, updated_array%0#0)
+        let arr#1: Encoded(uint64[])* = arr#0
+        test_cases.array.uint64.assert_last_is_zero(arr#1)
+        let slot_contents%3#0: Encoded(uint64[]) = read(arr#1)
+        let array_item%1#0: Encoded(uint64) = slot_contents%3#0[last#0]
+        let tmp%3#0: uint64 = decode<uint64>(array_item%1#0)
+        let slot_contents%4#0: Encoded(uint64[]) = read(arr#1)
+        let encoded_value%1#0: Encoded(uint64) = encode<uint64>(1u)
+        let updated_array%1#0: Encoded(uint64[]) = slot_contents%4#0.update(last#0, encoded_value%1#0)
+        write(arr#1, updated_array%1#0)
+        let arr#2: Encoded(uint64[])* = arr#1
+        let slot_contents%5#0: Encoded(uint64[]) = read(arr#2)
+        let array_item%2#0: Encoded(uint64) = slot_contents%5#0[last#0]
+        let tmp%4#0: uint64 = decode<uint64>(array_item%2#0)
+        let tmp%5#0: bool = (== tmp%4#0 1u)
+        (assert tmp%5#0)
         return 
 
 subroutine test_cases.array.uint64.Contract.__algopy_default_create() -> void:

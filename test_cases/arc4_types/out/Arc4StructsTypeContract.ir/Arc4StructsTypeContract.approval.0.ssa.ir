@@ -59,6 +59,7 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = replace%0#0
+        let tuple_item%3#0: Encoded(len+uint8[]) = copy#0[0]
         let updated_tuple%0#0: Encoded((len+uint8[])) = copy#0.update(0, as_Encoded(len+uint8[])%0#0)
         let copy#1: Encoded((len+uint8[])) = updated_tuple%0#0
         let tmp%12#0: bool = (!= mutable#0 copy#1)
@@ -72,18 +73,18 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         (assert tmp%14#0)
         let tmp%15#0: bool = (== immutable_copy#0 immutable#0)
         (assert tmp%15#0)
-        let tuple_item%3#0: Encoded(uint64) = immutable#0[0]
-        let tmp%16#0: Encoded((uint64,uint64)) = encode<(uint64,uint64)>(tuple_item%3#0, 0x000000000000007b)
+        let tuple_item%4#0: Encoded(uint64) = immutable#0[0]
+        let tmp%16#0: Encoded((uint64,uint64)) = encode<(uint64,uint64)>(tuple_item%4#0, 0x000000000000007b)
         let immutable2#0: Encoded((uint64,uint64)) = tmp%16#0
-        let tuple_item%4#0: Encoded(uint64) = immutable2#0[1]
-        let reinterpret_biguint%0#0: biguint = tuple_item%4#0
+        let tuple_item%5#0: Encoded(uint64) = immutable2#0[1]
+        let reinterpret_biguint%0#0: biguint = tuple_item%5#0
         let reinterpret_biguint%1#0: biguint = 0x000000000000007b
         let tmp%17#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
         (assert tmp%17#0)
-        let tuple_item%5#0: Encoded(uint64) = immutable2#0[0]
-        let reinterpret_biguint%2#0: biguint = tuple_item%5#0
-        let tuple_item%6#0: Encoded(uint64) = immutable#0[0]
-        let reinterpret_biguint%3#0: biguint = tuple_item%6#0
+        let tuple_item%6#0: Encoded(uint64) = immutable2#0[0]
+        let reinterpret_biguint%2#0: biguint = tuple_item%6#0
+        let tuple_item%7#0: Encoded(uint64) = immutable#0[0]
+        let reinterpret_biguint%3#0: biguint = tuple_item%7#0
         let tmp%18#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
         (assert tmp%18#0)
         return 1u
@@ -108,23 +109,23 @@ subroutine test_cases.arc4_types.structs.check(flags: Encoded((bool1,bool1,bool1
         let flags%is_original#0: bool = 1u
         let flags%out#0: Encoded((bool1,bool1,bool1,bool1)) = flags#0
         let tuple_item%0#0: bool = flags#0[0]
-        let tmp%0#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%0#0)
-        let tmp%1#0: bool = decode<bool>(tmp%0#0)
-        (assert tmp%1#0)
+        let values%0#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%0#0)
+        let tmp%0#0: bool = decode<bool>(values%0#0)
+        (assert tmp%0#0)
         let tuple_item%1#0: bool = flags#0[1]
-        let tmp%2#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%1#0)
-        let tmp%3#0: bool = decode<bool>(tmp%2#0)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0)
+        let values%1#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%1#0)
+        let tmp%1#0: bool = decode<bool>(values%1#0)
+        let tmp%2#0: bool = (! tmp%1#0)
+        (assert tmp%2#0)
         let tuple_item%2#0: bool = flags#0[2]
-        let tmp%5#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%2#0)
-        let tmp%6#0: bool = decode<bool>(tmp%5#0)
-        (assert tmp%6#0)
+        let values%2#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%2#0)
+        let tmp%3#0: bool = decode<bool>(values%2#0)
+        (assert tmp%3#0)
         let tuple_item%3#0: bool = flags#0[3]
-        let tmp%7#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%3#0)
-        let tmp%8#0: bool = decode<bool>(tmp%7#0)
-        let tmp%9#0: bool = (! tmp%8#0)
-        (assert tmp%9#0)
+        let values%3#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%3#0)
+        let tmp%4#0: bool = decode<bool>(values%3#0)
+        let tmp%5#0: bool = (! tmp%4#0)
+        (assert tmp%5#0)
         return flags%out#0
 
 subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: Encoded(((uint64,uint64),(bool1,bool1,bool1,bool1)))) -> Encoded(((uint64,uint64),(bool1,bool1,bool1,bool1))):
@@ -138,9 +139,9 @@ subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: Encoded(((u
         (assert tmp%1#0)
         let tuple_item%2#0: Encoded((bool1,bool1,bool1,bool1)) = vector_flags#0[1]
         let tuple_item%3#0: bool = tuple_item%2#0[2]
-        let tmp%2#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%3#0)
-        let tmp%3#0: bool = decode<bool>(tmp%2#0)
-        (assert tmp%3#0)
+        let values%0#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%3#0)
+        let tmp%2#0: bool = decode<bool>(values%0#0)
+        (assert tmp%2#0)
         return vector_flags%out#0
 
 subroutine test_cases.arc4_types.structs.add_decimal(x: Encoded(uint64), y: Encoded(uint64)) -> Encoded(uint64):

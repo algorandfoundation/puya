@@ -209,6 +209,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         let (maybe_value%0#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%2#0) // check self.game exists
         let array_item%0#0: Encoded(uint8[3]) = maybe_value%0#0[move.1#0]
+        let array_item%1#0: Encoded(uint8) = array_item%0#0[move.0#0]
         let updated_array%0#0: Encoded(uint8[3]) = array_item%0#0.update(move.0#0, 0x01)
         let updated_array%1#0: bytes = maybe_value%0#0.update(move.1#0, updated_array%0#0)
         (app_global_put "game" updated_array%1#0)
@@ -291,6 +292,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.game exists
         let array_item%2#0: Encoded(uint8[3]) = maybe_value%1#0[move.1#0]
+        let array_item%3#0: Encoded(uint8) = array_item%2#0[move.0#0]
         let updated_array%0#0: Encoded(uint8[3]) = array_item%2#0.update(move.0#0, player#0)
         let updated_array%1#0: bytes = maybe_value%1#0.update(move.1#0, updated_array%0#0)
         (app_global_put "game" updated_array%1#0)
@@ -303,13 +305,13 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let array_item%0#1: Encoded(uint8[3]) = g#0[move.1#0]
         let array_item%1#1: Encoded(uint8) = array_item%0#1[0u]
         let array_item%2#1: Encoded(uint8[3]) = g#0[move.1#0]
-        let array_item%3#0: Encoded(uint8) = array_item%2#1[1u]
-        let tmp%0#1: bool = (b== array_item%1#1 array_item%3#0)
+        let array_item%3#1: Encoded(uint8) = array_item%2#1[1u]
+        let tmp%0#1: bool = (b== array_item%1#1 array_item%3#1)
         goto tmp%0#1 ? block@11 : block@13
     block@11: // and_contd_L76
         let array_item%4#0: Encoded(uint8[3]) = g#0[move.1#0]
         let array_item%5#0: Encoded(uint8) = array_item%4#0[2u]
-        let tmp%1#1: bool = (b== array_item%3#0 array_item%5#0)
+        let tmp%1#1: bool = (b== array_item%3#1 array_item%5#0)
         goto tmp%1#1 ? block@12 : block@13
     block@12: // if_body_L77
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0: bool = 1u

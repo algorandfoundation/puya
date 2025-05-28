@@ -133,7 +133,9 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%3#2: bool = (== dynamic_string_array#2 encoded_array%1#2)
         (assert tmp%3#2)
         let dynamic_string_array#3: Encoded(len+len+utf8[][]) = encode<len+len+utf8[][]>(hello#0, world#0, foo#0, bar#0, hello#0, world#0, foo#0, bar#0)
+        let array_item%0#0: Encoded(len+utf8[]) = dynamic_string_array#3[3u]
         let dynamic_string_array#4: Encoded(len+len+utf8[][]) = dynamic_string_array#3.update(3u, hello#0)
+        let array_item%1#0: Encoded(len+utf8[]) = dynamic_string_array#4[5u]
         let dynamic_string_array#5: Encoded(len+len+utf8[][]) = dynamic_string_array#4.update(5u, hello#0)
         let encoded_array%3#2: Encoded(len+len+utf8[][]) = encode<len+len+utf8[][]>(hello#0, world#0, foo#0, hello#0, hello#0, hello#0, foo#0, bar#0)
         let tmp%4#2: bool = (== dynamic_string_array#5 encoded_array%3#2)
@@ -164,19 +166,21 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array_of_array#2: Encoded(len+len+uint8[][]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(array_of_array#1, data%1#1, 1u)
         let tmp%4#3: bool = (== array_of_array#2 0x00020004000700010a000110)
         (assert tmp%4#3)
-        let array_item%0#0: Encoded(len+uint8[]) = array_of_array#2[0u]
+        let array_item%0#1: Encoded(len+uint8[]) = array_of_array#2[0u]
         let tmp%5#3: Encoded(uint8[]) = encode<uint8[]>(0xff)
-        let concat%0#1: Encoded(len+uint8[]) = (concat array_item%0#0 tmp%5#3) // on error: max array length exceeded
+        let concat%0#1: Encoded(len+uint8[]) = (concat array_item%0#1 tmp%5#3) // on error: max array length exceeded
         let extract_to_end%0#3: bytes = ((extract 2 0) concat%0#1)
         let len%0#1: uint64 = (len extract_to_end%0#3)
         let as_bytes%0#1: bytes[8] = (itob len%0#1)
         let as_u16_bytes%0#1: bytes = ((extract 6 2) as_bytes%0#1)
         let replace%0#1: bytes = ((replace2 0) concat%0#1 as_u16_bytes%0#1)
+        let array_item%1#1: Encoded(len+uint8[]) = array_of_array#2[0u]
         let array_of_array#3: Encoded(len+len+uint8[][]) = array_of_array#2.update(0u, replace%0#1)
         let tmp%6#3: bool = (== array_of_array#3 0x00020004000800020aff000110)
         (assert tmp%6#3)
-        let array_item%1#0: Encoded(len+uint8[]) = array_of_array#3[0u]
-        let updated_array%1#1: Encoded(len+uint8[]) = array_item%1#0.update(1u, 0x00)
+        let array_item%2#0: Encoded(len+uint8[]) = array_of_array#3[0u]
+        let array_item%3#0: Encoded(uint8) = array_item%2#0[1u]
+        let updated_array%1#1: Encoded(len+uint8[]) = array_item%2#0.update(1u, 0x00)
         let array_of_array#4: Encoded(len+len+uint8[][]) = array_of_array#3.update(0u, updated_array%1#1)
         let tmp%7#3: bool = (== array_of_array#4 0x00020004000800020a00000110)
         (assert tmp%7#3)
@@ -186,19 +190,23 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%0#4: bool = (== array_of_array#5 0x0a094080)
         (assert tmp%0#4)
         let encoded_array%3#3: Encoded(uint8[2]) = encode<uint8[2]>(0xff, 0xfe)
+        let array_item%0#2: Encoded(uint8[2]) = array_of_array#5[0u]
         let array_of_array#6: Encoded(uint8[2][2]) = array_of_array#5.update(0u, encoded_array%3#3)
         let tmp%1#4: bool = (== array_of_array#6 0xfffe4080)
         (assert tmp%1#4)
-        let array_item%0#1: Encoded(uint8[2]) = array_of_array#6[1u]
-        let updated_array%1#2: Encoded(uint8[2]) = array_item%0#1.update(0u, 0x01)
+        let array_item%1#2: Encoded(uint8[2]) = array_of_array#6[1u]
+        let array_item%2#1: Encoded(uint8) = array_item%1#2[0u]
+        let updated_array%1#2: Encoded(uint8[2]) = array_item%1#2.update(0u, 0x01)
         let array_of_array#7: Encoded(uint8[2][2]) = array_of_array#6.update(1u, updated_array%1#2)
         let tmp%2#4: bool = (== array_of_array#7 0xfffe0180)
         (assert tmp%2#4)
         let dynamic_uint8_array#5: Encoded(len+uint8[]) = encode<len+uint8[]>(0x01, 0x02)
+        let array_item%0#3: Encoded(uint8) = dynamic_uint8_array#5[0u]
         let dynamic_uint8_array#6: Encoded(len+uint8[]) = dynamic_uint8_array#5.update(0u, 0xff)
         let tmp%0#5: bool = (== dynamic_uint8_array#6 0x0002ff02)
         (assert tmp%0#5)
         let static_uint8_array#0: Encoded(uint8[2]) = encode<uint8[2]>(0x01, 0x02)
+        let array_item%1#3: Encoded(uint8) = static_uint8_array#0[1u]
         let static_uint8_array#1: Encoded(uint8[2]) = static_uint8_array#0.update(1u, 0xff)
         let tmp%1#5: bool = (== static_uint8_array#1 0x01ff)
         (assert tmp%1#5)
@@ -206,22 +214,29 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%3#4: Encoded(bool8) = encode<bool8>(0u)
         let dynamic_bool_array#6: Encoded(len+bool1[]) = encode<len+bool1[]>(tmp%2#5, tmp%3#4)
         let tmp%4#4: Encoded(bool8) = encode<bool8>(0u)
+        let array_item%2#2: bool = dynamic_bool_array#6[0u]
+        let tmp%5#4: Encoded(bool8) = decode<Encoded(bool8)>(array_item%2#2)
         let dynamic_bool_array#7: Encoded(len+bool1[]) = dynamic_bool_array#6.update(0u, tmp%4#4)
-        let tmp%5#4: bool = (== dynamic_bool_array#7 0x000200)
-        (assert tmp%5#4)
-        let tmp%6#4: Encoded(bool8) = encode<bool8>(1u)
+        let tmp%6#4: bool = (== dynamic_bool_array#7 0x000200)
+        (assert tmp%6#4)
         let tmp%7#4: Encoded(bool8) = encode<bool8>(1u)
-        let static_bool_array#0: Encoded(bool1[2]) = encode<bool1[2]>(tmp%6#4, tmp%7#4)
-        let tmp%8#3: Encoded(bool8) = encode<bool8>(0u)
-        let static_bool_array#1: Encoded(bool1[2]) = static_bool_array#0.update(1u, tmp%8#3)
-        let tmp%9#2: bool = (== static_bool_array#1 0x80)
-        (assert tmp%9#2)
+        let tmp%8#3: Encoded(bool8) = encode<bool8>(1u)
+        let static_bool_array#0: Encoded(bool1[2]) = encode<bool1[2]>(tmp%7#4, tmp%8#3)
+        let tmp%9#2: Encoded(bool8) = encode<bool8>(0u)
+        let array_item%3#1: bool = static_bool_array#0[1u]
+        let tmp%10#2: Encoded(bool8) = decode<Encoded(bool8)>(array_item%3#1)
+        let static_bool_array#1: Encoded(bool1[2]) = static_bool_array#0.update(1u, tmp%9#2)
+        let tmp%11#2: bool = (== static_bool_array#1 0x80)
+        (assert tmp%11#2)
         let tmp%0#6: Encoded(bool8) = encode<bool8>(1u)
         let encoded%0#1: Encoded(len+utf8[]) = encode<len+utf8[]>(0x4861707079)
         let encoded%1#1: Encoded(len+utf8[]) = encode<len+utf8[]>(0x44617973)
         let test_struct#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = encode<(bool1,uint8,len+utf8[],len+utf8[])>(tmp%0#6, 0x32, encoded%0#1, encoded%1#1)
         let tmp%2#6: Encoded(bool8) = encode<bool8>(0u)
+        let tuple_item%0#0: bool = test_struct#0[0]
+        let values%0#0: Encoded(bool8) = decode<Encoded(bool8)>(tuple_item%0#0)
         let test_struct#1: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = test_struct#0.update(0, tmp%2#6)
+        let tuple_item%1#0: Encoded(uint8) = test_struct#1[1]
         let test_struct#2: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = test_struct#1.update(1, 0x0c)
         let tmp%3#5: Encoded(bool8) = encode<bool8>(0u)
         let encoded%2#1: Encoded(len+utf8[]) = encode<len+utf8[]>(0x4861707079)
@@ -230,8 +245,10 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let tmp%5#5: bool = (== test_struct#2 tmp%4#5)
         (assert tmp%5#5)
         let encoded%4#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x486d6d6d6d)
+        let tuple_item%2#0: Encoded(len+utf8[]) = test_struct#2[2]
         let test_struct#3: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = test_struct#2.update(2, encoded%4#0)
         let encoded%5#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x4f682077656c6c)
+        let tuple_item%3#0: Encoded(len+utf8[]) = test_struct#3[3]
         let test_struct#4: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = test_struct#3.update(3, encoded%5#0)
         let tmp%6#5: Encoded(bool8) = encode<bool8>(0u)
         let encoded%6#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x486d6d6d6d)
