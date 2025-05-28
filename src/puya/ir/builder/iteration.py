@@ -8,7 +8,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import mem, sequence, tup
+from puya.ir.builder import mem, sequence
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     assert_value,
@@ -573,7 +573,6 @@ def _iterate_tuple(
 
     tuple_values = context.visitor.visit_and_materialise_as_value_or_tuple(tuple_expr)
 
-    tuple_builder = tup.get_builder(context, tuple_wtype, statement_loc)
     max_index = len(tuple_wtype.types) - 1
     loop_counter_name = context.next_tmp_name("loop_counter")
 
@@ -586,7 +585,9 @@ def _iterate_tuple(
             assignment_location=None,
         )
         item_index = loop_count if not reverse_items else (max_index - loop_count)
-        item_vp = tuple_builder.read_at_index(tuple_values, item_index)
+        item_vp = sequence.read_tuple_index_and_decode(
+            context, tuple_wtype, tuple_values, item_index, statement_loc
+        )
         item_reg, index_reg = assigner.assign_user_loop_vars(
             item_vp,
             UInt64Constant(

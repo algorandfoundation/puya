@@ -185,7 +185,7 @@ class NativeTupleCodec(ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        from puya.ir.builder.tup import EncodedTupleBuilder
+        from puya.ir.builder.aggregates.tup import read_at_index
 
         item_types = self.native_type.elements
         match encoding:
@@ -197,25 +197,21 @@ class NativeTupleCodec(ARC4Codec):
                 tuple_encoding = TupleEncoding([element] * size)
             case _:
                 return None
-        builder = EncodedTupleBuilder(
-            context,
-            tuple_encoding=tuple_encoding,
-            tuple_ir_type=TupleIRType(
-                elements=[EncodedType(t) for t in tuple_encoding.elements]
-            ),  # decoding will be handled below
-            loc=loc,
-        )
 
         factory = OpFactory(context, loc)
         items = list[Value]()
         for index, (item_encoding, item_ir_type) in enumerate(
             zip(tuple_encoding.elements, self.native_type.elements, strict=True)
         ):
-            encoded_item = builder.read_at_index(value, index)
+            encoded_item = read_at_index(
+                context,
+                tuple_encoding,
+                value,
+                index,
+                loc,
+            )
             assert isinstance(encoded_item, Value), "expected single item"
             if requires_conversion(item_ir_type, item_encoding, "decode"):
-                # decode here so we can call decode_value directly
-                # rather than introducing another ValueDecode node
                 item = decode_value(
                     context,
                     value=encoded_item,
