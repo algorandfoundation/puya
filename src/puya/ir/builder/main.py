@@ -32,7 +32,6 @@ from puya.ir.builder._utils import (
     mktemp,
 )
 from puya.ir.builder.assignment import (
-    handle_arc4_assign,
     handle_assignment,
     handle_assignment_expr,
 )
@@ -729,7 +728,7 @@ class FunctionIRBuilder(
 
         tuple_wtype = expr.base.wtype
         assert isinstance(tuple_wtype, wtypes.WTuple | wtypes.ARC4Tuple), "expected tuple wtype"
-        base = self.context.visitor.visit_and_materialise_as_value_or_tuple(expr.base)
+        base = self.context.visitor.visit_and_materialise(expr.base)
 
         return sequence.read_tuple_index_and_decode(
             self.context, tuple_wtype, base, expr.index, loc
@@ -741,7 +740,7 @@ class FunctionIRBuilder(
         tuple_wtype = expr.base.wtype
         assert isinstance(tuple_wtype, wtypes.WTuple | wtypes.ARC4Struct), "expected struct wtype"
         assert tuple_wtype.names is not None, "expected named tuple"
-        base = self.context.visitor.visit_and_materialise_as_value_or_tuple(expr.base)
+        base = self.context.visitor.visit_and_materialise(expr.base)
         index = tuple_wtype.names.index(expr.name)
 
         return sequence.read_tuple_index_and_decode(self.context, tuple_wtype, base, index, loc)
@@ -790,7 +789,7 @@ class FunctionIRBuilder(
     ) -> TExpression:
         loc = expr.source_location
 
-        tup_value = self.visit_and_materialise_as_value_or_tuple(expr.base)
+        tup_value = self.visit_and_materialise(expr.base)
         start_i = extract_const_int(expr.begin_index) or 0
         end_i = extract_const_int(expr.end_index)
         if end_i is None:
@@ -1249,12 +1248,12 @@ class FunctionIRBuilder(
         if isinstance(array_or_slot.ir_type, SlotType):
             mem.write_slot(self.context, array_or_slot, updated_array, loc)
         else:
-            handle_arc4_assign(
+            handle_assignment(
                 self.context,
                 expr.base,
                 updated_array,
                 is_nested_update=True,
-                source_location=loc,
+                assignment_location=loc,
             )
         return popped_item
 
@@ -1294,12 +1293,12 @@ class FunctionIRBuilder(
             # _array_concat should do steps 1-4, now need to update slot
             mem.write_slot(self.context, array, result, loc)
         else:
-            handle_arc4_assign(
+            handle_assignment(
                 self.context,
                 target=expr.base,
                 value=result,
                 is_nested_update=True,
-                source_location=loc,
+                assignment_location=loc,
             )
 
     def _array_concat(

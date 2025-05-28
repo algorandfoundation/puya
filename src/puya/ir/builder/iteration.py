@@ -571,7 +571,7 @@ def _iterate_tuple(
     tuple_wtype = tuple_expr.wtype
     assert isinstance(tuple_wtype, wtypes.WTuple), "tuple_expr wtype must be WTuple"
 
-    tuple_values = context.visitor.visit_and_materialise_as_value_or_tuple(tuple_expr)
+    tuple_values = context.visitor.visit_and_materialise(tuple_expr)
 
     max_index = len(tuple_wtype.types) - 1
     loop_counter_name = context.next_tmp_name("loop_counter")
