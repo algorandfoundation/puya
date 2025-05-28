@@ -1,5 +1,4 @@
 from puya import log
-from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir.builder._utils import OpFactory
 from puya.ir.encodings import (
@@ -20,22 +19,18 @@ def read_at_index(
     loc: SourceLocation | None,
 ) -> ir.Value:
     factory = OpFactory(context, loc)
-    try:
-        (tup,) = context.materialise_value_provider(tup, "tup")
-    except ValueError:
-        raise InternalError("expected single value", loc) from None
 
     # TODO: split by element_encoding
     tuple_elements = tuple_encoding.elements
     element_encoding = tuple_elements[index]
-    head_up_to_item = tuple_encoding.get_head_bit_offset(index)
+    head_offset_bits = tuple_encoding.get_head_bit_offset(index)
     if element_encoding.is_bit:
-        return factory.get_bit(tup, head_up_to_item)
+        return factory.get_bit(tup, head_offset_bits)
     elif not element_encoding.is_dynamic:
-        head_offset = bits_to_bytes(head_up_to_item)
+        head_offset = bits_to_bytes(head_offset_bits)
         return factory.extract3(tup, head_offset, element_encoding.checked_num_bytes)
     else:
-        head_offset = bits_to_bytes(head_up_to_item)
+        head_offset = bits_to_bytes(head_offset_bits)
         item_start_offset = factory.extract_uint16(tup, head_offset)
 
         next_index = index + 1
@@ -43,10 +38,11 @@ def read_at_index(
             tuple_elements[next_index:], start=next_index
         ):
             if tuple_item_type.is_dynamic:
-                head_up_to_next_dynamic_item = tuple_encoding.get_head_bit_offset(tuple_item_index)
-                item_end_offset = factory.extract_uint16(
-                    tup, bits_to_bytes(head_up_to_next_dynamic_item)
+                next_dynamic_head_offset_bits = tuple_encoding.get_head_bit_offset(
+                    tuple_item_index
                 )
+                next_dynamic_head_offset = bits_to_bytes(next_dynamic_head_offset_bits)
+                item_end_offset = factory.extract_uint16(tup, next_dynamic_head_offset)
                 break
         else:
             item_end_offset = factory.len(tup)
