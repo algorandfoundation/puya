@@ -253,6 +253,7 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         )
         r_count = self.factory.materialise_single(r_count)
         r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
+        # TODO: ideally just construct the tail directly
         start_of_tail = self.factory.mul(r_count, 2, "start_of_tail")
         r_tail = self.factory.extract_to_end(r_head_and_tail, start_of_tail, "data")
         invoke = invoke_puya_lib_subroutine(

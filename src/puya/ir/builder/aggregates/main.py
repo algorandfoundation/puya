@@ -12,7 +12,8 @@ from puya.ir import (
 )
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder._utils import OpFactory, assign_targets
-from puya.ir.builder.aggregates import arc4_codecs, sequence
+from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
+from puya.ir.encodings import Encoding, TupleEncoding
 from puya.ir.models import Register, Subroutine, Value, ValueProvider, ValueTuple
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType
@@ -130,6 +131,47 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
             loc=loc,
         )
         return builder.write_at_index(write.array, write.index, write.value)
+
+    @typing.override
+    def visit_tuple_read_index(self, read: ir.TupleReadIndex) -> ir.Value:
+        self.modified = True
+
+        loc = read.source_location
+
+        tuple_encoding: Encoding = read.tuple_encoding
+        base = read.base
+        # TODO: for fixed sized types handle read.indexes as a single op using an offset and length
+        for index in read.indexes:
+            assert isinstance(tuple_encoding, TupleEncoding), "expected TupleEncoding"
+            base = tup.read_at_index(
+                self,
+                tuple_encoding,
+                base,
+                index,
+                loc,
+            )
+            tuple_encoding = tuple_encoding.elements[index]
+
+        return base
+
+    @typing.override
+    def visit_tuple_write_index(self, write: ir.TupleWriteIndex) -> ir.Value:
+        self.modified = True
+
+        loc = write.source_location
+        try:
+            (index,) = write.indexes
+        except ValueError:
+            raise NotImplementedError("multi-index writes") from None
+
+        return tup.write_at_index(
+            self,
+            write.tuple_encoding,
+            write.base,
+            index,
+            write.value,
+            loc,
+        )
 
     @typing.override
     def visit_array_concat(self, append: ir.ArrayConcat) -> ir.Register:
