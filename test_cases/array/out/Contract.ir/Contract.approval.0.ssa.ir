@@ -158,11 +158,11 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let tmp%12#0: uint64 = decode<uint64>(array_item%4#0)
         let slot_contents%5#0: Encoded(uint64[]) = read(arr#0)
         let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%11#0)
-        let updated_array%0#0: Encoded(uint64[]) = slot_contents%5#0[left#1] = encoded_value%0#0
+        let updated_array%0#0: Encoded(uint64[]) = slot_contents%5#0.update(left#1, encoded_value%0#0)
         write(arr#0, updated_array%0#0)
         let slot_contents%6#0: Encoded(uint64[]) = read(arr#0)
         let encoded_value%1#0: Encoded(uint64) = encode<uint64>(tmp%12#0)
-        let updated_array%1#0: Encoded(uint64[]) = slot_contents%6#0[right#1] = encoded_value%1#0
+        let updated_array%1#0: Encoded(uint64[]) = slot_contents%6#0.update(right#1, encoded_value%1#0)
         write(arr#0, updated_array%1#0)
         let tmp%13#0: uint64 = (+ left#1 1u)
         let left#5: uint64 = tmp%13#0
@@ -579,7 +579,7 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         let tmp%32#0: uint64 = (+ tmp%31#0 2u)
         let slot_contents%24#0: Encoded(uint64[]) = read(tmp%30#0)
         let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%32#0)
-        let updated_array%0#0: Encoded(uint64[]) = slot_contents%24#0[0u] = encoded_value%0#0
+        let updated_array%0#0: Encoded(uint64[]) = slot_contents%24#0.update(0u, encoded_value%0#0)
         write(tmp%30#0, updated_array%0#0)
         let slot_contents%25#0: Encoded(uint64[]) = read(arr#0)
         let bytes_len%13#0: uint64 = (len slot_contents%25#0)
@@ -879,7 +879,7 @@ subroutine test_cases.array.uint64.Contract.test_array_evaluation_order() -> voi
         let tmp%20#0: uint64 = decode<uint64>(array_item%7#0)
         let slot_contents%13#0: Encoded(uint64[]) = read(arr#0)
         let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%18#0)
-        let updated_array%0#0: Encoded(uint64[]) = slot_contents%13#0[tmp%20#0] = encoded_value%0#0
+        let updated_array%0#0: Encoded(uint64[]) = slot_contents%13#0.update(tmp%20#0, encoded_value%0#0)
         write(arr#0, updated_array%0#0)
         let slot_contents%14#0: Encoded(uint64[]) = read(arr#0)
         let bytes_len%3#0: uint64 = (len slot_contents%14#0)
@@ -1169,12 +1169,12 @@ subroutine test_cases.array.uint64.Contract.test_unobserved_write() -> void:
         let last#0: uint64 = tmp%1#0
         let slot_contents%1#0: Encoded(uint64[]) = read(arr#0)
         let encoded_value%0#0: Encoded(uint64) = encode<uint64>(0u)
-        let updated_array%0#0: Encoded(uint64[]) = slot_contents%1#0[last#0] = encoded_value%0#0
+        let updated_array%0#0: Encoded(uint64[]) = slot_contents%1#0.update(last#0, encoded_value%0#0)
         write(arr#0, updated_array%0#0)
         test_cases.array.uint64.assert_last_is_zero(arr#0)
         let slot_contents%2#0: Encoded(uint64[]) = read(arr#0)
         let encoded_value%1#0: Encoded(uint64) = encode<uint64>(1u)
-        let updated_array%1#0: Encoded(uint64[]) = slot_contents%2#0[last#0] = encoded_value%1#0
+        let updated_array%1#0: Encoded(uint64[]) = slot_contents%2#0.update(last#0, encoded_value%1#0)
         write(arr#0, updated_array%1#0)
         let slot_contents%3#0: Encoded(uint64[]) = read(arr#0)
         let array_item%0#0: Encoded(uint64) = slot_contents%3#0[last#0]

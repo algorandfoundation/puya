@@ -449,10 +449,10 @@ subroutine increment_payment:
         itob                                                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,array%val_as_bytes%0#1
         l-load array%encoded_element%0#1 1                                                        (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%val_as_bytes%0#1,array%encoded_element%0#1
         l-load array%val_as_bytes%0#1 1                                                           (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%encoded_element%0#1,array%val_as_bytes%0#1
-        replace2 40                                                                               (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,updated_data%0#0
-        l-load maybe_value%1#0 2                                                                  (𝕡) index#0,amt#0 | array%bytes_offset%0#1,updated_data%0#0,maybe_value%1#0
-        l-load array%bytes_offset%0#1 2                                                           (𝕡) index#0,amt#0 | updated_data%0#0,maybe_value%1#0,array%bytes_offset%0#1
-        l-load updated_data%0#0 2                                                                 (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,updated_data%0#0
+        replace2 40                                                                               (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%updated_data%0#1
+        l-load maybe_value%1#0 2                                                                  (𝕡) index#0,amt#0 | array%bytes_offset%0#1,array%updated_data%0#1,maybe_value%1#0
+        l-load array%bytes_offset%0#1 2                                                           (𝕡) index#0,amt#0 | array%updated_data%0#1,maybe_value%1#0,array%bytes_offset%0#1
+        l-load array%updated_data%0#1 2                                                           (𝕡) index#0,amt#0 | maybe_value%1#0,array%bytes_offset%0#1,array%updated_data%0#1
         replace3                                                                                  (𝕡) index#0,amt#0 | array%updated_array%0#1
         byte "payments"                                                                           (𝕡) index#0,amt#0 | array%updated_array%0#1,"payments"
         l-load array%updated_array%0#1 1                                                          (𝕡) index#0,amt#0 | "payments",array%updated_array%0#1
@@ -491,20 +491,20 @@ subroutine create_storage:
         // mutable_native_types/contract.py:125
         // self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
         l-load maybe_value%1#0 0                                                                  (𝕡) box_key#0 | maybe_value%1#0
-        extract 0 16                                                                              (𝕡) box_key#0 | extract%0#0
-        p-load box_key#0                                                                          (𝕡) box_key#0 | extract%0#0,box_key#0 (copy)
-        itob                                                                                      (𝕡) box_key#0 | extract%0#0,encoded_value%0#0
-        byte "box_map"                                                                            (𝕡) box_key#0 | extract%0#0,encoded_value%0#0,"box_map"
-        l-load encoded_value%0#0 1                                                                (𝕡) box_key#0 | extract%0#0,"box_map",encoded_value%0#0
-        concat                                                                                    (𝕡) box_key#0 | extract%0#0,box_prefixed_key%0#0
-        l-load-copy box_prefixed_key%0#0 0                                                        (𝕡) box_key#0 | extract%0#0,box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
-        box_get                                                                                   (𝕡) box_key#0 | extract%0#0,box_prefixed_key%0#0,maybe_value%3#0,maybe_exists%3#0
-        assert // check self.box_map entry exists                                                 (𝕡) box_key#0 | extract%0#0,box_prefixed_key%0#0,maybe_value%3#0
-        l-load maybe_value%3#0 0                                                                  (𝕡) box_key#0 | extract%0#0,box_prefixed_key%0#0,maybe_value%3#0
-        l-load extract%0#0 2                                                                      (𝕡) box_key#0 | box_prefixed_key%0#0,maybe_value%3#0,extract%0#0
-        replace2 0                                                                                (𝕡) box_key#0 | box_prefixed_key%0#0,updated_data%0#0
-        l-load box_prefixed_key%0#0 1                                                             (𝕡) box_key#0 | updated_data%0#0,box_prefixed_key%0#0
-        l-load updated_data%0#0 1                                                                 (𝕡) box_key#0 | box_prefixed_key%0#0,updated_data%0#0
+        extract 0 16                                                                              (𝕡) box_key#0 | array%extract%0#1
+        p-load box_key#0                                                                          (𝕡) box_key#0 | array%extract%0#1,box_key#0 (copy)
+        itob                                                                                      (𝕡) box_key#0 | array%extract%0#1,encoded_value%0#0
+        byte "box_map"                                                                            (𝕡) box_key#0 | array%extract%0#1,encoded_value%0#0,"box_map"
+        l-load encoded_value%0#0 1                                                                (𝕡) box_key#0 | array%extract%0#1,"box_map",encoded_value%0#0
+        concat                                                                                    (𝕡) box_key#0 | array%extract%0#1,box_prefixed_key%0#0
+        l-load-copy box_prefixed_key%0#0 0                                                        (𝕡) box_key#0 | array%extract%0#1,box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
+        box_get                                                                                   (𝕡) box_key#0 | array%extract%0#1,box_prefixed_key%0#0,maybe_value%3#0,maybe_exists%3#0
+        assert // check self.box_map entry exists                                                 (𝕡) box_key#0 | array%extract%0#1,box_prefixed_key%0#0,maybe_value%3#0
+        l-load maybe_value%3#0 0                                                                  (𝕡) box_key#0 | array%extract%0#1,box_prefixed_key%0#0,maybe_value%3#0
+        l-load array%extract%0#1 2                                                                (𝕡) box_key#0 | box_prefixed_key%0#0,maybe_value%3#0,array%extract%0#1
+        replace2 0                                                                                (𝕡) box_key#0 | box_prefixed_key%0#0,array%updated_data%0#1
+        l-load box_prefixed_key%0#0 1                                                             (𝕡) box_key#0 | array%updated_data%0#1,box_prefixed_key%0#0
+        l-load array%updated_data%0#1 1                                                           (𝕡) box_key#0 | box_prefixed_key%0#0,array%updated_data%0#1
         box_put                                                                                   (𝕡) box_key#0 |
         retsub
 
@@ -599,9 +599,9 @@ subroutine struct_arg:
         assert // check self.nested exists                                                        (𝕡) box_key#0,a#0 | maybe_value%0#0
         l-load maybe_value%0#0 0                                                                  (𝕡) box_key#0,a#0 | maybe_value%0#0
         p-load a#0                                                                                (𝕡) box_key#0,a#0 | maybe_value%0#0,a#0 (copy)
-        replace2 0                                                                                (𝕡) box_key#0,a#0 | updated_data%0#0
-        byte "nested"                                                                             (𝕡) box_key#0,a#0 | updated_data%0#0,"nested"
-        l-load updated_data%0#0 1                                                                 (𝕡) box_key#0,a#0 | "nested",updated_data%0#0
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | array%updated_data%0#1
+        byte "nested"                                                                             (𝕡) box_key#0,a#0 | array%updated_data%0#1,"nested"
+        l-load array%updated_data%0#1 1                                                           (𝕡) box_key#0,a#0 | "nested",array%updated_data%0#1
         app_global_put                                                                            (𝕡) box_key#0,a#0 |
         // mutable_native_types/contract.py:151
         // self.nested_proxy.value.fixed_a = a
@@ -611,9 +611,9 @@ subroutine struct_arg:
         assert // check self.nested_proxy exists                                                  (𝕡) box_key#0,a#0 | maybe_value%1#0
         l-load maybe_value%1#0 0                                                                  (𝕡) box_key#0,a#0 | maybe_value%1#0
         p-load a#0                                                                                (𝕡) box_key#0,a#0 | maybe_value%1#0,a#0 (copy)
-        replace2 0                                                                                (𝕡) box_key#0,a#0 | updated_data%1#0
-        byte 0x70                                                                                 (𝕡) box_key#0,a#0 | updated_data%1#0,0x70
-        l-load updated_data%1#0 1                                                                 (𝕡) box_key#0,a#0 | 0x70,updated_data%1#0
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | array%updated_data%1#1
+        byte 0x70                                                                                 (𝕡) box_key#0,a#0 | array%updated_data%1#1,0x70
+        l-load array%updated_data%1#1 1                                                           (𝕡) box_key#0,a#0 | 0x70,array%updated_data%1#1
         app_global_put                                                                            (𝕡) box_key#0,a#0 |
         // mutable_native_types/contract.py:152
         // self.nested_local[Txn.sender].fixed_a = a
@@ -625,10 +625,10 @@ subroutine struct_arg:
         assert // check self.nested_local exists for account                                      (𝕡) box_key#0,a#0 | tmp%0#0,maybe_value%2#0
         l-load maybe_value%2#0 0                                                                  (𝕡) box_key#0,a#0 | tmp%0#0,maybe_value%2#0
         p-load a#0                                                                                (𝕡) box_key#0,a#0 | tmp%0#0,maybe_value%2#0,a#0 (copy)
-        replace2 0                                                                                (𝕡) box_key#0,a#0 | tmp%0#0,updated_data%2#0
-        l-load tmp%0#0 1                                                                          (𝕡) box_key#0,a#0 | updated_data%2#0,tmp%0#0
-        byte 0x6c                                                                                 (𝕡) box_key#0,a#0 | updated_data%2#0,tmp%0#0,0x6c
-        l-load updated_data%2#0 2                                                                 (𝕡) box_key#0,a#0 | tmp%0#0,0x6c,updated_data%2#0
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | tmp%0#0,array%updated_data%2#1
+        l-load tmp%0#0 1                                                                          (𝕡) box_key#0,a#0 | array%updated_data%2#1,tmp%0#0
+        byte 0x6c                                                                                 (𝕡) box_key#0,a#0 | array%updated_data%2#1,tmp%0#0,0x6c
+        l-load array%updated_data%2#1 2                                                           (𝕡) box_key#0,a#0 | tmp%0#0,0x6c,array%updated_data%2#1
         app_local_put                                                                             (𝕡) box_key#0,a#0 |
         // mutable_native_types/contract.py:153
         // self.box.value.fixed_a = a
@@ -637,9 +637,9 @@ subroutine struct_arg:
         assert // check self.box exists                                                           (𝕡) box_key#0,a#0 | maybe_value%3#0
         l-load maybe_value%3#0 0                                                                  (𝕡) box_key#0,a#0 | maybe_value%3#0
         p-load a#0                                                                                (𝕡) box_key#0,a#0 | maybe_value%3#0,a#0 (copy)
-        replace2 0                                                                                (𝕡) box_key#0,a#0 | updated_data%3#0
-        byte "box"                                                                                (𝕡) box_key#0,a#0 | updated_data%3#0,"box"
-        l-load updated_data%3#0 1                                                                 (𝕡) box_key#0,a#0 | "box",updated_data%3#0
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | array%updated_data%3#1
+        byte "box"                                                                                (𝕡) box_key#0,a#0 | array%updated_data%3#1,"box"
+        l-load array%updated_data%3#1 1                                                           (𝕡) box_key#0,a#0 | "box",array%updated_data%3#1
         box_put                                                                                   (𝕡) box_key#0,a#0 |
         // mutable_native_types/contract.py:154
         // self.box_map[box_key].fixed_a = a
@@ -653,9 +653,9 @@ subroutine struct_arg:
         assert // check self.box_map entry exists                                                 (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_value%4#0
         l-load maybe_value%4#0 0                                                                  (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_value%4#0
         p-load a#0                                                                                (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_value%4#0,a#0 (copy)
-        replace2 0                                                                                (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,updated_data%4#0
-        l-load box_prefixed_key%0#0 1                                                             (𝕡) box_key#0,a#0 | updated_data%4#0,box_prefixed_key%0#0
-        l-load updated_data%4#0 1                                                                 (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,updated_data%4#0
+        replace2 0                                                                                (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,array%updated_data%4#1
+        l-load box_prefixed_key%0#0 1                                                             (𝕡) box_key#0,a#0 | array%updated_data%4#1,box_prefixed_key%0#0
+        l-load array%updated_data%4#1 1                                                           (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,array%updated_data%4#1
         box_put                                                                                   (𝕡) box_key#0,a#0 |
         retsub
 
@@ -670,8 +670,8 @@ subroutine struct_return:
         app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%0#0
         assert // check self.nested exists                                                        maybe_value%0#0
         l-load maybe_value%0#0 0                                                                  maybe_value%0#0
-        extract 0 16                                                                              extract%0#0
-        retsub                                                                                    extract%0#0
+        extract 0 16                                                                              array%extract%0#1
+        retsub                                                                                    array%extract%0#1
 
 
 // test_cases.mutable_native_types.contract.Contract.tup_return() -> uint64, uint64:
@@ -684,12 +684,12 @@ subroutine tup_return:
         app_global_get_ex                                                                         maybe_value%0#0,maybe_exists%0#0
         assert // check self.nested exists                                                        maybe_value%0#0
         l-load maybe_value%0#0 0                                                                  maybe_value%0#0
-        extract 32 16                                                                             extract%0#0
-        l-load-copy extract%0#0 0                                                                 extract%0#0,extract%0#0 (copy)
-        int 0                                                                                     extract%0#0,extract%0#0 (copy),0
-        extract_uint64                                                                            extract%0#0,array%item0%0#1
-        l-load extract%0#0 1                                                                      array%item0%0#1,extract%0#0
-        int 8                                                                                     array%item0%0#1,extract%0#0,8
+        extract 32 16                                                                             array%extract%0#1
+        l-load-copy array%extract%0#1 0                                                           array%extract%0#1,array%extract%0#1 (copy)
+        int 0                                                                                     array%extract%0#1,array%extract%0#1 (copy),0
+        extract_uint64                                                                            array%extract%0#1,array%item0%0#1
+        l-load array%extract%0#1 1                                                                array%item0%0#1,array%extract%0#1
+        int 8                                                                                     array%item0%0#1,array%extract%0#1,8
         extract_uint64                                                                            array%item0%0#1,array%item1%0#1
         l-load array%item0%0#1 1                                                                  array%item1%0#1,array%item0%0#1
         l-load array%item1%0#1 1                                                                  array%item0%0#1,array%item1%0#1
@@ -756,12 +756,12 @@ subroutine calculate_sum:
         app_global_get_ex                                                                         (𝕗) result#0,result#6 | maybe_value%2#0,maybe_exists%2#0
         assert // check self.nested exists                                                        (𝕗) result#0,result#6 | maybe_value%2#0
         l-load maybe_value%2#0 0                                                                  (𝕗) result#0,result#6 | maybe_value%2#0
-        extract 32 16                                                                             (𝕗) result#0,result#6 | extract%2#0
-        l-load-copy extract%2#0 0                                                                 (𝕗) result#0,result#6 | extract%2#0,extract%2#0 (copy)
-        int 0                                                                                     (𝕗) result#0,result#6 | extract%2#0,extract%2#0 (copy),0
-        extract_uint64                                                                            (𝕗) result#0,result#6 | extract%2#0,c#0
-        l-load extract%2#0 1                                                                      (𝕗) result#0,result#6 | c#0,extract%2#0
-        int 8                                                                                     (𝕗) result#0,result#6 | c#0,extract%2#0,8
+        extract 32 16                                                                             (𝕗) result#0,result#6 | array%extract%2#1
+        l-load-copy array%extract%2#1 0                                                           (𝕗) result#0,result#6 | array%extract%2#1,array%extract%2#1 (copy)
+        int 0                                                                                     (𝕗) result#0,result#6 | array%extract%2#1,array%extract%2#1 (copy),0
+        extract_uint64                                                                            (𝕗) result#0,result#6 | array%extract%2#1,c#0
+        l-load array%extract%2#1 1                                                                (𝕗) result#0,result#6 | c#0,array%extract%2#1
+        int 8                                                                                     (𝕗) result#0,result#6 | c#0,array%extract%2#1,8
         extract_uint64                                                                            (𝕗) result#0,result#6 | c#0,d#0
         // mutable_native_types/contract.py:173
         // result += c

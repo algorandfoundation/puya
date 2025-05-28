@@ -219,8 +219,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         let tmp%1#0: uint64 = (extract_uint64 array%encoded_element%0#1 40u)
         let tmp%2#0: uint64 = (+ tmp%1#0 amt#0)
         let array%val_as_bytes%0#1: bytes[8] = (itob tmp%2#0)
-        let updated_data%0#0: bytes = ((replace2 40) array%encoded_element%0#1 array%val_as_bytes%0#1)
-        let array%updated_array%0#1: bytes = (replace3 maybe_value%1#0 array%bytes_offset%0#1 updated_data%0#0)
+        let array%updated_data%0#1: bytes = ((replace2 40) array%encoded_element%0#1 array%val_as_bytes%0#1)
+        let array%updated_array%0#1: bytes = (replace3 maybe_value%1#0 array%bytes_offset%0#1 array%updated_data%0#1)
         (app_global_put "payments" array%updated_array%0#1)
         return 
 
@@ -235,13 +235,13 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         (app_local_put tmp%0#0 0x6c maybe_value%1#0)
         let tmp%1#0: bool = (box_create "box" 2064u)
         (assert tmp%1#0) // expected box to not exist
-        let extract%0#0: bytes = ((extract 0 16) maybe_value%1#0)
+        let array%extract%0#1: bytes = ((extract 0 16) maybe_value%1#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.box_map entry exists
-        let updated_data%0#0: bytes = ((replace2 0) maybe_value%3#0 extract%0#0)
-        (box_put box_prefixed_key%0#0 updated_data%0#0)
+        let array%updated_data%0#1: bytes = ((replace2 0) maybe_value%3#0 array%extract%0#1)
+        (box_put box_prefixed_key%0#0 array%updated_data%0#1)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct() -> Encoded((uint8[32],uint64,uint64)):
@@ -277,43 +277,43 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
     block@0: // L148
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let updated_data%0#0: bytes = ((replace2 0) maybe_value%0#0 a#0)
-        (app_global_put "nested" updated_data%0#0)
+        let array%updated_data%0#1: bytes = ((replace2 0) maybe_value%0#0 a#0)
+        (app_global_put "nested" array%updated_data%0#1)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u 0x70)
         (assert maybe_exists%1#0) // check self.nested_proxy exists
-        let updated_data%1#0: bytes = ((replace2 0) maybe_value%1#0 a#0)
-        (app_global_put 0x70 updated_data%1#0)
+        let array%updated_data%1#1: bytes = ((replace2 0) maybe_value%1#0 a#0)
+        (app_global_put 0x70 array%updated_data%1#1)
         let tmp%0#0: bytes[32] = (txn Sender)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%0#0 0u 0x6c)
         (assert maybe_exists%2#0) // check self.nested_local exists for account
-        let updated_data%2#0: bytes = ((replace2 0) maybe_value%2#0 a#0)
-        (app_local_put tmp%0#0 0x6c updated_data%2#0)
+        let array%updated_data%2#1: bytes = ((replace2 0) maybe_value%2#0 a#0)
+        (app_local_put tmp%0#0 0x6c array%updated_data%2#1)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "box")
         (assert maybe_exists%3#0) // check self.box exists
-        let updated_data%3#0: bytes = ((replace2 0) maybe_value%3#0 a#0)
-        (box_put "box" updated_data%3#0)
+        let array%updated_data%3#1: bytes = ((replace2 0) maybe_value%3#0 a#0)
+        (box_put "box" array%updated_data%3#1)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%4#0) // check self.box_map entry exists
-        let updated_data%4#0: bytes = ((replace2 0) maybe_value%4#0 a#0)
-        (box_put box_prefixed_key%0#0 updated_data%4#0)
+        let array%updated_data%4#1: bytes = ((replace2 0) maybe_value%4#0 a#0)
+        (box_put box_prefixed_key%0#0 array%updated_data%4#1)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> Encoded((uint64,uint64)):
     block@0: // L158
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let extract%0#0: bytes = ((extract 0 16) maybe_value%0#0)
-        return extract%0#0
+        let array%extract%0#1: bytes = ((extract 0 16) maybe_value%0#0)
+        return array%extract%0#1
 
 subroutine test_cases.mutable_native_types.contract.Contract.tup_return() -> <uint64, uint64>:
     block@0: // L162
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let extract%0#0: bytes = ((extract 32 16) maybe_value%0#0)
-        let array%item0%0#1: uint64 = (extract_uint64 extract%0#0 0u)
-        let array%item1%0#1: uint64 = (extract_uint64 extract%0#0 8u)
+        let array%extract%0#1: bytes = ((extract 32 16) maybe_value%0#0)
+        let array%item0%0#1: uint64 = (extract_uint64 array%extract%0#1 0u)
+        let array%item1%0#1: uint64 = (extract_uint64 array%extract%0#1 8u)
         return array%item0%0#1 array%item1%0#1
 
 subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> uint64:
@@ -335,9 +335,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
     block@1: // if_body_L172
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%2#0) // check self.nested exists
-        let extract%2#0: bytes = ((extract 32 16) maybe_value%2#0)
-        let c#0: uint64 = (extract_uint64 extract%2#0 0u)
-        let d#0: uint64 = (extract_uint64 extract%2#0 8u)
+        let array%extract%2#1: bytes = ((extract 32 16) maybe_value%2#0)
+        let c#0: uint64 = (extract_uint64 array%extract%2#1 0u)
+        let d#0: uint64 = (extract_uint64 array%extract%2#1 8u)
         let result#0: uint64 = (+ result#0 c#0)
         let result#0: uint64 = (+ result#0 d#0)
         let result#6: uint64 = result#0

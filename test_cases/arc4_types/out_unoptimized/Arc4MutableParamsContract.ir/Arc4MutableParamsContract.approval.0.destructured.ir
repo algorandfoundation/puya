@@ -76,16 +76,17 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let reinterpret_biguint%4#0: biguint = array_item%2#0
         let tmp%5#0: bool = (b== reinterpret_biguint%4#0 0x05)
         (assert tmp%5#0) // my_array has been mutated by the subroutine
-        let extract_uint16%0#0: uint64 = (extract_uint16 my_struct#0 2u)
-        let extract_uint16%1#0: uint64 = (extract_uint16 my_struct#0 4u)
-        let substring3%0#0: bytes = (substring3 my_struct#0 extract_uint16%0#0 extract_uint16%1#0)
+        let array%extract_uint16%0#1: uint64 = (extract_uint16 my_struct#0 2u)
+        let array%extract_uint16%1#1: uint64 = (extract_uint16 my_struct#0 4u)
+        let array%substring3%0#1: bytes = (substring3 my_struct#0 array%extract_uint16%0#1 array%extract_uint16%1#1)
+        let tuple_item%0#0: Encoded(len+utf8[]) = array%substring3%0#1
         let array%length%2#1: uint64 = (len 0x41415252474821)
         let array%as_bytes%4#1: bytes[8] = (itob array%length%2#1)
         let array%length_uint16%2#1: bytes = ((extract 6 2) array%as_bytes%4#1)
         let array%encoded_value%2#1: bytes = (concat array%length_uint16%2#1 0x41415252474821)
         let array%as_Encoded(len+utf8[])%2#1: Encoded(len+utf8[]) = array%encoded_value%2#1
         let encoded%2#0: Encoded(len+utf8[]) = array%as_Encoded(len+utf8[])%2#1
-        let tmp%6#0: bool = (== substring3%0#0 encoded%2#0)
+        let tmp%6#0: bool = (== tuple_item%0#0 encoded%2#0)
         (assert tmp%6#0) // my_struct has been mutated by the subroutine
         let copy%2#0: Encoded(uint8[4]) = my_array_copy#0
         let copy%3#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = my_struct_copy#0
@@ -96,16 +97,17 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let reinterpret_biguint%6#0: biguint = array_item%3#0
         let tmp%7#0: bool = (b== reinterpret_biguint%6#0 0x02)
         (assert tmp%7#0) // my_array_copy should not be mutated by the subroutine
-        let extract_uint16%2#0: uint64 = (extract_uint16 my_struct_copy#0 2u)
-        let extract_uint16%3#0: uint64 = (extract_uint16 my_struct_copy#0 4u)
-        let substring3%1#0: bytes = (substring3 my_struct_copy#0 extract_uint16%2#0 extract_uint16%3#0)
+        let array%extract_uint16%2#1: uint64 = (extract_uint16 my_struct_copy#0 2u)
+        let array%extract_uint16%3#1: uint64 = (extract_uint16 my_struct_copy#0 4u)
+        let array%substring3%1#1: bytes = (substring3 my_struct_copy#0 array%extract_uint16%2#1 array%extract_uint16%3#1)
+        let tuple_item%1#0: Encoded(len+utf8[]) = array%substring3%1#1
         let array%length%3#1: uint64 = (len 0x4861707079)
         let array%as_bytes%5#1: bytes[8] = (itob array%length%3#1)
         let array%length_uint16%3#1: bytes = ((extract 6 2) array%as_bytes%5#1)
         let array%encoded_value%3#1: bytes = (concat array%length_uint16%3#1 0x4861707079)
         let array%as_Encoded(len+utf8[])%3#1: Encoded(len+utf8[]) = array%encoded_value%3#1
         let encoded%3#0: Encoded(len+utf8[]) = array%as_Encoded(len+utf8[])%3#1
-        let tmp%8#0: bool = (== substring3%1#0 encoded%3#0)
+        let tmp%8#0: bool = (== tuple_item%1#0 encoded%3#0)
         (assert tmp%8#0) // my_struct_copy should not be mutated by the subroutine
         let copy%4#0: Encoded(uint8[4]) = my_array_copy#0
         let my_array_copy_2#0: Encoded(uint8[4]) = copy%4#0
@@ -228,8 +230,9 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let array%encoded%11#1: Encoded((uint8[4])) = (concat array%encoded%10#1 0x)
         let tmp%28#0: Encoded((uint8[4])) = array%encoded%11#1
         let nested#0: Encoded((uint8[4])) = tmp%28#0
-        let extract%0#0: bytes = (extract3 nested#0 0u 4u)
-        let copy%13#0: bytes = extract%0#0
+        let array%extract%0#1: bytes = (extract3 nested#0 0u 4u)
+        let tuple_item%2#0: Encoded(uint8[4]) = array%extract%0#1
+        let copy%13#0: Encoded(uint8[4]) = tuple_item%2#0
         let (other_routine_2%4#0: Encoded(uint8[4]), other_routine_2%5#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(copy%13#0)
         return 
 
@@ -249,22 +252,23 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
         let array%encoded_value%0#1: bytes = (concat array%length_uint16%0#1 0x41415252474821)
         let array%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = array%encoded_value%0#1
         let encoded%0#0: Encoded(len+utf8[]) = array%as_Encoded(len+utf8[])%0#1
-        let item_offset%0#0: uint64 = (extract_uint16 struct#0 2u)
-        let data_up_to_item%0#0: bytes = (extract3 struct#0 0u item_offset%0#0)
-        let next_item_offset%0#0: uint64 = (extract_uint16 struct#0 4u)
-        let total_data_length%0#0: uint64 = (len struct#0)
-        let data_beyond_item%0#0: bytes = (substring3 struct#0 next_item_offset%0#0 total_data_length%0#0)
-        let updated_data%0#0: bytes = (concat data_up_to_item%0#0 encoded%0#0)
-        let updated_data%1#0: bytes = (concat updated_data%0#0 data_beyond_item%0#0)
-        let item_length%0#0: uint64 = (- next_item_offset%0#0 item_offset%0#0)
-        let new_value_length%0#0: uint64 = (len encoded%0#0)
-        let tail_offset%0#0: uint64 = (extract_uint16 updated_data%1#0 4u)
-        let tail_offset%1#0: uint64 = (+ tail_offset%0#0 new_value_length%0#0)
-        let tail_offset%2#0: uint64 = (- tail_offset%1#0 item_length%0#0)
-        let as_bytes%0#0: bytes[8] = (itob tail_offset%2#0)
-        let tail_offset_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let updated_data%2#0: bytes = (replace3 updated_data%1#0 4u tail_offset_bytes%0#0)
-        let struct#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = updated_data%2#0
+        let array%item_offset%0#1: uint64 = (extract_uint16 struct#0 2u)
+        let array%data_up_to_item%0#1: bytes = (extract3 struct#0 0u array%item_offset%0#1)
+        let array%next_item_offset%0#1: uint64 = (extract_uint16 struct#0 4u)
+        let array%total_data_length%0#1: uint64 = (len struct#0)
+        let array%data_beyond_item%0#1: bytes = (substring3 struct#0 array%next_item_offset%0#1 array%total_data_length%0#1)
+        let array%updated_data%0#1: bytes = (concat array%data_up_to_item%0#1 encoded%0#0)
+        let array%updated_data%1#1: bytes = (concat array%updated_data%0#1 array%data_beyond_item%0#1)
+        let array%item_length%0#1: uint64 = (- array%next_item_offset%0#1 array%item_offset%0#1)
+        let array%new_value_length%0#1: uint64 = (len encoded%0#0)
+        let array%tail_offset%0#1: uint64 = (extract_uint16 array%updated_data%1#1 4u)
+        let array%tail_offset%1#1: uint64 = (+ array%tail_offset%0#1 array%new_value_length%0#1)
+        let array%tail_offset%2#1: uint64 = (- array%tail_offset%1#1 array%item_length%0#1)
+        let array%as_bytes%1#1: bytes[8] = (itob array%tail_offset%2#1)
+        let array%tail_offset_bytes%0#1: bytes = ((extract 6 2) array%as_bytes%1#1)
+        let array%updated_data%2#1: bytes = (replace3 array%updated_data%1#1 4u array%tail_offset_bytes%0#1)
+        let updated_tuple%0#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = array%updated_data%2#1
+        let struct#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = updated_tuple%0#0
         goto 1u ? block@3 : block@4
     block@3: // if_body_L1
         goto block@4

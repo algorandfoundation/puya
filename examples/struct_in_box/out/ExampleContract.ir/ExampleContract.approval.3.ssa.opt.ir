@@ -58,12 +58,13 @@ main algopy.arc4.ARC4Contract.approval_program:
 
 subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[],uint64,uint64))) -> void:
     block@0: // L30
-        let user_id#0: Encoded(uint64) = ((extract 2 8) user#0)
+        let user_id#0: Encoded(uint64) = user#0[1]
         let (_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         let tmp%1#0: bool = (! exists#0)
         (assert tmp%1#0) // User with id must not exist
-        (box_del user_id#0)
-        (box_put user_id#0 user#0)
+        let box_key#0: bytes = user#0[1]
+        (box_del box_key#0)
+        (box_put box_key#0 user#0)
         return 
 
 subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: Encoded(uint64), asset: uint64) -> void:
@@ -71,8 +72,8 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(
         let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         (assert exists#0) // User with that id does not exist
         let tmp%1#0: Encoded(uint64) = encode<uint64>(asset#0)
-        let user#1: Encoded((len+utf8[],uint64,uint64)) = ((replace2 10) box_data#0 tmp%1#0)
-        let box_key#0: bytes = ((extract 2 8) user#1)
+        let user#1: Encoded((len+utf8[],uint64,uint64)) = box_data#0.update(2, tmp%1#0)
+        let box_key#0: bytes = user#1[1]
         (box_del box_key#0)
         (box_put box_key#0 user#1)
         return 
