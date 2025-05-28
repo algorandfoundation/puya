@@ -31,7 +31,6 @@ from puya.ir.builder._utils import (
     get_implicit_return_out,
     mktemp,
 )
-from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
 from puya.ir.builder.assignment import (
     handle_arc4_assign,
     handle_assignment,
@@ -437,18 +436,22 @@ class FunctionIRBuilder(
                 )
 
     def visit_bool_constant(self, expr: awst_nodes.BoolConstant) -> TExpression:
+        loc = expr.source_location
+
+        bool_const = UInt64Constant(
+            value=int(expr.value),
+            ir_type=PrimitiveIRType.bool,
+            source_location=loc,
+        )
         match expr.wtype:
             case wtypes.bool_wtype:
-                return UInt64Constant(
-                    value=int(expr.value),
-                    ir_type=PrimitiveIRType.bool,
-                    source_location=expr.source_location,
-                )
+                return bool_const
             case wtypes.arc4_bool_wtype:
-                return BytesConstant(
-                    value=(ARC4_TRUE if expr.value else ARC4_FALSE),
-                    encoding=AVMBytesEncoding.base16,
-                    source_location=expr.source_location,
+                return ValueEncode(
+                    values=[bool_const],
+                    value_type=bool_const.ir_type,
+                    encoding=wtype_to_encoding(expr.wtype, loc),
+                    source_location=loc,
                 )
             case _:
                 raise InternalError(
