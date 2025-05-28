@@ -248,23 +248,28 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
 subroutine examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> Encoded((uint64,uint64,uint64,uint64)):
     block@0: // L160
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
-        let val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
-        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
-        let tmp%1#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
-        let val_as_bytes%1#0: bytes[8] = (itob tmp%1#0)
-        let as_Encoded(uint64)%1#0: Encoded(uint64) = val_as_bytes%1#0
-        let tmp%2#0: bool = examples.voting.voting.VotingRoundApp.already_voted()
-        let val_as_bytes%2#0: bytes[8] = (itob tmp%2#0)
-        let as_Encoded(uint64)%2#0: Encoded(uint64) = val_as_bytes%2#0
-        let tmp%3#0: uint64 = (global LatestTimestamp)
-        let val_as_bytes%3#0: bytes[8] = (itob tmp%3#0)
-        let as_Encoded(uint64)%3#0: Encoded(uint64) = val_as_bytes%3#0
-        let encoded%0#0: Encoded((uint64)) = (concat 0x as_Encoded(uint64)%0#0)
-        let encoded%1#0: Encoded((uint64,uint64)) = (concat encoded%0#0 as_Encoded(uint64)%1#0)
-        let encoded%2#0: Encoded((uint64,uint64,uint64)) = (concat encoded%1#0 as_Encoded(uint64)%2#0)
-        let encoded%3#0: Encoded((uint64,uint64,uint64,uint64)) = (concat encoded%2#0 as_Encoded(uint64)%3#0)
-        let encoded%4#0: Encoded((uint64,uint64,uint64,uint64)) = (concat encoded%3#0 0x)
-        return encoded%4#0
+        let array%val_as_bytes%0#1: bytes[8] = (itob tmp%0#0)
+        let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
+        let tmp%1#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
+        let tmp%2#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
+        let array%val_as_bytes%1#1: bytes[8] = (itob tmp%2#0)
+        let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
+        let tmp%3#0: Encoded(uint64) = array%as_Encoded(uint64)%1#1
+        let tmp%4#0: bool = examples.voting.voting.VotingRoundApp.already_voted()
+        let array%val_as_bytes%2#1: bytes[8] = (itob tmp%4#0)
+        let array%as_Encoded(uint64)%2#1: Encoded(uint64) = array%val_as_bytes%2#1
+        let tmp%5#0: Encoded(uint64) = array%as_Encoded(uint64)%2#1
+        let tmp%6#0: uint64 = (global LatestTimestamp)
+        let array%val_as_bytes%3#1: bytes[8] = (itob tmp%6#0)
+        let array%as_Encoded(uint64)%3#1: Encoded(uint64) = array%val_as_bytes%3#1
+        let tmp%7#0: Encoded(uint64) = array%as_Encoded(uint64)%3#1
+        let array%encoded%0#1: Encoded((uint64)) = (concat 0x tmp%1#0)
+        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 tmp%3#0)
+        let array%encoded%2#1: Encoded((uint64,uint64,uint64)) = (concat array%encoded%1#1 tmp%5#0)
+        let array%encoded%3#1: Encoded((uint64,uint64,uint64,uint64)) = (concat array%encoded%2#1 tmp%7#0)
+        let array%encoded%4#1: Encoded((uint64,uint64,uint64,uint64)) = (concat array%encoded%3#1 0x)
+        let tmp%8#0: Encoded((uint64,uint64,uint64,uint64)) = array%encoded%4#1
+        return tmp%8#0
 
 subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: Encoded(len+uint8[])) -> void:
     block@0: // L169
@@ -456,11 +461,11 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%6#0: bool = (== tmp%5#0 0u)
         (assert tmp%6#0) // can only call when creating
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%7#0: bytes = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
+        let tmp%7#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
         let tmp%8#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
         let reinterpret_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
-        let tmp%9#0: bytes = ((extract 2 0) reinterpret_Encoded(len+utf8[])%1#0)
+        let tmp%9#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%1#0)
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 4)
         let tmp%10#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 5)
@@ -469,7 +474,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 7)
         let tmp%12#0: uint64 = (btoi reinterpret_Encoded(uint64)%2#0)
         let reinterpret_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = (txna ApplicationArgs 8)
-        let tmp%13#0: bytes = ((extract 2 0) reinterpret_Encoded(len+utf8[])%2#0)
+        let tmp%13#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%2#0)
         examples.voting.voting.VotingRoundApp.create(tmp%7#0, tmp%8#0, tmp%9#0, tmp%10#0, tmp%11#0, reinterpret_Encoded(len+uint8[])%1#0, tmp%12#0, tmp%13#0)
         let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0

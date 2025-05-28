@@ -966,26 +966,26 @@ subroutine get_preconditions:
         // voting/voting.py:163
         // is_voting_open=arc4.UInt64(self.voting_open()),
         callsub voting_open                                                                       (𝕡) signature#0 | tmp%0#0
-        itob                                                                                      (𝕡) signature#0 | val_as_bytes%0#0
+        itob                                                                                      (𝕡) signature#0 | array%val_as_bytes%0#1
         // voting/voting.py:164
         // is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature)),
-        p-load signature#0                                                                        (𝕡) signature#0 | val_as_bytes%0#0,signature#0 (copy)
-        callsub allowed_to_vote                                                                   (𝕡) signature#0 | val_as_bytes%0#0,tmp%1#0
-        itob                                                                                      (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0
+        p-load signature#0                                                                        (𝕡) signature#0 | array%val_as_bytes%0#1,signature#0 (copy)
+        callsub allowed_to_vote                                                                   (𝕡) signature#0 | array%val_as_bytes%0#1,tmp%2#0
+        itob                                                                                      (𝕡) signature#0 | array%val_as_bytes%0#1,array%val_as_bytes%1#1
         // voting/voting.py:215
         // return Txn.sender in self.votes_by_account
-        txn Sender                                                                                (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,materialized_values%0#0
-        box_len                                                                                   (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,_%0#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                                (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,maybe_exists%0#0,_%0#0
-        pop 1                                                                                     (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,maybe_exists%0#0
+        txn Sender                                                                                (𝕡) signature#0 | array%val_as_bytes%0#1,array%val_as_bytes%1#1,materialized_values%0#0
+        box_len                                                                                   (𝕡) signature#0 | array%val_as_bytes%0#1,array%val_as_bytes%1#1,_%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                                (𝕡) signature#0 | array%val_as_bytes%0#1,array%val_as_bytes%1#1,maybe_exists%0#0,_%0#0
+        pop 1                                                                                     (𝕡) signature#0 | array%val_as_bytes%0#1,array%val_as_bytes%1#1,maybe_exists%0#0
         // voting/voting.py:165
         // has_already_voted=arc4.UInt64(self.already_voted()),
-        l-load maybe_exists%0#0 0                                                                 (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,maybe_exists%0#0
-        itob                                                                                      (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0
+        l-load maybe_exists%0#0 0                                                                 (𝕡) signature#0 | array%val_as_bytes%0#1,array%val_as_bytes%1#1,maybe_exists%0#0
+        itob                                                                                      (𝕡) signature#0 | array%val_as_bytes%0#1,array%val_as_bytes%1#1,array%val_as_bytes%2#1
         // voting/voting.py:166
         // current_time=arc4.UInt64(Global.latest_timestamp),
-        global LatestTimestamp                                                                    (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,tmp%3#0
-        itob                                                                                      (𝕡) signature#0 | val_as_bytes%0#0,val_as_bytes%1#0,val_as_bytes%2#0,val_as_bytes%3#0
+        global LatestTimestamp                                                                    (𝕡) signature#0 | array%val_as_bytes%0#1,array%val_as_bytes%1#1,array%val_as_bytes%2#1,tmp%6#0
+        itob                                                                                      (𝕡) signature#0 | array%val_as_bytes%0#1,array%val_as_bytes%1#1,array%val_as_bytes%2#1,array%val_as_bytes%3#1
         // voting/voting.py:162-167
         // return VotingPreconditions(
         //     is_voting_open=arc4.UInt64(self.voting_open()),
@@ -993,14 +993,14 @@ subroutine get_preconditions:
         //     has_already_voted=arc4.UInt64(self.already_voted()),
         //     current_time=arc4.UInt64(Global.latest_timestamp),
         // )
-        l-load val_as_bytes%0#0 3                                                                 (𝕡) signature#0 | val_as_bytes%1#0,val_as_bytes%2#0,val_as_bytes%3#0,val_as_bytes%0#0
-        l-load val_as_bytes%1#0 3                                                                 (𝕡) signature#0 | val_as_bytes%2#0,val_as_bytes%3#0,val_as_bytes%0#0,val_as_bytes%1#0
-        concat                                                                                    (𝕡) signature#0 | val_as_bytes%2#0,val_as_bytes%3#0,encoded%1#0
-        l-load val_as_bytes%2#0 2                                                                 (𝕡) signature#0 | val_as_bytes%3#0,encoded%1#0,val_as_bytes%2#0
-        concat                                                                                    (𝕡) signature#0 | val_as_bytes%3#0,encoded%2#0
-        l-load val_as_bytes%3#0 1                                                                 (𝕡) signature#0 | encoded%2#0,val_as_bytes%3#0
-        concat                                                                                    (𝕡) signature#0 | encoded%3#0
-        retsub                                                                                    encoded%3#0
+        l-load array%val_as_bytes%0#1 3                                                           (𝕡) signature#0 | array%val_as_bytes%1#1,array%val_as_bytes%2#1,array%val_as_bytes%3#1,array%val_as_bytes%0#1
+        l-load array%val_as_bytes%1#1 3                                                           (𝕡) signature#0 | array%val_as_bytes%2#1,array%val_as_bytes%3#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        concat                                                                                    (𝕡) signature#0 | array%val_as_bytes%2#1,array%val_as_bytes%3#1,array%encoded%1#1
+        l-load array%val_as_bytes%2#1 2                                                           (𝕡) signature#0 | array%val_as_bytes%3#1,array%encoded%1#1,array%val_as_bytes%2#1
+        concat                                                                                    (𝕡) signature#0 | array%val_as_bytes%3#1,array%encoded%2#1
+        l-load array%val_as_bytes%3#1 1                                                           (𝕡) signature#0 | array%encoded%2#1,array%val_as_bytes%3#1
+        concat                                                                                    (𝕡) signature#0 | array%encoded%3#1
+        retsub                                                                                    array%encoded%3#1
 
 
 // examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: bytes) -> void:

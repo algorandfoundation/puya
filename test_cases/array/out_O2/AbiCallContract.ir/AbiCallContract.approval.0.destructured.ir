@@ -22,8 +22,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let encoded%3#0: Encoded(len+uint64[][]) = (concat 0x0002 arr#0)
-        let nested_arr#1: Encoded(len+len+uint64[][]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, encoded%3#0)
+        let array%encoded%3#1: Encoded(len+uint64[][]) = (concat 0x0002 arr#0)
+        let nested_arr#1: Encoded(len+len+uint64[][]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, array%encoded%3#1)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[][])uint64")
@@ -32,11 +32,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         let array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
-        let val_as_bytes%0#0: bytes[8] = (itob array_length%0#0)
-        let encoded%7#0: Encoded((len+uint64[],uint64)) = (concat 0x000a val_as_bytes%0#0)
-        let encoded%8#0: Encoded((len+uint64[],uint64)) = (concat encoded%7#0 arr#0)
-        let encoded%10#0: Encoded((len+uint64[],uint64)[]) = (concat 0x0002 encoded%8#0)
-        let as_Encoded(len+(len+uint64[],uint64)[])%0#0: Encoded(len+(len+uint64[],uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, encoded%10#0)
+        let array%val_as_bytes%0#1: bytes[8] = (itob array_length%0#0)
+        let array%encoded%7#1: Encoded((len+uint64[],uint64)) = (concat 0x000a array%val_as_bytes%0#1)
+        let array%encoded%8#1: Encoded((len+uint64[],uint64)) = (concat array%encoded%7#1 arr#0)
+        let array%encoded%10#1: Encoded((len+uint64[],uint64)[]) = (concat 0x0002 array%encoded%8#1)
+        let as_Encoded(len+(len+uint64[],uint64)[])%0#0: Encoded(len+(len+uint64[],uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(0u, 0x, 1u, array%encoded%10#1)
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call((uint64[],uint64)[])uint64")

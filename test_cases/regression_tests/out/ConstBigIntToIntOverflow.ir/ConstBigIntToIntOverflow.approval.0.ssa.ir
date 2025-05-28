@@ -19,37 +19,35 @@ subroutine test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__pu
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%7#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%0#0)
         let tmp%8#0: uint64 = test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1(tmp%7#0)
-        let val_as_bytes%0#0: bytes[8] = (itob tmp%8#0)
-        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
-        let tmp%9#0: bytes = (concat 0x151f7c75 as_Encoded(uint64)%0#0)
-        (log tmp%9#0)
+        let tmp%9#0: Encoded(uint64) = encode<uint64>(tmp%8#0)
+        let tmp%10#0: bytes = (concat 0x151f7c75 tmp%9#0)
+        (log tmp%10#0)
         return 1u
     block@3: // get_abs_bound2_route_L17
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (== tmp%10#0 NoOp)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (!= tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when not creating
-        let tmp%14#0: uint64 = test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2()
-        let val_as_bytes%1#0: bytes[8] = (itob tmp%14#0)
-        let as_Encoded(uint64)%1#0: Encoded(uint64) = val_as_bytes%1#0
-        let tmp%15#0: bytes = (concat 0x151f7c75 as_Encoded(uint64)%1#0)
-        (log tmp%15#0)
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        let tmp%12#0: bool = (== tmp%11#0 NoOp)
+        (assert tmp%12#0) // OnCompletion is not NoOp
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        let tmp%14#0: bool = (!= tmp%13#0 0u)
+        (assert tmp%14#0) // can only call when not creating
+        let tmp%15#0: uint64 = test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2()
+        let tmp%16#0: Encoded(uint64) = encode<uint64>(tmp%15#0)
+        let tmp%17#0: bytes = (concat 0x151f7c75 tmp%16#0)
+        (log tmp%17#0)
         return 1u
     block@4: // switch_case_default_L4
         goto block@5
     block@5: // switch_case_next_L4
         goto block@10
     block@6: // bare_routing_L4
-        let tmp%16#0: uint64 = (txn OnCompletion)
-        switch tmp%16#0 {0u => block@7, * => block@8}
+        let tmp%18#0: uint64 = (txn OnCompletion)
+        switch tmp%18#0 {0u => block@7, * => block@8}
     block@7: // __algopy_default_create_L1
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        let tmp%18#0: bool = (== tmp%17#0 0u)
-        (assert tmp%18#0) // can only call when creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (== tmp%19#0 0u)
+        (assert tmp%20#0) // can only call when creating
         test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create()
         return 1u
     block@8: // switch_case_default_L4

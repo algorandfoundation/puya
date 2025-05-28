@@ -13,64 +13,79 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%5#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let a#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
-        let b#0: biguint = (txna ApplicationArgs 2)
+        let reinterpret_Encoded(uint512)%0#0: Encoded(uint512) = (txna ApplicationArgs 2)
+        let b#0: biguint = reinterpret_Encoded(uint512)%0#0
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
         let c#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 4)
         let d#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let val_as_bytes%0#0: bytes[8] = (itob a#0)
-        let value_len%0#0: uint64 = (len b#0)
-        let len_ok%0#0: bool = (<= value_len%0#0 64u)
-        (assert len_ok%0#0) // overflow
-        let bzero%0#0: bytes = (bzero 64u)
-        let arc4_encoded%0#0: bytes[64] = (b| b#0 bzero%0#0)
-        let encoded%1#0: Encoded((uint64,uint512)) = (concat val_as_bytes%0#0 arc4_encoded%0#0)
-        let length%0#0: uint64 = (len c#0)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 c#0)
-        let data_length%0#0: uint64 = (len encoded_value%0#0)
-        let current_tail_offset%0#0: uint64 = (+ 76u data_length%0#0)
-        let encoded%2#0: Encoded((uint64,uint512,len+utf8[])) = (concat encoded%1#0 0x004c)
-        let length%1#0: uint64 = (len d#0)
-        let as_bytes%2#0: bytes[8] = (itob length%1#0)
-        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let encoded_value%1#0: bytes = (concat length_uint16%1#0 d#0)
-        let tail%1#0: bytes = (concat encoded_value%0#0 encoded_value%1#0)
-        let as_bytes%3#0: bytes[8] = (itob current_tail_offset%0#0)
-        let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let encoded%3#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (concat encoded%2#0 offset_as_uint16%1#0)
-        let encoded%4#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (concat encoded%3#0 tail%1#0)
-        let tmp%14#0: bytes = (concat 0x151f7c75 encoded%4#0)
-        (log tmp%14#0)
+        let array%val_as_bytes%0#1: bytes[8] = (itob a#0)
+        let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
+        let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%0#1)
+        let array%value_len%0#1: uint64 = (len b#0)
+        let array%len_ok%0#1: bool = (<= array%value_len%0#1 64u)
+        (assert array%len_ok%0#1) // overflow
+        let array%bzero%0#1: bytes = (bzero 64u)
+        let array%arc4_encoded%0#1: bytes[64] = (b| b#0 array%bzero%0#1)
+        let array%as_Encoded(uint512)%0#1: Encoded(uint512) = array%arc4_encoded%0#1
+        let array%encoded%1#1: Encoded((uint64,uint512)) = (concat array%encoded%0#1 array%as_Encoded(uint512)%0#1)
+        let array%length%0#1: uint64 = (len c#0)
+        let array%as_bytes%0#1: bytes[8] = (itob array%length%0#1)
+        let array%length_uint16%0#1: bytes = ((extract 6 2) array%as_bytes%0#1)
+        let array%encoded_value%0#1: bytes = (concat array%length_uint16%0#1 c#0)
+        let array%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = array%encoded_value%0#1
+        let array%tail%0#1: bytes = (concat 0x array%as_Encoded(len+utf8[])%0#1)
+        let array%data_length%0#1: uint64 = (len array%as_Encoded(len+utf8[])%0#1)
+        let array%current_tail_offset%0#1: uint64 = (+ 76u array%data_length%0#1)
+        let array%as_bytes%1#1: bytes[8] = (itob 76u)
+        let array%offset_as_uint16%0#1: bytes = ((extract 6 2) array%as_bytes%1#1)
+        let array%encoded%2#1: Encoded((uint64,uint512,len+utf8[])) = (concat array%encoded%1#1 array%offset_as_uint16%0#1)
+        let array%length%1#1: uint64 = (len d#0)
+        let array%as_bytes%2#1: bytes[8] = (itob array%length%1#1)
+        let array%length_uint16%1#1: bytes = ((extract 6 2) array%as_bytes%2#1)
+        let array%encoded_value%1#1: bytes = (concat array%length_uint16%1#1 d#0)
+        let array%as_Encoded(len+uint8[])%0#1: Encoded(len+uint8[]) = array%encoded_value%1#1
+        let array%tail%1#1: bytes = (concat array%tail%0#1 array%as_Encoded(len+uint8[])%0#1)
+        let array%data_length%1#1: uint64 = (len array%as_Encoded(len+uint8[])%0#1)
+        let array%current_tail_offset%1#1: uint64 = (+ array%current_tail_offset%0#1 array%data_length%1#1)
+        let array%as_bytes%3#1: bytes[8] = (itob array%current_tail_offset%0#1)
+        let array%offset_as_uint16%1#1: bytes = ((extract 6 2) array%as_bytes%3#1)
+        let array%encoded%3#1: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (concat array%encoded%2#1 array%offset_as_uint16%1#1)
+        let array%encoded%4#1: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (concat array%encoded%3#1 array%tail%1#1)
+        let tmp%15#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = array%encoded%4#1
+        let tmp%16#0: bytes = (concat 0x151f7c75 tmp%15#0)
+        (log tmp%16#0)
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0: bool = 1u
         goto block@12
     block@4: // test_tuple_route_L31
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (! tmp%15#0)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        (assert tmp%17#0) // can only call when not creating
+        let tmp%17#0: uint64 = (txn OnCompletion)
+        let tmp%18#0: bool = (! tmp%17#0)
+        (assert tmp%18#0) // OnCompletion is not NoOp
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        (assert tmp%19#0) // can only call when not creating
         let reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0: Encoded((uint64,uint512,len+utf8[],len+uint8[])) = (txna ApplicationArgs 1)
-        let tmp%19#0: uint64 = (extract_uint64 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 0u)
-        let extract%1#0: bytes = ((extract 8 64) reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0)
-        let extract_uint16%0#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 72u)
-        let extract_uint16%1#0: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
-        let substring3%0#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 extract_uint16%0#0 extract_uint16%1#0)
-        let tmp%20#0: bytes = ((extract 2 0) substring3%0#0)
-        let len%0#0: uint64 = (len reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0)
-        let substring3%1#0: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 extract_uint16%1#0 len%0#0)
-        let tmp%21#0: bytes = ((extract 2 0) substring3%1#0)
-        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(tmp%19#0, extract%1#0, tmp%20#0, tmp%21#0)
+        let array%extract%0#1: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 0u 8u)
+        let array%item0%0#1: uint64 = (btoi array%extract%0#1)
+        let array%extract%1#1: bytes = (extract3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 8u 64u)
+        let array%extract_uint16%0#1: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 72u)
+        let array%extract_uint16%1#1: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
+        let array%substring3%0#1: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 array%extract_uint16%0#1 array%extract_uint16%1#1)
+        let array%item2%0#1: bytes = ((extract 2 0) array%substring3%0#1)
+        let array%extract_uint16%2#1: uint64 = (extract_uint16 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 74u)
+        let array%len%0#1: uint64 = (len reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0)
+        let array%substring3%1#1: bytes = (substring3 reinterpret_Encoded((uint64,uint512,len+utf8[],len+uint8[]))%0#0 array%extract_uint16%2#1 array%len%0#1)
+        let array%item3%0#1: bytes = ((extract 2 0) array%substring3%1#1)
+        let (tmp%21#0: uint64, tmp%22#0: biguint, tmp%23#0: string, tmp%24#0: bytes) = (array%item0%0#1, array%extract%1#1, array%item2%0#1, array%item3%0#1)
+        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(tmp%21#0, tmp%22#0, tmp%23#0, tmp%24#0)
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#1: bool = 1u
         goto block@12
     block@7: // bare_routing_L15
-        let tmp%22#0: uint64 = (txn OnCompletion)
-        goto tmp%22#0 ? block@11 : block@8
+        let tmp%25#0: uint64 = (txn OnCompletion)
+        goto tmp%25#0 ? block@11 : block@8
     block@8: // __algopy_default_create_L1
-        let tmp%23#0: uint64 = (txn ApplicationID)
-        let tmp%24#0: bool = (! tmp%23#0)
-        (assert tmp%24#0) // can only call when creating
+        let tmp%26#0: uint64 = (txn ApplicationID)
+        let tmp%27#0: bool = (! tmp%26#0)
+        (assert tmp%27#0) // can only call when creating
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#2: bool = 1u
         goto block@12
     block@11: // after_if_else_L15
