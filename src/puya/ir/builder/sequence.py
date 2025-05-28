@@ -1,18 +1,24 @@
+import typing
 from collections.abc import Sequence
 
 from puya import log
 from puya.awst import wtypes
 from puya.ir import models as ir
-from puya.ir.builder import arc4
 from puya.ir.builder._utils import OpFactory
 from puya.ir.encodings import (
     ArrayEncoding,
+    BoolEncoding,
+    Encoding,
     FixedArrayEncoding,
     wtype_to_encoding,
 )
 from puya.ir.models import ValueTuple
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
+    EncodedType,
+    IRType,
+    PrimitiveIRType,
+    TupleIRType,
     get_type_arity,
     sum_types_arity,
     wtype_to_ir_type,
@@ -44,7 +50,7 @@ def read_index_and_decode(
     )
     (array_item,) = context.materialise_value_provider(read_index, "array_item")
     element_encoding = array_encoding.element
-    if not arc4.requires_conversion(element_ir_type, element_encoding, "decode"):
+    if not requires_conversion(element_ir_type, element_encoding, "decode"):
         return array_item
     else:
         return ir.ValueDecode(
@@ -89,7 +95,7 @@ def read_tuple_index_and_decode(
     )
     (tuple_item,) = context.materialise_value_provider(read_index, "tuple_item")
     element_encoding = tuple_encoding.elements[index]
-    if not arc4.requires_conversion(element_ir_type, element_encoding, "decode"):
+    if not requires_conversion(element_ir_type, element_encoding, "decode"):
         return tuple_item
     else:
         return ir.ValueDecode(
@@ -113,7 +119,7 @@ def encode_and_write_index(
         indexable_wtype.element_type, source_location=loc, allow_tuple=True
     )
     element_encoding = array_encoding.element
-    if not arc4.requires_conversion(element_ir_type, element_encoding, "encode"):
+    if not requires_conversion(element_ir_type, element_encoding, "encode"):
         (encoded_value,) = values
     else:
         (encoded_value,) = context.materialise_value_provider(
@@ -149,7 +155,7 @@ def encode_and_write_tuple_index(
     element_wtype = tuple_wtype.types[index]
     element_ir_type = wtype_to_ir_type(element_wtype, source_location=loc, allow_tuple=True)
     element_encoding = tuple_encoding.elements[index]
-    if not arc4.requires_conversion(element_ir_type, element_encoding, "encode"):
+    if not requires_conversion(element_ir_type, element_encoding, "encode"):
         (encoded_value,) = values
     else:
         (encoded_value,) = context.materialise_value_provider(
@@ -188,3 +194,20 @@ def get_length(
     assert array_encoding.size is None, "expected dynamic array"
     bytes_len = factory.len(array, "bytes_len")
     return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")
+
+
+def requires_conversion(
+    typ: IRType | TupleIRType, encoding: Encoding, action: typing.Literal["encode", "decode"]
+) -> bool:
+    if typ == PrimitiveIRType.bool and isinstance(encoding, BoolEncoding):
+        return True
+    elif isinstance(typ, EncodedType):
+        typ_is_bool8 = isinstance(typ.encoding, BoolEncoding) and not typ.encoding.packed
+        encoding_is_bool1 = encoding.is_bit
+        if typ_is_bool8 and encoding_is_bool1 and action == "encode":
+            return False
+        # are encodings different?
+        return typ.encoding != encoding
+    # otherwise requires conversion
+    else:
+        return True

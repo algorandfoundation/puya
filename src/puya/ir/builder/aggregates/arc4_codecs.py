@@ -11,7 +11,7 @@ from puya.ir.builder._utils import (
     assert_value,
     undefined_value,
 )
-from puya.ir.builder.arc4 import ARC4_FALSE, requires_conversion
+from puya.ir.builder.sequence import requires_conversion
 from puya.ir.encodings import (
     ArrayEncoding,
     BoolEncoding,
@@ -44,6 +44,9 @@ from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
 
 logger = log.get_logger(__name__)
+
+
+ARC4_FALSE = (0).to_bytes(1, "big")
 
 
 class ARC4Codec(abc.ABC):
