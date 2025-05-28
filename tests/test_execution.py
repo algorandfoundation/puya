@@ -5,7 +5,7 @@ import os
 import random
 import re
 import typing
-from collections.abc import Callable, Collection, Iterable
+from collections.abc import Callable, Collection, Iterable, Mapping
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from textwrap import dedent
@@ -131,12 +131,22 @@ class AppTransactionParameters:
 GroupTransactionsProvider: typing.TypeAlias = Callable[[int], Iterable[TransactionWithSigner]]
 
 
+def _apply_all_levels(value: int | Mapping[int, int]) -> Mapping[int, int]:
+    if isinstance(value, int):
+        return {o: value for o in range(DEFAULT_MAX_OPTIMIZATION_LEVEL + 1)}
+    else:
+        return value
+
+
 @attrs.frozen
 class AppCallRequest(AppTransactionParameters):
-    increase_budget: int = 0
+    increase_budget: Mapping[int, int] = attrs.field(factory=dict, converter=_apply_all_levels)
     debug_level: int = 1
     trace_output: Path | None = None
     group_transactions: GroupTransactionsProvider | None = None
+
+    def get_op_up_for_level(self, opt_level: int) -> int:
+        return self.increase_budget.get(opt_level, 0)
 
     def get_trace_output_path_for_level(self, opt_level: int) -> Path | None:
         path = self.trace_output
@@ -435,7 +445,7 @@ class _TestHarness:
                 self._new_runner(compilation)
                 .add_transactions(app_id=0, get_group_transactions=request.group_transactions)
                 .add_deployment_transaction(request)
-                .add_op_ups(count=request.increase_budget)
+                .add_op_ups(count=request.get_op_up_for_level(o_level))
                 .run(trace_path=request.get_trace_output_path_for_level(o_level))
             )
             for o_level, compilation in self._compilations_by_level.items()
@@ -469,7 +479,7 @@ class _TestHarness:
                     app_id=self._app_ids_by_level[o_level],
                     request=request,
                 )
-                .add_op_ups(count=request.increase_budget)
+                .add_op_ups(count=request.get_op_up_for_level(o_level))
                 .run(trace_path=request.get_trace_output_path_for_level(o_level))
             )
             for o_level, compilation in self._compilations_by_level.items()
@@ -947,7 +957,10 @@ def test_abi_bool(harness: _TestHarness) -> None:
 def test_abi_tuple(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "arc4_types" / "tuples.py",
-        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "tuples.log"),
+        AppCallRequest(
+            trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "tuples.log",
+            increase_budget={0: 1},
+        ),
     )
 
 
