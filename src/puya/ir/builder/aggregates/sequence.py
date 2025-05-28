@@ -26,7 +26,34 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 
-class SequenceBuilder(abc.ABC):
+def read_at_index(
+    context: IRRegisterContext,
+    array_encoding: ArrayEncoding,
+    array: ir.Value,
+    index: ir.Value,
+    loc: SourceLocation | None,
+    *,
+    assert_bounds: bool | None = None,
+) -> ir.Value:
+    builder = _get_builder(context, array_encoding, loc, assert_bounds=assert_bounds)
+    return builder.read_at_index(array, index)
+
+
+def write_at_index(
+    context: IRRegisterContext,
+    array_encoding: ArrayEncoding,
+    array: ir.Value,
+    index: ir.Value,
+    value: ir.Value,
+    loc: SourceLocation | None,
+    *,
+    assert_bounds: bool | None = None,
+) -> ir.Value:
+    builder = _get_builder(context, array_encoding, loc, assert_bounds=assert_bounds)
+    return builder.write_at_index(array, index, value)
+
+
+class _SequenceBuilder(abc.ABC):
     """
     Builder interface for sequence operations for arrays, tuples and bytes
     """
@@ -42,13 +69,13 @@ class SequenceBuilder(abc.ABC):
         """Encodes the value and writes to the specified index and returns the updated result"""
 
 
-def get_builder(
+def _get_builder(
     context: IRRegisterContext,
     array_encoding: ArrayEncoding,
     loc: SourceLocation | None,
     *,
-    assert_bounds: bool | None = None,
-) -> SequenceBuilder:
+    assert_bounds: bool | None,
+) -> _SequenceBuilder:
     builder_typ: type[_ArrayBuilderImpl]
 
     if assert_bounds is None:
@@ -61,13 +88,13 @@ def get_builder(
     match array_encoding:
         # BitPackedBool is a more specific match than FixedElement so do that first
         case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=True):
-            builder_typ = BitPackedBoolArrayBuilder
+            builder_typ = _BitPackedBoolArrayBuilder
         case FixedArrayEncoding(element=BoolEncoding(packed=True)):
-            builder_typ = BitPackedBoolArrayBuilder
+            builder_typ = _BitPackedBoolArrayBuilder
         case ArrayEncoding(element=Encoding(is_dynamic=False)):
-            builder_typ = FixedElementArrayBuilder
+            builder_typ = _FixedElementArrayBuilder
         case ArrayEncoding(element=Encoding(is_dynamic=True)):
-            builder_typ = DynamicElementArrayBuilder
+            builder_typ = _DynamicElementArrayBuilder
         # TODO: maybe split DynamicElementArrayBuilder into two builders
         # TODO: maybe ByteLengthHeaderElementArrayBuilder
         case _:
@@ -80,7 +107,7 @@ def get_builder(
     )
 
 
-class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
+class _ArrayBuilderImpl(_SequenceBuilder, abc.ABC):
     def __init__(
         self,
         context: IRRegisterContext,
@@ -118,7 +145,7 @@ class _ArrayBuilderImpl(SequenceBuilder, abc.ABC):
         return get_length(self.context, self.array_encoding, array, self.loc)
 
 
-class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
+class _BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
     @typing.override
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
         # this catches the edge case of bit arrays that are not a multiple of 8
@@ -164,7 +191,7 @@ class BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
         )
 
 
-class FixedElementArrayBuilder(_ArrayBuilderImpl):
+class _FixedElementArrayBuilder(_ArrayBuilderImpl):
     @typing.override
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
         # TODO: is it safe to not bounds check on fixed element arrays?
@@ -201,7 +228,7 @@ class FixedElementArrayBuilder(_ArrayBuilderImpl):
         return array
 
 
-class DynamicElementArrayBuilder(_ArrayBuilderImpl):
+class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
     @cached_property
     def inner_element_size(self) -> int | None:
         element_encoding = self.array_encoding.element

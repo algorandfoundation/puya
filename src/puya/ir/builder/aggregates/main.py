@@ -109,28 +109,27 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
     def visit_array_read_index(self, read: ir.ArrayReadIndex) -> ir.ValueProvider:
         self.modified = True
 
-        loc = read.source_location
-
-        builder = sequence.get_builder(
+        return sequence.read_at_index(
             self,
             array_encoding=read.array_encoding,
+            array=read.array,
+            index=read.index,
+            loc=read.source_location,
             assert_bounds=read.check_bounds,
-            loc=loc,
         )
-        return builder.read_at_index(read.array, read.index)
 
     @typing.override
     def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> ir.Value:
         self.modified = True
 
-        loc = write.source_location
-
-        builder = sequence.get_builder(
+        return sequence.write_at_index(
             self,
             array_encoding=write.array_encoding,
-            loc=loc,
+            array=write.array,
+            index=write.index,
+            value=write.value,
+            loc=write.source_location,
         )
-        return builder.write_at_index(write.array, write.index, write.value)
 
     @typing.override
     def visit_tuple_read_index(self, read: ir.TupleReadIndex) -> ir.Value:
