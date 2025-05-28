@@ -36,7 +36,7 @@ def read_index_and_decode(
     loc: SourceLocation,
     *,
     check_bounds: bool = True,
-) -> ir.ValueProvider:
+) -> ir.MultiValue:
     array_encoding = wtype_to_encoding(indexable_wtype, loc)
     element_ir_type = wtype_to_ir_type(
         indexable_wtype.element_type, source_location=loc, allow_tuple=True
@@ -53,37 +53,39 @@ def read_index_and_decode(
     if not requires_conversion(element_ir_type, element_encoding, "decode"):
         return array_item
     else:
-        return ir.ValueDecode(
-            value=array_item,
-            encoding=element_encoding,
-            decoded_type=element_ir_type,
-            source_location=loc,
+        factor = OpFactory(context, loc)
+        return factor.materialise_multi_value(
+            ir.ValueDecode(
+                value=array_item,
+                encoding=element_encoding,
+                decoded_type=element_ir_type,
+                source_location=loc,
+            )
         )
 
 
 def read_tuple_index_and_decode(
     context: IRRegisterContext,
     tuple_wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct | wtypes.WTuple,
-    base: ir.Value | ir.ValueTuple,
+    values: Sequence[ir.Value],
     index: int,
     loc: SourceLocation,
-) -> ir.ValueProvider:
+) -> ir.MultiValue:
     if isinstance(tuple_wtype, wtypes.WTuple):
-        tuple_values = [base] if isinstance(base, ir.Value) else base.values
         tuple_ir_type = wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
         skip_values = sum_types_arity(tuple_ir_type.elements[:index])
         target_arity = get_type_arity(tuple_ir_type.elements[index])
-        values = tuple_values[skip_values : skip_values + target_arity]
+        element_values = values[skip_values : skip_values + target_arity]
 
-        if len(values) == 1:
-            return values[0]
+        if len(element_values) == 1:
+            return element_values[0]
         else:
-            return ValueTuple(values=values, source_location=loc)
+            return ValueTuple(values=element_values, source_location=loc)
 
     assert isinstance(
         tuple_wtype, wtypes.ARC4Tuple | wtypes.ARC4Struct
     ), "expected ARC4 tuple or struct"
-    assert isinstance(base, ir.Value), "expected single value for ARC4 types"
+    (base,) = values
     tuple_encoding = wtype_to_encoding(tuple_wtype, loc)
     element_wtype = tuple_wtype.types[index]
     element_ir_type = wtype_to_ir_type(element_wtype, source_location=loc, allow_tuple=True)
@@ -98,12 +100,19 @@ def read_tuple_index_and_decode(
     if not requires_conversion(element_ir_type, element_encoding, "decode"):
         return tuple_item
     else:
-        return ir.ValueDecode(
-            value=tuple_item,
-            encoding=element_encoding,
-            decoded_type=element_ir_type,
-            source_location=loc,
+        values = context.materialise_value_provider(
+            ir.ValueDecode(
+                value=tuple_item,
+                encoding=element_encoding,
+                decoded_type=element_ir_type,
+                source_location=loc,
+            ),
+            "values",
         )
+        if len(values) == 1:
+            return values[0]
+        else:
+            return ValueTuple(values=values, source_location=loc)
 
 
 def encode_and_write_index(
@@ -146,11 +155,22 @@ def encode_and_write_index(
 def encode_and_write_tuple_index(
     context: IRRegisterContext,
     tuple_wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct,
-    base: ir.Value,
+    base: ir.MultiValue,
     index: int,
     values: Sequence[ir.Value],
     loc: SourceLocation,
-) -> ir.Value:
+) -> ir.MultiValue:
+    if isinstance(tuple_wtype, wtypes.WTuple):
+        tuple_ir_type = wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
+        skip_values = sum_types_arity(tuple_ir_type.elements[:index])
+        target_arity = get_type_arity(tuple_ir_type.elements[index])
+        new_values = context.materialise_value_provider(base, "new_values")
+        new_values[skip_values : skip_values + target_arity] = values
+        if len(new_values) == 1:
+            return new_values[0]
+        else:
+            return ValueTuple(values=new_values, source_location=loc)
+    (base,) = context.materialise_value_provider(base, "base")
     tuple_encoding = wtype_to_encoding(tuple_wtype, loc)
     element_wtype = tuple_wtype.types[index]
     element_ir_type = wtype_to_ir_type(element_wtype, source_location=loc, allow_tuple=True)

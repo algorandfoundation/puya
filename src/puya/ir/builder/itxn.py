@@ -239,7 +239,7 @@ class InnerTransactionBuilder:
 
         itxn = self.context.visitor.visit_expr(itxn_field.itxn)
         if not isinstance(itxn, Register | ITxnConstant):
-            itxn_field_desc = {itxn_field.itxn.accept(ToCodeVisitor())}
+            itxn_field_desc = itxn_field.itxn.accept(ToCodeVisitor())
             raise CodeError(
                 f"could not resolve inner transaction group index for {itxn_field_desc}",
                 src_loc,
