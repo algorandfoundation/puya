@@ -250,12 +250,12 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let array%next_item_offset%0#1: uint64 = (extract_uint16 array%array_head_and_tail%0#1 2u)
         let array%end_offset%0#1: uint64 = (select array%end_of_array%0#1 array%next_item_offset%0#1 array%has_next%0#1)
         let array%substring3%0#1: bytes = (substring3 array%array_head_and_tail%0#1 array%item_offset%0#1 array%end_offset%0#1)
-        let item_offset%0#0: uint64 = (extract_uint16 array%substring3%0#1 8u)
-        let data_up_to_item%0#0: bytes = (extract3 array%substring3%0#1 0u item_offset%0#0)
-        let updated_data%0#0: bytes = (concat data_up_to_item%0#0 0x00086d6f646966696564)
+        let array%item_offset%1#1: uint64 = (extract_uint16 array%substring3%0#1 8u)
+        let array%data_up_to_item%0#1: bytes = (extract3 array%substring3%0#1 0u array%item_offset%1#1)
+        let array%updated_data%0#1: bytes = (concat array%data_up_to_item%0#1 0x00086d6f646966696564)
         let array%lt%0#1: bool = (< 0u array%array_length%0#1)
         (assert array%array_length%0#1) // index access is out of bounds
-        let array%updated_array%0#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%0#0, updated_data%0#0, 0u)
+        let array%updated_array%0#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%0#0, array%updated_data%0#1, 0u)
         (app_global_put "glob" array%updated_array%0#1)
         let array%length%1#1: uint64 = 8u
         let array%length_uint16%1#1: bytes = 0x0008
@@ -266,20 +266,20 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let array%array_head_and_tail%1#1: bytes = ((extract 2 0) maybe_value%1#0)
         let array%array_length%2#1: uint64 = (extract_uint16 maybe_value%1#0 0u)
         let array%item_offset_offset%1#1: uint64 = 0u
-        let array%item_offset%1#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 0u)
+        let array%item_offset%2#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 0u)
         let array%next_index%1#1: uint64 = 1u
         let array%has_next%1#1: uint64 = (- array%array_length%2#1 1u) // on error: index access is out of bounds
         let array%end_of_array%1#1: uint64 = (len array%array_head_and_tail%1#1)
         let array%next_item_offset_offset%1#1: uint64 = 2u
         let array%next_item_offset%1#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 2u)
         let array%end_offset%1#1: uint64 = (select array%end_of_array%1#1 array%next_item_offset%1#1 array%has_next%1#1)
-        let array%substring3%1#1: bytes = (substring3 array%array_head_and_tail%1#1 array%item_offset%1#1 array%end_offset%1#1)
-        let item_offset%1#0: uint64 = (extract_uint16 array%substring3%1#1 8u)
-        let data_up_to_item%1#0: bytes = (extract3 array%substring3%1#1 0u item_offset%1#0)
-        let updated_data%1#0: bytes = (concat data_up_to_item%1#0 0x00086d6f646966696564)
+        let array%substring3%1#1: bytes = (substring3 array%array_head_and_tail%1#1 array%item_offset%2#1 array%end_offset%1#1)
+        let array%item_offset%3#1: uint64 = (extract_uint16 array%substring3%1#1 8u)
+        let array%data_up_to_item%1#1: bytes = (extract3 array%substring3%1#1 0u array%item_offset%3#1)
+        let array%updated_data%1#1: bytes = (concat array%data_up_to_item%1#1 0x00086d6f646966696564)
         let array%lt%1#1: bool = (< 0u array%array_length%2#1)
         (assert array%array_length%2#1) // index access is out of bounds
-        let array%updated_array%1#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%1#0, updated_data%1#0, 0u)
+        let array%updated_array%1#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%1#0, array%updated_data%1#1, 0u)
         (app_local_put tmp%0#0 "loc" array%updated_array%1#1)
         let array%length%2#1: uint64 = 8u
         let array%length_uint16%2#1: bytes = 0x0008
@@ -289,20 +289,20 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let array%array_head_and_tail%2#1: bytes = ((extract 2 0) maybe_value%2#0)
         let array%array_length%4#1: uint64 = (extract_uint16 maybe_value%2#0 0u)
         let array%item_offset_offset%2#1: uint64 = 0u
-        let array%item_offset%2#1: uint64 = (extract_uint16 array%array_head_and_tail%2#1 0u)
+        let array%item_offset%4#1: uint64 = (extract_uint16 array%array_head_and_tail%2#1 0u)
         let array%next_index%2#1: uint64 = 1u
         let array%has_next%2#1: uint64 = (- array%array_length%4#1 1u) // on error: index access is out of bounds
         let array%end_of_array%2#1: uint64 = (len array%array_head_and_tail%2#1)
         let array%next_item_offset_offset%2#1: uint64 = 2u
         let array%next_item_offset%2#1: uint64 = (extract_uint16 array%array_head_and_tail%2#1 2u)
         let array%end_offset%2#1: uint64 = (select array%end_of_array%2#1 array%next_item_offset%2#1 array%has_next%2#1)
-        let array%substring3%2#1: bytes = (substring3 array%array_head_and_tail%2#1 array%item_offset%2#1 array%end_offset%2#1)
-        let item_offset%2#0: uint64 = (extract_uint16 array%substring3%2#1 8u)
-        let data_up_to_item%2#0: bytes = (extract3 array%substring3%2#1 0u item_offset%2#0)
-        let updated_data%2#0: bytes = (concat data_up_to_item%2#0 0x00086d6f646966696564)
+        let array%substring3%2#1: bytes = (substring3 array%array_head_and_tail%2#1 array%item_offset%4#1 array%end_offset%2#1)
+        let array%item_offset%5#1: uint64 = (extract_uint16 array%substring3%2#1 8u)
+        let array%data_up_to_item%2#1: bytes = (extract3 array%substring3%2#1 0u array%item_offset%5#1)
+        let array%updated_data%2#1: bytes = (concat array%data_up_to_item%2#1 0x00086d6f646966696564)
         let array%lt%2#1: bool = (< 0u array%array_length%4#1)
         (assert array%array_length%4#1) // index access is out of bounds
-        let array%updated_array%2#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%2#0, updated_data%2#0, 0u)
+        let array%updated_array%2#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%2#0, array%updated_data%2#1, 0u)
         (box_del "box")
         (box_put "box" array%updated_array%2#1)
         let array%length%3#1: uint64 = 8u
@@ -315,20 +315,20 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let array%array_head_and_tail%3#1: bytes = ((extract 2 0) maybe_value%3#0)
         let array%array_length%6#1: uint64 = (extract_uint16 maybe_value%3#0 0u)
         let array%item_offset_offset%3#1: uint64 = 0u
-        let array%item_offset%3#1: uint64 = (extract_uint16 array%array_head_and_tail%3#1 0u)
+        let array%item_offset%6#1: uint64 = (extract_uint16 array%array_head_and_tail%3#1 0u)
         let array%next_index%3#1: uint64 = 1u
         let array%has_next%3#1: uint64 = (- array%array_length%6#1 1u) // on error: index access is out of bounds
         let array%end_of_array%3#1: uint64 = (len array%array_head_and_tail%3#1)
         let array%next_item_offset_offset%3#1: uint64 = 2u
         let array%next_item_offset%3#1: uint64 = (extract_uint16 array%array_head_and_tail%3#1 2u)
         let array%end_offset%3#1: uint64 = (select array%end_of_array%3#1 array%next_item_offset%3#1 array%has_next%3#1)
-        let array%substring3%3#1: bytes = (substring3 array%array_head_and_tail%3#1 array%item_offset%3#1 array%end_offset%3#1)
-        let item_offset%3#0: uint64 = (extract_uint16 array%substring3%3#1 8u)
-        let data_up_to_item%3#0: bytes = (extract3 array%substring3%3#1 0u item_offset%3#0)
-        let updated_data%3#0: bytes = (concat data_up_to_item%3#0 0x00086d6f646966696564)
+        let array%substring3%3#1: bytes = (substring3 array%array_head_and_tail%3#1 array%item_offset%6#1 array%end_offset%3#1)
+        let array%item_offset%7#1: uint64 = (extract_uint16 array%substring3%3#1 8u)
+        let array%data_up_to_item%3#1: bytes = (extract3 array%substring3%3#1 0u array%item_offset%7#1)
+        let array%updated_data%3#1: bytes = (concat array%data_up_to_item%3#1 0x00086d6f646966696564)
         let array%lt%3#1: bool = (< 0u array%array_length%6#1)
         (assert array%array_length%6#1) // index access is out of bounds
-        let array%updated_array%3#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%3#0, updated_data%3#0, 0u)
+        let array%updated_array%3#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%3#0, array%updated_data%3#1, 0u)
         (box_del box_prefixed_key%0#0)
         (box_put box_prefixed_key%0#0 array%updated_array%3#1)
         return 

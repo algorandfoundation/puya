@@ -8,20 +8,30 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let array%encoded%4#1: Encoded((uint64,uint64)) = (concat array%encoded%3#1 0x000000230384b842)
         let array%encoded%5#1: Encoded((uint64,uint64)) = (concat array%encoded%4#1 0x)
         let coord_2#0: Encoded((uint64,uint64)) = array%encoded%5#1
-        let tmp%0#4: uint64 = (extract_uint64 coord_1#0 0u)
-        let tmp%1#4: uint64 = (extract_uint64 coord_2#0 0u)
+        let array%extract%0#1: bytes = (extract3 coord_1#0 0u 8u)
+        let x#0: Encoded(uint64) = array%extract%0#1
+        let array%extract%1#1: bytes = (extract3 coord_2#0 0u 8u)
+        let y#0: Encoded(uint64) = array%extract%1#1
+        let tmp%0#4: uint64 = (btoi x#0)
+        let tmp%1#4: uint64 = (btoi y#0)
         let tmp%2#3: uint64 = (+ tmp%0#4 tmp%1#4)
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (itob tmp%2#3)
-        let tmp%0#5: uint64 = (extract_uint64 coord_1#0 8u)
-        let tmp%1#5: uint64 = (extract_uint64 coord_2#0 8u)
+        let array%extract%2#1: bytes = (extract3 coord_1#0 8u 8u)
+        let x#1: Encoded(uint64) = array%extract%2#1
+        let array%extract%3#1: bytes = (extract3 coord_2#0 8u 8u)
+        let y#1: Encoded(uint64) = array%extract%3#1
+        let tmp%0#5: uint64 = (btoi x#1)
+        let tmp%1#5: uint64 = (btoi y#1)
         let tmp%2#4: uint64 = (+ tmp%0#5 tmp%1#5)
         let reinterpret_Encoded(uint64)%0#1: Encoded(uint64) = (itob tmp%2#4)
         let array%encoded%6#1: Encoded((uint64)) = (concat 0x reinterpret_Encoded(uint64)%0#0)
         let array%encoded%7#1: Encoded((uint64,uint64)) = (concat array%encoded%6#1 reinterpret_Encoded(uint64)%0#1)
         let array%encoded%8#1: Encoded((uint64,uint64)) = (concat array%encoded%7#1 0x)
         let coord_3#0: Encoded((uint64,uint64)) = array%encoded%8#1
-        let val#0: Encoded(uint64) = ((extract 0 8) coord_3#0)
-        let val#2: Encoded(uint64) = ((extract 8 8) coord_3#0)
+        let array%extract%4#1: bytes = (extract3 coord_3#0 0u 8u)
+        let val#0: Encoded(uint64) = array%extract%4#1
+        let array%extract%5#1: bytes = (extract3 coord_3#0 8u 8u)
+        let val#2: Encoded(uint64) = array%extract%5#1
         let loop_counter%0#0: uint64 = 0u
         goto block@1
     block@1: // for_body_L40
@@ -54,24 +64,28 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let array%set_bit%2#1: Encoded((bool1)) = (setbit array%set_bit%1#1 3u array%get_bit%2#1)
         let array%encoded%10#1: Encoded((bool1,bool1,bool1,bool1)) = (concat array%set_bit%2#1 0x)
         let flags#0: Encoded((bool1,bool1,bool1,bool1)) = array%encoded%10#1
-        let get_bit%0#0: uint64 = (getbit flags#0 0u)
-        let array%encoded_bool%4#1: bytes[1] = (setbit 0x00 0u get_bit%0#0)
+        let array%get_bit%3#1: uint64 = (getbit flags#0 0u)
+        let tuple_item%0#1: bool = array%get_bit%3#1
+        let array%encoded_bool%4#1: bytes[1] = (setbit 0x00 0u tuple_item%0#1)
         let tmp%0#1: Encoded(bool8) = array%encoded_bool%4#1
         let tmp%1#1: bool = (getbit tmp%0#1 0u)
         (assert tmp%1#1)
-        let get_bit%1#0: uint64 = (getbit flags#0 1u)
-        let array%encoded_bool%5#1: bytes[1] = (setbit 0x00 0u get_bit%1#0)
+        let array%get_bit%4#1: uint64 = (getbit flags#0 1u)
+        let tuple_item%1#1: bool = array%get_bit%4#1
+        let array%encoded_bool%5#1: bytes[1] = (setbit 0x00 0u tuple_item%1#1)
         let tmp%2#1: Encoded(bool8) = array%encoded_bool%5#1
         let tmp%3#1: bool = (getbit tmp%2#1 0u)
         let tmp%4#1: bool = (! tmp%3#1)
         (assert tmp%4#1)
-        let get_bit%2#0: uint64 = (getbit flags#0 2u)
-        let array%encoded_bool%6#1: bytes[1] = (setbit 0x00 0u get_bit%2#0)
+        let array%get_bit%5#1: uint64 = (getbit flags#0 2u)
+        let tuple_item%2#1: bool = array%get_bit%5#1
+        let array%encoded_bool%6#1: bytes[1] = (setbit 0x00 0u tuple_item%2#1)
         let tmp%5#1: Encoded(bool8) = array%encoded_bool%6#1
         let tmp%6#1: bool = (getbit tmp%5#1 0u)
         (assert tmp%6#1)
-        let get_bit%3#0: uint64 = (getbit flags#0 3u)
-        let array%encoded_bool%7#1: bytes[1] = (setbit 0x00 0u get_bit%3#0)
+        let array%get_bit%6#1: uint64 = (getbit flags#0 3u)
+        let tuple_item%3#1: bool = array%get_bit%6#1
+        let array%encoded_bool%7#1: bytes[1] = (setbit 0x00 0u tuple_item%3#1)
         let tmp%7#1: Encoded(bool8) = array%encoded_bool%7#1
         let tmp%8#2: bool = (getbit tmp%7#1 0u)
         let tmp%9#1: bool = (! tmp%8#2)
@@ -81,14 +95,18 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let array%encoded%12#1: Encoded(((uint64,uint64),(bool1,bool1,bool1,bool1))) = (concat array%encoded%11#1 flags#0)
         let array%encoded%13#1: Encoded(((uint64,uint64),(bool1,bool1,bool1,bool1))) = (concat array%encoded%12#1 0x)
         let vector_flags#0: Encoded(((uint64,uint64),(bool1,bool1,bool1,bool1))) = array%encoded%13#1
-        let extract%0#1: bytes = ((extract 0 16) vector_flags#0)
-        let extract%1#1: bytes = ((extract 0 8) extract%0#1)
+        let array%extract%6#1: bytes = (extract3 vector_flags#0 0u 16u)
+        let tuple_item%0#2: Encoded((uint64,uint64)) = array%extract%6#1
+        let array%extract%7#1: bytes = (extract3 tuple_item%0#2 0u 8u)
+        let tuple_item%1#2: Encoded(uint64) = array%extract%7#1
         let tmp%0#2: bytes = (itob 35382882839u)
-        let tmp%1#2: bool = (== extract%1#1 tmp%0#2)
+        let tmp%1#2: bool = (== tuple_item%1#2 tmp%0#2)
         (assert tmp%1#2)
-        let extract%2#1: bytes = ((extract 16 1) vector_flags#0)
-        let get_bit%0#1: uint64 = (getbit extract%2#1 2u)
-        let array%encoded_bool%8#1: bytes[1] = (setbit 0x00 0u get_bit%0#1)
+        let array%extract%8#1: bytes = (extract3 vector_flags#0 16u 1u)
+        let tuple_item%2#2: Encoded((bool1,bool1,bool1,bool1)) = array%extract%8#1
+        let array%get_bit%7#1: uint64 = (getbit tuple_item%2#2 2u)
+        let tuple_item%3#2: bool = array%get_bit%7#1
+        let array%encoded_bool%8#1: bytes[1] = (setbit 0x00 0u tuple_item%3#2)
         let tmp%2#2: Encoded(bool8) = array%encoded_bool%8#1
         let tmp%3#2: bool = (getbit tmp%2#2 0u)
         (assert tmp%3#2)
@@ -106,35 +124,43 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let array%encoded%14#1: Encoded((len+uint8[])) = (concat 0x array%offset_as_uint16%0#1)
         let array%encoded%15#1: Encoded((len+uint8[])) = (concat array%encoded%14#1 array%tail%0#1)
         let mutable#0: Encoded((len+uint8[])) = array%encoded%15#1
-        let extract_uint16%0#0: uint64 = (extract_uint16 mutable#0 0u)
-        let len%0#0: uint64 = (len mutable#0)
-        let substring3%0#0: bytes = (substring3 mutable#0 extract_uint16%0#0 len%0#0)
+        let array%extract_uint16%0#1: uint64 = (extract_uint16 mutable#0 0u)
+        let array%len%0#1: uint64 = (len mutable#0)
+        let array%substring3%0#1: bytes = (substring3 mutable#0 array%extract_uint16%0#1 array%len%0#1)
+        let tuple_item%2#0: Encoded(len+uint8[]) = array%substring3%0#1
         let array%encoded%16#1: Encoded((uint8)) = (concat 0x 0x2a)
         let array%encoded%17#1: Encoded(uint8[]) = (concat array%encoded%16#1 0x)
         let tmp%11#0: Encoded(uint8[]) = array%encoded%17#1
-        let concat%0#0: bytes = (concat substring3%0#0 tmp%11#0) // on error: max array length exceeded
+        let concat%0#0: Encoded(len+uint8[]) = (concat tuple_item%2#0 tmp%11#0) // on error: max array length exceeded
         let extract_to_end%0#0: bytes = ((extract 2 0) concat%0#0)
-        let len%1#0: uint64 = (len extract_to_end%0#0)
-        let as_bytes%0#0: bytes[8] = (itob len%1#0)
+        let len%0#0: uint64 = (len extract_to_end%0#0)
+        let as_bytes%0#0: bytes[8] = (itob len%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let data_up_to_item%0#0: bytes = (extract3 mutable#0 0u extract_uint16%0#0)
-        let copy#1: Encoded((len+uint8[])) = (concat data_up_to_item%0#0 replace%0#0)
+        let array%item_offset%0#1: uint64 = (extract_uint16 mutable#0 0u)
+        let array%data_up_to_item%0#1: bytes = (extract3 mutable#0 0u array%item_offset%0#1)
+        let array%updated_data%0#1: bytes = (concat array%data_up_to_item%0#1 replace%0#0)
+        let copy#1: Encoded((len+uint8[])) = array%updated_data%0#1
         let tmp%12#0: bool = (!= mutable#0 copy#1)
         (assert tmp%12#0) // expected copy is different
         let array%encoded%18#1: Encoded((uint64)) = (concat 0x 0x000000000000000c)
         let array%encoded%19#1: Encoded((uint64,uint64)) = (concat array%encoded%18#1 0x0000000000000022)
         let array%encoded%20#1: Encoded((uint64,uint64)) = (concat array%encoded%19#1 0x)
         let immutable#0: Encoded((uint64,uint64)) = array%encoded%20#1
-        let extract%2#0: bytes = ((extract 0 8) immutable#0)
-        let array%encoded%21#1: Encoded((uint64)) = (concat 0x extract%2#0)
+        let array%extract%9#1: bytes = (extract3 immutable#0 0u 8u)
+        let tuple_item%3#0: Encoded(uint64) = array%extract%9#1
+        let array%encoded%21#1: Encoded((uint64)) = (concat 0x tuple_item%3#0)
         let array%encoded%22#1: Encoded((uint64,uint64)) = (concat array%encoded%21#1 0x000000000000007b)
         let array%encoded%23#1: Encoded((uint64,uint64)) = (concat array%encoded%22#1 0x)
         let immutable2#0: Encoded((uint64,uint64)) = array%encoded%23#1
-        let extract%3#0: bytes = ((extract 8 8) immutable2#0)
-        let tmp%17#0: bool = (b== extract%3#0 0x000000000000007b)
+        let array%extract%10#1: bytes = (extract3 immutable2#0 8u 8u)
+        let tuple_item%4#0: Encoded(uint64) = array%extract%10#1
+        let tmp%17#0: bool = (b== tuple_item%4#0 0x000000000000007b)
         (assert tmp%17#0)
-        let extract%4#0: bytes = ((extract 0 8) immutable2#0)
-        let tmp%18#0: bool = (b== extract%4#0 extract%2#0)
+        let array%extract%11#1: bytes = (extract3 immutable2#0 0u 8u)
+        let tuple_item%5#0: Encoded(uint64) = array%extract%11#1
+        let array%extract%12#1: bytes = (extract3 immutable#0 0u 8u)
+        let tuple_item%6#0: Encoded(uint64) = array%extract%12#1
+        let tmp%18#0: bool = (b== tuple_item%5#0 tuple_item%6#0)
         (assert tmp%18#0)
         return 1u

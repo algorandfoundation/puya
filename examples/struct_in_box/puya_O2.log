@@ -533,7 +533,7 @@ debug: Found equivalence set: tmp%12#0, asset#0
 debug: selected asset#0 from equivalence set
 debug: Found equivalence set: tmp%0#2, user#0
 debug: selected user#0 from equivalence set
-debug: Found equivalence set: updated_data%0#0, user#1
+debug: Found equivalence set: updated_tuple%0#0, user#1
 debug: selected user#1 from equivalence set
 debug: Found equivalence set: write_to_box%0#0, user#2
 debug: selected user#2 from equivalence set
@@ -551,8 +551,6 @@ debug: Simplified (== tmp%3#0 NoOp) to (! tmp%3#0)
 debug: Simplified (== tmp%7#0 NoOp) to (! tmp%7#0)
 debug: Simplified (== tmp%13#0 NoOp) to (! tmp%13#0)
 debug: Simplified (== tmp%20#0 0u) to (! tmp%20#0)
-debug: Simplified (extract3 user#3 2u 8u) to ((extract 2 8) user#3)
-debug: Simplified (replace3 user#0 10u tmp%1#1) to ((replace2 10) user#0 tmp%1#1)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -611,14 +609,13 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: user#0, user%out#0
 debug: selected user#0 from equivalence set
-debug: Found equivalence set: extract%0#0, box_key#0
+debug: Found equivalence set: tuple_item%0#0, box_key#0
 debug: selected box_key#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable user%is_original#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 user#0 2u 8u) to ((extract 2 8) user#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -654,7 +651,7 @@ struct_in_box/contract.py:32:20 debug: inlining call to examples.struct_in_box.c
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: extract%0#0, user_id#0
+debug: Found equivalence set: tuple_item%0#0, user_id#0
 debug: selected user_id#0 from equivalence set
 debug: Found equivalence set: exists#0, tmp%0#0
 debug: selected exists#0 from equivalence set
@@ -665,7 +662,6 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Not removing unused assignment since source is not marked as pure: let user#1: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (extract3 user#0 2u 8u) to ((extract 2 8) user#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -684,7 +680,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tmp%0#0, user#0
 debug: selected user#0 from equivalence set
-debug: Found equivalence set: updated_data%0#0, user#1
+debug: Found equivalence set: updated_tuple%0#0, user#1
 debug: selected user#1 from equivalence set
 debug: Found equivalence set: write_to_box%0#0, user#2
 debug: selected user#2 from equivalence set
@@ -693,7 +689,6 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Not removing unused assignment since source is not marked as pure: let user#2: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (replace3 user#0 10u tmp%1#0) to ((replace2 10) user#0 tmp%1#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -950,10 +945,6 @@ debug: Merged linear block@15 into block@5
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let box_key#1: bytes = ((extract 2 8) user#3) with copy of existing registers (Register(source_location=struct_in_box/contract.py:26:25-45, ir_type=Encoded(uint64), name='user_id', version=2),)
-debug: Found equivalence set: user_id#2, box_key#1
-debug: selected user_id#2 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine examples.struct_in_box.contract.ExampleContract.read_from_box
 debug: Optimizer: Perform Subroutine Inlining
@@ -1036,12 +1027,24 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%extract%0#1, user_id#2
+debug: selected user_id#2 from equivalence set
+debug: Found equivalence set: array%extract%1#1, box_key#1
+debug: selected box_key#1 from equivalence set
 debug: Found equivalence set: array%val_as_bytes%0#1, array%as_Encoded(uint64)%0#1, tmp%1#1
 debug: selected array%val_as_bytes%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Found equivalence set: array%updated_data%0#1, user#1
+debug: selected user#1 from equivalence set
+debug: Found equivalence set: array%extract%2#1, box_key#0
+debug: selected box_key#0 from equivalence set
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (extract3 user#3 2u 8u) to ((extract 2 8) user#3)
+debug: Simplified (extract3 user#3 2u 8u) to ((extract 2 8) user#3)
+debug: Simplified (replace3 box_data#1 10u array%val_as_bytes%0#1) to ((replace2 10) box_data#1 array%val_as_bytes%0#1)
+debug: Simplified (extract3 user#1 2u 8u) to ((extract 2 8) user#1)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1049,6 +1052,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let box_key#1: bytes = ((extract 2 8) user#3) with copy of existing registers (Register(source_location=struct_in_box/contract.py:26:25-45, ir_type=Encoded(uint64), name='user_id', version=2),)
+debug: Found equivalence set: user_id#2, box_key#1
+debug: selected user_id#2 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program

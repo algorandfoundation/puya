@@ -207,8 +207,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         let (maybe_value%0#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%2#0) // check self.game exists
         let array_item%0#0: Encoded(uint8[3]) = maybe_value%0#0[row#0]
-        let updated_array%0#0: Encoded(uint8[3]) = array_item%0#0[column#0] = 0x01
-        let updated_array%1#0: bytes = maybe_value%0#0[row#0] = updated_array%0#0
+        let updated_array%0#0: Encoded(uint8[3]) = array_item%0#0.update(column#0, 0x01)
+        let updated_array%1#0: bytes = maybe_value%0#0.update(row#0, updated_array%0#0)
         (app_global_put "game" updated_array%1#0)
         (app_global_put "turns" 0u)
         return 
@@ -293,8 +293,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%1#0) // check self.game exists
         let array_item%2#0: Encoded(uint8[3]) = maybe_value%1#0[row#0]
-        let updated_array%0#0: Encoded(uint8[3]) = array_item%2#0[column#0] = player#0
-        let updated_array%1#0: bytes = maybe_value%1#0[row#0] = updated_array%0#0
+        let updated_array%0#0: Encoded(uint8[3]) = array_item%2#0.update(column#0, player#0)
+        let updated_array%1#0: bytes = maybe_value%1#0.update(row#0, updated_array%0#0)
         (app_global_put "game" updated_array%1#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%2#0) // check self.turns exists
