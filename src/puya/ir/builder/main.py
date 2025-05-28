@@ -18,7 +18,7 @@ from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import dynamic_array, flow_control, mem, sequence, storage, tup
+from puya.ir.builder import dynamic_array, flow_control, mem, sequence, storage
 from puya.ir.builder._utils import (
     OpFactory,
     assert_value,
@@ -724,26 +724,24 @@ class FunctionIRBuilder(
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> TExpression:
         loc = expr.source_location
 
-        builder = tup.get_builder(self.context, expr.base.wtype, loc)
-        value = self.context.visitor.visit_and_materialise_as_value_or_tuple(expr.base)
-        return builder.read_at_index(value, expr.index)
+        tuple_wtype = expr.base.wtype
+        assert isinstance(tuple_wtype, wtypes.WTuple | wtypes.ARC4Tuple), "expected tuple wtype"
+        base = self.context.visitor.visit_and_materialise_as_value_or_tuple(expr.base)
+
+        return sequence.read_tuple_index_and_decode(
+            self.context, tuple_wtype, base, expr.index, loc
+        )
 
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
         loc = expr.source_location
 
-        base_wtype = expr.base.wtype
-        match base_wtype:
-            case wtypes.WTuple(names=names) if names is not None:
-                pass
-            case wtypes.ARC4Struct(names=names):
-                pass
-            case _:
-                raise InternalError("expected wtype with named fields", loc)
-        builder = tup.get_builder(self.context, base_wtype, loc)
-        index = names.index(expr.name)
-        base = self.visit_and_materialise_as_value_or_tuple(expr.base)
+        tuple_wtype = expr.base.wtype
+        assert isinstance(tuple_wtype, wtypes.WTuple | wtypes.ARC4Struct), "expected struct wtype"
+        assert tuple_wtype.names is not None, "expected named tuple"
+        base = self.context.visitor.visit_and_materialise_as_value_or_tuple(expr.base)
+        index = tuple_wtype.names.index(expr.name)
 
-        return builder.read_at_index(base, index)
+        return sequence.read_tuple_index_and_decode(self.context, tuple_wtype, base, index, loc)
 
     def visit_intersection_slice_expression(
         self, expr: awst_nodes.IntersectionSliceExpression
@@ -788,7 +786,6 @@ class FunctionIRBuilder(
         base_wtype: wtypes.WTuple,
     ) -> TExpression:
         loc = expr.source_location
-        builder = tup.get_builder(self.context, base_wtype, loc)
 
         tup_value = self.visit_and_materialise_as_value_or_tuple(expr.base)
         start_i = extract_const_int(expr.begin_index) or 0
@@ -800,7 +797,10 @@ class FunctionIRBuilder(
             v
             for index in range(start_i, end_i)
             for v in self.context.materialise_value_provider(
-                builder.read_at_index(tup_value, index), "tup_slice"
+                sequence.read_tuple_index_and_decode(
+                    self.context, base_wtype, tup_value, index, loc
+                ),
+                "tup_slice",
             )
         ]
 
