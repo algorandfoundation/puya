@@ -114,24 +114,25 @@ subroutine test_cases.literals.folding.tuples() -> void:
         let tmp%3#0: bool = (&& 1u 1u)
         let tmp%4#0: bool = (&& tmp%3#0 1u)
         (assert tmp%4#0)
-        let encoded%0#0: Encoded((uint64)) = (concat 0x 0x0000000000000061)
-        let encoded%1#0: Encoded((uint64,uint64)) = (concat encoded%0#0 0x0000000000000062)
-        let encoded%2#0: Encoded((uint64,uint64,uint64)) = (concat encoded%1#0 0x0000000000000063)
-        let encoded%3#0: Encoded(uint64[3]) = (concat encoded%2#0 0x)
+        let array%encoded%0#1: Encoded((uint64)) = (concat 0x 0x0000000000000061)
+        let array%encoded%1#1: Encoded((uint64,uint64)) = (concat array%encoded%0#1 0x0000000000000062)
+        let array%encoded%2#1: Encoded((uint64,uint64,uint64)) = (concat array%encoded%1#1 0x0000000000000063)
+        let array%encoded%3#1: Encoded(uint64[3]) = (concat array%encoded%2#1 0x)
+        let encoded_array%0#0: Encoded(uint64[3]) = array%encoded%3#1
         let array%bytes_offset%0#1: uint64 = (* 0u 8u)
-        let array%encoded_element%0#1: bytes = (extract3 encoded%3#0 array%bytes_offset%0#1 8u) // on error: index access is out of bounds
+        let array%encoded_element%0#1: bytes = (extract3 encoded_array%0#0 array%bytes_offset%0#1 8u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64) = array%encoded_element%0#1
         let reinterpret_biguint%0#0: biguint = array_item%0#0
         let tmp%5#0: bool = (b== reinterpret_biguint%0#0 0x0000000000000061)
         let array%bytes_offset%1#1: uint64 = (* 1u 8u)
-        let array%encoded_element%1#1: bytes = (extract3 encoded%3#0 array%bytes_offset%1#1 8u) // on error: index access is out of bounds
+        let array%encoded_element%1#1: bytes = (extract3 encoded_array%0#0 array%bytes_offset%1#1 8u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint64) = array%encoded_element%1#1
         let reinterpret_biguint%2#0: biguint = array_item%1#0
         let tmp%6#0: biguint = (itob 98u)
         let tmp%7#0: bool = (b== reinterpret_biguint%2#0 tmp%6#0)
         let tmp%8#0: bool = (&& tmp%5#0 tmp%7#0)
         let array%bytes_offset%2#1: uint64 = (* 2u 8u)
-        let array%encoded_element%2#1: bytes = (extract3 encoded%3#0 array%bytes_offset%2#1 8u) // on error: index access is out of bounds
+        let array%encoded_element%2#1: bytes = (extract3 encoded_array%0#0 array%bytes_offset%2#1 8u) // on error: index access is out of bounds
         let array_item%2#0: Encoded(uint64) = array%encoded_element%2#1
         let reinterpret_biguint%3#0: biguint = array_item%2#0
         let tmp%9#0: bool = (b== reinterpret_biguint%3#0 0x0000000000000063)

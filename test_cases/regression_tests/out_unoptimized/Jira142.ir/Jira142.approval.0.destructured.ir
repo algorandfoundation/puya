@@ -55,14 +55,15 @@ subroutine test_cases.regression_tests.jira_142.Jira142.some_subroutine(char: En
 
 subroutine test_cases.regression_tests.jira_142.Jira142.battle() -> void:
     block@0: // L13
-        let encoded%0#0: Encoded((uint64)) = (concat 0x 0x00000000000000c8)
-        let encoded%1#0: Encoded((uint64)) = (concat encoded%0#0 0x)
-        let my_struct#0: Encoded((uint64)) = encoded%1#0
+        let array%encoded%0#1: Encoded((uint64)) = (concat 0x 0x00000000000000c8)
+        let array%encoded%1#1: Encoded((uint64)) = (concat array%encoded%0#1 0x)
+        let tmp%0#0: Encoded((uint64)) = array%encoded%1#1
+        let my_struct#0: Encoded((uint64)) = tmp%0#0
         let extract%0#0: bytes = (extract3 my_struct#0 0u 8u)
         let reinterpret_biguint%0#0: biguint = extract%0#0
-        let tmp%0#0: bool = (b> reinterpret_biguint%0#0 0x0000000000000064)
+        let tmp%1#0: bool = (b> reinterpret_biguint%0#0 0x0000000000000064)
         let my_struct#5: Encoded((uint64)) = my_struct#0
-        goto tmp%0#0 ? block@1 : block@2
+        goto tmp%1#0 ? block@1 : block@2
     block@1: // if_body_L18
         let some_subroutine%0#0: Encoded((uint64)) = test_cases.regression_tests.jira_142.Jira142.some_subroutine(my_struct#0)
         let my_struct#0: Encoded((uint64)) = some_subroutine%0#0

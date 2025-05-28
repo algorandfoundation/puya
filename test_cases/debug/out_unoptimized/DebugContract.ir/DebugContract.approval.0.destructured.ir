@@ -22,10 +22,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 3)
         let tmp%9#0: uint64 = (btoi reinterpret_Encoded(uint64)%2#0)
         let tmp%10#0: uint64 = test_cases.debug.contract.DebugContract.test(tmp%7#0, tmp%8#0, tmp%9#0)
-        let val_as_bytes%0#0: bytes[8] = (itob tmp%10#0)
-        let as_Encoded(uint64)%0#0: Encoded(uint64) = val_as_bytes%0#0
-        let tmp%11#0: bytes = (concat 0x151f7c75 as_Encoded(uint64)%0#0)
-        (log tmp%11#0)
+        let array%val_as_bytes%0#1: bytes[8] = (itob tmp%10#0)
+        let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
+        let tmp%11#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
+        let tmp%12#0: bytes = (concat 0x151f7c75 tmp%11#0)
+        (log tmp%12#0)
         let test_cases.debug.contract.DebugContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.debug.contract.DebugContract.__puya_arc4_router__%0#0
         goto block@11
@@ -34,12 +35,12 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@5: // switch_case_next_L4
         goto block@10
     block@6: // bare_routing_L4
-        let tmp%12#0: uint64 = (txn OnCompletion)
-        switch tmp%12#0 {0u => block@7, * => block@8}
+        let tmp%13#0: uint64 = (txn OnCompletion)
+        switch tmp%13#0 {0u => block@7, * => block@8}
     block@7: // __algopy_default_create_L1
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (== tmp%13#0 0u)
-        (assert tmp%14#0) // can only call when creating
+        let tmp%14#0: uint64 = (txn ApplicationID)
+        let tmp%15#0: bool = (== tmp%14#0 0u)
+        (assert tmp%15#0) // can only call when creating
         goto block@12
     block@12: // L1
         goto block@13

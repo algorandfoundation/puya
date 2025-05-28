@@ -26,10 +26,10 @@ subroutine main:
         txn ApplicationID                                                                                        tmp%5#0
         assert // can only call when not creating
         callsub umm                                                                                              tmp%7#0
-        itob                                                                                                     val_as_bytes%0#0
-        byte 0x151f7c75                                                                                          val_as_bytes%0#0,0x151f7c75
-        l-load val_as_bytes%0#0 1                                                                                0x151f7c75,val_as_bytes%0#0
-        concat                                                                                                   tmp%8#0
+        itob                                                                                                     array%val_as_bytes%0#1
+        byte 0x151f7c75                                                                                          array%val_as_bytes%0#1,0x151f7c75
+        l-load array%val_as_bytes%0#1 1                                                                          0x151f7c75,array%val_as_bytes%0#1
+        concat                                                                                                   tmp%9#0
         log
         int 1                                                                                                    tmp%0#0
         x-store tmp%0#0                                                                                          (𝕏) tmp%0#0 |
@@ -38,10 +38,10 @@ subroutine main:
     main_umm2_route@4:
         // regression_tests/leftover_branch.py:18
         // @arc4.abimethod
-        txn OnCompletion                                                                                         tmp%9#0
-        !                                                                                                        tmp%10#0
+        txn OnCompletion                                                                                         tmp%10#0
+        !                                                                                                        tmp%11#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                        tmp%11#0
+        txn ApplicationID                                                                                        tmp%12#0
         assert // can only call when not creating
         callsub umm2
         int 1                                                                                                    tmp%0#0
@@ -51,10 +51,10 @@ subroutine main:
     main_calculate_route@5:
         // regression_tests/leftover_branch.py:29
         // @arc4.abimethod
-        txn OnCompletion                                                                                         tmp%13#0
-        !                                                                                                        tmp%14#0
+        txn OnCompletion                                                                                         tmp%14#0
+        !                                                                                                        tmp%15#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                        tmp%15#0
+        txn ApplicationID                                                                                        tmp%16#0
         assert // can only call when not creating
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
@@ -72,12 +72,12 @@ subroutine main:
     main_bare_routing@8:
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
-        txn OnCompletion                                                                                         tmp%17#0
+        txn OnCompletion                                                                                         tmp%18#0
         bz main___algopy_default_create@9 ; b main_after_if_else@12
 
     main___algopy_default_create@9:
-        txn ApplicationID                                                                                        tmp%18#0
-        !                                                                                                        tmp%19#0
+        txn ApplicationID                                                                                        tmp%19#0
+        !                                                                                                        tmp%20#0
         assert // can only call when creating
         int 1                                                                                                    tmp%0#0
         x-store tmp%0#0                                                                                          (𝕏) tmp%0#0 |
