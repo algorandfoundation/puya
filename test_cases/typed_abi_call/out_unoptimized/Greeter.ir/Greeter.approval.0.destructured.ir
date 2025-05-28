@@ -701,18 +701,22 @@ subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_arg_conversion(app: 
         let tmp%8#0: bool = (== txn.LastLog#0 0x34)
         (assert tmp%8#0)
         itxn_begin
+        let array%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u 1u)
+        let array%as_Encoded(bool8)%0#1: Encoded(bool8) = array%encoded_bool%0#1
+        let tmp%9#0: Encoded(bool8) = array%as_Encoded(bool8)%0#1
+        let inner_txn_params%4%%param_ApplicationArgs_idx_1#0: Encoded(bool8) = tmp%9#0
         let inner_txn_params%4%%param_ApplicationID_idx_0#0: uint64 = app#0
         ((itxn_field ApplicationID) inner_txn_params%4%%param_ApplicationID_idx_0#0)
         ((itxn_field ApplicationArgs) method "log(bool)void")
-        ((itxn_field ApplicationArgs) 0x80)
+        ((itxn_field ApplicationArgs) inner_txn_params%4%%param_ApplicationArgs_idx_1#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         goto block@5
     block@5: // next_txn_L76
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
-        let tmp%9#0: bool = (== txn.LastLog#0 0x54727565)
-        (assert tmp%9#0)
+        let tmp%10#0: bool = (== txn.LastLog#0 0x54727565)
+        (assert tmp%10#0)
         return 
 
 subroutine test_cases.typed_abi_call.typed_c2c.Greeter.test_15plus_args(app: uint64) -> void:
