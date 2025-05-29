@@ -1225,6 +1225,8 @@ debug: Sealing block@18
 debug: Terminated block@18
 debug: Sealing block@19
 debug: Terminated block@19
+debug: Sealing block@20
+debug: Terminated block@20
 debug: Building IR for function test_cases.array.uint64.Contract.test_array
 debug: Sealing block@0
 array/uint64.py:12:16 debug: encountered already materialized expression (arr), reusing result: arr#0
@@ -1235,6 +1237,7 @@ array/uint64.py:29:16 debug: encountered already materialized expression (arr), 
 array/uint64.py:33:16 debug: encountered already materialized expression (arr), reusing result: arr#0
 array/uint64.py:35:9 debug: encountered already materialized expression (test_cases.array.uint64.return_ref(arr, arr)), reusing result: tmp%30#0
 array/uint64.py:35:30 debug: encountered already materialized expression (0u), reusing result: 0u
+array/uint64.py:35:9 debug: base assignment target is in a slot
 array/uint64.py:38:16 debug: encountered already materialized expression (arr), reusing result: arr#0
 array/uint64.py:39:16 debug: encountered already materialized expression (arr), reusing result: arr#0
 debug: Terminated block@0
@@ -1297,6 +1300,10 @@ debug: Terminated block@4
 debug: Building IR for function test_cases.array.uint64.Contract.test_array_evaluation_order
 debug: Sealing block@0
 array/uint64.py:110:49 debug: encountered already materialized expression (test_cases.array.uint64.append_length_and_return(arr)), reusing result: tmp%16#0
+debug: Terminated block@0
+debug: Building IR for function test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
+debug: Sealing block@0
+array/uint64.py:120:9 debug: base assignment target is in a slot
 debug: Terminated block@0
 debug: Building IR for function test_cases.array.uint64.Contract.test_allocations
 debug: Sealing block@0
@@ -1538,6 +1545,7 @@ debug: removing unused subroutine test_cases.array.uint64.Contract.overhead
 debug: removing unused subroutine test_cases.array.uint64.Contract.test_array_too_long
 debug: removing unused subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend
 debug: removing unused subroutine test_cases.array.uint64.Contract.test_array_evaluation_order
+debug: removing unused subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
 debug: removing unused subroutine test_cases.array.uint64.Contract.test_allocations
 debug: removing unused subroutine test_cases.array.uint64.Contract.test_iteration
 debug: removing unused subroutine test_cases.array.uint64.Contract.test_quicksort
@@ -3681,7 +3689,7 @@ debug: Output IR to array/out/Contract.ir/Contract.approval.0.ssa.ir
 debug: Output IR to array/out/Contract.ir/Contract.clear.0.ssa.ir
 debug: optimizing approval program of test_cases.array.uint64.Contract at level 1
 debug: Begin optimization pass 1/100
-array/uint64.py:183 debug: function is auto-recursive: test_cases.array.uint64.quicksort_window
+array/uint64.py:192 debug: function is auto-recursive: test_cases.array.uint64.quicksort_window
 debug: marking single-use function _puya_lib.arc4.static_array_replace_dynamic_element for inlining
 debug: marking single-use function _puya_lib.arc4.static_array_replace_byte_length_head for inlining
 debug: marking single-use function test_cases.array.uint64.return_ref for inlining
@@ -3704,28 +3712,29 @@ debug: Simplified (== tmp%19#0 NoOp) to (! tmp%19#0)
 debug: Simplified (== tmp%23#0 NoOp) to (! tmp%23#0)
 debug: Simplified (== tmp%27#0 NoOp) to (! tmp%27#0)
 debug: Simplified (== tmp%31#0 NoOp) to (! tmp%31#0)
-debug: Simplified (== tmp%36#0 NoOp) to (! tmp%36#0)
+debug: Simplified (== tmp%35#0 NoOp) to (! tmp%35#0)
 debug: Simplified (== tmp%40#0 NoOp) to (! tmp%40#0)
 debug: Simplified (== tmp%44#0 NoOp) to (! tmp%44#0)
-debug: Simplified (== tmp%49#0 0u) to (! tmp%49#0)
+debug: Simplified (== tmp%48#0 NoOp) to (! tmp%48#0)
+debug: Simplified (== tmp%53#0 0u) to (! tmp%53#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: simplifying a switch with constants into goto nth
-debug: simplified terminator of block@16 from switch tmp%48#0 {0u => block@17, * => block@18} to goto_nth [block@17][tmp%48#0] else goto block@18
+debug: simplified terminator of block@17 from switch tmp%52#0 {0u => block@18, * => block@19} to goto_nth [block@18][tmp%52#0] else goto block@19
 debug: simplifying a goto nth with two targets into a conditional branch
-debug: simplified terminator of block@16 from goto_nth [block@17][tmp%48#0] else goto block@18 to goto tmp%48#0 ? block@18 : block@17
+debug: simplified terminator of block@17 from goto_nth [block@18][tmp%52#0] else goto block@19 to goto tmp%52#0 ? block@19 : block@18
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@1 with block@0 in block@16
+debug: Replaced predecessor block@1 with block@0 in block@17
 debug: Replaced predecessor block@1 with block@0 in block@2
 debug: Merged linear block@1 into block@0
-debug: Replaced predecessor block@15 with block@14 in block@20
-debug: Merged linear block@15 into block@14
-debug: Replaced predecessor block@19 with block@18 in block@20
-debug: Merged linear block@19 into block@18
+debug: Replaced predecessor block@16 with block@15 in block@21
+debug: Merged linear block@16 into block@15
+debug: Replaced predecessor block@20 with block@19 in block@21
+debug: Merged linear block@20 into block@19
 debug: Optimizer: Remove Empty Blocks
-debug: Removed empty block: block@14
-debug: Removed empty block: block@18
+debug: Removed empty block: block@15
+debug: Removed empty block: block@19
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -3973,12 +3982,12 @@ debug: Not removing empty block block@21 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-array/uint64.py:203:53 debug: replacing slot read with cached value for key: arr#2
-array/uint64.py:203:17 debug: replacing slot read with cached value for key: arr#2
-array/uint64.py:203:17 debug: replacing slot read with cached value for key: arr#2
-array/uint64.py:203:28 debug: replacing slot read with cached value for key: arr#2
-array/uint64.py:203:17 debug: replacing slot read with cached value for key: arr#2
-array/uint64.py:203:17 debug: removing unobserved slot write to key: arr#2
+array/uint64.py:212:53 debug: replacing slot read with cached value for key: arr#2
+array/uint64.py:212:17 debug: replacing slot read with cached value for key: arr#2
+array/uint64.py:212:17 debug: replacing slot read with cached value for key: arr#2
+array/uint64.py:212:28 debug: replacing slot read with cached value for key: arr#2
+array/uint64.py:212:17 debug: replacing slot read with cached value for key: arr#2
+array/uint64.py:212:17 debug: removing unobserved slot write to key: arr#2
 debug: Optimizing subroutine test_cases.array.uint64.create_array
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -4017,7 +4026,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-array/uint64.py:245:12 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:254:12 debug: replacing slot read with cached value for key: arr#0
 debug: Optimizing subroutine test_cases.array.uint64.return_ref
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -4074,7 +4083,7 @@ debug: Merged linear block@3 into block@2
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let total_length%0#0: uint64 = (len slot_contents%0#0) with copy of existing registers (Register(source_location=array/uint64.py:264:17-26, ir_type=uint64, name='len%0', version=0),)
+debug: Replacing redundant declaration let total_length%0#0: uint64 = (len slot_contents%0#0) with copy of existing registers (Register(source_location=array/uint64.py:273:17-26, ir_type=uint64, name='len%0', version=0),)
 debug: Found equivalence set: len%0#0, total_length%0#0
 debug: selected len%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
@@ -4095,7 +4104,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-array/uint64.py:271:5 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:280:5 debug: replacing slot read with cached value for key: arr#0
 debug: Optimizing subroutine test_cases.array.uint64.Contract.__puya_arc4_router__
 debug: Optimizer: Perform Subroutine Inlining
 debug: inlining call to test_cases.array.uint64.Contract.__algopy_default_create in test_cases.array.uint64.Contract.__puya_arc4_router__
@@ -4114,31 +4123,32 @@ debug: Simplified (== tmp%19#0 NoOp) to (! tmp%19#0)
 debug: Simplified (== tmp%23#0 NoOp) to (! tmp%23#0)
 debug: Simplified (== tmp%27#0 NoOp) to (! tmp%27#0)
 debug: Simplified (== tmp%31#0 NoOp) to (! tmp%31#0)
-debug: Simplified (== tmp%36#0 NoOp) to (! tmp%36#0)
+debug: Simplified (== tmp%35#0 NoOp) to (! tmp%35#0)
 debug: Simplified (== tmp%40#0 NoOp) to (! tmp%40#0)
 debug: Simplified (== tmp%44#0 NoOp) to (! tmp%44#0)
-debug: Simplified (== tmp%49#0 0u) to (! tmp%49#0)
+debug: Simplified (== tmp%48#0 NoOp) to (! tmp%48#0)
+debug: Simplified (== tmp%53#0 0u) to (! tmp%53#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: simplifying a switch with constants into goto nth
-debug: simplified terminator of block@15 from switch tmp%48#0 {0u => block@16, * => block@17} to goto_nth [block@16][tmp%48#0] else goto block@17
+debug: simplified terminator of block@16 from switch tmp%52#0 {0u => block@17, * => block@18} to goto_nth [block@17][tmp%52#0] else goto block@18
 debug: simplifying a goto nth with two targets into a conditional branch
-debug: simplified terminator of block@15 from goto_nth [block@16][tmp%48#0] else goto block@17 to goto tmp%48#0 ? block@17 : block@16
+debug: simplified terminator of block@16 from goto_nth [block@17][tmp%52#0] else goto block@18 to goto tmp%52#0 ? block@18 : block@17
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@22 with block@5 in block@23
-debug: Merged linear block@22 into block@5
+debug: Replaced predecessor block@23 with block@5 in block@24
 debug: Merged linear block@23 into block@5
-debug: Replaced predecessor block@14 with block@13 in block@19
-debug: Merged linear block@14 into block@13
-debug: Replaced predecessor block@20 with block@16 in block@21
-debug: Merged linear block@20 into block@16
-debug: Merged linear block@21 into block@16
-debug: Replaced predecessor block@18 with block@17 in block@19
-debug: Merged linear block@18 into block@17
+debug: Merged linear block@24 into block@5
+debug: Replaced predecessor block@15 with block@14 in block@20
+debug: Merged linear block@15 into block@14
+debug: Replaced predecessor block@21 with block@17 in block@22
+debug: Merged linear block@21 into block@17
+debug: Merged linear block@22 into block@17
+debug: Replaced predecessor block@19 with block@18 in block@20
+debug: Merged linear block@19 into block@18
 debug: Optimizer: Remove Empty Blocks
-debug: Removed empty block: block@13
-debug: Removed empty block: block@17
+debug: Removed empty block: block@14
+debug: Removed empty block: block@18
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -4195,8 +4205,8 @@ array/uint64.py:31:9 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:32:16 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:33:20 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:33:16 debug: replacing slot read with cached value for key: arr#0
-array/uint64.py:250:5 debug: replacing slot read with cached value for key: arr#0
-array/uint64.py:251:5 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:259:5 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:260:5 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:35:9 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:35:9 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:35:9 debug: replacing slot read with cached value for key: arr#0
@@ -4207,8 +4217,8 @@ array/uint64.py:38:16 debug: replacing slot read with cached value for key: arr#
 array/uint64.py:39:20 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:39:16 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:31:9 debug: removing unobserved slot write to key: arr#0
-array/uint64.py:250:5 debug: removing unobserved slot write to key: arr#0
-array/uint64.py:251:5 debug: removing unobserved slot write to key: arr#0
+array/uint64.py:259:5 debug: removing unobserved slot write to key: arr#0
+array/uint64.py:260:5 debug: removing unobserved slot write to key: arr#0
 debug: Optimizing subroutine test_cases.array.uint64.Contract.test_array_extend
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -4379,6 +4389,31 @@ array/uint64.py:112:16 debug: replacing slot read with cached value for key: arr
 array/uint64.py:113:16 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:114:16 debug: replacing slot read with cached value for key: arr#0
 array/uint64.py:99:15 debug: removing unobserved slot write to key: arr#0
+debug: Optimizing subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: slot%0#0, arr#0
+debug: selected arr#0 from equivalence set
+debug: Copy propagation made 2 modifications
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let tmp%1#0: uint64 = decode<uint64>(array_item%0#0)
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+array/uint64.py:119:9 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:120:9 debug: replacing slot read with cached value for key: update_assignment_current_base_value%0#0
+array/uint64.py:122:16 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:123:16 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:118:15 debug: removing unobserved slot write to key: arr#0
 debug: Optimizing subroutine test_cases.array.uint64.Contract.test_allocations
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -4468,7 +4503,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-array/uint64.py:131 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:140 debug: replacing slot read with cached value for key: arr#0
 debug: Optimizing subroutine test_cases.array.uint64.Contract.test_quicksort
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -4500,7 +4535,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-array/uint64.py:165:42 debug: replacing slot read with cached value for key: rnd#0
+array/uint64.py:174:42 debug: replacing slot read with cached value for key: rnd#0
 debug: Optimizing subroutine test_cases.array.uint64.Contract.test_unobserved_write
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -4524,10 +4559,10 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-array/uint64.py:177:9 debug: replacing slot read with cached value for key: arr#0
-array/uint64.py:177:9 debug: replacing slot read with cached value for key: arr#0
-array/uint64.py:179:9 debug: replacing slot read with cached value for key: arr#0
-array/uint64.py:180:16 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:186:9 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:186:9 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:188:9 debug: replacing slot read with cached value for key: arr#0
+array/uint64.py:189:16 debug: replacing slot read with cached value for key: arr#0
 debug: Optimizing subroutine test_cases.array.uint64.Contract.__algopy_default_create
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -4569,22 +4604,23 @@ debug: Removing unused variable tmp%22#0
 debug: Removing unused variable tmp%26#0
 debug: Removing unused variable tmp%30#0
 debug: Removing unused variable tmp%34#0
-debug: Removing unused variable tmp%39#0
+debug: Removing unused variable tmp%38#0
 debug: Removing unused variable tmp%43#0
 debug: Removing unused variable tmp%47#0
+debug: Removing unused variable tmp%51#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@24 with block@6 in block@25
-debug: Merged linear block@24 into block@6
-debug: Replaced predecessor block@25 with block@6 in block@21
+debug: Replaced predecessor block@25 with block@6 in block@26
 debug: Merged linear block@25 into block@6
-debug: Replaced predecessor block@22 with block@17 in block@23
-debug: Merged linear block@22 into block@17
-debug: Replaced predecessor block@23 with block@17 in block@21
-debug: Merged linear block@23 into block@17
+debug: Replaced predecessor block@26 with block@6 in block@22
+debug: Merged linear block@26 into block@6
+debug: Replaced predecessor block@23 with block@18 in block@24
+debug: Merged linear block@23 into block@18
+debug: Replaced predecessor block@24 with block@18 in block@22
+debug: Merged linear block@24 into block@18
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
@@ -4996,6 +5032,30 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: encoded_array%0#0, slot_contents%0#0
+debug: selected encoded_array%0#0 from equivalence set
+debug: Found equivalence set: slot_contents%1#0, slot_contents%2#0
+debug: selected slot_contents%1#0 from equivalence set
+debug: Found equivalence set: slot_contents%3#0, slot_contents%4#0, slot_contents%5#0
+debug: selected slot_contents%3#0 from equivalence set
+debug: Copy propagation made 4 modifications
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let tmp%1#0: uint64 = decode<uint64>(array_item%0#0)
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.array.uint64.Contract.test_allocations
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -5031,11 +5091,11 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let bytes_len%1#0: uint64 = (len slot_contents%1#0) with copy of existing registers (Register(source_location=array/uint64.py:127:15-25, ir_type=uint64, name='bytes_len%0', version=0),)
+debug: Replacing redundant declaration let bytes_len%1#0: uint64 = (len slot_contents%1#0) with copy of existing registers (Register(source_location=array/uint64.py:136:15-25, ir_type=uint64, name='bytes_len%0', version=0),)
 debug: Found equivalence set: bytes_len%0#0, bytes_len%1#0
 debug: selected bytes_len%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
-debug: Replacing redundant declaration let array_len%1#0: uint64 = (/ bytes_len%0#0 8u) with copy of existing registers (Register(source_location=array/uint64.py:127:15-25, ir_type=uint64, name='array_len%0', version=0),)
+debug: Replacing redundant declaration let array_len%1#0: uint64 = (/ bytes_len%0#0 8u) with copy of existing registers (Register(source_location=array/uint64.py:136:15-25, ir_type=uint64, name='array_len%0', version=0),)
 debug: Found equivalence set: array_len%0#0, array_len%1#0
 debug: selected array_len%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
@@ -5060,11 +5120,11 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let bytes_len%1#0: uint64 = (len slot_contents%1#0) with copy of existing registers (Register(source_location=array/uint64.py:162:15-25, ir_type=uint64, name='bytes_len%0', version=0),)
+debug: Replacing redundant declaration let bytes_len%1#0: uint64 = (len slot_contents%1#0) with copy of existing registers (Register(source_location=array/uint64.py:171:15-25, ir_type=uint64, name='bytes_len%0', version=0),)
 debug: Found equivalence set: bytes_len%0#0, bytes_len%1#0
 debug: selected bytes_len%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
-debug: Replacing redundant declaration let array_len%1#0: uint64 = (/ bytes_len%0#0 8u) with copy of existing registers (Register(source_location=array/uint64.py:162:15-25, ir_type=uint64, name='array_len%0', version=0),)
+debug: Replacing redundant declaration let array_len%1#0: uint64 = (/ bytes_len%0#0 8u) with copy of existing registers (Register(source_location=array/uint64.py:171:15-25, ir_type=uint64, name='array_len%0', version=0),)
 debug: Found equivalence set: array_len%0#0, array_len%1#0
 debug: selected array_len%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
@@ -5380,6 +5440,23 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let tmp%1#0: uint64 = decode<uint64>(array_item%0#0)
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.array.uint64.Contract.test_allocations
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -5606,10 +5683,10 @@ debug: Not removing empty block block@15 because it's used by phi nodes
 debug: Not removing empty block block@21 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let array%write_offset%0#1: uint64 = (* left#1 8u) with copy of existing registers (Register(source_location=array/uint64.py:203:52-61, ir_type=uint64, name='array%bytes_offset%4', version=1),)
-debug: Replacing redundant declaration let array%write_offset%1#1: uint64 = (* right#1 8u) with copy of existing registers (Register(source_location=array/uint64.py:203:40-50, ir_type=uint64, name='array%bytes_offset%3', version=1),)
-debug: Replacing redundant declaration let array%bytes_offset%3#1: uint64 = (* right#1 8u) with copy of existing registers (Register(source_location=array/uint64.py:195:22-32, ir_type=uint64, name='array%bytes_offset%2', version=1),)
-debug: Replacing redundant declaration let array%bytes_offset%4#1: uint64 = (* left#1 8u) with copy of existing registers (Register(source_location=array/uint64.py:192:14-23, ir_type=uint64, name='array%bytes_offset%1', version=1),)
+debug: Replacing redundant declaration let array%write_offset%0#1: uint64 = (* left#1 8u) with copy of existing registers (Register(source_location=array/uint64.py:212:52-61, ir_type=uint64, name='array%bytes_offset%4', version=1),)
+debug: Replacing redundant declaration let array%write_offset%1#1: uint64 = (* right#1 8u) with copy of existing registers (Register(source_location=array/uint64.py:212:40-50, ir_type=uint64, name='array%bytes_offset%3', version=1),)
+debug: Replacing redundant declaration let array%bytes_offset%3#1: uint64 = (* right#1 8u) with copy of existing registers (Register(source_location=array/uint64.py:204:22-32, ir_type=uint64, name='array%bytes_offset%2', version=1),)
+debug: Replacing redundant declaration let array%bytes_offset%4#1: uint64 = (* left#1 8u) with copy of existing registers (Register(source_location=array/uint64.py:201:14-23, ir_type=uint64, name='array%bytes_offset%1', version=1),)
 debug: Found equivalence set: array%bytes_offset%2#1, array%bytes_offset%3#1, array%write_offset%1#1
 debug: selected array%bytes_offset%2#1 from equivalence set
 debug: Found equivalence set: array%bytes_offset%1#1, array%bytes_offset%4#1, array%write_offset%0#1
@@ -6078,6 +6155,54 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%encoded%0#1, encoded_array%0#0
+debug: selected array%encoded%0#1 from equivalence set
+debug: Found equivalence set: array%val_as_bytes%0#1, array%as_Encoded(uint64)%0#1
+debug: selected array%val_as_bytes%0#1 from equivalence set
+debug: Found equivalence set: array%encoded%2#1, tmp%0#0
+debug: selected array%encoded%2#1 from equivalence set
+debug: Found equivalence set: array%encoded_element%0#1, array_item%0#0
+debug: selected array%encoded_element%0#1 from equivalence set
+debug: Found equivalence set: array%val_as_bytes%1#1, array%as_Encoded(uint64)%1#1, encoded_value%0#0
+debug: selected array%val_as_bytes%1#1 from equivalence set
+debug: Found equivalence set: array%updated_array%0#1, updated_array%0#0
+debug: selected array%updated_array%0#1 from equivalence set
+debug: Found equivalence set: array%encoded_element%1#1, array_item%1#0
+debug: selected array%encoded_element%1#1 from equivalence set
+debug: Found equivalence set: array%encoded_element%2#1, array_item%2#0
+debug: selected array%encoded_element%2#1 from equivalence set
+debug: Copy propagation made 8 modifications
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%1#0
+debug: Removing unused variable array%encoded_element%0#1
+debug: Removing unused variable array%bytes_offset%0#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x 0x) to 0x
+debug: Simplified (concat 0x array%val_as_bytes%0#1) to array%val_as_bytes%0#1
+debug: Simplified (concat array%val_as_bytes%0#1 0x) to 0x0000000000000003
+debug: Simplified (concat 0x 0x0000000000000003) // on error: max array length exceeded to 0x0000000000000003
+debug: Simplified (* 0u 8u) to 0u
+debug: Simplified (* 0u 8u) to 0u
+debug: Simplified (btoi array%encoded_element%1#1) to (extract_uint64 slot_contents%3#0 0u)
+debug: Simplified (* 1u 8u) to 8u
+debug: Simplified (btoi array%encoded_element%2#1) to (extract_uint64 slot_contents%3#0 8u)
+debug: Simplified (replace3 slot_contents%1#0 0u array%val_as_bytes%1#1) to ((replace2 0) slot_contents%1#0 array%val_as_bytes%1#1)
+debug: Simplified (extract3 slot_contents%3#0 0u 8u) // on error: index access is out of bounds to ((extract 0 8) slot_contents%3#0) // on error: index access is out of bounds
+debug: Simplified (extract3 slot_contents%3#0 8u 8u) // on error: index access is out of bounds to ((extract 8 8) slot_contents%3#0) // on error: index access is out of bounds
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.array.uint64.Contract.test_allocations
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -6168,10 +6293,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let array%val_as_bytes%2#1: bytes[8] = (itob i#1) with copy of existing registers (Register(source_location=array/uint64.py:147:28-42, ir_type=bytes[8], name='array%val_as_bytes%1', version=1),)
-debug: Replacing redundant declaration let array%array_trimmed%1#1: bytes = ((extract 2 0) combined_arr#0) with copy of existing registers (Register(source_location=array/uint64.py:151:15-30, ir_type=bytes, name='array%array_trimmed%0', version=1),)
-debug: Replacing redundant declaration let array%array_trimmed%2#1: bytes = ((extract 2 0) combined_arr#0) with copy of existing registers (Register(source_location=array/uint64.py:151:15-30, ir_type=bytes, name='array%array_trimmed%0', version=1),)
-debug: Replacing redundant declaration let array%array_trimmed%3#1: bytes = ((extract 2 0) combined_arr#0) with copy of existing registers (Register(source_location=array/uint64.py:151:15-30, ir_type=bytes, name='array%array_trimmed%0', version=1),)
+debug: Replacing redundant declaration let array%val_as_bytes%2#1: bytes[8] = (itob i#1) with copy of existing registers (Register(source_location=array/uint64.py:156:28-42, ir_type=bytes[8], name='array%val_as_bytes%1', version=1),)
+debug: Replacing redundant declaration let array%array_trimmed%1#1: bytes = ((extract 2 0) combined_arr#0) with copy of existing registers (Register(source_location=array/uint64.py:160:15-30, ir_type=bytes, name='array%array_trimmed%0', version=1),)
+debug: Replacing redundant declaration let array%array_trimmed%2#1: bytes = ((extract 2 0) combined_arr#0) with copy of existing registers (Register(source_location=array/uint64.py:160:15-30, ir_type=bytes, name='array%array_trimmed%0', version=1),)
+debug: Replacing redundant declaration let array%array_trimmed%3#1: bytes = ((extract 2 0) combined_arr#0) with copy of existing registers (Register(source_location=array/uint64.py:160:15-30, ir_type=bytes, name='array%array_trimmed%0', version=1),)
 debug: Found equivalence set: array%val_as_bytes%0#1, array%encoded%1#1, array%encoded%2#1
 debug: selected array%val_as_bytes%0#1 from equivalence set
 debug: Found equivalence set: array%val_as_bytes%1#1, array%encoded%6#1, array%encoded%7#1, array%val_as_bytes%2#1, array%encoded%8#1, array%encoded%9#1
@@ -6246,8 +6371,8 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let array%write_offset%1#1: uint64 = (* last#0 8u) with copy of existing registers (Register(source_location=array/uint64.py:177:8-29, ir_type=uint64, name='array%write_offset%0', version=1),)
-debug: Replacing redundant declaration let array%bytes_offset%2#1: uint64 = (* last#0 8u) with copy of existing registers (Register(source_location=array/uint64.py:177:8-29, ir_type=uint64, name='array%write_offset%0', version=1),)
+debug: Replacing redundant declaration let array%write_offset%1#1: uint64 = (* last#0 8u) with copy of existing registers (Register(source_location=array/uint64.py:186:8-29, ir_type=uint64, name='array%write_offset%0', version=1),)
+debug: Replacing redundant declaration let array%bytes_offset%2#1: uint64 = (* last#0 8u) with copy of existing registers (Register(source_location=array/uint64.py:186:8-29, ir_type=uint64, name='array%write_offset%0', version=1),)
 debug: Found equivalence set: array%write_offset%0#1, array%write_offset%1#1, array%bytes_offset%2#1
 debug: selected array%write_offset%0#1 from equivalence set
 debug: Copy propagation made 3 modifications
@@ -6596,6 +6721,33 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: array%val_as_bytes%0#1, array%encoded%1#1
+debug: selected array%val_as_bytes%0#1 from equivalence set
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable array%encoded%0#1
+debug: Removing unused variable array%val_as_bytes%0#1
+debug: Removing unused variable array%encoded%2#1
+debug: Removing unused variable concat%0#0
+debug: Removing unused variable array%write_offset%0#1
+debug: Removing unused variable array%bytes_offset%1#1
+debug: Removing unused variable array%encoded_element%1#1
+debug: Removing unused variable array%bytes_offset%2#1
+debug: Removing unused variable array%encoded_element%2#1
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.array.uint64.Contract.test_allocations
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -6878,6 +7030,22 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.array.uint64.Contract.test_allocations
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -6964,11 +7132,11 @@ debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: removing local static slots in approval program of test_cases.array.uint64.Contract
 debug: auto reserving slots in algopy.arc4.ARC4Contract.approval_program, []
-array/uint64.py:183 debug: auto reserving slots in test_cases.array.uint64.quicksort_window, []
-array/uint64.py:235 debug: auto reserving slots in test_cases.array.uint64.create_array, []
-array/uint64.py:243 debug: auto reserving slots in test_cases.array.uint64.assert_last_is_zero, []
-array/uint64.py:255 debug: auto reserving slots in test_cases.array.uint64.add_x, []
-array/uint64.py:269 debug: auto reserving slots in test_cases.array.uint64.append_length_and_return, []
+array/uint64.py:192 debug: auto reserving slots in test_cases.array.uint64.quicksort_window, []
+array/uint64.py:244 debug: auto reserving slots in test_cases.array.uint64.create_array, []
+array/uint64.py:252 debug: auto reserving slots in test_cases.array.uint64.assert_last_is_zero, []
+array/uint64.py:264 debug: auto reserving slots in test_cases.array.uint64.add_x, []
+array/uint64.py:278 debug: auto reserving slots in test_cases.array.uint64.append_length_and_return, []
 array/uint64.py:5 debug: auto reserving slots in test_cases.array.uint64.Contract.test_array, []
 array/uint64.py:41 debug: auto reserving slots in test_cases.array.uint64.Contract.test_array_extend, []
 array/uint64.py:45:9 debug: eliminating local static slot assigned to arr2#0
@@ -6983,14 +7151,15 @@ array/uint64.py:80:9 debug: eliminating local static slot assigned to array2#0
 debug: Removing unused variable array#0
 debug: Removing unused variable array2#0
 array/uint64.py:97 debug: auto reserving slots in test_cases.array.uint64.Contract.test_array_evaluation_order, []
-array/uint64.py:116 debug: auto reserving slots in test_cases.array.uint64.Contract.test_allocations, []
-array/uint64.py:122 debug: auto reserving slots in test_cases.array.uint64.Contract.test_iteration, []
-array/uint64.py:124:9 debug: eliminating local static slot assigned to arr#0
-array/uint64.py:145:9 debug: eliminating local static slot assigned to native_arr#0
+array/uint64.py:116 debug: auto reserving slots in test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage, []
+array/uint64.py:125 debug: auto reserving slots in test_cases.array.uint64.Contract.test_allocations, []
+array/uint64.py:131 debug: auto reserving slots in test_cases.array.uint64.Contract.test_iteration, []
+array/uint64.py:133:9 debug: eliminating local static slot assigned to arr#0
+array/uint64.py:154:9 debug: eliminating local static slot assigned to native_arr#0
 debug: Removing unused variable arr#0
 debug: Removing unused variable native_arr#0
-array/uint64.py:156 debug: auto reserving slots in test_cases.array.uint64.Contract.test_quicksort, []
-array/uint64.py:173 debug: auto reserving slots in test_cases.array.uint64.Contract.test_unobserved_write, []
+array/uint64.py:165 debug: auto reserving slots in test_cases.array.uint64.Contract.test_quicksort, []
+array/uint64.py:182 debug: auto reserving slots in test_cases.array.uint64.Contract.test_unobserved_write, []
 debug: Using dynamic slot allocation strategy
 debug: Output IR to array/out/Contract.ir/Contract.approval.6.ssa.slot.ir
 debug: removing local static slots in clear program of test_cases.array.uint64.Contract
@@ -7001,9 +7170,9 @@ debug: Performing SSA IR destructuring for algopy.arc4.ARC4Contract.approval_pro
 debug: Converting to CSSA
 debug: Removing Phi nodes
 debug: Coalescing local variables in algopy.arc4.ARC4Contract.approval_program using strategy RootOperandGrouping
-debug: Coalescing test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 with [test_cases.array.uint64.Contract.__puya_arc4_router__%0#1, test_cases.array.uint64.Contract.__puya_arc4_router__%0#2, test_cases.array.uint64.Contract.__puya_arc4_router__%0#3, test_cases.array.uint64.Contract.__puya_arc4_router__%0#4, test_cases.array.uint64.Contract.__puya_arc4_router__%0#5, test_cases.array.uint64.Contract.__puya_arc4_router__%0#6, test_cases.array.uint64.Contract.__puya_arc4_router__%0#7, test_cases.array.uint64.Contract.__puya_arc4_router__%0#8, test_cases.array.uint64.Contract.__puya_arc4_router__%0#9, test_cases.array.uint64.Contract.__puya_arc4_router__%0#10, test_cases.array.uint64.Contract.__puya_arc4_router__%0#11, test_cases.array.uint64.Contract.__puya_arc4_router__%0#12]
+debug: Coalescing test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 with [test_cases.array.uint64.Contract.__puya_arc4_router__%0#1, test_cases.array.uint64.Contract.__puya_arc4_router__%0#2, test_cases.array.uint64.Contract.__puya_arc4_router__%0#3, test_cases.array.uint64.Contract.__puya_arc4_router__%0#4, test_cases.array.uint64.Contract.__puya_arc4_router__%0#5, test_cases.array.uint64.Contract.__puya_arc4_router__%0#6, test_cases.array.uint64.Contract.__puya_arc4_router__%0#7, test_cases.array.uint64.Contract.__puya_arc4_router__%0#8, test_cases.array.uint64.Contract.__puya_arc4_router__%0#9, test_cases.array.uint64.Contract.__puya_arc4_router__%0#10, test_cases.array.uint64.Contract.__puya_arc4_router__%0#11, test_cases.array.uint64.Contract.__puya_arc4_router__%0#12, test_cases.array.uint64.Contract.__puya_arc4_router__%0#13]
 debug: Coalescing tmp%0#0 with [tmp%0#2]
-debug: Coalescing resulted in 38 replacement/s
+debug: Coalescing resulted in 41 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.array.uint64.quicksort_window
@@ -7178,6 +7347,13 @@ debug: Coalescing local variables in test_cases.array.uint64.Contract.test_array
 debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in test_cases.array.uint64.Contract.test_array_evaluation_order
 debug: Performing post-SSA optimizations at level 1
+debug: Performing SSA IR destructuring for test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
+debug: Converting to CSSA
+debug: Removing Phi nodes
+debug: Coalescing local variables in test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage using strategy RootOperandGrouping
+debug: Coalescing resulted in 0 replacement/s
+debug: Sequentializing parallel copies in test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage
+debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for test_cases.array.uint64.Contract.test_allocations
 debug: Converting to CSSA
 debug: Removing Phi nodes
@@ -7311,7 +7487,7 @@ debug: Output IR to array/out/Contract.ir/Contract.clear.3.destructured.ir
 debug: Inserted main_block@0.ops[1]: 'l-store-copy tmp%0#1 0'
 debug: Replaced main_block@0.ops[3]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
 debug: Inserted main_abi_routing@2.ops[1]: 'l-store-copy tmp%2#0 0'
-debug: Replaced main_abi_routing@2.ops[14]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Replaced main_abi_routing@2.ops[15]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted main_test_array_route@3.ops[1]: 'l-store-copy tmp%3#0 0'
 debug: Replaced main_test_array_route@3.ops[3]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
 debug: Inserted main_test_array_route@3.ops[5]: 'l-store-copy tmp%4#0 0'
@@ -7368,52 +7544,60 @@ debug: Inserted main_test_array_evaluation_order_route@9.ops[10]: 'l-store-copy 
 debug: Replaced main_test_array_evaluation_order_route@9.ops[12]: 'v-load tmp%29#0' with 'l-load tmp%29#0'
 debug: Inserted main_test_array_evaluation_order_route@9.ops[16]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
 debug: Replaced main_test_array_evaluation_order_route@9.ops[18]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
-debug: Inserted main_test_allocations_route@10.ops[1]: 'l-store-copy tmp%31#0 0'
-debug: Replaced main_test_allocations_route@10.ops[3]: 'v-load tmp%31#0' with 'l-load tmp%31#0'
-debug: Inserted main_test_allocations_route@10.ops[5]: 'l-store-copy tmp%32#0 0'
-debug: Replaced main_test_allocations_route@10.ops[7]: 'v-load tmp%32#0' with 'l-load tmp%32#0'
-debug: Inserted main_test_allocations_route@10.ops[10]: 'l-store-copy tmp%33#0 0'
-debug: Replaced main_test_allocations_route@10.ops[12]: 'v-load tmp%33#0' with 'l-load tmp%33#0'
-debug: Inserted main_test_allocations_route@10.ops[15]: 'l-store-copy reinterpret_Encoded(uint64)%0#0 0'
-debug: Replaced main_test_allocations_route@10.ops[17]: 'v-load reinterpret_Encoded(uint64)%0#0' with 'l-load reinterpret_Encoded(uint64)%0#0'
-debug: Inserted main_test_allocations_route@10.ops[19]: 'l-store-copy tmp%35#0 0'
-debug: Replaced main_test_allocations_route@10.ops[21]: 'v-load tmp%35#0' with 'l-load tmp%35#0'
-debug: Inserted main_test_allocations_route@10.ops[24]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_test_allocations_route@10.ops[26]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
-debug: Inserted main_test_iteration_route@11.ops[1]: 'l-store-copy tmp%36#0 0'
-debug: Replaced main_test_iteration_route@11.ops[3]: 'v-load tmp%36#0' with 'l-load tmp%36#0'
-debug: Inserted main_test_iteration_route@11.ops[5]: 'l-store-copy tmp%37#0 0'
-debug: Replaced main_test_iteration_route@11.ops[7]: 'v-load tmp%37#0' with 'l-load tmp%37#0'
-debug: Inserted main_test_iteration_route@11.ops[10]: 'l-store-copy tmp%38#0 0'
-debug: Replaced main_test_iteration_route@11.ops[12]: 'v-load tmp%38#0' with 'l-load tmp%38#0'
-debug: Inserted main_test_iteration_route@11.ops[16]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_test_iteration_route@11.ops[18]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
-debug: Inserted main_test_quicksort_route@12.ops[1]: 'l-store-copy tmp%40#0 0'
-debug: Replaced main_test_quicksort_route@12.ops[3]: 'v-load tmp%40#0' with 'l-load tmp%40#0'
-debug: Inserted main_test_quicksort_route@12.ops[5]: 'l-store-copy tmp%41#0 0'
-debug: Replaced main_test_quicksort_route@12.ops[7]: 'v-load tmp%41#0' with 'l-load tmp%41#0'
-debug: Inserted main_test_quicksort_route@12.ops[10]: 'l-store-copy tmp%42#0 0'
-debug: Replaced main_test_quicksort_route@12.ops[12]: 'v-load tmp%42#0' with 'l-load tmp%42#0'
-debug: Inserted main_test_quicksort_route@12.ops[16]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_test_quicksort_route@12.ops[18]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
-debug: Inserted main_test_unobserved_write_route@13.ops[1]: 'l-store-copy tmp%44#0 0'
-debug: Replaced main_test_unobserved_write_route@13.ops[3]: 'v-load tmp%44#0' with 'l-load tmp%44#0'
-debug: Inserted main_test_unobserved_write_route@13.ops[5]: 'l-store-copy tmp%45#0 0'
-debug: Replaced main_test_unobserved_write_route@13.ops[7]: 'v-load tmp%45#0' with 'l-load tmp%45#0'
-debug: Inserted main_test_unobserved_write_route@13.ops[10]: 'l-store-copy tmp%46#0 0'
-debug: Replaced main_test_unobserved_write_route@13.ops[12]: 'v-load tmp%46#0' with 'l-load tmp%46#0'
-debug: Inserted main_test_unobserved_write_route@13.ops[16]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_test_unobserved_write_route@13.ops[18]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
-debug: Inserted main_bare_routing@16.ops[1]: 'l-store-copy tmp%48#0 0'
-debug: Replaced main_bare_routing@16.ops[3]: 'v-load tmp%48#0' with 'l-load tmp%48#0'
-debug: Inserted main___algopy_default_create@17.ops[1]: 'l-store-copy tmp%49#0 0'
-debug: Replaced main___algopy_default_create@17.ops[3]: 'v-load tmp%49#0' with 'l-load tmp%49#0'
-debug: Inserted main___algopy_default_create@17.ops[5]: 'l-store-copy tmp%50#0 0'
-debug: Replaced main___algopy_default_create@17.ops[7]: 'v-load tmp%50#0' with 'l-load tmp%50#0'
-debug: Inserted main___algopy_default_create@17.ops[10]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main___algopy_default_create@17.ops[12]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
-debug: Inserted main_after_if_else@20.ops[1]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_after_if_else@20.ops[3]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
+debug: Inserted main_test_array_assignment_maximum_cursage_route@10.ops[1]: 'l-store-copy tmp%31#0 0'
+debug: Replaced main_test_array_assignment_maximum_cursage_route@10.ops[3]: 'v-load tmp%31#0' with 'l-load tmp%31#0'
+debug: Inserted main_test_array_assignment_maximum_cursage_route@10.ops[5]: 'l-store-copy tmp%32#0 0'
+debug: Replaced main_test_array_assignment_maximum_cursage_route@10.ops[7]: 'v-load tmp%32#0' with 'l-load tmp%32#0'
+debug: Inserted main_test_array_assignment_maximum_cursage_route@10.ops[10]: 'l-store-copy tmp%33#0 0'
+debug: Replaced main_test_array_assignment_maximum_cursage_route@10.ops[12]: 'v-load tmp%33#0' with 'l-load tmp%33#0'
+debug: Inserted main_test_array_assignment_maximum_cursage_route@10.ops[16]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
+debug: Replaced main_test_array_assignment_maximum_cursage_route@10.ops[18]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
+debug: Inserted main_test_allocations_route@11.ops[1]: 'l-store-copy tmp%35#0 0'
+debug: Replaced main_test_allocations_route@11.ops[3]: 'v-load tmp%35#0' with 'l-load tmp%35#0'
+debug: Inserted main_test_allocations_route@11.ops[5]: 'l-store-copy tmp%36#0 0'
+debug: Replaced main_test_allocations_route@11.ops[7]: 'v-load tmp%36#0' with 'l-load tmp%36#0'
+debug: Inserted main_test_allocations_route@11.ops[10]: 'l-store-copy tmp%37#0 0'
+debug: Replaced main_test_allocations_route@11.ops[12]: 'v-load tmp%37#0' with 'l-load tmp%37#0'
+debug: Inserted main_test_allocations_route@11.ops[15]: 'l-store-copy reinterpret_Encoded(uint64)%0#0 0'
+debug: Replaced main_test_allocations_route@11.ops[17]: 'v-load reinterpret_Encoded(uint64)%0#0' with 'l-load reinterpret_Encoded(uint64)%0#0'
+debug: Inserted main_test_allocations_route@11.ops[19]: 'l-store-copy tmp%39#0 0'
+debug: Replaced main_test_allocations_route@11.ops[21]: 'v-load tmp%39#0' with 'l-load tmp%39#0'
+debug: Inserted main_test_allocations_route@11.ops[24]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
+debug: Replaced main_test_allocations_route@11.ops[26]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
+debug: Inserted main_test_iteration_route@12.ops[1]: 'l-store-copy tmp%40#0 0'
+debug: Replaced main_test_iteration_route@12.ops[3]: 'v-load tmp%40#0' with 'l-load tmp%40#0'
+debug: Inserted main_test_iteration_route@12.ops[5]: 'l-store-copy tmp%41#0 0'
+debug: Replaced main_test_iteration_route@12.ops[7]: 'v-load tmp%41#0' with 'l-load tmp%41#0'
+debug: Inserted main_test_iteration_route@12.ops[10]: 'l-store-copy tmp%42#0 0'
+debug: Replaced main_test_iteration_route@12.ops[12]: 'v-load tmp%42#0' with 'l-load tmp%42#0'
+debug: Inserted main_test_iteration_route@12.ops[16]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
+debug: Replaced main_test_iteration_route@12.ops[18]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
+debug: Inserted main_test_quicksort_route@13.ops[1]: 'l-store-copy tmp%44#0 0'
+debug: Replaced main_test_quicksort_route@13.ops[3]: 'v-load tmp%44#0' with 'l-load tmp%44#0'
+debug: Inserted main_test_quicksort_route@13.ops[5]: 'l-store-copy tmp%45#0 0'
+debug: Replaced main_test_quicksort_route@13.ops[7]: 'v-load tmp%45#0' with 'l-load tmp%45#0'
+debug: Inserted main_test_quicksort_route@13.ops[10]: 'l-store-copy tmp%46#0 0'
+debug: Replaced main_test_quicksort_route@13.ops[12]: 'v-load tmp%46#0' with 'l-load tmp%46#0'
+debug: Inserted main_test_quicksort_route@13.ops[16]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
+debug: Replaced main_test_quicksort_route@13.ops[18]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
+debug: Inserted main_test_unobserved_write_route@14.ops[1]: 'l-store-copy tmp%48#0 0'
+debug: Replaced main_test_unobserved_write_route@14.ops[3]: 'v-load tmp%48#0' with 'l-load tmp%48#0'
+debug: Inserted main_test_unobserved_write_route@14.ops[5]: 'l-store-copy tmp%49#0 0'
+debug: Replaced main_test_unobserved_write_route@14.ops[7]: 'v-load tmp%49#0' with 'l-load tmp%49#0'
+debug: Inserted main_test_unobserved_write_route@14.ops[10]: 'l-store-copy tmp%50#0 0'
+debug: Replaced main_test_unobserved_write_route@14.ops[12]: 'v-load tmp%50#0' with 'l-load tmp%50#0'
+debug: Inserted main_test_unobserved_write_route@14.ops[16]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
+debug: Replaced main_test_unobserved_write_route@14.ops[18]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
+debug: Inserted main_bare_routing@17.ops[1]: 'l-store-copy tmp%52#0 0'
+debug: Replaced main_bare_routing@17.ops[3]: 'v-load tmp%52#0' with 'l-load tmp%52#0'
+debug: Inserted main___algopy_default_create@18.ops[1]: 'l-store-copy tmp%53#0 0'
+debug: Replaced main___algopy_default_create@18.ops[3]: 'v-load tmp%53#0' with 'l-load tmp%53#0'
+debug: Inserted main___algopy_default_create@18.ops[5]: 'l-store-copy tmp%54#0 0'
+debug: Replaced main___algopy_default_create@18.ops[7]: 'v-load tmp%54#0' with 'l-load tmp%54#0'
+debug: Inserted main___algopy_default_create@18.ops[10]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
+debug: Replaced main___algopy_default_create@18.ops[12]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
+debug: Inserted main_after_if_else@21.ops[1]: 'l-store-copy test_cases.array.uint64.Contract.__puya_arc4_router__%0#0 0'
+debug: Replaced main_after_if_else@21.ops[3]: 'v-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.array.uint64.Contract.__puya_arc4_router__%0#0'
 debug: Inserted quicksort_window_block@0.ops[3]: 'l-store-copy tmp%0#0 0'
 debug: Replaced quicksort_window_block@0.ops[5]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted quicksort_window_block@0.ops[15]: 'l-store-copy array%bytes_offset%0#1 0'
@@ -8044,6 +8228,42 @@ debug: Inserted test_array_evaluation_order_block@0.ops[133]: 'l-store-copy arr#
 debug: Replaced test_array_evaluation_order_block@0.ops[166]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted test_array_evaluation_order_block@0.ops[35]: 'l-store-copy arr#0 0'
 debug: Replaced test_array_evaluation_order_block@0.ops[133]: 'v-load arr#0' with 'l-load arr#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[1]: 'l-store-copy arr#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[3]: 'v-load arr#0' with 'l-load arr#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[8]: 'l-store-copy update_assignment_current_base_value%0#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[10]: 'v-load update_assignment_current_base_value%0#0' with 'l-load update_assignment_current_base_value%0#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[25]: 'l-store-copy slot_contents%3#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[27]: 'v-load slot_contents%3#0' with 'l-load slot_contents%3#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[29]: 'l-store-copy bytes_len%0#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[31]: 'v-load bytes_len%0#0' with 'l-load bytes_len%0#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[34]: 'l-store-copy array_len%0#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[36]: 'v-load array_len%0#0' with 'l-load array_len%0#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[39]: 'l-store-copy tmp%2#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[41]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[46]: 'l-store-copy tmp%3#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[48]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[51]: 'l-store-copy tmp%4#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[53]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[58]: 'l-store-copy tmp%5#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[60]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[63]: 'l-store-copy tmp%6#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[65]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[15]: 'l-store-copy array%val_as_bytes%1#1 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[18]: 'v-load array%val_as_bytes%1#1' with 'l-load array%val_as_bytes%1#1'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[20]: 'l-store-copy array%updated_array%0#1 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[23]: 'v-load array%updated_array%0#1' with 'l-load array%updated_array%0#1'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[4]: 'l-store-copy arr#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[7]: 'v-load arr#0' with 'l-load arr#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[13]: 'l-store-copy slot_contents%1#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[19]: 'v-load slot_contents%1#0' with 'l-load slot_contents%1#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[12]: 'l-store-copy update_assignment_current_base_value%0#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[25]: 'v-load update_assignment_current_base_value%0#0' with 'l-load update_assignment_current_base_value%0#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[49]: 'l-store-copy slot_contents%3#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[61]: 'v-load slot_contents%3#0' with 'l-load slot_contents%3#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[33]: 'l-store-copy slot_contents%3#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[49]: 'v-load slot_contents%3#0' with 'l-load slot_contents%3#0'
+debug: Inserted test_array_assignment_maximum_cursage_block@0.ops[8]: 'l-store-copy arr#0 0'
+debug: Replaced test_array_assignment_maximum_cursage_block@0.ops[29]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted test_allocations_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced test_allocations_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted test_allocations_for_body@2.ops[1]: 'l-store-copy alloc_test#0 0'
@@ -8292,19 +8512,20 @@ debug: Inserted _puya_lib.mem.new_slot@entry.ops[7]: 'l-store-copy free_slot#0 2
 debug: Replaced _puya_lib.mem.new_slot@entry.ops[12]: 'v-load free_slot#0' with 'l-load free_slot#0'
 debug: Found 3 edge set/s for algopy.arc4.ARC4Contract.approval_program
 debug: Allocated 1 variable/s to x-stack: tmp%0#0
-debug: shared x-stack for main_test_array_route@3 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_test_array_extend_route@4 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_test_array_multiple_append_route@5 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_overhead_route@6 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_test_array_too_long_route@7 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_test_array_copy_and_extend_route@8 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_test_array_evaluation_order_route@9 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_test_allocations_route@10 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_test_iteration_route@11 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_test_quicksort_route@12 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_test_unobserved_write_route@13 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main___algopy_default_create@17 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
-debug: shared x-stack for main_after_if_else@20 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21: tmp%0#0
+debug: shared x-stack for main_test_array_route@3 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_array_extend_route@4 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_array_multiple_append_route@5 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_overhead_route@6 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_array_too_long_route@7 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_array_copy_and_extend_route@8 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_array_evaluation_order_route@9 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_array_assignment_maximum_cursage_route@10 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_allocations_route@11 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_iteration_route@12 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_quicksort_route@13 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_test_unobserved_write_route@14 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main___algopy_default_create@18 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
+debug: shared x-stack for main_after_if_else@21 -> main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22: tmp%0#0
 debug: Found 7 edge set/s for test_cases.array.uint64.quicksort_window
 debug: Found 2 edge set/s for test_cases.array.uint64.create_array
 debug: Found 2 edge set/s for test_cases.array.uint64.add_x
@@ -8333,41 +8554,43 @@ debug: test_cases.array.uint64.Contract.test_iteration f-stack on first store: [
 debug: test_cases.array.uint64.Contract.test_quicksort f-stack entry: ['array_len%2#0', 'item_index_internal%1#0', 'last#0']
 debug: test_cases.array.uint64.Contract.test_quicksort f-stack on first store: ['rnd#0', 'tmp%0#0', 'item_index_internal%0#0']
 debug: optimizing TEAL subroutine ops algopy.arc4.ARC4Contract.approval_program() -> uint64:
-array/uint64.py:183 debug: optimizing TEAL subroutine ops test_cases.array.uint64.quicksort_window(arr: uint64, window_left: uint64, window_right: uint64) -> void:
-array/uint64.py:235 debug: optimizing TEAL subroutine ops test_cases.array.uint64.create_array() -> uint64:
-array/uint64.py:243 debug: optimizing TEAL subroutine ops test_cases.array.uint64.assert_last_is_zero(arr: uint64) -> void:
-array/uint64.py:255 debug: optimizing TEAL subroutine ops test_cases.array.uint64.add_x(arr: uint64, x: uint64) -> void:
-array/uint64.py:269 debug: optimizing TEAL subroutine ops test_cases.array.uint64.append_length_and_return(arr: uint64) -> uint64:
+array/uint64.py:192 debug: optimizing TEAL subroutine ops test_cases.array.uint64.quicksort_window(arr: uint64, window_left: uint64, window_right: uint64) -> void:
+array/uint64.py:244 debug: optimizing TEAL subroutine ops test_cases.array.uint64.create_array() -> uint64:
+array/uint64.py:252 debug: optimizing TEAL subroutine ops test_cases.array.uint64.assert_last_is_zero(arr: uint64) -> void:
+array/uint64.py:264 debug: optimizing TEAL subroutine ops test_cases.array.uint64.add_x(arr: uint64, x: uint64) -> void:
+array/uint64.py:278 debug: optimizing TEAL subroutine ops test_cases.array.uint64.append_length_and_return(arr: uint64) -> uint64:
 array/uint64.py:5 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_array() -> void:
 array/uint64.py:41 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_array_extend() -> void:
 array/uint64.py:53 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_array_multiple_append() -> void:
 array/uint64.py:66 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_array_too_long() -> void:
 array/uint64.py:75 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_array_copy_and_extend() -> void:
 array/uint64.py:97 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_array_evaluation_order() -> void:
-array/uint64.py:116 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_allocations(num: uint64) -> void:
-array/uint64.py:122 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_iteration() -> void:
-array/uint64.py:156 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_quicksort() -> void:
-array/uint64.py:173 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_unobserved_write() -> void:
+array/uint64.py:116 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage() -> void:
+array/uint64.py:125 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_allocations(num: uint64) -> void:
+array/uint64.py:131 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_iteration() -> void:
+array/uint64.py:165 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_quicksort() -> void:
+array/uint64.py:182 debug: optimizing TEAL subroutine ops test_cases.array.uint64.Contract.test_unobserved_write() -> void:
 debug: optimizing TEAL subroutine ops _puya_lib.mem.new_slot() -> uint64:
 debug: optimizing TEAL subroutine blocks algopy.arc4.ARC4Contract.approval_program() -> uint64:
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
-debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
+debug: replacing `b main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22` with `return`
 debug: inlining single reference block main_block@0 into main
 debug: inlining single reference block main_abi_routing@2 into main
-debug: inlining single reference block main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@21 into main_after_if_else@20
-debug: inlining single reference block main___algopy_default_create@17 into main_bare_routing@16
-debug: removing explicit jump to fall-through block main_after_if_else@20
-array/uint64.py:183 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.quicksort_window(arr: uint64, window_left: uint64, window_right: uint64) -> void:
+debug: inlining single reference block main_after_inlined_test_cases.array.uint64.Contract.__puya_arc4_router__@22 into main_after_if_else@21
+debug: inlining single reference block main___algopy_default_create@18 into main_bare_routing@17
+debug: removing explicit jump to fall-through block main_after_if_else@21
+array/uint64.py:192 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.quicksort_window(arr: uint64, window_left: uint64, window_right: uint64) -> void:
 debug: inlining single reference block quicksort_window_block@0 into quicksort_window
 debug: inlining single reference block quicksort_window_while_body@4 into quicksort_window_while_top@3
 debug: inlining single reference block quicksort_window_while_body@7 into quicksort_window_while_top@6
@@ -8382,17 +8605,17 @@ debug: removing explicit jump to fall-through block quicksort_window_while_top@3
 debug: removing explicit jump to fall-through block quicksort_window_after_if_else@24
 debug: removing explicit jump to fall-through block quicksort_window_after_if_else@26
 debug: removing explicit jump to fall-through block quicksort_window_after_if_else@19
-array/uint64.py:235 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.create_array() -> uint64:
+array/uint64.py:244 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.create_array() -> uint64:
 debug: inlining single reference block create_array_block@0 into create_array
 debug: inlining single reference block create_array_for_body@2 into create_array_for_header@1
 debug: removing explicit jump to fall-through block create_array_for_header@1
-array/uint64.py:243 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.assert_last_is_zero(arr: uint64) -> void:
+array/uint64.py:252 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.assert_last_is_zero(arr: uint64) -> void:
 debug: inlining single reference block assert_last_is_zero_block@0 into assert_last_is_zero
-array/uint64.py:255 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.add_x(arr: uint64, x: uint64) -> void:
+array/uint64.py:264 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.add_x(arr: uint64, x: uint64) -> void:
 debug: inlining single reference block add_x_block@0 into add_x
 debug: inlining single reference block add_x_for_body@2 into add_x_for_header@1
 debug: removing explicit jump to fall-through block add_x_for_header@1
-array/uint64.py:269 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.append_length_and_return(arr: uint64) -> uint64:
+array/uint64.py:278 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.append_length_and_return(arr: uint64) -> uint64:
 debug: inlining single reference block append_length_and_return_block@0 into append_length_and_return
 array/uint64.py:5 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_array() -> void:
 debug: inlining single reference block test_array_block@0 into test_array
@@ -8412,11 +8635,13 @@ debug: inlining single reference block test_array_copy_and_extend_for_body@2 int
 debug: removing explicit jump to fall-through block test_array_copy_and_extend_for_header@1
 array/uint64.py:97 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_array_evaluation_order() -> void:
 debug: inlining single reference block test_array_evaluation_order_block@0 into test_array_evaluation_order
-array/uint64.py:116 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_allocations(num: uint64) -> void:
+array/uint64.py:116 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage() -> void:
+debug: inlining single reference block test_array_assignment_maximum_cursage_block@0 into test_array_assignment_maximum_cursage
+array/uint64.py:125 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_allocations(num: uint64) -> void:
 debug: inlining single reference block test_allocations_block@0 into test_allocations
 debug: inlining single reference block test_allocations_for_body@2 into test_allocations_for_header@1
 debug: removing explicit jump to fall-through block test_allocations_for_header@1
-array/uint64.py:122 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_iteration() -> void:
+array/uint64.py:131 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_iteration() -> void:
 debug: inlining single reference block test_iteration_block@0 into test_iteration
 debug: inlining single reference block test_iteration_for_body@2 into test_iteration_for_header@1
 debug: inlining single reference block test_iteration_for_body@6 into test_iteration_for_header@5
@@ -8428,13 +8653,13 @@ debug: removing explicit jump to fall-through block test_iteration_for_header@5
 debug: removing explicit jump to fall-through block test_iteration_for_header@9
 debug: removing explicit jump to fall-through block test_iteration_for_header@13
 debug: removing explicit jump to fall-through block test_iteration_for_header@17
-array/uint64.py:156 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_quicksort() -> void:
+array/uint64.py:165 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_quicksort() -> void:
 debug: inlining single reference block test_quicksort_block@0 into test_quicksort
 debug: inlining single reference block test_quicksort_for_body@2 into test_quicksort_for_header@1
 debug: inlining single reference block test_quicksort_for_body@6 into test_quicksort_for_header@5
 debug: removing explicit jump to fall-through block test_quicksort_for_header@1
 debug: removing explicit jump to fall-through block test_quicksort_for_header@5
-array/uint64.py:173 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_unobserved_write() -> void:
+array/uint64.py:182 debug: optimizing TEAL subroutine blocks test_cases.array.uint64.Contract.test_unobserved_write() -> void:
 debug: inlining single reference block test_unobserved_write_block@0 into test_unobserved_write
 debug: optimizing TEAL subroutine blocks _puya_lib.mem.new_slot() -> uint64:
 debug: inlining single reference block _puya_lib.mem.new_slot@entry into _puya_lib.mem.new_slot
