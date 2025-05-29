@@ -38,7 +38,6 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     SizedBytesType,
     TupleIRType,
-    get_type_arity,
 )
 from puya.parse import SourceLocation
 from puya.utils import bits_to_bytes
@@ -183,7 +182,7 @@ class _NativeTupleCodec(_ARC4Codec):
                         )
                     bit_packed_index = 0
             else:
-                element_arity = get_type_arity(element_ir_type)
+                element_arity = element_ir_type.arity
                 if element_arity == 1:
                     element_values = [values.pop(0)]
                 else:
