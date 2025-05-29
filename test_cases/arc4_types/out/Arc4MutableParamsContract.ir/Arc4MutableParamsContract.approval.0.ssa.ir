@@ -105,14 +105,14 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let encoded_array%0#0: Encoded(uint8[4]) = encode<uint8[4]>(0x01, 0x02, 0x03, 0x04)
         let my_array#0: Encoded(uint8[4]) = encoded_array%0#0
         let tmp%0#0: Encoded(bool8) = encode<bool8>(1u)
-        let encoded%0#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x4861707079)
-        let encoded%1#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x44617973)
-        let tmp%1#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = encode<(bool1,uint8,len+utf8[],len+utf8[])>(tmp%0#0, 0x32, encoded%0#0, encoded%1#0)
-        let my_struct#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = tmp%1#0
+        let encoded%0#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x4861707079)
+        let encoded%1#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x44617973)
+        let tmp%1#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = encode<(bool1,uint8,(len+utf8[]),(len+utf8[]))>(tmp%0#0, 0x32, encoded%0#0, encoded%1#0)
+        let my_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = tmp%1#0
         let copy%0#0: Encoded(uint8[4]) = my_array#0
         let my_array_copy#0: Encoded(uint8[4]) = copy%0#0
-        let copy%1#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = my_struct#0
-        let my_struct_copy#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = copy%1#0
+        let copy%1#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = my_struct#0
+        let my_struct_copy#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = copy%1#0
         let array_item%0#0: Encoded(uint8) = my_array#0[2u]
         let updated_array%0#0: Encoded(uint8[4]) = my_array#0.update(2u, 0x05)
         let my_array#1: Encoded(uint8[4]) = updated_array%0#0
@@ -126,8 +126,8 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let reinterpret_biguint%3#0: biguint = 0x05
         let tmp%3#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
         (assert tmp%3#0) // my_array should be mutated
-        let (other_routine%0#0: bool, other_routine%1#0: bool, other_routine%2#0: Encoded(uint8[4]), other_routine%3#0: Encoded((bool1,uint8,len+utf8[],len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(my_array#1, my_struct#0)
-        let my_struct#1: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = other_routine%3#0
+        let (other_routine%0#0: bool, other_routine%1#0: bool, other_routine%2#0: Encoded(uint8[4]), other_routine%3#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(my_array#1, my_struct#0)
+        let my_struct#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = other_routine%3#0
         let my_array#2: Encoded(uint8[4]) = other_routine%2#0
         let t#0: bool = other_routine%0#0
         let f#0: bool = other_routine%1#0
@@ -140,13 +140,13 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let tmp%5#0: bool = (b== reinterpret_biguint%4#0 reinterpret_biguint%5#0)
         (assert tmp%5#0) // my_array has been mutated by the subroutine
         let tuple_item%0#0: Encoded(len+utf8[]) = my_struct#1[2]
-        let encoded%2#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x41415252474821)
+        let encoded%2#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x41415252474821)
         let tmp%6#0: bool = (== tuple_item%0#0 encoded%2#0)
         (assert tmp%6#0) // my_struct has been mutated by the subroutine
         let copy%2#0: Encoded(uint8[4]) = my_array_copy#0
-        let copy%3#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = my_struct_copy#0
-        let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: Encoded(uint8[4]), other_routine%7#0: Encoded((bool1,uint8,len+utf8[],len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(copy%2#0, copy%3#0)
-        let copy%3#1: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = other_routine%7#0
+        let copy%3#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = my_struct_copy#0
+        let (other_routine%4#0: bool, other_routine%5#0: bool, other_routine%6#0: Encoded(uint8[4]), other_routine%7#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(copy%2#0, copy%3#0)
+        let copy%3#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = other_routine%7#0
         let copy%2#1: Encoded(uint8[4]) = other_routine%6#0
         let array_item%4#0: Encoded(uint8) = my_array_copy#0[1u]
         let reinterpret_biguint%6#0: biguint = array_item%4#0
@@ -154,7 +154,7 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let tmp%7#0: bool = (b== reinterpret_biguint%6#0 reinterpret_biguint%7#0)
         (assert tmp%7#0) // my_array_copy should not be mutated by the subroutine
         let tuple_item%1#0: Encoded(len+utf8[]) = my_struct_copy#0[2]
-        let encoded%3#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x4861707079)
+        let encoded%3#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x4861707079)
         let tmp%8#0: bool = (== tuple_item%1#0 encoded%3#0)
         (assert tmp%8#0) // my_struct_copy should not be mutated by the subroutine
         let copy%4#0: Encoded(uint8[4]) = my_array_copy#0
@@ -262,20 +262,20 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.mutati
         let tmp%27#0: bool = (b== reinterpret_biguint%34#0 reinterpret_biguint%35#0)
         (assert tmp%27#0)
         let copy%12#0: Encoded(uint8[4]) = my_array#4
-        let tmp%28#0: Encoded((uint8[4])) = encode<(uint8[4])>(copy%12#0)
-        let nested#0: Encoded((uint8[4])) = tmp%28#0
+        let tmp%28#0: Encoded(uint8[4]) = encode<(uint8[4])>(copy%12#0)
+        let nested#0: Encoded(uint8[4]) = tmp%28#0
         let tuple_item%2#0: Encoded(uint8[4]) = nested#0[0]
         let copy%13#0: Encoded(uint8[4]) = tuple_item%2#0
         let (other_routine_2%4#0: Encoded(uint8[4]), other_routine_2%5#0: Encoded(uint8[4])) = test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine_2(copy%13#0)
         let copy%13#1: Encoded(uint8[4]) = other_routine_2%5#0
         return 
 
-subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: Encoded(uint8[4]), struct: Encoded((bool1,uint8,len+utf8[],len+utf8[]))) -> <bool, bool, Encoded(uint8[4]), Encoded((bool1,uint8,len+utf8[],len+utf8[]))>:
+subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_routine(array: Encoded(uint8[4]), struct: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))) -> <bool, bool, Encoded(uint8[4]), Encoded(bool1,uint8,(len+utf8[]),(len+utf8[]))>:
     block@0: // L118
         let array%is_original#0: bool = 1u
         let array%out#0: Encoded(uint8[4]) = array#0
         let struct%is_original#0: bool = 1u
-        let struct%out#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = struct#0
+        let struct%out#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = struct#0
         let array_item%0#0: Encoded(uint8) = array#0[1u]
         let updated_array%0#0: Encoded(uint8[4]) = array#0.update(1u, 0x05)
         let array#1: Encoded(uint8[4]) = updated_array%0#0
@@ -284,13 +284,13 @@ subroutine test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.other_
         let array%out#1: Encoded(uint8[4]) = array#1
         goto block@2
     block@2: // after_if_else_L1
-        let encoded%0#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x41415252474821)
+        let encoded%0#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x41415252474821)
         let tuple_item%0#0: Encoded(len+utf8[]) = struct#0[2]
-        let updated_tuple%0#0: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = struct#0.update(2, encoded%0#0)
-        let struct#2: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = updated_tuple%0#0
+        let updated_tuple%0#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = struct#0.update(2, encoded%0#0)
+        let struct#2: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%0#0
         goto struct%is_original#0 ? block@3 : block@4
     block@3: // if_body_L1
-        let struct%out#1: Encoded((bool1,uint8,len+utf8[],len+utf8[])) = struct#2
+        let struct%out#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = struct#2
         goto block@4
     block@4: // after_if_else_L1
         return 1u 0u array#1 struct#2

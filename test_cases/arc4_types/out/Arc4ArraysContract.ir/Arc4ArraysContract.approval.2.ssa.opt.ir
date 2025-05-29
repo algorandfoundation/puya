@@ -1,6 +1,6 @@
 main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@0: // L24
-        let dynamic_uint8_array#0: Encoded(len+uint8[]) = encode<len+uint8[]>(0x01, 0x02)
+        let dynamic_uint8_array#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(0x01, 0x02)
         let total#0: uint64 = 0u
         let array_length%0#0: uint64 = (extract_uint16 dynamic_uint8_array#0 0u)
         let item_index_internal%0#0: uint64 = 0u
@@ -19,7 +19,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@4: // after_for_L27
         let tmp%2#0: bool = (== total#1 3u)
         (assert tmp%2#0) // Total should be sum of dynamic_uint8_array items
-        let aliased_dynamic#0: Encoded(len+uint16[]) = encode<len+uint16[]>(0x0001)
+        let aliased_dynamic#0: Encoded(len+uint16[]) = encode<(len+uint16[])>(0x0001)
         let array_length%1#0: uint64 = (extract_uint16 aliased_dynamic#0 0u)
         let item_index_internal%1#0: uint64 = 0u
         goto block@5
@@ -37,14 +37,14 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@8: // after_for_L32
         let tmp%5#0: bool = (== total#3 4u)
         (assert tmp%5#0) // Total should now include sum of aliased_dynamic items
-        let encoded%0#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x48656c6c6f)
-        let encoded%1#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x576f726c64)
-        let dynamic_string_array#0: Encoded(len+len+utf8[][]) = encode<len+len+utf8[][]>(encoded%0#0, encoded%1#0)
+        let encoded%0#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x48656c6c6f)
+        let encoded%1#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x576f726c64)
+        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = encode<(len+(len+utf8[])[])>(encoded%0#0, encoded%1#0)
         let array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
         let tmp%6#0: bool = (== array_length%2#0 2u)
         (assert tmp%6#0)
         let array_item%2#0: Encoded(len+utf8[]) = dynamic_string_array#0[0u]
-        let encoded%2#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x48656c6c6f)
+        let encoded%2#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x48656c6c6f)
         let tmp%7#0: bool = (== array_item%2#0 encoded%2#0)
         (assert tmp%7#0)
         let result#0: string = ""
@@ -98,9 +98,9 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let tmp%19#0: uint64 = (+ tmp%17#0 tmp%18#0)
         let tmp%20#0: bool = (== tmp%19#0 202u)
         (assert tmp%20#0)
-        let encoded%3#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x50696e67)
-        let encoded%4#0: Encoded(len+utf8[]) = encode<len+utf8[]>(0x506f6e67)
-        let static_string_array#0: Encoded(len+utf8[][2]) = encode<len+utf8[][2]>(encoded%3#0, encoded%4#0)
+        let encoded%3#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x50696e67)
+        let encoded%4#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x506f6e67)
+        let static_string_array#0: Encoded(len+utf8[])[2) = encode<(len+utf8[])[2]>(encoded%3#0, encoded%4#0)
         let result#5: string = ""
         let item_index_internal%4#0: uint64 = 0u
         goto block@20

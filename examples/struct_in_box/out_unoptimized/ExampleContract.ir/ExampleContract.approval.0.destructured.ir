@@ -15,8 +15,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let reinterpret_Encoded((len+utf8[],uint64,uint64))%0#0: Encoded((len+utf8[],uint64,uint64)) = (txna ApplicationArgs 1)
-        examples.struct_in_box.contract.ExampleContract.add_user(reinterpret_Encoded((len+utf8[],uint64,uint64))%0#0)
+        let reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0: Encoded((len+utf8[]),uint64,uint64) = (txna ApplicationArgs 1)
+        examples.struct_in_box.contract.ExampleContract.add_user(reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0)
         let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
         goto block@13
@@ -43,7 +43,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%16#0: bool = (!= tmp%15#0 0u)
         (assert tmp%16#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%17#0: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_Encoded(uint64)%1#0)
+        let tmp%17#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_Encoded(uint64)%1#0)
         let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
         (log tmp%18#0)
         let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 1u
@@ -78,18 +78,18 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@13: // after_inlined_examples.struct_in_box.contract.ExampleContract.__puya_arc4_router___L1
         return tmp%0#0
 
-subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: Encoded(uint64)) -> Encoded((len+utf8[],uint64,uint64)):
+subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id: Encoded(uint64)) -> Encoded((len+utf8[]),uint64,uint64):
     block@0: // L11
         let (tmp%0#0: bytes, tmp%1#0: bool) = (box_get user_id#0)
         let box_data#0: bytes = tmp%0#0
         let exists#0: bool = tmp%1#0
         (assert exists#0) // User with that id does not exist
-        let reinterpret_Encoded((len+utf8[],uint64,uint64))%0#0: Encoded((len+utf8[],uint64,uint64)) = box_data#0
-        return reinterpret_Encoded((len+utf8[],uint64,uint64))%0#0
+        let reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0: Encoded((len+utf8[]),uint64,uint64) = box_data#0
+        return reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0
 
-subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: Encoded((len+utf8[],uint64,uint64))) -> Encoded((len+utf8[],uint64,uint64)):
+subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: Encoded((len+utf8[]),uint64,uint64)) -> Encoded((len+utf8[]),uint64,uint64):
     block@0: // L17
-        let user%out#0: Encoded((len+utf8[],uint64,uint64)) = user#0
+        let user%out#0: Encoded((len+utf8[]),uint64,uint64) = user#0
         let array%extract%0#1: bytes = (extract3 user#0 2u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let box_key#0: bytes = tuple_item%0#0
@@ -103,30 +103,30 @@ subroutine examples.struct_in_box.contract.ExampleContract.box_exists(user_id: E
         let exists#0: bool = tmp%1#0
         return exists#0
 
-subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[],uint64,uint64))) -> void:
+subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[]),uint64,uint64)) -> void:
     block@0: // L30
         let array%extract%0#1: bytes = (extract3 user#0 2u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.box_exists(tuple_item%0#0)
         let tmp%1#0: bool = (! tmp%0#0)
         (assert tmp%1#0) // User with id must not exist
-        let write_to_box%0#0: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
+        let write_to_box%0#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
         return 
 
 subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: Encoded(uint64), asset: uint64) -> void:
     block@0: // L35
-        let tmp%0#0: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
-        let user#0: Encoded((len+utf8[],uint64,uint64)) = tmp%0#0
+        let tmp%0#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
+        let user#0: Encoded((len+utf8[]),uint64,uint64) = tmp%0#0
         let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let tmp%1#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
         let array%updated_data%0#1: bytes = (replace3 user#0 10u tmp%1#0)
-        let updated_tuple%0#0: Encoded((len+utf8[],uint64,uint64)) = array%updated_data%0#1
-        let user#0: Encoded((len+utf8[],uint64,uint64)) = updated_tuple%0#0
-        let write_to_box%0#0: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
+        let updated_tuple%0#0: Encoded((len+utf8[]),uint64,uint64) = array%updated_data%0#1
+        let user#0: Encoded((len+utf8[]),uint64,uint64) = updated_tuple%0#0
+        let write_to_box%0#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
         return 
 
-subroutine examples.struct_in_box.contract.ExampleContract.get_user(user_id: Encoded(uint64)) -> Encoded((len+utf8[],uint64,uint64)):
+subroutine examples.struct_in_box.contract.ExampleContract.get_user(user_id: Encoded(uint64)) -> Encoded((len+utf8[]),uint64,uint64):
     block@0: // L41
-        let tmp%0#0: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
+        let tmp%0#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
         return tmp%0#0
