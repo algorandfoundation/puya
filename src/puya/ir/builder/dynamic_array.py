@@ -203,19 +203,24 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def concat(
         self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
     ) -> ir.Value:
-        _, head_and_tail = self._get_iterable_length_and_head_tail(iterable, iterable_ir_type)
-        head_and_tail = self.factory.materialise_single(head_and_tail)
+        _, iter_head_and_tail = self._get_iterable_length_and_head_tail(iterable, iterable_ir_type)
+        iter_head_and_tail = self.factory.materialise_single(iter_head_and_tail)
         updated_array = self.factory.concat(
-            array, head_and_tail, ir_type=array.ir_type, error_message="max array length exceeded"
+            array,
+            iter_head_and_tail,
+            ir_type=array.ir_type,
+            error_message="max array length exceeded",
         )
         if self.array_encoding.length_header:
-            # TODO: if iterable is a tuple, would it be more efficient to just
-            #       increment the length header by a constant?
-            array_without_header = self.factory.extract_to_end(updated_array, 2)
-            array_bytes = self.factory.len(array_without_header)
-            array_len = self.factory.div_floor(
-                array_bytes, self.array_encoding.element.checked_num_bytes
-            )
+            if isinstance(iterable_ir_type, TupleIRType):
+                existing_len = self.factory.extract_uint16(array, 0)
+                array_len = self.factory.add(existing_len, len(iterable_ir_type.elements))
+            else:
+                array_head_and_tail = self.factory.extract_to_end(updated_array, 2)
+                array_bytes_len = self.factory.len(array_head_and_tail)
+                array_len = self.factory.div_floor(
+                    array_bytes_len, self.array_encoding.element.checked_num_bytes
+                )
             array_len_u16 = self.factory.as_u16_bytes(array_len)
             updated_array = self.factory.replace(updated_array, 0, array_len_u16)
         return self._as_array_type(updated_array)
@@ -244,14 +249,35 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     def concat(
         self, array: ir.Value, iterable: ir.MultiValue, iterable_ir_type: IRType | TupleIRType
     ) -> ir.Value:
-        r_count, r_head_and_tail = self._get_iterable_length_and_head_tail(
-            iterable, iterable_ir_type
-        )
-        r_count = self.factory.materialise_single(r_count)
-        r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
-        # TODO: ideally just construct the tail directly
-        start_of_tail = self.factory.mul(r_count, 2, "start_of_tail")
-        r_tail = self.factory.extract_to_end(r_head_and_tail, start_of_tail, "data")
+        if isinstance(iterable_ir_type, TupleIRType):
+            tuple_size = len(iterable_ir_type.elements)
+            r_count: ir.Value = self.factory.constant(tuple_size)
+            # only need to construct the tail, so iterate and concat
+            r_tail: ir.Value = self.factory.constant(b"")
+            values = self.factory.materialise_values(iterable)
+            (element_ir_type,) = set(iterable_ir_type.elements)
+            element_encoding = self.array_encoding.element
+            for _ in range(tuple_size):
+                encoded_element_vp = ir.ValueEncode(
+                    values=values[: element_ir_type.arity],
+                    encoding=element_encoding,
+                    value_type=element_ir_type,
+                    source_location=self.loc,
+                )
+                encoded_element = self.factory.materialise_single(encoded_element_vp)
+                r_tail = self.factory.concat(r_tail, encoded_element)
+                values = values[element_ir_type.arity :]
+            assert not values, "too many values to encode"
+        else:
+            # existing iterable, get head and tail and remove head
+            r_count_vp, r_head_and_tail = self._get_iterable_length_and_head_tail(
+                iterable, iterable_ir_type
+            )
+            r_count = self.factory.materialise_single(r_count_vp)
+            r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
+            start_of_tail = self.factory.mul(r_count, 2, "start_of_tail")
+            r_tail = self.factory.extract_to_end(r_head_and_tail, start_of_tail, "data")
+
         invoke = invoke_puya_lib_subroutine(
             self.context,
             full_name=PuyaLibIR.dynamic_array_concat_byte_length_head,
