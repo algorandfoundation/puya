@@ -1,8 +1,6 @@
 import typing
 from collections.abc import Callable, Sequence
 
-import attrs
-
 from puya import log
 from puya.awst import (
     nodes as awst_nodes,
@@ -16,7 +14,6 @@ from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import assign, assign_targets, get_implicit_return_is_original
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.types_ import PrimitiveIRType, SlotType, get_wtype_arity
-from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -37,13 +34,6 @@ def handle_assignment_expr(
         is_nested_update=False,
         assignment_location=assignment_location,
     )
-
-
-@attrs.frozen
-class _ConstantIndexOperand:
-    index: int
-    source_location: SourceLocation
-    field_name: str | None = None
 
 
 _IndexOp = awst_nodes.IndexExpression | awst_nodes.FieldExpression | awst_nodes.TupleItemExpression
@@ -329,29 +319,3 @@ def _handle_maybe_implicit_return_assignment(
         assignment_location=assignment_loc,
     )
     return registers
-
-
-def _get_tuple_var_name(
-    expr: awst_nodes.TupleItemExpression | awst_nodes.FieldExpression, ass_loc: SourceLocation
-) -> str:
-    if isinstance(expr.base.wtype, wtypes.WTuple):
-        if isinstance(expr, awst_nodes.TupleItemExpression):
-            name_or_index: str | int = expr.index
-        else:
-            typing.assert_type(expr, awst_nodes.FieldExpression)
-            name_or_index = expr.name
-        if isinstance(expr.base, awst_nodes.FieldExpression):
-            return format_tuple_index(
-                expr.base.wtype, _get_tuple_var_name(expr.base, ass_loc), name_or_index
-            )
-        if isinstance(expr.base, awst_nodes.TupleItemExpression):
-            return format_tuple_index(
-                expr.base.wtype, _get_tuple_var_name(expr.base, ass_loc), name_or_index
-            )
-        if isinstance(expr.base, awst_nodes.VarExpression):
-            return format_tuple_index(expr.base.wtype, expr.base.name, name_or_index)
-        if isinstance(expr.base, awst_nodes.StorageExpression):
-            raise CodeError(
-                "updating mutable elements within a tuple in storage is not supported", ass_loc
-            )
-    raise CodeError("invalid assignment target", expr.base.source_location)
