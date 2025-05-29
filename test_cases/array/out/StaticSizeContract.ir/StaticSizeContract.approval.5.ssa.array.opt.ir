@@ -164,15 +164,12 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
 subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encoded(uint64), y1: uint64, x2: Encoded(uint64), y2: uint64) -> uint64:
     block@0: // L41
         (app_global_put "count" 0u)
-        let (tmp%0#0: uint64, tmp%1#0: uint64, tmp%2#0: bytes[32], tmp%3#0: Encoded((uint64,uint64)), tmp%4#0: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
-        let (tmp%5#0: uint64, tmp%6#0: uint64, tmp%7#0: bytes[32], tmp%8#0: Encoded((uint64,uint64)), tmp%9#0: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
-        let (tmp%10#0: uint64, tmp%11#0: uint64, tmp%12#0: bytes[32], tmp%13#0: Encoded((uint64,uint64)), tmp%14#0: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
+        let (tmp%0#0: uint64, tmp%1#0: uint64, tmp%2#0: account, tmp%3#0: Encoded((uint64,uint64)), tmp%4#0: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
+        let (tmp%5#0: uint64, tmp%6#0: uint64, tmp%7#0: account, tmp%8#0: Encoded((uint64,uint64)), tmp%9#0: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
+        let (tmp%10#0: uint64, tmp%11#0: uint64, tmp%12#0: account, tmp%13#0: Encoded((uint64,uint64)), tmp%14#0: biguint) = test_cases.array.static_size.StaticSizeContract.xtra()
         let array%val_as_bytes%1#1: bytes[8] = (itob tmp%0#0)
         let array%val_as_bytes%2#1: bytes[8] = (itob tmp%1#0)
         let array%encoded%3#1: Encoded((uint64,uint64)) = (concat array%val_as_bytes%1#1 array%val_as_bytes%2#1)
-        let array%length%0#1: uint64 = (len tmp%2#0)
-        let array%lengths_equal%0#1: bool = (== array%length%0#1 32u)
-        (assert array%lengths_equal%0#1) // invalid size
         let array%encoded%4#1: Encoded((uint64,uint64,uint8[32])) = (concat array%encoded%3#1 tmp%2#0)
         let array%encoded%5#1: Encoded((uint64,uint64,uint8[32],(uint64,uint64))) = (concat array%encoded%4#1 tmp%3#0)
         let array%value_len%0#1: uint64 = (len tmp%4#0)
@@ -187,9 +184,6 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let array%val_as_bytes%4#1: bytes[8] = (itob tmp%5#0)
         let array%val_as_bytes%5#1: bytes[8] = (itob tmp%6#0)
         let array%encoded%14#1: Encoded((uint64,uint64)) = (concat array%val_as_bytes%4#1 array%val_as_bytes%5#1)
-        let array%length%1#1: uint64 = (len tmp%7#0)
-        let array%lengths_equal%1#1: bool = (== array%length%1#1 32u)
-        (assert array%lengths_equal%1#1) // invalid size
         let array%encoded%15#1: Encoded((uint64,uint64,uint8[32])) = (concat array%encoded%14#1 tmp%7#0)
         let array%encoded%16#1: Encoded((uint64,uint64,uint8[32],(uint64,uint64))) = (concat array%encoded%15#1 tmp%8#0)
         let array%value_len%1#1: uint64 = (len tmp%9#0)
@@ -204,9 +198,6 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let array%val_as_bytes%7#1: bytes[8] = (itob tmp%10#0)
         let array%val_as_bytes%8#1: bytes[8] = (itob tmp%11#0)
         let array%encoded%25#1: Encoded((uint64,uint64)) = (concat array%val_as_bytes%7#1 array%val_as_bytes%8#1)
-        let array%length%2#1: uint64 = (len tmp%12#0)
-        let array%lengths_equal%2#1: bool = (== array%length%2#1 32u)
-        (assert array%lengths_equal%2#1) // invalid size
         let array%encoded%26#1: Encoded((uint64,uint64,uint8[32])) = (concat array%encoded%25#1 tmp%12#0)
         let array%encoded%27#1: Encoded((uint64,uint64,uint8[32],(uint64,uint64))) = (concat array%encoded%26#1 tmp%13#0)
         let array%value_len%2#1: uint64 = (len tmp%14#0)
@@ -490,14 +481,14 @@ subroutine test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: E
     block@4: // after_for_L118
         return total#1
 
-subroutine test_cases.array.static_size.StaticSizeContract.xtra() -> <uint64, uint64, bytes[32], Encoded((uint64,uint64)), biguint>:
+subroutine test_cases.array.static_size.StaticSizeContract.xtra() -> <uint64, uint64, account, Encoded((uint64,uint64)), biguint>:
     block@0: // L123
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "count")
         (assert maybe_exists%0#0) // check self.count exists
         let tmp%0#0: uint64 = (+ maybe_value%0#0 1u)
         (app_global_put "count" tmp%0#0)
         let tmp%1#0: uint64 = (txn NumAppArgs)
-        let tmp%2#0: bytes[32] = (txn Sender)
+        let tmp%2#0: account = (txn Sender)
         let tmp%3#0: Encoded((uint64,uint64)) = test_cases.array.static_size.StaticSizeContract.more()
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "count")
         (assert maybe_exists%2#0) // check self.count exists
@@ -518,12 +509,12 @@ subroutine test_cases.array.static_size.StaticSizeContract.more() -> Encoded((ui
 subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> Encoded(len+bool1[]):
     block@0: // L138
         let arr#0: Encoded(bool8[])* = new()
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%1#0: bytes[32] = (txn Receiver)
+        let tmp%0#0: account = (txn Sender)
+        let tmp%1#0: account = (txn Receiver)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         let array%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u tmp%2#0)
-        let tmp%5#0: bytes[32] = (txn Sender)
-        let tmp%6#0: bytes[32] = (txn Receiver)
+        let tmp%5#0: account = (txn Sender)
+        let tmp%6#0: account = (txn Receiver)
         let tmp%7#0: bool = (!= tmp%5#0 tmp%6#0)
         let array%encoded_bool%1#1: bytes[1] = (setbit 0x00 0u tmp%7#0)
         let concat%1#0: Encoded(bool8[]) = (concat array%encoded_bool%0#1 array%encoded_bool%1#1) // on error: max array length exceeded
@@ -541,8 +532,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let array%is_true%0#1: bool = (getbit array%array_trimmed%0#1 0u)
         let array%encoded_bool%2#1: bytes[1] = (setbit 0x00 0u array%is_true%0#1)
         let tmp%14#0: bool = (getbit array%encoded_bool%2#1 0u)
-        let tmp%15#0: bytes[32] = (txn Sender)
-        let tmp%16#0: bytes[32] = (txn Receiver)
+        let tmp%15#0: account = (txn Sender)
+        let tmp%16#0: account = (txn Receiver)
         let tmp%17#0: bool = (== tmp%15#0 tmp%16#0)
         let tmp%18#0: bool = (== tmp%14#0 tmp%17#0)
         (assert tmp%18#0) // expected correct value at 0
@@ -551,8 +542,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let array%is_true%1#1: bool = (getbit array%array_trimmed%0#1 1u)
         let array%encoded_bool%3#1: bytes[1] = (setbit 0x00 0u array%is_true%1#1)
         let tmp%20#0: bool = (getbit array%encoded_bool%3#1 0u)
-        let tmp%21#0: bytes[32] = (txn Sender)
-        let tmp%22#0: bytes[32] = (txn Receiver)
+        let tmp%21#0: account = (txn Sender)
+        let tmp%22#0: account = (txn Receiver)
         let tmp%23#0: bool = (!= tmp%21#0 tmp%22#0)
         let tmp%24#0: bool = (== tmp%20#0 tmp%23#0)
         (assert tmp%24#0) // expected correct value at 1
@@ -580,29 +571,29 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         (assert tmp%27#0) // expected correct length
         let array%encoded_element%0#1: bytes = ((extract 0 1) slot_contents%5#0) // on error: index access is out of bounds
         let tmp%28#0: bool = (getbit array%encoded_element%0#1 0u)
-        let tmp%29#0: bytes[32] = (txn Sender)
-        let tmp%30#0: bytes[32] = (txn Receiver)
+        let tmp%29#0: account = (txn Sender)
+        let tmp%30#0: account = (txn Receiver)
         let tmp%31#0: bool = (== tmp%29#0 tmp%30#0)
         let tmp%32#0: bool = (== tmp%28#0 tmp%31#0)
         (assert tmp%32#0) // expected correct value at 0
         let array%encoded_element%1#1: bytes = ((extract 1 1) slot_contents%5#0) // on error: index access is out of bounds
         let tmp%33#0: bool = (getbit array%encoded_element%1#1 0u)
-        let tmp%34#0: bytes[32] = (txn Sender)
-        let tmp%35#0: bytes[32] = (txn Receiver)
+        let tmp%34#0: account = (txn Sender)
+        let tmp%35#0: account = (txn Receiver)
         let tmp%36#0: bool = (!= tmp%34#0 tmp%35#0)
         let tmp%37#0: bool = (== tmp%33#0 tmp%36#0)
         (assert tmp%37#0) // expected correct value at 1
         let array%encoded_element%2#1: bytes = ((extract 2 1) slot_contents%5#0) // on error: index access is out of bounds
         let tmp%38#0: bool = (getbit array%encoded_element%2#1 0u)
-        let tmp%39#0: bytes[32] = (txn Sender)
-        let tmp%40#0: bytes[32] = (txn Receiver)
+        let tmp%39#0: account = (txn Sender)
+        let tmp%40#0: account = (txn Receiver)
         let tmp%41#0: bool = (== tmp%39#0 tmp%40#0)
         let tmp%42#0: bool = (== tmp%38#0 tmp%41#0)
         (assert tmp%42#0) // expected correct value at 2
         let array%encoded_element%3#1: bytes = ((extract 3 1) slot_contents%5#0) // on error: index access is out of bounds
         let tmp%43#0: bool = (getbit array%encoded_element%3#1 0u)
-        let tmp%44#0: bytes[32] = (txn Sender)
-        let tmp%45#0: bytes[32] = (txn Receiver)
+        let tmp%44#0: account = (txn Sender)
+        let tmp%45#0: account = (txn Receiver)
         let tmp%46#0: bool = (!= tmp%44#0 tmp%45#0)
         let tmp%47#0: bool = (== tmp%43#0 tmp%46#0)
         (assert tmp%47#0) // expected correct value at 3

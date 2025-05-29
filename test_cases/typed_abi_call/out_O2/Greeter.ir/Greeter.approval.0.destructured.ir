@@ -366,11 +366,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%47#0: uint64 = (btoi reinterpret_Encoded(uint8)%7#0)
         let asset#0: uint64 = ((txnas Assets) tmp%47#0)
         itxn_begin
-        let tmp%0#3: Encoded(uint64) = (global CurrentApplicationAddress)
+        let tmp%0#11: account = (global CurrentApplicationAddress)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field Assets) asset#0)
         ((itxn_field Applications) app#0)
-        ((itxn_field Accounts) tmp%0#3)
+        ((itxn_field Accounts) tmp%0#11)
         ((itxn_field ApplicationArgs) method "log(asset,account,application)void")
         ((itxn_field ApplicationArgs) 0x00)
         ((itxn_field ApplicationArgs) 0x01)
@@ -381,9 +381,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let txn.LastLog#0: bytes = (itxn LastLog)
         let (value%0#0: bytes, check%0#0: bool) = ((asset_params_get AssetName) asset#0)
         (assert check%0#0) // asset exists
-        let tmp%1#2: bytes = (global CurrentApplicationAddress)
-        let tmp%2#0: bytes = (concat value%0#0 tmp%1#2)
-        let (value%1#0: bytes[32], check%1#0: bool) = ((app_params_get AppAddress) app#0)
+        let tmp%1#10: account = (global CurrentApplicationAddress)
+        let tmp%2#0: bytes = (concat value%0#0 tmp%1#10)
+        let (value%1#0: account, check%1#0: bool) = ((app_params_get AppAddress) app#0)
         (assert check%1#0) // application exists
         let tmp%3#3: bytes = (concat tmp%2#0 value%1#0)
         let tmp%4#0: bool = (== txn.LastLog#0 tmp%3#3)
@@ -401,16 +401,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%53#0: uint64 = (btoi reinterpret_Encoded(uint8)%8#0)
         let app#0: uint64 = ((txnas Applications) tmp%53#0)
         itxn_begin
-        let tmp%0#3: Encoded(uint64) = (global CurrentApplicationAddress)
+        let tmp%0#11: account = (global CurrentApplicationAddress)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "log(address)void")
-        ((itxn_field ApplicationArgs) tmp%0#3)
+        ((itxn_field ApplicationArgs) tmp%0#11)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
-        let tmp%2#0: bytes = (global CurrentApplicationAddress)
-        let tmp%3#1: bool = (== txn.LastLog#0 tmp%2#0)
+        let tmp%2#11: account = (global CurrentApplicationAddress)
+        let tmp%3#1: bool = (== txn.LastLog#0 tmp%2#11)
         (assert tmp%3#1)
         let test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.typed_abi_call.typed_c2c.Greeter.__puya_arc4_router__%0#0

@@ -36,8 +36,8 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer() -> void:
     block@0: // L11
         itxn_begin
-        let inner_txn_params%0%%param_ConfigAssetManager_idx_0#0: bytes[32] = (global CurrentApplicationAddress)
-        let inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0: bytes[32] = (global CurrentApplicationAddress)
+        let inner_txn_params%0%%param_ConfigAssetManager_idx_0#0: account = (global CurrentApplicationAddress)
+        let inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0: account = (global CurrentApplicationAddress)
         ((itxn_field ConfigAssetClawback) inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0)
         ((itxn_field ConfigAssetManager) inner_txn_params%0%%param_ConfigAssetManager_idx_0#0)
         ((itxn_field ConfigAssetDecimals) 0u)
@@ -49,9 +49,9 @@ subroutine test_cases.inner_transactions.asset_transfer.CreateAndTransferContrac
         itxn_submit
         let new_asset#0: uint64 = (itxn CreatedAssetID)
         itxn_begin
-        let (value%0#0: bytes[32], check%0#0: bool) = ((asset_params_get AssetCreator) new_asset#0)
+        let (value%0#0: account, check%0#0: bool) = ((asset_params_get AssetCreator) new_asset#0)
         (assert check%0#0) // asset exists
-        let inner_txn_params%1%%param_AssetReceiver_idx_0#0: bytes[32] = (global CurrentApplicationAddress)
+        let inner_txn_params%1%%param_AssetReceiver_idx_0#0: account = (global CurrentApplicationAddress)
         ((itxn_field XferAsset) new_asset#0)
         ((itxn_field AssetAmount) 1000u)
         ((itxn_field AssetReceiver) inner_txn_params%1%%param_AssetReceiver_idx_0#0)

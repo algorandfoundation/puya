@@ -264,11 +264,11 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L35
         let tmp%0#0: bool = (box_create "tup_bag" 176u)
         (assert tmp%0#0) // box already exists
-        let tmp%1#0: bytes[32] = (txn Sender)
+        let tmp%1#0: account = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let tuple_item%0#0: Encoded(uint8[32]) = maybe_value%0#0[2]
-        let values%0#0: bytes[32] = decode<bytes[32]>(tuple_item%0#0)
+        let values%0#0: account = decode<account>(tuple_item%0#0)
         let encoded_value%0#0: Encoded(uint8[32]) = encode<uint8[32]>(tmp%1#0)
         let updated_tuple%0#0: Encoded((uint64,(uint64,uint64)[8],uint8[32],uint64)) = maybe_value%0#0.update(2, encoded_value%0#0)
         (box_put "tup_bag" updated_tuple%0#0)
@@ -554,8 +554,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let tuple_item%0#0: Encoded(uint8[32]) = maybe_value%0#0[2]
-        let values%0#0: bytes[32] = decode<bytes[32]>(tuple_item%0#0)
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let values%0#0: account = decode<account>(tuple_item%0#0)
+        let tmp%0#0: account = (txn Sender)
         let tmp%1#0: bool = (== values%0#0 tmp%0#0)
         (assert tmp%1#0) // sender not authorized
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")

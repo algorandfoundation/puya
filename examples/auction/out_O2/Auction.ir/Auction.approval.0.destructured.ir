@@ -7,7 +7,7 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (app_global_put "previous_bid" 0u)
         (app_global_put "asa_amount" 0u)
         (app_global_put "asa" 0u)
-        let tmp%0#2: bytes[32] = (global ZeroAddress)
+        let tmp%0#2: account = (global ZeroAddress)
         (app_global_put "previous_bidder" tmp%0#2)
         goto block@2
     block@2: // after_if_else_L1
@@ -25,8 +25,8 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
         let tmp%7#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
         let asset#0: uint64 = ((txnas Assets) tmp%7#0)
-        let tmp%0#2: bytes[32] = (txn Sender)
-        let tmp%1#2: bytes[32] = (global CreatorAddress)
+        let tmp%0#2: account = (txn Sender)
+        let tmp%1#2: account = (global CreatorAddress)
         let tmp%2#1: bool = (== tmp%0#2 tmp%1#2)
         (assert tmp%2#1) // Only creator can opt in to ASA
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
@@ -35,7 +35,7 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (assert tmp%3#3) // ASA already opted in
         (app_global_put "asa" asset#0)
         itxn_begin
-        let inner_txn_params%0%%param_AssetReceiver_idx_0#1: bytes[32] = (global CurrentApplicationAddress)
+        let inner_txn_params%0%%param_AssetReceiver_idx_0#1: account = (global CurrentApplicationAddress)
         ((itxn_field XferAsset) asset#0)
         ((itxn_field AssetReceiver) inner_txn_params%0%%param_AssetReceiver_idx_0#1)
         ((itxn_field TypeEnum) axfer)
@@ -59,16 +59,16 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) axfer#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 axfer)
         (assert gtxn_type_matches%0#0) // transaction type is axfer
-        let tmp%0#2: bytes[32] = (txn Sender)
-        let tmp%1#2: bytes[32] = (global CreatorAddress)
+        let tmp%0#2: account = (txn Sender)
+        let tmp%1#2: account = (global CreatorAddress)
         let tmp%2#1: bool = (== tmp%0#2 tmp%1#2)
         (assert tmp%2#1) // auction must be started by creator
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
         (assert maybe_exists%0#0) // check self.auction_end exists
         let tmp%3#3: bool = (! maybe_value%0#0)
         (assert tmp%3#3) // auction already started
-        let tmp%4#3: bytes[32] = ((gtxns AssetReceiver) axfer#0)
-        let tmp%5#1: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%4#3: account = ((gtxns AssetReceiver) axfer#0)
+        let tmp%5#1: account = (global CurrentApplicationAddress)
         let tmp%6#1: bool = (== tmp%4#3 tmp%5#1)
         (assert tmp%6#1) // axfer must transfer to this app
         let tmp%7#0: uint64 = ((gtxns AssetAmount) axfer#0)
@@ -105,9 +105,9 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (assert maybe_exists%0#0) // check self.auction_end exists
         let tmp%1#1: bool = (< tmp%0#3 maybe_value%0#0)
         (assert tmp%1#1) // auction has ended
-        let tmp%2#0: bytes = ((gtxns Sender) pay#0)
-        let tmp%3#2: bytes[32] = (txn Sender)
-        let tmp%4#0: bool = (== tmp%2#0 tmp%3#2)
+        let tmp%2#2: account = ((gtxns Sender) pay#0)
+        let tmp%3#2: account = (txn Sender)
+        let tmp%4#0: bool = (== tmp%2#2 tmp%3#2)
         (assert tmp%4#0) // payment sender must match transaction sender
         let tmp%5#0: uint64 = ((gtxns Amount) pay#0)
         let (maybe_value%1#2: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bid")
@@ -115,8 +115,8 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%6#1: bool = (> tmp%5#0 maybe_value%1#2)
         (assert tmp%6#1) // Bid must be higher than previous bid
         (app_global_put "previous_bid" tmp%5#0)
-        (app_global_put "previous_bidder" tmp%2#0)
-        let tmp%10#1: bytes[32] = (txn Sender)
+        (app_global_put "previous_bidder" tmp%2#2)
+        let tmp%10#1: account = (txn Sender)
         (app_local_put tmp%10#1 "claim" tmp%5#0)
         let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0
@@ -127,10 +127,10 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (assert tmp%26#0) // OnCompletion is not NoOp
         let tmp%27#0: uint64 = (txn ApplicationID)
         (assert tmp%27#0) // can only call when not creating
-        let tmp%0#2: bytes[32] = (txn Sender)
+        let tmp%0#2: account = (txn Sender)
         let (original_amount#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#2 0u "claim")
         (assert maybe_exists%0#0) // check self.claimable_amount exists for account
-        let tmp%1#2: bytes[32] = (txn Sender)
+        let tmp%1#2: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists
         let tmp%2#1: bool = (== tmp%1#2 maybe_value%1#0)
@@ -143,14 +143,14 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         goto block@11
     block@11: // after_if_else_L87
         itxn_begin
-        let inner_txn_params%0%%param_Receiver_idx_0#0: bytes[32] = (txn Sender)
+        let inner_txn_params%0%%param_Receiver_idx_0#0: account = (txn Sender)
         ((itxn_field Receiver) inner_txn_params%0%%param_Receiver_idx_0#0)
         ((itxn_field Amount) amount#1)
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         itxn_submit
         let tmp%4#1: uint64 = (- original_amount#0 amount#1)
-        let tmp%5#1: bytes[32] = (txn Sender)
+        let tmp%5#1: account = (txn Sender)
         (app_local_put tmp%5#1 "claim" tmp%4#1)
         let examples.auction.contract.Auction.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.auction.contract.Auction.__puya_arc4_router__%0#0

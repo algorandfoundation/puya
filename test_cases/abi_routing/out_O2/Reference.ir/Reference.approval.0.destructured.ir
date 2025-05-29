@@ -6,7 +6,7 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (app_global_put "asa" 123u)
         (app_global_put "an_int" 2u)
         (app_global_put "some_bytes" 0x070809)
-        let tmp%0#2: bytes[32] = (txn Sender)
+        let tmp%0#2: account = (txn Sender)
         (app_global_put "creator" tmp%0#2)
         (app_global_put "app" 123u)
         goto block@2
@@ -45,10 +45,10 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let uint#0: uint64 = (btoi reinterpret_Encoded(uint64)%1#0)
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
         let bites#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
-        let tmp%0#2: bytes[32] = (txn Sender)
+        let tmp%0#2: account = (txn Sender)
         (app_local_put tmp%0#2 "local_uint" uint#0)
-        let tmp%1#3: bytes = (txn Sender)
-        (app_local_put tmp%1#3 "local_bytes" bites#0)
+        let tmp%1#8: account = (txn Sender)
+        (app_local_put tmp%1#8 "local_bytes" bites#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#0
         goto block@23
@@ -95,9 +95,9 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
         let tmp%28#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
         let asset#0: uint64 = ((txnas Assets) tmp%28#0)
-        let tmp%0#2: bytes[32] = (txn Sender)
-        let tmp%1#3: bytes = (global CreatorAddress)
-        let tmp%2#5: bool = (== tmp%0#2 tmp%1#3)
+        let tmp%0#2: account = (txn Sender)
+        let tmp%1#8: account = (global CreatorAddress)
+        let tmp%2#5: bool = (== tmp%0#2 tmp%1#8)
         (assert tmp%2#5) // Only creator can opt in to ASA
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
         (assert maybe_exists%0#0) // check self.asa exists
@@ -107,7 +107,7 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         itxn_begin
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
-        let tmp%4#3: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%4#3: account = (global CurrentApplicationAddress)
         ((itxn_field AssetReceiver) tmp%4#3)
         ((itxn_field XferAsset) asset#0)
         itxn_submit
@@ -137,8 +137,8 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%1#5: uint64 = (btoi an_int#0)
         let tmp%2#5: bool = (== tmp%1#5 1u)
         (assert tmp%2#5) // is correct int
-        let tmp%3#5: bytes[32] = ((gtxns Receiver) pay#0)
-        let tmp%4#3: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%3#5: account = ((gtxns Receiver) pay#0)
+        let tmp%4#3: account = (global CurrentApplicationAddress)
         let tmp%5#1: bool = (== tmp%3#5 tmp%4#3)
         (assert tmp%5#1) // is payment to app
         let tmp%6#2: uint64 = (btoi another_int#0)
@@ -218,10 +218,10 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let asset_from_function#0: uint64 = ((txnas Assets) tmp%75#0)
         let reinterpret_Encoded(uint8)%6#0: Encoded(uint8) = (txna ApplicationArgs 3)
         let tmp%77#0: uint64 = (btoi reinterpret_Encoded(uint8)%6#0)
-        let account_from_storage#0: bytes[32] = ((txnas Accounts) tmp%77#0)
+        let account_from_storage#0: account = ((txnas Accounts) tmp%77#0)
         let reinterpret_Encoded(uint8)%7#0: Encoded(uint8) = (txna ApplicationArgs 4)
         let tmp%79#0: uint64 = (btoi reinterpret_Encoded(uint8)%7#0)
-        let account_from_function#0: bytes[32] = ((txnas Accounts) tmp%79#0)
+        let account_from_function#0: account = ((txnas Accounts) tmp%79#0)
         let reinterpret_Encoded(uint8)%8#0: Encoded(uint8) = (txna ApplicationArgs 5)
         let tmp%81#0: uint64 = (btoi reinterpret_Encoded(uint8)%8#0)
         let application_from_storage#0: uint64 = ((txnas Applications) tmp%81#0)
@@ -241,10 +241,10 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (assert tmp%0#0) // wrong asset from storage
         let tmp%1#4: bool = (== asset_from_function#0 456u)
         (assert tmp%1#4) // wrong asset from function
-        let tmp%2#1: bytes = (global CreatorAddress)
-        let tmp%3#2: bool = (== account_from_storage#0 tmp%2#1)
+        let tmp%2#4: account = (global CreatorAddress)
+        let tmp%3#2: bool = (== account_from_storage#0 tmp%2#4)
         (assert tmp%3#2) // wrong account from storage
-        let tmp%4#3: bytes[32] = (global ZeroAddress)
+        let tmp%4#3: account = (global ZeroAddress)
         let tmp%5#1: bool = (== account_from_function#0 tmp%4#3)
         (assert tmp%5#1) // wrong account from function
         let tmp%6#3: bool = (== application_from_storage#0 123u)
@@ -270,12 +270,12 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (assert tmp%15#2)
         let tmp%16#2: bool = (== str_from_const#0 0x0003616263)
         (assert tmp%16#2)
-        let tmp%17#2: bytes[32] = (txn Sender)
+        let tmp%17#2: account = (txn Sender)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%17#2 0u "local_uint")
         (assert maybe_exists%0#0) // check self.local_uint exists for account
         let tmp%18#2: bool = (== int_from_local#0 maybe_value%0#0)
         (assert tmp%18#2)
-        let tmp%19#2: bytes[32] = (txn Sender)
+        let tmp%19#2: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%19#2 0u "local_bytes")
         (assert maybe_exists%1#0) // check self.local_bytes exists for account
         let tmp%20#2: bool = (== bytes_from_local#0 maybe_value%1#0)
@@ -460,8 +460,8 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (assert tmp%127#0) // can only call when not creating
         let reinterpret_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
         let name#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%1#0)
-        let tmp%0#2: bytes[32] = (concat "Hello " name#0)
-        let tmp%1#3: bytes = (concat tmp%0#2 "!")
+        let tmp%0#4: bytes = (concat "Hello " name#0)
+        let tmp%1#3: bytes = (concat tmp%0#4 "!")
         let array%length%2#1: uint64 = (len tmp%1#3)
         let array%as_bytes%2#1: bytes[8] = (itob array%length%2#1)
         let array%length_uint16%2#1: bytes = ((extract 6 2) array%as_bytes%2#1)

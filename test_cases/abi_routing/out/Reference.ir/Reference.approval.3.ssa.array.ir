@@ -11,7 +11,7 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let array%encoded%3#1: Encoded(uint8[3]) = (concat array%encoded%2#1 0x)
         let encoded_array%0#0: Encoded(uint8[3]) = array%encoded%3#1
         (app_global_put "some_bytes" encoded_array%0#0)
-        let tmp%0#2: bytes[32] = (txn Sender)
+        let tmp%0#2: account = (txn Sender)
         (app_global_put "creator" tmp%0#2)
         (app_global_put "app" 123u)
         goto block@2
@@ -164,10 +164,10 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%76#0: uint64 = ((txnas Assets) tmp%75#0)
         let reinterpret_Encoded(uint8)%6#0: Encoded(uint8) = (txna ApplicationArgs 3)
         let tmp%77#0: uint64 = (btoi reinterpret_Encoded(uint8)%6#0)
-        let tmp%78#0: bytes[32] = ((txnas Accounts) tmp%77#0)
+        let tmp%78#0: account = ((txnas Accounts) tmp%77#0)
         let reinterpret_Encoded(uint8)%7#0: Encoded(uint8) = (txna ApplicationArgs 4)
         let tmp%79#0: uint64 = (btoi reinterpret_Encoded(uint8)%7#0)
-        let tmp%80#0: bytes[32] = ((txnas Accounts) tmp%79#0)
+        let tmp%80#0: account = ((txnas Accounts) tmp%79#0)
         let reinterpret_Encoded(uint8)%8#0: Encoded(uint8) = (txna ApplicationArgs 5)
         let tmp%81#0: uint64 = (btoi reinterpret_Encoded(uint8)%8#0)
         let tmp%82#0: uint64 = ((txnas Applications) tmp%81#0)
@@ -361,9 +361,9 @@ subroutine test_cases.abi_routing.contract.Reference.noop_with_uint64(a: Encoded
 
 subroutine test_cases.abi_routing.contract.Reference.opt_in(uint: uint64, bites: bytes) -> void:
     block@0: // L45
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
         (app_local_put tmp%0#0 "local_uint" uint#0)
-        let tmp%1#0: bytes[32] = (txn Sender)
+        let tmp%1#0: account = (txn Sender)
         (app_local_put tmp%1#0 "local_bytes" bites#0)
         return 
 
@@ -400,8 +400,8 @@ subroutine test_cases.abi_routing.contract.Reference.bare_abi_config() -> void:
 
 subroutine test_cases.abi_routing.contract.Reference.opt_into_asset(asset: uint64) -> void:
     block@0: // L92
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%1#0: bytes[32] = (global CreatorAddress)
+        let tmp%0#0: account = (txn Sender)
+        let tmp%1#0: account = (global CreatorAddress)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // Only creator can opt in to ASA
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
@@ -412,7 +412,7 @@ subroutine test_cases.abi_routing.contract.Reference.opt_into_asset(asset: uint6
         itxn_begin
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
-        let tmp%4#0: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%4#0: account = (global CurrentApplicationAddress)
         ((itxn_field AssetReceiver) tmp%4#0)
         ((itxn_field XferAsset) asset#0)
         itxn_submit
@@ -427,8 +427,8 @@ subroutine test_cases.abi_routing.contract.Reference.with_transactions(asset: ui
         let tmp%1#0: uint64 = (btoi an_int#0)
         let tmp%2#0: bool = (== tmp%1#0 1u)
         (assert tmp%2#0) // is correct int
-        let tmp%3#0: bytes[32] = ((gtxns Receiver) pay#0)
-        let tmp%4#0: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%3#0: account = ((gtxns Receiver) pay#0)
+        let tmp%4#0: account = (global CurrentApplicationAddress)
         let tmp%5#0: bool = (== tmp%3#0 tmp%4#0)
         (assert tmp%5#0) // is payment to app
         let tmp%6#0: uint64 = (btoi another_int#0)
@@ -447,16 +447,16 @@ subroutine test_cases.abi_routing.contract.Reference.get_address() -> Encoded(ui
         let tmp%0#0: Encoded(uint8[32]) = (global ZeroAddress)
         return tmp%0#0
 
-subroutine test_cases.abi_routing.contract.Reference.method_with_default_args(asset_from_storage: uint64, asset_from_function: uint64, account_from_storage: bytes[32], account_from_function: bytes[32], application_from_storage: uint64, application_from_function: uint64, bytes_from_storage: Encoded(uint8[3]), int_from_storage: Encoded(uint64), int_from_function: Encoded(uint64), int_from_const: Encoded(uint32), str_from_const: Encoded(len+utf8[]), int_from_local: uint64, bytes_from_local: bytes) -> void:
+subroutine test_cases.abi_routing.contract.Reference.method_with_default_args(asset_from_storage: uint64, asset_from_function: uint64, account_from_storage: account, account_from_function: account, application_from_storage: uint64, application_from_function: uint64, bytes_from_storage: Encoded(uint8[3]), int_from_storage: Encoded(uint64), int_from_function: Encoded(uint64), int_from_const: Encoded(uint32), str_from_const: Encoded(len+utf8[]), int_from_local: uint64, bytes_from_local: bytes) -> void:
     block@0: // L142
         let tmp%0#0: bool = (== asset_from_storage#0 123u)
         (assert tmp%0#0) // wrong asset from storage
         let tmp%1#0: bool = (== asset_from_function#0 456u)
         (assert tmp%1#0) // wrong asset from function
-        let tmp%2#0: bytes[32] = (global CreatorAddress)
+        let tmp%2#0: account = (global CreatorAddress)
         let tmp%3#0: bool = (== account_from_storage#0 tmp%2#0)
         (assert tmp%3#0) // wrong account from storage
-        let tmp%4#0: bytes[32] = (global ZeroAddress)
+        let tmp%4#0: account = (global ZeroAddress)
         let tmp%5#0: bool = (== account_from_function#0 tmp%4#0)
         (assert tmp%5#0) // wrong account from function
         let tmp%6#0: bool = (== application_from_storage#0 123u)
@@ -494,12 +494,12 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_default_args(as
         let encoded%0#0: Encoded(len+utf8[]) = array%as_Encoded(len+utf8[])%0#1
         let tmp%16#0: bool = (== str_from_const#0 encoded%0#0)
         (assert tmp%16#0)
-        let tmp%17#0: bytes[32] = (txn Sender)
+        let tmp%17#0: account = (txn Sender)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%17#0 0u "local_uint")
         (assert maybe_exists%0#0) // check self.local_uint exists for account
         let tmp%18#0: bool = (== int_from_local#0 maybe_value%0#0)
         (assert tmp%18#0)
-        let tmp%19#0: bytes[32] = (txn Sender)
+        let tmp%19#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%19#0 0u "local_bytes")
         (assert maybe_exists%1#0) // check self.local_bytes exists for account
         let tmp%20#0: bool = (== bytes_from_local#0 maybe_value%1#0)

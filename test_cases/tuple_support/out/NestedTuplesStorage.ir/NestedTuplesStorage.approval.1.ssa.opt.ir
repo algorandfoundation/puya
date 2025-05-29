@@ -104,7 +104,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap(
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
         (assert maybe_exists%1#0) // check self.tup exists
         let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
         let encoded_for_storage%1#0: Encoded((len+uint64[],uint64)) = encode<(len+uint64[],uint64)>(encoded_array%1#0, awst_tmp%3#0)
         (app_local_put tmp%0#0 "loc" encoded_for_storage%1#0)
         return 
@@ -163,7 +163,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_glo
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(val: Encoded(uint64)) -> void:
     block@0: // L40
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
         (assert maybe_exists%0#0) // check self.loc exists for account
         let (tmp%1#0: Encoded(len+uint64[]), tmp%2#0: uint64) = decode<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
