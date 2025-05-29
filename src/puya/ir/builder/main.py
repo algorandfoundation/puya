@@ -825,10 +825,6 @@ class FunctionIRBuilder(
             indexable_wtype, wtypes.NativeArray | wtypes.ARC4Array
         ), "expected array type"
 
-        # read slot after evaluating index
-        if isinstance(base.ir_type, SlotType):
-            base = mem.read_slot(self.context, base, loc)
-
         return sequence.read_index_and_decode(self.context, indexable_wtype, base, index, loc)
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:

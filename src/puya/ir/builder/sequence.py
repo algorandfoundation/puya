@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from puya import log
 from puya.awst import wtypes
 from puya.ir import models as ir
+from puya.ir.builder import mem
 from puya.ir.builder._utils import OpFactory
 from puya.ir.encodings import (
     ArrayEncoding,
@@ -18,6 +19,7 @@ from puya.ir.types_ import (
     EncodedType,
     IRType,
     PrimitiveIRType,
+    SlotType,
     TupleIRType,
     get_type_arity,
     sum_types_arity,
@@ -31,7 +33,7 @@ logger = log.get_logger(__name__)
 def read_index_and_decode(
     context: IRRegisterContext,
     indexable_wtype: wtypes.ARC4Array | wtypes.NativeArray,
-    array: ir.Value,
+    array_or_slot: ir.Value,
     index: ir.Value,
     loc: SourceLocation,
     *,
@@ -41,6 +43,10 @@ def read_index_and_decode(
     element_ir_type = wtype_to_ir_type(
         indexable_wtype.element_type, source_location=loc, allow_tuple=True
     )
+    if isinstance(array_or_slot.ir_type, SlotType):
+        array = mem.read_slot(context, array_or_slot, loc)
+    else:
+        array = array_or_slot
     read_index = ir.ArrayReadIndex(
         array=array,
         array_encoding=array_encoding,
@@ -118,7 +124,7 @@ def read_tuple_index_and_decode(
 def encode_and_write_index(
     context: IRRegisterContext,
     indexable_wtype: wtypes.ARC4Array | wtypes.NativeArray,
-    array: ir.Value,
+    array_or_slot: ir.Value,
     index: ir.Value,
     values: Sequence[ir.Value],
     loc: SourceLocation,
@@ -141,15 +147,28 @@ def encode_and_write_index(
             "encoded_value",
         )
 
-    write_index = ir.ArrayWriteIndex(
-        array=array,
-        array_encoding=array_encoding,
-        index=index,
-        value=encoded_value,
-        source_location=loc,
-    )
-    (result,) = context.materialise_value_provider(write_index, "updated_array")
-    return result
+    if isinstance(array_or_slot.ir_type, SlotType):
+        array = mem.read_slot(context, array_or_slot, loc)
+        write_index = ir.ArrayWriteIndex(
+            array=array,
+            array_encoding=array_encoding,
+            index=index,
+            value=encoded_value,
+            source_location=loc,
+        )
+        (result,) = context.materialise_value_provider(write_index, "updated_array")
+        mem.write_slot(context, array_or_slot, result, loc)
+        return array_or_slot
+    else:
+        write_index = ir.ArrayWriteIndex(
+            array=array_or_slot,
+            array_encoding=array_encoding,
+            index=index,
+            value=encoded_value,
+            source_location=loc,
+        )
+        (result,) = context.materialise_value_provider(write_index, "updated_array")
+        return result
 
 
 def encode_and_write_tuple_index(
@@ -202,9 +221,13 @@ def encode_and_write_tuple_index(
 def get_length(
     context: IRRegisterContext,
     array_encoding: ArrayEncoding,
-    array: ir.Value,
+    array_or_slot: ir.Value,
     loc: SourceLocation | None,
 ) -> ir.Value:
+    if isinstance(array_or_slot.ir_type, SlotType):
+        array = mem.read_slot(context, array_or_slot, loc)
+    else:
+        array = array_or_slot
     # how length is calculated depends on the array type, rather than the element type
     factory = OpFactory(context, loc)
     if isinstance(array_encoding, FixedArrayEncoding):
