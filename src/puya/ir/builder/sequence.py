@@ -21,8 +21,6 @@ from puya.ir.types_ import (
     PrimitiveIRType,
     SlotType,
     TupleIRType,
-    get_type_arity,
-    sum_types_arity,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
@@ -79,8 +77,8 @@ def read_tuple_index_and_decode(
 ) -> ir.MultiValue:
     if isinstance(tuple_wtype, wtypes.WTuple):
         tuple_ir_type = wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
-        skip_values = sum_types_arity(tuple_ir_type.elements[:index])
-        target_arity = get_type_arity(tuple_ir_type.elements[index])
+        skip_values = sum(e.arity for e in tuple_ir_type.elements[:index])
+        target_arity = tuple_ir_type.elements[index].arity
         element_values = values[skip_values : skip_values + target_arity]
 
         if len(element_values) == 1:
@@ -181,8 +179,8 @@ def encode_and_write_tuple_index(
 ) -> ir.MultiValue:
     if isinstance(tuple_wtype, wtypes.WTuple):
         tuple_ir_type = wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
-        skip_values = sum_types_arity(tuple_ir_type.elements[:index])
-        target_arity = get_type_arity(tuple_ir_type.elements[index])
+        skip_values = sum(e.arity for e in tuple_ir_type.elements[:index])
+        target_arity = tuple_ir_type.elements[index].arity
         new_values = context.materialise_value_provider(base, "new_values")
         new_values[skip_values : skip_values + target_arity] = values
         if len(new_values) == 1:
