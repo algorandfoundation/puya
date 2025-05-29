@@ -166,7 +166,7 @@ class DynamicArrayEncoding(ArrayEncoding):
     def name(self) -> str:
         array = f"{self.element.name}[]"
         if self.length_header:
-            return f"len+{array}"
+            return f"(len+{array})"
         else:
             return array
 
