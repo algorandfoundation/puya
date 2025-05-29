@@ -94,6 +94,7 @@ class PrimitiveIRType(IRType, enum.StrEnum):
     uint64 = enum.auto()
     string = enum.auto()
     bool = enum.auto()
+    account = enum.auto()
     biguint = enum.auto()
     itxn_group_idx = enum.auto()  # the group index of the result
     itxn_field_set = enum.auto()  # a collection of fields for a pending itxn submit
@@ -116,7 +117,12 @@ class PrimitiveIRType(IRType, enum.StrEnum):
         match self:
             case PrimitiveIRType.uint64 | PrimitiveIRType.bool:
                 return AVMType.uint64
-            case PrimitiveIRType.bytes | PrimitiveIRType.biguint | PrimitiveIRType.string:
+            case (
+                PrimitiveIRType.account
+                | PrimitiveIRType.bytes
+                | PrimitiveIRType.biguint
+                | PrimitiveIRType.string
+            ):
                 return AVMType.bytes
             case PrimitiveIRType.any:
                 return AVMType.any
@@ -131,6 +137,8 @@ class PrimitiveIRType(IRType, enum.StrEnum):
         # encoded bools can have different sizes
         if self in (PrimitiveIRType.uint64, PrimitiveIRType.bool):
             return 8
+        if self == PrimitiveIRType.account:
+            return 32
         return None
 
     def __repr__(self) -> str:
@@ -334,7 +342,7 @@ def wtype_to_ir_type(
         case wtypes.string_wtype:
             return PrimitiveIRType.string
         case wtypes.account_wtype:
-            return SizedBytesType(32)
+            return PrimitiveIRType.account
         case wtypes.ReferenceArray():
             array_type = wtype_to_encoded_ir_type(wtype, source_location)
             return SlotType(array_type)

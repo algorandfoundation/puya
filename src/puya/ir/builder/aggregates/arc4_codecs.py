@@ -475,33 +475,34 @@ class _BytesCodec(_ScalarCodec):
         return None
 
 
-# TODO: work out if we need these codecs
-"""
-class AccountCodec(ARC4Codec):
+class _AccountCodec(_ScalarCodec):
     @typing.override
-    def encode(
+    def encode_value(
         self,
-        context: IRFunctionBuildContext,
-        value_provider: ValueProvider,
-        encoding: Encoding,
-        loc: SourceLocation,
-    ) -> ValueProvider | None:
-        if _is_known_alias(target_type, expected=wtypes.arc4_address_alias):
-            return value_provider
-        return None
-
-    @typing.override
-    def decode(
-        self,
-        context: IRFunctionBuildContext,
+        context: IRRegisterContext,
         value: Value,
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if _is_known_alias(source_type, expected=wtypes.arc4_address_alias):
-            return value
-        return None
-"""
+        match encoding:
+            case FixedArrayEncoding(element=UIntEncoding(n=8), size=32):
+                return value
+            case _:
+                return None
+
+    @typing.override
+    def decode(
+        self,
+        context: IRRegisterContext,
+        value: Value,
+        encoding: Encoding,
+        loc: SourceLocation,
+    ) -> ValueProvider | None:
+        match encoding:
+            case FixedArrayEncoding(element=UIntEncoding(n=8), size=32):
+                return value
+            case _:
+                return None
 
 
 class _CheckedEncoding(_ARC4Codec):
@@ -544,6 +545,8 @@ def _get_arc4_codec(ir_type: IRType | TupleIRType) -> _ARC4Codec | None:
             return _BoolCodec(ir_type)
         case PrimitiveIRType.string:
             return _BytesCodec(UTF8Encoding())
+        case PrimitiveIRType.account:
+            return _AccountCodec()
         case EncodedType():
             # TODO: this is the equivalent to the old StackArray check
             #       but probably isn't necessary any more
