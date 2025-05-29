@@ -116,11 +116,6 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
-    def visit_array_concat(self, concat: models.ArrayConcat) -> models.ValueProvider:
-        concat.array = concat.array.accept(self)
-        concat.other = concat.other.accept(self)
-        return concat
-
     def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
         encode.values = [value.accept(self) for value in encode.values]
         return encode
@@ -128,10 +123,6 @@ class IRMutator(IRVisitor[t.Any]):
     def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueProvider:
         decode.value = decode.value.accept(self)
         return decode
-
-    def visit_array_pop(self, pop: models.ArrayPop) -> models.ValueProvider:
-        pop.array = pop.array.accept(self)
-        return pop
 
     def visit_phi(self, phi: models.Phi) -> models.Phi | None:
         phi.register = self.visit_register(phi.register)
