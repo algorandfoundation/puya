@@ -92,7 +92,7 @@ subroutine test_cases.arc4_conversions.contract.my_dyn_struct_arc4(value: uint64
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let tmp%0#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
         let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txn Sender)
-        let tmp%1#0: bytes[32] = (txn Sender)
+        let tmp%1#0: account = (txn Sender)
         let array%length%0#1: uint64 = (len tmp%1#0)
         let array%as_bytes%0#1: bytes[8] = (itob array%length%0#1)
         let array%length_uint16%0#1: bytes = ((extract 6 2) array%as_bytes%0#1)
@@ -579,15 +579,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         ((itxn_field Fee) 0u)
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%0#1: bytes[32] = (txn Sender)
-        let tmp%0#2: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
+        let tmp%0#1: account = (txn Sender)
+        let tmp%0#2: account = (txn Sender)
         let array%val_as_bytes%0#1: bytes[8] = (itob 1u)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%0#1)
-        let array%length%0#1: uint64 = (len tmp%0#0)
-        let array%lengths_equal%0#1: bool = (== array%length%0#1 32u)
-        (assert array%lengths_equal%0#1) // invalid size
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%0#0
         let array%encoded%1#1: Encoded((uint64,uint8[32])) = (concat array%encoded%0#1 array%as_Encoded(uint8[32])%0#1)
         let array%encoded%2#1: Encoded((uint64,uint8[32])) = (concat array%encoded%1#1 0x)
@@ -595,9 +592,6 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let array%val_as_bytes%1#1: bytes[8] = (itob 2u)
         let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
         let array%encoded%4#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%1#1)
-        let array%length%1#1: uint64 = (len tmp%0#1)
-        let array%lengths_equal%1#1: bool = (== array%length%1#1 32u)
-        (assert array%lengths_equal%1#1) // invalid size
         let array%as_Encoded(uint8[32])%1#1: Encoded(uint8[32]) = tmp%0#1
         let array%encoded%5#1: Encoded((uint64,uint8[32])) = (concat array%encoded%4#1 array%as_Encoded(uint8[32])%1#1)
         let array%encoded%6#1: Encoded((uint64,uint8[32])) = (concat array%encoded%5#1 0x)
@@ -605,9 +599,6 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let array%val_as_bytes%2#1: bytes[8] = (itob 3u)
         let array%as_Encoded(uint64)%2#1: Encoded(uint64) = array%val_as_bytes%2#1
         let array%encoded%8#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%2#1)
-        let array%length%2#1: uint64 = (len tmp%0#2)
-        let array%lengths_equal%2#1: bool = (== array%length%2#1 32u)
-        (assert array%lengths_equal%2#1) // invalid size
         let array%as_Encoded(uint8[32])%2#1: Encoded(uint8[32]) = tmp%0#2
         let array%encoded%9#1: Encoded((uint64,uint8[32])) = (concat array%encoded%8#1 array%as_Encoded(uint8[32])%2#1)
         let array%encoded%10#1: Encoded((uint64,uint8[32])) = (concat array%encoded%9#1 0x)
@@ -617,18 +608,18 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let array%encoded%12#1: bytes = (concat array%len_u16%0#1 array%encoded%11#1)
         let array%encoded%13#1: Encoded(len+(uint64,uint8[32])[]) = (concat array%encoded%12#1 0x)
         let arr#0: Encoded(len+(uint64,uint8[32])[]) = array%encoded%13#1
-        let tmp%10#0: bytes[32] = (txn Sender)
+        let tmp%10#0: account = (txn Sender)
         let tmp%11#0: bytes = (concat 0x00030000000000000001 tmp%10#0)
         let tmp%14#0: bytes = (concat tmp%11#0 0x0000000000000002)
-        let tmp%15#0: bytes[32] = (txn Sender)
+        let tmp%15#0: account = (txn Sender)
         let tmp%16#0: bytes = (concat tmp%14#0 tmp%15#0)
         let tmp%19#0: bytes = (concat tmp%16#0 0x0000000000000003)
-        let tmp%20#0: bytes[32] = (txn Sender)
+        let tmp%20#0: account = (txn Sender)
         let expected_bytes#0: bytes = (concat tmp%19#0 tmp%20#0)
         itxn_begin
         let tmp%22#0: Encoded(len+(uint64,uint8[32])[]) = arr#0
-        let array%length%3#1: uint64 = (len expected_bytes#0)
-        let array%as_bytes%1#1: bytes[8] = (itob array%length%3#1)
+        let array%length%0#1: uint64 = (len expected_bytes#0)
+        let array%as_bytes%1#1: bytes[8] = (itob array%length%0#1)
         let array%length_uint16%0#1: bytes = ((extract 6 2) array%as_bytes%1#1)
         let array%encoded_value%0#1: bytes = (concat array%length_uint16%0#1 expected_bytes#0)
         let array%as_Encoded(len+uint8[])%0#1: Encoded(len+uint8[]) = array%encoded_value%0#1
@@ -641,15 +632,12 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         ((itxn_field Fee) 0u)
         itxn_submit
         itxn_begin
-        let tmp%0#3: bytes[32] = (txn Sender)
-        let tmp%0#4: bytes[32] = (txn Sender)
-        let tmp%0#5: bytes[32] = (txn Sender)
+        let tmp%0#3: account = (txn Sender)
+        let tmp%0#4: account = (txn Sender)
+        let tmp%0#5: account = (txn Sender)
         let array%val_as_bytes%3#1: bytes[8] = (itob 1u)
         let array%as_Encoded(uint64)%3#1: Encoded(uint64) = array%val_as_bytes%3#1
         let array%encoded%14#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%3#1)
-        let array%length%4#1: uint64 = (len tmp%0#3)
-        let array%lengths_equal%3#1: bool = (== array%length%4#1 32u)
-        (assert array%lengths_equal%3#1) // invalid size
         let array%as_Encoded(uint8[32])%3#1: Encoded(uint8[32]) = tmp%0#3
         let array%encoded%15#1: Encoded((uint64,uint8[32])) = (concat array%encoded%14#1 array%as_Encoded(uint8[32])%3#1)
         let array%encoded%16#1: Encoded((uint64,uint8[32])) = (concat array%encoded%15#1 0x)
@@ -657,9 +645,6 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let array%val_as_bytes%4#1: bytes[8] = (itob 2u)
         let array%as_Encoded(uint64)%4#1: Encoded(uint64) = array%val_as_bytes%4#1
         let array%encoded%18#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%4#1)
-        let array%length%5#1: uint64 = (len tmp%0#4)
-        let array%lengths_equal%4#1: bool = (== array%length%5#1 32u)
-        (assert array%lengths_equal%4#1) // invalid size
         let array%as_Encoded(uint8[32])%4#1: Encoded(uint8[32]) = tmp%0#4
         let array%encoded%19#1: Encoded((uint64,uint8[32])) = (concat array%encoded%18#1 array%as_Encoded(uint8[32])%4#1)
         let array%encoded%20#1: Encoded((uint64,uint8[32])) = (concat array%encoded%19#1 0x)
@@ -667,9 +652,6 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let array%val_as_bytes%5#1: bytes[8] = (itob 3u)
         let array%as_Encoded(uint64)%5#1: Encoded(uint64) = array%val_as_bytes%5#1
         let array%encoded%22#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%5#1)
-        let array%length%6#1: uint64 = (len tmp%0#5)
-        let array%lengths_equal%5#1: bool = (== array%length%6#1 32u)
-        (assert array%lengths_equal%5#1) // invalid size
         let array%as_Encoded(uint8[32])%5#1: Encoded(uint8[32]) = tmp%0#5
         let array%encoded%23#1: Encoded((uint64,uint8[32])) = (concat array%encoded%22#1 array%as_Encoded(uint8[32])%5#1)
         let array%encoded%24#1: Encoded((uint64,uint8[32])) = (concat array%encoded%23#1 0x)
@@ -680,8 +662,8 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_static_e
         let is_out_of_bounds%0#0: bool = (>= 2u length%0#0)
         let bounded_index%0#0: uint64 = (select 2u length%0#0 is_out_of_bounds%0#0)
         let tmp%31#0: bytes = (substring3 expected_bytes#0 bounded_index%0#0 length%0#0)
-        let array%length%7#1: uint64 = (len tmp%31#0)
-        let array%as_bytes%2#1: bytes[8] = (itob array%length%7#1)
+        let array%length%1#1: uint64 = (len tmp%31#0)
+        let array%as_bytes%2#1: bytes[8] = (itob array%length%1#1)
         let array%length_uint16%1#1: bytes = ((extract 6 2) array%as_bytes%2#1)
         let array%encoded_value%1#1: bytes = (concat array%length_uint16%1#1 tmp%31#0)
         let array%as_Encoded(len+uint8[])%1#1: Encoded(len+uint8[]) = array%encoded_value%1#1
@@ -711,22 +693,19 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         ((itxn_field Fee) 0u)
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%1#1: bytes[32] = (txn Sender)
-        let tmp%0#1: bytes[32] = (txn Sender)
-        let tmp%1#2: bytes[32] = (txn Sender)
-        let tmp%0#2: bytes[32] = (txn Sender)
-        let tmp%1#3: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
+        let tmp%1#1: account = (txn Sender)
+        let tmp%0#1: account = (txn Sender)
+        let tmp%1#2: account = (txn Sender)
+        let tmp%0#2: account = (txn Sender)
+        let tmp%1#3: account = (txn Sender)
         let array%val_as_bytes%0#1: bytes[8] = (itob 1u)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let array%encoded%0#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%0#1)
-        let array%length%0#1: uint64 = (len tmp%0#0)
-        let array%lengths_equal%0#1: bool = (== array%length%0#1 32u)
-        (assert array%lengths_equal%0#1) // invalid size
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%0#0
         let array%encoded%1#1: Encoded((uint64,uint8[32])) = (concat array%encoded%0#1 array%as_Encoded(uint8[32])%0#1)
-        let array%length%1#1: uint64 = (len tmp%1#1)
-        let array%as_bytes%0#1: bytes[8] = (itob array%length%1#1)
+        let array%length%0#1: uint64 = (len tmp%1#1)
+        let array%as_bytes%0#1: bytes[8] = (itob array%length%0#1)
         let array%length_uint16%0#1: bytes = ((extract 6 2) array%as_bytes%0#1)
         let array%encoded_value%0#1: bytes = (concat array%length_uint16%0#1 tmp%1#1)
         let array%as_Encoded(len+uint8[])%0#1: Encoded(len+uint8[]) = array%encoded_value%0#1
@@ -746,13 +725,10 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let array%val_as_bytes%1#1: bytes[8] = (itob 2u)
         let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
         let array%encoded%5#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%1#1)
-        let array%length%2#1: uint64 = (len tmp%0#1)
-        let array%lengths_equal%1#1: bool = (== array%length%2#1 32u)
-        (assert array%lengths_equal%1#1) // invalid size
         let array%as_Encoded(uint8[32])%1#1: Encoded(uint8[32]) = tmp%0#1
         let array%encoded%6#1: Encoded((uint64,uint8[32])) = (concat array%encoded%5#1 array%as_Encoded(uint8[32])%1#1)
-        let array%length%3#1: uint64 = (len tmp%1#2)
-        let array%as_bytes%3#1: bytes[8] = (itob array%length%3#1)
+        let array%length%1#1: uint64 = (len tmp%1#2)
+        let array%as_bytes%3#1: bytes[8] = (itob array%length%1#1)
         let array%length_uint16%1#1: bytes = ((extract 6 2) array%as_bytes%3#1)
         let array%encoded_value%1#1: bytes = (concat array%length_uint16%1#1 tmp%1#2)
         let array%as_Encoded(len+uint8[])%1#1: Encoded(len+uint8[]) = array%encoded_value%1#1
@@ -772,13 +748,10 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let array%val_as_bytes%2#1: bytes[8] = (itob 3u)
         let array%as_Encoded(uint64)%2#1: Encoded(uint64) = array%val_as_bytes%2#1
         let array%encoded%10#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%2#1)
-        let array%length%4#1: uint64 = (len tmp%0#2)
-        let array%lengths_equal%2#1: bool = (== array%length%4#1 32u)
-        (assert array%lengths_equal%2#1) // invalid size
         let array%as_Encoded(uint8[32])%2#1: Encoded(uint8[32]) = tmp%0#2
         let array%encoded%11#1: Encoded((uint64,uint8[32])) = (concat array%encoded%10#1 array%as_Encoded(uint8[32])%2#1)
-        let array%length%5#1: uint64 = (len tmp%1#3)
-        let array%as_bytes%6#1: bytes[8] = (itob array%length%5#1)
+        let array%length%2#1: uint64 = (len tmp%1#3)
+        let array%as_bytes%6#1: bytes[8] = (itob array%length%2#1)
         let array%length_uint16%2#1: bytes = ((extract 6 2) array%as_bytes%6#1)
         let array%encoded_value%2#1: bytes = (concat array%length_uint16%2#1 tmp%1#3)
         let array%as_Encoded(len+uint8[])%2#1: Encoded(len+uint8[]) = array%encoded_value%2#1
@@ -828,8 +801,8 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let expected_bytes#0: bytes = array%encoded%21#1
         itxn_begin
         let tmp%13#0: Encoded(len+(uint64,uint8[32],len+uint8[])[]) = arr#0
-        let array%length%6#1: uint64 = (len expected_bytes#0)
-        let array%as_bytes%14#1: bytes[8] = (itob array%length%6#1)
+        let array%length%3#1: uint64 = (len expected_bytes#0)
+        let array%as_bytes%14#1: bytes[8] = (itob array%length%3#1)
         let array%length_uint16%3#1: bytes = ((extract 6 2) array%as_bytes%14#1)
         let array%encoded_value%3#1: bytes = (concat array%length_uint16%3#1 expected_bytes#0)
         let array%as_Encoded(len+uint8[])%3#1: Encoded(len+uint8[]) = array%encoded_value%3#1
@@ -865,22 +838,19 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let array%encoded%25#1: Encoded((uint64,uint8[32],len+uint8[])[3]) = (concat array%encoded%24#1 array%tail%11#1)
         let expected_bytes#1: bytes = array%encoded%25#1
         itxn_begin
-        let tmp%0#3: bytes[32] = (txn Sender)
-        let tmp%1#4: bytes[32] = (txn Sender)
-        let tmp%0#4: bytes[32] = (txn Sender)
-        let tmp%1#5: bytes[32] = (txn Sender)
-        let tmp%0#5: bytes[32] = (txn Sender)
-        let tmp%1#6: bytes[32] = (txn Sender)
+        let tmp%0#3: account = (txn Sender)
+        let tmp%1#4: account = (txn Sender)
+        let tmp%0#4: account = (txn Sender)
+        let tmp%1#5: account = (txn Sender)
+        let tmp%0#5: account = (txn Sender)
+        let tmp%1#6: account = (txn Sender)
         let array%val_as_bytes%3#1: bytes[8] = (itob 1u)
         let array%as_Encoded(uint64)%3#1: Encoded(uint64) = array%val_as_bytes%3#1
         let array%encoded%26#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%3#1)
-        let array%length%7#1: uint64 = (len tmp%0#3)
-        let array%lengths_equal%3#1: bool = (== array%length%7#1 32u)
-        (assert array%lengths_equal%3#1) // invalid size
         let array%as_Encoded(uint8[32])%3#1: Encoded(uint8[32]) = tmp%0#3
         let array%encoded%27#1: Encoded((uint64,uint8[32])) = (concat array%encoded%26#1 array%as_Encoded(uint8[32])%3#1)
-        let array%length%8#1: uint64 = (len tmp%1#4)
-        let array%as_bytes%18#1: bytes[8] = (itob array%length%8#1)
+        let array%length%4#1: uint64 = (len tmp%1#4)
+        let array%as_bytes%18#1: bytes[8] = (itob array%length%4#1)
         let array%length_uint16%4#1: bytes = ((extract 6 2) array%as_bytes%18#1)
         let array%encoded_value%4#1: bytes = (concat array%length_uint16%4#1 tmp%1#4)
         let array%as_Encoded(len+uint8[])%4#1: Encoded(len+uint8[]) = array%encoded_value%4#1
@@ -900,13 +870,10 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let array%val_as_bytes%4#1: bytes[8] = (itob 2u)
         let array%as_Encoded(uint64)%4#1: Encoded(uint64) = array%val_as_bytes%4#1
         let array%encoded%31#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%4#1)
-        let array%length%9#1: uint64 = (len tmp%0#4)
-        let array%lengths_equal%4#1: bool = (== array%length%9#1 32u)
-        (assert array%lengths_equal%4#1) // invalid size
         let array%as_Encoded(uint8[32])%4#1: Encoded(uint8[32]) = tmp%0#4
         let array%encoded%32#1: Encoded((uint64,uint8[32])) = (concat array%encoded%31#1 array%as_Encoded(uint8[32])%4#1)
-        let array%length%10#1: uint64 = (len tmp%1#5)
-        let array%as_bytes%21#1: bytes[8] = (itob array%length%10#1)
+        let array%length%5#1: uint64 = (len tmp%1#5)
+        let array%as_bytes%21#1: bytes[8] = (itob array%length%5#1)
         let array%length_uint16%5#1: bytes = ((extract 6 2) array%as_bytes%21#1)
         let array%encoded_value%5#1: bytes = (concat array%length_uint16%5#1 tmp%1#5)
         let array%as_Encoded(len+uint8[])%5#1: Encoded(len+uint8[]) = array%encoded_value%5#1
@@ -926,13 +893,10 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let array%val_as_bytes%5#1: bytes[8] = (itob 3u)
         let array%as_Encoded(uint64)%5#1: Encoded(uint64) = array%val_as_bytes%5#1
         let array%encoded%36#1: Encoded((uint64)) = (concat 0x array%as_Encoded(uint64)%5#1)
-        let array%length%11#1: uint64 = (len tmp%0#5)
-        let array%lengths_equal%5#1: bool = (== array%length%11#1 32u)
-        (assert array%lengths_equal%5#1) // invalid size
         let array%as_Encoded(uint8[32])%5#1: Encoded(uint8[32]) = tmp%0#5
         let array%encoded%37#1: Encoded((uint64,uint8[32])) = (concat array%encoded%36#1 array%as_Encoded(uint8[32])%5#1)
-        let array%length%12#1: uint64 = (len tmp%1#6)
-        let array%as_bytes%24#1: bytes[8] = (itob array%length%12#1)
+        let array%length%6#1: uint64 = (len tmp%1#6)
+        let array%as_bytes%24#1: bytes[8] = (itob array%length%6#1)
         let array%length_uint16%6#1: bytes = ((extract 6 2) array%as_bytes%24#1)
         let array%encoded_value%6#1: bytes = (concat array%length_uint16%6#1 tmp%1#6)
         let array%as_Encoded(len+uint8[])%6#1: Encoded(len+uint8[]) = array%encoded_value%6#1
@@ -951,8 +915,8 @@ subroutine test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_
         let array%encoded%40#1: Encoded(((uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]),(uint64,uint8[32],len+uint8[]))) = (concat array%encoded%35#1 array%offset_as_uint16%17#1)
         let array%encoded%41#1: Encoded((uint64,uint8[32],len+uint8[])[3]) = (concat array%encoded%40#1 array%tail%17#1)
         let tmp%27#0: Encoded((uint64,uint8[32],len+uint8[])[3]) = array%encoded%41#1
-        let array%length%13#1: uint64 = (len expected_bytes#1)
-        let array%as_bytes%27#1: bytes[8] = (itob array%length%13#1)
+        let array%length%7#1: uint64 = (len expected_bytes#1)
+        let array%as_bytes%27#1: bytes[8] = (itob array%length%7#1)
         let array%length_uint16%7#1: bytes = ((extract 6 2) array%as_bytes%27#1)
         let array%encoded_value%7#1: bytes = (concat array%length_uint16%7#1 expected_bytes#1)
         let array%as_Encoded(len+uint8[])%7#1: Encoded(len+uint8[]) = array%encoded_value%7#1

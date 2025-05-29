@@ -18,7 +18,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         let reinterpret_bool%0#0: bool = (txn ApplicationID)
         goto reinterpret_bool%0#0 ? block@1 : block@4
     block@1: // if_body_L25
-        let (_%0#0: bytes[32], maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+        let (_%0#0: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         goto maybe_exists%0#0 ? block@2 : block@3
     block@2: // if_body_L26
         let (_%1#0: Encoded(uint8), maybe_exists%1#0: bool) = (app_global_get_ex 0u "winner")
@@ -29,7 +29,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         (app_global_del "winner")
         goto block@4
     block@4: // after_if_else_L22
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
         (app_global_put "host" tmp%0#0)
         let reinterpret_Encoded(uint8[3][3])%0#0: Encoded(uint8[3][3]) = (bzero 9u)
         (app_global_put "game" reinterpret_Encoded(uint8[3][3])%0#0)
@@ -65,10 +65,10 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game(move.0: uint64, move.1: uint64) -> void:
     block@0: // L37
-        let (_%0#0: bytes[32], maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+        let (_%0#0: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         let tmp%0#0: bool = (! maybe_exists%0#0)
         (assert tmp%0#0) // Host already has a challenger
-        let tmp%1#0: bytes[32] = (txn Sender)
+        let tmp%1#0: account = (txn Sender)
         (app_global_put "challenger" tmp%1#0)
         examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x02, move.0#0, move.1#0)
         return 
@@ -93,7 +93,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, m
         let tmp%2#0: bool = (!= tmp%1#0 0u)
         goto tmp%2#0 ? block@1 : block@2
     block@1: // if_body_L51
-        let tmp%3#0: bytes[32] = (txn Sender)
+        let tmp%3#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "host")
         (assert maybe_exists%2#0) // check self.host exists
         let tmp%4#0: bool = (== tmp%3#0 maybe_value%1#0)
@@ -101,8 +101,8 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, m
         let player#0: Encoded(uint8) = 0x01
         goto block@3
     block@2: // else_body_L54
-        let tmp%5#0: bytes[32] = (txn Sender)
-        let tmp%6#0: bytes[32] = (global ZeroAddress)
+        let tmp%5#0: account = (txn Sender)
+        let tmp%6#0: account = (global ZeroAddress)
         let (maybe_value%2#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "challenger")
         let state_get%0#0: bytes = (select tmp%6#0 maybe_value%2#0 maybe_exists%3#0)
         let tmp%7#0: bool = (== tmp%5#0 state_get%0#0)

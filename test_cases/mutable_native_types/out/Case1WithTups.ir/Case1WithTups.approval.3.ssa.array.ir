@@ -278,15 +278,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_
     block@0: // L35
         let tmp%0#0: bool = (box_create "tup_bag" 176u)
         (assert tmp%0#0) // box already exists
-        let tmp%1#0: bytes[32] = (txn Sender)
+        let tmp%1#0: account = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let array%extract%0#1: bytes = (extract3 maybe_value%0#0 136u 32u)
         let tuple_item%0#0: Encoded(uint8[32]) = array%extract%0#1
-        let values%0#0: bytes[32] = tuple_item%0#0
-        let array%length%0#1: uint64 = (len tmp%1#0)
-        let array%lengths_equal%0#1: bool = (== array%length%0#1 32u)
-        (assert array%lengths_equal%0#1) // invalid size
+        let values%0#0: account = tuple_item%0#0
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%1#0
         let encoded_value%0#0: Encoded(uint8[32]) = array%as_Encoded(uint8[32])%0#1
         let array%updated_data%0#1: bytes = (replace3 maybe_value%0#0 136u encoded_value%0#0)
@@ -703,8 +700,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let array%extract%0#1: bytes = (extract3 maybe_value%0#0 136u 32u)
         let tuple_item%0#0: Encoded(uint8[32]) = array%extract%0#1
-        let values%0#0: bytes[32] = tuple_item%0#0
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let values%0#0: account = tuple_item%0#0
+        let tmp%0#0: account = (txn Sender)
         let tmp%1#0: bool = (== values%0#0 tmp%0#0)
         (assert tmp%1#0) // sender not authorized
         let array%extract%1#1: bytes = (extract3 maybe_value%0#0 168u 8u)

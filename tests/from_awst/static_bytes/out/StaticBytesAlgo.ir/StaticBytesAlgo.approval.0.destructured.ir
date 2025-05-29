@@ -131,10 +131,10 @@ subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength(b:
 
 subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test() -> void:
     block@0: // L31
-        let tmp%0#0: bytes[32] = (txn Sender)
-        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(tmp%0#0)
-        let tmp%1#0: bytes[32] = (txn Sender)
-        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes(tmp%1#0, 32u)
+        let reinterpret_bytes[32]%0#0: bytes[32] = (txn Sender)
+        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(reinterpret_bytes[32]%0#0)
+        let reinterpret_bytes[32]%1#0: bytes[32] = (txn Sender)
+        tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes(reinterpret_bytes[32]%1#0, 32u)
         tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32("abcdefghabcdefghabcdefghabcdefgh")
         return 
 
@@ -142,13 +142,13 @@ subroutine tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray() -> 
     block@0: // L41
         let a.0#0: bytes[32] = (txn Sender)
         let a.1#0: bytes[32] = (txn Sender)
-        let tmp%2#0: bytes[32] = (txn Sender)
+        let reinterpret_bytes[32]%2#0: bytes[32] = (txn Sender)
         let array%encoded%3#1: Encoded((uint8[32],uint8[32])) = (concat a.0#0 a.1#0)
-        let concat%0#0: Encoded(uint8[32][]) = (concat tmp%2#0 array%encoded%3#1) // on error: max array length exceeded
+        let concat%0#0: Encoded(uint8[32][]) = (concat reinterpret_bytes[32]%2#0 array%encoded%3#1) // on error: max array length exceeded
         write(local.0, concat%0#0)
         let array%encoded_element%0#1: bytes = ((extract 0 32) concat%0#0) // on error: index access is out of bounds
         let bitAnd#0: bytes[32] = (b& a.0#0 array%encoded_element%0#1)
-        let tmp%6#0: bytes[32] = (txn Sender)
-        let tmp%7#0: bool = (== bitAnd#0 tmp%6#0)
-        (assert tmp%7#0)
+        let reinterpret_bytes[32]%3#0: bytes[32] = (txn Sender)
+        let tmp%3#0: bool = (== bitAnd#0 reinterpret_bytes[32]%3#0)
+        (assert tmp%3#0)
         return 

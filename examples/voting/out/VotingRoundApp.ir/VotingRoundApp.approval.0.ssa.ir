@@ -186,8 +186,8 @@ subroutine examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uin
         let tmp%0#0: bool = (! maybe_value%0#0)
         (assert tmp%0#0) // Must not be already bootstrapped
         (app_global_put "is_bootstrapped" 1u)
-        let tmp%1#0: bytes[32] = ((gtxns Receiver) fund_min_bal_req#0)
-        let tmp%2#0: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%1#0: account = ((gtxns Receiver) fund_min_bal_req#0)
+        let tmp%2#0: account = (global CurrentApplicationAddress)
         let tmp%3#0: bool = (== tmp%1#0 tmp%2#0)
         (assert tmp%3#0) // Payment must be to app address
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "total_options")
@@ -431,8 +431,8 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         let tmp%7#0: uint64 = (* tmp%6#0 400u)
         let tmp%8#0: uint64 = (+ 2500u tmp%7#0)
         let min_bal_req#0: uint64 = tmp%8#0
-        let tmp%9#0: bytes[32] = ((gtxns Receiver) fund_min_bal_req#0)
-        let tmp%10#0: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%9#0: account = ((gtxns Receiver) fund_min_bal_req#0)
+        let tmp%10#0: account = (global CurrentApplicationAddress)
         let tmp%11#0: bool = (== tmp%9#0 tmp%10#0)
         (assert tmp%11#0) // Payment must be to app address
         let tmp%12#0: bytes = (itob min_bal_req#0)
@@ -465,7 +465,7 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         let tmp%19#0: uint64 = (+ cumulative_offset#1 options_count#0)
         let cumulative_offset#2: uint64 = tmp%19#0
         let copy%0#0: Encoded(len+uint8[]) = answer_ids#0
-        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "" materialized_values%0#0)
         (box_del box_prefixed_key%0#0)
         (box_put box_prefixed_key%0#0 copy%0#0)
@@ -511,7 +511,7 @@ subroutine examples.voting.voting.VotingRoundApp.voting_open() -> bool:
 
 subroutine examples.voting.voting.VotingRoundApp.already_voted() -> bool:
     block@0: // L213
-        let materialized_values%0#0: bytes[32] = (txn Sender)
+        let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "" materialized_values%0#0)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_prefixed_key%0#0)
         return maybe_exists%0#0
@@ -557,7 +557,7 @@ subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_coun
 subroutine examples.voting.voting.VotingRoundApp.allowed_to_vote(signature: bytes) -> bool:
     block@0: // L230
         _puya_lib.util.ensure_budget(2000u, 0u)
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "snapshot_public_key")
         (assert maybe_exists%0#0) // check self.snapshot_public_key exists
         let tmp%1#0: bool = (ed25519verify_bare tmp%0#0 signature#0 maybe_value%0#0)

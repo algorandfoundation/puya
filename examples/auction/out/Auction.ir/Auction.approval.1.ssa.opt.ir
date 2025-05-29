@@ -7,7 +7,7 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (app_global_put "previous_bid" 0u)
         (app_global_put "asa_amount" 0u)
         (app_global_put "asa" 0u)
-        let tmp%0#2: bytes[32] = (global ZeroAddress)
+        let tmp%0#2: account = (global ZeroAddress)
         (app_global_put "previous_bidder" tmp%0#2)
         goto block@2
     block@2: // after_if_else_L1
@@ -108,8 +108,8 @@ subroutine examples.auction.contract.Auction.__puya_arc4_router__() -> bool:
 
 subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
     block@0: // L25
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%1#0: bytes[32] = (global CreatorAddress)
+        let tmp%0#0: account = (txn Sender)
+        let tmp%1#0: account = (global CreatorAddress)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // Only creator can opt in to ASA
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
@@ -118,7 +118,7 @@ subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> vo
         (assert tmp%3#0) // ASA already opted in
         (app_global_put "asa" asset#0)
         itxn_begin
-        let inner_txn_params%0%%param_AssetReceiver_idx_0#0: bytes[32] = (global CurrentApplicationAddress)
+        let inner_txn_params%0%%param_AssetReceiver_idx_0#0: account = (global CurrentApplicationAddress)
         ((itxn_field XferAsset) asset#0)
         ((itxn_field AssetReceiver) inner_txn_params%0%%param_AssetReceiver_idx_0#0)
         ((itxn_field TypeEnum) axfer)
@@ -128,16 +128,16 @@ subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> vo
 
 subroutine examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
     block@0: // L40
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%1#0: bytes[32] = (global CreatorAddress)
+        let tmp%0#0: account = (txn Sender)
+        let tmp%1#0: account = (global CreatorAddress)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // auction must be started by creator
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
         (assert maybe_exists%0#0) // check self.auction_end exists
         let tmp%3#0: bool = (! maybe_value%0#0)
         (assert tmp%3#0) // auction already started
-        let tmp%4#0: bytes[32] = ((gtxns AssetReceiver) axfer#0)
-        let tmp%5#0: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%4#0: account = ((gtxns AssetReceiver) axfer#0)
+        let tmp%5#0: account = (global CurrentApplicationAddress)
         let tmp%6#0: bool = (== tmp%4#0 tmp%5#0)
         (assert tmp%6#0) // axfer must transfer to this app
         let tmp%7#0: uint64 = ((gtxns AssetAmount) axfer#0)
@@ -155,8 +155,8 @@ subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
         (assert maybe_exists%0#0) // check self.auction_end exists
         let tmp%1#0: bool = (< tmp%0#0 maybe_value%0#0)
         (assert tmp%1#0) // auction has ended
-        let tmp%2#0: bytes[32] = ((gtxns Sender) pay#0)
-        let tmp%3#0: bytes[32] = (txn Sender)
+        let tmp%2#0: account = ((gtxns Sender) pay#0)
+        let tmp%3#0: account = (txn Sender)
         let tmp%4#0: bool = (== tmp%2#0 tmp%3#0)
         (assert tmp%4#0) // payment sender must match transaction sender
         let tmp%5#0: uint64 = ((gtxns Amount) pay#0)
@@ -166,16 +166,16 @@ subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
         (assert tmp%6#0) // Bid must be higher than previous bid
         (app_global_put "previous_bid" tmp%5#0)
         (app_global_put "previous_bidder" tmp%2#0)
-        let tmp%10#0: bytes[32] = (txn Sender)
+        let tmp%10#0: account = (txn Sender)
         (app_local_put tmp%10#0 "claim" tmp%5#0)
         return 
 
 subroutine examples.auction.contract.Auction.claim_bids() -> void:
     block@0: // L82
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
         let (original_amount#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "claim")
         (assert maybe_exists%0#0) // check self.claimable_amount exists for account
-        let tmp%1#0: bytes[32] = (txn Sender)
+        let tmp%1#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists
         let tmp%2#0: bool = (== tmp%1#0 maybe_value%1#0)
@@ -188,14 +188,14 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
     block@2: // after_if_else_L87
         let amount#2: uint64 = φ(original_amount#0 <- block@0, amount#1 <- block@1)
         itxn_begin
-        let inner_txn_params%0%%param_Receiver_idx_0#0: bytes[32] = (txn Sender)
+        let inner_txn_params%0%%param_Receiver_idx_0#0: account = (txn Sender)
         ((itxn_field Receiver) inner_txn_params%0%%param_Receiver_idx_0#0)
         ((itxn_field Amount) amount#2)
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         itxn_submit
         let tmp%4#0: uint64 = (- original_amount#0 amount#2)
-        let tmp%5#0: bytes[32] = (txn Sender)
+        let tmp%5#0: account = (txn Sender)
         (app_local_put tmp%5#0 "claim" tmp%4#0)
         return 
 

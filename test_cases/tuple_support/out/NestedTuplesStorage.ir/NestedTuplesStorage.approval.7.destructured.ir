@@ -100,7 +100,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap(
         let array%encoded%4#1: Encoded((len+uint64[],uint64)) = (concat 0x000a array%val_as_bytes%0#1)
         let array%encoded%5#1: Encoded((len+uint64[],uint64)) = (concat array%encoded%4#1 0x00010000000000000000)
         (box_put "box" array%encoded%5#1)
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
         (app_local_put tmp%0#0 "loc" array%encoded%5#1)
         return 
 
@@ -170,7 +170,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_glo
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(val: Encoded(uint64)) -> void:
     block@0: // L40
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
         (assert maybe_exists%0#0) // check self.loc exists for account
         let array%extract_uint16%0#1: uint64 = (extract_uint16 maybe_value%0#0 0u)
