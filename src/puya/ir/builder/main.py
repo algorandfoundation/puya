@@ -1340,8 +1340,6 @@ class FunctionIRBuilder(
         ), "expected array wtype"
 
         array = self.context.visitor.visit_and_materialise_single(expr.array)
-        if isinstance(array.ir_type, SlotType):
-            array = mem.read_slot(self.context, array, loc)
 
         array_encoding = wtype_to_encoding(array_wtype, loc)
         return sequence.get_length(self.context, array_encoding, array, loc)
