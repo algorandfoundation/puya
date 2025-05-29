@@ -8,7 +8,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import mem, sequence
+from puya.ir.builder import sequence
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
     assert_value,
@@ -29,7 +29,6 @@ from puya.ir.models import (
 )
 from puya.ir.types_ import (
     PrimitiveIRType,
-    SlotType,
 )
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
@@ -188,21 +187,12 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
         case (wtypes.ARC4Array() | wtypes.NativeArray()) as iterable_wtype:
             array = context.visitor.visit_and_materialise_single(sequence_)
 
-            if isinstance(array.ir_type, SlotType):
-                # slot
-                def read_array() -> Value:
-                    return mem.read_slot(context, array, loc)
-            else:
-                # TODO: consider when array is a register and needs refreshing
-                def read_array() -> Value:
-                    return array
-
             array_encoding = wtype_to_encoding(iterable_wtype, loc)
             (indexable_size,) = context.visitor.materialise_value_provider(
                 sequence.get_length(
                     context,
                     array_encoding,
-                    read_array(),
+                    array,
                     loc,
                 ),
                 "array_length",
@@ -212,8 +202,9 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 context,
                 loop_body=statement.loop_body,
                 indexable_size=indexable_size,
+                # TODO: consider when array is a register and needs refreshing
                 get_value_at_index=lambda index: sequence.read_index_and_decode(
-                    context, iterable_wtype, read_array(), index, loc, check_bounds=False
+                    context, iterable_wtype, array, index, loc, check_bounds=False
                 ),
                 assigner=assign_user_loop_vars,
                 statement_loc=statement.source_location,
