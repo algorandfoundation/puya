@@ -164,7 +164,7 @@ def handle_assignment(
             base_eval = context.visitor.visit_and_materialise_as_value_or_tuple(
                 base_target, "update_assignment_current_base_value"
             )
-            path_values: list[ir.Value | ir.ValueTuple] = [base_eval]
+            path_values = [base_eval]
 
             updater = _Updater(context, assignment_location)
             for index_src_op in index_src_ops:
@@ -183,10 +183,7 @@ def handle_assignment(
                         next_value = sequence.read_index_and_decode(
                             context, base_wtype, arr, index_value, loc
                         )
-                        updater.deferred_write_at_index(
-                            base_wtype,
-                            index_value,
-                        )
+                        updater.deferred_write_at_index(base_wtype, index_value)
                     case awst_nodes.TupleItemExpression(index=index_int):
                         assert isinstance(base_wtype, wtypes.ARC4Tuple | wtypes.WTuple)
                         tuple_values = context.materialise_value_provider(
@@ -226,20 +223,14 @@ def handle_assignment(
                 new_value: ir.MultiValue = new_values[0]
             else:
                 new_value = ir.ValueTuple(values=new_values, source_location=None)
-            if isinstance(
-                base_target,
-                awst_nodes.VarExpression
-                | awst_nodes.TupleExpression
-                | awst_nodes.AppStateExpression
-                | awst_nodes.AppAccountStateExpression
-                | awst_nodes.BoxValueExpression,
-            ):
+            if isinstance(base_target, awst_nodes.VarExpression | awst_nodes.StorageExpression):
                 handle_assignment(
                     context, base_target, new_value, assignment_location, is_nested_update=True
                 )
+            elif isinstance(base_eval, ir.Value) and isinstance(base_eval.ir_type, SlotType):
+                logger.debug("base assignment target is in a slot", location=assignment_location)
             else:
-                # TODO: hmm
-                pass
+                logger.error("unsupported assignment target", location=assignment_location)
             return source
         case _:
             raise CodeError(
