@@ -805,13 +805,14 @@ subroutine get_all_tups:
         int 16                                                                                                                 (𝕗) result#0,items#0,values%0#0,i#0 | i#0,items#0,array%bytes_offset%0#1,16
         extract3 // on error: index access is out of bounds                                                                    (𝕗) result#0,items#0,values%0#0,i#0 | i#0,array%encoded_element%0#1
         f-load result#0                                                                                                        (𝕗) result#0,items#0,values%0#0,i#0 | i#0,array%encoded_element%0#1,result#0
-        l-load array%encoded_element%0#1 1                                                                                     (𝕗) result#0,items#0,values%0#0,i#0 | i#0,result#0,array%encoded_element%0#1
-        concat // on error: max array length exceeded                                                                          (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0
-        l-load-copy concat%0#0 0                                                                                               (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,concat%0#0 (copy)
-        extract 2 0                                                                                                            (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,extract_to_end%0#0
-        len                                                                                                                    (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,len%0#0
-        int 16                                                                                                                 (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,len%0#0,16
-        /                                                                                                                      (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,div_floor%0#0
+        l-store-copy result#0 1                                                                                                (𝕗) result#0,items#0,values%0#0,i#0 | i#0,result#0,array%encoded_element%0#1,result#0 (copy)
+        l-load array%encoded_element%0#1 1                                                                                     (𝕗) result#0,items#0,values%0#0,i#0 | i#0,result#0,result#0 (copy),array%encoded_element%0#1
+        concat // on error: max array length exceeded                                                                          (𝕗) result#0,items#0,values%0#0,i#0 | i#0,result#0,concat%0#0
+        l-load result#0 1                                                                                                      (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,result#0
+        int 0                                                                                                                  (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,result#0,0
+        extract_uint16                                                                                                         (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,extract_uint16%0#0
+        int 1                                                                                                                  (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                                      (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,add%0#0
         itob                                                                                                                   (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,as_bytes%0#0
         extract 6 2                                                                                                            (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,as_u16_bytes%0#0
         l-load concat%0#0 1                                                                                                    (𝕗) result#0,items#0,values%0#0,i#0 | i#0,as_u16_bytes%0#0,concat%0#0
