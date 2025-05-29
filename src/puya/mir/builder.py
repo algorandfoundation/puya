@@ -178,17 +178,11 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_tuple_write_index(self, write: ir.TupleWriteIndex) -> None:
         _unexpected_node(write)
 
-    def visit_array_concat(self, concat: ir.ArrayConcat) -> None:
-        _unexpected_node(concat)
-
     def visit_value_encode(self, encode: ir.ValueEncode) -> None:
         _unexpected_node(encode)
 
     def visit_value_decode(self, encode: ir.ValueDecode) -> None:
         _unexpected_node(encode)
-
-    def visit_array_pop(self, pop: ir.ArrayPop) -> None:
-        _unexpected_node(pop)
 
     def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:
         self._add_op(

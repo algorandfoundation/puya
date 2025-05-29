@@ -11,7 +11,7 @@ from puya.ir import (
     models as ir,
 )
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder._utils import OpFactory, assign_targets
+from puya.ir.builder._utils import assign_targets
 from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
 from puya.ir.encodings import Encoding, TupleEncoding
 from puya.ir.models import Register, Subroutine, Value, ValueProvider, ValueTuple
@@ -171,18 +171,6 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
             write.value,
             loc,
         )
-
-    @typing.override
-    def visit_array_concat(self, append: ir.ArrayConcat) -> ir.Register:
-        self.modified = True
-        factory = OpFactory(self, append.source_location)
-        array_contents = factory.concat(
-            append.array,
-            append.other,
-            "array_contents",
-            error_message="max array length exceeded",
-        )
-        return array_contents
 
     # region IRRegisterContext
 
