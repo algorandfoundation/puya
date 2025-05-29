@@ -11,8 +11,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let reinterpret_Encoded((len+utf8[],uint64,uint64))%0#0: Encoded((len+utf8[],uint64,uint64)) = (txna ApplicationArgs 1)
-        examples.struct_in_box.contract.ExampleContract.add_user(reinterpret_Encoded((len+utf8[],uint64,uint64))%0#0)
+        let reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0: Encoded((len+utf8[]),uint64,uint64) = (txna ApplicationArgs 1)
+        examples.struct_in_box.contract.ExampleContract.add_user(reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0)
         let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
         goto block@13
@@ -37,7 +37,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%15#0: uint64 = (txn ApplicationID)
         (assert tmp%15#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%17#0: Encoded((len+utf8[],uint64,uint64)) = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_Encoded(uint64)%1#0)
+        let tmp%17#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_Encoded(uint64)%1#0)
         let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
         (log tmp%18#0)
         let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0: bool = 1u
@@ -60,7 +60,7 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@13: // after_inlined_examples.struct_in_box.contract.ExampleContract.__puya_arc4_router___L1
         return tmp%0#0
 
-subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[],uint64,uint64))) -> void:
+subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[]),uint64,uint64)) -> void:
     block@0: // L30
         let user_id#0: Encoded(uint64) = ((extract 2 8) user#0)
         let (_data#0: bytes, exists#0: bool) = (box_get user_id#0)
@@ -75,13 +75,13 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(
         let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         (assert exists#0) // User with that id does not exist
         let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
-        let user#1: Encoded((len+utf8[],uint64,uint64)) = ((replace2 10) box_data#0 array%val_as_bytes%0#1)
+        let user#1: Encoded((len+utf8[]),uint64,uint64) = ((replace2 10) box_data#0 array%val_as_bytes%0#1)
         let box_key#0: bytes = ((extract 2 8) user#1)
         (box_del box_key#0)
         (box_put box_key#0 user#1)
         return 
 
-subroutine examples.struct_in_box.contract.ExampleContract.get_user(user_id: Encoded(uint64)) -> Encoded((len+utf8[],uint64,uint64)):
+subroutine examples.struct_in_box.contract.ExampleContract.get_user(user_id: Encoded(uint64)) -> Encoded((len+utf8[]),uint64,uint64):
     block@0: // L41
         let (box_data#0: bytes, exists#0: bool) = (box_get user_id#0)
         (assert exists#0) // User with that id does not exist

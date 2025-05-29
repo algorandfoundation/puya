@@ -1,7 +1,7 @@
 main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@0: // L24
-        let array%encoded%0#1: Encoded((uint8)) = (concat 0x 0x01)
-        let array%encoded%1#1: Encoded((uint8,uint8)) = (concat array%encoded%0#1 0x02)
+        let array%encoded%0#1: Encoded(uint8) = (concat 0x 0x01)
+        let array%encoded%1#1: Encoded(uint8,uint8) = (concat array%encoded%0#1 0x02)
         let array%as_bytes%0#1: bytes[8] = (itob 2u)
         let array%len_u16%0#1: bytes = ((extract 6 2) array%as_bytes%0#1)
         let array%encoded%2#1: bytes = (concat array%len_u16%0#1 array%encoded%1#1)
@@ -31,7 +31,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@4: // after_for_L27
         let tmp%2#0: bool = (== total#0 3u)
         (assert tmp%2#0) // Total should be sum of dynamic_uint8_array items
-        let array%encoded%4#1: Encoded((uint16)) = (concat 0x 0x0001)
+        let array%encoded%4#1: Encoded(uint16) = (concat 0x 0x0001)
         let array%as_bytes%1#1: bytes[8] = (itob 1u)
         let array%len_u16%1#1: bytes = ((extract 6 2) array%as_bytes%1#1)
         let array%encoded%5#1: bytes = (concat array%len_u16%1#1 array%encoded%4#1)
@@ -81,13 +81,13 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let array%tail%1#1: bytes = (concat array%tail%0#1 encoded%1#0)
         let array%as_bytes%5#1: bytes[8] = (itob array%current_tail_offset%0#1)
         let array%offset_as_uint16%1#1: bytes = ((extract 6 2) array%as_bytes%5#1)
-        let array%encoded%8#1: Encoded((len+utf8[],len+utf8[])) = (concat array%encoded%7#1 array%offset_as_uint16%1#1)
+        let array%encoded%8#1: Encoded((len+utf8[]),(len+utf8[])) = (concat array%encoded%7#1 array%offset_as_uint16%1#1)
         let array%as_bytes%6#1: bytes[8] = (itob 2u)
         let array%len_u16%2#1: bytes = ((extract 6 2) array%as_bytes%6#1)
         let array%encoded%9#1: bytes = (concat array%len_u16%2#1 array%encoded%8#1)
-        let array%encoded%10#1: Encoded(len+len+utf8[][]) = (concat array%encoded%9#1 array%tail%1#1)
-        let encoded_array%2#0: Encoded(len+len+utf8[][]) = array%encoded%10#1
-        let dynamic_string_array#0: Encoded(len+len+utf8[][]) = encoded_array%2#0
+        let array%encoded%10#1: Encoded(len+(len+utf8[])[]) = (concat array%encoded%9#1 array%tail%1#1)
+        let encoded_array%2#0: Encoded(len+(len+utf8[])[]) = array%encoded%10#1
+        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = encoded_array%2#0
         let array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
         let tmp%6#0: bool = (== array_length%2#0 2u)
         (assert tmp%6#0)
@@ -148,10 +148,10 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@15: // after_for_L39
         let tmp%13#0: bool = (== result#0 "Hello World")
         (assert tmp%13#0)
-        let array%encoded%11#1: Encoded((uint32)) = (concat 0x 0x00000001)
-        let array%encoded%12#1: Encoded((uint32,uint32)) = (concat array%encoded%11#1 0x0000000a)
-        let array%encoded%13#1: Encoded((uint32,uint32,uint32)) = (concat array%encoded%12#1 0x000000ff)
-        let array%encoded%14#1: Encoded((uint32,uint32,uint32,uint32)) = (concat array%encoded%13#1 0x00000080)
+        let array%encoded%11#1: Encoded(uint32) = (concat 0x 0x00000001)
+        let array%encoded%12#1: Encoded(uint32,uint32) = (concat array%encoded%11#1 0x0000000a)
+        let array%encoded%13#1: Encoded(uint32,uint32,uint32) = (concat array%encoded%12#1 0x000000ff)
+        let array%encoded%14#1: Encoded(uint32,uint32,uint32,uint32) = (concat array%encoded%13#1 0x00000080)
         let array%encoded%15#1: Encoded(uint32[4]) = (concat array%encoded%14#1 0x)
         let encoded_array%3#0: Encoded(uint32[4]) = array%encoded%15#1
         let static_uint32_array#0: Encoded(uint32[4]) = encoded_array%3#0
@@ -175,7 +175,7 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
     block@19: // after_for_L49
         let tmp%16#0: bool = (== total#0 398u)
         (assert tmp%16#0)
-        let array%encoded%16#1: Encoded((uint8)) = (concat 0x 0x65)
+        let array%encoded%16#1: Encoded(uint8) = (concat 0x 0x65)
         let array%encoded%17#1: Encoded(uint8[1]) = (concat array%encoded%16#1 0x)
         let encoded_array%4#0: Encoded(uint8[1]) = array%encoded%17#1
         let aliased_static#0: Encoded(uint8[1]) = encoded_array%4#0
@@ -211,10 +211,10 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let array%tail%3#1: bytes = (concat array%tail%2#1 encoded%4#0)
         let array%as_bytes%11#1: bytes[8] = (itob array%current_tail_offset%2#1)
         let array%offset_as_uint16%3#1: bytes = ((extract 6 2) array%as_bytes%11#1)
-        let array%encoded%19#1: Encoded((len+utf8[],len+utf8[])) = (concat array%encoded%18#1 array%offset_as_uint16%3#1)
-        let array%encoded%20#1: Encoded(len+utf8[][2]) = (concat array%encoded%19#1 array%tail%3#1)
-        let encoded_array%5#0: Encoded(len+utf8[][2]) = array%encoded%20#1
-        let static_string_array#0: Encoded(len+utf8[][2]) = encoded_array%5#0
+        let array%encoded%19#1: Encoded((len+utf8[]),(len+utf8[])) = (concat array%encoded%18#1 array%offset_as_uint16%3#1)
+        let array%encoded%20#1: Encoded(len+utf8[])[2) = (concat array%encoded%19#1 array%tail%3#1)
+        let encoded_array%5#0: Encoded(len+utf8[])[2) = array%encoded%20#1
+        let static_string_array#0: Encoded(len+utf8[])[2) = encoded_array%5#0
         let result#0: string = ""
         let item_index_internal%4#0: uint64 = 0u
         goto block@20
