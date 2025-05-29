@@ -9,7 +9,7 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import mem, sequence, storage
+from puya.ir.builder import sequence, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import assign, assign_targets, get_implicit_return_is_original
 from puya.ir.context import IRFunctionBuildContext
@@ -168,8 +168,6 @@ def handle_assignment(
                         (arr,) = context.materialise_value_provider(path_values[-1], "arr")
                         assert isinstance(base_wtype, wtypes.ARC4Array | wtypes.NativeArray)
 
-                        if isinstance(arr.ir_type, SlotType):
-                            arr = mem.read_slot(context, arr, loc)
                         next_value = sequence.read_index_and_decode(
                             context, base_wtype, arr, index_value, loc
                         )
@@ -242,23 +240,15 @@ class _Updater:
     ) -> None:
         def _do(array: ir.MultiValue, new_value: Sequence[ir.Value]) -> ir.Value:
             (array_or_slot,) = self.context.materialise_value_provider(array, "array")
-            if isinstance(array_or_slot.ir_type, SlotType):
-                array = mem.read_slot(self.context, array_or_slot, self.loc)
-            else:
-                array = array_or_slot
             updated_array = sequence.encode_and_write_index(
                 self.context,
                 indexable_wtype,
-                array,
+                array_or_slot,
                 index,
                 values=new_value,
                 loc=self.loc,
             )
-            if isinstance(array_or_slot.ir_type, SlotType):
-                mem.write_slot(self.context, array_or_slot, updated_array, self.loc)
-                return array_or_slot
-            else:
-                return updated_array
+            return updated_array
 
         self.update_funcs.append(_do)
 
