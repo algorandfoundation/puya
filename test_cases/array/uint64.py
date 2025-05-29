@@ -114,6 +114,15 @@ class Contract(arc4.ARC4Contract):
         assert arr[3] == 6
 
     @arc4.abimethod()
+    def test_array_assignment_maximum_cursage(self) -> None:
+        arr = Array[UInt64]()
+        arr.append(UInt64(3))
+        append_length_and_return(arr)[0] = UInt64(42)
+        assert arr.length == 2
+        assert arr[0] == 42
+        assert arr[1] == 1
+
+    @arc4.abimethod()
     def test_allocations(self, num: UInt64) -> None:
         for _i in urange(num):
             alloc_test = Array[UInt64]()

@@ -1895,6 +1895,8 @@ def test_array_uint64(
     simulate_call(app_client, "test_array_copy_and_extend")
     simulate_call(app_client, "test_array_evaluation_order")
 
+    simulate_call(app_client, "test_array_assignment_maximum_cursage")
+
     simulate_call(app_client, "test_allocations", num=255)
     with pytest.raises(LogicError, match="no available slots\t\t<-- Error"):
         simulate_call(app_client, "test_allocations", num=256)
