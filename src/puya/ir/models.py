@@ -30,7 +30,6 @@ from puya.ir.types_ import (
     SlotType,
     TupleIRType,
     UnionType,
-    get_type_arity,
     ir_type_to_ir_types,
 )
 from puya.ir.visitor import IRVisitor
@@ -617,8 +616,7 @@ class ValueEncode(Op, ValueProvider):
 
     @value_type.validator
     def _value_type_validator(self, _: object, value: IRType | TupleIRType) -> None:
-        type_arity = get_type_arity(value)
-        if type_arity != len(self.values):
+        if value.arity != len(self.values):
             raise InternalError(
                 "expected value_type arity to match values arity", self.source_location
             )

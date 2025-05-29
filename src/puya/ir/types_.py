@@ -2,6 +2,7 @@ import abc
 import enum
 import typing
 from collections.abc import Sequence
+from functools import cached_property
 
 import attrs
 
@@ -87,6 +88,11 @@ class IRType:
             return NotImplemented
         raise TypeError("types are partial ordered")
 
+    @typing.final
+    @property
+    def arity(self) -> int:
+        return 1
+
 
 @enum.unique
 class PrimitiveIRType(IRType, enum.StrEnum):
@@ -165,6 +171,10 @@ class TupleIRType:
 
     def __str__(self) -> str:
         return self.name
+
+    @cached_property
+    def arity(self) -> int:
+        return sum(e.arity for e in self.elements)
 
 
 @attrs.frozen(str=False, order=False)
@@ -391,18 +401,6 @@ def get_wtype_arity(wtype: wtypes.WType) -> int:
 
 def sum_wtypes_arity(types: Sequence[wtypes.WType]) -> int:
     return sum(map(get_wtype_arity, types))
-
-
-def get_type_arity(ir_type: IRType | TupleIRType) -> int:
-    """Returns the number of values this wtype represents on the stack"""
-    if isinstance(ir_type, TupleIRType):
-        return sum_types_arity(ir_type.elements)
-    else:
-        return 1
-
-
-def sum_types_arity(types: Sequence[IRType | TupleIRType]) -> int:
-    return sum(map(get_type_arity, types))
 
 
 def wtype_to_ir_types(wtype: wtypes.WType, source_location: SourceLocation) -> list[IRType]:
