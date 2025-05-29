@@ -183,7 +183,10 @@ class EncodedType(IRType):
 
     @property
     def name(self) -> str:
-        return f"Encoded({self.encoding.name})"
+        name = self.encoding.name
+        if name.startswith("("):
+            name = name[1:-1]
+        return f"Encoded({name})"
 
     @property
     def avm_type(self) -> typing.Literal[AVMType.bytes]:
