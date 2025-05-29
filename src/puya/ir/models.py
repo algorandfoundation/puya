@@ -16,7 +16,6 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, Variant
 from puya.ir.encodings import (
     ArrayEncoding,
-    DynamicArrayEncoding,
     Encoding,
     FixedArrayEncoding,
     TupleEncoding,
@@ -555,56 +554,6 @@ class TupleWriteIndex(_TupleOp):
         return visitor.visit_tuple_write_index(self)
 
 
-# TODO: remove ArrayConcat?
-@attrs.define(eq=False)
-class ArrayConcat(_ArrayOp):
-    """Concats two array values"""
-
-    other: Value = attrs.field()
-    other_encoding: Encoding = attrs.field(init=False)
-
-    def _frozen_data(self) -> object:
-        return self.array, self.other
-
-    @other_encoding.default
-    def _other_encoding_factory(self) -> Encoding:
-        element_encoding = self.array_encoding.element
-        other_ir_type = self.other.ir_type
-        if isinstance(other_ir_type, EncodedType):
-            other_encoding = other_ir_type.encoding
-            if (
-                other_encoding == element_encoding  # append
-                or (
-                    isinstance(other_encoding, ArrayEncoding)
-                    and other_encoding.element == element_encoding
-                )  # extend with an array
-                or (
-                    isinstance(other_encoding, TupleEncoding)
-                    and set(other_encoding.elements) == {element_encoding}
-                )  # extend with a tuple
-            ):
-                return other_encoding
-        elif (
-            not element_encoding.is_dynamic
-            and isinstance(other_ir_type, SizedBytesType)
-            and (other_ir_type.num_bytes % element_encoding.checked_num_bytes == 0)
-        ):
-            return DynamicArrayEncoding(element=element_encoding, length_header=False)
-        elif other_ir_type == PrimitiveIRType.bytes:
-            # if untyped then assume it is an unprefixed array
-            return DynamicArrayEncoding(element=element_encoding, length_header=False)
-        raise InternalError(
-            f"expected compatible ir types, {self.array_encoding=} can not concat {other_ir_type=}"
-        )
-
-    @property
-    def types(self) -> Sequence[IRType]:
-        return (self.array.ir_type,)
-
-    def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_concat(self)
-
-
 @attrs.define(eq=False)
 class ValueEncode(Op, ValueProvider):
     """Encodes a sequence of values into an encoded value"""
@@ -675,21 +624,6 @@ def _arity_matches(ir_type: IRType | TupleIRType, encoding: Encoding, loc: Sourc
             raise InternalError("type arity does not match encoding arity", loc)
         case _:
             pass
-
-
-@attrs.define(eq=False)
-class ArrayPop(_ArrayOp):
-    # TODO: maybe allow pop with an index?
-
-    def _frozen_data(self) -> object:
-        return self.array
-
-    @property
-    def types(self) -> Sequence[IRType]:
-        return self.array.ir_type, EncodedType(self.array_encoding.element)
-
-    def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_pop(self)
 
 
 @attrs.define(eq=False)

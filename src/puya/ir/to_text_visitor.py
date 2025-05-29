@@ -132,10 +132,6 @@ class ToTextVisitor(IRVisitor[str]):
         return f"{base}.update({index}, {value})"
 
     @typing.override
-    def visit_array_concat(self, concat: models.ArrayConcat) -> str:
-        return f"{concat.array.accept(self)}.concat({concat.other.accept(self)})"
-
-    @typing.override
     def visit_value_encode(self, encode: models.ValueEncode) -> str:
         values = ", ".join(val.accept(self) for val in encode.values)
         return f"encode<{encode.encoding!s}>({values})"
@@ -143,10 +139,6 @@ class ToTextVisitor(IRVisitor[str]):
     @typing.override
     def visit_value_decode(self, decode: models.ValueDecode) -> str:
         return f"decode<{decode.decoded_type.name}>({decode.value.accept(self)})"
-
-    @typing.override
-    def visit_array_pop(self, pop: models.ArrayPop) -> str:
-        return f"{pop.array.accept(self)}.pop()"
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:
