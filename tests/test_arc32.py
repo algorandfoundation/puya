@@ -9,7 +9,11 @@ import algokit_utils
 import algokit_utils.config
 import algosdk
 import pytest
-from algokit_utils import ApplicationClient, LogicError, OnCompleteCallParametersDict
+from algokit_utils import (
+    ApplicationClient,
+    LogicError,
+    OnCompleteCallParametersDict,
+)
 from algosdk import abi, constants, transaction
 from algosdk.atomic_transaction_composer import (
     AccountTransactionSigner,
@@ -1671,6 +1675,49 @@ def test_nested_tuples(
 
     response = app_client.call("load_tuple_from_box", with_box, key=st)
     assert response.return_value == [st[0], st[1] + 1], "expected tuple to load from box"
+
+
+def test_tuple_storage(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "tuple_support" / "tuple_storage.py"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    # create
+    app_client.create()
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=200_000,
+        ),
+    )
+    with_box_ref: OnCompleteCallParametersDict = {"boxes": [(0, "box")]}
+    app_client.opt_in("bootstrap", transaction_parameters=with_box_ref)
+
+    val = 123
+    app_client.call("mutate_tuple", val=val)
+    tup_value = app_client.get_global_state(raw=True)[b"tup"]
+    assert tup_value == _get_arc4_bytes("(uint64[],uint64)", ([0, val], 0))
+
+    val = 234
+    app_client.call("mutate_box", val=val, transaction_parameters=with_box_ref)
+    box_state = algod_client.application_box_by_name(app_client.app_id, b"box")
+    assert isinstance(box_state, dict)
+    box_value = base64.b64decode(box_state["value"])
+    assert box_value == _get_arc4_bytes("(uint64[],uint64)", ([0, val], 0))
+
+    val = 2**64 - 1
+    app_client.call("mutate_global", val=val)
+    glob_value = app_client.get_global_state(raw=True)[b"glob"]
+    assert glob_value == _get_arc4_bytes("(uint64[],uint64)", ([0, val], 0))
+
+    val = 345
+    app_client.call("mutate_local", val=val)
+    loc_value = app_client.get_local_state(account.address, raw=True)[b"loc"]
+    assert loc_value == _get_arc4_bytes("(uint64[],uint64)", ([0, val], 0))
 
 
 def test_named_tuples(
