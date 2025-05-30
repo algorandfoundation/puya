@@ -172,17 +172,6 @@ class InnerTransactionBuilder:
             case _:
                 return False
 
-    def _visit_submit_expr(self, expr: awst_nodes.Expression) -> Sequence[Value]:
-        value_provider = self.context.visitor.visit_expr(expr)
-        match value_provider:
-            case ValueTuple(values=values):
-                return values
-            case Value() as value:
-                return (value,)
-        raise InternalError(
-            "Unexpected result for SubmitInnerTransaction expr", expr.source_location
-        )
-
     def add_inner_transaction_submit_result_assignments(
         self,
         targets: Sequence[Value],
