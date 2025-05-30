@@ -316,18 +316,6 @@ class OpFactory:
         )
         return result
 
-    def extract_uint8(
-        self, a: Value, b: Value | int, temp_desc: str = "extract_uint8"
-    ) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.getbyte,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
     def extract_uint16(
         self, a: Value, b: Value | int, temp_desc: str = "extract_uint16"
     ) -> Register:
@@ -335,18 +323,6 @@ class OpFactory:
             self.context,
             target=temp_desc,
             op=AVMOp.extract_uint16,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
-    def extract_uint64(
-        self, a: Value, b: Value | int, temp_desc: str = "extract_uint64"
-    ) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.extract_uint64,
             args=[a, b],
             source_location=self.source_location,
         )
@@ -561,9 +537,6 @@ class OpFactory:
     def materialise_single(self, value_provider: ValueProvider, description: str = "tmp") -> Value:
         (single,) = self.materialise_values(value_provider, description)
         return single
-
-    def materialise_values_by_name(self, **values: ValueProvider) -> Sequence[Value]:
-        return [self.materialise_single(value, desc) for desc, value in values.items()]
 
     def materialise_values(
         self, value_provider: ValueProvider, description: str = "tmp"
