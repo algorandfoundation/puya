@@ -483,12 +483,12 @@ class ArrayConcat(Expression):
         )
     )
     # note: StaticArray not supported yet
-    wtype: wtypes.ARC4DynamicArray | wtypes.StackArray = attrs.field(init=False)
+    wtype: wtypes.ARC4DynamicArray = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.ARC4DynamicArray | wtypes.StackArray:
+    def _wtype(self) -> wtypes.ARC4DynamicArray:
         wtype = self.left.wtype
-        if not isinstance(wtype, wtypes.ARC4DynamicArray | wtypes.StackArray):
+        if not isinstance(wtype, wtypes.ARC4DynamicArray):
             raise CodeError(
                 "unsupported type for concatenation left operand", self.source_location
             )
@@ -566,16 +566,16 @@ class ArrayPop(Expression):
 
 @attrs.frozen
 class ArrayReplace(Expression):
-    """For a StackArray, replaces the item at index with value and returns the updated array"""
+    """Replaces the item at index with value and returns the updated array"""
 
     base: Expression  # note: type validated by wtype factory
     index: Expression = attrs.field(validator=wtype_is_uint64)
     value: Expression = attrs.field()
-    wtype: wtypes.StackArray = attrs.field(init=False)
+    wtype: wtypes.ARC4DynamicArray = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.StackArray:
-        if not isinstance(self.base.wtype, wtypes.StackArray):
+    def _wtype(self) -> wtypes.ARC4DynamicArray:
+        if not isinstance(self.base.wtype, wtypes.ARC4DynamicArray):
             raise InternalError(
                 f"Unsupported base for ArrayReplace: {self.base.wtype}", self.source_location
             )
@@ -956,7 +956,7 @@ class IntersectionSliceExpression(Expression):
         validator=expression_has_wtype(
             wtypes.BytesWType,
             wtypes.WTuple,
-            wtypes.StackArray,
+            wtypes.ARC4DynamicArray,
         )
     )
 
@@ -973,7 +973,7 @@ class IntersectionSliceExpression(Expression):
                 pass
             case wtypes.WTuple(), wtypes.WTuple():
                 pass
-            case wtypes.StackArray(element_type=input_element_type), wtypes.StackArray(
+            case wtypes.ARC4DynamicArray(element_type=input_element_type), wtypes.ARC4DynamicArray(
                 element_type=output_element_type
             ) if input_element_type == output_element_type:
                 pass
@@ -1106,12 +1106,7 @@ Lvalue = VarExpression | FieldExpression | IndexExpression | TupleExpression | S
 
 @attrs.frozen
 class NewArray(Expression):
-    wtype: (
-        wtypes.ARC4DynamicArray
-        | wtypes.ARC4StaticArray
-        | wtypes.ReferenceArray
-        | wtypes.StackArray
-    )
+    wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray
     values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
     @values.validator

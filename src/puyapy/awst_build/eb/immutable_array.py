@@ -66,7 +66,7 @@ class ImmutableArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         assert isinstance(typ, pytypes.ArrayType)
         assert typ.generic == pytypes.GenericImmutableArrayType
         wtype = typ.wtype
-        assert isinstance(wtype, wtypes.StackArray)
+        assert isinstance(wtype, wtypes.ARC4DynamicArray)
         self._wtype = wtype
         super().__init__(typ, location)
 

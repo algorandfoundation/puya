@@ -303,24 +303,6 @@ class NativeArray(WType, abc.ABC):
 
 @typing.final
 @attrs.frozen
-class StackArray(NativeArray):
-    name: str = attrs.field(init=False)
-    immutable: bool = attrs.field(default=True, init=False)
-    _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.persistable_bytes, init=False
-    )
-
-    @name.default
-    def _name(self) -> str:
-        return f"stack_array<{self.element_type.name}>"
-
-    @typing.override
-    def accept[T](self, visitor: WTypeVisitor[T]) -> T:
-        return visitor.visit_stack_array(self)
-
-
-@typing.final
-@attrs.frozen
 class ReferenceArray(NativeArray):
     name: str = attrs.field(init=False)
     immutable: bool = attrs.field(default=False, init=False)
@@ -510,19 +492,18 @@ class ARC4Tuple(_ARC4WTypeInstance):
 @attrs.frozen(kw_only=True)
 class ARC4Array(_ARC4WTypeInstance, abc.ABC):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
-    element_type: WType = attrs.field()
     immutable: bool = False
+    element_type: WType = attrs.field()
 
     @element_type.validator
     def _element_type_validator(self, _attribute: object, value: WType) -> None:
+        loc = self.source_location
         if not value.persistable:
-            from puya.awst.src_loc_visitor import WTypeSourceLocationVisitor
-
-            loc = self.accept(WTypeSourceLocationVisitor())
             raise CodeError("arrays can only contain persistable elements", loc)
+        if self.immutable and not value.immutable:
+            raise CodeError("immutable arrays must have immutable elements", loc)
 
 
-@typing.final
 @attrs.frozen(kw_only=True)
 class ARC4DynamicArray(ARC4Array):
     name: str = attrs.field(init=False)
@@ -534,6 +515,18 @@ class ARC4DynamicArray(ARC4Array):
     @typing.override
     def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:
         return visitor.visit_arc4_dynamic_array(self)
+
+
+# TODO: remove once puya-ts has stopped using wtypes.StackArray
+@typing.final
+@attrs.frozen(kw_only=True)
+class StackArray(ARC4DynamicArray):
+    immutable: bool = attrs.field(default=True, init=False)
+    name: str = attrs.field(init=False)
+
+    @name.default
+    def _name(self) -> str:
+        return f"stack_array<{self.element_type.name}>"
 
 
 @typing.final

@@ -10,7 +10,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.arc4_types import effective_array_encoding, maybe_wtype_to_arc4_wtype
+from puya.ir.arc4_types import maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
@@ -393,14 +393,6 @@ def get_storage_codec(
         and storage_kind is awst_nodes.AppStorageKind.box
     ):
         return _UInt64AsBytesStorageCodec()
-
-    if isinstance(declared_type, wtypes.StackArray):
-        # this case could just be handled by `.scalar_type` case,
-        # but by adding this type here we encode the pass-through assumption
-        effective_type = effective_array_encoding(declared_type, loc)
-        typing.assert_type(effective_type, wtypes.ARC4DynamicArray)
-        ir_type = wtype_to_ir_type(declared_type, loc)
-        return _PassthroughStorageCodec(ir_type)
 
     if isinstance(declared_type, wtypes.WTuple):
         arc4_wtype = maybe_wtype_to_arc4_wtype(declared_type)

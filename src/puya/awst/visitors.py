@@ -365,9 +365,6 @@ class WTypeVisitor[T](ARC4WTypeVisitor[T]):
     ) -> T: ...
 
     @abstractmethod
-    def visit_stack_array(self, wtype: puya.awst.wtypes.StackArray) -> T: ...
-
-    @abstractmethod
     def visit_reference_array(self, wtype: puya.awst.wtypes.ReferenceArray) -> T: ...
 
     @abstractmethod

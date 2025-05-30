@@ -225,7 +225,7 @@ class _Freeze(_ArrayFunc):
         expect.no_args(args, location)
         imm_type = pytypes.GenericImmutableArrayType.parameterise([self.typ.items], location)
         imm_wtype = imm_type.wtype
-        assert isinstance(imm_wtype, wtypes.StackArray)
+        assert isinstance(imm_wtype, wtypes.ARC4DynamicArray)
         return builder_for_instance(
             imm_type,
             ArrayConcat(

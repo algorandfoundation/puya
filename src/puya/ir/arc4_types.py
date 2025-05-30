@@ -55,13 +55,6 @@ class ARC4EncodedWTypeConverterVisitor(WTypeVisitor[wtypes.ARC4Type | None]):
         return None
 
     @typing.override
-    def visit_stack_array(self, wtype: wtypes.StackArray) -> wtypes.ARC4Type | None:
-        arc4_element_type = wtype.element_type.accept(self)
-        if arc4_element_type is None:
-            return None
-        return wtypes.ARC4DynamicArray(element_type=arc4_element_type, immutable=True)
-
-    @typing.override
     def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> None:
         return None
 
@@ -214,30 +207,3 @@ def wtype_to_arc4_wtype(wtype: wtypes.WType, loc: SourceLocation | None) -> wtyp
     if arc4_wtype is None:
         raise CodeError(f"unsupported type for ARC-4 encoding {wtype}", loc)
     return arc4_wtype
-
-
-# note that this function is typed only as StackArray -> ARC4DynamicArray, because that is
-# the only currently supported combo, so it's easier to type it as that rather than check/assert
-# etc in the callers.
-# but that should change, in theory it should be able to take NativeArray -> ARC4Array (or other??)
-def effective_array_encoding(
-    array_type: wtypes.StackArray, loc: SourceLocation | None
-) -> wtypes.ARC4DynamicArray:
-    """If a native stack array is effectively ARC-4-encoded, return that equivalent type here."""
-    arc4_element_type = maybe_wtype_to_arc4_wtype(array_type.element_type)
-    if arc4_element_type is None:
-        # we flat out don't support this (yet?), so always raise a CodeError
-        # this is an internal detail to the current IR implementation of this type,
-        # so this is the right spot to do this validation in currently
-        raise CodeError("unsupported array element type", loc)
-    return wtypes.ARC4DynamicArray(element_type=arc4_element_type, immutable=True)
-
-
-def is_equivalent_effective_array_encoding(
-    array_type: wtypes.StackArray, encoding_type: wtypes.WType, loc: SourceLocation | None
-) -> bool:
-    effective_type = effective_array_encoding(array_type, loc)
-    typing.assert_type(effective_type, wtypes.ARC4DynamicArray)  # could be expanded to ARC4Type
-    return isinstance(encoding_type, wtypes.ARC4Type) and (
-        get_arc4_name(effective_type) == get_arc4_name(encoding_type)
-    )

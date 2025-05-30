@@ -61,12 +61,11 @@ def pytype_to_arc4_pytype(
                 frozen=True,
                 source_location=pytype.source_location,
             )
-        case pytypes.ArrayType(generic=pytypes.GenericImmutableArrayType, items=items):
-            result = pytypes.GenericARC4DynamicArrayType.parameterise(
-                [pytype_to_arc4_pytype(items, on_error, encode_resource_types=True)],
+        case pytypes.ArrayType(generic=pytypes.GenericImmutableArrayType):
+            return pytypes.GenericARC4DynamicArrayType.parameterise(
+                [pytype_to_arc4_pytype(pytype.items, on_error, encode_resource_types=True)],
                 pytype.source_location,
             )
-            return attrs.evolve(result, wtype=attrs.evolve(result.wtype, immutable=True))
         case pytypes.TupleType():
             return pytypes.GenericARC4TupleType.parameterise(
                 [
@@ -179,7 +178,8 @@ def pytype_to_arc4(
             return f"ufixed{n}x{m}"
         case pytypes.ArrayType(
             generic=pytypes.GenericARC4StaticArrayType
-            | pytypes.GenericARC4DynamicArrayType,
+            | pytypes.GenericARC4DynamicArrayType
+            | pytypes.GenericImmutableArrayType,
             items=item_pytype,
             size=array_length,
         ):

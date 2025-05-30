@@ -359,7 +359,7 @@ def wtype_to_ir_type(
         case wtypes.ReferenceArray():
             array_type = wtype_to_encoded_ir_type(wtype, source_location)
             return SlotType(array_type)
-        case wtypes.ARC4Type() | wtypes.StackArray():
+        case wtypes.ARC4Type():
             return wtype_to_encoded_ir_type(wtype, source_location)
         case wtypes.WTuple(types=types) if allow_tuple:
             return TupleIRType(
