@@ -15,6 +15,7 @@ from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import assign, assign_targets, get_implicit_return_is_original
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.types_ import PrimitiveIRType, SlotType, get_wtype_arity
+from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -177,6 +178,25 @@ def _extract_write_path(target: _IndexOp) -> tuple[awst_nodes.Expression, list[_
     while isinstance(base, _IndexOp):
         indexes.append(base)
         base = base.base
+    # special case: we currently explode native tuples during IR construction
+    if isinstance(base, awst_nodes.VarExpression):
+        while indexes and isinstance(base.wtype, wtypes.WTuple):
+            tuple_index_op = indexes.pop()
+            match tuple_index_op:
+                case awst_nodes.TupleItemExpression(index=index_or_name):
+                    pass
+                case awst_nodes.FieldExpression(name=index_or_name):
+                    pass
+                case _:
+                    raise InternalError(
+                        "unexpected tuple indexing expression", tuple_index_op.source_location
+                    )
+            new_name = format_tuple_index(base.wtype, base.name, index_or_name)
+            new_wtype = tuple_index_op.wtype
+            new_loc = base.source_location.try_merge(tuple_index_op.source_location)
+            base = awst_nodes.VarExpression(
+                name=new_name, wtype=new_wtype, source_location=new_loc
+            )
     indexes.reverse()
     return base, indexes
 
