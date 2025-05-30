@@ -612,6 +612,15 @@ contract CallMe
     return GlobalState['native_arr']
   }
   
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.log_it(): void
+  {
+    log(GlobalState['fixed_struct'])
+    log(GlobalState['nested_struct'])
+    log(GlobalState['dynamic_struct'])
+    log(reinterpret_cast<bytes>(GlobalState['fixed_arr']))
+    log(reinterpret_cast<bytes>(GlobalState['native_arr']))
+  }
+  
   baremethod test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create(): void
   {
   }
@@ -715,6 +724,33 @@ contract TestAbiCall
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_arg((uint64,uint64)[])void"), native_arr), ApplicationID=app))
     (res, _txn): tuple<arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=34, source=SINGLE_EVAL(id=33, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_ret()(uint64,uint64)[]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=34)) == hex<"151F7C75">)), SINGLE_EVAL(id=33))
     assert(res == native_arr, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_log(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=36, source=SINGLE_EVAL(id=35, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=36)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=37, source=SINGLE_EVAL(id=35).clear_state_program)[0], SINGLE_EVAL(id=37)[1]), ExtraProgramPages=SINGLE_EVAL(id=35).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=35).global_bytes, GlobalNumUint=SINGLE_EVAL(id=35).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=35).local_bytes, LocalNumUint=SINGLE_EVAL(id=35).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = bzero(size_of(test_cases.mutable_native_types.abi_call.FixedStruct))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_arg((uint64,uint64))void"), fixed_struct), ApplicationID=app))
+    nested_struct: test_cases.mutable_native_types.abi_call.NestedStruct = bzero(size_of(test_cases.mutable_native_types.abi_call.NestedStruct))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_arg(((uint64,uint64),uint64))void"), nested_struct), ApplicationID=app))
+    dynamic_struct: test_cases.mutable_native_types.abi_call.DynamicStruct = new test_cases.mutable_native_types.abi_call.DynamicStruct(a=0u, b=0u, c=hex<"">, d='', e=new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>())
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void"), dynamic_struct), ApplicationID=app))
+    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = bzero(size_of(arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_arg((uint64,uint64)[3])void"), fixed_arr), ApplicationID=app))
+    native_arr: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct> = new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>()
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_arg((uint64,uint64)[])void"), native_arr), ApplicationID=app))
+    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_it()void")), ApplicationID=app))
+    assert(txn.NumLogs == 5u, comment="expected 5 logs")
+    assert(txn.Logs[0u] == bzero(size_of(test_cases.mutable_native_types.abi_call.FixedStruct)), comment="expected fixed struct")
+    assert(txn.Logs[1u] == bzero(size_of(test_cases.mutable_native_types.abi_call.NestedStruct)), comment="expected nested struct")
+    dynamic_struct_len: uint64 = size_of(uint64) * 2u
+    dynamic_struct_len += 6u
+    dynamic_struct_len += 6u
+    assert(len(txn.Logs[2u]) == dynamic_struct_len, comment="expected dynamic struct")
+    assert(txn.Logs[3u] == bzero(size_of(arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>)), comment="expected fixed array")
+    assert(txn.Logs[4u] == bzero(2u), comment="expected fixed array")
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
   }
   

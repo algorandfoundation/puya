@@ -31,3 +31,8 @@ class TestAbiCall(algopy.arc4.ARC4Client, typing.Protocol):
     def test_native_array(
         self,
     ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def test_log(
+        self,
+    ) -> None: ...
