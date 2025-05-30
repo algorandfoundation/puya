@@ -436,26 +436,12 @@ class ArrayOp(typing.Protocol):
     def array(self) -> Value: ...
 
 
-def _array_encoding(value: Value) -> ArrayEncoding:
-    if not isinstance(value.ir_type, EncodedType):
-        raise InternalError(f"expected EncodedType: {value.ir_type}", value.source_location)
-    encoding = value.ir_type.encoding
-    if not isinstance(encoding, ArrayEncoding | FixedArrayEncoding):
-        raise InternalError(f"expected Array EncodedType: {encoding=}", value.source_location)
-
-    return encoding
-
-
 @attrs.define(eq=False, kw_only=True)
 class _ArrayOp(Op, ValueProvider):
     array: Value = attrs.field()
     # capture array type on the node, so the array value can be optimized
     # and still retain array type information
     array_encoding: ArrayEncoding = attrs.field()
-
-    @array_encoding.default
-    def _array_encoding(self) -> ArrayEncoding:
-        return _array_encoding(self.array)
 
 
 @attrs.define(eq=False)
@@ -1166,9 +1152,6 @@ class Subroutine(Context):
         yield from self.parameters
         yield from _get_assigned_registers(self.body)
 
-    def get_used_registers(self) -> Iterator[Register]:
-        yield from _get_used_registers(self.body)
-
     def validate_with_ssa(self) -> None:
         all_assigned = set[Register]()
         for block in self.body:
@@ -1258,16 +1241,6 @@ class Contract(Context):
     clear_program: Program
     metadata: ContractMetaData
 
-    def all_subroutines(self) -> Iterable[Subroutine]:
-        from itertools import chain
-
-        yield from unique(
-            chain(
-                self.approval_program.all_subroutines,
-                self.clear_program.all_subroutines,
-            )
-        )
-
     def all_programs(self) -> Iterable[Program]:
         return [self.approval_program, self.clear_program]
 
@@ -1277,9 +1250,6 @@ class LogicSignature(Context):
     source_location: SourceLocation
     program: Program
     metadata: LogicSignatureMetaData
-
-    def all_subroutines(self) -> Iterable[Subroutine]:
-        return self.program.all_subroutines
 
     def all_programs(self) -> Iterable[Program]:
         return [self.program]

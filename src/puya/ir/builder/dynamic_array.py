@@ -145,8 +145,6 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
                 iterable_length = ir.UInt64Constant(
                     value=len(iterable_encoding.elements), source_location=self.loc
                 )
-            elif iterable_encoding == element_encoding:
-                iterable_length = ir.UInt64Constant(value=1, source_location=self.loc)
             else:
                 iterable_length = ir.Undefined(
                     ir_type=PrimitiveIRType.uint64, source_location=self.loc
