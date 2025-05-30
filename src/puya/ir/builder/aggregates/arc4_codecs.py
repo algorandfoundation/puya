@@ -504,36 +504,6 @@ class _AccountCodec(_ScalarCodec):
                 return None
 
 
-class _CheckedEncoding(_ARC4Codec):
-    def __init__(self, native_type: IRType):
-        self.native_type: typing.Final = native_type
-
-    @typing.override
-    def encode(
-        self,
-        context: IRRegisterContext,
-        values: Sequence[Value],
-        encoding: Encoding,
-        loc: SourceLocation,
-    ) -> ValueProvider | None:
-        if not requires_conversion(self.native_type, encoding, "encode"):
-            (value,) = values
-            return value
-        return None
-
-    @typing.override
-    def decode(
-        self,
-        context: IRRegisterContext,
-        value: Value,
-        encoding: Encoding,
-        loc: SourceLocation,
-    ) -> ValueProvider | None:
-        if not requires_conversion(self.native_type, encoding, "decode"):
-            return value
-        return None
-
-
 def _get_arc4_codec(ir_type: IRType | TupleIRType) -> _ARC4Codec | None:
     match ir_type:
         case TupleIRType() as aggregate:
@@ -546,10 +516,6 @@ def _get_arc4_codec(ir_type: IRType | TupleIRType) -> _ARC4Codec | None:
             return _BytesCodec(UTF8Encoding())
         case PrimitiveIRType.account:
             return _AccountCodec()
-        case EncodedType():
-            # TODO: this is the equivalent to the old StackArray check
-            #       but probably isn't necessary any more
-            return _CheckedEncoding(ir_type)
         case PrimitiveIRType.bytes | SizedBytesType():
             return _BytesCodec(UIntEncoding(n=8))
         case _ if ir_type.maybe_avm_type == AVMType.uint64:

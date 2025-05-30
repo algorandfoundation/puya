@@ -22,17 +22,6 @@ __all__ = [
 logger = log.get_logger(__name__)
 
 
-def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]:
-    if not (pytypes.ARC4StructBaseType < typ):
-        return False
-    if not isinstance(typ, pytypes.StructType):
-        raise InternalError(
-            f"Type inherits from {pytypes.ARC4StructBaseType!r}"
-            f" but structure type is {type(typ).__name__!r}"
-        )
-    return True
-
-
 @attrs.frozen
 class _DecoratorData:
     fullname: str
