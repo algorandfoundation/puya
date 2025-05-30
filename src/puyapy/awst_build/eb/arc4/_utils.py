@@ -27,6 +27,7 @@ from puyapy.awst_build.utils import maybe_resolve_literal
 logger = log.get_logger(__name__)
 
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
+_ARRAY_PATTERN = re.compile(r"^\[[0-9]*]$")
 
 
 def _pytype_to_arc4_return_pytype(typ: pytypes.PyType, sig: attrs.AttrsInstance) -> pytypes.PyType:
@@ -270,7 +271,9 @@ def _split_signature(
     if last_idx < len(signature):
         remaining = signature[last_idx:]
         if remaining:
-            if not name:
+            if returns is not None and _ARRAY_PATTERN.match(remaining):
+                returns += remaining
+            elif not name:
                 name = remaining
             elif args is None:
                 raise CodeError(

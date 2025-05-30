@@ -179,7 +179,9 @@ def pytype_to_arc4(
         case pytypes.ArrayType(
             generic=pytypes.GenericARC4StaticArrayType
             | pytypes.GenericARC4DynamicArrayType
-            | pytypes.GenericImmutableArrayType,
+            | pytypes.GenericImmutableArrayType
+            | pytypes.GenericNativeArrayType
+            | pytypes.GenericFixedArrayType,
             items=item_pytype,
             size=array_length,
         ):
@@ -191,9 +193,9 @@ def pytype_to_arc4(
                 pytype_to_arc4(it, encode_resource_types=True, loc=loc) for it in arc4_tuple_items
             ]
             return f"({','.join(item_arc4_names)})"
-        case pytypes.StructType(
-            fields=arc4_struct_fields
-        ) if pytypes.ARC4StructBaseType < arc4_pytype:
+        case pytypes.StructType(fields=arc4_struct_fields) if (
+            pytypes.ARC4StructBaseType < arc4_pytype or pytypes.StructBaseType < arc4_pytype
+        ):
             item_arc4_names = [
                 pytype_to_arc4(it, encode_resource_types=True, loc=loc)
                 for it in arc4_struct_fields.values()

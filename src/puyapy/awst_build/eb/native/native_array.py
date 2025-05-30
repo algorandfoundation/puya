@@ -60,7 +60,7 @@ class NativeArrayGenericTypeBuilder(GenericTypeBuilder):
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
         # TODO: check arg type is sequence like not just iterable
         element_type = arg.iterable_item_type()
-        typ = pytypes.GenericARC4DynamicArrayType.parameterise([element_type], location)
+        typ = pytypes.GenericNativeArrayType.parameterise([element_type], location)
         wtype = typ.checked_wtype(location)
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return NativeArrayExpressionBuilder(
