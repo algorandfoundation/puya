@@ -468,8 +468,14 @@ class DynamicSize(arc4.ARC4Contract):
         assert size_of(arc4.Tuple[arc4.UInt64, arc4.DynamicBytes]) == 0 ## E: arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>> is dynamically sized
 
 
-## case: tuple_with_non_persistable_elements_cannot_be_persisted
+## case: zero_bytes_bad_arg
 from algopy import *
 
-class No(ARC4Contract):
-    forbidden: tuple[UInt64, tuple[Bytes, gtxn.Transaction]] ## E: type is not suitable for storage
+@subroutine
+def bad1() -> None:
+    assert zero_bytes(UInt64()) # type: ignore[arg-type] ## E: argument must be a bytes encoded type reference
+
+@subroutine
+def bad2() -> None:
+    assert zero_bytes(UInt64) ## E: argument must be a bytes encoded type reference
+
