@@ -288,9 +288,15 @@ class WInnerTransaction(_WTypeInstance):
         return visitor.visit_inner_transaction_type(self)
 
 
+@typing.final
 @attrs.frozen
-class NativeArray(WType, abc.ABC):
+class ReferenceArray(_WTypeInstance):
     element_type: WType = attrs.field()
+    name: str = attrs.field(init=False)
+    immutable: bool = attrs.field(default=False, init=False)
+    _type_semantics: _TypeSemantics = attrs.field(
+        default=_TypeSemantics.ephemeral_aggregate, init=False
+    )
     source_location: SourceLocation | None = attrs.field(eq=False)
 
     @element_type.validator
@@ -299,16 +305,6 @@ class NativeArray(WType, abc.ABC):
             raise CodeError("array element type cannot be void", self.source_location)
         if not element_type.immutable:
             logger.error("arrays must have immutable elements", location=self.source_location)
-
-
-@typing.final
-@attrs.frozen
-class ReferenceArray(NativeArray):
-    name: str = attrs.field(init=False)
-    immutable: bool = attrs.field(default=False, init=False)
-    _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.ephemeral_aggregate, init=False
-    )
 
     @name.default
     def _name(self) -> str:
