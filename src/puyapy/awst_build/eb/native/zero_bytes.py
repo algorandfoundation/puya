@@ -12,7 +12,7 @@ from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     InstanceBuilder,
-    NodeBuilder,
+    NodeBuilder,  # TODO: file coverage and remove this comma
 )
 
 logger = log.get_logger(__name__)
