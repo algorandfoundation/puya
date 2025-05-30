@@ -13,7 +13,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError
-from puya.ir.arc4_types import is_equivalent_effective_array_encoding, wtype_to_arc4_wtype
+from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.parse import SourceLocation
 from puya.utils import set_add
 
@@ -385,13 +385,7 @@ def _map_abi_args(
                     source_location=location,
                 )
             else:
-                if isinstance(arg, wtypes.StackArray) and is_equivalent_effective_array_encoding(
-                    arg, abi_arg.wtype, abi_arg.source_location
-                ):
-                    abi_arg = awst_nodes.ReinterpretCast(
-                        expr=abi_arg, wtype=arg, source_location=abi_arg.source_location
-                    )
-                elif abi_arg.wtype != arg:
+                if abi_arg.wtype != arg:
                     abi_arg = awst_nodes.ARC4Decode(
                         value=abi_arg, wtype=arg, source_location=abi_arg.source_location
                     )

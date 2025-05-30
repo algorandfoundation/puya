@@ -754,7 +754,7 @@ class FunctionIRBuilder(
             return self._visit_tuple_slice(expr, sliceable_type)
         elif isinstance(sliceable_type, wtypes.BytesWType):
             return visit_bytes_intersection_slice_expression(self.context, expr)
-        elif isinstance(sliceable_type, wtypes.StackArray):
+        elif isinstance(sliceable_type, wtypes.ARC4DynamicArray):
             if expr.begin_index is not None or expr.end_index != -1:
                 raise InternalError(
                     f"IntersectionSlice for {expr.wtype.name} currently only supports [:-1]",
@@ -903,7 +903,7 @@ class FunctionIRBuilder(
         (encoded_array,) = self.context.visitor.materialise_value_provider(
             encoded_array_vp, "encoded_array"
         )
-        if isinstance(expr.wtype, wtypes.ARC4Array | wtypes.StackArray):
+        if isinstance(expr.wtype, wtypes.ARC4Array):
             return encoded_array
         elif isinstance(expr.wtype, wtypes.ReferenceArray):
             array_slot_type = wtype_to_ir_type(expr.wtype, expr.source_location)
@@ -1257,7 +1257,7 @@ class FunctionIRBuilder(
         loc = expr.source_location
 
         array_wtype = expr.base.wtype
-        assert isinstance(array_wtype, wtypes.StackArray), "expected StackArray"
+        assert isinstance(array_wtype, wtypes.ARC4DynamicArray), "expected StackArray"
 
         array = self.context.visitor.visit_and_materialise_single(expr.base)
         index = self.context.visitor.visit_and_materialise_single(expr.index)
