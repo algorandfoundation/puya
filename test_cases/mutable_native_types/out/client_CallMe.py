@@ -80,3 +80,8 @@ class CallMe(algopy.arc4.ARC4Client, typing.Protocol):
     def native_arr_ret(
         self,
     ) -> algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]]: ...
+
+    @algopy.arc4.abimethod
+    def log_it(
+        self,
+    ) -> None: ...

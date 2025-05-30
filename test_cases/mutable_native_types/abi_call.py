@@ -10,7 +10,10 @@ from algopy import (
     Txn,
     UInt64,
     arc4,
+    log,
     op,
+    size_of,
+    zero_bytes,
 )
 
 
@@ -86,6 +89,14 @@ class CallMe(arc4.ARC4Contract):
     @arc4.abimethod()
     def native_arr_ret(self) -> NativeArray[FixedStruct]:
         return self.native_arr.value
+
+    @arc4.abimethod()
+    def log_it(self) -> None:
+        log(self.fixed_struct.value)
+        log(self.nested_struct.value)
+        log(self.dynamic_struct.value)
+        log(self.fixed_arr.value)
+        log(self.native_arr.value)
 
 
 class TestAbiCall(arc4.ARC4Contract):
@@ -208,12 +219,12 @@ class TestAbiCall(arc4.ARC4Contract):
         fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
         native_arr = NativeArray((fixed_struct, fixed_struct, fixed_struct))
 
-        # fixed array - typed
+        # native array - typed
         arc4.abi_call(CallMe.native_arr_arg, native_arr, app_id=app)
         res, _txn = arc4.abi_call(CallMe.native_arr_ret, app_id=app)
         assert res == native_arr, "should be the same"
 
-        # fixed array - arc4 signature
+        # native array - arc4 signature
         fixed_struct = FixedStruct(a=Txn.num_app_args + 2, b=Txn.num_app_args + 3)
         native_arr = NativeArray((fixed_struct, fixed_struct, fixed_struct))
         arc4.abi_call(
@@ -225,5 +236,45 @@ class TestAbiCall(arc4.ARC4Contract):
             "native_arr_ret()(uint64,uint64)[]", app_id=app
         )
         assert res == native_arr, "should be the same"
+
+        arc4.abi_call(CallMe.delete, app_id=app)
+
+    @arc4.abimethod()
+    def test_log(self) -> None:
+        create_txn = arc4.arc4_create(CallMe)
+        app = create_txn.created_app
+
+        # fixed struct
+        fixed_struct = zero_bytes(FixedStruct)
+        arc4.abi_call(CallMe.fixed_struct_arg, fixed_struct, app_id=app)
+
+        # nested struct
+        nested_struct = zero_bytes(NestedStruct)
+        arc4.abi_call(CallMe.nested_struct_arg, nested_struct, app_id=app)
+
+        # dynamic struct
+        dynamic_struct = DynamicStruct(
+            a=UInt64(), b=UInt64(), c=Bytes(), d=String(), e=NativeArray[FixedStruct]()
+        )
+        arc4.abi_call(CallMe.dynamic_struct_arg, dynamic_struct, app_id=app)
+
+        # fixed array
+        fixed_arr = zero_bytes(FixedStruct3)
+        arc4.abi_call(CallMe.fixed_arr_arg, fixed_arr, app_id=app)
+
+        # native array
+        native_arr = NativeArray[FixedStruct]()
+        arc4.abi_call(CallMe.native_arr_arg, native_arr, app_id=app)
+
+        txn = arc4.abi_call(CallMe.log_it, app_id=app)
+        assert txn.num_logs == 5, "expected 5 logs"
+        assert txn.logs(0) == op.bzero(size_of(FixedStruct)), "expected fixed struct"
+        assert txn.logs(1) == op.bzero(size_of(NestedStruct)), "expected nested struct"
+        dynamic_struct_len = size_of(UInt64) * 2  # a + b
+        dynamic_struct_len += 2 * 3  # head for c, d, e
+        dynamic_struct_len += 2 * 3  # tail for c, d, e
+        assert txn.logs(2).length == dynamic_struct_len, "expected dynamic struct"
+        assert txn.logs(3) == op.bzero(size_of(FixedStruct3)), "expected fixed array"
+        assert txn.logs(4) == op.bzero(2), "expected fixed array"
 
         arc4.abi_call(CallMe.delete, app_id=app)
