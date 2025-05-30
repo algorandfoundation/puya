@@ -2363,6 +2363,9 @@ def test_mutable_native_types_abi_call(
     app_client.call("test_fixed_array", transaction_parameters=large_fee_txn_params)
     app_client.call("test_native_array", transaction_parameters=large_fee_txn_params)
 
+    sp.fee = 1_000 * 9
+    app_client.call("test_log", transaction_parameters=large_fee_txn_params)
+
 
 def _get_immutable_array_app(
     algod_client: AlgodClient,
