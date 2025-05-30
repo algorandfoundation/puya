@@ -836,7 +836,8 @@ class VariadicTupleType(SequenceType):
 
 
 def _make_array_parameterise(
-    typ: type[wtypes.StackArray | wtypes.ReferenceArray | wtypes.ARC4DynamicArray],
+    typ: type[wtypes.ReferenceArray | wtypes.ARC4DynamicArray],
+    base: PyType | None = None,
 ) -> _Parameterise[ArrayType]:
     def parameterise(
         self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
@@ -849,8 +850,10 @@ def _make_array_parameterise(
             ) from None
         name = f"{self.name}[{arg.name}]"
         items_wtype = arg.checked_wtype(source_location)
-
+        bases = () if base is None else (base,)
         return ArrayType(
+            bases=bases,
+            mro=bases,
             generic=self,
             name=name,
             size=None,
@@ -868,10 +871,6 @@ GenericArrayType: typing.Final = _GenericType(
     parameterise=_make_array_parameterise(wtypes.ReferenceArray),
 )
 
-GenericImmutableArrayType: typing.Final = _GenericType(
-    name="algopy._array.ImmutableArray",
-    parameterise=_make_array_parameterise(wtypes.StackArray),
-)
 GenericNativeArrayType: typing.Final = _GenericType(
     name="algopy._native.NativeArray",
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
@@ -879,6 +878,39 @@ GenericNativeArrayType: typing.Final = _GenericType(
 GenericARC4DynamicArrayType: typing.Final = _GenericType(
     name="algopy.arc4.DynamicArray",
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
+)
+
+
+def _imm_array_parameterise(
+    self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
+) -> ArrayType:
+    try:
+        (arg,) = args
+    except ValueError:
+        raise CodeError(
+            f"expected a single type parameter, got {len(args)} parameters", source_location
+        ) from None
+    name = f"{self.name}[{arg.name}]"
+    items_wtype = arg.checked_wtype(source_location)
+    bases = (GenericARC4DynamicArrayType.parameterise(args, source_location),)
+    return ArrayType(
+        bases=bases,
+        mro=bases,
+        generic=self,
+        name=name,
+        size=None,
+        items=arg,
+        wtype=wtypes.ARC4DynamicArray(
+            element_type=items_wtype, immutable=True, source_location=source_location
+        ),
+        items_wtype=items_wtype,
+        source_location=source_location,
+    )
+
+
+GenericImmutableArrayType: typing.Final = _GenericType(
+    name="algopy._array.ImmutableArray",
+    parameterise=_imm_array_parameterise,
 )
 ARC4DynamicBytesType: typing.Final = _register_builtin(
     ArrayType(

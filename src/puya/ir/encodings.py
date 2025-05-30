@@ -227,11 +227,6 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         else:
             return FixedArrayEncoding(element=element, size=wtype.length)
 
-    def visit_stack_array(self, wtype: wtypes.StackArray) -> Encoding:
-        return DynamicArrayEncoding(
-            element=self._allow_packable_bool(wtype.element_type), length_header=True
-        )
-
     def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> Encoding:
         element = wtype.element_type.accept(self)
         if element.is_dynamic:
