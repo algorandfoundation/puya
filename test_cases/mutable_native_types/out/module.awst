@@ -527,3 +527,198 @@ contract Case1WithTups
     return arc4_router()
   }
 }
+
+contract CallMe
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  globals {
+    ['fixed_struct']: test_cases.mutable_native_types.abi_call.FixedStruct
+    ['nested_struct']: test_cases.mutable_native_types.abi_call.NestedStruct
+    ['dynamic_struct']: test_cases.mutable_native_types.abi_call.DynamicStruct
+    ['fixed_arr']: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
+    ['native_arr']: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
+  }
+  
+  subroutine test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.abi_call.CallMe.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.delete(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg(arg: test_cases.mutable_native_types.abi_call.FixedStruct): void
+  {
+    GlobalState['fixed_struct']: test_cases.mutable_native_types.abi_call.FixedStruct = arg
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret(): test_cases.mutable_native_types.abi_call.FixedStruct
+  {
+    return GlobalState['fixed_struct']
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg(arg: test_cases.mutable_native_types.abi_call.NestedStruct): void
+  {
+    GlobalState['nested_struct']: test_cases.mutable_native_types.abi_call.NestedStruct = arg
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret(): test_cases.mutable_native_types.abi_call.NestedStruct
+  {
+    return GlobalState['nested_struct']
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg(arg: test_cases.mutable_native_types.abi_call.DynamicStruct): void
+  {
+    GlobalState['dynamic_struct']: test_cases.mutable_native_types.abi_call.DynamicStruct = arg.copy()
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret(): test_cases.mutable_native_types.abi_call.DynamicStruct
+  {
+    return GlobalState['dynamic_struct']
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg(arg: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>): void
+  {
+    GlobalState['fixed_arr']: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = arg.copy()
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret(): arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
+  {
+    return GlobalState['fixed_arr']
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg(arg: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>): void
+  {
+    GlobalState['native_arr']: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct> = arg.copy()
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret(): arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
+  {
+    return GlobalState['native_arr']
+  }
+  
+  baremethod test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+contract TestAbiCall
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=1, source=SINGLE_EVAL(id=0, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=1)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=0).clear_state_program)[0], SINGLE_EVAL(id=2)[1]), ExtraProgramPages=SINGLE_EVAL(id=0).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=0).global_bytes, GlobalNumUint=SINGLE_EVAL(id=0).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=0).local_bytes, LocalNumUint=SINGLE_EVAL(id=0).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_arg((uint64,uint64))void"), fixed_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.FixedStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=4, source=SINGLE_EVAL(id=3, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_ret()(uint64,uint64)")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=4)) == hex<"151F7C75">)), SINGLE_EVAL(id=3))
+    assert(res == fixed_struct, comment="should be the same")
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_arg((uint64,uint64))void"), fixed_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.FixedStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=6, source=SINGLE_EVAL(id=5, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_ret()(uint64,uint64)")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=6)) == hex<"151F7C75">)), SINGLE_EVAL(id=5))
+    assert(res == fixed_struct, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=8, source=SINGLE_EVAL(id=7, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=8)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=9, source=SINGLE_EVAL(id=7).clear_state_program)[0], SINGLE_EVAL(id=9)[1]), ExtraProgramPages=SINGLE_EVAL(id=7).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=7).global_bytes, GlobalNumUint=SINGLE_EVAL(id=7).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=7).local_bytes, LocalNumUint=SINGLE_EVAL(id=7).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    nested_struct: test_cases.mutable_native_types.abi_call.NestedStruct = new test_cases.mutable_native_types.abi_call.NestedStruct(fixed=new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u), c=txn<NumAppArgs>() + 3u)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_arg(((uint64,uint64),uint64))void"), nested_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.NestedStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=11, source=SINGLE_EVAL(id=10, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_ret()((uint64,uint64),uint64)")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=11)) == hex<"151F7C75">)), SINGLE_EVAL(id=10))
+    assert(res == nested_struct, comment="should be the same")
+    nested_struct: test_cases.mutable_native_types.abi_call.NestedStruct = new test_cases.mutable_native_types.abi_call.NestedStruct(fixed=new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u), c=txn<NumAppArgs>() + 4u)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_arg(((uint64,uint64),uint64))void"), nested_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.NestedStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=13, source=SINGLE_EVAL(id=12, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_ret()((uint64,uint64),uint64)")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=13)) == hex<"151F7C75">)), SINGLE_EVAL(id=12))
+    assert(res == nested_struct, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=15, source=SINGLE_EVAL(id=14, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=15)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=16, source=SINGLE_EVAL(id=14).clear_state_program)[0], SINGLE_EVAL(id=16)[1]), ExtraProgramPages=SINGLE_EVAL(id=14).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=14).global_bytes, GlobalNumUint=SINGLE_EVAL(id=14).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=14).local_bytes, LocalNumUint=SINGLE_EVAL(id=14).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
+    dynamic_struct: test_cases.mutable_native_types.abi_call.DynamicStruct = new test_cases.mutable_native_types.abi_call.DynamicStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u, c=itob(txn<NumAppArgs>() + 3u), d='Hello', e=new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>() + (fixed_struct))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void"), dynamic_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.DynamicStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=18, source=SINGLE_EVAL(id=17, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=18)) == hex<"151F7C75">)), SINGLE_EVAL(id=17))
+    assert(res == dynamic_struct, comment="should be the same")
+    dynamic_struct: test_cases.mutable_native_types.abi_call.DynamicStruct = new test_cases.mutable_native_types.abi_call.DynamicStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u, c=itob(txn<NumAppArgs>() + 4u), d='Hello', e=new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>() + (fixed_struct))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void"), dynamic_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.DynamicStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=20, source=SINGLE_EVAL(id=19, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=20)) == hex<"151F7C75">)), SINGLE_EVAL(id=19))
+    assert(res == dynamic_struct, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=22, source=SINGLE_EVAL(id=21, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=22)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=23, source=SINGLE_EVAL(id=21).clear_state_program)[0], SINGLE_EVAL(id=23)[1]), ExtraProgramPages=SINGLE_EVAL(id=21).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=21).global_bytes, GlobalNumUint=SINGLE_EVAL(id=21).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=21).local_bytes, LocalNumUint=SINGLE_EVAL(id=21).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
+    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = arc4_encode((fixed_struct, fixed_struct, fixed_struct), arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_arg((uint64,uint64)[3])void"), fixed_arr), ApplicationID=app))
+    (res, _txn): tuple<arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=25, source=SINGLE_EVAL(id=24, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_ret()(uint64,uint64)[3]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=25)) == hex<"151F7C75">)), SINGLE_EVAL(id=24))
+    assert(res == fixed_arr, comment="should be the same")
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u)
+    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = arc4_encode((fixed_struct, fixed_struct, fixed_struct), arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_arg((uint64,uint64)[3])void"), fixed_arr), ApplicationID=app))
+    (res, _txn): tuple<arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=27, source=SINGLE_EVAL(id=26, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_ret()(uint64,uint64)[3]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=27)) == hex<"151F7C75">)), SINGLE_EVAL(id=26))
+    assert(res == fixed_arr, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=29, source=SINGLE_EVAL(id=28, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=29)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=30, source=SINGLE_EVAL(id=28).clear_state_program)[0], SINGLE_EVAL(id=30)[1]), ExtraProgramPages=SINGLE_EVAL(id=28).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=28).global_bytes, GlobalNumUint=SINGLE_EVAL(id=28).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=28).local_bytes, LocalNumUint=SINGLE_EVAL(id=28).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
+    native_arr: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct> = new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>() + (fixed_struct, fixed_struct, fixed_struct)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_arg((uint64,uint64)[])void"), native_arr), ApplicationID=app))
+    (res, _txn): tuple<arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=32, source=SINGLE_EVAL(id=31, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_ret()(uint64,uint64)[]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=32)) == hex<"151F7C75">)), SINGLE_EVAL(id=31))
+    assert(res == native_arr, comment="should be the same")
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u)
+    native_arr: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct> = new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>() + (fixed_struct, fixed_struct, fixed_struct)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_arg((uint64,uint64)[])void"), native_arr), ApplicationID=app))
+    (res, _txn): tuple<arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=34, source=SINGLE_EVAL(id=33, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_ret()(uint64,uint64)[]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=34)) == hex<"151F7C75">)), SINGLE_EVAL(id=33))
+    assert(res == native_arr, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  baremethod test_cases.mutable_native_types.abi_call.TestAbiCall.__algopy_default_create(): void
+  {
+  }
+}
