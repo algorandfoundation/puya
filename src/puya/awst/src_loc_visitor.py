@@ -28,9 +28,6 @@ class WTypeSourceLocationVisitor(WTypeVisitor[SourceLocation | None]):
     ) -> SourceLocation | None:
         return None
 
-    def visit_stack_array(self, wtype: wtypes.StackArray) -> SourceLocation | None:
-        return wtype.source_location
-
     def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> SourceLocation | None:
         return wtype.source_location
 
