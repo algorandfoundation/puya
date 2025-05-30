@@ -184,7 +184,7 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case (wtypes.ARC4Array() | wtypes.NativeArray()) as iterable_wtype:
+        case (wtypes.ARC4Array() | wtypes.ReferenceArray()) as iterable_wtype:
             array = context.visitor.visit_and_materialise_single(sequence_)
 
             array_encoding = wtype_to_encoding(iterable_wtype, loc)

@@ -30,7 +30,7 @@ logger = log.get_logger(__name__)
 
 def read_index_and_decode(
     context: IRRegisterContext,
-    indexable_wtype: wtypes.ARC4Array | wtypes.NativeArray,
+    indexable_wtype: wtypes.ARC4Array | wtypes.ReferenceArray,
     array_or_slot: ir.Value,
     index: ir.Value,
     loc: SourceLocation,
@@ -121,7 +121,7 @@ def read_tuple_index_and_decode(
 
 def encode_and_write_index(
     context: IRRegisterContext,
-    indexable_wtype: wtypes.ARC4Array | wtypes.NativeArray,
+    indexable_wtype: wtypes.ARC4Array | wtypes.ReferenceArray,
     array_or_slot: ir.Value,
     index: ir.Value,
     values: Sequence[ir.Value],

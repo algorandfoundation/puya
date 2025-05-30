@@ -58,7 +58,7 @@ def get_builder(
     wtype: wtypes.WType,
     loc: SourceLocation,
 ) -> DynamicArrayBuilder:
-    if isinstance(wtype, wtypes.NativeArray | wtypes.ARC4DynamicArray):
+    if isinstance(wtype, wtypes.ReferenceArray | wtypes.ARC4DynamicArray):
         array_ir_type = wtype_to_ir_type(wtype, source_location=loc)
         # only concerned with actual encoded of arrays, not where they are stored
         if isinstance(array_ir_type, SlotType):
