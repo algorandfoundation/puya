@@ -45,7 +45,7 @@ class FixedArrayGenericTypeBuilder(GenericTypeBuilder):
         arg_kinds: list[models.ArgKind],
         arg_names: list[str | None],
         location: SourceLocation,
-    ) -> InstanceBuilder:
+    ) -> InstanceBuilder:  # TODO: make code error
         arg = expect.at_most_one_arg(args, location)
         if not arg:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
@@ -133,7 +133,7 @@ class FixedArrayExpressionBuilder(_ArrayExpressionBuilder, StaticSizedCollection
 
     @typing.override
     def iterate_static(self) -> Sequence[InstanceBuilder]:
-        base = self.single_eval().resolve()
+        base = self.single_eval().resolve()  # TODO: method coverage
         return [
             builder_for_instance(
                 self.pytype.items,

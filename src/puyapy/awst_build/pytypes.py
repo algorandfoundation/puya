@@ -837,7 +837,7 @@ class VariadicTupleType(SequenceType):
 
 def _make_array_parameterise(
     typ: type[wtypes.ReferenceArray | wtypes.ARC4DynamicArray],
-    base: PyType | None = None,
+    base: PyType | None = None,  # TODO: yeet it
 ) -> _Parameterise[ArrayType]:
     def parameterise(
         self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None

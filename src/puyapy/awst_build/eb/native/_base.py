@@ -91,4 +91,4 @@ class _ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType], ABC)
 
     @typing.override
     def to_bytes(self, location: SourceLocation) -> Expression:
-        return cast_to_bytes(self.resolve(), location)
+        return cast_to_bytes(self.resolve(), location)  # TODO: method coverage
