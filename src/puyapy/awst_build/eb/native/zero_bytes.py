@@ -10,10 +10,7 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import (
-    InstanceBuilder,
-    NodeBuilder,  # TODO: file coverage and remove this comma
-)
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 
 logger = log.get_logger(__name__)
 
