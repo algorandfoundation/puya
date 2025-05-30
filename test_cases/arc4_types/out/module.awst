@@ -229,6 +229,7 @@ contract Arc4NumericTypesContract
     assert(arc4_decode(reinterpret_cast<arc4.uint64>(test_bytes[:8]), uint64) == 9223372036854775807u)
     assert(reinterpret_cast<biguint>((txn<NumAppArgs>() != 0u) ? (1_arc4u8) : (2_arc4u8)) == reinterpret_cast<biguint>(2_arc4u8))
     assert(reinterpret_cast<biguint>((txn<NumAppArgs>() != 0u) ? (1_arc4u512) : (2_arc4u512)) == reinterpret_cast<biguint>(2_arc4u512))
+    assert(reinterpret_cast<biguint>(arc4_encode(txn<NumAppArgs>(), arc4.uint512)) == reinterpret_cast<biguint>(0_arc4u512))
     decimals: arc4.ufixed64x10 = 145.6853943940arc4u64x10
     assert(reinterpret_cast<bytes>(decimals) == itob(1456853943940u))
     decimals_from_truncated_str: arc4.ufixed64x10 = 145.0000000000arc4u64x10
@@ -780,6 +781,12 @@ contract Arc4ArraysContract
       }
     }
     assert(result == 'Ping Pong')
+    static_string_array[1u]: arc4.dynamic_array<arc4.uint8> = 'Ping'
+    result: string = ''
+    for string_item in static_string_array {
+      result += arc4_decode(string_item, string) + ' '
+    }
+    assert(result == 'Ping Ping ')
     this::hash_as_array(hex<"54657374696E6720313233">)
     return true
   }
