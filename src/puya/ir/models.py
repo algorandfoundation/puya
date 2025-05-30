@@ -503,7 +503,7 @@ class _TupleOp(Op, ValueProvider):
                 pass
             else:
                 # invalid index sequence
-                element_encoding = None
+                raise InternalError("invalid index sequence", self.source_location)
         if element_encoding is None:
             raise InternalError("invalid index sequence", self.source_location)
         return element_encoding
