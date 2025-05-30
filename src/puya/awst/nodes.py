@@ -476,7 +476,7 @@ class ArrayConcat(Expression):
     left: Expression  # note: validated through wtype default factory
     right: Expression = attrs.field(
         validator=expression_has_wtype(
-            wtypes.NativeArray,
+            wtypes.ReferenceArray,
             wtypes.ARC4Array,
             wtypes.WTuple,
             wtypes.ARC4Tuple,
@@ -510,7 +510,7 @@ class ArrayExtend(Expression):
     )
     other: Expression = attrs.field(
         validator=expression_has_wtype(
-            wtypes.NativeArray,
+            wtypes.ReferenceArray,
             wtypes.ARC4Array,
             wtypes.WTuple,
             wtypes.ARC4Tuple,
@@ -555,7 +555,7 @@ class ArrayPop(Expression):
 
     @wtype.default
     def _wtype(self) -> WType:
-        if isinstance(self.base.wtype, wtypes.ARC4Array | wtypes.NativeArray):
+        if isinstance(self.base.wtype, wtypes.ARC4Array | wtypes.ReferenceArray):
             return self.base.wtype.element_type
         # default factories run before validation, so we need to return something here
         return wtypes.void_wtype
@@ -867,7 +867,7 @@ class IndexExpression(Expression):
         validator=expression_has_wtype(
             wtypes.BytesWType,
             wtypes.ARC4Array,
-            wtypes.NativeArray,
+            wtypes.ReferenceArray,
             # NOTE: tuples (native or arc4) use TupleItemExpression instead
         )
     )
@@ -881,7 +881,7 @@ class IndexExpression(Expression):
                 return wtypes.BytesWType(length=1)
             case wtypes.ARC4Array(element_type=element_type):
                 return element_type
-            case wtypes.NativeArray(element_type=element_type):
+            case wtypes.ReferenceArray(element_type=element_type):
                 return element_type
             case _:
                 raise InternalError(
@@ -897,7 +897,7 @@ class IndexExpression(Expression):
                 element_type=array_element_type
             ), _ if array_element_type == wtype:
                 pass
-            case wtypes.NativeArray(
+            case wtypes.ReferenceArray(
                 element_type=array_element_type
             ), _ if array_element_type == wtype:
                 pass
@@ -1123,7 +1123,7 @@ class NewArray(Expression):
 @attrs.frozen
 class ArrayLength(Expression):
     array: Expression = attrs.field(
-        validator=expression_has_wtype(wtypes.NativeArray, wtypes.ARC4Array)
+        validator=expression_has_wtype(wtypes.ReferenceArray, wtypes.ARC4Array)
     )
     wtype: WType = attrs.field(default=wtypes.uint64_wtype, init=False)
 

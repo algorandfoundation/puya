@@ -286,7 +286,7 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
 
 @typing.overload
 def wtype_to_encoding(
-    wtype: wtypes.ARC4DynamicArray | wtypes.NativeArray, loc: SourceLocation | None
+    wtype: wtypes.ARC4DynamicArray | wtypes.ReferenceArray, loc: SourceLocation | None
 ) -> DynamicArrayEncoding: ...
 
 
@@ -298,7 +298,7 @@ def wtype_to_encoding(
 
 @typing.overload
 def wtype_to_encoding(
-    wtype: wtypes.ARC4Array | wtypes.NativeArray, loc: SourceLocation | None
+    wtype: wtypes.ARC4Array | wtypes.ReferenceArray, loc: SourceLocation | None
 ) -> ArrayEncoding: ...
 
 
