@@ -64,11 +64,11 @@ class ArrayContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def imm_array_mutable_fixed(self) -> None:
-        arr = ImmutableArray[MutableFixed]() ## E: arrays must have immutable elements
+        arr = ImmutableArray[MutableFixed]() ## E: immutable arrays must have immutable elements
 
     @arc4.abimethod
     def imm_array_mutable_dynamic(self) -> None:
-        arr = ImmutableArray[MutableDynamic]() ## E: arrays must have immutable elements
+        arr = ImmutableArray[MutableDynamic]() ## E: immutable arrays must have immutable elements
 
     @arc4.abimethod
     def imm_array_arc4_bool(self) -> None:
@@ -82,12 +82,12 @@ class ArrayContract(arc4.ARC4Contract):
     def imm_txn_arg(self, arr: ImmutableArray[gtxn.Transaction]) -> None: ## E: arrays can only contain persistable elements
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.itxn.Payment
-    def imm_itxn_arg(self, arr: ImmutableArray[itxn.Payment]) -> None:
+    @arc4.abimethod
+    def imm_itxn_arg(self, arr: ImmutableArray[itxn.Payment]) -> None: ## E: arrays can only contain persistable elements
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.itxn.PaymentInnerTransaction
-    def imm_itxn2_arg(self, arr: ImmutableArray[itxn.PaymentInnerTransaction]) -> None:
+    @arc4.abimethod
+    def imm_itxn2_arg(self, arr: ImmutableArray[itxn.PaymentInnerTransaction]) -> None: ## E: arrays can only contain persistable elements
         pass
 
     @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.Array[algopy.gtxn.Transaction]
@@ -123,7 +123,7 @@ class MyContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def imm_txn_expr(self, txn: gtxn.Transaction) -> None:
-        arr = ImmutableArray[gtxn.Transaction]() ## E: unencodable type
+        arr = ImmutableArray[gtxn.Transaction]() ## E: arrays can only contain persistable elements
         arr = arr.append(txn)
 
 ## case: test_imm_array_itxn
@@ -132,7 +132,7 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn_expr(self) -> None:
-        arr = ImmutableArray[itxn.Payment]() ## E: unencodable type
+        arr = ImmutableArray[itxn.Payment]() ## E: arrays can only contain persistable elements
 
 ## case: test_imm_array_itxn_result
 from algopy import *
@@ -140,7 +140,7 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn2_expr(self) -> None:
-        arr = ImmutableArray[itxn.PaymentInnerTransaction]() ## E: unencodable type
+        arr = ImmutableArray[itxn.PaymentInnerTransaction]() ## E: arrays can only contain persistable elements
 
 
 ## case: test_array_txn
@@ -150,9 +150,9 @@ class MyContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def imm_txn_expr(self, txn: gtxn.Transaction) -> None:
-        arr = Array[gtxn.Transaction]() ## E: unencodable type
+        arr = Array[gtxn.Transaction]()
         arr.append(txn)
-        imm_arr = arr.freeze()
+        imm_arr = arr.freeze() ## E: arrays can only contain persistable elements
 
 ## case: test_array_itxn
 from algopy import *
