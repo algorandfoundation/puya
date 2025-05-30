@@ -78,7 +78,7 @@ class StructExpressionBuilder(
     @typing.override
     @typing.final
     def to_bytes(self, location: SourceLocation) -> Expression:
-        return self.resolve()
+        return self.resolve()  # TODO: method coverage
 
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:

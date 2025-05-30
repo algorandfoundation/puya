@@ -541,7 +541,7 @@ def _encode_native_uint64_to_arc4(
     if num_bytes == 8:
         return val_as_bytes
     # encoding to n>64, just need to pad
-    if num_bytes > 8:
+    if num_bytes > 8:  # TODO: cover this branch
         return factory.pad_bytes(val_as_bytes, num_bytes=num_bytes, temp_desc="arc4_encoded")
     # encoding to n<64, need to check for overflow and then trim
     bit_len = factory.bitlen(val_as_bytes, "bitlen")
