@@ -43,6 +43,11 @@ class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def test_array_assignment_maximum_cursage(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def test_allocations(
         self,
         num: algopy.arc4.UIntN[typing.Literal[64]],

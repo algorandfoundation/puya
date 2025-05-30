@@ -3,7 +3,7 @@
 
 // test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program() -> uint64:
 main:
-    intcblock 0 1 7 8
+    intcblock 0 1 7 12
     bytecblock 0x00 0x
 
 main_block@0:
@@ -57,49 +57,49 @@ main_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 2
+    swap
     // arc4_types/bool.py:22
     // ARC4Bool(True),
     bytec_0 // 0x00
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 3
+    cover 2
     // arc4_types/bool.py:23
     // ARC4Bool(True),
     bytec_0 // 0x00
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 4
+    cover 3
     // arc4_types/bool.py:24
     // ARC4Bool(True),
     bytec_0 // 0x00
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 5
+    cover 4
     // arc4_types/bool.py:25
     // ARC4Bool(True),
     bytec_0 // 0x00
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 6
+    cover 5
     // arc4_types/bool.py:26
     // ARC4Bool(True),
     bytec_0 // 0x00
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 7
+    cover 6
     // arc4_types/bool.py:27
     // ARC4Bool(True),
     bytec_0 // 0x00
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 8
+    cover 7
     // arc4_types/bool.py:28
     // ARC4Bool(True),
     bytec_0 // 0x00
@@ -113,14 +113,14 @@ main_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 10
+    cover 9
     // arc4_types/bool.py:30
     // ARC4Bool(True),
     bytec_0 // 0x00
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 11
+    cover 10
     // arc4_types/bool.py:18-31
     // static_boolean_array = StaticArray[ARC4Bool, t.Literal[12]](
     //     ARC4Bool(True),
@@ -137,7 +137,7 @@ main_block@0:
     //     ARC4Bool(True),
     // )
     bytec_1 // 0x
-    uncover 2
+    uncover 12
     concat
     swap
     intc_0 // 0
@@ -188,7 +188,13 @@ main_block@0:
     intc_2 // 7
     uncover 2
     setbit
+    swap
+    intc_0 // 0
+    getbit
+    bytec_0 // 0x00
+    intc_0 // 0
     uncover 2
+    setbit
     concat
     swap
     intc_0 // 0
@@ -212,7 +218,6 @@ main_block@0:
     uncover 2
     setbit
     bytec_1 // 0x
-    swap
     concat
     // arc4_types/bool.py:33
     // assert static_boolean_array.bytes == Bytes.from_hex("FFF0")
@@ -222,6 +227,10 @@ main_block@0:
     assert
     // arc4_types/bool.py:35
     // assert static_boolean_array[0] == ARC4Bool(True), "Single boolean can be unpacked"
+    intc_0 // 0
+    intc_3 // 12
+    <
+    assert // index access is out of bounds
     dup
     intc_0 // 0
     getbit
@@ -237,13 +246,13 @@ main_block@0:
     assert // Single boolean can be unpacked
     // arc4_types/bool.py:36
     // assert static_boolean_array[-1] == ARC4Bool(True), "Single boolean can be unpacked"
-    pushint 12 // 12
+    intc_3 // 12
     intc_1 // 1
     -
     dup
-    pushint 12 // 12
+    intc_3 // 12
     <
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
     getbit
     bytec_0 // 0x00
     intc_0 // 0
@@ -269,13 +278,13 @@ main_block@0:
     intc_0 // 0
     intc_1 // 1
     setbit
-    cover 2
+    swap
     // arc4_types/bool.py:38-40
     // dynamic_boolean_array = DynamicArray[ARC4Bool](
     //     ARC4Bool(True), ARC4Bool(False), ARC4Bool(True)
     // )
     bytec_1 // 0x
-    uncover 2
+    uncover 3
     concat
     swap
     intc_0 // 0
@@ -291,8 +300,12 @@ main_block@0:
     pushint 2 // 2
     uncover 2
     setbit
-    pushbytes 0x0003
+    pushint 3 // 3
+    itob
+    extract 6 2
     swap
+    concat
+    bytec_1 // 0x
     concat
     // arc4_types/bool.py:42
     // assert dynamic_boolean_array.bytes == Bytes.from_hex("0003A0")
@@ -339,8 +352,10 @@ main_block@0:
     concat
     swap
     concat
+    bytec_1 // 0x
+    concat
     pushint 5 // 5
-    intc_3 // 8
+    pushint 8 // 8
     callsub dynamic_array_concat_bits
     // arc4_types/bool.py:48
     // assert dynamic_boolean_array.bytes == Bytes.from_hex("0005A8")
@@ -422,14 +437,14 @@ dynamic_array_concat_bits_block@0:
     swap
     intc_2 // 7
     +
-    intc_3 // 8
+    pushint 8 // 8
     /
     dup
     cover 3
     swap
     intc_2 // 7
     +
-    intc_3 // 8
+    pushint 8 // 8
     /
     dup
     cover 3
@@ -499,7 +514,11 @@ get_arr:
 get_arr_block@0:
     // arc4_types/bool.py:74
     // return DynamicArray[ARC4Bool]()
-    pushbytes 0x0000
+    intc_0 // 0
+    itob
+    extract 6 2
+    bytec_1 // 0x
+    concat
     bytec_1 // 0x
     concat
     retsub

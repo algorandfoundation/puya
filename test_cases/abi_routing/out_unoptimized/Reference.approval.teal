@@ -4,7 +4,7 @@
 // test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 2
-    bytecblock 0x151f7c75 "asa" 0x 0x07 0x01040023 "local_uint" "local_bytes" 0x00000000000001c8
+    bytecblock 0x151f7c75 "asa" 0x 0x07 0x01040023 "local_uint" "local_bytes" 0x00000000000001c8 0x616263
 
 main_block@0:
     txn ApplicationID
@@ -42,7 +42,6 @@ __init___block@0:
     pushbytes 0x09
     concat
     bytec_2 // 0x
-    swap
     concat
     pushbytes "some_bytes"
     swap
@@ -452,34 +451,37 @@ method_with_default_args_block@0:
     assert // wrong application from function
     // abi_routing/contract.py:181
     // assert bytes_from_storage[0] == arc4.Byte(7), "wrong 0th byte from storage"
-    frame_dig -7
     intc_0 // 0
     intc_1 // 1
     *
+    frame_dig -7
+    swap
     intc_1 // 1
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     bytec_3 // 0x07
     b==
     assert // wrong 0th byte from storage
     // abi_routing/contract.py:182
     // assert bytes_from_storage[1] == arc4.Byte(8), "wrong 1st byte from storage"
-    frame_dig -7
     intc_1 // 1
     dup
     *
+    frame_dig -7
+    swap
     intc_1 // 1
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     pushbytes 0x08
     b==
     assert // wrong 1st byte from storage
     // abi_routing/contract.py:183
     // assert bytes_from_storage[2] == arc4.Byte(9), "wrong 2nd byte from storage"
-    frame_dig -7
     intc_3 // 2
     intc_1 // 1
     *
+    frame_dig -7
+    swap
     intc_1 // 1
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     pushbytes 0x09
     b==
     assert // wrong 2nd byte from storage
@@ -505,8 +507,13 @@ method_with_default_args_block@0:
     assert
     // abi_routing/contract.py:187
     // assert str_from_const == "abc"
+    bytec 8 // 0x616263
+    len
+    itob
+    extract 6 2
+    bytec 8 // 0x616263
+    concat
     frame_dig -3
-    pushbytes 0x0003616263
     ==
     assert
     // abi_routing/contract.py:188
@@ -1287,24 +1294,24 @@ approval_program_method_with_more_than_15_args_route@16:
     txna ApplicationArgs 15
     intc_0 // 0
     intc_2 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3
     txna ApplicationArgs 15
     intc_2 // 8
     dup
-    extract3 // on error: Index access is out of bounds
+    extract3
     txna ApplicationArgs 15
     pushint 16 // 16
     intc_2 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3
     btoi
     txna ApplicationArgs 15
     pushint 24 // 24
     intc_2 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3
     txna ApplicationArgs 15
     pushint 32 // 32
     intc_2 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3
     txna ApplicationArgs 15
     dup
     pushint 40 // 40
@@ -1333,7 +1340,7 @@ approval_program_method_with_more_than_15_args_route@16:
     txna ApplicationArgs 15
     pushint 44 // 44
     intc_1 // 1
-    extract3 // on error: Index access is out of bounds
+    extract3
     btoi
     txnas Assets
     txn GroupIndex
@@ -1347,11 +1354,11 @@ approval_program_method_with_more_than_15_args_route@16:
     txna ApplicationArgs 15
     pushint 45 // 45
     intc_2 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3
     txna ApplicationArgs 15
     pushint 53 // 53
     intc_2 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3
     // abi_routing/contract.py:229
     // @arc4.abimethod
     uncover 25

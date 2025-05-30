@@ -9,11 +9,14 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import (
     TMP_VAR_INDICATOR,
     BytesConstant,
     Intrinsic,
+    InvokeSubroutine,
+    MultiValue,
     Register,
     UInt64Constant,
     Undefined,
@@ -27,6 +30,8 @@ from puya.ir.types_ import (
     IRType,
     PrimitiveIRType,
     SizedBytesType,
+    TupleIRType,
+    ir_type_to_ir_types,
     wtype_to_ir_types,
 )
 from puya.parse import SourceLocation
@@ -192,16 +197,7 @@ class OpFactory:
     context: IRRegisterContext
     source_location: SourceLocation | None
 
-    def assign(self, value: ValueProvider, temp_desc: str) -> Register:
-        register = assign_temp(
-            self.context, value, temp_description=temp_desc, source_location=self.source_location
-        )
-        return register
-
-    def assign_multiple(self, **values: ValueProvider) -> Sequence[Register]:
-        return [self.assign(value, desc) for desc, value in values.items()]
-
-    def add(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def add(self, a: Value, b: Value | int, temp_desc: str = "add") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -211,7 +207,7 @@ class OpFactory:
         )
         return result
 
-    def sub(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def sub(self, a: Value, b: Value | int, temp_desc: str = "sub") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -221,7 +217,7 @@ class OpFactory:
         )
         return result
 
-    def mul(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def mul(self, a: Value, b: Value | int, temp_desc: str = "mul") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -231,7 +227,7 @@ class OpFactory:
         )
         return result
 
-    def div_floor(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def div_floor(self, a: Value, b: Value | int, temp_desc: str = "div_floor") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -241,7 +237,7 @@ class OpFactory:
         )
         return result
 
-    def len(self, value: Value, temp_desc: str) -> Register:
+    def len(self, value: Value, temp_desc: str = "len") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -251,7 +247,7 @@ class OpFactory:
         )
         return result
 
-    def bitlen(self, value: Value, temp_desc: str) -> Register:
+    def bitlen(self, value: Value, temp_desc: str = "bitlen") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -261,7 +257,7 @@ class OpFactory:
         )
         return result
 
-    def btoi(self, value: Value, temp_desc: str) -> Register:
+    def btoi(self, value: Value, temp_desc: str = "btoi") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -271,7 +267,7 @@ class OpFactory:
         )
         return result
 
-    def eq(self, a: Value | int, b: Value | int, temp_desc: str) -> Register:
+    def eq(self, a: Value | int, b: Value | int, temp_desc: str = "eq") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -281,7 +277,17 @@ class OpFactory:
         )
         return result
 
-    def lte(self, a: Value | int, b: Value | int, temp_desc: str) -> Register:
+    def lt(self, a: Value | int, b: Value | int, temp_desc: str = "lt") -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.lt,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def lte(self, a: Value | int, b: Value | int, temp_desc: str = "lte") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -297,7 +303,7 @@ class OpFactory:
         false: Value | int | bytes,
         true: Value | int | bytes,
         condition: Value,
-        temp_desc: str,
+        temp_desc: str = "select",
         ir_type: IRType,
     ) -> Register:
         result = assign_intrinsic_op(
@@ -310,17 +316,9 @@ class OpFactory:
         )
         return result
 
-    def extract_uint8(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.getbyte,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
-    def extract_uint16(self, a: Value, b: Value | int, temp_desc: str) -> Register:
+    def extract_uint16(
+        self, a: Value, b: Value | int, temp_desc: str = "extract_uint16"
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -330,17 +328,7 @@ class OpFactory:
         )
         return result
 
-    def extract_uint64(self, a: Value, b: Value | int, temp_desc: str) -> Register:
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.extract_uint64,
-            args=[a, b],
-            source_location=self.source_location,
-        )
-        return result
-
-    def itob(self, value: Value | int, temp_desc: str) -> Register:
+    def itob(self, value: Value | int, temp_desc: str = "itob") -> Register:
         itob = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -351,7 +339,12 @@ class OpFactory:
         return itob
 
     def to_fixed_size(
-        self, value: Value, *, num_bytes: int, temp_desc: str, error_message: str | None = None
+        self,
+        value: Value,
+        *,
+        num_bytes: int,
+        temp_desc: str = "to_fixed_size",
+        error_message: str | None = None,
     ) -> Register:
         assert value.atype == AVMType.bytes, "function expects a bytes-backed value to convert"
         # note this excludes values that are valid when interpreted as big-endian values but may
@@ -367,7 +360,7 @@ class OpFactory:
         )
         return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
 
-    def pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str) -> Register:
+    def pad_bytes(self, value: Value, *, num_bytes: int, temp_desc: str = "pad_bytes") -> Register:
         assert isinstance(value.ir_type, SizedBytesType) and value.ir_type.num_bytes <= num_bytes
         return self._unsafe_pad_bytes(value, num_bytes=num_bytes, temp_desc=temp_desc)
 
@@ -390,7 +383,7 @@ class OpFactory:
             source_location=self.source_location,
         )
 
-    def as_u16_bytes(self, a: Value | int, temp_desc: str) -> Register:
+    def as_u16_bytes(self, a: Value | int, temp_desc: str = "as_u16_bytes") -> Register:
         as_bytes = self.itob(a, "as_bytes")
         result = assign_intrinsic_op(
             self.context,
@@ -406,7 +399,7 @@ class OpFactory:
         self,
         a: Value | bytes,
         b: Value | bytes,
-        temp_desc: str,
+        temp_desc: str = "concat",
         *,
         ir_type: IRType | None = None,
         error_message: str | None = None,
@@ -438,7 +431,12 @@ class OpFactory:
             )
 
     def set_bit(
-        self, *, value: Value | bytes, index: Value | int, bit: Value | int, temp_desc: str
+        self,
+        *,
+        value: Value | bytes,
+        index: Value | int,
+        bit: Value | int,
+        temp_desc: str = "set_bit",
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -450,7 +448,7 @@ class OpFactory:
         )
         return result
 
-    def get_bit(self, value: Value, index: Value | int, temp_desc: str) -> Register:
+    def get_bit(self, value: Value, index: Value | int, temp_desc: str = "get_bit") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -461,7 +459,12 @@ class OpFactory:
         return result
 
     def extract_to_end(
-        self, value: Value, start: int | Value, temp_desc: str, *, ir_type: IRType | None = None
+        self,
+        value: Value,
+        start: int | Value,
+        temp_desc: str = "extract_to_end",
+        *,
+        ir_type: IRType | None = None,
     ) -> Register:
         if isinstance(start, int) and start <= 255:
             pass
@@ -486,7 +489,7 @@ class OpFactory:
         value: Value | bytes,
         start: Value | int,
         end_ex: Value | int,
-        temp_desc: str,
+        temp_desc: str = "substring3",
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -502,7 +505,7 @@ class OpFactory:
         value: Value | bytes,
         index: Value | int,
         replacement: Value | bytes,
-        temp_desc: str,
+        temp_desc: str = "replace",
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -518,7 +521,8 @@ class OpFactory:
         value: Value | bytes,
         index: Value | int,
         length: Value | int,
-        temp_desc: str,
+        temp_desc: str = "extract",
+        error_message: str | None = None,
     ) -> Register:
         result = assign_intrinsic_op(
             self.context,
@@ -526,18 +530,58 @@ class OpFactory:
             op=AVMOp.extract3,
             args=[value, index, length],
             source_location=self.source_location,
+            error_message=error_message,
         )
         return result
 
+    def materialise_single(self, value_provider: ValueProvider, description: str = "tmp") -> Value:
+        (single,) = self.materialise_values(value_provider, description)
+        return single
 
-def undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:
+    def materialise_values(
+        self, value_provider: ValueProvider, description: str = "tmp"
+    ) -> Sequence[Value]:
+        return self.context.materialise_value_provider(value_provider, description)
+
+    def as_ir_type(self, value: ValueProvider, ir_type: IRType) -> Value:
+        (value_ir_type,) = value.types
+        if value_ir_type == ir_type:
+            return self.materialise_single(value)
+        else:
+            target = mktemp(
+                self.context, ir_type, self.source_location, description=f"as_{ir_type!s}"
+            )
+            assign_targets(
+                self.context,
+                source=value,
+                targets=[target],
+                assignment_location=self.source_location,
+            )
+            return target
+
+    def materialise_multi_value(self, result: ValueProvider) -> MultiValue:
+        if isinstance(result, MultiValue):
+            return result
+        else:
+            values = self.materialise_values(result)
+            if len(values) == 1:
+                return values[0]
+            else:
+                return ValueTuple(values=values, source_location=self.source_location)
+
+
+def undefined_value(
+    typ: wtypes.WType | IRType | TupleIRType, loc: SourceLocation
+) -> ValueProvider:
     """For a given WType, produce an "undefined" ValueProvider of the correct arity.
 
     It is invalid to request an "undefined" value of type void
     """
-    values = [
-        Undefined(ir_type=ir_type, source_location=loc) for ir_type in wtype_to_ir_types(typ, loc)
-    ]
+    if isinstance(typ, wtypes.WType):
+        ir_types = wtype_to_ir_types(typ, loc)
+    else:
+        ir_types = ir_type_to_ir_types(typ)
+    values = [Undefined(ir_type=ir_type, source_location=loc) for ir_type in ir_types]
     match values:
         case []:
             raise InternalError("unexpected void type", loc)
@@ -545,3 +589,18 @@ def undefined_value(typ: wtypes.WType, loc: SourceLocation) -> ValueProvider:
             return value
         case _:
             return ValueTuple(values=values, source_location=loc)
+
+
+def invoke_puya_lib_subroutine(
+    context: IRRegisterContext,
+    *,
+    full_name: PuyaLibIR,
+    args: Sequence[Value | int | bytes],
+    source_location: SourceLocation | None,
+) -> InvokeSubroutine:
+    sub = context.resolve_embedded_func(full_name)
+    return InvokeSubroutine(
+        target=sub,
+        args=[convert_constants(arg, source_location) for arg in args],
+        source_location=source_location,
+    )

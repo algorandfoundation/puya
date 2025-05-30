@@ -63,7 +63,8 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(constant_replacer),
             SubroutineOptimization.from_function(copy_propagation),
             SubroutineOptimization.from_function(elide_itxn_field_calls),
-            SubroutineOptimization.from_function(remove_unused_variables),
+            # TODO: improve this algorithm instead of looping
+            SubroutineOptimization.from_function(remove_unused_variables, loop=True),
             SubroutineOptimization.from_function(intrinsic_simplifier),
             SubroutineOptimization.from_function(inner_txn_field_replacer),
             SubroutineOptimization.from_function(replace_compiled_references),
@@ -123,7 +124,9 @@ def optimize_program_ir(
         for o in get_subroutine_optimizations(context.options.optimization_level)
         if o.id not in context.options.disabled_optimizations
     ]
-    opt_context = attrs_extend(IROptimizationContext, context, expand_all_bytes=False)
+    opt_context = attrs_extend(
+        IROptimizationContext, context, expand_all_bytes=context.options.expand_all_bytes
+    )
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
