@@ -822,7 +822,7 @@ class FunctionIRBuilder(
             return factory.extract3(base, index, 1)
 
         assert isinstance(
-            indexable_wtype, wtypes.NativeArray | wtypes.ARC4Array
+            indexable_wtype, wtypes.ReferenceArray | wtypes.ARC4Array
         ), "expected array type"
 
         return sequence.read_index_and_decode(self.context, indexable_wtype, base, index, loc)
@@ -1336,7 +1336,7 @@ class FunctionIRBuilder(
 
         array_wtype = expr.array.wtype
         assert isinstance(
-            array_wtype, wtypes.NativeArray | wtypes.ARC4Array
+            array_wtype, wtypes.ReferenceArray | wtypes.ARC4Array
         ), "expected array wtype"
 
         array = self.context.visitor.visit_and_materialise_single(expr.array)

@@ -203,7 +203,7 @@ def _extract_write_path(target: _IndexOp) -> tuple[awst_nodes.Expression, list[_
 
 @attrs.frozen(kw_only=True)
 class _ArrayIndex:
-    base_wtype: wtypes.ARC4Array | wtypes.NativeArray
+    base_wtype: wtypes.ARC4Array | wtypes.ReferenceArray
     source_location: SourceLocation
     index: ir.Value
 
@@ -273,7 +273,7 @@ def _materialize_index_ops(
         match index_src_op, index_src_op.base.wtype:
             case (
                 awst_nodes.IndexExpression(),
-                (wtypes.ARC4Array() | wtypes.NativeArray() as array_wtype),
+                (wtypes.ARC4Array() | wtypes.ReferenceArray() as array_wtype),
             ):
                 index_value = context.visitor.visit_and_materialise_single(
                     index_src_op.index, "index"
