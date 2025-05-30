@@ -346,7 +346,7 @@ class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
                     elements=[BoolEncoding(packed=True) as iter_element_encoding, *_]
                 )
             ):
-                pass
+                pass  # TODO: test case coverage
             case _:
                 # each bit is in its own byte
                 iter_element_encoding = BoolEncoding(packed=False)
