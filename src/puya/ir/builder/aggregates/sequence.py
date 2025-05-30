@@ -339,7 +339,7 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
         assert element_encoding.is_dynamic
 
         if self.array_encoding.size is not None:
-            array_type = "static"  # TODO: test case coverage of this branch
+            array_type = "static"
             args: list[ir.Value | int] = [array, value, index, self.array_encoding.size]
         else:
             array_type = "dynamic"
