@@ -621,6 +621,8 @@ def _concat(
 def _iterable_item_type(
     pytype: pytypes.TupleType, source_location: SourceLocation
 ) -> pytypes.PyType:
+    if not pytype.items:
+        raise CodeError("cannot determine item type of empty tuple", source_location)
     base_type = determine_base_type(*pytype.items, location=source_location)
     if isinstance(base_type, pytypes.UnionType):
         raise CodeError(
