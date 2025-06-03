@@ -171,3 +171,52 @@ class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn2_expr(self) -> None:
         arr = Array[itxn.PaymentInnerTransaction]() ## E: unencodable type
+
+
+## case: test_fixed_array_errors
+import typing
+from algopy import *
+
+FixedUInt64Of3 = FixedArray[UInt64, typing.Literal[3]]
+
+class MyContract(arc4.ARC4Contract):
+    @arc4.abimethod
+    def truthiness_is_static(self, arr: FixedUInt64Of3) -> None:
+        assert arr ## E: expression is always True
+
+    @arc4.abimethod
+    def full_requires_params(self, value: UInt64) -> FixedUInt64Of3:
+        return FixedArray.full(value) ## E: generic type requires parameters
+
+    @arc4.abimethod
+    def init_requires_params(self, tup: tuple[UInt64, UInt64, UInt64]) -> FixedUInt64Of3:
+        return FixedArray(tup) ## E: FixedArray usage requires type parameters
+
+    @arc4.abimethod
+    def invalid_arg_element_types(self, tup: tuple[String, String, String]) -> FixedUInt64Of3:
+        return FixedUInt64Of3(tup) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+    @arc4.abimethod
+    def no_implicit_arc4_conversion(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(arc4.StaticArray(arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2))) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+    @arc4.abimethod
+    def non_iterable_arg_type(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(UInt64(1)) # type: ignore[arg-type] ## E: expression is not iterable
+
+    @arc4.abimethod
+    def wrong_size(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(()) ## E: cannot determine item type of empty tuple
+
+    @arc4.abimethod
+    def wrong_size2(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3((UInt64(1),)) ## E: argument has incorrect length
+
+    @arc4.abimethod
+    def from_arc4_tuple_gives_code_error(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(arc4.Tuple((UInt64(0), UInt64(1), UInt64(2)))) ## E: iterating ARC-4 tuples is currently unsupported
+
+    @arc4.abimethod
+    def from_native_array_gives_code_error(self) -> FixedUInt64Of3:
+        dynamic_arr = NativeArray((UInt64(0), UInt64(1), UInt64(2)))
+        return FixedUInt64Of3(dynamic_arr) ## E: unsupported collection type
