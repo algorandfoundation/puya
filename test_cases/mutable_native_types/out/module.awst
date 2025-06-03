@@ -45,13 +45,13 @@ contract Contract
     arr_3[0u]: uint64 = 0u
     arr_3[1u]: uint64 = 1u
     arr_3[2u]: uint64 = 2u
-    arr_3_from_tuple: arc4.static_array<uint64, 3> = arc4_encode((0u, 1u, 2u), arc4.static_array<uint64, 3>)
+    arr_3_from_tuple: arc4.static_array<uint64, 3> = new arc4.static_array<uint64, 3>(0u, 1u, 2u)
     assert(arr_3 == arr_3_from_tuple, comment="should be the same")
     arr_3_from_full: arc4.static_array<uint64, 3> = new arc4.static_array<uint64, 3>(1u.copy(), 1u.copy(), 1u.copy())
     assert(arr_3_from_full[0u] == 1u)
     assert(arr_3_from_full[1u] == 1u)
     assert(arr_3_from_full[2u] == 1u)
-    arr_3_from_fixed: arc4.static_array<uint64, 3> = arr_3.copy().copy()
+    arr_3_from_fixed: arc4.static_array<uint64, 3> = arr_3.copy()
     assert(arr_3 == arr_3_from_fixed, comment="should be the same")
   }
   
@@ -144,6 +144,19 @@ subroutine add(val: test_cases.mutable_native_types.contract.FixedStruct): uint6
 
 subroutine do_something(pay: test_cases.mutable_native_types.contract.Payment): void
 {
+}
+
+subroutine tuple_conversion(): void
+{
+  arr3: arc4.static_array<uint64, 3> = new arc4.static_array<uint64, 3>(1u, 2u, 3u)
+  tup3: tuple<uint64,uint64,uint64> = (arr3[0u], arr3[1u], arr3[2u])
+  assert(tup3[0] + tup3[1] + tup3[2] == 6u)
+}
+
+subroutine argument_subtype(): void
+{
+  arr3: arc4.static_array<uint64, 3> = new arc4.static_array<uint64, 3>(NoOp, 2u, pay)
+  assert(arr3[1u] == 2u)
 }
 
 contract Case3WithStruct
@@ -243,7 +256,7 @@ contract Case3WithStruct
   {
     assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
     items: arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
-    return arc4_encode((items[start].copy(), items[start + 1u].copy(), items[start + 2u].copy()), arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>)
+    return new arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>(items[start].copy(), items[start + 1u].copy(), items[start + 2u].copy())
   }
   
   abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_all_tups(): arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup>
@@ -371,7 +384,7 @@ contract Case2WithImmStruct
   {
     assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
     items: arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
-    return arc4_encode((items[start], items[start + 1u], items[start + 2u]), arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>)
+    return new arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>(items[start], items[start + 1u], items[start + 2u])
   }
   
   abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups(): arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup>
@@ -499,7 +512,7 @@ contract Case1WithTups
   {
     assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
     items: arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 8> = Box['tup_bag'].items.copy()
-    return arc4_encode((items[start], items[start + 1u], items[start + 2u]), arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>)
+    return new arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>(items[start], items[start + 1u], items[start + 2u])
   }
   
   abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups(): arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>
@@ -698,12 +711,12 @@ contract TestAbiCall
     create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=22, source=SINGLE_EVAL(id=21, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=22)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=23, source=SINGLE_EVAL(id=21).clear_state_program)[0], SINGLE_EVAL(id=23)[1]), ExtraProgramPages=SINGLE_EVAL(id=21).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=21).global_bytes, GlobalNumUint=SINGLE_EVAL(id=21).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=21).local_bytes, LocalNumUint=SINGLE_EVAL(id=21).local_uints))
     app: application = create_txn.CreatedApplicationID
     fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
-    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = arc4_encode((fixed_struct, fixed_struct, fixed_struct), arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>)
+    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = new arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>(fixed_struct, fixed_struct, fixed_struct)
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_arg((uint64,uint64)[3])void"), fixed_arr), ApplicationID=app))
     (res, _txn): tuple<arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=25, source=SINGLE_EVAL(id=24, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_ret()(uint64,uint64)[3]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=25)) == hex<"151F7C75">)), SINGLE_EVAL(id=24))
     assert(res == fixed_arr, comment="should be the same")
     fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u)
-    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = arc4_encode((fixed_struct, fixed_struct, fixed_struct), arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>)
+    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = new arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>(fixed_struct, fixed_struct, fixed_struct)
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_arg((uint64,uint64)[3])void"), fixed_arr), ApplicationID=app))
     (res, _txn): tuple<arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=27, source=SINGLE_EVAL(id=26, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_ret()(uint64,uint64)[3]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=27)) == hex<"151F7C75">)), SINGLE_EVAL(id=26))
     assert(res == fixed_arr, comment="should be the same")
