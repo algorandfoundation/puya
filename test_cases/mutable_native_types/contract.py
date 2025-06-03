@@ -10,8 +10,10 @@ from algopy import (
     GlobalState,
     LocalState,
     NativeArray,
+    OnCompleteAction,
     String,
     Struct,
+    TransactionType,
     Txn,
     UInt64,
     arc4,
@@ -103,7 +105,7 @@ class Contract(arc4.ARC4Contract):
         assert arr_3_from_full[1] == 1
         assert arr_3_from_full[2] == 1
 
-        arr_3_from_fixed = FixedUInt64Of3(arr_3.copy())
+        arr_3_from_fixed = FixedUInt64Of3(arr_3)
         assert arr_3 == arr_3_from_fixed, "should be the same"
 
     @arc4.abimethod()
@@ -183,3 +185,16 @@ def add(val: FixedStruct) -> UInt64:
 @subroutine(inline=False)
 def do_something(pay: Payment) -> None:
     pass
+
+
+@subroutine
+def tuple_conversion() -> None:
+    arr3 = FixedUInt64Of3((UInt64(1), UInt64(2), UInt64(3)))
+    tup3 = tuple(arr3)
+    assert (tup3[0] + tup3[1] + tup3[2]) == (1 + 2 + 3)
+
+
+@subroutine
+def argument_subtype() -> None:
+    arr3 = FixedUInt64Of3((OnCompleteAction.NoOp, UInt64(2), TransactionType.Payment))
+    assert arr3[1] == 2
