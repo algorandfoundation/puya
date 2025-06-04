@@ -450,6 +450,19 @@ class ARC4Decode(Expression):
 
 
 @attrs.frozen
+class ConvertArray(Expression):
+    expr: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.ARC4DynamicArray, wtypes.ARC4StaticArray, wtypes.ReferenceArray
+        )
+    )
+    wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_convert_array(self)
+
+
+@attrs.frozen
 class Copy(Expression):
     """
     Create a new copy of 'value'

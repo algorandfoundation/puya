@@ -2,18 +2,26 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.awst import wtypes
+from puya.awst import (
+    wtypes,
+)
 from puya.ir import models as ir
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder import mem
-from puya.ir.builder._utils import OpFactory
+from puya.ir.builder._utils import (
+    OpFactory,
+    assert_value,
+    invoke_puya_lib_subroutine,
+    undefined_value,
+)
 from puya.ir.encodings import (
     ArrayEncoding,
     BoolEncoding,
+    DynamicArrayEncoding,
     Encoding,
     FixedArrayEncoding,
     wtype_to_encoding,
 )
-from puya.ir.models import ValueTuple
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
     EncodedType,
@@ -84,7 +92,7 @@ def read_tuple_index_and_decode(
         if len(element_values) == 1:
             return element_values[0]
         else:
-            return ValueTuple(values=element_values, source_location=loc)
+            return ir.ValueTuple(values=element_values, source_location=loc)
 
     assert isinstance(
         tuple_wtype, wtypes.ARC4Tuple | wtypes.ARC4Struct
@@ -116,7 +124,7 @@ def read_tuple_index_and_decode(
         if len(values) == 1:
             return values[0]
         else:
-            return ValueTuple(values=values, source_location=loc)
+            return ir.ValueTuple(values=values, source_location=loc)
 
 
 def encode_and_write_index(
@@ -186,7 +194,7 @@ def encode_and_write_tuple_index(
         if len(new_values) == 1:
             return new_values[0]
         else:
-            return ValueTuple(values=new_values, source_location=loc)
+            return ir.ValueTuple(values=new_values, source_location=loc)
     (base,) = context.materialise_value_provider(base, "base")
     tuple_encoding = wtype_to_encoding(tuple_wtype, loc)
     element_wtype = tuple_wtype.types[index]
@@ -252,3 +260,94 @@ def requires_conversion(
     # otherwise requires conversion
     else:
         return True
+
+
+def convert_array(
+    context: IRRegisterContext,
+    source: ir.Value,
+    *,
+    source_wtype: wtypes.ARC4Array | wtypes.ReferenceArray,
+    target_wtype: wtypes.ARC4Array | wtypes.ReferenceArray,
+    loc: SourceLocation,
+) -> ir.ValueProvider:
+    factory = OpFactory(context, loc)
+
+    target_encoding = wtype_to_encoding(target_wtype, loc)
+    source_encoding = wtype_to_encoding(source_wtype, loc)
+
+    if isinstance(source.ir_type, SlotType):
+        source = mem.read_slot(context, source, loc)
+    source_length = get_length(context, source_encoding, source, loc)
+
+    match target_encoding.element, source_encoding.element:
+        case (
+            BoolEncoding(packed=packed_target),
+            BoolEncoding(packed=packed_source),
+        ) if packed_target != packed_source:
+            if packed_source:
+                logger.error(
+                    "converting from a bitpacked bool array"
+                    " to an non-bitpacked bool array is currently unsupported",
+                    location=loc,
+                )
+                return undefined_value(target_wtype, loc)
+            else:
+                assert not source_encoding.length_header, "expected ReferenceArray"
+                empty_header = factory.constant(b"\0" * 2)
+                bitpacked_source_provider = invoke_puya_lib_subroutine(
+                    context,
+                    full_name=PuyaLibIR.dynamic_array_concat_bits,
+                    args=[empty_header, source, source_length, 8],
+                    source_location=loc,
+                )
+                (source,) = context.materialise_value_provider(
+                    bitpacked_source_provider, description="bit_packed_source"
+                )
+                source_encoding = DynamicArrayEncoding(
+                    BoolEncoding(packed=True), length_header=True
+                )
+
+    if target_encoding.element != source_encoding.element:
+        logger.error(
+            "array elements must have equivalent encoding to be convertible", location=loc
+        )
+        return undefined_value(target_wtype, loc)
+
+    if source_encoding.size != target_encoding.size:
+        if target_encoding.size is None:
+            pass  # going from fixed to dynamic, there's no rules here
+        elif source_encoding.size is None:
+            # we want to get the length of the source and assert it equals the size
+            assert_value(
+                context,
+                factory.eq(source_length, target_encoding.size),
+                error_message="invalid input length",
+                source_location=loc,
+            )
+        else:
+            # fixed to fixed, but the lengths aren't equal
+            logger.error("static size conversion cannot add or remove elements", location=loc)
+            return undefined_value(target_wtype, loc)
+
+    target_ir_type = wtype_to_ir_type(target_wtype, loc)
+    if isinstance(target_ir_type, SlotType):
+        target_value_type = target_ir_type.contents
+    else:
+        target_value_type = target_ir_type
+    if source_encoding.length_header and not target_encoding.length_header:
+        new_value: ir.Value = factory.extract_to_end(
+            source, 2, "converted_array", ir_type=target_value_type
+        )
+    elif target_encoding.length_header and not source_encoding.length_header:
+        len_value = factory.as_u16_bytes(source_length)
+        new_value = factory.concat(
+            len_value, source, temp_desc="converted_array", ir_type=target_value_type
+        )
+    else:
+        new_value = source
+
+    if isinstance(target_ir_type, SlotType):
+        new_slot = mem.new_slot(context, target_ir_type, loc)
+        mem.write_slot(context, new_slot, new_value, loc)
+        return new_slot
+    return new_value
