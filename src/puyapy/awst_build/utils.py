@@ -312,3 +312,16 @@ def get_subroutine_decorator_inline_arg(
             case _:
                 logger.error("unexpected argument", location=context.node_location(expr))
     return None
+
+
+def tuple_iterable_item_type(
+    pytype: pytypes.TupleLikeType, source_location: SourceLocation
+) -> pytypes.PyType:
+    if not pytype.items:
+        raise CodeError("cannot determine item type of empty tuple", source_location)
+    base_type = determine_base_type(*pytype.items, location=source_location)
+    if isinstance(base_type, pytypes.UnionType):
+        raise CodeError(
+            "unable to iterate heterogeneous tuple without common base type", source_location
+        )
+    return base_type
