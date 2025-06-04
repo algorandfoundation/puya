@@ -162,21 +162,24 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_default_args(as
         (assert tmp%6#0) // wrong application from storage
         let tmp%7#0: bool = (== application_from_function#0 456u)
         (assert tmp%7#0) // wrong application from function
-        let array%bytes_offset%0#1: uint64 = (* 0u 1u)
-        let array%encoded_element%0#1: bytes = (extract3 bytes_from_storage#0 array%bytes_offset%0#1 1u) // on error: index access is out of bounds
-        let array_item%0#0: Encoded(uint8) = array%encoded_element%0#1
+        let array%mul%0#1: uint64 = (* 0u 1u)
+        let array%add%0#1: uint64 = (+ 0u array%mul%0#1)
+        let array%extract%0#1: bytes = (extract3 bytes_from_storage#0 array%add%0#1 1u)
+        let array_item%0#0: Encoded(uint8) = array%extract%0#1
         let reinterpret_biguint%0#0: biguint = array_item%0#0
         let tmp%8#0: bool = (b== reinterpret_biguint%0#0 0x07)
         (assert tmp%8#0) // wrong 0th byte from storage
-        let array%bytes_offset%1#1: uint64 = (* 1u 1u)
-        let array%encoded_element%1#1: bytes = (extract3 bytes_from_storage#0 array%bytes_offset%1#1 1u) // on error: index access is out of bounds
-        let array_item%1#0: Encoded(uint8) = array%encoded_element%1#1
+        let array%mul%1#1: uint64 = (* 1u 1u)
+        let array%add%1#1: uint64 = (+ 0u array%mul%1#1)
+        let array%extract%1#1: bytes = (extract3 bytes_from_storage#0 array%add%1#1 1u)
+        let array_item%1#0: Encoded(uint8) = array%extract%1#1
         let reinterpret_biguint%2#0: biguint = array_item%1#0
         let tmp%9#0: bool = (b== reinterpret_biguint%2#0 0x08)
         (assert tmp%9#0) // wrong 1st byte from storage
-        let array%bytes_offset%2#1: uint64 = (* 2u 1u)
-        let array%encoded_element%2#1: bytes = (extract3 bytes_from_storage#0 array%bytes_offset%2#1 1u) // on error: index access is out of bounds
-        let array_item%2#0: Encoded(uint8) = array%encoded_element%2#1
+        let array%mul%2#1: uint64 = (* 2u 1u)
+        let array%add%2#1: uint64 = (+ 0u array%mul%2#1)
+        let array%extract%2#1: bytes = (extract3 bytes_from_storage#0 array%add%2#1 1u)
+        let array_item%2#0: Encoded(uint8) = array%extract%2#1
         let reinterpret_biguint%4#0: biguint = array_item%2#0
         let tmp%10#0: bool = (b== reinterpret_biguint%4#0 0x09)
         (assert tmp%10#0) // wrong 2nd byte from storage

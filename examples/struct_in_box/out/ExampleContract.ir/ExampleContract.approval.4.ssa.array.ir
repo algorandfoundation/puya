@@ -253,10 +253,11 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(
         let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let tmp%1#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
+        let array%extract%0#1: bytes = (extract3 box_data#0 10u 8u)
         let array%updated_data%0#1: bytes = (replace3 box_data#0 10u tmp%1#0)
         let user#1: Encoded((len+utf8[]),uint64,uint64) = array%updated_data%0#1
-        let array%extract%0#1: bytes = (extract3 user#1 2u 8u)
-        let box_key#0: bytes = array%extract%0#1
+        let array%extract%1#1: bytes = (extract3 user#1 2u 8u)
+        let box_key#0: bytes = array%extract%1#1
         (box_del box_key#0)
         (box_put box_key#0 user#1)
         return 

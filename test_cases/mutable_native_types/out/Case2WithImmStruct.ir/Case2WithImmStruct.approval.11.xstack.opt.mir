@@ -272,16 +272,16 @@ subroutine create_box:
         assert // check self.tup_bag exists                                                                                    tmp%1#0,maybe_value%0#0
         l-load maybe_value%0#0 0                                                                                               tmp%1#0,maybe_value%0#0
         l-load tmp%1#0 1                                                                                                       maybe_value%0#0,tmp%1#0
-        replace2 136                                                                                                           array%updated_data%0#1
+        replace2 136                                                                                                           array%replace%0#1
         // mutable_native_types/case2_with_immutable_struct.py:39
         // self.tup_bag.value.app = Global.current_application_id
-        global CurrentApplicationID                                                                                            array%updated_data%0#1,tmp%2#0
-        itob                                                                                                                   array%updated_data%0#1,array%val_as_bytes%0#1
-        l-load array%updated_data%0#1 1                                                                                        array%val_as_bytes%0#1,array%updated_data%0#1
-        l-load array%val_as_bytes%0#1 1                                                                                        array%updated_data%0#1,array%val_as_bytes%0#1
-        replace2 168                                                                                                           array%updated_data%1#1
-        byte "tup_bag"                                                                                                         array%updated_data%1#1,"tup_bag"
-        l-load array%updated_data%1#1 1                                                                                        "tup_bag",array%updated_data%1#1
+        global CurrentApplicationID                                                                                            array%replace%0#1,tmp%2#0
+        itob                                                                                                                   array%replace%0#1,array%val_as_bytes%0#1
+        l-load array%replace%0#1 1                                                                                             array%val_as_bytes%0#1,array%replace%0#1
+        l-load array%val_as_bytes%0#1 1                                                                                        array%replace%0#1,array%val_as_bytes%0#1
+        replace2 168                                                                                                           array%replace%1#1
+        byte "tup_bag"                                                                                                         array%replace%1#1,"tup_bag"
+        l-load array%replace%1#1 1                                                                                             "tup_bag",array%replace%1#1
         box_put
         retsub
 
@@ -320,31 +320,29 @@ subroutine add_tup:
         assert // too many tups                                                                                                (𝕡) tup#0 | maybe_value%0#0,values%0#0
         // mutable_native_types/case2_with_immutable_struct.py:49
         // self.tup_bag.value.items[self.tup_bag.value.count] = tup
-        l-load-copy maybe_value%0#0 1                                                                                          (𝕡) tup#0 | maybe_value%0#0,values%0#0,maybe_value%0#0 (copy)
-        extract 8 128                                                                                                          (𝕡) tup#0 | maybe_value%0#0,values%0#0,array%extract%2#1
-        l-load values%0#0 1                                                                                                    (𝕡) tup#0 | maybe_value%0#0,array%extract%2#1,values%0#0
-        int 16                                                                                                                 (𝕡) tup#0 | maybe_value%0#0,array%extract%2#1,values%0#0,16
-        *                                                                                                                      (𝕡) tup#0 | maybe_value%0#0,array%extract%2#1,array%write_offset%0#1
-        l-load array%extract%2#1 1                                                                                             (𝕡) tup#0 | maybe_value%0#0,array%write_offset%0#1,array%extract%2#1
-        l-load array%write_offset%0#1 1                                                                                        (𝕡) tup#0 | maybe_value%0#0,array%extract%2#1,array%write_offset%0#1
-        p-load tup#0                                                                                                           (𝕡) tup#0 | maybe_value%0#0,array%extract%2#1,array%write_offset%0#1,tup#0 (copy)
-        replace3                                                                                                               (𝕡) tup#0 | maybe_value%0#0,array%updated_array%0#1
-        l-load maybe_value%0#0 1                                                                                               (𝕡) tup#0 | array%updated_array%0#1,maybe_value%0#0
-        l-load array%updated_array%0#1 1                                                                                       (𝕡) tup#0 | maybe_value%0#0,array%updated_array%0#1
-        replace2 8                                                                                                             (𝕡) tup#0 | array%updated_data%0#1
+        l-load values%0#0 0                                                                                                    (𝕡) tup#0 | maybe_value%0#0,values%0#0
+        int 16                                                                                                                 (𝕡) tup#0 | maybe_value%0#0,values%0#0,16
+        *                                                                                                                      (𝕡) tup#0 | maybe_value%0#0,array%mul%0#1
+        int 8                                                                                                                  (𝕡) tup#0 | maybe_value%0#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                                 (𝕡) tup#0 | maybe_value%0#0,8,array%mul%0#1
+        +                                                                                                                      (𝕡) tup#0 | maybe_value%0#0,array%add%3#1
+        l-load maybe_value%0#0 1                                                                                               (𝕡) tup#0 | array%add%3#1,maybe_value%0#0
+        l-load array%add%3#1 1                                                                                                 (𝕡) tup#0 | maybe_value%0#0,array%add%3#1
+        p-load tup#0                                                                                                           (𝕡) tup#0 | maybe_value%0#0,array%add%3#1,tup#0 (copy)
+        replace3                                                                                                               (𝕡) tup#0 | array%replace%0#1
         // mutable_native_types/case2_with_immutable_struct.py:50
         // self.tup_bag.value.count += 1
-        l-load-copy array%updated_data%0#1 0                                                                                   (𝕡) tup#0 | array%updated_data%0#1,array%updated_data%0#1 (copy)
-        int 0                                                                                                                  (𝕡) tup#0 | array%updated_data%0#1,array%updated_data%0#1 (copy),0
-        extract_uint64                                                                                                         (𝕡) tup#0 | array%updated_data%0#1,values%2#0
-        int 1                                                                                                                  (𝕡) tup#0 | array%updated_data%0#1,values%2#0,1
-        +                                                                                                                      (𝕡) tup#0 | array%updated_data%0#1,tmp%1#0
-        itob                                                                                                                   (𝕡) tup#0 | array%updated_data%0#1,array%val_as_bytes%0#1
-        l-load array%updated_data%0#1 1                                                                                        (𝕡) tup#0 | array%val_as_bytes%0#1,array%updated_data%0#1
-        l-load array%val_as_bytes%0#1 1                                                                                        (𝕡) tup#0 | array%updated_data%0#1,array%val_as_bytes%0#1
-        replace2 0                                                                                                             (𝕡) tup#0 | array%updated_data%1#1
-        byte "tup_bag"                                                                                                         (𝕡) tup#0 | array%updated_data%1#1,"tup_bag"
-        l-load array%updated_data%1#1 1                                                                                        (𝕡) tup#0 | "tup_bag",array%updated_data%1#1
+        l-load-copy array%replace%0#1 0                                                                                        (𝕡) tup#0 | array%replace%0#1,array%replace%0#1 (copy)
+        int 0                                                                                                                  (𝕡) tup#0 | array%replace%0#1,array%replace%0#1 (copy),0
+        extract_uint64                                                                                                         (𝕡) tup#0 | array%replace%0#1,values%2#0
+        int 1                                                                                                                  (𝕡) tup#0 | array%replace%0#1,values%2#0,1
+        +                                                                                                                      (𝕡) tup#0 | array%replace%0#1,tmp%1#0
+        itob                                                                                                                   (𝕡) tup#0 | array%replace%0#1,array%val_as_bytes%0#1
+        l-load array%replace%0#1 1                                                                                             (𝕡) tup#0 | array%val_as_bytes%0#1,array%replace%0#1
+        l-load array%val_as_bytes%0#1 1                                                                                        (𝕡) tup#0 | array%replace%0#1,array%val_as_bytes%0#1
+        replace2 0                                                                                                             (𝕡) tup#0 | array%replace%1#1
+        byte "tup_bag"                                                                                                         (𝕡) tup#0 | array%replace%1#1,"tup_bag"
+        l-load array%replace%1#1 1                                                                                             (𝕡) tup#0 | "tup_bag",array%replace%1#1
         box_put                                                                                                                (𝕡) tup#0 |
         retsub
 
@@ -370,12 +368,12 @@ subroutine get_tup:
         extract 8 128                                                                                                          (𝕡) index#0 | array%extract%1#1
         p-load index#0                                                                                                         (𝕡) index#0 | array%extract%1#1,index#0 (copy)
         int 16                                                                                                                 (𝕡) index#0 | array%extract%1#1,index#0 (copy),16
-        *                                                                                                                      (𝕡) index#0 | array%extract%1#1,array%bytes_offset%0#1
-        l-load array%extract%1#1 1                                                                                             (𝕡) index#0 | array%bytes_offset%0#1,array%extract%1#1
-        l-load array%bytes_offset%0#1 1                                                                                        (𝕡) index#0 | array%extract%1#1,array%bytes_offset%0#1
-        int 16                                                                                                                 (𝕡) index#0 | array%extract%1#1,array%bytes_offset%0#1,16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) index#0 | array%encoded_element%0#1
-        retsub                                                                                                                 array%encoded_element%0#1
+        *                                                                                                                      (𝕡) index#0 | array%extract%1#1,array%mul%0#1
+        l-load array%extract%1#1 1                                                                                             (𝕡) index#0 | array%mul%0#1,array%extract%1#1
+        l-load array%mul%0#1 1                                                                                                 (𝕡) index#0 | array%extract%1#1,array%mul%0#1
+        int 16                                                                                                                 (𝕡) index#0 | array%extract%1#1,array%mul%0#1,16
+        extract3                                                                                                               (𝕡) index#0 | array%extract%2#1
+        retsub                                                                                                                 array%extract%2#1
 
 
 // test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum() -> uint64:
@@ -417,11 +415,11 @@ subroutine sum:
         v-load i#0                                                                                                             array%extract%1#1,i#0
         l-store-copy i#0 1                                                                                                     i#0,array%extract%1#1,i#0 (copy)
         int 16                                                                                                                 i#0,array%extract%1#1,i#0 (copy),16
-        *                                                                                                                      i#0,array%extract%1#1,array%bytes_offset%0#1
-        l-load array%extract%1#1 1                                                                                             i#0,array%bytes_offset%0#1,array%extract%1#1
-        l-load array%bytes_offset%0#1 1                                                                                        i#0,array%extract%1#1,array%bytes_offset%0#1
-        int 16                                                                                                                 i#0,array%extract%1#1,array%bytes_offset%0#1,16
-        extract3 // on error: index access is out of bounds                                                                    i#0,tup#0
+        *                                                                                                                      i#0,array%extract%1#1,array%mul%0#1
+        l-load array%extract%1#1 1                                                                                             i#0,array%mul%0#1,array%extract%1#1
+        l-load array%mul%0#1 1                                                                                                 i#0,array%extract%1#1,array%mul%0#1
+        int 16                                                                                                                 i#0,array%extract%1#1,array%mul%0#1,16
+        extract3                                                                                                               i#0,tup#0
         // mutable_native_types/case2_with_immutable_struct.py:62
         // total += tup.a
         l-load-copy tup#0 0                                                                                                    i#0,tup#0,tup#0 (copy)
@@ -522,11 +520,11 @@ subroutine add_fixed_tups:
         v-load item_index_internal%0#0                                                                                         (𝕡) tups#0 | item_index_internal%0#0
         l-store-copy item_index_internal%0#0 0                                                                                 (𝕡) tups#0 | item_index_internal%0#0,item_index_internal%0#0 (copy)
         int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,item_index_internal%0#0 (copy),16
-        *                                                                                                                      (𝕡) tups#0 | item_index_internal%0#0,array%bytes_offset%0#1
-        p-load tups#0                                                                                                          (𝕡) tups#0 | item_index_internal%0#0,array%bytes_offset%0#1,tups#0 (copy)
-        l-load array%bytes_offset%0#1 1                                                                                        (𝕡) tups#0 | item_index_internal%0#0,tups#0 (copy),array%bytes_offset%0#1
-        int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,tups#0 (copy),array%bytes_offset%0#1,16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) tups#0 | item_index_internal%0#0,tup#0
+        *                                                                                                                      (𝕡) tups#0 | item_index_internal%0#0,array%mul%0#1
+        p-load tups#0                                                                                                          (𝕡) tups#0 | item_index_internal%0#0,array%mul%0#1,tups#0 (copy)
+        l-load array%mul%0#1 1                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,tups#0 (copy),array%mul%0#1
+        int 16                                                                                                                 (𝕡) tups#0 | item_index_internal%0#0,tups#0 (copy),array%mul%0#1,16
+        extract3                                                                                                               (𝕡) tups#0 | item_index_internal%0#0,tup#0
         // mutable_native_types/case2_with_immutable_struct.py:74
         // self.add_tup(tup)
         callsub add_tup                                                                                                        (𝕡) tups#0 | item_index_internal%0#0
@@ -578,31 +576,31 @@ subroutine set_a:
         v-load i#0                                                                                                             (𝕡) a#0 | maybe_value%1#0,array%extract%1#1,i#0
         l-store-copy i#0 2                                                                                                     (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,i#0 (copy)
         int 16                                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,i#0 (copy),16
-        *                                                                                                                      (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1
-        l-load-copy array%extract%1#1 1                                                                                        (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%extract%1#1 (copy)
-        l-load-copy array%bytes_offset%0#1 1                                                                                   (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%extract%1#1 (copy),array%bytes_offset%0#1 (copy)
-        int 16                                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%extract%1#1 (copy),array%bytes_offset%0#1 (copy),16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,tup#0
+        *                                                                                                                      (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%mul%0#1
+        l-load array%extract%1#1 1                                                                                             (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1
+        l-load-copy array%mul%0#1 1                                                                                            (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1,array%mul%0#1 (copy)
+        int 16                                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1,array%mul%0#1 (copy),16
+        extract3                                                                                                               (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,tup#0
         // mutable_native_types/case2_with_immutable_struct.py:81
         // self.tup_bag.value.items[i] = tup._replace(a=a)
-        int 8                                                                                                                  (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,tup#0,8
-        extract_uint64                                                                                                         (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,values%1#0
-        p-load a#0                                                                                                             (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,values%1#0,a#0 (copy)
-        itob                                                                                                                   (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,values%1#0,array%val_as_bytes%0#1
-        l-load values%1#0 1                                                                                                    (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%val_as_bytes%0#1,values%1#0
-        itob                                                                                                                   (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        l-load array%val_as_bytes%0#1 1                                                                                        (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%val_as_bytes%1#1,array%val_as_bytes%0#1
-        l-load array%val_as_bytes%1#1 1                                                                                        (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        concat                                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%encoded%1#1
-        l-load array%extract%1#1 2                                                                                             (𝕡) a#0 | i#0,maybe_value%1#0,array%bytes_offset%0#1,array%encoded%1#1,array%extract%1#1
-        l-load array%bytes_offset%0#1 2                                                                                        (𝕡) a#0 | i#0,maybe_value%1#0,array%encoded%1#1,array%extract%1#1,array%bytes_offset%0#1
-        l-load array%encoded%1#1 2                                                                                             (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%encoded%1#1
-        replace3                                                                                                               (𝕡) a#0 | i#0,maybe_value%1#0,array%updated_array%0#1
-        l-load maybe_value%1#0 1                                                                                               (𝕡) a#0 | i#0,array%updated_array%0#1,maybe_value%1#0
-        l-load array%updated_array%0#1 1                                                                                       (𝕡) a#0 | i#0,maybe_value%1#0,array%updated_array%0#1
-        replace2 8                                                                                                             (𝕡) a#0 | i#0,array%updated_data%0#1
-        byte "tup_bag"                                                                                                         (𝕡) a#0 | i#0,array%updated_data%0#1,"tup_bag"
-        l-load array%updated_data%0#1 1                                                                                        (𝕡) a#0 | i#0,"tup_bag",array%updated_data%0#1
+        int 8                                                                                                                  (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,tup#0,8
+        extract_uint64                                                                                                         (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,values%1#0
+        p-load a#0                                                                                                             (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,values%1#0,a#0 (copy)
+        itob                                                                                                                   (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,values%1#0,array%val_as_bytes%0#1
+        l-load values%1#0 1                                                                                                    (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,values%1#0
+        itob                                                                                                                   (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        l-load array%val_as_bytes%0#1 1                                                                                        (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%1#1,array%val_as_bytes%0#1
+        l-load array%val_as_bytes%1#1 1                                                                                        (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        concat                                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%encoded%1#1
+        int 8                                                                                                                  (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%encoded%1#1,8
+        l-load array%mul%0#1 2                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%encoded%1#1,8,array%mul%0#1
+        +                                                                                                                      (𝕡) a#0 | i#0,maybe_value%1#0,array%encoded%1#1,array%add%5#1
+        l-load maybe_value%1#0 2                                                                                               (𝕡) a#0 | i#0,array%encoded%1#1,array%add%5#1,maybe_value%1#0
+        l-load array%add%5#1 1                                                                                                 (𝕡) a#0 | i#0,array%encoded%1#1,maybe_value%1#0,array%add%5#1
+        l-load array%encoded%1#1 2                                                                                             (𝕡) a#0 | i#0,maybe_value%1#0,array%add%5#1,array%encoded%1#1
+        replace3                                                                                                               (𝕡) a#0 | i#0,array%replace%0#1
+        byte "tup_bag"                                                                                                         (𝕡) a#0 | i#0,array%replace%0#1,"tup_bag"
+        l-load array%replace%0#1 1                                                                                             (𝕡) a#0 | i#0,"tup_bag",array%replace%0#1
         box_put                                                                                                                (𝕡) a#0 | i#0
         // mutable_native_types/case2_with_immutable_struct.py:79
         // for i in urange(self.tup_bag.value.count):
@@ -654,30 +652,30 @@ subroutine set_b:
         v-load i#0                                                                                                             (𝕡) b#0 | maybe_value%1#0,array%extract%1#1,i#0
         l-store-copy i#0 2                                                                                                     (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,i#0 (copy)
         int 16                                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,i#0 (copy),16
-        *                                                                                                                      (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1
-        l-load-copy array%extract%1#1 1                                                                                        (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%extract%1#1 (copy)
-        l-load-copy array%bytes_offset%0#1 1                                                                                   (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%extract%1#1 (copy),array%bytes_offset%0#1 (copy)
-        int 16                                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%extract%1#1 (copy),array%bytes_offset%0#1 (copy),16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,tup#0
+        *                                                                                                                      (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%mul%0#1
+        l-load array%extract%1#1 1                                                                                             (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1
+        l-load-copy array%mul%0#1 1                                                                                            (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1,array%mul%0#1 (copy)
+        int 16                                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1,array%mul%0#1 (copy),16
+        extract3                                                                                                               (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,tup#0
         // mutable_native_types/case2_with_immutable_struct.py:88
         // self.tup_bag.value.items[i] = tup._replace(b=b)
-        int 0                                                                                                                  (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,tup#0,0
-        extract_uint64                                                                                                         (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,values%1#0
-        itob                                                                                                                   (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%val_as_bytes%0#1
-        p-load b#0                                                                                                             (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%val_as_bytes%0#1,b#0 (copy)
-        itob                                                                                                                   (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        l-load array%val_as_bytes%0#1 1                                                                                        (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%val_as_bytes%1#1,array%val_as_bytes%0#1
-        l-load array%val_as_bytes%1#1 1                                                                                        (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        concat                                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%encoded%1#1
-        l-load array%extract%1#1 2                                                                                             (𝕡) b#0 | i#0,maybe_value%1#0,array%bytes_offset%0#1,array%encoded%1#1,array%extract%1#1
-        l-load array%bytes_offset%0#1 2                                                                                        (𝕡) b#0 | i#0,maybe_value%1#0,array%encoded%1#1,array%extract%1#1,array%bytes_offset%0#1
-        l-load array%encoded%1#1 2                                                                                             (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%bytes_offset%0#1,array%encoded%1#1
-        replace3                                                                                                               (𝕡) b#0 | i#0,maybe_value%1#0,array%updated_array%0#1
-        l-load maybe_value%1#0 1                                                                                               (𝕡) b#0 | i#0,array%updated_array%0#1,maybe_value%1#0
-        l-load array%updated_array%0#1 1                                                                                       (𝕡) b#0 | i#0,maybe_value%1#0,array%updated_array%0#1
-        replace2 8                                                                                                             (𝕡) b#0 | i#0,array%updated_data%0#1
-        byte "tup_bag"                                                                                                         (𝕡) b#0 | i#0,array%updated_data%0#1,"tup_bag"
-        l-load array%updated_data%0#1 1                                                                                        (𝕡) b#0 | i#0,"tup_bag",array%updated_data%0#1
+        int 0                                                                                                                  (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,tup#0,0
+        extract_uint64                                                                                                         (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,values%1#0
+        itob                                                                                                                   (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1
+        p-load b#0                                                                                                             (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,b#0 (copy)
+        itob                                                                                                                   (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        l-load array%val_as_bytes%0#1 1                                                                                        (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%1#1,array%val_as_bytes%0#1
+        l-load array%val_as_bytes%1#1 1                                                                                        (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        concat                                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%encoded%1#1
+        int 8                                                                                                                  (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%encoded%1#1,8
+        l-load array%mul%0#1 2                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%encoded%1#1,8,array%mul%0#1
+        +                                                                                                                      (𝕡) b#0 | i#0,maybe_value%1#0,array%encoded%1#1,array%add%5#1
+        l-load maybe_value%1#0 2                                                                                               (𝕡) b#0 | i#0,array%encoded%1#1,array%add%5#1,maybe_value%1#0
+        l-load array%add%5#1 1                                                                                                 (𝕡) b#0 | i#0,array%encoded%1#1,maybe_value%1#0,array%add%5#1
+        l-load array%encoded%1#1 2                                                                                             (𝕡) b#0 | i#0,maybe_value%1#0,array%add%5#1,array%encoded%1#1
+        replace3                                                                                                               (𝕡) b#0 | i#0,array%replace%0#1
+        byte "tup_bag"                                                                                                         (𝕡) b#0 | i#0,array%replace%0#1,"tup_bag"
+        l-load array%replace%0#1 1                                                                                             (𝕡) b#0 | i#0,"tup_bag",array%replace%0#1
         box_put                                                                                                                (𝕡) b#0 | i#0
         // mutable_native_types/case2_with_immutable_struct.py:86
         // for i in urange(self.tup_bag.value.count):
@@ -717,33 +715,33 @@ subroutine get_3_tups:
         // items[start],
         p-load start#0                                                                                                         (𝕡) start#0 | items#0,start#0 (copy)
         int 16                                                                                                                 (𝕡) start#0 | items#0,start#0 (copy),16
-        *                                                                                                                      (𝕡) start#0 | items#0,array%bytes_offset%0#1
-        l-load-copy items#0 1                                                                                                  (𝕡) start#0 | items#0,array%bytes_offset%0#1,items#0 (copy)
-        l-load array%bytes_offset%0#1 1                                                                                        (𝕡) start#0 | items#0,items#0 (copy),array%bytes_offset%0#1
-        int 16                                                                                                                 (𝕡) start#0 | items#0,items#0 (copy),array%bytes_offset%0#1,16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) start#0 | items#0,array%encoded_element%0#1
+        *                                                                                                                      (𝕡) start#0 | items#0,array%mul%0#1
+        l-load-copy items#0 1                                                                                                  (𝕡) start#0 | items#0,array%mul%0#1,items#0 (copy)
+        l-load array%mul%0#1 1                                                                                                 (𝕡) start#0 | items#0,items#0 (copy),array%mul%0#1
+        int 16                                                                                                                 (𝕡) start#0 | items#0,items#0 (copy),array%mul%0#1,16
+        extract3                                                                                                               (𝕡) start#0 | items#0,array%extract%2#1
         // mutable_native_types/case2_with_immutable_struct.py:98
         // items[start + 1],
-        p-load start#0                                                                                                         (𝕡) start#0 | items#0,array%encoded_element%0#1,start#0 (copy)
-        int 1                                                                                                                  (𝕡) start#0 | items#0,array%encoded_element%0#1,start#0 (copy),1
-        +                                                                                                                      (𝕡) start#0 | items#0,array%encoded_element%0#1,tmp%2#0
-        int 16                                                                                                                 (𝕡) start#0 | items#0,array%encoded_element%0#1,tmp%2#0,16
-        *                                                                                                                      (𝕡) start#0 | items#0,array%encoded_element%0#1,array%bytes_offset%1#1
-        l-load-copy items#0 2                                                                                                  (𝕡) start#0 | items#0,array%encoded_element%0#1,array%bytes_offset%1#1,items#0 (copy)
-        l-load array%bytes_offset%1#1 1                                                                                        (𝕡) start#0 | items#0,array%encoded_element%0#1,items#0 (copy),array%bytes_offset%1#1
-        int 16                                                                                                                 (𝕡) start#0 | items#0,array%encoded_element%0#1,items#0 (copy),array%bytes_offset%1#1,16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) start#0 | items#0,array%encoded_element%0#1,array%encoded_element%1#1
+        p-load start#0                                                                                                         (𝕡) start#0 | items#0,array%extract%2#1,start#0 (copy)
+        int 1                                                                                                                  (𝕡) start#0 | items#0,array%extract%2#1,start#0 (copy),1
+        +                                                                                                                      (𝕡) start#0 | items#0,array%extract%2#1,tmp%2#0
+        int 16                                                                                                                 (𝕡) start#0 | items#0,array%extract%2#1,tmp%2#0,16
+        *                                                                                                                      (𝕡) start#0 | items#0,array%extract%2#1,array%mul%1#1
+        l-load-copy items#0 2                                                                                                  (𝕡) start#0 | items#0,array%extract%2#1,array%mul%1#1,items#0 (copy)
+        l-load array%mul%1#1 1                                                                                                 (𝕡) start#0 | items#0,array%extract%2#1,items#0 (copy),array%mul%1#1
+        int 16                                                                                                                 (𝕡) start#0 | items#0,array%extract%2#1,items#0 (copy),array%mul%1#1,16
+        extract3                                                                                                               (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1
         // mutable_native_types/case2_with_immutable_struct.py:99
         // items[start + 2],
-        p-load start#0                                                                                                         (𝕡) start#0 | items#0,array%encoded_element%0#1,array%encoded_element%1#1,start#0 (copy)
-        int 2                                                                                                                  (𝕡) start#0 | items#0,array%encoded_element%0#1,array%encoded_element%1#1,start#0 (copy),2
-        +                                                                                                                      (𝕡) start#0 | items#0,array%encoded_element%0#1,array%encoded_element%1#1,tmp%3#0
-        int 16                                                                                                                 (𝕡) start#0 | items#0,array%encoded_element%0#1,array%encoded_element%1#1,tmp%3#0,16
-        *                                                                                                                      (𝕡) start#0 | items#0,array%encoded_element%0#1,array%encoded_element%1#1,array%bytes_offset%2#1
-        l-load items#0 3                                                                                                       (𝕡) start#0 | array%encoded_element%0#1,array%encoded_element%1#1,array%bytes_offset%2#1,items#0
-        l-load array%bytes_offset%2#1 1                                                                                        (𝕡) start#0 | array%encoded_element%0#1,array%encoded_element%1#1,items#0,array%bytes_offset%2#1
-        int 16                                                                                                                 (𝕡) start#0 | array%encoded_element%0#1,array%encoded_element%1#1,items#0,array%bytes_offset%2#1,16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) start#0 | array%encoded_element%0#1,array%encoded_element%1#1,array%encoded_element%2#1
+        p-load start#0                                                                                                         (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,start#0 (copy)
+        int 2                                                                                                                  (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,start#0 (copy),2
+        +                                                                                                                      (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,tmp%3#0
+        int 16                                                                                                                 (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,tmp%3#0,16
+        *                                                                                                                      (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,array%mul%2#1
+        l-load items#0 3                                                                                                       (𝕡) start#0 | array%extract%2#1,array%extract%3#1,array%mul%2#1,items#0
+        l-load array%mul%2#1 1                                                                                                 (𝕡) start#0 | array%extract%2#1,array%extract%3#1,items#0,array%mul%2#1
+        int 16                                                                                                                 (𝕡) start#0 | array%extract%2#1,array%extract%3#1,items#0,array%mul%2#1,16
+        extract3                                                                                                               (𝕡) start#0 | array%extract%2#1,array%extract%3#1,array%extract%4#1
         // mutable_native_types/case2_with_immutable_struct.py:95-101
         // return FixedArray[NamedTup, typing.Literal[3]](
         //     (
@@ -752,10 +750,10 @@ subroutine get_3_tups:
         //         items[start + 2],
         //     )
         // )
-        l-load array%encoded_element%0#1 2                                                                                     (𝕡) start#0 | array%encoded_element%1#1,array%encoded_element%2#1,array%encoded_element%0#1
-        l-load array%encoded_element%1#1 2                                                                                     (𝕡) start#0 | array%encoded_element%2#1,array%encoded_element%0#1,array%encoded_element%1#1
-        concat                                                                                                                 (𝕡) start#0 | array%encoded_element%2#1,array%encoded%1#1
-        l-load array%encoded_element%2#1 1                                                                                     (𝕡) start#0 | array%encoded%1#1,array%encoded_element%2#1
+        l-load array%extract%2#1 2                                                                                             (𝕡) start#0 | array%extract%3#1,array%extract%4#1,array%extract%2#1
+        l-load array%extract%3#1 2                                                                                             (𝕡) start#0 | array%extract%4#1,array%extract%2#1,array%extract%3#1
+        concat                                                                                                                 (𝕡) start#0 | array%extract%4#1,array%encoded%1#1
+        l-load array%extract%4#1 1                                                                                             (𝕡) start#0 | array%encoded%1#1,array%extract%4#1
         concat                                                                                                                 (𝕡) start#0 | array%encoded%2#1
         retsub                                                                                                                 array%encoded%2#1
 
@@ -799,14 +797,14 @@ subroutine get_all_tups:
         v-load i#0                                                                                                             i#0
         l-store-copy i#0 0                                                                                                     i#0,i#0 (copy)
         int 16                                                                                                                 i#0,i#0 (copy),16
-        *                                                                                                                      i#0,array%bytes_offset%0#1
-        v-load items#0                                                                                                         i#0,array%bytes_offset%0#1,items#0
-        l-load array%bytes_offset%0#1 1                                                                                        i#0,items#0,array%bytes_offset%0#1
-        int 16                                                                                                                 i#0,items#0,array%bytes_offset%0#1,16
-        extract3 // on error: index access is out of bounds                                                                    i#0,array%encoded_element%0#1
-        v-load result#0                                                                                                        i#0,array%encoded_element%0#1,result#0
-        l-store-copy result#0 1                                                                                                i#0,result#0,array%encoded_element%0#1,result#0 (copy)
-        l-load array%encoded_element%0#1 1                                                                                     i#0,result#0,result#0 (copy),array%encoded_element%0#1
+        *                                                                                                                      i#0,array%mul%0#1
+        v-load items#0                                                                                                         i#0,array%mul%0#1,items#0
+        l-load array%mul%0#1 1                                                                                                 i#0,items#0,array%mul%0#1
+        int 16                                                                                                                 i#0,items#0,array%mul%0#1,16
+        extract3                                                                                                               i#0,array%extract%2#1
+        v-load result#0                                                                                                        i#0,array%extract%2#1,result#0
+        l-store-copy result#0 1                                                                                                i#0,result#0,array%extract%2#1,result#0 (copy)
+        l-load array%extract%2#1 1                                                                                             i#0,result#0,result#0 (copy),array%extract%2#1
         concat // on error: max array length exceeded                                                                          i#0,result#0,concat%0#0
         l-load result#0 1                                                                                                      i#0,concat%0#0,result#0
         int 0                                                                                                                  i#0,concat%0#0,result#0,0

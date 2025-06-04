@@ -103,7 +103,8 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let array%encoded_bool%17#1: bytes[1] = (setbit 0x00 0u array%get_bit%16#1)
         let array%extract%1#1: bytes = (extract3 boolean_packing#0 3u 1u)
         let (a#0: Encoded(uint8), b#0: Encoded(bool8), c#0: Encoded(bool8), d#0: Encoded(bool8), e#0: Encoded(bool8), f#0: Encoded(bool8), g#0: Encoded(bool8), h#0: Encoded(bool8), i#0: Encoded(bool8), j#0: Encoded(bool8), k#0: Encoded(uint8)) = (array%extract%0#1, array%encoded_bool%9#1, array%encoded_bool%10#1, array%encoded_bool%11#1, array%encoded_bool%12#1, array%encoded_bool%13#1, array%encoded_bool%14#1, array%encoded_bool%15#1, array%encoded_bool%16#1, array%encoded_bool%17#1, array%extract%1#1)
-        let array%extract%2#1: bytes = (extract3 boolean_packing#0 3u 1u)
+        let array%add%0#1: uint64 = (+ 0u 3u)
+        let array%extract%2#1: bytes = (extract3 boolean_packing#0 array%add%0#1 1u)
         let tuple_item%0#0: Encoded(uint8) = array%extract%2#1
         let tmp%24#0: bool = (b== tuple_item%0#0 k#0)
         (assert tmp%24#0)
@@ -274,14 +275,17 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let array%extract_uint16%5#1: uint64 = (extract_uint16 tup#0 1u)
+        let array%len%3#1: uint64 = (len tup#0)
+        let array%substring3%4#1: bytes = (substring3 tup#0 array%extract_uint16%5#1 array%len%3#1)
         let array%item_offset%0#1: uint64 = (extract_uint16 tup#0 1u)
         let array%data_up_to_item%0#1: bytes = (extract3 tup#0 0u array%item_offset%0#1)
         let array%updated_data%0#1: bytes = (concat array%data_up_to_item%0#1 replace%0#0)
         let tup#1: Encoded(uint8,(len+uint8[])) = array%updated_data%0#1
-        let array%extract_uint16%5#1: uint64 = (extract_uint16 tup#1 1u)
-        let array%len%3#1: uint64 = (len tup#1)
-        let array%substring3%4#1: bytes = (substring3 tup#1 array%extract_uint16%5#1 array%len%3#1)
-        let tuple_item%1#1: Encoded(len+uint8[]) = array%substring3%4#1
+        let array%extract_uint16%6#1: uint64 = (extract_uint16 tup#1 1u)
+        let array%len%4#1: uint64 = (len tup#1)
+        let array%substring3%5#1: bytes = (substring3 tup#1 array%extract_uint16%6#1 array%len%4#1)
+        let tuple_item%1#1: Encoded(len+uint8[]) = array%substring3%5#1
         let array%encoded%21#1: Encoded(uint8) = (concat 0x 0x00)
         let array%as_bytes%7#1: bytes[8] = (itob 1u)
         let array%len_u16%0#1: bytes = ((extract 6 2) array%as_bytes%7#1)
@@ -290,24 +294,27 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let encoded_array%0#0: Encoded(len+uint8[]) = array%encoded%23#1
         let tmp%3#2: bool = (== tuple_item%1#1 encoded_array%0#0)
         (assert tmp%3#2)
-        let array%extract_uint16%6#1: uint64 = (extract_uint16 tup#1 1u)
-        let array%len%4#1: uint64 = (len tup#1)
-        let array%substring3%5#1: bytes = (substring3 tup#1 array%extract_uint16%6#1 array%len%4#1)
+        let array%extract_uint16%7#1: uint64 = (extract_uint16 tup#1 1u)
+        let array%len%5#1: uint64 = (len tup#1)
+        let array%substring3%6#1: bytes = (substring3 tup#1 array%extract_uint16%7#1 array%len%5#1)
+        let array%array_trimmed%0#1: bytes = ((extract 2 0) array%substring3%6#1)
+        let array%bytes_offset%0#1: uint64 = (* 0u 1u)
+        let array%encoded_element%0#1: bytes = (extract3 array%array_trimmed%0#1 array%bytes_offset%0#1 1u) // on error: index access is out of bounds
         let array%write_offset%0#1: uint64 = (* 0u 1u)
         let array%write_offset_with_length_header%0#1: uint64 = (+ array%write_offset%0#1 2u)
-        let array%updated_array%0#1: bytes = (replace3 array%substring3%5#1 array%write_offset_with_length_header%0#1 0x01)
+        let array%updated_array%0#1: bytes = (replace3 array%substring3%6#1 array%write_offset_with_length_header%0#1 0x01)
         let array%item_offset%1#1: uint64 = (extract_uint16 tup#1 1u)
         let array%data_up_to_item%1#1: bytes = (extract3 tup#1 0u array%item_offset%1#1)
         let array%updated_data%1#1: bytes = (concat array%data_up_to_item%1#1 array%updated_array%0#1)
         let tup#2: Encoded(uint8,(len+uint8[])) = array%updated_data%1#1
-        let array%extract_uint16%7#1: uint64 = (extract_uint16 tup#2 1u)
-        let array%len%5#1: uint64 = (len tup#2)
-        let array%substring3%6#1: bytes = (substring3 tup#2 array%extract_uint16%7#1 array%len%5#1)
-        let tuple_item%2#1: Encoded(len+uint8[]) = array%substring3%6#1
-        let array%extract_uint16%8#1: uint64 = (extract_uint16 tup#1 1u)
-        let array%len%6#1: uint64 = (len tup#1)
-        let array%substring3%7#1: bytes = (substring3 tup#1 array%extract_uint16%8#1 array%len%6#1)
-        let tuple_item%3#0: Encoded(len+uint8[]) = array%substring3%7#1
+        let array%extract_uint16%8#1: uint64 = (extract_uint16 tup#2 1u)
+        let array%len%6#1: uint64 = (len tup#2)
+        let array%substring3%7#1: bytes = (substring3 tup#2 array%extract_uint16%8#1 array%len%6#1)
+        let tuple_item%2#1: Encoded(len+uint8[]) = array%substring3%7#1
+        let array%extract_uint16%9#1: uint64 = (extract_uint16 tup#1 1u)
+        let array%len%7#1: uint64 = (len tup#1)
+        let array%substring3%8#1: bytes = (substring3 tup#1 array%extract_uint16%9#1 array%len%7#1)
+        let tuple_item%3#0: Encoded(len+uint8[]) = array%substring3%8#1
         let tmp%4#2: bool = (!= tuple_item%2#1 tuple_item%3#0)
         (assert tmp%4#2)
         return 1u

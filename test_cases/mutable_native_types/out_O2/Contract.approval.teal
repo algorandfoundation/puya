@@ -3,7 +3,7 @@
 
 // test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 8 48
+    intcblock 0 1 8 40
     bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map"
     pushbytes ""
     dup
@@ -296,7 +296,7 @@ main_local_struct_route@9:
     pushint 32 // 32
     extract_uint64
     dig 2
-    pushint 40 // 40
+    intc_3 // 40
     extract_uint64
     global ZeroAddress
     uncover 3
@@ -377,18 +377,20 @@ main_increment_payment_route@7:
     app_global_get_ex
     assert // check self.payments exists
     uncover 2
-    intc_3 // 48
+    pushint 48 // 48
     *
     dup2
-    intc_3 // 48
-    extract3 // on error: index access is out of bounds
-    dup
-    pushint 40 // 40
+    pushint 48 // 48
+    extract3
+    intc_3 // 40
     extract_uint64
-    uncover 4
+    uncover 3
     +
     itob
-    replace2 40
+    swap
+    intc_3 // 40
+    +
+    swap
     replace3
     bytec_2 // "payments"
     swap
@@ -416,7 +418,7 @@ main_add_payment_route@6:
     app_global_get_ex
     assert // check self.payments exists
     swap
-    intc_3 // 48
+    pushint 48 // 48
     *
     uncover 2
     replace3

@@ -155,11 +155,11 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_
         let tmp%1#0: account = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%updated_data%0#1: bytes = ((replace2 136) maybe_value%0#0 tmp%1#0)
+        let array%replace%0#1: bytes = ((replace2 136) maybe_value%0#0 tmp%1#0)
         let tmp%2#0: uint64 = (global CurrentApplicationID)
         let array%val_as_bytes%0#1: bytes[8] = (itob tmp%2#0)
-        let array%updated_data%1#1: bytes = ((replace2 168) array%updated_data%0#1 array%val_as_bytes%0#1)
-        (box_put "tup_bag" array%updated_data%1#1)
+        let array%replace%1#1: bytes = ((replace2 168) array%replace%0#1 array%val_as_bytes%0#1)
+        (box_put "tup_bag" array%replace%1#1)
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups() -> uint64:
@@ -180,15 +180,14 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let array%val_as_bytes%0#1: bytes[8] = (itob tup.a#0)
         let array%val_as_bytes%1#1: bytes[8] = (itob tup.b#0)
         let array%encoded%1#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%0#1 array%val_as_bytes%1#1)
-        let array%extract%2#1: bytes = ((extract 8 128) maybe_value%0#0)
-        let array%write_offset%0#1: uint64 = (* values%0#0 16u)
-        let array%updated_array%0#1: bytes = (replace3 array%extract%2#1 array%write_offset%0#1 array%encoded%1#1)
-        let array%updated_data%0#1: bytes = ((replace2 8) maybe_value%0#0 array%updated_array%0#1)
-        let values%2#0: uint64 = (extract_uint64 array%updated_data%0#1 0u)
+        let array%mul%0#1: uint64 = (* values%0#0 16u)
+        let array%add%3#1: uint64 = (+ 8u array%mul%0#1)
+        let array%replace%0#1: bytes = (replace3 maybe_value%0#0 array%add%3#1 array%encoded%1#1)
+        let values%2#0: uint64 = (extract_uint64 array%replace%0#1 0u)
         let tmp%1#0: uint64 = (+ values%2#0 1u)
         let array%val_as_bytes%2#1: bytes[8] = (itob tmp%1#0)
-        let array%updated_data%1#1: bytes = ((replace2 0) array%updated_data%0#1 array%val_as_bytes%2#1)
-        (box_put "tup_bag" array%updated_data%1#1)
+        let array%replace%1#1: bytes = ((replace2 0) array%replace%0#1 array%val_as_bytes%2#1)
+        (box_put "tup_bag" array%replace%1#1)
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup(index: uint64) -> <uint64, uint64>:
@@ -199,10 +198,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
         let tmp%0#0: bool = (< index#0 values%0#0)
         (assert tmp%0#0) // index out of bounds
         let array%extract%1#1: bytes = ((extract 8 128) maybe_value%0#0)
-        let array%bytes_offset%0#1: uint64 = (* index#0 16u)
-        let array%encoded_element%0#1: bytes = (extract3 array%extract%1#1 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
-        let array%item0%0#1: uint64 = (extract_uint64 array%encoded_element%0#1 0u)
-        let array%item1%0#1: uint64 = (extract_uint64 array%encoded_element%0#1 8u)
+        let array%mul%0#1: uint64 = (* index#0 16u)
+        let array%extract%2#1: bytes = (extract3 array%extract%1#1 array%mul%0#1 16u)
+        let array%item0%0#1: uint64 = (extract_uint64 array%extract%2#1 0u)
+        let array%item1%0#1: uint64 = (extract_uint64 array%extract%2#1 8u)
         return array%item0%0#1 array%item1%0#1
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -> uint64:
@@ -222,10 +221,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
         let array%extract%1#1: bytes = ((extract 8 128) maybe_value%1#0)
-        let array%bytes_offset%0#1: uint64 = (* i#1 16u)
-        let array%encoded_element%0#1: bytes = (extract3 array%extract%1#1 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
-        let tup.a#0: uint64 = (extract_uint64 array%encoded_element%0#1 0u)
-        let tup.b#0: uint64 = (extract_uint64 array%encoded_element%0#1 8u)
+        let array%mul%0#1: uint64 = (* i#1 16u)
+        let array%extract%2#1: bytes = (extract3 array%extract%1#1 array%mul%0#1 16u)
+        let tup.a#0: uint64 = (extract_uint64 array%extract%2#1 0u)
+        let tup.b#0: uint64 = (extract_uint64 array%extract%2#1 8u)
         let total#2: uint64 = (+ total#1 tup.a#0)
         let total#3: uint64 = (+ total#2 tup.b#0)
         let i#2: uint64 = (+ i#1 1u)
@@ -263,10 +262,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fix
         let continue_looping%0#0: bool = (< item_index_internal%0#1 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L74
-        let array%bytes_offset%0#1: uint64 = (* item_index_internal%0#1 16u)
-        let array%encoded_element%0#1: bytes = (extract3 tups#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
-        let tup.a#0: uint64 = (extract_uint64 array%encoded_element%0#1 0u)
-        let tup.b#0: uint64 = (extract_uint64 array%encoded_element%0#1 8u)
+        let array%mul%0#1: uint64 = (* item_index_internal%0#1 16u)
+        let array%extract%0#1: bytes = (extract3 tups#0 array%mul%0#1 16u)
+        let tup.a#0: uint64 = (extract_uint64 array%extract%0#1 0u)
+        let tup.b#0: uint64 = (extract_uint64 array%extract%0#1 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#0, tup.b#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
@@ -289,15 +288,15 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
         let array%extract%1#1: bytes = ((extract 8 128) maybe_value%1#0)
-        let array%bytes_offset%0#1: uint64 = (* i#1 16u)
-        let array%encoded_element%0#1: bytes = (extract3 array%extract%1#1 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
-        let tup.b#0: uint64 = (extract_uint64 array%encoded_element%0#1 8u)
+        let array%mul%0#1: uint64 = (* i#1 16u)
+        let array%extract%2#1: bytes = (extract3 array%extract%1#1 array%mul%0#1 16u)
+        let tup.b#0: uint64 = (extract_uint64 array%extract%2#1 8u)
         let array%val_as_bytes%0#1: bytes[8] = (itob a#0)
         let array%val_as_bytes%1#1: bytes[8] = (itob tup.b#0)
         let array%encoded%1#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%0#1 array%val_as_bytes%1#1)
-        let array%updated_array%0#1: bytes = (replace3 array%extract%1#1 array%bytes_offset%0#1 array%encoded%1#1)
-        let array%updated_data%0#1: bytes = ((replace2 8) maybe_value%1#0 array%updated_array%0#1)
-        (box_put "tup_bag" array%updated_data%0#1)
+        let array%add%4#1: uint64 = (+ 8u array%mul%0#1)
+        let array%replace%0#1: bytes = (replace3 maybe_value%1#0 array%add%4#1 array%encoded%1#1)
+        (box_put "tup_bag" array%replace%0#1)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L79
@@ -319,15 +318,15 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
         let array%extract%1#1: bytes = ((extract 8 128) maybe_value%1#0)
-        let array%bytes_offset%0#1: uint64 = (* i#1 16u)
-        let array%encoded_element%0#1: bytes = (extract3 array%extract%1#1 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
-        let tup.a#0: uint64 = (extract_uint64 array%encoded_element%0#1 0u)
+        let array%mul%0#1: uint64 = (* i#1 16u)
+        let array%extract%2#1: bytes = (extract3 array%extract%1#1 array%mul%0#1 16u)
+        let tup.a#0: uint64 = (extract_uint64 array%extract%2#1 0u)
         let array%val_as_bytes%0#1: bytes[8] = (itob tup.a#0)
         let array%val_as_bytes%1#1: bytes[8] = (itob b#0)
         let array%encoded%1#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%0#1 array%val_as_bytes%1#1)
-        let array%updated_array%0#1: bytes = (replace3 array%extract%1#1 array%bytes_offset%0#1 array%encoded%1#1)
-        let array%updated_data%0#1: bytes = ((replace2 8) maybe_value%1#0 array%updated_array%0#1)
-        (box_put "tup_bag" array%updated_data%0#1)
+        let array%add%4#1: uint64 = (+ 8u array%mul%0#1)
+        let array%replace%0#1: bytes = (replace3 maybe_value%1#0 array%add%4#1 array%encoded%1#1)
+        (box_put "tup_bag" array%replace%0#1)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L86
@@ -342,20 +341,20 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         let tmp%1#0: bool = (>= values%0#0 tmp%0#0)
         (assert tmp%1#0) // not enough items
         let items#0: Encoded((uint64,uint64)[8]) = ((extract 8 128) maybe_value%0#0)
-        let array%bytes_offset%0#1: uint64 = (* start#0 16u)
-        let array%encoded_element%0#1: bytes = (extract3 items#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
-        let array%item0%0#1: uint64 = (extract_uint64 array%encoded_element%0#1 0u)
-        let array%item1%0#1: uint64 = (extract_uint64 array%encoded_element%0#1 8u)
+        let array%mul%0#1: uint64 = (* start#0 16u)
+        let array%extract%2#1: bytes = (extract3 items#0 array%mul%0#1 16u)
+        let array%item0%0#1: uint64 = (extract_uint64 array%extract%2#1 0u)
+        let array%item1%0#1: uint64 = (extract_uint64 array%extract%2#1 8u)
         let tmp%2#0: uint64 = (+ start#0 1u)
-        let array%bytes_offset%1#1: uint64 = (* tmp%2#0 16u)
-        let array%encoded_element%1#1: bytes = (extract3 items#0 array%bytes_offset%1#1 16u) // on error: index access is out of bounds
-        let array%item0%1#1: uint64 = (extract_uint64 array%encoded_element%1#1 0u)
-        let array%item1%1#1: uint64 = (extract_uint64 array%encoded_element%1#1 8u)
+        let array%mul%1#1: uint64 = (* tmp%2#0 16u)
+        let array%extract%5#1: bytes = (extract3 items#0 array%mul%1#1 16u)
+        let array%item0%1#1: uint64 = (extract_uint64 array%extract%5#1 0u)
+        let array%item1%1#1: uint64 = (extract_uint64 array%extract%5#1 8u)
         let tmp%3#0: uint64 = (+ start#0 2u)
-        let array%bytes_offset%2#1: uint64 = (* tmp%3#0 16u)
-        let array%encoded_element%2#1: bytes = (extract3 items#0 array%bytes_offset%2#1 16u) // on error: index access is out of bounds
-        let array%item0%2#1: uint64 = (extract_uint64 array%encoded_element%2#1 0u)
-        let array%item1%2#1: uint64 = (extract_uint64 array%encoded_element%2#1 8u)
+        let array%mul%2#1: uint64 = (* tmp%3#0 16u)
+        let array%extract%8#1: bytes = (extract3 items#0 array%mul%2#1 16u)
+        let array%item0%2#1: uint64 = (extract_uint64 array%extract%8#1 0u)
+        let array%item1%2#1: uint64 = (extract_uint64 array%extract%8#1 8u)
         let array%val_as_bytes%0#1: bytes[8] = (itob array%item0%0#1)
         let array%val_as_bytes%1#1: bytes[8] = (itob array%item1%0#1)
         let array%encoded%1#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%0#1 array%val_as_bytes%1#1)
@@ -384,10 +383,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L109
-        let array%bytes_offset%0#1: uint64 = (* i#1 16u)
-        let array%encoded_element%0#1: bytes = (extract3 items#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
-        let array%item0%0#1: uint64 = (extract_uint64 array%encoded_element%0#1 0u)
-        let array%item1%0#1: uint64 = (extract_uint64 array%encoded_element%0#1 8u)
+        let array%mul%0#1: uint64 = (* i#1 16u)
+        let array%extract%2#1: bytes = (extract3 items#0 array%mul%0#1 16u)
+        let array%item0%0#1: uint64 = (extract_uint64 array%extract%2#1 0u)
+        let array%item1%0#1: uint64 = (extract_uint64 array%extract%2#1 8u)
         let array%val_as_bytes%0#1: bytes[8] = (itob array%item0%0#1)
         let array%val_as_bytes%1#1: bytes[8] = (itob array%item1%0#1)
         let array%encoded%3#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%0#1 array%val_as_bytes%1#1)
