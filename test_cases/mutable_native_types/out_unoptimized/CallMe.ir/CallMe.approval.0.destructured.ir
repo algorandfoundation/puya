@@ -51,13 +51,13 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret() 
         (assert maybe_exists%0#0) // check self.dynamic_struct exists
         return maybe_value%0#0
 
-subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg(arg: Encoded(uint64,uint64)[3)) -> void:
+subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg(arg: Encoded((uint64,uint64)[3])) -> void:
     block@0: // L77
-        let copy%0#0: Encoded(uint64,uint64)[3) = arg#0
+        let copy%0#0: Encoded((uint64,uint64)[3]) = arg#0
         (app_global_put "fixed_arr" copy%0#0)
         return 
 
-subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret() -> Encoded(uint64,uint64)[3):
+subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret() -> Encoded((uint64,uint64)[3]):
     block@0: // L81
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "fixed_arr")
         (assert maybe_exists%0#0) // check self.fixed_arr exists
@@ -197,8 +197,8 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%39#0: uint64 = (txn ApplicationID)
         let tmp%40#0: bool = (!= tmp%39#0 0u)
         (assert tmp%40#0) // can only call when not creating
-        let reinterpret_Encoded(uint64,uint64)[3)%0#0: Encoded(uint64,uint64)[3) = (txna ApplicationArgs 1)
-        test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg(reinterpret_Encoded(uint64,uint64)[3)%0#0)
+        let reinterpret_Encoded((uint64,uint64)[3])%0#0: Encoded((uint64,uint64)[3]) = (txna ApplicationArgs 1)
+        test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg(reinterpret_Encoded((uint64,uint64)[3])%0#0)
         let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0
         goto block@24
@@ -209,7 +209,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%43#0: uint64 = (txn ApplicationID)
         let tmp%44#0: bool = (!= tmp%43#0 0u)
         (assert tmp%44#0) // can only call when not creating
-        let tmp%45#0: Encoded(uint64,uint64)[3) = test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret()
+        let tmp%45#0: Encoded((uint64,uint64)[3]) = test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret()
         let tmp%46#0: bytes = (concat 0x151f7c75 tmp%45#0)
         (log tmp%46#0)
         let test_cases.mutable_native_types.abi_call.CallMe.__puya_arc4_router__%0#0: bool = 1u

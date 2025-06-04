@@ -158,7 +158,7 @@ subroutine main:
         assert // can only call when not creating
         // mutable_native_types/case1_with_tups.py:31
         // class Case1WithTups(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                                reinterpret_Encoded(uint64,uint64)[3)%0#0
+        txna ApplicationArgs 1                                                                                reinterpret_Encoded((uint64,uint64)[3])%0#0
         // mutable_native_types/case1_with_tups.py:71
         // @arc4.abimethod()
         callsub add_fixed_tups
@@ -335,21 +335,21 @@ subroutine add_tup:
         assert // too many tups                                                                               (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0
         // mutable_native_types/case1_with_tups.py:49
         // self.tup_bag.value.items[self.tup_bag.value.count] = tup
-        l-load-copy maybe_value%0#0 1                                                                         (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,maybe_value%0#0 (copy)
-        extract 8 128                                                                                         (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%extract%1#1
-        p-load tup.a#0                                                                                        (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%extract%1#1,tup.a#0 (copy)
-        itob                                                                                                  (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%extract%1#1,array%val_as_bytes%0#1
-        p-load tup.b#0                                                                                        (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%extract%1#1,array%val_as_bytes%0#1,tup.b#0 (copy)
-        itob                                                                                                  (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%extract%1#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        l-load array%val_as_bytes%0#1 1                                                                       (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%extract%1#1,array%val_as_bytes%1#1,array%val_as_bytes%0#1
-        l-load array%val_as_bytes%1#1 1                                                                       (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%extract%1#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        concat                                                                                                (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%extract%1#1,array%encoded%1#1
-        l-load values%0#0 2                                                                                   (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%extract%1#1,array%encoded%1#1,values%0#0
-        int 16                                                                                                (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%extract%1#1,array%encoded%1#1,values%0#0,16
-        *                                                                                                     (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%extract%1#1,array%encoded%1#1,array%write_offset%0#1
-        l-load array%extract%1#1 2                                                                            (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%encoded%1#1,array%write_offset%0#1,array%extract%1#1
-        l-load array%write_offset%0#1 1                                                                       (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%encoded%1#1,array%extract%1#1,array%write_offset%0#1
-        l-load array%encoded%1#1 2                                                                            (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%extract%1#1,array%write_offset%0#1,array%encoded%1#1
+        p-load tup.a#0                                                                                        (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,tup.a#0 (copy)
+        itob                                                                                                  (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%val_as_bytes%0#1
+        p-load tup.b#0                                                                                        (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%val_as_bytes%0#1,tup.b#0 (copy)
+        itob                                                                                                  (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        l-load array%val_as_bytes%0#1 1                                                                       (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%val_as_bytes%1#1,array%val_as_bytes%0#1
+        l-load array%val_as_bytes%1#1 1                                                                       (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        concat                                                                                                (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%encoded%1#1
+        l-load-copy maybe_value%0#0 2                                                                         (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%encoded%1#1,maybe_value%0#0 (copy)
+        extract 8 128                                                                                         (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,values%0#0,array%encoded%1#1,array%extract%2#1
+        l-load values%0#0 2                                                                                   (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%encoded%1#1,array%extract%2#1,values%0#0
+        int 16                                                                                                (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%encoded%1#1,array%extract%2#1,values%0#0,16
+        *                                                                                                     (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%encoded%1#1,array%extract%2#1,array%write_offset%0#1
+        l-load array%extract%2#1 1                                                                            (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%encoded%1#1,array%write_offset%0#1,array%extract%2#1
+        l-load array%write_offset%0#1 1                                                                       (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%encoded%1#1,array%extract%2#1,array%write_offset%0#1
+        l-load array%encoded%1#1 2                                                                            (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%extract%2#1,array%write_offset%0#1,array%encoded%1#1
         replace3                                                                                              (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%updated_array%0#1
         l-load maybe_value%0#0 1                                                                              (𝕡) tup.a#0,tup.b#0 | array%updated_array%0#1,maybe_value%0#0
         l-load array%updated_array%0#1 1                                                                      (𝕡) tup.a#0,tup.b#0 | maybe_value%0#0,array%updated_array%0#1
@@ -360,7 +360,7 @@ subroutine add_tup:
         int 0                                                                                                 (𝕡) tup.a#0,tup.b#0 | array%updated_data%0#1,array%updated_data%0#1 (copy),0
         extract_uint64                                                                                        (𝕡) tup.a#0,tup.b#0 | array%updated_data%0#1,values%2#0
         int 1                                                                                                 (𝕡) tup.a#0,tup.b#0 | array%updated_data%0#1,values%2#0,1
-        +                                                                                                     (𝕡) tup.a#0,tup.b#0 | array%updated_data%0#1,tmp%3#0
+        +                                                                                                     (𝕡) tup.a#0,tup.b#0 | array%updated_data%0#1,tmp%1#0
         itob                                                                                                  (𝕡) tup.a#0,tup.b#0 | array%updated_data%0#1,array%val_as_bytes%2#1
         l-load array%updated_data%0#1 1                                                                       (𝕡) tup.a#0,tup.b#0 | array%val_as_bytes%2#1,array%updated_data%0#1
         l-load array%val_as_bytes%2#1 1                                                                       (𝕡) tup.a#0,tup.b#0 | array%updated_data%0#1,array%val_as_bytes%2#1
@@ -777,8 +777,8 @@ subroutine get_3_tups:
         // items[start + 1],
         p-load start#0                                                                                        (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,start#0 (copy)
         int 1                                                                                                 (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,start#0 (copy),1
-        +                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,tmp%4#0
-        int 16                                                                                                (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,tmp%4#0,16
+        +                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,tmp%2#0
+        int 16                                                                                                (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,tmp%2#0,16
         *                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%bytes_offset%1#1
         l-load-copy items#0 3                                                                                 (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%bytes_offset%1#1,items#0 (copy)
         l-load array%bytes_offset%1#1 1                                                                       (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,items#0 (copy),array%bytes_offset%1#1
@@ -794,8 +794,8 @@ subroutine get_3_tups:
         // items[start + 2],
         p-load start#0                                                                                        (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,start#0 (copy)
         int 2                                                                                                 (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,start#0 (copy),2
-        +                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%7#0
-        int 16                                                                                                (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%7#0,16
+        +                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%3#0
+        int 16                                                                                                (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%3#0,16
         *                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%bytes_offset%2#1
         l-load items#0 5                                                                                      (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%bytes_offset%2#1,items#0
         l-load array%bytes_offset%2#1 1                                                                       (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,items#0,array%bytes_offset%2#1

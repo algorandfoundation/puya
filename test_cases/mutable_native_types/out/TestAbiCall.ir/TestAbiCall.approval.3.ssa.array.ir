@@ -451,8 +451,8 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         let array%encoded%3#1: Encoded((uint64,uint64)) = (concat 0x fixed_struct#0)
         let array%encoded%4#1: Encoded((uint64,uint64),(uint64,uint64)) = (concat array%encoded%3#1 fixed_struct#0)
         let array%encoded%5#1: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = (concat array%encoded%4#1 fixed_struct#0)
-        let array%encoded%6#1: Encoded(uint64,uint64)[3) = (concat array%encoded%5#1 0x)
-        let fixed_arr#0: Encoded(uint64,uint64)[3) = array%encoded%6#1
+        let array%encoded%6#1: Encoded((uint64,uint64)[3]) = (concat array%encoded%5#1 0x)
+        let fixed_arr#0: Encoded((uint64,uint64)[3]) = array%encoded%6#1
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "fixed_arr_arg((uint64,uint64)[3])void")
@@ -467,7 +467,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let res#0: Encoded(uint64,uint64)[3) = ((extract 4 0) awst_tmp%0#0)
+        let res#0: Encoded((uint64,uint64)[3]) = ((extract 4 0) awst_tmp%0#0)
         let tmp%6#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
         (assert tmp%7#0) // application log value is not the result of an ABI return
@@ -488,8 +488,8 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         let array%encoded%10#1: Encoded((uint64,uint64)) = (concat 0x fixed_struct#1)
         let array%encoded%11#1: Encoded((uint64,uint64),(uint64,uint64)) = (concat array%encoded%10#1 fixed_struct#1)
         let array%encoded%12#1: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = (concat array%encoded%11#1 fixed_struct#1)
-        let array%encoded%13#1: Encoded(uint64,uint64)[3) = (concat array%encoded%12#1 0x)
-        let fixed_arr#1: Encoded(uint64,uint64)[3) = array%encoded%13#1
+        let array%encoded%13#1: Encoded((uint64,uint64)[3]) = (concat array%encoded%12#1 0x)
+        let fixed_arr#1: Encoded((uint64,uint64)[3]) = array%encoded%13#1
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "fixed_arr_arg((uint64,uint64)[3])void")
@@ -504,7 +504,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
-        let res#1: Encoded(uint64,uint64)[3) = ((extract 4 0) awst_tmp%1#0)
+        let res#1: Encoded((uint64,uint64)[3]) = ((extract 4 0) awst_tmp%1#0)
         let tmp%15#0: bytes = ((extract 0 4) awst_tmp%1#0)
         let tmp%16#0: bool = (== tmp%15#0 0x151f7c75)
         (assert tmp%16#0) // application log value is not the result of an ABI return
@@ -692,7 +692,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_log() -> vo
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let fixed_arr#0: Encoded(uint64,uint64)[3) = (bzero 48u)
+        let fixed_arr#0: Encoded((uint64,uint64)[3]) = (bzero 48u)
         itxn_begin
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "fixed_arr_arg((uint64,uint64)[3])void")

@@ -191,7 +191,7 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let array%as_bytes%2#1: bytes[8] = (itob 2u)
         let array%offset_as_uint16%1#1: bytes = 0x0002
         let array%encoded%3#1: Encoded((uint64,(len+utf8[]))) = 0x0002
-        let array%encoded%4#1: Encoded(uint64,(len+utf8[]))[) = 0x00020000000000000001000a000362617a
+        let array%encoded%4#1: Encoded((uint64,(len+utf8[]))[]) = 0x00020000000000000001000a000362617a
         let as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, 0x00020000000000000001000a000362617a)
         (app_global_put "glob" as_Encoded(len+(uint64,(len+utf8[]))[])%0#0)
         let tmp%2#0: account = (txn Sender)
@@ -202,7 +202,7 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let array%tail%2#1: bytes = 0x0000000000000001000a000362617a
         let array%offset_as_uint16%2#1: bytes = 0x0002
         let array%encoded%5#1: Encoded((uint64,(len+utf8[]))) = 0x0002
-        let array%encoded%6#1: Encoded(uint64,(len+utf8[]))[) = 0x00020000000000000001000a000362617a
+        let array%encoded%6#1: Encoded((uint64,(len+utf8[]))[]) = 0x00020000000000000001000a000362617a
         let as_Encoded(len+(uint64,(len+utf8[]))[])%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, 0x00020000000000000001000a000362617a)
         (app_local_put tmp%2#0 "loc" as_Encoded(len+(uint64,(len+utf8[]))[])%1#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box")
@@ -212,7 +212,7 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let array%tail%3#1: bytes = 0x0000000000000001000a000362617a
         let array%offset_as_uint16%3#1: bytes = 0x0002
         let array%encoded%7#1: Encoded((uint64,(len+utf8[]))) = 0x0002
-        let array%encoded%8#1: Encoded(uint64,(len+utf8[]))[) = 0x00020000000000000001000a000362617a
+        let array%encoded%8#1: Encoded((uint64,(len+utf8[]))[]) = 0x00020000000000000001000a000362617a
         let as_Encoded(len+(uint64,(len+utf8[]))[])%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, 1u, 0x00020000000000000001000a000362617a)
         (box_del "box")
         (box_put "box" as_Encoded(len+(uint64,(len+utf8[]))[])%2#0)
@@ -225,7 +225,7 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let array%tail%4#1: bytes = 0x0000000000000001000a000362617a
         let array%offset_as_uint16%4#1: bytes = 0x0002
         let array%encoded%9#1: Encoded((uint64,(len+utf8[]))) = 0x0002
-        let array%encoded%10#1: Encoded(uint64,(len+utf8[]))[) = 0x00020000000000000001000a000362617a
+        let array%encoded%10#1: Encoded((uint64,(len+utf8[]))[]) = 0x00020000000000000001000a000362617a
         let as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, 0x00020000000000000001000a000362617a)
         (box_del box_prefixed_key%0#0)
         (box_put box_prefixed_key%0#0 as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)
@@ -273,9 +273,9 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let array%next_item_offset_offset%1#1: uint64 = 2u
         let array%next_item_offset%1#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 2u)
         let array%end_offset%1#1: uint64 = (select array%end_of_array%1#1 array%next_item_offset%1#1 array%has_next%1#1)
-        let array%substring3%2#1: bytes = (substring3 array%array_head_and_tail%1#1 array%item_offset%2#1 array%end_offset%1#1)
-        let array%item_offset%3#1: uint64 = (extract_uint16 array%substring3%2#1 8u)
-        let array%data_up_to_item%1#1: bytes = (extract3 array%substring3%2#1 0u array%item_offset%3#1)
+        let array%substring3%1#1: bytes = (substring3 array%array_head_and_tail%1#1 array%item_offset%2#1 array%end_offset%1#1)
+        let array%item_offset%3#1: uint64 = (extract_uint16 array%substring3%1#1 8u)
+        let array%data_up_to_item%1#1: bytes = (extract3 array%substring3%1#1 0u array%item_offset%3#1)
         let array%updated_data%1#1: bytes = (concat array%data_up_to_item%1#1 0x00086d6f646966696564)
         let array%lt%1#1: bool = (< 0u array%array_length%2#1)
         (assert array%array_length%2#1) // index access is out of bounds
@@ -296,9 +296,9 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let array%next_item_offset_offset%2#1: uint64 = 2u
         let array%next_item_offset%2#1: uint64 = (extract_uint16 array%array_head_and_tail%2#1 2u)
         let array%end_offset%2#1: uint64 = (select array%end_of_array%2#1 array%next_item_offset%2#1 array%has_next%2#1)
-        let array%substring3%4#1: bytes = (substring3 array%array_head_and_tail%2#1 array%item_offset%4#1 array%end_offset%2#1)
-        let array%item_offset%5#1: uint64 = (extract_uint16 array%substring3%4#1 8u)
-        let array%data_up_to_item%2#1: bytes = (extract3 array%substring3%4#1 0u array%item_offset%5#1)
+        let array%substring3%2#1: bytes = (substring3 array%array_head_and_tail%2#1 array%item_offset%4#1 array%end_offset%2#1)
+        let array%item_offset%5#1: uint64 = (extract_uint16 array%substring3%2#1 8u)
+        let array%data_up_to_item%2#1: bytes = (extract3 array%substring3%2#1 0u array%item_offset%5#1)
         let array%updated_data%2#1: bytes = (concat array%data_up_to_item%2#1 0x00086d6f646966696564)
         let array%lt%2#1: bool = (< 0u array%array_length%4#1)
         (assert array%array_length%4#1) // index access is out of bounds
@@ -322,9 +322,9 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let array%next_item_offset_offset%3#1: uint64 = 2u
         let array%next_item_offset%3#1: uint64 = (extract_uint16 array%array_head_and_tail%3#1 2u)
         let array%end_offset%3#1: uint64 = (select array%end_of_array%3#1 array%next_item_offset%3#1 array%has_next%3#1)
-        let array%substring3%6#1: bytes = (substring3 array%array_head_and_tail%3#1 array%item_offset%6#1 array%end_offset%3#1)
-        let array%item_offset%7#1: uint64 = (extract_uint16 array%substring3%6#1 8u)
-        let array%data_up_to_item%3#1: bytes = (extract3 array%substring3%6#1 0u array%item_offset%7#1)
+        let array%substring3%3#1: bytes = (substring3 array%array_head_and_tail%3#1 array%item_offset%6#1 array%end_offset%3#1)
+        let array%item_offset%7#1: uint64 = (extract_uint16 array%substring3%3#1 8u)
+        let array%data_up_to_item%3#1: bytes = (extract3 array%substring3%3#1 0u array%item_offset%7#1)
         let array%updated_data%3#1: bytes = (concat array%data_up_to_item%3#1 0x00086d6f646966696564)
         let array%lt%3#1: bool = (< 0u array%array_length%6#1)
         (assert array%array_length%6#1) // index access is out of bounds

@@ -23,7 +23,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let tmp%15#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+uint8[])) = encode<(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+uint8[]))>(tmp%13#0, tmp%14#0, 0x, "", encoded_array%0#0)
         (app_global_put "dyn" tmp%15#0)
         (app_global_put "num_payments" 0u)
-        let tmp%16#0: Encoded(uint8[32],uint64,uint64)[8) = (bzero 384u)
+        let tmp%16#0: Encoded((uint8[32],uint64,uint64)[8]) = (bzero 384u)
         (app_global_put "payments" tmp%16#0)
         goto block@2
     block@2: // after_if_else_L1
@@ -353,54 +353,48 @@ subroutine test_cases.mutable_native_types.contract.do_something(pay: Encoded(ui
 subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() -> void:
     block@0: // L91
         let arr_3#0: Encoded(uint64[3]) = (bzero 24u)
-        let array_item%0#0: Encoded(uint64) = arr_3#0[0u]
-        let tmp%1#0: uint64 = decode<uint64>(array_item%0#0)
         let encoded_value%0#0: Encoded(uint64) = encode<uint64>(0u)
-        let arr_3#1: Encoded(uint64[3]) = arr_3#0.update(0u, encoded_value%0#0)
-        let array_item%1#0: Encoded(uint64) = arr_3#1[1u]
-        let tmp%2#0: uint64 = decode<uint64>(array_item%1#0)
+        let arr_3#1: Encoded(uint64[3]) = arr_3#0.update((0u), encoded_value%0#0)
         let encoded_value%1#0: Encoded(uint64) = encode<uint64>(1u)
-        let arr_3#2: Encoded(uint64[3]) = arr_3#1.update(1u, encoded_value%1#0)
-        let array_item%2#0: Encoded(uint64) = arr_3#2[2u]
-        let tmp%3#0: uint64 = decode<uint64>(array_item%2#0)
+        let arr_3#2: Encoded(uint64[3]) = arr_3#1.update((1u), encoded_value%1#0)
         let encoded_value%2#0: Encoded(uint64) = encode<uint64>(2u)
-        let arr_3#3: Encoded(uint64[3]) = arr_3#2.update(2u, encoded_value%2#0)
+        let arr_3#3: Encoded(uint64[3]) = arr_3#2.update((2u), encoded_value%2#0)
         let arr_3_from_tuple#0: Encoded(uint64[3]) = encode<uint64[3]>(0u, 1u, 2u)
-        let tmp%4#0: bool = (== arr_3#3 arr_3_from_tuple#0)
-        (assert tmp%4#0) // should be the same
+        let tmp%1#0: bool = (== arr_3#3 arr_3_from_tuple#0)
+        (assert tmp%1#0) // should be the same
         let arr_3_from_full#0: Encoded(uint64[3]) = encode<uint64[3]>(1u, 1u, 1u)
-        let array_item%3#0: Encoded(uint64) = arr_3_from_full#0[0u]
-        let tmp%5#0: uint64 = decode<uint64>(array_item%3#0)
-        let tmp%6#0: bool = (== tmp%5#0 1u)
-        (assert tmp%6#0)
-        let array_item%4#0: Encoded(uint64) = arr_3_from_full#0[1u]
-        let tmp%7#0: uint64 = decode<uint64>(array_item%4#0)
-        let tmp%8#0: bool = (== tmp%7#0 1u)
-        (assert tmp%8#0)
-        let array_item%5#0: Encoded(uint64) = arr_3_from_full#0[2u]
-        let tmp%9#0: uint64 = decode<uint64>(array_item%5#0)
-        let tmp%10#0: bool = (== tmp%9#0 1u)
-        (assert tmp%10#0)
+        let array_item%0#0: Encoded(uint64) = arr_3_from_full#0[0u]
+        let values%0#0: uint64 = decode<uint64>(array_item%0#0)
+        let tmp%2#0: bool = (== values%0#0 1u)
+        (assert tmp%2#0)
+        let array_item%1#0: Encoded(uint64) = arr_3_from_full#0[1u]
+        let values%1#0: uint64 = decode<uint64>(array_item%1#0)
+        let tmp%3#0: bool = (== values%1#0 1u)
+        (assert tmp%3#0)
+        let array_item%2#0: Encoded(uint64) = arr_3_from_full#0[2u]
+        let values%2#0: uint64 = decode<uint64>(array_item%2#0)
+        let tmp%4#0: bool = (== values%2#0 1u)
+        (assert tmp%4#0)
         let dynamic_arr#0: Encoded(len+uint64[]) = encode<(len+uint64[])>(0u, 1u, 2u)
         let array_length%0#0: uint64 = (extract_uint16 dynamic_arr#0 0u)
         let eq%0#0: bool = (== array_length%0#0 3u)
         (assert eq%0#0) // invalid input length
         let converted_array%0#0: Encoded(uint64[3]) = ((extract 2 0) dynamic_arr#0)
-        let tmp%12#0: bool = (== arr_3#3 converted_array%0#0)
-        (assert tmp%12#0)
+        let tmp%6#0: bool = (== arr_3#3 converted_array%0#0)
+        (assert tmp%6#0)
         let awst_tmp%0#0: Encoded(uint64,uint64,uint64) = encode<(uint64,uint64,uint64)>(0u, 1u, 2u)
         let tuple_item%0#0: Encoded(uint64) = awst_tmp%0#0[0]
-        let values%0#0: uint64 = decode<uint64>(tuple_item%0#0)
+        let values%3#0: uint64 = decode<uint64>(tuple_item%0#0)
         let tuple_item%1#0: Encoded(uint64) = awst_tmp%0#0[1]
-        let values%1#0: uint64 = decode<uint64>(tuple_item%1#0)
+        let values%4#0: uint64 = decode<uint64>(tuple_item%1#0)
         let tuple_item%2#0: Encoded(uint64) = awst_tmp%0#0[2]
-        let values%2#0: uint64 = decode<uint64>(tuple_item%2#0)
-        let encoded_array%3#0: Encoded(uint64[3]) = encode<uint64[3]>(values%0#0, values%1#0, values%2#0)
-        let tmp%13#0: bool = (== arr_3#3 encoded_array%3#0)
-        (assert tmp%13#0)
+        let values%5#0: uint64 = decode<uint64>(tuple_item%2#0)
+        let encoded_array%3#0: Encoded(uint64[3]) = encode<uint64[3]>(values%3#0, values%4#0, values%5#0)
+        let tmp%7#0: bool = (== arr_3#3 encoded_array%3#0)
+        (assert tmp%7#0)
         let static_array#0: Encoded(uint64[3]) = encode<uint64[3]>(0x0000000000000000, 0x0000000000000001, 0x0000000000000002)
-        let tmp%14#0: bool = (== static_array#0 arr_3#3)
-        (assert tmp%14#0)
+        let tmp%8#0: bool = (== static_array#0 arr_3#3)
+        (assert tmp%8#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: Encoded(uint8[32],uint64,uint64)) -> void:
@@ -411,8 +405,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: En
         (assert tmp%0#0) // too many payments
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
-        let array_item%0#0: Encoded(uint8[32],uint64,uint64) = maybe_value%1#0[maybe_value%0#0]
-        let updated_array%0#0: bytes = maybe_value%1#0.update(maybe_value%0#0, pay#0)
+        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = maybe_value%1#0.update((maybe_value%0#0), pay#0)
         (app_global_put "payments" updated_array%0#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%3#0) // check self.num_payments exists
@@ -432,12 +425,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         let tuple_item%0#0: Encoded(uint64) = array_item%0#0[2]
         let values%0#0: uint64 = decode<uint64>(tuple_item%0#0)
         let tmp%1#0: uint64 = (+ values%0#0 amt#0)
-        let array_item%1#0: Encoded(uint8[32],uint64,uint64) = maybe_value%1#0[index#0]
-        let tuple_item%1#0: Encoded(uint64) = array_item%1#0[2]
-        let values%1#0: uint64 = decode<uint64>(tuple_item%1#0)
         let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%1#0)
-        let updated_tuple%0#0: Encoded(uint8[32],uint64,uint64) = array_item%1#0.update(2, encoded_value%0#0)
-        let updated_array%0#0: bytes = maybe_value%1#0.update(index#0, updated_tuple%0#0)
+        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = maybe_value%1#0.update((index#0, 2), encoded_value%0#0)
         (app_global_put "payments" updated_array%0#0)
         return 
 
@@ -457,8 +446,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.box_map entry exists
-        let tuple_item%1#0: Encoded(uint64,uint64) = maybe_value%3#0[0]
-        let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = maybe_value%3#0.update(0, tuple_item%0#0)
+        let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = maybe_value%3#0.update((0), tuple_item%0#0)
         (box_put box_prefixed_key%0#0 updated_tuple%0#0)
         return 
 
@@ -495,31 +483,26 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
     block@0: // L160
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let tuple_item%0#0: Encoded(uint64,uint64) = maybe_value%0#0[0]
-        let updated_tuple%0#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = maybe_value%0#0.update(0, a#0)
+        let updated_tuple%0#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = maybe_value%0#0.update((0), a#0)
         (app_global_put "nested" updated_tuple%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u 0x70)
         (assert maybe_exists%1#0) // check self.nested_proxy exists
-        let tuple_item%1#0: Encoded(uint64,uint64) = maybe_value%1#0[0]
-        let updated_tuple%1#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = maybe_value%1#0.update(0, a#0)
+        let updated_tuple%1#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = maybe_value%1#0.update((0), a#0)
         (app_global_put 0x70 updated_tuple%1#0)
         let tmp%0#0: account = (txn Sender)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%0#0 0u 0x6c)
         (assert maybe_exists%2#0) // check self.nested_local exists for account
-        let tuple_item%2#0: Encoded(uint64,uint64) = maybe_value%2#0[0]
-        let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = maybe_value%2#0.update(0, a#0)
+        let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = maybe_value%2#0.update((0), a#0)
         (app_local_put tmp%0#0 0x6c updated_tuple%2#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "box")
         (assert maybe_exists%3#0) // check self.box exists
-        let tuple_item%3#0: Encoded(uint64,uint64) = maybe_value%3#0[0]
-        let updated_tuple%3#0: Encoded((uint64,uint64),uint8[2048]) = maybe_value%3#0.update(0, a#0)
+        let updated_tuple%3#0: Encoded((uint64,uint64),uint8[2048]) = maybe_value%3#0.update((0), a#0)
         (box_put "box" updated_tuple%3#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%4#0) // check self.box_map entry exists
-        let tuple_item%4#0: Encoded(uint64,uint64) = maybe_value%4#0[0]
-        let updated_tuple%4#0: Encoded((uint64,uint64),uint8[2048]) = maybe_value%4#0.update(0, a#0)
+        let updated_tuple%4#0: Encoded((uint64,uint64),uint8[2048]) = maybe_value%4#0.update((0), a#0)
         (box_put box_prefixed_key%0#0 updated_tuple%4#0)
         return 
 

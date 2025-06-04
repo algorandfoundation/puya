@@ -475,36 +475,14 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array%encoded%84#1: bytes = (concat array%len_u16%12#1 array%encoded%83#1)
         let array%encoded%85#1: Encoded(len+(len+utf8[])[]) = (concat array%encoded%84#1 array%tail%17#1)
         let dynamic_string_array#3: Encoded(len+(len+utf8[])[]) = array%encoded%85#1
-        let array%array_head_and_tail%0#1: bytes = ((extract 2 0) dynamic_string_array#3)
         let array%array_length%0#1: uint64 = (extract_uint16 dynamic_string_array#3 0u)
         let array%lt%0#1: bool = (< 3u array%array_length%0#1)
         (assert array%lt%0#1) // index access is out of bounds
-        let array%item_offset_offset%0#1: uint64 = (* 3u 2u)
-        let array%item_offset%0#1: uint64 = (extract_uint16 array%array_head_and_tail%0#1 array%item_offset_offset%0#1)
-        let array%item_length%0#1: uint64 = (extract_uint16 array%array_head_and_tail%0#1 array%item_offset%0#1)
-        let array%item_length_in_bytes%0#1: uint64 = (* array%item_length%0#1 1u)
-        let array%item_head_tail_length%0#1: uint64 = (+ array%item_length_in_bytes%0#1 2u)
-        let array%item%0#1: bytes = (extract3 array%array_head_and_tail%0#1 array%item_offset%0#1 array%item_head_tail_length%0#1)
-        let array_item%0#0: Encoded(len+utf8[]) = array%item%0#1
-        let array%array_length%1#1: uint64 = (extract_uint16 dynamic_string_array#3 0u)
-        let array%lt%1#1: bool = (< 3u array%array_length%1#1)
-        (assert array%lt%1#1) // index access is out of bounds
         let array%updated_array%0#1: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#3, hello#0, 3u)
         let dynamic_string_array#4: Encoded(len+(len+utf8[])[]) = array%updated_array%0#1
-        let array%array_head_and_tail%1#1: bytes = ((extract 2 0) dynamic_string_array#4)
-        let array%array_length%2#1: uint64 = (extract_uint16 dynamic_string_array#4 0u)
-        let array%lt%2#1: bool = (< 5u array%array_length%2#1)
-        (assert array%lt%2#1) // index access is out of bounds
-        let array%item_offset_offset%1#1: uint64 = (* 5u 2u)
-        let array%item_offset%1#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 array%item_offset_offset%1#1)
-        let array%item_length%1#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 array%item_offset%1#1)
-        let array%item_length_in_bytes%1#1: uint64 = (* array%item_length%1#1 1u)
-        let array%item_head_tail_length%1#1: uint64 = (+ array%item_length_in_bytes%1#1 2u)
-        let array%item%1#1: bytes = (extract3 array%array_head_and_tail%1#1 array%item_offset%1#1 array%item_head_tail_length%1#1)
-        let array_item%1#0: Encoded(len+utf8[]) = array%item%1#1
-        let array%array_length%3#1: uint64 = (extract_uint16 dynamic_string_array#4 0u)
-        let array%lt%3#1: bool = (< 5u array%array_length%3#1)
-        (assert array%lt%3#1) // index access is out of bounds
+        let array%array_length%1#1: uint64 = (extract_uint16 dynamic_string_array#4 0u)
+        let array%lt%1#1: bool = (< 5u array%array_length%1#1)
+        (assert array%lt%1#1) // index access is out of bounds
         let array%updated_array%1#1: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#4, hello#0, 5u)
         let dynamic_string_array#5: Encoded(len+(len+utf8[])[]) = array%updated_array%1#1
         let array%tail%18#1: bytes = (concat 0x hello#0)
@@ -638,67 +616,50 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array_of_array#2: Encoded(len+(len+uint8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(array_of_array#1, tmp%3#3, 1u)
         let tmp%4#3: bool = (== array_of_array#2 0x00020004000700010a000110)
         (assert tmp%4#3)
-        let array%array_head_and_tail%2#1: bytes = ((extract 2 0) array_of_array#2)
-        let array%array_length%4#1: uint64 = (extract_uint16 array_of_array#2 0u)
-        let array%lt%4#1: bool = (< 0u array%array_length%4#1)
-        (assert array%lt%4#1) // index access is out of bounds
-        let array%item_offset_offset%2#1: uint64 = (* 0u 2u)
-        let array%item_offset%2#1: uint64 = (extract_uint16 array%array_head_and_tail%2#1 array%item_offset_offset%2#1)
-        let array%item_length%2#1: uint64 = (extract_uint16 array%array_head_and_tail%2#1 array%item_offset%2#1)
-        let array%item_length_in_bytes%2#1: uint64 = (* array%item_length%2#1 1u)
-        let array%item_head_tail_length%2#1: uint64 = (+ array%item_length_in_bytes%2#1 2u)
-        let array%item%2#1: bytes = (extract3 array%array_head_and_tail%2#1 array%item_offset%2#1 array%item_head_tail_length%2#1)
-        let array_item%0#1: Encoded(len+uint8[]) = array%item%2#1
+        let array%array_head_and_tail%0#1: bytes = ((extract 2 0) array_of_array#2)
+        let array%array_length%2#1: uint64 = (extract_uint16 array_of_array#2 0u)
+        let array%lt%2#1: bool = (< 0u array%array_length%2#1)
+        (assert array%lt%2#1) // index access is out of bounds
+        let array%item_offset_offset%0#1: uint64 = (* 0u 2u)
+        let array%item_offset%0#1: uint64 = (extract_uint16 array%array_head_and_tail%0#1 array%item_offset_offset%0#1)
+        let array%item_length%0#1: uint64 = (extract_uint16 array%array_head_and_tail%0#1 array%item_offset%0#1)
+        let array%item_length_in_bytes%0#1: uint64 = (* array%item_length%0#1 1u)
+        let array%item_head_tail_length%0#1: uint64 = (+ array%item_length_in_bytes%0#1 2u)
+        let array%item%0#1: bytes = (extract3 array%array_head_and_tail%0#1 array%item_offset%0#1 array%item_head_tail_length%0#1)
+        let array_item%0#0: Encoded(len+uint8[]) = array%item%0#1
         let array%encoded%112#1: Encoded(uint8) = (concat 0x 0xff)
         let array%encoded%113#1: Encoded(uint8[]) = (concat array%encoded%112#1 0x)
         let tmp%5#3: Encoded(uint8[]) = array%encoded%113#1
-        let concat%2#1: Encoded(len+uint8[]) = (concat array_item%0#1 tmp%5#3) // on error: max array length exceeded
-        let extract_uint16%0#1: uint64 = (extract_uint16 array_item%0#1 0u)
+        let concat%2#1: Encoded(len+uint8[]) = (concat array_item%0#0 tmp%5#3) // on error: max array length exceeded
+        let extract_uint16%0#1: uint64 = (extract_uint16 array_item%0#0 0u)
         let add%0#1: uint64 = (+ extract_uint16%0#1 1u)
         let as_bytes%0#1: bytes[8] = (itob add%0#1)
         let as_u16_bytes%0#1: bytes = ((extract 6 2) as_bytes%0#1)
         let replace%0#1: bytes = ((replace2 0) concat%2#1 as_u16_bytes%0#1)
-        let array%array_head_and_tail%3#1: bytes = ((extract 2 0) array_of_array#2)
-        let array%array_length%5#1: uint64 = (extract_uint16 array_of_array#2 0u)
-        let array%lt%5#1: bool = (< 0u array%array_length%5#1)
-        (assert array%lt%5#1) // index access is out of bounds
-        let array%item_offset_offset%3#1: uint64 = (* 0u 2u)
-        let array%item_offset%3#1: uint64 = (extract_uint16 array%array_head_and_tail%3#1 array%item_offset_offset%3#1)
-        let array%item_length%3#1: uint64 = (extract_uint16 array%array_head_and_tail%3#1 array%item_offset%3#1)
-        let array%item_length_in_bytes%3#1: uint64 = (* array%item_length%3#1 1u)
-        let array%item_head_tail_length%3#1: uint64 = (+ array%item_length_in_bytes%3#1 2u)
-        let array%item%3#1: bytes = (extract3 array%array_head_and_tail%3#1 array%item_offset%3#1 array%item_head_tail_length%3#1)
-        let array_item%1#1: Encoded(len+uint8[]) = array%item%3#1
-        let array%array_length%6#1: uint64 = (extract_uint16 array_of_array#2 0u)
-        let array%lt%6#1: bool = (< 0u array%array_length%6#1)
-        (assert array%lt%6#1) // index access is out of bounds
+        let array%array_length%3#1: uint64 = (extract_uint16 array_of_array#2 0u)
+        let array%lt%3#1: bool = (< 0u array%array_length%3#1)
+        (assert array%lt%3#1) // index access is out of bounds
         let array%updated_array%2#1: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#2, replace%0#1, 0u)
         let array_of_array#3: Encoded(len+(len+uint8[])[]) = array%updated_array%2#1
         let tmp%6#3: bool = (== array_of_array#3 0x00020004000800020aff000110)
         (assert tmp%6#3)
-        let array%array_head_and_tail%4#1: bytes = ((extract 2 0) array_of_array#3)
-        let array%array_length%7#1: uint64 = (extract_uint16 array_of_array#3 0u)
-        let array%lt%7#1: bool = (< 0u array%array_length%7#1)
-        (assert array%lt%7#1) // index access is out of bounds
-        let array%item_offset_offset%4#1: uint64 = (* 0u 2u)
-        let array%item_offset%4#1: uint64 = (extract_uint16 array%array_head_and_tail%4#1 array%item_offset_offset%4#1)
-        let array%item_length%4#1: uint64 = (extract_uint16 array%array_head_and_tail%4#1 array%item_offset%4#1)
-        let array%item_length_in_bytes%4#1: uint64 = (* array%item_length%4#1 1u)
-        let array%item_head_tail_length%4#1: uint64 = (+ array%item_length_in_bytes%4#1 2u)
-        let array%item%4#1: bytes = (extract3 array%array_head_and_tail%4#1 array%item_offset%4#1 array%item_head_tail_length%4#1)
-        let array_item%2#0: Encoded(len+uint8[]) = array%item%4#1
-        let array%array_trimmed%0#1: bytes = ((extract 2 0) array_item%2#0)
-        let array%bytes_offset%0#1: uint64 = (* 1u 1u)
-        let array%encoded_element%0#1: bytes = (extract3 array%array_trimmed%0#1 array%bytes_offset%0#1 1u) // on error: index access is out of bounds
-        let array_item%3#0: Encoded(uint8) = array%encoded_element%0#1
+        let array%array_head_and_tail%1#1: bytes = ((extract 2 0) array_of_array#3)
+        let array%array_length%4#1: uint64 = (extract_uint16 array_of_array#3 0u)
+        let array%lt%4#1: bool = (< 0u array%array_length%4#1)
+        (assert array%lt%4#1) // index access is out of bounds
+        let array%item_offset_offset%1#1: uint64 = (* 0u 2u)
+        let array%item_offset%1#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 array%item_offset_offset%1#1)
+        let array%item_length%1#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 array%item_offset%1#1)
+        let array%item_length_in_bytes%1#1: uint64 = (* array%item_length%1#1 1u)
+        let array%item_head_tail_length%1#1: uint64 = (+ array%item_length_in_bytes%1#1 2u)
+        let array%item%1#1: bytes = (extract3 array%array_head_and_tail%1#1 array%item_offset%1#1 array%item_head_tail_length%1#1)
         let array%write_offset%0#1: uint64 = (* 1u 1u)
         let array%write_offset_with_length_header%0#1: uint64 = (+ array%write_offset%0#1 2u)
-        let array%updated_array%3#1: bytes = (replace3 array_item%2#0 array%write_offset_with_length_header%0#1 0x00)
-        let updated_array%1#1: Encoded(len+uint8[]) = array%updated_array%3#1
-        let array%array_length%8#1: uint64 = (extract_uint16 array_of_array#3 0u)
-        let array%lt%8#1: bool = (< 0u array%array_length%8#1)
-        (assert array%lt%8#1) // index access is out of bounds
-        let array%updated_array%4#1: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#3, updated_array%1#1, 0u)
+        let array%updated_array%3#1: bytes = (replace3 array%item%1#1 array%write_offset_with_length_header%0#1 0x00)
+        let array%array_length%5#1: uint64 = (extract_uint16 array_of_array#3 0u)
+        let array%lt%5#1: bool = (< 0u array%array_length%5#1)
+        (assert array%lt%5#1) // index access is out of bounds
+        let array%updated_array%4#1: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(array_of_array#3, array%updated_array%3#1, 0u)
         let array_of_array#4: Encoded(len+(len+uint8[])[]) = array%updated_array%4#1
         let tmp%7#3: bool = (== array_of_array#4 0x00020004000800020a00000110)
         (assert tmp%7#3)
@@ -720,25 +681,17 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array%encoded%124#1: Encoded(uint8,uint8) = (concat array%encoded%123#1 0xfe)
         let array%encoded%125#1: Encoded(uint8[2]) = (concat array%encoded%124#1 0x)
         let encoded_array%3#3: Encoded(uint8[2]) = array%encoded%125#1
-        let array%bytes_offset%1#1: uint64 = (* 0u 2u)
-        let array%encoded_element%1#1: bytes = (extract3 array_of_array#5 array%bytes_offset%1#1 2u) // on error: index access is out of bounds
-        let array_item%0#2: Encoded(uint8[2]) = array%encoded_element%1#1
         let array%write_offset%1#1: uint64 = (* 0u 2u)
         let array%updated_array%5#1: bytes = (replace3 array_of_array#5 array%write_offset%1#1 encoded_array%3#3)
         let array_of_array#6: Encoded(uint8[2][2]) = array%updated_array%5#1
         let tmp%1#4: bool = (== array_of_array#6 0xfffe4080)
         (assert tmp%1#4)
-        let array%bytes_offset%2#1: uint64 = (* 1u 2u)
-        let array%encoded_element%2#1: bytes = (extract3 array_of_array#6 array%bytes_offset%2#1 2u) // on error: index access is out of bounds
-        let array_item%1#2: Encoded(uint8[2]) = array%encoded_element%2#1
-        let array%bytes_offset%3#1: uint64 = (* 0u 1u)
-        let array%encoded_element%3#1: bytes = (extract3 array_item%1#2 array%bytes_offset%3#1 1u) // on error: index access is out of bounds
-        let array_item%2#1: Encoded(uint8) = array%encoded_element%3#1
+        let array%bytes_offset%0#1: uint64 = (* 1u 2u)
+        let array%encoded_element%0#1: bytes = (extract3 array_of_array#6 array%bytes_offset%0#1 2u) // on error: index access is out of bounds
         let array%write_offset%2#1: uint64 = (* 0u 1u)
-        let array%updated_array%6#1: bytes = (replace3 array_item%1#2 array%write_offset%2#1 0x01)
-        let updated_array%1#2: Encoded(uint8[2]) = array%updated_array%6#1
+        let array%updated_array%6#1: bytes = (replace3 array%encoded_element%0#1 array%write_offset%2#1 0x01)
         let array%write_offset%3#1: uint64 = (* 1u 2u)
-        let array%updated_array%7#1: bytes = (replace3 array_of_array#6 array%write_offset%3#1 updated_array%1#2)
+        let array%updated_array%7#1: bytes = (replace3 array_of_array#6 array%write_offset%3#1 array%updated_array%6#1)
         let array_of_array#7: Encoded(uint8[2][2]) = array%updated_array%7#1
         let tmp%2#4: bool = (== array_of_array#7 0xfffe0180)
         (assert tmp%2#4)
@@ -749,10 +702,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array%encoded%128#1: bytes = (concat array%len_u16%18#1 array%encoded%127#1)
         let array%encoded%129#1: Encoded(len+uint8[]) = (concat array%encoded%128#1 0x)
         let dynamic_uint8_array#5: Encoded(len+uint8[]) = array%encoded%129#1
-        let array%array_trimmed%1#1: bytes = ((extract 2 0) dynamic_uint8_array#5)
-        let array%bytes_offset%4#1: uint64 = (* 0u 1u)
-        let array%encoded_element%4#1: bytes = (extract3 array%array_trimmed%1#1 array%bytes_offset%4#1 1u) // on error: index access is out of bounds
-        let array_item%0#3: Encoded(uint8) = array%encoded_element%4#1
         let array%write_offset%4#1: uint64 = (* 0u 1u)
         let array%write_offset_with_length_header%1#1: uint64 = (+ array%write_offset%4#1 2u)
         let array%updated_array%8#1: bytes = (replace3 dynamic_uint8_array#5 array%write_offset_with_length_header%1#1 0xff)
@@ -763,9 +712,6 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array%encoded%131#1: Encoded(uint8,uint8) = (concat array%encoded%130#1 0x02)
         let array%encoded%132#1: Encoded(uint8[2]) = (concat array%encoded%131#1 0x)
         let static_uint8_array#0: Encoded(uint8[2]) = array%encoded%132#1
-        let array%bytes_offset%5#1: uint64 = (* 1u 1u)
-        let array%encoded_element%5#1: bytes = (extract3 static_uint8_array#0 array%bytes_offset%5#1 1u) // on error: index access is out of bounds
-        let array_item%1#3: Encoded(uint8) = array%encoded_element%5#1
         let array%write_offset%5#1: uint64 = (* 1u 1u)
         let array%updated_array%9#1: bytes = (replace3 static_uint8_array#0 array%write_offset%5#1 0xff)
         let static_uint8_array#1: Encoded(uint8[2]) = array%updated_array%9#1
@@ -788,52 +734,38 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array%encoded_bool%37#1: bytes[1] = (setbit 0x00 0u 0u)
         let array%as_Encoded(bool8)%37#1: Encoded(bool8) = array%encoded_bool%37#1
         let tmp%4#4: Encoded(bool8) = array%as_Encoded(bool8)%37#1
-        let array%array_length%9#1: uint64 = (extract_uint16 dynamic_bool_array#6 0u)
-        let array%lt%9#1: bool = (< 0u array%array_length%9#1)
-        (assert array%lt%9#1) // index access is out of bounds
-        let array%array_trimmed%2#1: bytes = ((extract 2 0) dynamic_bool_array#6)
-        let array%is_true%0#1: bool = (getbit array%array_trimmed%2#1 0u)
-        let array_item%2#2: bool = array%is_true%0#1
-        let array%encoded_bool%38#1: bytes[1] = (setbit 0x00 0u array_item%2#2)
-        let tmp%5#4: Encoded(bool8) = array%encoded_bool%38#1
-        let array%array_length%10#1: uint64 = (extract_uint16 dynamic_bool_array#6 0u)
-        let array%lt%10#1: bool = (< 0u array%array_length%10#1)
-        (assert array%lt%10#1) // index access is out of bounds
+        let array%array_length%6#1: uint64 = (extract_uint16 dynamic_bool_array#6 0u)
+        let array%lt%6#1: bool = (< 0u array%array_length%6#1)
+        (assert array%lt%6#1) // index access is out of bounds
         let array%write_offset_with_length_header%2#1: uint64 = (+ 0u 16u)
         let array%get_bit%26#1: uint64 = (getbit tmp%4#4 0u)
         let array%updated_target%0#1: Encoded(len+bool1[]) = (setbit dynamic_bool_array#6 array%write_offset_with_length_header%2#1 array%get_bit%26#1)
         let dynamic_bool_array#7: Encoded(len+bool1[]) = array%updated_target%0#1
-        let tmp%6#4: bool = (== dynamic_bool_array#7 0x000200)
-        (assert tmp%6#4)
+        let tmp%5#4: bool = (== dynamic_bool_array#7 0x000200)
+        (assert tmp%5#4)
+        let array%encoded_bool%38#1: bytes[1] = (setbit 0x00 0u 1u)
+        let array%as_Encoded(bool8)%38#1: Encoded(bool8) = array%encoded_bool%38#1
+        let tmp%6#4: Encoded(bool8) = array%as_Encoded(bool8)%38#1
         let array%encoded_bool%39#1: bytes[1] = (setbit 0x00 0u 1u)
-        let array%as_Encoded(bool8)%38#1: Encoded(bool8) = array%encoded_bool%39#1
-        let tmp%7#4: Encoded(bool8) = array%as_Encoded(bool8)%38#1
-        let array%encoded_bool%40#1: bytes[1] = (setbit 0x00 0u 1u)
-        let array%as_Encoded(bool8)%39#1: Encoded(bool8) = array%encoded_bool%40#1
-        let tmp%8#3: Encoded(bool8) = array%as_Encoded(bool8)%39#1
-        let array%encoded%136#1: Encoded(bool1) = (concat 0x tmp%7#4)
-        let array%get_bit%27#1: uint64 = (getbit tmp%8#3 0u)
+        let array%as_Encoded(bool8)%39#1: Encoded(bool8) = array%encoded_bool%39#1
+        let tmp%7#4: Encoded(bool8) = array%as_Encoded(bool8)%39#1
+        let array%encoded%136#1: Encoded(bool1) = (concat 0x tmp%6#4)
+        let array%get_bit%27#1: uint64 = (getbit tmp%7#4 0u)
         let array%set_bit%26#1: Encoded(bool1) = (setbit array%encoded%136#1 1u array%get_bit%27#1)
         let array%encoded%137#1: Encoded(bool1[2]) = (concat array%set_bit%26#1 0x)
         let static_bool_array#0: Encoded(bool1[2]) = array%encoded%137#1
-        let array%encoded_bool%41#1: bytes[1] = (setbit 0x00 0u 0u)
-        let array%as_Encoded(bool8)%40#1: Encoded(bool8) = array%encoded_bool%41#1
-        let tmp%9#2: Encoded(bool8) = array%as_Encoded(bool8)%40#1
-        let array%lt%11#1: bool = (< 1u 2u)
-        (assert array%lt%11#1) // index access is out of bounds
-        let array%is_true%1#1: bool = (getbit static_bool_array#0 1u)
-        let array_item%3#1: bool = array%is_true%1#1
-        let array%encoded_bool%42#1: bytes[1] = (setbit 0x00 0u array_item%3#1)
-        let tmp%10#2: Encoded(bool8) = array%encoded_bool%42#1
-        let array%lt%12#1: bool = (< 1u 2u)
-        (assert array%lt%12#1) // index access is out of bounds
-        let array%get_bit%28#1: uint64 = (getbit tmp%9#2 0u)
+        let array%encoded_bool%40#1: bytes[1] = (setbit 0x00 0u 0u)
+        let array%as_Encoded(bool8)%40#1: Encoded(bool8) = array%encoded_bool%40#1
+        let tmp%8#3: Encoded(bool8) = array%as_Encoded(bool8)%40#1
+        let array%lt%7#1: bool = (< 1u 2u)
+        (assert array%lt%7#1) // index access is out of bounds
+        let array%get_bit%28#1: uint64 = (getbit tmp%8#3 0u)
         let array%updated_target%1#1: Encoded(bool1[2]) = (setbit static_bool_array#0 1u array%get_bit%28#1)
         let static_bool_array#1: Encoded(bool1[2]) = array%updated_target%1#1
-        let tmp%11#2: bool = (== static_bool_array#1 0x80)
-        (assert tmp%11#2)
-        let array%encoded_bool%43#1: bytes[1] = (setbit 0x00 0u 1u)
-        let array%as_Encoded(bool8)%41#1: Encoded(bool8) = array%encoded_bool%43#1
+        let tmp%9#2: bool = (== static_bool_array#1 0x80)
+        (assert tmp%9#2)
+        let array%encoded_bool%41#1: bytes[1] = (setbit 0x00 0u 1u)
+        let array%as_Encoded(bool8)%41#1: Encoded(bool8) = array%encoded_bool%41#1
         let tmp%0#6: Encoded(bool8) = array%as_Encoded(bool8)%41#1
         let array%length%4#1: uint64 = (len 0x4861707079)
         let array%as_bytes%56#1: bytes[8] = (itob array%length%4#1)
@@ -863,22 +795,16 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array%encoded%141#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (concat array%encoded%140#1 array%offset_as_uint16%33#1)
         let array%encoded%142#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (concat array%encoded%141#1 array%tail%33#1)
         let test_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = array%encoded%142#1
-        let array%encoded_bool%44#1: bytes[1] = (setbit 0x00 0u 0u)
-        let array%as_Encoded(bool8)%42#1: Encoded(bool8) = array%encoded_bool%44#1
+        let array%encoded_bool%42#1: bytes[1] = (setbit 0x00 0u 0u)
+        let array%as_Encoded(bool8)%42#1: Encoded(bool8) = array%encoded_bool%42#1
         let tmp%2#6: Encoded(bool8) = array%as_Encoded(bool8)%42#1
-        let array%get_bit%29#1: uint64 = (getbit test_struct#0 0u)
-        let tuple_item%0#0: bool = array%get_bit%29#1
-        let array%encoded_bool%45#1: bytes[1] = (setbit 0x00 0u tuple_item%0#0)
-        let values%0#0: Encoded(bool8) = array%encoded_bool%45#1
-        let array%is_true%2#1: uint64 = (getbit tmp%2#6 0u)
-        let array%updated_data%0#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (setbit test_struct#0 0u array%is_true%2#1)
+        let array%is_true%0#1: uint64 = (getbit tmp%2#6 0u)
+        let array%updated_data%0#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (setbit test_struct#0 0u array%is_true%0#1)
         let test_struct#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = array%updated_data%0#1
-        let array%extract%0#1: bytes = (extract3 test_struct#1 1u 1u)
-        let tuple_item%1#0: Encoded(uint8) = array%extract%0#1
         let array%updated_data%1#1: bytes = (replace3 test_struct#1 1u 0x0c)
         let test_struct#2: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = array%updated_data%1#1
-        let array%encoded_bool%46#1: bytes[1] = (setbit 0x00 0u 0u)
-        let array%as_Encoded(bool8)%43#1: Encoded(bool8) = array%encoded_bool%46#1
+        let array%encoded_bool%43#1: bytes[1] = (setbit 0x00 0u 0u)
+        let array%as_Encoded(bool8)%43#1: Encoded(bool8) = array%encoded_bool%43#1
         let tmp%3#5: Encoded(bool8) = array%as_Encoded(bool8)%43#1
         let array%length%6#1: uint64 = (len 0x4861707079)
         let array%as_bytes%60#1: bytes[8] = (itob array%length%6#1)
@@ -916,22 +842,18 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array%encoded_value%8#1: bytes = (concat array%length_uint16%8#1 0x486d6d6d6d)
         let array%as_Encoded(len+utf8[])%8#1: Encoded(len+utf8[]) = array%encoded_value%8#1
         let encoded%4#0: Encoded(len+utf8[]) = array%as_Encoded(len+utf8[])%8#1
-        let array%extract_uint16%0#1: uint64 = (extract_uint16 test_struct#2 2u)
-        let array%extract_uint16%1#1: uint64 = (extract_uint16 test_struct#2 4u)
-        let array%substring3%0#1: bytes = (substring3 test_struct#2 array%extract_uint16%0#1 array%extract_uint16%1#1)
-        let tuple_item%2#0: Encoded(len+utf8[]) = array%substring3%0#1
-        let array%item_offset%5#1: uint64 = (extract_uint16 test_struct#2 2u)
-        let array%data_up_to_item%0#1: bytes = (extract3 test_struct#2 0u array%item_offset%5#1)
+        let array%item_offset%2#1: uint64 = (extract_uint16 test_struct#2 2u)
+        let array%data_up_to_item%0#1: bytes = (extract3 test_struct#2 0u array%item_offset%2#1)
         let array%next_item_offset%0#1: uint64 = (extract_uint16 test_struct#2 4u)
         let array%total_data_length%0#1: uint64 = (len test_struct#2)
         let array%data_beyond_item%0#1: bytes = (substring3 test_struct#2 array%next_item_offset%0#1 array%total_data_length%0#1)
         let array%updated_data%2#1: bytes = (concat array%data_up_to_item%0#1 encoded%4#0)
         let array%updated_data%3#1: bytes = (concat array%updated_data%2#1 array%data_beyond_item%0#1)
-        let array%item_length%5#1: uint64 = (- array%next_item_offset%0#1 array%item_offset%5#1)
+        let array%item_length%2#1: uint64 = (- array%next_item_offset%0#1 array%item_offset%2#1)
         let array%new_value_length%0#1: uint64 = (len encoded%4#0)
         let array%tail_offset%0#1: uint64 = (extract_uint16 array%updated_data%3#1 4u)
         let array%tail_offset%1#1: uint64 = (+ array%tail_offset%0#1 array%new_value_length%0#1)
-        let array%tail_offset%2#1: uint64 = (- array%tail_offset%1#1 array%item_length%5#1)
+        let array%tail_offset%2#1: uint64 = (- array%tail_offset%1#1 array%item_length%2#1)
         let array%as_bytes%65#1: bytes[8] = (itob array%tail_offset%2#1)
         let array%tail_offset_bytes%0#1: bytes = ((extract 6 2) array%as_bytes%65#1)
         let array%updated_data%4#1: bytes = (replace3 array%updated_data%3#1 4u array%tail_offset_bytes%0#1)
@@ -942,16 +864,12 @@ main test_cases.arc4_types.mutation.Arc4MutationContract.approval_program:
         let array%encoded_value%9#1: bytes = (concat array%length_uint16%9#1 0x4f682077656c6c)
         let array%as_Encoded(len+utf8[])%9#1: Encoded(len+utf8[]) = array%encoded_value%9#1
         let encoded%5#0: Encoded(len+utf8[]) = array%as_Encoded(len+utf8[])%9#1
-        let array%extract_uint16%2#1: uint64 = (extract_uint16 test_struct#3 4u)
-        let array%len%0#1: uint64 = (len test_struct#3)
-        let array%substring3%1#1: bytes = (substring3 test_struct#3 array%extract_uint16%2#1 array%len%0#1)
-        let tuple_item%3#0: Encoded(len+utf8[]) = array%substring3%1#1
-        let array%item_offset%6#1: uint64 = (extract_uint16 test_struct#3 4u)
-        let array%data_up_to_item%1#1: bytes = (extract3 test_struct#3 0u array%item_offset%6#1)
+        let array%item_offset%3#1: uint64 = (extract_uint16 test_struct#3 4u)
+        let array%data_up_to_item%1#1: bytes = (extract3 test_struct#3 0u array%item_offset%3#1)
         let array%updated_data%5#1: bytes = (concat array%data_up_to_item%1#1 encoded%5#0)
         let test_struct#4: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = array%updated_data%5#1
-        let array%encoded_bool%47#1: bytes[1] = (setbit 0x00 0u 0u)
-        let array%as_Encoded(bool8)%44#1: Encoded(bool8) = array%encoded_bool%47#1
+        let array%encoded_bool%44#1: bytes[1] = (setbit 0x00 0u 0u)
+        let array%as_Encoded(bool8)%44#1: Encoded(bool8) = array%encoded_bool%44#1
         let tmp%6#5: Encoded(bool8) = array%as_Encoded(bool8)%44#1
         let array%length%10#1: uint64 = (len 0x486d6d6d6d)
         let array%as_bytes%67#1: bytes[8] = (itob array%length%10#1)
