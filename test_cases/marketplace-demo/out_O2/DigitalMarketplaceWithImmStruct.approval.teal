@@ -1,0 +1,799 @@
+#pragma version 10
+#pragma typetrack false
+
+// marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 1 0 48 56 50500
+    bytecblock 0x6c697374696e6773
+    intc_1 // 0
+    dupn 4
+    pushbytes ""
+    dupn 5
+    txn ApplicationID
+    bnz main_after_if_else@2
+    pushbytes "init"
+    log
+
+main_after_if_else@2:
+    txn NumAppArgs
+    bz main_bare_routing@21
+    pushbytess 0xd98ef6a9 0x56efcfb5 0x12f08c98 0x9b4b8234 0x5a05bc57 0x162fc232 0xcbc819e5 0x824d4bad 0xdd619204 // method "getListingsMbr()uint64", method "allowAsset(pay,asset)void", method "firstDeposit(pay,axfer,uint64,uint64)void", method "deposit(axfer,uint64)void", method "setPrice(asset,uint64,uint64)void", method "buy(account,asset,uint64,pay,uint64)void", method "withdraw(asset,uint64)void", method "bid(account,asset,uint64,pay,uint64,uint64)void", method "acceptBid(asset,uint64)void"
+    txna ApplicationArgs 0
+    match main_getListingsMbr_route@5 main_allowAsset_route@6 main_firstDeposit_route@7 main_deposit_route@8 main_setPrice_route@9 main_buy_route@10 main_withdraw_route@11 main_bid_route@14 main_acceptBid_route@17
+
+main_after_if_else@23:
+    intc_1 // 0
+    return
+
+main_acceptBid_route@17:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    dup
+    bury 7
+    txna ApplicationArgs 2
+    btoi
+    txn Sender
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    bury 9
+    box_get
+    swap
+    dup
+    cover 2
+    bury 9
+    assert // check self.listings entry exists
+    dup
+    extract 16 32
+    dup
+    bury 11
+    global ZeroAddress
+    !=
+    assert
+    dup
+    intc_1 // 0
+    extract_uint64
+    dup
+    cover 2
+    bury 4
+    intc_2 // 48
+    extract_uint64
+    dup
+    bury 3
+    <
+    bz main_ternary_false@19
+    dig 1
+
+main_ternary_merge@20:
+    dig 7
+    dup
+    intc_3 // 56
+    extract_uint64
+    dig 8
+    dup
+    cover 2
+    asset_params_get AssetDecimals
+    assert // asset exists
+    dig 1
+    uncover 5
+    dup
+    cover 3
+    mulw
+    pushint 10 // 10
+    uncover 3
+    expw
+    divmodw
+    popn 2
+    swap
+    !
+    assert
+    itxn_begin
+    txn Sender
+    itxn_field Receiver
+    itxn_field Amount
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    dup
+    itxn_field AssetAmount
+    dig 12
+    dup
+    cover 2
+    itxn_field AssetReceiver
+    uncover 3
+    itxn_field XferAsset
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    uncover 3
+    pushint 8 // 8
+    extract_uint64
+    dig 5
+    dig 2
+    -
+    dig 5
+    uncover 3
+    -
+    swap
+    itob
+    uncover 2
+    itob
+    concat
+    uncover 2
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    dig 8
+    swap
+    box_put
+    intc_0 // 1
+    return
+
+main_ternary_false@19:
+    dup
+    b main_ternary_merge@20
+
+main_bid_route@14:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    dup
+    bury 8
+    txna ApplicationArgs 3
+    btoi
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    bury 9
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 4
+    btoi
+    bury 7
+    txna ApplicationArgs 5
+    btoi
+    bury 6
+    swap
+    itob
+    uncover 2
+    swap
+    concat
+    swap
+    itob
+    concat
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    bury 9
+    box_get
+    swap
+    dup
+    cover 2
+    bury 9
+    assert // check self.listings entry exists
+    extract 16 32
+    dup
+    bury 11
+    global ZeroAddress
+    !=
+    bz main_after_if_else@16
+    dig 6
+    dup
+    intc_3 // 56
+    extract_uint64
+    dig 4
+    dig 1
+    >
+    assert
+    swap
+    intc_2 // 48
+    extract_uint64
+    dig 7
+    asset_params_get AssetDecimals
+    assert // asset exists
+    cover 2
+    mulw
+    pushint 10 // 10
+    uncover 3
+    expw
+    divmodw
+    popn 2
+    swap
+    !
+    assert
+    itxn_begin
+    itxn_field Amount
+    dig 9
+    itxn_field Receiver
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+
+main_after_if_else@16:
+    dig 5
+    asset_params_get AssetDecimals
+    assert // asset exists
+    dig 3
+    dup
+    cover 2
+    dig 6
+    dup
+    cover 3
+    mulw
+    pushint 10 // 10
+    uncover 3
+    expw
+    divmodw
+    popn 2
+    swap
+    !
+    assert
+    dig 7
+    dup
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    dup
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    gtxns Amount
+    ==
+    assert
+    dig 8
+    dup
+    intc_1 // 0
+    extract_uint64
+    swap
+    pushint 8 // 8
+    extract_uint64
+    txn Sender
+    uncover 2
+    itob
+    uncover 2
+    itob
+    concat
+    swap
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    dig 8
+    swap
+    box_put
+    intc_0 // 1
+    return
+
+main_withdraw_route@11:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    dup
+    bury 7
+    txna ApplicationArgs 2
+    btoi
+    txn Sender
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    bury 9
+    box_get
+    swap
+    dup
+    cover 2
+    bury 9
+    assert // check self.listings entry exists
+    extract 16 32
+    dup
+    bury 12
+    global ZeroAddress
+    !=
+    bz main_after_if_else@13
+    dig 6
+    dup
+    intc_2 // 48
+    extract_uint64
+    swap
+    intc_3 // 56
+    extract_uint64
+    dig 7
+    asset_params_get AssetDecimals
+    assert // asset exists
+    swap
+    uncover 2
+    mulw
+    pushint 10 // 10
+    uncover 3
+    expw
+    divmodw
+    popn 2
+    swap
+    !
+    assert
+    itxn_begin
+    itxn_field Amount
+    dig 10
+    itxn_field Receiver
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+
+main_after_if_else@13:
+    dig 7
+    box_del
+    pop
+    itxn_begin
+    txn Sender
+    intc 4 // 50500
+    itxn_field Amount
+    itxn_field Receiver
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn_begin
+    txn Sender
+    dig 7
+    intc_1 // 0
+    extract_uint64
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    dig 5
+    itxn_field XferAsset
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_0 // 1
+    return
+
+main_buy_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    txna ApplicationArgs 3
+    btoi
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 4
+    btoi
+    dig 3
+    itob
+    dig 5
+    swap
+    concat
+    uncover 3
+    itob
+    concat
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    box_get
+    assert // check self.listings entry exists
+    dup
+    pushint 8 // 8
+    extract_uint64
+    dig 5
+    asset_params_get AssetDecimals
+    assert // asset exists
+    dig 1
+    dig 5
+    mulw
+    pushint 10 // 10
+    uncover 3
+    expw
+    divmodw
+    popn 2
+    swap
+    !
+    assert
+    dig 5
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    dig 5
+    gtxns Receiver
+    uncover 8
+    ==
+    assert
+    uncover 5
+    gtxns Amount
+    ==
+    assert
+    dig 1
+    intc_2 // 48
+    extract_uint64
+    dig 2
+    intc_3 // 56
+    extract_uint64
+    dig 3
+    extract 16 32
+    uncover 4
+    intc_1 // 0
+    extract_uint64
+    dig 6
+    -
+    itob
+    uncover 4
+    itob
+    concat
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    box_put
+    itxn_begin
+    txn Sender
+    itxn_field AssetReceiver
+    itxn_field AssetAmount
+    itxn_field XferAsset
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_0 // 1
+    return
+
+main_setPrice_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    txn Sender
+    uncover 3
+    itob
+    concat
+    uncover 2
+    itob
+    concat
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    box_get
+    assert // check self.listings entry exists
+    dup
+    intc_2 // 48
+    extract_uint64
+    dig 1
+    intc_3 // 56
+    extract_uint64
+    dig 2
+    extract 16 32
+    uncover 3
+    intc_1 // 0
+    extract_uint64
+    itob
+    uncover 5
+    itob
+    concat
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    box_put
+    intc_0 // 1
+    return
+
+main_deposit_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    pushint 4 // axfer
+    ==
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
+    btoi
+    txn Sender
+    dig 2
+    gtxns XferAsset
+    itob
+    concat
+    swap
+    itob
+    concat
+    dig 1
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    dig 1
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    swap
+    gtxns AssetAmount
+    dup
+    assert
+    bytec_0 // 0x6c697374696e6773
+    uncover 2
+    concat
+    dup
+    box_get
+    assert // check self.listings entry exists
+    dup
+    intc_2 // 48
+    extract_uint64
+    dig 1
+    intc_3 // 56
+    extract_uint64
+    dig 2
+    extract 16 32
+    dig 3
+    pushint 8 // 8
+    extract_uint64
+    uncover 4
+    intc_1 // 0
+    extract_uint64
+    uncover 6
+    +
+    itob
+    swap
+    itob
+    concat
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    box_put
+    intc_0 // 1
+    return
+
+main_firstDeposit_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txn GroupIndex
+    pushint 2 // 2
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    pushint 4 // axfer
+    ==
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    dig 3
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    dig 3
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    uncover 3
+    gtxns Amount
+    intc 4 // 50500
+    ==
+    assert
+    txn Sender
+    dig 3
+    gtxns XferAsset
+    itob
+    concat
+    swap
+    itob
+    concat
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    !
+    assert
+    dig 2
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    dig 2
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    uncover 2
+    gtxns AssetAmount
+    dup
+    assert
+    global ZeroAddress
+    swap
+    itob
+    uncover 3
+    itob
+    concat
+    swap
+    concat
+    intc_1 // 0
+    itob
+    swap
+    dig 1
+    concat
+    swap
+    concat
+    box_put
+    intc_0 // 1
+    return
+
+main_allowAsset_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    global CurrentApplicationAddress
+    dig 1
+    asset_holding_get AssetBalance
+    bury 1
+    !
+    assert
+    dig 1
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    swap
+    gtxns Amount
+    global AssetOptInMinBalance
+    ==
+    assert
+    itxn_begin
+    global CurrentApplicationAddress
+    intc_1 // 0
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    intc_0 // 1
+    return
+
+main_getListingsMbr_route@5:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c75000000000000c544
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@21:
+    txn OnCompletion
+    bnz main_after_if_else@23
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return

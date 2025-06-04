@@ -1,0 +1,1327 @@
+#pragma version 10
+#pragma typetrack false
+
+// marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 1 0 4 48 50500
+    bytecblock 0x6c697374696e6773
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // marketplace-demo/marketplace_with_mutable_struct.py:19
+    // log("init")
+    pushbytes "init"
+    log
+
+main_after_if_else@2:
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@14
+    pushbytess 0xd98ef6a9 0x56efcfb5 0x12f08c98 0x9b4b8234 0x5a05bc57 0x162fc232 0xcbc819e5 0x824d4bad 0xdd619204 // method "getListingsMbr()uint64", method "allowAsset(pay,asset)void", method "firstDeposit(pay,axfer,uint64,uint64)void", method "deposit(axfer,uint64)void", method "setPrice(asset,uint64,uint64)void", method "buy(account,asset,uint64,pay,uint64)void", method "withdraw(asset,uint64)void", method "bid(account,asset,uint64,pay,uint64,uint64)void", method "acceptBid(asset,uint64)void"
+    txna ApplicationArgs 0
+    match main_getListingsMbr_route@5 main_allowAsset_route@6 main_firstDeposit_route@7 main_deposit_route@8 main_setPrice_route@9 main_buy_route@10 main_withdraw_route@11 main_bid_route@12 main_acceptBid_route@13
+
+main_after_if_else@16:
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    intc_1 // 0
+    return
+
+main_acceptBid_route@13:
+    // marketplace-demo/marketplace_with_mutable_struct.py:235
+    // @arc4.abimethod(name="acceptBid")
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    // marketplace-demo/marketplace_with_mutable_struct.py:235
+    // @arc4.abimethod(name="acceptBid")
+    callsub accept_bid
+    intc_0 // 1
+    return
+
+main_bid_route@12:
+    // marketplace-demo/marketplace_with_mutable_struct.py:197
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    txna ApplicationArgs 3
+    btoi
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 4
+    btoi
+    txna ApplicationArgs 5
+    btoi
+    // marketplace-demo/marketplace_with_mutable_struct.py:197
+    // @arc4.abimethod
+    callsub bid
+    intc_0 // 1
+    return
+
+main_withdraw_route@11:
+    // marketplace-demo/marketplace_with_mutable_struct.py:170
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    // marketplace-demo/marketplace_with_mutable_struct.py:170
+    // @arc4.abimethod
+    callsub withdraw
+    intc_0 // 1
+    return
+
+main_buy_route@10:
+    // marketplace-demo/marketplace_with_mutable_struct.py:136
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    txna ApplicationArgs 3
+    btoi
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 4
+    btoi
+    // marketplace-demo/marketplace_with_mutable_struct.py:136
+    // @arc4.abimethod
+    callsub buy
+    intc_0 // 1
+    return
+
+main_setPrice_route@9:
+    // marketplace-demo/marketplace_with_mutable_struct.py:119
+    // @arc4.abimethod(name="setPrice")
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    // marketplace-demo/marketplace_with_mutable_struct.py:119
+    // @arc4.abimethod(name="setPrice")
+    callsub set_price
+    intc_0 // 1
+    return
+
+main_deposit_route@8:
+    // marketplace-demo/marketplace_with_mutable_struct.py:98
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_2 // axfer
+    ==
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
+    btoi
+    // marketplace-demo/marketplace_with_mutable_struct.py:98
+    // @arc4.abimethod
+    callsub deposit
+    intc_0 // 1
+    return
+
+main_firstDeposit_route@7:
+    // marketplace-demo/marketplace_with_mutable_struct.py:73
+    // @arc4.abimethod(name="firstDeposit")
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txn GroupIndex
+    pushint 2 // 2
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_2 // axfer
+    ==
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    // marketplace-demo/marketplace_with_mutable_struct.py:73
+    // @arc4.abimethod(name="firstDeposit")
+    callsub first_deposit
+    intc_0 // 1
+    return
+
+main_allowAsset_route@6:
+    // marketplace-demo/marketplace_with_mutable_struct.py:60
+    // @arc4.abimethod(name="allowAsset")
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    // marketplace-demo/marketplace_with_mutable_struct.py:60
+    // @arc4.abimethod(name="allowAsset")
+    callsub allow_asset
+    intc_0 // 1
+    return
+
+main_getListingsMbr_route@5:
+    // marketplace-demo/marketplace_with_mutable_struct.py:56
+    // @arc4.abimethod(readonly=True, name="getListingsMbr")
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c75000000000000c544
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@14:
+    // marketplace-demo/marketplace_with_mutable_struct.py:17
+    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@16
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset(mbr_pay: uint64, asset: uint64) -> void:
+allow_asset:
+    // marketplace-demo/marketplace_with_mutable_struct.py:60-61
+    // @arc4.abimethod(name="allowAsset")
+    // def allow_asset(self, mbr_pay: gtxn.PaymentTransaction, asset: Asset) -> None:
+    proto 2 0
+    // marketplace-demo/marketplace_with_mutable_struct.py:62
+    // assert not Global.current_application_address.is_opted_in(asset)
+    global CurrentApplicationAddress
+    frame_dig -1
+    asset_holding_get AssetBalance
+    bury 1
+    !
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:64
+    // assert mbr_pay.receiver == Global.current_application_address
+    frame_dig -2
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:65
+    // assert mbr_pay.amount == Global.asset_opt_in_min_balance
+    frame_dig -2
+    gtxns Amount
+    global AssetOptInMinBalance
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:67-71
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=Global.current_application_address,
+    //     asset_amount=0
+    // ).submit()
+    itxn_begin
+    // marketplace-demo/marketplace_with_mutable_struct.py:69
+    // asset_receiver=Global.current_application_address,
+    global CurrentApplicationAddress
+    // marketplace-demo/marketplace_with_mutable_struct.py:70
+    // asset_amount=0
+    intc_1 // 0
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    frame_dig -1
+    itxn_field XferAsset
+    // marketplace-demo/marketplace_with_mutable_struct.py:67
+    // itxn.AssetTransfer(
+    intc_2 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // marketplace-demo/marketplace_with_mutable_struct.py:67-71
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=Global.current_application_address,
+    //     asset_amount=0
+    // ).submit()
+    itxn_submit
+    retsub
+
+
+// marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit(mbr_pay: uint64, xfer: uint64, unitary_price: uint64, nonce: uint64) -> void:
+first_deposit:
+    // marketplace-demo/marketplace_with_mutable_struct.py:73-74
+    // @arc4.abimethod(name="firstDeposit")
+    // def first_deposit(self, mbr_pay: gtxn.PaymentTransaction, xfer: gtxn.AssetTransferTransaction, unitary_price: UInt64, nonce: UInt64) -> None:
+    proto 4 0
+    // marketplace-demo/marketplace_with_mutable_struct.py:75
+    // assert mbr_pay.sender == Txn.sender
+    frame_dig -4
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:76
+    // assert mbr_pay.receiver == Global.current_application_address
+    frame_dig -4
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:77
+    // assert mbr_pay.amount == self.listings_box_mbr()
+    frame_dig -4
+    gtxns Amount
+    // marketplace-demo/marketplace_with_mutable_struct.py:24-40
+    // return UInt64 (
+    //     2_500 +
+    //     # fmt: off
+    //     # Key length
+    //     (8 +
+    //         32 +
+    //         8 +
+    //         8 +
+    //         # Value length
+    //         8 +
+    //         8 +
+    //         32 +
+    //         8 +
+    //         8) *
+    //     # fmt: on
+    //     400
+    // )
+    intc 4 // 50500
+    // marketplace-demo/marketplace_with_mutable_struct.py:77
+    // assert mbr_pay.amount == self.listings_box_mbr()
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:80
+    // owner=Txn.sender,
+    txn Sender
+    // marketplace-demo/marketplace_with_mutable_struct.py:81
+    // asset=xfer.xfer_asset.id,
+    frame_dig -3
+    gtxns XferAsset
+    // marketplace-demo/marketplace_with_mutable_struct.py:79-83
+    // key = ListingKey(
+    //     owner=Txn.sender,
+    //     asset=xfer.xfer_asset.id,
+    //     nonce=nonce
+    // )
+    itob
+    concat
+    frame_dig -1
+    itob
+    concat
+    // marketplace-demo/marketplace_with_mutable_struct.py:84
+    // assert not key in self.listings
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    !
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:86
+    // assert xfer.sender == Txn.sender
+    frame_dig -3
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:87
+    // assert xfer.asset_receiver == Global.current_application_address
+    frame_dig -3
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:88
+    // assert xfer.asset_amount > 0
+    frame_dig -3
+    gtxns AssetAmount
+    dup
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:93
+    // bidder=Account(),
+    global ZeroAddress
+    // marketplace-demo/marketplace_with_mutable_struct.py:90-96
+    // self.listings[key] = ListingValue(
+    //     deposited=xfer.asset_amount,
+    //     unitaryPrice=unitary_price,
+    //     bidder=Account(),
+    //     bid=UInt64(),
+    //     bidUnitaryPrice=UInt64()
+    // )
+    swap
+    itob
+    frame_dig -2
+    itob
+    concat
+    swap
+    concat
+    // marketplace-demo/marketplace_with_mutable_struct.py:94
+    // bid=UInt64(),
+    intc_1 // 0
+    // marketplace-demo/marketplace_with_mutable_struct.py:90-96
+    // self.listings[key] = ListingValue(
+    //     deposited=xfer.asset_amount,
+    //     unitaryPrice=unitary_price,
+    //     bidder=Account(),
+    //     bid=UInt64(),
+    //     bidUnitaryPrice=UInt64()
+    // )
+    itob
+    swap
+    dig 1
+    concat
+    swap
+    concat
+    box_put
+    retsub
+
+
+// marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit(xfer: uint64, nonce: uint64) -> void:
+deposit:
+    // marketplace-demo/marketplace_with_mutable_struct.py:98-99
+    // @arc4.abimethod
+    // def deposit(self, xfer: gtxn.AssetTransferTransaction, nonce: UInt64) -> None:
+    proto 2 0
+    // marketplace-demo/marketplace_with_mutable_struct.py:101
+    // owner=Txn.sender,
+    txn Sender
+    // marketplace-demo/marketplace_with_mutable_struct.py:102
+    // asset=xfer.xfer_asset.id,
+    frame_dig -2
+    gtxns XferAsset
+    // marketplace-demo/marketplace_with_mutable_struct.py:100-104
+    // key = ListingKey(
+    //     owner=Txn.sender,
+    //     asset=xfer.xfer_asset.id,
+    //     nonce=nonce
+    // )
+    itob
+    concat
+    frame_dig -1
+    itob
+    concat
+    // marketplace-demo/marketplace_with_mutable_struct.py:106
+    // assert xfer.sender == Txn.sender
+    frame_dig -2
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:107
+    // assert xfer.asset_receiver == Global.current_application_address
+    frame_dig -2
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:108
+    // assert xfer.asset_amount > 0
+    frame_dig -2
+    gtxns AssetAmount
+    dup
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:110
+    // existing = self.listings[key].copy() # only mutable structs are copied
+    bytec_0 // 0x6c697374696e6773
+    uncover 2
+    concat
+    dup
+    box_get
+    assert // check self.listings entry exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:112
+    // bid=existing.bid,
+    dup
+    intc_3 // 48
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:113
+    // bidUnitaryPrice=existing.bidUnitaryPrice,
+    dig 1
+    pushint 56 // 56
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:114
+    // bidder=existing.bidder,
+    dig 2
+    extract 16 32
+    // marketplace-demo/marketplace_with_mutable_struct.py:115
+    // unitaryPrice=existing.unitaryPrice,
+    dig 3
+    pushint 8 // 8
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:116
+    // deposited=existing.deposited + xfer.asset_amount
+    uncover 4
+    intc_1 // 0
+    extract_uint64
+    uncover 6
+    +
+    // marketplace-demo/marketplace_with_mutable_struct.py:111-117
+    // self.listings[key] = ListingValue(
+    //     bid=existing.bid,
+    //     bidUnitaryPrice=existing.bidUnitaryPrice,
+    //     bidder=existing.bidder,
+    //     unitaryPrice=existing.unitaryPrice,
+    //     deposited=existing.deposited + xfer.asset_amount
+    // )
+    itob
+    swap
+    itob
+    concat
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    box_put
+    retsub
+
+
+// marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price(asset: uint64, nonce: uint64, unitary_price: uint64) -> void:
+set_price:
+    // marketplace-demo/marketplace_with_mutable_struct.py:119-120
+    // @arc4.abimethod(name="setPrice")
+    // def set_price(self, asset: Asset, nonce: UInt64, unitary_price: UInt64) -> None:
+    proto 3 0
+    // marketplace-demo/marketplace_with_mutable_struct.py:122
+    // owner=Txn.sender,
+    txn Sender
+    // marketplace-demo/marketplace_with_mutable_struct.py:121-125
+    // key = ListingKey(
+    //     owner=Txn.sender,
+    //     asset=asset.id,
+    //     nonce=nonce
+    // )
+    frame_dig -3
+    itob
+    concat
+    frame_dig -2
+    itob
+    concat
+    // marketplace-demo/marketplace_with_mutable_struct.py:127
+    // existing = self.listings[key].copy()
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    box_get
+    assert // check self.listings entry exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:129
+    // bid=existing.bid,
+    dup
+    intc_3 // 48
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:130
+    // bidUnitaryPrice=existing.bidUnitaryPrice,
+    dig 1
+    pushint 56 // 56
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:131
+    // bidder=existing.bidder,
+    dig 2
+    extract 16 32
+    // marketplace-demo/marketplace_with_mutable_struct.py:132
+    // deposited=existing.deposited,
+    uncover 3
+    intc_1 // 0
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:128-134
+    // self.listings[key] = ListingValue(
+    //     bid=existing.bid,
+    //     bidUnitaryPrice=existing.bidUnitaryPrice,
+    //     bidder=existing.bidder,
+    //     deposited=existing.deposited,
+    //     unitaryPrice=unitary_price
+    // )
+    itob
+    frame_dig -1
+    itob
+    concat
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    box_put
+    retsub
+
+
+// marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy(owner: bytes, asset: uint64, nonce: uint64, buy_pay: uint64, quantity: uint64) -> void:
+buy:
+    // marketplace-demo/marketplace_with_mutable_struct.py:136-137
+    // @arc4.abimethod
+    // def buy(self, owner: Account, asset: Asset, nonce: UInt64, buy_pay: gtxn.PaymentTransaction, quantity: UInt64) -> None:
+    proto 5 0
+    // marketplace-demo/marketplace_with_mutable_struct.py:138-142
+    // key = ListingKey(
+    //     owner=owner,
+    //     asset=asset.id,
+    //     nonce=nonce
+    // )
+    frame_dig -4
+    itob
+    frame_dig -5
+    swap
+    concat
+    frame_dig -3
+    itob
+    concat
+    // marketplace-demo/marketplace_with_mutable_struct.py:144
+    // listing = self.listings[key].copy()
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    box_get
+    assert // check self.listings entry exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:148
+    // listing.unitaryPrice,
+    dup
+    pushint 8 // 8
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:149
+    // asset.decimals
+    frame_dig -4
+    asset_params_get AssetDecimals
+    assert // asset exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:44
+    // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
+    dig 1
+    frame_dig -1
+    mulw
+    // marketplace-demo/marketplace_with_mutable_struct.py:45
+    // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
+    pushint 10 // 10
+    uncover 3
+    expw
+    // marketplace-demo/marketplace_with_mutable_struct.py:46-51
+    // _quotient_high, amount_to_be_paid, _remainder_high, _remainder_low = op.divmodw(
+    //     amount_not_scaled_high,
+    //     amount_not_scaled_low,
+    //     scaling_factor_high,
+    //     scaling_factor_low
+    // )
+    divmodw
+    popn 2
+    swap
+    // marketplace-demo/marketplace_with_mutable_struct.py:52
+    // assert _quotient_high == 0
+    !
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:152
+    // assert buy_pay.sender == Txn.sender
+    frame_dig -2
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:153
+    // assert buy_pay.receiver == owner
+    frame_dig -2
+    gtxns Receiver
+    frame_dig -5
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:154
+    // assert buy_pay.amount == amount_to_be_paid
+    frame_dig -2
+    gtxns Amount
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:157
+    // bid=listing.bid,
+    dig 1
+    intc_3 // 48
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:158
+    // bidUnitaryPrice=listing.bidUnitaryPrice,
+    dig 2
+    pushint 56 // 56
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:159
+    // bidder=listing.bidder,
+    dig 3
+    extract 16 32
+    // marketplace-demo/marketplace_with_mutable_struct.py:161
+    // deposited=listing.deposited - quantity
+    uncover 4
+    intc_1 // 0
+    extract_uint64
+    frame_dig -1
+    -
+    // marketplace-demo/marketplace_with_mutable_struct.py:156-162
+    // self.listings[key] = ListingValue(
+    //     bid=listing.bid,
+    //     bidUnitaryPrice=listing.bidUnitaryPrice,
+    //     bidder=listing.bidder,
+    //     unitaryPrice=listing.unitaryPrice,
+    //     deposited=listing.deposited - quantity
+    // )
+    itob
+    uncover 4
+    itob
+    concat
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    box_put
+    // marketplace-demo/marketplace_with_mutable_struct.py:164-168
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=Txn.sender,
+    //     asset_amount=quantity
+    // ).submit()
+    itxn_begin
+    // marketplace-demo/marketplace_with_mutable_struct.py:166
+    // asset_receiver=Txn.sender,
+    txn Sender
+    frame_dig -1
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    frame_dig -4
+    itxn_field XferAsset
+    // marketplace-demo/marketplace_with_mutable_struct.py:164
+    // itxn.AssetTransfer(
+    intc_2 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // marketplace-demo/marketplace_with_mutable_struct.py:164-168
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=Txn.sender,
+    //     asset_amount=quantity
+    // ).submit()
+    itxn_submit
+    retsub
+
+
+// marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw(asset: uint64, nonce: uint64) -> void:
+withdraw:
+    // marketplace-demo/marketplace_with_mutable_struct.py:170-171
+    // @arc4.abimethod
+    // def withdraw(self, asset: Asset, nonce: UInt64) -> None:
+    proto 2 0
+    // marketplace-demo/marketplace_with_mutable_struct.py:173
+    // owner=Txn.sender,
+    txn Sender
+    // marketplace-demo/marketplace_with_mutable_struct.py:172-176
+    // key = ListingKey(
+    //     owner=Txn.sender,
+    //     asset=asset.id,
+    //     nonce=nonce
+    // )
+    frame_dig -2
+    itob
+    concat
+    frame_dig -1
+    itob
+    concat
+    // marketplace-demo/marketplace_with_mutable_struct.py:178
+    // listing = self.listings[key].copy()
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    box_get
+    swap
+    dup
+    uncover 2
+    assert // check self.listings entry exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:179
+    // if listing.bidder != Account():
+    extract 16 32
+    dup
+    global ZeroAddress
+    !=
+    bz withdraw_after_if_else@3
+    // marketplace-demo/marketplace_with_mutable_struct.py:181
+    // listing.bid,
+    frame_dig 1
+    dup
+    intc_3 // 48
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:182
+    // listing.bidUnitaryPrice,
+    swap
+    pushint 56 // 56
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:183
+    // asset.decimals
+    frame_dig -2
+    asset_params_get AssetDecimals
+    assert // asset exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:44
+    // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
+    swap
+    uncover 2
+    mulw
+    // marketplace-demo/marketplace_with_mutable_struct.py:45
+    // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
+    pushint 10 // 10
+    uncover 3
+    expw
+    // marketplace-demo/marketplace_with_mutable_struct.py:46-51
+    // _quotient_high, amount_to_be_paid, _remainder_high, _remainder_low = op.divmodw(
+    //     amount_not_scaled_high,
+    //     amount_not_scaled_low,
+    //     scaling_factor_high,
+    //     scaling_factor_low
+    // )
+    divmodw
+    popn 2
+    swap
+    // marketplace-demo/marketplace_with_mutable_struct.py:52
+    // assert _quotient_high == 0
+    !
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:185
+    // itxn.Payment(receiver=listing.bidder, amount=current_bid_deposit).submit()
+    itxn_begin
+    itxn_field Amount
+    frame_dig 2
+    itxn_field Receiver
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+
+withdraw_after_if_else@3:
+    // marketplace-demo/marketplace_with_mutable_struct.py:187
+    // del self.listings[key]
+    frame_dig 0
+    box_del
+    pop
+    // marketplace-demo/marketplace_with_mutable_struct.py:189
+    // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
+    itxn_begin
+    txn Sender
+    // marketplace-demo/marketplace_with_mutable_struct.py:24-40
+    // return UInt64 (
+    //     2_500 +
+    //     # fmt: off
+    //     # Key length
+    //     (8 +
+    //         32 +
+    //         8 +
+    //         8 +
+    //         # Value length
+    //         8 +
+    //         8 +
+    //         32 +
+    //         8 +
+    //         8) *
+    //     # fmt: on
+    //     400
+    // )
+    intc 4 // 50500
+    itxn_field Amount
+    itxn_field Receiver
+    // marketplace-demo/marketplace_with_mutable_struct.py:189
+    // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    // marketplace-demo/marketplace_with_mutable_struct.py:191-195
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=Txn.sender,
+    //     asset_amount=listing.deposited
+    // ).submit()
+    itxn_begin
+    // marketplace-demo/marketplace_with_mutable_struct.py:193
+    // asset_receiver=Txn.sender,
+    txn Sender
+    // marketplace-demo/marketplace_with_mutable_struct.py:194
+    // asset_amount=listing.deposited
+    frame_dig 1
+    intc_1 // 0
+    extract_uint64
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    frame_dig -2
+    itxn_field XferAsset
+    // marketplace-demo/marketplace_with_mutable_struct.py:191
+    // itxn.AssetTransfer(
+    intc_2 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // marketplace-demo/marketplace_with_mutable_struct.py:191-195
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=Txn.sender,
+    //     asset_amount=listing.deposited
+    // ).submit()
+    itxn_submit
+    retsub
+
+
+// marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid(owner: bytes, asset: uint64, nonce: uint64, bid_pay: uint64, quantity: uint64, unitary_price: uint64) -> void:
+bid:
+    // marketplace-demo/marketplace_with_mutable_struct.py:197-198
+    // @arc4.abimethod
+    // def bid(self, owner: Account, asset: Asset, nonce: UInt64, bid_pay: gtxn.PaymentTransaction, quantity: UInt64, unitary_price: UInt64) -> None:
+    proto 6 0
+    // marketplace-demo/marketplace_with_mutable_struct.py:199-203
+    // key = ListingKey(
+    //     owner=owner,
+    //     asset=asset.id,
+    //     nonce=nonce
+    // )
+    frame_dig -5
+    itob
+    frame_dig -6
+    swap
+    concat
+    frame_dig -4
+    itob
+    concat
+    // marketplace-demo/marketplace_with_mutable_struct.py:205
+    // listing = self.listings[key].copy()
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    box_get
+    swap
+    dup
+    uncover 2
+    assert // check self.listings entry exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:206
+    // if listing.bidder != Account():
+    extract 16 32
+    dup
+    global ZeroAddress
+    !=
+    bz bid_after_if_else@3
+    // marketplace-demo/marketplace_with_mutable_struct.py:207
+    // assert unitary_price > listing.bidUnitaryPrice
+    frame_dig 1
+    dup
+    pushint 56 // 56
+    extract_uint64
+    frame_dig -1
+    dig 1
+    >
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:210
+    // listing.bid,
+    swap
+    intc_3 // 48
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:212
+    // asset.decimals
+    frame_dig -5
+    asset_params_get AssetDecimals
+    assert // asset exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:44
+    // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
+    cover 2
+    mulw
+    // marketplace-demo/marketplace_with_mutable_struct.py:45
+    // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
+    pushint 10 // 10
+    uncover 3
+    expw
+    // marketplace-demo/marketplace_with_mutable_struct.py:46-51
+    // _quotient_high, amount_to_be_paid, _remainder_high, _remainder_low = op.divmodw(
+    //     amount_not_scaled_high,
+    //     amount_not_scaled_low,
+    //     scaling_factor_high,
+    //     scaling_factor_low
+    // )
+    divmodw
+    popn 2
+    swap
+    // marketplace-demo/marketplace_with_mutable_struct.py:52
+    // assert _quotient_high == 0
+    !
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:215
+    // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
+    itxn_begin
+    itxn_field Amount
+    frame_dig 2
+    itxn_field Receiver
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+
+bid_after_if_else@3:
+    // marketplace-demo/marketplace_with_mutable_struct.py:220
+    // asset.decimals
+    frame_dig -5
+    asset_params_get AssetDecimals
+    assert // asset exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:44
+    // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
+    frame_dig -1
+    frame_dig -2
+    mulw
+    // marketplace-demo/marketplace_with_mutable_struct.py:45
+    // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
+    pushint 10 // 10
+    uncover 3
+    expw
+    // marketplace-demo/marketplace_with_mutable_struct.py:46-51
+    // _quotient_high, amount_to_be_paid, _remainder_high, _remainder_low = op.divmodw(
+    //     amount_not_scaled_high,
+    //     amount_not_scaled_low,
+    //     scaling_factor_high,
+    //     scaling_factor_low
+    // )
+    divmodw
+    popn 2
+    swap
+    // marketplace-demo/marketplace_with_mutable_struct.py:52
+    // assert _quotient_high == 0
+    !
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:223
+    // assert bid_pay.sender == Txn.sender
+    frame_dig -3
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:224
+    // assert bid_pay.receiver == Global.current_application_address
+    frame_dig -3
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:225
+    // assert bid_pay.amount == amount_to_be_bid
+    frame_dig -3
+    gtxns Amount
+    ==
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:228
+    // deposited=listing.deposited,
+    frame_dig 1
+    dup
+    intc_1 // 0
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:229
+    // unitaryPrice=listing.unitaryPrice,
+    swap
+    pushint 8 // 8
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:230
+    // bidder=Txn.sender,
+    txn Sender
+    // marketplace-demo/marketplace_with_mutable_struct.py:227-233
+    // self.listings[key] = ListingValue(
+    //     deposited=listing.deposited,
+    //     unitaryPrice=listing.unitaryPrice,
+    //     bidder=Txn.sender,
+    //     bid=quantity,
+    //     bidUnitaryPrice=unitary_price
+    // )
+    uncover 2
+    itob
+    uncover 2
+    itob
+    concat
+    swap
+    concat
+    frame_dig -2
+    itob
+    concat
+    frame_dig -1
+    itob
+    concat
+    frame_dig 0
+    swap
+    box_put
+    retsub
+
+
+// marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid(asset: uint64, nonce: uint64) -> void:
+accept_bid:
+    // marketplace-demo/marketplace_with_mutable_struct.py:235-236
+    // @arc4.abimethod(name="acceptBid")
+    // def accept_bid(self, asset: Asset, nonce: UInt64) -> None:
+    proto 2 0
+    // marketplace-demo/marketplace_with_mutable_struct.py:238
+    // owner=Txn.sender,
+    txn Sender
+    // marketplace-demo/marketplace_with_mutable_struct.py:237-241
+    // key = ListingKey(
+    //     owner=Txn.sender,
+    //     asset=asset.id,
+    //     nonce=nonce
+    // )
+    frame_dig -2
+    itob
+    concat
+    frame_dig -1
+    itob
+    concat
+    // marketplace-demo/marketplace_with_mutable_struct.py:243
+    // listing = self.listings[key].copy()
+    bytec_0 // 0x6c697374696e6773
+    swap
+    concat
+    dup
+    box_get
+    swap
+    dup
+    uncover 2
+    assert // check self.listings entry exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:244
+    // assert listing.bidder != Account()
+    dup
+    extract 16 32
+    dup
+    cover 2
+    global ZeroAddress
+    !=
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:246
+    // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
+    dup
+    intc_1 // 0
+    extract_uint64
+    dup
+    uncover 2
+    intc_3 // 48
+    extract_uint64
+    dup
+    cover 2
+    <
+    bz accept_bid_ternary_false@2
+    frame_dig 3
+
+accept_bid_ternary_merge@3:
+    // marketplace-demo/marketplace_with_mutable_struct.py:250
+    // listing.bidUnitaryPrice,
+    frame_dig 1
+    dup
+    pushint 56 // 56
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:251
+    // asset.decimals
+    frame_dig -2
+    asset_params_get AssetDecimals
+    assert // asset exists
+    // marketplace-demo/marketplace_with_mutable_struct.py:44
+    // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
+    dig 1
+    uncover 4
+    dup
+    cover 3
+    mulw
+    // marketplace-demo/marketplace_with_mutable_struct.py:45
+    // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
+    pushint 10 // 10
+    uncover 3
+    expw
+    // marketplace-demo/marketplace_with_mutable_struct.py:46-51
+    // _quotient_high, amount_to_be_paid, _remainder_high, _remainder_low = op.divmodw(
+    //     amount_not_scaled_high,
+    //     amount_not_scaled_low,
+    //     scaling_factor_high,
+    //     scaling_factor_low
+    // )
+    divmodw
+    popn 2
+    swap
+    // marketplace-demo/marketplace_with_mutable_struct.py:52
+    // assert _quotient_high == 0
+    !
+    assert
+    // marketplace-demo/marketplace_with_mutable_struct.py:254
+    // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
+    itxn_begin
+    txn Sender
+    itxn_field Receiver
+    itxn_field Amount
+    intc_0 // pay
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    // marketplace-demo/marketplace_with_mutable_struct.py:256-260
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=listing.bidder,
+    //     asset_amount=min_quantity
+    // ).submit()
+    itxn_begin
+    dup
+    itxn_field AssetAmount
+    frame_dig 2
+    dup
+    cover 2
+    itxn_field AssetReceiver
+    frame_dig -2
+    itxn_field XferAsset
+    // marketplace-demo/marketplace_with_mutable_struct.py:256
+    // itxn.AssetTransfer(
+    intc_2 // axfer
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // marketplace-demo/marketplace_with_mutable_struct.py:256-260
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=listing.bidder,
+    //     asset_amount=min_quantity
+    // ).submit()
+    itxn_submit
+    // marketplace-demo/marketplace_with_mutable_struct.py:265
+    // unitaryPrice=listing.unitaryPrice,
+    uncover 3
+    pushint 8 // 8
+    extract_uint64
+    // marketplace-demo/marketplace_with_mutable_struct.py:266
+    // deposited=listing.deposited - min_quantity,
+    frame_dig 3
+    dig 2
+    -
+    // marketplace-demo/marketplace_with_mutable_struct.py:267
+    // bid=listing.bid - min_quantity
+    frame_dig 4
+    uncover 3
+    -
+    // marketplace-demo/marketplace_with_mutable_struct.py:262-268
+    // self.listings[key] = ListingValue(
+    //     bidder=listing.bidder,
+    //     bidUnitaryPrice=listing.bidUnitaryPrice,
+    //     unitaryPrice=listing.unitaryPrice,
+    //     deposited=listing.deposited - min_quantity,
+    //     bid=listing.bid - min_quantity
+    // )
+    swap
+    itob
+    uncover 2
+    itob
+    concat
+    uncover 2
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    frame_dig 0
+    swap
+    box_put
+    retsub
+
+accept_bid_ternary_false@2:
+    frame_dig 4
+    b accept_bid_ternary_merge@3
