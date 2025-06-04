@@ -1051,6 +1051,10 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
     ) -> list[_SourceAction]:
         return self._empty_actions_from_wtype(expr)
 
+    @typing.override
+    def visit_convert_array(self, expr: awst_nodes.ConvertArray) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
     # endregion
 
 
