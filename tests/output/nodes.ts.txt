@@ -280,6 +280,18 @@ export class ARC4Decode extends Expression {
      return visitor.visitARC4Decode(this)
    }
 }
+export class ConvertArray extends Expression {
+  constructor(props: Props<ConvertArray>) {
+    super(props)
+    this.expr = props.expr
+    this.wtype = props.wtype
+  }
+  readonly expr: Expression
+  readonly wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray
+  accept<T>(visitor: ExpressionVisitor<T>): T {
+     return visitor.visitConvertArray(this)
+   }
+}
 export class Copy extends Expression {
   constructor(props: Props<Copy>) {
     super(props)
@@ -1478,6 +1490,7 @@ export const concreteNodes = {
   addressConstant: AddressConstant,
   aRC4Encode: ARC4Encode,
   aRC4Decode: ARC4Decode,
+  convertArray: ConvertArray,
   copy: Copy,
   arrayConcat: ArrayConcat,
   arrayExtend: ArrayExtend,
@@ -1590,6 +1603,7 @@ export interface ExpressionVisitor<T> {
   visitAddressConstant(expression: AddressConstant): T
   visitARC4Encode(expression: ARC4Encode): T
   visitARC4Decode(expression: ARC4Decode): T
+  visitConvertArray(expression: ConvertArray): T
   visitCopy(expression: Copy): T
   visitArrayConcat(expression: ArrayConcat): T
   visitArrayExtend(expression: ArrayExtend): T
