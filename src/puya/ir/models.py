@@ -480,37 +480,27 @@ class ArrayWriteIndex(_ArrayOp):
 
 
 @attrs.define(eq=False, kw_only=True)
-class _TupleOp(Op, ValueProvider):
-    tuple_encoding: TupleEncoding = attrs.field()
+class _AggregateOp(Op, ValueProvider):
+    aggregate_encoding: TupleEncoding | ArrayEncoding = attrs.field()
     base: Value = attrs.field()
-    indexes: Sequence[int] = attrs.field(
-        validator=attrs.validators.min_len(1), converter=tuple[int, ...]
+    indexes: Sequence[int | Value] = attrs.field(
+        validator=attrs.validators.min_len(1), converter=tuple[int | Value, ...]
     )
     element_encoding: Encoding = attrs.field(init=False)
 
     @element_encoding.default
     def _element_encoding_factory(self) -> Encoding:
-        tup_encoding = self.tuple_encoding
-        last_i = len(self.indexes) - 1
-        element_encoding = None
-        for i, index in enumerate(self.indexes):
-            element_encoding = tup_encoding.elements[index]
-            # can only handle nested tuple indices currently
-            if isinstance(element_encoding, TupleEncoding):
-                tup_encoding = element_encoding
-            elif i == last_i:
-                # last index can be any encoding
-                pass
-            else:
-                # invalid index sequence
-                raise InternalError("invalid index sequence", self.source_location)
-        if element_encoding is None:
-            raise InternalError("invalid index sequence", self.source_location)
-        return element_encoding
+        from puya.ir._utils import get_aggregate_element_encoding
+
+        return get_aggregate_element_encoding(
+            self.aggregate_encoding, self.indexes, self.source_location
+        )
 
 
 @attrs.define(eq=False)
-class TupleReadIndex(_TupleOp):
+class AggregateReadIndex(_AggregateOp):
+    check_bounds: bool
+
     @property
     def types(self) -> Sequence[IRType]:
         if self.element_encoding.is_bit:
@@ -519,25 +509,25 @@ class TupleReadIndex(_TupleOp):
             return (EncodedType(self.element_encoding),)
 
     def _frozen_data(self) -> object:
-        return self.tuple_encoding, self.base, self.indexes
+        return self.aggregate_encoding, self.base, self.indexes
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_tuple_read_index(self)
+        return visitor.visit_aggregate_read_index(self)
 
 
 @attrs.define(eq=False)
-class TupleWriteIndex(_TupleOp):
+class AggregateWriteIndex(_AggregateOp):
     value: Value
 
     def _frozen_data(self) -> object:
-        return self.tuple_encoding, self.base, self.indexes, self.value
+        return self.aggregate_encoding, self.base, self.indexes, self.value
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (EncodedType(self.tuple_encoding),)
+        return (EncodedType(self.aggregate_encoding),)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_tuple_write_index(self)
+        return visitor.visit_aggregate_write_index(self)
 
 
 @attrs.define(eq=False)
