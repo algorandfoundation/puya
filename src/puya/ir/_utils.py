@@ -1,11 +1,16 @@
 from collections import deque
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.ir import models
+from puya.errors import InternalError
+from puya.ir import (
+    models,
+    models as ir,
+)
+from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
 from puya.ir.models import Parameter, Subroutine
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
@@ -68,3 +73,34 @@ def _expand_tuple_parameters(
             ),
             source_location=source_location,
         )
+
+
+def get_aggregate_element_encoding(
+    aggregate_encoding: TupleEncoding | ArrayEncoding,
+    indexes: Sequence[int | ir.Value],
+    loc: SourceLocation | None,
+) -> Encoding:
+    last_i = len(indexes) - 1
+    element_encoding = None
+    for i, index in enumerate(indexes):
+        if isinstance(aggregate_encoding, TupleEncoding) and isinstance(index, int):
+            element_encoding = aggregate_encoding.elements[index]
+        elif isinstance(aggregate_encoding, ArrayEncoding):
+            element_encoding = aggregate_encoding.element
+        else:
+            raise InternalError(
+                f"invalid index sequence: {aggregate_encoding=!s}, {index=!s}", loc
+            )
+        if i == last_i:
+            # last index is the only one that doesn't need to be an aggregate
+            pass
+        elif isinstance(element_encoding, TupleEncoding | ArrayEncoding):
+            aggregate_encoding = element_encoding
+        else:
+            # invalid index sequence
+            raise InternalError(
+                f"invalid index sequence: {aggregate_encoding=!s}, {index=!s}", loc
+            )
+    if element_encoding is None:
+        raise InternalError(f"invalid index sequence: {aggregate_encoding=!s}, {indexes=!s}", loc)
+    return element_encoding

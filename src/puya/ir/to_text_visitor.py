@@ -119,17 +119,19 @@ class ToTextVisitor(IRVisitor[str]):
         return f"{base}.update({index}, {value})"
 
     @typing.override
-    def visit_tuple_read_index(self, read: models.TupleReadIndex) -> str:
+    def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> str:
         base = read.base.accept(self)
-        index = ", ".join(map(str, read.indexes))
-        return f"{base}[{index}]"
+        indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in read.indexes]
+        index = "".join(f"[{i_str}]" for i_str in indexes)
+        return f"{base}{index}"
 
     @typing.override
-    def visit_tuple_write_index(self, write: models.TupleWriteIndex) -> str:
+    def visit_aggregate_write_index(self, write: models.AggregateWriteIndex) -> str:
         base = write.base.accept(self)
-        index = ", ".join(map(str, write.indexes))
+        indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in write.indexes]
+        index = ", ".join(indexes)
         value = write.value.accept(self)
-        return f"{base}.update({index}, {value})"
+        return f"{base}.update(({index}), {value})"
 
     @typing.override
     def visit_value_encode(self, encode: models.ValueEncode) -> str:
