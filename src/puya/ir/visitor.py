@@ -82,10 +82,10 @@ class IRVisitor[T](ABC):
     def visit_array_write_index(self, write: puya.ir.models.ArrayWriteIndex) -> T: ...
 
     @abstractmethod
-    def visit_tuple_read_index(self, read: puya.ir.models.TupleReadIndex) -> T: ...
+    def visit_aggregate_read_index(self, read: puya.ir.models.AggregateReadIndex) -> T: ...
 
     @abstractmethod
-    def visit_tuple_write_index(self, write: puya.ir.models.TupleWriteIndex) -> T: ...
+    def visit_aggregate_write_index(self, write: puya.ir.models.AggregateWriteIndex) -> T: ...
 
     @abstractmethod
     def visit_invoke_subroutine(self, callsub: puya.ir.models.InvokeSubroutine) -> T: ...
@@ -196,11 +196,17 @@ class IRTraverser(IRVisitor[None]):
         write.index.accept(self)
         write.value.accept(self)
 
-    def visit_tuple_read_index(self, read: puya.ir.models.TupleReadIndex) -> None:
+    def visit_aggregate_read_index(self, read: puya.ir.models.AggregateReadIndex) -> None:
         read.base.accept(self)
+        for index in read.indexes:
+            if not isinstance(index, int):
+                index.accept(self)
 
-    def visit_tuple_write_index(self, write: puya.ir.models.TupleWriteIndex) -> None:
+    def visit_aggregate_write_index(self, write: puya.ir.models.AggregateWriteIndex) -> None:
         write.base.accept(self)
+        for index in write.indexes:
+            if not isinstance(index, int):
+                index.accept(self)
         write.value.accept(self)
 
     def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> None:
@@ -320,10 +326,10 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
     def visit_array_write_index(self, write: puya.ir.models.ArrayWriteIndex) -> T | None:
         return None
 
-    def visit_tuple_read_index(self, read: puya.ir.models.TupleReadIndex) -> T | None:
+    def visit_aggregate_read_index(self, read: puya.ir.models.AggregateReadIndex) -> T | None:
         return None
 
-    def visit_tuple_write_index(self, write: puya.ir.models.TupleWriteIndex) -> T | None:
+    def visit_aggregate_write_index(self, write: puya.ir.models.AggregateWriteIndex) -> T | None:
         return None
 
     def visit_phi(self, phi: puya.ir.models.Phi) -> T | None:

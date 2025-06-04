@@ -2,11 +2,11 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.awst import (
-    wtypes,
-)
+from puya.awst import wtypes
+from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
+from puya.ir._utils import get_aggregate_element_encoding
 from puya.ir.builder import mem
 from puya.ir.builder._utils import (
     OpFactory,
@@ -20,6 +20,7 @@ from puya.ir.encodings import (
     DynamicArrayEncoding,
     Encoding,
     FixedArrayEncoding,
+    TupleEncoding,
     wtype_to_encoding,
 )
 from puya.ir.register_context import IRRegisterContext
@@ -35,56 +36,24 @@ from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
 
+WAggregate = (
+    wtypes.ARC4Tuple | wtypes.ARC4Struct | wtypes.WTuple | wtypes.ARC4Array | wtypes.ReferenceArray
+)
 
-def read_index_and_decode(
+
+def read_aggregate_index_and_decode(
     context: IRRegisterContext,
-    indexable_wtype: wtypes.ARC4Array | wtypes.ReferenceArray,
-    array_or_slot: ir.Value,
-    index: ir.Value,
+    aggregate_wtype: WAggregate,
+    values: Sequence[ir.Value],
+    indexes: Sequence[int | ir.Value],
     loc: SourceLocation,
     *,
     check_bounds: bool = True,
 ) -> ir.MultiValue:
-    array_encoding = wtype_to_encoding(indexable_wtype, loc)
-    element_ir_type = wtype_to_ir_type(
-        indexable_wtype.element_type, source_location=loc, allow_tuple=True
-    )
-    if isinstance(array_or_slot.ir_type, SlotType):
-        array = mem.read_slot(context, array_or_slot, loc)
-    else:
-        array = array_or_slot
-    read_index = ir.ArrayReadIndex(
-        array=array,
-        array_encoding=array_encoding,
-        index=index,
-        source_location=loc,
-        check_bounds=check_bounds,
-    )
-    (array_item,) = context.materialise_value_provider(read_index, "array_item")
-    element_encoding = array_encoding.element
-    if not requires_conversion(element_ir_type, element_encoding, "decode"):
-        return array_item
-    else:
-        factor = OpFactory(context, loc)
-        return factor.materialise_multi_value(
-            ir.ValueDecode(
-                value=array_item,
-                encoding=element_encoding,
-                decoded_type=element_ir_type,
-                source_location=loc,
-            )
-        )
-
-
-def read_tuple_index_and_decode(
-    context: IRRegisterContext,
-    tuple_wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct | wtypes.WTuple,
-    values: Sequence[ir.Value],
-    index: int,
-    loc: SourceLocation,
-) -> ir.MultiValue:
-    if isinstance(tuple_wtype, wtypes.WTuple):
-        tuple_ir_type = wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
+    if isinstance(aggregate_wtype, wtypes.WTuple):
+        (index,) = indexes
+        assert isinstance(index, int), "expected integer"
+        tuple_ir_type = wtype_to_ir_type(aggregate_wtype, loc, allow_tuple=True)
         skip_values = sum(e.arity for e in tuple_ir_type.elements[:index])
         target_arity = tuple_ir_type.elements[index].arity
         element_values = values[skip_values : skip_values + target_arity]
@@ -94,21 +63,24 @@ def read_tuple_index_and_decode(
         else:
             return ir.ValueTuple(values=element_values, source_location=loc)
 
-    assert isinstance(
-        tuple_wtype, wtypes.ARC4Tuple | wtypes.ARC4Struct
-    ), "expected ARC4 tuple or struct"
     (base,) = values
-    tuple_encoding = wtype_to_encoding(tuple_wtype, loc)
-    element_wtype = tuple_wtype.types[index]
-    element_ir_type = wtype_to_ir_type(element_wtype, source_location=loc, allow_tuple=True)
-    read_index = ir.TupleReadIndex(
+    if isinstance(base.ir_type, SlotType):
+        base = mem.read_slot(context, base, loc)
+    aggregate_encoding = wtype_to_encoding(aggregate_wtype, loc)
+    assert isinstance(aggregate_encoding, ArrayEncoding | TupleEncoding)
+    read_index = ir.AggregateReadIndex(
         base=base,
-        tuple_encoding=tuple_encoding,
-        indexes=[index],
+        aggregate_encoding=aggregate_encoding,
+        indexes=indexes,
         source_location=loc,
+        check_bounds=check_bounds,
     )
-    (tuple_item,) = context.materialise_value_provider(read_index, "tuple_item")
-    element_encoding = tuple_encoding.elements[index]
+    is_tup = isinstance(aggregate_encoding, TupleEncoding)
+    (tuple_item,) = context.materialise_value_provider(
+        read_index, "tuple_item" if is_tup else "array_item"
+    )
+    element_encoding = read_index.element_encoding
+    element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
     if not requires_conversion(element_ir_type, element_encoding, "decode"):
         return tuple_item
     else:
@@ -127,66 +99,18 @@ def read_tuple_index_and_decode(
             return ir.ValueTuple(values=values, source_location=loc)
 
 
-def encode_and_write_index(
+def encode_and_write_aggregate_index(
     context: IRRegisterContext,
-    indexable_wtype: wtypes.ARC4Array | wtypes.ReferenceArray,
-    array_or_slot: ir.Value,
-    index: ir.Value,
-    values: Sequence[ir.Value],
-    loc: SourceLocation,
-) -> ir.Value:
-    array_encoding = wtype_to_encoding(indexable_wtype, loc)
-    element_ir_type = wtype_to_ir_type(
-        indexable_wtype.element_type, source_location=loc, allow_tuple=True
-    )
-    element_encoding = array_encoding.element
-    if not requires_conversion(element_ir_type, element_encoding, "encode"):
-        (encoded_value,) = values
-    else:
-        (encoded_value,) = context.materialise_value_provider(
-            ir.ValueEncode(
-                values=values,
-                encoding=element_encoding,
-                value_type=element_ir_type,
-                source_location=loc,
-            ),
-            "encoded_value",
-        )
-
-    if isinstance(array_or_slot.ir_type, SlotType):
-        array = mem.read_slot(context, array_or_slot, loc)
-        write_index = ir.ArrayWriteIndex(
-            array=array,
-            array_encoding=array_encoding,
-            index=index,
-            value=encoded_value,
-            source_location=loc,
-        )
-        (result,) = context.materialise_value_provider(write_index, "updated_array")
-        mem.write_slot(context, array_or_slot, result, loc)
-        return array_or_slot
-    else:
-        write_index = ir.ArrayWriteIndex(
-            array=array_or_slot,
-            array_encoding=array_encoding,
-            index=index,
-            value=encoded_value,
-            source_location=loc,
-        )
-        (result,) = context.materialise_value_provider(write_index, "updated_array")
-        return result
-
-
-def encode_and_write_tuple_index(
-    context: IRRegisterContext,
-    tuple_wtype: wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct,
+    aggregate_wtype: WAggregate,
     base: ir.MultiValue,
-    index: int,
+    indexes: Sequence[int | ir.Value],
     values: Sequence[ir.Value],
     loc: SourceLocation,
 ) -> ir.MultiValue:
-    if isinstance(tuple_wtype, wtypes.WTuple):
-        tuple_ir_type = wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
+    if isinstance(aggregate_wtype, wtypes.WTuple):
+        (index,) = indexes
+        assert isinstance(index, int)
+        tuple_ir_type = wtype_to_ir_type(aggregate_wtype, loc, allow_tuple=True)
         skip_values = sum(e.arity for e in tuple_ir_type.elements[:index])
         target_arity = tuple_ir_type.elements[index].arity
         new_values = context.materialise_value_provider(base, "new_values")
@@ -196,10 +120,11 @@ def encode_and_write_tuple_index(
         else:
             return ir.ValueTuple(values=new_values, source_location=loc)
     (base,) = context.materialise_value_provider(base, "base")
-    tuple_encoding = wtype_to_encoding(tuple_wtype, loc)
-    element_wtype = tuple_wtype.types[index]
-    element_ir_type = wtype_to_ir_type(element_wtype, source_location=loc, allow_tuple=True)
-    element_encoding = tuple_encoding.elements[index]
+    aggregate_or_slot = base
+    aggregate_encoding = wtype_to_encoding(aggregate_wtype, loc)
+    assert isinstance(aggregate_encoding, TupleEncoding | ArrayEncoding)
+    element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
+    element_encoding = get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
     if not requires_conversion(element_ir_type, element_encoding, "encode"):
         (encoded_value,) = values
     else:
@@ -212,16 +137,29 @@ def encode_and_write_tuple_index(
             ),
             "encoded_value",
         )
-
-    write_index = ir.TupleWriteIndex(
-        base=base,
-        tuple_encoding=tuple_encoding,
-        indexes=[index],
-        value=encoded_value,
-        source_location=loc,
-    )
-    (result,) = context.materialise_value_provider(write_index, "updated_tuple")
-    return result
+    desc = "updated_tuple" if isinstance(aggregate_encoding, TupleEncoding) else "updated_array"
+    if isinstance(aggregate_or_slot.ir_type, SlotType):
+        base = mem.read_slot(context, aggregate_or_slot, loc)
+        write_index = ir.AggregateWriteIndex(
+            base=base,
+            aggregate_encoding=aggregate_encoding,
+            indexes=indexes,
+            value=encoded_value,
+            source_location=loc,
+        )
+        (result,) = context.materialise_value_provider(write_index, desc)
+        mem.write_slot(context, aggregate_or_slot, result, loc)
+        return aggregate_or_slot
+    else:
+        write_index = ir.AggregateWriteIndex(
+            base=base,
+            aggregate_encoding=aggregate_encoding,
+            indexes=indexes,
+            value=encoded_value,
+            source_location=loc,
+        )
+        (result,) = context.materialise_value_provider(write_index, desc)
+        return result
 
 
 def get_length(
@@ -351,3 +289,32 @@ def convert_array(
         mem.write_slot(context, new_slot, new_value, loc)
         return new_slot
     return new_value
+
+
+def _get_nested_element_ir_type(
+    aggregate: WAggregate, indexes: Sequence[int | ir.Value], loc: SourceLocation
+) -> IRType | TupleIRType:
+    last_i = len(indexes) - 1
+    element = None
+    for i, index in enumerate(indexes):
+        if isinstance(
+            aggregate, wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct
+        ) and isinstance(index, int):
+            element = aggregate.types[index]
+        elif isinstance(aggregate, wtypes.ARC4Array | wtypes.ReferenceArray):
+            element = aggregate.element_type
+        else:
+            # invalid index sequence
+            raise InternalError(f"invalid index sequence: {aggregate=!s}, {index=!s}", loc)
+        # indexes must point to aggregates except for the final encoding
+        if i == last_i:
+            # last index can be any encoding
+            pass
+        elif isinstance(element, WAggregate):
+            aggregate = element
+        else:
+            # invalid index sequence
+            raise InternalError(f"invalid index sequence: {aggregate=!s}, {index=!s}", loc)
+    if element is None:
+        raise InternalError(f"invalid index sequence: {aggregate=!s}, {indexes=!s}", loc)
+    return wtype_to_ir_type(element, loc, allow_tuple=True)

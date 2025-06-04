@@ -736,8 +736,8 @@ class FunctionIRBuilder(
         assert isinstance(tuple_wtype, wtypes.WTuple | wtypes.ARC4Tuple), "expected tuple wtype"
         base = self.context.visitor.visit_and_materialise(expr.base)
 
-        return sequence.read_tuple_index_and_decode(
-            self.context, tuple_wtype, base, expr.index, loc
+        return sequence.read_aggregate_index_and_decode(
+            self.context, tuple_wtype, base, [expr.index], loc
         )
 
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
@@ -749,7 +749,9 @@ class FunctionIRBuilder(
         base = self.context.visitor.visit_and_materialise(expr.base)
         index = tuple_wtype.names.index(expr.name)
 
-        return sequence.read_tuple_index_and_decode(self.context, tuple_wtype, base, index, loc)
+        return sequence.read_aggregate_index_and_decode(
+            self.context, tuple_wtype, base, [index], loc
+        )
 
     def visit_intersection_slice_expression(
         self, expr: awst_nodes.IntersectionSliceExpression
@@ -805,8 +807,8 @@ class FunctionIRBuilder(
             v
             for index in range(start_i, end_i)
             for v in self.context.materialise_value_provider(
-                sequence.read_tuple_index_and_decode(
-                    self.context, base_wtype, tup_value, index, loc
+                sequence.read_aggregate_index_and_decode(
+                    self.context, base_wtype, tup_value, [index], loc
                 ),
                 "tup_slice",
             )
@@ -831,7 +833,9 @@ class FunctionIRBuilder(
             indexable_wtype, wtypes.ReferenceArray | wtypes.ARC4Array
         ), "expected array type"
 
-        return sequence.read_index_and_decode(self.context, indexable_wtype, base, index, loc)
+        return sequence.read_aggregate_index_and_decode(
+            self.context, indexable_wtype, [base], [index], loc
+        )
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
         return flow_control.handle_conditional_expression(self.context, expr)
@@ -1269,8 +1273,8 @@ class FunctionIRBuilder(
         index = self.context.visitor.visit_and_materialise_single(expr.index)
         values = self.context.visitor.visit_and_materialise(expr.value)
 
-        return sequence.encode_and_write_index(
-            self.context, array_wtype, array, index, values, loc
+        return sequence.encode_and_write_aggregate_index(
+            self.context, array_wtype, array, [index], values, loc
         )
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:

@@ -107,12 +107,28 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
-    def visit_tuple_read_index(self, read: models.TupleReadIndex) -> models.ValueProvider:
+    def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> models.ValueProvider:
         read.base = read.base.accept(self)
+        indexes = list[int | models.Value]()
+        for index in read.indexes:
+            if isinstance(index, int):
+                indexes.append(index)
+            else:
+                indexes.append(index.accept(self))
+        read.indexes = indexes
         return read
 
-    def visit_tuple_write_index(self, write: models.TupleWriteIndex) -> models.ValueProvider:
+    def visit_aggregate_write_index(
+        self, write: models.AggregateWriteIndex
+    ) -> models.ValueProvider:
         write.base = write.base.accept(self)
+        indexes = list[int | models.Value]()
+        for index in write.indexes:
+            if isinstance(index, int):
+                indexes.append(index)
+            else:
+                indexes.append(index.accept(self))
+        write.indexes = indexes
         write.value = write.value.accept(self)
         return write
 

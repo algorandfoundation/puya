@@ -203,8 +203,8 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 loop_body=statement.loop_body,
                 indexable_size=indexable_size,
                 # TODO: consider when array is a register and needs refreshing
-                get_value_at_index=lambda index: sequence.read_index_and_decode(
-                    context, iterable_wtype, array, index, loc, check_bounds=False
+                get_value_at_index=lambda index: sequence.read_aggregate_index_and_decode(
+                    context, iterable_wtype, [array], [index], loc, check_bounds=False
                 ),
                 assigner=assign_user_loop_vars,
                 statement_loc=statement.source_location,
@@ -576,8 +576,8 @@ def _iterate_tuple(
             assignment_location=None,
         )
         item_index = loop_count if not reverse_items else (max_index - loop_count)
-        item_vp = sequence.read_tuple_index_and_decode(
-            context, tuple_wtype, tuple_values, item_index, statement_loc
+        item_vp = sequence.read_aggregate_index_and_decode(
+            context, tuple_wtype, tuple_values, [item_index], statement_loc
         )
         item_reg, index_reg = assigner.assign_user_loop_vars(
             item_vp,

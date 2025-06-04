@@ -6,14 +6,15 @@ from collections.abc import Iterator, Mapping, Sequence
 import attrs
 
 from puya import log
+from puya.errors import InternalError
 from puya.ir import (
     models,
     models as ir,
 )
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder._utils import assign_targets
+from puya.ir.builder._utils import OpFactory, assign_targets
 from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
-from puya.ir.encodings import Encoding, TupleEncoding
+from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
 from puya.ir.models import Register, Subroutine, Value, ValueProvider, ValueTuple
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType
@@ -132,45 +133,91 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
         )
 
     @typing.override
-    def visit_tuple_read_index(self, read: ir.TupleReadIndex) -> ir.Value:
+    def visit_aggregate_read_index(self, read: ir.AggregateReadIndex) -> ir.Value:
         self.modified = True
 
         loc = read.source_location
+        factory = OpFactory(self, loc)
 
-        tuple_encoding: Encoding = read.tuple_encoding
+        base_encoding: Encoding = read.aggregate_encoding
         base = read.base
         # TODO: for fixed sized types handle read.indexes as a single op using an offset and length
         for index in read.indexes:
-            assert isinstance(tuple_encoding, TupleEncoding), "expected TupleEncoding"
-            base = tup.read_at_index(
-                self,
-                tuple_encoding,
-                base,
-                index,
-                loc,
-            )
-            tuple_encoding = tuple_encoding.elements[index]
+            if isinstance(base_encoding, TupleEncoding):
+                assert isinstance(index, int), "expected int"
+                base = tup.read_at_index(
+                    self,
+                    base_encoding,
+                    base,
+                    index,
+                    loc,
+                )
+                base_encoding = base_encoding.elements[index]
+            elif isinstance(base_encoding, ArrayEncoding):
+                if isinstance(index, int):
+                    index = factory.constant(index)
+                base = sequence.read_at_index(
+                    self, base_encoding, base, index, loc, assert_bounds=read.check_bounds
+                )
+                base_encoding = base_encoding.element
+            else:
+                raise InternalError("invalid aggregate encoding and index", loc)
 
         return base
 
     @typing.override
-    def visit_tuple_write_index(self, write: ir.TupleWriteIndex) -> ir.Value:
+    def visit_aggregate_write_index(self, write: ir.AggregateWriteIndex) -> ir.Value:
         self.modified = True
 
         loc = write.source_location
-        try:
-            (index,) = write.indexes
-        except ValueError:
-            raise NotImplementedError("multi-index writes") from None
+        factory = OpFactory(self, loc)
 
-        return tup.write_at_index(
-            self,
-            write.tuple_encoding,
-            write.base,
-            index,
-            write.value,
-            loc,
-        )
+        base_encoding: Encoding = write.aggregate_encoding
+        base = write.base
+        bases = [(base, base_encoding)]
+
+        # TODO: for fixed sized types handle read.indexes as a single op using an offset and length
+        for index in write.indexes[:-1]:
+            if isinstance(base_encoding, TupleEncoding):
+                assert isinstance(index, int), "expected int"
+                base = tup.read_at_index(
+                    self,
+                    base_encoding,
+                    base,
+                    index,
+                    loc,
+                )
+                base_encoding = base_encoding.elements[index]
+            elif isinstance(base_encoding, ArrayEncoding):
+                if isinstance(index, int):
+                    index = factory.constant(index)
+                base = sequence.read_at_index(self, base_encoding, base, index, loc)
+                base_encoding = base_encoding.element
+            else:
+                raise InternalError("invalid aggregate encoding and index", loc)
+            bases.append((base, base_encoding))
+
+        value = write.value
+        for index in reversed(write.indexes):
+            base, base_encoding = bases.pop()
+            if isinstance(base_encoding, TupleEncoding):
+                assert isinstance(index, int), "expected int"
+                value = tup.write_at_index(
+                    self,
+                    base_encoding,
+                    base,
+                    index,
+                    value,
+                    loc,
+                )
+            elif isinstance(base_encoding, ArrayEncoding):
+                if isinstance(index, int):
+                    index = factory.constant(index)
+                value = sequence.write_at_index(self, base_encoding, base, index, value, loc)
+            else:
+                raise InternalError("invalid aggregate encoding and index", loc)
+
+        return value
 
     # region IRRegisterContext
 

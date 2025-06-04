@@ -207,6 +207,15 @@ class SubroutineCollector(visitor.IRTraverser):
             PuyaLibIR.recalculate_head_for_elements_with_byte_length_head,
         )
 
+    def visit_aggregate_write_index(self, _: models.AggregateWriteIndex) -> None:
+        self.referenced_libs |= (
+            PuyaLibIR.dynamic_array_replace_byte_length_head,
+            PuyaLibIR.dynamic_array_replace_dynamic_element,
+            PuyaLibIR.static_array_replace_byte_length_head,
+            PuyaLibIR.static_array_replace_dynamic_element,
+            PuyaLibIR.recalculate_head_for_elements_with_byte_length_head,
+        )
+
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         self.visit_subroutine(callsub.target)
 
