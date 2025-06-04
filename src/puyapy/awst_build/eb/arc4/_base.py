@@ -1,7 +1,7 @@
 import abc
 import typing
 from abc import ABC
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 import typing_extensions
 
@@ -10,6 +10,7 @@ from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
     CheckedMaybe,
+    ConvertArray,
     Expression,
     IndexExpression,
 )
@@ -150,6 +151,8 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
                 return self.length(location)
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
+            case "to_native":
+                return _ToNativeBuilder(self.resolve(), location, self.pytype, self.to_native_type)
             case _:
                 return super().member_access(name, location)
 
@@ -177,3 +180,37 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
         location: SourceLocation,
     ) -> InstanceBuilder:
         raise CodeError("slicing ARC-4 arrays is currently unsupported", location)
+
+    @abc.abstractmethod
+    def to_native_type(self, element_type: pytypes.PyType) -> pytypes.ArrayType: ...
+
+
+class _ToNativeBuilder(FunctionBuilder):
+    def __init__(
+        self,
+        expr: Expression,
+        location: SourceLocation,
+        typ: pytypes.ArrayType,
+        to_native_type: Callable[[pytypes.PyType], pytypes.ArrayType],
+    ):
+        super().__init__(location)
+        self._typ = typ
+        self.expr = expr
+        self._to_native_type = to_native_type
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        match args:
+            case [NodeBuilder(pytype=pytypes.TypeType(typ=new_element_type))]:
+                pass
+            case _:
+                raise CodeError("invalid function argument(s)", location=location)
+        new_type = self._to_native_type(new_element_type)
+        new_array = ConvertArray(expr=self.expr, wtype=new_type.wtype, source_location=location)
+        return builder_for_instance(new_type, new_array)
