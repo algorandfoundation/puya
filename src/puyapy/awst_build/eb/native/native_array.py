@@ -9,6 +9,8 @@ from puya.awst.nodes import (
     ArrayExtend,
     ArrayLength,
     ArrayPop,
+    ConvertArray,
+    Copy,
     Expression,
     ExpressionStatement,
     NewArray,
@@ -28,6 +30,7 @@ from puyapy.awst_build.eb.interface import (
     BuilderBinaryOp,
     InstanceBuilder,
     NodeBuilder,
+    StaticSizedCollectionBuilder,
     TypeBuilder,
 )
 from puyapy.awst_build.eb.native._base import _ArrayExpressionBuilder
@@ -55,19 +58,27 @@ class NativeArrayGenericTypeBuilder(GenericTypeBuilder):
         arg = expect.at_most_one_arg(args, location)
         if not arg:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
-        # TODO: check arg type is sequence like not just iterable
-        element_type = arg.iterable_item_type()
-        typ = pytypes.GenericNativeArrayType.parameterise([element_type], location)
-        wtype = typ.checked_wtype(location)
+
+        arg_item_type = arg.iterable_item_type()
+        typ = pytypes.GenericNativeArrayType.parameterise([arg_item_type], location)
+        wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
-        return NativeArrayExpressionBuilder(
-            ArrayConcat(
-                left=NewArray(values=(), wtype=wtype, source_location=location),
-                right=arg.resolve(),
-                source_location=location,
-            ),
-            typ,
-        )
+
+        if arg.pytype.wtype == wtype:
+            new_array: Expression = Copy(value=arg.resolve(), source_location=location)
+        elif isinstance(
+            arg.pytype.wtype,
+            wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray,
+        ):
+            new_array = ConvertArray(expr=arg.resolve(), wtype=wtype, source_location=location)
+        elif isinstance(arg, StaticSizedCollectionBuilder):
+            item_builders = arg.iterate_static()
+            items = [ib.resolve() for ib in item_builders]
+            new_array = NewArray(values=items, wtype=wtype, source_location=location)
+        else:
+            logger.error("unsupported collection type", location=arg.source_location)
+            return dummy_value(typ, location)
+        return NativeArrayExpressionBuilder(new_array, typ)
 
 
 class NativeArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
@@ -86,12 +97,36 @@ class NativeArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
         location: SourceLocation,
     ) -> InstanceBuilder:
         typ = self.produces()
-        values = tuple(expect.argument_of_type_else_dummy(a, typ.items).resolve() for a in args)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
-        return NativeArrayExpressionBuilder(
-            NewArray(values=values, wtype=wtype, source_location=location), self._pytype
-        )
+
+        arg = expect.at_most_one_arg(args, location)
+        if not arg:
+            new_array: Expression = NewArray(values=[], wtype=wtype, source_location=location)
+        else:
+            arg_item_type = arg.iterable_item_type()
+            if not (typ.items <= arg_item_type):
+                logger.error(
+                    "iterable element type does not match collection type",
+                    location=arg.source_location,
+                )
+                return dummy_value(typ, location)
+            if arg.pytype.wtype == wtype:
+                new_array = Copy(value=arg.resolve(), source_location=location)
+            elif isinstance(
+                arg.pytype.wtype,
+                wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray,
+            ):
+                new_array = ConvertArray(expr=arg.resolve(), wtype=wtype, source_location=location)
+            elif isinstance(arg, StaticSizedCollectionBuilder):
+                item_builders = arg.iterate_static()
+                items = [ib.resolve() for ib in item_builders]
+                new_array = NewArray(values=items, wtype=wtype, source_location=location)
+            else:
+                logger.error("unsupported collection type", location=arg.source_location)
+                return dummy_value(typ, location)
+
+        return NativeArrayExpressionBuilder(new_array, self._pytype)
 
 
 class NativeArrayExpressionBuilder(_ArrayExpressionBuilder):
