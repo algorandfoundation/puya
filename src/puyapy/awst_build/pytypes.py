@@ -386,7 +386,7 @@ class SequenceType(PyType, abc.ABC):
 @attrs.frozen(order=False)
 class ArrayType(SequenceType, RuntimeType):
     size: int | None
-    wtype: wtypes.WType
+    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray | wtypes.ReferenceArray
     # convenience accessors
     items_wtype: wtypes.WType
     source_location: SourceLocation | None = attrs.field(eq=False)

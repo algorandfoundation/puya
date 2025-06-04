@@ -113,6 +113,11 @@ class Contract(arc4.ARC4Contract):
 
         assert arr_3 == FixedUInt64Of3(arc4.Tuple((UInt64(0), UInt64(1), UInt64(2))))
 
+        static_array = arc4.StaticArray[arc4.UInt64, typing.Literal[3]](
+            arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2)
+        )
+        assert static_array.to_native(UInt64) == arr_3
+
     @arc4.abimethod()
     def add_payment(self, pay: Payment) -> None:
         assert self.num_payments < self.payments.length, "too many payments"
