@@ -217,7 +217,7 @@ class OpFactory:
         )
         return result
 
-    def mul(self, a: Value, b: Value | int, temp_desc: str = "mul") -> Register:
+    def mul(self, a: Value | int, b: Value | int, temp_desc: str = "mul") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
