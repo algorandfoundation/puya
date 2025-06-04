@@ -145,15 +145,27 @@ def handle_assignment(
                 base_target, "update_assignment_current_base_value"
             )
 
-            base_with_op = []
-            path_value = base_eval
-            for index_op in _materialize_index_ops(context, index_src_ops):
-                base_with_op.append((path_value, index_op))
-                path_value = index_op.read(context, path_value)
-
-            new_value = value
-            for path_val, index_op in reversed(base_with_op):
-                new_value = index_op.write(context, path_val, new_value)
+            if not index_src_ops:
+                new_value = value
+            else:
+                indexes = _get_indexes(context, index_src_ops)
+                base_wtype = base_target.wtype
+                assert isinstance(
+                    base_wtype,
+                    wtypes.WTuple
+                    | wtypes.ARC4Array
+                    | wtypes.ARC4Tuple
+                    | wtypes.ARC4Struct
+                    | wtypes.ReferenceArray,
+                )
+                new_value = sequence.encode_and_write_aggregate_index(
+                    context,
+                    base_wtype,
+                    base_eval,
+                    indexes,
+                    source,
+                    assignment_location,
+                )
             if isinstance(base_target, awst_nodes.VarExpression | awst_nodes.StorageExpression):
                 handle_assignment(
                     context, base_target, new_value, assignment_location, is_nested_update=True
@@ -208,9 +220,9 @@ class _ArrayIndex:
     index: ir.Value
 
     def read(self, context: IRFunctionBuildContext, array: ir.MultiValue) -> ir.MultiValue:
-        (arr,) = _multi_value_to_values(array)
-        next_value = sequence.read_index_and_decode(
-            context, self.base_wtype, arr, self.index, self.source_location
+        arr = _multi_value_to_values(array)
+        next_value = sequence.read_aggregate_index_and_decode(
+            context, self.base_wtype, arr, [self.index], self.source_location
         )
         return next_value
 
@@ -218,14 +230,15 @@ class _ArrayIndex:
         self, context: IRFunctionBuildContext, array: ir.MultiValue, new_value: ir.MultiValue
     ) -> ir.Value:
         (array_or_slot,) = _multi_value_to_values(array)
-        updated_array = sequence.encode_and_write_index(
+        updated_array = sequence.encode_and_write_aggregate_index(
             context,
             self.base_wtype,
             array_or_slot,
-            self.index,
+            [self.index],
             values=_multi_value_to_values(new_value),
             loc=self.source_location,
         )
+        assert isinstance(updated_array, ir.Value)
         return updated_array
 
 
@@ -238,11 +251,11 @@ class _TupleOrStructIndex:
 
     def read(self, context: IRFunctionBuildContext, tup: ir.MultiValue) -> ir.MultiValue:
         tuple_values = _multi_value_to_values(tup)
-        next_value = sequence.read_tuple_index_and_decode(
+        next_value = sequence.read_aggregate_index_and_decode(
             context,
             self.base_wtype,
             tuple_values,
-            self.index,
+            [self.index],
             self.source_location,
         )
         return next_value
@@ -250,11 +263,11 @@ class _TupleOrStructIndex:
     def write(
         self, context: IRFunctionBuildContext, tup: ir.MultiValue, new_value: ir.MultiValue
     ) -> ir.MultiValue:
-        return sequence.encode_and_write_tuple_index(
+        return sequence.encode_and_write_aggregate_index(
             context,
             self.base_wtype,
             tup,
-            self.index,
+            [self.index],
             values=_multi_value_to_values(new_value),
             loc=self.source_location,
         )
@@ -264,6 +277,40 @@ def _multi_value_to_values(value: ir.MultiValue) -> Sequence[ir.Value]:
     if isinstance(value, ir.Value):
         return [value]
     return value.values
+
+
+def _get_indexes(
+    context: IRFunctionBuildContext, index_src_ops: Sequence[_IndexOp]
+) -> list[int | ir.Value]:
+    indexes = list[int | ir.Value]()
+    for index_src_op in index_src_ops:
+        match index_src_op, index_src_op.base.wtype:
+            case (
+                awst_nodes.IndexExpression(),
+                (wtypes.ARC4Array() | wtypes.ReferenceArray()),
+            ):
+                index_value = context.visitor.visit_and_materialise_single(
+                    index_src_op.index, "index"
+                )
+                indexes.append(index_value)
+            case (
+                awst_nodes.TupleItemExpression(index=index_int),
+                (wtypes.ARC4Tuple() | wtypes.WTuple()),
+            ):
+                indexes.append(index_int)
+            case (
+                awst_nodes.FieldExpression(),
+                (wtypes.ARC4Struct(names=names) | wtypes.WTuple(names=[*names])),
+            ):
+                index_int = names.index(index_src_op.name)
+                indexes.append(index_int)
+            case unimplemented, for_type:
+                raise InternalError(
+                    f"unimplemented index write operation {type(unimplemented).__name__}"
+                    f" for wtype: {for_type}",
+                    index_src_op.source_location,
+                )
+    return indexes
 
 
 def _materialize_index_ops(

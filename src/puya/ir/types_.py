@@ -184,7 +184,7 @@ class EncodedType(IRType):
     @property
     def name(self) -> str:
         name = self.encoding.name
-        if name.startswith("("):
+        if name.startswith("(") and name.endswith(")"):
             name = name[1:-1]
         return f"Encoded({name})"
 
