@@ -147,7 +147,7 @@ class TupleEncoding(Encoding):
 
 
 @attrs.frozen(str=False)
-class ArrayEncoding(Encoding):
+class ArrayEncoding(Encoding, abc.ABC):
     element: Encoding
     size: int | None
     length_header: bool
