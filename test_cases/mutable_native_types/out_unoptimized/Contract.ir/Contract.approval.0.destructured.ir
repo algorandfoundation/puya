@@ -10,7 +10,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         return tmp%1#0
 
 subroutine test_cases.mutable_native_types.contract.add(val: Encoded(uint64,uint64)) -> uint64:
-    block@0: // L183
+    block@0: // L185
         let array%extract%0#1: bytes = (extract3 val#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
@@ -21,7 +21,7 @@ subroutine test_cases.mutable_native_types.contract.add(val: Encoded(uint64,uint
         return tmp%0#0
 
 subroutine test_cases.mutable_native_types.contract.do_something(pay: Encoded(uint8[32],uint64,uint64)) -> Encoded(uint8[32],uint64,uint64):
-    block@0: // L188
+    block@0: // L190
         let pay%out#0: Encoded(uint8[32],uint64,uint64) = pay#0
         return pay%out#0
 
@@ -216,10 +216,43 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() 
         let converted_array%0#0: Encoded(uint64[3]) = ((extract 2 0) dynamic_arr#0)
         let tmp%13#0: bool = (== arr_3#0 converted_array%0#0)
         (assert tmp%13#0)
+        let array%val_as_bytes%12#1: bytes[8] = (itob 0u)
+        let array%as_Encoded(uint64)%12#1: Encoded(uint64) = array%val_as_bytes%12#1
+        let array%encoded%14#1: Encoded(uint64) = (concat 0x array%as_Encoded(uint64)%12#1)
+        let array%val_as_bytes%13#1: bytes[8] = (itob 1u)
+        let array%as_Encoded(uint64)%13#1: Encoded(uint64) = array%val_as_bytes%13#1
+        let array%encoded%15#1: Encoded(uint64,uint64) = (concat array%encoded%14#1 array%as_Encoded(uint64)%13#1)
+        let array%val_as_bytes%14#1: bytes[8] = (itob 2u)
+        let array%as_Encoded(uint64)%14#1: Encoded(uint64) = array%val_as_bytes%14#1
+        let array%encoded%16#1: Encoded(uint64,uint64,uint64) = (concat array%encoded%15#1 array%as_Encoded(uint64)%14#1)
+        let array%encoded%17#1: Encoded(uint64,uint64,uint64) = (concat array%encoded%16#1 0x)
+        let awst_tmp%0#0: Encoded(uint64,uint64,uint64) = array%encoded%17#1
+        let array%extract%0#1: bytes = (extract3 awst_tmp%0#0 0u 8u)
+        let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
+        let values%0#0: uint64 = (btoi tuple_item%0#0)
+        let array%extract%1#1: bytes = (extract3 awst_tmp%0#0 8u 8u)
+        let tuple_item%1#0: Encoded(uint64) = array%extract%1#1
+        let values%1#0: uint64 = (btoi tuple_item%1#0)
+        let array%extract%2#1: bytes = (extract3 awst_tmp%0#0 16u 8u)
+        let tuple_item%2#0: Encoded(uint64) = array%extract%2#1
+        let values%2#0: uint64 = (btoi tuple_item%2#0)
+        let array%val_as_bytes%15#1: bytes[8] = (itob values%0#0)
+        let array%as_Encoded(uint64)%15#1: Encoded(uint64) = array%val_as_bytes%15#1
+        let array%encoded%18#1: Encoded(uint64) = (concat 0x array%as_Encoded(uint64)%15#1)
+        let array%val_as_bytes%16#1: bytes[8] = (itob values%1#0)
+        let array%as_Encoded(uint64)%16#1: Encoded(uint64) = array%val_as_bytes%16#1
+        let array%encoded%19#1: Encoded(uint64,uint64) = (concat array%encoded%18#1 array%as_Encoded(uint64)%16#1)
+        let array%val_as_bytes%17#1: bytes[8] = (itob values%2#0)
+        let array%as_Encoded(uint64)%17#1: Encoded(uint64) = array%val_as_bytes%17#1
+        let array%encoded%20#1: Encoded(uint64,uint64,uint64) = (concat array%encoded%19#1 array%as_Encoded(uint64)%17#1)
+        let array%encoded%21#1: Encoded(uint64[3]) = (concat array%encoded%20#1 0x)
+        let encoded_array%3#0: Encoded(uint64[3]) = array%encoded%21#1
+        let tmp%14#0: bool = (== arr_3#0 encoded_array%3#0)
+        (assert tmp%14#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: Encoded(uint8[32],uint64,uint64)) -> void:
-    block@0: // L114
+    block@0: // L116
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%0#0) // check self.num_payments exists
         let tmp%0#0: bool = (< maybe_value%0#0 8u)
@@ -240,7 +273,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: En
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(index: uint64, amt: uint64) -> void:
-    block@0: // L120
+    block@0: // L122
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%0#0) // check self.num_payments exists
         let tmp%0#0: bool = (< index#0 maybe_value%0#0)
@@ -269,7 +302,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_key: uint64) -> void:
-    block@0: // L125
+    block@0: // L127
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let copy%0#0: bytes = maybe_value%0#0
@@ -296,7 +329,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct() -> Encoded(uint8[32],uint64,uint64):
-    block@0: // L132
+    block@0: // L134
         let tmp%0#0: account = (txn Sender)
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%0#0
         let array%encoded%0#1: Encoded(uint8[32]) = (concat 0x array%as_Encoded(uint8[32])%0#1)
@@ -333,7 +366,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.local_struct() -> E
         return a#0
 
 subroutine test_cases.mutable_native_types.contract.Contract.delete_storage(box_key: uint64) -> void:
-    block@0: // L144
+    block@0: // L146
         (app_global_del 0x70)
         let tmp%0#0: account = (txn Sender)
         (app_local_del tmp%0#0 0x6c)
@@ -344,7 +377,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.delete_storage(box_
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key: uint64, a: Encoded(uint64,uint64)) -> void:
-    block@0: // L153
+    block@0: // L155
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let array%updated_data%0#1: bytes = (replace3 maybe_value%0#0 0u a#0)
@@ -376,7 +409,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> Encoded(uint64,uint64):
-    block@0: // L163
+    block@0: // L165
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 16u)
@@ -384,7 +417,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> 
         return tuple_item%0#0
 
 subroutine test_cases.mutable_native_types.contract.Contract.tup_return() -> <uint64, uint64>:
-    block@0: // L167
+    block@0: // L169
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let array%extract%0#1: bytes = (extract3 maybe_value%0#0 32u 16u)
@@ -398,7 +431,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.tup_return() -> <ui
         return values%0#0 values%1#0
 
 subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> uint64:
-    block@0: // L171
+    block@0: // L173
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 16u)
@@ -416,7 +449,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
         let tmp%3#0: bool = (< result#0 100u)
         let result#6: uint64 = result#0
         goto tmp%3#0 ? block@1 : block@2
-    block@1: // if_body_L177
+    block@1: // if_body_L179
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%2#0) // check self.nested exists
         let array%extract%2#1: bytes = (extract3 maybe_value%2#0 32u 16u)
@@ -435,7 +468,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
         let result#0: uint64 = tmp%5#0
         let result#6: uint64 = result#0
         goto block@2
-    block@2: // after_if_else_L176
+    block@2: // after_if_else_L178
         let result#0: uint64 = result#6
         return result#0
 
@@ -460,7 +493,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         goto block@22
-    block@4: // add_payment_route_L114
+    block@4: // add_payment_route_L116
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         (assert tmp%8#0) // OnCompletion is not NoOp
@@ -472,7 +505,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         goto block@22
-    block@5: // increment_payment_route_L120
+    block@5: // increment_payment_route_L122
         let tmp%11#0: uint64 = (txn OnCompletion)
         let tmp%12#0: bool = (== tmp%11#0 NoOp)
         (assert tmp%12#0) // OnCompletion is not NoOp
@@ -487,7 +520,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         goto block@22
-    block@6: // create_storage_route_L125
+    block@6: // create_storage_route_L127
         let tmp%17#0: uint64 = (txn OnCompletion)
         let tmp%18#0: bool = (== tmp%17#0 NoOp)
         (assert tmp%18#0) // OnCompletion is not NoOp
@@ -500,7 +533,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         goto block@22
-    block@7: // local_struct_route_L132
+    block@7: // local_struct_route_L134
         let tmp%22#0: uint64 = (txn OnCompletion)
         let tmp%23#0: bool = (== tmp%22#0 NoOp)
         (assert tmp%23#0) // OnCompletion is not NoOp
@@ -513,7 +546,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         goto block@22
-    block@8: // delete_storage_route_L144
+    block@8: // delete_storage_route_L146
         let tmp%28#0: uint64 = (txn OnCompletion)
         let tmp%29#0: bool = (== tmp%28#0 NoOp)
         (assert tmp%29#0) // OnCompletion is not NoOp
@@ -526,7 +559,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         goto block@22
-    block@9: // struct_arg_route_L153
+    block@9: // struct_arg_route_L155
         let tmp%33#0: uint64 = (txn OnCompletion)
         let tmp%34#0: bool = (== tmp%33#0 NoOp)
         (assert tmp%34#0) // OnCompletion is not NoOp
@@ -540,7 +573,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         goto block@22
-    block@10: // struct_return_route_L163
+    block@10: // struct_return_route_L165
         let tmp%38#0: uint64 = (txn OnCompletion)
         let tmp%39#0: bool = (== tmp%38#0 NoOp)
         (assert tmp%39#0) // OnCompletion is not NoOp
@@ -553,7 +586,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         goto block@22
-    block@11: // tup_return_route_L167
+    block@11: // tup_return_route_L169
         let tmp%44#0: uint64 = (txn OnCompletion)
         let tmp%45#0: bool = (== tmp%44#0 NoOp)
         (assert tmp%45#0) // OnCompletion is not NoOp
@@ -574,7 +607,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
         goto block@22
-    block@12: // calculate_sum_route_L171
+    block@12: // calculate_sum_route_L173
         let tmp%52#0: uint64 = (txn OnCompletion)
         let tmp%53#0: bool = (== tmp%52#0 NoOp)
         (assert tmp%53#0) // OnCompletion is not NoOp
