@@ -4,10 +4,10 @@
 // test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 16 144
-    bytecblock 0x151f7c75 "count" 0x00 0x0000
+    bytecblock 0x151f7c75 "count" 0x00 0x 0x0000
     intc_0 // 0
     dupn 8
-    pushbytes ""
+    bytec_3 // ""
     dupn 14
     txn ApplicationID
     bnz main_after_if_else@2
@@ -52,7 +52,7 @@ main_test_arc4_bool_route@33:
     bury 19
     dup
     len
-    bytec_3 // 0x0000
+    bytec 4 // 0x0000
     cover 2
     intc_2 // 8
     callsub dynamic_array_concat_bits
@@ -179,7 +179,7 @@ main_after_for@36:
     dig 16
     dup
     len
-    bytec_3 // 0x0000
+    bytec 4 // 0x0000
     cover 2
     intc_2 // 8
     callsub dynamic_array_concat_bits
@@ -249,7 +249,7 @@ main_test_arc4_conversion_route@20:
     btoi
     dup
     bury 6
-    pushbytes 0x
+    bytec_3 // 0x
     bury 20
     intc_1 // 1
     +
@@ -300,7 +300,7 @@ main_for_header@24:
     *
     intc_2 // 8
     extract3 // on error: index access is out of bounds
-    pushbytes 0x
+    bytec_3 // 0x
     b!=
     dig 11
     bury 11
@@ -320,7 +320,7 @@ main_after_if_else@27:
     b main_for_header@24
 
 main_after_for@28:
-    bytec_3 // 0x0000
+    bytec 4 // 0x0000
     dig 19
     concat // on error: max array length exceeded
     dup
@@ -348,7 +348,7 @@ main_test_bool_array_route@11:
     btoi
     dup
     bury 6
-    pushbytes 0x
+    bytec_3 // 0x
     bury 21
     intc_1 // 1
     +
@@ -450,17 +450,14 @@ main_test_extend_from_arc4_tuple_route@10:
     txna ApplicationArgs 1
     dup
     pop
-    bytec_3 // 0x0000
-    swap
-    concat // on error: max array length exceeded
     dup
-    extract 2 0
     len
     intc_3 // 16
     /
     itob
     extract 6 2
-    replace2 0
+    swap
+    concat
     bytec_0 // 0x151f7c75
     swap
     concat
@@ -486,29 +483,24 @@ main_test_extend_from_tuple_route@9:
     len
     intc_3 // 16
     /
+    dup
     intc_1 // 1
     -
     intc_3 // 16
     *
-    dig 1
+    dig 2
     swap
     intc_3 // 16
     extract3 // on error: index access is out of bounds
     dup
-    uncover 3
+    uncover 4
     ==
     assert
-    bytec_3 // 0x0000
-    uncover 2
-    concat // on error: max array length exceeded
-    dup
-    extract 2 0
-    len
-    intc_3 // 16
-    /
+    swap
     itob
     extract 6 2
-    replace2 0
+    uncover 2
+    concat
     dup
     intc_0 // 0
     extract_uint16
@@ -674,39 +666,33 @@ main_for_header@6:
 
 main_after_for@8:
     dig 20
-    bytec_3 // 0x0000
-    dig 1
-    concat // on error: max array length exceeded
     dup
-    extract 2 0
     len
     intc 4 // 144
     /
+    dup
+    bury 17
     itob
     extract 6 2
-    replace2 0
+    dig 1
+    concat
     pushbytes "a"
     box_del
     pop
     pushbytes "a"
     swap
     box_put
-    dup
     extract 0 144 // on error: index access is out of bounds
     dup
-    bury 25
+    bury 24
     dup
     extract 0 8
-    bury 24
+    bury 23
     intc_2 // 8
     extract_uint64
-    bury 7
-    intc_0 // 0
     bury 6
-    len
-    intc 4 // 144
-    /
-    bury 15
+    intc_0 // 0
+    bury 5
     intc_1 // 1
     bury 3
 
@@ -805,7 +791,7 @@ main_bare_routing@37:
 // _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
 dynamic_array_concat_bits:
     proto 4 1
-    pushbytes ""
+    bytec_3 // ""
     dupn 2
     frame_dig -4
     intc_0 // 0

@@ -20,13 +20,13 @@ main_after_if_else@2:
 
 // test_cases.mutable_native_types.contract.add(val: bytes) -> uint64:
 add:
-    // mutable_native_types/contract.py:180-181
+    // mutable_native_types/contract.py:183-184
     // @subroutine()
     // def add(val: FixedStruct) -> UInt64:
     proto 1 1
 
 add_block@0:
-    // mutable_native_types/contract.py:182
+    // mutable_native_types/contract.py:185
     // return val.a + val.b
     frame_dig -1
     intc_0 // 0
@@ -44,7 +44,7 @@ add_block@0:
 
 // test_cases.mutable_native_types.contract.do_something(pay: bytes) -> bytes:
 do_something:
-    // mutable_native_types/contract.py:185-186
+    // mutable_native_types/contract.py:188-189
     // @subroutine(inline=False)
     // def do_something(pay: Payment) -> None:
     proto 1 1
@@ -420,20 +420,68 @@ fixed_initialize_block@0:
     dup
     // mutable_native_types/contract.py:109
     // assert arr_3 == arr_3_from_fixed, "should be the same"
+    dig 1
     ==
     assert // should be the same
+    // mutable_native_types/contract.py:111
+    // dynamic_arr = NativeArray((UInt64(0), UInt64(1), UInt64(2)))
+    intc_0 // 0
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    concat
+    bytec_0 // 0x
+    concat
+    intc_0 // 0
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    intc_1 // 1
+    itob
+    concat
+    pushint 2 // 2
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    dig 1
+    swap
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    pushint 3 // 3
+    +
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    // mutable_native_types/contract.py:112
+    // assert arr_3 == FixedUInt64Of3(dynamic_arr)
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 3 // 3
+    ==
+    assert // invalid input length
+    extract 2 0
+    ==
+    assert
     retsub
 
 
 // test_cases.mutable_native_types.contract.Contract.add_payment(pay: bytes) -> void:
 add_payment:
-    // mutable_native_types/contract.py:111-112
+    // mutable_native_types/contract.py:114-115
     // @arc4.abimethod()
     // def add_payment(self, pay: Payment) -> None:
     proto 1 0
 
 add_payment_block@0:
-    // mutable_native_types/contract.py:113
+    // mutable_native_types/contract.py:116
     // assert self.num_payments < self.payments.length, "too many payments"
     intc_0 // 0
     bytec_2 // "num_payments"
@@ -442,7 +490,7 @@ add_payment_block@0:
     intc_2 // 8
     <
     assert // too many payments
-    // mutable_native_types/contract.py:114
+    // mutable_native_types/contract.py:117
     // self.payments[self.num_payments] = pay.copy()
     frame_dig -1
     intc_0 // 0
@@ -460,7 +508,7 @@ add_payment_block@0:
     bytec_3 // "payments"
     swap
     app_global_put
-    // mutable_native_types/contract.py:115
+    // mutable_native_types/contract.py:118
     // self.num_payments += 1
     intc_0 // 0
     bytec_2 // "num_payments"
@@ -476,13 +524,13 @@ add_payment_block@0:
 
 // test_cases.mutable_native_types.contract.Contract.increment_payment(index: uint64, amt: uint64) -> void:
 increment_payment:
-    // mutable_native_types/contract.py:117-118
+    // mutable_native_types/contract.py:120-121
     // @arc4.abimethod()
     // def increment_payment(self, index: UInt64, amt: UInt64) -> None:
     proto 2 0
 
 increment_payment_block@0:
-    // mutable_native_types/contract.py:119
+    // mutable_native_types/contract.py:122
     // assert index < self.num_payments, "invalid payment index"
     intc_0 // 0
     bytec_2 // "num_payments"
@@ -491,7 +539,7 @@ increment_payment_block@0:
     frame_dig -2
     >
     assert // invalid payment index
-    // mutable_native_types/contract.py:120
+    // mutable_native_types/contract.py:123
     // self.payments[index].amt += amt
     intc_0 // 0
     bytec_3 // "payments"
@@ -538,13 +586,13 @@ increment_payment_block@0:
 
 // test_cases.mutable_native_types.contract.Contract.create_storage(box_key: uint64) -> void:
 create_storage:
-    // mutable_native_types/contract.py:122-123
+    // mutable_native_types/contract.py:125-126
     // @arc4.abimethod()
     // def create_storage(self, box_key: UInt64) -> None:
     proto 1 0
 
 create_storage_block@0:
-    // mutable_native_types/contract.py:124
+    // mutable_native_types/contract.py:127
     // self.nested_proxy.value = self.nested.copy()
     intc_0 // 0
     bytec_1 // "nested"
@@ -553,7 +601,7 @@ create_storage_block@0:
     bytec 4 // 0x70
     swap
     app_global_put
-    // mutable_native_types/contract.py:125
+    // mutable_native_types/contract.py:128
     // self.nested_local[Txn.sender] = self.nested.copy()
     intc_0 // 0
     bytec_1 // "nested"
@@ -563,13 +611,13 @@ create_storage_block@0:
     bytec 5 // 0x6c
     uncover 2
     app_local_put
-    // mutable_native_types/contract.py:126
+    // mutable_native_types/contract.py:129
     // assert self.box.create(), "expected box to not exist"
     bytec 6 // "box"
     pushint 2064 // 2064
     box_create
     assert // expected box to not exist
-    // mutable_native_types/contract.py:127
+    // mutable_native_types/contract.py:130
     // self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
     intc_0 // 0
     bytec_1 // "nested"
@@ -597,7 +645,7 @@ create_storage_block@0:
 local_struct:
 
 local_struct_block@0:
-    // mutable_native_types/contract.py:131
+    // mutable_native_types/contract.py:134
     // a = Payment(Txn.sender, Asset(1234), UInt64(567))
     txn Sender
     bytec_0 // 0x
@@ -611,7 +659,7 @@ local_struct_block@0:
     concat
     bytec_0 // 0x
     concat
-    // mutable_native_types/contract.py:132-134
+    // mutable_native_types/contract.py:135-137
     // # python equivalent to typescript destructuring e.g.
     // # { foo, bar, baz } = a
     // (foo, bar, baz) = (a.receiver, a.asset, a.amt)
@@ -636,50 +684,50 @@ local_struct_block@0:
     uncover 3
     cover 2
     cover 2
-    // mutable_native_types/contract.py:135
+    // mutable_native_types/contract.py:138
     // assert foo, "use foo"
     global ZeroAddress
     !=
     assert // use foo
-    // mutable_native_types/contract.py:136
+    // mutable_native_types/contract.py:139
     // assert bar, "use bar"
     assert // use bar
-    // mutable_native_types/contract.py:137
+    // mutable_native_types/contract.py:140
     // assert baz, "use baz"
     intc_0 // 0
     !=
     assert // use baz
-    // mutable_native_types/contract.py:138
+    // mutable_native_types/contract.py:141
     // do_something(a)
     callsub do_something
-    // mutable_native_types/contract.py:139
+    // mutable_native_types/contract.py:142
     // return a
     retsub
 
 
 // test_cases.mutable_native_types.contract.Contract.delete_storage(box_key: uint64) -> void:
 delete_storage:
-    // mutable_native_types/contract.py:141-142
+    // mutable_native_types/contract.py:144-145
     // @arc4.abimethod()
     // def delete_storage(self, box_key: UInt64) -> None:
     proto 1 0
 
 delete_storage_block@0:
-    // mutable_native_types/contract.py:143
+    // mutable_native_types/contract.py:146
     // del self.nested_proxy.value
     bytec 4 // 0x70
     app_global_del
-    // mutable_native_types/contract.py:144
+    // mutable_native_types/contract.py:147
     // del self.nested_local[Txn.sender]
     txn Sender
     bytec 5 // 0x6c
     app_local_del
-    // mutable_native_types/contract.py:145
+    // mutable_native_types/contract.py:148
     // del self.box.value
     bytec 6 // "box"
     box_del
     pop
-    // mutable_native_types/contract.py:146
+    // mutable_native_types/contract.py:149
     // del self.box_map[box_key]
     frame_dig -1
     itob
@@ -693,13 +741,13 @@ delete_storage_block@0:
 
 // test_cases.mutable_native_types.contract.Contract.struct_arg(box_key: uint64, a: bytes) -> void:
 struct_arg:
-    // mutable_native_types/contract.py:150-151
+    // mutable_native_types/contract.py:153-154
     // @arc4.abimethod()
     // def struct_arg(self, box_key: UInt64, a: FixedStruct) -> None:
     proto 2 0
 
 struct_arg_block@0:
-    // mutable_native_types/contract.py:152
+    // mutable_native_types/contract.py:155
     // self.nested.fixed_a = a
     intc_0 // 0
     bytec_1 // "nested"
@@ -711,7 +759,7 @@ struct_arg_block@0:
     bytec_1 // "nested"
     swap
     app_global_put
-    // mutable_native_types/contract.py:153
+    // mutable_native_types/contract.py:156
     // self.nested_proxy.value.fixed_a = a
     intc_0 // 0
     bytec 4 // 0x70
@@ -723,7 +771,7 @@ struct_arg_block@0:
     bytec 4 // 0x70
     swap
     app_global_put
-    // mutable_native_types/contract.py:154
+    // mutable_native_types/contract.py:157
     // self.nested_local[Txn.sender].fixed_a = a
     txn Sender
     dup
@@ -738,7 +786,7 @@ struct_arg_block@0:
     bytec 5 // 0x6c
     uncover 2
     app_local_put
-    // mutable_native_types/contract.py:155
+    // mutable_native_types/contract.py:158
     // self.box.value.fixed_a = a
     bytec 6 // "box"
     box_get
@@ -749,7 +797,7 @@ struct_arg_block@0:
     bytec 6 // "box"
     swap
     box_put
-    // mutable_native_types/contract.py:156
+    // mutable_native_types/contract.py:159
     // self.box_map[box_key].fixed_a = a
     frame_dig -2
     itob
@@ -770,7 +818,7 @@ struct_arg_block@0:
 struct_return:
 
 struct_return_block@0:
-    // mutable_native_types/contract.py:162
+    // mutable_native_types/contract.py:165
     // return self.nested.fixed_a
     intc_0 // 0
     bytec_1 // "nested"
@@ -786,7 +834,7 @@ struct_return_block@0:
 tup_return:
 
 tup_return_block@0:
-    // mutable_native_types/contract.py:166
+    // mutable_native_types/contract.py:169
     // return self.nested.tup
     intc_0 // 0
     bytec_1 // "nested"
@@ -810,13 +858,13 @@ tup_return_block@0:
 
 // test_cases.mutable_native_types.contract.Contract.calculate_sum() -> uint64:
 calculate_sum:
-    // mutable_native_types/contract.py:168-169
+    // mutable_native_types/contract.py:171-172
     // @arc4.abimethod()
     // def calculate_sum(self) -> UInt64:
     proto 0 1
 
 calculate_sum_block@0:
-    // mutable_native_types/contract.py:170
+    // mutable_native_types/contract.py:173
     // fixed_a = self.nested.fixed_a
     intc_0 // 0
     bytec_1 // "nested"
@@ -825,7 +873,7 @@ calculate_sum_block@0:
     intc_0 // 0
     pushint 16 // 16
     extract3
-    // mutable_native_types/contract.py:171
+    // mutable_native_types/contract.py:174
     // fixed_b = self.nested.fixed_b
     intc_0 // 0
     bytec_1 // "nested"
@@ -834,7 +882,7 @@ calculate_sum_block@0:
     pushint 16 // 16
     dup
     extract3
-    // mutable_native_types/contract.py:172
+    // mutable_native_types/contract.py:175
     // result = add(fixed_a) + add(fixed_b)
     swap
     callsub add
@@ -842,14 +890,14 @@ calculate_sum_block@0:
     callsub add
     +
     dupn 2
-    // mutable_native_types/contract.py:173
+    // mutable_native_types/contract.py:176
     // if result < 100:
     pushint 100 // 100
     <
     bz calculate_sum_after_if_else@2
 
 calculate_sum_if_body@1:
-    // mutable_native_types/contract.py:174
+    // mutable_native_types/contract.py:177
     // c, d = self.nested.tup
     intc_0 // 0
     bytec_1 // "nested"
@@ -869,18 +917,18 @@ calculate_sum_if_body@1:
     extract3
     btoi
     swap
-    // mutable_native_types/contract.py:175
+    // mutable_native_types/contract.py:178
     // result += c
     frame_dig 0
     +
-    // mutable_native_types/contract.py:176
+    // mutable_native_types/contract.py:179
     // result += d
     +
     frame_bury 1
 
 calculate_sum_after_if_else@2:
     frame_dig 1
-    // mutable_native_types/contract.py:177
+    // mutable_native_types/contract.py:180
     // return result
     frame_bury 0
     retsub
@@ -929,7 +977,7 @@ approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract
     retsub
 
 approval_program_calculate_sum_route@12:
-    // mutable_native_types/contract.py:168
+    // mutable_native_types/contract.py:171
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -949,7 +997,7 @@ approval_program_calculate_sum_route@12:
     b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
 
 approval_program_tup_return_route@11:
-    // mutable_native_types/contract.py:164
+    // mutable_native_types/contract.py:167
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -978,7 +1026,7 @@ approval_program_tup_return_route@11:
     b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
 
 approval_program_struct_return_route@10:
-    // mutable_native_types/contract.py:160
+    // mutable_native_types/contract.py:163
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -997,7 +1045,7 @@ approval_program_struct_return_route@10:
     b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
 
 approval_program_struct_arg_route@9:
-    // mutable_native_types/contract.py:150
+    // mutable_native_types/contract.py:153
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1012,14 +1060,14 @@ approval_program_struct_arg_route@9:
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
-    // mutable_native_types/contract.py:150
+    // mutable_native_types/contract.py:153
     // @arc4.abimethod()
     callsub struct_arg
     intc_1 // 1
     b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
 
 approval_program_delete_storage_route@8:
-    // mutable_native_types/contract.py:141
+    // mutable_native_types/contract.py:144
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1033,14 +1081,14 @@ approval_program_delete_storage_route@8:
     // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // mutable_native_types/contract.py:141
+    // mutable_native_types/contract.py:144
     // @arc4.abimethod()
     callsub delete_storage
     intc_1 // 1
     b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
 
 approval_program_local_struct_route@7:
-    // mutable_native_types/contract.py:129
+    // mutable_native_types/contract.py:132
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1059,7 +1107,7 @@ approval_program_local_struct_route@7:
     b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
 
 approval_program_create_storage_route@6:
-    // mutable_native_types/contract.py:122
+    // mutable_native_types/contract.py:125
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1073,14 +1121,14 @@ approval_program_create_storage_route@6:
     // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // mutable_native_types/contract.py:122
+    // mutable_native_types/contract.py:125
     // @arc4.abimethod()
     callsub create_storage
     intc_1 // 1
     b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
 
 approval_program_increment_payment_route@5:
-    // mutable_native_types/contract.py:117
+    // mutable_native_types/contract.py:120
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1096,14 +1144,14 @@ approval_program_increment_payment_route@5:
     btoi
     txna ApplicationArgs 2
     btoi
-    // mutable_native_types/contract.py:117
+    // mutable_native_types/contract.py:120
     // @arc4.abimethod()
     callsub increment_payment
     intc_1 // 1
     b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
 
 approval_program_add_payment_route@4:
-    // mutable_native_types/contract.py:111
+    // mutable_native_types/contract.py:114
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1116,7 +1164,7 @@ approval_program_add_payment_route@4:
     // mutable_native_types/contract.py:67
     // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 1
-    // mutable_native_types/contract.py:111
+    // mutable_native_types/contract.py:114
     // @arc4.abimethod()
     callsub add_payment
     intc_1 // 1

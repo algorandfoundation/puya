@@ -362,7 +362,7 @@ contract StaticSizeContract
       assert(reinterpret_cast<biguint>(path[i].other.d.foo) == itob(i + 2u))
       assert(reinterpret_cast<biguint>(path[i].other.d.bar) == itob(i + 1u * i + 1u))
     }
-    Box['a']: arc4.dynamic_array<test_cases.array.static_size.Point> = new arc4.dynamic_array<test_cases.array.static_size.Point>() + path
+    Box['a']: arc4.dynamic_array<test_cases.array.static_size.Point> = convert_array<arc4.dynamic_array<test_cases.array.static_size.Point>>(path)
     return test_cases.array.static_size.path_length(path)
   }
   
@@ -372,7 +372,7 @@ contract StaticSizeContract
     arr.extend(some_more)
     last: test_cases.array.static_size.More = arr[arr.length - 1u]
     assert(last == some_more[1])
-    result: arc4.dynamic_array<test_cases.array.static_size.More> = new arc4.dynamic_array<test_cases.array.static_size.More>() + arr
+    result: arc4.dynamic_array<test_cases.array.static_size.More> = convert_array<arc4.dynamic_array<test_cases.array.static_size.More>>(arr)
     assert(result[result.length - 1u] == last)
     return result
   }
@@ -381,7 +381,7 @@ contract StaticSizeContract
   {
     arr: ref_array<test_cases.array.static_size.More> = new ref_array<test_cases.array.static_size.More>()
     arr.extend(some_more)
-    return new arc4.dynamic_array<test_cases.array.static_size.More>() + arr
+    return convert_array<arc4.dynamic_array<test_cases.array.static_size.More>>(arr)
   }
   
   abimethod test_cases.array.static_size.StaticSizeContract.test_bool_array(length: uint64): uint64
@@ -465,7 +465,7 @@ contract StaticSizeContract
     assert(arc4_decode(arr2[1u], bool) == txn<Sender>() != txn<Receiver>(), comment="expected correct value at 1")
     assert(arc4_decode(arr2[2u], bool) == txn<Sender>() == txn<Receiver>(), comment="expected correct value at 2")
     assert(arc4_decode(arr2[3u], bool) == txn<Sender>() != txn<Receiver>(), comment="expected correct value at 3")
-    return new arc4.dynamic_array<arc4.bool>() + arr
+    return convert_array<arc4.dynamic_array<arc4.bool>>(arr)
   }
   
   baremethod test_cases.array.static_size.StaticSizeContract.__algopy_default_create(): void
@@ -800,7 +800,7 @@ contract ImmutableArrayContract
     for i in range(0u, append, 1u) {
       mutable.extend(((foo=i, bar=i % 2u == 0u, baz=i % 3u == 0u)))
     }
-    return new arc4.dynamic_array<test_cases.array.immutable.MyTuple>() + mutable
+    return convert_array<arc4.dynamic_array<test_cases.array.immutable.MyTuple>>(mutable)
   }
   
   abimethod test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple(arg: arc4.tuple<arc4.uint64,arc4.uint64>): arc4.dynamic_array<arc4.uint64>

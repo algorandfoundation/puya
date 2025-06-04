@@ -3783,20 +3783,15 @@ subroutine test_convert_to_array_and_back:
         v-load slot%0                                                                             (𝕡) arr#0,append#0 | slot_contents%2#0
         // array/immutable.py:392
         // return mutable.freeze()
-        byte 0x0000                                                                               (𝕡) arr#0,append#0 | slot_contents%2#0,0x0000
-        l-load slot_contents%2#0 1                                                                (𝕡) arr#0,append#0 | 0x0000,slot_contents%2#0
-        concat // on error: max array length exceeded                                             (𝕡) arr#0,append#0 | concat%2#0
-        l-load-copy concat%2#0 0                                                                  (𝕡) arr#0,append#0 | concat%2#0,concat%2#0 (copy)
-        extract 2 0                                                                               (𝕡) arr#0,append#0 | concat%2#0,extract_to_end%1#0
-        len                                                                                       (𝕡) arr#0,append#0 | concat%2#0,len%0#0
-        int 9                                                                                     (𝕡) arr#0,append#0 | concat%2#0,len%0#0,9
-        /                                                                                         (𝕡) arr#0,append#0 | concat%2#0,div_floor%0#0
-        itob                                                                                      (𝕡) arr#0,append#0 | concat%2#0,as_bytes%0#0
-        extract 6 2                                                                               (𝕡) arr#0,append#0 | concat%2#0,as_u16_bytes%0#0
-        l-load concat%2#0 1                                                                       (𝕡) arr#0,append#0 | as_u16_bytes%0#0,concat%2#0
-        l-load as_u16_bytes%0#0 1                                                                 (𝕡) arr#0,append#0 | concat%2#0,as_u16_bytes%0#0
-        replace2 0                                                                                (𝕡) arr#0,append#0 | replace%0#0
-        retsub                                                                                    replace%0#0
+        l-load-copy slot_contents%2#0 0                                                           (𝕡) arr#0,append#0 | slot_contents%2#0,slot_contents%2#0 (copy)
+        len                                                                                       (𝕡) arr#0,append#0 | slot_contents%2#0,bytes_len%0#0
+        int 9                                                                                     (𝕡) arr#0,append#0 | slot_contents%2#0,bytes_len%0#0,9
+        /                                                                                         (𝕡) arr#0,append#0 | slot_contents%2#0,array_len%0#0
+        itob                                                                                      (𝕡) arr#0,append#0 | slot_contents%2#0,as_bytes%0#0
+        extract 6 2                                                                               (𝕡) arr#0,append#0 | slot_contents%2#0,as_u16_bytes%0#0
+        l-load slot_contents%2#0 1                                                                (𝕡) arr#0,append#0 | as_u16_bytes%0#0,slot_contents%2#0
+        concat                                                                                    (𝕡) arr#0,append#0 | converted_array%0#0
+        retsub                                                                                    converted_array%0#0
 
 
 // test_cases.array.immutable.ImmutableArrayContract.test_concat_with_arc4_tuple(arg: bytes) -> bytes:
