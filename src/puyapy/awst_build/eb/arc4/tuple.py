@@ -26,6 +26,7 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
 )
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
+from puyapy.awst_build.utils import tuple_iterable_item_type
 
 logger = log.get_logger(__name__)
 
@@ -152,8 +153,8 @@ class ARC4TupleExpressionBuilder(
         ]
 
     @typing.override
-    def iterable_item_type(self) -> typing.Never:
-        self.iterate()
+    def iterable_item_type(self) -> pytypes.PyType:
+        return tuple_iterable_item_type(self.pytype, self.source_location)
 
     @typing.override
     def slice_index(
