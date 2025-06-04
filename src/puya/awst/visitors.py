@@ -319,6 +319,9 @@ class ExpressionVisitor[T](ABC):
     @abstractmethod
     def visit_comma_expression(self, expr: puya.awst.nodes.CommaExpression) -> T: ...
 
+    @abstractmethod
+    def visit_convert_array(self, expr: puya.awst.nodes.ConvertArray) -> T: ...
+
 
 class ARC4WTypeVisitor[T](ABC):
     @abstractmethod

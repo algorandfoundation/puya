@@ -3,7 +3,14 @@ from collections.abc import Sequence
 
 from puya import log
 from puya.awst import wtypes
-from puya.awst.nodes import Copy, Expression, IndexExpression, NewArray, UInt64Constant
+from puya.awst.nodes import (
+    ConvertArray,
+    Copy,
+    Expression,
+    IndexExpression,
+    NewArray,
+    UInt64Constant,
+)
 from puya.errors import CodeError
 from puya.parse import SourceLocation
 from puyapy import models
@@ -78,6 +85,11 @@ class FixedArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
 
         if arg.pytype.wtype == wtype:
             new_array: Expression = Copy(value=arg.resolve(), source_location=location)
+        elif isinstance(
+            arg.pytype.wtype,
+            wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray,
+        ):
+            new_array = ConvertArray(expr=arg.resolve(), wtype=wtype, source_location=location)
         elif isinstance(arg, StaticSizedCollectionBuilder):
             item_builders = arg.iterate_static()
             if len(item_builders) != self._size:

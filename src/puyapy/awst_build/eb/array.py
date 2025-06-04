@@ -5,10 +5,10 @@ from collections.abc import Sequence
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
-    ArrayConcat,
     ArrayExtend,
     ArrayLength,
     ArrayPop,
+    ConvertArray,
     Expression,
     IndexExpression,
     NewArray,
@@ -24,17 +24,9 @@ from puyapy.awst_build.eb._base import (
     GenericTypeBuilder,
     InstanceExpressionBuilder,
 )
-from puyapy.awst_build.eb._utils import (
-    CopyBuilder,
-    dummy_value,
-    resolve_negative_literal_index,
-)
+from puyapy.awst_build.eb._utils import CopyBuilder, dummy_value, resolve_negative_literal_index
 from puyapy.awst_build.eb.factories import builder_for_instance
-from puyapy.awst_build.eb.interface import (
-    InstanceBuilder,
-    NodeBuilder,
-    TypeBuilder,
-)
+from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder, TypeBuilder
 from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
@@ -226,14 +218,8 @@ class _Freeze(_ArrayFunc):
         imm_type = pytypes.GenericImmutableArrayType.parameterise([self.typ.items], location)
         imm_wtype = imm_type.wtype
         assert isinstance(imm_wtype, wtypes.ARC4DynamicArray)
-        return builder_for_instance(
-            imm_type,
-            ArrayConcat(
-                left=NewArray(wtype=imm_wtype, values=[], source_location=location),
-                right=self.expr,
-                source_location=location,
-            ),
-        )
+        converted = ConvertArray(expr=self.expr, wtype=imm_wtype, source_location=location)
+        return builder_for_instance(imm_type, converted)
 
 
 def _check_array_concat_arg(arg: InstanceBuilder, arr_type: pytypes.ArrayType) -> bool:

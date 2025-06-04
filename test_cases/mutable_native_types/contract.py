@@ -108,6 +108,9 @@ class Contract(arc4.ARC4Contract):
         arr_3_from_fixed = FixedUInt64Of3(arr_3)
         assert arr_3 == arr_3_from_fixed, "should be the same"
 
+        dynamic_arr = NativeArray((UInt64(0), UInt64(1), UInt64(2)))
+        assert arr_3 == FixedUInt64Of3(dynamic_arr)
+
     @arc4.abimethod()
     def add_payment(self, pay: Payment) -> None:
         assert self.num_payments < self.payments.length, "too many payments"

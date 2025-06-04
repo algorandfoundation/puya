@@ -31,10 +31,7 @@ from puya.ir.builder._utils import (
     get_implicit_return_out,
     mktemp,
 )
-from puya.ir.builder.assignment import (
-    handle_assignment,
-    handle_assignment_expr,
-)
+from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.bytes import (
     visit_bytes_intersection_slice_expression,
     visit_bytes_slice_expression,
@@ -1378,6 +1375,21 @@ class FunctionIRBuilder(
     def visit_comma_expression(self, expr: awst_nodes.CommaExpression) -> TExpression:
         results = [inner.accept(self) for inner in expr.expressions]
         return results[-1]
+
+    @typing.override
+    def visit_convert_array(self, expr: awst_nodes.ConvertArray) -> TExpression:
+        source = self.visit_and_materialise_single(expr.expr)
+        source_wtype = expr.expr.wtype
+        assert isinstance(
+            source_wtype, wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray
+        )
+        return sequence.convert_array(
+            self.context,
+            source,
+            source_wtype=source_wtype,
+            target_wtype=expr.wtype,
+            loc=expr.source_location,
+        )
 
     def visit_and_materialise_single(
         self, expr: awst_nodes.Expression, temp_description: str = "tmp"
