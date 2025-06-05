@@ -150,6 +150,15 @@ class FunctionIRBuilder(
         # For value types, we can just visit the expression and the resulting read
         # will effectively be a copy. We assign the copy to a new register in case it is
         # mutated.
+        result_ir_type = wtype_to_ir_type(expr.wtype, expr.source_location, allow_tuple=True)
+        source_ir_type = wtype_to_ir_type(
+            expr.value.wtype, expr.value.source_location, allow_tuple=True
+        )
+        if result_ir_type != source_ir_type:
+            raise InternalError(
+                "copy node cannot change the structure of a value", expr.source_location
+            )
+
         match expr.value.wtype:
             case wtypes.ReferenceArray():
                 loc = expr.source_location
