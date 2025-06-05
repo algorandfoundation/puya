@@ -9,6 +9,7 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
+from puya import log
 from puya.algo_constants import SUPPORTED_AVM_VERSIONS
 from puya.avm import AVMType, OnCompletionAction
 from puya.awst import wtypes
@@ -26,6 +27,8 @@ from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import unique
 
 T = typing.TypeVar("T")
+
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen
@@ -469,11 +472,20 @@ class Copy(Expression):
     """
 
     value: Expression = attrs.field()
-    wtype: WType = attrs.field(init=False)
+    wtype: WType = attrs.field()
 
     @wtype.default
     def _wtype(self) -> WType:
         return self.value.wtype
+
+    def __attrs_post_init__(self) -> None:
+        # this is a less restrictive check than what is required,
+        # but it serves a basic purpose.
+        # IR lowering will check that the IR types are equivalent when required
+        if type(self.wtype) is not type(self.value.wtype):
+            raise InternalError(
+                "copy node cannot change the structure of a value", self.source_location
+            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_copy(self)
@@ -1105,6 +1117,12 @@ class ReinterpretCast(Expression):
     Note: the validation of this isn't done until IR construction"""
 
     expr: Expression
+
+    def __attrs_post_init__(self) -> None:
+        source_wtype = self.expr.wtype
+        target_wtype = self.wtype
+        if source_wtype.is_aggregate and target_wtype.is_aggregate:
+            logger.error("cannot cast between aggregate types", location=self.source_location)
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_reinterpret_cast(self)

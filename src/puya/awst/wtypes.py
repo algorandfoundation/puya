@@ -128,6 +128,11 @@ class WType:
     def _type_semantics_factory(self) -> _TypeSemantics:
         return self._type_semantics_registry[self.name]
 
+    @typing.final
+    @property
+    def is_aggregate(self) -> bool:
+        return self._type_semantics.value.value_type.is_aggregate
+
     def __str__(self) -> str:
         return self.name
 
