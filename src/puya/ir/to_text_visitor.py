@@ -107,30 +107,38 @@ class ToTextVisitor(IRVisitor[str]):
 
     @typing.override
     def visit_array_read_index(self, read: models.ArrayReadIndex) -> str:
-        return f"{read.array.accept(self)}[{read.index.accept(self)}]"
+        base = read.array.accept(self)
+        index = read.index.accept(self)
+        return f"{base}[{index}]"
 
     @typing.override
     def visit_array_write_index(self, write: models.ArrayWriteIndex) -> str:
-        return (
-            f"{write.array.accept(self)}[{write.index.accept(self)}] = {write.value.accept(self)}"
-        )
+        base = write.array.accept(self)
+        index = write.index.accept(self)
+        value = write.value.accept(self)
+        return f"{base}.update({index}, {value})"
 
     @typing.override
-    def visit_array_concat(self, concat: models.ArrayConcat) -> str:
-        return f"{concat.array.accept(self)}.concat({concat.other.accept(self)})"
+    def visit_tuple_read_index(self, read: models.TupleReadIndex) -> str:
+        base = read.base.accept(self)
+        index = ", ".join(map(str, read.indexes))
+        return f"{base}[{index}]"
 
     @typing.override
-    def visit_array_encode(self, encode: models.ArrayEncode) -> str:
+    def visit_tuple_write_index(self, write: models.TupleWriteIndex) -> str:
+        base = write.base.accept(self)
+        index = ", ".join(map(str, write.indexes))
+        value = write.value.accept(self)
+        return f"{base}.update({index}, {value})"
+
+    @typing.override
+    def visit_value_encode(self, encode: models.ValueEncode) -> str:
         values = ", ".join(val.accept(self) for val in encode.values)
-        return f"encode<{encode.array_type.element}>({values})"
+        return f"encode<{encode.encoding!s}>({values})"
 
     @typing.override
-    def visit_array_pop(self, pop: models.ArrayPop) -> str:
-        return f"{pop.array.accept(self)}.pop()"
-
-    @typing.override
-    def visit_array_length(self, pop: models.ArrayLength) -> str:
-        return f"{pop.array.accept(self)}.length"
+    def visit_value_decode(self, decode: models.ValueDecode) -> str:
+        return f"decode<{decode.decoded_type.name}>({decode.value.accept(self)})"
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:

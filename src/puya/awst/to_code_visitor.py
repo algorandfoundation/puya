@@ -698,6 +698,11 @@ class ToCodeVisitor(
         )
         return tuple_expr.accept(self) + "[-1]"
 
+    @typing.override
+    def visit_convert_array(self, expr: nodes.ConvertArray) -> str:
+        array_expr = expr.expr.accept(self)
+        return f"convert_array<{expr.wtype}>({array_expr})"
+
 
 def _indent(lines: Iterable[str], indent_size: str = "  ") -> Iterator[str]:
     yield from (f"{indent_size}{line}" for line in lines)

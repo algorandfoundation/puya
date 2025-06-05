@@ -43,7 +43,7 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
     TypeBuilder,
 )
-from puyapy.awst_build.utils import determine_base_type, get_arg_mapping
+from puyapy.awst_build.utils import get_arg_mapping, tuple_iterable_item_type
 
 logger = log.get_logger(__name__)
 
@@ -132,6 +132,7 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
         if any_missing:
             return dummy_value(pytype, location)
 
+        # TODO: need to evaluate values args in field_mapping order
         values = [
             expect.argument_of_type_else_dummy(field_mapping[field_name], field_type).resolve()
             for field_name, field_type in pytype.fields.items()
@@ -257,7 +258,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
 
     @typing.override
     def iterable_item_type(self) -> pytypes.PyType:
-        return _iterable_item_type(self.pytype, self.source_location)
+        return tuple_iterable_item_type(self.pytype, self.source_location)
 
     def _expr_builder(self) -> InstanceBuilder:
         # used to maintain semantic compatibility, we must resolve this so all elements
@@ -433,7 +434,7 @@ class TupleExpressionBuilder(
 
     @typing.override
     def iterable_item_type(self) -> pytypes.PyType:
-        return _iterable_item_type(self.pytype, self.source_location)
+        return tuple_iterable_item_type(self.pytype, self.source_location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
@@ -615,14 +616,3 @@ def _concat(
 
     items = [*lhs_items, *rhs_items]
     return TupleLiteralBuilder(items, location)
-
-
-def _iterable_item_type(
-    pytype: pytypes.TupleType, source_location: SourceLocation
-) -> pytypes.PyType:
-    base_type = determine_base_type(*pytype.items, location=source_location)
-    if isinstance(base_type, pytypes.UnionType):
-        raise CodeError(
-            "unable to iterate heterogeneous tuple without common base type", source_location
-        )
-    return base_type

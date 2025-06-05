@@ -64,11 +64,11 @@ class ArrayContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def imm_array_mutable_fixed(self) -> None:
-        arr = ImmutableArray[MutableFixed]() ## E: arrays must have immutable elements
+        arr = ImmutableArray[MutableFixed]() ## E: immutable arrays must have immutable elements
 
     @arc4.abimethod
     def imm_array_mutable_dynamic(self) -> None:
-        arr = ImmutableArray[MutableDynamic]() ## E: arrays must have immutable elements
+        arr = ImmutableArray[MutableDynamic]() ## E: immutable arrays must have immutable elements
 
     @arc4.abimethod
     def imm_array_arc4_bool(self) -> None:
@@ -79,15 +79,15 @@ class ArrayContract(arc4.ARC4Contract):
         arr = ImmutableArray[bool]()
 
     @arc4.abimethod
-    def imm_txn_arg(self, arr: ImmutableArray[gtxn.Transaction]) -> None: ## E: ARC-4 arrays can only contain ARC-4 elements
+    def imm_txn_arg(self, arr: ImmutableArray[gtxn.Transaction]) -> None: ## E: arrays can only contain persistable elements
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.itxn.Payment
-    def imm_itxn_arg(self, arr: ImmutableArray[itxn.Payment]) -> None:
+    @arc4.abimethod
+    def imm_itxn_arg(self, arr: ImmutableArray[itxn.Payment]) -> None: ## E: arrays can only contain persistable elements
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.itxn.PaymentInnerTransaction
-    def imm_itxn2_arg(self, arr: ImmutableArray[itxn.PaymentInnerTransaction]) -> None:
+    @arc4.abimethod
+    def imm_itxn2_arg(self, arr: ImmutableArray[itxn.PaymentInnerTransaction]) -> None: ## E: arrays can only contain persistable elements
         pass
 
     @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.Array[algopy.gtxn.Transaction]
@@ -123,7 +123,7 @@ class MyContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def imm_txn_expr(self, txn: gtxn.Transaction) -> None:
-        arr = ImmutableArray[gtxn.Transaction]() ## E: unsupported array element type
+        arr = ImmutableArray[gtxn.Transaction]() ## E: arrays can only contain persistable elements
         arr = arr.append(txn)
 
 ## case: test_imm_array_itxn
@@ -132,7 +132,7 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn_expr(self) -> None:
-        arr = ImmutableArray[itxn.Payment]() ## E: unsupported array element type
+        arr = ImmutableArray[itxn.Payment]() ## E: arrays can only contain persistable elements
 
 ## case: test_imm_array_itxn_result
 from algopy import *
@@ -140,7 +140,7 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn2_expr(self) -> None:
-        arr = ImmutableArray[itxn.PaymentInnerTransaction]() ## E: unsupported array element type
+        arr = ImmutableArray[itxn.PaymentInnerTransaction]() ## E: arrays can only contain persistable elements
 
 
 ## case: test_array_txn
@@ -150,9 +150,9 @@ class MyContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def imm_txn_expr(self, txn: gtxn.Transaction) -> None:
-        arr = Array[gtxn.Transaction]() ## E: unsupported array element type
+        arr = Array[gtxn.Transaction]()
         arr.append(txn)
-        imm_arr = arr.freeze()
+        imm_arr = arr.freeze() ## E: arrays can only contain persistable elements
 
 ## case: test_array_itxn
 from algopy import *
@@ -160,7 +160,7 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn_expr(self) -> None:
-        arr = Array[itxn.Payment]() ## E: unsupported array element type
+        arr = Array[itxn.Payment]() ## E: unencodable type
         pay = itxn.Payment(receiver=Txn.sender)
         arr.append(pay)
 
@@ -170,4 +170,44 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn2_expr(self) -> None:
-        arr = Array[itxn.PaymentInnerTransaction]() ## E: unsupported array element type
+        arr = Array[itxn.PaymentInnerTransaction]() ## E: unencodable type
+
+
+## case: test_fixed_array_errors
+import typing
+from algopy import *
+
+FixedUInt64Of3 = FixedArray[UInt64, typing.Literal[3]]
+
+class MyContract(arc4.ARC4Contract):
+    @arc4.abimethod
+    def truthiness_is_static(self, arr: FixedUInt64Of3) -> None:
+        assert arr ## E: expression is always True
+
+    @arc4.abimethod
+    def full_requires_params(self, value: UInt64) -> FixedUInt64Of3:
+        return FixedArray.full(value) ## E: generic type requires parameters
+
+    @arc4.abimethod
+    def init_requires_params(self, tup: tuple[UInt64, UInt64, UInt64]) -> FixedUInt64Of3:
+        return FixedArray(tup) ## E: FixedArray usage requires type parameters
+
+    @arc4.abimethod
+    def invalid_arg_element_types(self, tup: tuple[String, String, String]) -> FixedUInt64Of3:
+        return FixedUInt64Of3(tup) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+    @arc4.abimethod
+    def no_implicit_arc4_conversion(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(arc4.StaticArray(arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2))) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+    @arc4.abimethod
+    def non_iterable_arg_type(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(UInt64(1)) # type: ignore[arg-type] ## E: expression is not iterable
+
+    @arc4.abimethod
+    def wrong_size(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(()) ## E: cannot determine item type of empty tuple
+
+    @arc4.abimethod
+    def wrong_size2(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3((UInt64(1),)) ## E: argument has incorrect length

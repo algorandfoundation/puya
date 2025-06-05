@@ -172,17 +172,6 @@ class InnerTransactionBuilder:
             case _:
                 return False
 
-    def _visit_submit_expr(self, expr: awst_nodes.Expression) -> Sequence[Value]:
-        value_provider = self.context.visitor.visit_expr(expr)
-        match value_provider:
-            case ValueTuple(values=values):
-                return values
-            case Value() as value:
-                return (value,)
-        raise InternalError(
-            "Unexpected result for SubmitInnerTransaction expr", expr.source_location
-        )
-
     def add_inner_transaction_submit_result_assignments(
         self,
         targets: Sequence[Value],
@@ -239,9 +228,9 @@ class InnerTransactionBuilder:
 
         itxn = self.context.visitor.visit_expr(itxn_field.itxn)
         if not isinstance(itxn, Register | ITxnConstant):
-            itxn_field_desc = {itxn_field.itxn.accept(ToCodeVisitor())}
+            itxn_field_desc = itxn_field.itxn.accept(ToCodeVisitor())
             raise CodeError(
-                f"Could not resolve inner transaction group index for {itxn_field_desc}",
+                f"could not resolve inner transaction group index for {itxn_field_desc}",
                 src_loc,
             )
 
@@ -1060,6 +1049,10 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
     def visit_inner_transaction_field(
         self, expr: awst_nodes.InnerTransactionField
     ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_convert_array(self, expr: awst_nodes.ConvertArray) -> list[_SourceAction]:
         return self._empty_actions_from_wtype(expr)
 
     # endregion
