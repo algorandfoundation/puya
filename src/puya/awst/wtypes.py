@@ -19,10 +19,15 @@ logger = log.get_logger(__name__)
 
 @enum.unique
 class _ValueType(enum.Enum):
-    uint64 = enum.auto()
-    bytes = enum.auto()
-    aggregate = enum.auto()
-    none = enum.auto()
+    """
+    This enum differentiates between different types of runtime representations.
+    """
+
+    uint64 = enum.auto()  # the value is always a single uint64
+    bytes = enum.auto()  # the value is always a single byte-slice
+    reference = enum.auto()  # the value is some sort of "pointer" to the actual data
+    composite = enum.auto()  # the value can actually be backed at runtime by multiple values
+    none = enum.auto()  # there is no value, it's only a type
 
     @property
     def avm_type(self) -> typing.Literal[AVMType.uint64, AVMType.bytes, None]:
@@ -31,12 +36,8 @@ class _ValueType(enum.Enum):
                 return AVMType.uint64
             case _ValueType.bytes:
                 return AVMType.bytes
-            case _ValueType.aggregate | _ValueType.none:
+            case _ValueType.composite | _ValueType.none | _ValueType.reference:
                 return None
-
-    @property
-    def is_aggregate(self) -> bool:
-        return self is _ValueType.aggregate
 
 
 @attrs.frozen
@@ -50,7 +51,7 @@ class _TypeSemanticsData:
         if self.value_type is _ValueType.none:
             assert self.persistable is False
         if self.persistable is None:
-            assert self.value_type is _ValueType.aggregate
+            assert self.value_type is _ValueType.composite
 
 
 @enum.unique
@@ -63,20 +64,20 @@ class _TypeSemantics(enum.Enum):
         value_type=_ValueType.bytes,
         persistable=True,
     )
-    persistable_aggregate = _TypeSemanticsData(
-        value_type=_ValueType.aggregate,
-        persistable=True,
-    )
-    maybe_persistable_aggregate = _TypeSemanticsData(
-        value_type=_ValueType.aggregate,
+    maybe_persistable_composite = _TypeSemanticsData(
+        value_type=_ValueType.composite,
         persistable=None,
     )
     ephemeral_uint64 = _TypeSemanticsData(
         value_type=_ValueType.uint64,
         persistable=False,
     )
-    ephemeral_aggregate = _TypeSemanticsData(
-        value_type=_ValueType.aggregate,
+    ephemeral_composite = _TypeSemanticsData(
+        value_type=_ValueType.composite,
+        persistable=False,
+    )
+    ephemeral_reference = _TypeSemanticsData(
+        value_type=_ValueType.reference,
         persistable=False,
     )
     static_type = _TypeSemanticsData(
@@ -93,6 +94,9 @@ class WType:
     # limited cases where this value is controlled by user type definitions which
     # are handled explicitly by subclasses
     immutable: bool = attrs.field(default=True, validator=attrs.validators.in_([True]))
+    # an aggregate is a type which contains other types which are user defined,
+    # e.g. arrays, structs, tuples
+    is_aggregate: bool = attrs.field(default=False, init=False)
     """
     Does this type have immutable semantics, if False and a stack based value
     then this will force a copy when aliasing the value.
@@ -120,9 +124,13 @@ class WType:
         result = self._type_semantics.value.persistable
         if result is None:
             raise InternalError(
-                "maybe-persistable aggregate types must implement property override"
+                "maybe-persistable composite types must implement property override"
             )
         return result
+
+    @property
+    def is_reference(self) -> bool:
+        return self._type_semantics.value.value_type is _ValueType.reference
 
     @_type_semantics.default
     def _type_semantics_factory(self) -> _TypeSemantics:
@@ -252,7 +260,7 @@ class WInnerTransactionFields(_WTypeInstance):
     transaction_type: TransactionType | None
     name: str = attrs.field()
     _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.ephemeral_aggregate, init=False
+        default=_TypeSemantics.ephemeral_composite, init=False
     )
 
     @name.default
@@ -273,7 +281,7 @@ class WInnerTransaction(_WTypeInstance):
     transaction_type: TransactionType | None
     name: str = attrs.field()
     _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.ephemeral_aggregate, init=False
+        default=_TypeSemantics.ephemeral_composite, init=False
     )
 
     @name.default
@@ -294,8 +302,9 @@ class ReferenceArray(_WTypeInstance):
     element_type: WType = attrs.field()
     name: str = attrs.field(init=False)
     immutable: bool = attrs.field(default=False, init=False)
+    is_aggregate: bool = attrs.field(default=True, init=False)
     _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.ephemeral_aggregate, init=False
+        default=_TypeSemantics.ephemeral_reference, init=False
     )
     source_location: SourceLocation | None = attrs.field(eq=False)
 
@@ -324,8 +333,9 @@ class WTuple(_WTypeInstance):
     name: str = attrs.field(kw_only=True)
     names: tuple[str, ...] | None = attrs.field(default=None)
     desc: str | None = None
+    is_aggregate: bool = attrs.field(default=True, init=False)
     _type_semantics: _TypeSemantics = attrs.field(
-        default=_TypeSemantics.maybe_persistable_aggregate, init=False
+        default=_TypeSemantics.maybe_persistable_composite, init=False
     )
 
     @property
@@ -471,6 +481,7 @@ class ARC4Tuple(_ARC4WTypeInstance):
     types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
     name: str = attrs.field(init=False)
     immutable: bool = attrs.field(init=False)
+    is_aggregate: bool = attrs.field(default=True, init=False)
 
     @name.default
     def _name(self) -> str:
@@ -490,6 +501,11 @@ class ARC4Array(_ARC4WTypeInstance, abc.ABC):
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     immutable: bool = False
     element_type: WType = attrs.field()
+    is_aggregate: bool = attrs.field(init=False)
+
+    @is_aggregate.default
+    def _aggregate_default(self) -> bool:
+        return self.arc4_alias is None
 
     @element_type.validator
     def _element_type_validator(self, _attribute: object, value: WType) -> None:
@@ -549,6 +565,7 @@ class ARC4Struct(_ARC4WTypeInstance):
     immutable: bool = attrs.field(init=False)
     source_location: SourceLocation | None = attrs.field(default=None, eq=False)
     desc: str | None = None
+    is_aggregate: bool = attrs.field(default=True, init=False)
 
     @fields.validator
     def _fields_validator(self, _attribute: object, value: immutabledict[str, WType]) -> None:
