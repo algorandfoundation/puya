@@ -22,6 +22,7 @@ from puya.ir.builder._utils import (
 )
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
+    BoxRead,
     ConditionalBranch,
     Intrinsic,
     UInt64Constant,
@@ -130,7 +131,7 @@ def _build_get_ex_op(
 
     if isinstance(expr, awst_nodes.AppStateExpression):
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-        get_storage_value = Intrinsic(
+        get_storage_value: ValueProvider = Intrinsic(
             op=AVMOp.app_global_get_ex,
             args=[current_app_offset, key],
             types=[result_type, PrimitiveIRType.bool],
@@ -147,11 +148,9 @@ def _build_get_ex_op(
         )
     else:
         typing.assert_type(expr, awst_nodes.BoxValueExpression)
-        get_storage_value = Intrinsic(
-            op=AVMOp.box_get,
-            args=[key],
-            # specifying types should be redundant, but this acts as an internal consistency check
-            types=[result_type, PrimitiveIRType.bool],
+        get_storage_value = BoxRead(
+            key=key,
+            value_type=result_type,
             source_location=expr.source_location,
         )
     return get_storage_value
