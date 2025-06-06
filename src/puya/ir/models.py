@@ -531,6 +531,39 @@ class AggregateWriteIndex(_AggregateOp):
 
 
 @attrs.define(eq=False)
+class BoxRead(ValueProvider):
+    key: Value
+    value_type: IRType
+
+    def _frozen_data(self) -> object:
+        return self.key, self.value_type
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.value_type, PrimitiveIRType.bool)
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_box_read(self)
+
+
+@attrs.define(eq=False)
+class BoxWrite(Op):
+    key: Value
+    value: Value
+    source_location: SourceLocation | None
+
+    def _frozen_data(self) -> object:
+        return self.key, self.value
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return ()
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_box_write(self)
+
+
+@attrs.define(eq=False)
 class ValueEncode(Op, ValueProvider):
     """Encodes a sequence of values into an encoded value"""
 

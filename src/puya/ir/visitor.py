@@ -88,6 +88,12 @@ class IRVisitor[T](ABC):
     def visit_aggregate_write_index(self, write: puya.ir.models.AggregateWriteIndex) -> T: ...
 
     @abstractmethod
+    def visit_box_read(self, read: puya.ir.models.BoxRead) -> T: ...
+
+    @abstractmethod
+    def visit_box_write(self, write: puya.ir.models.BoxWrite) -> T: ...
+
+    @abstractmethod
     def visit_invoke_subroutine(self, callsub: puya.ir.models.InvokeSubroutine) -> T: ...
 
     @abstractmethod
@@ -207,6 +213,13 @@ class IRTraverser(IRVisitor[None]):
         for index in write.indexes:
             if not isinstance(index, int):
                 index.accept(self)
+        write.value.accept(self)
+
+    def visit_box_read(self, read: puya.ir.models.BoxRead) -> None:
+        read.key.accept(self)
+
+    def visit_box_write(self, write: puya.ir.models.BoxWrite) -> None:
+        write.key.accept(self)
         write.value.accept(self)
 
     def visit_itxn_constant(self, const: puya.ir.models.ITxnConstant) -> None:
@@ -330,6 +343,12 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
         return None
 
     def visit_aggregate_write_index(self, write: puya.ir.models.AggregateWriteIndex) -> T | None:
+        return None
+
+    def visit_box_read(self, read: puya.ir.models.BoxRead) -> T | None:
+        return None
+
+    def visit_box_write(self, write: puya.ir.models.BoxWrite) -> T | None:
         return None
 
     def visit_phi(self, phi: puya.ir.models.Phi) -> T | None:

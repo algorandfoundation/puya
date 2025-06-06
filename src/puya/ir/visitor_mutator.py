@@ -26,7 +26,7 @@ class IRMutator(IRVisitor[t.Any]):
         for op in block.ops:
             new_op = op.accept(self)
             if new_op is not None:
-                assert new_op is op, f"ops should be mutated in place, {op=}, {new_op=}"
+                assert new_op is op, f"ops should be mutated in place, {op=!s}, {new_op=!s}"
                 new_ops.append(new_op)
         self._current_block_ops = None
         block.ops = new_ops
@@ -117,6 +117,15 @@ class IRMutator(IRVisitor[t.Any]):
                 indexes.append(index.accept(self))
         read.indexes = indexes
         return read
+
+    def visit_box_read(self, read: models.BoxRead) -> models.ValueProvider:
+        read.key = read.key.accept(self)
+        return read
+
+    def visit_box_write(self, write: models.BoxWrite) -> models.BoxWrite | None:
+        write.key = write.key.accept(self)
+        write.value = write.value.accept(self)
+        return write
 
     def visit_aggregate_write_index(
         self, write: models.AggregateWriteIndex
