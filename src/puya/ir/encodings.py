@@ -38,6 +38,11 @@ class Encoding(abc.ABC):
 
     @cached_property
     @typing.final
+    def is_fixed(self) -> bool:
+        return self.num_bytes is not None
+
+    @cached_property
+    @typing.final
     def is_bit(self) -> bool:
         return self.num_bits == 1
 
