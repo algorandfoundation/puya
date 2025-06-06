@@ -1654,7 +1654,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(a
         let continue_looping%0#1: bool = (< item_index_internal%0#4 array_length%0#1)
         goto continue_looping%0#1 ? block@15 : block@16
     block@15: // for_body_L472
-        let array%array_trimmed%0#1: bytes = ((extract 2 0) inner_arr#0)
+        let array%array_head_and_tail%1#1: bytes = ((extract 2 0) arr#2)
+        let array%item_offset_offset%1#1: uint64 = (* item_index_internal%0#1 2u)
+        let array%item_offset%1#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 array%item_offset_offset%1#1)
+        let array%item_length%1#1: uint64 = (extract_uint16 array%array_head_and_tail%1#1 array%item_offset%1#1)
+        let array%item_length_in_bytes%1#1: uint64 = (* array%item_length%1#1 8u)
+        let array%item_head_tail_length%1#1: uint64 = (+ array%item_length_in_bytes%1#1 2u)
+        let array%item%1#1: bytes = (extract3 array%array_head_and_tail%1#1 array%item_offset%1#1 array%item_head_tail_length%1#1)
+        let array%array_trimmed%0#1: bytes = ((extract 2 0) array%item%1#1)
         let array%bytes_offset%0#1: uint64 = (* item_index_internal%0#4 8u)
         let array%encoded_element%0#1: bytes = (extract3 array%array_trimmed%0#1 array%bytes_offset%0#1 8u) // on error: index access is out of bounds
         let array_item%0#1: Encoded(uint64) = array%encoded_element%0#1

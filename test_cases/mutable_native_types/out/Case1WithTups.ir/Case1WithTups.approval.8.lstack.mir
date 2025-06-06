@@ -477,14 +477,15 @@ subroutine get_tup:
         assert // index out of bounds                                                                         (𝕡) index#0 | maybe_value%0#0
         // mutable_native_types/case1_with_tups.py:55
         // return self.tup_bag.value.items[index]
-        l-load maybe_value%0#0 0                                                                              (𝕡) index#0 | maybe_value%0#0
-        extract 8 128                                                                                         (𝕡) index#0 | array%extract%1#1
-        p-load index#0                                                                                        (𝕡) index#0 | array%extract%1#1,index#0 (copy)
-        int 16                                                                                                (𝕡) index#0 | array%extract%1#1,index#0 (copy),16
-        *                                                                                                     (𝕡) index#0 | array%extract%1#1,array%mul%0#1
-        l-load array%extract%1#1 1                                                                            (𝕡) index#0 | array%mul%0#1,array%extract%1#1
-        l-load array%mul%0#1 1                                                                                (𝕡) index#0 | array%extract%1#1,array%mul%0#1
-        int 16                                                                                                (𝕡) index#0 | array%extract%1#1,array%mul%0#1,16
+        p-load index#0                                                                                        (𝕡) index#0 | maybe_value%0#0,index#0 (copy)
+        int 16                                                                                                (𝕡) index#0 | maybe_value%0#0,index#0 (copy),16
+        *                                                                                                     (𝕡) index#0 | maybe_value%0#0,array%mul%0#1
+        int 8                                                                                                 (𝕡) index#0 | maybe_value%0#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                (𝕡) index#0 | maybe_value%0#0,8,array%mul%0#1
+        +                                                                                                     (𝕡) index#0 | maybe_value%0#0,array%add%3#1
+        l-load maybe_value%0#0 1                                                                              (𝕡) index#0 | array%add%3#1,maybe_value%0#0
+        l-load array%add%3#1 1                                                                                (𝕡) index#0 | maybe_value%0#0,array%add%3#1
+        int 16                                                                                                (𝕡) index#0 | maybe_value%0#0,array%add%3#1,16
         extract3                                                                                              (𝕡) index#0 | array%extract%2#1
         l-load-copy array%extract%2#1 0                                                                       (𝕡) index#0 | array%extract%2#1,array%extract%2#1 (copy)
         int 0                                                                                                 (𝕡) index#0 | array%extract%2#1,array%extract%2#1 (copy),0
@@ -534,15 +535,16 @@ subroutine sum:
         box_get                                                                                               maybe_value%1#0,maybe_exists%1#0
         l-load maybe_exists%1#0 0                                                                             maybe_value%1#0,maybe_exists%1#0
         assert // check self.tup_bag exists                                                                   maybe_value%1#0
-        l-load maybe_value%1#0 0                                                                              maybe_value%1#0
-        extract 8 128                                                                                         array%extract%1#1
-        v-load i#0                                                                                            array%extract%1#1,i#0
-        l-store-copy i#0 1                                                                                    i#0,array%extract%1#1,i#0 (copy)
-        int 16                                                                                                i#0,array%extract%1#1,i#0 (copy),16
-        *                                                                                                     i#0,array%extract%1#1,array%mul%0#1
-        l-load array%extract%1#1 1                                                                            i#0,array%mul%0#1,array%extract%1#1
-        l-load array%mul%0#1 1                                                                                i#0,array%extract%1#1,array%mul%0#1
-        int 16                                                                                                i#0,array%extract%1#1,array%mul%0#1,16
+        v-load i#0                                                                                            maybe_value%1#0,i#0
+        l-store-copy i#0 1                                                                                    i#0,maybe_value%1#0,i#0 (copy)
+        int 16                                                                                                i#0,maybe_value%1#0,i#0 (copy),16
+        *                                                                                                     i#0,maybe_value%1#0,array%mul%0#1
+        int 8                                                                                                 i#0,maybe_value%1#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                i#0,maybe_value%1#0,8,array%mul%0#1
+        +                                                                                                     i#0,maybe_value%1#0,array%add%3#1
+        l-load maybe_value%1#0 1                                                                              i#0,array%add%3#1,maybe_value%1#0
+        l-load array%add%3#1 1                                                                                i#0,maybe_value%1#0,array%add%3#1
+        int 16                                                                                                i#0,maybe_value%1#0,array%add%3#1,16
         extract3                                                                                              i#0,array%extract%2#1
         l-load-copy array%extract%2#1 0                                                                       i#0,array%extract%2#1,array%extract%2#1 (copy)
         int 0                                                                                                 i#0,array%extract%2#1,array%extract%2#1 (copy),0
@@ -716,34 +718,32 @@ subroutine set_a:
         box_get                                                                                               (𝕡) a#0 | maybe_value%1#0,maybe_exists%1#0
         l-load maybe_exists%1#0 0                                                                             (𝕡) a#0 | maybe_value%1#0,maybe_exists%1#0
         assert // check self.tup_bag exists                                                                   (𝕡) a#0 | maybe_value%1#0
-        l-load-copy maybe_value%1#0 0                                                                         (𝕡) a#0 | maybe_value%1#0,maybe_value%1#0 (copy)
-        extract 8 128                                                                                         (𝕡) a#0 | maybe_value%1#0,array%extract%1#1
-        v-load i#0                                                                                            (𝕡) a#0 | maybe_value%1#0,array%extract%1#1,i#0
-        l-store-copy i#0 2                                                                                    (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,i#0 (copy)
-        int 16                                                                                                (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,i#0 (copy),16
-        *                                                                                                     (𝕡) a#0 | i#0,maybe_value%1#0,array%extract%1#1,array%mul%0#1
-        l-load array%extract%1#1 1                                                                            (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1
-        l-load-copy array%mul%0#1 1                                                                           (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1,array%mul%0#1 (copy)
-        int 16                                                                                                (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1,array%mul%0#1 (copy),16
-        extract3                                                                                              (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%2#1
-        l-load array%extract%2#1 0                                                                            (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%2#1
-        int 8                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%2#1,8
-        extract_uint64                                                                                        (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,tup.b#0
+        v-load i#0                                                                                            (𝕡) a#0 | maybe_value%1#0,i#0
+        l-store-copy i#0 1                                                                                    (𝕡) a#0 | i#0,maybe_value%1#0,i#0 (copy)
+        int 16                                                                                                (𝕡) a#0 | i#0,maybe_value%1#0,i#0 (copy),16
+        *                                                                                                     (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1
+        int 8                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                (𝕡) a#0 | i#0,maybe_value%1#0,8,array%mul%0#1
+        +                                                                                                     (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1
+        l-load-copy maybe_value%1#0 1                                                                         (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,maybe_value%1#0 (copy)
+        l-load-copy array%add%3#1 1                                                                           (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,maybe_value%1#0 (copy),array%add%3#1 (copy)
+        int 16                                                                                                (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,maybe_value%1#0 (copy),array%add%3#1 (copy),16
+        extract3                                                                                              (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,array%extract%2#1
+        l-load array%extract%2#1 0                                                                            (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,array%extract%2#1
+        int 8                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,array%extract%2#1,8
+        extract_uint64                                                                                        (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,tup.b#0
         // mutable_native_types/case1_with_tups.py:81
         // self.tup_bag.value.items[i] = tup._replace(a=a)
-        p-load a#0                                                                                            (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,tup.b#0,a#0 (copy)
-        itob                                                                                                  (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,tup.b#0,array%val_as_bytes%0#1
-        l-load tup.b#0 1                                                                                      (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,tup.b#0
-        itob                                                                                                  (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        l-load array%val_as_bytes%0#1 1                                                                       (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%1#1,array%val_as_bytes%0#1
-        l-load array%val_as_bytes%1#1 1                                                                       (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        concat                                                                                                (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%encoded%1#1
-        int 8                                                                                                 (𝕡) a#0 | i#0,maybe_value%1#0,array%mul%0#1,array%encoded%1#1,8
-        l-load array%mul%0#1 2                                                                                (𝕡) a#0 | i#0,maybe_value%1#0,array%encoded%1#1,8,array%mul%0#1
-        +                                                                                                     (𝕡) a#0 | i#0,maybe_value%1#0,array%encoded%1#1,array%add%4#1
-        l-load maybe_value%1#0 2                                                                              (𝕡) a#0 | i#0,array%encoded%1#1,array%add%4#1,maybe_value%1#0
-        l-load array%add%4#1 1                                                                                (𝕡) a#0 | i#0,array%encoded%1#1,maybe_value%1#0,array%add%4#1
-        l-load array%encoded%1#1 2                                                                            (𝕡) a#0 | i#0,maybe_value%1#0,array%add%4#1,array%encoded%1#1
+        p-load a#0                                                                                            (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,tup.b#0,a#0 (copy)
+        itob                                                                                                  (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,tup.b#0,array%val_as_bytes%0#1
+        l-load tup.b#0 1                                                                                      (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,array%val_as_bytes%0#1,tup.b#0
+        itob                                                                                                  (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        l-load array%val_as_bytes%0#1 1                                                                       (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,array%val_as_bytes%1#1,array%val_as_bytes%0#1
+        l-load array%val_as_bytes%1#1 1                                                                       (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        concat                                                                                                (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,array%encoded%1#1
+        l-load maybe_value%1#0 2                                                                              (𝕡) a#0 | i#0,array%add%3#1,array%encoded%1#1,maybe_value%1#0
+        l-load array%add%3#1 2                                                                                (𝕡) a#0 | i#0,array%encoded%1#1,maybe_value%1#0,array%add%3#1
+        l-load array%encoded%1#1 2                                                                            (𝕡) a#0 | i#0,maybe_value%1#0,array%add%3#1,array%encoded%1#1
         replace3                                                                                              (𝕡) a#0 | i#0,array%replace%0#1
         byte "tup_bag"                                                                                        (𝕡) a#0 | i#0,array%replace%0#1,"tup_bag"
         l-load array%replace%0#1 1                                                                            (𝕡) a#0 | i#0,"tup_bag",array%replace%0#1
@@ -796,34 +796,32 @@ subroutine set_b:
         box_get                                                                                               (𝕡) b#0 | maybe_value%1#0,maybe_exists%1#0
         l-load maybe_exists%1#0 0                                                                             (𝕡) b#0 | maybe_value%1#0,maybe_exists%1#0
         assert // check self.tup_bag exists                                                                   (𝕡) b#0 | maybe_value%1#0
-        l-load-copy maybe_value%1#0 0                                                                         (𝕡) b#0 | maybe_value%1#0,maybe_value%1#0 (copy)
-        extract 8 128                                                                                         (𝕡) b#0 | maybe_value%1#0,array%extract%1#1
-        v-load i#0                                                                                            (𝕡) b#0 | maybe_value%1#0,array%extract%1#1,i#0
-        l-store-copy i#0 2                                                                                    (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,i#0 (copy)
-        int 16                                                                                                (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,i#0 (copy),16
-        *                                                                                                     (𝕡) b#0 | i#0,maybe_value%1#0,array%extract%1#1,array%mul%0#1
-        l-load array%extract%1#1 1                                                                            (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1
-        l-load-copy array%mul%0#1 1                                                                           (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1,array%mul%0#1 (copy)
-        int 16                                                                                                (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%1#1,array%mul%0#1 (copy),16
-        extract3                                                                                              (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%2#1
-        l-load array%extract%2#1 0                                                                            (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%2#1
-        int 0                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%extract%2#1,0
-        extract_uint64                                                                                        (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,tup.a#0
+        v-load i#0                                                                                            (𝕡) b#0 | maybe_value%1#0,i#0
+        l-store-copy i#0 1                                                                                    (𝕡) b#0 | i#0,maybe_value%1#0,i#0 (copy)
+        int 16                                                                                                (𝕡) b#0 | i#0,maybe_value%1#0,i#0 (copy),16
+        *                                                                                                     (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1
+        int 8                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                (𝕡) b#0 | i#0,maybe_value%1#0,8,array%mul%0#1
+        +                                                                                                     (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1
+        l-load-copy maybe_value%1#0 1                                                                         (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,maybe_value%1#0 (copy)
+        l-load-copy array%add%3#1 1                                                                           (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,maybe_value%1#0 (copy),array%add%3#1 (copy)
+        int 16                                                                                                (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,maybe_value%1#0 (copy),array%add%3#1 (copy),16
+        extract3                                                                                              (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%extract%2#1
+        l-load array%extract%2#1 0                                                                            (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%extract%2#1
+        int 0                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%extract%2#1,0
+        extract_uint64                                                                                        (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,tup.a#0
         // mutable_native_types/case1_with_tups.py:88
         // self.tup_bag.value.items[i] = tup._replace(b=b)
-        l-load tup.a#0 0                                                                                      (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,tup.a#0
-        itob                                                                                                  (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1
-        p-load b#0                                                                                            (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,b#0 (copy)
-        itob                                                                                                  (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        l-load array%val_as_bytes%0#1 1                                                                       (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%1#1,array%val_as_bytes%0#1
-        l-load array%val_as_bytes%1#1 1                                                                       (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
-        concat                                                                                                (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%encoded%1#1
-        int 8                                                                                                 (𝕡) b#0 | i#0,maybe_value%1#0,array%mul%0#1,array%encoded%1#1,8
-        l-load array%mul%0#1 2                                                                                (𝕡) b#0 | i#0,maybe_value%1#0,array%encoded%1#1,8,array%mul%0#1
-        +                                                                                                     (𝕡) b#0 | i#0,maybe_value%1#0,array%encoded%1#1,array%add%4#1
-        l-load maybe_value%1#0 2                                                                              (𝕡) b#0 | i#0,array%encoded%1#1,array%add%4#1,maybe_value%1#0
-        l-load array%add%4#1 1                                                                                (𝕡) b#0 | i#0,array%encoded%1#1,maybe_value%1#0,array%add%4#1
-        l-load array%encoded%1#1 2                                                                            (𝕡) b#0 | i#0,maybe_value%1#0,array%add%4#1,array%encoded%1#1
+        l-load tup.a#0 0                                                                                      (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,tup.a#0
+        itob                                                                                                  (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%val_as_bytes%0#1
+        p-load b#0                                                                                            (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%val_as_bytes%0#1,b#0 (copy)
+        itob                                                                                                  (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        l-load array%val_as_bytes%0#1 1                                                                       (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%val_as_bytes%1#1,array%val_as_bytes%0#1
+        l-load array%val_as_bytes%1#1 1                                                                       (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%val_as_bytes%0#1,array%val_as_bytes%1#1
+        concat                                                                                                (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%encoded%1#1
+        l-load maybe_value%1#0 2                                                                              (𝕡) b#0 | i#0,array%add%3#1,array%encoded%1#1,maybe_value%1#0
+        l-load array%add%3#1 2                                                                                (𝕡) b#0 | i#0,array%encoded%1#1,maybe_value%1#0,array%add%3#1
+        l-load array%encoded%1#1 2                                                                            (𝕡) b#0 | i#0,maybe_value%1#0,array%add%3#1,array%encoded%1#1
         replace3                                                                                              (𝕡) b#0 | i#0,array%replace%0#1
         byte "tup_bag"                                                                                        (𝕡) b#0 | i#0,array%replace%0#1,"tup_bag"
         l-load array%replace%0#1 1                                                                            (𝕡) b#0 | i#0,"tup_bag",array%replace%0#1
@@ -862,53 +860,68 @@ subroutine get_3_tups:
         assert // not enough items                                                                            (𝕡) start#0 | maybe_value%0#0
         // mutable_native_types/case1_with_tups.py:93
         // items = self.tup_bag.value.items.copy()
-        l-load maybe_value%0#0 0                                                                              (𝕡) start#0 | maybe_value%0#0
-        extract 8 128                                                                                         (𝕡) start#0 | items#0
+        p-load start#0                                                                                        (𝕡) start#0 | maybe_value%0#0,start#0 (copy)
+        int 16                                                                                                (𝕡) start#0 | maybe_value%0#0,start#0 (copy),16
+        *                                                                                                     (𝕡) start#0 | maybe_value%0#0,array%mul%0#1
+        int 8                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                (𝕡) start#0 | maybe_value%0#0,8,array%mul%0#1
+        +                                                                                                     (𝕡) start#0 | maybe_value%0#0,array%add%3#1
+        l-load-copy maybe_value%0#0 1                                                                         (𝕡) start#0 | maybe_value%0#0,array%add%3#1,maybe_value%0#0 (copy)
+        l-load array%add%3#1 1                                                                                (𝕡) start#0 | maybe_value%0#0,maybe_value%0#0 (copy),array%add%3#1
+        int 16                                                                                                (𝕡) start#0 | maybe_value%0#0,maybe_value%0#0 (copy),array%add%3#1,16
+        extract3                                                                                              (𝕡) start#0 | maybe_value%0#0,array%extract%2#1
         // mutable_native_types/case1_with_tups.py:97
         // items[start],
-        p-load start#0                                                                                        (𝕡) start#0 | items#0,start#0 (copy)
-        int 16                                                                                                (𝕡) start#0 | items#0,start#0 (copy),16
-        *                                                                                                     (𝕡) start#0 | items#0,array%mul%0#1
-        l-load-copy items#0 1                                                                                 (𝕡) start#0 | items#0,array%mul%0#1,items#0 (copy)
-        l-load array%mul%0#1 1                                                                                (𝕡) start#0 | items#0,items#0 (copy),array%mul%0#1
-        int 16                                                                                                (𝕡) start#0 | items#0,items#0 (copy),array%mul%0#1,16
-        extract3                                                                                              (𝕡) start#0 | items#0,array%extract%2#1
-        l-load-copy array%extract%2#1 0                                                                       (𝕡) start#0 | items#0,array%extract%2#1,array%extract%2#1 (copy)
-        int 0                                                                                                 (𝕡) start#0 | items#0,array%extract%2#1,array%extract%2#1 (copy),0
-        extract_uint64                                                                                        (𝕡) start#0 | items#0,array%extract%2#1,array%item0%0#1
-        l-load array%extract%2#1 1                                                                            (𝕡) start#0 | items#0,array%item0%0#1,array%extract%2#1
-        int 8                                                                                                 (𝕡) start#0 | items#0,array%item0%0#1,array%extract%2#1,8
-        extract_uint64                                                                                        (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1
+        l-load-copy array%extract%2#1 0                                                                       (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%2#1 (copy)
+        int 0                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%2#1 (copy),0
+        extract_uint64                                                                                        (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%item0%0#1
+        l-load array%extract%2#1 1                                                                            (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%extract%2#1
+        int 8                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%extract%2#1,8
+        extract_uint64                                                                                        (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1
         // mutable_native_types/case1_with_tups.py:98
         // items[start + 1],
-        p-load start#0                                                                                        (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,start#0 (copy)
-        int 1                                                                                                 (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,start#0 (copy),1
-        +                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,tmp%2#0
-        l-load tmp%2#0 0                                                                                      (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,tmp%2#0
-        int 16                                                                                                (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,tmp%2#0,16
-        *                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%mul%1#1
-        l-load-copy items#0 3                                                                                 (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%mul%1#1,items#0 (copy)
-        l-load array%mul%1#1 1                                                                                (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,items#0 (copy),array%mul%1#1
-        int 16                                                                                                (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,items#0 (copy),array%mul%1#1,16
-        extract3                                                                                              (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%extract%5#1
-        l-load-copy array%extract%5#1 0                                                                       (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%extract%5#1,array%extract%5#1 (copy)
-        int 0                                                                                                 (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%extract%5#1,array%extract%5#1 (copy),0
-        extract_uint64                                                                                        (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%extract%5#1,array%item0%1#1
-        l-load array%extract%5#1 1                                                                            (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%extract%5#1
-        int 8                                                                                                 (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%extract%5#1,8
-        extract_uint64                                                                                        (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1
+        p-load start#0                                                                                        (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,start#0 (copy)
+        int 1                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,start#0 (copy),1
+        +                                                                                                     (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,tmp%2#0
+        // mutable_native_types/case1_with_tups.py:93
+        // items = self.tup_bag.value.items.copy()
+        l-load tmp%2#0 0                                                                                      (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,tmp%2#0
+        int 16                                                                                                (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,tmp%2#0,16
+        *                                                                                                     (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%mul%1#1
+        int 8                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%mul%1#1,8
+        l-load array%mul%1#1 1                                                                                (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,8,array%mul%1#1
+        +                                                                                                     (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%add%5#1
+        l-load-copy maybe_value%0#0 3                                                                         (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%add%5#1,maybe_value%0#0 (copy)
+        l-load array%add%5#1 1                                                                                (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,maybe_value%0#0 (copy),array%add%5#1
+        int 16                                                                                                (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,maybe_value%0#0 (copy),array%add%5#1,16
+        extract3                                                                                              (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%extract%5#1
+        // mutable_native_types/case1_with_tups.py:98
+        // items[start + 1],
+        l-load-copy array%extract%5#1 0                                                                       (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%extract%5#1,array%extract%5#1 (copy)
+        int 0                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%extract%5#1,array%extract%5#1 (copy),0
+        extract_uint64                                                                                        (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%extract%5#1,array%item0%1#1
+        l-load array%extract%5#1 1                                                                            (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%extract%5#1
+        int 8                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%extract%5#1,8
+        extract_uint64                                                                                        (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1
         // mutable_native_types/case1_with_tups.py:99
         // items[start + 2],
-        p-load start#0                                                                                        (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,start#0 (copy)
-        int 2                                                                                                 (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,start#0 (copy),2
-        +                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%3#0
-        l-load tmp%3#0 0                                                                                      (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%3#0
-        int 16                                                                                                (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%3#0,16
-        *                                                                                                     (𝕡) start#0 | items#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%mul%2#1
-        l-load items#0 5                                                                                      (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%mul%2#1,items#0
-        l-load array%mul%2#1 1                                                                                (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,items#0,array%mul%2#1
-        int 16                                                                                                (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,items#0,array%mul%2#1,16
+        p-load start#0                                                                                        (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,start#0 (copy)
+        int 2                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,start#0 (copy),2
+        +                                                                                                     (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%3#0
+        // mutable_native_types/case1_with_tups.py:93
+        // items = self.tup_bag.value.items.copy()
+        l-load tmp%3#0 0                                                                                      (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%3#0
+        int 16                                                                                                (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,tmp%3#0,16
+        *                                                                                                     (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%mul%2#1
+        int 8                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%mul%2#1,8
+        l-load array%mul%2#1 1                                                                                (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,8,array%mul%2#1
+        +                                                                                                     (𝕡) start#0 | maybe_value%0#0,array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%add%7#1
+        l-load maybe_value%0#0 5                                                                              (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%add%7#1,maybe_value%0#0
+        l-load array%add%7#1 1                                                                                (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,maybe_value%0#0,array%add%7#1
+        int 16                                                                                                (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,maybe_value%0#0,array%add%7#1,16
         extract3                                                                                              (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%extract%8#1
+        // mutable_native_types/case1_with_tups.py:99
+        // items[start + 2],
         l-load-copy array%extract%8#1 0                                                                       (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%extract%8#1,array%extract%8#1 (copy)
         int 0                                                                                                 (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%extract%8#1,array%extract%8#1 (copy),0
         extract_uint64                                                                                        (𝕡) start#0 | array%item0%0#1,array%item1%0#1,array%item0%1#1,array%item1%1#1,array%extract%8#1,array%item0%2#1
@@ -965,11 +978,11 @@ subroutine get_all_tups:
         // items = self.tup_bag.value.items.copy()
         byte "tup_bag"                                                                                        "tup_bag"
         box_get                                                                                               maybe_value%0#0,maybe_exists%0#0
+        l-store maybe_exists%0#0 1                                                                            maybe_exists%0#0,maybe_value%0#0
+        l-store-copy maybe_value%0#0 1                                                                        maybe_value%0#0,maybe_exists%0#0,maybe_value%0#0 (copy)
+        v-store maybe_value%0#0                                                                               maybe_value%0#0,maybe_exists%0#0
         l-load maybe_exists%0#0 0                                                                             maybe_value%0#0,maybe_exists%0#0
         assert // check self.tup_bag exists                                                                   maybe_value%0#0
-        l-load-copy maybe_value%0#0 0                                                                         maybe_value%0#0,maybe_value%0#0 (copy)
-        extract 8 128                                                                                         maybe_value%0#0,items#0
-        v-store items#0                                                                                       maybe_value%0#0
         // mutable_native_types/case1_with_tups.py:108
         // for i in urange(self.tup_bag.value.count):
         l-load maybe_value%0#0 0                                                                              maybe_value%0#0
@@ -990,16 +1003,21 @@ subroutine get_all_tups:
         bz get_all_tups_after_for@4 ; b get_all_tups_for_body@2
 
     get_all_tups_for_body@2:
-        // mutable_native_types/case1_with_tups.py:109
-        // result.append(items[i])
+        // mutable_native_types/case1_with_tups.py:106
+        // items = self.tup_bag.value.items.copy()
         v-load i#0                                                                                            i#0
         l-store-copy i#0 0                                                                                    i#0,i#0 (copy)
         int 16                                                                                                i#0,i#0 (copy),16
         *                                                                                                     i#0,array%mul%0#1
-        v-load items#0                                                                                        i#0,array%mul%0#1,items#0
-        l-load array%mul%0#1 1                                                                                i#0,items#0,array%mul%0#1
-        int 16                                                                                                i#0,items#0,array%mul%0#1,16
+        int 8                                                                                                 i#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                i#0,8,array%mul%0#1
+        +                                                                                                     i#0,array%add%3#1
+        v-load maybe_value%0#0                                                                                i#0,array%add%3#1,maybe_value%0#0
+        l-load array%add%3#1 1                                                                                i#0,maybe_value%0#0,array%add%3#1
+        int 16                                                                                                i#0,maybe_value%0#0,array%add%3#1,16
         extract3                                                                                              i#0,array%extract%2#1
+        // mutable_native_types/case1_with_tups.py:109
+        // result.append(items[i])
         l-load-copy array%extract%2#1 0                                                                       i#0,array%extract%2#1,array%extract%2#1 (copy)
         int 0                                                                                                 i#0,array%extract%2#1,array%extract%2#1 (copy),0
         extract_uint64                                                                                        i#0,array%extract%2#1,array%item0%0#1

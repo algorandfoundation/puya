@@ -366,14 +366,15 @@ subroutine get_tup:
         assert // index out of bounds                                                                                     (𝕡) index#0 | maybe_value%0#0
         // mutable_native_types/case3_with_mutable_struct.py:55
         // return self.tup_bag.value.items[index]
-        l-load maybe_value%0#0 0                                                                                          (𝕡) index#0 | maybe_value%0#0
-        extract 8 128                                                                                                     (𝕡) index#0 | array%extract%1#1
-        p-load index#0                                                                                                    (𝕡) index#0 | array%extract%1#1,index#0 (copy)
-        int 16                                                                                                            (𝕡) index#0 | array%extract%1#1,index#0 (copy),16
-        *                                                                                                                 (𝕡) index#0 | array%extract%1#1,array%mul%0#1
-        l-load array%extract%1#1 1                                                                                        (𝕡) index#0 | array%mul%0#1,array%extract%1#1
-        l-load array%mul%0#1 1                                                                                            (𝕡) index#0 | array%extract%1#1,array%mul%0#1
-        int 16                                                                                                            (𝕡) index#0 | array%extract%1#1,array%mul%0#1,16
+        p-load index#0                                                                                                    (𝕡) index#0 | maybe_value%0#0,index#0 (copy)
+        int 16                                                                                                            (𝕡) index#0 | maybe_value%0#0,index#0 (copy),16
+        *                                                                                                                 (𝕡) index#0 | maybe_value%0#0,array%mul%0#1
+        int 8                                                                                                             (𝕡) index#0 | maybe_value%0#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                            (𝕡) index#0 | maybe_value%0#0,8,array%mul%0#1
+        +                                                                                                                 (𝕡) index#0 | maybe_value%0#0,array%add%3#1
+        l-load maybe_value%0#0 1                                                                                          (𝕡) index#0 | array%add%3#1,maybe_value%0#0
+        l-load array%add%3#1 1                                                                                            (𝕡) index#0 | maybe_value%0#0,array%add%3#1
+        int 16                                                                                                            (𝕡) index#0 | maybe_value%0#0,array%add%3#1,16
         extract3                                                                                                          (𝕡) index#0 | array%extract%2#1
         retsub                                                                                                            array%extract%2#1
 
@@ -412,28 +413,30 @@ subroutine sum:
         byte "tup_bag"                                                                                                    (𝕗) total#0,values%0#0,i#0 | "tup_bag"
         box_get                                                                                                           (𝕗) total#0,values%0#0,i#0 | maybe_value%1#0,maybe_exists%1#0
         assert // check self.tup_bag exists                                                                               (𝕗) total#0,values%0#0,i#0 | maybe_value%1#0
-        l-load maybe_value%1#0 0                                                                                          (𝕗) total#0,values%0#0,i#0 | maybe_value%1#0
-        extract 8 128                                                                                                     (𝕗) total#0,values%0#0,i#0 | array%extract%1#1
-        f-load i#0                                                                                                        (𝕗) total#0,values%0#0,i#0 | array%extract%1#1,i#0
-        l-store-copy i#0 1                                                                                                (𝕗) total#0,values%0#0,i#0 | i#0,array%extract%1#1,i#0 (copy)
-        int 16                                                                                                            (𝕗) total#0,values%0#0,i#0 | i#0,array%extract%1#1,i#0 (copy),16
-        *                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,array%extract%1#1,array%mul%0#1
-        l-load array%extract%1#1 1                                                                                        (𝕗) total#0,values%0#0,i#0 | i#0,array%mul%0#1,array%extract%1#1
-        l-load array%mul%0#1 1                                                                                            (𝕗) total#0,values%0#0,i#0 | i#0,array%extract%1#1,array%mul%0#1
-        int 16                                                                                                            (𝕗) total#0,values%0#0,i#0 | i#0,array%extract%1#1,array%mul%0#1,16
-        extract3                                                                                                          (𝕗) total#0,values%0#0,i#0 | i#0,tup#0
+        f-load i#0                                                                                                        (𝕗) total#0,values%0#0,i#0 | maybe_value%1#0,i#0
+        l-store-copy i#0 1                                                                                                (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,i#0 (copy)
+        int 16                                                                                                            (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,i#0 (copy),16
+        *                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,array%mul%1#1
+        int 8                                                                                                             (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,array%mul%1#1,8
+        l-load array%mul%1#1 1                                                                                            (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,8,array%mul%1#1
+        +                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,array%add%5#1
         // mutable_native_types/case3_with_mutable_struct.py:62
         // total += tup.a
-        l-load-copy tup#0 0                                                                                               (𝕗) total#0,values%0#0,i#0 | i#0,tup#0,tup#0 (copy)
-        int 0                                                                                                             (𝕗) total#0,values%0#0,i#0 | i#0,tup#0,tup#0 (copy),0
-        extract_uint64                                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,tup#0,values%1#0
-        f-load total#0                                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,tup#0,values%1#0,total#0
-        l-load values%1#0 1                                                                                               (𝕗) total#0,values%0#0,i#0 | i#0,tup#0,total#0,values%1#0
-        +                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,tup#0,total#0
+        l-load-copy maybe_value%1#0 1                                                                                     (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,array%add%5#1,maybe_value%1#0 (copy)
+        l-load-copy array%add%5#1 1                                                                                       (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,array%add%5#1,maybe_value%1#0 (copy),array%add%5#1 (copy)
+        extract_uint64                                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,array%add%5#1,values%1#0
+        f-load total#0                                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,array%add%5#1,values%1#0,total#0
+        l-load values%1#0 1                                                                                               (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,array%add%5#1,total#0,values%1#0
+        +                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,array%add%5#1,total#0
+        // mutable_native_types/case3_with_mutable_struct.py:61
+        // tup = self.tup_bag.value.items[i].copy()
+        l-load array%add%5#1 1                                                                                            (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,total#0,array%add%5#1
+        int 8                                                                                                             (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,total#0,array%add%5#1,8
+        +                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,maybe_value%1#0,total#0,array%add%9#1
         // mutable_native_types/case3_with_mutable_struct.py:63
         // total += tup.b
-        l-load tup#0 1                                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,total#0,tup#0
-        int 8                                                                                                             (𝕗) total#0,values%0#0,i#0 | i#0,total#0,tup#0,8
+        l-load maybe_value%1#0 2                                                                                          (𝕗) total#0,values%0#0,i#0 | i#0,total#0,array%add%9#1,maybe_value%1#0
+        l-load array%add%9#1 1                                                                                            (𝕗) total#0,values%0#0,i#0 | i#0,total#0,maybe_value%1#0,array%add%9#1
         extract_uint64                                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,total#0,values%2#0
         l-load total#0 1                                                                                                  (𝕗) total#0,values%0#0,i#0 | i#0,values%2#0,total#0
         l-load values%2#0 1                                                                                               (𝕗) total#0,values%0#0,i#0 | i#0,total#0,values%2#0
@@ -688,38 +691,47 @@ subroutine get_3_tups:
         assert // not enough items                                                                                        (𝕡) start#0 | maybe_value%0#0
         // mutable_native_types/case3_with_mutable_struct.py:91
         // items = self.tup_bag.value.items.copy()
-        l-load maybe_value%0#0 0                                                                                          (𝕡) start#0 | maybe_value%0#0
-        extract 8 128                                                                                                     (𝕡) start#0 | items#0
-        // mutable_native_types/case3_with_mutable_struct.py:95
-        // items[start].copy(),
-        p-load start#0                                                                                                    (𝕡) start#0 | items#0,start#0 (copy)
-        int 16                                                                                                            (𝕡) start#0 | items#0,start#0 (copy),16
-        *                                                                                                                 (𝕡) start#0 | items#0,array%mul%0#1
-        l-load-copy items#0 1                                                                                             (𝕡) start#0 | items#0,array%mul%0#1,items#0 (copy)
-        l-load array%mul%0#1 1                                                                                            (𝕡) start#0 | items#0,items#0 (copy),array%mul%0#1
-        int 16                                                                                                            (𝕡) start#0 | items#0,items#0 (copy),array%mul%0#1,16
-        extract3                                                                                                          (𝕡) start#0 | items#0,array%extract%2#1
+        p-load start#0                                                                                                    (𝕡) start#0 | maybe_value%0#0,start#0 (copy)
+        int 16                                                                                                            (𝕡) start#0 | maybe_value%0#0,start#0 (copy),16
+        *                                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%mul%0#1
+        int 8                                                                                                             (𝕡) start#0 | maybe_value%0#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                            (𝕡) start#0 | maybe_value%0#0,8,array%mul%0#1
+        +                                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%add%3#1
+        l-load-copy maybe_value%0#0 1                                                                                     (𝕡) start#0 | maybe_value%0#0,array%add%3#1,maybe_value%0#0 (copy)
+        l-load array%add%3#1 1                                                                                            (𝕡) start#0 | maybe_value%0#0,maybe_value%0#0 (copy),array%add%3#1
+        int 16                                                                                                            (𝕡) start#0 | maybe_value%0#0,maybe_value%0#0 (copy),array%add%3#1,16
+        extract3                                                                                                          (𝕡) start#0 | maybe_value%0#0,array%extract%2#1
         // mutable_native_types/case3_with_mutable_struct.py:96
         // items[start + 1].copy(),
-        p-load start#0                                                                                                    (𝕡) start#0 | items#0,array%extract%2#1,start#0 (copy)
-        int 1                                                                                                             (𝕡) start#0 | items#0,array%extract%2#1,start#0 (copy),1
-        +                                                                                                                 (𝕡) start#0 | items#0,array%extract%2#1,tmp%2#0
-        int 16                                                                                                            (𝕡) start#0 | items#0,array%extract%2#1,tmp%2#0,16
-        *                                                                                                                 (𝕡) start#0 | items#0,array%extract%2#1,array%mul%1#1
-        l-load-copy items#0 2                                                                                             (𝕡) start#0 | items#0,array%extract%2#1,array%mul%1#1,items#0 (copy)
-        l-load array%mul%1#1 1                                                                                            (𝕡) start#0 | items#0,array%extract%2#1,items#0 (copy),array%mul%1#1
-        int 16                                                                                                            (𝕡) start#0 | items#0,array%extract%2#1,items#0 (copy),array%mul%1#1,16
-        extract3                                                                                                          (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1
+        p-load start#0                                                                                                    (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,start#0 (copy)
+        int 1                                                                                                             (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,start#0 (copy),1
+        +                                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,tmp%2#0
+        // mutable_native_types/case3_with_mutable_struct.py:91
+        // items = self.tup_bag.value.items.copy()
+        int 16                                                                                                            (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,tmp%2#0,16
+        *                                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%mul%1#1
+        int 8                                                                                                             (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%mul%1#1,8
+        l-load array%mul%1#1 1                                                                                            (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,8,array%mul%1#1
+        +                                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%add%5#1
+        l-load-copy maybe_value%0#0 2                                                                                     (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%add%5#1,maybe_value%0#0 (copy)
+        l-load array%add%5#1 1                                                                                            (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,maybe_value%0#0 (copy),array%add%5#1
+        int 16                                                                                                            (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,maybe_value%0#0 (copy),array%add%5#1,16
+        extract3                                                                                                          (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%3#1
         // mutable_native_types/case3_with_mutable_struct.py:97
         // items[start + 2].copy(),
-        p-load start#0                                                                                                    (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,start#0 (copy)
-        int 2                                                                                                             (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,start#0 (copy),2
-        +                                                                                                                 (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,tmp%3#0
-        int 16                                                                                                            (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,tmp%3#0,16
-        *                                                                                                                 (𝕡) start#0 | items#0,array%extract%2#1,array%extract%3#1,array%mul%2#1
-        l-load items#0 3                                                                                                  (𝕡) start#0 | array%extract%2#1,array%extract%3#1,array%mul%2#1,items#0
-        l-load array%mul%2#1 1                                                                                            (𝕡) start#0 | array%extract%2#1,array%extract%3#1,items#0,array%mul%2#1
-        int 16                                                                                                            (𝕡) start#0 | array%extract%2#1,array%extract%3#1,items#0,array%mul%2#1,16
+        p-load start#0                                                                                                    (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%3#1,start#0 (copy)
+        int 2                                                                                                             (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%3#1,start#0 (copy),2
+        +                                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%3#1,tmp%3#0
+        // mutable_native_types/case3_with_mutable_struct.py:91
+        // items = self.tup_bag.value.items.copy()
+        int 16                                                                                                            (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%3#1,tmp%3#0,16
+        *                                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%3#1,array%mul%2#1
+        int 8                                                                                                             (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%3#1,array%mul%2#1,8
+        l-load array%mul%2#1 1                                                                                            (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%3#1,8,array%mul%2#1
+        +                                                                                                                 (𝕡) start#0 | maybe_value%0#0,array%extract%2#1,array%extract%3#1,array%add%7#1
+        l-load maybe_value%0#0 3                                                                                          (𝕡) start#0 | array%extract%2#1,array%extract%3#1,array%add%7#1,maybe_value%0#0
+        l-load array%add%7#1 1                                                                                            (𝕡) start#0 | array%extract%2#1,array%extract%3#1,maybe_value%0#0,array%add%7#1
+        int 16                                                                                                            (𝕡) start#0 | array%extract%2#1,array%extract%3#1,maybe_value%0#0,array%add%7#1,16
         extract3                                                                                                          (𝕡) start#0 | array%extract%2#1,array%extract%3#1,array%extract%4#1
         // mutable_native_types/case3_with_mutable_struct.py:93-99
         // return FixedArray[NamedTup, typing.Literal[3]](
@@ -748,66 +760,72 @@ subroutine get_all_tups:
         // items = self.tup_bag.value.items.copy()
         byte "tup_bag"                                                                                                    (𝕗) result#0 | "tup_bag"
         box_get                                                                                                           (𝕗) result#0 | maybe_value%0#0,maybe_exists%0#0
-        assert // check self.tup_bag exists                                                                               (𝕗) result#0 | maybe_value%0#0
-        l-load-copy maybe_value%0#0 0                                                                                     (𝕗) result#0 | maybe_value%0#0,maybe_value%0#0 (copy)
-        extract 8 128                                                                                                     (𝕗) result#0 | maybe_value%0#0,items#0
-        f-store items#0                                                                                                   (𝕗) result#0,items#0 | maybe_value%0#0
+        l-store maybe_exists%0#0 1                                                                                        (𝕗) result#0 | maybe_exists%0#0,maybe_value%0#0
+        l-store-copy maybe_value%0#0 1                                                                                    (𝕗) result#0 | maybe_value%0#0,maybe_exists%0#0,maybe_value%0#0 (copy)
+        f-store maybe_value%0#0                                                                                           (𝕗) result#0,maybe_value%0#0 | maybe_value%0#0,maybe_exists%0#0
+        l-load maybe_exists%0#0 0                                                                                         (𝕗) result#0,maybe_value%0#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.tup_bag exists                                                                               (𝕗) result#0,maybe_value%0#0 | maybe_value%0#0
         // mutable_native_types/case3_with_mutable_struct.py:106
         // for i in urange(self.tup_bag.value.count):
-        l-load maybe_value%0#0 0                                                                                          (𝕗) result#0,items#0 | maybe_value%0#0
-        int 0                                                                                                             (𝕗) result#0,items#0 | maybe_value%0#0,0
-        extract_uint64                                                                                                    (𝕗) result#0,items#0 | values%0#0
-        f-store values%0#0                                                                                                (𝕗) result#0,items#0,values%0#0 |
-        int 0                                                                                                             (𝕗) result#0,items#0,values%0#0 | 0
-        f-store i#0                                                                                                       (𝕗) result#0,items#0,values%0#0,i#0 |
-        b get_all_tups_for_header@1                                                                                       (𝕗) result#0,items#0,values%0#0,i#0 |
+        l-load maybe_value%0#0 0                                                                                          (𝕗) result#0,maybe_value%0#0 | maybe_value%0#0
+        int 0                                                                                                             (𝕗) result#0,maybe_value%0#0 | maybe_value%0#0,0
+        extract_uint64                                                                                                    (𝕗) result#0,maybe_value%0#0 | values%0#0
+        f-store values%0#0                                                                                                (𝕗) result#0,maybe_value%0#0,values%0#0 |
+        int 0                                                                                                             (𝕗) result#0,maybe_value%0#0,values%0#0 | 0
+        f-store i#0                                                                                                       (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 |
+        b get_all_tups_for_header@1                                                                                       (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 |
 
-    get_all_tups_for_header@1:                                                                                            (𝕗) result#0,items#0,values%0#0,i#0 |
+    get_all_tups_for_header@1:                                                                                            (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 |
         // mutable_native_types/case3_with_mutable_struct.py:106
         // for i in urange(self.tup_bag.value.count):
-        f-load i#0                                                                                                        (𝕗) result#0,items#0,values%0#0,i#0 | i#0
-        f-load values%0#0                                                                                                 (𝕗) result#0,items#0,values%0#0,i#0 | i#0,values%0#0
-        <                                                                                                                 (𝕗) result#0,items#0,values%0#0,i#0 | continue_looping%0#0
-        bz get_all_tups_after_for@4 ; b get_all_tups_for_body@2                                                           (𝕗) result#0,items#0,values%0#0,i#0 |
+        f-load i#0                                                                                                        (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0
+        f-load values%0#0                                                                                                 (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,values%0#0
+        <                                                                                                                 (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | continue_looping%0#0
+        bz get_all_tups_after_for@4 ; b get_all_tups_for_body@2                                                           (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 |
 
-    get_all_tups_for_body@2:                                                                                              (𝕗) result#0,items#0,values%0#0,i#0 |
+    get_all_tups_for_body@2:                                                                                              (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 |
+        // mutable_native_types/case3_with_mutable_struct.py:104
+        // items = self.tup_bag.value.items.copy()
+        f-load i#0                                                                                                        (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0
+        l-store-copy i#0 0                                                                                                (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,i#0 (copy)
+        int 16                                                                                                            (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,i#0 (copy),16
+        *                                                                                                                 (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,array%mul%0#1
+        int 8                                                                                                             (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,array%mul%0#1,8
+        l-load array%mul%0#1 1                                                                                            (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,8,array%mul%0#1
+        +                                                                                                                 (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,array%add%3#1
+        f-load maybe_value%0#0                                                                                            (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,array%add%3#1,maybe_value%0#0
+        l-load array%add%3#1 1                                                                                            (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,maybe_value%0#0,array%add%3#1
+        int 16                                                                                                            (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,maybe_value%0#0,array%add%3#1,16
+        extract3                                                                                                          (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,array%extract%2#1
         // mutable_native_types/case3_with_mutable_struct.py:107
         // result.append(items[i].copy())
-        f-load i#0                                                                                                        (𝕗) result#0,items#0,values%0#0,i#0 | i#0
-        l-store-copy i#0 0                                                                                                (𝕗) result#0,items#0,values%0#0,i#0 | i#0,i#0 (copy)
-        int 16                                                                                                            (𝕗) result#0,items#0,values%0#0,i#0 | i#0,i#0 (copy),16
-        *                                                                                                                 (𝕗) result#0,items#0,values%0#0,i#0 | i#0,array%mul%0#1
-        f-load items#0                                                                                                    (𝕗) result#0,items#0,values%0#0,i#0 | i#0,array%mul%0#1,items#0
-        l-load array%mul%0#1 1                                                                                            (𝕗) result#0,items#0,values%0#0,i#0 | i#0,items#0,array%mul%0#1
-        int 16                                                                                                            (𝕗) result#0,items#0,values%0#0,i#0 | i#0,items#0,array%mul%0#1,16
-        extract3                                                                                                          (𝕗) result#0,items#0,values%0#0,i#0 | i#0,array%extract%2#1
-        f-load result#0                                                                                                   (𝕗) result#0,items#0,values%0#0,i#0 | i#0,array%extract%2#1,result#0
-        l-store-copy result#0 1                                                                                           (𝕗) result#0,items#0,values%0#0,i#0 | i#0,result#0,array%extract%2#1,result#0 (copy)
-        l-load array%extract%2#1 1                                                                                        (𝕗) result#0,items#0,values%0#0,i#0 | i#0,result#0,result#0 (copy),array%extract%2#1
-        concat // on error: max array length exceeded                                                                     (𝕗) result#0,items#0,values%0#0,i#0 | i#0,result#0,concat%0#0
-        l-load result#0 1                                                                                                 (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,result#0
-        int 0                                                                                                             (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,result#0,0
-        extract_uint16                                                                                                    (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,extract_uint16%0#0
-        int 1                                                                                                             (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,extract_uint16%0#0,1
-        +                                                                                                                 (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,add%0#0
-        itob                                                                                                              (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,as_bytes%0#0
-        extract 6 2                                                                                                       (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                                               (𝕗) result#0,items#0,values%0#0,i#0 | i#0,as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                                                         (𝕗) result#0,items#0,values%0#0,i#0 | i#0,concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                                                        (𝕗) result#0,items#0,values%0#0,i#0 | i#0,result#0
-        f-store result#0                                                                                                  (𝕗) result#0,items#0,values%0#0,i#0 | i#0
+        f-load result#0                                                                                                   (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,array%extract%2#1,result#0
+        l-store-copy result#0 1                                                                                           (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,result#0,array%extract%2#1,result#0 (copy)
+        l-load array%extract%2#1 1                                                                                        (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,result#0,result#0 (copy),array%extract%2#1
+        concat // on error: max array length exceeded                                                                     (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,result#0,concat%0#0
+        l-load result#0 1                                                                                                 (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,concat%0#0,result#0
+        int 0                                                                                                             (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,concat%0#0,result#0,0
+        extract_uint16                                                                                                    (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,concat%0#0,extract_uint16%0#0
+        int 1                                                                                                             (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                                 (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,concat%0#0,add%0#0
+        itob                                                                                                              (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                                       (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                                               (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                                         (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                                        (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,result#0
+        f-store result#0                                                                                                  (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0
         // mutable_native_types/case3_with_mutable_struct.py:106
         // for i in urange(self.tup_bag.value.count):
-        l-load i#0 0                                                                                                      (𝕗) result#0,items#0,values%0#0,i#0 | i#0
-        int 1                                                                                                             (𝕗) result#0,items#0,values%0#0,i#0 | i#0,1
-        +                                                                                                                 (𝕗) result#0,items#0,values%0#0,i#0 | i#0
-        f-store i#0                                                                                                       (𝕗) result#0,items#0,values%0#0,i#0 |
-        b get_all_tups_for_header@1                                                                                       (𝕗) result#0,items#0,values%0#0,i#0 |
+        l-load i#0 0                                                                                                      (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0
+        int 1                                                                                                             (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0,1
+        +                                                                                                                 (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | i#0
+        f-store i#0                                                                                                       (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 |
+        b get_all_tups_for_header@1                                                                                       (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 |
 
-    get_all_tups_after_for@4:                                                                                             (𝕗) result#0,items#0,values%0#0,i#0 |
+    get_all_tups_after_for@4:                                                                                             (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 |
         // mutable_native_types/case3_with_mutable_struct.py:108
         // return result
-        f-load result#0                                                                                                   (𝕗) result#0,items#0,values%0#0,i#0 | result#0
+        f-load result#0                                                                                                   (𝕗) result#0,maybe_value%0#0,values%0#0,i#0 | result#0
         retsub                                                                                                            result#0
 
 

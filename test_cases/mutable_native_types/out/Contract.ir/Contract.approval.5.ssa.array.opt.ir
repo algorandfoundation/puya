@@ -215,13 +215,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         (assert tmp%0#0) // invalid payment index
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
-        let array%mul%0#1: uint64 = (* index#0 48u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%1#0 array%mul%0#1 48u)
-        let values%0#0: uint64 = (extract_uint64 array%extract%0#1 40u)
+        let array%mul%1#1: uint64 = (* index#0 48u)
+        let array%add%2#1: uint64 = (+ array%mul%1#1 40u)
+        let values%0#0: uint64 = (extract_uint64 maybe_value%1#0 array%add%2#1)
         let tmp%1#0: uint64 = (+ values%0#0 amt#0)
         let array%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
-        let array%add%3#1: uint64 = (+ array%mul%0#1 40u)
-        let array%replace%0#1: bytes = (replace3 maybe_value%1#0 array%add%3#1 array%val_as_bytes%0#1)
+        let array%replace%0#1: bytes = (replace3 maybe_value%1#0 array%add%2#1 array%val_as_bytes%0#1)
         (app_global_put "payments" array%replace%0#1)
         return 
 

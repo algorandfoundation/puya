@@ -93,13 +93,12 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert tmp%0#0) // invalid payment index
         let (maybe_value%1#1: bytes, maybe_exists%1#1: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#1) // check self.payments exists
-        let array%mul%7#1: uint64 = (* index#0 48u)
-        let array%extract%6#1: bytes = (extract3 maybe_value%1#1 array%mul%7#1 48u)
-        let values%0#3: uint64 = (extract_uint64 array%extract%6#1 40u)
+        let array%mul%8#1: uint64 = (* index#0 48u)
+        let array%add%12#1: uint64 = (+ array%mul%8#1 40u)
+        let values%0#3: uint64 = (extract_uint64 maybe_value%1#1 array%add%12#1)
         let tmp%1#1: uint64 = (+ values%0#3 amt#0)
         let array%val_as_bytes%26#1: bytes[8] = (itob tmp%1#1)
-        let array%add%13#1: uint64 = (+ array%mul%7#1 40u)
-        let array%replace%4#1: bytes = (replace3 maybe_value%1#1 array%add%13#1 array%val_as_bytes%26#1)
+        let array%replace%4#1: bytes = (replace3 maybe_value%1#1 array%add%12#1 array%val_as_bytes%26#1)
         (app_global_put "payments" array%replace%4#1)
         let test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0
