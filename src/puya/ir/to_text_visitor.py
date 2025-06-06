@@ -119,6 +119,17 @@ class ToTextVisitor(IRVisitor[str]):
         return f"{base}.update({index}, {value})"
 
     @typing.override
+    def visit_box_read(self, read: models.BoxRead) -> str:
+        box = read.key.accept(self)
+        return f"box_read({box})"
+
+    @typing.override
+    def visit_box_write(self, write: models.BoxWrite) -> str:
+        box = write.key.accept(self)
+        value = write.value.accept(self)
+        return f"box_write({box}, {value})"
+
+    @typing.override
     def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> str:
         base = read.base.accept(self)
         indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in read.indexes]

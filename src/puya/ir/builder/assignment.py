@@ -132,9 +132,9 @@ def handle_assignment(
                 )
             encode_result = codec.encode(context, source, field_location)
             context.block_builder.add(
-                ir.Intrinsic(
-                    op=AVMOp.box_put,
-                    args=[key_value, encode_result],
+                ir.BoxWrite(
+                    key=key_value,
+                    value=encode_result,
                     source_location=assignment_location,
                 )
             )

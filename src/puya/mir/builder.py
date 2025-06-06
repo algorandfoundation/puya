@@ -178,6 +178,12 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_aggregate_write_index(self, write: ir.AggregateWriteIndex) -> None:
         _unexpected_node(write)
 
+    def visit_box_read(self, read: ir.BoxRead) -> None:
+        _unexpected_node(read)
+
+    def visit_box_write(self, write: ir.BoxWrite) -> None:
+        _unexpected_node(write)
+
     def visit_value_encode(self, encode: ir.ValueEncode) -> None:
         _unexpected_node(encode)
 

@@ -13,6 +13,7 @@ from puya.ir import (
     models as ir,
 )
 from puya.ir._puya_lib import PuyaLibIR
+from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import OpFactory, assign_targets
 from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
 from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
@@ -249,6 +250,23 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
 
         return value
 
+    def visit_box_read(self, read: models.BoxRead) -> models.ValueProvider:
+        return models.Intrinsic(
+            op=AVMOp.box_get,
+            args=[read.key],
+            types=read.types,
+            source_location=read.source_location,
+        )
+
+    def visit_box_write(self, write: models.BoxWrite) -> None:
+        self.add_op(
+            models.Intrinsic(
+                op=AVMOp.box_put,
+                args=[write.key, write.value],
+                source_location=write.source_location,
+            )
+        )
+
     def _get_fixed_offset(
         self,
         base_encoding: Encoding,
@@ -266,6 +284,7 @@ class _AggregateNodeReplacer(IRMutator, IRRegisterContext):
                 byte_offset: int | ir.Value = bits_to_bytes(bit_offset_int)
                 base_encoding = base_encoding.elements[index]
             elif isinstance(base_encoding, ArrayEncoding):
+                # TODO: assert indexes are < length
                 bit_offset = index
                 byte_offset = factory.mul(index, base_encoding.element.checked_num_bytes)
                 base_encoding = base_encoding.element
