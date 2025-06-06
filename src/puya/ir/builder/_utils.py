@@ -534,6 +534,24 @@ class OpFactory:
         )
         return result
 
+    def box_extract(
+        self,
+        box_key: Value | bytes,
+        offset: Value | int,
+        length: Value | int,
+        ir_type: IRType,
+        temp_desc: str = "box_extract",
+    ) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.box_extract,
+            args=[box_key, offset, length],
+            return_type=ir_type,
+            source_location=self.source_location,
+        )
+        return result
+
     def materialise_single(self, value_provider: ValueProvider, description: str = "tmp") -> Value:
         (single,) = self.materialise_values(value_provider, description)
         return single

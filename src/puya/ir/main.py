@@ -257,9 +257,7 @@ def _lower_aggregate_ir(
     ref: ContractReference | LogicSigReference,
 ) -> None:
     logger.debug(f"lowering array IR nodes in {program.kind} program of {ref}")
-    for sub in program.all_subroutines:
-        lower_aggregate_nodes(program, sub)
-        sub.validate_with_ssa()
+    lower_aggregate_nodes(program)
     if context.options.output_ssa_ir:
         render_program(context, program, qualifier="ssa.array")
 
