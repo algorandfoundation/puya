@@ -113,7 +113,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap(
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         (box_del "box")
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
-        (box_put "box" encoded_for_storage%0#0)
+        box_write("box", encoded_for_storage%0#0)
         let encoded_array%1#0: Encoded(len+uint64[]) = encode<(len+uint64[])>(0x0000000000000000)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
@@ -142,7 +142,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tup
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(val: Encoded(uint64)) -> void:
     block@0: // L32
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "box")
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("box")
         (assert maybe_exists%0#0) // check self.box exists
         let (tmp%0#0: Encoded(len+uint64[]), tmp%1#0: uint64) = decode<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         let tmp%2#0: Encoded(uint64[]) = encode<uint64[]>(val#0)
@@ -155,7 +155,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box
         let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
         (box_del "box")
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = encode<((len+uint64[]),uint64)>(as_Encoded(len+uint64[])%0#0, tmp%1#0)
-        (box_put "box" encoded_for_storage%0#0)
+        box_write("box", encoded_for_storage%0#0)
         return 
 
 subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(val: Encoded(uint64)) -> void:

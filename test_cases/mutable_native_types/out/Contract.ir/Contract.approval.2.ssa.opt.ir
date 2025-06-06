@@ -444,10 +444,10 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         let tuple_item%0#0: Encoded(uint64,uint64) = maybe_value%1#0[0]
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = box_read(box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.box_map entry exists
         let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = maybe_value%3#0.update((0), tuple_item%0#0)
-        (box_put box_prefixed_key%0#0 updated_tuple%0#0)
+        box_write(box_prefixed_key%0#0, updated_tuple%0#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct() -> Encoded(uint8[32],uint64,uint64):
@@ -494,16 +494,16 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
         (assert maybe_exists%2#0) // check self.nested_local exists for account
         let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = maybe_value%2#0.update((0), a#0)
         (app_local_put tmp%0#0 0x6c updated_tuple%2#0)
-        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "box")
+        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = box_read("box")
         (assert maybe_exists%3#0) // check self.box exists
         let updated_tuple%3#0: Encoded((uint64,uint64),uint8[2048]) = maybe_value%3#0.update((0), a#0)
-        (box_put "box" updated_tuple%3#0)
+        box_write("box", updated_tuple%3#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = box_read(box_prefixed_key%0#0)
         (assert maybe_exists%4#0) // check self.box_map entry exists
         let updated_tuple%4#0: Encoded((uint64,uint64),uint8[2048]) = maybe_value%4#0.update((0), a#0)
-        (box_put box_prefixed_key%0#0 updated_tuple%4#0)
+        box_write(box_prefixed_key%0#0, updated_tuple%4#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> Encoded(uint64,uint64):

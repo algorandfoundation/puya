@@ -271,7 +271,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_bo
         let encoded_for_storage%0#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(key.a#0, key.b#0)
         let box_prefixed_key%0#0: bytes = (concat "box" encoded_for_storage%0#0)
         let encoded_for_storage%1#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(key.a#0, tmp%0#0)
-        (box_put box_prefixed_key%0#0 encoded_for_storage%1#0)
+        box_write(box_prefixed_key%0#0, encoded_for_storage%1#0)
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box(key.a: uint64, key.b: uint64) -> bool:
@@ -285,7 +285,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
     block@0: // L77
         let encoded_for_storage%0#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(key.a#0, key.b#0)
         let box_prefixed_key%0#0: bytes = (concat "box" encoded_for_storage%0#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read(box_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.box entry exists
         let (tmp%0#0: uint64, tmp%1#0: uint64) = decode<(uint64,uint64,)>(maybe_value%0#0)
         return tmp%0#0 tmp%1#0
@@ -294,7 +294,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_
     block@0: // L81
         let encoded_for_storage%0#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(key.a#0, key.b#0)
         let box_prefixed_key%0#0: bytes = (concat "box" encoded_for_storage%0#0)
-        let (maybe_value%0#0: bytes, exists#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%0#0: bytes, exists#0: bool) = box_read(box_prefixed_key%0#0)
         goto exists#0 ? block@1 : block@2
     block@1: // ternary_true_L83
         let (ternary_result%0.a#0: uint64, ternary_result%0.b#0: uint64) = decode<(uint64,uint64,)>(maybe_value%0#0)
@@ -313,7 +313,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
         let encoded_for_storage%0#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(key.a#0, key.b#0)
         let box_prefixed_key%0#0: bytes = (concat "box" encoded_for_storage%0#0)
         let (tmp%0#0: uint64, tmp%1#0: uint64) = test_cases.tuple_support.nested_tuples.simple_tup(4u, 2u)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read(box_prefixed_key%0#0)
         goto maybe_exists%0#0 ? block@1 : block@2
     block@1: // ternary_true_L88
         let (ternary_result%0.a#0: uint64, ternary_result%0.b#0: uint64) = decode<(uint64,uint64,)>(maybe_value%0#0)

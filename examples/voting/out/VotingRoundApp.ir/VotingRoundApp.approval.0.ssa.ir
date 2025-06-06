@@ -468,7 +468,7 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "" materialized_values%0#0)
         (box_del box_prefixed_key%0#0)
-        (box_put box_prefixed_key%0#0 copy%0#0)
+        box_write(box_prefixed_key%0#0, copy%0#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "voter_count")
         (assert maybe_exists%2#0) // check self.voter_count exists
         let tmp%20#0: uint64 = (+ maybe_value%2#0 1u)
