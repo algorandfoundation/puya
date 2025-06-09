@@ -105,17 +105,26 @@ class _AggregateReplacer(MutatingRegisterContext):
 
     def visit_box_write(self, write: models.BoxWrite) -> models.BoxWrite | None:
         try:
-            agg_write = self.aggregates.agg_writes[write.value]
+            agg_write_ass = self.aggregates.agg_writes[write.value]
         except KeyError:
             return write
-        if agg_write.op.aggregate_encoding.is_dynamic:
+        agg_write = agg_write_ass.op
+        if agg_write.aggregate_encoding.is_dynamic:
+            return write
+        try:
+            read_src_ass = self.aggregates.box_reads[agg_write.base]
+        except KeyError:
+            return write
+        read_src = read_src_ass.op
+        # can only do an in-place update if the agg write was for a value from the same box
+        if write.key != read_src.key:
             return write
         merged_loc = sequential_source_locations_merge(
-            (agg_write.op.source_location, write.source_location)
+            (agg_write.source_location, write.source_location)
         )
         new_write = _combine_aggregate_and_box_write(
             self,
-            agg_write.op,
+            agg_write,
             write.key,
             merged_loc,
         )
