@@ -9,7 +9,9 @@ from puya.errors import InternalError
 from puya.ir import models, visitor
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import bfs_block_order
+from puya.ir.avm_ops import AVMOp
 from puya.ir.ssa import TrivialPhiRemover
+from puya.ir.types_ import PrimitiveIRType
 from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
@@ -235,7 +237,33 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
             modified += 1
 
     for (block, ass), registers in assignments.items():
-        if registers.symmetric_difference(ass.targets):
+        if (
+            isinstance(ass.source, models.Intrinsic)
+            and ass.source.op == AVMOp.box_get
+            and ass.targets[0] in registers
+        ):  # replace box_get with box_len
+            maybe_value, exists = ass.targets
+            logger.debug(
+                f"replacing box_get with box_len because {maybe_value.local_id} is unused"
+            )
+            box_get = ass.source
+            ass_index = block.ops.index(ass)
+            block.ops[ass_index] = attrs.evolve(
+                ass,
+                targets=[
+                    attrs.evolve(
+                        maybe_value,
+                        ir_type=PrimitiveIRType.uint64,
+                    ),
+                    exists,
+                ],
+                source=attrs.evolve(
+                    box_get,
+                    op=AVMOp.box_len,
+                    types=AVMOp.box_len.get_variant(box_get.immediates).signature.returns,
+                ),
+            )
+        elif registers.symmetric_difference(ass.targets):
             pass  # some registers still used
         elif isinstance(ass.source, models.Value | models.InnerTransactionField) or (
             isinstance(ass.source, models.Intrinsic)
