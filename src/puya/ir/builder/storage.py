@@ -13,9 +13,7 @@ from puya.errors import InternalError
 from puya.ir.arc4_types import maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._tuple_util import build_tuple_registers
-from puya.ir.builder._utils import (
-    undefined_value,
-)
+from puya.ir.builder._utils import undefined_value
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BoxRead,
