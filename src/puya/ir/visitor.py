@@ -76,12 +76,6 @@ class IRVisitor[T](ABC):
     def visit_write_slot(self, write_slot: puya.ir.models.WriteSlot) -> T: ...
 
     @abstractmethod
-    def visit_array_read_index(self, read: puya.ir.models.ArrayReadIndex) -> T: ...
-
-    @abstractmethod
-    def visit_array_write_index(self, write: puya.ir.models.ArrayWriteIndex) -> T: ...
-
-    @abstractmethod
     def visit_aggregate_read_index(self, read: puya.ir.models.AggregateReadIndex) -> T: ...
 
     @abstractmethod
@@ -191,15 +185,6 @@ class IRTraverser(IRVisitor[None]):
 
     def visit_write_slot(self, write: puya.ir.models.WriteSlot) -> None:
         write.slot.accept(self)
-        write.value.accept(self)
-
-    def visit_array_read_index(self, read: puya.ir.models.ArrayReadIndex) -> None:
-        read.array.accept(self)
-        read.index.accept(self)
-
-    def visit_array_write_index(self, write: puya.ir.models.ArrayWriteIndex) -> None:
-        write.array.accept(self)
-        write.index.accept(self)
         write.value.accept(self)
 
     def visit_aggregate_read_index(self, read: puya.ir.models.AggregateReadIndex) -> None:
@@ -331,12 +316,6 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
         return None
 
     def visit_write_slot(self, write: puya.ir.models.WriteSlot) -> T | None:
-        return None
-
-    def visit_array_read_index(self, read: puya.ir.models.ArrayReadIndex) -> T | None:
-        return None
-
-    def visit_array_write_index(self, write: puya.ir.models.ArrayWriteIndex) -> T | None:
         return None
 
     def visit_aggregate_read_index(self, read: puya.ir.models.AggregateReadIndex) -> T | None:

@@ -50,32 +50,6 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         )
 
     @typing.override
-    def visit_array_read_index(self, read: ir.ArrayReadIndex) -> ir.ValueProvider:
-        self.modified = True
-
-        return sequence.read_at_index(
-            self,
-            array_encoding=read.array_encoding,
-            array=read.array,
-            index=read.index,
-            loc=read.source_location,
-            assert_bounds=read.check_bounds,
-        )
-
-    @typing.override
-    def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> ir.Value:
-        self.modified = True
-
-        return sequence.write_at_index(
-            self,
-            array_encoding=write.array_encoding,
-            array=write.array,
-            index=write.index,
-            value=write.value,
-            loc=write.source_location,
-        )
-
-    @typing.override
     def visit_aggregate_read_index(self, read: ir.AggregateReadIndex) -> ir.Value:
         self.modified = True
 

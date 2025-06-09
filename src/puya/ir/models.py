@@ -437,49 +437,6 @@ class ArrayOp(typing.Protocol):
 
 
 @attrs.define(eq=False, kw_only=True)
-class _ArrayOp(Op, ValueProvider):
-    array: Value = attrs.field()
-    # capture array type on the node, so the array value can be optimized
-    # and still retain array type information
-    array_encoding: ArrayEncoding = attrs.field()
-
-
-@attrs.define(eq=False)
-class ArrayReadIndex(_ArrayOp):
-    index: Value = attrs.field(validator=_is_uint64_type)
-    check_bounds: bool = True
-
-    @property
-    def types(self) -> Sequence[IRType]:
-        if self.array_encoding.element.is_bit:
-            return (PrimitiveIRType.bool,)
-        else:
-            return (EncodedType(self.array_encoding.element),)
-
-    def _frozen_data(self) -> object:
-        return self.array, self.array_encoding, self.index, self.check_bounds
-
-    def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_read_index(self)
-
-
-@attrs.define(eq=False)
-class ArrayWriteIndex(_ArrayOp):
-    index: Value = attrs.field(validator=_is_uint64_type)
-    value: Value = attrs.field()
-
-    def _frozen_data(self) -> object:
-        return self.array, self.array_encoding, self.index, self.value
-
-    @property
-    def types(self) -> Sequence[IRType]:
-        return (self.array.ir_type,)
-
-    def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_write_index(self)
-
-
-@attrs.define(eq=False, kw_only=True)
 class _AggregateOp(Op, ValueProvider):
     aggregate_encoding: TupleEncoding | ArrayEncoding = attrs.field()
     base: Value = attrs.field()

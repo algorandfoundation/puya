@@ -106,19 +106,6 @@ class ToTextVisitor(IRVisitor[str]):
         return f"write({slot}, {value})"
 
     @typing.override
-    def visit_array_read_index(self, read: models.ArrayReadIndex) -> str:
-        base = read.array.accept(self)
-        index = read.index.accept(self)
-        return f"{base}[{index}]"
-
-    @typing.override
-    def visit_array_write_index(self, write: models.ArrayWriteIndex) -> str:
-        base = write.array.accept(self)
-        index = write.index.accept(self)
-        value = write.value.accept(self)
-        return f"{base}.update({index}, {value})"
-
-    @typing.override
     def visit_box_read(self, read: models.BoxRead) -> str:
         box = read.key.accept(self)
         return f"box_read({box})"
