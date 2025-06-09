@@ -96,17 +96,6 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
-    def visit_array_read_index(self, read: models.ArrayReadIndex) -> models.ValueProvider:
-        read.array = read.array.accept(self)
-        read.index = read.index.accept(self)
-        return read
-
-    def visit_array_write_index(self, write: models.ArrayWriteIndex) -> models.ValueProvider:
-        write.array = write.array.accept(self)
-        write.index = write.index.accept(self)
-        write.value = write.value.accept(self)
-        return write
-
     def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> models.ValueProvider:
         read.base = read.base.accept(self)
         indexes = list[int | models.Value]()

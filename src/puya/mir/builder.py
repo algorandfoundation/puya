@@ -166,12 +166,6 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
             )
 
-    def visit_array_read_index(self, read: ir.ArrayReadIndex) -> None:
-        _unexpected_node(read)
-
-    def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> None:
-        _unexpected_node(write)
-
     def visit_aggregate_read_index(self, read: ir.AggregateReadIndex) -> None:
         _unexpected_node(read)
 
