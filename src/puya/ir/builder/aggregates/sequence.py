@@ -8,7 +8,7 @@ from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import OpFactory, assert_value, invoke_puya_lib_subroutine
+from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.sequence import get_length
 from puya.ir.encodings import (
     ArrayEncoding,
@@ -17,6 +17,7 @@ from puya.ir.encodings import (
     Encoding,
     FixedArrayEncoding,
 )
+from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
     PrimitiveIRType,

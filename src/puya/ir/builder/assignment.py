@@ -12,8 +12,9 @@ from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence, storage
 from puya.ir.builder._tuple_util import build_tuple_registers
-from puya.ir.builder._utils import assign, assign_targets, get_implicit_return_is_original
+from puya.ir.builder._utils import assign, get_implicit_return_is_original
 from puya.ir.context import IRFunctionBuildContext
+from puya.ir.op_utils import assign_targets
 from puya.ir.types_ import PrimitiveIRType, SlotType, get_wtype_arity
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
