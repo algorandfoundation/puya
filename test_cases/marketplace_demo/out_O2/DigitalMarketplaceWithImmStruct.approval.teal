@@ -1,14 +1,14 @@
 #pragma version 10
 #pragma typetrack false
 
-// marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_entrypoint_with_init() -> uint64:
+// test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 48 56 50500
     bytecblock 0x6c697374696e6773
     intc_1 // 0
-    dup
+    dupn 4
     pushbytes ""
-    dupn 7
+    dupn 5
     txn ApplicationID
     bnz main_after_if_else@2
     pushbytes "init"
@@ -35,7 +35,7 @@ main_acceptBid_route@17:
     btoi
     txnas Assets
     dup
-    bury 9
+    bury 7
     txna ApplicationArgs 2
     btoi
     txn Sender
@@ -49,49 +49,46 @@ main_acceptBid_route@17:
     swap
     concat
     dup
-    bury 11
+    bury 9
     box_get
+    swap
+    dup
+    cover 2
+    bury 9
     assert // check self.listings entry exists
+    dup
+    extract 16 32
+    dup
+    bury 11
+    global ZeroAddress
+    !=
+    assert
     dup
     intc_1 // 0
     extract_uint64
     dup
     cover 2
-    bury 6
-    dup
-    pushint 8 // 8
-    extract_uint64
-    bury 5
-    dup
-    extract 16 32
-    dup
-    cover 2
-    bury 12
-    dup
+    bury 4
     intc_2 // 48
     extract_uint64
     dup
-    cover 3
-    bury 10
-    intc_3 // 56
-    extract_uint64
-    bury 8
-    global ZeroAddress
-    !=
-    assert
+    bury 3
     <
     bz main_ternary_false@19
-    dig 3
+    dig 1
 
 main_ternary_merge@20:
-    dig 8
-    dup
-    asset_params_get AssetDecimals
-    assert // asset exists
     dig 7
     dup
-    cover 3
-    uncover 4
+    intc_3 // 56
+    extract_uint64
+    dig 8
+    dup
+    cover 2
+    asset_params_get AssetDecimals
+    assert // asset exists
+    dig 1
+    uncover 5
     dup
     cover 3
     mulw
@@ -115,26 +112,29 @@ main_ternary_merge@20:
     itxn_begin
     dup
     itxn_field AssetAmount
-    dig 11
+    dig 12
     dup
     cover 2
     itxn_field AssetReceiver
-    uncover 2
+    uncover 3
     itxn_field XferAsset
     pushint 4 // axfer
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    dig 6
-    dig 1
+    uncover 3
+    pushint 8 // 8
+    extract_uint64
+    dig 5
+    dig 2
     -
-    dig 9
-    uncover 2
+    dig 5
+    uncover 3
     -
     swap
     itob
-    dig 6
+    uncover 2
     itob
     concat
     uncover 2
@@ -145,14 +145,14 @@ main_ternary_merge@20:
     swap
     itob
     concat
-    dig 10
+    dig 8
     swap
     box_put
     intc_0 // 1
     return
 
 main_ternary_false@19:
-    dig 5
+    dup
     b main_ternary_merge@20
 
 main_bid_route@14:
@@ -168,24 +168,24 @@ main_bid_route@14:
     btoi
     txnas Assets
     dup
-    bury 10
+    bury 8
     txna ApplicationArgs 3
     btoi
     txn GroupIndex
     intc_0 // 1
     -
     dup
-    bury 11
+    bury 9
     gtxns TypeEnum
     intc_0 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 4
     btoi
-    bury 5
+    bury 7
     txna ApplicationArgs 5
     btoi
-    bury 4
+    bury 6
     swap
     itob
     uncover 2
@@ -198,43 +198,34 @@ main_bid_route@14:
     swap
     concat
     dup
-    bury 11
+    bury 9
     box_get
-    assert // check self.listings entry exists
-    dup
-    intc_1 // 0
-    extract_uint64
-    bury 5
-    dup
-    pushint 8 // 8
-    extract_uint64
-    bury 4
-    dup
-    extract 16 32
+    swap
     dup
     cover 2
-    bury 11
+    bury 9
+    assert // check self.listings entry exists
+    extract 16 32
     dup
-    intc_2 // 48
-    extract_uint64
-    bury 8
-    intc_3 // 56
-    extract_uint64
-    bury 6
+    bury 11
     global ZeroAddress
     !=
     bz main_after_if_else@16
+    dig 6
     dup
-    dig 5
-    dup
-    cover 2
+    intc_3 // 56
+    extract_uint64
+    dig 4
+    dig 1
     >
     assert
-    dig 8
+    swap
+    intc_2 // 48
+    extract_uint64
+    dig 7
     asset_params_get AssetDecimals
     assert // asset exists
-    swap
-    dig 7
+    cover 2
     mulw
     pushint 10 // 10
     uncover 3
@@ -246,7 +237,7 @@ main_bid_route@14:
     assert
     itxn_begin
     itxn_field Amount
-    dig 8
+    dig 9
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
@@ -255,13 +246,13 @@ main_bid_route@14:
     itxn_submit
 
 main_after_if_else@16:
-    dig 7
+    dig 5
     asset_params_get AssetDecimals
     assert // asset exists
-    dig 1
+    dig 3
     dup
     cover 2
-    dig 4
+    dig 6
     dup
     cover 3
     mulw
@@ -273,7 +264,7 @@ main_after_if_else@16:
     swap
     !
     assert
-    dig 9
+    dig 7
     dup
     gtxns Sender
     txn Sender
@@ -287,21 +278,28 @@ main_after_if_else@16:
     gtxns Amount
     ==
     assert
+    dig 8
+    dup
+    intc_1 // 0
+    extract_uint64
+    swap
+    pushint 8 // 8
+    extract_uint64
     txn Sender
-    dig 6
+    uncover 2
     itob
-    dig 6
+    uncover 2
     itob
     concat
     swap
-    concat
-    swap
-    itob
     concat
     swap
     itob
     concat
-    dig 10
+    swap
+    itob
+    concat
+    dig 8
     swap
     box_put
     intc_0 // 1
@@ -317,7 +315,7 @@ main_withdraw_route@11:
     btoi
     txnas Assets
     dup
-    bury 9
+    bury 7
     txna ApplicationArgs 2
     btoi
     txn Sender
@@ -331,33 +329,31 @@ main_withdraw_route@11:
     swap
     concat
     dup
-    bury 11
+    bury 9
     box_get
-    assert // check self.listings entry exists
-    dup
-    intc_1 // 0
-    extract_uint64
-    bury 5
-    dup
-    extract 16 32
+    swap
     dup
     cover 2
-    bury 11
+    bury 9
+    assert // check self.listings entry exists
+    extract 16 32
     dup
-    intc_2 // 48
-    extract_uint64
-    bury 8
-    intc_3 // 56
-    extract_uint64
-    bury 6
+    bury 12
     global ZeroAddress
     !=
     bz main_after_if_else@13
+    dig 6
+    dup
+    intc_2 // 48
+    extract_uint64
+    swap
+    intc_3 // 56
+    extract_uint64
     dig 7
     asset_params_get AssetDecimals
     assert // asset exists
-    dig 5
-    dig 7
+    swap
+    uncover 2
     mulw
     pushint 10 // 10
     uncover 3
@@ -369,7 +365,7 @@ main_withdraw_route@11:
     assert
     itxn_begin
     itxn_field Amount
-    dig 8
+    dig 10
     itxn_field Receiver
     intc_0 // pay
     itxn_field TypeEnum
@@ -378,7 +374,7 @@ main_withdraw_route@11:
     itxn_submit
 
 main_after_if_else@13:
-    dig 9
+    dig 7
     box_del
     pop
     itxn_begin
@@ -393,10 +389,12 @@ main_after_if_else@13:
     itxn_submit
     itxn_begin
     txn Sender
-    dig 4
+    dig 7
+    intc_1 // 0
+    extract_uint64
     itxn_field AssetAmount
     itxn_field AssetReceiver
-    dig 7
+    dig 5
     itxn_field XferAsset
     pushint 4 // axfer
     itxn_field TypeEnum
@@ -445,24 +443,13 @@ main_buy_route@10:
     box_get
     assert // check self.listings entry exists
     dup
-    intc_1 // 0
-    extract_uint64
-    dig 1
     pushint 8 // 8
     extract_uint64
-    dig 2
-    extract 16 32
-    dig 3
-    intc_2 // 48
-    extract_uint64
-    uncover 4
-    intc_3 // 56
-    extract_uint64
-    dig 8
+    dig 5
     asset_params_get AssetDecimals
     assert // asset exists
-    dig 4
-    dig 8
+    dig 1
+    dig 5
     mulw
     pushint 10 // 10
     uncover 3
@@ -472,28 +459,38 @@ main_buy_route@10:
     swap
     !
     assert
-    dig 8
+    dig 5
     gtxns Sender
     txn Sender
     ==
     assert
-    dig 8
+    dig 5
     gtxns Receiver
-    uncover 11
+    uncover 8
     ==
     assert
-    uncover 8
+    uncover 5
     gtxns Amount
     ==
     assert
+    dig 1
+    intc_2 // 48
+    extract_uint64
+    dig 2
+    intc_3 // 56
+    extract_uint64
+    dig 3
+    extract 16 32
     uncover 4
+    intc_1 // 0
+    extract_uint64
     dig 6
     -
     itob
     uncover 4
     itob
     concat
-    uncover 3
+    swap
     concat
     uncover 2
     itob
@@ -542,22 +539,21 @@ main_setPrice_route@9:
     box_get
     assert // check self.listings entry exists
     dup
-    intc_1 // 0
-    extract_uint64
-    dig 1
-    extract 16 32
-    dig 2
     intc_2 // 48
     extract_uint64
-    uncover 3
+    dig 1
     intc_3 // 56
     extract_uint64
+    dig 2
+    extract 16 32
     uncover 3
+    intc_1 // 0
+    extract_uint64
     itob
     uncover 5
     itob
     concat
-    uncover 3
+    swap
     concat
     uncover 2
     itob
@@ -588,56 +584,52 @@ main_deposit_route@8:
     txn Sender
     dig 2
     gtxns XferAsset
-    dig 3
+    itob
+    concat
+    swap
+    itob
+    concat
+    dig 1
     gtxns Sender
     txn Sender
     ==
     assert
-    dig 3
+    dig 1
     gtxns AssetReceiver
     global CurrentApplicationAddress
     ==
     assert
-    uncover 3
+    swap
     gtxns AssetAmount
     dup
     assert
-    swap
-    itob
-    uncover 2
-    swap
-    concat
-    uncover 2
-    itob
-    concat
     bytec_0 // 0x6c697374696e6773
-    swap
+    uncover 2
     concat
     dup
     box_get
     assert // check self.listings entry exists
     dup
-    intc_1 // 0
+    intc_2 // 48
     extract_uint64
     dig 1
-    pushint 8 // 8
+    intc_3 // 56
     extract_uint64
     dig 2
     extract 16 32
     dig 3
-    intc_2 // 48
+    pushint 8 // 8
     extract_uint64
     uncover 4
-    intc_3 // 56
+    intc_1 // 0
     extract_uint64
-    uncover 4
     uncover 6
     +
     itob
-    uncover 4
+    swap
     itob
     concat
-    uncover 3
+    swap
     concat
     uncover 2
     itob
