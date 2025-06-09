@@ -7,8 +7,6 @@ from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import (
-    OpFactory,
-    assert_value,
     undefined_value,
 )
 from puya.ir.builder.sequence import requires_conversion
@@ -31,6 +29,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
+from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
     EncodedType,

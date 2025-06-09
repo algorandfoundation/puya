@@ -10,9 +10,9 @@ from puya.awst import (
 from puya.errors import CodeError
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder._tuple_util import build_tuple_item_names
-from puya.ir.builder._utils import assign_targets, new_register_version
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import InvokeSubroutine, Register, Subroutine, Value, ValueProvider, ValueTuple
+from puya.ir.op_utils import assign_targets, new_register_version
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)

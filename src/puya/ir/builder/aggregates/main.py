@@ -1,10 +1,8 @@
 import typing
-from collections.abc import Sequence
 
 import attrs
 
 from puya import log
-from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir import (
     models,
@@ -12,12 +10,10 @@ from puya.ir import (
 )
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import OpFactory
 from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
 from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
-from puya.parse import SourceLocation
-from puya.utils import bits_to_bytes
+from puya.ir.op_utils import OpFactory
 
 logger = log.get_logger(__name__)
 
@@ -88,19 +84,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
 
         aggregate_encoding = read.aggregate_encoding
         base = read.base
-        if (
-            not aggregate_encoding.is_dynamic
-        ):  # and aggregate_encoding.checked_num_bytes > MAX_BYTES_LENGTH:
-            total_offset = self._get_fixed_offset(aggregate_encoding, read.indexes, loc)
-            if read.element_encoding.is_bit:
-                return factory.get_bit(value=base, index=total_offset)
-            else:
-                return factory.extract3(
-                    base, total_offset, read.element_encoding.checked_num_bytes
-                )
-
         base_encoding: Encoding = aggregate_encoding
-        # TODO: for fixed sized types handle read.indexes as a single op using an offset and length
         for index in read.indexes:
             if isinstance(base_encoding, TupleEncoding):
                 assert isinstance(index, int), "expected int"
@@ -134,23 +118,6 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         aggregate_encoding = write.aggregate_encoding
         base = write.base
         bases = []
-        # special handling when the base value is too big to fit on the stack e.g.
-        # when there is a box involved
-        if (
-            not aggregate_encoding.is_dynamic
-        ):  # and aggregate_encoding.checked_num_bytes > MAX_BYTES_LENGTH:
-            total_offset = self._get_fixed_offset(aggregate_encoding, write.indexes, loc)
-            if write.element_encoding.is_bit:
-                value = write.value
-                if value.ir_type.avm_type == AVMType.uint64:
-                    # TODO: ensure coverage of this, might need to update requires_conversion
-                    is_true = value
-                else:
-                    is_true = factory.get_bit(value, 0, "is_true")
-                return factory.set_bit(value=base, index=total_offset, bit=is_true)
-            else:
-                return factory.replace(base, total_offset, write.value)
-
         base_encoding: Encoding = aggregate_encoding
         for index in write.indexes:
             bases.append((base, base_encoding))
@@ -210,34 +177,3 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
                 source_location=write.source_location,
             )
         )
-
-    def _get_fixed_offset(
-        self,
-        base_encoding: Encoding,
-        indexes: Sequence[int | ir.Value],
-        loc: SourceLocation | None,
-    ) -> ir.Value:
-        factory = OpFactory(self, loc)
-        total_offset = factory.constant(0)
-        last_i = len(indexes) - 1
-        for i, index in enumerate(indexes):
-            if isinstance(base_encoding, TupleEncoding):
-                assert isinstance(index, int), "expected int"
-                bit_offset_int = base_encoding.get_head_bit_offset(index)
-                bit_offset: int | ir.Value = bit_offset_int
-                byte_offset: int | ir.Value = bits_to_bytes(bit_offset_int)
-                base_encoding = base_encoding.elements[index]
-            elif isinstance(base_encoding, ArrayEncoding):
-                # TODO: assert indexes are < length
-                bit_offset = index
-                byte_offset = factory.mul(index, base_encoding.element.checked_num_bytes)
-                base_encoding = base_encoding.element
-            else:
-                raise InternalError("invalid aggregate encoding and index", loc)
-            if base_encoding.is_bit:
-                assert i == last_i, "expected to be last index"
-                total_offset = factory.mul(total_offset, 8)
-                total_offset = factory.add(total_offset, bit_offset)
-            else:
-                total_offset = factory.add(total_offset, byte_offset)
-        return total_offset
