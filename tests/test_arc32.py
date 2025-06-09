@@ -2262,11 +2262,11 @@ def test_mutable_native_types(
         algod_client,
         algokit_utils.EnsureBalanceParameters(
             account_to_fund=app_client.app_address,
-            min_spending_balance_micro_algos=400_000,
+            min_spending_balance_micro_algos=2_000_000,
         ),
     )
 
-    boxes = [(0, "tup_bag")]
+    boxes = [(0, "tup_bag")] * 5
     txn_params = algokit_utils.OnCompleteCallParameters(boxes=boxes)
 
     app_client.call("create_box", transaction_parameters=txn_params)
