@@ -6,9 +6,7 @@ from puya import log
 from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import (
-    undefined_value,
-)
+from puya.ir.builder._utils import undefined_value
 from puya.ir.builder.sequence import requires_conversion
 from puya.ir.encodings import (
     ArrayEncoding,
