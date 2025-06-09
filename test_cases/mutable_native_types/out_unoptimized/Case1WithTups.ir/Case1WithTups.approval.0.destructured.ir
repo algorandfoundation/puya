@@ -10,12 +10,12 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         return tmp%1#0
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__init__() -> void:
-    block@0: // L32
+    block@0: // L33
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box() -> void:
-    block@0: // L35
-        let tmp%0#0: bool = (box_create "tup_bag" 176u)
+    block@0: // L36
+        let tmp%0#0: bool = (box_create "tup_bag" 4272u)
         (assert tmp%0#0) // box already exists
         let tmp%1#0: account = (txn Sender)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
@@ -23,7 +23,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%1#0
         let encoded_value%0#0: Encoded(uint8[32]) = array%as_Encoded(uint8[32])%0#1
         let array%updated_data%0#1: bytes = (replace3 maybe_value%0#0 136u encoded_value%0#0)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%0#1
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = array%updated_data%0#1
         (box_put "tup_bag" updated_tuple%0#0)
         let tmp%2#0: uint64 = (global CurrentApplicationID)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
@@ -32,12 +32,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let encoded_value%1#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
         let array%updated_data%1#1: bytes = (replace3 maybe_value%1#0 168u encoded_value%1#0)
-        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%1#1
+        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = array%updated_data%1#1
         (box_put "tup_bag" updated_tuple%1#0)
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups() -> uint64:
-    block@0: // L41
+    block@0: // L42
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
@@ -46,7 +46,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tup
         return values%0#0
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a: uint64, tup.b: uint64) -> void:
-    block@0: // L45
+    block@0: // L46
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
@@ -74,7 +74,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let array%write_offset%0#1: uint64 = (* values%1#0 16u)
         let array%updated_array%0#1: bytes = (replace3 array%extract%2#1 array%write_offset%0#1 encoded_value%0#0)
         let array%updated_data%0#1: bytes = (replace3 maybe_value%1#0 8u array%updated_array%0#1)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%0#1
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = array%updated_data%0#1
         (box_put "tup_bag" updated_tuple%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%3#0) // check self.tup_bag exists
@@ -86,12 +86,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let array%as_Encoded(uint64)%2#1: Encoded(uint64) = array%val_as_bytes%2#1
         let encoded_value%1#0: Encoded(uint64) = array%as_Encoded(uint64)%2#1
         let array%updated_data%1#1: bytes = (replace3 maybe_value%3#0 0u encoded_value%1#0)
-        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%1#1
+        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = array%updated_data%1#1
         (box_put "tup_bag" updated_tuple%1#0)
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup(index: uint64) -> <uint64, uint64>:
-    block@0: // L52
+    block@0: // L53
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
@@ -115,7 +115,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
         return values%1#0 values%2#0
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -> uint64:
-    block@0: // L57
+    block@0: // L58
         let total#0: uint64 = 0u
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
@@ -125,10 +125,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L60
+    block@1: // for_header_L61
         let continue_looping%0#0: bool = (< i#0 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L61
+    block@2: // for_body_L62
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
         let array%extract%1#1: bytes = (extract3 maybe_value%1#0 8u 128u)
@@ -149,21 +149,21 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -
         let tmp%1#0: uint64 = (+ total#0 tup.b#0)
         let total#0: uint64 = tmp%1#0
         goto block@3
-    block@3: // for_footer_L60
+    block@3: // for_footer_L61
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L60
+    block@4: // after_for_L61
         return total#0
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups(tups: Encoded(len+(uint64,uint64)[])) -> void:
-    block@0: // L66
+    block@0: // L67
         let array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L68
+    block@1: // for_header_L69
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L69
+    block@2: // for_body_L70
         let array%array_trimmed%0#1: bytes = ((extract 2 0) tups#0)
         let array%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 16u)
         let array%encoded_element%0#1: bytes = (extract3 array%array_trimmed%0#1 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
@@ -178,20 +178,20 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_man
         let tup.b#0: uint64 = values%1#0
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#0, tup.b#0)
         goto block@3
-    block@3: // for_footer_L68
+    block@3: // for_footer_L69
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@1
-    block@4: // after_for_L68
+    block@4: // after_for_L69
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fixed_tups(tups: Encoded((uint64,uint64)[3])) -> void:
-    block@0: // L71
+    block@0: // L72
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L73
+    block@1: // for_header_L74
         let continue_looping%0#0: bool = (< item_index_internal%0#0 3u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L74
+    block@2: // for_body_L75
         let array%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 16u)
         let array%encoded_element%0#1: bytes = (extract3 tups#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = array%encoded_element%0#1
@@ -205,14 +205,14 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fix
         let tup.b#0: uint64 = values%1#0
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a#0, tup.b#0)
         goto block@3
-    block@3: // for_footer_L73
+    block@3: // for_footer_L74
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@1
-    block@4: // after_for_L73
+    block@4: // after_for_L74
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a: uint64) -> void:
-    block@0: // L76
+    block@0: // L77
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
@@ -222,10 +222,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L79
+    block@1: // for_header_L80
         let continue_looping%0#0: bool = (< i#0 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L80
+    block@2: // for_body_L81
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
         let array%extract%1#1: bytes = (extract3 maybe_value%1#0 8u 128u)
@@ -251,17 +251,17 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let array%write_offset%0#1: uint64 = (* i#0 16u)
         let array%updated_array%0#1: bytes = (replace3 array%extract%4#1 array%write_offset%0#1 encoded_value%0#0)
         let array%updated_data%0#1: bytes = (replace3 maybe_value%2#0 8u array%updated_array%0#1)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%0#1
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = array%updated_data%0#1
         (box_put "tup_bag" updated_tuple%0#0)
         goto block@3
-    block@3: // for_footer_L79
+    block@3: // for_footer_L80
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L79
+    block@4: // after_for_L80
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b: uint64) -> void:
-    block@0: // L83
+    block@0: // L84
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
@@ -271,10 +271,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L86
+    block@1: // for_header_L87
         let continue_looping%0#0: bool = (< i#0 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L87
+    block@2: // for_body_L88
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
         let array%extract%1#1: bytes = (extract3 maybe_value%1#0 8u 128u)
@@ -300,17 +300,17 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let array%write_offset%0#1: uint64 = (* i#0 16u)
         let array%updated_array%0#1: bytes = (replace3 array%extract%4#1 array%write_offset%0#1 encoded_value%0#0)
         let array%updated_data%0#1: bytes = (replace3 maybe_value%2#0 8u array%updated_array%0#1)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%0#1
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = array%updated_data%0#1
         (box_put "tup_bag" updated_tuple%0#0)
         goto block@3
-    block@3: // for_footer_L86
+    block@3: // for_footer_L87
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L86
+    block@4: // after_for_L87
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups(start: uint64) -> Encoded((uint64,uint64)[3]):
-    block@0: // L90
+    block@0: // L91
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
@@ -383,7 +383,7 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         return encoded_array%0#0
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups() -> Encoded(len+(uint64,uint64)[]):
-    block@0: // L103
+    block@0: // L104
         let array%as_bytes%0#1: bytes[8] = (itob 0u)
         let array%len_u16%0#1: bytes = ((extract 6 2) array%as_bytes%0#1)
         let array%encoded%0#1: bytes = (concat array%len_u16%0#1 0x)
@@ -404,10 +404,10 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L108
+    block@1: // for_header_L109
         let continue_looping%0#0: bool = (< i#0 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L109
+    block@2: // for_body_L110
         let array%bytes_offset%0#1: uint64 = (* i#0 16u)
         let array%encoded_element%0#1: bytes = (extract3 items#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = array%encoded_element%0#1
@@ -436,14 +436,14 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
         let as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = replace%0#0
         let result#0: Encoded(len+(uint64,uint64)[]) = as_Encoded(len+(uint64,uint64)[])%0#0
         goto block@3
-    block@3: // for_footer_L108
+    block@3: // for_footer_L109
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
-    block@4: // after_for_L108
+    block@4: // after_for_L109
         return result#0
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner() -> void:
-    block@0: // L112
+    block@0: // L113
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let array%extract%0#1: bytes = (extract3 maybe_value%0#0 136u 32u)
@@ -465,14 +465,14 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
         goto block@1
-    block@1: // L31
+    block@1: // L32
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%1#0 ? block@2 : block@16
-    block@2: // abi_routing_L31
+    block@2: // abi_routing_L32
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "create_box()void" => block@3, method "num_tups()uint64" => block@4, method "add_tup((uint64,uint64))void" => block@5, method "get_tup(uint64)(uint64,uint64)" => block@6, method "sum()uint64" => block@7, method "add_many_tups((uint64,uint64)[])void" => block@8, method "add_fixed_tups((uint64,uint64)[3])void" => block@9, method "set_a(uint64)void" => block@10, method "set_b(uint64)void" => block@11, method "get_3_tups(uint64)(uint64,uint64)[3]" => block@12, method "get_all_tups()(uint64,uint64)[]" => block@13, * => block@14}
-    block@3: // create_box_route_L35
+    block@3: // create_box_route_L36
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -483,7 +483,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@4: // num_tups_route_L41
+    block@4: // num_tups_route_L42
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         (assert tmp%8#0) // OnCompletion is not NoOp
@@ -499,7 +499,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@5: // add_tup_route_L45
+    block@5: // add_tup_route_L46
         let tmp%14#0: uint64 = (txn OnCompletion)
         let tmp%15#0: bool = (== tmp%14#0 NoOp)
         (assert tmp%15#0) // OnCompletion is not NoOp
@@ -517,7 +517,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@6: // get_tup_route_L52
+    block@6: // get_tup_route_L53
         let tmp%20#0: uint64 = (txn OnCompletion)
         let tmp%21#0: bool = (== tmp%20#0 NoOp)
         (assert tmp%21#0) // OnCompletion is not NoOp
@@ -540,7 +540,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@7: // sum_route_L57
+    block@7: // sum_route_L58
         let tmp%29#0: uint64 = (txn OnCompletion)
         let tmp%30#0: bool = (== tmp%29#0 NoOp)
         (assert tmp%30#0) // OnCompletion is not NoOp
@@ -556,7 +556,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@8: // add_many_tups_route_L66
+    block@8: // add_many_tups_route_L67
         let tmp%36#0: uint64 = (txn OnCompletion)
         let tmp%37#0: bool = (== tmp%36#0 NoOp)
         (assert tmp%37#0) // OnCompletion is not NoOp
@@ -568,7 +568,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@9: // add_fixed_tups_route_L71
+    block@9: // add_fixed_tups_route_L72
         let tmp%40#0: uint64 = (txn OnCompletion)
         let tmp%41#0: bool = (== tmp%40#0 NoOp)
         (assert tmp%41#0) // OnCompletion is not NoOp
@@ -580,7 +580,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@10: // set_a_route_L76
+    block@10: // set_a_route_L77
         let tmp%44#0: uint64 = (txn OnCompletion)
         let tmp%45#0: bool = (== tmp%44#0 NoOp)
         (assert tmp%45#0) // OnCompletion is not NoOp
@@ -593,7 +593,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@11: // set_b_route_L83
+    block@11: // set_b_route_L84
         let tmp%49#0: uint64 = (txn OnCompletion)
         let tmp%50#0: bool = (== tmp%49#0 NoOp)
         (assert tmp%50#0) // OnCompletion is not NoOp
@@ -606,7 +606,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@12: // get_3_tups_route_L90
+    block@12: // get_3_tups_route_L91
         let tmp%54#0: uint64 = (txn OnCompletion)
         let tmp%55#0: bool = (== tmp%54#0 NoOp)
         (assert tmp%55#0) // OnCompletion is not NoOp
@@ -621,7 +621,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@13: // get_all_tups_route_L103
+    block@13: // get_all_tups_route_L104
         let tmp%61#0: uint64 = (txn OnCompletion)
         let tmp%62#0: bool = (== tmp%61#0 NoOp)
         (assert tmp%62#0) // OnCompletion is not NoOp
@@ -634,11 +634,11 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@14: // switch_case_default_L31
+    block@14: // switch_case_default_L32
         goto block@15
-    block@15: // switch_case_next_L31
+    block@15: // switch_case_next_L32
         goto block@22
-    block@16: // bare_routing_L31
+    block@16: // bare_routing_L32
         let tmp%67#0: uint64 = (txn OnCompletion)
         switch tmp%67#0 {0u => block@17, * => block@20}
     block@17: // __algopy_default_create_L1
@@ -652,11 +652,11 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
-    block@20: // switch_case_default_L31
+    block@20: // switch_case_default_L32
         goto block@21
-    block@21: // switch_case_next_L31
+    block@21: // switch_case_next_L32
         goto block@22
-    block@22: // after_if_else_L31
+    block@22: // after_if_else_L32
         let test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__%0#0
         goto block@23
