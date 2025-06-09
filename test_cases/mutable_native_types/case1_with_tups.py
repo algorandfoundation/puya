@@ -26,6 +26,7 @@ class TupBag(Struct):
     items: FixedArray[NamedTup, typing.Literal[8]]
     owner: Account
     app: Application
+    too_big: FixedArray[arc4.Byte, typing.Literal[4096]]
 
 
 class Case1WithTups(arc4.ARC4Contract):
