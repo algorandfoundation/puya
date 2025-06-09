@@ -227,7 +227,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         let array%extract%0#1: bytes = ((extract 0 16) maybe_value%1#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (box_len box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.box_map entry exists
         (box_replace box_prefixed_key%0#0 0u array%extract%0#1)
         return 
@@ -276,12 +276,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
         (assert maybe_exists%2#0) // check self.nested_local exists for account
         let array%updated_data%2#1: bytes = ((replace2 0) maybe_value%2#0 a#0)
         (app_local_put tmp%0#0 0x6c array%updated_data%2#1)
-        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "box")
+        let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (box_len "box")
         (assert maybe_exists%3#0) // check self.box exists
         (box_replace "box" 0u a#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (box_len box_prefixed_key%0#0)
         (assert maybe_exists%4#0) // check self.box_map entry exists
         (box_replace box_prefixed_key%0#0 0u a#0)
         return 
