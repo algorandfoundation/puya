@@ -20,16 +20,10 @@ from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import dynamic_array, flow_control, mem, sequence, storage
 from puya.ir.builder._utils import (
-    OpFactory,
-    assert_value,
     assign,
-    assign_intrinsic_op,
-    assign_targets,
     assign_temp,
-    extract_const_int,
     get_implicit_return_is_original,
     get_implicit_return_out,
-    mktemp,
 )
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.bytes import (
@@ -67,6 +61,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
+from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
 from puya.ir.types_ import (
     AVMBytesEncoding,
     PrimitiveIRType,
@@ -1619,3 +1614,21 @@ def create_bytes_binary_op(
                 source_location=source_location,
             )
     raise InternalError("Unsupported BytesBinaryOperator: " + op)
+
+
+def extract_const_int(expr: awst_nodes.Expression | int | None) -> int | None:
+    """
+    Check expr is an IntegerConstant, int literal, or None, and return constant value (or None)
+    """
+    match expr:
+        case None:
+            return None
+        case awst_nodes.IntegerConstant(value=value):
+            return value
+        case int(value):
+            return value
+        case _:
+            raise InternalError(
+                f"Expected either constant or None for index, got {type(expr).__name__}",
+                expr.source_location,
+            )

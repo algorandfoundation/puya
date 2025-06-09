@@ -14,10 +14,6 @@ from puya.ir.arc4_types import maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._tuple_util import build_tuple_registers
 from puya.ir.builder._utils import (
-    OpFactory,
-    assert_value,
-    assign_targets,
-    new_register_version,
     undefined_value,
 )
 from puya.ir.context import IRFunctionBuildContext
@@ -32,6 +28,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
+from puya.ir.op_utils import OpFactory, assert_value, assign_targets, new_register_version
 from puya.ir.types_ import (
     IRType,
     PrimitiveIRType,
@@ -235,7 +232,10 @@ def visit_state_get_ex(
     if get_wtype_arity(expr.field.wtype) == 1:
         decoded_vp = storage_codec.decode(context, storage_value, expr.source_location)
     else:
-        default_decoded = undefined_value(expr.field.wtype, expr.source_location)
+        decoded_ir_type = wtype_to_ir_type(
+            expr.field.wtype, expr.source_location, allow_tuple=True
+        )
+        default_decoded = undefined_value(decoded_ir_type, expr.source_location)
         decoded_vp = _conditional_value_provider(
             context,
             condition=did_exist,

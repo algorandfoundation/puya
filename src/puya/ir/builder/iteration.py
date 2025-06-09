@@ -10,12 +10,7 @@ from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence
 from puya.ir.builder._tuple_util import build_tuple_registers
-from puya.ir.builder._utils import (
-    assert_value,
-    assign_intrinsic_op,
-    assign_targets,
-    assign_temp,
-)
+from puya.ir.builder._utils import assign_temp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.models import (
@@ -27,6 +22,7 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
+from puya.ir.op_utils import assert_value, assign_intrinsic_op, assign_targets
 from puya.ir.types_ import (
     PrimitiveIRType,
 )

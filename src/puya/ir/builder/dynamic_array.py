@@ -6,10 +6,7 @@ from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder._utils import (
-    OpFactory,
-    invoke_puya_lib_subroutine,
-)
+from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.sequence import get_length, requires_conversion
 from puya.ir.encodings import (
     ArrayEncoding,
@@ -19,6 +16,7 @@ from puya.ir.encodings import (
     TupleEncoding,
     UTF8Encoding,
 )
+from puya.ir.op_utils import OpFactory
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
     EncodedType,

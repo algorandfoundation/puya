@@ -9,8 +9,6 @@ from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import get_aggregate_element_encoding
 from puya.ir.builder import mem
 from puya.ir.builder._utils import (
-    OpFactory,
-    assert_value,
     invoke_puya_lib_subroutine,
     undefined_value,
 )
@@ -23,6 +21,7 @@ from puya.ir.encodings import (
     TupleEncoding,
     wtype_to_encoding,
 )
+from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
     EncodedType,
@@ -210,6 +209,7 @@ def convert_array(
 ) -> ir.ValueProvider:
     factory = OpFactory(context, loc)
 
+    target_ir_type = wtype_to_ir_type(target_wtype, loc)
     target_encoding = wtype_to_encoding(target_wtype, loc)
     source_encoding = wtype_to_encoding(source_wtype, loc)
 
@@ -228,7 +228,7 @@ def convert_array(
                     " to an non-bitpacked bool array is currently unsupported",
                     location=loc,
                 )
-                return undefined_value(target_wtype, loc)
+                return undefined_value(target_ir_type, loc)
             else:
                 assert not source_encoding.length_header, "expected ReferenceArray"
                 empty_header = factory.constant(b"\0" * 2)
@@ -249,7 +249,7 @@ def convert_array(
         logger.error(
             "array elements must have equivalent encoding to be convertible", location=loc
         )
-        return undefined_value(target_wtype, loc)
+        return undefined_value(target_ir_type, loc)
 
     if source_encoding.size != target_encoding.size:
         if target_encoding.size is None:
@@ -265,9 +265,8 @@ def convert_array(
         else:
             # fixed to fixed, but the lengths aren't equal
             logger.error("static size conversion cannot add or remove elements", location=loc)
-            return undefined_value(target_wtype, loc)
+            return undefined_value(target_ir_type, loc)
 
-    target_ir_type = wtype_to_ir_type(target_wtype, loc)
     if isinstance(target_ir_type, SlotType):
         target_value_type = target_ir_type.contents
     else:

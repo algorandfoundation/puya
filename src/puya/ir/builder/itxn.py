@@ -15,7 +15,7 @@ from puya.awst.wtypes import WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._tuple_util import build_tuple_item_names
-from puya.ir.builder._utils import assign, assign_intrinsic_op
+from puya.ir.builder._utils import assign
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
@@ -30,6 +30,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
+from puya.ir.op_utils import assign_intrinsic_op
 from puya.ir.ssa import BraunSSA
 from puya.ir.types_ import (
     PrimitiveIRType,

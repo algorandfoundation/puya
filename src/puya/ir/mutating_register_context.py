@@ -7,8 +7,8 @@ import attrs
 
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder._utils import assign_targets
 from puya.ir.models import Register, Subroutine, Value, ValueProvider, ValueTuple
+from puya.ir.op_utils import assign_targets
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType
 from puya.ir.visitor import IRTraverser
