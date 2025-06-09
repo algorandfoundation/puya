@@ -5,7 +5,6 @@ from puya.awst import (
 )
 from puya.errors import InternalError
 from puya.ir.builder._tuple_util import build_tuple_registers
-from puya.ir.builder._utils import OpFactory, assign_targets, new_register_version
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BasicBlock,
@@ -15,6 +14,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
+from puya.ir.op_utils import OpFactory, assign_targets, new_register_version
 from puya.ir.types_ import get_wtype_arity, wtype_to_ir_type
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
