@@ -28,20 +28,14 @@ add:
 add_block@0:
     // mutable_native_types/contract.py:192
     // return val.a + val.b
-    intc_0 // 0
-    dup
-    +
     frame_dig -1
-    swap
+    intc_0 // 0
     intc_2 // 8
     extract3
     btoi
-    intc_0 // 0
-    intc_2 // 8
-    +
     frame_dig -1
-    swap
     intc_2 // 8
+    dup
     extract3
     btoi
     +
@@ -307,8 +301,6 @@ fixed_initialize_block@0:
     intc_0 // 0
     intc_2 // 8
     *
-    intc_0 // 0
-    +
     uncover 2
     swap
     uncover 2
@@ -320,8 +312,6 @@ fixed_initialize_block@0:
     intc_1 // 1
     intc_2 // 8
     *
-    intc_0 // 0
-    +
     uncover 2
     swap
     uncover 2
@@ -333,8 +323,6 @@ fixed_initialize_block@0:
     pushint 2 // 2
     intc_2 // 8
     *
-    intc_0 // 0
-    +
     uncover 2
     swap
     uncover 2
@@ -395,12 +383,10 @@ fixed_initialize_block@0:
     intc_0 // 0
     intc_2 // 8
     *
-    intc_0 // 0
-    +
     dig 1
     swap
     intc_2 // 8
-    extract3
+    extract3 // on error: index access is out of bounds
     btoi
     intc_1 // 1
     ==
@@ -410,12 +396,10 @@ fixed_initialize_block@0:
     intc_1 // 1
     intc_2 // 8
     *
-    intc_0 // 0
-    +
     dig 1
     swap
     intc_2 // 8
-    extract3
+    extract3 // on error: index access is out of bounds
     btoi
     intc_1 // 1
     ==
@@ -425,10 +409,8 @@ fixed_initialize_block@0:
     pushint 2 // 2
     intc_2 // 8
     *
-    intc_0 // 0
-    +
     intc_2 // 8
-    extract3
+    extract3 // on error: index access is out of bounds
     btoi
     intc_1 // 1
     ==
@@ -488,27 +470,19 @@ fixed_initialize_block@0:
     concat
     bytec_0 // 0x
     concat
-    intc_0 // 0
     dup
-    +
-    dig 1
-    swap
+    intc_0 // 0
     intc_2 // 8
     extract3
     btoi
     swap
-    intc_0 // 0
+    dup
     intc_2 // 8
-    +
-    dig 1
-    swap
-    intc_2 // 8
+    dup
     extract3
     btoi
     swap
-    intc_0 // 0
     intc_3 // 16
-    +
     intc_2 // 8
     extract3
     btoi
@@ -596,8 +570,6 @@ add_payment_block@0:
     assert // check self.num_payments exists
     pushint 48 // 48
     *
-    intc_0 // 0
-    +
     uncover 2
     replace3
     bytec_3 // "payments"
@@ -643,15 +615,11 @@ increment_payment_block@0:
     frame_dig -2
     pushint 48 // 48
     *
-    intc_0 // 0
-    +
     dig 1
     swap
     pushint 48 // 48
-    extract3
-    intc_0 // 0
+    extract3 // on error: index access is out of bounds
     pushint 40 // 40
-    +
     intc_2 // 8
     extract3
     btoi
@@ -661,10 +629,16 @@ increment_payment_block@0:
     frame_dig -2
     pushint 48 // 48
     *
-    intc_0 // 0
-    +
+    dig 2
+    swap
+    pushint 48 // 48
+    extract3 // on error: index access is out of bounds
     pushint 40 // 40
-    +
+    uncover 2
+    replace3
+    frame_dig -2
+    pushint 48 // 48
+    *
     uncover 2
     swap
     uncover 2
@@ -715,8 +689,6 @@ create_storage_block@0:
     app_global_get_ex
     assert // check self.nested exists
     intc_0 // 0
-    dup
-    +
     intc_3 // 16
     extract3
     frame_dig -1
@@ -728,8 +700,6 @@ create_storage_block@0:
     box_get
     assert // check self.box_map entry exists
     intc_0 // 0
-    dup
-    +
     uncover 3
     replace3
     box_put
@@ -758,28 +728,19 @@ local_struct_block@0:
     // # python equivalent to typescript destructuring e.g.
     // # { foo, bar, baz } = a
     // (foo, bar, baz) = (a.receiver, a.asset, a.amt)
-    intc_0 // 0
     dup
-    +
-    dig 1
-    swap
+    intc_0 // 0
     pushint 32 // 32
     extract3
     swap
-    intc_0 // 0
+    dup
     pushint 32 // 32
-    +
-    dig 1
-    swap
     intc_2 // 8
     extract3
     btoi
     swap
-    intc_0 // 0
+    dup
     pushint 40 // 40
-    +
-    dig 1
-    swap
     intc_2 // 8
     extract3
     btoi
@@ -858,8 +819,6 @@ struct_arg_block@0:
     app_global_get_ex
     assert // check self.nested exists
     intc_0 // 0
-    dup
-    +
     frame_dig -1
     replace3
     bytec_1 // "nested"
@@ -872,8 +831,6 @@ struct_arg_block@0:
     app_global_get_ex
     assert // check self.nested_proxy exists
     intc_0 // 0
-    dup
-    +
     frame_dig -1
     replace3
     bytec 4 // 0x70
@@ -888,8 +845,6 @@ struct_arg_block@0:
     app_local_get_ex
     assert // check self.nested_local exists for account
     intc_0 // 0
-    dup
-    +
     frame_dig -1
     replace3
     swap
@@ -902,8 +857,6 @@ struct_arg_block@0:
     box_get
     assert // check self.box exists
     intc_0 // 0
-    dup
-    +
     frame_dig -1
     replace3
     bytec 6 // "box"
@@ -920,8 +873,6 @@ struct_arg_block@0:
     box_get
     assert // check self.box_map entry exists
     intc_0 // 0
-    dup
-    +
     frame_dig -1
     replace3
     box_put
@@ -939,8 +890,6 @@ struct_return_block@0:
     app_global_get_ex
     assert // check self.nested exists
     intc_0 // 0
-    dup
-    +
     intc_3 // 16
     extract3
     retsub
@@ -956,9 +905,7 @@ tup_return_block@0:
     bytec_1 // "nested"
     app_global_get_ex
     assert // check self.nested exists
-    intc_0 // 0
     pushint 32 // 32
-    +
     intc_3 // 16
     extract3
     dup
@@ -989,8 +936,6 @@ calculate_sum_block@0:
     app_global_get_ex
     assert // check self.nested exists
     intc_0 // 0
-    dup
-    +
     intc_3 // 16
     extract3
     // mutable_native_types/contract.py:181
@@ -999,10 +944,8 @@ calculate_sum_block@0:
     bytec_1 // "nested"
     app_global_get_ex
     assert // check self.nested exists
-    intc_0 // 0
     intc_3 // 16
-    +
-    intc_3 // 16
+    dup
     extract3
     // mutable_native_types/contract.py:182
     // result = add(fixed_a) + add(fixed_b)
@@ -1025,9 +968,7 @@ calculate_sum_if_body@1:
     bytec_1 // "nested"
     app_global_get_ex
     assert // check self.nested exists
-    intc_0 // 0
     pushint 32 // 32
-    +
     intc_3 // 16
     extract3
     dup

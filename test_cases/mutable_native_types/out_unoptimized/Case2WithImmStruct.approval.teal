@@ -43,11 +43,8 @@ create_box_block@0:
     swap
     cover 2
     assert // check self.tup_bag exists
-    intc_0 // 0
-    pushint 136 // 136
-    +
-    uncover 2
     swap
+    pushint 136 // 136
     uncover 2
     replace3
     bytec_0 // "tup_bag"
@@ -62,11 +59,8 @@ create_box_block@0:
     cover 2
     assert // check self.tup_bag exists
     itob
-    intc_0 // 0
-    pushint 168 // 168
-    +
-    uncover 2
     swap
+    pushint 168 // 168
     uncover 2
     replace3
     bytec_0 // "tup_bag"
@@ -85,8 +79,6 @@ num_tups_block@0:
     box_get
     assert // check self.tup_bag exists
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
@@ -110,8 +102,6 @@ add_tup_block@0:
     box_get
     assert // check self.tup_bag exists
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
@@ -127,19 +117,21 @@ add_tup_block@0:
     box_get
     assert // check self.tup_bag exists
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
-    intc_0 // 0
+    dig 1
     intc_1 // 8
-    +
+    intc 4 // 128
+    extract3
     swap
     intc_3 // 16
     *
-    +
     frame_dig -1
+    replace3
+    swap
+    intc_1 // 8
+    uncover 2
     replace3
     bytec_0 // "tup_bag"
     swap
@@ -149,22 +141,16 @@ add_tup_block@0:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
     dup
-    +
-    dig 1
-    swap
+    intc_0 // 0
     intc_1 // 8
     extract3
     btoi
     intc_2 // 1
     +
     itob
-    intc_0 // 0
-    dup
-    +
-    uncover 2
     swap
+    intc_0 // 0
     uncover 2
     replace3
     bytec_0 // "tup_bag"
@@ -187,8 +173,6 @@ get_tup_block@0:
     box_get
     assert // check self.tup_bag exists
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
@@ -200,18 +184,14 @@ get_tup_block@0:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
     intc_1 // 8
-    +
     intc 4 // 128
     extract3
     frame_dig -1
     intc_3 // 16
     *
-    intc_0 // 0
-    +
     intc_3 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     retsub
 
 
@@ -232,8 +212,6 @@ sum_block@0:
     box_get
     assert // check self.tup_bag exists
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
@@ -255,25 +233,18 @@ sum_for_body@2:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
     intc_1 // 8
-    +
     intc 4 // 128
     extract3
     frame_dig 2
     intc_3 // 16
     *
-    intc_0 // 0
-    +
     intc_3 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case2_with_immutable_struct.py:62
     // total += tup.a
-    intc_0 // 0
     dup
-    +
-    dig 1
-    swap
+    intc_0 // 0
     intc_1 // 8
     extract3
     btoi
@@ -281,12 +252,9 @@ sum_for_body@2:
     +
     // mutable_native_types/case2_with_immutable_struct.py:63
     // total += tup.b
-    intc_0 // 0
-    intc_1 // 8
-    +
-    uncover 2
     swap
     intc_1 // 8
+    dup
     extract3
     btoi
     +
@@ -379,12 +347,10 @@ add_fixed_tups_for_body@2:
     frame_dig 0
     intc_3 // 16
     *
-    intc_0 // 0
-    +
     frame_dig -1
     swap
     intc_3 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case2_with_immutable_struct.py:74
     // self.add_tup(tup)
     callsub add_tup
@@ -417,8 +383,6 @@ set_a_block@0:
     box_get
     assert // check self.tup_bag exists
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
@@ -440,9 +404,7 @@ set_a_for_body@2:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
     intc_1 // 8
-    +
     intc 4 // 128
     extract3
     frame_dig 1
@@ -450,16 +412,12 @@ set_a_for_body@2:
     cover 2
     intc_3 // 16
     *
-    intc_0 // 0
-    +
     intc_3 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case2_with_immutable_struct.py:81
     // self.tup_bag.value.items[i] = tup._replace(a=a)
-    intc_0 // 0
     intc_1 // 8
-    +
-    intc_1 // 8
+    dup
     extract3
     btoi
     frame_dig -1
@@ -475,13 +433,17 @@ set_a_for_body@2:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
+    dup
     intc_1 // 8
-    +
+    intc 4 // 128
+    extract3
     uncover 3
     intc_3 // 16
     *
-    +
+    uncover 3
+    replace3
+    swap
+    intc_1 // 8
     uncover 2
     replace3
     bytec_0 // "tup_bag"
@@ -518,8 +480,6 @@ set_b_block@0:
     box_get
     assert // check self.tup_bag exists
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
@@ -541,9 +501,7 @@ set_b_for_body@2:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
     intc_1 // 8
-    +
     intc 4 // 128
     extract3
     frame_dig 1
@@ -551,15 +509,11 @@ set_b_for_body@2:
     cover 2
     intc_3 // 16
     *
-    intc_0 // 0
-    +
     intc_3 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case2_with_immutable_struct.py:88
     // self.tup_bag.value.items[i] = tup._replace(b=b)
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
@@ -575,13 +529,17 @@ set_b_for_body@2:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
+    dup
     intc_1 // 8
-    +
+    intc 4 // 128
+    extract3
     uncover 3
     intc_3 // 16
     *
-    +
+    uncover 3
+    replace3
+    swap
+    intc_1 // 8
     uncover 2
     replace3
     bytec_0 // "tup_bag"
@@ -615,8 +573,6 @@ get_3_tups_block@0:
     box_get
     assert // check self.tup_bag exists
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
@@ -630,9 +586,7 @@ get_3_tups_block@0:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
     intc_1 // 8
-    +
     intc 4 // 128
     extract3
     // mutable_native_types/case2_with_immutable_struct.py:97
@@ -640,12 +594,10 @@ get_3_tups_block@0:
     frame_dig -1
     intc_3 // 16
     *
-    intc_0 // 0
-    +
     dig 1
     swap
     intc_3 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     swap
     // mutable_native_types/case2_with_immutable_struct.py:98
     // items[start + 1],
@@ -654,12 +606,10 @@ get_3_tups_block@0:
     +
     intc_3 // 16
     *
-    intc_0 // 0
-    +
     dig 1
     swap
     intc_3 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     swap
     // mutable_native_types/case2_with_immutable_struct.py:99
     // items[start + 2],
@@ -668,10 +618,8 @@ get_3_tups_block@0:
     +
     intc_3 // 16
     *
-    intc_0 // 0
-    +
     intc_3 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case2_with_immutable_struct.py:95-101
     // return FixedArray[NamedTup, typing.Literal[3]](
     //     (
@@ -714,9 +662,7 @@ get_all_tups_block@0:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
     intc_1 // 8
-    +
     intc 4 // 128
     extract3
     // mutable_native_types/case2_with_immutable_struct.py:107-108
@@ -726,8 +672,6 @@ get_all_tups_block@0:
     box_get
     assert // check self.tup_bag exists
     intc_0 // 0
-    dup
-    +
     intc_1 // 8
     extract3
     btoi
@@ -750,12 +694,10 @@ get_all_tups_for_body@2:
     frame_dig 3
     intc_3 // 16
     *
-    intc_0 // 0
-    +
     frame_dig 1
     swap
     intc_3 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     bytec_1 // 0x
     swap
     concat
@@ -804,9 +746,7 @@ _check_owner_block@0:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
     pushint 136 // 136
-    +
     pushint 32 // 32
     extract3
     txn Sender
@@ -817,9 +757,7 @@ _check_owner_block@0:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_0 // 0
     pushint 168 // 168
-    +
     intc_1 // 8
     extract3
     btoi

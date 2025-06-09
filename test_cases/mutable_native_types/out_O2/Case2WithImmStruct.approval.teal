@@ -45,16 +45,15 @@ main_for_header@31:
     dig 1
     <
     bz main_after_for@33
-    dig 3
+    dig 9
+    extract 8 128
+    dig 4
     dup
+    cover 2
     intc_1 // 16
     *
-    intc_3 // 8
-    +
-    dig 11
-    swap
     intc_1 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     dig 10
     dup
     uncover 2
@@ -100,37 +99,32 @@ main_get_3_tups_route@29:
     +
     >=
     assert // not enough items
+    extract 8 128
     dig 1
     intc_1 // 16
     *
-    intc_3 // 8
-    +
     dig 1
     swap
     intc_1 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     dig 2
     intc_2 // 1
     +
     intc_1 // 16
     *
-    intc_3 // 8
-    +
     dig 2
     swap
     intc_1 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     uncover 3
     pushint 2 // 2
     +
     intc_1 // 16
     *
-    intc_3 // 8
-    +
     uncover 3
     swap
     intc_1 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     cover 2
     concat
     swap
@@ -169,23 +163,33 @@ main_for_header@26:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
+    extract 8 128
     dig 4
     dup
     cover 2
     intc_1 // 16
     *
-    intc_3 // 8
-    +
-    dup2
+    swap
+    dig 1
+    intc_1 // 16
+    extract3 // on error: index access is out of bounds
+    intc_0 // 0
     extract_uint64
     itob
-    dig 8
+    dig 7
     itob
     concat
-    replace3
+    dig 2
+    intc_3 // 8
+    <
+    assert // index out of bounds
+    intc_3 // 8
+    uncover 2
+    +
     bytec_0 // "tup_bag"
     swap
-    box_put
+    uncover 2
+    box_replace
     intc_2 // 1
     +
     bury 4
@@ -222,28 +226,34 @@ main_for_header@22:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
+    extract 8 128
     dig 4
     dup
     cover 2
     intc_1 // 16
     *
-    intc_3 // 8
-    +
-    dup
-    intc_3 // 8
-    +
-    dig 2
     swap
+    dig 1
+    intc_1 // 16
+    extract3 // on error: index access is out of bounds
+    intc_3 // 8
     extract_uint64
-    dig 10
+    dig 9
     itob
     swap
     itob
     concat
-    replace3
+    dig 2
+    intc_3 // 8
+    <
+    assert // index out of bounds
+    intc_3 // 8
+    uncover 2
+    +
     bytec_0 // "tup_bag"
     swap
-    box_put
+    uncover 2
+    box_replace
     intc_2 // 1
     +
     bury 4
@@ -272,7 +282,7 @@ main_for_header@18:
     dig 9
     swap
     intc_1 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     callsub add_tup
     intc_2 // 1
     +
@@ -339,22 +349,21 @@ main_for_header@10:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
+    extract 8 128
     dig 4
     dup
     cover 2
     intc_1 // 16
     *
-    intc_3 // 8
-    +
-    dup2
+    intc_1 // 16
+    extract3 // on error: index access is out of bounds
+    dup
+    intc_0 // 0
     extract_uint64
-    dig 5
+    dig 4
     +
     swap
     intc_3 // 8
-    +
-    uncover 2
-    swap
     extract_uint64
     +
     bury 3
@@ -390,13 +399,12 @@ main_get_tup_route@8:
     dig 2
     >
     assert // index out of bounds
+    extract 8 128
     swap
     intc_1 // 16
     *
-    intc_3 // 8
-    +
     intc_1 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     bytec_1 // 0x151f7c75
     swap
     concat
@@ -444,18 +452,12 @@ main_create_box_route@5:
     pushint 176 // 176
     box_create
     assert // box already exists
-    txn Sender
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
-    swap
-    replace2 136
     global CurrentApplicationID
     itob
-    replace2 168
     bytec_0 // "tup_bag"
-    swap
-    box_put
+    pushint 168 // 168
+    uncover 2
+    box_replace
     intc_2 // 1
     return
 
@@ -483,22 +485,23 @@ add_tup:
     intc_3 // 8
     <
     assert // too many tups
+    dig 1
+    extract 8 128
+    swap
     intc_1 // 16
     *
-    intc_3 // 8
-    +
     frame_dig -1
     replace3
-    dup
+    replace2 8
     intc_0 // 0
     extract_uint64
     intc_2 // 1
     +
     itob
-    replace2 0
     bytec_0 // "tup_bag"
-    swap
-    box_put
+    intc_0 // 0
+    uncover 2
+    box_replace
     retsub
 
 

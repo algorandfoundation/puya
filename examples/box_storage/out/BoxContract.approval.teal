@@ -364,7 +364,7 @@ set_boxes:
     // assert self.box_a.length == 8
     bytec_3 // "box_a"
     box_len
-    assert // check self.box_a exists
+    pop
     pushint 8 // 8
     ==
     assert
@@ -372,7 +372,7 @@ set_boxes:
     // assert self.box_b.length == b.bytes.length
     bytec 4 // "b"
     box_len
-    assert // check self.box_b exists
+    pop
     frame_dig -2
     len
     ==
@@ -392,7 +392,7 @@ set_boxes:
     // assert self.box_d.length == b.native.length
     bytec_2 // "box_d"
     box_len
-    assert // check self.box_d exists
+    pop
     dig 2
     len
     swap
@@ -615,7 +615,7 @@ set_boxes:
     // assert self.box_large.length == size_of(LargeStruct)
     bytec 5 // "box_large"
     box_len
-    assert // check self.box_large exists
+    pop
     pushint 6152 // 6152
     ==
     assert
@@ -903,14 +903,6 @@ test_box_ref:
     pushint 32 // 32
     box_create
     assert
-    // box_storage/contract.py:143
-    // box_ref = BoxRef(key=String("blob"))
-    bytec_1 // "blob"
-    // box_storage/contract.py:148
-    // assert box_ref, "has data"
-    box_len
-    bury 1
-    assert // has data
     // box_storage/contract.py:150-151
     // # manipulate data
     // sender_bytes = Txn.sender.bytes
@@ -1024,18 +1016,10 @@ test_box_ref:
     // box_storage/contract.py:143
     // box_ref = BoxRef(key=String("blob"))
     bytec_1 // "blob"
-    // box_storage/contract.py:173
-    // assert box_ref, "Blob exists"
-    box_len
-    bury 1
-    assert // Blob exists
-    // box_storage/contract.py:143
-    // box_ref = BoxRef(key=String("blob"))
-    bytec_1 // "blob"
     // box_storage/contract.py:174
     // assert box_ref.length == 64
     box_len
-    assert // check BoxRef exists
+    pop
     pushint 64 // 64
     ==
     assert
@@ -1045,7 +1029,7 @@ test_box_ref:
     // box_storage/contract.py:230
     // return ref.length
     box_len
-    assert // check BoxRef exists
+    pop
     // box_storage/contract.py:175
     // assert get_box_ref_length(box_ref) == 64
     pushint 64 // 64
@@ -1058,12 +1042,6 @@ test_box_ref:
     pushint 32 // 32
     box_create
     pop
-    // box_storage/contract.py:179
-    // assert self.box_ref, "has data"
-    bytec 10 // "box_ref"
-    box_len
-    bury 1
-    assert // has data
     // box_storage/contract.py:180
     // self.box_ref.delete()
     bytec 10 // "box_ref"
@@ -1094,7 +1072,7 @@ box_map_test:
     // assert self.box_map[key_0].bytes.length == value.bytes.length
     dup
     box_len
-    assert // check self.box_map entry exists
+    pop
     pushint 6 // 6
     ==
     assert
@@ -1102,17 +1080,18 @@ box_map_test:
     // assert self.box_map[key_0].bytes.length == box_0.length
     dup
     box_len
-    assert // check self.box_map entry exists
-    dig 1
+    pop
+    swap
+    dup
     box_len
-    assert // check Box exists
+    pop
+    uncover 2
     ==
     assert
     // box_storage/contract.py:192
     // assert self.box_map.length(key_0) == value.bytes.length
-    dup
     box_len
-    assert // check self.box_map entry exists
+    pop
     pushint 6 // 6
     ==
     assert
@@ -1134,12 +1113,6 @@ box_map_test:
     // box_storage/contract.py:196
     // assert not exists
     !
-    assert
-    // box_storage/contract.py:197
-    // assert key_0 in self.box_map
-    swap
-    box_len
-    bury 1
     assert
     // box_storage/contract.py:202
     // tmp_box_map[key_1] = String("hello")

@@ -10,16 +10,16 @@ main marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_entry
         return tmp%1#0
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__init__() -> void:
-    block@0: // L18
+    block@0: // L34
         (log "init")
         return 
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.listings_box_mbr() -> uint64:
-    block@0: // L22
+    block@0: // L40
         return 50500u
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.quantity_price(quantity: uint64, price: uint64, asset_decimals: uint64) -> uint64:
-    block@0: // L42
+    block@0: // L65
         let (tmp%0#0: uint64, tmp%1#0: uint64) = (mulw price#0 quantity#0)
         let amount_not_scaled_high#0: uint64 = tmp%0#0
         let amount_not_scaled_low#0: uint64 = tmp%1#0
@@ -34,12 +34,12 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.quantity
         return amount_to_be_paid#0
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr() -> uint64:
-    block@0: // L56
+    block@0: // L76
         let tmp%0#0: uint64 = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.listings_box_mbr()
         return tmp%0#0
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset(mbr_pay: uint64, asset: uint64) -> void:
-    block@0: // L60
+    block@0: // L80
         let tmp%0#0: account = (global CurrentApplicationAddress)
         let (tmp%1#0: uint64, tmp%2#0: bool) = ((asset_holding_get AssetBalance) tmp%0#0 asset#0)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -61,12 +61,12 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_as
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         goto block@1
-    block@1: // next_txn_L67
+    block@1: // next_txn_L87
         itxn_submit
         return 
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit(mbr_pay: uint64, xfer: uint64, unitary_price: uint64, nonce: uint64) -> void:
-    block@0: // L73
+    block@0: // L91
         let tmp%0#0: account = ((gtxns Sender) mbr_pay#0)
         let tmp%1#0: account = (txn Sender)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
@@ -130,7 +130,7 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_de
         return 
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit(xfer: uint64, nonce: uint64) -> void:
-    block@0: // L98
+    block@0: // L118
         let tmp%0#0: account = (txn Sender)
         let tmp%1#0: uint64 = ((gtxns XferAsset) xfer#0)
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%0#0
@@ -198,7 +198,7 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit(
         return 
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price(asset: uint64, nonce: uint64, unitary_price: uint64) -> void:
-    block@0: // L119
+    block@0: // L135
         let tmp%0#0: account = (txn Sender)
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%0#0
         let array%encoded%0#1: Encoded(uint8[32]) = (concat 0x array%as_Encoded(uint8[32])%0#1)
@@ -249,7 +249,7 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_pric
         return 
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy(owner: account, asset: uint64, nonce: uint64, buy_pay: uint64, quantity: uint64) -> void:
-    block@0: // L136
+    block@0: // L148
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = owner#0
         let array%encoded%0#1: Encoded(uint8[32]) = (concat 0x array%as_Encoded(uint8[32])%0#1)
         let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
@@ -327,12 +327,12 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy(owne
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         goto block@1
-    block@1: // next_txn_L164
+    block@1: // next_txn_L175
         itxn_submit
         return 
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw(asset: uint64, nonce: uint64) -> void:
-    block@0: // L170
+    block@0: // L179
         let tmp%0#0: account = (txn Sender)
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%0#0
         let array%encoded%0#1: Encoded(uint8[32]) = (concat 0x array%as_Encoded(uint8[32])%0#1)
@@ -356,7 +356,7 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw
         let tmp%2#0: account = (global ZeroAddress)
         let tmp%3#0: bool = (!= values%0#0 tmp%2#0)
         goto tmp%3#0 ? block@1 : block@3
-    block@1: // if_body_L180
+    block@1: // if_body_L185
         let array%extract%1#1: bytes = (extract3 listing#0 48u 8u)
         let tuple_item%1#0: Encoded(uint64) = array%extract%1#1
         let values%1#0: uint64 = (btoi tuple_item%1#0)
@@ -378,10 +378,10 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         goto block@2
-    block@2: // next_txn_L185
+    block@2: // next_txn_L188
         itxn_submit
         goto block@3
-    block@3: // after_if_else_L179
+    block@3: // after_if_else_L184
         let box_prefixed_key%1#0: bytes = (concat 0x6c697374696e6773 key#0)
         (box_del box_prefixed_key%1#0)
         itxn_begin
@@ -392,7 +392,7 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         goto block@4
-    block@4: // next_txn_L189
+    block@4: // next_txn_L192
         itxn_submit
         itxn_begin
         let inner_txn_params%2%%param_XferAsset_idx_0#0: uint64 = asset#0
@@ -407,12 +407,12 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         goto block@5
-    block@5: // next_txn_L191
+    block@5: // next_txn_L194
         itxn_submit
         return 
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid(owner: account, asset: uint64, nonce: uint64, bid_pay: uint64, quantity: uint64, unitary_price: uint64) -> void:
-    block@0: // L197
+    block@0: // L198
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = owner#0
         let array%encoded%0#1: Encoded(uint8[32]) = (concat 0x array%as_Encoded(uint8[32])%0#1)
         let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
@@ -435,7 +435,7 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid(owne
         let tmp%1#0: account = (global ZeroAddress)
         let tmp%2#0: bool = (!= values%0#0 tmp%1#0)
         goto tmp%2#0 ? block@1 : block@3
-    block@1: // if_body_L207
+    block@1: // if_body_L212
         let array%extract%1#1: bytes = (extract3 listing#0 56u 8u)
         let tuple_item%1#0: Encoded(uint64) = array%extract%1#1
         let values%1#0: uint64 = (btoi tuple_item%1#0)
@@ -462,10 +462,10 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid(owne
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         goto block@2
-    block@2: // next_txn_L215
+    block@2: // next_txn_L218
         itxn_submit
         goto block@3
-    block@3: // after_if_else_L206
+    block@3: // after_if_else_L211
         let (value%1#0: uint64, check%1#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%1#0) // asset exists
         let tmp%5#0: uint64 = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.quantity_price(quantity#0, unitary_price#0, value%1#0)
@@ -509,7 +509,7 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid(owne
         return 
 
 subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid(asset: uint64, nonce: uint64) -> void:
-    block@0: // L235
+    block@0: // L234
         let tmp%0#0: account = (txn Sender)
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%0#0
         let array%encoded%0#1: Encoded(uint8[32]) = (concat 0x array%as_Encoded(uint8[32])%0#1)
@@ -541,19 +541,19 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_b
         let values%2#0: uint64 = (btoi tuple_item%2#0)
         let tmp%4#0: bool = (< values%1#0 values%2#0)
         goto tmp%4#0 ? block@1 : block@2
-    block@1: // ternary_true_L246
+    block@1: // ternary_true_L241
         let array%extract%3#1: bytes = (extract3 listing#0 0u 8u)
         let tuple_item%3#0: Encoded(uint64) = array%extract%3#1
         let values%3#0: uint64 = (btoi tuple_item%3#0)
         let ternary_result%0#0: uint64 = values%3#0
         goto block@3
-    block@2: // ternary_false_L246
+    block@2: // ternary_false_L241
         let array%extract%4#1: bytes = (extract3 listing#0 48u 8u)
         let tuple_item%4#0: Encoded(uint64) = array%extract%4#1
         let values%4#0: uint64 = (btoi tuple_item%4#0)
         let ternary_result%0#0: uint64 = values%4#0
         goto block@3
-    block@3: // ternary_merge_L246
+    block@3: // ternary_merge_L241
         let min_quantity#0: uint64 = ternary_result%0#0
         let array%extract%5#1: bytes = (extract3 listing#0 56u 8u)
         let tuple_item%5#0: Encoded(uint64) = array%extract%5#1
@@ -570,7 +570,7 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_b
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         goto block@4
-    block@4: // next_txn_L254
+    block@4: // next_txn_L247
         itxn_submit
         itxn_begin
         let inner_txn_params%1%%param_XferAsset_idx_0#0: uint64 = asset#0
@@ -585,7 +585,7 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_b
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         goto block@5
-    block@5: // next_txn_L256
+    block@5: // next_txn_L249
         itxn_submit
         let array%extract%7#1: bytes = (extract3 listing#0 16u 32u)
         let tuple_item%7#0: Encoded(uint8[32]) = array%extract%7#1
@@ -627,14 +627,14 @@ subroutine marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_b
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
         goto block@1
-    block@1: // L17
+    block@1: // L33
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%1#0 ? block@2 : block@14
-    block@2: // abi_routing_L17
+    block@2: // abi_routing_L33
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "getListingsMbr()uint64" => block@3, method "allowAsset(pay,asset)void" => block@4, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@5, method "deposit(axfer,uint64)void" => block@6, method "setPrice(asset,uint64,uint64)void" => block@7, method "buy(account,asset,uint64,pay,uint64)void" => block@8, method "withdraw(asset,uint64)void" => block@9, method "bid(account,asset,uint64,pay,uint64,uint64)void" => block@10, method "acceptBid(asset,uint64)void" => block@11, * => block@12}
-    block@3: // getListingsMbr_route_L56
+    block@3: // getListingsMbr_route_L76
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -650,7 +650,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@4: // allowAsset_route_L60
+    block@4: // allowAsset_route_L80
         let tmp%10#0: uint64 = (txn OnCompletion)
         let tmp%11#0: bool = (== tmp%10#0 NoOp)
         (assert tmp%11#0) // OnCompletion is not NoOp
@@ -669,7 +669,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@5: // firstDeposit_route_L73
+    block@5: // firstDeposit_route_L91
         let tmp%17#0: uint64 = (txn OnCompletion)
         let tmp%18#0: bool = (== tmp%17#0 NoOp)
         (assert tmp%18#0) // OnCompletion is not NoOp
@@ -694,7 +694,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@6: // deposit_route_L98
+    block@6: // deposit_route_L118
         let tmp%25#0: uint64 = (txn OnCompletion)
         let tmp%26#0: bool = (== tmp%25#0 NoOp)
         (assert tmp%26#0) // OnCompletion is not NoOp
@@ -712,7 +712,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@7: // setPrice_route_L119
+    block@7: // setPrice_route_L135
         let tmp%31#0: uint64 = (txn OnCompletion)
         let tmp%32#0: bool = (== tmp%31#0 NoOp)
         (assert tmp%32#0) // OnCompletion is not NoOp
@@ -730,7 +730,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@8: // buy_route_L136
+    block@8: // buy_route_L148
         let tmp%39#0: uint64 = (txn OnCompletion)
         let tmp%40#0: bool = (== tmp%39#0 NoOp)
         (assert tmp%40#0) // OnCompletion is not NoOp
@@ -756,7 +756,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@9: // withdraw_route_L170
+    block@9: // withdraw_route_L179
         let tmp%50#0: uint64 = (txn OnCompletion)
         let tmp%51#0: bool = (== tmp%50#0 NoOp)
         (assert tmp%51#0) // OnCompletion is not NoOp
@@ -772,7 +772,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@10: // bid_route_L197
+    block@10: // bid_route_L198
         let tmp%57#0: uint64 = (txn OnCompletion)
         let tmp%58#0: bool = (== tmp%57#0 NoOp)
         (assert tmp%58#0) // OnCompletion is not NoOp
@@ -800,7 +800,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@11: // acceptBid_route_L235
+    block@11: // acceptBid_route_L234
         let tmp%69#0: uint64 = (txn OnCompletion)
         let tmp%70#0: bool = (== tmp%69#0 NoOp)
         (assert tmp%70#0) // OnCompletion is not NoOp
@@ -816,11 +816,11 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@12: // switch_case_default_L17
+    block@12: // switch_case_default_L33
         goto block@13
-    block@13: // switch_case_next_L17
+    block@13: // switch_case_next_L33
         goto block@20
-    block@14: // bare_routing_L17
+    block@14: // bare_routing_L33
         let tmp%76#0: uint64 = (txn OnCompletion)
         switch tmp%76#0 {0u => block@15, * => block@18}
     block@15: // __algopy_default_create_L1
@@ -834,11 +834,11 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21
-    block@18: // switch_case_default_L17
+    block@18: // switch_case_default_L33
         goto block@19
-    block@19: // switch_case_next_L17
+    block@19: // switch_case_next_L33
         goto block@20
-    block@20: // after_if_else_L17
+    block@20: // after_if_else_L33
         let marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__puya_arc4_router__%0#0
         goto block@21

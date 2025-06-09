@@ -130,7 +130,7 @@ subroutine test_cases.state_proxies.contract.StateProxyContract.order_of_eval_bo
         let materialized_values%0#0: bytes = test_cases.state_proxies.contract.get_key()
         let box_prefixed_key%0#0: bytes = (concat "box_map" materialized_values%0#0)
         let tmp%0#0: uint64 = test_cases.state_proxies.contract.default_value()
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read(box_prefixed_key%0#0)
         let maybe_value_converted%0#0: uint64 = (btoi maybe_value%0#0)
         let val#0: uint64 = (select tmp%0#0 maybe_value_converted%0#0 maybe_exists%0#0)
         let tmp%1#0: bool = (== val#0 42u)

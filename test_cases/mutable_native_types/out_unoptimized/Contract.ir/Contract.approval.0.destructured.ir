@@ -11,12 +11,10 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
 
 subroutine test_cases.mutable_native_types.contract.add(val: Encoded(uint64,uint64)) -> uint64:
     block@0: // L190
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 val#0 array%add%0#1 8u)
+        let array%extract%0#1: bytes = (extract3 val#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
-        let array%add%1#1: uint64 = (+ 0u 8u)
-        let array%extract%1#1: bytes = (extract3 val#0 array%add%1#1 8u)
+        let array%extract%1#1: bytes = (extract3 val#0 8u 8u)
         let tuple_item%1#0: Encoded(uint64) = array%extract%1#1
         let values%1#0: uint64 = (btoi tuple_item%1#0)
         let tmp%0#0: uint64 = (+ values%0#0 values%1#0)
@@ -122,26 +120,23 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() 
         let array%val_as_bytes%0#1: bytes[8] = (itob 0u)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let encoded_value%0#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
-        let array%mul%0#1: uint64 = (* 0u 8u)
-        let array%add%0#1: uint64 = (+ 0u array%mul%0#1)
-        let array%replace%0#1: bytes = (replace3 arr_3#0 array%add%0#1 encoded_value%0#0)
-        let updated_array%0#0: Encoded(uint64[3]) = array%replace%0#1
+        let array%write_offset%0#1: uint64 = (* 0u 8u)
+        let array%updated_array%0#1: bytes = (replace3 arr_3#0 array%write_offset%0#1 encoded_value%0#0)
+        let updated_array%0#0: Encoded(uint64[3]) = array%updated_array%0#1
         let arr_3#0: Encoded(uint64[3]) = updated_array%0#0
         let array%val_as_bytes%1#1: bytes[8] = (itob 1u)
         let array%as_Encoded(uint64)%1#1: Encoded(uint64) = array%val_as_bytes%1#1
         let encoded_value%1#0: Encoded(uint64) = array%as_Encoded(uint64)%1#1
-        let array%mul%1#1: uint64 = (* 1u 8u)
-        let array%add%1#1: uint64 = (+ 0u array%mul%1#1)
-        let array%replace%1#1: bytes = (replace3 arr_3#0 array%add%1#1 encoded_value%1#0)
-        let updated_array%1#0: Encoded(uint64[3]) = array%replace%1#1
+        let array%write_offset%1#1: uint64 = (* 1u 8u)
+        let array%updated_array%1#1: bytes = (replace3 arr_3#0 array%write_offset%1#1 encoded_value%1#0)
+        let updated_array%1#0: Encoded(uint64[3]) = array%updated_array%1#1
         let arr_3#0: Encoded(uint64[3]) = updated_array%1#0
         let array%val_as_bytes%2#1: bytes[8] = (itob 2u)
         let array%as_Encoded(uint64)%2#1: Encoded(uint64) = array%val_as_bytes%2#1
         let encoded_value%2#0: Encoded(uint64) = array%as_Encoded(uint64)%2#1
-        let array%mul%2#1: uint64 = (* 2u 8u)
-        let array%add%2#1: uint64 = (+ 0u array%mul%2#1)
-        let array%replace%2#1: bytes = (replace3 arr_3#0 array%add%2#1 encoded_value%2#0)
-        let updated_array%2#0: Encoded(uint64[3]) = array%replace%2#1
+        let array%write_offset%2#1: uint64 = (* 2u 8u)
+        let array%updated_array%2#1: bytes = (replace3 arr_3#0 array%write_offset%2#1 encoded_value%2#0)
+        let updated_array%2#0: Encoded(uint64[3]) = array%updated_array%2#1
         let arr_3#0: Encoded(uint64[3]) = updated_array%2#0
         let array%val_as_bytes%3#1: bytes[8] = (itob 0u)
         let array%as_Encoded(uint64)%3#1: Encoded(uint64) = array%val_as_bytes%3#1
@@ -169,24 +164,21 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() 
         let array%encoded%7#1: Encoded(uint64[3]) = (concat array%encoded%6#1 0x)
         let encoded_array%1#0: Encoded(uint64[3]) = array%encoded%7#1
         let arr_3_from_full#0: Encoded(uint64[3]) = encoded_array%1#0
-        let array%mul%3#1: uint64 = (* 0u 8u)
-        let array%add%3#1: uint64 = (+ 0u array%mul%3#1)
-        let array%extract%0#1: bytes = (extract3 arr_3_from_full#0 array%add%3#1 8u)
-        let array_item%0#0: Encoded(uint64) = array%extract%0#1
+        let array%bytes_offset%3#1: uint64 = (* 0u 8u)
+        let array%encoded_element%3#1: bytes = (extract3 arr_3_from_full#0 array%bytes_offset%3#1 8u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint64) = array%encoded_element%3#1
         let values%0#0: uint64 = (btoi array_item%0#0)
         let tmp%2#0: bool = (== values%0#0 1u)
         (assert tmp%2#0)
-        let array%mul%4#1: uint64 = (* 1u 8u)
-        let array%add%4#1: uint64 = (+ 0u array%mul%4#1)
-        let array%extract%1#1: bytes = (extract3 arr_3_from_full#0 array%add%4#1 8u)
-        let array_item%1#0: Encoded(uint64) = array%extract%1#1
+        let array%bytes_offset%4#1: uint64 = (* 1u 8u)
+        let array%encoded_element%4#1: bytes = (extract3 arr_3_from_full#0 array%bytes_offset%4#1 8u) // on error: index access is out of bounds
+        let array_item%1#0: Encoded(uint64) = array%encoded_element%4#1
         let values%1#0: uint64 = (btoi array_item%1#0)
         let tmp%3#0: bool = (== values%1#0 1u)
         (assert tmp%3#0)
-        let array%mul%5#1: uint64 = (* 2u 8u)
-        let array%add%5#1: uint64 = (+ 0u array%mul%5#1)
-        let array%extract%2#1: bytes = (extract3 arr_3_from_full#0 array%add%5#1 8u)
-        let array_item%2#0: Encoded(uint64) = array%extract%2#1
+        let array%bytes_offset%5#1: uint64 = (* 2u 8u)
+        let array%encoded_element%5#1: bytes = (extract3 arr_3_from_full#0 array%bytes_offset%5#1 8u) // on error: index access is out of bounds
+        let array_item%2#0: Encoded(uint64) = array%encoded_element%5#1
         let values%2#0: uint64 = (btoi array_item%2#0)
         let tmp%4#0: bool = (== values%2#0 1u)
         (assert tmp%4#0)
@@ -226,17 +218,14 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() 
         let array%encoded%15#1: Encoded(uint64,uint64,uint64) = (concat array%encoded%14#1 array%as_Encoded(uint64)%14#1)
         let array%encoded%16#1: Encoded(uint64,uint64,uint64) = (concat array%encoded%15#1 0x)
         let awst_tmp%0#0: Encoded(uint64,uint64,uint64) = array%encoded%16#1
-        let array%add%6#1: uint64 = (+ 0u 0u)
-        let array%extract%3#1: bytes = (extract3 awst_tmp%0#0 array%add%6#1 8u)
-        let tuple_item%0#0: Encoded(uint64) = array%extract%3#1
+        let array%extract%0#1: bytes = (extract3 awst_tmp%0#0 0u 8u)
+        let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%3#0: uint64 = (btoi tuple_item%0#0)
-        let array%add%7#1: uint64 = (+ 0u 8u)
-        let array%extract%4#1: bytes = (extract3 awst_tmp%0#0 array%add%7#1 8u)
-        let tuple_item%1#0: Encoded(uint64) = array%extract%4#1
+        let array%extract%1#1: bytes = (extract3 awst_tmp%0#0 8u 8u)
+        let tuple_item%1#0: Encoded(uint64) = array%extract%1#1
         let values%4#0: uint64 = (btoi tuple_item%1#0)
-        let array%add%8#1: uint64 = (+ 0u 16u)
-        let array%extract%5#1: bytes = (extract3 awst_tmp%0#0 array%add%8#1 8u)
-        let tuple_item%2#0: Encoded(uint64) = array%extract%5#1
+        let array%extract%2#1: bytes = (extract3 awst_tmp%0#0 16u 8u)
+        let tuple_item%2#0: Encoded(uint64) = array%extract%2#1
         let values%5#0: uint64 = (btoi tuple_item%2#0)
         let array%val_as_bytes%15#1: bytes[8] = (itob values%3#0)
         let array%as_Encoded(uint64)%15#1: Encoded(uint64) = array%val_as_bytes%15#1
@@ -272,10 +261,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: En
         (assert maybe_exists%1#0) // check self.payments exists
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%2#0) // check self.num_payments exists
-        let array%mul%0#1: uint64 = (* maybe_value%2#0 48u)
-        let array%add%0#1: uint64 = (+ 0u array%mul%0#1)
-        let array%replace%0#1: bytes = (replace3 maybe_value%1#0 array%add%0#1 copy%0#0)
-        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = array%replace%0#1
+        let array%write_offset%0#1: uint64 = (* maybe_value%2#0 48u)
+        let array%updated_array%0#1: bytes = (replace3 maybe_value%1#0 array%write_offset%0#1 copy%0#0)
+        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = array%updated_array%0#1
         (app_global_put "payments" updated_array%0#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%3#0) // check self.num_payments exists
@@ -291,23 +279,22 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         (assert tmp%0#0) // invalid payment index
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
-        let array%mul%0#1: uint64 = (* index#0 48u)
-        let array%add%0#1: uint64 = (+ 0u array%mul%0#1)
-        let array%extract%0#1: bytes = (extract3 maybe_value%1#0 array%add%0#1 48u)
-        let array_item%0#0: Encoded(uint8[32],uint64,uint64) = array%extract%0#1
-        let array%add%1#1: uint64 = (+ 0u 40u)
-        let array%extract%1#1: bytes = (extract3 array_item%0#0 array%add%1#1 8u)
-        let tuple_item%0#0: Encoded(uint64) = array%extract%1#1
+        let array%bytes_offset%0#1: uint64 = (* index#0 48u)
+        let array%encoded_element%0#1: bytes = (extract3 maybe_value%1#0 array%bytes_offset%0#1 48u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint8[32],uint64,uint64) = array%encoded_element%0#1
+        let array%extract%0#1: bytes = (extract3 array_item%0#0 40u 8u)
+        let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         let tmp%1#0: uint64 = (+ values%0#0 amt#0)
         let array%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let encoded_value%0#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
-        let array%mul%1#1: uint64 = (* index#0 48u)
-        let array%add%2#1: uint64 = (+ 0u array%mul%1#1)
-        let array%add%3#1: uint64 = (+ array%add%2#1 40u)
-        let array%replace%0#1: bytes = (replace3 maybe_value%1#0 array%add%3#1 encoded_value%0#0)
-        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = array%replace%0#1
+        let array%bytes_offset%1#1: uint64 = (* index#0 48u)
+        let array%encoded_element%1#1: bytes = (extract3 maybe_value%1#0 array%bytes_offset%1#1 48u) // on error: index access is out of bounds
+        let array%updated_data%0#1: bytes = (replace3 array%encoded_element%1#1 40u encoded_value%0#0)
+        let array%write_offset%0#1: uint64 = (* index#0 48u)
+        let array%updated_array%0#1: bytes = (replace3 maybe_value%1#0 array%write_offset%0#1 array%updated_data%0#1)
+        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = array%updated_array%0#1
         (app_global_put "payments" updated_array%0#0)
         return 
 
@@ -326,17 +313,15 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         (assert tmp%1#0) // expected box to not exist
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%2#0) // check self.nested exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%2#0 array%add%0#1 16u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%2#0 0u 16u)
         let tuple_item%0#0: Encoded(uint64,uint64) = array%extract%0#1
         let copy%2#0: Encoded(uint64,uint64) = tuple_item%0#0
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.box_map entry exists
-        let array%add%1#1: uint64 = (+ 0u 0u)
-        let array%replace%0#1: bytes = (replace3 maybe_value%3#0 array%add%1#1 copy%2#0)
-        let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = array%replace%0#1
+        let array%updated_data%0#1: bytes = (replace3 maybe_value%3#0 0u copy%2#0)
+        let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = array%updated_data%0#1
         (box_put box_prefixed_key%0#0 updated_tuple%0#0)
         return 
 
@@ -354,16 +339,13 @@ subroutine test_cases.mutable_native_types.contract.Contract.local_struct() -> E
         let array%encoded%3#1: Encoded(uint8[32],uint64,uint64) = (concat array%encoded%2#1 0x)
         let tmp%1#0: Encoded(uint8[32],uint64,uint64) = array%encoded%3#1
         let a#0: Encoded(uint8[32],uint64,uint64) = tmp%1#0
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 a#0 array%add%0#1 32u)
+        let array%extract%0#1: bytes = (extract3 a#0 0u 32u)
         let tuple_item%0#0: Encoded(uint8[32]) = array%extract%0#1
         let values%0#0: account = tuple_item%0#0
-        let array%add%1#1: uint64 = (+ 0u 32u)
-        let array%extract%1#1: bytes = (extract3 a#0 array%add%1#1 8u)
+        let array%extract%1#1: bytes = (extract3 a#0 32u 8u)
         let tuple_item%1#0: Encoded(uint64) = array%extract%1#1
         let values%1#0: uint64 = (btoi tuple_item%1#0)
-        let array%add%2#1: uint64 = (+ 0u 40u)
-        let array%extract%2#1: bytes = (extract3 a#0 array%add%2#1 8u)
+        let array%extract%2#1: bytes = (extract3 a#0 40u 8u)
         let tuple_item%2#0: Encoded(uint64) = array%extract%2#1
         let values%2#0: uint64 = (btoi tuple_item%2#0)
         let foo#0: account = values%0#0
@@ -395,36 +377,31 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
     block@0: // L160
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%replace%0#1: bytes = (replace3 maybe_value%0#0 array%add%0#1 a#0)
-        let updated_tuple%0#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = array%replace%0#1
+        let array%updated_data%0#1: bytes = (replace3 maybe_value%0#0 0u a#0)
+        let updated_tuple%0#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = array%updated_data%0#1
         (app_global_put "nested" updated_tuple%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u 0x70)
         (assert maybe_exists%1#0) // check self.nested_proxy exists
-        let array%add%1#1: uint64 = (+ 0u 0u)
-        let array%replace%1#1: bytes = (replace3 maybe_value%1#0 array%add%1#1 a#0)
-        let updated_tuple%1#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = array%replace%1#1
+        let array%updated_data%1#1: bytes = (replace3 maybe_value%1#0 0u a#0)
+        let updated_tuple%1#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = array%updated_data%1#1
         (app_global_put 0x70 updated_tuple%1#0)
         let tmp%0#0: account = (txn Sender)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%0#0 0u 0x6c)
         (assert maybe_exists%2#0) // check self.nested_local exists for account
-        let array%add%2#1: uint64 = (+ 0u 0u)
-        let array%replace%2#1: bytes = (replace3 maybe_value%2#0 array%add%2#1 a#0)
-        let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = array%replace%2#1
+        let array%updated_data%2#1: bytes = (replace3 maybe_value%2#0 0u a#0)
+        let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = array%updated_data%2#1
         (app_local_put tmp%0#0 0x6c updated_tuple%2#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "box")
         (assert maybe_exists%3#0) // check self.box exists
-        let array%add%3#1: uint64 = (+ 0u 0u)
-        let array%replace%3#1: bytes = (replace3 maybe_value%3#0 array%add%3#1 a#0)
-        let updated_tuple%3#0: Encoded((uint64,uint64),uint8[2048]) = array%replace%3#1
+        let array%updated_data%3#1: bytes = (replace3 maybe_value%3#0 0u a#0)
+        let updated_tuple%3#0: Encoded((uint64,uint64),uint8[2048]) = array%updated_data%3#1
         (box_put "box" updated_tuple%3#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%4#0) // check self.box_map entry exists
-        let array%add%4#1: uint64 = (+ 0u 0u)
-        let array%replace%4#1: bytes = (replace3 maybe_value%4#0 array%add%4#1 a#0)
-        let updated_tuple%4#0: Encoded((uint64,uint64),uint8[2048]) = array%replace%4#1
+        let array%updated_data%4#1: bytes = (replace3 maybe_value%4#0 0u a#0)
+        let updated_tuple%4#0: Encoded((uint64,uint64),uint8[2048]) = array%updated_data%4#1
         (box_put box_prefixed_key%0#0 updated_tuple%4#0)
         return 
 
@@ -432,8 +409,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> 
     block@0: // L170
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 16u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 16u)
         let tuple_item%0#0: Encoded(uint64,uint64) = array%extract%0#1
         return tuple_item%0#0
 
@@ -441,8 +417,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.tup_return() -> <ui
     block@0: // L174
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let array%add%0#1: uint64 = (+ 0u 32u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 16u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 32u 16u)
         let tuple_item%0#0: Encoded(uint64,uint64) = array%extract%0#1
         let array%extract%1#1: bytes = (extract3 tuple_item%0#0 0u 8u)
         let array%item0%0#1: uint64 = (btoi array%extract%1#1)
@@ -456,14 +431,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
     block@0: // L178
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 16u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 16u)
         let tuple_item%0#0: Encoded(uint64,uint64) = array%extract%0#1
         let fixed_a#0: Encoded(uint64,uint64) = tuple_item%0#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%1#0) // check self.nested exists
-        let array%add%1#1: uint64 = (+ 0u 16u)
-        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 array%add%1#1 16u)
+        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 16u 16u)
         let tuple_item%1#0: Encoded(uint64,uint64) = array%extract%1#1
         let fixed_b#0: Encoded(uint64,uint64) = tuple_item%1#0
         let tmp%0#0: uint64 = test_cases.mutable_native_types.contract.add(fixed_a#0)
@@ -476,8 +449,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
     block@1: // if_body_L184
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%2#0) // check self.nested exists
-        let array%add%2#1: uint64 = (+ 0u 32u)
-        let array%extract%2#1: bytes = (extract3 maybe_value%2#0 array%add%2#1 16u)
+        let array%extract%2#1: bytes = (extract3 maybe_value%2#0 32u 16u)
         let tuple_item%2#0: Encoded(uint64,uint64) = array%extract%2#1
         let array%extract%3#1: bytes = (extract3 tuple_item%2#0 0u 8u)
         let array%item0%0#1: uint64 = (btoi array%extract%3#1)

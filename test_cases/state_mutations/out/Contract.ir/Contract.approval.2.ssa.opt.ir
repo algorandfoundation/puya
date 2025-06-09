@@ -288,7 +288,7 @@ subroutine test_cases.state_mutations.contract.Contract.opt_in() -> void:
         (app_global_put "glob" encoded_array%0#0)
         let encoded_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = encode<(len+(uint64,(len+utf8[]))[])>()
         (box_del "box")
-        (box_put "box" encoded_array%1#0)
+        box_write("box", encoded_array%1#0)
         let encoded_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = encode<(len+(uint64,(len+utf8[]))[])>()
         let tmp%0#0: account = (txn Sender)
         (app_local_put tmp%0#0 "loc" encoded_array%2#0)
@@ -296,7 +296,7 @@ subroutine test_cases.state_mutations.contract.Contract.opt_in() -> void:
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         (box_del box_prefixed_key%0#0)
-        (box_put box_prefixed_key%0#0 encoded_array%3#0)
+        box_write(box_prefixed_key%0#0, encoded_array%3#0)
         return 
 
 subroutine test_cases.state_mutations.contract.Contract.append() -> void:
@@ -318,24 +318,24 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let tmp%3#0: Encoded((uint64,(len+utf8[]))[]) = encode<(uint64,(len+utf8[]))[]>(struct#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, tmp%3#0)
         (app_local_put tmp%2#0 "loc" as_Encoded(len+(uint64,(len+utf8[]))[])%1#0)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box")
+        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = box_read("box")
         (assert maybe_exists%2#0) // check self.box exists
         let extract_uint16%2#0: uint64 = (extract_uint16 maybe_value%2#0 0u)
         let extract_to_end%2#0: bytes = ((extract 2 0) maybe_value%2#0)
         let tmp%4#0: Encoded((uint64,(len+utf8[]))[]) = encode<(uint64,(len+utf8[]))[]>(struct#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, 1u, tmp%4#0)
         (box_del "box")
-        (box_put "box" as_Encoded(len+(uint64,(len+utf8[]))[])%2#0)
+        box_write("box", as_Encoded(len+(uint64,(len+utf8[]))[])%2#0)
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
-        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = box_read(box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.map entry exists
         let extract_uint16%3#0: uint64 = (extract_uint16 maybe_value%3#0 0u)
         let extract_to_end%3#0: bytes = ((extract 2 0) maybe_value%3#0)
         let tmp%5#0: Encoded((uint64,(len+utf8[]))[]) = encode<(uint64,(len+utf8[]))[]>(struct#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, tmp%5#0)
         (box_del box_prefixed_key%0#0)
-        (box_put box_prefixed_key%0#0 as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)
+        box_write(box_prefixed_key%0#0, as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)
         return 
 
 subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
@@ -352,19 +352,19 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let updated_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = maybe_value%1#0.update((0u, 1), encoded%1#0)
         (app_local_put tmp%0#0 "loc" updated_array%1#0)
         let encoded%2#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x6d6f646966696564)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "box")
+        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = box_read("box")
         (assert maybe_exists%2#0) // check self.box exists
         let updated_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = maybe_value%2#0.update((0u, 1), encoded%2#0)
         (box_del "box")
-        (box_put "box" updated_array%2#0)
+        box_write("box", updated_array%2#0)
         let encoded%3#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x6d6f646966696564)
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
-        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
+        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = box_read(box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.map entry exists
         let updated_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = maybe_value%3#0.update((0u, 1), encoded%3#0)
         (box_del box_prefixed_key%0#0)
-        (box_put box_prefixed_key%0#0 updated_array%3#0)
+        box_write(box_prefixed_key%0#0, updated_array%3#0)
         return 
 
 subroutine test_cases.state_mutations.contract.Contract.get() -> Encoded(len+(uint64,(len+utf8[]))[]):
@@ -374,11 +374,11 @@ subroutine test_cases.state_mutations.contract.Contract.get() -> Encoded(len+(ui
         let tmp%0#0: account = (txn Sender)
         let (a2#0: Encoded(len+(uint64,(len+utf8[]))[]), maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
-        let (a3#0: Encoded(len+(uint64,(len+utf8[]))[]), maybe_exists%2#0: bool) = (box_get "box")
+        let (a3#0: Encoded(len+(uint64,(len+utf8[]))[]), maybe_exists%2#0: bool) = box_read("box")
         (assert maybe_exists%2#0) // check self.box exists
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
-        let (a4#0: Encoded(len+(uint64,(len+utf8[]))[]), maybe_exists%3#0: bool) = (box_get box_prefixed_key%0#0)
+        let (a4#0: Encoded(len+(uint64,(len+utf8[]))[]), maybe_exists%3#0: bool) = box_read(box_prefixed_key%0#0)
         (assert maybe_exists%3#0) // check self.map entry exists
         let tmp%1#0: bool = (== a1#0 a2#0)
         (assert tmp%1#0) // expected local == global

@@ -152,10 +152,9 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let continue_looping%3#0: bool = (< item_index_internal%3#1 4u)
         goto continue_looping%3#0 ? block@17 : block@19
     block@17: // for_body_L50
-        let array%mul%0#1: uint64 = (* item_index_internal%3#1 4u)
-        let array%add%0#1: uint64 = (+ 0u array%mul%0#1)
-        let array%extract%0#1: bytes = (extract3 static_uint32_array#0 array%add%0#1 4u)
-        let uint32_item#0: Encoded(uint32) = array%extract%0#1
+        let array%bytes_offset%2#1: uint64 = (* item_index_internal%3#1 4u)
+        let array%encoded_element%2#1: bytes = (extract3 static_uint32_array#0 array%bytes_offset%2#1 4u) // on error: index access is out of bounds
+        let uint32_item#0: Encoded(uint32) = array%encoded_element%2#1
         let tmp%14#0: uint64 = (btoi uint32_item#0)
         let total#6: uint64 = (+ total#5 tmp%14#0)
         let item_index_internal%3#2: uint64 = (+ item_index_internal%3#1 1u)
@@ -166,15 +165,13 @@ main test_cases.arc4_types.array.Arc4ArraysContract.approval_program:
         let array%encoded%16#1: Encoded(uint8) = (concat 0x 0x65)
         let array%encoded%17#1: Encoded(uint8[1]) = (concat array%encoded%16#1 0x)
         let aliased_static#0: Encoded(uint8[1]) = array%encoded%17#1
-        let array%mul%1#1: uint64 = (* 0u 1u)
-        let array%add%1#1: uint64 = (+ 0u array%mul%1#1)
-        let array%extract%1#1: bytes = (extract3 aliased_static#0 array%add%1#1 1u)
-        let array_item%5#0: Encoded(uint8) = array%extract%1#1
+        let array%bytes_offset%3#1: uint64 = (* 0u 1u)
+        let array%encoded_element%3#1: bytes = (extract3 aliased_static#0 array%bytes_offset%3#1 1u) // on error: index access is out of bounds
+        let array_item%5#0: Encoded(uint8) = array%encoded_element%3#1
         let tmp%17#0: uint64 = (btoi array_item%5#0)
-        let array%mul%2#1: uint64 = (* 0u 1u)
-        let array%add%2#1: uint64 = (+ 0u array%mul%2#1)
-        let array%extract%2#1: bytes = (extract3 aliased_static#0 array%add%2#1 1u)
-        let array_item%6#0: Encoded(uint8) = array%extract%2#1
+        let array%bytes_offset%4#1: uint64 = (* 0u 1u)
+        let array%encoded_element%4#1: bytes = (extract3 aliased_static#0 array%bytes_offset%4#1 1u) // on error: index access is out of bounds
+        let array_item%6#0: Encoded(uint8) = array%encoded_element%4#1
         let tmp%18#0: uint64 = (btoi array_item%6#0)
         let tmp%19#0: uint64 = (+ tmp%17#0 tmp%18#0)
         let tmp%20#0: bool = (== tmp%19#0 202u)

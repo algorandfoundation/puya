@@ -10,16 +10,16 @@ main marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_entrypoint_with_i
         return tmp%1#0
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.__init__() -> void:
-    block@0: // L18
+    block@0: // L37
         (log "init")
         return 
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.listings_box_mbr() -> uint64:
-    block@0: // L22
+    block@0: // L43
         return 50500u
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.quantity_price(quantity: uint64, price: uint64, asset_decimals: uint64) -> uint64:
-    block@0: // L42
+    block@0: // L68
         let (tmp%0#0: uint64, tmp%1#0: uint64) = (mulw price#0 quantity#0)
         let amount_not_scaled_high#0: uint64 = tmp%0#0
         let amount_not_scaled_low#0: uint64 = tmp%1#0
@@ -34,12 +34,12 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.quantity_price(quant
         return amount_to_be_paid#0
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.get_listings_mbr() -> uint64:
-    block@0: // L56
+    block@0: // L79
         let tmp%0#0: uint64 = marketplace_with_tups.DigitalMarketplaceWithTups.listings_box_mbr()
         return tmp%0#0
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.allow_asset(mbr_pay: uint64, asset: uint64) -> void:
-    block@0: // L60
+    block@0: // L83
         let tmp%0#0: account = (global CurrentApplicationAddress)
         let (tmp%1#0: uint64, tmp%2#0: bool) = ((asset_holding_get AssetBalance) tmp%0#0 asset#0)
         let tmp%3#0: bool = (! tmp%2#0)
@@ -61,12 +61,12 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.allow_asset(mbr_pay:
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         goto block@1
-    block@1: // next_txn_L67
+    block@1: // next_txn_L90
         itxn_submit
         return 
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.first_deposit(mbr_pay: uint64, xfer: uint64, unitary_price: uint64, nonce: uint64) -> void:
-    block@0: // L73
+    block@0: // L94
         let tmp%0#0: account = ((gtxns Sender) mbr_pay#0)
         let tmp%1#0: account = (txn Sender)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
@@ -142,7 +142,7 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.first_deposit(mbr_pa
         return 
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.deposit(xfer: uint64, nonce: uint64) -> void:
-    block@0: // L98
+    block@0: // L121
         let tmp%0#0: account = (txn Sender)
         let tmp%1#0: uint64 = ((gtxns XferAsset) xfer#0)
         let key.owner#0: account = tmp%0#0
@@ -224,7 +224,7 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.deposit(xfer: uint64
         return 
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.set_price(asset: uint64, nonce: uint64, unitary_price: uint64) -> void:
-    block@0: // L119
+    block@0: // L138
         let tmp%0#0: account = (txn Sender)
         let key.owner#0: account = tmp%0#0
         let key.asset#0: uint64 = asset#0
@@ -288,7 +288,7 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.set_price(asset: uin
         return 
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.buy(owner: account, asset: uint64, nonce: uint64, buy_pay: uint64, quantity: uint64) -> void:
-    block@0: // L136
+    block@0: // L151
         let key.owner#0: account = owner#0
         let key.asset#0: uint64 = asset#0
         let key.nonce#0: uint64 = nonce#0
@@ -377,12 +377,12 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.buy(owner: account, 
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         goto block@1
-    block@1: // next_txn_L164
+    block@1: // next_txn_L178
         itxn_submit
         return 
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.withdraw(asset: uint64, nonce: uint64) -> void:
-    block@0: // L170
+    block@0: // L182
         let tmp%0#0: account = (txn Sender)
         let key.owner#0: account = tmp%0#0
         let key.asset#0: uint64 = asset#0
@@ -418,7 +418,7 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.withdraw(asset: uint
         let tmp%6#0: account = (global ZeroAddress)
         let tmp%7#0: bool = (!= listing.bidder#0 tmp%6#0)
         goto tmp%7#0 ? block@1 : block@3
-    block@1: // if_body_L180
+    block@1: // if_body_L188
         let (value%0#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%0#0) // asset exists
         let tmp%8#0: uint64 = marketplace_with_tups.DigitalMarketplaceWithTups.quantity_price(listing.bid#0, listing.bidUnitaryPrice#0, value%0#0)
@@ -431,10 +431,10 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.withdraw(asset: uint
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         goto block@2
-    block@2: // next_txn_L185
+    block@2: // next_txn_L191
         itxn_submit
         goto block@3
-    block@3: // after_if_else_L179
+    block@3: // after_if_else_L187
         let array%as_Encoded(uint8[32])%1#1: Encoded(uint8[32]) = key.owner#0
         let array%encoded%4#1: Encoded(uint8[32]) = (concat 0x array%as_Encoded(uint8[32])%1#1)
         let array%val_as_bytes%2#1: bytes[8] = (itob key.asset#0)
@@ -455,7 +455,7 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.withdraw(asset: uint
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         goto block@4
-    block@4: // next_txn_L189
+    block@4: // next_txn_L195
         itxn_submit
         itxn_begin
         let inner_txn_params%2%%param_XferAsset_idx_0#0: uint64 = asset#0
@@ -467,12 +467,12 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.withdraw(asset: uint
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         goto block@5
-    block@5: // next_txn_L191
+    block@5: // next_txn_L197
         itxn_submit
         return 
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.bid(owner: account, asset: uint64, nonce: uint64, bid_pay: uint64, quantity: uint64, unitary_price: uint64) -> void:
-    block@0: // L197
+    block@0: // L201
         let key.owner#0: account = owner#0
         let key.asset#0: uint64 = asset#0
         let key.nonce#0: uint64 = nonce#0
@@ -511,7 +511,7 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.bid(owner: account, 
         let tmp%5#0: account = (global ZeroAddress)
         let tmp%6#0: bool = (!= listing.bidder#0 tmp%5#0)
         goto tmp%6#0 ? block@1 : block@3
-    block@1: // if_body_L207
+    block@1: // if_body_L215
         let tmp%7#0: bool = (> unitary_price#0 listing.bidUnitaryPrice#0)
         (assert tmp%7#0)
         let (value%0#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
@@ -526,10 +526,10 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.bid(owner: account, 
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         goto block@2
-    block@2: // next_txn_L215
+    block@2: // next_txn_L221
         itxn_submit
         goto block@3
-    block@3: // after_if_else_L206
+    block@3: // after_if_else_L214
         let (value%1#0: uint64, check%1#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%1#0) // asset exists
         let tmp%9#0: uint64 = marketplace_with_tups.DigitalMarketplaceWithTups.quantity_price(quantity#0, unitary_price#0, value%1#0)
@@ -577,7 +577,7 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.bid(owner: account, 
         return 
 
 subroutine marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid(asset: uint64, nonce: uint64) -> void:
-    block@0: // L235
+    block@0: // L237
         let tmp%0#0: account = (txn Sender)
         let key.owner#0: account = tmp%0#0
         let key.asset#0: uint64 = asset#0
@@ -619,13 +619,13 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid(asset: ui
         (assert tmp%7#0)
         let tmp%8#0: bool = (< listing.deposited#0 listing.bid#0)
         goto tmp%8#0 ? block@1 : block@2
-    block@1: // ternary_true_L246
+    block@1: // ternary_true_L244
         let ternary_result%0#0: uint64 = listing.deposited#0
         goto block@3
-    block@2: // ternary_false_L246
+    block@2: // ternary_false_L244
         let ternary_result%0#0: uint64 = listing.bid#0
         goto block@3
-    block@3: // ternary_merge_L246
+    block@3: // ternary_merge_L244
         let min_quantity#0: uint64 = ternary_result%0#0
         let (value%0#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%0#0) // asset exists
@@ -639,7 +639,7 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid(asset: ui
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         goto block@4
-    block@4: // next_txn_L254
+    block@4: // next_txn_L250
         itxn_submit
         itxn_begin
         let inner_txn_params%1%%param_XferAsset_idx_0#0: uint64 = asset#0
@@ -651,7 +651,7 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid(asset: ui
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         goto block@5
-    block@5: // next_txn_L256
+    block@5: // next_txn_L252
         itxn_submit
         let tmp%10#0: uint64 = (- listing.deposited#0 min_quantity#0)
         let tmp%11#0: uint64 = (- listing.bid#0 min_quantity#0)
@@ -688,14 +688,14 @@ subroutine marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid(asset: ui
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@0: // L1
         goto block@1
-    block@1: // L17
+    block@1: // L36
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
         goto tmp%1#0 ? block@2 : block@14
-    block@2: // abi_routing_L17
+    block@2: // abi_routing_L36
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "getListingsMbr()uint64" => block@3, method "allowAsset(pay,asset)void" => block@4, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@5, method "deposit(axfer,uint64)void" => block@6, method "setPrice(asset,uint64,uint64)void" => block@7, method "buy(account,asset,uint64,pay,uint64)void" => block@8, method "withdraw(asset,uint64)void" => block@9, method "bid(account,asset,uint64,pay,uint64,uint64)void" => block@10, method "acceptBid(asset,uint64)void" => block@11, * => block@12}
-    block@3: // getListingsMbr_route_L56
+    block@3: // getListingsMbr_route_L79
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -711,7 +711,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@4: // allowAsset_route_L60
+    block@4: // allowAsset_route_L83
         let tmp%10#0: uint64 = (txn OnCompletion)
         let tmp%11#0: bool = (== tmp%10#0 NoOp)
         (assert tmp%11#0) // OnCompletion is not NoOp
@@ -730,7 +730,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@5: // firstDeposit_route_L73
+    block@5: // firstDeposit_route_L94
         let tmp%17#0: uint64 = (txn OnCompletion)
         let tmp%18#0: bool = (== tmp%17#0 NoOp)
         (assert tmp%18#0) // OnCompletion is not NoOp
@@ -755,7 +755,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@6: // deposit_route_L98
+    block@6: // deposit_route_L121
         let tmp%25#0: uint64 = (txn OnCompletion)
         let tmp%26#0: bool = (== tmp%25#0 NoOp)
         (assert tmp%26#0) // OnCompletion is not NoOp
@@ -773,7 +773,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@7: // setPrice_route_L119
+    block@7: // setPrice_route_L138
         let tmp%31#0: uint64 = (txn OnCompletion)
         let tmp%32#0: bool = (== tmp%31#0 NoOp)
         (assert tmp%32#0) // OnCompletion is not NoOp
@@ -791,7 +791,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@8: // buy_route_L136
+    block@8: // buy_route_L151
         let tmp%39#0: uint64 = (txn OnCompletion)
         let tmp%40#0: bool = (== tmp%39#0 NoOp)
         (assert tmp%40#0) // OnCompletion is not NoOp
@@ -817,7 +817,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@9: // withdraw_route_L170
+    block@9: // withdraw_route_L182
         let tmp%50#0: uint64 = (txn OnCompletion)
         let tmp%51#0: bool = (== tmp%50#0 NoOp)
         (assert tmp%51#0) // OnCompletion is not NoOp
@@ -833,7 +833,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@10: // bid_route_L197
+    block@10: // bid_route_L201
         let tmp%57#0: uint64 = (txn OnCompletion)
         let tmp%58#0: bool = (== tmp%57#0 NoOp)
         (assert tmp%58#0) // OnCompletion is not NoOp
@@ -861,7 +861,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@11: // acceptBid_route_L235
+    block@11: // acceptBid_route_L237
         let tmp%69#0: uint64 = (txn OnCompletion)
         let tmp%70#0: bool = (== tmp%69#0 NoOp)
         (assert tmp%70#0) // OnCompletion is not NoOp
@@ -877,11 +877,11 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@12: // switch_case_default_L17
+    block@12: // switch_case_default_L36
         goto block@13
-    block@13: // switch_case_next_L17
+    block@13: // switch_case_next_L36
         goto block@20
-    block@14: // bare_routing_L17
+    block@14: // bare_routing_L36
         let tmp%76#0: uint64 = (txn OnCompletion)
         switch tmp%76#0 {0u => block@15, * => block@18}
     block@15: // __algopy_default_create_L1
@@ -895,11 +895,11 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21
-    block@18: // switch_case_default_L17
+    block@18: // switch_case_default_L36
         goto block@19
-    block@19: // switch_case_next_L17
+    block@19: // switch_case_next_L36
         goto block@20
-    block@20: // after_if_else_L17
+    block@20: // after_if_else_L36
         let marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#0
         goto block@21

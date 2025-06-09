@@ -22,9 +22,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         (assert maybe_exists%0#0) // check self.tup_bag exists
         let array%as_Encoded(uint8[32])%0#1: Encoded(uint8[32]) = tmp%1#0
         let encoded_value%0#0: Encoded(uint8[32]) = array%as_Encoded(uint8[32])%0#1
-        let array%add%0#1: uint64 = (+ 0u 136u)
-        let array%replace%0#1: bytes = (replace3 maybe_value%0#0 array%add%0#1 encoded_value%0#0)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%replace%0#1
+        let array%updated_data%0#1: bytes = (replace3 maybe_value%0#0 136u encoded_value%0#0)
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%0#1
         (box_put "tup_bag" updated_tuple%0#0)
         let tmp%2#0: uint64 = (global CurrentApplicationID)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
@@ -32,9 +31,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let array%val_as_bytes%0#1: bytes[8] = (itob tmp%2#0)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let encoded_value%1#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
-        let array%add%1#1: uint64 = (+ 0u 168u)
-        let array%replace%1#1: bytes = (replace3 maybe_value%1#0 array%add%1#1 encoded_value%1#0)
-        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%replace%1#1
+        let array%updated_data%1#1: bytes = (replace3 maybe_value%1#0 168u encoded_value%1#0)
+        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%1#1
         (box_put "tup_bag" updated_tuple%1#0)
         return 
 
@@ -42,8 +40,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L41
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 8u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         return values%0#0
@@ -53,8 +50,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 8u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         let tmp%0#0: bool = (< values%0#0 8u)
@@ -63,29 +59,26 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         (assert maybe_exists%1#0) // check self.tup_bag exists
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%2#0) // check self.tup_bag exists
-        let array%add%1#1: uint64 = (+ 0u 0u)
-        let array%extract%1#1: bytes = (extract3 maybe_value%2#0 array%add%1#1 8u)
+        let array%extract%1#1: bytes = (extract3 maybe_value%2#0 0u 8u)
         let tuple_item%1#0: Encoded(uint64) = array%extract%1#1
         let values%1#0: uint64 = (btoi tuple_item%1#0)
-        let array%add%2#1: uint64 = (+ 0u 8u)
-        let array%mul%0#1: uint64 = (* values%1#0 16u)
-        let array%add%3#1: uint64 = (+ array%add%2#1 array%mul%0#1)
-        let array%replace%0#1: bytes = (replace3 maybe_value%1#0 array%add%3#1 tup#0)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%replace%0#1
+        let array%extract%2#1: bytes = (extract3 maybe_value%1#0 8u 128u)
+        let array%write_offset%0#1: uint64 = (* values%1#0 16u)
+        let array%updated_array%0#1: bytes = (replace3 array%extract%2#1 array%write_offset%0#1 tup#0)
+        let array%updated_data%0#1: bytes = (replace3 maybe_value%1#0 8u array%updated_array%0#1)
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%0#1
         (box_put "tup_bag" updated_tuple%0#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%3#0) // check self.tup_bag exists
-        let array%add%4#1: uint64 = (+ 0u 0u)
-        let array%extract%2#1: bytes = (extract3 maybe_value%3#0 array%add%4#1 8u)
-        let tuple_item%2#0: Encoded(uint64) = array%extract%2#1
+        let array%extract%3#1: bytes = (extract3 maybe_value%3#0 0u 8u)
+        let tuple_item%2#0: Encoded(uint64) = array%extract%3#1
         let values%2#0: uint64 = (btoi tuple_item%2#0)
         let tmp%1#0: uint64 = (+ values%2#0 1u)
         let array%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
         let encoded_value%0#0: Encoded(uint64) = array%as_Encoded(uint64)%0#1
-        let array%add%5#1: uint64 = (+ 0u 0u)
-        let array%replace%1#1: bytes = (replace3 maybe_value%3#0 array%add%5#1 encoded_value%0#0)
-        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%replace%1#1
+        let array%updated_data%1#1: bytes = (replace3 maybe_value%3#0 0u encoded_value%0#0)
+        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%1#1
         (box_put "tup_bag" updated_tuple%1#0)
         return 
 
@@ -93,21 +86,18 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L52
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 8u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         let tmp%0#0: bool = (< index#0 values%0#0)
         (assert tmp%0#0) // index out of bounds
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let array%add%1#1: uint64 = (+ 0u 8u)
-        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 array%add%1#1 128u)
+        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 8u 128u)
         let tuple_item%1#0: Encoded((uint64,uint64)[8]) = array%extract%1#1
-        let array%mul%0#1: uint64 = (* index#0 16u)
-        let array%add%2#1: uint64 = (+ 0u array%mul%0#1)
-        let array%extract%2#1: bytes = (extract3 tuple_item%1#0 array%add%2#1 16u)
-        let array_item%0#0: Encoded(uint64,uint64) = array%extract%2#1
+        let array%bytes_offset%0#1: uint64 = (* index#0 16u)
+        let array%encoded_element%0#1: bytes = (extract3 tuple_item%1#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint64,uint64) = array%encoded_element%0#1
         return array_item%0#0
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum() -> uint64:
@@ -115,8 +105,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let total#0: uint64 = 0u
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 8u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         (assert 1u) // Step cannot be zero
@@ -128,23 +117,19 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@2: // for_body_L61
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let array%add%1#1: uint64 = (+ 0u 8u)
-        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 array%add%1#1 128u)
+        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 8u 128u)
         let tuple_item%1#0: Encoded((uint64,uint64)[8]) = array%extract%1#1
-        let array%mul%0#1: uint64 = (* i#0 16u)
-        let array%add%2#1: uint64 = (+ 0u array%mul%0#1)
-        let array%extract%2#1: bytes = (extract3 tuple_item%1#0 array%add%2#1 16u)
-        let array_item%0#0: Encoded(uint64,uint64) = array%extract%2#1
+        let array%bytes_offset%0#1: uint64 = (* i#0 16u)
+        let array%encoded_element%0#1: bytes = (extract3 tuple_item%1#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint64,uint64) = array%encoded_element%0#1
         let tup#0: Encoded(uint64,uint64) = array_item%0#0
-        let array%add%3#1: uint64 = (+ 0u 0u)
-        let array%extract%3#1: bytes = (extract3 tup#0 array%add%3#1 8u)
-        let tuple_item%2#0: Encoded(uint64) = array%extract%3#1
+        let array%extract%2#1: bytes = (extract3 tup#0 0u 8u)
+        let tuple_item%2#0: Encoded(uint64) = array%extract%2#1
         let values%1#0: uint64 = (btoi tuple_item%2#0)
         let tmp%0#0: uint64 = (+ total#0 values%1#0)
         let total#0: uint64 = tmp%0#0
-        let array%add%4#1: uint64 = (+ 0u 8u)
-        let array%extract%4#1: bytes = (extract3 tup#0 array%add%4#1 8u)
-        let tuple_item%3#0: Encoded(uint64) = array%extract%4#1
+        let array%extract%3#1: bytes = (extract3 tup#0 8u 8u)
+        let tuple_item%3#0: Encoded(uint64) = array%extract%3#1
         let values%2#0: uint64 = (btoi tuple_item%3#0)
         let tmp%1#0: uint64 = (+ total#0 values%2#0)
         let total#0: uint64 = tmp%1#0
@@ -185,10 +170,9 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let continue_looping%0#0: bool = (< item_index_internal%0#0 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L74
-        let array%mul%0#1: uint64 = (* item_index_internal%0#0 16u)
-        let array%add%0#1: uint64 = (+ 0u array%mul%0#1)
-        let array%extract%0#1: bytes = (extract3 tups#0 array%add%0#1 16u)
-        let array_item%0#0: Encoded(uint64,uint64) = array%extract%0#1
+        let array%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 16u)
+        let array%encoded_element%0#1: bytes = (extract3 tups#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint64,uint64) = array%encoded_element%0#1
         let tup#0: Encoded(uint64,uint64) = array_item%0#0
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup#0)
         goto block@3
@@ -203,8 +187,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 8u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         (assert 1u) // Step cannot be zero
@@ -216,17 +199,14 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@2: // for_body_L80
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let array%add%1#1: uint64 = (+ 0u 8u)
-        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 array%add%1#1 128u)
+        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 8u 128u)
         let tuple_item%1#0: Encoded((uint64,uint64)[8]) = array%extract%1#1
-        let array%mul%0#1: uint64 = (* i#0 16u)
-        let array%add%2#1: uint64 = (+ 0u array%mul%0#1)
-        let array%extract%2#1: bytes = (extract3 tuple_item%1#0 array%add%2#1 16u)
-        let array_item%0#0: Encoded(uint64,uint64) = array%extract%2#1
+        let array%bytes_offset%0#1: uint64 = (* i#0 16u)
+        let array%encoded_element%0#1: bytes = (extract3 tuple_item%1#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint64,uint64) = array%encoded_element%0#1
         let tup#0: Encoded(uint64,uint64) = array_item%0#0
-        let array%add%3#1: uint64 = (+ 0u 8u)
-        let array%extract%3#1: bytes = (extract3 tup#0 array%add%3#1 8u)
-        let tuple_item%2#0: Encoded(uint64) = array%extract%3#1
+        let array%extract%2#1: bytes = (extract3 tup#0 8u 8u)
+        let tuple_item%2#0: Encoded(uint64) = array%extract%2#1
         let values%1#0: uint64 = (btoi tuple_item%2#0)
         let array%val_as_bytes%0#1: bytes[8] = (itob a#0)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
@@ -238,11 +218,11 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let tmp%0#0: Encoded(uint64,uint64) = array%encoded%2#1
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%2#0) // check self.tup_bag exists
-        let array%add%4#1: uint64 = (+ 0u 8u)
-        let array%mul%1#1: uint64 = (* i#0 16u)
-        let array%add%5#1: uint64 = (+ array%add%4#1 array%mul%1#1)
-        let array%replace%0#1: bytes = (replace3 maybe_value%2#0 array%add%5#1 tmp%0#0)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%replace%0#1
+        let array%extract%3#1: bytes = (extract3 maybe_value%2#0 8u 128u)
+        let array%write_offset%0#1: uint64 = (* i#0 16u)
+        let array%updated_array%0#1: bytes = (replace3 array%extract%3#1 array%write_offset%0#1 tmp%0#0)
+        let array%updated_data%0#1: bytes = (replace3 maybe_value%2#0 8u array%updated_array%0#1)
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%0#1
         (box_put "tup_bag" updated_tuple%0#0)
         goto block@3
     block@3: // for_footer_L79
@@ -256,8 +236,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 8u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         (assert 1u) // Step cannot be zero
@@ -269,17 +248,14 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@2: // for_body_L87
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let array%add%1#1: uint64 = (+ 0u 8u)
-        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 array%add%1#1 128u)
+        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 8u 128u)
         let tuple_item%1#0: Encoded((uint64,uint64)[8]) = array%extract%1#1
-        let array%mul%0#1: uint64 = (* i#0 16u)
-        let array%add%2#1: uint64 = (+ 0u array%mul%0#1)
-        let array%extract%2#1: bytes = (extract3 tuple_item%1#0 array%add%2#1 16u)
-        let array_item%0#0: Encoded(uint64,uint64) = array%extract%2#1
+        let array%bytes_offset%0#1: uint64 = (* i#0 16u)
+        let array%encoded_element%0#1: bytes = (extract3 tuple_item%1#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint64,uint64) = array%encoded_element%0#1
         let tup#0: Encoded(uint64,uint64) = array_item%0#0
-        let array%add%3#1: uint64 = (+ 0u 0u)
-        let array%extract%3#1: bytes = (extract3 tup#0 array%add%3#1 8u)
-        let tuple_item%2#0: Encoded(uint64) = array%extract%3#1
+        let array%extract%2#1: bytes = (extract3 tup#0 0u 8u)
+        let tuple_item%2#0: Encoded(uint64) = array%extract%2#1
         let values%1#0: uint64 = (btoi tuple_item%2#0)
         let array%val_as_bytes%0#1: bytes[8] = (itob values%1#0)
         let array%as_Encoded(uint64)%0#1: Encoded(uint64) = array%val_as_bytes%0#1
@@ -291,11 +267,11 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let tmp%0#0: Encoded(uint64,uint64) = array%encoded%2#1
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%2#0) // check self.tup_bag exists
-        let array%add%4#1: uint64 = (+ 0u 8u)
-        let array%mul%1#1: uint64 = (* i#0 16u)
-        let array%add%5#1: uint64 = (+ array%add%4#1 array%mul%1#1)
-        let array%replace%0#1: bytes = (replace3 maybe_value%2#0 array%add%5#1 tmp%0#0)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%replace%0#1
+        let array%extract%3#1: bytes = (extract3 maybe_value%2#0 8u 128u)
+        let array%write_offset%0#1: uint64 = (* i#0 16u)
+        let array%updated_array%0#1: bytes = (replace3 array%extract%3#1 array%write_offset%0#1 tmp%0#0)
+        let array%updated_data%0#1: bytes = (replace3 maybe_value%2#0 8u array%updated_array%0#1)
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = array%updated_data%0#1
         (box_put "tup_bag" updated_tuple%0#0)
         goto block@3
     block@3: // for_footer_L86
@@ -308,8 +284,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L90
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%add%0#1: uint64 = (+ 0u 0u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 8u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let values%0#0: uint64 = (btoi tuple_item%0#0)
         let tmp%0#0: uint64 = (+ start#0 3u)
@@ -317,25 +292,21 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         (assert tmp%1#0) // not enough items
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let array%add%1#1: uint64 = (+ 0u 8u)
-        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 array%add%1#1 128u)
+        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 8u 128u)
         let tuple_item%1#0: Encoded((uint64,uint64)[8]) = array%extract%1#1
         let copy%0#0: Encoded((uint64,uint64)[8]) = tuple_item%1#0
         let items#0: Encoded((uint64,uint64)[8]) = copy%0#0
-        let array%mul%0#1: uint64 = (* start#0 16u)
-        let array%add%2#1: uint64 = (+ 0u array%mul%0#1)
-        let array%extract%2#1: bytes = (extract3 items#0 array%add%2#1 16u)
-        let array_item%0#0: Encoded(uint64,uint64) = array%extract%2#1
+        let array%bytes_offset%0#1: uint64 = (* start#0 16u)
+        let array%encoded_element%0#1: bytes = (extract3 items#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint64,uint64) = array%encoded_element%0#1
         let tmp%2#0: uint64 = (+ start#0 1u)
-        let array%mul%1#1: uint64 = (* tmp%2#0 16u)
-        let array%add%3#1: uint64 = (+ 0u array%mul%1#1)
-        let array%extract%3#1: bytes = (extract3 items#0 array%add%3#1 16u)
-        let array_item%1#0: Encoded(uint64,uint64) = array%extract%3#1
+        let array%bytes_offset%1#1: uint64 = (* tmp%2#0 16u)
+        let array%encoded_element%1#1: bytes = (extract3 items#0 array%bytes_offset%1#1 16u) // on error: index access is out of bounds
+        let array_item%1#0: Encoded(uint64,uint64) = array%encoded_element%1#1
         let tmp%3#0: uint64 = (+ start#0 2u)
-        let array%mul%2#1: uint64 = (* tmp%3#0 16u)
-        let array%add%4#1: uint64 = (+ 0u array%mul%2#1)
-        let array%extract%4#1: bytes = (extract3 items#0 array%add%4#1 16u)
-        let array_item%2#0: Encoded(uint64,uint64) = array%extract%4#1
+        let array%bytes_offset%2#1: uint64 = (* tmp%3#0 16u)
+        let array%encoded_element%2#1: bytes = (extract3 items#0 array%bytes_offset%2#1 16u) // on error: index access is out of bounds
+        let array_item%2#0: Encoded(uint64,uint64) = array%encoded_element%2#1
         let array%encoded%0#1: Encoded((uint64,uint64)) = (concat 0x array_item%0#0)
         let array%encoded%1#1: Encoded((uint64,uint64),(uint64,uint64)) = (concat array%encoded%0#1 array_item%1#0)
         let array%encoded%2#1: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = (concat array%encoded%1#1 array_item%2#0)
@@ -353,15 +324,13 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let result#0: Encoded(len+(uint64,uint64)[]) = encoded_array%0#0
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%add%0#1: uint64 = (+ 0u 8u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 128u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 8u 128u)
         let tuple_item%0#0: Encoded((uint64,uint64)[8]) = array%extract%0#1
         let copy%0#0: Encoded((uint64,uint64)[8]) = tuple_item%0#0
         let items#0: Encoded((uint64,uint64)[8]) = copy%0#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let array%add%1#1: uint64 = (+ 0u 0u)
-        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 array%add%1#1 8u)
+        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 0u 8u)
         let tuple_item%1#0: Encoded(uint64) = array%extract%1#1
         let values%0#0: uint64 = (btoi tuple_item%1#0)
         (assert 1u) // Step cannot be zero
@@ -371,10 +340,9 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let continue_looping%0#0: bool = (< i#0 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L109
-        let array%mul%0#1: uint64 = (* i#0 16u)
-        let array%add%2#1: uint64 = (+ 0u array%mul%0#1)
-        let array%extract%2#1: bytes = (extract3 items#0 array%add%2#1 16u)
-        let array_item%0#0: Encoded(uint64,uint64) = array%extract%2#1
+        let array%bytes_offset%0#1: uint64 = (* i#0 16u)
+        let array%encoded_element%0#1: bytes = (extract3 items#0 array%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint64,uint64) = array%encoded_element%0#1
         let array%encoded%2#1: Encoded((uint64,uint64)) = (concat 0x array_item%0#0)
         let array%encoded%3#1: Encoded((uint64,uint64)[]) = (concat array%encoded%2#1 0x)
         let tmp%0#0: Encoded((uint64,uint64)[]) = array%encoded%3#1
@@ -397,8 +365,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L112
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%0#0) // check self.tup_bag exists
-        let array%add%0#1: uint64 = (+ 0u 136u)
-        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 array%add%0#1 32u)
+        let array%extract%0#1: bytes = (extract3 maybe_value%0#0 136u 32u)
         let tuple_item%0#0: Encoded(uint8[32]) = array%extract%0#1
         let values%0#0: account = tuple_item%0#0
         let tmp%0#0: account = (txn Sender)
@@ -406,8 +373,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         (assert tmp%1#0) // sender not authorized
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "tup_bag")
         (assert maybe_exists%1#0) // check self.tup_bag exists
-        let array%add%1#1: uint64 = (+ 0u 168u)
-        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 array%add%1#1 8u)
+        let array%extract%1#1: bytes = (extract3 maybe_value%1#0 168u 8u)
         let tuple_item%1#0: Encoded(uint64) = array%extract%1#1
         let values%1#0: uint64 = (btoi tuple_item%1#0)
         let tmp%2#0: uint64 = (global CurrentApplicationID)

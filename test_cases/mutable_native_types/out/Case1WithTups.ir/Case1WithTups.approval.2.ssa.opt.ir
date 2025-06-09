@@ -334,7 +334,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_
         let tmp%2#0: uint64 = (global CurrentApplicationID)
         let encoded_value%1#0: Encoded(uint64) = encode<uint64>(tmp%2#0)
         let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = updated_tuple%0#0.update((3), encoded_value%1#0)
-        box_write("tup_bag", updated_tuple%1#0)
+        let array%add%0#1: uint64 = 168u
+        (box_replace "tup_bag" 168u encoded_value%1#0)
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups() -> uint64:
@@ -363,7 +364,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
         let tmp%1#0: uint64 = (+ values%2#0 1u)
         let encoded_value%1#0: Encoded(uint64) = encode<uint64>(tmp%1#0)
         let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = updated_tuple%0#0.update((0), encoded_value%1#0)
-        box_write("tup_bag", updated_tuple%1#0)
+        let array%add%0#1: uint64 = 0u
+        (box_replace "tup_bag" 0u encoded_value%1#0)
         return 
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup(index: uint64) -> <uint64, uint64>:
@@ -462,7 +464,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let (tup.a#0: uint64, tup.b#0: uint64) = decode<(uint64,uint64,)>(array_item%0#0)
         let encoded_value%0#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(a#0, tup.b#0)
         let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = maybe_value%1#0.update((1, i#1), encoded_value%0#0)
-        box_write("tup_bag", updated_tuple%0#0)
+        let array%add%0#1: uint64 = 8u
+        let array%index_ok%0#1: bool = (< i#1 8u)
+        (assert array%index_ok%0#1) // index out of bounds
+        let array%mul%0#1: uint64 = (* i#1 16u)
+        let array%add%1#1: uint64 = (+ 8u array%mul%0#1)
+        (box_replace "tup_bag" array%add%1#1 encoded_value%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L79
@@ -489,7 +496,12 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let (tup.a#0: uint64, tup.b#0: uint64) = decode<(uint64,uint64,)>(array_item%0#0)
         let encoded_value%0#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(tup.a#0, b#0)
         let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64) = maybe_value%1#0.update((1, i#1), encoded_value%0#0)
-        box_write("tup_bag", updated_tuple%0#0)
+        let array%add%0#1: uint64 = 8u
+        let array%index_ok%0#1: bool = (< i#1 8u)
+        (assert array%index_ok%0#1) // index out of bounds
+        let array%mul%0#1: uint64 = (* i#1 16u)
+        let array%add%1#1: uint64 = (+ 8u array%mul%0#1)
+        (box_replace "tup_bag" array%add%1#1 encoded_value%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L86

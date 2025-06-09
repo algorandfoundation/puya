@@ -3,7 +3,7 @@
 
 // test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0 16 8
+    intcblock 0 1 16 8
     bytecblock "tup_bag" 0x151f7c75
     // mutable_native_types/case3_with_mutable_struct.py:31
     // class Case3WithStruct(arc4.ARC4Contract):
@@ -16,7 +16,7 @@ main:
 main_after_if_else@18:
     // mutable_native_types/case3_with_mutable_struct.py:31
     // class Case3WithStruct(arc4.ARC4Contract):
-    intc_1 // 0
+    intc_0 // 0
     return
 
 main_get_all_tups_route@15:
@@ -32,7 +32,7 @@ main_get_all_tups_route@15:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_get_3_tups_route@14:
@@ -54,7 +54,7 @@ main_get_3_tups_route@14:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_set_b_route@13:
@@ -72,7 +72,7 @@ main_set_b_route@13:
     // mutable_native_types/case3_with_mutable_struct.py:82
     // @arc4.abimethod()
     callsub set_b
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_set_a_route@12:
@@ -90,7 +90,7 @@ main_set_a_route@12:
     // mutable_native_types/case3_with_mutable_struct.py:76
     // @arc4.abimethod()
     callsub set_a
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_add_fixed_tups_route@11:
@@ -107,7 +107,7 @@ main_add_fixed_tups_route@11:
     // mutable_native_types/case3_with_mutable_struct.py:71
     // @arc4.abimethod()
     callsub add_fixed_tups
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_add_many_tups_route@10:
@@ -124,7 +124,7 @@ main_add_many_tups_route@10:
     // mutable_native_types/case3_with_mutable_struct.py:66
     // @arc4.abimethod()
     callsub add_many_tups
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_sum_route@9:
@@ -141,7 +141,7 @@ main_sum_route@9:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_get_tup_route@8:
@@ -163,7 +163,7 @@ main_get_tup_route@8:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_add_tup_route@7:
@@ -181,7 +181,7 @@ main_add_tup_route@7:
     // @arc4.abimethod()
     callsub add_tup
     pop
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_num_tups_route@6:
@@ -198,7 +198,7 @@ main_num_tups_route@6:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_create_box_route@5:
@@ -210,7 +210,7 @@ main_create_box_route@5:
     txn ApplicationID
     assert // can only call when not creating
     callsub create_box
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_bare_routing@16:
@@ -221,7 +221,7 @@ main_bare_routing@16:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -233,22 +233,14 @@ create_box:
     pushint 176 // 176
     box_create
     assert // box already exists
-    // mutable_native_types/case3_with_mutable_struct.py:38
-    // self.tup_bag.value.owner = Txn.sender
-    txn Sender
-    bytec_0 // "tup_bag"
-    box_get
-    assert // check self.tup_bag exists
-    swap
-    replace2 136
     // mutable_native_types/case3_with_mutable_struct.py:39
     // self.tup_bag.value.app = Global.current_application_id
     global CurrentApplicationID
     itob
-    replace2 168
     bytec_0 // "tup_bag"
-    swap
-    box_put
+    pushint 168 // 168
+    uncover 2
+    box_replace
     retsub
 
 
@@ -259,7 +251,7 @@ num_tups:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     retsub
 
@@ -279,7 +271,7 @@ add_tup:
     box_get
     assert // check self.tup_bag exists
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     dup
     intc_3 // 8
@@ -287,24 +279,25 @@ add_tup:
     assert // too many tups
     // mutable_native_types/case3_with_mutable_struct.py:49
     // self.tup_bag.value.items[self.tup_bag.value.count] = tup.copy()
+    dig 1
+    extract 8 128
+    swap
     intc_2 // 16
     *
-    intc_3 // 8
-    +
     frame_dig -1
     replace3
+    replace2 8
     // mutable_native_types/case3_with_mutable_struct.py:50
     // self.tup_bag.value.count += 1
-    dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
-    replace2 0
     bytec_0 // "tup_bag"
-    swap
-    box_put
+    intc_0 // 0
+    uncover 2
+    box_replace
     frame_dig -1
     retsub
 
@@ -321,20 +314,19 @@ get_tup:
     box_get
     assert // check self.tup_bag exists
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     frame_dig -1
     >
     assert // index out of bounds
     // mutable_native_types/case3_with_mutable_struct.py:55
     // return self.tup_bag.value.items[index]
+    extract 8 128
     frame_dig -1
     intc_2 // 16
     *
-    intc_3 // 8
-    +
     intc_2 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     retsub
 
 
@@ -346,15 +338,15 @@ sum:
     proto 0 1
     // mutable_native_types/case3_with_mutable_struct.py:59
     // total = UInt64()
-    intc_1 // 0
+    intc_0 // 0
     // mutable_native_types/case3_with_mutable_struct.py:60
     // for i in urange(self.tup_bag.value.count):
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
-    intc_1 // 0
+    intc_0 // 0
 
 sum_for_header@1:
     // mutable_native_types/case3_with_mutable_struct.py:60
@@ -368,34 +360,39 @@ sum_for_header@1:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
+    extract 8 128
     frame_dig 2
     dup
     cover 2
     intc_2 // 16
     *
-    intc_3 // 8
-    +
+    intc_2 // 16
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case3_with_mutable_struct.py:62
     // total += tup.a
-    dup2
+    dup
+    // mutable_native_types/case3_with_mutable_struct.py:61
+    // tup = self.tup_bag.value.items[i].copy()
+    intc_0 // 0
+    // mutable_native_types/case3_with_mutable_struct.py:62
+    // total += tup.a
     extract_uint64
     frame_dig 0
     +
-    // mutable_native_types/case3_with_mutable_struct.py:61
-    // tup = self.tup_bag.value.items[i].copy()
-    swap
-    intc_3 // 8
-    +
     // mutable_native_types/case3_with_mutable_struct.py:63
     // total += tup.b
-    uncover 2
     swap
+    // mutable_native_types/case3_with_mutable_struct.py:61
+    // tup = self.tup_bag.value.items[i].copy()
+    intc_3 // 8
+    // mutable_native_types/case3_with_mutable_struct.py:63
+    // total += tup.b
     extract_uint64
     +
     frame_bury 0
     // mutable_native_types/case3_with_mutable_struct.py:60
     // for i in urange(self.tup_bag.value.count):
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 2
     b sum_for_header@1
@@ -415,9 +412,9 @@ add_many_tups:
     // mutable_native_types/case3_with_mutable_struct.py:68
     // for i in urange(tups.length):
     frame_dig -1
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
-    intc_1 // 0
+    intc_0 // 0
 
 add_many_tups_for_header@1:
     // mutable_native_types/case3_with_mutable_struct.py:68
@@ -441,7 +438,7 @@ add_many_tups_for_header@1:
     pop
     // mutable_native_types/case3_with_mutable_struct.py:68
     // for i in urange(tups.length):
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 1
     b add_many_tups_for_header@1
@@ -458,7 +455,7 @@ add_fixed_tups:
     proto 1 0
     // mutable_native_types/case3_with_mutable_struct.py:73
     // for i in urange(tups.length):
-    intc_1 // 0
+    intc_0 // 0
 
 add_fixed_tups_for_header@1:
     // mutable_native_types/case3_with_mutable_struct.py:73
@@ -476,12 +473,12 @@ add_fixed_tups_for_header@1:
     frame_dig -1
     swap
     intc_2 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     callsub add_tup
     pop
     // mutable_native_types/case3_with_mutable_struct.py:73
     // for i in urange(tups.length):
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 0
     b add_fixed_tups_for_header@1
@@ -504,9 +501,9 @@ set_a:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
-    intc_1 // 0
+    intc_0 // 0
 
 set_a_for_header@1:
     // mutable_native_types/case3_with_mutable_struct.py:79
@@ -519,24 +516,27 @@ set_a_for_header@1:
     // self.tup_bag.value.items[i].a = a
     bytec_0 // "tup_bag"
     box_get
+    bury 1
     assert // check self.tup_bag exists
     frame_dig -1
     itob
     frame_dig 1
     dup
-    cover 3
+    intc_3 // 8
+    <
+    assert // index out of bounds
+    dup
     intc_2 // 16
     *
     intc_3 // 8
     +
-    swap
-    replace3
     bytec_0 // "tup_bag"
     swap
-    box_put
+    uncover 3
+    box_replace
     // mutable_native_types/case3_with_mutable_struct.py:79
     // for i in urange(self.tup_bag.value.count):
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 1
     b set_a_for_header@1
@@ -559,9 +559,9 @@ set_b:
     bytec_0 // "tup_bag"
     box_get
     assert // check self.tup_bag exists
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
-    intc_1 // 0
+    intc_0 // 0
 
 set_b_for_header@1:
     // mutable_native_types/case3_with_mutable_struct.py:85
@@ -574,26 +574,29 @@ set_b_for_header@1:
     // self.tup_bag.value.items[i].b = b
     bytec_0 // "tup_bag"
     box_get
+    bury 1
     assert // check self.tup_bag exists
     frame_dig -1
     itob
     frame_dig 1
     dup
-    cover 3
+    intc_3 // 8
+    <
+    assert // index out of bounds
+    dup
     intc_2 // 16
     *
     intc_3 // 8
     +
     intc_3 // 8
     +
-    swap
-    replace3
     bytec_0 // "tup_bag"
     swap
-    box_put
+    uncover 3
+    box_replace
     // mutable_native_types/case3_with_mutable_struct.py:85
     // for i in urange(self.tup_bag.value.count):
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 1
     b set_b_for_header@1
@@ -614,7 +617,7 @@ get_3_tups:
     box_get
     assert // check self.tup_bag exists
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     frame_dig -1
     pushint 3 // 3
@@ -623,30 +626,27 @@ get_3_tups:
     assert // not enough items
     // mutable_native_types/case3_with_mutable_struct.py:91
     // items = self.tup_bag.value.items.copy()
+    extract 8 128
     frame_dig -1
     intc_2 // 16
     *
-    intc_3 // 8
-    +
     dig 1
     swap
     intc_2 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case3_with_mutable_struct.py:96
     // items[start + 1].copy(),
     frame_dig -1
-    intc_0 // 1
+    intc_1 // 1
     +
     // mutable_native_types/case3_with_mutable_struct.py:91
     // items = self.tup_bag.value.items.copy()
     intc_2 // 16
     *
-    intc_3 // 8
-    +
     dig 2
     swap
     intc_2 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case3_with_mutable_struct.py:97
     // items[start + 2].copy(),
     frame_dig -1
@@ -656,12 +656,10 @@ get_3_tups:
     // items = self.tup_bag.value.items.copy()
     intc_2 // 16
     *
-    intc_3 // 8
-    +
     uncover 3
     swap
     intc_2 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case3_with_mutable_struct.py:93-99
     // return FixedArray[NamedTup, typing.Literal[3]](
     //     (
@@ -697,9 +695,9 @@ get_all_tups:
     // mutable_native_types/case3_with_mutable_struct.py:105-106
     // # TODO: improve this once slicing is supported
     // for i in urange(self.tup_bag.value.count):
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
-    intc_1 // 0
+    intc_0 // 0
 
 get_all_tups_for_header@1:
     // mutable_native_types/case3_with_mutable_struct.py:105-106
@@ -711,16 +709,15 @@ get_all_tups_for_header@1:
     bz get_all_tups_after_for@4
     // mutable_native_types/case3_with_mutable_struct.py:104
     // items = self.tup_bag.value.items.copy()
+    frame_dig 1
+    extract 8 128
     frame_dig 3
     dup
+    cover 2
     intc_2 // 16
     *
-    intc_3 // 8
-    +
-    frame_dig 1
-    swap
     intc_2 // 16
-    extract3
+    extract3 // on error: index access is out of bounds
     // mutable_native_types/case3_with_mutable_struct.py:107
     // result.append(items[i].copy())
     frame_dig 0
@@ -728,9 +725,9 @@ get_all_tups_for_header@1:
     uncover 2
     concat // on error: max array length exceeded
     swap
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
-    intc_0 // 1
+    intc_1 // 1
     +
     itob
     extract 6 2
@@ -739,7 +736,7 @@ get_all_tups_for_header@1:
     // mutable_native_types/case3_with_mutable_struct.py:105-106
     // # TODO: improve this once slicing is supported
     // for i in urange(self.tup_bag.value.count):
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 3
     b get_all_tups_for_header@1

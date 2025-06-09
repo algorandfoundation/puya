@@ -395,13 +395,16 @@ increment_payment:
     frame_dig -2
     intc_3 // 48
     *
-    pushint 40 // 40
-    +
     dup2
+    intc_3 // 48
+    extract3 // on error: index access is out of bounds
+    dup
+    pushint 40 // 40
     extract_uint64
     frame_dig -1
     +
     itob
+    replace2 40
     replace3
     bytec_2 // "payments"
     swap
@@ -450,10 +453,11 @@ create_storage:
     concat
     dup
     box_get
+    bury 1
     assert // check self.box_map entry exists
+    intc_0 // 0
     uncover 2
-    replace2 0
-    box_put
+    box_replace
     retsub
 
 
@@ -578,12 +582,12 @@ struct_arg:
     // self.box.value.fixed_a = a
     bytec 6 // "box"
     box_get
+    bury 1
     assert // check self.box exists
-    frame_dig -1
-    replace2 0
     bytec 6 // "box"
-    swap
-    box_put
+    intc_0 // 0
+    frame_dig -1
+    box_replace
     // mutable_native_types/contract.py:166
     // self.box_map[box_key].fixed_a = a
     frame_dig -2
@@ -593,10 +597,11 @@ struct_arg:
     concat
     dup
     box_get
+    bury 1
     assert // check self.box_map entry exists
+    intc_0 // 0
     frame_dig -1
-    replace2 0
-    box_put
+    box_replace
     retsub
 
 

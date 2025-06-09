@@ -219,11 +219,9 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let encoded_value%1#0: bytes[8] = (itob tmp%3#0)
         (box_put "box_a" encoded_value%1#0)
         let (value%0#0: uint64, check%0#0: bool) = (box_len "box_a")
-        (assert check%0#0) // check self.box_a exists
         let tmp%4#0: bool = (== value%0#0 8u)
         (assert tmp%4#0)
         let (value%1#0: uint64, check%1#0: bool) = (box_len "b")
-        (assert check%1#0) // check self.box_b exists
         let tmp%5#0: uint64 = (len b#0)
         let tmp%6#0: bool = (== value%1#0 tmp%5#0)
         (assert tmp%6#0)
@@ -233,7 +231,6 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let tmp%8#0: bool = (== value%2#0 tmp%7#0)
         (assert tmp%8#0)
         let (value%3#0: uint64, check%3#0: bool) = (box_len "box_d")
-        (assert check%3#0) // check self.box_d exists
         let tmp%10#0: uint64 = (len tmp%0#0)
         let tmp%11#0: bool = (== value%3#0 tmp%10#0)
         (assert tmp%11#0)
@@ -309,7 +306,6 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let tmp%76#0: bool = (== tmp%73#0 tmp%75#0)
         (assert tmp%76#0)
         let (value%4#0: uint64, check%4#0: bool) = (box_len "box_large")
-        (assert check%4#0) // check self.box_large exists
         let tmp%77#0: bool = (== value%4#0 6152u)
         (assert tmp%77#0)
         return 
@@ -410,8 +406,6 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:
         (assert tmp%3#0) // no data
         let tmp%4#0: bool = (box_create "blob" 32u)
         (assert tmp%4#0)
-        let (_%4#0: uint64, maybe_exists%4#0: bool) = (box_len "blob")
-        (assert maybe_exists%4#0) // has data
         let sender_bytes#0: bytes = (txn Sender)
         let app_address#0: bytes = (global CurrentApplicationAddress)
         (box_replace "blob" 0u sender_bytes#0)
@@ -435,19 +429,13 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:
         (assert tmp%17#0)
         let tmp%18#0: bytes = (concat sender_bytes#0 app_address#0)
         (box_put "blob" tmp%18#0)
-        let (_%5#0: uint64, maybe_exists%7#0: bool) = (box_len "blob")
-        (assert maybe_exists%7#0) // Blob exists
         let (value%0#0: uint64, check%0#0: bool) = (box_len "blob")
-        (assert check%0#0) // check BoxRef exists
         let tmp%19#0: bool = (== value%0#0 64u)
         (assert tmp%19#0)
         let (value%0#0: uint64, check%0#0: bool) = (box_len "blob")
-        (assert check%0#0) // check BoxRef exists
         let tmp%21#0: bool = (== value%0#0 64u)
         (assert tmp%21#0)
         (box_create "box_ref" 32u)
-        let (_%6#0: uint64, maybe_exists%8#0: bool) = (box_len "box_ref")
-        (assert maybe_exists%8#0) // has data
         (box_del "box_ref")
         return 
 
@@ -457,17 +445,13 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
         (box_del box_0#0)
         (box_put box_0#0 "Hmmmmm")
         let (value%0#0: uint64, check%0#0: bool) = (box_len box_0#0)
-        (assert check%0#0) // check self.box_map entry exists
         let tmp%1#0: bool = (== value%0#0 6u)
         (assert tmp%1#0)
         let (value%1#0: uint64, check%1#0: bool) = (box_len box_0#0)
-        (assert check%1#0) // check self.box_map entry exists
         let (value%2#0: uint64, check%2#0: bool) = (box_len box_0#0)
-        (assert check%2#0) // check Box exists
         let tmp%2#0: bool = (== value%1#0 value%2#0)
         (assert tmp%2#0)
         let (value%3#0: uint64, check%3#0: bool) = (box_len box_0#0)
-        (assert check%3#0) // check self.box_map entry exists
         let tmp%4#0: bool = (== value%3#0 6u)
         (assert tmp%4#0)
         let encoded_value%5#0: bytes[8] = (itob 1u)
@@ -477,8 +461,6 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
         (assert tmp%5#0)
         let tmp%6#0: bool = (! exists#0)
         (assert tmp%6#0)
-        let (_%0#0: uint64, maybe_exists%2#0: bool) = (box_len box_0#0)
-        (assert maybe_exists%2#0)
         (box_del encoded_value%5#0)
         (box_put encoded_value%5#0 "hello")
         (box_del encoded_value%5#0)
