@@ -8,10 +8,7 @@ from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import get_aggregate_element_encoding
 from puya.ir.builder import mem
-from puya.ir.builder._utils import (
-    invoke_puya_lib_subroutine,
-    undefined_value,
-)
+from puya.ir.builder._utils import invoke_puya_lib_subroutine, undefined_value
 from puya.ir.encodings import (
     ArrayEncoding,
     BoolEncoding,
