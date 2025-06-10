@@ -101,6 +101,9 @@ class _AggregateReplacer(MutatingRegisterContext):
         else:
             assert new_read.types == read.types, "expected replacement types to match"
             self.modified = True
+            logger.debug(
+                f"replacing AggregateReadIndex ({read!s}) with {new_read!s}", location=merged_loc
+            )
             return new_read
 
     def visit_box_write(self, write: models.BoxWrite) -> models.BoxWrite | None:
@@ -132,6 +135,10 @@ class _AggregateReplacer(MutatingRegisterContext):
             return write
         else:
             self.modified = True
+            logger.debug(
+                f"replacing AggregateWriteIndex ({write!s}) with {new_write!s}",
+                location=merged_loc,
+            )
             self.add_op(new_write)
             return None
 
@@ -277,149 +284,6 @@ def _combine_box_and_aggregate_read(
         agg_read.element_encoding == new_agg_read.element_encoding
     ), "expected encodings to be preserved"
     return new_agg_read
-
-
-@attrs.frozen
-class _Replace:
-    src: models.Value
-    index: models.Value | int
-    replacement: models.Value
-
-
-@attrs.frozen
-class _Extract:
-    ass: models.Assignment
-    op: models.Intrinsic
-    src: models.Value
-    index: models.Value | int
-    length: models.Value | int
-
-
-def minimize_box_access(_context: CompileContext, subroutine: models.Subroutine) -> bool:
-    # map of box read value -> read op
-    box_gets = dict[models.Register, tuple[models.Intrinsic, models.Assignment]]()
-    box_puts = list[tuple[models.Intrinsic, models.BasicBlock]]()
-    # map of replace registers -> replace params
-    replaces = dict[models.Register, _Replace]()
-    # map of extract registers -> extract params
-    extracts = dict[models.Register, _Extract]()
-
-    #   TODO: optimize repeated extracts
-    #   TODO: optimize repeated replace
-
-    for block in subroutine.body:
-        for op in block.ops:
-            # collect ops related to box read/write
-            if isinstance(op, models.Intrinsic) and op.op == AVMOp.box_put:
-                box_puts.append((op, block))
-            elif isinstance(op, models.Assignment):
-                if not isinstance(op.source, models.Intrinsic):
-                    continue
-                op_code = op.source.op
-                args = op.source.args
-                imm = op.source.immediates
-                if op_code == AVMOp.box_get:
-                    maybe_value, exists = op.targets
-                    box_gets[maybe_value] = op.source, op
-                elif op_code == AVMOp.replace2:
-                    (target,) = op.targets
-                    index_imm = imm[0]
-                    assert isinstance(index_imm, int)
-                    src, replacement = args
-                    replaces[target] = _Replace(
-                        src=src,
-                        index=index_imm,
-                        replacement=replacement,
-                    )
-                elif op_code == AVMOp.replace3:
-                    (target,) = op.targets
-                    src, index, replacement = args
-                    replaces[target] = _Replace(
-                        src=src,
-                        index=index,
-                        replacement=replacement,
-                    )
-                elif op_code == AVMOp.extract3:
-                    (target,) = op.targets
-                    src, index, length = args
-                    extracts[target] = _Extract(
-                        ass=op,
-                        op=op.source,
-                        src=src,
-                        index=index,
-                        length=length,
-                    )
-                elif op_code == AVMOp.extract and imm[1] != 0:
-                    (target,) = op.targets
-                    index_imm, length_imm = imm
-                    assert isinstance(index_imm, int)
-                    assert isinstance(length_imm, int)
-                    (src,) = args
-                    extracts[target] = _Extract(
-                        ass=op,
-                        op=op.source,
-                        src=src,
-                        index=index_imm,
-                        length=length_imm,
-                    )
-    modified = False
-    for extract in extracts.values():
-        try:
-            box_get, box_get_block = box_gets[extract.src]  # type: ignore[index]
-        except KeyError:
-            continue
-        (box_get_key,) = box_get.args
-
-        # have found a box_get -> extract
-        # can replace this with the more efficient box_extract
-        index = _as_uint64(extract.index, extract.op.source_location)
-        length = _as_uint64(extract.length, extract.op.source_location)
-        logger.debug(
-            f"transforming `box_get {box_get_key}; extract` into `box_extract`",
-            location=extract.ass.source_location,
-        )
-        extract.ass.source = models.Intrinsic(
-            op=AVMOp.box_extract,
-            args=[box_get_key, index, length],
-            source_location=extract.op.source_location,
-        )
-        modified = True
-    for box_put, put_block in box_puts:
-        box_put_key, box_put_value = box_put.args
-        try:
-            replace = replaces[box_put_value]  # type: ignore[index]
-        except KeyError:
-            continue
-        try:
-            box_get, _ = box_gets[replace.src]  # type: ignore[index]
-        except KeyError:
-            continue
-        (box_get_key,) = box_get.args
-        # TODO: also check box has not been deleted
-        if box_get_key == box_put_key:
-            # have found a box_get -> replace -> box_put
-            # can replace this with the more efficient box_replace
-            index = _as_uint64(replace.index, box_put.source_location)
-            logger.debug(
-                f"transforming `replace; box_put {box_put_key}` into `box_replace`",
-                location=box_put.source_location,
-            )
-            box_replace = models.Intrinsic(
-                op=AVMOp.box_replace,
-                args=[box_put_key, index, replace.replacement],
-                source_location=box_put.source_location,
-            )
-            put_index = put_block.ops.index(box_put)
-            put_block.ops[put_index] = box_replace
-            modified = True
-    return modified
-
-
-def _as_uint64(value: models.Value | int, loc: SourceLocation | None) -> models.Value:
-    if isinstance(value, int):
-        return models.UInt64Constant(value=value, source_location=loc)
-    else:
-        return value
 
 
 def minimize_box_exist_asserts(_context: CompileContext, subroutine: models.Subroutine) -> bool:
