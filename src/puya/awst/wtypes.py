@@ -569,8 +569,6 @@ class ARC4Struct(_ARC4WTypeInstance):
 
     @fields.validator
     def _fields_validator(self, _attribute: object, value: immutabledict[str, WType]) -> None:
-        if not value:
-            raise CodeError("arc4.Struct needs at least one element")
         unpersistable = [
             field_name for field_name, field_type in value.items() if not field_type.persistable
         ]
