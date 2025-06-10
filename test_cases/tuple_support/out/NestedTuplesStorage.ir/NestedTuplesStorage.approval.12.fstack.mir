@@ -29,15 +29,15 @@ subroutine main:
         assert // check self.tup exists                                                                    maybe_value%1#0
         l-load maybe_value%1#0 0                                                                           maybe_value%1#0
         int 2                                                                                              maybe_value%1#0,2
-        extract_uint64                                                                                     array%item1%1#1
-        itob                                                                                               array%val_as_bytes%2#1
-        byte 0x000a                                                                                        array%val_as_bytes%2#1,0x000a
-        l-load array%val_as_bytes%2#1 1                                                                    0x000a,array%val_as_bytes%2#1
-        concat                                                                                             array%encoded%16#1
-        byte 0x00010000000000000000                                                                        array%encoded%16#1,0x00010000000000000000
-        concat                                                                                             array%encoded%17#1
-        byte "tup"                                                                                         array%encoded%17#1,"tup"
-        l-load array%encoded%17#1 1                                                                        "tup",array%encoded%17#1
+        extract_uint64                                                                                     aggregate%item1%1#1
+        itob                                                                                               aggregate%val_as_bytes%2#1
+        byte 0x000a                                                                                        aggregate%val_as_bytes%2#1,0x000a
+        l-load aggregate%val_as_bytes%2#1 1                                                                0x000a,aggregate%val_as_bytes%2#1
+        concat                                                                                             aggregate%encoded%16#1
+        byte 0x00010000000000000000                                                                        aggregate%encoded%16#1,0x00010000000000000000
+        concat                                                                                             aggregate%encoded%17#1
+        byte "tup"                                                                                         aggregate%encoded%17#1,"tup"
+        l-load aggregate%encoded%17#1 1                                                                    "tup",aggregate%encoded%17#1
         app_global_put
         b main_after_if_else@2
 
@@ -182,25 +182,25 @@ subroutine bootstrap:
         assert // check self.tup exists                                                                    maybe_value%0#0
         l-load maybe_value%0#0 0                                                                           maybe_value%0#0
         int 2                                                                                              maybe_value%0#0,2
-        extract_uint64                                                                                     array%item1%0#1
-        byte "box"                                                                                         array%item1%0#1,"box"
-        box_del                                                                                            array%item1%0#1,{box_del}
-        pop 1                                                                                              array%item1%0#1
-        l-load array%item1%0#1 0                                                                           array%item1%0#1
-        itob                                                                                               array%val_as_bytes%0#1
-        byte 0x000a                                                                                        array%val_as_bytes%0#1,0x000a
-        l-load array%val_as_bytes%0#1 1                                                                    0x000a,array%val_as_bytes%0#1
-        concat                                                                                             array%encoded%4#1
-        byte 0x00010000000000000000                                                                        array%encoded%4#1,0x00010000000000000000
-        concat                                                                                             array%encoded%5#1
-        byte "box"                                                                                         array%encoded%5#1,"box"
-        l-load-copy array%encoded%5#1 1                                                                    array%encoded%5#1,"box",array%encoded%5#1 (copy)
-        box_put                                                                                            array%encoded%5#1
+        extract_uint64                                                                                     aggregate%item1%0#1
+        byte "box"                                                                                         aggregate%item1%0#1,"box"
+        box_del                                                                                            aggregate%item1%0#1,{box_del}
+        pop 1                                                                                              aggregate%item1%0#1
+        l-load aggregate%item1%0#1 0                                                                       aggregate%item1%0#1
+        itob                                                                                               aggregate%val_as_bytes%0#1
+        byte 0x000a                                                                                        aggregate%val_as_bytes%0#1,0x000a
+        l-load aggregate%val_as_bytes%0#1 1                                                                0x000a,aggregate%val_as_bytes%0#1
+        concat                                                                                             aggregate%encoded%4#1
+        byte 0x00010000000000000000                                                                        aggregate%encoded%4#1,0x00010000000000000000
+        concat                                                                                             aggregate%encoded%5#1
+        byte "box"                                                                                         aggregate%encoded%5#1,"box"
+        l-load-copy aggregate%encoded%5#1 1                                                                aggregate%encoded%5#1,"box",aggregate%encoded%5#1 (copy)
+        box_put                                                                                            aggregate%encoded%5#1
         // tuple_support/tuple_storage.py:26
         // self.loc[Txn.sender] = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
-        txn Sender                                                                                         array%encoded%5#1,tmp%0#0
-        byte "loc"                                                                                         array%encoded%5#1,tmp%0#0,"loc"
-        l-load array%encoded%5#1 2                                                                         tmp%0#0,"loc",array%encoded%5#1
+        txn Sender                                                                                         aggregate%encoded%5#1,tmp%0#0
+        byte "loc"                                                                                         aggregate%encoded%5#1,tmp%0#0,"loc"
+        l-load aggregate%encoded%5#1 2                                                                     tmp%0#0,"loc",aggregate%encoded%5#1
         app_local_put
         retsub
 
@@ -216,38 +216,38 @@ subroutine mutate_tuple:
         assert // check self.tup exists                                                                    (𝕡) val#0 | maybe_value%0#0
         l-load-copy maybe_value%0#0 0                                                                      (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy)
         int 0                                                                                              (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),0
-        extract_uint16                                                                                     (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1
-        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1,maybe_value%0#0 (copy)
-        len                                                                                                (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1,array%len%0#1
-        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1,array%len%0#1,maybe_value%0#0 (copy)
-        l-load array%extract_uint16%0#1 2                                                                  (𝕡) val#0 | maybe_value%0#0,array%len%0#1,maybe_value%0#0 (copy),array%extract_uint16%0#1
-        l-load array%len%0#1 2                                                                             (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),array%extract_uint16%0#1,array%len%0#1
-        substring3                                                                                         (𝕡) val#0 | maybe_value%0#0,array%substring3%0#1
-        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | array%substring3%0#1,maybe_value%0#0
-        int 2                                                                                              (𝕡) val#0 | array%substring3%0#1,maybe_value%0#0,2
-        extract_uint64                                                                                     (𝕡) val#0 | array%substring3%0#1,array%item1%0#1
-        l-load-copy array%substring3%0#1 1                                                                 (𝕡) val#0 | array%substring3%0#1,array%item1%0#1,array%substring3%0#1 (copy)
-        p-load val#0                                                                                       (𝕡) val#0 | array%substring3%0#1,array%item1%0#1,array%substring3%0#1 (copy),val#0 (copy)
-        concat // on error: max array length exceeded                                                      (𝕡) val#0 | array%substring3%0#1,array%item1%0#1,concat%0#0
-        l-load array%substring3%0#1 2                                                                      (𝕡) val#0 | array%item1%0#1,concat%0#0,array%substring3%0#1
-        int 0                                                                                              (𝕡) val#0 | array%item1%0#1,concat%0#0,array%substring3%0#1,0
-        extract_uint16                                                                                     (𝕡) val#0 | array%item1%0#1,concat%0#0,extract_uint16%0#0
-        int 1                                                                                              (𝕡) val#0 | array%item1%0#1,concat%0#0,extract_uint16%0#0,1
-        +                                                                                                  (𝕡) val#0 | array%item1%0#1,concat%0#0,add%0#0
-        itob                                                                                               (𝕡) val#0 | array%item1%0#1,concat%0#0,as_bytes%0#0
-        extract 6 2                                                                                        (𝕡) val#0 | array%item1%0#1,concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                                (𝕡) val#0 | array%item1%0#1,as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | array%item1%0#1,concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                                         (𝕡) val#0 | array%item1%0#1,replace%0#0
-        l-load array%item1%0#1 1                                                                           (𝕡) val#0 | replace%0#0,array%item1%0#1
-        itob                                                                                               (𝕡) val#0 | replace%0#0,array%val_as_bytes%0#1
-        byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,array%val_as_bytes%0#1,0x000a
-        l-load array%val_as_bytes%0#1 1                                                                    (𝕡) val#0 | replace%0#0,0x000a,array%val_as_bytes%0#1
-        concat                                                                                             (𝕡) val#0 | replace%0#0,array%encoded%3#1
-        l-load replace%0#0 1                                                                               (𝕡) val#0 | array%encoded%3#1,replace%0#0
-        concat                                                                                             (𝕡) val#0 | array%encoded%4#1
-        byte "tup"                                                                                         (𝕡) val#0 | array%encoded%4#1,"tup"
-        l-load array%encoded%4#1 1                                                                         (𝕡) val#0 | "tup",array%encoded%4#1
+        extract_uint16                                                                                     (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1
+        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1,maybe_value%0#0 (copy)
+        len                                                                                                (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1,aggregate%len%0#1
+        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1,aggregate%len%0#1,maybe_value%0#0 (copy)
+        l-load aggregate%extract_uint16%0#1 2                                                              (𝕡) val#0 | maybe_value%0#0,aggregate%len%0#1,maybe_value%0#0 (copy),aggregate%extract_uint16%0#1
+        l-load aggregate%len%0#1 2                                                                         (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#1,aggregate%len%0#1
+        substring3                                                                                         (𝕡) val#0 | maybe_value%0#0,aggregate%substring3%0#1
+        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | aggregate%substring3%0#1,maybe_value%0#0
+        int 2                                                                                              (𝕡) val#0 | aggregate%substring3%0#1,maybe_value%0#0,2
+        extract_uint64                                                                                     (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1
+        l-load-copy aggregate%substring3%0#1 1                                                             (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1,aggregate%substring3%0#1 (copy)
+        p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1,aggregate%substring3%0#1 (copy),val#0 (copy)
+        concat // on error: max array length exceeded                                                      (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1,concat%0#0
+        l-load aggregate%substring3%0#1 2                                                                  (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,aggregate%substring3%0#1
+        int 0                                                                                              (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,aggregate%substring3%0#1,0
+        extract_uint16                                                                                     (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,extract_uint16%0#0
+        int 1                                                                                              (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                  (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,add%0#0
+        itob                                                                                               (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                        (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                                (𝕡) val#0 | aggregate%item1%0#1,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                         (𝕡) val#0 | aggregate%item1%0#1,replace%0#0
+        l-load aggregate%item1%0#1 1                                                                       (𝕡) val#0 | replace%0#0,aggregate%item1%0#1
+        itob                                                                                               (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#1
+        byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#1,0x000a
+        l-load aggregate%val_as_bytes%0#1 1                                                                (𝕡) val#0 | replace%0#0,0x000a,aggregate%val_as_bytes%0#1
+        concat                                                                                             (𝕡) val#0 | replace%0#0,aggregate%encoded%3#1
+        l-load replace%0#0 1                                                                               (𝕡) val#0 | aggregate%encoded%3#1,replace%0#0
+        concat                                                                                             (𝕡) val#0 | aggregate%encoded%4#1
+        byte "tup"                                                                                         (𝕡) val#0 | aggregate%encoded%4#1,"tup"
+        l-load aggregate%encoded%4#1 1                                                                     (𝕡) val#0 | "tup",aggregate%encoded%4#1
         app_global_put                                                                                     (𝕡) val#0 |
         retsub
 
@@ -262,41 +262,41 @@ subroutine mutate_box:
         assert // check self.box exists                                                                    (𝕡) val#0 | maybe_value%0#0
         l-load-copy maybe_value%0#0 0                                                                      (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy)
         int 0                                                                                              (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),0
-        extract_uint16                                                                                     (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1
-        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1,maybe_value%0#0 (copy)
-        len                                                                                                (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1,array%len%0#1
-        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1,array%len%0#1,maybe_value%0#0 (copy)
-        l-load array%extract_uint16%0#1 2                                                                  (𝕡) val#0 | maybe_value%0#0,array%len%0#1,maybe_value%0#0 (copy),array%extract_uint16%0#1
-        l-load array%len%0#1 2                                                                             (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),array%extract_uint16%0#1,array%len%0#1
-        substring3                                                                                         (𝕡) val#0 | maybe_value%0#0,array%substring3%0#1
-        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | array%substring3%0#1,maybe_value%0#0
-        int 2                                                                                              (𝕡) val#0 | array%substring3%0#1,maybe_value%0#0,2
-        extract_uint64                                                                                     (𝕡) val#0 | array%substring3%0#1,array%item1%0#1
-        l-load-copy array%substring3%0#1 1                                                                 (𝕡) val#0 | array%substring3%0#1,array%item1%0#1,array%substring3%0#1 (copy)
-        p-load val#0                                                                                       (𝕡) val#0 | array%substring3%0#1,array%item1%0#1,array%substring3%0#1 (copy),val#0 (copy)
-        concat // on error: max array length exceeded                                                      (𝕡) val#0 | array%substring3%0#1,array%item1%0#1,concat%0#0
-        l-load array%substring3%0#1 2                                                                      (𝕡) val#0 | array%item1%0#1,concat%0#0,array%substring3%0#1
-        int 0                                                                                              (𝕡) val#0 | array%item1%0#1,concat%0#0,array%substring3%0#1,0
-        extract_uint16                                                                                     (𝕡) val#0 | array%item1%0#1,concat%0#0,extract_uint16%0#0
-        int 1                                                                                              (𝕡) val#0 | array%item1%0#1,concat%0#0,extract_uint16%0#0,1
-        +                                                                                                  (𝕡) val#0 | array%item1%0#1,concat%0#0,add%0#0
-        itob                                                                                               (𝕡) val#0 | array%item1%0#1,concat%0#0,as_bytes%0#0
-        extract 6 2                                                                                        (𝕡) val#0 | array%item1%0#1,concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                                (𝕡) val#0 | array%item1%0#1,as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | array%item1%0#1,concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                                         (𝕡) val#0 | array%item1%0#1,replace%0#0
-        byte "box"                                                                                         (𝕡) val#0 | array%item1%0#1,replace%0#0,"box"
-        box_del                                                                                            (𝕡) val#0 | array%item1%0#1,replace%0#0,{box_del}
-        pop 1                                                                                              (𝕡) val#0 | array%item1%0#1,replace%0#0
-        l-load array%item1%0#1 1                                                                           (𝕡) val#0 | replace%0#0,array%item1%0#1
-        itob                                                                                               (𝕡) val#0 | replace%0#0,array%val_as_bytes%0#1
-        byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,array%val_as_bytes%0#1,0x000a
-        l-load array%val_as_bytes%0#1 1                                                                    (𝕡) val#0 | replace%0#0,0x000a,array%val_as_bytes%0#1
-        concat                                                                                             (𝕡) val#0 | replace%0#0,array%encoded%3#1
-        l-load replace%0#0 1                                                                               (𝕡) val#0 | array%encoded%3#1,replace%0#0
-        concat                                                                                             (𝕡) val#0 | array%encoded%4#1
-        byte "box"                                                                                         (𝕡) val#0 | array%encoded%4#1,"box"
-        l-load array%encoded%4#1 1                                                                         (𝕡) val#0 | "box",array%encoded%4#1
+        extract_uint16                                                                                     (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1
+        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1,maybe_value%0#0 (copy)
+        len                                                                                                (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1,aggregate%len%0#1
+        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1,aggregate%len%0#1,maybe_value%0#0 (copy)
+        l-load aggregate%extract_uint16%0#1 2                                                              (𝕡) val#0 | maybe_value%0#0,aggregate%len%0#1,maybe_value%0#0 (copy),aggregate%extract_uint16%0#1
+        l-load aggregate%len%0#1 2                                                                         (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#1,aggregate%len%0#1
+        substring3                                                                                         (𝕡) val#0 | maybe_value%0#0,aggregate%substring3%0#1
+        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | aggregate%substring3%0#1,maybe_value%0#0
+        int 2                                                                                              (𝕡) val#0 | aggregate%substring3%0#1,maybe_value%0#0,2
+        extract_uint64                                                                                     (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1
+        l-load-copy aggregate%substring3%0#1 1                                                             (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1,aggregate%substring3%0#1 (copy)
+        p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1,aggregate%substring3%0#1 (copy),val#0 (copy)
+        concat // on error: max array length exceeded                                                      (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1,concat%0#0
+        l-load aggregate%substring3%0#1 2                                                                  (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,aggregate%substring3%0#1
+        int 0                                                                                              (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,aggregate%substring3%0#1,0
+        extract_uint16                                                                                     (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,extract_uint16%0#0
+        int 1                                                                                              (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                  (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,add%0#0
+        itob                                                                                               (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                        (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                                (𝕡) val#0 | aggregate%item1%0#1,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                         (𝕡) val#0 | aggregate%item1%0#1,replace%0#0
+        byte "box"                                                                                         (𝕡) val#0 | aggregate%item1%0#1,replace%0#0,"box"
+        box_del                                                                                            (𝕡) val#0 | aggregate%item1%0#1,replace%0#0,{box_del}
+        pop 1                                                                                              (𝕡) val#0 | aggregate%item1%0#1,replace%0#0
+        l-load aggregate%item1%0#1 1                                                                       (𝕡) val#0 | replace%0#0,aggregate%item1%0#1
+        itob                                                                                               (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#1
+        byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#1,0x000a
+        l-load aggregate%val_as_bytes%0#1 1                                                                (𝕡) val#0 | replace%0#0,0x000a,aggregate%val_as_bytes%0#1
+        concat                                                                                             (𝕡) val#0 | replace%0#0,aggregate%encoded%3#1
+        l-load replace%0#0 1                                                                               (𝕡) val#0 | aggregate%encoded%3#1,replace%0#0
+        concat                                                                                             (𝕡) val#0 | aggregate%encoded%4#1
+        byte "box"                                                                                         (𝕡) val#0 | aggregate%encoded%4#1,"box"
+        l-load aggregate%encoded%4#1 1                                                                     (𝕡) val#0 | "box",aggregate%encoded%4#1
         box_put                                                                                            (𝕡) val#0 |
         retsub
 
@@ -312,38 +312,38 @@ subroutine mutate_global:
         assert // check self.glob exists                                                                   (𝕡) val#0 | maybe_value%0#0
         l-load-copy maybe_value%0#0 0                                                                      (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy)
         int 0                                                                                              (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),0
-        extract_uint16                                                                                     (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1
-        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1,maybe_value%0#0 (copy)
-        len                                                                                                (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1,array%len%0#1
-        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | maybe_value%0#0,array%extract_uint16%0#1,array%len%0#1,maybe_value%0#0 (copy)
-        l-load array%extract_uint16%0#1 2                                                                  (𝕡) val#0 | maybe_value%0#0,array%len%0#1,maybe_value%0#0 (copy),array%extract_uint16%0#1
-        l-load array%len%0#1 2                                                                             (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),array%extract_uint16%0#1,array%len%0#1
-        substring3                                                                                         (𝕡) val#0 | maybe_value%0#0,array%substring3%0#1
-        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | array%substring3%0#1,maybe_value%0#0
-        int 2                                                                                              (𝕡) val#0 | array%substring3%0#1,maybe_value%0#0,2
-        extract_uint64                                                                                     (𝕡) val#0 | array%substring3%0#1,array%item1%0#1
-        l-load-copy array%substring3%0#1 1                                                                 (𝕡) val#0 | array%substring3%0#1,array%item1%0#1,array%substring3%0#1 (copy)
-        p-load val#0                                                                                       (𝕡) val#0 | array%substring3%0#1,array%item1%0#1,array%substring3%0#1 (copy),val#0 (copy)
-        concat // on error: max array length exceeded                                                      (𝕡) val#0 | array%substring3%0#1,array%item1%0#1,concat%0#0
-        l-load array%substring3%0#1 2                                                                      (𝕡) val#0 | array%item1%0#1,concat%0#0,array%substring3%0#1
-        int 0                                                                                              (𝕡) val#0 | array%item1%0#1,concat%0#0,array%substring3%0#1,0
-        extract_uint16                                                                                     (𝕡) val#0 | array%item1%0#1,concat%0#0,extract_uint16%0#0
-        int 1                                                                                              (𝕡) val#0 | array%item1%0#1,concat%0#0,extract_uint16%0#0,1
-        +                                                                                                  (𝕡) val#0 | array%item1%0#1,concat%0#0,add%0#0
-        itob                                                                                               (𝕡) val#0 | array%item1%0#1,concat%0#0,as_bytes%0#0
-        extract 6 2                                                                                        (𝕡) val#0 | array%item1%0#1,concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                                (𝕡) val#0 | array%item1%0#1,as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | array%item1%0#1,concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                                         (𝕡) val#0 | array%item1%0#1,replace%0#0
-        l-load array%item1%0#1 1                                                                           (𝕡) val#0 | replace%0#0,array%item1%0#1
-        itob                                                                                               (𝕡) val#0 | replace%0#0,array%val_as_bytes%0#1
-        byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,array%val_as_bytes%0#1,0x000a
-        l-load array%val_as_bytes%0#1 1                                                                    (𝕡) val#0 | replace%0#0,0x000a,array%val_as_bytes%0#1
-        concat                                                                                             (𝕡) val#0 | replace%0#0,array%encoded%3#1
-        l-load replace%0#0 1                                                                               (𝕡) val#0 | array%encoded%3#1,replace%0#0
-        concat                                                                                             (𝕡) val#0 | array%encoded%4#1
-        byte "glob"                                                                                        (𝕡) val#0 | array%encoded%4#1,"glob"
-        l-load array%encoded%4#1 1                                                                         (𝕡) val#0 | "glob",array%encoded%4#1
+        extract_uint16                                                                                     (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1
+        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1,maybe_value%0#0 (copy)
+        len                                                                                                (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1,aggregate%len%0#1
+        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#1,aggregate%len%0#1,maybe_value%0#0 (copy)
+        l-load aggregate%extract_uint16%0#1 2                                                              (𝕡) val#0 | maybe_value%0#0,aggregate%len%0#1,maybe_value%0#0 (copy),aggregate%extract_uint16%0#1
+        l-load aggregate%len%0#1 2                                                                         (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#1,aggregate%len%0#1
+        substring3                                                                                         (𝕡) val#0 | maybe_value%0#0,aggregate%substring3%0#1
+        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | aggregate%substring3%0#1,maybe_value%0#0
+        int 2                                                                                              (𝕡) val#0 | aggregate%substring3%0#1,maybe_value%0#0,2
+        extract_uint64                                                                                     (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1
+        l-load-copy aggregate%substring3%0#1 1                                                             (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1,aggregate%substring3%0#1 (copy)
+        p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1,aggregate%substring3%0#1 (copy),val#0 (copy)
+        concat // on error: max array length exceeded                                                      (𝕡) val#0 | aggregate%substring3%0#1,aggregate%item1%0#1,concat%0#0
+        l-load aggregate%substring3%0#1 2                                                                  (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,aggregate%substring3%0#1
+        int 0                                                                                              (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,aggregate%substring3%0#1,0
+        extract_uint16                                                                                     (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,extract_uint16%0#0
+        int 1                                                                                              (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                  (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,add%0#0
+        itob                                                                                               (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                        (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                                (𝕡) val#0 | aggregate%item1%0#1,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | aggregate%item1%0#1,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                         (𝕡) val#0 | aggregate%item1%0#1,replace%0#0
+        l-load aggregate%item1%0#1 1                                                                       (𝕡) val#0 | replace%0#0,aggregate%item1%0#1
+        itob                                                                                               (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#1
+        byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#1,0x000a
+        l-load aggregate%val_as_bytes%0#1 1                                                                (𝕡) val#0 | replace%0#0,0x000a,aggregate%val_as_bytes%0#1
+        concat                                                                                             (𝕡) val#0 | replace%0#0,aggregate%encoded%3#1
+        l-load replace%0#0 1                                                                               (𝕡) val#0 | aggregate%encoded%3#1,replace%0#0
+        concat                                                                                             (𝕡) val#0 | aggregate%encoded%4#1
+        byte "glob"                                                                                        (𝕡) val#0 | aggregate%encoded%4#1,"glob"
+        l-load aggregate%encoded%4#1 1                                                                     (𝕡) val#0 | "glob",aggregate%encoded%4#1
         app_global_put                                                                                     (𝕡) val#0 |
         retsub
 
@@ -361,39 +361,39 @@ subroutine mutate_local:
         assert // check self.loc exists for account                                                        (𝕡) val#0 | tmp%0#0,maybe_value%0#0
         l-load-copy maybe_value%0#0 0                                                                      (𝕡) val#0 | tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy)
         int 0                                                                                              (𝕡) val#0 | tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy),0
-        extract_uint16                                                                                     (𝕡) val#0 | tmp%0#0,maybe_value%0#0,array%extract_uint16%0#1
-        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | tmp%0#0,maybe_value%0#0,array%extract_uint16%0#1,maybe_value%0#0 (copy)
-        len                                                                                                (𝕡) val#0 | tmp%0#0,maybe_value%0#0,array%extract_uint16%0#1,array%len%0#1
-        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | tmp%0#0,maybe_value%0#0,array%extract_uint16%0#1,array%len%0#1,maybe_value%0#0 (copy)
-        l-load array%extract_uint16%0#1 2                                                                  (𝕡) val#0 | tmp%0#0,maybe_value%0#0,array%len%0#1,maybe_value%0#0 (copy),array%extract_uint16%0#1
-        l-load array%len%0#1 2                                                                             (𝕡) val#0 | tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy),array%extract_uint16%0#1,array%len%0#1
-        substring3                                                                                         (𝕡) val#0 | tmp%0#0,maybe_value%0#0,array%substring3%0#1
-        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | tmp%0#0,array%substring3%0#1,maybe_value%0#0
-        int 2                                                                                              (𝕡) val#0 | tmp%0#0,array%substring3%0#1,maybe_value%0#0,2
-        extract_uint64                                                                                     (𝕡) val#0 | tmp%0#0,array%substring3%0#1,array%item1%0#1
-        l-load-copy array%substring3%0#1 1                                                                 (𝕡) val#0 | tmp%0#0,array%substring3%0#1,array%item1%0#1,array%substring3%0#1 (copy)
-        p-load val#0                                                                                       (𝕡) val#0 | tmp%0#0,array%substring3%0#1,array%item1%0#1,array%substring3%0#1 (copy),val#0 (copy)
-        concat // on error: max array length exceeded                                                      (𝕡) val#0 | tmp%0#0,array%substring3%0#1,array%item1%0#1,concat%0#0
-        l-load array%substring3%0#1 2                                                                      (𝕡) val#0 | tmp%0#0,array%item1%0#1,concat%0#0,array%substring3%0#1
-        int 0                                                                                              (𝕡) val#0 | tmp%0#0,array%item1%0#1,concat%0#0,array%substring3%0#1,0
-        extract_uint16                                                                                     (𝕡) val#0 | tmp%0#0,array%item1%0#1,concat%0#0,extract_uint16%0#0
-        int 1                                                                                              (𝕡) val#0 | tmp%0#0,array%item1%0#1,concat%0#0,extract_uint16%0#0,1
-        +                                                                                                  (𝕡) val#0 | tmp%0#0,array%item1%0#1,concat%0#0,add%0#0
-        itob                                                                                               (𝕡) val#0 | tmp%0#0,array%item1%0#1,concat%0#0,as_bytes%0#0
-        extract 6 2                                                                                        (𝕡) val#0 | tmp%0#0,array%item1%0#1,concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                                                (𝕡) val#0 | tmp%0#0,array%item1%0#1,as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | tmp%0#0,array%item1%0#1,concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                                         (𝕡) val#0 | tmp%0#0,array%item1%0#1,replace%0#0
-        l-load array%item1%0#1 1                                                                           (𝕡) val#0 | tmp%0#0,replace%0#0,array%item1%0#1
-        itob                                                                                               (𝕡) val#0 | tmp%0#0,replace%0#0,array%val_as_bytes%0#1
-        byte 0x000a                                                                                        (𝕡) val#0 | tmp%0#0,replace%0#0,array%val_as_bytes%0#1,0x000a
-        l-load array%val_as_bytes%0#1 1                                                                    (𝕡) val#0 | tmp%0#0,replace%0#0,0x000a,array%val_as_bytes%0#1
-        concat                                                                                             (𝕡) val#0 | tmp%0#0,replace%0#0,array%encoded%3#1
-        l-load replace%0#0 1                                                                               (𝕡) val#0 | tmp%0#0,array%encoded%3#1,replace%0#0
-        concat                                                                                             (𝕡) val#0 | tmp%0#0,array%encoded%4#1
-        l-load tmp%0#0 1                                                                                   (𝕡) val#0 | array%encoded%4#1,tmp%0#0
-        byte "loc"                                                                                         (𝕡) val#0 | array%encoded%4#1,tmp%0#0,"loc"
-        l-load array%encoded%4#1 2                                                                         (𝕡) val#0 | tmp%0#0,"loc",array%encoded%4#1
+        extract_uint16                                                                                     (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#1
+        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#1,maybe_value%0#0 (copy)
+        len                                                                                                (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#1,aggregate%len%0#1
+        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#1,aggregate%len%0#1,maybe_value%0#0 (copy)
+        l-load aggregate%extract_uint16%0#1 2                                                              (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%len%0#1,maybe_value%0#0 (copy),aggregate%extract_uint16%0#1
+        l-load aggregate%len%0#1 2                                                                         (𝕡) val#0 | tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#1,aggregate%len%0#1
+        substring3                                                                                         (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%substring3%0#1
+        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#1,maybe_value%0#0
+        int 2                                                                                              (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#1,maybe_value%0#0,2
+        extract_uint64                                                                                     (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#1,aggregate%item1%0#1
+        l-load-copy aggregate%substring3%0#1 1                                                             (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#1,aggregate%item1%0#1,aggregate%substring3%0#1 (copy)
+        p-load val#0                                                                                       (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#1,aggregate%item1%0#1,aggregate%substring3%0#1 (copy),val#0 (copy)
+        concat // on error: max array length exceeded                                                      (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#1,aggregate%item1%0#1,concat%0#0
+        l-load aggregate%substring3%0#1 2                                                                  (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,concat%0#0,aggregate%substring3%0#1
+        int 0                                                                                              (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,concat%0#0,aggregate%substring3%0#1,0
+        extract_uint16                                                                                     (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,concat%0#0,extract_uint16%0#0
+        int 1                                                                                              (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                  (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,concat%0#0,add%0#0
+        itob                                                                                               (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                        (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                                (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                         (𝕡) val#0 | tmp%0#0,aggregate%item1%0#1,replace%0#0
+        l-load aggregate%item1%0#1 1                                                                       (𝕡) val#0 | tmp%0#0,replace%0#0,aggregate%item1%0#1
+        itob                                                                                               (𝕡) val#0 | tmp%0#0,replace%0#0,aggregate%val_as_bytes%0#1
+        byte 0x000a                                                                                        (𝕡) val#0 | tmp%0#0,replace%0#0,aggregate%val_as_bytes%0#1,0x000a
+        l-load aggregate%val_as_bytes%0#1 1                                                                (𝕡) val#0 | tmp%0#0,replace%0#0,0x000a,aggregate%val_as_bytes%0#1
+        concat                                                                                             (𝕡) val#0 | tmp%0#0,replace%0#0,aggregate%encoded%3#1
+        l-load replace%0#0 1                                                                               (𝕡) val#0 | tmp%0#0,aggregate%encoded%3#1,replace%0#0
+        concat                                                                                             (𝕡) val#0 | tmp%0#0,aggregate%encoded%4#1
+        l-load tmp%0#0 1                                                                                   (𝕡) val#0 | aggregate%encoded%4#1,tmp%0#0
+        byte "loc"                                                                                         (𝕡) val#0 | aggregate%encoded%4#1,tmp%0#0,"loc"
+        l-load aggregate%encoded%4#1 2                                                                     (𝕡) val#0 | tmp%0#0,"loc",aggregate%encoded%4#1
         app_local_put                                                                                      (𝕡) val#0 |
         retsub
 

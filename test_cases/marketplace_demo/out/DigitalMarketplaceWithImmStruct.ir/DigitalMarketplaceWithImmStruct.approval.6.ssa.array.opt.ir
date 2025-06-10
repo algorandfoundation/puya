@@ -17,7 +17,7 @@ main test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarket
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let array%val_as_bytes%0#1: bytes[8] = (itob 50500u)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob 50500u)
         let tmp%9#0: bytes = 0x151f7c75000000000000c544
         (log 0x151f7c75000000000000c544)
         let test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.__puya_arc4_router__%0#0: bool = 1u
@@ -227,10 +227,10 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         (assert tmp%8#0)
         let tmp%9#0: account = (txn Sender)
         let tmp%10#0: uint64 = ((gtxns XferAsset) xfer#0)
-        let array%val_as_bytes%0#1: bytes[8] = (itob tmp%10#0)
-        let array%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%9#0 array%val_as_bytes%0#1)
-        let array%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
-        let key#0: Encoded(uint8[32],uint64,uint64) = (concat array%encoded%1#1 array%val_as_bytes%1#1)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%10#0)
+        let aggregate%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%9#0 aggregate%val_as_bytes%0#1)
+        let aggregate%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
+        let key#0: Encoded(uint8[32],uint64,uint64) = (concat aggregate%encoded%1#1 aggregate%val_as_bytes%1#1)
         let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_prefixed_key%0#0)
         let tmp%12#0: bool = (! maybe_exists%0#0)
@@ -246,26 +246,26 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%19#0: uint64 = ((gtxns AssetAmount) xfer#0)
         (assert tmp%19#0)
         let tmp%22#0: account = (global ZeroAddress)
-        let array%val_as_bytes%2#1: bytes[8] = (itob tmp%19#0)
-        let array%val_as_bytes%3#1: bytes[8] = (itob unitary_price#0)
-        let array%encoded%5#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%2#1 array%val_as_bytes%3#1)
-        let array%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat array%encoded%5#1 tmp%22#0)
-        let array%val_as_bytes%4#1: bytes[8] = (itob 0u)
-        let array%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat array%encoded%6#1 array%val_as_bytes%4#1)
-        let array%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat array%encoded%7#1 array%val_as_bytes%4#1)
-        (box_put box_prefixed_key%0#0 array%encoded%8#1)
+        let aggregate%val_as_bytes%2#1: bytes[8] = (itob tmp%19#0)
+        let aggregate%val_as_bytes%3#1: bytes[8] = (itob unitary_price#0)
+        let aggregate%encoded%5#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#1 aggregate%val_as_bytes%3#1)
+        let aggregate%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat aggregate%encoded%5#1 tmp%22#0)
+        let aggregate%val_as_bytes%4#1: bytes[8] = (itob 0u)
+        let aggregate%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat aggregate%encoded%6#1 aggregate%val_as_bytes%4#1)
+        let aggregate%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat aggregate%encoded%7#1 aggregate%val_as_bytes%4#1)
+        (box_put box_prefixed_key%0#0 aggregate%encoded%8#1)
         return 
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.deposit(xfer: uint64, nonce: uint64) -> void:
     block@0: // L120
         let tmp%0#0: account = (txn Sender)
         let tmp%1#0: uint64 = ((gtxns XferAsset) xfer#0)
-        let array%encoded%0#1: Encoded(uint8[32]) = tmp%0#0
-        let array%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
-        let array%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%0#0 array%val_as_bytes%0#1)
-        let array%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
-        let array%encoded%2#1: Encoded(uint8[32],uint64,uint64) = (concat array%encoded%1#1 array%val_as_bytes%1#1)
-        let key#0: Encoded(uint8[32],uint64,uint64) = array%encoded%2#1
+        let aggregate%encoded%0#1: Encoded(uint8[32]) = tmp%0#0
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
+        let aggregate%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%0#0 aggregate%val_as_bytes%0#1)
+        let aggregate%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
+        let aggregate%encoded%2#1: Encoded(uint8[32],uint64,uint64) = (concat aggregate%encoded%1#1 aggregate%val_as_bytes%1#1)
+        let key#0: Encoded(uint8[32],uint64,uint64) = aggregate%encoded%2#1
         let tmp%3#0: account = ((gtxns Sender) xfer#0)
         let tmp%4#0: account = (txn Sender)
         let tmp%5#0: bool = (== tmp%3#0 tmp%4#0)
@@ -276,74 +276,74 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         (assert tmp%8#0)
         let tmp%9#0: uint64 = ((gtxns AssetAmount) xfer#0)
         (assert tmp%9#0)
-        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 array%encoded%2#1)
+        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 aggregate%encoded%2#1)
         let (existing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64), maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.listings entry exists
-        let array%extract%0#1: bytes = ((extract 48 8) existing#0)
+        let aggregate%extract%0#1: bytes = ((extract 48 8) existing#0)
         let values%0#0: uint64 = (extract_uint64 existing#0 48u)
-        let array%extract%1#1: bytes = ((extract 56 8) existing#0)
+        let aggregate%extract%1#1: bytes = ((extract 56 8) existing#0)
         let values%1#0: uint64 = (extract_uint64 existing#0 56u)
-        let array%extract%2#1: bytes = ((extract 16 32) existing#0)
-        let array%extract%3#1: bytes = ((extract 8 8) existing#0)
+        let aggregate%extract%2#1: bytes = ((extract 16 32) existing#0)
+        let aggregate%extract%3#1: bytes = ((extract 8 8) existing#0)
         let values%3#0: uint64 = (extract_uint64 existing#0 8u)
-        let array%extract%4#1: bytes = ((extract 0 8) existing#0)
+        let aggregate%extract%4#1: bytes = ((extract 0 8) existing#0)
         let values%4#0: uint64 = (extract_uint64 existing#0 0u)
         let tmp%12#0: uint64 = (+ values%4#0 tmp%9#0)
-        let array%val_as_bytes%2#1: bytes[8] = (itob tmp%12#0)
-        let array%encoded%4#1: Encoded(uint64) = array%val_as_bytes%2#1
-        let array%val_as_bytes%3#1: bytes[8] = (itob values%3#0)
-        let array%encoded%5#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%2#1 array%val_as_bytes%3#1)
-        let array%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat array%encoded%5#1 array%extract%2#1)
-        let array%val_as_bytes%4#1: bytes[8] = (itob values%0#0)
-        let array%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat array%encoded%6#1 array%val_as_bytes%4#1)
-        let array%val_as_bytes%5#1: bytes[8] = (itob values%1#0)
-        let array%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat array%encoded%7#1 array%val_as_bytes%5#1)
-        let array%encoded%9#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = array%encoded%8#1
-        (box_put box_prefixed_key%0#0 array%encoded%8#1)
+        let aggregate%val_as_bytes%2#1: bytes[8] = (itob tmp%12#0)
+        let aggregate%encoded%4#1: Encoded(uint64) = aggregate%val_as_bytes%2#1
+        let aggregate%val_as_bytes%3#1: bytes[8] = (itob values%3#0)
+        let aggregate%encoded%5#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#1 aggregate%val_as_bytes%3#1)
+        let aggregate%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat aggregate%encoded%5#1 aggregate%extract%2#1)
+        let aggregate%val_as_bytes%4#1: bytes[8] = (itob values%0#0)
+        let aggregate%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat aggregate%encoded%6#1 aggregate%val_as_bytes%4#1)
+        let aggregate%val_as_bytes%5#1: bytes[8] = (itob values%1#0)
+        let aggregate%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat aggregate%encoded%7#1 aggregate%val_as_bytes%5#1)
+        let aggregate%encoded%9#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = aggregate%encoded%8#1
+        (box_put box_prefixed_key%0#0 aggregate%encoded%8#1)
         return 
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.set_price(asset: uint64, nonce: uint64, unitary_price: uint64) -> void:
     block@0: // L137
         let tmp%0#0: account = (txn Sender)
-        let array%encoded%0#1: Encoded(uint8[32]) = tmp%0#0
-        let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
-        let array%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%0#0 array%val_as_bytes%0#1)
-        let array%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
-        let array%encoded%2#1: Encoded(uint8[32],uint64,uint64) = (concat array%encoded%1#1 array%val_as_bytes%1#1)
-        let key#0: Encoded(uint8[32],uint64,uint64) = array%encoded%2#1
-        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 array%encoded%2#1)
+        let aggregate%encoded%0#1: Encoded(uint8[32]) = tmp%0#0
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob asset#0)
+        let aggregate%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%0#0 aggregate%val_as_bytes%0#1)
+        let aggregate%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
+        let aggregate%encoded%2#1: Encoded(uint8[32],uint64,uint64) = (concat aggregate%encoded%1#1 aggregate%val_as_bytes%1#1)
+        let key#0: Encoded(uint8[32],uint64,uint64) = aggregate%encoded%2#1
+        let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 aggregate%encoded%2#1)
         let (existing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64), maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.listings entry exists
-        let array%extract%0#1: bytes = ((extract 48 8) existing#0)
+        let aggregate%extract%0#1: bytes = ((extract 48 8) existing#0)
         let values%0#0: uint64 = (extract_uint64 existing#0 48u)
-        let array%extract%1#1: bytes = ((extract 56 8) existing#0)
+        let aggregate%extract%1#1: bytes = ((extract 56 8) existing#0)
         let values%1#0: uint64 = (extract_uint64 existing#0 56u)
-        let array%extract%2#1: bytes = ((extract 16 32) existing#0)
-        let array%extract%3#1: bytes = ((extract 0 8) existing#0)
+        let aggregate%extract%2#1: bytes = ((extract 16 32) existing#0)
+        let aggregate%extract%3#1: bytes = ((extract 0 8) existing#0)
         let values%3#0: uint64 = (extract_uint64 existing#0 0u)
-        let array%val_as_bytes%2#1: bytes[8] = (itob values%3#0)
-        let array%encoded%4#1: Encoded(uint64) = array%val_as_bytes%2#1
-        let array%val_as_bytes%3#1: bytes[8] = (itob unitary_price#0)
-        let array%encoded%5#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%2#1 array%val_as_bytes%3#1)
-        let array%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat array%encoded%5#1 array%extract%2#1)
-        let array%val_as_bytes%4#1: bytes[8] = (itob values%0#0)
-        let array%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat array%encoded%6#1 array%val_as_bytes%4#1)
-        let array%val_as_bytes%5#1: bytes[8] = (itob values%1#0)
-        let array%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat array%encoded%7#1 array%val_as_bytes%5#1)
-        let array%encoded%9#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = array%encoded%8#1
-        (box_put box_prefixed_key%0#0 array%encoded%8#1)
+        let aggregate%val_as_bytes%2#1: bytes[8] = (itob values%3#0)
+        let aggregate%encoded%4#1: Encoded(uint64) = aggregate%val_as_bytes%2#1
+        let aggregate%val_as_bytes%3#1: bytes[8] = (itob unitary_price#0)
+        let aggregate%encoded%5#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#1 aggregate%val_as_bytes%3#1)
+        let aggregate%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat aggregate%encoded%5#1 aggregate%extract%2#1)
+        let aggregate%val_as_bytes%4#1: bytes[8] = (itob values%0#0)
+        let aggregate%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat aggregate%encoded%6#1 aggregate%val_as_bytes%4#1)
+        let aggregate%val_as_bytes%5#1: bytes[8] = (itob values%1#0)
+        let aggregate%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat aggregate%encoded%7#1 aggregate%val_as_bytes%5#1)
+        let aggregate%encoded%9#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = aggregate%encoded%8#1
+        (box_put box_prefixed_key%0#0 aggregate%encoded%8#1)
         return 
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.buy(owner: account, asset: uint64, nonce: uint64, buy_pay: uint64, quantity: uint64) -> void:
     block@0: // L150
-        let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
-        let array%encoded%1#1: Encoded(uint8[32],uint64) = (concat owner#0 array%val_as_bytes%0#1)
-        let array%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
-        let key#0: Encoded(uint8[32],uint64,uint64) = (concat array%encoded%1#1 array%val_as_bytes%1#1)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob asset#0)
+        let aggregate%encoded%1#1: Encoded(uint8[32],uint64) = (concat owner#0 aggregate%val_as_bytes%0#1)
+        let aggregate%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
+        let key#0: Encoded(uint8[32],uint64,uint64) = (concat aggregate%encoded%1#1 aggregate%val_as_bytes%1#1)
         let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
         let (listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64), maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.listings entry exists
-        let array%extract%0#1: bytes = ((extract 8 8) listing#0)
+        let aggregate%extract%0#1: bytes = ((extract 8 8) listing#0)
         let price#0: uint64 = (extract_uint64 listing#0 8u)
         let (asset_decimals#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%0#0) // asset exists
@@ -362,23 +362,23 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%7#0: uint64 = ((gtxns Amount) buy_pay#0)
         let tmp%8#0: bool = (== tmp%7#0 amount_to_be_paid#1)
         (assert tmp%8#0)
-        let array%extract%1#1: bytes = ((extract 48 8) listing#0)
+        let aggregate%extract%1#1: bytes = ((extract 48 8) listing#0)
         let values%1#0: uint64 = (extract_uint64 listing#0 48u)
-        let array%extract%2#1: bytes = ((extract 56 8) listing#0)
+        let aggregate%extract%2#1: bytes = ((extract 56 8) listing#0)
         let values%2#0: uint64 = (extract_uint64 listing#0 56u)
-        let array%extract%3#1: bytes = ((extract 16 32) listing#0)
-        let array%extract%5#1: bytes = ((extract 0 8) listing#0)
+        let aggregate%extract%3#1: bytes = ((extract 16 32) listing#0)
+        let aggregate%extract%5#1: bytes = ((extract 0 8) listing#0)
         let values%5#0: uint64 = (extract_uint64 listing#0 0u)
         let tmp%9#0: uint64 = (- values%5#0 quantity#0)
-        let array%val_as_bytes%2#1: bytes[8] = (itob tmp%9#0)
-        let array%val_as_bytes%3#1: bytes[8] = (itob price#0)
-        let array%encoded%5#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%2#1 array%val_as_bytes%3#1)
-        let array%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat array%encoded%5#1 array%extract%3#1)
-        let array%val_as_bytes%4#1: bytes[8] = (itob values%1#0)
-        let array%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat array%encoded%6#1 array%val_as_bytes%4#1)
-        let array%val_as_bytes%5#1: bytes[8] = (itob values%2#0)
-        let array%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat array%encoded%7#1 array%val_as_bytes%5#1)
-        (box_put box_prefixed_key%0#0 array%encoded%8#1)
+        let aggregate%val_as_bytes%2#1: bytes[8] = (itob tmp%9#0)
+        let aggregate%val_as_bytes%3#1: bytes[8] = (itob price#0)
+        let aggregate%encoded%5#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#1 aggregate%val_as_bytes%3#1)
+        let aggregate%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat aggregate%encoded%5#1 aggregate%extract%3#1)
+        let aggregate%val_as_bytes%4#1: bytes[8] = (itob values%1#0)
+        let aggregate%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat aggregate%encoded%6#1 aggregate%val_as_bytes%4#1)
+        let aggregate%val_as_bytes%5#1: bytes[8] = (itob values%2#0)
+        let aggregate%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat aggregate%encoded%7#1 aggregate%val_as_bytes%5#1)
+        (box_put box_prefixed_key%0#0 aggregate%encoded%8#1)
         itxn_begin
         let inner_txn_params%0%%param_AssetReceiver_idx_0#0: account = (txn Sender)
         ((itxn_field AssetAmount) quantity#0)
@@ -392,21 +392,21 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.withdraw(asset: uint64, nonce: uint64) -> void:
     block@0: // L181
         let tmp%0#0: account = (txn Sender)
-        let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
-        let array%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%0#0 array%val_as_bytes%0#1)
-        let array%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
-        let key#0: Encoded(uint8[32],uint64,uint64) = (concat array%encoded%1#1 array%val_as_bytes%1#1)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob asset#0)
+        let aggregate%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%0#0 aggregate%val_as_bytes%0#1)
+        let aggregate%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
+        let key#0: Encoded(uint8[32],uint64,uint64) = (concat aggregate%encoded%1#1 aggregate%val_as_bytes%1#1)
         let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
         let (listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64), maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.listings entry exists
-        let array%extract%0#1: bytes = ((extract 16 32) listing#0)
+        let aggregate%extract%0#1: bytes = ((extract 16 32) listing#0)
         let tmp%2#0: account = (global ZeroAddress)
-        let tmp%3#0: bool = (!= array%extract%0#1 tmp%2#0)
+        let tmp%3#0: bool = (!= aggregate%extract%0#1 tmp%2#0)
         goto tmp%3#0 ? block@1 : block@3
     block@1: // if_body_L187
-        let array%extract%1#1: bytes = ((extract 48 8) listing#0)
+        let aggregate%extract%1#1: bytes = ((extract 48 8) listing#0)
         let quantity#0: uint64 = (extract_uint64 listing#0 48u)
-        let array%extract%2#1: bytes = ((extract 56 8) listing#0)
+        let aggregate%extract%2#1: bytes = ((extract 56 8) listing#0)
         let price#0: uint64 = (extract_uint64 listing#0 56u)
         let (asset_decimals#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%0#0) // asset exists
@@ -417,7 +417,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         (assert tmp%8#0)
         itxn_begin
         ((itxn_field Amount) amount_to_be_paid#0)
-        ((itxn_field Receiver) array%extract%0#1)
+        ((itxn_field Receiver) aggregate%extract%0#1)
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -433,7 +433,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         itxn_submit
         itxn_begin
         let inner_txn_params%2%%param_AssetReceiver_idx_0#0: account = (txn Sender)
-        let array%extract%4#1: bytes = ((extract 0 8) listing#0)
+        let aggregate%extract%4#1: bytes = ((extract 0 8) listing#0)
         let values%4#0: uint64 = (extract_uint64 listing#0 0u)
         ((itxn_field AssetAmount) values%4#0)
         ((itxn_field AssetReceiver) inner_txn_params%2%%param_AssetReceiver_idx_0#0)
@@ -445,23 +445,23 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.bid(owner: account, asset: uint64, nonce: uint64, bid_pay: uint64, quantity: uint64, unitary_price: uint64) -> void:
     block@0: // L200
-        let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
-        let array%encoded%1#1: Encoded(uint8[32],uint64) = (concat owner#0 array%val_as_bytes%0#1)
-        let array%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
-        let key#0: Encoded(uint8[32],uint64,uint64) = (concat array%encoded%1#1 array%val_as_bytes%1#1)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob asset#0)
+        let aggregate%encoded%1#1: Encoded(uint8[32],uint64) = (concat owner#0 aggregate%val_as_bytes%0#1)
+        let aggregate%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
+        let key#0: Encoded(uint8[32],uint64,uint64) = (concat aggregate%encoded%1#1 aggregate%val_as_bytes%1#1)
         let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
         let (listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64), maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.listings entry exists
-        let array%extract%0#1: bytes = ((extract 16 32) listing#0)
+        let aggregate%extract%0#1: bytes = ((extract 16 32) listing#0)
         let tmp%1#0: account = (global ZeroAddress)
-        let tmp%2#0: bool = (!= array%extract%0#1 tmp%1#0)
+        let tmp%2#0: bool = (!= aggregate%extract%0#1 tmp%1#0)
         goto tmp%2#0 ? block@1 : block@3
     block@1: // if_body_L214
-        let array%extract%1#1: bytes = ((extract 56 8) listing#0)
+        let aggregate%extract%1#1: bytes = ((extract 56 8) listing#0)
         let price#1: uint64 = (extract_uint64 listing#0 56u)
         let tmp%3#0: bool = (> unitary_price#0 price#1)
         (assert tmp%3#0)
-        let array%extract%2#1: bytes = ((extract 48 8) listing#0)
+        let aggregate%extract%2#1: bytes = ((extract 48 8) listing#0)
         let quantity#2: uint64 = (extract_uint64 listing#0 48u)
         let (asset_decimals#1: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%0#0) // asset exists
@@ -472,7 +472,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         (assert tmp%8#2)
         itxn_begin
         ((itxn_field Amount) amount_to_be_paid#1)
-        ((itxn_field Receiver) array%extract%0#1)
+        ((itxn_field Receiver) aggregate%extract%0#1)
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -496,39 +496,39 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%12#0: uint64 = ((gtxns Amount) bid_pay#0)
         let tmp%13#0: bool = (== tmp%12#0 amount_to_be_paid#0)
         (assert tmp%13#0)
-        let array%extract%5#1: bytes = ((extract 0 8) listing#0)
+        let aggregate%extract%5#1: bytes = ((extract 0 8) listing#0)
         let values%5#0: uint64 = (extract_uint64 listing#0 0u)
-        let array%extract%6#1: bytes = ((extract 8 8) listing#0)
+        let aggregate%extract%6#1: bytes = ((extract 8 8) listing#0)
         let values%6#0: uint64 = (extract_uint64 listing#0 8u)
         let tmp%14#0: account = (txn Sender)
-        let array%val_as_bytes%2#1: bytes[8] = (itob values%5#0)
-        let array%val_as_bytes%3#1: bytes[8] = (itob values%6#0)
-        let array%encoded%5#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%2#1 array%val_as_bytes%3#1)
-        let array%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat array%encoded%5#1 tmp%14#0)
-        let array%val_as_bytes%4#1: bytes[8] = (itob quantity#0)
-        let array%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat array%encoded%6#1 array%val_as_bytes%4#1)
-        let array%val_as_bytes%5#1: bytes[8] = (itob unitary_price#0)
-        let array%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat array%encoded%7#1 array%val_as_bytes%5#1)
-        (box_put box_prefixed_key%0#0 array%encoded%8#1)
+        let aggregate%val_as_bytes%2#1: bytes[8] = (itob values%5#0)
+        let aggregate%val_as_bytes%3#1: bytes[8] = (itob values%6#0)
+        let aggregate%encoded%5#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#1 aggregate%val_as_bytes%3#1)
+        let aggregate%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat aggregate%encoded%5#1 tmp%14#0)
+        let aggregate%val_as_bytes%4#1: bytes[8] = (itob quantity#0)
+        let aggregate%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat aggregate%encoded%6#1 aggregate%val_as_bytes%4#1)
+        let aggregate%val_as_bytes%5#1: bytes[8] = (itob unitary_price#0)
+        let aggregate%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat aggregate%encoded%7#1 aggregate%val_as_bytes%5#1)
+        (box_put box_prefixed_key%0#0 aggregate%encoded%8#1)
         return 
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.accept_bid(asset: uint64, nonce: uint64) -> void:
     block@0: // L236
         let tmp%0#0: account = (txn Sender)
-        let array%val_as_bytes%0#1: bytes[8] = (itob asset#0)
-        let array%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%0#0 array%val_as_bytes%0#1)
-        let array%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
-        let key#0: Encoded(uint8[32],uint64,uint64) = (concat array%encoded%1#1 array%val_as_bytes%1#1)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob asset#0)
+        let aggregate%encoded%1#1: Encoded(uint8[32],uint64) = (concat tmp%0#0 aggregate%val_as_bytes%0#1)
+        let aggregate%val_as_bytes%1#1: bytes[8] = (itob nonce#0)
+        let key#0: Encoded(uint8[32],uint64,uint64) = (concat aggregate%encoded%1#1 aggregate%val_as_bytes%1#1)
         let box_prefixed_key%0#0: bytes = (concat 0x6c697374696e6773 key#0)
         let (listing#0: Encoded(uint64,uint64,uint8[32],uint64,uint64), maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
         (assert maybe_exists%0#0) // check self.listings entry exists
-        let array%extract%0#1: bytes = ((extract 16 32) listing#0)
+        let aggregate%extract%0#1: bytes = ((extract 16 32) listing#0)
         let tmp%2#0: account = (global ZeroAddress)
-        let tmp%3#0: bool = (!= array%extract%0#1 tmp%2#0)
+        let tmp%3#0: bool = (!= aggregate%extract%0#1 tmp%2#0)
         (assert tmp%3#0)
-        let array%extract%1#1: bytes = ((extract 0 8) listing#0)
+        let aggregate%extract%1#1: bytes = ((extract 0 8) listing#0)
         let values%1#0: uint64 = (extract_uint64 listing#0 0u)
-        let array%extract%2#1: bytes = ((extract 48 8) listing#0)
+        let aggregate%extract%2#1: bytes = ((extract 48 8) listing#0)
         let values%2#0: uint64 = (extract_uint64 listing#0 48u)
         let tmp%4#0: bool = (< values%1#0 values%2#0)
         goto tmp%4#0 ? block@1 : block@2
@@ -538,7 +538,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         goto block@3
     block@3: // ternary_merge_L243
         let min_quantity#0: uint64 = φ(values%1#0 <- block@1, values%2#0 <- block@2)
-        let array%extract%5#1: bytes = ((extract 56 8) listing#0)
+        let aggregate%extract%5#1: bytes = ((extract 56 8) listing#0)
         let price#0: uint64 = (extract_uint64 listing#0 56u)
         let (asset_decimals#0: uint64, check%0#0: bool) = ((asset_params_get AssetDecimals) asset#0)
         (assert check%0#0) // asset exists
@@ -556,22 +556,22 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         itxn_submit
         itxn_begin
         ((itxn_field AssetAmount) min_quantity#0)
-        ((itxn_field AssetReceiver) array%extract%0#1)
+        ((itxn_field AssetReceiver) aggregate%extract%0#1)
         ((itxn_field XferAsset) asset#0)
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let array%extract%9#1: bytes = ((extract 8 8) listing#0)
+        let aggregate%extract%9#1: bytes = ((extract 8 8) listing#0)
         let values%9#0: uint64 = (extract_uint64 listing#0 8u)
         let tmp%6#0: uint64 = (- values%1#0 min_quantity#0)
         let tmp%7#0: uint64 = (- values%2#0 min_quantity#0)
-        let array%val_as_bytes%2#1: bytes[8] = (itob tmp%6#0)
-        let array%val_as_bytes%3#1: bytes[8] = (itob values%9#0)
-        let array%encoded%5#1: Encoded(uint64,uint64) = (concat array%val_as_bytes%2#1 array%val_as_bytes%3#1)
-        let array%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat array%encoded%5#1 array%extract%0#1)
-        let array%val_as_bytes%4#1: bytes[8] = (itob tmp%7#0)
-        let array%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat array%encoded%6#1 array%val_as_bytes%4#1)
-        let array%val_as_bytes%5#1: bytes[8] = (itob price#0)
-        let array%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat array%encoded%7#1 array%val_as_bytes%5#1)
-        (box_put box_prefixed_key%0#0 array%encoded%8#1)
+        let aggregate%val_as_bytes%2#1: bytes[8] = (itob tmp%6#0)
+        let aggregate%val_as_bytes%3#1: bytes[8] = (itob values%9#0)
+        let aggregate%encoded%5#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#1 aggregate%val_as_bytes%3#1)
+        let aggregate%encoded%6#1: Encoded(uint64,uint64,uint8[32]) = (concat aggregate%encoded%5#1 aggregate%extract%0#1)
+        let aggregate%val_as_bytes%4#1: bytes[8] = (itob tmp%7#0)
+        let aggregate%encoded%7#1: Encoded(uint64,uint64,uint8[32],uint64) = (concat aggregate%encoded%6#1 aggregate%val_as_bytes%4#1)
+        let aggregate%val_as_bytes%5#1: bytes[8] = (itob price#0)
+        let aggregate%encoded%8#1: Encoded(uint64,uint64,uint8[32],uint64,uint64) = (concat aggregate%encoded%7#1 aggregate%val_as_bytes%5#1)
+        (box_put box_prefixed_key%0#0 aggregate%encoded%8#1)
         return 
