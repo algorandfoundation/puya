@@ -220,7 +220,6 @@ def _combine_box_and_aggregate_read(
     #       root level, as this just requires a box_extract for the length
     factory = OpFactory(context, loc)
     indexes = agg_read.indexes
-    check_array_bounds = False
     if agg_read.element_encoding.is_bit:
         # bit reads can't be done directly from a box
         # so read up to previous aggregate and then return
@@ -240,6 +239,7 @@ def _combine_box_and_aggregate_read(
                 indexes=indexes[-1:],
             )
 
+    check_array_bounds = False
     box_offset = factory.constant(0)
     base_encoding: Encoding = agg_read.aggregate_encoding
     next_index = 0
