@@ -491,13 +491,14 @@ class AggregateWriteIndex(_AggregateOp):
 class BoxRead(ValueProvider):
     key: Value
     value_type: IRType
+    exists_assertion_message: str
 
     def _frozen_data(self) -> object:
         return self.key, self.value_type
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (self.value_type, PrimitiveIRType.bool)
+        return (self.value_type,)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_box_read(self)
