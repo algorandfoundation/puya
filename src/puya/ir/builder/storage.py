@@ -87,16 +87,30 @@ def _fetch_and_decode_from_storage_with_assert(
     default_error_message: str,
 ) -> ValueProvider:
     storage_codec = _get_storage_codec_for_node(expr)
-    get_ex_op = _build_get_ex_op(context, storage_codec.encoded_avm_type, expr, key)
-    storage_value, did_exist = context.visitor.materialise_value_provider(
-        get_ex_op, ("maybe_value", "maybe_exists")
-    )
-    assert_value(
-        context,
-        value=did_exist,
-        error_message=expr.exists_assertion_message or default_error_message,
-        source_location=expr.source_location,
-    )
+    if isinstance(expr, awst_nodes.BoxValueExpression):
+        # BoxRead will assert the box exists when lowered
+        # It is deliberately used in this case to provide further optimization opportunities
+        # when loading large box values.
+        # It is deliberately not used when doing conditional box loads (maybe/get) because of
+        # the implications.
+        box_read = BoxRead(
+            key=key,
+            value_type=PrimitiveIRType.bytes,
+            source_location=expr.source_location,
+            exists_assertion_message=expr.exists_assertion_message or default_error_message,
+        )
+        (storage_value,) = context.visitor.materialise_value_provider(box_read, "storage_value")
+    else:
+        get_ex_op = _build_get_ex_op(context, storage_codec.encoded_avm_type, expr, key)
+        storage_value, did_exist = context.visitor.materialise_value_provider(
+            get_ex_op, ("maybe_value", "maybe_exists")
+        )
+        assert_value(
+            context,
+            value=did_exist,
+            error_message=expr.exists_assertion_message or default_error_message,
+            source_location=expr.source_location,
+        )
     decoded_value = storage_codec.decode(context, storage_value, expr.source_location)
     return decoded_value
 
@@ -143,9 +157,10 @@ def _build_get_ex_op(
         )
     else:
         typing.assert_type(expr, awst_nodes.BoxValueExpression)
-        get_storage_value = BoxRead(
-            key=key,
-            value_type=result_type,
+        get_storage_value = Intrinsic(
+            op=AVMOp.box_get,
+            args=[key],
+            types=[result_type, PrimitiveIRType.bool],
             source_location=expr.source_location,
         )
     return get_storage_value
