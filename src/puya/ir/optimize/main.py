@@ -6,6 +6,10 @@ from puya import log
 from puya.context import ArtifactCompileContext
 from puya.ir import models
 from puya.ir._puya_lib import PuyaLibIR
+from puya.ir.optimize.add_box_extract_replace import (
+    minimize_box_exist_asserts,
+    replace_aggregate_box_ops,
+)
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from puya.ir.optimize.compiled_reference import replace_compiled_references
@@ -21,10 +25,6 @@ from puya.ir.optimize.inlining import analyse_subroutines_for_inlining, perform_
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
 from puya.ir.optimize.itxn_field_elision import elide_itxn_field_calls
-from puya.ir.optimize.minimize_box_access import (
-    minimize_box_exist_asserts,
-    replace_aggregate_box_ops,
-)
 from puya.ir.optimize.repeated_aggregate_reads_merge import merge_chained_aggregate_reads
 from puya.ir.optimize.repeated_code_elimination import repeated_expression_elimination
 from puya.ir.optimize.repeated_loads_elimination import (
