@@ -471,9 +471,7 @@ ObjectType: typing.Final[PyType] = _register_builtin(StaticType(name="builtins.o
 @typing.final
 @attrs.frozen(init=False, order=False)
 class StructType(RuntimeType):
-    fields: immutabledict[str, PyType] = attrs.field(
-        converter=immutabledict, validator=[attrs.validators.min_len(1)]
-    )
+    fields: immutabledict[str, PyType] = attrs.field(converter=immutabledict)
     frozen: bool
     wtype: wtypes.ARC4Struct
     source_location: SourceLocation | None = attrs.field(eq=False)
@@ -498,14 +496,13 @@ class StructType(RuntimeType):
         frozen: bool,
         source_location: SourceLocation | None,
     ):
+        if base not in (ARC4StructBaseType, StructBaseType):
+            raise InternalError(f"Unknown struct base type: {base}", source_location)
+
         field_wtypes = {
             name: field_typ.checked_wtype(source_location) for name, field_typ in fields.items()
-        }  # TODO: this is a bit of a kludge
-        if base in (ARC4StructBaseType, StructBaseType):
-            wtype_cls = wtypes.ARC4Struct
-        else:
-            raise InternalError(f"Unknown struct base type: {base}", source_location)
-        wtype = wtype_cls(
+        }
+        wtype = wtypes.ARC4Struct(
             fields=field_wtypes,
             name=name,
             desc=desc,
