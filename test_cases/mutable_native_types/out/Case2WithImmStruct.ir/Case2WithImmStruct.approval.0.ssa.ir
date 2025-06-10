@@ -302,74 +302,64 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let tmp%0#0: bool = (box_create "tup_bag" 4272u)
         (assert tmp%0#0) // box already exists
         let tmp%1#0: account = (txn Sender)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
+        let storage_value%0#0: bytes = box_read("tup_bag")
         let encoded_value%0#0: Encoded(uint8[32]) = encode<uint8[32]>(tmp%1#0)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = maybe_value%0#0.update((2), encoded_value%0#0)
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = agg_write_index(storage_value%0#0, 2, encoded_value%0#0)
         box_write("tup_bag", updated_tuple%0#0)
         let tmp%2#0: uint64 = (global CurrentApplicationID)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
+        let storage_value%1#0: bytes = box_read("tup_bag")
         let encoded_value%1#0: Encoded(uint64) = encode<uint64>(tmp%2#0)
-        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = maybe_value%1#0.update((3), encoded_value%1#0)
+        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = agg_write_index(storage_value%1#0, 3, encoded_value%1#0)
         box_write("tup_bag", updated_tuple%1#0)
         return 
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups() -> uint64:
     block@0: // L42
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
-        let tuple_item%0#0: Encoded(uint64) = maybe_value%0#0[0]
+        let storage_value%0#0: bytes = box_read("tup_bag")
+        let tuple_item%0#0: Encoded(uint64) = agg_read_index(storage_value%0#0, 0)
         let values%0#0: uint64 = decode<uint64>(tuple_item%0#0)
         return values%0#0
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup: Encoded(uint64,uint64)) -> void:
     block@0: // L46
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
-        let tuple_item%0#0: Encoded(uint64) = maybe_value%0#0[0]
+        let storage_value%0#0: bytes = box_read("tup_bag")
+        let tuple_item%0#0: Encoded(uint64) = agg_read_index(storage_value%0#0, 0)
         let values%0#0: uint64 = decode<uint64>(tuple_item%0#0)
         let tmp%0#0: bool = (< values%0#0 8u)
         (assert tmp%0#0) // too many tups
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%2#0) // check self.tup_bag exists
-        let tuple_item%1#0: Encoded(uint64) = maybe_value%2#0[0]
+        let storage_value%1#0: bytes = box_read("tup_bag")
+        let storage_value%2#0: bytes = box_read("tup_bag")
+        let tuple_item%1#0: Encoded(uint64) = agg_read_index(storage_value%2#0, 0)
         let values%1#0: uint64 = decode<uint64>(tuple_item%1#0)
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = maybe_value%1#0.update((1, values%1#0), tup#0)
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = agg_write_index(storage_value%1#0, 1, values%1#0, tup#0)
         box_write("tup_bag", updated_tuple%0#0)
-        let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%3#0) // check self.tup_bag exists
-        let tuple_item%2#0: Encoded(uint64) = maybe_value%3#0[0]
+        let storage_value%3#0: bytes = box_read("tup_bag")
+        let tuple_item%2#0: Encoded(uint64) = agg_read_index(storage_value%3#0, 0)
         let values%2#0: uint64 = decode<uint64>(tuple_item%2#0)
         let tmp%1#0: uint64 = (+ values%2#0 1u)
         let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%1#0)
-        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = maybe_value%3#0.update((0), encoded_value%0#0)
+        let updated_tuple%1#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = agg_write_index(storage_value%3#0, 0, encoded_value%0#0)
         box_write("tup_bag", updated_tuple%1#0)
         return 
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup(index: uint64) -> Encoded(uint64,uint64):
     block@0: // L53
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
-        let tuple_item%0#0: Encoded(uint64) = maybe_value%0#0[0]
+        let storage_value%0#0: bytes = box_read("tup_bag")
+        let tuple_item%0#0: Encoded(uint64) = agg_read_index(storage_value%0#0, 0)
         let values%0#0: uint64 = decode<uint64>(tuple_item%0#0)
         let tmp%0#0: bool = (< index#0 values%0#0)
         (assert tmp%0#0) // index out of bounds
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = maybe_value%1#0[1]
-        let array_item%0#0: Encoded(uint64,uint64) = tuple_item%1#0[index#0]
+        let storage_value%1#0: bytes = box_read("tup_bag")
+        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = agg_read_index(storage_value%1#0, 1)
+        let array_item%0#0: Encoded(uint64,uint64) = agg_read_index(tuple_item%1#0, index#0)
         return array_item%0#0
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum() -> uint64:
     block@0: // L58
         let total#0: uint64 = 0u
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
-        let tuple_item%0#0: Encoded(uint64) = maybe_value%0#0[0]
+        let storage_value%0#0: bytes = box_read("tup_bag")
+        let tuple_item%0#0: Encoded(uint64) = agg_read_index(storage_value%0#0, 0)
         let values%0#0: uint64 = decode<uint64>(tuple_item%0#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
@@ -380,16 +370,15 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L62
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = maybe_value%1#0[1]
-        let array_item%0#0: Encoded(uint64,uint64) = tuple_item%1#0[i#1]
+        let storage_value%1#0: bytes = box_read("tup_bag")
+        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = agg_read_index(storage_value%1#0, 1)
+        let array_item%0#0: Encoded(uint64,uint64) = agg_read_index(tuple_item%1#0, i#1)
         let tup#0: Encoded(uint64,uint64) = array_item%0#0
-        let tuple_item%2#0: Encoded(uint64) = tup#0[0]
+        let tuple_item%2#0: Encoded(uint64) = agg_read_index(tup#0, 0)
         let values%1#0: uint64 = decode<uint64>(tuple_item%2#0)
         let tmp%0#0: uint64 = (+ total#1 values%1#0)
         let total#2: uint64 = tmp%0#0
-        let tuple_item%3#0: Encoded(uint64) = tup#0[1]
+        let tuple_item%3#0: Encoded(uint64) = agg_read_index(tup#0, 1)
         let values%2#0: uint64 = decode<uint64>(tuple_item%3#0)
         let tmp%1#0: uint64 = (+ total#2 values%2#0)
         let total#3: uint64 = tmp%1#0
@@ -411,7 +400,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L70
-        let array_item%0#0: Encoded(uint64,uint64) = tups#0[item_index_internal%0#1]
+        let array_item%0#0: Encoded(uint64,uint64) = agg_read_index(tups#0, item_index_internal%0#1)
         let tup#0: Encoded(uint64,uint64) = array_item%0#0
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup#0)
         goto block@3
@@ -431,7 +420,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let continue_looping%0#0: bool = (< item_index_internal%0#1 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L75
-        let array_item%0#0: Encoded(uint64,uint64) = tups#0[item_index_internal%0#1]
+        let array_item%0#0: Encoded(uint64,uint64) = agg_read_index(tups#0, item_index_internal%0#1)
         let tup#0: Encoded(uint64,uint64) = array_item%0#0
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup#0)
         goto block@3
@@ -444,9 +433,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a(a: uint64) -> void:
     block@0: // L77
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
-        let tuple_item%0#0: Encoded(uint64) = maybe_value%0#0[0]
+        let storage_value%0#0: bytes = box_read("tup_bag")
+        let tuple_item%0#0: Encoded(uint64) = agg_read_index(storage_value%0#0, 0)
         let values%0#0: uint64 = decode<uint64>(tuple_item%0#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
@@ -456,17 +444,15 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L81
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = maybe_value%1#0[1]
-        let array_item%0#0: Encoded(uint64,uint64) = tuple_item%1#0[i#1]
+        let storage_value%1#0: bytes = box_read("tup_bag")
+        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = agg_read_index(storage_value%1#0, 1)
+        let array_item%0#0: Encoded(uint64,uint64) = agg_read_index(tuple_item%1#0, i#1)
         let tup#0: Encoded(uint64,uint64) = array_item%0#0
-        let tuple_item%2#0: Encoded(uint64) = tup#0[1]
+        let tuple_item%2#0: Encoded(uint64) = agg_read_index(tup#0, 1)
         let values%1#0: uint64 = decode<uint64>(tuple_item%2#0)
         let tmp%0#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(a#0, values%1#0)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%2#0) // check self.tup_bag exists
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = maybe_value%2#0.update((1, i#1), tmp%0#0)
+        let storage_value%2#0: bytes = box_read("tup_bag")
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = agg_write_index(storage_value%2#0, 1, i#1, tmp%0#0)
         box_write("tup_bag", updated_tuple%0#0)
         goto block@3
     block@3: // for_footer_L80
@@ -478,9 +464,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b(b: uint64) -> void:
     block@0: // L84
         test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner()
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
-        let tuple_item%0#0: Encoded(uint64) = maybe_value%0#0[0]
+        let storage_value%0#0: bytes = box_read("tup_bag")
+        let tuple_item%0#0: Encoded(uint64) = agg_read_index(storage_value%0#0, 0)
         let values%0#0: uint64 = decode<uint64>(tuple_item%0#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
@@ -490,17 +475,15 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L88
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = maybe_value%1#0[1]
-        let array_item%0#0: Encoded(uint64,uint64) = tuple_item%1#0[i#1]
+        let storage_value%1#0: bytes = box_read("tup_bag")
+        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = agg_read_index(storage_value%1#0, 1)
+        let array_item%0#0: Encoded(uint64,uint64) = agg_read_index(tuple_item%1#0, i#1)
         let tup#0: Encoded(uint64,uint64) = array_item%0#0
-        let tuple_item%2#0: Encoded(uint64) = tup#0[0]
+        let tuple_item%2#0: Encoded(uint64) = agg_read_index(tup#0, 0)
         let values%1#0: uint64 = decode<uint64>(tuple_item%2#0)
         let tmp%0#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(values%1#0, b#0)
-        let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%2#0) // check self.tup_bag exists
-        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = maybe_value%2#0.update((1, i#1), tmp%0#0)
+        let storage_value%2#0: bytes = box_read("tup_bag")
+        let updated_tuple%0#0: Encoded(uint64,(uint64,uint64)[8],uint8[32],uint64,uint8[4096]) = agg_write_index(storage_value%2#0, 1, i#1, tmp%0#0)
         box_write("tup_bag", updated_tuple%0#0)
         goto block@3
     block@3: // for_footer_L87
@@ -511,23 +494,21 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups(start: uint64) -> Encoded((uint64,uint64)[3]):
     block@0: // L91
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
-        let tuple_item%0#0: Encoded(uint64) = maybe_value%0#0[0]
+        let storage_value%0#0: bytes = box_read("tup_bag")
+        let tuple_item%0#0: Encoded(uint64) = agg_read_index(storage_value%0#0, 0)
         let values%0#0: uint64 = decode<uint64>(tuple_item%0#0)
         let tmp%0#0: uint64 = (+ start#0 3u)
         let tmp%1#0: bool = (>= values%0#0 tmp%0#0)
         (assert tmp%1#0) // not enough items
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = maybe_value%1#0[1]
+        let storage_value%1#0: bytes = box_read("tup_bag")
+        let tuple_item%1#0: Encoded((uint64,uint64)[8]) = agg_read_index(storage_value%1#0, 1)
         let copy%0#0: Encoded((uint64,uint64)[8]) = tuple_item%1#0
         let items#0: Encoded((uint64,uint64)[8]) = copy%0#0
-        let array_item%0#0: Encoded(uint64,uint64) = items#0[start#0]
+        let array_item%0#0: Encoded(uint64,uint64) = agg_read_index(items#0, start#0)
         let tmp%2#0: uint64 = (+ start#0 1u)
-        let array_item%1#0: Encoded(uint64,uint64) = items#0[tmp%2#0]
+        let array_item%1#0: Encoded(uint64,uint64) = agg_read_index(items#0, tmp%2#0)
         let tmp%3#0: uint64 = (+ start#0 2u)
-        let array_item%2#0: Encoded(uint64,uint64) = items#0[tmp%3#0]
+        let array_item%2#0: Encoded(uint64,uint64) = agg_read_index(items#0, tmp%3#0)
         let encoded_array%0#0: Encoded((uint64,uint64)[3]) = encode<(uint64,uint64)[3]>(array_item%0#0, array_item%1#0, array_item%2#0)
         return encoded_array%0#0
 
@@ -535,14 +516,12 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L104
         let encoded_array%0#0: Encoded(len+(uint64,uint64)[]) = encode<(len+(uint64,uint64)[])>()
         let result#0: Encoded(len+(uint64,uint64)[]) = encoded_array%0#0
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
-        let tuple_item%0#0: Encoded((uint64,uint64)[8]) = maybe_value%0#0[1]
+        let storage_value%0#0: bytes = box_read("tup_bag")
+        let tuple_item%0#0: Encoded((uint64,uint64)[8]) = agg_read_index(storage_value%0#0, 1)
         let copy%0#0: Encoded((uint64,uint64)[8]) = tuple_item%0#0
         let items#0: Encoded((uint64,uint64)[8]) = copy%0#0
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tuple_item%1#0: Encoded(uint64) = maybe_value%1#0[0]
+        let storage_value%1#0: bytes = box_read("tup_bag")
+        let tuple_item%1#0: Encoded(uint64) = agg_read_index(storage_value%1#0, 0)
         let values%0#0: uint64 = decode<uint64>(tuple_item%1#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
@@ -553,7 +532,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L110
-        let array_item%0#0: Encoded(uint64,uint64) = items#0[i#1]
+        let array_item%0#0: Encoded(uint64,uint64) = agg_read_index(items#0, i#1)
         let tmp%0#0: Encoded((uint64,uint64)[]) = encode<(uint64,uint64)[]>(array_item%0#0)
         let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#1 tmp%0#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 result#1 0u)
@@ -572,16 +551,14 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner() -> void:
     block@0: // L113
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
-        let tuple_item%0#0: Encoded(uint8[32]) = maybe_value%0#0[2]
+        let storage_value%0#0: bytes = box_read("tup_bag")
+        let tuple_item%0#0: Encoded(uint8[32]) = agg_read_index(storage_value%0#0, 2)
         let values%0#0: account = decode<account>(tuple_item%0#0)
         let tmp%0#0: account = (txn Sender)
         let tmp%1#0: bool = (== values%0#0 tmp%0#0)
         (assert tmp%1#0) // sender not authorized
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = box_read("tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
-        let tuple_item%1#0: Encoded(uint64) = maybe_value%1#0[3]
+        let storage_value%1#0: bytes = box_read("tup_bag")
+        let tuple_item%1#0: Encoded(uint64) = agg_read_index(storage_value%1#0, 3)
         let values%1#0: uint64 = decode<uint64>(tuple_item%1#0)
         let tmp%2#0: uint64 = (global CurrentApplicationID)
         let tmp%3#0: bool = (== values%1#0 tmp%2#0)

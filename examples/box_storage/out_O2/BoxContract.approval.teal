@@ -135,12 +135,14 @@ main_box_map_test_route@13:
     dup
     box_get
     bytec 10 // "default"
-    uncover 2
-    dig 2
+    cover 2
     select
     bytec 10 // "default"
     ==
     assert
+    dup
+    box_len
+    bury 1
     !
     assert
     dup
@@ -545,10 +547,6 @@ main_set_boxes_route@5:
     pushint 4096 // 4096
     pushbytes 0x000000000000002a
     box_replace
-    bytec 4 // "b"
-    box_len
-    bury 1
-    assert // check self.box_b exists
     bytec_3 // "box_a"
     box_get
     assert // check self.box_a exists
@@ -567,7 +565,7 @@ main_set_boxes_route@5:
     assert
     bytec 4 // "b"
     box_len
-    pop
+    assert // check self.box_b exists
     dig 3
     len
     ==

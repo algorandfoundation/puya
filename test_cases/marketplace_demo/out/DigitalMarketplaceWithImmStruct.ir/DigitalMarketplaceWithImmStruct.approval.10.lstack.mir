@@ -701,8 +701,8 @@ subroutine deposit:
         l-load key#0 2                                                                                                                        (𝕡) xfer#0,nonce#0 | tmp%9#0,0x6c697374696e6773,key#0
         concat                                                                                                                                (𝕡) xfer#0,nonce#0 | tmp%9#0,box_prefixed_key%0#0
         l-load-copy box_prefixed_key%0#0 0                                                                                                    (𝕡) xfer#0,nonce#0 | tmp%9#0,box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
-        box_get                                                                                                                               (𝕡) xfer#0,nonce#0 | tmp%9#0,box_prefixed_key%0#0,existing#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                                                             (𝕡) xfer#0,nonce#0 | tmp%9#0,box_prefixed_key%0#0,existing#0,maybe_exists%0#0
+        box_get                                                                                                                               (𝕡) xfer#0,nonce#0 | tmp%9#0,box_prefixed_key%0#0,existing#0,aggregate%box_get%1#1
+        l-load aggregate%box_get%1#1 0                                                                                                        (𝕡) xfer#0,nonce#0 | tmp%9#0,box_prefixed_key%0#0,existing#0,aggregate%box_get%1#1
         assert // check self.listings entry exists                                                                                            (𝕡) xfer#0,nonce#0 | tmp%9#0,box_prefixed_key%0#0,existing#0
         // marketplace_demo/marketplace_with_immutable_struct.py:130
         // bid=existing.bid,
@@ -787,8 +787,8 @@ subroutine set_price:
         l-load key#0 1                                                                                                                        (𝕡) asset#0,nonce#0,unitary_price#0 | 0x6c697374696e6773,key#0
         concat                                                                                                                                (𝕡) asset#0,nonce#0,unitary_price#0 | box_prefixed_key%0#0
         l-load-copy box_prefixed_key%0#0 0                                                                                                    (𝕡) asset#0,nonce#0,unitary_price#0 | box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
-        box_get                                                                                                                               (𝕡) asset#0,nonce#0,unitary_price#0 | box_prefixed_key%0#0,existing#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                                                             (𝕡) asset#0,nonce#0,unitary_price#0 | box_prefixed_key%0#0,existing#0,maybe_exists%0#0
+        box_get                                                                                                                               (𝕡) asset#0,nonce#0,unitary_price#0 | box_prefixed_key%0#0,existing#0,aggregate%box_get%1#1
+        l-load aggregate%box_get%1#1 0                                                                                                        (𝕡) asset#0,nonce#0,unitary_price#0 | box_prefixed_key%0#0,existing#0,aggregate%box_get%1#1
         assert // check self.listings entry exists                                                                                            (𝕡) asset#0,nonce#0,unitary_price#0 | box_prefixed_key%0#0,existing#0
         // marketplace_demo/marketplace_with_immutable_struct.py:143
         // bid=existing.bid,
@@ -864,8 +864,8 @@ subroutine buy:
         l-load key#0 1                                                                                                                        (𝕡) owner#0,asset#0,nonce#0,buy_pay#0,quantity#0 | 0x6c697374696e6773,key#0
         concat                                                                                                                                (𝕡) owner#0,asset#0,nonce#0,buy_pay#0,quantity#0 | box_prefixed_key%0#0
         l-load-copy box_prefixed_key%0#0 0                                                                                                    (𝕡) owner#0,asset#0,nonce#0,buy_pay#0,quantity#0 | box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
-        box_get                                                                                                                               (𝕡) owner#0,asset#0,nonce#0,buy_pay#0,quantity#0 | box_prefixed_key%0#0,listing#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                                                             (𝕡) owner#0,asset#0,nonce#0,buy_pay#0,quantity#0 | box_prefixed_key%0#0,listing#0,maybe_exists%0#0
+        box_get                                                                                                                               (𝕡) owner#0,asset#0,nonce#0,buy_pay#0,quantity#0 | box_prefixed_key%0#0,listing#0,aggregate%box_get%1#1
+        l-load aggregate%box_get%1#1 0                                                                                                        (𝕡) owner#0,asset#0,nonce#0,buy_pay#0,quantity#0 | box_prefixed_key%0#0,listing#0,aggregate%box_get%1#1
         assert // check self.listings entry exists                                                                                            (𝕡) owner#0,asset#0,nonce#0,buy_pay#0,quantity#0 | box_prefixed_key%0#0,listing#0
         // marketplace_demo/marketplace_with_immutable_struct.py:163
         // amount_to_be_paid = self.quantity_price(quantity, listing.unitaryPrice, asset.decimals)
@@ -1038,11 +1038,11 @@ subroutine withdraw:
         l-store-copy box_prefixed_key%0#0 0                                                                                                   (𝕡) asset#0,nonce#0 | box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
         v-store box_prefixed_key%0#0                                                                                                          (𝕡) asset#0,nonce#0 | box_prefixed_key%0#0
         l-load box_prefixed_key%0#0 0                                                                                                         (𝕡) asset#0,nonce#0 | box_prefixed_key%0#0
-        box_get                                                                                                                               (𝕡) asset#0,nonce#0 | listing#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                                                                            (𝕡) asset#0,nonce#0 | maybe_exists%0#0,listing#0
-        l-store-copy listing#0 1                                                                                                              (𝕡) asset#0,nonce#0 | listing#0,maybe_exists%0#0,listing#0 (copy)
-        v-store listing#0                                                                                                                     (𝕡) asset#0,nonce#0 | listing#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                                                             (𝕡) asset#0,nonce#0 | listing#0,maybe_exists%0#0
+        box_get                                                                                                                               (𝕡) asset#0,nonce#0 | listing#0,aggregate%box_get%1#1
+        l-store aggregate%box_get%1#1 1                                                                                                       (𝕡) asset#0,nonce#0 | aggregate%box_get%1#1,listing#0
+        l-store-copy listing#0 1                                                                                                              (𝕡) asset#0,nonce#0 | listing#0,aggregate%box_get%1#1,listing#0 (copy)
+        v-store listing#0                                                                                                                     (𝕡) asset#0,nonce#0 | listing#0,aggregate%box_get%1#1
+        l-load aggregate%box_get%1#1 0                                                                                                        (𝕡) asset#0,nonce#0 | listing#0,aggregate%box_get%1#1
         assert // check self.listings entry exists                                                                                            (𝕡) asset#0,nonce#0 | listing#0
         // marketplace_demo/marketplace_with_immutable_struct.py:186
         // if listing.bidder != Account():
@@ -1212,11 +1212,11 @@ subroutine bid:
         l-store-copy box_prefixed_key%0#0 0                                                                                                   (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
         v-store box_prefixed_key%0#0                                                                                                          (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | box_prefixed_key%0#0
         l-load box_prefixed_key%0#0 0                                                                                                         (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | box_prefixed_key%0#0
-        box_get                                                                                                                               (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | listing#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                                                                            (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | maybe_exists%0#0,listing#0
-        l-store-copy listing#0 1                                                                                                              (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | listing#0,maybe_exists%0#0,listing#0 (copy)
-        v-store listing#0                                                                                                                     (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | listing#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                                                             (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | listing#0,maybe_exists%0#0
+        box_get                                                                                                                               (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | listing#0,aggregate%box_get%1#1
+        l-store aggregate%box_get%1#1 1                                                                                                       (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | aggregate%box_get%1#1,listing#0
+        l-store-copy listing#0 1                                                                                                              (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | listing#0,aggregate%box_get%1#1,listing#0 (copy)
+        v-store listing#0                                                                                                                     (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | listing#0,aggregate%box_get%1#1
+        l-load aggregate%box_get%1#1 0                                                                                                        (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | listing#0,aggregate%box_get%1#1
         assert // check self.listings entry exists                                                                                            (𝕡) owner#0,asset#0,nonce#0,bid_pay#0,quantity#0,unitary_price#0 | listing#0
         // marketplace_demo/marketplace_with_immutable_struct.py:213
         // if listing.bidder != Account():
@@ -1432,11 +1432,11 @@ subroutine accept_bid:
         l-store-copy box_prefixed_key%0#0 0                                                                                                   (𝕡) asset#0,nonce#0 | box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
         v-store box_prefixed_key%0#0                                                                                                          (𝕡) asset#0,nonce#0 | box_prefixed_key%0#0
         l-load box_prefixed_key%0#0 0                                                                                                         (𝕡) asset#0,nonce#0 | box_prefixed_key%0#0
-        box_get                                                                                                                               (𝕡) asset#0,nonce#0 | listing#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                                                                            (𝕡) asset#0,nonce#0 | maybe_exists%0#0,listing#0
-        l-store-copy listing#0 1                                                                                                              (𝕡) asset#0,nonce#0 | listing#0,maybe_exists%0#0,listing#0 (copy)
-        v-store listing#0                                                                                                                     (𝕡) asset#0,nonce#0 | listing#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                                                             (𝕡) asset#0,nonce#0 | listing#0,maybe_exists%0#0
+        box_get                                                                                                                               (𝕡) asset#0,nonce#0 | listing#0,aggregate%box_get%1#1
+        l-store aggregate%box_get%1#1 1                                                                                                       (𝕡) asset#0,nonce#0 | aggregate%box_get%1#1,listing#0
+        l-store-copy listing#0 1                                                                                                              (𝕡) asset#0,nonce#0 | listing#0,aggregate%box_get%1#1,listing#0 (copy)
+        v-store listing#0                                                                                                                     (𝕡) asset#0,nonce#0 | listing#0,aggregate%box_get%1#1
+        l-load aggregate%box_get%1#1 0                                                                                                        (𝕡) asset#0,nonce#0 | listing#0,aggregate%box_get%1#1
         assert // check self.listings entry exists                                                                                            (𝕡) asset#0,nonce#0 | listing#0
         // marketplace_demo/marketplace_with_immutable_struct.py:241
         // assert listing.bidder != Account()

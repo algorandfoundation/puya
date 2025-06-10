@@ -161,8 +161,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups() -> uint64:
     block@0: // L42
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
         let box%box_extract%0#1: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#1)
         return values%0#0
@@ -170,8 +168,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tup
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup.a: uint64, tup.b: uint64) -> void:
     block@0: // L46
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
+        let (aggregate%box_get%0#1: uint64, aggregate%box_get%1#1: bool) = (box_len "tup_bag")
+        (assert aggregate%box_get%1#1) // check self.tup_bag exists
         let box%box_extract%0#1: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#1)
         let tmp%0#0: bool = (< values%0#0 8u)
@@ -195,8 +193,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup(index: uint64) -> <uint64, uint64>:
     block@0: // L53
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
         let box%box_extract%0#1: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#1)
         let tmp%0#0: bool = (< index#0 values%0#0)
@@ -211,8 +207,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -> uint64:
     block@0: // L58
         let total#0: uint64 = 0u
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
         let box%box_extract%0#1: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#1)
         let i#0: uint64 = 0u
@@ -223,8 +217,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L62
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
         let box%box_extract%2#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#1: uint64 = (* i#1 16u)
         let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
@@ -280,8 +272,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fix
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a: uint64) -> void:
     block@0: // L77
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
         let box%box_extract%0#1: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#1)
         let i#0: uint64 = 0u
@@ -291,8 +281,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L81
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
+        let (aggregate%box_get%0#1: uint64, aggregate%box_get%1#1: bool) = (box_len "tup_bag")
+        (assert aggregate%box_get%1#1) // check self.tup_bag exists
         let box%box_extract%2#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#1: uint64 = (* i#1 16u)
         let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
@@ -312,8 +302,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b: uint64) -> void:
     block@0: // L84
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner()
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
         let box%box_extract%0#1: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#1)
         let i#0: uint64 = 0u
@@ -323,8 +311,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L88
-        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%1#0) // check self.tup_bag exists
+        let (aggregate%box_get%0#1: uint64, aggregate%box_get%1#1: bool) = (box_len "tup_bag")
+        (assert aggregate%box_get%1#1) // check self.tup_bag exists
         let box%box_extract%2#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#1: uint64 = (* i#1 16u)
         let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
@@ -343,8 +331,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups(start: uint64) -> Encoded((uint64,uint64)[3]):
     block@0: // L91
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
         let box%box_extract%0#1: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#1)
         let tmp%0#0: uint64 = (+ start#0 3u)
@@ -383,8 +369,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups() -> Encoded(len+(uint64,uint64)[]):
     block@0: // L104
         let result#0: Encoded(len+(uint64,uint64)[]) = 0x0000
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
         let box%box_extract%1#1: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%1#1)
         let i#0: uint64 = 0u
@@ -416,8 +400,6 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
 
 subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner() -> void:
     block@0: // L113
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (box_len "tup_bag")
-        (assert maybe_exists%0#0) // check self.tup_bag exists
         let box%box_extract%0#1: Encoded(uint8[32]) = (box_extract "tup_bag" 136u 32u)
         let tmp%0#0: account = (txn Sender)
         let tmp%1#0: bool = (== box%box_extract%0#1 tmp%0#0)

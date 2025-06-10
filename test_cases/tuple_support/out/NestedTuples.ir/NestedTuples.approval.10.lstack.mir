@@ -1329,14 +1329,14 @@ subroutine load_tuple_from_box:
         l-load aggregate%encoded%1#1 1                                                              (𝕡) key.a#0,key.b#0 | "box",aggregate%encoded%1#1
         concat                                                                                      (𝕡) key.a#0,key.b#0 | box_prefixed_key%0#0
         l-load box_prefixed_key%0#0 0                                                               (𝕡) key.a#0,key.b#0 | box_prefixed_key%0#0
-        box_get                                                                                     (𝕡) key.a#0,key.b#0 | maybe_value%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                                   (𝕡) key.a#0,key.b#0 | maybe_value%0#0,maybe_exists%0#0
-        assert // check self.box entry exists                                                       (𝕡) key.a#0,key.b#0 | maybe_value%0#0
-        l-load-copy maybe_value%0#0 0                                                               (𝕡) key.a#0,key.b#0 | maybe_value%0#0,maybe_value%0#0 (copy)
-        int 0                                                                                       (𝕡) key.a#0,key.b#0 | maybe_value%0#0,maybe_value%0#0 (copy),0
-        extract_uint64                                                                              (𝕡) key.a#0,key.b#0 | maybe_value%0#0,aggregate%item0%0#1
-        l-load maybe_value%0#0 1                                                                    (𝕡) key.a#0,key.b#0 | aggregate%item0%0#1,maybe_value%0#0
-        int 8                                                                                       (𝕡) key.a#0,key.b#0 | aggregate%item0%0#1,maybe_value%0#0,8
+        box_get                                                                                     (𝕡) key.a#0,key.b#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
+        l-load aggregate%box_get%1#1 0                                                              (𝕡) key.a#0,key.b#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
+        assert // check self.box entry exists                                                       (𝕡) key.a#0,key.b#0 | aggregate%box_get%0#1
+        l-load-copy aggregate%box_get%0#1 0                                                         (𝕡) key.a#0,key.b#0 | aggregate%box_get%0#1,aggregate%box_get%0#1 (copy)
+        int 0                                                                                       (𝕡) key.a#0,key.b#0 | aggregate%box_get%0#1,aggregate%box_get%0#1 (copy),0
+        extract_uint64                                                                              (𝕡) key.a#0,key.b#0 | aggregate%box_get%0#1,aggregate%item0%0#1
+        l-load aggregate%box_get%0#1 1                                                              (𝕡) key.a#0,key.b#0 | aggregate%item0%0#1,aggregate%box_get%0#1
+        int 8                                                                                       (𝕡) key.a#0,key.b#0 | aggregate%item0%0#1,aggregate%box_get%0#1,8
         extract_uint64                                                                              (𝕡) key.a#0,key.b#0 | aggregate%item0%0#1,aggregate%item1%0#1
         l-load aggregate%item0%0#1 1                                                                (𝕡) key.a#0,key.b#0 | aggregate%item1%0#1,aggregate%item0%0#1
         l-load aggregate%item1%0#1 1                                                                (𝕡) key.a#0,key.b#0 | aggregate%item0%0#1,aggregate%item1%0#1

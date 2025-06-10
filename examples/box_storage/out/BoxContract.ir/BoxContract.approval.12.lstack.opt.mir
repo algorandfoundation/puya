@@ -379,20 +379,12 @@ subroutine set_boxes:
         int 4096                                                                                (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_large",4096
         byte 0x000000000000002a                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_large",4096,0x000000000000002a
         box_replace                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0
-        // box_storage/contract.py:52
-        // b_value = self.box_b.value.copy()
-        byte "b"                                                                                (𝕡) a#0,b#0,c#0 | tmp%0#0,"b"
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,b_value#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_exists%0#0,b_value#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                               (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_exists%0#0
-        assert // check self.box_b exists                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0
         // box_storage/contract.py:55
         // self.box_a.value += 3
         byte "box_a"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_a"
-        box_get                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_value%2#0,maybe_exists%2#0
-        assert // check self.box_a exists                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_value%2#0
-        l-load maybe_value%2#0 0                                                                (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_value%2#0
+        box_get                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,aggregate%box_get%0#1,aggregate%box_get%1#1
+        assert // check self.box_a exists                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,aggregate%box_get%0#1
+        l-load aggregate%box_get%0#1 0                                                          (𝕡) a#0,b#0,c#0 | tmp%0#0,aggregate%box_get%0#1
         btoi                                                                                    (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_value_converted%0#0
         int 3                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_value_converted%0#0,3
         +                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%3#0
@@ -414,8 +406,7 @@ subroutine set_boxes:
         // assert self.box_b.length == b.bytes.length
         byte "b"                                                                                (𝕡) a#0,b#0,c#0 | tmp%0#0,"b"
         box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0,check%1#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0
-        l-store value%1#0 0                                                                     (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0
+        assert // check self.box_b exists                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0
         p-load b#0                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0,b#0 (copy)
         len                                                                                     (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0,tmp%5#0
         l-load value%1#0 1                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%5#0,value%1#0
@@ -790,9 +781,9 @@ subroutine read_boxes:
         byte "box_a"                                                                            large_e#0,"box_a"
         // box_storage/contract.py:225
         // return box.value + 1
-        box_get                                                                                 large_e#0,maybe_value%0#0,maybe_exists%0#0
-        assert // check Box exists                                                              large_e#0,maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                large_e#0,maybe_value%0#0
+        box_get                                                                                 large_e#0,aggregate%box_get%0#1,aggregate%box_get%1#1
+        assert // check Box exists                                                              large_e#0,aggregate%box_get%0#1
+        l-load aggregate%box_get%0#1 0                                                          large_e#0,aggregate%box_get%0#1
         btoi                                                                                    large_e#0,maybe_value_converted%0#0
         int 1                                                                                   large_e#0,maybe_value_converted%0#0,1
         +                                                                                       large_e#0,tmp%0#1
@@ -803,19 +794,19 @@ subroutine read_boxes:
         // box_storage/contract.py:106
         // self.box_b.value.native,
         byte "b"                                                                                large_e#0,tmp%2#0,"b"
-        box_get                                                                                 large_e#0,tmp%2#0,maybe_value%0#0,maybe_exists%0#0
-        assert // check self.box_b exists                                                       large_e#0,tmp%2#0,maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                large_e#0,tmp%2#0,maybe_value%0#0
+        box_get                                                                                 large_e#0,tmp%2#0,aggregate%box_get%2#1,aggregate%box_get%3#1
+        assert // check self.box_b exists                                                       large_e#0,tmp%2#0,aggregate%box_get%2#1
+        l-load aggregate%box_get%2#1 0                                                          large_e#0,tmp%2#0,aggregate%box_get%2#1
         extract 2 0                                                                             large_e#0,tmp%2#0,tmp%3#0
         // box_storage/contract.py:107
         // self.box_c.value,
         byte 0x424f585f43                                                                       large_e#0,tmp%2#0,tmp%3#0,0x424f585f43
-        box_get                                                                                 large_e#0,tmp%2#0,tmp%3#0,maybe_value%1#0,maybe_exists%1#0
-        assert // check self.box_c exists                                                       large_e#0,tmp%2#0,tmp%3#0,maybe_value%1#0
+        box_get                                                                                 large_e#0,tmp%2#0,tmp%3#0,aggregate%box_get%4#1,aggregate%box_get%5#1
+        assert // check self.box_c exists                                                       large_e#0,tmp%2#0,tmp%3#0,aggregate%box_get%4#1
         // box_storage/contract.py:108
         // large_e.native,
-        l-load large_e#0 3                                                                      tmp%2#0,tmp%3#0,maybe_value%1#0,large_e#0
-        btoi                                                                                    tmp%2#0,tmp%3#0,maybe_value%1#0,tmp%4#0
+        l-load large_e#0 3                                                                      tmp%2#0,tmp%3#0,aggregate%box_get%4#1,large_e#0
+        btoi                                                                                    tmp%2#0,tmp%3#0,aggregate%box_get%4#1,tmp%4#0
         // box_storage/contract.py:104-109
         // return (
         //     get_box_value_plus_1(self.box_a) - 1,
@@ -823,11 +814,11 @@ subroutine read_boxes:
         //     self.box_c.value,
         //     large_e.native,
         // )
-        l-load tmp%2#0 3                                                                        tmp%3#0,maybe_value%1#0,tmp%4#0,tmp%2#0
-        l-load tmp%3#0 3                                                                        maybe_value%1#0,tmp%4#0,tmp%2#0,tmp%3#0
-        l-load maybe_value%1#0 3                                                                tmp%4#0,tmp%2#0,tmp%3#0,maybe_value%1#0
-        l-load tmp%4#0 3                                                                        tmp%2#0,tmp%3#0,maybe_value%1#0,tmp%4#0
-        retsub                                                                                  tmp%2#0,tmp%3#0,maybe_value%1#0,tmp%4#0
+        l-load tmp%2#0 3                                                                        tmp%3#0,aggregate%box_get%4#1,tmp%4#0,tmp%2#0
+        l-load tmp%3#0 3                                                                        aggregate%box_get%4#1,tmp%4#0,tmp%2#0,tmp%3#0
+        l-load aggregate%box_get%4#1 3                                                          tmp%4#0,tmp%2#0,tmp%3#0,aggregate%box_get%4#1
+        l-load tmp%4#0 3                                                                        tmp%2#0,tmp%3#0,aggregate%box_get%4#1,tmp%4#0
+        retsub                                                                                  tmp%2#0,tmp%3#0,aggregate%box_get%4#1,tmp%4#0
 
 
 // examples.box_storage.contract.BoxContract.boxes_exist() -> uint64, uint64, uint64, uint64:
@@ -1225,14 +1216,20 @@ subroutine box_map_test:
         // assert self.box_map.get(key_1, default=String("default")) == String("default")
         itob                                                                                    encoded_value%5#0
         l-load-copy encoded_value%5#0 0                                                         encoded_value%5#0,encoded_value%5#0 (copy)
-        box_get                                                                                 encoded_value%5#0,value#1,exists#0
-        byte "default"                                                                          encoded_value%5#0,value#1,exists#0,"default"
-        l-load value#1 2                                                                        encoded_value%5#0,exists#0,"default",value#1
-        l-load-copy exists#0 2                                                                  encoded_value%5#0,exists#0,"default",value#1,exists#0 (copy)
-        select                                                                                  encoded_value%5#0,exists#0,state_get%0#0
-        byte "default"                                                                          encoded_value%5#0,exists#0,state_get%0#0,"default"
-        ==                                                                                      encoded_value%5#0,exists#0,tmp%5#0
-        assert                                                                                  encoded_value%5#0,exists#0
+        box_get                                                                                 encoded_value%5#0,maybe_value%0#0,maybe_exists%0#0
+        byte "default"                                                                          encoded_value%5#0,maybe_value%0#0,maybe_exists%0#0,"default"
+        l-load maybe_value%0#0 2                                                                encoded_value%5#0,maybe_exists%0#0,"default",maybe_value%0#0
+        l-load maybe_exists%0#0 2                                                               encoded_value%5#0,"default",maybe_value%0#0,maybe_exists%0#0
+        select                                                                                  encoded_value%5#0,state_get%0#0
+        byte "default"                                                                          encoded_value%5#0,state_get%0#0,"default"
+        ==                                                                                      encoded_value%5#0,tmp%5#0
+        assert                                                                                  encoded_value%5#0
+        // box_storage/contract.py:195
+        // value, exists = self.box_map.maybe(key_1)
+        l-load-copy encoded_value%5#0 0                                                         encoded_value%5#0,encoded_value%5#0 (copy)
+        box_len                                                                                 encoded_value%5#0,value#1,exists#0
+        l-store exists#0 1                                                                      encoded_value%5#0,exists#0,value#1
+        pop 1                                                                                   encoded_value%5#0,exists#0
         // box_storage/contract.py:196
         // assert not exists
         l-load exists#0 0                                                                       encoded_value%5#0,exists#0
@@ -1277,10 +1274,10 @@ subroutine box_map_get:
         // return self.box_map[key]
         p-load key#0                                                                            (𝕡) key#0 | key#0 (copy)
         itob                                                                                    (𝕡) key#0 | encoded_value%0#0
-        box_get                                                                                 (𝕡) key#0 | maybe_value%0#0,maybe_exists%0#0
-        assert // check self.box_map entry exists                                               (𝕡) key#0 | maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                (𝕡) key#0 | maybe_value%0#0
-        retsub                                                                                  maybe_value%0#0
+        box_get                                                                                 (𝕡) key#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
+        assert // check self.box_map entry exists                                               (𝕡) key#0 | aggregate%box_get%0#1
+        l-load aggregate%box_get%0#1 0                                                          (𝕡) key#0 | aggregate%box_get%0#1
+        retsub                                                                                  aggregate%box_get%0#1
 
 
 // examples.box_storage.contract.BoxContract.box_map_del(key: uint64) -> void:

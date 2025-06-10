@@ -591,10 +591,10 @@ subroutine create_storage:
         l-load encoded_value%0#0 1                                                                (𝕡) box_key#0 | aggregate%extract%0#1,"box_map",encoded_value%0#0
         concat                                                                                    (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0
         l-load-copy box_prefixed_key%0#0 0                                                        (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
-        box_len                                                                                   (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,maybe_value%3#0,maybe_exists%3#0
-        l-store maybe_exists%3#0 1                                                                (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,maybe_exists%3#0,maybe_value%3#0
-        v-store maybe_value%3#0                                                                   (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,maybe_exists%3#0
-        l-load maybe_exists%3#0 0                                                                 (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,maybe_exists%3#0
+        box_len                                                                                   (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,aggregate%box_get%0#1,aggregate%box_get%1#1
+        l-store aggregate%box_get%1#1 1                                                           (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,aggregate%box_get%1#1,aggregate%box_get%0#1
+        v-store aggregate%box_get%0#1                                                             (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,aggregate%box_get%1#1
+        l-load aggregate%box_get%1#1 0                                                            (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,aggregate%box_get%1#1
         assert // check self.box_map entry exists                                                 (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0
         l-load box_prefixed_key%0#0 0                                                             (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0
         int 0                                                                                     (𝕡) box_key#0 | aggregate%extract%0#1,box_prefixed_key%0#0,0
@@ -734,10 +734,10 @@ subroutine struct_arg:
         // mutable_native_types/contract.py:165
         // self.box.value.fixed_a = a
         byte "box"                                                                                (𝕡) box_key#0,a#0 | "box"
-        box_len                                                                                   (𝕡) box_key#0,a#0 | maybe_value%3#0,maybe_exists%3#0
-        l-store maybe_exists%3#0 1                                                                (𝕡) box_key#0,a#0 | maybe_exists%3#0,maybe_value%3#0
-        v-store maybe_value%3#0                                                                   (𝕡) box_key#0,a#0 | maybe_exists%3#0
-        l-load maybe_exists%3#0 0                                                                 (𝕡) box_key#0,a#0 | maybe_exists%3#0
+        box_len                                                                                   (𝕡) box_key#0,a#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
+        l-store aggregate%box_get%1#1 1                                                           (𝕡) box_key#0,a#0 | aggregate%box_get%1#1,aggregate%box_get%0#1
+        v-store aggregate%box_get%0#1                                                             (𝕡) box_key#0,a#0 | aggregate%box_get%1#1
+        l-load aggregate%box_get%1#1 0                                                            (𝕡) box_key#0,a#0 | aggregate%box_get%1#1
         assert // check self.box exists                                                           (𝕡) box_key#0,a#0 |
         byte "box"                                                                                (𝕡) box_key#0,a#0 | "box"
         int 0                                                                                     (𝕡) box_key#0,a#0 | "box",0
@@ -751,10 +751,10 @@ subroutine struct_arg:
         l-load encoded_value%0#0 1                                                                (𝕡) box_key#0,a#0 | "box_map",encoded_value%0#0
         concat                                                                                    (𝕡) box_key#0,a#0 | box_prefixed_key%0#0
         l-load-copy box_prefixed_key%0#0 0                                                        (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
-        box_len                                                                                   (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_value%4#0,maybe_exists%4#0
-        l-store maybe_exists%4#0 1                                                                (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_exists%4#0,maybe_value%4#0
-        v-store maybe_value%4#0                                                                   (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_exists%4#0
-        l-load maybe_exists%4#0 0                                                                 (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,maybe_exists%4#0
+        box_len                                                                                   (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%box_get%3#1
+        l-store aggregate%box_get%3#1 1                                                           (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,aggregate%box_get%3#1,aggregate%box_get%2#1
+        v-store aggregate%box_get%2#1                                                             (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,aggregate%box_get%3#1
+        l-load aggregate%box_get%3#1 0                                                            (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,aggregate%box_get%3#1
         assert // check self.box_map entry exists                                                 (𝕡) box_key#0,a#0 | box_prefixed_key%0#0
         l-load box_prefixed_key%0#0 0                                                             (𝕡) box_key#0,a#0 | box_prefixed_key%0#0
         int 0                                                                                     (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,0

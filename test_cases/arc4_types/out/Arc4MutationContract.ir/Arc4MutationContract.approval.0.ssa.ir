@@ -355,7 +355,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let array_of_array#2: Encoded(len+(len+uint8[])[]) = as_Encoded(len+(len+uint8[])[])%1#0
         let tmp%4#0: bool = (== array_of_array#2 0x00020004000700010a000110)
         (assert tmp%4#0)
-        let array_item%0#0: Encoded(len+uint8[]) = array_of_array#2[0u]
+        let array_item%0#0: Encoded(len+uint8[]) = agg_read_index(array_of_array#2, 0u)
         let tmp%5#0: Encoded(uint8[]) = encode<uint8[]>(0xff)
         let concat%2#0: Encoded(len+uint8[]) = (concat array_item%0#0 tmp%5#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 array_item%0#0 0u)
@@ -364,11 +364,11 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = (replace3 concat%2#0 0u as_u16_bytes%0#0)
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = replace%0#0
-        let updated_array%0#0: Encoded(len+(len+uint8[])[]) = array_of_array#2.update((0u), as_Encoded(len+uint8[])%0#0)
+        let updated_array%0#0: Encoded(len+(len+uint8[])[]) = agg_write_index(array_of_array#2, 0u, as_Encoded(len+uint8[])%0#0)
         let array_of_array#3: Encoded(len+(len+uint8[])[]) = updated_array%0#0
         let tmp%6#0: bool = (== array_of_array#3 0x00020004000800020aff000110)
         (assert tmp%6#0)
-        let updated_array%1#0: Encoded(len+(len+uint8[])[]) = array_of_array#3.update((0u, 1u), 0x00)
+        let updated_array%1#0: Encoded(len+(len+uint8[])[]) = agg_write_index(array_of_array#3, 0u, 1u, 0x00)
         let array_of_array#4: Encoded(len+(len+uint8[])[]) = updated_array%1#0
         let tmp%7#0: bool = (== array_of_array#4 0x00020004000800020a00000110)
         (assert tmp%7#0)
@@ -383,11 +383,11 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_st
         let tmp%0#0: bool = (== array_of_array#0 0x0a094080)
         (assert tmp%0#0)
         let encoded_array%3#0: Encoded(uint8[2]) = encode<uint8[2]>(0xff, 0xfe)
-        let updated_array%0#0: Encoded(uint8[2][2]) = array_of_array#0.update((0u), encoded_array%3#0)
+        let updated_array%0#0: Encoded(uint8[2][2]) = agg_write_index(array_of_array#0, 0u, encoded_array%3#0)
         let array_of_array#1: Encoded(uint8[2][2]) = updated_array%0#0
         let tmp%1#0: bool = (== array_of_array#1 0xfffe4080)
         (assert tmp%1#0)
-        let updated_array%1#0: Encoded(uint8[2][2]) = array_of_array#1.update((1u, 0u), 0x01)
+        let updated_array%1#0: Encoded(uint8[2][2]) = agg_write_index(array_of_array#1, 1u, 0u, 0x01)
         let array_of_array#2: Encoded(uint8[2][2]) = updated_array%1#0
         let tmp%2#0: bool = (== array_of_array#2 0xfffe0180)
         (assert tmp%2#0)
@@ -397,13 +397,13 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
     block@0: // L100
         let encoded_array%0#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(0x01, 0x02)
         let dynamic_uint8_array#0: Encoded(len+uint8[]) = encoded_array%0#0
-        let updated_array%0#0: Encoded(len+uint8[]) = dynamic_uint8_array#0.update((0u), 0xff)
+        let updated_array%0#0: Encoded(len+uint8[]) = agg_write_index(dynamic_uint8_array#0, 0u, 0xff)
         let dynamic_uint8_array#1: Encoded(len+uint8[]) = updated_array%0#0
         let tmp%0#0: bool = (== dynamic_uint8_array#1 0x0002ff02)
         (assert tmp%0#0)
         let encoded_array%1#0: Encoded(uint8[2]) = encode<uint8[2]>(0x01, 0x02)
         let static_uint8_array#0: Encoded(uint8[2]) = encoded_array%1#0
-        let updated_array%1#0: Encoded(uint8[2]) = static_uint8_array#0.update((1u), 0xff)
+        let updated_array%1#0: Encoded(uint8[2]) = agg_write_index(static_uint8_array#0, 1u, 0xff)
         let static_uint8_array#1: Encoded(uint8[2]) = updated_array%1#0
         let tmp%1#0: bool = (== static_uint8_array#1 0x01ff)
         (assert tmp%1#0)
@@ -412,7 +412,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let encoded_array%2#0: Encoded(len+bool1[]) = encode<(len+bool1[])>(tmp%2#0, tmp%3#0)
         let dynamic_bool_array#0: Encoded(len+bool1[]) = encoded_array%2#0
         let tmp%4#0: Encoded(bool8) = encode<bool8>(0u)
-        let updated_array%2#0: Encoded(len+bool1[]) = dynamic_bool_array#0.update((0u), tmp%4#0)
+        let updated_array%2#0: Encoded(len+bool1[]) = agg_write_index(dynamic_bool_array#0, 0u, tmp%4#0)
         let dynamic_bool_array#1: Encoded(len+bool1[]) = updated_array%2#0
         let tmp%5#0: bool = (== dynamic_bool_array#1 0x000200)
         (assert tmp%5#0)
@@ -421,7 +421,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let encoded_array%3#0: Encoded(bool1[2]) = encode<bool1[2]>(tmp%6#0, tmp%7#0)
         let static_bool_array#0: Encoded(bool1[2]) = encoded_array%3#0
         let tmp%8#0: Encoded(bool8) = encode<bool8>(0u)
-        let updated_array%3#0: Encoded(bool1[2]) = static_bool_array#0.update((1u), tmp%8#0)
+        let updated_array%3#0: Encoded(bool1[2]) = agg_write_index(static_bool_array#0, 1u, tmp%8#0)
         let static_bool_array#1: Encoded(bool1[2]) = updated_array%3#0
         let tmp%9#0: bool = (== static_bool_array#1 0x80)
         (assert tmp%9#0)
@@ -435,9 +435,9 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign() -
         let tmp%1#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = encode<(bool1,uint8,(len+utf8[]),(len+utf8[]))>(tmp%0#0, 0x32, encoded%0#0, encoded%1#0)
         let test_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = tmp%1#0
         let tmp%2#0: Encoded(bool8) = encode<bool8>(0u)
-        let updated_tuple%0#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = test_struct#0.update((0), tmp%2#0)
+        let updated_tuple%0#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = agg_write_index(test_struct#0, 0, tmp%2#0)
         let test_struct#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%0#0
-        let updated_tuple%1#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = test_struct#1.update((1), 0x0c)
+        let updated_tuple%1#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = agg_write_index(test_struct#1, 1, 0x0c)
         let test_struct#2: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%1#0
         let tmp%3#0: Encoded(bool8) = encode<bool8>(0u)
         let encoded%2#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x4861707079)
@@ -446,10 +446,10 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign() -
         let tmp%5#0: bool = (== test_struct#2 tmp%4#0)
         (assert tmp%5#0)
         let encoded%4#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x486d6d6d6d)
-        let updated_tuple%2#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = test_struct#2.update((2), encoded%4#0)
+        let updated_tuple%2#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = agg_write_index(test_struct#2, 2, encoded%4#0)
         let test_struct#3: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%2#0
         let encoded%5#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x4f682077656c6c)
-        let updated_tuple%3#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = test_struct#3.update((3), encoded%5#0)
+        let updated_tuple%3#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = agg_write_index(test_struct#3, 3, encoded%5#0)
         let test_struct#4: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%3#0
         let tmp%6#0: Encoded(bool8) = encode<bool8>(0u)
         let encoded%6#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x486d6d6d6d)
@@ -622,9 +622,9 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         (assert tmp%4#0)
         let encoded_array%2#0: Encoded(len+(len+utf8[])[]) = encode<(len+(len+utf8[])[])>(hello#0, world#0, foo#0, bar#0, hello#0, world#0, foo#0, bar#0)
         let dynamic_string_array#3: Encoded(len+(len+utf8[])[]) = encoded_array%2#0
-        let updated_array%0#0: Encoded(len+(len+utf8[])[]) = dynamic_string_array#3.update((3u), hello#0)
+        let updated_array%0#0: Encoded(len+(len+utf8[])[]) = agg_write_index(dynamic_string_array#3, 3u, hello#0)
         let dynamic_string_array#4: Encoded(len+(len+utf8[])[]) = updated_array%0#0
-        let updated_array%1#0: Encoded(len+(len+utf8[])[]) = dynamic_string_array#4.update((5u), hello#0)
+        let updated_array%1#0: Encoded(len+(len+utf8[])[]) = agg_write_index(dynamic_string_array#4, 5u, hello#0)
         let dynamic_string_array#5: Encoded(len+(len+utf8[])[]) = updated_array%1#0
         let encoded_array%3#0: Encoded(len+(len+utf8[])[]) = encode<(len+(len+utf8[])[])>(hello#0, world#0, foo#0, hello#0, hello#0, hello#0, foo#0, bar#0)
         let tmp%5#0: bool = (== dynamic_string_array#5 encoded_array%3#0)

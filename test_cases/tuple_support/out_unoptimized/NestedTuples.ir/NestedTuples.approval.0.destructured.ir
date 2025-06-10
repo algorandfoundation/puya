@@ -395,11 +395,12 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
         let aggregate%encoded%2#1: Encoded(uint64,uint64) = (concat aggregate%encoded%1#1 0x)
         let encoded_for_storage%0#0: Encoded(uint64,uint64) = aggregate%encoded%2#1
         let box_prefixed_key%0#0: bytes = (concat "box" encoded_for_storage%0#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (box_get box_prefixed_key%0#0)
-        (assert maybe_exists%0#0) // check self.box entry exists
-        let aggregate%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 8u)
+        let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get box_prefixed_key%0#0)
+        (assert aggregate%box_get%1#1) // check self.box entry exists
+        let storage_value%0#0: bytes = aggregate%box_get%0#1
+        let aggregate%extract%0#1: bytes = (extract3 storage_value%0#0 0u 8u)
         let aggregate%item0%0#1: uint64 = (btoi aggregate%extract%0#1)
-        let aggregate%extract%1#1: bytes = (extract3 maybe_value%0#0 8u 8u)
+        let aggregate%extract%1#1: bytes = (extract3 storage_value%0#0 8u 8u)
         let aggregate%item1%0#1: uint64 = (btoi aggregate%extract%1#1)
         let tmp%0#0: uint64 = aggregate%item0%0#1
         let tmp%1#0: uint64 = aggregate%item1%0#1

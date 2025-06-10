@@ -341,12 +341,6 @@ set_boxes:
     pushint 4096 // 4096
     pushbytes 0x000000000000002a
     box_replace
-    // box_storage/contract.py:52
-    // b_value = self.box_b.value.copy()
-    bytec 4 // "b"
-    box_len
-    bury 1
-    assert // check self.box_b exists
     // box_storage/contract.py:55
     // self.box_a.value += 3
     bytec_3 // "box_a"
@@ -372,7 +366,7 @@ set_boxes:
     // assert self.box_b.length == b.bytes.length
     bytec 4 // "b"
     box_len
-    pop
+    assert // check self.box_b exists
     frame_dig -2
     len
     ==
@@ -1104,12 +1098,16 @@ box_map_test:
     dup
     box_get
     bytec 11 // "default"
-    uncover 2
-    dig 2
+    cover 2
     select
     bytec 11 // "default"
     ==
     assert
+    // box_storage/contract.py:195
+    // value, exists = self.box_map.maybe(key_1)
+    dup
+    box_len
+    bury 1
     // box_storage/contract.py:196
     // assert not exists
     !
