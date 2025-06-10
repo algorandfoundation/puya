@@ -72,7 +72,7 @@ class _AggregateCollector(IRTraverser):
                 (target,) = ass.targets
                 self.agg_writes[target] = _Ass(ass, source)
             case models.BoxRead():
-                (value, _) = ass.targets
+                (value,) = ass.targets
                 self.box_reads[value] = _Ass(ass, source)
 
 

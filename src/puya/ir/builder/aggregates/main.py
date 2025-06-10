@@ -13,7 +13,8 @@ from puya.ir.avm_ops import AVMOp
 from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
 from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
-from puya.ir.op_utils import OpFactory
+from puya.ir.op_utils import OpFactory, assert_value
+from puya.ir.types_ import PrimitiveIRType
 
 logger = log.get_logger(__name__)
 
@@ -138,12 +139,19 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         return value
 
     def visit_box_read(self, read: models.BoxRead) -> models.ValueProvider:
-        return models.Intrinsic(
+        loc = read.source_location
+
+        box_get = models.Intrinsic(
             op=AVMOp.box_get,
             args=[read.key],
-            types=read.types,
-            source_location=read.source_location,
+            types=[*read.types, PrimitiveIRType.bool],
+            source_location=loc,
         )
+        box_value, box_exists = self.materialise_value_provider(box_get, "box_get")
+        assert_value(
+            self, box_exists, error_message=read.exists_assertion_message, source_location=loc
+        )
+        return box_value
 
     def visit_box_write(self, write: models.BoxWrite) -> None:
         self.add_op(
