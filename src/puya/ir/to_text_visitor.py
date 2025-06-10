@@ -120,8 +120,8 @@ class ToTextVisitor(IRVisitor[str]):
     def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> str:
         base = read.base.accept(self)
         indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in read.indexes]
-        index = "".join(f"[{i_str}]" for i_str in indexes)
-        return f"{base}{index}"
+        args = ", ".join((base, *indexes))
+        return f"agg_read_index({args})"
 
     @typing.override
     def visit_aggregate_write_index(self, write: models.AggregateWriteIndex) -> str:
@@ -129,7 +129,7 @@ class ToTextVisitor(IRVisitor[str]):
         indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in write.indexes]
         index = ", ".join(indexes)
         value = write.value.accept(self)
-        return f"{base}.update(({index}), {value})"
+        return f"agg_write_index({base}, {index}, {value})"
 
     @typing.override
     def visit_value_encode(self, encode: models.ValueEncode) -> str:
