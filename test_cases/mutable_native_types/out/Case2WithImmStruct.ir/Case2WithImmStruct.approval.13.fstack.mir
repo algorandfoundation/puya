@@ -304,12 +304,6 @@ subroutine add_tup:
         // mutable_native_types/case2_with_immutable_struct.py:49
         // assert self.tup_bag.value.count < self.tup_bag.value.items.length, "too many tups"
         byte "tup_bag"                                                                                                         (𝕡) tup#0 | "tup_bag"
-        box_len                                                                                                                (𝕡) tup#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
-        l-store aggregate%box_get%1#1 1                                                                                        (𝕡) tup#0 | aggregate%box_get%1#1,aggregate%box_get%0#1
-        pop 1                                                                                                                  (𝕡) tup#0 | aggregate%box_get%1#1
-        l-load aggregate%box_get%1#1 0                                                                                         (𝕡) tup#0 | aggregate%box_get%1#1
-        assert // check self.tup_bag exists                                                                                    (𝕡) tup#0 |
-        byte "tup_bag"                                                                                                         (𝕡) tup#0 | "tup_bag"
         int 0                                                                                                                  (𝕡) tup#0 | "tup_bag",0
         int 8                                                                                                                  (𝕡) tup#0 | "tup_bag",0,8
         box_extract                                                                                                            (𝕡) tup#0 | box%box_extract%0#1
@@ -422,28 +416,28 @@ subroutine sum:
         f-load i#0                                                                                                             (𝕗) total#0,values%0#0,i#0 | box%box_extract%3#1,i#0
         l-store-copy i#0 1                                                                                                     (𝕗) total#0,values%0#0,i#0 | i#0,box%box_extract%3#1,i#0 (copy)
         int 16                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,box%box_extract%3#1,i#0 (copy),16
-        *                                                                                                                      (𝕗) total#0,values%0#0,i#0 | i#0,box%box_extract%3#1,aggregate%bytes_offset%1#1
-        l-load box%box_extract%3#1 1                                                                                           (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1
-        l-load-copy aggregate%bytes_offset%1#1 1                                                                               (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1,aggregate%bytes_offset%1#1 (copy)
-        int 16                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1,aggregate%bytes_offset%1#1 (copy),16
-        extract3 // on error: index access is out of bounds                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded_element%1#1
-        int 0                                                                                                                  (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded_element%1#1,0
+        *                                                                                                                      (𝕗) total#0,values%0#0,i#0 | i#0,box%box_extract%3#1,aggregate%bytes_offset%0#1
+        l-load box%box_extract%3#1 1                                                                                           (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1
+        l-load-copy aggregate%bytes_offset%0#1 1                                                                               (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1,aggregate%bytes_offset%0#1 (copy)
+        int 16                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1,aggregate%bytes_offset%0#1 (copy),16
+        extract3 // on error: index access is out of bounds                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1
+        int 0                                                                                                                  (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,0
         // mutable_native_types/case2_with_immutable_struct.py:63
         // total += tup.a
-        extract_uint64                                                                                                         (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,values%1#0
-        f-load total#0                                                                                                         (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,values%1#0,total#0
-        l-load values%1#0 1                                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,total#0,values%1#0
-        +                                                                                                                      (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,total#0
+        extract_uint64                                                                                                         (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,values%1#0
+        f-load total#0                                                                                                         (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,values%1#0,total#0
+        l-load values%1#0 1                                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,total#0,values%1#0
+        +                                                                                                                      (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,total#0
         // mutable_native_types/case2_with_immutable_struct.py:62
         // tup = self.tup_bag.value.items[i]
-        byte "tup_bag"                                                                                                         (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,total#0,"tup_bag"
-        int 8                                                                                                                  (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,total#0,"tup_bag",8
-        int 128                                                                                                                (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,total#0,"tup_bag",8,128
-        box_extract                                                                                                            (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,total#0,box%box_extract%4#1
-        l-load aggregate%bytes_offset%1#1 2                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,total#0,box%box_extract%4#1,aggregate%bytes_offset%1#1
-        int 16                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,total#0,box%box_extract%4#1,aggregate%bytes_offset%1#1,16
-        extract3 // on error: index access is out of bounds                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,total#0,aggregate%encoded_element%2#1
-        int 8                                                                                                                  (𝕗) total#0,values%0#0,i#0 | i#0,total#0,aggregate%encoded_element%2#1,8
+        byte "tup_bag"                                                                                                         (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,total#0,"tup_bag"
+        int 8                                                                                                                  (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,total#0,"tup_bag",8
+        int 128                                                                                                                (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,total#0,"tup_bag",8,128
+        box_extract                                                                                                            (𝕗) total#0,values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,total#0,box%box_extract%4#1
+        l-load aggregate%bytes_offset%0#1 2                                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,total#0,box%box_extract%4#1,aggregate%bytes_offset%0#1
+        int 16                                                                                                                 (𝕗) total#0,values%0#0,i#0 | i#0,total#0,box%box_extract%4#1,aggregate%bytes_offset%0#1,16
+        extract3 // on error: index access is out of bounds                                                                    (𝕗) total#0,values%0#0,i#0 | i#0,total#0,aggregate%encoded_element%1#1
+        int 8                                                                                                                  (𝕗) total#0,values%0#0,i#0 | i#0,total#0,aggregate%encoded_element%1#1,8
         // mutable_native_types/case2_with_immutable_struct.py:64
         // total += tup.b
         extract_uint64                                                                                                         (𝕗) total#0,values%0#0,i#0 | i#0,total#0,values%2#0
@@ -582,40 +576,34 @@ subroutine set_a:
         // mutable_native_types/case2_with_immutable_struct.py:81
         // tup = self.tup_bag.value.items[i]
         byte "tup_bag"                                                                                                         (𝕡) a#0 | (𝕗) values%0#0,i#0 | "tup_bag"
-        box_len                                                                                                                (𝕡) a#0 | (𝕗) values%0#0,i#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
-        l-store aggregate%box_get%1#1 1                                                                                        (𝕡) a#0 | (𝕗) values%0#0,i#0 | aggregate%box_get%1#1,aggregate%box_get%0#1
-        pop 1                                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | aggregate%box_get%1#1
-        l-load aggregate%box_get%1#1 0                                                                                         (𝕡) a#0 | (𝕗) values%0#0,i#0 | aggregate%box_get%1#1
-        assert // check self.tup_bag exists                                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 |
-        byte "tup_bag"                                                                                                         (𝕡) a#0 | (𝕗) values%0#0,i#0 | "tup_bag"
         int 8                                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | "tup_bag",8
         int 128                                                                                                                (𝕡) a#0 | (𝕗) values%0#0,i#0 | "tup_bag",8,128
         box_extract                                                                                                            (𝕡) a#0 | (𝕗) values%0#0,i#0 | box%box_extract%3#1
         f-load i#0                                                                                                             (𝕡) a#0 | (𝕗) values%0#0,i#0 | box%box_extract%3#1,i#0
         l-store-copy i#0 1                                                                                                     (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,box%box_extract%3#1,i#0 (copy)
         int 16                                                                                                                 (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,box%box_extract%3#1,i#0 (copy),16
-        *                                                                                                                      (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,box%box_extract%3#1,aggregate%bytes_offset%1#1
-        l-load box%box_extract%3#1 1                                                                                           (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1
-        l-load-copy aggregate%bytes_offset%1#1 1                                                                               (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1,aggregate%bytes_offset%1#1 (copy)
-        int 16                                                                                                                 (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1,aggregate%bytes_offset%1#1 (copy),16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded_element%1#1
-        int 8                                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded_element%1#1,8
+        *                                                                                                                      (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,box%box_extract%3#1,aggregate%bytes_offset%0#1
+        l-load box%box_extract%3#1 1                                                                                           (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1
+        l-load-copy aggregate%bytes_offset%0#1 1                                                                               (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1,aggregate%bytes_offset%0#1 (copy)
+        int 16                                                                                                                 (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1,aggregate%bytes_offset%0#1 (copy),16
+        extract3 // on error: index access is out of bounds                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1
+        int 8                                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,8
         // mutable_native_types/case2_with_immutable_struct.py:82
         // self.tup_bag.value.items[i] = tup._replace(a=a)
-        extract_uint64                                                                                                         (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,values%1#0
-        p-load a#0                                                                                                             (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,values%1#0,a#0 (copy)
-        itob                                                                                                                   (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,values%1#0,aggregate%val_as_bytes%0#1
-        l-load values%1#0 1                                                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%val_as_bytes%0#1,values%1#0
-        itob                                                                                                                   (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
-        l-load aggregate%val_as_bytes%0#1 1                                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%val_as_bytes%1#1,aggregate%val_as_bytes%0#1
-        l-load aggregate%val_as_bytes%1#1 1                                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
-        concat                                                                                                                 (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1
-        l-load-copy i#0 2                                                                                                      (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1,i#0 (copy)
-        int 8                                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1,i#0 (copy),8
-        <                                                                                                                      (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1,box%index_ok%0#1
-        assert // index out of bounds                                                                                          (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1
-        int 8                                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1,8
-        l-load aggregate%bytes_offset%1#1 2                                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,8,aggregate%bytes_offset%1#1
+        extract_uint64                                                                                                         (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,values%1#0
+        p-load a#0                                                                                                             (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,values%1#0,a#0 (copy)
+        itob                                                                                                                   (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,values%1#0,aggregate%val_as_bytes%0#1
+        l-load values%1#0 1                                                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%0#1,values%1#0
+        itob                                                                                                                   (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
+        l-load aggregate%val_as_bytes%0#1 1                                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%1#1,aggregate%val_as_bytes%0#1
+        l-load aggregate%val_as_bytes%1#1 1                                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
+        concat                                                                                                                 (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1
+        l-load-copy i#0 2                                                                                                      (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1,i#0 (copy)
+        int 8                                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1,i#0 (copy),8
+        <                                                                                                                      (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1,box%index_ok%0#1
+        assert // index out of bounds                                                                                          (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1
+        int 8                                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1,8
+        l-load aggregate%bytes_offset%0#1 2                                                                                    (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,8,aggregate%bytes_offset%0#1
         +                                                                                                                      (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,box%offset%5#1
         byte "tup_bag"                                                                                                         (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,box%offset%5#1,"tup_bag"
         l-load box%offset%5#1 1                                                                                                (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,"tup_bag",box%offset%5#1
@@ -663,39 +651,33 @@ subroutine set_b:
         // mutable_native_types/case2_with_immutable_struct.py:88
         // tup = self.tup_bag.value.items[i]
         byte "tup_bag"                                                                                                         (𝕡) b#0 | (𝕗) values%0#0,i#0 | "tup_bag"
-        box_len                                                                                                                (𝕡) b#0 | (𝕗) values%0#0,i#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
-        l-store aggregate%box_get%1#1 1                                                                                        (𝕡) b#0 | (𝕗) values%0#0,i#0 | aggregate%box_get%1#1,aggregate%box_get%0#1
-        pop 1                                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | aggregate%box_get%1#1
-        l-load aggregate%box_get%1#1 0                                                                                         (𝕡) b#0 | (𝕗) values%0#0,i#0 | aggregate%box_get%1#1
-        assert // check self.tup_bag exists                                                                                    (𝕡) b#0 | (𝕗) values%0#0,i#0 |
-        byte "tup_bag"                                                                                                         (𝕡) b#0 | (𝕗) values%0#0,i#0 | "tup_bag"
         int 8                                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | "tup_bag",8
         int 128                                                                                                                (𝕡) b#0 | (𝕗) values%0#0,i#0 | "tup_bag",8,128
         box_extract                                                                                                            (𝕡) b#0 | (𝕗) values%0#0,i#0 | box%box_extract%3#1
         f-load i#0                                                                                                             (𝕡) b#0 | (𝕗) values%0#0,i#0 | box%box_extract%3#1,i#0
         l-store-copy i#0 1                                                                                                     (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,box%box_extract%3#1,i#0 (copy)
         int 16                                                                                                                 (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,box%box_extract%3#1,i#0 (copy),16
-        *                                                                                                                      (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,box%box_extract%3#1,aggregate%bytes_offset%1#1
-        l-load box%box_extract%3#1 1                                                                                           (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1
-        l-load-copy aggregate%bytes_offset%1#1 1                                                                               (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1,aggregate%bytes_offset%1#1 (copy)
-        int 16                                                                                                                 (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1,aggregate%bytes_offset%1#1 (copy),16
-        extract3 // on error: index access is out of bounds                                                                    (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded_element%1#1
-        int 0                                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded_element%1#1,0
+        *                                                                                                                      (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,box%box_extract%3#1,aggregate%bytes_offset%0#1
+        l-load box%box_extract%3#1 1                                                                                           (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1
+        l-load-copy aggregate%bytes_offset%0#1 1                                                                               (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1,aggregate%bytes_offset%0#1 (copy)
+        int 16                                                                                                                 (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1,aggregate%bytes_offset%0#1 (copy),16
+        extract3 // on error: index access is out of bounds                                                                    (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1
+        int 0                                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,0
         // mutable_native_types/case2_with_immutable_struct.py:89
         // self.tup_bag.value.items[i] = tup._replace(b=b)
-        extract_uint64                                                                                                         (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,values%1#0
-        itob                                                                                                                   (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%val_as_bytes%0#1
-        p-load b#0                                                                                                             (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%val_as_bytes%0#1,b#0 (copy)
-        itob                                                                                                                   (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
-        l-load aggregate%val_as_bytes%0#1 1                                                                                    (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%val_as_bytes%1#1,aggregate%val_as_bytes%0#1
-        l-load aggregate%val_as_bytes%1#1 1                                                                                    (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
-        concat                                                                                                                 (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1
-        l-load-copy i#0 2                                                                                                      (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1,i#0 (copy)
-        int 8                                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1,i#0 (copy),8
-        <                                                                                                                      (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1,box%index_ok%0#1
-        assert // index out of bounds                                                                                          (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1
-        int 8                                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%1#1,aggregate%encoded%1#1,8
-        l-load aggregate%bytes_offset%1#1 2                                                                                    (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,8,aggregate%bytes_offset%1#1
+        extract_uint64                                                                                                         (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,values%1#0
+        itob                                                                                                                   (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%0#1
+        p-load b#0                                                                                                             (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%0#1,b#0 (copy)
+        itob                                                                                                                   (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
+        l-load aggregate%val_as_bytes%0#1 1                                                                                    (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%1#1,aggregate%val_as_bytes%0#1
+        l-load aggregate%val_as_bytes%1#1 1                                                                                    (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
+        concat                                                                                                                 (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1
+        l-load-copy i#0 2                                                                                                      (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1,i#0 (copy)
+        int 8                                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1,i#0 (copy),8
+        <                                                                                                                      (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1,box%index_ok%0#1
+        assert // index out of bounds                                                                                          (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1
+        int 8                                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#1,aggregate%encoded%1#1,8
+        l-load aggregate%bytes_offset%0#1 2                                                                                    (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,8,aggregate%bytes_offset%0#1
         +                                                                                                                      (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,box%offset%5#1
         byte "tup_bag"                                                                                                         (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,box%offset%5#1,"tup_bag"
         l-load box%offset%5#1 1                                                                                                (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%encoded%1#1,"tup_bag",box%offset%5#1

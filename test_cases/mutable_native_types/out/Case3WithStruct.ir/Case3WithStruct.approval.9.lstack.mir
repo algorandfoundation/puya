@@ -390,12 +390,6 @@ subroutine add_tup:
         // mutable_native_types/case3_with_mutable_struct.py:49
         // assert self.tup_bag.value.count < self.tup_bag.value.items.length, "too many tups"
         byte "tup_bag"                                                                                                    (𝕡) tup#0 | "tup_bag"
-        box_len                                                                                                           (𝕡) tup#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
-        l-store aggregate%box_get%1#1 1                                                                                   (𝕡) tup#0 | aggregate%box_get%1#1,aggregate%box_get%0#1
-        v-store aggregate%box_get%0#1                                                                                     (𝕡) tup#0 | aggregate%box_get%1#1
-        l-load aggregate%box_get%1#1 0                                                                                    (𝕡) tup#0 | aggregate%box_get%1#1
-        assert // check self.tup_bag exists                                                                               (𝕡) tup#0 |
-        byte "tup_bag"                                                                                                    (𝕡) tup#0 | "tup_bag"
         int 0                                                                                                             (𝕡) tup#0 | "tup_bag",0
         int 8                                                                                                             (𝕡) tup#0 | "tup_bag",0,8
         box_extract                                                                                                       (𝕡) tup#0 | box%box_extract%0#1
@@ -522,39 +516,39 @@ subroutine sum:
         v-load i#0                                                                                                        box%box_extract%3#1,i#0
         l-store-copy i#0 1                                                                                                i#0,box%box_extract%3#1,i#0 (copy)
         int 16                                                                                                            i#0,box%box_extract%3#1,i#0 (copy),16
-        *                                                                                                                 i#0,box%box_extract%3#1,aggregate%bytes_offset%1#1
-        l-load box%box_extract%3#1 1                                                                                      i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1
-        l-load-copy aggregate%bytes_offset%1#1 1                                                                          i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1,aggregate%bytes_offset%1#1 (copy)
-        int 16                                                                                                            i#0,aggregate%bytes_offset%1#1,box%box_extract%3#1,aggregate%bytes_offset%1#1 (copy),16
-        extract3 // on error: index access is out of bounds                                                               i#0,aggregate%bytes_offset%1#1,aggregate%encoded_element%1#1
+        *                                                                                                                 i#0,box%box_extract%3#1,aggregate%bytes_offset%0#1
+        l-load box%box_extract%3#1 1                                                                                      i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1
+        l-load-copy aggregate%bytes_offset%0#1 1                                                                          i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1,aggregate%bytes_offset%0#1 (copy)
+        int 16                                                                                                            i#0,aggregate%bytes_offset%0#1,box%box_extract%3#1,aggregate%bytes_offset%0#1 (copy),16
+        extract3 // on error: index access is out of bounds                                                               i#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1
         // mutable_native_types/case3_with_mutable_struct.py:63
         // total += tup.a
-        l-load aggregate%encoded_element%1#1 0                                                                            i#0,aggregate%bytes_offset%1#1,aggregate%encoded_element%1#1
+        l-load aggregate%encoded_element%0#1 0                                                                            i#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1
         // mutable_native_types/case3_with_mutable_struct.py:62
         // tup = self.tup_bag.value.items[i].copy()
-        int 0                                                                                                             i#0,aggregate%bytes_offset%1#1,aggregate%encoded_element%1#1,0
+        int 0                                                                                                             i#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,0
         // mutable_native_types/case3_with_mutable_struct.py:63
         // total += tup.a
-        extract_uint64                                                                                                    i#0,aggregate%bytes_offset%1#1,values%1#0
-        v-load total#0                                                                                                    i#0,aggregate%bytes_offset%1#1,values%1#0,total#0
-        l-load values%1#0 1                                                                                               i#0,aggregate%bytes_offset%1#1,total#0,values%1#0
-        +                                                                                                                 i#0,aggregate%bytes_offset%1#1,total#0
+        extract_uint64                                                                                                    i#0,aggregate%bytes_offset%0#1,values%1#0
+        v-load total#0                                                                                                    i#0,aggregate%bytes_offset%0#1,values%1#0,total#0
+        l-load values%1#0 1                                                                                               i#0,aggregate%bytes_offset%0#1,total#0,values%1#0
+        +                                                                                                                 i#0,aggregate%bytes_offset%0#1,total#0
         // mutable_native_types/case3_with_mutable_struct.py:62
         // tup = self.tup_bag.value.items[i].copy()
-        byte "tup_bag"                                                                                                    i#0,aggregate%bytes_offset%1#1,total#0,"tup_bag"
-        int 8                                                                                                             i#0,aggregate%bytes_offset%1#1,total#0,"tup_bag",8
-        int 128                                                                                                           i#0,aggregate%bytes_offset%1#1,total#0,"tup_bag",8,128
-        box_extract                                                                                                       i#0,aggregate%bytes_offset%1#1,total#0,box%box_extract%4#1
-        l-load box%box_extract%4#1 0                                                                                      i#0,aggregate%bytes_offset%1#1,total#0,box%box_extract%4#1
-        l-load aggregate%bytes_offset%1#1 2                                                                               i#0,total#0,box%box_extract%4#1,aggregate%bytes_offset%1#1
-        int 16                                                                                                            i#0,total#0,box%box_extract%4#1,aggregate%bytes_offset%1#1,16
-        extract3 // on error: index access is out of bounds                                                               i#0,total#0,aggregate%encoded_element%2#1
+        byte "tup_bag"                                                                                                    i#0,aggregate%bytes_offset%0#1,total#0,"tup_bag"
+        int 8                                                                                                             i#0,aggregate%bytes_offset%0#1,total#0,"tup_bag",8
+        int 128                                                                                                           i#0,aggregate%bytes_offset%0#1,total#0,"tup_bag",8,128
+        box_extract                                                                                                       i#0,aggregate%bytes_offset%0#1,total#0,box%box_extract%4#1
+        l-load box%box_extract%4#1 0                                                                                      i#0,aggregate%bytes_offset%0#1,total#0,box%box_extract%4#1
+        l-load aggregate%bytes_offset%0#1 2                                                                               i#0,total#0,box%box_extract%4#1,aggregate%bytes_offset%0#1
+        int 16                                                                                                            i#0,total#0,box%box_extract%4#1,aggregate%bytes_offset%0#1,16
+        extract3 // on error: index access is out of bounds                                                               i#0,total#0,aggregate%encoded_element%1#1
         // mutable_native_types/case3_with_mutable_struct.py:64
         // total += tup.b
-        l-load aggregate%encoded_element%2#1 0                                                                            i#0,total#0,aggregate%encoded_element%2#1
+        l-load aggregate%encoded_element%1#1 0                                                                            i#0,total#0,aggregate%encoded_element%1#1
         // mutable_native_types/case3_with_mutable_struct.py:62
         // tup = self.tup_bag.value.items[i].copy()
-        int 8                                                                                                             i#0,total#0,aggregate%encoded_element%2#1,8
+        int 8                                                                                                             i#0,total#0,aggregate%encoded_element%1#1,8
         // mutable_native_types/case3_with_mutable_struct.py:64
         // total += tup.b
         extract_uint64                                                                                                    i#0,total#0,values%2#0
@@ -702,12 +696,6 @@ subroutine set_a:
     set_a_for_body@2:                                                                                                     (𝕡) a#0 |
         // mutable_native_types/case3_with_mutable_struct.py:81
         // self.tup_bag.value.items[i].a = a
-        byte "tup_bag"                                                                                                    (𝕡) a#0 | "tup_bag"
-        box_len                                                                                                           (𝕡) a#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
-        l-store aggregate%box_get%1#1 1                                                                                   (𝕡) a#0 | aggregate%box_get%1#1,aggregate%box_get%0#1
-        v-store aggregate%box_get%0#1                                                                                     (𝕡) a#0 | aggregate%box_get%1#1
-        l-load aggregate%box_get%1#1 0                                                                                    (𝕡) a#0 | aggregate%box_get%1#1
-        assert // check self.tup_bag exists                                                                               (𝕡) a#0 |
         p-load a#0                                                                                                        (𝕡) a#0 | a#0 (copy)
         itob                                                                                                              (𝕡) a#0 | aggregate%val_as_bytes%0#1
         v-load i#0                                                                                                        (𝕡) a#0 | aggregate%val_as_bytes%0#1,i#0
@@ -769,12 +757,6 @@ subroutine set_b:
     set_b_for_body@2:                                                                                                     (𝕡) b#0 |
         // mutable_native_types/case3_with_mutable_struct.py:87
         // self.tup_bag.value.items[i].b = b
-        byte "tup_bag"                                                                                                    (𝕡) b#0 | "tup_bag"
-        box_len                                                                                                           (𝕡) b#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
-        l-store aggregate%box_get%1#1 1                                                                                   (𝕡) b#0 | aggregate%box_get%1#1,aggregate%box_get%0#1
-        v-store aggregate%box_get%0#1                                                                                     (𝕡) b#0 | aggregate%box_get%1#1
-        l-load aggregate%box_get%1#1 0                                                                                    (𝕡) b#0 | aggregate%box_get%1#1
-        assert // check self.tup_bag exists                                                                               (𝕡) b#0 |
         p-load b#0                                                                                                        (𝕡) b#0 | b#0 (copy)
         itob                                                                                                              (𝕡) b#0 | aggregate%val_as_bytes%0#1
         v-load i#0                                                                                                        (𝕡) b#0 | aggregate%val_as_bytes%0#1,i#0

@@ -23,10 +23,17 @@ class NamedTup(typing.NamedTuple):
 
 class TupBag(Struct):
     count: UInt64
-    items: FixedArray[NamedTup, typing.Literal[8]]
+    items: FixedArray[NamedTup, typing.Literal[8]]  # always need to check
     owner: Account
     app: Application
-    too_big: FixedArray[arc4.Byte, typing.Literal[4096]]
+    too_big: FixedArray[arc4.Byte, typing.Literal[4096]]  # dont need to check
+
+
+Arr = FixedArray[UInt64, typing.Literal[5]]
+
+
+class Nest(Struct):
+    arr: FixedArray[Arr, typing.Literal[10]]
 
 
 class Case1WithTups(arc4.ARC4Contract):

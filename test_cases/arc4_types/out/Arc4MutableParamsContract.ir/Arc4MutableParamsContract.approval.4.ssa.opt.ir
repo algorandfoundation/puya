@@ -22,9 +22,7 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let encoded%2#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x41415252474821)
         let tmp%6#0: bool = (== tuple_item%0#0 encoded%2#0)
         (assert tmp%6#0) // my_struct has been mutated by the subroutine
-        let array#3: Encoded(uint8[4]) = agg_write_index(my_array#0, 1u, 0x05)
         let encoded%0#2: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x41415252474821)
-        let struct#5: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = agg_write_index(my_struct#0, 2, encoded%0#2)
         let array_item%3#0: Encoded(uint8) = agg_read_index(my_array#0, 1u)
         let tmp%7#0: bool = (b== array_item%3#0 0x02)
         (assert tmp%7#0) // my_array_copy should not be mutated by the subroutine
@@ -32,7 +30,6 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let encoded%3#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x4861707079)
         let tmp%8#0: bool = (== tuple_item%1#0 encoded%3#0)
         (assert tmp%8#0) // my_struct_copy should not be mutated by the subroutine
-        let array#5: Encoded(uint8[4]) = agg_write_index(my_array#0, 0u, 0x0a)
         let array_item%4#0: Encoded(uint8) = agg_read_index(my_array#0, 0u)
         let tmp%9#0: bool = (b== array_item%4#0 0x01)
         (assert tmp%9#0) // my_array_copy_2 should have original value
@@ -80,8 +77,6 @@ main test_cases.arc4_types.mutable_params.Arc4MutableParamsContract.approval_pro
         let tmp%27#0: bool = (b== array_item%17#0 0xd0)
         (assert tmp%27#0)
         let nested#0: Encoded(uint8[4]) = encode<(uint8[4])>(my_array#4)
-        let array#8: Encoded(uint8[4]) = agg_read_index(nested#0, 0)
-        let array#9: Encoded(uint8[4]) = agg_write_index(array#8, 0u, 0x0a)
         return 1u
 
 subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
