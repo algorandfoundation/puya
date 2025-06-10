@@ -1,5 +1,5 @@
 main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
-    block@0: // L35
+    block@0: // L39
         let array%encoded%0#1: Encoded(uint64) = (concat 0x 0x000000083cfbf217)
         let array%encoded%1#1: Encoded(uint64,uint64) = (concat array%encoded%0#1 0x000000230384b842)
         let array%encoded%2#1: Encoded(uint64,uint64) = (concat array%encoded%1#1 0x)
@@ -21,16 +21,16 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let loop_counter%0#0: uint64 = 0u
         let val#0: Encoded(uint64) = tuple_item%0#0
         goto block@1
-    block@1: // for_body_L40
+    block@1: // for_body_L44
         (log val#0)
         goto block@2
-    block@2: // for_footer_L39
+    block@2: // for_footer_L43
         goto_nth [block@3][loop_counter%0#0] else goto block@4
-    block@3: // for_header_1_L39
+    block@3: // for_header_1_L43
         let loop_counter%0#0: uint64 = 1u
         let val#0: Encoded(uint64) = tuple_item%1#0
         goto block@1
-    block@4: // after_for_L39
+    block@4: // after_for_L43
         let array%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u 1u)
         let array%as_Encoded(bool8)%0#1: Encoded(bool8) = array%encoded_bool%0#1
         let tmp%2#0: Encoded(bool8) = array%as_Encoded(bool8)%0#1
@@ -133,10 +133,16 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let reinterpret_biguint%3#0: biguint = tuple_item%6#0
         let tmp%18#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
         (assert tmp%18#0)
+        let array%encoded%21#1: Encoded() = (concat 0x 0x)
+        let tmp%19#0: Encoded() = array%encoded%21#1
+        let array%encoded%22#1: Encoded() = (concat 0x 0x)
+        let tmp%20#0: Encoded() = array%encoded%22#1
+        let tmp%21#0: bool = (== tmp%19#0 tmp%20#0)
+        (assert tmp%21#0)
         return 1u
 
 subroutine test_cases.arc4_types.structs.add(v1: Encoded(uint64,uint64), v2: Encoded(uint64,uint64)) -> <Encoded(uint64,uint64), Encoded(uint64,uint64), Encoded(uint64,uint64)>:
-    block@0: // L70
+    block@0: // L76
         let array%extract%0#1: bytes = (extract3 v1#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = array%extract%0#1
         let array%extract%1#1: bytes = (extract3 v2#0 0u 8u)
@@ -154,7 +160,7 @@ subroutine test_cases.arc4_types.structs.add(v1: Encoded(uint64,uint64), v2: Enc
         return tmp%2#0 v1#0 v2#0
 
 subroutine test_cases.arc4_types.structs.check(flags: Encoded(bool1,bool1,bool1,bool1)) -> Encoded(bool1,bool1,bool1,bool1):
-    block@0: // L78
+    block@0: // L84
         let flags%out#0: Encoded(bool1,bool1,bool1,bool1) = flags#0
         let array%get_bit%0#1: uint64 = (getbit flags#0 0u)
         let tuple_item%0#0: bool = array%get_bit%0#1
@@ -185,7 +191,7 @@ subroutine test_cases.arc4_types.structs.check(flags: Encoded(bool1,bool1,bool1,
         return flags%out#0
 
 subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: Encoded((uint64,uint64),(bool1,bool1,bool1,bool1))) -> Encoded((uint64,uint64),(bool1,bool1,bool1,bool1)):
-    block@0: // L86
+    block@0: // L92
         let vector_flags%out#0: Encoded((uint64,uint64),(bool1,bool1,bool1,bool1)) = vector_flags#0
         let array%extract%0#1: bytes = (extract3 vector_flags#0 0u 16u)
         let tuple_item%0#0: Encoded(uint64,uint64) = array%extract%0#1
@@ -205,7 +211,7 @@ subroutine test_cases.arc4_types.structs.nested_decode(vector_flags: Encoded((ui
         return vector_flags%out#0
 
 subroutine test_cases.arc4_types.structs.add_decimal(x: Encoded(uint64), y: Encoded(uint64)) -> Encoded(uint64):
-    block@0: // L92
+    block@0: // L98
         let tmp%0#0: uint64 = (btoi x#0)
         let tmp%1#0: uint64 = (btoi y#0)
         let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
