@@ -1068,7 +1068,15 @@ class Subroutine(Context):
 
     @property
     def returns(self) -> list[IRType]:
-        return [*self._returns, *(p.ir_type for p in self.parameters if p.implicit_return)]
+        return [*self.explicit_returns, *self.implicit_returns]
+
+    @property
+    def explicit_returns(self) -> Sequence[IRType]:
+        return self._returns
+
+    @property
+    def implicit_returns(self) -> tuple[IRType, ...]:
+        return tuple(p.ir_type for p in self.parameters if p.implicit_return)
 
     @body.validator
     def _check_blocks(self, _attribute: object, body: list[BasicBlock]) -> None:

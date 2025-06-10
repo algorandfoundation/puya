@@ -32,7 +32,7 @@ def make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subr
     parameters = [
         param
         for arg in func.args
-        for param in _expand_tuple_parameters(
+        for param in _expand_tuple_parameters_and_mark_implicit_returns(
             arg.name,
             arg.wtype,
             allow_implicits=allow_implicits,
@@ -51,26 +51,26 @@ def make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subr
     )
 
 
-def _expand_tuple_parameters(
+def _expand_tuple_parameters_and_mark_implicit_returns(
     name: str, typ: wtypes.WType, *, allow_implicits: bool, source_location: SourceLocation
 ) -> Iterator[Parameter]:
     if isinstance(typ, wtypes.WTuple):
         for item_idx, item_type in enumerate(typ.types):
             item_name = format_tuple_index(typ, name, item_idx)
-            yield from _expand_tuple_parameters(
+            yield from _expand_tuple_parameters_and_mark_implicit_returns(
                 item_name,
                 item_type,
                 allow_implicits=allow_implicits,
                 source_location=source_location,
             )
     else:
+        type_is_mutable = not typ.immutable
+        type_is_slot = typ.is_reference
         yield Parameter(
             name=name,
             ir_type=wtype_to_ir_type(typ, source_location),
             version=0,
-            implicit_return=(
-                allow_implicits and not (typ.immutable or isinstance(typ, wtypes.ReferenceArray))
-            ),
+            implicit_return=(allow_implicits and type_is_mutable and not type_is_slot),
             source_location=source_location,
         )
 
