@@ -18,6 +18,7 @@ from puya.parse import SourceLocation
 
 @attrs.define(kw_only=True)
 class MutatingRegisterContext(IRMutator, IRRegisterContext):
+    temp_prefix: str
     subroutine: ir.Subroutine
     modified: bool = False
     _versions: dict[str, int] = attrs.field()
@@ -84,8 +85,14 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
     @typing.override
     def next_tmp_name(self, description: str) -> str:
         counter_value = next(self._tmp_counters[description])
-        # array prefix ensure uniqueness with other temps
-        return f"array{ir.TMP_VAR_INDICATOR}{description}{ir.TMP_VAR_INDICATOR}{counter_value}"
+        # temp prefix should ensure uniqueness with other temps
+        return ir.TMP_VAR_INDICATOR.join(
+            (
+                self.temp_prefix,
+                description,
+                str(counter_value),
+            )
+        )
 
     @typing.override
     def add_assignment(
