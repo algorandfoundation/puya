@@ -34,7 +34,10 @@ def replace_aggregate_box_ops(
 ) -> bool:
     aggregates = _AggregateCollector.collect(subroutine)
     replacer = _AggregateReplacer(
-        aggregates=aggregates, subroutine=subroutine, embedded_funcs=context.embedded_funcs
+        temp_prefix="box",
+        aggregates=aggregates,
+        subroutine=subroutine,
+        embedded_funcs=context.embedded_funcs,
     )
     replacer.process_and_validate()
     return replacer.modified
@@ -102,7 +105,10 @@ class _AggregateReplacer(MutatingRegisterContext):
             assert new_read.types == read.types, "expected replacement types to match"
             self.modified = True
             logger.debug(
-                f"replacing AggregateReadIndex ({read!s}) with {new_read!s}", location=merged_loc
+                f"combined BoxRead `{maybe_box_register!s} = {box_read!s}`\n"
+                f"and AggregateReadIndex `{read!s}`\n"
+                f"into {new_read!s}",
+                location=merged_loc,
             )
             return new_read
 
@@ -135,11 +141,14 @@ class _AggregateReplacer(MutatingRegisterContext):
             return write
         else:
             self.modified = True
+            self.add_op(new_write)
             logger.debug(
-                f"replacing AggregateWriteIndex ({write!s}) with {new_write!s}",
+                f"combined BoxRead `{agg_write.base!s} = {read_src!s}`\n"
+                f"and AggregateWriteIndex `{write.value!s} = {agg_write!s}`\n"
+                f"and BoxWrite `{write!s}`\n"
+                f"into {new_write!s}",
                 location=merged_loc,
             )
-            self.add_op(new_write)
             return None
 
 
@@ -154,7 +163,7 @@ def _combine_aggregate_and_box_write(
     base_encoding: Encoding = agg_write.aggregate_encoding
     indexes = agg_write.indexes
     check_array_bounds = False
-    total_offset = factory.constant(0)
+    box_offset = factory.constant(0)
     # TODO: determine for writes if calculating the offset and asserting indexes
     #       is more efficient than doing N reads & writes
     for index in indexes:
@@ -172,16 +181,18 @@ def _combine_aggregate_and_box_write(
                 assert_value(
                     context, index_ok, error_message="index out of bounds", source_location=loc
                 )
-            element_offset = factory.mul(index, base_encoding.element.checked_num_bytes)
+            element_offset = factory.mul(
+                index, base_encoding.element.checked_num_bytes, "element_offset"
+            )
             base_encoding = base_encoding.element
             # always need to check array bounds after the first array read
             check_array_bounds = True
         else:
             raise InternalError("invalid aggregate encoding and index", loc)
-        total_offset = factory.add(total_offset, element_offset)
+        box_offset = factory.add(box_offset, element_offset, "offset")
     return factory.box_replace(
         box_key,
-        total_offset,
+        box_offset,
         agg_write.value,
     )
 
@@ -208,17 +219,15 @@ def _combine_box_and_aggregate_read(
     # TODO: it is also feasible and practical to support a DynamicArray of fixed elements at the
     #       root level, as this just requires a box_extract for the length
     factory = OpFactory(context, loc)
-    total_offset = factory.constant(0)
-    base_encoding: Encoding = agg_read.aggregate_encoding
     indexes = agg_read.indexes
     check_array_bounds = False
     if agg_read.element_encoding.is_bit:
         # bit reads can't be done directly from a box
         # so read up to previous aggregate and then return
-        if len(agg_read.indexes) == 1:
+        if len(indexes) == 1:
             return None
         else:
-            read_agg_up_to_bit = attrs.evolve(agg_read, indexes=agg_read.indexes[:-1])
+            read_agg_up_to_bit = attrs.evolve(agg_read, indexes=indexes[:-1])
             box_extract = _combine_box_and_aggregate_read(
                 context, box_key, read_agg_up_to_bit, loc
             )
@@ -228,9 +237,11 @@ def _combine_box_and_aggregate_read(
             return attrs.evolve(
                 agg_read,
                 base=box_extract,
-                indexes=agg_read.indexes[-1:],
+                indexes=indexes[-1:],
             )
 
+    box_offset = factory.constant(0)
+    base_encoding: Encoding = agg_read.aggregate_encoding
     next_index = 0
     for index in indexes:
         if isinstance(base_encoding, TupleEncoding) and isinstance(index, int):
@@ -247,13 +258,15 @@ def _combine_box_and_aggregate_read(
                 assert_value(
                     context, index_ok, error_message="index out of bounds", source_location=loc
                 )
-            element_offset = factory.mul(index, base_encoding.element.checked_num_bytes)
+            element_offset = factory.mul(
+                index, base_encoding.element.checked_num_bytes, "element_offset"
+            )
             base_encoding = base_encoding.element
             # always need to check array bounds after the first array read
             check_array_bounds = True
         else:
             raise InternalError("invalid aggregate encoding and index", loc)
-        total_offset = factory.add(total_offset, element_offset)
+        box_offset = factory.add(box_offset, element_offset, "offset")
         next_index += 1
         # exit loop if the resulting value can fit on stack
         # generally more optimizations are possible the sooner a value is read
@@ -262,7 +275,7 @@ def _combine_box_and_aggregate_read(
 
     box_extract = factory.box_extract(
         box_key,
-        total_offset,
+        box_offset,
         base_encoding.checked_num_bytes,
         ir_type=EncodedType(base_encoding),
     )

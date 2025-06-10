@@ -21,7 +21,9 @@ logger = log.get_logger(__name__)
 def lower_aggregate_nodes(program: ir.Program) -> None:
     embedded_funcs = {PuyaLibIR(s.id): s for s in program.subroutines if s.id in PuyaLibIR}
     for sub in program.all_subroutines:
-        replacer = _AggregateNodeReplacer(embedded_funcs=embedded_funcs, subroutine=sub)
+        replacer = _AggregateNodeReplacer(
+            embedded_funcs=embedded_funcs, subroutine=sub, temp_prefix="aggregate"
+        )
         replacer.process_and_validate()
 
 
