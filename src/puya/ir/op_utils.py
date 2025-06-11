@@ -147,11 +147,21 @@ class OpFactory:
         )
         return result
 
-    def div_floor(self, a: Value, b: Value | int, temp_desc: str = "div_floor") -> Register:
+    def div_floor(self, a: Value | int, b: Value | int, temp_desc: str = "div_floor") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.div_floor,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def mod(self, a: Value | int, b: Value | int, temp_desc: str = "mod") -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.mod,
             args=[a, b],
             source_location=self.source_location,
         )
