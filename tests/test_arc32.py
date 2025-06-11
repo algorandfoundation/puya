@@ -2367,6 +2367,97 @@ def test_mutable_native_types_abi_call(
     app_client.call("test_log", transaction_parameters=large_fee_txn_params)
 
 
+# see https://github.com/algorandfoundation/puya-ts-demo/blob/main/contracts/marketplace/marketplace.test.ts
+def test_marketplace_with_tups(
+    algod_client: AlgodClient, account: algokit_utils.Account, asset_a: int
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            TEST_CASES_DIR / "marketplace_demo", contract_name="DigitalMarketplaceWithTups"
+        )
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    create_response = app_client.create()
+    assert create_response.confirmed_round
+
+    sp = algod_client.suggested_params()
+
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=100_000,
+        ),
+    )
+
+    # optin to receive asset.
+    optin_txn = TransactionWithSigner(
+        txn=algosdk.transaction.PaymentTxn(
+            sender=account.address,
+            receiver=app_client.app_address,
+            amt=100_000,
+            note=b"minimum balance to optin to an asset",
+            sp=sp,
+        ),
+        signer=account.signer,
+    )
+    app_client.call(
+        "allowAsset",
+        mbr_pay=optin_txn,
+        asset=asset_a,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            suggested_params=suggested_params(algod_client=algod_client, fee=1_000),
+        ),
+    )
+
+    # test parameters for the application call.
+    nonce = 1
+    unitary_price = 1
+    deposited = 10
+
+    # create the payment and asset transfer transactions which will be run as part of the
+    # same transaction group as the application call.
+    mbr_pay = TransactionWithSigner(
+        txn=algosdk.transaction.PaymentTxn(
+            sender=account.address,
+            receiver=app_client.app_address,
+            amt=50500,
+            note=b"firstDeposit payment",
+            sp=sp,
+        ),
+        signer=account.signer,
+    )
+    xfer = TransactionWithSigner(
+        txn=algosdk.transaction.AssetTransferTxn(
+            account.address, sp, app_client.app_address, deposited, asset_a
+        ),
+        signer=account.signer,
+    )
+
+    # The application call needs to know which boxes will be used.
+    box_key = b"listings" + _get_arc4_bytes(
+        "(address,uint64,uint64)", (account.address, asset_a, nonce)
+    )
+    transaction_parameters = _params_with_boxes(1, box_key)
+
+    # make the app call
+    app_client.call(
+        "firstDeposit",
+        mbr_pay=mbr_pay,
+        xfer=xfer,
+        unitary_price=unitary_price,
+        nonce=nonce,
+        transaction_parameters=transaction_parameters,
+    )
+
+    # Assert (original test only checks the deposited value is as expected, it should check more)
+    box_state = algod_client.application_box_by_name(app_client.app_id, box_key)
+    assert isinstance(box_state, dict)
+    box_value = base64.b64decode(box_state["value"])
+    assert int.from_bytes(box_value[:8]) == deposited
+
+
 def _get_immutable_array_app(
     algod_client: AlgodClient,
     optimization_level: int,

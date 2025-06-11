@@ -16,10 +16,12 @@ from algopy import (
     subroutine,
 )
 
+# source:
+# Initial TEAL implementation https://github.com/algorand-bootcamp/ts-dm-intermediate-es/blob/main/projects/DigitalMarketplace/contracts/DigitalMarketplace.algo.ts
+# Typescript port: https://github.com/algorandfoundation/puya-ts-demo/blob/main/contracts/marketplace/marketplace.test.ts
 
-class ListingKey(
-    typing.NamedTuple
-):  # compare this, (Struct), (Struct, frozen=True), (MutableStruct),
+
+class ListingKey(typing.NamedTuple):
     owner: Account
     asset: UInt64
     nonce: UInt64
@@ -36,9 +38,7 @@ class ListingValue(typing.NamedTuple):
 class DigitalMarketplaceWithTups(arc4.ARC4Contract):
     def __init__(self) -> None:
         log("init")
-        self.listings = BoxMap(
-            ListingKey, ListingValue, key_prefix=b"listings"
-        )  # ok to have tuples as key definition?
+        self.listings = BoxMap(ListingKey, ListingValue, key_prefix=b"listings")
 
     @subroutine
     def listings_box_mbr(self) -> UInt64:
