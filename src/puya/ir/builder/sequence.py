@@ -180,10 +180,14 @@ def get_length(
 
 
 def requires_conversion(
-    typ: IRType | TupleIRType, encoding: Encoding, action: typing.Literal["encode", "decode"]
+    typ: IRType | TupleIRType,
+    encoding: Encoding,
+    action: typing.Literal["encode", "decode"],
 ) -> bool:
-    if typ == PrimitiveIRType.bool and isinstance(encoding, BoolEncoding):
-        return True
+    # packed bool does not require conversion to PrimitiveIRType.bool
+    # as set_bit expects uint64, and similarly get_bit returns a uint64 when decoding
+    if typ == PrimitiveIRType.bool and encoding.is_bit:
+        return False
     elif isinstance(typ, EncodedType):
         typ_is_bool8 = isinstance(typ.encoding, BoolEncoding) and not typ.encoding.packed
         encoding_is_bool1 = encoding.is_bit
