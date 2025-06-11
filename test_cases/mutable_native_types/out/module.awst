@@ -195,6 +195,7 @@ contract Case3WithStruct
     assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case3_with_mutable_struct.TupBag)), comment="box already exists")
     Box['tup_bag'].owner: account = txn<Sender>()
     Box['tup_bag'].app: application = global<CurrentApplicationID>()
+    Box['tup_bag'].bootstrapped: bool = true
   }
   
   abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.num_tups(): uint64
@@ -276,6 +277,7 @@ contract Case3WithStruct
   
   subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner(): void
   {
+    assert(Box['tup_bag'].bootstrapped, comment="app not bootstrapped")
     assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
     assert(Box['tup_bag'].app == global<CurrentApplicationID>(), comment="this error should be impossible")
   }
@@ -321,6 +323,7 @@ contract Case2WithImmStruct
     assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case2_with_immutable_struct.TupBag)), comment="box already exists")
     Box['tup_bag'].owner: account = txn<Sender>()
     Box['tup_bag'].app: application = global<CurrentApplicationID>()
+    Box['tup_bag'].bootstrapped: bool = true
   }
   
   abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups(): uint64
@@ -404,6 +407,7 @@ contract Case2WithImmStruct
   
   subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner(): void
   {
+    assert(Box['tup_bag'].bootstrapped, comment="app not bootstrapped")
     assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
     assert(Box['tup_bag'].app == global<CurrentApplicationID>(), comment="this error should be impossible")
   }
@@ -449,6 +453,7 @@ contract Case1WithTups
     assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case1_with_tups.TupBag)), comment="box already exists")
     Box['tup_bag'].owner: account = txn<Sender>()
     Box['tup_bag'].app: application = global<CurrentApplicationID>()
+    Box['tup_bag'].bootstrapped: bool = true
   }
   
   abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups(): uint64
@@ -532,6 +537,7 @@ contract Case1WithTups
   
   subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner(): void
   {
+    assert(Box['tup_bag'].bootstrapped, comment="app not bootstrapped")
     assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
     assert(Box['tup_bag'].app == global<CurrentApplicationID>(), comment="this error should be impossible")
   }

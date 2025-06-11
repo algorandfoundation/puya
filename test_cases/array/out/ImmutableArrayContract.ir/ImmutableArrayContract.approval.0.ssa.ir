@@ -1016,8 +1016,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         goto tmp%5#0 ? block@5 : block@6
     block@5: // if_body_L154
         let array_item%0#0: bool = agg_read_index(arr#1, 0u)
-        let values%0#0: bool = decode<bool>(array_item%0#0)
-        let tmp%6#0: bool = (! values%0#0)
+        let tmp%6#0: bool = (! array_item%0#0)
         (assert tmp%6#0) // expected element 0 to be False
         goto block@6
     block@6: // after_if_else_L153
@@ -1025,8 +1024,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         goto tmp%7#0 ? block@7 : block@8
     block@7: // if_body_L156
         let array_item%1#0: bool = agg_read_index(arr#1, 1u)
-        let values%1#0: bool = decode<bool>(array_item%1#0)
-        let tmp%8#0: bool = (! values%1#0)
+        let tmp%8#0: bool = (! array_item%1#0)
         (assert tmp%8#0) // expected element 1 to be False
         goto block@8
     block@8: // after_if_else_L155
@@ -1034,8 +1032,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         goto tmp%9#0 ? block@9 : block@10
     block@9: // if_body_L158
         let array_item%2#0: bool = agg_read_index(arr#1, 2u)
-        let values%2#0: bool = decode<bool>(array_item%2#0)
-        (assert values%2#0) // expected element 2 to be True
+        (assert array_item%2#0) // expected element 2 to be True
         goto block@10
     block@10: // after_if_else_L157
         let tmp%10#0: bool = (> length#0 3u)
@@ -1043,8 +1040,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
     block@11: // if_body_L160
         let tmp%11#0: uint64 = (- length#0 1u)
         let array_item%3#0: bool = agg_read_index(arr#1, tmp%11#0)
-        let values%3#0: bool = decode<bool>(array_item%3#0)
-        let tmp%12#0: bool = (! values%3#0)
+        let tmp%12#0: bool = (! array_item%3#0)
         (assert tmp%12#0) // expected last element to be False
         goto block@12
     block@12: // after_if_else_L159
@@ -1588,8 +1584,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         goto continue_looping%1#0 ? block@6 : block@10
     block@6: // for_body_L341
         let array_item%1#0: bool = agg_read_index(arr2#0, item_index_internal%1#1)
-        let values%1#0: bool = decode<bool>(array_item%1#0)
-        let b#0: bool = values%1#0
+        let b#0: bool = array_item%1#0
         goto b#0 ? block@7 : block@8
     block@7: // if_body_L342
         let tmp%1#0: uint64 = (+ sum2#1 1u)
@@ -1613,8 +1608,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         goto continue_looping%2#0 ? block@12 : block@18
     block@12: // for_body_L344
         let array_item%2#0: Encoded(uint64,bool1,bool1) = agg_read_index(arr3#0, item_index_internal%2#1)
-        let (values%2#0: uint64, values%3#0: bool, values%4#0: bool) = decode<(uint64,bool,bool,)>(array_item%2#0)
-        let (tup.foo#0: uint64, tup.bar#0: bool, tup.baz#0: bool) = (values%2#0, values%3#0, values%4#0)
+        let (values%1#0: uint64, values%2#0: bool, values%3#0: bool) = decode<(uint64,bool,bool,)>(array_item%2#0)
+        let (tup.foo#0: uint64, tup.bar#0: bool, tup.baz#0: bool) = (values%1#0, values%2#0, values%3#0)
         let tmp%2#0: uint64 = (+ sum3#1 tup.foo#0)
         let sum3#2: uint64 = tmp%2#0
         goto tup.bar#0 ? block@13 : block@14
@@ -1647,8 +1642,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         goto continue_looping%3#0 ? block@20 : block@22
     block@20: // for_body_L350
         let array_item%3#0: Encoded(uint64,(len+utf8[])) = agg_read_index(arr4#0, item_index_internal%3#1)
-        let (values%5#0: uint64, values%6#0: string) = decode<(uint64,string,)>(array_item%3#0)
-        let (dyn_tup.foo#0: uint64, dyn_tup.bar#0: string) = (values%5#0, values%6#0)
+        let (values%4#0: uint64, values%5#0: string) = decode<(uint64,string,)>(array_item%3#0)
+        let (dyn_tup.foo#0: uint64, dyn_tup.bar#0: string) = (values%4#0, values%5#0)
         let idx#0: uint64 = item_index_internal%3#1
         let tmp%5#0: uint64 = (+ sum4#1 dyn_tup.foo#0)
         let sum4#2: uint64 = tmp%5#0
