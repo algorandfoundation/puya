@@ -284,9 +284,7 @@ def _get_fixed_byte_offset(
             if encoding.is_bit:
                 return _get_fixed_byte_offset_from_bit_offset(factory, box_offset, index)
 
-            element_offset = factory.mul(
-                index, encoding.checked_num_bytes, "element_offset"
-            )
+            element_offset = factory.mul(index, encoding.checked_num_bytes, "element_offset")
 
             # always need to check array bounds after the first array read
             check_array_bounds = True
