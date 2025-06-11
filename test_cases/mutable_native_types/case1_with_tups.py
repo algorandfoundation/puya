@@ -26,7 +26,15 @@ class TupBag(Struct):
     items: FixedArray[NamedTup, typing.Literal[8]]
     owner: Account
     app: Application
-    too_big: FixedArray[arc4.Byte, typing.Literal[4096]]
+    too_big: FixedArray[arc4.Byte, typing.Literal[4096]]  # dont need to check
+    bootstrapped: bool
+
+
+Arr = FixedArray[UInt64, typing.Literal[5]]
+
+
+class Nest(Struct):
+    arr: FixedArray[Arr, typing.Literal[10]]
 
 
 class Case1WithTups(arc4.ARC4Contract):
@@ -38,6 +46,7 @@ class Case1WithTups(arc4.ARC4Contract):
         assert self.tup_bag.create(), "box already exists"
         self.tup_bag.value.owner = Txn.sender
         self.tup_bag.value.app = Global.current_application_id
+        self.tup_bag.value.bootstrapped = True
 
     @arc4.abimethod()
     def num_tups(self) -> UInt64:
@@ -112,6 +121,7 @@ class Case1WithTups(arc4.ARC4Contract):
 
     @subroutine
     def _check_owner(self) -> None:
+        assert self.tup_bag.value.bootstrapped, "app not bootstrapped"
         assert self.tup_bag.value.owner == Txn.sender, "sender not authorized"
         assert (
             self.tup_bag.value.app == Global.current_application_id
