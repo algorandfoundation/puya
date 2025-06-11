@@ -1,14 +1,12 @@
 import typing
-from collections import defaultdict
+from collections.abc import Sequence
 
 import attrs
 
 from puya import log
 from puya.algo_constants import MAX_BYTES_LENGTH
-from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models
-from puya.ir.avm_ops import AVMOp
 from puya.ir.encodings import (
     ArrayEncoding,
     Encoding,
@@ -20,20 +18,21 @@ from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import EncodedType
-from puya.ir.visitor import IRTraverser
+from puya.ir.visitor import NoOpIRVisitor
 from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import bits_to_bytes
 
 logger = log.get_logger(__name__)
 
-_TOp = typing.TypeVar("_TOp")
-
 
 def replace_aggregate_box_ops(
     context: IROptimizationContext, subroutine: models.Subroutine
 ) -> bool:
-    aggregates = _AggregateCollector.collect(subroutine)
-    replacer = _AggregateReplacer(
+    aggregates = _AggregateCollector()
+    for block in subroutine.body:
+        for op in block.all_ops:
+            op.accept(aggregates)
+    replacer = _AddDirectBoxOpsVisitor(
         temp_prefix="box",
         aggregates=aggregates,
         subroutine=subroutine,
@@ -43,41 +42,25 @@ def replace_aggregate_box_ops(
     return replacer.modified
 
 
-class _Ass(typing.NamedTuple, typing.Generic[_TOp]):
-    ass: models.Assignment
-    op: _TOp
-
-
 @attrs.define(kw_only=True)
-class _AggregateCollector(IRTraverser):
-    agg_writes: dict[models.Value, _Ass[models.AggregateWriteIndex]] = attrs.field(factory=dict)
-    box_reads: dict[models.Value, _Ass[models.BoxRead]] = attrs.field(factory=dict)
-    agg_read_bases: defaultdict[models.Value, list[models.AggregateReadIndex]] = attrs.field(
-        factory=lambda: defaultdict(list)
-    )
-
-    @classmethod
-    def collect(cls, sub: models.Subroutine) -> typing.Self:
-        collector = cls()
-        collector.visit_all_blocks(sub.body)
-        return collector
+class _AggregateCollector(NoOpIRVisitor[None]):
+    agg_writes: dict[models.Value, models.AggregateWriteIndex] = attrs.field(factory=dict)
+    box_reads: dict[models.Value, models.BoxRead] = attrs.field(factory=dict)
 
     @typing.override
     def visit_assignment(self, ass: models.Assignment) -> None:
         source = ass.source
         match source:
-            case models.AggregateReadIndex():
-                self.agg_read_bases[source.base].append(source)
             case models.AggregateWriteIndex():
                 (target,) = ass.targets
-                self.agg_writes[target] = _Ass(ass, source)
+                self.agg_writes[target] = source
             case models.BoxRead():
                 (value,) = ass.targets
-                self.box_reads[value] = _Ass(ass, source)
+                self.box_reads[value] = source
 
 
 @attrs.define
-class _AggregateReplacer(MutatingRegisterContext):
+class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
     aggregates: _AggregateCollector
 
     def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> models.ValueProvider:
@@ -91,11 +74,11 @@ class _AggregateReplacer(MutatingRegisterContext):
             return read
 
         merged_loc = sequential_source_locations_merge(
-            (box_read.op.source_location, read.source_location)
+            (box_read.source_location, read.source_location)
         )
         new_read = _combine_box_and_aggregate_read(
             self,
-            box_read.op.key,
+            box_read.key,
             read,
             merged_loc,
         )
@@ -113,21 +96,27 @@ class _AggregateReplacer(MutatingRegisterContext):
             return new_read
 
     def visit_box_write(self, write: models.BoxWrite) -> models.BoxWrite | None:
+        # find aggregate
         try:
-            agg_write_ass = self.aggregates.agg_writes[write.value]
+            agg_write = self.aggregates.agg_writes[write.value]
         except KeyError:
             return write
-        agg_write = agg_write_ass.op
+
+        # only support fixed size elements
         if agg_write.aggregate_encoding.is_dynamic:
             return write
+
+        # find corresponding read
         try:
-            read_src_ass = self.aggregates.box_reads[agg_write.base]
+            read_src = self.aggregates.box_reads[agg_write.base]
         except KeyError:
             return write
-        read_src = read_src_ass.op
+
         # can only do an in-place update if the agg write was for a value from the same box
         if write.key != read_src.key:
             return write
+
+        self.modified = True
         merged_loc = sequential_source_locations_merge(
             (agg_write.source_location, write.source_location)
         )
@@ -137,70 +126,26 @@ class _AggregateReplacer(MutatingRegisterContext):
             write.key,
             merged_loc,
         )
-        if new_write is None:
-            return write
-        else:
-            self.modified = True
-            self.add_op(new_write)
-            logger.debug(
-                f"combined BoxRead `{agg_write.base!s} = {read_src!s}`\n"
-                f"and AggregateWriteIndex `{write.value!s} = {agg_write!s}`\n"
-                f"and BoxWrite `{write!s}`\n"
-                f"into {new_write!s}",
-                location=merged_loc,
-            )
-            return None
-
-
-def _combine_aggregate_and_box_write(
-    context: IRRegisterContext,
-    agg_write: models.AggregateWriteIndex,
-    box_key: models.Value,
-    loc: SourceLocation | None,
-) -> models.Op:
-    factory = OpFactory(context, loc)
-
-    base_encoding: Encoding = agg_write.aggregate_encoding
-    indexes = agg_write.indexes
-    check_array_bounds = False
-    box_offset = factory.constant(0)
-    # TODO: determine for writes if calculating the offset and asserting indexes
-    #       is more efficient than doing N reads & writes
-    for index in indexes:
-        if isinstance(base_encoding, TupleEncoding) and isinstance(index, int):
-            bit_offset = base_encoding.get_head_bit_offset(index)
-            element_offset: int | models.Value = bits_to_bytes(bit_offset)
-            has_trailing_data = (index + 1) != len(base_encoding.elements)
-            # if we aren't reading the last item of a tuple
-            # then any following array read will need a bounds check
-            check_array_bounds = check_array_bounds or has_trailing_data
-            base_encoding = base_encoding.elements[index]
-        elif isinstance(base_encoding, FixedArrayEncoding):
-            if check_array_bounds:
-                index_ok = factory.lt(index, base_encoding.size, "index_ok")
-                assert_value(
-                    context, index_ok, error_message="index out of bounds", source_location=loc
-                )
-            element_offset = factory.mul(
-                index, base_encoding.element.checked_num_bytes, "element_offset"
-            )
-            base_encoding = base_encoding.element
-            # always need to check array bounds after the first array read
-            check_array_bounds = True
-        else:
-            raise InternalError("invalid aggregate encoding and index", loc)
-        box_offset = factory.add(box_offset, element_offset, "offset")
-    return factory.box_replace(
-        box_key,
-        box_offset,
-        agg_write.value,
-    )
+        self.add_op(new_write)
+        logger.debug(
+            f"combined BoxRead `{agg_write.base!s} = {read_src!s}`\n"
+            f"and AggregateWriteIndex `{write.value!s} = {agg_write!s}`\n"
+            f"and BoxWrite `{write!s}`\n"
+            f"into {new_write!s}",
+            location=merged_loc,
+        )
+        return None
 
 
 def _box_extract_required(read: models.AggregateReadIndex) -> bool:
     aggregate_encoding = read.aggregate_encoding
     # dynamic encodings not supported with box_extract optimization currently
     if aggregate_encoding.is_dynamic:
+        return False
+    # can't get bit from a box
+    # note: support of bit arrays with more than 4096 * 8 elements is possible,
+    #       by extracting the relevant byte and reading that
+    if read.element_encoding.is_bit and len(read.indexes) == 1:
         return False
     # box_extract is required if the aggregate doesn't fit on the stack
     return aggregate_encoding.checked_num_bytes > MAX_BYTES_LENGTH
@@ -215,36 +160,113 @@ def _combine_box_and_aggregate_read(
     box_key: models.Value,
     agg_read: models.AggregateReadIndex,
     loc: SourceLocation | None,
-) -> models.ValueProvider | None:
+) -> models.ValueProvider:
     # TODO: it is also feasible and practical to support a DynamicArray of fixed elements at the
     #       root level, as this just requires a box_extract for the length
     factory = OpFactory(context, loc)
-    indexes = agg_read.indexes
-    if agg_read.element_encoding.is_bit:
-        # bit reads can't be done directly from a box
-        # so read up to previous aggregate and then return
-        if len(indexes) == 1:
-            return None
-        else:
-            read_agg_up_to_bit = attrs.evolve(agg_read, indexes=indexes[:-1])
-            box_extract = _combine_box_and_aggregate_read(
-                context, box_key, read_agg_up_to_bit, loc
-            )
-            # should always give a value since bit reads can't be nested
-            assert box_extract is not None, "expected box_extract"
-            box_extract = factory.materialise_single(box_extract, "box_read_from_agg")
-            return attrs.evolve(
-                agg_read,
-                base=box_extract,
-                indexes=indexes[-1:],
-            )
+    fixed_offset = _get_fixed_byte_offset(
+        context,
+        base_encoding=agg_read.aggregate_encoding,
+        indexes=agg_read.indexes,
+        loc=loc,
+        stop_at_valid_stack_value=True,
+    )
+    encoding_at_offset = fixed_offset.encoding
+    box_extract = factory.box_extract(
+        box_key,
+        fixed_offset.offset,
+        encoding_at_offset.checked_num_bytes,
+        ir_type=EncodedType(encoding_at_offset),
+    )
+    remaining_indexes = fixed_offset.remaining_indexes
+    if not remaining_indexes:
+        return box_extract
 
+    encoding_at_offset = fixed_offset.encoding
+    assert isinstance(
+        encoding_at_offset, TupleEncoding | ArrayEncoding
+    ), "expected aggregate encoding"
+    new_agg_read = attrs.evolve(
+        agg_read,
+        base=box_extract,
+        aggregate_encoding=encoding_at_offset,
+        indexes=remaining_indexes,
+        source_location=loc,
+    )
+    assert (
+        agg_read.element_encoding == new_agg_read.element_encoding
+    ), "expected encodings to be preserved"
+    return new_agg_read
+
+
+def _combine_aggregate_and_box_write(
+    context: IRRegisterContext,
+    agg_write: models.AggregateWriteIndex,
+    box_key: models.Value,
+    loc: SourceLocation | None,
+) -> models.Op:
+    factory = OpFactory(context, loc)
+    # TODO: determine for writes if calculating the offset and asserting indexes
+    #       is more efficient than doing N reads & writes
+    fixed_offset = _get_fixed_byte_offset(
+        context,
+        base_encoding=agg_write.aggregate_encoding,
+        indexes=agg_write.indexes,
+        loc=loc,
+        stop_at_valid_stack_value=False,
+    )
+    if not fixed_offset.remaining_indexes:
+        value = agg_write.value
+    else:
+        # currently only occurs when agg_write.encoding.is_bit
+        encoding = fixed_offset.encoding
+        box_extract = factory.box_extract(
+            box_key,
+            fixed_offset.offset,
+            fixed_offset.encoding.checked_num_bytes,
+            ir_type=EncodedType(encoding),
+        )
+        assert isinstance(encoding, TupleEncoding | ArrayEncoding), "expected aggregate encoding"
+        value = factory.materialise_single(
+            models.AggregateWriteIndex(
+                base=box_extract,
+                aggregate_encoding=encoding,
+                value=agg_write.value,
+                indexes=fixed_offset.remaining_indexes,
+                source_location=loc,
+            )
+        )
+    return factory.box_replace(
+        box_key,
+        fixed_offset.offset,
+        value,
+    )
+
+
+@attrs.frozen
+class _FixedOffset:
+    offset: models.Value
+    encoding: Encoding
+    remaining_indexes: Sequence[int | models.Value]
+
+
+def _get_fixed_byte_offset(
+    context: IRRegisterContext,
+    *,
+    base_encoding: Encoding,
+    indexes: Sequence[int | models.Value],
+    loc: SourceLocation | None,
+    stop_at_valid_stack_value: bool,
+) -> _FixedOffset:
+    factory = OpFactory(context, loc)
     check_array_bounds = False
     box_offset = factory.constant(0)
-    base_encoding: Encoding = agg_read.aggregate_encoding
     next_index = 0
     for index in indexes:
         if isinstance(base_encoding, TupleEncoding) and isinstance(index, int):
+            # stop if element is a bit, as that can't be extracted directly
+            if base_encoding.elements[index].is_bit:
+                break
             bit_offset = base_encoding.get_head_bit_offset(index)
             element_offset: int | models.Value = bits_to_bytes(bit_offset)
             has_trailing_data = (index + 1) != len(base_encoding.elements)
@@ -253,6 +275,9 @@ def _combine_box_and_aggregate_read(
             check_array_bounds = check_array_bounds or has_trailing_data
             base_encoding = base_encoding.elements[index]
         elif isinstance(base_encoding, FixedArrayEncoding):
+            # stop if element is a bit, as that can't be extracted directly
+            if base_encoding.element.is_bit:
+                break
             if check_array_bounds:
                 index_ok = factory.lt(index, base_encoding.size, "index_ok")
                 assert_value(
@@ -270,30 +295,13 @@ def _combine_box_and_aggregate_read(
         next_index += 1
         # exit loop if the resulting value can fit on stack
         # generally more optimizations are possible the sooner a value is read
-        if base_encoding.checked_num_bytes < MAX_BYTES_LENGTH:
+        if base_encoding.checked_num_bytes < MAX_BYTES_LENGTH and stop_at_valid_stack_value:
             break
+        # bits can't be read or written directly
+        assert not base_encoding.is_bit, "can't read bits directly"
 
-    box_extract = factory.box_extract(
-        box_key,
-        box_offset,
-        base_encoding.checked_num_bytes,
-        ir_type=EncodedType(base_encoding),
+    if base_encoding.checked_num_bytes > MAX_BYTES_LENGTH:
+        logger.warning(f"value exceeds {MAX_BYTES_LENGTH} bytes", location=loc)
+    return _FixedOffset(
+        offset=box_offset, encoding=base_encoding, remaining_indexes=indexes[next_index:]
     )
-    remaining_indexes = agg_read.indexes[next_index:]
-    if not remaining_indexes:
-        return box_extract
-
-    box_extract = factory.materialise_single(box_extract, "box_read_from_agg")
-    assert isinstance(base_encoding, TupleEncoding | ArrayEncoding), "expected aggregate encoding"
-    new_agg_read = attrs.evolve(
-        agg_read,
-        base=box_extract,
-        aggregate_encoding=base_encoding,
-        indexes=remaining_indexes,
-        check_bounds=False,
-        source_location=loc,
-    )
-    assert (
-        agg_read.element_encoding == new_agg_read.element_encoding
-    ), "expected encodings to be preserved"
-    return new_agg_read
