@@ -1,6 +1,4 @@
-from collections.abc import Iterator, Sequence
-
-import attrs
+from collections.abc import Sequence
 
 from puya import log
 from puya.awst import (
@@ -149,7 +147,7 @@ def handle_assignment(
             if not index_src_ops:
                 new_value = value
             else:
-                indexes = _get_indexes(context, index_src_ops)
+                indexes = _materialise_indexes(context, index_src_ops)
                 base_wtype = base_target.wtype
                 assert isinstance(
                     base_wtype,
@@ -214,73 +212,7 @@ def _extract_write_path(target: _IndexOp) -> tuple[awst_nodes.Expression, list[_
     return base, indexes
 
 
-@attrs.frozen(kw_only=True)
-class _ArrayIndex:
-    base_wtype: wtypes.ARC4Array | wtypes.ReferenceArray
-    source_location: SourceLocation
-    index: ir.Value
-
-    def read(self, context: IRFunctionBuildContext, array: ir.MultiValue) -> ir.MultiValue:
-        arr = _multi_value_to_values(array)
-        next_value = sequence.read_aggregate_index_and_decode(
-            context, self.base_wtype, arr, [self.index], self.source_location
-        )
-        return next_value
-
-    def write(
-        self, context: IRFunctionBuildContext, array: ir.MultiValue, new_value: ir.MultiValue
-    ) -> ir.Value:
-        (array_or_slot,) = _multi_value_to_values(array)
-        updated_array = sequence.encode_and_write_aggregate_index(
-            context,
-            self.base_wtype,
-            array_or_slot,
-            [self.index],
-            values=_multi_value_to_values(new_value),
-            loc=self.source_location,
-        )
-        assert isinstance(updated_array, ir.Value)
-        return updated_array
-
-
-@attrs.frozen(kw_only=True)
-class _TupleOrStructIndex:
-    base_wtype: wtypes.ARC4Tuple | wtypes.ARC4Struct | wtypes.WTuple
-    source_location: SourceLocation
-    index: int
-    field_name: str | None = None
-
-    def read(self, context: IRFunctionBuildContext, tup: ir.MultiValue) -> ir.MultiValue:
-        tuple_values = _multi_value_to_values(tup)
-        next_value = sequence.read_aggregate_index_and_decode(
-            context,
-            self.base_wtype,
-            tuple_values,
-            [self.index],
-            self.source_location,
-        )
-        return next_value
-
-    def write(
-        self, context: IRFunctionBuildContext, tup: ir.MultiValue, new_value: ir.MultiValue
-    ) -> ir.MultiValue:
-        return sequence.encode_and_write_aggregate_index(
-            context,
-            self.base_wtype,
-            tup,
-            [self.index],
-            values=_multi_value_to_values(new_value),
-            loc=self.source_location,
-        )
-
-
-def _multi_value_to_values(value: ir.MultiValue) -> Sequence[ir.Value]:
-    if isinstance(value, ir.Value):
-        return [value]
-    return value.values
-
-
-def _get_indexes(
+def _materialise_indexes(
     context: IRFunctionBuildContext, index_src_ops: Sequence[_IndexOp]
 ) -> list[int | ir.Value]:
     indexes = list[int | ir.Value]()
@@ -312,52 +244,6 @@ def _get_indexes(
                     index_src_op.source_location,
                 )
     return indexes
-
-
-def _materialize_index_ops(
-    context: IRFunctionBuildContext, index_src_ops: Sequence[_IndexOp]
-) -> Iterator[_ArrayIndex | _TupleOrStructIndex]:
-    for index_src_op in index_src_ops:
-        match index_src_op, index_src_op.base.wtype:
-            case (
-                awst_nodes.IndexExpression(),
-                (wtypes.ARC4Array() | wtypes.ReferenceArray() as array_wtype),
-            ):
-                index_value = context.visitor.visit_and_materialise_single(
-                    index_src_op.index, "index"
-                )
-                yield _ArrayIndex(
-                    base_wtype=array_wtype,
-                    source_location=index_src_op.source_location,
-                    index=index_value,
-                )
-            case (
-                awst_nodes.TupleItemExpression(index=index_int),
-                (wtypes.ARC4Tuple() | wtypes.WTuple() as tuple_wtype),
-            ):
-                yield _TupleOrStructIndex(
-                    base_wtype=tuple_wtype,
-                    source_location=index_src_op.source_location,
-                    index=index_int,
-                    field_name=None,
-                )
-            case (
-                awst_nodes.FieldExpression(),
-                (wtypes.ARC4Struct(names=names) | wtypes.WTuple(names=[*names])) as structy_wtype,
-            ):
-                index_int = names.index(index_src_op.name)
-                yield _TupleOrStructIndex(
-                    base_wtype=structy_wtype,
-                    source_location=index_src_op.source_location,
-                    index=index_int,
-                    field_name=index_src_op.name,
-                )
-            case unimplemented, for_type:
-                raise InternalError(
-                    f"unimplemented index write operation {type(unimplemented).__name__}"
-                    f" for wtype: {for_type}",
-                    index_src_op.source_location,
-                )
 
 
 def _handle_maybe_implicit_return_assignment(
