@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 
 from puya import log
 from puya.awst import (
@@ -22,10 +22,8 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
-from puya.ir.op_utils import assert_value, assign_intrinsic_op, assign_targets
-from puya.ir.types_ import (
-    PrimitiveIRType,
-)
+from puya.ir.op_utils import assert_value, assign_intrinsic_op, assign_targets, convert_constants
+from puya.ir.types_ import PrimitiveIRType
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
@@ -296,7 +294,7 @@ def _iterate_urange_simple(
 
         context.block_builder.goto(footer)
         if context.block_builder.try_activate_block(footer):
-            assign_intrinsic_op(
+            _reassign_with_intrinsic_op(
                 context,
                 target=current_range_item,
                 op=AVMOp.add,
@@ -304,7 +302,7 @@ def _iterate_urange_simple(
                 source_location=range_loc,
             )
             if current_range_index:
-                assign_intrinsic_op(
+                _reassign_with_intrinsic_op(
                     context,
                     target=current_range_index,
                     op=AVMOp.add,
@@ -435,7 +433,7 @@ def _iterate_urange_with_reversal(
             )
 
             context.block_builder.activate_block(increment_block)
-            assign_intrinsic_op(
+            _reassign_with_intrinsic_op(
                 context,
                 target=current_range_item,
                 op=AVMOp.add if not reverse_items else AVMOp.sub,
@@ -443,7 +441,7 @@ def _iterate_urange_with_reversal(
                 source_location=range_loc,
             )
             if current_range_index:
-                assign_intrinsic_op(
+                _reassign_with_intrinsic_op(
                     context,
                     target=current_range_index,
                     op=AVMOp.add if not reverse_index else AVMOp.sub,
@@ -514,7 +512,7 @@ def _iterate_indexable(
 
         context.block_builder.activate_block(body)
         if reverse_items or reverse_index:
-            reverse_index_internal = assign_intrinsic_op(
+            reverse_index_internal = _reassign_with_intrinsic_op(
                 context,
                 target=reverse_index_internal,
                 op=AVMOp.sub,
@@ -533,7 +531,7 @@ def _iterate_indexable(
 
         if context.block_builder.try_activate_block(footer):
             if not (reverse_items and reverse_index):
-                assign_intrinsic_op(
+                _reassign_with_intrinsic_op(
                     context,
                     target=index_internal,
                     op=AVMOp.add,
@@ -640,3 +638,28 @@ def _refresh_mutated_variable(context: IRFunctionBuildContext, reg: Register) ->
     within the same block.
     """
     return context.ssa.read_variable(reg.name, reg.ir_type, context.block_builder.active_block)
+
+
+def _reassign_with_intrinsic_op(
+    context: IRFunctionBuildContext,
+    *,
+    target: Register,
+    op: AVMOp,
+    args: Sequence[int | Value],
+    source_location: SourceLocation | None,
+) -> Register:
+    intrinsic = Intrinsic(
+        op=op,
+        args=[convert_constants(a, source_location) for a in args],
+        source_location=source_location,
+    )
+    target_reg = context.new_register(
+        name=target.name, ir_type=target.ir_type, location=target.source_location
+    )
+    assign_targets(
+        context,
+        targets=[target_reg],
+        source=intrinsic,
+        assignment_location=source_location,
+    )
+    return target_reg
