@@ -12,7 +12,7 @@ from puya.awst import (
 from puya.errors import InternalError
 from puya.ir.arc4_types import maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._tuple_util import build_tuple_registers
+from puya.ir.builder._tuple_util import build_tuple_item_names
 from puya.ir.builder._utils import undefined_value
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
@@ -26,7 +26,7 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
-from puya.ir.op_utils import OpFactory, assert_value, assign_targets, new_register_version
+from puya.ir.op_utils import OpFactory, assert_value, assign_targets
 from puya.ir.types_ import (
     IRType,
     PrimitiveIRType,
@@ -294,13 +294,13 @@ def _conditional_value_provider(
         )
     )
     tmp_var_name = context.next_tmp_name("ternary_result")
-    true_registers = build_tuple_registers(context, tmp_var_name, wtype, loc)
+    tmp_var_names = build_tuple_item_names(tmp_var_name, wtype, loc)
     context.block_builder.activate_block(true_block)
     true = true_factory()
     assign_targets(
         context,
         source=true,
-        targets=true_registers,
+        targets=[context.new_register(name, ir_type, loc) for name, ir_type in tmp_var_names],
         assignment_location=true.source_location,
     )
     context.block_builder.goto(merge_block)
@@ -310,15 +310,15 @@ def _conditional_value_provider(
     assign_targets(
         context,
         source=false,
-        targets=[new_register_version(context, reg) for reg in true_registers],
+        targets=[context.new_register(name, ir_type, loc) for name, ir_type in tmp_var_names],
         assignment_location=false.source_location,
     )
     context.block_builder.goto(merge_block)
 
     context.block_builder.activate_block(merge_block)
     result = [
-        context.ssa.read_variable(variable=r.name, ir_type=r.ir_type, block=merge_block)
-        for r in true_registers
+        context.ssa.read_variable(variable=name, ir_type=ir_type, block=merge_block)
+        for name, ir_type in tmp_var_names
     ]
     return ValueTuple(values=result, source_location=loc)
 
