@@ -7,6 +7,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     BinaryBooleanOperator,
     BooleanBinaryOperation,
+    Copy,
     Expression,
     FieldExpression,
     IntegerConstant,
@@ -519,7 +520,14 @@ class _Replace(FunctionBuilder):
                 item_builder = expect.argument_of_type_else_dummy(new_value, field_pytype)
                 item = item_builder.resolve()
             else:
+                field_wtype = field_pytype.checked_wtype(location)
                 item = TupleItemExpression(base=base_expr, index=idx, source_location=location)
+                if not field_wtype.immutable:
+                    logger.error(
+                        f"mutable field {field_name!r} requires explicit copy", location=location
+                    )
+                    # implicitly create a copy node so that there is only one error
+                    item = Copy(value=item, source_location=location)
             items.append(item)
         new_tuple = TupleExpression(items=items, wtype=pytype.wtype, source_location=location)
         return TupleExpressionBuilder(new_tuple, pytype)
