@@ -19,12 +19,7 @@ from puya.errors import CodeError, InternalError
 from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import dynamic_array, flow_control, mem, sequence, storage
-from puya.ir.builder._utils import (
-    assign,
-    assign_temp,
-    get_implicit_return_is_original,
-    get_implicit_return_out,
-)
+from puya.ir.builder._utils import assign, get_implicit_return_is_original, get_implicit_return_out
 from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
 from puya.ir.builder.bytes import (
     visit_bytes_intersection_slice_expression,
@@ -141,35 +136,23 @@ class FunctionIRBuilder(
             subroutine.validate_with_ssa()
 
     def visit_copy(self, expr: awst_nodes.Copy) -> TExpression:
+        loc = expr.source_location
+        result_ir_type = wtype_to_ir_type(expr.wtype, loc, allow_tuple=True)
+        ir_type = wtype_to_ir_type(expr.value.wtype, expr.value.source_location, allow_tuple=True)
+        if result_ir_type != ir_type:
+            raise InternalError("copy node cannot change the structure of a value", loc)
+
         # For reference types, we need to clone the data
         # For value types, we can just visit the expression and the resulting read
-        # will effectively be a copy. We assign the copy to a new register in case it is
-        # mutated.
-        result_ir_type = wtype_to_ir_type(expr.wtype, expr.source_location, allow_tuple=True)
-        source_ir_type = wtype_to_ir_type(
-            expr.value.wtype, expr.value.source_location, allow_tuple=True
-        )
-        if result_ir_type != source_ir_type:
-            raise InternalError(
-                "copy node cannot change the structure of a value", expr.source_location
-            )
-
-        match expr.value.wtype:
-            case wtypes.ReferenceArray():
-                loc = expr.source_location
-                original_slot = self.visit_and_materialise_single(expr.value)
-                new_slot = mem.new_slot(self.context, original_slot.ir_type, loc)
-                value = mem.read_slot(self.context, original_slot, loc)
-                mem.write_slot(self.context, new_slot, value, loc)
-                return new_slot
-            case _:
-                original_value = self.visit_and_materialise_as_value_or_tuple(expr.value)
-                return assign_temp(
-                    temp_description="copy",
-                    source=original_value,
-                    source_location=expr.source_location,
-                    context=self.context,
-                )
+        # will effectively be a copy.
+        if not isinstance(ir_type, SlotType):
+            return self.visit_and_materialise_as_value_or_tuple(expr.value)
+        else:
+            original_slot = self.visit_and_materialise_single(expr.value)
+            new_slot = mem.new_slot(self.context, original_slot.ir_type, loc)
+            value = mem.read_slot(self.context, original_slot, loc)
+            mem.write_slot(self.context, new_slot, value, loc)
+            return new_slot
 
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> TExpression:
         loc = expr.source_location
