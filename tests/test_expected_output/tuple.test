@@ -162,3 +162,19 @@ class NotAllowed(typing.NamedTuple):
     an_int: UInt64
     id: int ## E: Python literals of type int cannot be used as runtime values
     flag: bool = True ## E: unsupported syntax for typing.NamedTuple member declaration
+
+
+## case: mutable_tuple_element_requires_copy_in_replace
+import typing
+from algopy import *
+
+
+class MyNamedTuple(typing.NamedTuple):
+    x: UInt64
+    y: arc4.DynamicBytes
+
+
+@subroutine
+def testing123() -> None:
+    tup = MyNamedTuple(UInt64(), arc4.DynamicBytes())
+    bad = tup._replace() ## E: mutable field 'y' requires explicit copy
