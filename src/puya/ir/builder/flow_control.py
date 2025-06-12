@@ -4,17 +4,10 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.builder._tuple_util import build_tuple_registers
+from puya.ir.builder._tuple_util import build_tuple_item_names
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.models import (
-    BasicBlock,
-    ConditionalBranch,
-    Switch,
-    Value,
-    ValueProvider,
-    ValueTuple,
-)
-from puya.ir.op_utils import OpFactory, assign_targets, new_register_version
+from puya.ir.models import BasicBlock, ConditionalBranch, Switch, Value, ValueProvider, ValueTuple
+from puya.ir.op_utils import OpFactory, assign_targets
 from puya.ir.types_ import get_wtype_arity, wtype_to_ir_type
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
@@ -192,7 +185,7 @@ def handle_conditional_expression(
         "ternary_true", "ternary_false", "ternary_merge", source_location=expr.source_location
     )
     tmp_var_name = context.next_tmp_name("ternary_result")
-    true_registers = build_tuple_registers(context, tmp_var_name, expr.wtype, expr.source_location)
+    tmp_var_names = build_tuple_item_names(tmp_var_name, expr.wtype, expr.source_location)
 
     process_conditional(
         context,
@@ -207,7 +200,10 @@ def handle_conditional_expression(
     assign_targets(
         context,
         source=true_vp,
-        targets=true_registers,
+        targets=[
+            context.new_register(name, ir_type, expr.source_location)
+            for name, ir_type in tmp_var_names
+        ],
         assignment_location=expr.true_expr.source_location,
     )
     context.block_builder.goto(merge_block)
@@ -217,15 +213,18 @@ def handle_conditional_expression(
     assign_targets(
         context,
         source=false_vp,
-        targets=[new_register_version(context, reg) for reg in true_registers],
+        targets=[
+            context.new_register(name, ir_type, expr.source_location)
+            for name, ir_type in tmp_var_names
+        ],
         assignment_location=expr.false_expr.source_location,
     )
     context.block_builder.goto(merge_block)
 
     context.block_builder.activate_block(merge_block)
     result = [
-        context.ssa.read_variable(variable=r.name, ir_type=r.ir_type, block=merge_block)
-        for r in true_registers
+        context.ssa.read_variable(variable=name, ir_type=ir_type, block=merge_block)
+        for name, ir_type in tmp_var_names
     ]
     if len(result) == 1:
         return result[0]

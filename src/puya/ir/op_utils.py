@@ -20,10 +20,6 @@ from puya.ir.types_ import AVMBytesEncoding, IRType, PrimitiveIRType, SizedBytes
 from puya.parse import SourceLocation
 
 
-def new_register_version(context: IRRegisterContext, reg: Register) -> Register:
-    return context.new_register(name=reg.name, ir_type=reg.ir_type, location=reg.source_location)
-
-
 def assign_targets(
     context: IRRegisterContext,
     *,
@@ -50,7 +46,7 @@ def mktemp(
 def assign_intrinsic_op(
     context: IRRegisterContext,
     *,
-    target: str | Register,
+    target: str,
     op: AVMOp,
     args: Sequence[int | bytes | Value],
     source_location: SourceLocation | None,
@@ -70,10 +66,7 @@ def assign_intrinsic_op(
         error_message=error_message,
         source_location=source_location,
     )
-    if isinstance(target, str):
-        target_reg = mktemp(context, intrinsic.types[0], source_location, description=target)
-    else:
-        target_reg = new_register_version(context, target)
+    target_reg = mktemp(context, intrinsic.types[0], source_location, description=target)
     assign_targets(
         context,
         targets=[target_reg],
