@@ -42,9 +42,8 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
     block@0: // L41
         let encoded_value%0#0: bytes[8] = (itob a#0)
         (box_put "box_a" encoded_value%0#0)
-        let copy%0#0: Encoded(len+uint8[]) = b#0
         (box_del "b")
-        (box_put "b" copy%0#0)
+        (box_put "b" b#0)
         (box_del 0x424f585f43)
         (box_put 0x424f585f43 c#0)
         let tmp%0#0: bytes = ((extract 2 0) b#0)
@@ -56,8 +55,7 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get "b")
         (assert aggregate%box_get%1#1) // check self.box_b exists
         let storage_value%0#0: bytes = aggregate%box_get%0#1
-        let copy%1#0: bytes = storage_value%0#0
-        let b_value#0: Encoded(len+uint8[]) = copy%1#0
+        let b_value#0: Encoded(len+uint8[]) = storage_value%0#0
         let (aggregate%box_get%2#1: bytes, aggregate%box_get%3#1: bool) = (box_get "b")
         (assert aggregate%box_get%3#1) // check self.box_b exists
         let storage_value%1#0: bytes = aggregate%box_get%2#1

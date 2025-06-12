@@ -194,10 +194,9 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let struct#0: Encoded(uint64,(len+utf8[])) = tmp%0#0
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
-        let copy%0#0: Encoded(uint64,(len+utf8[])) = struct#0
         let extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) maybe_value%0#0)
-        let aggregate%tail%0#1: bytes = (concat 0x copy%0#0)
+        let aggregate%tail%0#1: bytes = (concat 0x struct#0)
         let aggregate%as_bytes%0#1: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
         let aggregate%encoded%0#1: Encoded((uint64,(len+utf8[]))) = (concat 0x aggregate%offset_as_uint16%0#1)
@@ -208,10 +207,9 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let tmp%2#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%2#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
-        let copy%1#0: Encoded(uint64,(len+utf8[])) = struct#0
         let extract_uint16%1#0: uint64 = (extract_uint16 maybe_value%1#0 0u)
         let extract_to_end%1#0: bytes = ((extract 2 0) maybe_value%1#0)
-        let aggregate%tail%1#1: bytes = (concat 0x copy%1#0)
+        let aggregate%tail%1#1: bytes = (concat 0x struct#0)
         let aggregate%as_bytes%1#1: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
         let aggregate%encoded%2#1: Encoded((uint64,(len+utf8[]))) = (concat 0x aggregate%offset_as_uint16%1#1)
@@ -222,10 +220,9 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get "box")
         (assert aggregate%box_get%1#1) // check self.box exists
         let storage_value%0#0: bytes = aggregate%box_get%0#1
-        let copy%2#0: Encoded(uint64,(len+utf8[])) = struct#0
         let extract_uint16%2#0: uint64 = (extract_uint16 storage_value%0#0 0u)
         let extract_to_end%2#0: bytes = ((extract 2 0) storage_value%0#0)
-        let aggregate%tail%2#1: bytes = (concat 0x copy%2#0)
+        let aggregate%tail%2#1: bytes = (concat 0x struct#0)
         let aggregate%as_bytes%2#1: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%2#1: bytes = ((extract 6 2) aggregate%as_bytes%2#1)
         let aggregate%encoded%4#1: Encoded((uint64,(len+utf8[]))) = (concat 0x aggregate%offset_as_uint16%2#1)
@@ -239,10 +236,9 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let (aggregate%box_get%2#1: bytes, aggregate%box_get%3#1: bool) = (box_get box_prefixed_key%0#0)
         (assert aggregate%box_get%3#1) // check self.map entry exists
         let storage_value%1#0: bytes = aggregate%box_get%2#1
-        let copy%3#0: Encoded(uint64,(len+utf8[])) = struct#0
         let extract_uint16%3#0: uint64 = (extract_uint16 storage_value%1#0 0u)
         let extract_to_end%3#0: bytes = ((extract 2 0) storage_value%1#0)
-        let aggregate%tail%3#1: bytes = (concat 0x copy%3#0)
+        let aggregate%tail%3#1: bytes = (concat 0x struct#0)
         let aggregate%as_bytes%3#1: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%3#1: bytes = ((extract 6 2) aggregate%as_bytes%3#1)
         let aggregate%encoded%6#1: Encoded((uint64,(len+utf8[]))) = (concat 0x aggregate%offset_as_uint16%3#1)
@@ -380,25 +376,21 @@ subroutine test_cases.state_mutations.contract.Contract.get() -> Encoded(len+(ui
     block@0: // L51
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
-        let copy%0#0: bytes = maybe_value%0#0
-        let a1#0: Encoded(len+(uint64,(len+utf8[]))[]) = copy%0#0
+        let a1#0: Encoded(len+(uint64,(len+utf8[]))[]) = maybe_value%0#0
         let tmp%0#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
-        let copy%1#0: bytes = maybe_value%1#0
-        let a2#0: Encoded(len+(uint64,(len+utf8[]))[]) = copy%1#0
+        let a2#0: Encoded(len+(uint64,(len+utf8[]))[]) = maybe_value%1#0
         let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get "box")
         (assert aggregate%box_get%1#1) // check self.box exists
         let storage_value%0#0: bytes = aggregate%box_get%0#1
-        let copy%2#0: bytes = storage_value%0#0
-        let a3#0: Encoded(len+(uint64,(len+utf8[]))[]) = copy%2#0
+        let a3#0: Encoded(len+(uint64,(len+utf8[]))[]) = storage_value%0#0
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         let (aggregate%box_get%2#1: bytes, aggregate%box_get%3#1: bool) = (box_get box_prefixed_key%0#0)
         (assert aggregate%box_get%3#1) // check self.map entry exists
         let storage_value%1#0: bytes = aggregate%box_get%2#1
-        let copy%3#0: bytes = storage_value%1#0
-        let a4#0: Encoded(len+(uint64,(len+utf8[]))[]) = copy%3#0
+        let a4#0: Encoded(len+(uint64,(len+utf8[]))[]) = storage_value%1#0
         let tmp%1#0: bool = (== a1#0 a2#0)
         (assert tmp%1#0) // expected local == global
         let tmp%2#0: bool = (== a1#0 a3#0)

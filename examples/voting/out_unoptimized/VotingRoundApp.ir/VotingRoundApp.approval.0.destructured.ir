@@ -79,8 +79,7 @@ subroutine examples.voting.voting.VotingRoundApp.create(vote_id: string, snapsho
         (app_global_put "end_time" end_time#0)
         (app_global_put "quorum" quorum#0)
         (app_global_put "nft_image_url" nft_image_url#0)
-        let copy%0#0: Encoded(len+uint8[]) = option_counts#0
-        let store_option_counts%0#0: Encoded(len+uint8[]) = examples.voting.voting.VotingRoundApp.store_option_counts(copy%0#0)
+        let store_option_counts%0#0: Encoded(len+uint8[]) = examples.voting.voting.VotingRoundApp.store_option_counts(option_counts#0)
         return 
 
 subroutine examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uint64) -> void:
@@ -331,11 +330,10 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         examples.voting.voting.VotingRoundApp.increment_vote_in_box(tmp%18#0)
         let tmp%19#0: uint64 = (+ cumulative_offset#0 options_count#0)
         let cumulative_offset#0: uint64 = tmp%19#0
-        let copy%0#0: Encoded(len+uint8[]) = answer_ids#0
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "" materialized_values%0#0)
         (box_del box_prefixed_key%0#0)
-        (box_put box_prefixed_key%0#0 copy%0#0)
+        (box_put box_prefixed_key%0#0 answer_ids#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "voter_count")
         (assert maybe_exists%2#0) // check self.voter_count exists
         let tmp%20#0: uint64 = (+ maybe_value%2#0 1u)
@@ -414,8 +412,7 @@ subroutine examples.voting.voting.VotingRoundApp.store_option_counts(option_coun
     block@4: // after_for_L223
         let tmp%4#0: bool = (<= total_options#0 128u)
         (assert tmp%4#0) // Can't have more than 128 vote options
-        let copy%0#0: Encoded(len+uint8[]) = option_counts#0
-        (app_global_put "option_counts" copy%0#0)
+        (app_global_put "option_counts" option_counts#0)
         (app_global_put "total_options" total_options#0)
         return option_counts%out#0
 

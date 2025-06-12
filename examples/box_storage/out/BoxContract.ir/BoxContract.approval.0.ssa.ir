@@ -209,9 +209,8 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
     block@0: // L41
         let encoded_value%0#0: bytes[8] = (itob a#0)
         box_write("box_a", encoded_value%0#0)
-        let copy%0#0: Encoded(len+uint8[]) = b#0
         (box_del "b")
-        box_write("b", copy%0#0)
+        box_write("b", b#0)
         (box_del 0x424f585f43)
         box_write(0x424f585f43, c#0)
         let tmp%0#0: bytes = decode<bytes>(b#0)
@@ -221,8 +220,7 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         let tmp%1#0: uint64 = (* 1024u 4u)
         (box_replace "box_large" tmp%1#0 0x000000000000002a)
         let storage_value%0#0: bytes = box_read("b")
-        let copy%1#0: bytes = storage_value%0#0
-        let b_value#0: Encoded(len+uint8[]) = copy%1#0
+        let b_value#0: Encoded(len+uint8[]) = storage_value%0#0
         let storage_value%1#0: bytes = box_read("b")
         let array_length%0#0: uint64 = (extract_uint16 storage_value%1#0 0u)
         let array_length%1#0: uint64 = (extract_uint16 b_value#0 0u)

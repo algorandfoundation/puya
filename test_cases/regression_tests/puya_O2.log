@@ -2455,7 +2455,7 @@ debug: Found equivalence set: reinterpret_Encoded(len+(len+uint64[])[])%0#0, nes
 debug: selected nested_list#0 from equivalence set
 debug: Found equivalence set: reinterpret_Encoded(uint64)%0#0, threshold#0, reinterpret_biguint%1#0
 debug: selected threshold#0 from equivalence set
-debug: Found equivalence set: array_item%0#0, copy%0#0, inner_list#0
+debug: Found equivalence set: array_item%0#0, inner_list#0
 debug: selected inner_list#0 from equivalence set
 debug: Found equivalence set: tmp%0#1, last_inner_list_index#0
 debug: selected last_inner_list_index#0 from equivalence set
@@ -2607,7 +2607,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_item%0#0, copy%0#0, inner_list#0
+debug: Found equivalence set: array_item%0#0, inner_list#0
 debug: selected inner_list#0 from equivalence set
 debug: Found equivalence set: tmp%0#0, last_inner_list_index#0
 debug: selected last_inner_list_index#0 from equivalence set
@@ -4040,9 +4040,7 @@ debug: Found equivalence set: tuple_item%0#0, reinterpret_biguint%0#0
 debug: selected tuple_item%0#0 from equivalence set
 debug: Found equivalence set: some_subroutine%0#0, my_struct#1
 debug: selected my_struct#1 from equivalence set
-debug: Found equivalence set: my_struct#2, copy%0#0
-debug: selected my_struct#2 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable reinterpret_biguint%1#0
@@ -4110,9 +4108,7 @@ debug: Found equivalence set: tmp%0#0, my_struct#0, char#0, some_subroutine%0#0,
 debug: selected my_struct#0 from equivalence set
 debug: Found equivalence set: tuple_item%0#0, reinterpret_biguint%0#0
 debug: selected tuple_item%0#0 from equivalence set
-debug: Found equivalence set: my_struct#2, copy%0#0
-debug: selected my_struct#2 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable reinterpret_biguint%1#0
@@ -4126,7 +4122,8 @@ debug: Merged linear block@3 into block@1
 debug: Replaced predecessor block@4 with block@1 in block@2
 debug: Merged linear block@4 into block@1
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@1 because it's used by phi nodes
+debug: replaced goto tmp%1#0 ? block@2 : block@2 with goto block@2
+debug: Removed empty block: block@1
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -4164,28 +4161,28 @@ regression_tests/jira_142.py:13:6 debug: inlining call to test_cases.regression_
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%1#0
 debug: Removing unused variable tmp%6#0
+debug: Removing unused variable tmp%1#1
+debug: Removing unused variable tuple_item%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@14 with block@3 in block@16
 debug: Replaced predecessor block@14 with block@3 in block@15
 debug: Merged linear block@14 into block@3
-debug: Replaced predecessor block@17 with block@16 in block@11
-debug: Merged linear block@17 into block@16
+debug: Replaced predecessor block@15 with block@3 in block@16
+debug: Merged linear block@15 into block@3
+debug: Replaced predecessor block@16 with block@3 in block@11
+debug: Merged linear block@16 into block@3
 debug: Replaced predecessor block@12 with block@7 in block@13
 debug: Merged linear block@12 into block@7
 debug: Replaced predecessor block@13 with block@7 in block@11
 debug: Merged linear block@13 into block@7
 debug: Optimizer: Remove Empty Blocks
-debug: replaced goto tmp%1#1 ? block@16 : block@16 with goto block@16
-debug: Removed empty block: block@15
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -4197,17 +4194,17 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable tmp%1#0
+debug: Removing unused variable tuple_item%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
+debug: Merged linear block@2 into block@0
 debug: Optimizer: Remove Empty Blocks
-debug: replaced goto tmp%1#0 ? block@2 : block@2 with goto block@2
-debug: Removed empty block: block@1
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -4244,30 +4241,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%1#1
-debug: Removing unused variable tuple_item%0#0
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@16 with block@3 in block@11
-debug: Merged linear block@16 into block@3
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Begin optimization pass 4/100
-debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -4280,7 +4253,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 4, ending loop
+debug: No optimizations performed in pass 3, ending loop
 debug: optimizing clear program of test_cases.regression_tests.jira_142.Jira142 at level 2
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program

@@ -341,10 +341,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() 
         let arr_3_from_tuple#0: Encoded(uint64[3]) = encoded_array%0#0
         let tmp%1#0: bool = (== arr_3#3 arr_3_from_tuple#0)
         (assert tmp%1#0) // should be the same
-        let copy%0#0: uint64 = 1u
-        let copy%1#0: uint64 = 1u
-        let copy%2#0: uint64 = 1u
-        let encoded_array%1#0: Encoded(uint64[3]) = encode<uint64[3]>(copy%0#0, copy%1#0, copy%2#0)
+        let encoded_array%1#0: Encoded(uint64[3]) = encode<uint64[3]>(1u, 1u, 1u)
         let arr_3_from_full#0: Encoded(uint64[3]) = encoded_array%1#0
         let array_item%0#0: Encoded(uint64) = agg_read_index(arr_3_from_full#0, 0u)
         let values%0#0: uint64 = decode<uint64>(array_item%0#0)
@@ -358,8 +355,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() 
         let values%2#0: uint64 = decode<uint64>(array_item%2#0)
         let tmp%4#0: bool = (== values%2#0 1u)
         (assert tmp%4#0)
-        let copy%3#0: Encoded(uint64[3]) = arr_3#3
-        let arr_3_from_fixed#0: Encoded(uint64[3]) = copy%3#0
+        let arr_3_from_fixed#0: Encoded(uint64[3]) = arr_3#3
         let tmp%5#0: bool = (== arr_3#3 arr_3_from_fixed#0)
         (assert tmp%5#0) // should be the same
         let encoded_array%2#0: Encoded(len+uint64[]) = encode<(len+uint64[])>(0u, 1u, 2u)
@@ -392,12 +388,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: En
         (assert maybe_exists%0#0) // check self.num_payments exists
         let tmp%0#0: bool = (< maybe_value%0#0 8u)
         (assert tmp%0#0) // too many payments
-        let copy%0#0: Encoded(uint8[32],uint64,uint64) = pay#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%2#0) // check self.num_payments exists
-        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = agg_write_index(maybe_value%1#0, maybe_value%2#0, copy%0#0)
+        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = agg_write_index(maybe_value%1#0, maybe_value%2#0, pay#0)
         (app_global_put "payments" updated_array%0#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%3#0) // check self.num_payments exists
@@ -426,23 +421,20 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
     block@0: // L133
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let copy%0#0: bytes = maybe_value%0#0
-        (app_global_put 0x70 copy%0#0)
+        (app_global_put 0x70 maybe_value%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%1#0) // check self.nested exists
-        let copy%1#0: bytes = maybe_value%1#0
         let tmp%0#0: account = (txn Sender)
-        (app_local_put tmp%0#0 0x6c copy%1#0)
+        (app_local_put tmp%0#0 0x6c maybe_value%1#0)
         let tmp%1#0: bool = (box_create "box" 2064u)
         (assert tmp%1#0) // expected box to not exist
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%2#0) // check self.nested exists
         let tuple_item%0#0: Encoded(uint64,uint64) = agg_read_index(maybe_value%2#0, 0)
-        let copy%2#0: Encoded(uint64,uint64) = tuple_item%0#0
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let storage_value%0#0: bytes = box_read(box_prefixed_key%0#0)
-        let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = agg_write_index(storage_value%0#0, 0, copy%2#0)
+        let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = agg_write_index(storage_value%0#0, 0, tuple_item%0#0)
         box_write(box_prefixed_key%0#0, updated_tuple%0#0)
         return 
 
