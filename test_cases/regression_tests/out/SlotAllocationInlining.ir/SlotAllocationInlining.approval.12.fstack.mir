@@ -24,17 +24,17 @@ subroutine main:
         b main_while_top@2
 
     main_after_while@8:
-        // regression_tests/slot_allocation_inlining.py:17
+        // regression_tests/slot_allocation_inlining.py:25
         // arr = Array[UInt64]()
         callsub _puya_lib.mem.new_slot                                arr#0
         l-load-copy arr#0 0                                           arr#0,arr#0 (copy)
         byte 0x                                                       arr#0,arr#0 (copy),0x
         stores                                                        arr#0
-        // regression_tests/slot_allocation_inlining.py:18
+        // regression_tests/slot_allocation_inlining.py:26
         // append_to_array(arr)
         l-load-copy arr#0 0                                           arr#0,arr#0 (copy)
         callsub append_to_array                                       arr#0
-        // regression_tests/slot_allocation_inlining.py:19
+        // regression_tests/slot_allocation_inlining.py:27
         // assert arr.length == 32, "expected array of length 32"
         l-load arr#0 0                                                arr#0
         loads                                                         slot_contents%0#0
@@ -44,7 +44,7 @@ subroutine main:
         int 32                                                        array_len%0#0,32
         ==                                                            tmp%0#1
         assert // expected array of length 32
-        // regression_tests/slot_allocation_inlining.py:8
+        // regression_tests/slot_allocation_inlining.py:16
         // return True
         int 1                                                         1
         return
@@ -53,7 +53,7 @@ subroutine main:
 // test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: uint64) -> void:
 subroutine append_to_array:
     append_to_array_block@0:                                          (𝕡) arr#0 |
-        // regression_tests/slot_allocation_inlining.py:24
+        // regression_tests/slot_allocation_inlining.py:32
         // for b in Txn.sender.bytes:
         txn Sender                                                    (𝕡) arr#0 | tmp%0#0
         f-store tmp%0#0                                               (𝕡) arr#0 | (𝕗) tmp%0#0 |
@@ -62,7 +62,7 @@ subroutine append_to_array:
         b append_to_array_for_header@1                                (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
 
     append_to_array_for_header@1:                                     (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
-        // regression_tests/slot_allocation_inlining.py:24
+        // regression_tests/slot_allocation_inlining.py:32
         // for b in Txn.sender.bytes:
         f-load item_index_internal%0#0                                (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0
         int 32                                                        (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | item_index_internal%0#0,32
@@ -70,7 +70,7 @@ subroutine append_to_array:
         bz append_to_array_after_for@4 ; b append_to_array_for_body@2 (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
 
     append_to_array_for_body@2:                                       (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 |
-        // regression_tests/slot_allocation_inlining.py:25
+        // regression_tests/slot_allocation_inlining.py:33
         // arr.append(op.btoi(b))
         f-load tmp%0#0                                                (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | tmp%0#0
         f-load item_index_internal%0#0                                (𝕡) arr#0 | (𝕗) tmp%0#0,item_index_internal%0#0 | tmp%0#0,item_index_internal%0#0

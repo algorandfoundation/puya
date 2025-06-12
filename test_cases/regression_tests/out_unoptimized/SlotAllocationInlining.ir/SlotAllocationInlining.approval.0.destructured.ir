@@ -1,6 +1,6 @@
 slot_allocation(dynamic, reserved=[])
 main test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program:
-    block@0: // L5
+    block@0: // L13
         _puya_lib.util.ensure_budget(800u, 0u)
         test_cases.regression_tests.slot_allocation_inlining.do_something_with_array()
         return 1u
@@ -37,7 +37,7 @@ subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uin
         return 
 
 subroutine test_cases.regression_tests.slot_allocation_inlining.do_something_with_array() -> void:
-    block@0: // L14
+    block@0: // L22
         let aggregate%encoded%0#1: Encoded(uint64[]) = (concat 0x 0x)
         let encoded_array%0#0: Encoded(uint64[]) = aggregate%encoded%0#1
         let slot%0#0: Encoded(uint64[])* = new()
@@ -52,15 +52,15 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.do_something_wit
         return 
 
 subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: Encoded(uint64[])*) -> void:
-    block@0: // L22
+    block@0: // L30
         let tmp%0#0: account = (txn Sender)
         let bytes_length%0#0: uint64 = (len tmp%0#0)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L24
+    block@1: // for_header_L32
         let continue_looping%0#0: bool = (< item_index_internal%0#0 bytes_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L25
+    block@2: // for_body_L33
         let b#0: bytes = (extract3 tmp%0#0 item_index_internal%0#0 1u)
         let tmp%1#0: uint64 = (btoi b#0)
         let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
@@ -72,8 +72,8 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%2#0) // on error: max array length exceeded
         write(arr#0, concat%0#0)
         goto block@3
-    block@3: // for_footer_L24
+    block@3: // for_footer_L32
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@1
-    block@4: // after_for_L24
+    block@4: // after_for_L32
         return 
