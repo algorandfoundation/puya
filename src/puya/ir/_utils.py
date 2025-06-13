@@ -1,6 +1,7 @@
 from collections import deque
 from collections.abc import Iterator
 
+from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -12,7 +13,7 @@ from puya.ir.models import Parameter, Subroutine
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
-from puya.utils import set_add
+from puya.utils import Address, biguint_bytes_eval, method_selector_hash, set_add
 
 
 def bfs_block_order(start: models.BasicBlock) -> Iterator[models.BasicBlock]:
@@ -70,3 +71,17 @@ def _expand_tuple_parameters_and_mark_implicit_returns(
             implicit_return=(allow_implicits and type_is_mutable and not type_is_slot),
             source_location=source_location,
         )
+
+
+def get_bytes_constant(key: models.Constant) -> bytes | None:
+    if key.ir_type.avm_type != AVMType.bytes:
+        return None
+    if isinstance(key, models.BytesConstant):
+        return key.value
+    if isinstance(key, models.AddressConstant):
+        return Address.parse(key.value).public_key
+    if isinstance(key, models.MethodConstant):
+        return method_selector_hash(key.value)
+    if isinstance(key, models.BigUIntConstant):
+        return biguint_bytes_eval(key.value)
+    return None
