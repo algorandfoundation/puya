@@ -9,7 +9,7 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence
-from puya.ir.builder._utils import assign, assign_temp, build_tuple_item_names
+from puya.ir.builder._utils import assign, assign_temp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.models import (
@@ -22,6 +22,7 @@ from puya.ir.models import (
     ValueProvider,
 )
 from puya.ir.op_utils import assert_value, assign_intrinsic_op, assign_targets, convert_constants
+from puya.ir.types_ import TupleIRType, ir_type_to_ir_types, wtype_to_ir_type
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
@@ -75,10 +76,16 @@ class LoopAssigner:
 
     def _build_registers_from_lvalue(self, target: awst_nodes.Lvalue) -> list[Register]:
         match target:
-            case awst_nodes.VarExpression(name=var_name, source_location=var_loc, wtype=var_type):
+            case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
+                ir_type = wtype_to_ir_type(target, allow_tuple=True)
+                if isinstance(ir_type, TupleIRType):
+                    exploded_names = ir_type.build_item_names(var_name)
+                else:
+                    exploded_names = [var_name]
+                ir_types = ir_type_to_ir_types(ir_type)
                 return [
                     self._context.new_register(name, ir_type, var_loc)
-                    for name, ir_type in build_tuple_item_names(var_name, var_type, var_loc)
+                    for name, ir_type in zip(exploded_names, ir_types, strict=True)
                 ]
             case awst_nodes.TupleExpression() as tup_expr:
                 tuple_items = lvalue_items(tup_expr)
