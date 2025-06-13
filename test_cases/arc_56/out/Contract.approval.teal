@@ -4,7 +4,7 @@
 // test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 10 42 TMPL_AVM_UINT64
-    bytecblock 0x151f7c75 0x TMPL_ARC4_UINT8 TMPL_STRUCT TMPL_AVM_STRING
+    bytecblock 0x151f7c75 0x TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn NumAppArgs
@@ -95,36 +95,40 @@ main_template_value_route@11:
     // arc_56/contract.py:129
     // TemplateVar[arc4.UInt8]("ARC4_UINT8"),
     bytec_2 // TMPL_ARC4_UINT8
-    // arc_56/contract.py:126
-    // TemplateVar[SharedStruct]("STRUCT"),
-    bytec_3 // TMPL_STRUCT
     // arc_56/contract.py:128
     // TemplateVar[String]("AVM_STRING"),
-    bytec 4 // TMPL_AVM_STRING
+    bytec_3 // TMPL_AVM_STRING
     // arc_56/contract.py:127
     // TemplateVar[UInt64]("AVM_UINT64"),
     intc 4 // TMPL_AVM_UINT64
+    // arc_56/contract.py:126
+    // TemplateVar[SharedStruct]("STRUCT"),
+    bytec 4 // TMPL_STRUCT
     // arc_56/contract.py:123
     // @arc4.abimethod()
-    itob
-    dig 1
-    len
-    itob
-    extract 6 2
-    uncover 2
-    concat
-    dig 2
+    dup
     len
     pushint 13 // 13
     +
+    uncover 2
+    itob
     pushbytes 0x000d
-    uncover 3
-    concat
     swap
+    concat
+    dig 3
+    len
     itob
     extract 6 2
+    uncover 4
     concat
     uncover 3
+    swap
+    concat
+    uncover 2
+    itob
+    extract 6 2
+    uncover 2
+    swap
     concat
     uncover 2
     concat
@@ -319,7 +323,7 @@ errors:
     // arc_56/contract.py:102
     // assert arg.a.bytes == arc4.UInt8(0).bytes, "this will error"
     frame_dig -1
-    extract 0 8 // on error: Index access is out of bounds
+    extract 0 8
     pushbytes 0x00
     ==
     assert // this will error
@@ -413,12 +417,12 @@ with_constant_defaults:
     // arc_56/contract.py:160
     // assert d.x or d.y
     frame_dig -7
-    extract 0 8 // on error: Index access is out of bounds
+    extract 0 8
     bytec_1 // 0x
     b!=
     bnz with_constant_defaults_bool_true@2
     frame_dig -7
-    extract 8 8 // on error: Index access is out of bounds
+    extract 8 8
     bytec_1 // 0x
     b!=
     bz with_constant_defaults_bool_false@3

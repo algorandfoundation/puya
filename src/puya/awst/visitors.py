@@ -319,6 +319,9 @@ class ExpressionVisitor[T](ABC):
     @abstractmethod
     def visit_comma_expression(self, expr: puya.awst.nodes.CommaExpression) -> T: ...
 
+    @abstractmethod
+    def visit_convert_array(self, expr: puya.awst.nodes.ConvertArray) -> T: ...
+
 
 class ARC4WTypeVisitor[T](ABC):
     @abstractmethod
@@ -363,12 +366,6 @@ class WTypeVisitor[T](ARC4WTypeVisitor[T]):
     def visit_inner_transaction_fields_type(
         self, wtype: puya.awst.wtypes.WInnerTransactionFields
     ) -> T: ...
-
-    @abstractmethod
-    def visit_struct_type(self, wtype: puya.awst.wtypes.WStructType) -> T: ...
-
-    @abstractmethod
-    def visit_stack_array(self, wtype: puya.awst.wtypes.StackArray) -> T: ...
 
     @abstractmethod
     def visit_reference_array(self, wtype: puya.awst.wtypes.ReferenceArray) -> T: ...

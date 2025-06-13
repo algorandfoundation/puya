@@ -8,10 +8,10 @@ main test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with
         (app_global_put "global_bytes" 0x)
         goto block@2
     block@2: // after_if_else_L1
-        let me#0: bytes[32] = (txn Sender)
-        let tmp%0#1: uint64 = (txn OnCompletion)
-        let tmp%1#1: bool = (== tmp%0#1 OptIn)
-        goto tmp%1#1 ? block@4 : block@5
+        let me#0: account = (txn Sender)
+        let tmp%1#1: uint64 = (txn OnCompletion)
+        let tmp%2#0: bool = (== tmp%1#1 OptIn)
+        goto tmp%2#0 ? block@4 : block@5
     block@4: // if_body_L26
         (app_local_put me#0 "my_uint" 0u)
         (app_local_put me#0 "my_bytes" 0x)
@@ -24,52 +24,52 @@ main test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with
         let bytes_to_add#0: bytes = (itob n#0)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex me#0 0u "my_uint")
         (assert maybe_exists%0#0) // check self.my_uint exists for account
-        let materialized_values%0#0: uint64 = (+ maybe_value%0#0 n#0)
-        (app_local_put me#0 "my_uint" materialized_values%0#0)
+        let tmp%5#0: uint64 = (+ maybe_value%0#0 n#0)
+        (app_local_put me#0 "my_uint" tmp%5#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex me#0 0u "my_bytes")
         (assert maybe_exists%1#0) // check self.my_bytes exists for account
-        let materialized_values%1#0: bytes = (concat maybe_value%1#0 bytes_to_add#0)
-        (app_local_put me#0 "my_bytes" materialized_values%1#0)
+        let tmp%6#0: bytes = (concat maybe_value%1#0 bytes_to_add#0)
+        (app_local_put me#0 "my_bytes" tmp%6#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "global_uint")
         (assert maybe_exists%2#0) // check self.global_uint exists
-        let materialized_values%2#0: uint64 = (+ maybe_value%2#0 n#0)
-        (app_global_put "global_uint" materialized_values%2#0)
+        let tmp%7#0: uint64 = (+ maybe_value%2#0 n#0)
+        (app_global_put "global_uint" tmp%7#0)
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "global_bytes")
         (assert maybe_exists%3#0) // check self.global_bytes exists
-        let materialized_values%3#0: bytes = (concat maybe_value%3#0 bytes_to_add#0)
-        (app_global_put "global_bytes" materialized_values%3#0)
+        let tmp%8#0: bytes = (concat maybe_value%3#0 bytes_to_add#0)
+        (app_global_put "global_bytes" tmp%8#0)
         (app_global_put "counter" 0u)
         let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (0u, 1u)
         (assert maybe_exists%4#0) // check self.counter exists
-        let tmp%2#0: bool = (! maybe_value%4#0)
-        (assert tmp%2#0)
-        let tmp%3#0: bytes[32] = test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect()
-        let (maybe_value%5#0: uint64, maybe_exists%5#0: bool) = (app_local_get_ex tmp%3#0 0u "my_uint")
+        let tmp%9#0: bool = (! maybe_value%4#0)
+        (assert tmp%9#0)
+        let tmp%10#0: account = test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect()
+        let (maybe_value%5#0: uint64, maybe_exists%5#0: bool) = (app_local_get_ex tmp%10#0 0u "my_uint")
         (assert maybe_exists%5#0) // check self.my_uint exists for account
-        let materialized_values%4#0: uint64 = (+ maybe_value%5#0 1u)
-        (app_local_put tmp%3#0 "my_uint" materialized_values%4#0)
+        let tmp%11#0: uint64 = (+ maybe_value%5#0 1u)
+        (app_local_put tmp%10#0 "my_uint" tmp%11#0)
         let (maybe_value%6#0: uint64, maybe_exists%6#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%6#0) // check self.counter exists
-        let tmp%4#0: bool = (== maybe_value%6#0 1u)
-        (assert tmp%4#0) // this should not error
-        let tmp%5#0: bytes[32] = test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect()
-        let (maybe_value%7#0: uint64, maybe_exists%7#0: bool) = (app_local_get_ex tmp%5#0 0u "my_uint")
+        let tmp%12#0: bool = (== maybe_value%6#0 1u)
+        (assert tmp%12#0) // this should not error
+        let tmp%13#0: account = test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect()
+        let (maybe_value%7#0: uint64, maybe_exists%7#0: bool) = (app_local_get_ex tmp%13#0 0u "my_uint")
         (assert maybe_exists%7#0) // check self.my_uint exists for account
-        let materialized_values%5#0: uint64 = (- maybe_value%7#0 1u)
-        (app_local_put tmp%5#0 "my_uint" materialized_values%5#0)
+        let tmp%14#0: uint64 = (- maybe_value%7#0 1u)
+        (app_local_put tmp%13#0 "my_uint" tmp%14#0)
         let (maybe_value%8#0: uint64, maybe_exists%8#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%8#0) // check self.counter exists
-        let tmp%6#0: bool = (== maybe_value%8#0 2u)
-        (assert tmp%6#0) // this should not error
+        let tmp%15#0: bool = (== maybe_value%8#0 2u)
+        (assert tmp%15#0) // this should not error
         goto block@7
     block@7: // after_if_else_L28
         return 1u
 
-subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect() -> bytes[32]:
+subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect() -> account:
     block@0: // L53
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
-        let materialized_values%0#0: uint64 = (+ maybe_value%0#0 1u)
-        (app_global_put "counter" materialized_values%0#0)
-        let tmp%0#0: bytes[32] = (txn Sender)
-        return tmp%0#0
+        let tmp%0#0: uint64 = (+ maybe_value%0#0 1u)
+        (app_global_put "counter" tmp%0#0)
+        let tmp%1#0: account = (txn Sender)
+        return tmp%1#0

@@ -10,36 +10,32 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.arc4 import get_arc4_static_bit_size, is_arc4_static_size
-from puya.ir.arc4_types import effective_array_encoding, maybe_wtype_to_arc4_wtype
+from puya.ir.arc4_types import maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4
-from puya.ir.builder._tuple_util import build_tuple_registers
-from puya.ir.builder._utils import (
-    OpFactory,
-    assert_value,
-    assign_targets,
-    new_register_version,
-    undefined_value,
-)
+from puya.ir.builder._utils import assign_tuple, undefined_value
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
+    BoxRead,
     ConditionalBranch,
     Intrinsic,
     UInt64Constant,
     Value,
+    ValueDecode,
+    ValueEncode,
     ValueProvider,
     ValueTuple,
 )
+from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.types_ import (
     IRType,
     PrimitiveIRType,
     SizedBytesType,
-    get_wtype_arity,
+    TupleIRType,
+    ir_type_to_ir_types,
+    wtype_to_encoded_ir_type,
     wtype_to_ir_type,
 )
 from puya.parse import SourceLocation
-from puya.utils import bits_to_bytes
 
 logger = log.get_logger(__name__)
 
@@ -91,16 +87,30 @@ def _fetch_and_decode_from_storage_with_assert(
     default_error_message: str,
 ) -> ValueProvider:
     storage_codec = _get_storage_codec_for_node(expr)
-    get_ex_op = _build_get_ex_op(context, storage_codec.encoded_avm_type, expr, key)
-    storage_value, did_exist = context.visitor.materialise_value_provider(
-        get_ex_op, ("maybe_value", "maybe_exists")
-    )
-    assert_value(
-        context,
-        value=did_exist,
-        error_message=expr.exists_assertion_message or default_error_message,
-        source_location=expr.source_location,
-    )
+    if isinstance(expr, awst_nodes.BoxValueExpression):
+        # BoxRead will assert the box exists when lowered
+        # It is deliberately used in this case to provide further optimization opportunities
+        # when loading large box values.
+        # It is deliberately not used when doing conditional box loads (maybe/get) because of
+        # the implications.
+        box_read = BoxRead(
+            key=key,
+            value_type=PrimitiveIRType.bytes,
+            source_location=expr.source_location,
+            exists_assertion_message=expr.exists_assertion_message or default_error_message,
+        )
+        (storage_value,) = context.visitor.materialise_value_provider(box_read, "storage_value")
+    else:
+        get_ex_op = _build_get_ex_op(context, storage_codec.encoded_avm_type, expr, key)
+        storage_value, did_exist = context.visitor.materialise_value_provider(
+            get_ex_op, ("maybe_value", "maybe_exists")
+        )
+        assert_value(
+            context,
+            value=did_exist,
+            error_message=expr.exists_assertion_message or default_error_message,
+            source_location=expr.source_location,
+        )
     decoded_value = storage_codec.decode(context, storage_value, expr.source_location)
     return decoded_value
 
@@ -130,7 +140,7 @@ def _build_get_ex_op(
 
     if isinstance(expr, awst_nodes.AppStateExpression):
         current_app_offset = UInt64Constant(value=0, source_location=expr.source_location)
-        get_storage_value = Intrinsic(
+        get_storage_value: ValueProvider = Intrinsic(
             op=AVMOp.app_global_get_ex,
             args=[current_app_offset, key],
             types=[result_type, PrimitiveIRType.bool],
@@ -150,7 +160,6 @@ def _build_get_ex_op(
         get_storage_value = Intrinsic(
             op=AVMOp.box_get,
             args=[key],
-            # specifying types should be redundant, but this acts as an internal consistency check
             types=[result_type, PrimitiveIRType.bool],
             source_location=expr.source_location,
         )
@@ -194,7 +203,22 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
     storage_value, did_exist = context.visitor.materialise_value_provider(
         get_ex_op, ("maybe_value", "maybe_exists")
     )
-    if len(default_decoded_values) == 1:
+    decoded_ir_type = wtype_to_ir_type(expr.field, allow_tuple=True)
+    if isinstance(decoded_ir_type, TupleIRType):
+        default_decoded_vp = ValueTuple(
+            values=default_decoded_values, source_location=expr.default.source_location
+        )
+        return _conditional_tuple_value_provider(
+            context,
+            condition=did_exist,
+            typ=decoded_ir_type,
+            true_factory=lambda: storage_codec.decode(
+                context, storage_value, expr.source_location
+            ),
+            false_factory=lambda: default_decoded_vp,
+            loc=expr.source_location,
+        )
+    else:
         decoded_maybe_vp = storage_codec.decode(context, storage_value, expr.source_location)
         (decoded_maybe_value,) = context.visitor.materialise_value_provider(
             decoded_maybe_vp, "decoded_value"
@@ -208,20 +232,6 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
             temp_desc="state_get",
             ir_type=decoded_maybe_value.ir_type,
         )
-    else:
-        default_decoded_vp = ValueTuple(
-            values=default_decoded_values, source_location=expr.default.source_location
-        )
-        return _conditional_value_provider(
-            context,
-            condition=did_exist,
-            wtype=expr.field.wtype,
-            true_factory=lambda: storage_codec.decode(
-                context, storage_value, expr.source_location
-            ),
-            false_factory=lambda: default_decoded_vp,
-            loc=expr.source_location,
-        )
 
 
 def visit_state_get_ex(
@@ -233,14 +243,15 @@ def visit_state_get_ex(
     storage_value, did_exist = context.visitor.materialise_value_provider(
         get_ex_op, ("maybe_value", "maybe_exists")
     )
-    if get_wtype_arity(expr.field.wtype) == 1:
+    decoded_ir_type = wtype_to_ir_type(expr.field, allow_tuple=True)
+    if not isinstance(decoded_ir_type, TupleIRType):
         decoded_vp = storage_codec.decode(context, storage_value, expr.source_location)
     else:
-        default_decoded = undefined_value(expr.field.wtype, expr.source_location)
-        decoded_vp = _conditional_value_provider(
+        default_decoded = undefined_value(decoded_ir_type, expr.source_location)
+        decoded_vp = _conditional_tuple_value_provider(
             context,
             condition=did_exist,
-            wtype=expr.field.wtype,
+            typ=decoded_ir_type,
             true_factory=lambda: storage_codec.decode(
                 context, storage_value, expr.source_location
             ),
@@ -255,11 +266,11 @@ def visit_state_get_ex(
     )
 
 
-def _conditional_value_provider(
+def _conditional_tuple_value_provider(
     context: IRFunctionBuildContext,
     *,
     condition: Value,
-    wtype: wtypes.WType,
+    typ: TupleIRType,
     true_factory: Callable[[], ValueProvider],
     false_factory: Callable[[], ValueProvider],
     loc: SourceLocation,
@@ -282,31 +293,36 @@ def _conditional_value_provider(
         )
     )
     tmp_var_name = context.next_tmp_name("ternary_result")
-    true_registers = build_tuple_registers(context, tmp_var_name, wtype, loc)
+    tmp_var_names = typ.build_item_names(tmp_var_name)
+    tmp_var_ir_types = ir_type_to_ir_types(typ)
     context.block_builder.activate_block(true_block)
     true = true_factory()
-    assign_targets(
+    assign_tuple(
         context,
         source=true,
-        targets=true_registers,
+        names=tmp_var_names,
+        ir_types=tmp_var_ir_types,
         assignment_location=true.source_location,
+        register_location=loc,
     )
     context.block_builder.goto(merge_block)
 
     context.block_builder.activate_block(false_block)
     false = false_factory()
-    assign_targets(
+    assign_tuple(
         context,
         source=false,
-        targets=[new_register_version(context, reg) for reg in true_registers],
+        names=tmp_var_names,
+        ir_types=tmp_var_ir_types,
         assignment_location=false.source_location,
+        register_location=loc,
     )
     context.block_builder.goto(merge_block)
 
     context.block_builder.activate_block(merge_block)
     result = [
-        context.ssa.read_variable(variable=r.name, ir_type=r.ir_type, block=merge_block)
-        for r in true_registers
+        context.ssa.read_variable(variable=name, ir_type=ir_type, block=merge_block)
+        for name, ir_type in zip(tmp_var_names, tmp_var_ir_types, strict=True)
     ]
     return ValueTuple(values=result, source_location=loc)
 
@@ -394,19 +410,11 @@ def get_storage_codec(
     ):
         return _UInt64AsBytesStorageCodec()
 
-    if isinstance(declared_type, wtypes.StackArray):
-        # this case could just be handled by `.scalar_type` case,
-        # but by adding this type here we encode the pass-through assumption
-        effective_type = effective_array_encoding(declared_type, loc)
-        typing.assert_type(effective_type, wtypes.ARC4DynamicArray)
-        ir_type = wtype_to_ir_type(declared_type, loc)
-        return _PassthroughStorageCodec(ir_type)
-
     if isinstance(declared_type, wtypes.WTuple):
         arc4_wtype = maybe_wtype_to_arc4_wtype(declared_type)
         if arc4_wtype is None:
             raise InternalError("expected persistable tuple type to be ARC-4 encodable", loc)
-        return _ARC4StorageCodec(declared_type=declared_type, arc4_type=arc4_wtype)
+        return _ARC4StorageCodec(declared_type=declared_type, arc4_type=arc4_wtype, loc=loc)
 
     if declared_type.scalar_type is None:
         raise InternalError(f"unable to construct storage codec for type: {declared_type!r}", loc)
@@ -464,17 +472,23 @@ class _PassthroughStorageCodec(StorageCodec):
 class _ARC4StorageCodec(StorageCodec):
     """For when user / high-level types must be converted to ARC-4 for storage"""
 
-    def __init__(self, *, declared_type: wtypes.WType, arc4_type: wtypes.ARC4Type) -> None:
-        self._declared_type = declared_type
-        self._arc4_type = arc4_type
+    def __init__(
+        self, *, declared_type: wtypes.WType, arc4_type: wtypes.ARC4Type, loc: SourceLocation
+    ) -> None:
+        self._declared_type = wtype_to_ir_type(
+            declared_type, source_location=loc, allow_tuple=True
+        )
+        self._encoded_type = wtype_to_encoded_ir_type(arc4_type, loc)
 
     @typing.override
     def encode(
         self, context: IRFunctionBuildContext, values: Sequence[Value], loc: SourceLocation
     ) -> Value:
-        value_tuple = ValueTuple(values=values, source_location=loc)
-        encoded_vp = arc4.encode_value_provider(
-            context, value_tuple, self._declared_type, arc4_wtype=self._arc4_type, loc=loc
+        encoded_vp = ValueEncode(
+            values=values,
+            value_type=self._declared_type,
+            encoding=self._encoded_type.encoding,
+            source_location=loc,
         )
         encoded, *rest = context.visitor.materialise_value_provider(
             encoded_vp, "encoded_for_storage"
@@ -486,12 +500,14 @@ class _ARC4StorageCodec(StorageCodec):
     def decode(
         self, context: IRFunctionBuildContext, value: Value, loc: SourceLocation
     ) -> ValueProvider:
-        return arc4.decode_arc4_value(context, value, self._arc4_type, self._declared_type, loc)
+        return ValueDecode(
+            value=value,
+            encoding=self._encoded_type.encoding,
+            decoded_type=self._declared_type,
+            source_location=loc,
+        )
 
     @cached_property
     @typing.override
     def encoded_ir_type(self) -> IRType:
-        if is_arc4_static_size(self._arc4_type):
-            num_bits = get_arc4_static_bit_size(self._arc4_type)
-            return SizedBytesType(bits_to_bytes(num_bits))
-        return PrimitiveIRType.bytes
+        return self._encoded_type

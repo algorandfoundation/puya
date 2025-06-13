@@ -106,31 +106,39 @@ class ToTextVisitor(IRVisitor[str]):
         return f"write({slot}, {value})"
 
     @typing.override
-    def visit_array_read_index(self, read: models.ArrayReadIndex) -> str:
-        return f"{read.array.accept(self)}[{read.index.accept(self)}]"
+    def visit_box_read(self, read: models.BoxRead) -> str:
+        box = read.key.accept(self)
+        return f"box_read({box})"
 
     @typing.override
-    def visit_array_write_index(self, write: models.ArrayWriteIndex) -> str:
-        return (
-            f"{write.array.accept(self)}[{write.index.accept(self)}] = {write.value.accept(self)}"
-        )
+    def visit_box_write(self, write: models.BoxWrite) -> str:
+        box = write.key.accept(self)
+        value = write.value.accept(self)
+        return f"box_write({box}, {value})"
 
     @typing.override
-    def visit_array_concat(self, concat: models.ArrayConcat) -> str:
-        return f"{concat.array.accept(self)}.concat({concat.other.accept(self)})"
+    def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> str:
+        base = read.base.accept(self)
+        indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in read.indexes]
+        args = ", ".join((base, *indexes))
+        return f"agg_read_index({args})"
 
     @typing.override
-    def visit_array_encode(self, encode: models.ArrayEncode) -> str:
+    def visit_aggregate_write_index(self, write: models.AggregateWriteIndex) -> str:
+        base = write.base.accept(self)
+        indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in write.indexes]
+        index = ", ".join(indexes)
+        value = write.value.accept(self)
+        return f"agg_write_index({base}, {index}, {value})"
+
+    @typing.override
+    def visit_value_encode(self, encode: models.ValueEncode) -> str:
         values = ", ".join(val.accept(self) for val in encode.values)
-        return f"encode<{encode.array_type.element}>({values})"
+        return f"encode<{encode.encoding!s}>({values})"
 
     @typing.override
-    def visit_array_pop(self, pop: models.ArrayPop) -> str:
-        return f"{pop.array.accept(self)}.pop()"
-
-    @typing.override
-    def visit_array_length(self, pop: models.ArrayLength) -> str:
-        return f"{pop.array.accept(self)}.length"
+    def visit_value_decode(self, decode: models.ValueDecode) -> str:
+        return f"decode<{decode.decoded_type.name}>({decode.value.accept(self)})"
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:

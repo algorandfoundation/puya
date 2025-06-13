@@ -10,8 +10,13 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import GenericTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedInstanceExpressionBuilder
-from puyapy.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
-from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder, CopyBuilder
+from puyapy.awst_build.eb._utils import (
+    CopyBuilder,
+    compare_bytes,
+    constant_bool_and_error,
+    dummy_value,
+)
+from puyapy.awst_build.eb.arc4._base import ARC4TypeBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
     BuilderComparisonOp,
@@ -21,6 +26,7 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
 )
 from puyapy.awst_build.eb.tuple import TupleExpressionBuilder
+from puyapy.awst_build.utils import tuple_iterable_item_type
 
 logger = log.get_logger(__name__)
 
@@ -147,8 +153,8 @@ class ARC4TupleExpressionBuilder(
         ]
 
     @typing.override
-    def iterable_item_type(self) -> typing.Never:
-        self.iterate()
+    def iterable_item_type(self) -> pytypes.PyType:
+        return tuple_iterable_item_type(self.pytype, self.source_location)
 
     @typing.override
     def slice_index(

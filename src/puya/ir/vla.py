@@ -83,9 +83,6 @@ class VariableLifetimeAnalysis:
     def get_live_out_variables(self, op: IrOp) -> Set[ops.Register]:
         return self._op_lifetimes[op].live_out
 
-    def get_live_in_variables(self, op: IrOp) -> Set[ops.Register]:
-        return self._op_lifetimes[op].live_in
-
     @classmethod
     def analyze(cls, subroutine: ops.Subroutine) -> typing.Self:
         analysis = cls(subroutine)

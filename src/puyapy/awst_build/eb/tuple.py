@@ -7,6 +7,7 @@ from puya.awst import wtypes
 from puya.awst.nodes import (
     BinaryBooleanOperator,
     BooleanBinaryOperation,
+    Copy,
     Expression,
     FieldExpression,
     IntegerConstant,
@@ -43,7 +44,7 @@ from puyapy.awst_build.eb.interface import (
     StaticSizedCollectionBuilder,
     TypeBuilder,
 )
-from puyapy.awst_build.utils import determine_base_type, get_arg_mapping
+from puyapy.awst_build.utils import get_arg_mapping, tuple_iterable_item_type
 
 logger = log.get_logger(__name__)
 
@@ -132,6 +133,7 @@ class NamedTupleTypeBuilder(TypeBuilder[pytypes.NamedTupleType]):
         if any_missing:
             return dummy_value(pytype, location)
 
+        # TODO: need to evaluate values args in field_mapping order
         values = [
             expect.argument_of_type_else_dummy(field_mapping[field_name], field_type).resolve()
             for field_name, field_type in pytype.fields.items()
@@ -257,7 +259,7 @@ class TupleLiteralBuilder(InstanceBuilder[pytypes.TupleType], StaticSizedCollect
 
     @typing.override
     def iterable_item_type(self) -> pytypes.PyType:
-        return _iterable_item_type(self.pytype, self.source_location)
+        return tuple_iterable_item_type(self.pytype, self.source_location)
 
     def _expr_builder(self) -> InstanceBuilder:
         # used to maintain semantic compatibility, we must resolve this so all elements
@@ -433,7 +435,7 @@ class TupleExpressionBuilder(
 
     @typing.override
     def iterable_item_type(self) -> pytypes.PyType:
-        return _iterable_item_type(self.pytype, self.source_location)
+        return tuple_iterable_item_type(self.pytype, self.source_location)
 
     @typing.override
     def contains(self, item: InstanceBuilder, location: SourceLocation) -> InstanceBuilder:
@@ -518,7 +520,14 @@ class _Replace(FunctionBuilder):
                 item_builder = expect.argument_of_type_else_dummy(new_value, field_pytype)
                 item = item_builder.resolve()
             else:
+                field_wtype = field_pytype.checked_wtype(location)
                 item = TupleItemExpression(base=base_expr, index=idx, source_location=location)
+                if not field_wtype.immutable:
+                    logger.error(
+                        f"mutable field {field_name!r} requires explicit copy", location=location
+                    )
+                    # implicitly create a copy node so that there is only one error
+                    item = Copy(value=item, source_location=location)
             items.append(item)
         new_tuple = TupleExpression(items=items, wtype=pytype.wtype, source_location=location)
         return TupleExpressionBuilder(new_tuple, pytype)
@@ -615,14 +624,3 @@ def _concat(
 
     items = [*lhs_items, *rhs_items]
     return TupleLiteralBuilder(items, location)
-
-
-def _iterable_item_type(
-    pytype: pytypes.TupleType, source_location: SourceLocation
-) -> pytypes.PyType:
-    base_type = determine_base_type(*pytype.items, location=source_location)
-    if isinstance(base_type, pytypes.UnionType):
-        raise CodeError(
-            "unable to iterate heterogeneous tuple without common base type", source_location
-        )
-    return base_type

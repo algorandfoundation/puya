@@ -155,6 +155,10 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
             location=location,
         )
 
+    @typing.override
+    def to_native_type(self, element_type: pytypes.PyType) -> pytypes.ArrayType:
+        return pytypes.GenericNativeArrayType.parameterise([element_type], self.source_location)
+
 
 class _ArrayFunc(FunctionBuilder, abc.ABC):
     def __init__(self, expr: Expression, typ: pytypes.ArrayType, location: SourceLocation):

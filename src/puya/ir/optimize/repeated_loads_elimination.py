@@ -155,12 +155,17 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                 # TODO: optimize repeats
                 # these count as reads
                 self._handle_read(_StateType.box)
-            case models.Intrinsic(op=AVMOp.box_get, args=[key]):
+            case models.Intrinsic(op=AVMOp.box_get, args=[key]) | models.BoxRead(key=key):
                 self._cached_read(op, _StateType.box, key=(key,))
             # OTHER
             case other_source:
                 # visit in case invalidations need to occur
                 other_source.accept(self)
+
+    def visit_box_write(self, write: models.BoxWrite) -> None:
+        self._handle_write(
+            write, _StateType.box, key=(write.key,), values=(write.value, _const_true())
+        )
 
     @typing.override
     def visit_write_slot(self, write: models.WriteSlot) -> None:
