@@ -48,11 +48,11 @@ def _call_subroutine(
     # the IR arguments in the order the invoked subroutine expects them to be passed
     ordered_args = []
     # arguments that are returned from the invoked subroutine automatically
-    implicit_return_args = list[awst_nodes.VarExpression | None]()
-    var_to_params = defaultdict[str, list[ir.Parameter]](list)
+    implicit_return_args = list[str | None]()
+    var_name_to_params = defaultdict[str, list[ir.Parameter]](list)
     for idx, param in enumerate(target.parameters):
         try:
-            ir_val, maybe_var_expr = arg_lookup.pop(index=idx, param_name=param.name)
+            ir_val, maybe_var_name = arg_lookup.pop(index=idx, param_name=param.name)
         except KeyError:
             # parameter doesn't have corresponding argument, this is a double check,
             # front ends should be doing higher level type checking, so error message is general
@@ -60,11 +60,11 @@ def _call_subroutine(
                 "function call arguments do not match signature", target, call_location
             )
         ordered_args.append(ir_val)
-        if maybe_var_expr is not None:
-            var_to_params[maybe_var_expr.name].append(param)
+        if maybe_var_name is not None:
+            var_name_to_params[maybe_var_name].append(param)
 
         if param.implicit_return:
-            implicit_return_args.append(maybe_var_expr)
+            implicit_return_args.append(maybe_var_name)
 
     if arg_lookup:
         # arguments that didn't match a parameter remaining - again a double check,
@@ -73,7 +73,7 @@ def _call_subroutine(
             "function call arguments do not match signature", target, call_location
         )
 
-    for var_params in var_to_params.values():
+    for var_params in var_name_to_params.values():
         # this check handles two cases
         # 1) a variable being passed and implicitly returned more than once - this would require
         #   changes to the way the invoked subroutine handles the args
@@ -98,15 +98,9 @@ def _call_subroutine(
     num_explicit = len(target.explicit_returns)
     return_values, inout_values = invoke_result[:num_explicit], invoke_result[num_explicit:]
 
-    for maybe_var_expr, inout_value in zip(implicit_return_args, inout_values, strict=True):
-        if maybe_var_expr is not None:
-            assign(
-                context,
-                inout_value,
-                name=maybe_var_expr.name,
-                assignment_location=call_location,
-                register_location=maybe_var_expr.source_location,
-            )
+    for maybe_var_name, inout_value in zip(implicit_return_args, inout_values, strict=True):
+        if maybe_var_name is not None:
+            assign(context, inout_value, name=maybe_var_name, assignment_location=call_location)
 
     if return_values:
         return ir.ValueTuple(values=return_values, source_location=call_location)
@@ -127,7 +121,7 @@ def _dummy_return(
             return ir.ValueTuple(values=values, source_location=loc)
 
 
-_IRValueWithSourceVar = tuple[ir.Value, awst_nodes.VarExpression | None]
+_IRValueWithSourceVar = tuple[ir.Value, str | None]
 
 
 @attrs.define(init=False)
@@ -137,11 +131,11 @@ class _ArgLookup:
     def __init__(self, context: IRFunctionBuildContext, args: Sequence[awst_nodes.CallArg]):
         # IR args, materialized and expanded for tuples
         ir_args = list[tuple[str | None, ir.Value]]()
-        src_vars = list[awst_nodes.VarExpression | None]()
+        src_var_names = list[str | None]()
         for expr_arg in args:
             awst_value = expr_arg.value
             arg_name = expr_arg.name
-            src_vars.extend(_expand_tuple_vars(awst_value))
+            src_var_names.extend(_expand_tuple_vars(awst_value))
             if not isinstance(awst_value.wtype, wtypes.WTuple):
                 value = context.visitor.visit_and_materialise_single(awst_value)
                 ir_args.append((arg_name, value))
@@ -162,7 +156,9 @@ class _ArgLookup:
 
         data = {
             (arg_idx if name is None else name): (value, src_var)
-            for arg_idx, ((name, value), src_var) in enumerate(zip(ir_args, src_vars, strict=True))
+            for arg_idx, ((name, value), src_var) in enumerate(
+                zip(ir_args, src_var_names, strict=True)
+            )
         }
         self.__attrs_init__(data=data)
 
@@ -175,14 +171,19 @@ class _ArgLookup:
         return self._data.pop(index)
 
 
-def _expand_tuple_vars(expr: awst_nodes.Expression) -> Iterator[awst_nodes.VarExpression | None]:
+def _expand_tuple_vars(expr: awst_nodes.Expression) -> Iterator[str | None]:
     if not isinstance(expr.wtype, wtypes.WTuple):
         if isinstance(expr, awst_nodes.VarExpression):
-            yield expr
+            yield expr.name
         else:
             yield None
     elif isinstance(expr, awst_nodes.TupleExpression):
         for item in expr.items:
             yield from _expand_tuple_vars(item)
+    elif isinstance(expr, awst_nodes.VarExpression):
+        names, _types = zip(
+            *build_tuple_item_names(expr.name, expr.wtype, expr.source_location), strict=False
+        )
+        yield from names
     else:
         yield from ([None] * sum_wtypes_arity(expr.wtype.types))
