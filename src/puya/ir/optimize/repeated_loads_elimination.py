@@ -8,6 +8,7 @@ import attrs
 from puya import log
 from puya.context import CompileContext
 from puya.ir import models
+from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.types_ import PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor
@@ -34,16 +35,17 @@ class _StateType(enum.Enum):
     slot = enum.auto()
 
 
+_StateKey = tuple[models.Value | bytes, ...]
+
+
 @attrs.define(kw_only=True)
 class _StateTrackingVisitor(NoOpIRVisitor[None]):
     modified: bool = attrs.field(default=False, init=False)
     _block: models.BasicBlock
-    _read_results: defaultdict[
-        _StateType, dict[tuple[models.Value, ...], Sequence[models.Value]]
-    ] = attrs.field(factory=lambda: defaultdict(dict))
-    _last_write: dict[_StateType, tuple[tuple[models.Value, ...], models.Op]] = attrs.field(
-        factory=dict
+    _read_results: defaultdict[_StateType, dict[_StateKey, Sequence[models.Value]]] = attrs.field(
+        factory=lambda: defaultdict(dict)
     )
+    _last_write: dict[_StateType, tuple[_StateKey, models.Op]] = attrs.field(factory=dict)
 
     @classmethod
     def optimise(cls, block: models.BasicBlock) -> bool:
@@ -66,11 +68,12 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
     ) -> None:
         self._handle_read(typ)
 
+        normalized_key = _normalize_key(key)
         typ_read_results = self._read_results[typ]
         try:
-            last_read = typ_read_results[key]
+            last_read = typ_read_results[normalized_key]
         except KeyError:
-            typ_read_results[key] = assignment.targets
+            typ_read_results[normalized_key] = assignment.targets
             return
 
         if len(last_read) == len(assignment.targets) or (
@@ -101,13 +104,14 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
         # update cache with new value.
         # this is conservative to naively avoid the problem when multiple
         # values point to the same slot
-        self._read_results[typ] = {key: values}
+        normalized_key = _normalize_key(key)
+        self._read_results[typ] = {normalized_key: values}
         try:
             last_write_key, last_write_op = self._last_write[typ]
         except KeyError:
             pass
         else:
-            if last_write_key == key:
+            if last_write_key == normalized_key:
                 # remove last_write if it is overwritten with another write, and there
                 # are no intervening reads
                 logger.debug(
@@ -116,7 +120,7 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                 )
                 self._block.ops.remove(last_write_op)
                 self.modified = True
-        self._last_write[typ] = (key, op)
+        self._last_write[typ] = (normalized_key, op)
 
     def _invalidate(self, typ: _StateType | typing.Literal["all"]) -> None:
         if typ == "all":
@@ -207,6 +211,19 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         # be conservative and treat any subroutine call as a barrier
         self._invalidate("all")
+
+
+def _normalize_key(keys: tuple[models.Value, ...]) -> _StateKey:
+    state_key = list[models.Value | bytes]()
+    for key in keys:
+        if (
+            isinstance(key, models.Constant)
+            and (bytes_const := get_bytes_constant(key)) is not None
+        ):
+            state_key.append(bytes_const)
+        else:
+            state_key.append(key)
+    return tuple(state_key)
 
 
 def _key_str(key: tuple[models.Value, ...]) -> str:
