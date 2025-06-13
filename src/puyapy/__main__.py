@@ -123,6 +123,12 @@ def main() -> None:
         help="Output AVM bytecode",
     )
     parser.add_argument(
+        "--output-op-statistics",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Output statistics about ops used for each program compiled",
+    )
+    parser.add_argument(
         "--match-algod-bytecode",
         action=_EmitDeprecated,
         dest=argparse.SUPPRESS,

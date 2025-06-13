@@ -66,6 +66,10 @@ class CompiledProgram(abc.ABC):
     @abc.abstractmethod
     def template_variables(self) -> Mapping[str, int | bytes | None]: ...
 
+    @property
+    @abc.abstractmethod
+    def stats(self) -> Mapping[str, int]: ...
+
 
 class CompiledContract(abc.ABC):
     @property

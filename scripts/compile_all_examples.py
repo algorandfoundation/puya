@@ -7,14 +7,11 @@ import re
 import shutil
 import subprocess
 import sys
-from collections import defaultdict
 from collections.abc import Iterable
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-import algokit_utils.deploy
 import attrs
-import prettytable
 
 from puya.log import configure_stdio
 
@@ -24,7 +21,6 @@ CONTRACT_ROOT_DIRS = [
     GIT_ROOT / "examples",
     GIT_ROOT / "test_cases",
 ]
-SIZE_TALLY_PATH = GIT_ROOT / "examples" / "sizes.txt"
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
 }
@@ -59,121 +55,6 @@ def get_unique_name(path: Path) -> str:
         else:
             use_parts.append(part)
     return "/".join(filter(None, use_parts))
-
-
-@attrs.frozen
-class Size:
-    bytecode: int | None = None
-    ops: int | None = None
-
-    def __add__(self, other: object) -> "Size":
-        if not isinstance(other, Size):
-            return NotImplemented
-        return Size(
-            bytecode=(self.bytecode or 0) + (other.bytecode or 0),
-            ops=(self.ops or 0) + (other.ops or 0),
-        )
-
-    def __sub__(self, other: object) -> "Size":
-        if not isinstance(other, Size):
-            return NotImplemented
-        return Size(
-            bytecode=(self.bytecode or 0) - (other.bytecode or 0),
-            ops=(self.ops or 0) - (other.ops or 0),
-        )
-
-
-def _program_to_sizes() -> defaultdict[str, defaultdict[int, Size]]:
-    def _opt_to_sizes() -> defaultdict[int, Size]:
-        return defaultdict[int, Size](Size)
-
-    return defaultdict[str, defaultdict[int, Size]](_opt_to_sizes)
-
-
-@attrs.define(str=False)
-class ProgramSizes:
-    sizes: defaultdict[str, defaultdict[int, Size]] = attrs.field(factory=_program_to_sizes)
-
-    def add_at_level(self, level: int, teal_file: Path, bin_file: Path) -> None:
-        name = get_unique_name(bin_file)
-        # this combines both approval and clear program sizes
-        self.sizes[name][level] += Size(
-            bytecode=bin_file.stat().st_size,
-            ops=_get_num_teal_ops(teal_file),
-        )
-
-    @classmethod
-    def load(cls, text: str) -> "ProgramSizes":
-        lines = list(filter(None, text.splitlines()))
-        program_sizes = ProgramSizes()
-        sizes = program_sizes.sizes
-        for line in lines[1:-1]:
-            name, o0, o1, o2, _, o0_ops, o1_ops, o2_ops = line.rsplit(maxsplit=7)
-            name = name.strip()
-            for opt, (bin_str, ops_str) in enumerate(((o0, o0_ops), (o1, o1_ops), (o2, o2_ops))):
-                if bin_str == "None":
-                    continue
-                if bin_str == "-":
-                    previous = sizes[name][opt - 1]
-                    bytecode = previous.bytecode
-                    ops = previous.ops
-                else:
-                    bytecode = int(bin_str)
-                    ops = int(ops_str)
-                sizes[name][opt] = Size(bytecode=bytecode, ops=ops)
-        return program_sizes
-
-    def __str__(self) -> str:
-        writer = prettytable.PrettyTable(
-            field_names=["Name", "O0", "O1", "O2", "|", "O0#Ops", "O1#Ops", "O2#Ops"],
-            header=True,
-            border=False,
-            min_width=6,
-            left_padding_width=0,
-            right_padding_width=0,
-            align="r",
-        )
-        writer.align["Name"] = "l"
-        writer.align["|"] = "c"
-        # copy sizes and sort by name
-        sizes = defaultdict(
-            self.sizes.default_factory, {p: self.sizes[p].copy() for p in sorted(self.sizes)}
-        )
-        totals = {i: Size() for i in range(3)}
-        for prog_sizes in sizes.values():
-            for i in range(3):
-                totals[i] += prog_sizes[i]
-        # Add totals at end
-        sizes["Total"].update(totals)
-        for name, prog_sizes in sizes.items():
-            o0, o1, o2 = (prog_sizes[i] for i in range(3))
-            row = list(
-                map(
-                    str, (name, o0.bytecode, o1.bytecode, o2.bytecode, "|", o0.ops, o1.ops, o2.ops)
-                )
-            )
-            if o0 == o1:
-                for i in (2, 6):
-                    row[i] = "-"
-            if o1 == o2:
-                for i in (3, 7):
-                    row[i] = "-"
-            writer.add_row(row)
-        return writer.get_string()
-
-
-def _get_num_teal_ops(path: Path) -> int:
-    ops = 0
-    teal = path.read_text("utf8")
-    for line in algokit_utils.deploy.strip_comments(teal).splitlines():
-        line = line.strip()
-        if not line or line.endswith(":") or line.startswith("#"):
-            # ignore comment only lines, labels and pragmas
-            pass
-        else:
-            ops += 1
-
-    return ops
 
 
 @attrs.define
@@ -227,6 +108,7 @@ def checked_compile(p: Path, flags: list[str], *, out_suffix: str) -> Compilatio
         "--output-destructured-ir",
         "--output-bytecode",
         "--log-level=debug",
+        "--output-op-statistics",
         *_load_template_vars(template_vars_path),
         rel_path,
     ]
@@ -336,7 +218,6 @@ def _run(options: CompileAllOptions) -> None:
         ]
 
     failures = list[tuple[str, str]]()
-    program_sizes = ProgramSizes()
     # use selected opt levels, but retain original order
     opt_levels = [
         o
@@ -348,8 +229,6 @@ def _run(options: CompileAllOptions) -> None:
         for compilation_result, level in executor.map(_compile_for_level, args):
             rel_path = compilation_result.rel_path
             case_name = f"{rel_path} -O{level}"
-            for bin_file in compilation_result.bin_files:
-                program_sizes.add_at_level(level, bin_file.with_suffix(".teal"), bin_file)
             if compilation_result.ok:
                 print(f"✅  {case_name}")
             else:
@@ -367,16 +246,6 @@ def _run(options: CompileAllOptions) -> None:
                     if (ln.startswith("debug: Traceback ") or not ln.startswith("debug: "))
                 )
             )
-    print("Updating sizes.txt")
-    if limit_to or options.optimization_level:
-        print("Loading existing sizes.txt")
-        # load existing sizes for non-default options
-        merged = ProgramSizes.load(SIZE_TALLY_PATH.read_text("utf8"))
-        for program, sizes in program_sizes.sizes.items():
-            for o, size in sizes.items():
-                merged.sizes[program][o] = size
-        program_sizes = merged
-    SIZE_TALLY_PATH.write_text(str(program_sizes), encoding="utf8")
     sys.exit(len(failures))
 
 

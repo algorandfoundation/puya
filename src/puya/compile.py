@@ -222,6 +222,7 @@ class _CompiledProgram(CompiledProgram):
     teal: TealProgram
     teal_src: str
     template_variables: Mapping[str, int | bytes | None]
+    stats: Mapping[str, int]
     debug_info: DebugInfo | None = None
     bytecode: bytes | None = None
 
@@ -285,6 +286,7 @@ def _compile_program(
         bytecode=assembled.bytecode,
         debug_info=assembled.debug_info,
         template_variables=assembled.template_variables,
+        stats=assembled.stats,
     )
 
 
@@ -345,6 +347,16 @@ def _write_artifacts(
             _write_output(
                 artifact_base_path,
                 {f"{suffix}.bin": program.bytecode for suffix, program in programs.items()},
+            )
+        if context.options.output_op_statistics:
+            _write_output(
+                artifact_base_path,
+                {
+                    f"{suffix}.stats.txt": "\n".join(
+                        f"{stat} = {value}" for stat, value in program.stats.items()
+                    ).encode("utf8")
+                    for suffix, program in programs.items()
+                },
             )
         if context.options.output_source_map:
             _write_output(
