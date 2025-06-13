@@ -9,14 +9,16 @@ from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence, storage
-from puya.ir.builder._utils import (
-    assign,
-    assign_tuple,
-    build_tuple_item_names,
-    get_implicit_return_is_original,
-)
+from puya.ir.builder._utils import assign, assign_tuple, get_implicit_return_is_original
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.types_ import PrimitiveIRType, SlotType, get_wtype_arity
+from puya.ir.types_ import (
+    PrimitiveIRType,
+    SlotType,
+    TupleIRType,
+    get_wtype_arity,
+    ir_type_to_ir_types,
+    wtype_to_ir_type,
+)
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -78,10 +80,12 @@ def handle_assignment(
                 raise CodeError("too many values to unpack", assignment_location)
             return results
         case awst_nodes.VarExpression(name=base_name, source_location=var_loc, wtype=var_type):
-            exploded_named_types = build_tuple_item_names(
-                base_name=base_name, wtype=var_type, source_location=var_loc
-            )
-            for exploded_name, _ in exploded_named_types:
+            ir_type = wtype_to_ir_type(var_type, var_loc, allow_tuple=True)
+            if isinstance(ir_type, TupleIRType):
+                exploded_names = ir_type.build_item_names(base_name)
+            else:
+                exploded_names = [base_name]
+            for exploded_name in exploded_names:
                 is_implicit_return = exploded_name in (
                     p.name for p in context.subroutine.parameters if p.implicit_return
                 )
@@ -99,7 +103,8 @@ def handle_assignment(
             return assign_tuple(
                 context,
                 source=value,
-                typed_names=exploded_named_types,
+                names=exploded_names,
+                ir_types=ir_type_to_ir_types(ir_type),
                 assignment_location=assignment_location,
                 register_location=var_loc,
             )

@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 
-from puya.awst import wtypes
 from puya.errors import InternalError
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.models import (
@@ -14,8 +13,7 @@ from puya.ir.models import (
 )
 from puya.ir.op_utils import assign_targets, convert_constants, mktemp
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import IRType, TupleIRType, ir_type_to_ir_types, wtype_to_ir_type
-from puya.ir.utils import format_tuple_index
+from puya.ir.types_ import IRType, TupleIRType, ir_type_to_ir_types
 from puya.parse import SourceLocation
 
 
@@ -40,34 +38,22 @@ def assign(
     return target
 
 
-def build_tuple_item_names(
-    base_name: str,
-    wtype: wtypes.WType,
-    source_location: SourceLocation,
-) -> list[tuple[str, IRType]]:
-    if not isinstance(wtype, wtypes.WTuple):
-        return [(base_name, wtype_to_ir_type(wtype, source_location))]
-    return [
-        reg
-        for idx, item_type in enumerate(wtype.types)
-        for reg in build_tuple_item_names(
-            format_tuple_index(wtype, base_name, idx), item_type, source_location
-        )
-    ]
-
-
 def assign_tuple(
     context: IRRegisterContext,
     source: ValueProvider,
     *,
-    typed_names: Sequence[tuple[str, IRType]],
+    names: Sequence[str],
+    ir_types: Sequence[IRType] | None = None,
     assignment_location: SourceLocation | None,
     register_location: SourceLocation | None = None,
 ) -> list[Register]:
+    if ir_types is None:
+        ir_types = source.types
     if register_location is None:
         register_location = assignment_location
     targets = [
-        context.new_register(name, ir_type, register_location) for name, ir_type in typed_names
+        context.new_register(name, ir_type, register_location)
+        for name, ir_type in zip(names, ir_types, strict=True)
     ]
     assign_targets(
         context=context,

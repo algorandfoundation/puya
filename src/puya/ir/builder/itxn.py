@@ -14,7 +14,7 @@ from puya.awst.visitors import ExpressionVisitor
 from puya.awst.wtypes import WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import assign, build_tuple_item_names
+from puya.ir.builder._utils import assign
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
@@ -33,7 +33,9 @@ from puya.ir.op_utils import assign_intrinsic_op
 from puya.ir.ssa import BraunSSA
 from puya.ir.types_ import (
     PrimitiveIRType,
+    TupleIRType,
     get_wtype_arity,
+    ir_type_to_ir_types,
     sum_wtypes_arity,
     wtype_to_ir_type,
     wtype_to_ir_types,
@@ -677,12 +679,18 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
 
     @typing.override
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> list[_SourceAction]:
-        return [
-            _CopySource(var_name=name) if ir_type == PrimitiveIRType.itxn_group_idx else None
-            for name, ir_type in build_tuple_item_names(
-                expr.name, expr.wtype, expr.source_location
-            )
-        ]
+        ir_type = wtype_to_ir_type(expr, allow_tuple=True)
+        if isinstance(ir_type, TupleIRType):
+            exploded_names = ir_type.build_item_names(expr.name)
+            ir_types = ir_type_to_ir_types(ir_type)
+            return [
+                _CopySource(var_name=name) if ir_type == PrimitiveIRType.itxn_group_idx else None
+                for name, ir_type in zip(exploded_names, ir_types, strict=True)
+            ]
+        elif ir_type == PrimitiveIRType.itxn_group_idx:
+            return [_CopySource(expr.name)]
+        else:
+            return [None]
 
     @typing.override
     def visit_single_evaluation(self, expr: awst_nodes.SingleEvaluation) -> list[_SourceAction]:

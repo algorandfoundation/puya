@@ -4,11 +4,11 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.builder._utils import assign_tuple, build_tuple_item_names
+from puya.ir.builder._utils import assign_tuple
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import BasicBlock, ConditionalBranch, Switch, Value, ValueProvider, ValueTuple
 from puya.ir.op_utils import OpFactory
-from puya.ir.types_ import get_wtype_arity, wtype_to_ir_type
+from puya.ir.types_ import TupleIRType, ir_type_to_ir_types, wtype_to_ir_type
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
 
@@ -161,8 +161,9 @@ def handle_conditional_expression(
 ) -> ValueProvider:
     # if lhs and rhs are both guaranteed to not produce side effects, we can use a simple select op
     # TODO: expand detection of side-effect free to include "pure" ops
+    expr_ir_type = wtype_to_ir_type(expr, allow_tuple=True)
     if (
-        get_wtype_arity(expr.wtype) == 1
+        (not isinstance(expr_ir_type, TupleIRType))
         and isinstance(
             expr.true_expr, awst_nodes.VarExpression | awst_nodes.CompileTimeConstantExpression
         )
@@ -179,13 +180,17 @@ def handle_conditional_expression(
             true=true_reg,
             false=false_reg,
             temp_desc="select",
-            ir_type=wtype_to_ir_type(expr),
+            ir_type=expr_ir_type,
         )
     true_block, false_block, merge_block = context.block_builder.mkblocks(
         "ternary_true", "ternary_false", "ternary_merge", source_location=expr.source_location
     )
     tmp_var_name = context.next_tmp_name("ternary_result")
-    tmp_var_names = build_tuple_item_names(tmp_var_name, expr.wtype, expr.source_location)
+    if isinstance(expr_ir_type, TupleIRType):
+        tmp_var_names = expr_ir_type.build_item_names(tmp_var_name)
+    else:
+        tmp_var_names = [tmp_var_name]
+    tmp_var_ir_types = ir_type_to_ir_types(expr_ir_type)
 
     process_conditional(
         context,
@@ -200,7 +205,8 @@ def handle_conditional_expression(
     assign_tuple(
         context,
         source=true_vp,
-        typed_names=tmp_var_names,
+        names=tmp_var_names,
+        ir_types=tmp_var_ir_types,
         assignment_location=expr.true_expr.source_location,
         register_location=expr.source_location,
     )
@@ -211,7 +217,8 @@ def handle_conditional_expression(
     assign_tuple(
         context,
         source=false_vp,
-        typed_names=tmp_var_names,
+        names=tmp_var_names,
+        ir_types=tmp_var_ir_types,
         assignment_location=expr.false_expr.source_location,
         register_location=expr.source_location,
     )
@@ -220,7 +227,7 @@ def handle_conditional_expression(
     context.block_builder.activate_block(merge_block)
     result = [
         context.ssa.read_variable(variable=name, ir_type=ir_type, block=merge_block)
-        for name, ir_type in tmp_var_names
+        for name, ir_type in zip(tmp_var_names, tmp_var_ir_types, strict=True)
     ]
     if len(result) == 1:
         return result[0]

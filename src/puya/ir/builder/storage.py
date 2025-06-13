@@ -12,7 +12,7 @@ from puya.awst import (
 from puya.errors import InternalError
 from puya.ir.arc4_types import maybe_wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import assign_tuple, build_tuple_item_names, undefined_value
+from puya.ir.builder._utils import assign_tuple, undefined_value
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BoxRead,
@@ -30,7 +30,8 @@ from puya.ir.types_ import (
     IRType,
     PrimitiveIRType,
     SizedBytesType,
-    get_wtype_arity,
+    TupleIRType,
+    ir_type_to_ir_types,
     wtype_to_encoded_ir_type,
     wtype_to_ir_type,
 )
@@ -202,7 +203,22 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
     storage_value, did_exist = context.visitor.materialise_value_provider(
         get_ex_op, ("maybe_value", "maybe_exists")
     )
-    if len(default_decoded_values) == 1:
+    decoded_ir_type = wtype_to_ir_type(expr.field, allow_tuple=True)
+    if isinstance(decoded_ir_type, TupleIRType):
+        default_decoded_vp = ValueTuple(
+            values=default_decoded_values, source_location=expr.default.source_location
+        )
+        return _conditional_tuple_value_provider(
+            context,
+            condition=did_exist,
+            typ=decoded_ir_type,
+            true_factory=lambda: storage_codec.decode(
+                context, storage_value, expr.source_location
+            ),
+            false_factory=lambda: default_decoded_vp,
+            loc=expr.source_location,
+        )
+    else:
         decoded_maybe_vp = storage_codec.decode(context, storage_value, expr.source_location)
         (decoded_maybe_value,) = context.visitor.materialise_value_provider(
             decoded_maybe_vp, "decoded_value"
@@ -216,20 +232,6 @@ def visit_state_get(context: IRFunctionBuildContext, expr: awst_nodes.StateGet) 
             temp_desc="state_get",
             ir_type=decoded_maybe_value.ir_type,
         )
-    else:
-        default_decoded_vp = ValueTuple(
-            values=default_decoded_values, source_location=expr.default.source_location
-        )
-        return _conditional_value_provider(
-            context,
-            condition=did_exist,
-            wtype=expr.field.wtype,
-            true_factory=lambda: storage_codec.decode(
-                context, storage_value, expr.source_location
-            ),
-            false_factory=lambda: default_decoded_vp,
-            loc=expr.source_location,
-        )
 
 
 def visit_state_get_ex(
@@ -241,17 +243,15 @@ def visit_state_get_ex(
     storage_value, did_exist = context.visitor.materialise_value_provider(
         get_ex_op, ("maybe_value", "maybe_exists")
     )
-    if get_wtype_arity(expr.field.wtype) == 1:
+    decoded_ir_type = wtype_to_ir_type(expr.field, allow_tuple=True)
+    if not isinstance(decoded_ir_type, TupleIRType):
         decoded_vp = storage_codec.decode(context, storage_value, expr.source_location)
     else:
-        decoded_ir_type = wtype_to_ir_type(
-            expr.field.wtype, expr.source_location, allow_tuple=True
-        )
         default_decoded = undefined_value(decoded_ir_type, expr.source_location)
-        decoded_vp = _conditional_value_provider(
+        decoded_vp = _conditional_tuple_value_provider(
             context,
             condition=did_exist,
-            wtype=expr.field.wtype,
+            typ=decoded_ir_type,
             true_factory=lambda: storage_codec.decode(
                 context, storage_value, expr.source_location
             ),
@@ -266,11 +266,11 @@ def visit_state_get_ex(
     )
 
 
-def _conditional_value_provider(
+def _conditional_tuple_value_provider(
     context: IRFunctionBuildContext,
     *,
     condition: Value,
-    wtype: wtypes.WType,
+    typ: TupleIRType,
     true_factory: Callable[[], ValueProvider],
     false_factory: Callable[[], ValueProvider],
     loc: SourceLocation,
@@ -293,13 +293,15 @@ def _conditional_value_provider(
         )
     )
     tmp_var_name = context.next_tmp_name("ternary_result")
-    tmp_var_names = build_tuple_item_names(tmp_var_name, wtype, loc)
+    tmp_var_names = typ.build_item_names(tmp_var_name)
+    tmp_var_ir_types = ir_type_to_ir_types(typ)
     context.block_builder.activate_block(true_block)
     true = true_factory()
     assign_tuple(
         context,
         source=true,
-        typed_names=tmp_var_names,
+        names=tmp_var_names,
+        ir_types=tmp_var_ir_types,
         assignment_location=true.source_location,
         register_location=loc,
     )
@@ -310,7 +312,8 @@ def _conditional_value_provider(
     assign_tuple(
         context,
         source=false,
-        typed_names=tmp_var_names,
+        names=tmp_var_names,
+        ir_types=tmp_var_ir_types,
         assignment_location=false.source_location,
         register_location=loc,
     )
@@ -319,7 +322,7 @@ def _conditional_value_provider(
     context.block_builder.activate_block(merge_block)
     result = [
         context.ssa.read_variable(variable=name, ir_type=ir_type, block=merge_block)
-        for name, ir_type in tmp_var_names
+        for name, ir_type in zip(tmp_var_names, tmp_var_ir_types, strict=True)
     ]
     return ValueTuple(values=result, source_location=loc)
 
