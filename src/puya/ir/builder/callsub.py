@@ -11,9 +11,10 @@ from puya.awst import (
 )
 from puya.errors import CodeError
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder._utils import assign, build_tuple_item_names
+from puya.ir.builder._utils import assign
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.types_ import sum_wtypes_arity
+from puya.ir.types_ import TupleIRType, sum_wtypes_arity, wtype_to_ir_type
+from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -136,7 +137,10 @@ class _ArgLookup:
             awst_value = expr_arg.value
             arg_name = expr_arg.name
             src_var_names.extend(_expand_tuple_vars(awst_value))
-            if not isinstance(awst_value.wtype, wtypes.WTuple):
+            ir_type = wtype_to_ir_type(
+                awst_value.wtype, source_location=awst_value.source_location, allow_tuple=True
+            )
+            if not isinstance(ir_type, TupleIRType):
                 value = context.visitor.visit_and_materialise_single(awst_value)
                 ir_args.append((arg_name, value))
             else:
@@ -144,14 +148,10 @@ class _ArgLookup:
                 if arg_name is None:
                     ir_args.extend((None, tup_value) for tup_value in values)
                 else:
-                    item_names = build_tuple_item_names(
-                        base_name=arg_name,
-                        wtype=awst_value.wtype,
-                        source_location=awst_value.source_location,
-                    )
+                    item_names = ir_type.build_item_names(arg_name)
                     ir_args.extend(
                         (tup_item_name, tup_value)
-                        for tup_value, (tup_item_name, _) in zip(values, item_names, strict=True)
+                        for tup_value, tup_item_name in zip(values, item_names, strict=True)
                     )
 
         data = {
@@ -181,9 +181,20 @@ def _expand_tuple_vars(expr: awst_nodes.Expression) -> Iterator[str | None]:
         for item in expr.items:
             yield from _expand_tuple_vars(item)
     elif isinstance(expr, awst_nodes.VarExpression):
-        names, _types = zip(
-            *build_tuple_item_names(expr.name, expr.wtype, expr.source_location), strict=False
-        )
-        yield from names
+        yield from _build_tuple_item_names(expr.name, expr.wtype, expr.source_location)
     else:
         yield from ([None] * sum_wtypes_arity(expr.wtype.types))
+
+
+def _build_tuple_item_names(
+    base_name: str, wtype: wtypes.WType, source_location: SourceLocation
+) -> list[str]:
+    if not isinstance(wtype, wtypes.WTuple):
+        return [base_name]
+    return [
+        name
+        for idx, item_type in enumerate(wtype.types)
+        for name in _build_tuple_item_names(
+            format_tuple_index(wtype, base_name, idx), item_type, source_location
+        )
+    ]
