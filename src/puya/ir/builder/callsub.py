@@ -11,7 +11,7 @@ from puya.awst import (
 )
 from puya.errors import CodeError
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder._tuple_util import build_tuple_item_names
+from puya.ir.builder._utils import assign, build_tuple_item_names
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.types_ import sum_wtypes_arity
 from puya.parse import SourceLocation
@@ -100,12 +100,13 @@ def _call_subroutine(
 
     for maybe_var_expr, inout_value in zip(implicit_return_args, inout_values, strict=True):
         if maybe_var_expr is not None:
-            out_arg = context.new_register(
+            assign(
+                context,
+                inout_value,
                 name=maybe_var_expr.name,
-                ir_type=inout_value.ir_type,
-                location=maybe_var_expr.source_location,
+                assignment_location=call_location,
+                register_location=maybe_var_expr.source_location,
             )
-            context.add_assignment([out_arg], inout_value, call_location)
 
     if return_values:
         return ir.ValueTuple(values=return_values, source_location=call_location)

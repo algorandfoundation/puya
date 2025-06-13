@@ -9,10 +9,13 @@ from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence, storage
-from puya.ir.builder._tuple_util import build_tuple_registers
-from puya.ir.builder._utils import assign, get_implicit_return_is_original
+from puya.ir.builder._utils import (
+    assign,
+    assign_tuple,
+    build_tuple_item_names,
+    get_implicit_return_is_original,
+)
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.op_utils import assign_targets
 from puya.ir.types_ import PrimitiveIRType, SlotType, get_wtype_arity
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
@@ -75,14 +78,30 @@ def handle_assignment(
                 raise CodeError("too many values to unpack", assignment_location)
             return results
         case awst_nodes.VarExpression(name=base_name, source_location=var_loc, wtype=var_type):
-            return _handle_maybe_implicit_return_assignment(
+            exploded_named_types = build_tuple_item_names(
+                base_name=base_name, wtype=var_type, source_location=var_loc
+            )
+            for exploded_name, _ in exploded_named_types:
+                is_implicit_return = exploded_name in (
+                    p.name for p in context.subroutine.parameters if p.implicit_return
+                )
+                # if an implicitly returned value is explicitly reassigned, then set a register
+                # which will prevent the original from being updated any further
+                if is_implicit_return and not is_nested_update:
+                    assign(
+                        context,
+                        ir.UInt64Constant(
+                            value=0, ir_type=PrimitiveIRType.bool, source_location=None
+                        ),
+                        name=get_implicit_return_is_original(exploded_name),
+                        assignment_location=None,
+                    )
+            return assign_tuple(
                 context,
-                base_name=base_name,
-                wtype=var_type,
-                value=value,
-                var_loc=var_loc,
-                assignment_loc=assignment_location,
-                is_nested_update=is_nested_update,
+                source=value,
+                typed_names=exploded_named_types,
+                assignment_location=assignment_location,
+                register_location=var_loc,
             )
         case awst_nodes.AppStateExpression(
             key=awst_key, wtype=wtype, source_location=field_location
@@ -244,37 +263,3 @@ def _materialise_indexes(
                     index_src_op.source_location,
                 )
     return indexes
-
-
-def _handle_maybe_implicit_return_assignment(
-    context: IRFunctionBuildContext,
-    *,
-    base_name: str,
-    wtype: wtypes.WType,
-    value: ir.ValueProvider,
-    var_loc: SourceLocation,
-    assignment_loc: SourceLocation,
-    is_nested_update: bool,
-) -> Sequence[ir.Value]:
-    registers = build_tuple_registers(context, base_name, wtype, var_loc)
-    for register in registers:
-        is_implicit_return = register.name in (
-            p.name for p in context.subroutine.parameters if p.implicit_return
-        )
-        # if an implicitly returned value is explicitly reassigned, then set a register which will
-        # prevent the original from being updated any further
-        if is_implicit_return and not is_nested_update:
-            assign(
-                context,
-                ir.UInt64Constant(value=0, ir_type=PrimitiveIRType.bool, source_location=None),
-                name=get_implicit_return_is_original(register.name),
-                assignment_location=None,
-            )
-
-    assign_targets(
-        context,
-        source=value,
-        targets=registers,
-        assignment_location=assignment_loc,
-    )
-    return registers

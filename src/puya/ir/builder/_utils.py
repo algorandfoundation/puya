@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 
+from puya.awst import wtypes
 from puya.errors import InternalError
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.models import (
@@ -13,11 +14,8 @@ from puya.ir.models import (
 )
 from puya.ir.op_utils import assign_targets, convert_constants, mktemp
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import (
-    IRType,
-    TupleIRType,
-    ir_type_to_ir_types,
-)
+from puya.ir.types_ import IRType, TupleIRType, ir_type_to_ir_types, wtype_to_ir_type
+from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 
@@ -26,10 +24,12 @@ def assign(
     source: ValueProvider,
     *,
     name: str,
+    ir_type: IRType | None = None,
     assignment_location: SourceLocation | None,
     register_location: SourceLocation | None = None,
 ) -> Register:
-    (ir_type,) = source.types
+    if ir_type is None:
+        (ir_type,) = source.types
     target = context.new_register(name, ir_type, register_location or assignment_location)
     assign_targets(
         context=context,
@@ -38,6 +38,44 @@ def assign(
         assignment_location=assignment_location,
     )
     return target
+
+
+def build_tuple_item_names(
+    base_name: str,
+    wtype: wtypes.WType,
+    source_location: SourceLocation,
+) -> list[tuple[str, IRType]]:
+    if not isinstance(wtype, wtypes.WTuple):
+        return [(base_name, wtype_to_ir_type(wtype, source_location))]
+    return [
+        reg
+        for idx, item_type in enumerate(wtype.types)
+        for reg in build_tuple_item_names(
+            format_tuple_index(wtype, base_name, idx), item_type, source_location
+        )
+    ]
+
+
+def assign_tuple(
+    context: IRRegisterContext,
+    source: ValueProvider,
+    *,
+    typed_names: Sequence[tuple[str, IRType]],
+    assignment_location: SourceLocation | None,
+    register_location: SourceLocation | None = None,
+) -> list[Register]:
+    if register_location is None:
+        register_location = assignment_location
+    targets = [
+        context.new_register(name, ir_type, register_location) for name, ir_type in typed_names
+    ]
+    assign_targets(
+        context=context,
+        source=source,
+        targets=targets,
+        assignment_location=assignment_location,
+    )
+    return targets
 
 
 def assign_temp(
