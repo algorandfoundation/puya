@@ -160,9 +160,15 @@ class TupleIRType:
     handled
     """
 
-    elements: Sequence["IRType | TupleIRType"] = attrs.field(
+    elements: tuple["IRType | TupleIRType", ...] = attrs.field(
         converter=tuple["IRType | TupleIRType", ...]
     )
+    fields: tuple[str, ...] | None = attrs.field()
+
+    @fields.validator
+    def _validate_fields(self, _: object, fields: tuple[str, ...] | None) -> None:
+        if fields is not None and len(fields) != len(self.elements):
+            raise InternalError("length mismatch between TupleIRType element types and names")
 
     @property
     def name(self) -> str:
@@ -175,6 +181,24 @@ class TupleIRType:
     @cached_property
     def arity(self) -> int:
         return sum(e.arity for e in self.elements)
+
+    def build_item_names(self, base_name: str) -> list[str]:
+        result = list[str]()
+        if self.fields is None:
+            for idx, typ in enumerate(self.elements):
+                sub_name = f"{base_name}.{idx}"
+                if isinstance(typ, TupleIRType):
+                    result.extend(typ.build_item_names(sub_name))
+                else:
+                    result.append(sub_name)
+        else:
+            for fname, typ in zip(self.fields, self.elements, strict=True):
+                sub_name = f"{base_name}.{fname}"
+                if isinstance(typ, TupleIRType):
+                    result.extend(typ.build_item_names(sub_name))
+                else:
+                    result.append(sub_name)
+        return result
 
 
 @attrs.frozen(str=False, order=False)
@@ -234,7 +258,7 @@ class SlotType(IRType):
 class UnionType(IRType):
     """Union type, should generally only appear as an input type on AVM ops"""
 
-    types: Sequence[IRType]
+    types: tuple[IRType, ...] = attrs.field(converter=tuple[IRType, ...])
 
     @property
     def name(self) -> str:
@@ -295,6 +319,8 @@ def wtype_to_ir_type(
     expr: awst_nodes.Expression,
     /,
     source_location: SourceLocation | None = None,
+    *,
+    allow_tuple: bool = False,
 ) -> IRType: ...
 
 
@@ -322,7 +348,7 @@ def wtype_to_ir_type(
     /,
     source_location: SourceLocation,
     *,
-    allow_tuple: typing.Literal[True] = True,
+    allow_tuple: bool,
 ) -> IRType | TupleIRType: ...
 
 
@@ -335,7 +361,9 @@ def wtype_to_ir_type(
 ) -> IRType | TupleIRType:
     if isinstance(expr_or_wtype, awst_nodes.Expression):
         return wtype_to_ir_type(
-            expr_or_wtype.wtype, source_location=source_location or expr_or_wtype.source_location
+            expr_or_wtype.wtype,
+            source_location=(source_location or expr_or_wtype.source_location),
+            allow_tuple=allow_tuple,
         )
     else:
         wtype = expr_or_wtype
@@ -366,7 +394,8 @@ def wtype_to_ir_type(
                 elements=[
                     wtype_to_ir_type(t, allow_tuple=True, source_location=source_location)
                     for t in types
-                ]
+                ],
+                fields=wtype.names,
             )
         case wtypes.void_wtype:
             raise InternalError("can't translate void wtype to irtype", source_location)
