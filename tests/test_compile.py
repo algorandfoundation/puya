@@ -49,6 +49,7 @@ def _compile_test_case(
         log_level=log.LogLevel.debug,
         template_vars_prefix=prefix,
         cli_template_definitions=template_vars,
+        output_op_statistics=True,
         **options,
     )
     compile_result = compile_src_from_options(puya_options)

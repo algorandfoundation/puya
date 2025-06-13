@@ -1,3 +1,4 @@
+import enum
 import struct
 import typing
 from collections import defaultdict
@@ -12,6 +13,7 @@ from puya.teal.stack_manipulations import apply_stack_manipulations
 from puya.ussemble import models
 from puya.ussemble.context import AssembleContext
 from puya.ussemble.debug import build_debug_info
+from puya.ussemble.models import AVMOp
 from puya.ussemble.op_spec import OP_SPECS
 from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind
 
@@ -21,6 +23,23 @@ _BRANCHING_OPS = {
     for op in OP_SPECS.values()
     if any(i in (ImmediateKind.label, ImmediateKind.label_array) for i in op.immediates)
 }
+_CONSTANT_OPS = {
+    op.name for op in OP_SPECS.values() if op.name.startswith(("intc", "bytec", "push"))
+}
+_STACK_OPS = {
+    "popn",
+    "dupn",
+    "pop",
+    "dup",
+    "dup2",
+    "dig",
+    "swap",
+    "cover",
+    "uncover",
+    "frame_dig",
+    "frame_bury",
+}
+assert not _STACK_OPS.difference(OP_SPECS), "invalid stack op"
 
 
 def assemble_bytecode_and_debug_info(
@@ -32,6 +51,7 @@ def assemble_bytecode_and_debug_info(
     pc_events = defaultdict[int, DebugEvent](lambda: DebugEvent())
     pc_ops = dict[int, models.AVMOp]()
     label_pcs = dict[str, int]()
+    op_stats = defaultdict[_OpKind, list[int]](list)
 
     # pc includes version header
     pc = len(version_bytes)
@@ -83,7 +103,10 @@ def assemble_bytecode_and_debug_info(
             # between the label PC location and the end of the current op
             return label_pcs[label.name] - pcs[op_index + 1]  # noqa: B023
 
-        bytecode.append(_encode_op(avm_op, get_label_offset=get_label_offset))
+        op_kind = _get_op_kind(avm_op)
+        op_bytes = _encode_op(avm_op, get_label_offset=get_label_offset)
+        op_stats[op_kind].append(len(op_bytes))
+        bytecode.append(op_bytes)
 
     return models.AssembledProgram(
         bytecode=b"".join(bytecode),
@@ -92,7 +115,42 @@ def assemble_bytecode_and_debug_info(
             var: ctx.provided_template_variables.get(var, (None, None))[0]
             for var in ctx.template_variable_types
         },
+        stats=_get_op_stats(op_stats),
     )
+
+
+class _OpKind(enum.Enum):
+    constant = enum.auto()
+    control_flow = enum.auto()
+    stack = enum.auto()
+    other = enum.auto()
+
+
+def _get_op_kind(op: AVMOp) -> _OpKind:
+    if op.op_code in _BRANCHING_OPS:
+        return _OpKind.control_flow
+    elif op.op_code in _CONSTANT_OPS:
+        return _OpKind.constant
+    elif op.op_code in _STACK_OPS:
+        return _OpKind.stack
+    else:
+        return _OpKind.other
+
+
+def _get_op_stats(op_stats: Mapping[_OpKind, list[int]]) -> Mapping[str, int]:
+    result = {
+        "total_bytes": 1,  # 1 byte for program version
+        "total_ops": 0,
+    }
+    for kind in _OpKind:
+        kind_stats = op_stats[kind]
+        num_bytes = sum(kind_stats)
+        num_ops = len(kind_stats)
+        result[f"{kind.name}_bytes"] = num_bytes
+        result[f"{kind.name}_ops"] = num_ops
+        result["total_bytes"] += num_bytes
+        result["total_ops"] += num_ops
+    return result
 
 
 def _add_op_debug_events(
