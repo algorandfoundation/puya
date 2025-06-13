@@ -4,10 +4,10 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import InternalError
-from puya.ir.builder._tuple_util import build_tuple_item_names
+from puya.ir.builder._utils import assign_tuple, build_tuple_item_names
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import BasicBlock, ConditionalBranch, Switch, Value, ValueProvider, ValueTuple
-from puya.ir.op_utils import OpFactory, assign_targets
+from puya.ir.op_utils import OpFactory
 from puya.ir.types_ import get_wtype_arity, wtype_to_ir_type
 from puya.parse import SourceLocation
 from puya.utils import lazy_setdefault
@@ -197,27 +197,23 @@ def handle_conditional_expression(
 
     context.block_builder.activate_block(true_block)
     true_vp = context.visitor.visit_expr(expr.true_expr)
-    assign_targets(
+    assign_tuple(
         context,
         source=true_vp,
-        targets=[
-            context.new_register(name, ir_type, expr.source_location)
-            for name, ir_type in tmp_var_names
-        ],
+        typed_names=tmp_var_names,
         assignment_location=expr.true_expr.source_location,
+        register_location=expr.source_location,
     )
     context.block_builder.goto(merge_block)
 
     context.block_builder.activate_block(false_block)
     false_vp = context.visitor.visit_expr(expr.false_expr)
-    assign_targets(
+    assign_tuple(
         context,
         source=false_vp,
-        targets=[
-            context.new_register(name, ir_type, expr.source_location)
-            for name, ir_type in tmp_var_names
-        ],
+        typed_names=tmp_var_names,
         assignment_location=expr.false_expr.source_location,
+        register_location=expr.source_location,
     )
     context.block_builder.goto(merge_block)
 
