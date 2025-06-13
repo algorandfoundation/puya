@@ -1,4 +1,3 @@
-import base64
 import contextlib
 import hashlib
 import math
@@ -13,6 +12,7 @@ import attrs
 from puya import algo_constants, log
 from puya.avm import AVMType
 from puya.ir import models
+from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
 from puya.ir.models import Intrinsic, UInt64Constant
 from puya.ir.optimize.context import IROptimizationContext
@@ -21,7 +21,7 @@ from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation
-from puya.utils import biguint_bytes_eval, biguint_bytes_length, method_selector_hash, set_add
+from puya.utils import Address, biguint_bytes_eval, biguint_bytes_length, set_add
 
 logger = log.get_logger(__name__)
 
@@ -768,14 +768,6 @@ def _choose_encoding(a: AVMBytesEncoding, b: AVMBytesEncoding) -> AVMBytesEncodi
     return AVMBytesEncoding.base16
 
 
-def _decode_address(address: str) -> bytes:
-    # Pad address so it's a valid b32 string
-    padded_address = address + (6 * "=")
-    address_bytes = base64.b32decode(padded_address)
-    public_key_hash = address_bytes[: algo_constants.PUBLIC_KEY_HASH_LENGTH]
-    return public_key_hash
-
-
 def _get_byte_constant(
     register_assignments: _RegisterAssignments, byte_arg: models.Value
 ) -> models.BytesConstant | None:
@@ -790,27 +782,24 @@ def _get_byte_constant(
                 return _eval_sha256(sha256_arg, byte_arg_defn.source_location)
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 return models.BytesConstant(
-                    value=_decode_address(algo_constants.ZERO_ADDRESS),
+                    value=Address.parse(algo_constants.ZERO_ADDRESS).public_key,
                     encoding=AVMBytesEncoding.base32,
                     source_location=byte_arg.source_location,
                 )
-    elif isinstance(byte_arg, models.Constant):
-        if isinstance(byte_arg, models.BytesConstant):
-            return byte_arg
-        if isinstance(byte_arg, models.BigUIntConstant):
-            return _biguint_constant_to_bytes_constant(byte_arg)
-        if isinstance(byte_arg, models.AddressConstant):
-            return models.BytesConstant(
-                value=_decode_address(byte_arg.value),
-                encoding=AVMBytesEncoding.base32,
-                source_location=byte_arg.source_location,
-            )
-        if isinstance(byte_arg, models.MethodConstant):
-            return models.BytesConstant(
-                value=method_selector_hash(byte_arg.value),
-                encoding=AVMBytesEncoding.base16,
-                source_location=byte_arg.source_location,
-            )
+    elif (
+        isinstance(byte_arg, models.Constant)
+        and (bytes_const := get_bytes_constant(byte_arg)) is not None
+    ):
+        encoding = (
+            AVMBytesEncoding.base32
+            if isinstance(byte_arg, models.AddressConstant)
+            else AVMBytesEncoding.base16
+        )
+        return models.BytesConstant(
+            value=bytes_const,
+            encoding=encoding,
+            source_location=byte_arg.source_location,
+        )
     return None
 
 
