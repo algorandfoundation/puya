@@ -9,8 +9,7 @@ from puya.awst import (
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence
-from puya.ir.builder._tuple_util import build_tuple_registers
-from puya.ir.builder._utils import assign_temp
+from puya.ir.builder._utils import assign, assign_temp, build_tuple_item_names
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.models import (
@@ -23,7 +22,6 @@ from puya.ir.models import (
     ValueProvider,
 )
 from puya.ir.op_utils import assert_value, assign_intrinsic_op, assign_targets, convert_constants
-from puya.ir.types_ import PrimitiveIRType
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
@@ -78,7 +76,10 @@ class LoopAssigner:
     def _build_registers_from_lvalue(self, target: awst_nodes.Lvalue) -> list[Register]:
         match target:
             case awst_nodes.VarExpression(name=var_name, source_location=var_loc, wtype=var_type):
-                return build_tuple_registers(self._context, var_name, var_type, var_loc)
+                return [
+                    self._context.new_register(name, ir_type, var_loc)
+                    for name, ir_type in build_tuple_item_names(var_name, var_type, var_loc)
+                ]
             case awst_nodes.TupleExpression() as tup_expr:
                 tuple_items = lvalue_items(tup_expr)
                 return [
@@ -562,11 +563,10 @@ def _iterate_tuple(
     loop_counter_name = context.next_tmp_name("loop_counter")
 
     def assign_counter_and_user_vars(loop_count: int) -> Register:
-        counter_reg = context.ssa.new_register(loop_counter_name, PrimitiveIRType.uint64, None)
-        assign_targets(
+        counter_reg = assign(
             context,
             source=UInt64Constant(value=loop_count, source_location=None),
-            targets=[counter_reg],
+            name=loop_counter_name,
             assignment_location=None,
         )
         item_index = loop_count if not reverse_items else (max_index - loop_count)
@@ -653,13 +653,11 @@ def _reassign_with_intrinsic_op(
         args=[convert_constants(a, source_location) for a in args],
         source_location=source_location,
     )
-    target_reg = context.new_register(
-        name=target.name, ir_type=target.ir_type, location=target.source_location
-    )
-    assign_targets(
+    return assign(
         context,
-        targets=[target_reg],
         source=intrinsic,
+        name=target.name,
+        ir_type=target.ir_type,
+        register_location=target.source_location,
         assignment_location=source_location,
     )
-    return target_reg
