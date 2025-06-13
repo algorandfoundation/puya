@@ -523,6 +523,11 @@ contract Arc4MutableParamsContract
     assert(reinterpret_cast<biguint>(my_array[1u]) == reinterpret_cast<biguint>(206_arc4u8))
     assert(reinterpret_cast<biguint>(my_array_copy_2[1u]) == reinterpret_cast<biguint>(207_arc4u8))
     assert(reinterpret_cast<biguint>(my_array_copy_3[1u]) == reinterpret_cast<biguint>(208_arc4u8))
+    foo: tuple<arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>> = (my_array.copy(), my_array.copy(), my_array.copy())
+    this::mutate_tuple_items_and_reassign(foo, start=222u, reassign=false)
+    assert(reinterpret_cast<biguint>(foo[0][1u]) == reinterpret_cast<biguint>(228_arc4u8))
+    assert(reinterpret_cast<biguint>(foo[1][1u]) == reinterpret_cast<biguint>(229_arc4u8))
+    assert(reinterpret_cast<biguint>(foo[2][1u]) == reinterpret_cast<biguint>(230_arc4u8))
     nested: test_cases.arc4_types.mutable_params.StructWithArray = new test_cases.arc4_types.mutable_params.StructWithArray(test_array=my_array.copy())
     this::other_routine_2(nested.test_array.copy())
   }
