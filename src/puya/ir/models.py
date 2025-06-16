@@ -86,11 +86,6 @@ class ValueProvider(IRVisitable, _Freezable, abc.ABC):
     @abc.abstractmethod
     def types(self) -> Sequence[IRType]: ...
 
-    @property
-    @t.final
-    def atypes(self) -> Sequence[AVMType]:
-        return tuple(t.avm_type for t in self.types)
-
 
 @attrs.define
 class Value(ValueProvider, abc.ABC):
@@ -429,11 +424,6 @@ class InnerTransactionField(ValueProvider):
     @property
     def types(self) -> Sequence[IRType]:
         return (self.type,)
-
-
-class ArrayOp(typing.Protocol):
-    @property
-    def array(self) -> Value: ...
 
 
 @attrs.define(eq=False, kw_only=True)

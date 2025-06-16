@@ -29,8 +29,12 @@ class AVMBytesEncoding(enum.StrEnum):
 # can't actually make this an ABC due to a conflict in metaclasses with enum.StrEnum
 class IRType:
     @property
-    @abc.abstractmethod
-    def avm_type(self) -> AVMType: ...
+    def avm_type(self) -> AVMType:
+        maybe_result = self.maybe_avm_type
+        if isinstance(maybe_result, str):
+            raise InternalError(f"{maybe_result} cannot be mapped to AVM stack type")
+
+        return maybe_result
 
     @property
     @abc.abstractmethod
@@ -109,14 +113,6 @@ class PrimitiveIRType(IRType, enum.StrEnum):
     @property
     def name(self) -> str:
         return self._value_
-
-    @property
-    def avm_type(self) -> AVMType:
-        maybe_result = self.maybe_avm_type
-        if not isinstance(maybe_result, AVMType):
-            raise InternalError(f"{maybe_result} cannot be mapped to AVM stack type")
-
-        return maybe_result
 
     @property
     def maybe_avm_type(self) -> AVMType | str:
@@ -213,12 +209,8 @@ class EncodedType(IRType):
         return f"Encoded({name})"
 
     @property
-    def avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return AVMType.bytes
-
-    @property
     def maybe_avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return self.avm_type
+        return AVMType.bytes
 
     @property
     def num_bytes(self) -> int | None:
@@ -239,12 +231,8 @@ class SlotType(IRType):
         return f"{self.contents.name}*"
 
     @property
-    def avm_type(self) -> typing.Literal[AVMType.uint64]:
-        return AVMType.uint64
-
-    @property
     def maybe_avm_type(self) -> typing.Literal[AVMType.uint64]:
-        return self.avm_type
+        return AVMType.uint64
 
     @property
     def num_bytes(self) -> int | None:
@@ -265,17 +253,13 @@ class UnionType(IRType):
         return "|".join(t.name for t in self.types)
 
     @property
-    def avm_type(self) -> AVMType:
+    def maybe_avm_type(self) -> AVMType:
         try:
             (single_avm_type,) = {t.avm_type for t in self.types}
         except ValueError:
             return AVMType.any
         else:
             return single_avm_type
-
-    @property
-    def maybe_avm_type(self) -> AVMType:
-        return self.avm_type
 
     @property
     def num_bytes(self) -> None:
@@ -296,12 +280,8 @@ class SizedBytesType(IRType):
         return f"bytes[{self.num_bytes}]"
 
     @property
-    def avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return AVMType.bytes
-
-    @property
     def maybe_avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return self.avm_type
+        return AVMType.bytes
 
     def __str__(self) -> str:
         return self.name
