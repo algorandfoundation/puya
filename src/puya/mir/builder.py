@@ -349,8 +349,8 @@ class MemoryIRBuilder(IRVisitor[None]):
             self.active_op = op
             op.accept(self)
             # pop any values that may have been left on the stack and not assigned
-            if isinstance(op, ir.ValueProvider) and op.atypes:
-                self._add_op(models.Pop(len(op.atypes)))
+            if isinstance(op, ir.ValueProvider) and op.types:
+                self._add_op(models.Pop(len(op.types)))
 
         assert self.terminator is not None
         block_name = self._get_block_name(block)

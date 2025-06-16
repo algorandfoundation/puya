@@ -703,8 +703,8 @@ class FunctionIRBuilder(
             nested_values = self.visit_and_materialise(item)
             items.extend(nested_values)
         return ValueTuple(
-            source_location=expr.source_location,
             values=items,
+            source_location=expr.source_location,
         )
 
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> TExpression:
@@ -712,7 +712,7 @@ class FunctionIRBuilder(
 
         tuple_wtype = expr.base.wtype
         assert isinstance(tuple_wtype, wtypes.WTuple | wtypes.ARC4Tuple), "expected tuple wtype"
-        base = self.context.visitor.visit_and_materialise(expr.base)
+        base = self.visit_and_materialise(expr.base)
 
         return sequence.read_aggregate_index_and_decode(
             self.context, tuple_wtype, base, [expr.index], loc
@@ -724,7 +724,7 @@ class FunctionIRBuilder(
         tuple_wtype = expr.base.wtype
         assert isinstance(tuple_wtype, wtypes.WTuple | wtypes.ARC4Struct), "expected struct wtype"
         assert tuple_wtype.names is not None, "expected named tuple"
-        base = self.context.visitor.visit_and_materialise(expr.base)
+        base = self.visit_and_materialise(expr.base)
         index = tuple_wtype.names.index(expr.name)
 
         return sequence.read_aggregate_index_and_decode(
@@ -746,7 +746,7 @@ class FunctionIRBuilder(
                     f"IntersectionSlice for {expr.wtype.name} currently only supports [:-1]",
                     expr.source_location,
                 )
-            array = self.context.visitor.visit_and_materialise_single(expr.base)
+            array = self.visit_and_materialise_single(expr.base)
             builder = dynamic_array.get_builder(self.context, sliceable_type, loc)
             data, _ = builder.pop(array)
             return data
@@ -847,12 +847,8 @@ class FunctionIRBuilder(
         self, expr: awst_nodes.BoxPrefixedKeyExpression
     ) -> TExpression:
         factory = OpFactory(self.context, expr.source_location)
-        prefix = self.context.visitor.visit_and_materialise_single(
-            expr.prefix, temp_description="box_key_prefix"
-        )
-        key_source = self.context.visitor.visit_and_materialise(
-            expr.key, temp_description="materialized_values"
-        )
+        prefix = self.visit_and_materialise_single(expr.prefix, temp_description="box_key_prefix")
+        key_source = self.visit_and_materialise(expr.key, temp_description="materialized_values")
         codec = storage.get_storage_codec(
             expr.key.wtype, awst_nodes.AppStorageKind.box, expr.key.source_location
         )
@@ -888,9 +884,7 @@ class FunctionIRBuilder(
             encoding=array_encoding,
             source_location=loc,
         )
-        (encoded_array,) = self.context.visitor.materialise_value_provider(
-            encoded_array_vp, "encoded_array"
-        )
+        (encoded_array,) = self.materialise_value_provider(encoded_array_vp, "encoded_array")
         if isinstance(expr.wtype, wtypes.ARC4Array):
             return encoded_array
         elif isinstance(expr.wtype, wtypes.ReferenceArray):
@@ -1201,8 +1195,7 @@ class FunctionIRBuilder(
 
         # evaluate struct in order of declaration
         elements_by_name = {
-            name: self.context.visitor.visit_and_materialise(value)
-            for name, value in expr.values.items()
+            name: self.visit_and_materialise(value) for name, value in expr.values.items()
         }
         # ensure elements are in correct order
         elements = [
@@ -1222,7 +1215,7 @@ class FunctionIRBuilder(
         array_wtype = expr.base.wtype
         builder = dynamic_array.get_builder(self.context, array_wtype, loc)
 
-        array_or_slot = self.context.visitor.visit_and_materialise_single(expr.base)
+        array_or_slot = self.visit_and_materialise_single(expr.base)
         if isinstance(array_or_slot.ir_type, SlotType):
             array = mem.read_slot(self.context, array_or_slot, loc)
         else:
@@ -1247,9 +1240,9 @@ class FunctionIRBuilder(
         array_wtype = expr.base.wtype
         assert isinstance(array_wtype, wtypes.ARC4DynamicArray), "expected StackArray"
 
-        array = self.context.visitor.visit_and_materialise_single(expr.base)
-        index = self.context.visitor.visit_and_materialise_single(expr.index)
-        values = self.context.visitor.visit_and_materialise(expr.value)
+        array = self.visit_and_materialise_single(expr.base)
+        index = self.visit_and_materialise_single(expr.index)
+        values = self.visit_and_materialise(expr.value)
 
         return sequence.encode_and_write_aggregate_index(
             self.context, array_wtype, array, [index], values, loc
@@ -1303,9 +1296,9 @@ class FunctionIRBuilder(
         builder = dynamic_array.get_builder(self.context, array_wtype, loc)
 
         # materialise expressions
-        array_or_slot = self.context.visitor.visit_and_materialise_single(array_expr)
+        array_or_slot = self.visit_and_materialise_single(array_expr)
         array_ir_type = array_or_slot.ir_type
-        iterable = self.context.visitor.visit_and_materialise_as_value_or_tuple(iter_expr)
+        iterable = self.visit_and_materialise_as_value_or_tuple(iter_expr)
         iterable_ir_type = wtype_to_ir_type(iterable_wtype, loc, allow_tuple=True)
         if isinstance(iterable_ir_type, SlotType):
             assert isinstance(iterable, Value), "expected Value for SlotType"
@@ -1327,7 +1320,7 @@ class FunctionIRBuilder(
             array_wtype, wtypes.ReferenceArray | wtypes.ARC4Array
         ), "expected array wtype"
 
-        array = self.context.visitor.visit_and_materialise_single(expr.array)
+        array = self.visit_and_materialise_single(expr.array)
 
         array_encoding = wtype_to_encoding(array_wtype, loc)
         return sequence.get_length(self.context, array_encoding, array, loc)
@@ -1347,7 +1340,7 @@ class FunctionIRBuilder(
 
     def visit_emit(self, expr: awst_nodes.Emit) -> TExpression:
         factory = OpFactory(self.context, expr.source_location)
-        value = self.context.visitor.visit_and_materialise_single(expr.value)
+        value = self.visit_and_materialise_single(expr.value)
         prefix = MethodConstant(value=expr.signature, source_location=expr.source_location)
         event = factory.concat(prefix, value, "event")
 
