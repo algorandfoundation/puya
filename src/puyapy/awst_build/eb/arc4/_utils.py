@@ -33,12 +33,12 @@ _ARRAY_PATTERN = re.compile(r"^\[[0-9]*]$")
 def _pytype_to_arc4_return_pytype(typ: pytypes.PyType, sig: attrs.AttrsInstance) -> pytypes.PyType:
     assert isinstance(sig, ARC4Signature)
 
-    def on_error(bad_type: pytypes.PyType) -> typing.Never:
-        raise CodeError(
-            f"invalid return type for an ARC-4 method: {bad_type}", sig.source_location
-        )
+    def on_error(bad_type: pytypes.PyType, loc: SourceLocation | None) -> typing.Never:
+        raise CodeError(f"invalid return type for an ARC-4 method: {bad_type}", loc)
 
-    return arc4_utils.pytype_to_arc4_pytype(typ, on_error, encode_resource_types=True)
+    return arc4_utils.pytype_to_arc4_pytype(
+        typ, on_error, encode_resource_types=True, source_location=sig.source_location
+    )
 
 
 def _pytypes_to_arc4_arg_pytypes(
@@ -46,12 +46,15 @@ def _pytypes_to_arc4_arg_pytypes(
 ) -> Sequence[pytypes.PyType]:
     assert isinstance(sig, ARC4Signature)
 
-    def on_error(bad_type: pytypes.PyType) -> typing.Never:
-        raise CodeError(
-            f"invalid argument type for an ARC-4 method: {bad_type}", sig.source_location
-        )
+    def on_error(bad_type: pytypes.PyType, loc: SourceLocation | None) -> typing.Never:
+        raise CodeError(f"invalid argument type for an ARC-4 method: {bad_type}", loc)
 
-    return tuple(pytype_to_arc4_pytype(t, on_error, encode_resource_types=False) for t in types)
+    return tuple(
+        pytype_to_arc4_pytype(
+            t, on_error, encode_resource_types=False, source_location=sig.source_location
+        )
+        for t in types
+    )
 
 
 @attrs.frozen(kw_only=True)
@@ -139,12 +142,13 @@ def _implicit_arc4_type_arg_conversion(typ: pytypes.PyType, loc: SourceLocation)
         case pytypes.InnerTransactionFieldsetType(transaction_type=txn_type):
             return pytypes.GroupTransactionTypes[txn_type]
 
-    def on_error(invalid_pytype: pytypes.PyType) -> typing.Never:
+    def on_error(invalid_pytype: pytypes.PyType, loc_: SourceLocation | None) -> typing.Never:
         raise CodeError(
-            f"{invalid_pytype} is not an ARC-4 type and no implicit ARC-4 conversion possible", loc
+            f"{invalid_pytype} is not an ARC-4 type and no implicit ARC-4 conversion possible",
+            loc_,
         )
 
-    return pytype_to_arc4_pytype(typ, on_error, encode_resource_types=False)
+    return pytype_to_arc4_pytype(typ, on_error, encode_resource_types=False, source_location=loc)
 
 
 def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.PyType) -> bool:
