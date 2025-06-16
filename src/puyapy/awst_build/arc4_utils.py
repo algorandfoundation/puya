@@ -31,9 +31,10 @@ class _DecoratorData:
 
 def pytype_to_arc4_pytype(
     pytype: pytypes.PyType,
-    on_error: Callable[[pytypes.PyType], pytypes.PyType],
+    on_error: Callable[[pytypes.PyType, SourceLocation | None], pytypes.PyType],
     *,
     encode_resource_types: bool,
+    source_location: SourceLocation | None,
 ) -> pytypes.PyType:
     match pytype:
         case pytypes.BoolType:
@@ -44,7 +45,12 @@ def pytype_to_arc4_pytype(
                 desc=pytype.desc,
                 name=pytype.name,
                 fields={
-                    name: pytype_to_arc4_pytype(t, on_error, encode_resource_types=True)
+                    name: pytype_to_arc4_pytype(
+                        t,
+                        on_error,
+                        encode_resource_types=True,
+                        source_location=pytype.source_location or source_location,
+                    )
                     for name, t in pytype.fields.items()
                 },
                 frozen=True,
@@ -52,13 +58,25 @@ def pytype_to_arc4_pytype(
             )
         case pytypes.ArrayType(generic=pytypes.GenericImmutableArrayType):
             return pytypes.GenericARC4DynamicArrayType.parameterise(
-                [pytype_to_arc4_pytype(pytype.items, on_error, encode_resource_types=True)],
+                [
+                    pytype_to_arc4_pytype(
+                        pytype.items,
+                        on_error,
+                        encode_resource_types=True,
+                        source_location=pytype.source_location or source_location,
+                    )
+                ],
                 pytype.source_location,
             )
         case pytypes.TupleType():
             return pytypes.GenericARC4TupleType.parameterise(
                 [
-                    pytype_to_arc4_pytype(t, on_error, encode_resource_types=True)
+                    pytype_to_arc4_pytype(
+                        t,
+                        on_error,
+                        encode_resource_types=True,
+                        source_location=pytype.source_location or source_location,
+                    )
                     for t in pytype.items
                 ],
                 pytype.source_location,
@@ -87,7 +105,7 @@ def pytype_to_arc4_pytype(
     elif isinstance(pytype.wtype, wtypes.ARC4Type):
         return pytype
     else:
-        return on_error(pytype)
+        return on_error(pytype, source_location)
 
 
 _UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
@@ -151,13 +169,15 @@ def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.
 def pytype_to_arc4(
     typ: pytypes.PyType, *, encode_resource_types: bool, loc: SourceLocation | None = None
 ) -> str:
-    def on_error(bad_type: pytypes.PyType) -> typing.Never:
+    def on_error(bad_type: pytypes.PyType, loc_: SourceLocation | None) -> typing.Never:
         raise CodeError(
             f"not an ARC-4 type or native equivalent: {bad_type}",
-            loc or getattr(bad_type, "source_location", None),
+            loc_,
         )
 
-    arc4_pytype = pytype_to_arc4_pytype(typ, on_error, encode_resource_types=encode_resource_types)
+    arc4_pytype = pytype_to_arc4_pytype(
+        typ, on_error, encode_resource_types=encode_resource_types, source_location=loc
+    )
     if arc4_pytype in _PYTYPE_ARC4_MAPPING:
         return _PYTYPE_ARC4_MAPPING[arc4_pytype]
     match arc4_pytype:
