@@ -495,6 +495,12 @@ class ARC4Tuple(_ARC4WTypeInstance):
     def accept[T](self, visitor: ARC4WTypeVisitor[T]) -> T:
         return visitor.visit_arc4_tuple(self)
 
+    @types.validator
+    def _types_validator(self, _attribute: object, value: tuple[WType]) -> None:
+        loc = self.source_location
+        if any(not typ.persistable for typ in value):
+            raise CodeError("ARC-4 tuples can only contain persistable elements", loc)
+
 
 @attrs.frozen(kw_only=True)
 class ARC4Array(_ARC4WTypeInstance, abc.ABC):
