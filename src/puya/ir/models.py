@@ -531,7 +531,7 @@ class ValueEncode(Op, ValueProvider):
         #    raise InternalError("nothing to encode", self.source_location)
 
     def _frozen_data(self) -> object:
-        return self.values, self.value_type, self.encoding
+        return tuple(self.values), self.value_type, self.encoding
 
     @property
     def types(self) -> Sequence[IRType]:
