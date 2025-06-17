@@ -1,6 +1,5 @@
 import functools
 import operator
-import typing
 from collections.abc import Sequence
 
 import attrs
@@ -8,7 +7,6 @@ import attrs
 from puya import log
 from puya.context import CompileContext
 from puya.ir import models
-from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor
@@ -17,19 +15,10 @@ from puya.utils import not_none
 logger = log.get_logger(__name__)
 
 
-@attrs.frozen
 class IntrinsicData:
-    op: AVMOp
-    immediates: tuple[str | int, ...]
-    args: tuple[models.Value, ...]
-
-    @classmethod
-    def from_op(cls, op: models.Intrinsic) -> typing.Self:
-        return cls(
-            op=op.op,
-            immediates=tuple(op.immediates),
-            args=tuple(op.args),
-        )
+    @staticmethod
+    def from_op(op: models.Intrinsic) -> object:
+        return attrs.evolve(op, error_message=None).freeze()
 
 
 def repeated_expression_elimination(
@@ -41,9 +30,7 @@ def repeated_expression_elimination(
     while modified:
         modified = False
         block_asserted = dict[models.BasicBlock, set[models.Value]]()
-        block_const_intrinsics = dict[
-            models.BasicBlock, dict[IntrinsicData, Sequence[models.Register]]
-        ]()
+        block_const_intrinsics = dict[models.BasicBlock, dict[object, Sequence[models.Register]]]()
         for block in subroutine.body:
             visitor = RCEVisitor(block)
             for op in block.ops.copy():
@@ -120,7 +107,7 @@ def compute_dominators(
 @attrs.define
 class RCEVisitor(NoOpIRVisitor[bool]):
     block: models.BasicBlock
-    const_intrinsics: dict[IntrinsicData, Sequence[models.Register]] = attrs.field(factory=dict)
+    const_intrinsics: dict[object, Sequence[models.Register]] = attrs.field(factory=dict)
     asserted: set[models.Value] = attrs.field(factory=set)
 
     _assignment: models.Assignment | None = None
