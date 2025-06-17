@@ -69,3 +69,53 @@ def copy_propagation(_context: CompileContext, subroutine: models.Subroutine) ->
         modified = True
 
     return modified
+
+
+def encode_decode_pair_elimination(
+    _context: CompileContext, subroutine: models.Subroutine
+) -> bool:
+    encodes_by_args = dict[
+        tuple[models.Value, ...], list[tuple[models.Assignment, models.ValueEncode]]
+    ]()
+    encodes_by_target = dict[models.Register, models.ValueEncode]()
+    decodes_by_arg = dict[models.Value, list[tuple[models.Assignment, models.ValueDecode]]]()
+    decodes_by_targets = dict[tuple[models.Register, ...], models.ValueDecode]()
+    modified = False
+    for block in subroutine.body:
+        for op in block.ops:
+            if isinstance(op, models.Assignment):
+                source = op.source
+                if isinstance(source, models.ValueEncode):
+                    encodes_by_args.setdefault(tuple(source.values), []).append((op, source))
+                    (target,) = op.targets
+                    encodes_by_target[target] = source
+                elif isinstance(source, models.ValueDecode):
+                    decodes_by_arg.setdefault(source.value, []).append((op, source))
+                    decodes_by_targets[tuple(op.targets)] = source
+
+    # replaced ValueDecode(ValueEncode([*args])) with args
+    # where result type of decode is the input type of encode
+    for encode_target, encode_op in encodes_by_target.items():
+        encode_decodes = decodes_by_arg.get(encode_target, [])
+        for encode_decode_assignment, encode_decode in encode_decodes:
+            if encode_decode.decoded_type == encode_op.value_type and len(encode_op.values) == len(
+                encode_decode_assignment.targets
+            ):
+                modified = True
+                if len(encode_op.values) == 1:
+                    (encode_decode_assignment.source,) = encode_op.values
+                else:
+                    encode_decode_assignment.source = models.ValueTuple(
+                        values=encode_op.values,
+                        source_location=encode_decode_assignment.source_location,
+                    )
+    # eliminate ValueEncode(ValueDecode(arg)) with arg
+    # where the result type of encode is in the input type of decode
+    for decode_targets, decode_op in decodes_by_targets.items():
+        decode_encodes = encodes_by_args.get(decode_targets, [])
+        for decode_encode_assignment, decode_encode in decode_encodes:
+            if decode_op.encoding == decode_encode.encoding:
+                logger.debug("removed redundant encode-of-decode")
+                modified = True
+                decode_encode_assignment.source = decode_op.value
+    return modified
