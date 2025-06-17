@@ -137,6 +137,20 @@ class RCEVisitor(NoOpIRVisitor[bool]):
             modified = self._cache_or_replace(self._assignment, key)
         return modified
 
+    def visit_value_encode(self, encode: models.ValueEncode) -> bool:
+        modified = False
+        if self._assignment is not None:
+            key = encode.freeze()
+            modified = self._cache_or_replace(self._assignment, key)
+        return modified
+
+    def visit_value_decode(self, decode: models.ValueDecode) -> bool:
+        modified = False
+        if self._assignment is not None:
+            key = decode.freeze()
+            modified = self._cache_or_replace(self._assignment, key)
+        return modified
+
     def _cache_or_replace(self, ass: models.Assignment, key: object) -> bool:
         try:
             existing = self.const_intrinsics[key]
