@@ -15,12 +15,6 @@ from puya.utils import not_none
 logger = log.get_logger(__name__)
 
 
-class IntrinsicData:
-    @staticmethod
-    def from_op(op: models.Intrinsic) -> object:
-        return attrs.evolve(op, error_message=None).freeze()
-
-
 def repeated_expression_elimination(
     context: CompileContext, subroutine: models.Subroutine
 ) -> bool:
@@ -120,31 +114,12 @@ class RCEVisitor(NoOpIRVisitor[bool]):
 
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> bool:
         modified = False
-        if (ass := self._assignment) is not None:
+        if self._assignment is not None:
             # only consider ops with stack args because they're much more likely to
             # produce extra stack manipulations
             if intrinsic.args and intrinsic.op.code in PURE_AVM_OPS:
-                key = IntrinsicData.from_op(intrinsic)
-                try:
-                    existing = self.const_intrinsics[key]
-                except KeyError:
-                    self.const_intrinsics[key] = ass.targets
-                else:
-                    logger.debug(
-                        f"Replacing redundant declaration {ass}"
-                        f" with copy of existing registers {existing}"
-                    )
-                    modified = True
-                    if len(existing) == 1:
-                        ass.source = existing[0]
-                    else:
-                        current_idx = self.block.ops.index(ass)
-                        self.block.ops[current_idx : current_idx + 1] = [
-                            models.Assignment(
-                                targets=[dst], source=src, source_location=ass.source_location
-                            )
-                            for dst, src in zip(ass.targets, existing, strict=True)
-                        ]
+                key = attrs.evolve(intrinsic, error_message=None).freeze()
+                modified = self._cache_or_replace(self._assignment, key)
         elif intrinsic.op.code == "assert":
             (assert_arg,) = intrinsic.args
             if assert_arg in self.asserted:
@@ -154,3 +129,29 @@ class RCEVisitor(NoOpIRVisitor[bool]):
             else:
                 self.asserted.add(assert_arg)
         return modified
+
+    def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> bool:
+        modified = False
+        if self._assignment is not None:
+            key = read.freeze()
+            modified = self._cache_or_replace(self._assignment, key)
+        return modified
+
+    def _cache_or_replace(self, ass: models.Assignment, key: object) -> bool:
+        try:
+            existing = self.const_intrinsics[key]
+        except KeyError:
+            self.const_intrinsics[key] = ass.targets
+            return False
+        logger.debug(
+            f"Replacing redundant declaration {ass}" f" with copy of existing registers {existing}"
+        )
+        if len(existing) == 1:
+            ass.source = existing[0]
+        else:
+            current_idx = self.block.ops.index(ass)
+            self.block.ops[current_idx : current_idx + 1] = [
+                models.Assignment(targets=[dst], source=src, source_location=ass.source_location)
+                for dst, src in zip(ass.targets, existing, strict=True)
+            ]
+        return True
