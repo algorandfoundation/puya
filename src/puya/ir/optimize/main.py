@@ -9,7 +9,7 @@ from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.optimize.add_box_extract_replace import (
     replace_aggregate_box_ops,
 )
-from puya.ir.optimize.assignments import copy_propagation
+from puya.ir.optimize.assignments import copy_propagation, encode_decode_pair_elimination
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from puya.ir.optimize.compiled_reference import replace_compiled_references
 from puya.ir.optimize.constant_propagation import constant_replacer
@@ -79,6 +79,7 @@ def get_subroutine_optimizations(optimization_level: int) -> Iterable[Subroutine
             SubroutineOptimization.from_function(remove_empty_blocks),
             SubroutineOptimization.from_function(remove_unreachable_blocks),
             SubroutineOptimization.from_function(repeated_expression_elimination),
+            SubroutineOptimization.from_function(encode_decode_pair_elimination),
             SubroutineOptimization.from_function(merge_chained_aggregate_reads),
             SubroutineOptimization.from_function(replace_aggregate_box_ops),
             SubroutineOptimization.from_function(minimize_box_exist_asserts),
