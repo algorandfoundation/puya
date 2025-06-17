@@ -6,6 +6,7 @@ from puya import log
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.visitor import IRTraverser
+from puya.parse import sequential_source_locations_merge
 
 logger = log.get_logger(__name__)
 
@@ -18,8 +19,16 @@ def merge_chained_aggregate_reads(_: CompileContext, subroutine: models.Subrouti
         merged_read = read
         while base_read_ass := reads.get(merged_read.base):
             base_read = base_read_ass.read
-            merged_read = attrs.evolve(
-                base_read, indexes=[*base_read.indexes, *merged_read.indexes]
+            merged_source_location = sequential_source_locations_merge(
+                (merged_read.source_location, base_read.source_location)
+            )
+            merged_read = models.AggregateReadIndex(
+                base=base_read.base,
+                base_type=base_read.base_type,
+                indexes=[*base_read.indexes, *merged_read.indexes],
+                ir_type=merged_read.ir_type,
+                check_bounds=base_read.check_bounds or merged_read.check_bounds,
+                source_location=merged_source_location,
             )
 
         if merged_read != read:

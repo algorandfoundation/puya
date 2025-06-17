@@ -104,7 +104,7 @@ class IRMutator(IRVisitor[t.Any]):
                 indexes.append(index)
             else:
                 indexes.append(index.accept(self))
-        read.indexes = indexes
+        read.indexes = tuple(indexes)
         return read
 
     def visit_box_read(self, read: models.BoxRead) -> models.ValueProvider:
@@ -126,7 +126,7 @@ class IRMutator(IRVisitor[t.Any]):
                 indexes.append(index)
             else:
                 indexes.append(index.accept(self))
-        write.indexes = indexes
+        write.indexes = tuple(indexes)
         write.value = write.value.accept(self)
         return write
 

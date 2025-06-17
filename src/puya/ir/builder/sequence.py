@@ -6,7 +6,6 @@ from puya.awst import wtypes
 from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir._utils import get_aggregate_element_encoding
 from puya.ir.builder import mem
 from puya.ir.builder._utils import invoke_puya_lib_subroutine, undefined_value
 from puya.ir.encodings import (
@@ -64,9 +63,15 @@ def read_aggregate_index_and_decode(
         base = mem.read_slot(context, base, loc)
     aggregate_encoding = wtype_to_encoding(aggregate_wtype, loc)
     assert isinstance(aggregate_encoding, ArrayEncoding | TupleEncoding)
+    element_encoding = _get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
+    if element_encoding.is_bit:
+        read_result_type: IRType = PrimitiveIRType.bool
+    else:
+        read_result_type = EncodedType(element_encoding)
     read_index = ir.AggregateReadIndex(
         base=base,
-        aggregate_encoding=aggregate_encoding,
+        base_type=EncodedType(aggregate_encoding),
+        ir_type=read_result_type,
         indexes=indexes,
         source_location=loc,
         check_bounds=check_bounds,
@@ -75,7 +80,6 @@ def read_aggregate_index_and_decode(
     (tuple_item,) = context.materialise_value_provider(
         read_index, "tuple_item" if is_tup else "array_item"
     )
-    element_encoding = read_index.element_encoding
     element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
     if not requires_conversion(element_ir_type, element_encoding, "decode"):
         return tuple_item
@@ -120,7 +124,7 @@ def encode_and_write_aggregate_index(
     aggregate_encoding = wtype_to_encoding(aggregate_wtype, loc)
     assert isinstance(aggregate_encoding, TupleEncoding | ArrayEncoding)
     element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
-    element_encoding = get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
+    element_encoding = _get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
     if not requires_conversion(element_ir_type, element_encoding, "encode"):
         (encoded_value,) = values
     else:
@@ -138,7 +142,7 @@ def encode_and_write_aggregate_index(
         base = mem.read_slot(context, aggregate_or_slot, loc)
         write_index = ir.AggregateWriteIndex(
             base=base,
-            aggregate_encoding=aggregate_encoding,
+            base_type=EncodedType(aggregate_encoding),
             indexes=indexes,
             value=encoded_value,
             source_location=loc,
@@ -149,7 +153,7 @@ def encode_and_write_aggregate_index(
     else:
         write_index = ir.AggregateWriteIndex(
             base=base,
-            aggregate_encoding=aggregate_encoding,
+            base_type=EncodedType(aggregate_encoding),
             indexes=indexes,
             value=encoded_value,
             source_location=loc,
@@ -318,3 +322,34 @@ def _get_nested_element_ir_type(
     if element is None:
         raise InternalError(f"invalid index sequence: {aggregate=!s}, {indexes=!s}", loc)
     return wtype_to_ir_type(element, loc, allow_tuple=True)
+
+
+def _get_aggregate_element_encoding(
+    aggregate_encoding: TupleEncoding | ArrayEncoding,
+    indexes: Sequence[int | ir.Value],
+    loc: SourceLocation | None,
+) -> Encoding:
+    last_i = len(indexes) - 1
+    element_encoding = None
+    for i, index in enumerate(indexes):
+        if isinstance(aggregate_encoding, TupleEncoding) and isinstance(index, int):
+            element_encoding = aggregate_encoding.elements[index]
+        elif isinstance(aggregate_encoding, ArrayEncoding):
+            element_encoding = aggregate_encoding.element
+        else:
+            raise InternalError(
+                f"invalid index sequence: {aggregate_encoding=!s}, {index=!s}", loc
+            )
+        if i == last_i:
+            # last index is the only one that doesn't need to be an aggregate
+            pass
+        elif isinstance(element_encoding, TupleEncoding | ArrayEncoding):
+            aggregate_encoding = element_encoding
+        else:
+            # invalid index sequence
+            raise InternalError(
+                f"invalid index sequence: {aggregate_encoding=!s}, {index=!s}", loc
+            )
+    if element_encoding is None:
+        raise InternalError(f"invalid index sequence: {aggregate_encoding=!s}, {indexes=!s}", loc)
+    return element_encoding

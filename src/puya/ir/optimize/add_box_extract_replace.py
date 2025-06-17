@@ -103,8 +103,8 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         except KeyError:
             return write
 
-        # only support fixed size elements
-        if agg_write.aggregate_encoding.is_dynamic:
+        # only support fixed size boxes
+        if agg_write.base_type.encoding.is_dynamic:
             return write
 
         # find corresponding read
@@ -139,7 +139,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
 
 
 def _box_extract_required(read: models.AggregateReadIndex) -> bool:
-    aggregate_encoding = read.aggregate_encoding
+    aggregate_encoding = read.base_type.encoding
     # dynamic encodings not supported with box_extract optimization currently
     if aggregate_encoding.is_dynamic:
         return False
@@ -162,17 +162,18 @@ def _combine_box_and_aggregate_read(
     factory = OpFactory(context, loc)
     fixed_offset = _get_fixed_byte_offset(
         context,
-        encoding=agg_read.aggregate_encoding,
+        encoding=agg_read.base_type.encoding,
         indexes=agg_read.indexes,
         loc=loc,
         stop_at_valid_stack_value=True,
     )
     encoding_at_offset = fixed_offset.encoding
+    extract_ir_type = EncodedType(encoding_at_offset)
     box_extract = factory.box_extract(
         box_key,
         fixed_offset.offset,
         encoding_at_offset.checked_num_bytes,
-        ir_type=EncodedType(encoding_at_offset),
+        ir_type=extract_ir_type,
     )
     remaining_indexes = fixed_offset.remaining_indexes
     if not remaining_indexes:
@@ -185,13 +186,10 @@ def _combine_box_and_aggregate_read(
     new_agg_read = attrs.evolve(
         agg_read,
         base=box_extract,
-        aggregate_encoding=encoding_at_offset,
+        base_type=extract_ir_type,
         indexes=remaining_indexes,
         source_location=loc,
     )
-    assert (
-        agg_read.element_encoding == new_agg_read.element_encoding
-    ), "expected encodings to be preserved"
     return new_agg_read
 
 
@@ -206,7 +204,7 @@ def _combine_aggregate_and_box_write(
     #       is more efficient than doing N reads & writes
     fixed_offset = _get_fixed_byte_offset(
         context,
-        encoding=agg_write.aggregate_encoding,
+        encoding=agg_write.base_type.encoding,
         indexes=agg_write.indexes,
         loc=loc,
         stop_at_valid_stack_value=False,
@@ -216,17 +214,18 @@ def _combine_aggregate_and_box_write(
     else:
         # currently only occurs when agg_write.encoding.is_bit
         encoding = fixed_offset.encoding
+        extract_ir_type = EncodedType(encoding)
         box_extract = factory.box_extract(
             box_key,
             fixed_offset.offset,
             fixed_offset.encoding.checked_num_bytes,
-            ir_type=EncodedType(encoding),
+            ir_type=extract_ir_type,
         )
         assert isinstance(encoding, TupleEncoding | ArrayEncoding), "expected aggregate encoding"
         value = factory.materialise_single(
             models.AggregateWriteIndex(
                 base=box_extract,
-                aggregate_encoding=encoding,
+                base_type=extract_ir_type,
                 value=agg_write.value,
                 indexes=fixed_offset.remaining_indexes,
                 source_location=loc,
