@@ -148,9 +148,10 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        false_builder = DynamicArrayTypeBuilder(self.pytype, location).call([], [], [], location)
         return arc4_bool_bytes(
             self,
-            false_bytes=b"\x00\x00",
+            false_builder=false_builder,
             negate=negate,
             location=location,
         )
