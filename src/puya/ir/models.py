@@ -551,8 +551,8 @@ class ValueDecode(Op, ValueProvider):
     decoded_type: IRType | TupleIRType = attrs.field()
 
     @decoded_type.validator
-    def _decoded_type_validator(self, _: object, value: IRType) -> None:
-        _arity_matches(value, self.encoding, self.source_location)
+    def _decoded_type_validator(self, _: object, decoded_type: IRType | TupleIRType) -> None:
+        _arity_matches(decoded_type, self.encoding, self.source_location)
 
     def _frozen_data(self) -> object:
         return self.value, self.encoding, self.decoded_type
