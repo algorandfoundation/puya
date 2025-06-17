@@ -59,7 +59,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         loc = read.source_location
         factory = OpFactory(self, loc)
 
-        aggregate_encoding = read.aggregate_encoding
+        aggregate_encoding = read.base_type.encoding
         base = read.base
         base_encoding: Encoding = aggregate_encoding
         for index in read.indexes:
@@ -92,7 +92,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         loc = write.source_location
         factory = OpFactory(self, loc)
 
-        aggregate_encoding = write.aggregate_encoding
+        aggregate_encoding = write.base_type.encoding
         base = write.base
         bases = []
         base_encoding: Encoding = aggregate_encoding
