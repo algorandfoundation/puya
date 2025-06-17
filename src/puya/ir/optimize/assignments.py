@@ -101,6 +101,10 @@ def encode_decode_pair_elimination(
             if encode_decode.decoded_type == encode_op.value_type and len(encode_op.values) == len(
                 encode_decode_assignment.targets
             ):
+                logger.debug(
+                    f"replacing redundant decode-of-encode with:"
+                    f" {", ".join(map(str, encode_op.values))}"
+                )
                 modified = True
                 if len(encode_op.values) == 1:
                     (encode_decode_assignment.source,) = encode_op.values
@@ -115,7 +119,7 @@ def encode_decode_pair_elimination(
         decode_encodes = encodes_by_args.get(decode_targets, [])
         for decode_encode_assignment, decode_encode in decode_encodes:
             if decode_op.encoding == decode_encode.encoding:
-                logger.debug("removed redundant encode-of-decode")
+                logger.debug(f"replacing redundant encode-of-decode with: {decode_op.value}")
                 modified = True
                 decode_encode_assignment.source = decode_op.value
     return modified
