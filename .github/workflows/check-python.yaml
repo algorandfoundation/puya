@@ -35,7 +35,26 @@ jobs:
           comment-tag: no_changelog_fragment_detected
           mode: upsert
           message: ⚠️ No changelog fragment detected
+  summarize-size:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+
+      - name: Generate comment
+        run: poe -q size_diff --before=origin/${{ github.base_ref }} 1>sizes.md
+
+      - name: Upsert diff summary comment
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: size_diff_summary
+          mode: upsert
+          file-path: sizes.md
   check-python:
     runs-on: "ubuntu-latest"
     steps:
