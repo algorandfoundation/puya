@@ -1,7 +1,8 @@
 from puya import log
 from puya.context import CompileContext
 from puya.errors import InternalError
-from puya.ir import models
+from puya.ir import encodings, models
+from puya.ir.types_ import EncodedType, IRType, PrimitiveIRType, TupleIRType
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 
 logger = log.get_logger(__name__)
@@ -98,8 +99,10 @@ def encode_decode_pair_elimination(
     for encode_target, encode_op in encodes_by_target.items():
         encode_decodes = decodes_by_arg.get(encode_target, [])
         for encode_decode_assignment, encode_decode in encode_decodes:
-            if encode_decode.decoded_type == encode_op.value_type and len(encode_op.values) == len(
-                encode_decode_assignment.targets
+            if (
+                encode_decode.decoded_type == encode_op.value_type
+                and encode_decode.encoding == encode_op.encoding
+                and _is_round_trip_safe(encode_decode.encoding, encode_decode.decoded_type)
             ):
                 logger.debug(
                     f"replacing redundant decode-of-encode with:"
@@ -118,8 +121,52 @@ def encode_decode_pair_elimination(
     for decode_targets, decode_op in decodes_by_targets.items():
         decode_encodes = encodes_by_args.get(decode_targets, [])
         for decode_encode_assignment, decode_encode in decode_encodes:
-            if decode_op.encoding == decode_encode.encoding:
+            if (
+                decode_op.encoding == decode_encode.encoding
+                and decode_op.decoded_type == decode_encode.value_type
+                and _is_round_trip_safe(decode_op.encoding, decode_op.decoded_type)
+            ):
                 logger.debug(f"replacing redundant encode-of-decode with: {decode_op.value}")
                 modified = True
                 decode_encode_assignment.source = decode_op.value
     return modified
+
+
+def _is_round_trip_safe(encoding: encodings.Encoding, native_type: IRType | TupleIRType) -> bool:
+    match native_type:
+        case EncodedType(encoding=ir_type_encoding):
+            return ir_type_encoding == encoding
+        case PrimitiveIRType.bool:
+            # there's only two valid bool values
+            return True
+        case PrimitiveIRType.string:
+            # if the encoding has no length restrictions, this is fine,
+            # there's no value validation here
+            return isinstance(encoding, encodings.DynamicArrayEncoding) and (
+                encoding.element == encodings.UTF8Encoding()
+            )
+        case PrimitiveIRType.bytes:
+            # if the encoding has no length restrictions, this is fine,
+            # there's no value validation here
+            return isinstance(encoding, encodings.DynamicArrayEncoding) and (
+                encoding.element == encodings.UIntEncoding(n=8)
+            )
+        case PrimitiveIRType.account:
+            return (
+                isinstance(encoding, encodings.FixedArrayEncoding)
+                and encoding.element == encodings.UIntEncoding(n=8)
+                and encoding.size == 32
+            )
+        case PrimitiveIRType.uint64:
+            return isinstance(encoding, encodings.UIntEncoding) and encoding.n >= 64
+        case TupleIRType(elements=native_elements):
+            # okay if encoding is TupleEncoding and all elements are round-trip safe
+            # when matched with the element IRType
+            return isinstance(encoding, encodings.TupleEncoding) and all(
+                _is_round_trip_safe(element_encoding, element_type)
+                for element_encoding, element_type in zip(
+                    encoding.elements, native_elements, strict=True
+                )
+            )
+        case _:
+            return False
