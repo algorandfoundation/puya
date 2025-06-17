@@ -96,15 +96,15 @@ class ARC4FromLogBuilder(FunctionBuilder):
 
 
 def arc4_bool_bytes(
-    builder: InstanceBuilder, false_bytes: bytes, location: SourceLocation, *, negate: bool
+    builder: InstanceBuilder,
+    false_builder: InstanceBuilder,
+    location: SourceLocation,
+    *,
+    negate: bool,
 ) -> InstanceBuilder:
+    assert builder.pytype == false_builder.pytype
     lhs = builder.resolve()
-    false_value = BytesConstant(
-        value=false_bytes,
-        encoding=BytesEncoding.base16,
-        wtype=lhs.wtype,
-        source_location=location,
-    )
+    false_value = false_builder.resolve()
     return compare_expr_bytes(
         op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
         lhs=lhs,
