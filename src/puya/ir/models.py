@@ -456,7 +456,7 @@ class AggregateReadIndex(_AggregateOp):
             return (EncodedType(self.element_encoding),)
 
     def _frozen_data(self) -> object:
-        return self.aggregate_encoding, self.base, self.indexes
+        return self.aggregate_encoding, self.base, self.indexes, self.check_bounds
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_aggregate_read_index(self)
