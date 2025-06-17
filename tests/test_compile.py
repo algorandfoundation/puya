@@ -94,9 +94,11 @@ def _compile_no_optimization(test_case: PuyaTestCase) -> None:
     _compile_test_case(
         test_case,
         SUFFIX_O0,
+        log_path=test_case.path / f"puya{SUFFIX_O0}.log",
         optimization_level=0,
         output_teal=True,
         output_bytecode=True,
+        output_source_map=True,
         output_destructured_ir=True,
     )
 
@@ -105,7 +107,7 @@ def _compile_with_level1_optimizations(test_case: PuyaTestCase) -> None:
     _compile_test_case(
         test_case,
         SUFFIX_O1,
-        log_path=test_case.path / "puya.log",
+        log_path=test_case.path / f"puya{SUFFIX_O1}.log",
         optimization_level=1,
         output_teal=True,
         output_bytecode=True,
@@ -125,10 +127,12 @@ def _compile_with_level2_optimizations(test_case: PuyaTestCase) -> None:
     _compile_test_case(
         test_case,
         SUFFIX_O2,
+        log_path=test_case.path / f"puya{SUFFIX_O2}.log",
         optimization_level=2,
         debug_level=0,
         output_teal=True,
         output_bytecode=True,
+        output_source_map=True,
         output_destructured_ir=True,
     )
 
