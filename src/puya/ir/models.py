@@ -427,36 +427,33 @@ class InnerTransactionField(ValueProvider):
 
 
 @attrs.define(eq=False, kw_only=True)
-class _AggregateOp(Op, ValueProvider):
-    aggregate_encoding: TupleEncoding | ArrayEncoding = attrs.field()
+class _AggregateOp(Op, ValueProvider, abc.ABC):
     base: Value = attrs.field()
-    indexes: Sequence[int | Value] = attrs.field(
+    # we retain the original type of the aggregate, in case this is lost during optimisations
+    base_type: EncodedType = attrs.field(repr=lambda x: x.name)
+    indexes: tuple[int | Value, ...] = attrs.field(
         validator=attrs.validators.min_len(1), converter=tuple[int | Value, ...]
     )
-    element_encoding: Encoding = attrs.field(init=False)
 
-    @element_encoding.default
-    def _element_encoding_factory(self) -> Encoding:
-        from puya.ir._utils import get_aggregate_element_encoding
-
-        return get_aggregate_element_encoding(
-            self.aggregate_encoding, self.indexes, self.source_location
-        )
+    @base_type.validator
+    def _base_type_validator(self, _: object, base_type: EncodedType) -> None:
+        if not isinstance(base_type.encoding, ArrayEncoding | TupleEncoding):
+            raise InternalError(
+                "unsupported aggregate encoding type for indexed read/write", self.source_location
+            )
 
 
 @attrs.define(eq=False)
 class AggregateReadIndex(_AggregateOp):
     check_bounds: bool
+    ir_type: IRType = attrs.field(repr=lambda x: x.name)
 
     @property
     def types(self) -> Sequence[IRType]:
-        if self.element_encoding.is_bit:
-            return (PrimitiveIRType.bool,)
-        else:
-            return (EncodedType(self.element_encoding),)
+        return (self.ir_type,)
 
     def _frozen_data(self) -> object:
-        return self.aggregate_encoding, self.base, self.indexes, self.check_bounds
+        return self.base_type, self.base, self.indexes, self.check_bounds
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_aggregate_read_index(self)
@@ -467,11 +464,11 @@ class AggregateWriteIndex(_AggregateOp):
     value: Value
 
     def _frozen_data(self) -> object:
-        return self.aggregate_encoding, self.base, self.indexes, self.value
+        return self.base_type, self.base, self.indexes, self.value
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (EncodedType(self.aggregate_encoding),)
+        return (self.base_type,)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_aggregate_write_index(self)
