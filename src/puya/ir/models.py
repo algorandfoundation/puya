@@ -446,6 +446,8 @@ class _AggregateOp(Op, ValueProvider, abc.ABC):
 @attrs.define(eq=False)
 class AggregateReadIndex(_AggregateOp):
     check_bounds: bool
+    # this will generally be a bytes, and can be more specific about what those bytes encode,
+    # except for the complication of getbit/setbit for bit-packed bools
     ir_type: IRType = attrs.field(repr=lambda x: x.name)
 
     @property

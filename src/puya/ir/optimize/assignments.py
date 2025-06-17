@@ -113,7 +113,7 @@ def encode_decode_pair_elimination(
                         values=encode_op.values,
                         source_location=encode_decode_assignment.source_location,
                     )
-    # eliminate ValueEncode(ValueDecode(arg)) with arg
+    # replaced ValueEncode(ValueDecode(arg)) with arg
     # where the result type of encode is in the input type of decode
     for decode_targets, decode_op in decodes_by_targets.items():
         decode_encodes = encodes_by_args.get(decode_targets, [])
