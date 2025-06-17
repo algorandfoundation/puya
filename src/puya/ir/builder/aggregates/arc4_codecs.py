@@ -365,9 +365,6 @@ class _UInt64Codec(_ScalarCodec):
 
 
 class _BoolCodec(_ScalarCodec):
-    def __init__(self, ir_type: IRType) -> None:
-        self.ir_type = ir_type
-
     @typing.override
     def encode_value(
         self,
@@ -377,12 +374,12 @@ class _BoolCodec(_ScalarCodec):
         loc: SourceLocation,
     ) -> ValueProvider | None:
         match encoding:
-            case BoolEncoding() if self.ir_type == PrimitiveIRType.bool:
+            case BoolEncoding():
                 factory = OpFactory(context, loc)
                 # TODO: compare with select implementation
                 false = factory.constant(_ARC4_FALSE)
                 return factory.set_bit(value=false, index=0, bit=value, temp_desc="encoded_bool")
-            case UIntEncoding(n=bits) if self.ir_type == PrimitiveIRType.bool:
+            case UIntEncoding(n=bits):
                 num_bytes = bits // 8
                 return _encode_native_uint64_to_arc4(context, value, num_bytes, loc)
         return None
@@ -396,25 +393,48 @@ class _BoolCodec(_ScalarCodec):
         loc: SourceLocation,
     ) -> ValueProvider | None:
         match encoding:
-            case BoolEncoding(packed=True) if self.ir_type == EncodedType(
-                BoolEncoding(packed=False)
-            ):
-                encoder = _BoolCodec(PrimitiveIRType.bool)
-                return encoder.encode_value(context, value, BoolEncoding(packed=False), loc)
-            case BoolEncoding() if self.ir_type == PrimitiveIRType.bool:
+            case BoolEncoding():
                 return Intrinsic(
                     op=AVMOp.getbit,
                     args=[value, UInt64Constant(value=0, source_location=None)],
                     types=(PrimitiveIRType.bool,),
                     source_location=loc,
                 )
-            case UIntEncoding() if self.ir_type == PrimitiveIRType.bool:
+            case UIntEncoding():
                 return Intrinsic(
                     op=AVMOp.neq_bytes,
                     args=[value, BigUIntConstant(value=0, source_location=None)],
                     types=(PrimitiveIRType.bool,),
                     source_location=loc,
                 )
+        return None
+
+
+class _BoolPackingCodec(_ScalarCodec):
+    def __init__(self, ir_type: EncodedType) -> None:
+        self.ir_type = ir_type
+
+    @typing.override
+    def encode_value(
+        self,
+        context: IRRegisterContext,
+        value: Value,
+        encoding: Encoding,
+        loc: SourceLocation,
+    ) -> ValueProvider | None:
+        return None
+
+    @typing.override
+    def decode(
+        self,
+        context: IRRegisterContext,
+        value: Value,
+        encoding: Encoding,
+        loc: SourceLocation,
+    ) -> ValueProvider | None:
+        match encoding:
+            case BoolEncoding(packed=True) if self.ir_type.encoding == BoolEncoding(packed=False):
+                return _BoolCodec().encode_value(context, value, BoolEncoding(packed=False), loc)
         return None
 
 
@@ -537,8 +557,10 @@ def _get_arc4_codec(ir_type: IRType | TupleIRType) -> _ARC4Codec | None:
             return _NativeTupleCodec(aggregate)
         case PrimitiveIRType.biguint:
             return _BigUIntCodec()
-        case PrimitiveIRType.bool | EncodedType(BoolEncoding(packed=False)):
-            return _BoolCodec(ir_type)
+        case PrimitiveIRType.bool:
+            return _BoolCodec()
+        case EncodedType(BoolEncoding(packed=False)):
+            return _BoolPackingCodec(ir_type)
         case PrimitiveIRType.string:
             return _BytesCodec(UTF8Encoding())
         case PrimitiveIRType.account:
