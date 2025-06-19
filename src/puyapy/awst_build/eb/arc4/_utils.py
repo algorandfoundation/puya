@@ -13,7 +13,7 @@ from puya.errors import CodeError, InternalError
 from puya.parse import SourceLocation
 from puyapy import models
 from puyapy.awst_build import arc4_utils, pytypes
-from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype, split_tuple_types
+from puyapy.awst_build.arc4_utils import pytype_to_arc4, pytype_to_arc4_pytype, split_tuple_types
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_instance, builder_for_type
@@ -27,17 +27,18 @@ from puyapy.awst_build.utils import maybe_resolve_literal
 logger = log.get_logger(__name__)
 
 _VALID_NAME_PATTERN = re.compile("^[_A-Za-z][A-Za-z0-9_]*$")
+_ARRAY_PATTERN = re.compile(r"^\[[0-9]*]$")
 
 
 def _pytype_to_arc4_return_pytype(typ: pytypes.PyType, sig: attrs.AttrsInstance) -> pytypes.PyType:
     assert isinstance(sig, ARC4Signature)
 
-    def on_error(bad_type: pytypes.PyType) -> typing.Never:
-        raise CodeError(
-            f"invalid return type for an ARC-4 method: {bad_type}", sig.source_location
-        )
+    def on_error(bad_type: pytypes.PyType, loc: SourceLocation | None) -> typing.Never:
+        raise CodeError(f"invalid return type for an ARC-4 method: {bad_type}", loc)
 
-    return arc4_utils.pytype_to_arc4_pytype(typ, on_error, encode_resource_types=True)
+    return arc4_utils.pytype_to_arc4_pytype(
+        typ, on_error, encode_resource_types=True, source_location=sig.source_location
+    )
 
 
 def _pytypes_to_arc4_arg_pytypes(
@@ -45,12 +46,15 @@ def _pytypes_to_arc4_arg_pytypes(
 ) -> Sequence[pytypes.PyType]:
     assert isinstance(sig, ARC4Signature)
 
-    def on_error(bad_type: pytypes.PyType) -> typing.Never:
-        raise CodeError(
-            f"invalid argument type for an ARC-4 method: {bad_type}", sig.source_location
-        )
+    def on_error(bad_type: pytypes.PyType, loc: SourceLocation | None) -> typing.Never:
+        raise CodeError(f"invalid argument type for an ARC-4 method: {bad_type}", loc)
 
-    return tuple(pytype_to_arc4_pytype(t, on_error, encode_resource_types=False) for t in types)
+    return tuple(
+        pytype_to_arc4_pytype(
+            t, on_error, encode_resource_types=False, source_location=sig.source_location
+        )
+        for t in types
+    )
 
 
 @attrs.frozen(kw_only=True)
@@ -138,12 +142,13 @@ def _implicit_arc4_type_arg_conversion(typ: pytypes.PyType, loc: SourceLocation)
         case pytypes.InnerTransactionFieldsetType(transaction_type=txn_type):
             return pytypes.GroupTransactionTypes[txn_type]
 
-    def on_error(invalid_pytype: pytypes.PyType) -> typing.Never:
+    def on_error(invalid_pytype: pytypes.PyType, loc_: SourceLocation | None) -> typing.Never:
         raise CodeError(
-            f"{invalid_pytype} is not an ARC-4 type and no implicit ARC-4 conversion possible", loc
+            f"{invalid_pytype} is not an ARC-4 type and no implicit ARC-4 conversion possible",
+            loc_,
         )
 
-    return pytype_to_arc4_pytype(typ, on_error, encode_resource_types=False)
+    return pytype_to_arc4_pytype(typ, on_error, encode_resource_types=False, source_location=loc)
 
 
 def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.PyType) -> bool:
@@ -182,6 +187,11 @@ def _implicit_arc4_conversion(
             instance.source_location,
         )
     instance_wtype = instance.pytype.checked_wtype(instance.source_location)
+    # if both wtypes are ARC4Types then can return if the encoding matches
+    if isinstance(instance_wtype, wtypes.ARC4Type) and _equivalent_arc4_encoding(
+        target_type, instance.pytype
+    ):
+        return instance
     if isinstance(instance_wtype, wtypes.ARC4Type):
         logger.error(
             f"expected type {target_type}, got type {instance.pytype}",
@@ -215,6 +225,12 @@ def _implicit_arc4_conversion(
         source_location=instance.source_location,
     )
     return builder_for_instance(target_type, encoded)
+
+
+def _equivalent_arc4_encoding(target_type: pytypes.PyType, instance_type: pytypes.PyType) -> bool:
+    target_arc4_encoding = pytype_to_arc4(target_type, encode_resource_types=False, loc=None)
+    instance_arc4_encoding = pytype_to_arc4(instance_type, encode_resource_types=False, loc=None)
+    return target_arc4_encoding == instance_arc4_encoding
 
 
 def _maybe_resolve_arc4_literal(
@@ -259,7 +275,9 @@ def _split_signature(
     if last_idx < len(signature):
         remaining = signature[last_idx:]
         if remaining:
-            if not name:
+            if returns is not None and _ARRAY_PATTERN.match(remaining):
+                returns += remaining
+            elif not name:
                 name = remaining
             elif args is None:
                 raise CodeError(

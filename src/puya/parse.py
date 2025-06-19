@@ -155,7 +155,7 @@ def sequential_source_locations_merge(
 def sequential_source_locations_merge(
     sources: Iterable[SourceLocation | None],
 ) -> SourceLocation | None:
-    """Given a sequence of SourceLocations, try merging them one at a one in order.
+    """Given a sequence of SourceLocations, try merging them one at a time, in order.
 
     If all sources are None, then None is returned.
 

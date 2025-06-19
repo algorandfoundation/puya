@@ -1,8 +1,9 @@
 from puya.awst import nodes as awst_nodes
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._utils import OpFactory, assign_intrinsic_op, assign_temp
+from puya.ir.builder._utils import assign_temp
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import Intrinsic, UInt64Constant, Value, ValueProvider
+from puya.ir.op_utils import OpFactory, assign_intrinsic_op
 from puya.ir.types_ import PrimitiveIRType
 from puya.parse import SourceLocation
 

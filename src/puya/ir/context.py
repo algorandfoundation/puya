@@ -2,7 +2,7 @@ import contextlib
 import itertools
 import typing
 from collections import defaultdict
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -10,6 +10,7 @@ import attrs
 import puya.awst.nodes as awst_nodes
 from puya.context import CompileContext
 from puya.errors import CodeError, log_exceptions
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder._utils import (
     assign,
     get_implicit_return_is_original,
@@ -23,6 +24,7 @@ from puya.ir.models import (
     Op,
     Register,
     Subroutine,
+    Value,
     ValueProvider,
 )
 from puya.ir.register_context import IRRegisterContext
@@ -40,7 +42,7 @@ if typing.TYPE_CHECKING:
 class IRBuildContext(CompileContext):
     awst: awst_nodes.AWST
     subroutines: dict[awst_nodes.Function, Subroutine]
-    embedded_funcs_lookup: Mapping[str, Subroutine]
+    embedded_funcs_lookup: Mapping[PuyaLibIR, Subroutine]
     root: awst_nodes.Contract | awst_nodes.LogicSignature | None = None
     routers: dict[ContractReference, Subroutine] = attrs.field(factory=dict)
 
@@ -133,6 +135,14 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
     @block_builder.default
     def _block_builder_factory(self) -> BlocksBuilder:
         return BlocksBuilder(self.subroutine.parameters, self.function.source_location)
+
+    def resolve_embedded_func(self, full_name: PuyaLibIR) -> Subroutine:
+        return self.embedded_funcs_lookup[full_name]
+
+    def materialise_value_provider(
+        self, provider: ValueProvider, description: str | Sequence[str]
+    ) -> list[Value]:
+        return self.visitor.materialise_value_provider(provider, description)
 
     def next_tmp_name(self, description: str) -> str:
         counter_value = next(self._tmp_counters[description])

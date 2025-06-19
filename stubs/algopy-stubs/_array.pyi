@@ -52,7 +52,7 @@ class ImmutableArray(Reversible[_T]):
     def __bool__(self) -> bool:
         """Returns `True` if not an empty array"""
 
-class Array(Reversible[_T]):
+class ReferenceArray(Reversible[_T]):
     """
     A mutable array that supports fixed sized immutable elements. All references to this array
     will see any updates made to it.

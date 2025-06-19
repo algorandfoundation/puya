@@ -115,3 +115,13 @@ class StaticArrayExpressionBuilder(_ARC4ArrayExpressionBuilder, StaticSizedColle
             )
             for idx in range(self._size)
         ]
+
+    @typing.override
+    def to_native_type(self, element_type: pytypes.PyType) -> pytypes.ArrayType:
+        return pytypes.GenericFixedArrayType.parameterise(
+            [
+                element_type,
+                pytypes.TypingLiteralType(value=self._size, source_location=None),
+            ],
+            self.source_location,
+        )

@@ -1,7 +1,7 @@
 import abc
 import typing
 from abc import ABC
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 import typing_extensions
 
@@ -10,7 +10,7 @@ from puya.awst.nodes import (
     BytesConstant,
     BytesEncoding,
     CheckedMaybe,
-    Copy,
+    ConvertArray,
     Expression,
     IndexExpression,
 )
@@ -25,6 +25,7 @@ from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedTypeBuilder,
 )
 from puyapy.awst_build.eb._utils import (
+    CopyBuilder,
     compare_bytes,
     compare_expr_bytes,
     dummy_value,
@@ -94,35 +95,16 @@ class ARC4FromLogBuilder(FunctionBuilder):
         return builder_for_instance(self.typ, result_expr)
 
 
-class CopyBuilder(FunctionBuilder):
-    def __init__(self, expr: Expression, location: SourceLocation, typ: pytypes.PyType):
-        super().__init__(location)
-        self._typ = typ
-        self.expr = expr
-
-    @typing.override
-    def call(
-        self,
-        args: Sequence[NodeBuilder],
-        arg_kinds: list[models.ArgKind],
-        arg_names: list[str | None],
-        location: SourceLocation,
-    ) -> InstanceBuilder:
-        expect.no_args(args, location)
-        expr_result = Copy(value=self.expr, source_location=location)
-        return builder_for_instance(self._typ, expr_result)
-
-
 def arc4_bool_bytes(
-    builder: InstanceBuilder, false_bytes: bytes, location: SourceLocation, *, negate: bool
+    builder: InstanceBuilder,
+    false_builder: InstanceBuilder,
+    location: SourceLocation,
+    *,
+    negate: bool,
 ) -> InstanceBuilder:
+    assert builder.pytype == false_builder.pytype
     lhs = builder.resolve()
-    false_value = BytesConstant(
-        value=false_bytes,
-        encoding=BytesEncoding.base16,
-        wtype=lhs.wtype,
-        source_location=location,
-    )
+    false_value = false_builder.resolve()
     return compare_expr_bytes(
         op=BuilderComparisonOp.eq if negate else BuilderComparisonOp.ne,
         lhs=lhs,
@@ -169,6 +151,8 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
                 return self.length(location)
             case "copy":
                 return CopyBuilder(self.resolve(), location, self.pytype)
+            case "to_native":
+                return _ToNativeBuilder(self.resolve(), location, self.pytype, self.to_native_type)
             case _:
                 return super().member_access(name, location)
 
@@ -196,3 +180,37 @@ class _ARC4ArrayExpressionBuilder(BytesBackedInstanceExpressionBuilder[pytypes.A
         location: SourceLocation,
     ) -> InstanceBuilder:
         raise CodeError("slicing ARC-4 arrays is currently unsupported", location)
+
+    @abc.abstractmethod
+    def to_native_type(self, element_type: pytypes.PyType) -> pytypes.ArrayType: ...
+
+
+class _ToNativeBuilder(FunctionBuilder):
+    def __init__(
+        self,
+        expr: Expression,
+        location: SourceLocation,
+        typ: pytypes.ArrayType,
+        to_native_type: Callable[[pytypes.PyType], pytypes.ArrayType],
+    ):
+        super().__init__(location)
+        self._typ = typ
+        self.expr = expr
+        self._to_native_type = to_native_type
+
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        match args:
+            case [NodeBuilder(pytype=pytypes.TypeType(typ=new_element_type))]:
+                pass
+            case _:
+                raise CodeError("invalid function argument(s)", location=location)
+        new_type = self._to_native_type(new_element_type)
+        new_array = ConvertArray(expr=self.expr, wtype=new_type.wtype, source_location=location)
+        return builder_for_instance(new_type, new_array)

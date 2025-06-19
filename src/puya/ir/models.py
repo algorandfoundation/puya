@@ -14,16 +14,22 @@ from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, Variant
+from puya.ir.encodings import (
+    ArrayEncoding,
+    Encoding,
+    FixedArrayEncoding,
+    TupleEncoding,
+)
 from puya.ir.types_ import (
-    ArrayType,
     AVMBytesEncoding,
-    EncodedTupleType,
+    EncodedType,
     IRType,
     PrimitiveIRType,
     SizedBytesType,
     SlotType,
+    TupleIRType,
     UnionType,
-    encoded_ir_type_to_ir_types,
+    ir_type_to_ir_types,
 )
 from puya.ir.visitor import IRVisitor
 from puya.parse import SourceLocation
@@ -79,11 +85,6 @@ class ValueProvider(IRVisitable, _Freezable, abc.ABC):
     @property
     @abc.abstractmethod
     def types(self) -> Sequence[IRType]: ...
-
-    @property
-    @t.final
-    def atypes(self) -> Sequence[AVMType]:
-        return tuple(t.avm_type for t in self.types)
 
 
 @attrs.define
@@ -425,150 +426,160 @@ class InnerTransactionField(ValueProvider):
         return (self.type,)
 
 
-class ArrayOp(typing.Protocol):
-    @property
-    def array(self) -> Value: ...
-
-
-def _value_has_encoded_array_element_type(
-    op: ArrayOp, _attribute: object, value: "Value | ValueTuple"
-) -> None:
-    array_ir_type = _array_type(op.array)
-    element_type = array_ir_type.element
-    # this is only comparing the linear sequence of types,
-    # as ValueTuple's do not retain the higher level structure
-    element_types = encoded_ir_type_to_ir_types(element_type)
-    values = (value,) if isinstance(value, Value) else value.values
-    value_types = tuple(v.ir_type for v in values)
-    if element_types != value_types:
-        raise InternalError(
-            f"unexpected types {value_types}: expected: {element_types}",
-            value.source_location,
-        )
-
-
-def _expand_types(typ: IRType) -> Iterable[IRType]:
-    if isinstance(typ, EncodedTupleType):
-        for item in typ.elements:
-            yield from _expand_types(item)
-    else:
-        yield typ
-
-
-def _array_type(value: Value) -> ArrayType:
-    if not isinstance(value.ir_type, ArrayType):
-        raise InternalError("expected ArrayType: {value.ir_type}", value.source_location)
-    return value.ir_type
-
-
 @attrs.define(eq=False, kw_only=True)
-class _ArrayOp(Op, ValueProvider):
-    array: Value = attrs.field()
-    # capture array type on the node, so the array value can be optimized
-    # and still retain array type information
-    array_type: ArrayType = attrs.field()
+class _AggregateOp(Op, ValueProvider, abc.ABC):
+    base: Value = attrs.field()
+    # we retain the original type of the aggregate, in case this is lost during optimisations
+    base_type: EncodedType = attrs.field(repr=lambda x: x.name)
+    indexes: tuple[int | Value, ...] = attrs.field(
+        validator=attrs.validators.min_len(1), converter=tuple[int | Value, ...]
+    )
 
-    @array_type.default
-    def _array_type(self) -> ArrayType:
-        return _array_type(self.array)
+    @base_type.validator
+    def _base_type_validator(self, _: object, base_type: EncodedType) -> None:
+        if not isinstance(base_type.encoding, ArrayEncoding | TupleEncoding):
+            raise InternalError(
+                "unsupported aggregate encoding type for indexed read/write", self.source_location
+            )
 
 
 @attrs.define(eq=False)
-class ArrayReadIndex(_ArrayOp):
-    index: Value = attrs.field(validator=_is_uint64_type)
+class AggregateReadIndex(_AggregateOp):
+    check_bounds: bool
+    # this will generally be a bytes, and can be more specific about what those bytes encode,
+    # except for the complication of getbit/setbit for bit-packed bools
+    ir_type: IRType = attrs.field(repr=lambda x: x.name)
 
     @property
     def types(self) -> Sequence[IRType]:
-        return encoded_ir_type_to_ir_types(self.array_type.element)
+        return (self.ir_type,)
 
     def _frozen_data(self) -> object:
-        return self.array, self.index
+        return self.base_type, self.base, self.indexes, self.check_bounds
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_read_index(self)
+        return visitor.visit_aggregate_read_index(self)
 
 
 @attrs.define(eq=False)
-class ArrayWriteIndex(_ArrayOp):
-    index: Value = attrs.field(validator=_is_uint64_type)
-    value: "Value | ValueTuple" = attrs.field(validator=_value_has_encoded_array_element_type)
+class AggregateWriteIndex(_AggregateOp):
+    value: Value
 
     def _frozen_data(self) -> object:
-        return self.array, self.index, self.value
+        return self.base_type, self.base, self.indexes, self.value
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (self.array_type,)
+        return (self.base_type,)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_write_index(self)
+        return visitor.visit_aggregate_write_index(self)
 
 
 @attrs.define(eq=False)
-class ArrayConcat(_ArrayOp):
-    """Concats two array values"""
-
-    other: Value = attrs.field()
+class BoxRead(ValueProvider):
+    key: Value
+    value_type: IRType
+    exists_assertion_message: str
 
     def _frozen_data(self) -> object:
-        return self.array, self.other
-
-    @other.validator
-    def _other_validator(self, _attr: object, other: Value) -> None:
-        assert self.array.ir_type == other.ir_type
+        return self.key, self.value_type
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (self.array_type,)
+        return (self.value_type,)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_concat(self)
+        return visitor.visit_box_read(self)
 
 
 @attrs.define(eq=False)
-class ArrayEncode(Op, ValueProvider):
-    """Encodes a sequence of values into array_type"""
+class BoxWrite(Op):
+    key: Value
+    value: Value
+    source_location: SourceLocation | None
 
+    def _frozen_data(self) -> object:
+        return self.key, self.value
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return ()
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_box_write(self)
+
+
+@attrs.define(eq=False)
+class ValueEncode(Op, ValueProvider):
+    """Encodes a sequence of values into an encoded value"""
+
+    source_location: SourceLocation = attrs.field(eq=False)
     values: Sequence[Value]
-    array_type: ArrayType
+    encoding: Encoding
+    value_type: IRType | TupleIRType = attrs.field()
+
+    @value_type.validator
+    def _value_type_validator(self, _: object, value: IRType | TupleIRType) -> None:
+        if value.arity != len(self.values):
+            raise InternalError(
+                "expected value_type arity to match values arity", self.source_location
+            )
+        # TODO: re-enable this after removing StackArray
+        # if value == EncodedType(self.encoding):
+        #    raise InternalError("nothing to encode", self.source_location)
 
     def _frozen_data(self) -> object:
-        return self.values, self.array_type
+        return tuple(self.values), self.value_type, self.encoding
 
     @property
     def types(self) -> Sequence[IRType]:
-        return (self.array_type,)
+        return (EncodedType(self.encoding),)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_encode(self)
+        return visitor.visit_value_encode(self)
 
 
 @attrs.define(eq=False)
-class ArrayPop(_ArrayOp):
-    # TODO: maybe allow pop with an index?
+class ValueDecode(Op, ValueProvider):
+    """Decodes a value into a sequence of values"""
+
+    source_location: SourceLocation = attrs.field(eq=False)
+    value: Value
+    encoding: Encoding
+    decoded_type: IRType | TupleIRType = attrs.field()
+
+    @decoded_type.validator
+    def _decoded_type_validator(self, _: object, decoded_type: IRType | TupleIRType) -> None:
+        _arity_matches(decoded_type, self.encoding, self.source_location)
 
     def _frozen_data(self) -> object:
-        return self.array
+        return self.value, self.encoding, self.decoded_type
 
     @property
     def types(self) -> Sequence[IRType]:
-        return self.array_type, *encoded_ir_type_to_ir_types(self.array_type.element)
+        return ir_type_to_ir_types(self.decoded_type)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_pop(self)
+        return visitor.visit_value_decode(self)
 
 
-@attrs.define(eq=False)
-class ArrayLength(_ArrayOp):
-    def _frozen_data(self) -> object:
-        return self.array
-
-    @property
-    def types(self) -> Sequence[IRType]:
-        return (PrimitiveIRType.uint64,)
-
-    def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_array_length(self)
+def _arity_matches(ir_type: IRType | TupleIRType, encoding: Encoding, loc: SourceLocation) -> None:
+    match ir_type:
+        case TupleIRType(elements=elements) if isinstance(encoding, TupleEncoding) and len(
+            elements
+        ) == len(encoding.elements):
+            for element, encoding_element in zip(elements, encoding.elements, strict=False):
+                _arity_matches(element, encoding_element, loc)
+        case TupleIRType(elements=elements) if isinstance(encoding, FixedArrayEncoding) and len(
+            elements
+        ) == encoding.size:
+            for element in elements:
+                _arity_matches(element, encoding.element, loc)
+        case TupleIRType():
+            raise InternalError("type arity does not match encoding arity", loc)
+        case _:
+            pass
 
 
 @attrs.define(eq=False)
@@ -748,6 +759,9 @@ class ValueTuple(ValueProvider):
 
     def _frozen_data(self) -> object:
         return tuple(self.values)
+
+
+MultiValue = Value | ValueTuple
 
 
 @attrs.define(eq=False)
@@ -1044,7 +1058,15 @@ class Subroutine(Context):
 
     @property
     def returns(self) -> list[IRType]:
-        return [*self._returns, *(p.ir_type for p in self.parameters if p.implicit_return)]
+        return [*self.explicit_returns, *self.implicit_returns]
+
+    @property
+    def explicit_returns(self) -> Sequence[IRType]:
+        return self._returns
+
+    @property
+    def implicit_returns(self) -> tuple[IRType, ...]:
+        return tuple(p.ir_type for p in self.parameters if p.implicit_return)
 
     @body.validator
     def _check_blocks(self, _attribute: object, body: list[BasicBlock]) -> None:
@@ -1107,9 +1129,6 @@ class Subroutine(Context):
     def get_assigned_registers(self) -> Iterator[Register]:
         yield from self.parameters
         yield from _get_assigned_registers(self.body)
-
-    def get_used_registers(self) -> Iterator[Register]:
-        yield from _get_used_registers(self.body)
 
     def validate_with_ssa(self) -> None:
         all_assigned = set[Register]()
@@ -1200,16 +1219,6 @@ class Contract(Context):
     clear_program: Program
     metadata: ContractMetaData
 
-    def all_subroutines(self) -> Iterable[Subroutine]:
-        from itertools import chain
-
-        yield from unique(
-            chain(
-                self.approval_program.all_subroutines,
-                self.clear_program.all_subroutines,
-            )
-        )
-
     def all_programs(self) -> Iterable[Program]:
         return [self.approval_program, self.clear_program]
 
@@ -1219,9 +1228,6 @@ class LogicSignature(Context):
     source_location: SourceLocation
     program: Program
     metadata: LogicSignatureMetaData
-
-    def all_subroutines(self) -> Iterable[Subroutine]:
-        return self.program.all_subroutines
 
     def all_programs(self) -> Iterable[Program]:
         return [self.program]

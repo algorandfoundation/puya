@@ -1,16 +1,19 @@
 from collections import deque
 from collections.abc import Iterator
 
+from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.ir import models
+from puya.ir import (
+    models,
+)
 from puya.ir.models import Parameter, Subroutine
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
-from puya.utils import set_add
+from puya.utils import Address, biguint_bytes_eval, method_selector_hash, set_add
 
 
 def bfs_block_order(start: models.BasicBlock) -> Iterator[models.BasicBlock]:
@@ -27,7 +30,7 @@ def make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subr
     parameters = [
         param
         for arg in func.args
-        for param in _expand_tuple_parameters(
+        for param in _expand_tuple_parameters_and_mark_implicit_returns(
             arg.name,
             arg.wtype,
             allow_implicits=allow_implicits,
@@ -46,25 +49,39 @@ def make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subr
     )
 
 
-def _expand_tuple_parameters(
+def _expand_tuple_parameters_and_mark_implicit_returns(
     name: str, typ: wtypes.WType, *, allow_implicits: bool, source_location: SourceLocation
 ) -> Iterator[Parameter]:
     if isinstance(typ, wtypes.WTuple):
         for item_idx, item_type in enumerate(typ.types):
             item_name = format_tuple_index(typ, name, item_idx)
-            yield from _expand_tuple_parameters(
+            yield from _expand_tuple_parameters_and_mark_implicit_returns(
                 item_name,
                 item_type,
                 allow_implicits=allow_implicits,
                 source_location=source_location,
             )
     else:
+        type_is_mutable = not typ.immutable
+        type_is_slot = typ.is_reference
         yield Parameter(
             name=name,
             ir_type=wtype_to_ir_type(typ, source_location),
             version=0,
-            implicit_return=(
-                allow_implicits and not (typ.immutable or isinstance(typ, wtypes.ReferenceArray))
-            ),
+            implicit_return=(allow_implicits and type_is_mutable and not type_is_slot),
             source_location=source_location,
         )
+
+
+def get_bytes_constant(key: models.Constant) -> bytes | None:
+    if key.ir_type.avm_type != AVMType.bytes:
+        return None
+    if isinstance(key, models.BytesConstant):
+        return key.value
+    if isinstance(key, models.AddressConstant):
+        return Address.parse(key.value).public_key
+    if isinstance(key, models.MethodConstant):
+        return method_selector_hash(key.value)
+    if isinstance(key, models.BigUIntConstant):
+        return biguint_bytes_eval(key.value)
+    return None

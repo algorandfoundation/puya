@@ -9,9 +9,14 @@ import algokit_utils
 import algokit_utils.config
 import algosdk
 import pytest
-from algokit_utils import ApplicationClient, LogicError, OnCompleteCallParametersDict
+from algokit_utils import (
+    ApplicationClient,
+    LogicError,
+    OnCompleteCallParametersDict,
+)
 from algosdk import abi, constants, transaction
 from algosdk.atomic_transaction_composer import (
+    AccountTransactionSigner,
     AtomicTransactionComposer,
     SimulateAtomicTransactionResponse,
     TransactionWithSigner,
@@ -1672,6 +1677,49 @@ def test_nested_tuples(
     assert response.return_value == [st[0], st[1] + 1], "expected tuple to load from box"
 
 
+def test_tuple_storage(
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> None:
+    example = TEST_CASES_DIR / "tuple_support" / "tuple_storage.py"
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+
+    # create
+    app_client.create()
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=200_000,
+        ),
+    )
+    with_box_ref: OnCompleteCallParametersDict = {"boxes": [(0, "box")]}
+    app_client.opt_in("bootstrap", transaction_parameters=with_box_ref)
+
+    val = 123
+    app_client.call("mutate_tuple", val=val)
+    tup_value = app_client.get_global_state(raw=True)[b"tup"]
+    assert tup_value == _get_arc4_bytes("(uint64[],uint64)", ([0, val], 0))
+
+    val = 234
+    app_client.call("mutate_box", val=val, transaction_parameters=with_box_ref)
+    box_state = algod_client.application_box_by_name(app_client.app_id, b"box")
+    assert isinstance(box_state, dict)
+    box_value = base64.b64decode(box_state["value"])
+    assert box_value == _get_arc4_bytes("(uint64[],uint64)", ([0, val], 0))
+
+    val = 2**64 - 1
+    app_client.call("mutate_global", val=val)
+    glob_value = app_client.get_global_state(raw=True)[b"glob"]
+    assert glob_value == _get_arc4_bytes("(uint64[],uint64)", ([0, val], 0))
+
+    val = 345
+    app_client.call("mutate_local", val=val)
+    loc_value = app_client.get_local_state(account.address, raw=True)[b"loc"]
+    assert loc_value == _get_arc4_bytes("(uint64[],uint64)", ([0, val], 0))
+
+
 def test_named_tuples(
     algod_client: AlgodClient,
     account: algokit_utils.Account,
@@ -1893,6 +1941,8 @@ def test_array_uint64(
     simulate_call(app_client, "test_iteration")
     simulate_call(app_client, "test_array_copy_and_extend")
     simulate_call(app_client, "test_array_evaluation_order")
+
+    simulate_call(app_client, "test_array_assignment_maximum_cursage")
 
     simulate_call(app_client, "test_allocations", num=255)
     with pytest.raises(LogicError, match="no available slots\t\t<-- Error"):
@@ -2168,6 +2218,244 @@ def test_intrinsic_optimizations(
 
     response = app_client.call("sha256")
     assert bytes(response.return_value) == hashlib.sha256(b"Hello World").digest()
+
+
+@pytest.fixture(scope="session")
+def unauthorized(algod_client: AlgodClient) -> algokit_utils.Account:
+    unauthorized = algokit_utils.Account.new_account()
+    # ensure unauthorized has some funds
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=unauthorized,
+            min_spending_balance_micro_algos=10_000,
+        ),
+    )
+    return unauthorized
+
+
+@pytest.mark.parametrize(
+    "contract_name",
+    [
+        "Case1WithTups",
+        "Case2WithImmStruct",
+        "Case3WithStruct",
+    ],
+)
+def test_mutable_native_types(
+    algod_client: AlgodClient,
+    contract_name: str,
+    account: algokit_utils.Account,
+    unauthorized: algokit_utils.Account,
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            TEST_CASES_DIR / "mutable_native_types",
+            contract_name=contract_name,
+        )
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=2_000_000,
+        ),
+    )
+
+    boxes = [(0, "tup_bag")] * 5
+    txn_params = algokit_utils.OnCompleteCallParameters(boxes=boxes)
+
+    app_client.call("create_box", transaction_parameters=txn_params)
+
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == 0
+
+    fixed_array_size = 8
+    tups = [[i + 1, i + 2] for i in range(fixed_array_size)]
+    app_client.call("add_tup", tup=tups[0], transaction_parameters=txn_params)
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == 1
+
+    with pytest.raises(LogicError, match="sender not authorized"):
+        app_client.call(
+            "add_tup",
+            tup=tups[0],
+            transaction_parameters=algokit_utils.OnCompleteCallParameters(
+                boxes=boxes,
+                sender=unauthorized.address,
+                signer=AccountTransactionSigner(unauthorized.private_key),
+            ),
+        )
+
+    with pytest.raises(LogicError, match="not enough items"):
+        app_client.call("get_3_tups", start=0, transaction_parameters=txn_params)
+
+    app_client.call("add_fixed_tups", tups=tups[1:4], transaction_parameters=txn_params)
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == 4
+
+    response = app_client.call("get_3_tups", start=0, transaction_parameters=txn_params)
+    assert response.return_value == [[i + 1, i + 2] for i in range(3)]
+
+    app_client.call("add_many_tups", tups=tups[4:], transaction_parameters=txn_params)
+    response = app_client.call("num_tups", transaction_parameters=txn_params)
+    assert response.return_value == fixed_array_size
+
+    response = app_client.call("get_all_tups", transaction_parameters=txn_params)
+    assert response.return_value == [[i + 1, i + 2] for i in range(fixed_array_size)]
+
+    with pytest.raises(LogicError, match="not enough items"):
+        app_client.call("get_3_tups", start=6, transaction_parameters=txn_params)
+
+    with pytest.raises(algokit_utils.LogicError, match="too many tups"):
+        app_client.call("add_tup", tup=(1, 2), transaction_parameters=txn_params)
+
+    for i in range(8):
+        response = app_client.call("get_tup", index=i, transaction_parameters=txn_params)
+        assert response.return_value == tups[i]
+
+    with pytest.raises(algokit_utils.LogicError, match="index out of bounds"):
+        app_client.call("get_tup", index=8, transaction_parameters=txn_params)
+
+    response = app_client.call("sum", transaction_parameters=txn_params)
+    assert response.return_value == sum(i + 1 + i + 2 for i in range(fixed_array_size))
+
+    app_client.call("set_a", a=1, transaction_parameters=txn_params)
+
+    response = app_client.call("sum", transaction_parameters=txn_params)
+    assert response.return_value == sum(1 + i + 2 for i in range(fixed_array_size))
+
+    app_client.call("set_b", b=1, transaction_parameters=txn_params)
+
+    response = app_client.call("sum", transaction_parameters=txn_params)
+    assert response.return_value == sum(1 + 1 for _ in range(fixed_array_size))
+
+    response = app_client.call("get_3_tups", start=5, transaction_parameters=txn_params)
+    assert response.return_value == [[1, 1] for _ in range(3)]
+
+
+def test_mutable_native_types_abi_call(
+    algod_client: AlgodClient, account: algokit_utils.Account
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            TEST_CASES_DIR / "mutable_native_types",
+            contract_name="TestAbiCall",
+        )
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    sp = algod_client.suggested_params()
+    sp.flat_fee = True
+    sp.fee = 1_000 * 7
+    large_fee_txn_params = algokit_utils.OnCompleteCallParameters(
+        suggested_params=sp,
+    )
+
+    app_client.call("test_fixed_struct", transaction_parameters=large_fee_txn_params)
+    app_client.call("test_nested_struct", transaction_parameters=large_fee_txn_params)
+    app_client.call("test_dynamic_struct", transaction_parameters=large_fee_txn_params)
+    app_client.call("test_fixed_array", transaction_parameters=large_fee_txn_params)
+    app_client.call("test_native_array", transaction_parameters=large_fee_txn_params)
+
+    sp.fee = 1_000 * 9
+    app_client.call("test_log", transaction_parameters=large_fee_txn_params)
+
+
+# see https://github.com/algorandfoundation/puya-ts-demo/blob/main/contracts/marketplace/marketplace.test.ts
+def test_marketplace_with_tups(
+    algod_client: AlgodClient, account: algokit_utils.Account, asset_a: int
+) -> None:
+    app_spec = algokit_utils.ApplicationSpecification.from_json(
+        compile_arc32(
+            TEST_CASES_DIR / "marketplace_demo", contract_name="DigitalMarketplaceWithTups"
+        )
+    )
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    create_response = app_client.create()
+    assert create_response.confirmed_round
+
+    sp = algod_client.suggested_params()
+
+    # ensure app meets minimum balance requirements
+    algokit_utils.ensure_funded(
+        algod_client,
+        algokit_utils.EnsureBalanceParameters(
+            account_to_fund=app_client.app_address,
+            min_spending_balance_micro_algos=100_000,
+        ),
+    )
+
+    # optin to receive asset.
+    optin_txn = TransactionWithSigner(
+        txn=algosdk.transaction.PaymentTxn(
+            sender=account.address,
+            receiver=app_client.app_address,
+            amt=100_000,
+            note=b"minimum balance to optin to an asset",
+            sp=sp,
+        ),
+        signer=account.signer,
+    )
+    app_client.call(
+        "allowAsset",
+        mbr_pay=optin_txn,
+        asset=asset_a,
+        transaction_parameters=algokit_utils.OnCompleteCallParameters(
+            suggested_params=suggested_params(algod_client=algod_client, fee=1_000),
+        ),
+    )
+
+    # test parameters for the application call.
+    nonce = 1
+    unitary_price = 1
+    deposited = 10
+
+    # create the payment and asset transfer transactions which will be run as part of the
+    # same transaction group as the application call.
+    mbr_pay = TransactionWithSigner(
+        txn=algosdk.transaction.PaymentTxn(
+            sender=account.address,
+            receiver=app_client.app_address,
+            amt=50500,
+            note=b"firstDeposit payment",
+            sp=sp,
+        ),
+        signer=account.signer,
+    )
+    xfer = TransactionWithSigner(
+        txn=algosdk.transaction.AssetTransferTxn(
+            account.address, sp, app_client.app_address, deposited, asset_a
+        ),
+        signer=account.signer,
+    )
+
+    # The application call needs to know which boxes will be used.
+    box_key = b"listings" + _get_arc4_bytes(
+        "(address,uint64,uint64)", (account.address, asset_a, nonce)
+    )
+    transaction_parameters = _params_with_boxes(1, box_key)
+
+    # make the app call
+    app_client.call(
+        "firstDeposit",
+        mbr_pay=mbr_pay,
+        xfer=xfer,
+        unitary_price=unitary_price,
+        nonce=nonce,
+        transaction_parameters=transaction_parameters,
+    )
+
+    # Assert (original test only checks the deposited value is as expected, it should check more)
+    box_state = algod_client.application_box_by_name(app_client.app_id, box_key)
+    assert isinstance(box_state, dict)
+    box_value = base64.b64decode(box_state["value"])
+    assert int.from_bytes(box_value[:8]) == deposited
 
 
 def _get_immutable_array_app(

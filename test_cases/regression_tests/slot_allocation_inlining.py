@@ -1,4 +1,12 @@
-from algopy import Array, Contract, Txn, UInt64, ensure_budget, op, subroutine
+from algopy import (
+    Contract,
+    ReferenceArray as Array,
+    Txn,
+    UInt64,
+    ensure_budget,
+    op,
+    subroutine,
+)
 
 
 class SlotAllocationInlining(Contract):

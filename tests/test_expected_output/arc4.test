@@ -5,16 +5,11 @@
 ## case: test_invalid_arc4_struct_member_type
 from algopy import *
 
-class BadStruct(arc4.Struct):  ## E: invalid ARC-4 Struct declaration, the following fields are not ARC-4 encoded types: a, c
-    a: UInt64
-    b: arc4.UInt64
+class BadStruct(arc4.Struct): ## E: invalid ARC-4 Struct declaration, the following fields are not persistable: a, b
+    a: gtxn.Transaction
+    b: itxn.Payment
     c: bool
 
-## case: test_invalid_arc4_struct_empty
-from algopy import *
-
-class BadStruct2(arc4.Struct):  ## E: arc4.Struct needs at least one element
-    pass
 
 ## case: test_invalid_arc4_member_syntax
 from algopy import *
@@ -754,9 +749,10 @@ def correct_kwarg() -> MyStruct:
 def correct_array_positional() -> None:
     arc4.abi_call(Client.check, ImmutableArray((UInt64(), True)), app_id=1234)
 
-@subroutine
-def incorrect_array_positional() -> None:
-    arc4.abi_call(Client.check, ImmutableArray((True, UInt64())), app_id=1234) ## E: unsupported ARC-4 encode operation to type (uint64,bool)[]
+class Caller(arc4.ARC4Contract):
+    @arc4.abimethod
+    def incorrect_array_positional(self) -> None:
+        arc4.abi_call(Client.check, ImmutableArray((True, UInt64())), app_id=1234) ## E: expected type algopy.arc4.DynamicArray[struct_member_ordering2.MyStruct], got type algopy.ImmutableArray[tuple[bool, algopy.UInt64]]
 
 
 ## case: array_encoding
@@ -768,10 +764,11 @@ class Client(arc4.ARC4Client, typing.Protocol):
     @arc4.abimethod
     def take_arc4_uint8(self, arr: arc4.DynamicArray[arc4.UInt8]) -> None: ...
 
-@subroutine
-def stack_uint64_to_arc4_uint8() -> None:
-    arr = ImmutableArray[UInt64]()
-    arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: unsupported ARC-4 encode operation to type uint8[]
+class Caller(arc4.ARC4Contract):
+    @arc4.abimethod
+    def stack_uint64_to_arc4_uint8(self) -> None:
+        arr = ImmutableArray[UInt64]()
+        arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: expected type algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]], got type algopy.ImmutableArray[algopy.UInt64]
 
 ## case: abimethod_reference_type_in_tuple
 from algopy import *

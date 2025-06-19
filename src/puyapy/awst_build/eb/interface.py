@@ -186,7 +186,10 @@ class InstanceBuilder(NodeBuilder, typing.Generic[_TPyType_co], abc.ABC):
 
     @abc.abstractmethod
     def iterable_item_type(self) -> pytypes.PyType:
-        """The type of the item if this expression is iterable"""
+        """
+        The type of the item if this expression is iterable.
+        This type shouldn't be a UnionType
+        """
         raise CodeError("expression is not iterable", self.source_location)
 
     @abc.abstractmethod

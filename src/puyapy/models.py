@@ -57,13 +57,16 @@ class ARC4ABIMethodData:
     def _arc4_signature_default(self) -> Mapping[str, pytypes.PyType]:
         from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype  # TODO: resolve circularity
 
-        def on_error(bad_type: pytypes.PyType) -> typing.Never:
-            raise CodeError(
-                f"invalid type for an ARC-4 method: {bad_type}", self.config.source_location
-            )
+        def on_error(bad_type: pytypes.PyType, loc: SourceLocation | None) -> typing.Never:
+            raise CodeError(f"invalid type for an ARC-4 method: {bad_type}", loc)
 
         return {
-            k: pytype_to_arc4_pytype(v, on_error=on_error, encode_resource_types=k == "output")
+            k: pytype_to_arc4_pytype(
+                v,
+                on_error=on_error,
+                encode_resource_types=k == "output",
+                source_location=self.source_location,
+            )
             for k, v in self._signature.items()
         }
 

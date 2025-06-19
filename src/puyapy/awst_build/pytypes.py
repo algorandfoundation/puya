@@ -386,7 +386,7 @@ class SequenceType(PyType, abc.ABC):
 @attrs.frozen(order=False)
 class ArrayType(SequenceType, RuntimeType):
     size: int | None
-    wtype: wtypes.WType
+    wtype: wtypes.ARC4StaticArray | wtypes.ARC4DynamicArray | wtypes.ReferenceArray
     # convenience accessors
     items_wtype: wtypes.WType
     source_location: SourceLocation | None = attrs.field(eq=False)
@@ -471,11 +471,9 @@ ObjectType: typing.Final[PyType] = _register_builtin(StaticType(name="builtins.o
 @typing.final
 @attrs.frozen(init=False, order=False)
 class StructType(RuntimeType):
-    fields: immutabledict[str, PyType] = attrs.field(
-        converter=immutabledict, validator=[attrs.validators.min_len(1)]
-    )
+    fields: immutabledict[str, PyType] = attrs.field(converter=immutabledict)
     frozen: bool
-    wtype: wtypes.ARC4Struct | wtypes.WStructType
+    wtype: wtypes.ARC4Struct
     source_location: SourceLocation | None = attrs.field(eq=False)
     generic: None = None
     desc: str | None = None
@@ -498,17 +496,13 @@ class StructType(RuntimeType):
         frozen: bool,
         source_location: SourceLocation | None,
     ):
+        if base not in (ARC4StructBaseType, StructBaseType):
+            raise InternalError(f"Unknown struct base type: {base}", source_location)
+
         field_wtypes = {
             name: field_typ.checked_wtype(source_location) for name, field_typ in fields.items()
-        }  # TODO: this is a bit of a kludge
-        wtype_cls: type[wtypes.ARC4Struct | wtypes.WStructType]
-        if base is ARC4StructBaseType:
-            wtype_cls = wtypes.ARC4Struct
-        elif base is StructBaseType:
-            wtype_cls = wtypes.WStructType
-        else:
-            raise InternalError(f"Unknown struct base type: {base}", source_location)
-        wtype = wtype_cls(
+        }
+        wtype = wtypes.ARC4Struct(
             fields=field_wtypes,
             name=name,
             desc=desc,
@@ -839,7 +833,7 @@ class VariadicTupleType(SequenceType):
 
 
 def _make_array_parameterise(
-    typ: type[wtypes.StackArray | wtypes.ReferenceArray | wtypes.ARC4DynamicArray],
+    typ: type[wtypes.ReferenceArray | wtypes.ARC4DynamicArray],
 ) -> _Parameterise[ArrayType]:
     def parameterise(
         self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
@@ -852,7 +846,6 @@ def _make_array_parameterise(
             ) from None
         name = f"{self.name}[{arg.name}]"
         items_wtype = arg.checked_wtype(source_location)
-
         return ArrayType(
             generic=self,
             name=name,
@@ -867,18 +860,51 @@ def _make_array_parameterise(
 
 
 GenericArrayType: typing.Final = _GenericType(
-    name="algopy._array.Array",
+    name="algopy._array.ReferenceArray",
     parameterise=_make_array_parameterise(wtypes.ReferenceArray),
 )
 
-GenericImmutableArrayType: typing.Final = _GenericType(
-    name="algopy._array.ImmutableArray",
-    parameterise=_make_array_parameterise(wtypes.StackArray),
+# TODO: move _native Array into _array stub
+GenericNativeArrayType: typing.Final = _GenericType(
+    name="algopy._native.Array",
+    parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
 )
-
 GenericARC4DynamicArrayType: typing.Final = _GenericType(
     name="algopy.arc4.DynamicArray",
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
+)
+
+
+def _imm_array_parameterise(
+    self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
+) -> ArrayType:
+    try:
+        (arg,) = args
+    except ValueError:
+        raise CodeError(
+            f"expected a single type parameter, got {len(args)} parameters", source_location
+        ) from None
+    name = f"{self.name}[{arg.name}]"
+    items_wtype = arg.checked_wtype(source_location)
+    bases = (GenericARC4DynamicArrayType.parameterise(args, source_location),)
+    return ArrayType(
+        bases=bases,
+        mro=bases,
+        generic=self,
+        name=name,
+        size=None,
+        items=arg,
+        wtype=wtypes.ARC4DynamicArray(
+            element_type=items_wtype, immutable=True, source_location=source_location
+        ),
+        items_wtype=items_wtype,
+        source_location=source_location,
+    )
+
+
+GenericImmutableArrayType: typing.Final = _GenericType(
+    name="algopy._array.ImmutableArray",
+    parameterise=_imm_array_parameterise,
 )
 ARC4DynamicBytesType: typing.Final = _register_builtin(
     ArrayType(
@@ -923,6 +949,10 @@ def _parameterise_arc4_static_array(
     )
 
 
+GenericFixedArrayType: typing.Final = _GenericType(
+    name="algopy._native.FixedArray",
+    parameterise=_parameterise_arc4_static_array,
+)
 GenericARC4StaticArrayType: typing.Final = _GenericType(
     name="algopy.arc4.StaticArray",
     parameterise=_parameterise_arc4_static_array,
@@ -1254,7 +1284,8 @@ ARC4ContractBaseType: typing.Final[PyType] = _BaseType(
 )
 ARC4ClientBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.ARC4Client")
 ARC4StructBaseType: typing.Final[PyType] = _BaseType(name="algopy.arc4.Struct")
-StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._struct.Struct")
+# TODO: move _native Struct into _struct stub
+StructBaseType: typing.Final[PyType] = _BaseType(name="algopy._native.Struct")
 
 
 @typing.final

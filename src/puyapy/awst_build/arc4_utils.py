@@ -22,17 +22,6 @@ __all__ = [
 logger = log.get_logger(__name__)
 
 
-def _is_arc4_struct(typ: pytypes.PyType) -> typing.TypeGuard[pytypes.StructType]:
-    if not (pytypes.ARC4StructBaseType < typ):
-        return False
-    if not isinstance(typ, pytypes.StructType):
-        raise InternalError(
-            f"Type inherits from {pytypes.ARC4StructBaseType!r}"
-            f" but structure type is {type(typ).__name__!r}"
-        )
-    return True
-
-
 @attrs.frozen
 class _DecoratorData:
     fullname: str
@@ -42,9 +31,10 @@ class _DecoratorData:
 
 def pytype_to_arc4_pytype(
     pytype: pytypes.PyType,
-    on_error: Callable[[pytypes.PyType], pytypes.PyType],
+    on_error: Callable[[pytypes.PyType, SourceLocation | None], pytypes.PyType],
     *,
     encode_resource_types: bool,
+    source_location: SourceLocation | None,
 ) -> pytypes.PyType:
     match pytype:
         case pytypes.BoolType:
@@ -55,22 +45,38 @@ def pytype_to_arc4_pytype(
                 desc=pytype.desc,
                 name=pytype.name,
                 fields={
-                    name: pytype_to_arc4_pytype(t, on_error, encode_resource_types=True)
+                    name: pytype_to_arc4_pytype(
+                        t,
+                        on_error,
+                        encode_resource_types=True,
+                        source_location=pytype.source_location or source_location,
+                    )
                     for name, t in pytype.fields.items()
                 },
                 frozen=True,
                 source_location=pytype.source_location,
             )
-        case pytypes.ArrayType(generic=pytypes.GenericImmutableArrayType, items=items):
-            result = pytypes.GenericARC4DynamicArrayType.parameterise(
-                [pytype_to_arc4_pytype(items, on_error, encode_resource_types=True)],
+        case pytypes.ArrayType(generic=pytypes.GenericImmutableArrayType):
+            return pytypes.GenericARC4DynamicArrayType.parameterise(
+                [
+                    pytype_to_arc4_pytype(
+                        pytype.items,
+                        on_error,
+                        encode_resource_types=True,
+                        source_location=pytype.source_location or source_location,
+                    )
+                ],
                 pytype.source_location,
             )
-            return attrs.evolve(result, wtype=attrs.evolve(result.wtype, immutable=True))
         case pytypes.TupleType():
             return pytypes.GenericARC4TupleType.parameterise(
                 [
-                    pytype_to_arc4_pytype(t, on_error, encode_resource_types=True)
+                    pytype_to_arc4_pytype(
+                        t,
+                        on_error,
+                        encode_resource_types=True,
+                        source_location=pytype.source_location or source_location,
+                    )
                     for t in pytype.items
                 ],
                 pytype.source_location,
@@ -99,7 +105,7 @@ def pytype_to_arc4_pytype(
     elif isinstance(pytype.wtype, wtypes.ARC4Type):
         return pytype
     else:
-        return on_error(pytype)
+        return on_error(pytype, source_location)
 
 
 _UINT_REGEX = re.compile(r"^uint(?P<n>[0-9]+)$")
@@ -163,13 +169,15 @@ def arc4_to_pytype(typ: str, location: SourceLocation | None = None) -> pytypes.
 def pytype_to_arc4(
     typ: pytypes.PyType, *, encode_resource_types: bool, loc: SourceLocation | None = None
 ) -> str:
-    def on_error(bad_type: pytypes.PyType) -> typing.Never:
+    def on_error(bad_type: pytypes.PyType, loc_: SourceLocation | None) -> typing.Never:
         raise CodeError(
             f"not an ARC-4 type or native equivalent: {bad_type}",
-            loc or getattr(bad_type, "source_location", None),
+            loc_,
         )
 
-    arc4_pytype = pytype_to_arc4_pytype(typ, on_error, encode_resource_types=encode_resource_types)
+    arc4_pytype = pytype_to_arc4_pytype(
+        typ, on_error, encode_resource_types=encode_resource_types, source_location=loc
+    )
     if arc4_pytype in _PYTYPE_ARC4_MAPPING:
         return _PYTYPE_ARC4_MAPPING[arc4_pytype]
     match arc4_pytype:
@@ -179,7 +187,10 @@ def pytype_to_arc4(
             return f"ufixed{n}x{m}"
         case pytypes.ArrayType(
             generic=pytypes.GenericARC4StaticArrayType
-            | pytypes.GenericARC4DynamicArrayType,
+            | pytypes.GenericARC4DynamicArrayType
+            | pytypes.GenericImmutableArrayType
+            | pytypes.GenericNativeArrayType
+            | pytypes.GenericFixedArrayType,
             items=item_pytype,
             size=array_length,
         ):
@@ -191,9 +202,9 @@ def pytype_to_arc4(
                 pytype_to_arc4(it, encode_resource_types=True, loc=loc) for it in arc4_tuple_items
             ]
             return f"({','.join(item_arc4_names)})"
-        case pytypes.StructType(
-            fields=arc4_struct_fields
-        ) if pytypes.ARC4StructBaseType < arc4_pytype:
+        case pytypes.StructType(fields=arc4_struct_fields) if (
+            pytypes.ARC4StructBaseType < arc4_pytype or pytypes.StructBaseType < arc4_pytype
+        ):
             item_arc4_names = [
                 pytype_to_arc4(it, encode_resource_types=True, loc=loc)
                 for it in arc4_struct_fields.values()

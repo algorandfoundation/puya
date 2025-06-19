@@ -8,21 +8,21 @@ from puya import (
     artifact_metadata as models,
     log,
 )
+from puya.artifact_metadata import LogicSignatureMetaData
 from puya.avm import OnCompletionAction
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.context import CompiledProgramProvider
+from puya.context import ArtifactCompileContext, CompiledProgramProvider
 from puya.errors import CodeError
 from puya.ir._utils import make_subroutine
 from puya.ir.arc4_types import get_arc4_name, maybe_wtype_to_arc4_wtype, wtype_to_arc4
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
-from puya.ir.optimize.context import IROptimizationContext
-from puya.ir.optimize.main import get_subroutine_optimizations
 from puya.options import PuyaOptions
 from puya.parse import SourceLocation
+from puya.program_refs import LogicSigReference, ProgramKind
 
 logger = log.get_logger(__name__)
 
@@ -171,6 +171,8 @@ def _compile_arc4_default_constant(
 def _optimize_subroutine(
     ctx: IRBuildContext, subroutine: ir.Subroutine, location: SourceLocation
 ) -> None:
+    from puya.ir.main import transform_ir
+
     optimization_level = max(2, ctx.options.optimization_level)
     logger.debug(
         f"Running optimizer at level {optimization_level}"
@@ -180,24 +182,33 @@ def _optimize_subroutine(
     options = PuyaOptions(
         optimization_level=optimization_level,
         target_avm_version=ctx.options.target_avm_version,
+        expand_all_bytes=True,
     )
     dummy_program_provider = _NoCompiledProgramProvider(location)
-    pass_context = IROptimizationContext(
+    artifact_ctx = ArtifactCompileContext(
         compilation_set=ctx.compilation_set,
         sources_by_path=ctx.sources_by_path,
         options=options,
         compiled_program_provider=dummy_program_provider,
         output_path_provider=None,
-        expand_all_bytes=True,
     )
-    pipeline = get_subroutine_optimizations(optimization_level=optimization_level)
-    while True:
-        modified = False
-        for optimizer in pipeline:
-            if optimizer.optimize(pass_context, subroutine):
-                modified = True
-        if not modified:
-            return
+    artifact_ir = ir.LogicSignature(
+        program=ir.Program(
+            kind=ProgramKind.logic_signature,
+            main=subroutine,
+            subroutines=[],
+            avm_version=ctx.options.target_avm_version,
+            slot_allocation=ir.SlotAllocation(
+                reserved=set(), strategy=ir.SlotAllocationStrategy.none
+            ),
+            source_location=None,
+        ),
+        metadata=LogicSignatureMetaData(
+            ref=LogicSigReference(subroutine.id), name=subroutine.short_name, description=None
+        ),
+        source_location=location,
+    )
+    transform_ir(artifact_ctx, artifact_ir)
 
 
 def _try_extract_byte_constant(subroutine: ir.Subroutine) -> bytes | None:
