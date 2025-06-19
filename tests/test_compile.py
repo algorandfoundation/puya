@@ -41,7 +41,9 @@ def test_compile(test_case: PuyaTestCase) -> None:
     _compile_with_level1_optimizations(test_case)
     _compile_with_level2_optimizations(test_case)
     diff = check_for_diff(test_case.path, VCS_ROOT)
-    assert not diff, f"Uncommitted changes were found:\n{diff}"
+    # bool conversion here results in a nicer assertion display if there is a diff
+    has_diff = bool(diff)
+    assert not has_diff, f"Uncommitted changes were found:\n{diff}"
 
 
 def _compile_test_case(

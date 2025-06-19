@@ -32,7 +32,7 @@ def main() -> None:
     cmd = [
         "pytest",
         "--no-header",
-        "--no-summary",
+        "--tb=no",
     ]
     subprocess.run(
         (*cmd, *test_cases),
