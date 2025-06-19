@@ -20,7 +20,6 @@ The fragment file is deleted by the CD pipeline once it is integrated into [CHAN
 1. Ensure dependencies are installed: Python (>3.12), Poetry (>2), algokit-cli
 1. Ensure your IDE is configured to use an interpreter (Poetry environment)
 1. Run `poetry install` in a terminal (you may need to open a new terminal after to pick up dev dependencies)
-1. Run `poe compile_all`
 1. Optionally debug individual tests
    1. Run `algokit localnet start`
    1. Use your IDEs built-in run/debug setup to run tests (via pytest)
@@ -43,9 +42,6 @@ to run, see [algokit-cli](https://github.com/algorandfoundation/algokit-cli).
 
 Part of the tests include checking for no output changes to `examples/` or `test_cases/`. If there
 are deliberate changes, you should commit those for the tests to pass.
-
-Additionally, if there are any material changes to the output (ie the generated code), you will
-need to run `poe compile_all` to ensure the `examples/sizes.txt` file gets updated.
 
 ## Updating langspec for new AVM versions
 
