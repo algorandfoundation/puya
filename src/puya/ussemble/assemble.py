@@ -18,6 +18,7 @@ from puya.ussemble.op_spec import OP_SPECS
 from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind
 
 logger = log.get_logger(__name__)
+
 _BRANCHING_OPS = {
     op.name
     for op in OP_SPECS.values()
@@ -39,7 +40,7 @@ _STACK_OPS = {
     "frame_dig",
     "frame_bury",
 }
-assert not _STACK_OPS.difference(OP_SPECS), "invalid stack op"
+assert _STACK_OPS <= OP_SPECS.keys(), "invalid stack op"  # noqa: SIM300
 
 
 def assemble_bytecode_and_debug_info(
@@ -103,10 +104,11 @@ def assemble_bytecode_and_debug_info(
             # between the label PC location and the end of the current op
             return label_pcs[label.name] - pcs[op_index + 1]  # noqa: B023
 
-        op_kind = _get_op_kind(avm_op)
         op_bytes = _encode_op(avm_op, get_label_offset=get_label_offset)
-        op_stats[op_kind].append(len(op_bytes))
         bytecode.append(op_bytes)
+
+        op_kind = _get_op_kind(avm_op)
+        op_stats[op_kind].append(len(op_bytes))
 
     return models.AssembledProgram(
         bytecode=b"".join(bytecode),
