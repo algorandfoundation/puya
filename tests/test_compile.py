@@ -10,6 +10,9 @@ from puya import log
 from puyapy.options import PuyaPyOptions
 from tests import VCS_ROOT
 from tests.utils import (
+    SUFFIX_O0,
+    SUFFIX_O1,
+    SUFFIX_O2,
     PuyaTestCase,
     compile_src_from_options,
     get_relative_path,
@@ -20,9 +23,6 @@ from tests.utils.git import check_for_diff
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
 }
-SUFFIX_O0 = "_unoptimized"
-SUFFIX_O1 = ""
-SUFFIX_O2 = "_O2"
 APPROVAL_EXTENSIONS = (
     ".teal",
     ".awst",
