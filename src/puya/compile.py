@@ -197,21 +197,28 @@ class _CompiledProgramProviderImpl(CompiledProgramProvider):
         return self.state_totals[ref]
 
 
-@attrs.frozen
+@attrs.define
 class _SequentialOutputPathProvider(OutputPathProvider):
     _metadata: ContractMetaData | LogicSignatureMetaData
     _out_dir: Path
+    _group_seq: int = attrs.field(default=0, init=False)
     _output_seq: defaultdict[str, Iterator[int]] = attrs.field(
         factory=lambda: defaultdict(itertools.count), init=False
     )
 
     @typing.override
-    def __call__(self, *, kind: str, qualifier: str, suffix: str) -> Path:
+    def begin_group(self) -> None:
+        self._output_seq.clear()
+        self._group_seq += 1
+
+    @typing.override
+    def next_path(self, *, kind: str, qualifier: str, suffix: str) -> Path:
         out_dir = self._out_dir
         out_dir.mkdir(exist_ok=True, parents=True)
         if qualifier:
             qualifier = f".{qualifier}"
-        qualifier = f"{next(self._output_seq[kind])}{qualifier}"
+        seq = self._group_seq * 100 + next(self._output_seq[kind])
+        qualifier = f"{seq:03d}{qualifier}"
         if kind is not ProgramKind.logic_signature:
             qualifier = f"{kind}.{qualifier}"
         return out_dir / f"{self._metadata.name}.{qualifier}.{suffix}"

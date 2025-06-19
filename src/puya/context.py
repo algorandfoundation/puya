@@ -60,7 +60,8 @@ class CompiledProgramProvider(typing.Protocol):
 
 
 class OutputPathProvider(typing.Protocol):
-    def __call__(self, *, kind: str, qualifier: str, suffix: str) -> Path: ...
+    def begin_group(self) -> None: ...
+    def next_path(self, *, kind: str, qualifier: str, suffix: str) -> Path: ...
 
 
 @attrs.define(kw_only=True)
@@ -70,10 +71,14 @@ class ArtifactCompileContext(CompileContext):
     )
     _output_path_provider: OutputPathProvider | None = attrs.field(on_setattr=attrs.setters.frozen)
 
+    def begin_output_group(self) -> None:
+        if self._output_path_provider is not None:
+            self._output_path_provider.begin_group()
+
     def build_output_path(self, kind: str, qualifier: str, suffix: str) -> Path | None:
         if self._output_path_provider is None:
             return None
-        return self._output_path_provider(kind=kind, qualifier=qualifier, suffix=suffix)
+        return self._output_path_provider.next_path(kind=kind, qualifier=qualifier, suffix=suffix)
 
     @typing.overload
     def build_program_bytecode(

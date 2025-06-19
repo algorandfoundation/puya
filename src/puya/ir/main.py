@@ -196,6 +196,8 @@ def transform_ir(context: ArtifactCompileContext, artifact_ir: ModuleArtifact) -
     for transform in pipeline:
         for program in artifact_ir.all_programs():
             transform(context, program)
+        # each group starts at the same seq to improve stability of output paths
+        context.begin_output_group()
     # validation is run as the last step, in case we've accidentally inserted something,
     # and in particular post subroutine removal, because some things that are "linked"
     # are not necessarily used from the current artifact
