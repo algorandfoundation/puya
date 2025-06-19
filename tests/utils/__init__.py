@@ -20,8 +20,7 @@ from puyapy.parse import ParseResult, SourceDiscoveryMechanism, parse_python
 from puyapy.template import parse_template_key_value
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 
-APPROVAL_EXTENSIONS = frozenset((".teal", ".awst", ".ir", ".mir", ".arc32.json", ".arc56.json"))
-UNSTABLE_LOG_PREFIXES = {
+_UNSTABLE_LOG_PREFIXES = {
     LogLevel.debug: (
         "Building AWST for ",
         "Skipping algopy stub ",
@@ -126,7 +125,7 @@ def _filter_logs(logs: list[Log], root_dir: Path, src_path: Path) -> list[Log]:
             continue
 
         # ignore logs that are not output in a consistent order
-        log_prefixes_to_ignore = UNSTABLE_LOG_PREFIXES.get(log.level)
+        log_prefixes_to_ignore = _UNSTABLE_LOG_PREFIXES.get(log.level)
         if log_prefixes_to_ignore and log.message.startswith(log_prefixes_to_ignore):
             continue
 

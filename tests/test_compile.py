@@ -10,7 +10,6 @@ from puya import log
 from puyapy.options import PuyaPyOptions
 from tests import VCS_ROOT
 from tests.utils import (
-    APPROVAL_EXTENSIONS,
     PuyaTestCase,
     compile_src_from_options,
     get_relative_path,
@@ -24,6 +23,16 @@ ENV_WITH_NO_COLOR = dict(os.environ) | {
 SUFFIX_O0 = "_unoptimized"
 SUFFIX_O1 = ""
 SUFFIX_O2 = "_O2"
+APPROVAL_EXTENSIONS = (
+    ".teal",
+    ".awst",
+    ".ir",
+    ".mir",
+    ".arc32.json",
+    ".arc56.json",
+    ".map",
+    ".stats.txt",
+)
 
 
 def test_compile(test_case: PuyaTestCase) -> None:
@@ -138,12 +147,12 @@ def _compile_with_level2_optimizations(test_case: PuyaTestCase) -> None:
 
 
 def _remove_output(path: Path) -> None:
-    (path / "puya.log").unlink(missing_ok=True)
     for out_suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2):
+        (path / f"puya{out_suffix}.log").unlink(missing_ok=True)
         out_dir = path / f"out{out_suffix}"
         if out_dir.exists():
             for file in out_dir.iterdir():
-                if file.suffix in APPROVAL_EXTENSIONS:
+                if file.name.endswith(APPROVAL_EXTENSIONS):
                     if file.is_dir():
                         shutil.rmtree(file)
                     else:
