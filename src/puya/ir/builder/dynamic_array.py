@@ -180,7 +180,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
         return self.factory.as_ir_type(value, self.array_ir_type)
 
     def _maybe_decode(self, encoded_item: ir.Value) -> ir.MultiValue:
-        if not requires_conversion(self.element_ir_type, self.array_encoding.element, "decode"):
+        if not requires_conversion(self.element_ir_type, self.array_encoding.element):
             return self.factory.materialise_single(encoded_item)
         else:
             encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
