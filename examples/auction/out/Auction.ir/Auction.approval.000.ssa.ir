@@ -24,8 +24,8 @@ subroutine examples.auction.contract.Auction.__puya_arc4_router__() -> bool:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (btoi reinterpret_bytes[1]%0#0)
+        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
+        let tmp%7#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
         let tmp%8#0: uint64 = ((txnas Assets) tmp%7#0)
         examples.auction.contract.Auction.opt_into_asset(tmp%8#0)
         return 1u
@@ -36,10 +36,10 @@ subroutine examples.auction.contract.Auction.__puya_arc4_router__() -> bool:
         let tmp%11#0: uint64 = (txn ApplicationID)
         let tmp%12#0: bool = (!= tmp%11#0 0u)
         (assert tmp%12#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let tmp%13#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
-        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 2)
-        let tmp%14#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%13#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%14#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
         let tmp%15#0: uint64 = (txn GroupIndex)
         let gtxn_idx%0#0: uint64 = (- tmp%15#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
@@ -86,8 +86,8 @@ subroutine examples.auction.contract.Auction.__puya_arc4_router__() -> bool:
         let tmp%31#0: uint64 = (txn ApplicationID)
         let tmp%32#0: bool = (!= tmp%31#0 0u)
         (assert tmp%32#0) // can only call when not creating
-        let reinterpret_bytes[1]%1#0: bytes[1] = (txna ApplicationArgs 1)
-        let tmp%33#0: uint64 = (btoi reinterpret_bytes[1]%1#0)
+        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 1)
+        let tmp%33#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
         let tmp%34#0: uint64 = ((txnas Assets) tmp%33#0)
         examples.auction.contract.Auction.claim_asset(tmp%34#0)
         return 1u
@@ -117,14 +117,14 @@ subroutine examples.auction.contract.Auction.__init__() -> void:
         (app_global_put "previous_bid" 0u)
         (app_global_put "asa_amount" 0u)
         (app_global_put "asa" 0u)
-        let materialized_values%0#0: bytes[32] = (global ZeroAddress)
-        (app_global_put "previous_bidder" materialized_values%0#0)
+        let tmp%0#0: account = (global ZeroAddress)
+        (app_global_put "previous_bidder" tmp%0#0)
         return 
 
 subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> void:
     block@0: // L25
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%1#0: bytes[32] = (global CreatorAddress)
+        let tmp%0#0: account = (txn Sender)
+        let tmp%1#0: account = (global CreatorAddress)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // Only creator can opt in to ASA
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
@@ -138,7 +138,7 @@ subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> vo
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = axfer
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_AssetReceiver_idx_0#0: bytes[32] = (global CurrentApplicationAddress)
+        let inner_txn_params%0%%param_AssetReceiver_idx_0#0: account = (global CurrentApplicationAddress)
         let inner_txn_params%0%%AssetReceiver_length#0: uint64 = 1u
         let inner_txn_params%0%%param_XferAsset_idx_0#0: uint64 = asset#0
         let inner_txn_params%0%%XferAsset_length#0: uint64 = 1u
@@ -200,23 +200,23 @@ subroutine examples.auction.contract.Auction.opt_into_asset(asset: uint64) -> vo
 
 subroutine examples.auction.contract.Auction.start_auction(starting_price: uint64, length: uint64, axfer: uint64) -> void:
     block@0: // L40
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%1#0: bytes[32] = (global CreatorAddress)
+        let tmp%0#0: account = (txn Sender)
+        let tmp%1#0: account = (global CreatorAddress)
         let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // auction must be started by creator
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "auction_end")
         (assert maybe_exists%0#0) // check self.auction_end exists
         let tmp%3#0: bool = (== maybe_value%0#0 0u)
         (assert tmp%3#0) // auction already started
-        let tmp%4#0: bytes[32] = ((gtxns AssetReceiver) axfer#0)
-        let tmp%5#0: bytes[32] = (global CurrentApplicationAddress)
+        let tmp%4#0: account = ((gtxns AssetReceiver) axfer#0)
+        let tmp%5#0: account = (global CurrentApplicationAddress)
         let tmp%6#0: bool = (== tmp%4#0 tmp%5#0)
         (assert tmp%6#0) // axfer must transfer to this app
-        let materialized_values%0#0: uint64 = ((gtxns AssetAmount) axfer#0)
-        (app_global_put "asa_amount" materialized_values%0#0)
-        let tmp%7#0: uint64 = (global LatestTimestamp)
-        let materialized_values%1#0: uint64 = (+ tmp%7#0 length#0)
-        (app_global_put "auction_end" materialized_values%1#0)
+        let tmp%7#0: uint64 = ((gtxns AssetAmount) axfer#0)
+        (app_global_put "asa_amount" tmp%7#0)
+        let tmp%8#0: uint64 = (global LatestTimestamp)
+        let tmp%9#0: uint64 = (+ tmp%8#0 length#0)
+        (app_global_put "auction_end" tmp%9#0)
         (app_global_put "previous_bid" starting_price#0)
         return 
 
@@ -231,8 +231,8 @@ subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
         (assert maybe_exists%0#0) // check self.auction_end exists
         let tmp%1#0: bool = (< tmp%0#0 maybe_value%0#0)
         (assert tmp%1#0) // auction has ended
-        let tmp%2#0: bytes[32] = ((gtxns Sender) pay#0)
-        let tmp%3#0: bytes[32] = (txn Sender)
+        let tmp%2#0: account = ((gtxns Sender) pay#0)
+        let tmp%3#0: account = (txn Sender)
         let tmp%4#0: bool = (== tmp%2#0 tmp%3#0)
         (assert tmp%4#0) // payment sender must match transaction sender
         let tmp%5#0: uint64 = ((gtxns Amount) pay#0)
@@ -240,23 +240,23 @@ subroutine examples.auction.contract.Auction.bid(pay: uint64) -> void:
         (assert maybe_exists%1#0) // check self.previous_bid exists
         let tmp%6#0: bool = (> tmp%5#0 maybe_value%1#0)
         (assert tmp%6#0) // Bid must be higher than previous bid
-        let materialized_values%0#0: uint64 = ((gtxns Amount) pay#0)
-        (app_global_put "previous_bid" materialized_values%0#0)
-        let materialized_values%1#0: bytes[32] = ((gtxns Sender) pay#0)
-        (app_global_put "previous_bidder" materialized_values%1#0)
-        let materialized_values%2#0: uint64 = ((gtxns Amount) pay#0)
-        let tmp%7#0: bytes[32] = (txn Sender)
-        (app_local_put tmp%7#0 "claim" materialized_values%2#0)
+        let tmp%7#0: uint64 = ((gtxns Amount) pay#0)
+        (app_global_put "previous_bid" tmp%7#0)
+        let tmp%8#0: account = ((gtxns Sender) pay#0)
+        (app_global_put "previous_bidder" tmp%8#0)
+        let tmp%9#0: uint64 = ((gtxns Amount) pay#0)
+        let tmp%10#0: account = (txn Sender)
+        (app_local_put tmp%10#0 "claim" tmp%9#0)
         return 
 
 subroutine examples.auction.contract.Auction.claim_bids() -> void:
     block@0: // L82
-        let tmp%0#0: bytes[32] = (txn Sender)
+        let tmp%0#0: account = (txn Sender)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "claim")
         (assert maybe_exists%0#0) // check self.claimable_amount exists for account
         let original_amount#0: uint64 = maybe_value%0#0
         let amount#0: uint64 = maybe_value%0#0
-        let tmp%1#0: bytes[32] = (txn Sender)
+        let tmp%1#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bidder")
         (assert maybe_exists%1#0) // check self.previous_bidder exists
         let tmp%2#0: bool = (== tmp%1#0 maybe_value%1#0)
@@ -264,7 +264,8 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
     block@1: // if_body_L88
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "previous_bid")
         (assert maybe_exists%2#0) // check self.previous_bid exists
-        let amount#1: uint64 = (- amount#0 maybe_value%2#0)
+        let tmp%3#0: uint64 = (- amount#0 maybe_value%2#0)
+        let amount#1: uint64 = tmp%3#0
         goto block@2
     block@2: // after_if_else_L87
         let amount#2: uint64 = φ(amount#0 <- block@0, amount#1 <- block@1)
@@ -276,7 +277,7 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
         let inner_txn_params%0%%param_Amount_idx_0#0: uint64 = amount#2
         let inner_txn_params%0%%Amount_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_Receiver_idx_0#0: bytes[32] = (txn Sender)
+        let inner_txn_params%0%%param_Receiver_idx_0#0: account = (txn Sender)
         let inner_txn_params%0%%Receiver_length#0: uint64 = 1u
         let inner_txn_params%0%%Sender_length#0: uint64 = 0u
         let inner_txn_params%0%%Note_length#0: uint64 = 0u
@@ -332,9 +333,9 @@ subroutine examples.auction.contract.Auction.claim_bids() -> void:
         goto block@3
     block@3: // next_txn_L90
         itxn_submit
-        let materialized_values%0#0: uint64 = (- original_amount#0 amount#2)
-        let tmp%3#0: bytes[32] = (txn Sender)
-        (app_local_put tmp%3#0 "claim" materialized_values%0#0)
+        let tmp%4#0: uint64 = (- original_amount#0 amount#2)
+        let tmp%5#0: account = (txn Sender)
+        (app_local_put tmp%5#0 "claim" tmp%4#0)
         return 
 
 subroutine examples.auction.contract.Auction.claim_asset(asset: uint64) -> void:

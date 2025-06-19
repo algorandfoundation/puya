@@ -1,0 +1,98 @@
+main test_cases.contains.contract.MyContract.approval_program:
+    block@0: // L7
+        let one_true#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_1(10u, 10u, 15u, 0x66697665)
+        let one_false#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_1(5u, 10u, 15u, 0x66697665)
+        (assert one_true#0) // Should be true
+        let tmp%2#0: bool = (! one_false#0)
+        (assert tmp%2#0) // Should be false
+        let two_true#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_2(0x68656c6c6f, 0x68656c6c6f, 0u, 0x626f6e6a6f7572)
+        let two_false#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_2(0x6369616f, 0x68656c6c6f, 0u, 0x626f6e6a6f7572)
+        (assert two_true#0) // Should be true
+        let tmp%5#0: bool = (! two_false#0)
+        (assert tmp%5#0) // Should be false
+        let three_true#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_3(32323423423423b, 32323423423423b, 8439439483934b)
+        let three_false#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_3(64646846846846b, 32323423423423b, 8439439483934b)
+        (assert three_true#0) // Should be true
+        let tmp%9#0: bool = (! three_false#0)
+        (assert tmp%9#0) // Should be false
+        let encoded%0#15: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x666f6f)
+        let encoded%0#13: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x626172)
+        let tmp%30#0: bool = 1u
+        let tmp%33#0: bool = (== encoded%0#15 encoded%0#13)
+        goto tmp%33#0 ? block@25 : block@24
+    block@24: // or_contd_L61
+        let or_result%5#1: bool = 0u
+        goto block@27
+    block@25: // bool_true_L61
+        let or_result%5#0: bool = 1u
+        goto block@27
+    block@27: // bool_merge_L61
+        let or_result%5#2: bool = φ(or_result%5#0 <- block@25, or_result%5#1 <- block@24)
+        let tmp%36#0: bool = (! or_result%5#2)
+        (assert tmp%36#0) // foo not in (bar, baz)
+        goto block@35
+    block@35: // bool_true_L68
+        let tmp%60#0: bool = 1u
+        goto tmp%33#0 ? block@43 : block@42
+    block@42: // or_contd_L79
+        let or_result%9#1: bool = 0u
+        goto block@45
+    block@43: // bool_true_L79
+        let or_result%9#0: bool = 1u
+        goto block@45
+    block@45: // bool_merge_L79
+        let or_result%9#2: bool = φ(or_result%9#0 <- block@43, or_result%9#1 <- block@42)
+        let tmp%67#0: bool = (! or_result%9#2)
+        (assert tmp%67#0) // foo not in (bar, baz, 1)
+        return 1u
+
+subroutine test_cases.contains.contract.MyContract.is_in_tuple_1(x: uint64, y.0: uint64, y.1: uint64, y.2: bytes) -> bool:
+    block@0: // L42
+        let tmp%0#0: bool = (== x#0 y.0#0)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // or_contd_L44
+        let tmp%1#0: bool = (== x#0 y.1#0)
+        goto tmp%1#0 ? block@2 : block@3
+    block@2: // bool_true_L44
+        let or_result%0#0: bool = 1u
+        goto block@4
+    block@3: // bool_false_L44
+        let or_result%0#1: bool = 0u
+        goto block@4
+    block@4: // bool_merge_L44
+        let or_result%0#2: bool = φ(or_result%0#0 <- block@2, or_result%0#1 <- block@3)
+        return or_result%0#2
+
+subroutine test_cases.contains.contract.MyContract.is_in_tuple_2(x: bytes, y.0: bytes, y.1: uint64, y.2: bytes) -> bool:
+    block@0: // L46
+        let tmp%0#0: bool = (== x#0 y.0#0)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // or_contd_L48
+        let tmp%1#0: bool = (== x#0 y.2#0)
+        goto tmp%1#0 ? block@2 : block@3
+    block@2: // bool_true_L48
+        let or_result%0#0: bool = 1u
+        goto block@4
+    block@3: // bool_false_L48
+        let or_result%0#1: bool = 0u
+        goto block@4
+    block@4: // bool_merge_L48
+        let or_result%0#2: bool = φ(or_result%0#0 <- block@2, or_result%0#1 <- block@3)
+        return or_result%0#2
+
+subroutine test_cases.contains.contract.MyContract.is_in_tuple_3(x: biguint, y.0: biguint, y.1: biguint) -> bool:
+    block@0: // L50
+        let tmp%0#0: bool = (b== x#0 y.0#0)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // or_contd_L52
+        let tmp%1#0: bool = (b== x#0 y.1#0)
+        goto tmp%1#0 ? block@2 : block@3
+    block@2: // bool_true_L52
+        let or_result%0#0: bool = 1u
+        goto block@4
+    block@3: // bool_false_L52
+        let or_result%0#1: bool = 0u
+        goto block@4
+    block@4: // bool_merge_L52
+        let or_result%0#2: bool = φ(or_result%0#0 <- block@2, or_result%0#1 <- block@3)
+        return or_result%0#2

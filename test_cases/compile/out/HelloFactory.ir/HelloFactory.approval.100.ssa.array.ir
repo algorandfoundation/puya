@@ -141,27 +141,39 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> void:
     block@0: // L30
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len 0x68656c6c6f)
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x68656c6c6f)
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
         ((itxn_field ApplicationArgs) method "create(string)void")
-        ((itxn_field ApplicationArgs) 0x000568656c6c6f)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let hello_app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
+        let aggregate%length%1#1: uint64 = (len 0x776f726c64)
+        let aggregate%as_bytes%1#1: bytes[8] = (itob aggregate%length%1#1)
+        let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
+        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 0x776f726c64)
+        let aggregate%as_Encoded(len+utf8[])%1#1: Encoded(len+utf8[]) = aggregate%encoded_value%1#1
+        let encoded%1#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#1
         ((itxn_field ApplicationID) hello_app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x0005776f726c64)
+        ((itxn_field ApplicationArgs) encoded%1#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
-        let result#0: bytes = ((extract 4 0) txn.LastLog#0)
-        let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
+        let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
+        let tmp%2#0: bytes = ((extract 0 4) txn.LastLog#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -169,8 +181,14 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract() -> vo
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%3#0: bool = (== result#0 0x000b68656c6c6f20776f726c64)
-        (assert tmp%3#0)
+        let aggregate%length%2#1: uint64 = (len 0x68656c6c6f20776f726c64)
+        let aggregate%as_bytes%2#1: bytes[8] = (itob aggregate%length%2#1)
+        let aggregate%length_uint16%2#1: bytes = ((extract 6 2) aggregate%as_bytes%2#1)
+        let aggregate%encoded_value%2#1: bytes = (concat aggregate%length_uint16%2#1 0x68656c6c6f20776f726c64)
+        let aggregate%as_Encoded(len+utf8[])%2#1: Encoded(len+utf8[]) = aggregate%encoded_value%2#1
+        let encoded%2#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%2#1
+        let tmp%4#0: bool = (== result#0 encoded%2#0)
+        (assert tmp%4#0)
         return 
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() -> void:
@@ -185,17 +203,23 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         itxn_submit
         let hello_app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len 0x776f726c64)
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x776f726c64)
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field ApplicationID) hello_app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x0005776f726c64)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
-        let result#0: bytes = ((extract 4 0) txn.LastLog#0)
-        let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
+        let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
+        let tmp%2#0: bytes = ((extract 0 4) txn.LastLog#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -203,8 +227,14 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_tmpl() 
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%3#0: bool = (== result#0 0x000968657920776f726c64)
-        (assert tmp%3#0)
+        let aggregate%length%1#1: uint64 = (len 0x68657920776f726c64)
+        let aggregate%as_bytes%1#1: bytes[8] = (itob aggregate%length%1#1)
+        let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
+        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 0x68657920776f726c64)
+        let aggregate%as_Encoded(len+utf8[])%1#1: Encoded(len+utf8[]) = aggregate%encoded_value%1#1
+        let encoded%1#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#1
+        let tmp%4#0: bool = (== result#0 encoded%1#0)
+        (assert tmp%4#0)
         return 
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() -> void:
@@ -219,17 +249,23 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         itxn_submit
         let hello_app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len 0x776f726c64)
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x776f726c64)
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field ApplicationID) hello_app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x0005776f726c64)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
-        let result#0: bytes = ((extract 4 0) txn.LastLog#0)
-        let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
+        let result#0: Encoded(len+utf8[]) = ((extract 4 0) txn.LastLog#0)
+        let tmp%2#0: bytes = ((extract 0 4) txn.LastLog#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -237,8 +273,14 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_prfx() 
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%3#0: bool = (== result#0 0x0008686920776f726c64)
-        (assert tmp%3#0)
+        let aggregate%length%1#1: uint64 = (len 0x686920776f726c64)
+        let aggregate%as_bytes%1#1: bytes[8] = (itob aggregate%length%1#1)
+        let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
+        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 0x686920776f726c64)
+        let aggregate%as_Encoded(len+utf8[])%1#1: Encoded(len+utf8[]) = aggregate%encoded_value%1#1
+        let encoded%1#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#1
+        let tmp%4#0: bool = (== result#0 encoded%1#0)
+        (assert tmp%4#0)
         return 
 
 subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large() -> void:
@@ -257,10 +299,10 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         ((itxn_field Fee) 0u)
         itxn_submit
         let txn.LastLog#0: bytes = (itxn LastLog)
-        let result#0: bytes[8] = ((extract 4 0) txn.LastLog#0)
-        let tmp%1#0: bytes = ((extract 0 4) txn.LastLog#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
+        let result#0: Encoded(uint64) = ((extract 4 0) txn.LastLog#0)
+        let tmp%2#0: bytes = ((extract 0 4) txn.LastLog#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationArgs) method "delete()void")
@@ -268,34 +310,47 @@ subroutine test_cases.compile.factory.HelloFactory.test_compile_contract_large()
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%3#0: bool = (b== result#0 0x0000000000001000)
-        (assert tmp%3#0)
+        let tmp%4#0: bool = (b== result#0 0x0000000000001000)
+        (assert tmp%4#0)
         return 
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
     block@0: // L160
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len 0x68656c6c6f)
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x68656c6c6f)
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
         ((itxn_field ApplicationArgs) method "create(string)void")
-        ((itxn_field ApplicationArgs) 0x000568656c6c6f)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let hello_app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
+        let aggregate%length%1#1: uint64 = (len 0x776f726c64)
+        let aggregate%as_bytes%1#1: bytes[8] = (itob aggregate%length%1#1)
+        let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
+        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 0x776f726c64)
+        let aggregate%as_Encoded(len+utf8[])%1#1: Encoded(len+utf8[]) = aggregate%encoded_value%1#1
+        let encoded%1#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#1
         ((itxn_field ApplicationID) hello_app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x0005776f726c64)
+        ((itxn_field ApplicationArgs) encoded%1#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = ((extract 6 0) awst_tmp%0#0)
+        let tmp%1#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let result#0: string = ((extract 2 0) tmp%1#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) hello_app#0)
@@ -303,8 +358,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create() -> void:
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%4#0: bool = (== result#0 "hello world")
-        (assert tmp%4#0)
+        let tmp%5#0: bool = (== result#0 "hello world")
+        (assert tmp%5#0)
         return 
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> void:
@@ -319,17 +374,24 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         itxn_submit
         let hello_app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len 0x776f726c64)
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x776f726c64)
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field ApplicationID) hello_app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x0005776f726c64)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = ((extract 6 0) awst_tmp%0#0)
+        let tmp%1#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let result#0: string = ((extract 2 0) tmp%1#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) hello_app#0)
@@ -337,8 +399,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_tmpl() -> vo
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%4#0: bool = (== result#0 "tmpl2 world")
-        (assert tmp%4#0)
+        let tmp%5#0: bool = (== result#0 "tmpl2 world")
+        (assert tmp%5#0)
         return 
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> void:
@@ -353,17 +415,24 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         itxn_submit
         let hello_app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len 0x776f726c64)
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x776f726c64)
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field ApplicationID) hello_app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x0005776f726c64)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = ((extract 6 0) awst_tmp%0#0)
+        let tmp%1#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let result#0: string = ((extract 2 0) tmp%1#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) hello_app#0)
@@ -371,8 +440,8 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_prfx() -> vo
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%4#0: bool = (== result#0 "prfx2 world")
-        (assert tmp%4#0)
+        let tmp%5#0: bool = (== result#0 "prfx2 world")
+        (assert tmp%5#0)
         return 
 
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> void:
@@ -391,13 +460,13 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%0#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
-        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: uint64 = (btoi tmp%0#0)
-        let tmp%4#0: bool = (== result#0 4096u)
-        (assert tmp%4#0)
+        let tmp%1#0: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let result#0: uint64 = (btoi tmp%1#0)
+        let tmp%5#0: bool = (== result#0 4096u)
+        (assert tmp%5#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) app#0)
@@ -410,6 +479,12 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_large() -> v
 subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_compiled() -> void:
     block@0: // L236
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len "hey")
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 "hey")
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let tmp%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field LocalNumUint) 3u)
         ((itxn_field LocalNumByteSlice) 5u)
         ((itxn_field GlobalNumUint) 4u)
@@ -417,41 +492,48 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_create_modified_com
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
         ((itxn_field ApplicationArgs) method "create(string)void")
-        ((itxn_field ApplicationArgs) 0x0003686579)
+        ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
         let (value%0#0: uint64, check%0#0: bool) = ((app_params_get AppLocalNumUint) app#0)
         (assert check%0#0) // application exists
-        let tmp%0#0: bool = (== value%0#0 3u)
-        (assert tmp%0#0)
+        let tmp%2#0: bool = (== value%0#0 3u)
+        (assert tmp%2#0)
         let (value%1#0: uint64, check%1#0: bool) = ((app_params_get AppGlobalNumUint) app#0)
         (assert check%1#0) // application exists
-        let tmp%1#0: bool = (== value%1#0 4u)
-        (assert tmp%1#0)
+        let tmp%3#0: bool = (== value%1#0 4u)
+        (assert tmp%3#0)
         let (value%2#0: uint64, check%2#0: bool) = ((app_params_get AppLocalNumByteSlice) app#0)
         (assert check%2#0) // application exists
-        let tmp%2#0: bool = (== value%2#0 5u)
-        (assert tmp%2#0)
+        let tmp%4#0: bool = (== value%2#0 5u)
+        (assert tmp%4#0)
         let (value%3#0: uint64, check%3#0: bool) = ((app_params_get AppGlobalNumByteSlice) app#0)
         (assert check%3#0) // application exists
-        let tmp%3#0: bool = (== value%3#0 6u)
-        (assert tmp%3#0)
+        let tmp%5#0: bool = (== value%3#0 6u)
+        (assert tmp%5#0)
         itxn_begin
+        let aggregate%length%1#1: uint64 = (len 0x7468657265)
+        let aggregate%as_bytes%1#1: bytes[8] = (itob aggregate%length%1#1)
+        let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
+        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 0x7468657265)
+        let aggregate%as_Encoded(len+utf8[])%1#1: Encoded(len+utf8[]) = aggregate%encoded_value%1#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#1
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x00057468657265)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%5#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
-        (assert tmp%6#0) // application log value is not the result of an ABI return
-        let result#0: bytes = ((extract 6 0) awst_tmp%0#0)
-        let tmp%8#0: bool = (== result#0 "hey there")
-        (assert tmp%8#0)
+        let tmp%6#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%7#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%8#0: bool = (== tmp%7#0 0x151f7c75)
+        (assert tmp%8#0) // application log value is not the result of an ABI return
+        let result#0: string = ((extract 2 0) tmp%6#0)
+        let tmp%10#0: bool = (== result#0 "hey there")
+        (assert tmp%10#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) app#0)
@@ -477,19 +559,26 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len 0x7468657265)
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x7468657265)
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x00057468657265)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = ((extract 6 0) awst_tmp%0#0)
-        let tmp%4#0: bool = (== result#0 "hi there")
-        (assert tmp%4#0)
+        let tmp%1#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let result#0: string = ((extract 2 0) tmp%1#0)
+        let tmp%5#0: bool = (== result#0 "hi there")
+        (assert tmp%5#0)
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
@@ -501,17 +590,18 @@ subroutine test_cases.compile.factory.HelloFactory.test_arc4_update() -> void:
         itxn_begin
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x00057468657265)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
-        let tmp%6#0: bytes = ((extract 0 4) awst_tmp%1#0)
-        let tmp%7#0: bool = (== tmp%6#0 0x151f7c75)
-        (assert tmp%7#0) // application log value is not the result of an ABI return
-        let result#1: bytes = ((extract 6 0) awst_tmp%1#0)
-        let tmp%9#0: bool = (== result#1 "hi there")
-        (assert tmp%9#0)
+        let tmp%6#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%1#0)
+        let tmp%7#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%8#0: bool = (== tmp%7#0 0x151f7c75)
+        (assert tmp%8#0) // application log value is not the result of an ABI return
+        let result#1: string = ((extract 2 0) tmp%6#0)
+        let tmp%10#0: bool = (== result#1 "hi there")
+        (assert tmp%10#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) app#0)
@@ -533,19 +623,26 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len 0x4a6f686e6e79)
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x4a6f686e6e79)
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "greet(string)byte[]")
-        ((itxn_field ApplicationArgs) 0x00064a6f686e6e79)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = ((extract 6 0) awst_tmp%0#0)
-        let tmp%7#0: bool = (== result#0 NBSWY3DPEBFG62DONZ4TKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDRTKMQ)
-        (assert tmp%7#0)
+        let tmp%1#0: Encoded(len+uint8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%2#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%3#0: bool = (== tmp%2#0 0x151f7c75)
+        (assert tmp%3#0) // application log value is not the result of an ABI return
+        let result#0: bytes = ((extract 2 0) tmp%1#0)
+        let tmp%8#0: bool = (== result#0 0x68656c6c6f204a6f686e6e7935000000000000000000000000000000000000000000000000000000000000000040e33532)
+        (assert tmp%8#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) app#0)
@@ -558,29 +655,42 @@ subroutine test_cases.compile.factory.HelloFactory.test_other_constants() -> voi
 subroutine test_cases.compile.factory.HelloFactory.test_abi_call_create_params() -> void:
     block@0: // L323
         itxn_begin
+        let aggregate%length%0#1: uint64 = (len "hey")
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 "hey")
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let tmp%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQBfggMEIN86VAQkN408BNCiggA2GgCOAwAwACUAAiNDMRkURDEYRDYaAVcCAIgASUkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAiAASIkOBBDEZjgEAA0L/sjEYRCJDigEAKIv/Z4mKAQEjKGVEgAEgUIv/UIk=)
         ((itxn_field ApplicationArgs) method "create(string)void")
-        ((itxn_field ApplicationArgs) 0x0003686579)
+        ((itxn_field ApplicationArgs) tmp%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
+        let aggregate%length%1#1: uint64 = (len 0x7468657265)
+        let aggregate%as_bytes%1#1: bytes[8] = (itob aggregate%length%1#1)
+        let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
+        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 0x7468657265)
+        let aggregate%as_Encoded(len+utf8[])%1#1: Encoded(len+utf8[]) = aggregate%encoded_value%1#1
+        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#1
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "greet(string)string")
-        ((itxn_field ApplicationArgs) 0x00057468657265)
+        ((itxn_field ApplicationArgs) encoded%0#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let awst_tmp%0#0: bytes = (itxn LastLog)
-        let tmp%1#0: bytes = ((extract 0 4) awst_tmp%0#0)
-        let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
-        (assert tmp%2#0) // application log value is not the result of an ABI return
-        let result#0: bytes = ((extract 6 0) awst_tmp%0#0)
-        let tmp%4#0: bool = (== result#0 "hey there")
-        (assert tmp%4#0)
+        let tmp%2#0: Encoded(len+utf8[]) = ((extract 4 0) awst_tmp%0#0)
+        let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
+        let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
+        (assert tmp%4#0) // application log value is not the result of an ABI return
+        let result#0: string = ((extract 2 0) tmp%2#0)
+        let tmp%6#0: bool = (== result#0 "hey there")
+        (assert tmp%6#0)
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) app#0)

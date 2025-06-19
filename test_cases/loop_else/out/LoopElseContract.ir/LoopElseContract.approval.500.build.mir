@@ -1,108 +1,108 @@
-// Op                                                           Stack (out)
+// Op                                                                     Stack (out)
 // test_cases.loop_else.loop_else.LoopElseContract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // loop_else/loop_else.py:9
         // arg_idx = UInt64(0)
-        int 0                                                   0
+        int 0                                                             0
         v-store arg_idx#0
         b main_while_top@1
 
     main_while_top@1:
         // loop_else/loop_else.py:10
         // while arg_idx < Txn.num_app_args:
-        txn NumAppArgs                                          tmp%0#0
+        txn NumAppArgs                                                    tmp%0#0
         v-store tmp%0#0
-        v-load arg_idx#0                                        arg_idx#0
-        v-load tmp%0#0                                          arg_idx#0,tmp%0#0
-        <                                                       tmp%1#0
+        v-load arg_idx#0                                                  arg_idx#0
+        v-load tmp%0#0                                                    arg_idx#0,tmp%0#0
+        <                                                                 tmp%1#0
         v-store tmp%1#0
-        v-load tmp%1#0                                          tmp%1#0
+        v-load tmp%1#0                                                    tmp%1#0
         assert // access denied, missing secret argument
         // loop_else/loop_else.py:15
         // if Txn.application_args(arg_idx) == b"while_secret":
-        v-load arg_idx#0                                        arg_idx#0
-        txnas ApplicationArgs                                   tmp%3#0
+        v-load arg_idx#0                                                  arg_idx#0
+        txnas ApplicationArgs                                             tmp%3#0
         v-store tmp%3#0
-        v-load tmp%3#0                                          tmp%3#0
-        byte 0x7768696c655f736563726574                         tmp%3#0,0x7768696c655f736563726574
-        ==                                                      tmp%4#0
+        v-load tmp%3#0                                                    tmp%3#0
+        byte 0x7768696c655f736563726574                                   tmp%3#0,0x7768696c655f736563726574
+        ==                                                                tmp%4#0
         v-store tmp%4#0
-        v-load tmp%4#0                                          tmp%4#0
+        v-load tmp%4#0                                                    tmp%4#0
         bz main_after_if_else@16 ; b main_if_body@8
 
     main_if_body@8:
         // loop_else/loop_else.py:17
         // for account_index in urange(Txn.num_accounts):
-        txn NumAccounts                                         tmp%5#0
+        txn NumAccounts                                                   tmp%5#0
         v-store tmp%5#0
-        int 0                                                   0
+        int 0                                                             0
         v-store account_index#0
         b main_for_header@9
 
     main_for_header@9:
         // loop_else/loop_else.py:17
         // for account_index in urange(Txn.num_accounts):
-        v-load account_index#0                                  account_index#0
-        v-load tmp%5#0                                          account_index#0,tmp%5#0
-        <                                                       continue_looping%1#0
+        v-load account_index#0                                            account_index#0
+        v-load tmp%5#0                                                    account_index#0,tmp%5#0
+        <                                                                 continue_looping%1#0
         v-store continue_looping%1#0
-        v-load continue_looping%1#0                             continue_looping%1#0
+        v-load continue_looping%1#0                                       continue_looping%1#0
         assert // access denied, missing secret account
         // loop_else/loop_else.py:18
         // account = Txn.accounts(account_index)
-        v-load account_index#0                                  account_index#0
-        txnas Accounts                                          account#0
+        v-load account_index#0                                            account_index#0
+        txnas Accounts                                                    account#0
         v-store account#0
         // loop_else/loop_else.py:19
         // if account == Global.zero_address:
-        global ZeroAddress                                      tmp%6#0
-        v-store tmp%6#0
-        v-load account#0                                        account#0
-        v-load tmp%6#0                                          account#0,tmp%6#0
-        ==                                                      tmp%7#0
+        global ZeroAddress                                                tmp%7#0
         v-store tmp%7#0
-        v-load tmp%7#0                                          tmp%7#0
+        v-load account#0                                                  account#0
+        v-load tmp%7#0                                                    account#0,tmp%7#0
+        ==                                                                tmp%8#0
+        v-store tmp%8#0
+        v-load tmp%8#0                                                    tmp%8#0
         bz main_after_if_else@12 ; b main_if_body@11
 
     main_if_body@11:
         // loop_else/loop_else.py:29
         // op.itob(secret_index + 48)[-1],
-        v-load arg_idx#0                                        arg_idx#0
-        int 48                                                  arg_idx#0,48
-        +                                                       tmp%9#0
-        v-store tmp%9#0
-        v-load tmp%9#0                                          tmp%9#0
-        itob                                                    tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%10#0                                         tmp%10#0
-        extract 7 1                                             tmp%13#0
-        v-store tmp%13#0
-        byte "found secret argument at idx="                    "found secret argument at idx="
-        v-load tmp%13#0                                         "found secret argument at idx=",tmp%13#0
-        concat                                                  tmp%14#0
-        v-store tmp%14#0
+        v-load arg_idx#0                                                  arg_idx#0
+        int 48                                                            arg_idx#0,48
+        +                                                                 tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                   tmp%11#0
+        itob                                                              tmp%12#0
+        v-store tmp%12#0
+        v-load tmp%12#0                                                   tmp%12#0
+        extract 7 1                                                       extract%0#0
+        v-store extract%0#0
+        byte 0x666f756e642073656372657420617267756d656e74206174206964783d 0x666f756e642073656372657420617267756d656e74206174206964783d
+        v-load extract%0#0                                                0x666f756e642073656372657420617267756d656e74206174206964783d,extract%0#0
+        concat                                                            tmp%15#0
+        v-store tmp%15#0
         // loop_else/loop_else.py:30
         // " and secret account at idx=",
-        v-load tmp%14#0                                         tmp%14#0
-        byte " and secret account at idx="                      tmp%14#0," and secret account at idx="
-        concat                                                  tmp%16#0
-        v-store tmp%16#0
+        v-load tmp%15#0                                                   tmp%15#0
+        byte " and secret account at idx="                                tmp%15#0," and secret account at idx="
+        concat                                                            tmp%17#0
+        v-store tmp%17#0
         // loop_else/loop_else.py:31
         // op.itob(account_index + 48)[-1],
-        v-load account_index#0                                  account_index#0
-        int 48                                                  account_index#0,48
-        +                                                       tmp%18#0
-        v-store tmp%18#0
-        v-load tmp%18#0                                         tmp%18#0
-        itob                                                    tmp%19#0
+        v-load account_index#0                                            account_index#0
+        int 48                                                            account_index#0,48
+        +                                                                 tmp%19#0
         v-store tmp%19#0
-        v-load tmp%19#0                                         tmp%19#0
-        extract 7 1                                             tmp%22#0
-        v-store tmp%22#0
-        v-load tmp%16#0                                         tmp%16#0
-        v-load tmp%22#0                                         tmp%16#0,tmp%22#0
-        concat                                                  tmp%23#0
+        v-load tmp%19#0                                                   tmp%19#0
+        itob                                                              tmp%20#0
+        v-store tmp%20#0
+        v-load tmp%20#0                                                   tmp%20#0
+        extract 7 1                                                       extract%1#0
+        v-store extract%1#0
+        v-load tmp%17#0                                                   tmp%17#0
+        v-load extract%1#0                                                tmp%17#0,extract%1#0
+        concat                                                            tmp%23#0
         v-store tmp%23#0
         // loop_else/loop_else.py:27-32
         // log(
@@ -111,28 +111,28 @@ subroutine main:
         //     " and secret account at idx=",
         //     op.itob(account_index + 48)[-1],
         // )
-        v-load tmp%23#0                                         tmp%23#0
+        v-load tmp%23#0                                                   tmp%23#0
         log
         // loop_else/loop_else.py:33
         // return True
-        int 1                                                   1
+        int 1                                                             1
         return
 
     main_after_if_else@12:
         // loop_else/loop_else.py:17
         // for account_index in urange(Txn.num_accounts):
-        v-load account_index#0                                  account_index#0
-        int 1                                                   account_index#0,1
-        +                                                       account_index#0
+        v-load account_index#0                                            account_index#0
+        int 1                                                             account_index#0,1
+        +                                                                 account_index#0
         v-store account_index#0
         b main_for_header@9
 
     main_after_if_else@16:
         // loop_else/loop_else.py:24
         // arg_idx += 1
-        v-load arg_idx#0                                        arg_idx#0
-        int 1                                                   arg_idx#0,1
-        +                                                       arg_idx#0
+        v-load arg_idx#0                                                  arg_idx#0
+        int 1                                                             arg_idx#0,1
+        +                                                                 arg_idx#0
         v-store arg_idx#0
         b main_while_top@1
 

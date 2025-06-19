@@ -50,15 +50,15 @@ subroutine test_cases.inner_transactions.asset_transfer.CreateAndTransferContrac
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
         let inner_txn_params%0%%param_ConfigAssetTotal_idx_0#0: uint64 = 1000u
         let inner_txn_params%0%%ConfigAssetTotal_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ConfigAssetName_idx_0#0: bytes[4] = "test"
+        let inner_txn_params%0%%param_ConfigAssetName_idx_0#0: string = "test"
         let inner_txn_params%0%%ConfigAssetName_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ConfigAssetUnitName_idx_0#0: bytes[3] = "TST"
+        let inner_txn_params%0%%param_ConfigAssetUnitName_idx_0#0: string = "TST"
         let inner_txn_params%0%%ConfigAssetUnitName_length#0: uint64 = 1u
         let inner_txn_params%0%%param_ConfigAssetDecimals_idx_0#0: uint64 = 0u
         let inner_txn_params%0%%ConfigAssetDecimals_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ConfigAssetManager_idx_0#0: bytes[32] = (global CurrentApplicationAddress)
+        let inner_txn_params%0%%param_ConfigAssetManager_idx_0#0: account = (global CurrentApplicationAddress)
         let inner_txn_params%0%%ConfigAssetManager_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0: bytes[32] = (global CurrentApplicationAddress)
+        let inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0: account = (global CurrentApplicationAddress)
         let inner_txn_params%0%%ConfigAssetClawback_length#0: uint64 = 1u
         let inner_txn_params%0%%Sender_length#0: uint64 = 0u
         let inner_txn_params%0%%Note_length#0: uint64 = 0u
@@ -114,18 +114,19 @@ subroutine test_cases.inner_transactions.asset_transfer.CreateAndTransferContrac
         goto block@1
     block@1: // next_txn_L15
         itxn_submit
-        let new_asset#0: uint64 = itxn[itxn_group_idx(0)].CreatedAssetID
+        let tmp%0#0: uint64 = itxn[itxn_group_idx(0)].CreatedAssetID
+        let new_asset#0: uint64 = tmp%0#0
         itxn_begin
         let inner_txn_params%1#0: itxn_field_set = itxn_field_set(1)
         let inner_txn_params%1%%param_Fee_idx_0#0: uint64 = 0u
         let inner_txn_params%1%%Fee_length#0: uint64 = 1u
         let inner_txn_params%1%%param_TypeEnum_idx_0#0: uint64 = axfer
         let inner_txn_params%1%%TypeEnum_length#0: uint64 = 1u
-        let (value%0#0: bytes[32], check%0#0: bool) = ((asset_params_get AssetCreator) new_asset#0)
+        let (value%0#0: account, check%0#0: bool) = ((asset_params_get AssetCreator) new_asset#0)
         (assert check%0#0) // asset exists
-        let inner_txn_params%1%%param_AssetSender_idx_0#0: bytes[32] = value%0#0
+        let inner_txn_params%1%%param_AssetSender_idx_0#0: account = value%0#0
         let inner_txn_params%1%%AssetSender_length#0: uint64 = 1u
-        let inner_txn_params%1%%param_AssetReceiver_idx_0#0: bytes[32] = (global CurrentApplicationAddress)
+        let inner_txn_params%1%%param_AssetReceiver_idx_0#0: account = (global CurrentApplicationAddress)
         let inner_txn_params%1%%AssetReceiver_length#0: uint64 = 1u
         let inner_txn_params%1%%param_AssetAmount_idx_0#0: uint64 = 1000u
         let inner_txn_params%1%%AssetAmount_length#0: uint64 = 1u
