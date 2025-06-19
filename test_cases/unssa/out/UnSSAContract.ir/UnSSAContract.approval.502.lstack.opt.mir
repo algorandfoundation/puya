@@ -13,7 +13,7 @@ subroutine main:
         // while a < 100:
         v-load a#0                                                              a#0
         int 100                                                                 a#0,100
-        <                                                                       tmp%0#2
+        <                                                                       tmp%0#6
         bz main_after_while@47 ; b main_while_body@42
 
     main_while_body@42:
@@ -21,7 +21,7 @@ subroutine main:
         // if a % 105 == 0:
         v-load a#0                                                              a#0
         int 105                                                                 a#0,105
-        %                                                                       tmp%1#4
+        %                                                                       tmp%1#6
         bz main_while_top@41 ; b main_after_if_else@44
 
     main_after_if_else@44:
@@ -29,7 +29,7 @@ subroutine main:
         // if not a % 21:
         v-load a#0                                                              a#0
         int 21                                                                  a#0,21
-        %                                                                       tmp%3#2
+        %                                                                       tmp%3#3
         bz main_after_while@47 ; b main_after_if_else@46
 
     main_after_if_else@46:
@@ -51,7 +51,7 @@ subroutine main:
         // unssa/contract.py:8
         // log(op.itob(result1))
         l-load-copy result1#0 0                                                 result1#0,result1#0 (copy)
-        itob                                                                    result1#0,tmp%0#0
+        itob                                                                    result1#0,tmp%1#0
         log                                                                     result1#0
         // unssa/contract.py:9
         // assert 1 <= result1 <= 2
@@ -63,7 +63,7 @@ subroutine main:
         // assert 1 <= result1 <= 2
         v-load result1#0                                                        result1#0
         int 2                                                                   result1#0,2
-        <=                                                                      tmp%2#0
+        <=                                                                      tmp%3#0
         bz main_bool_false@3 ; b main_bool_true@2
 
     main_bool_true@2:
@@ -90,7 +90,7 @@ subroutine main:
         // unssa/contract.py:11
         // log(op.itob(result2))
         l-load-copy result2#0 0                                                 result2#0,result2#0 (copy)
-        itob                                                                    result2#0,tmp%3#0
+        itob                                                                    result2#0,tmp%5#0
         log                                                                     result2#0
         // unssa/contract.py:12
         // assert 1 <= result2 <= 2
@@ -102,7 +102,7 @@ subroutine main:
         // assert 1 <= result2 <= 2
         v-load result2#0                                                        result2#0
         int 2                                                                   result2#0,2
-        <=                                                                      tmp%5#0
+        <=                                                                      tmp%7#0
         bz main_bool_false@7 ; b main_bool_true@6
 
     main_bool_true@6:
@@ -190,7 +190,7 @@ subroutine main:
         // if x >= 10:
         l-load x#0 0                                                            x#0
         int 10                                                                  x#0,10
-        >=                                                                      tmp%0#2
+        >=                                                                      tmp%1#2
         bz main_while_top@18 ; b main_if_body@20
 
     main_if_body@20:
@@ -198,7 +198,7 @@ subroutine main:
         // assert test_param_update_with_reentrant_entry_block(UInt64(0)) == 10
         v-load x#0                                                              x#0
         int 10                                                                  x#0,10
-        ==                                                                      tmp%7#0
+        ==                                                                      tmp%9#0
         assert
         // unssa/contract.py:19
         // (a, b) = test_tuple_swap(UInt64(100), UInt64(200), UInt64(0))
@@ -210,13 +210,13 @@ subroutine main:
         // assert a == UInt64(100)
         l-load a#0 1                                                            b#0,a#0
         int 100                                                                 b#0,a#0,100
-        ==                                                                      b#0,tmp%8#0
+        ==                                                                      b#0,tmp%12#0
         assert                                                                  b#0
         // unssa/contract.py:21
         // assert b == UInt64(200)
         l-load b#0 0                                                            b#0
         int 200                                                                 b#0,200
-        ==                                                                      tmp%9#0
+        ==                                                                      tmp%13#0
         assert
         // unssa/contract.py:22
         // (a, b) = test_tuple_swap(UInt64(100), UInt64(200), UInt64(1))
@@ -228,13 +228,13 @@ subroutine main:
         // assert a == UInt64(200)
         l-load a#0 1                                                            b#0,a#0
         int 200                                                                 b#0,a#0,200
-        ==                                                                      b#0,tmp%10#0
+        ==                                                                      b#0,tmp%16#0
         assert                                                                  b#0
         // unssa/contract.py:24
         // assert b == UInt64(100)
         l-load b#0 0                                                            b#0
         int 100                                                                 b#0,100
-        ==                                                                      tmp%11#0
+        ==                                                                      tmp%17#0
         assert
         // unssa/contract.py:26
         // return True

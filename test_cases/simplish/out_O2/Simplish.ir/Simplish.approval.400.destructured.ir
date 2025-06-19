@@ -14,34 +14,34 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         goto block@26
     block@5: // after_if_else_L31
         let oca#0: uint64 = (txn OnCompletion)
-        let sender#0: bytes[32] = (txn Sender)
-        let tmp%2#0: bool = (== oca#0 UpdateApplication)
-        goto tmp%2#0 ? block@7 : block@6
+        let sender#0: account = (txn Sender)
+        let tmp%4#0: bool = (== oca#0 UpdateApplication)
+        goto tmp%4#0 ? block@7 : block@6
     block@6: // or_contd_L35
-        let tmp%3#0: bool = (== oca#0 DeleteApplication)
-        goto tmp%3#0 ? block@7 : block@10
+        let tmp%5#0: bool = (== oca#0 DeleteApplication)
+        goto tmp%5#0 ? block@7 : block@10
     block@7: // if_body_L39
-        let tmp%4#0: bool = (== oca#0 DeleteApplication)
-        goto tmp%4#0 ? block@8 : block@9
+        let tmp%6#0: bool = (== oca#0 DeleteApplication)
+        goto tmp%6#0 ? block@8 : block@9
     block@8: // if_body_L40
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
-        let tmp%5#0: bytes = test_cases.simplish.contract.itoa(maybe_value%0#0)
-        let tmp%6#0: bytes = (concat 0x4920776173207573656420 tmp%5#0)
-        let tmp%7#0: bytes = (concat tmp%6#0 0x2074696d65287329206265666f726520492064696564)
-        (log tmp%7#0)
+        let tmp%7#0: bytes = test_cases.simplish.contract.itoa(maybe_value%0#0)
+        let tmp%8#0: bytes = (concat 0x4920776173207573656420 tmp%7#0)
+        let tmp%9#0: bytes = (concat tmp%8#0 0x2074696d65287329206265666f726520492064696564)
+        (log tmp%9#0)
         goto block@9
     block@9: // after_if_else_L39
-        let tmp%8#0: bytes[32] = (global CreatorAddress)
-        let tmp%9#0: bool = (== tmp%8#0 sender#0)
-        let tmp%1#0: bool = tmp%9#0
+        let tmp%10#0: account = (global CreatorAddress)
+        let tmp%11#0: bool = (== tmp%10#0 sender#0)
+        let tmp%1#0: bool = tmp%11#0
         goto block@26
     block@10: // after_if_else_L35
-        let tmp%10#0: bool = (== oca#0 OptIn)
-        goto tmp%10#0 ? block@11 : block@14
+        let tmp%12#0: bool = (== oca#0 OptIn)
+        goto tmp%12#0 ? block@11 : block@14
     block@11: // if_body_L44
-        let tmp%11#0: uint64 = (txn NumAppArgs)
-        goto tmp%11#0 ? block@12 : block@4
+        let tmp%13#0: uint64 = (txn NumAppArgs)
+        goto tmp%13#0 ? block@12 : block@4
     block@12: // if_body_L45
         let nickname#0: bytes = (txna ApplicationArgs 0)
         (app_local_put 0u "name" nickname#0)
@@ -62,8 +62,8 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         let tmp%1#2: bytes = (txna ApplicationArgs 1)
         let radius#0: uint64 = (btoi tmp%1#2)
         let status#0: bool = 1u
-        let tmp%2#0: bool = (== method_name#0 0x636972636c655f61726561)
-        goto tmp%2#0 ? block@30 : block@31
+        let tmp%3#0: bool = (== method_name#0 0x636972636c655f61726561)
+        goto tmp%3#0 ? block@30 : block@31
     block@30: // if_body_L77
         let tmp%0#1: uint64 = (exp radius#0 2u)
         let tmp%1#3: uint64 = (* tmp%0#1 314159u)
@@ -71,30 +71,30 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         let result#5: bytes = test_cases.simplish.contract.itoa(result#12)
         goto block@38
     block@31: // else_body_L79
-        let tmp%3#0: bool = (== method_name#0 0x636972636c655f63697263756d666572656e6365)
-        goto tmp%3#0 ? block@32 : block@33
+        let tmp%6#0: bool = (== method_name#0 0x636972636c655f63697263756d666572656e6365)
+        goto tmp%6#0 ? block@32 : block@33
     block@32: // if_body_L80
-        let tmp%0#1: uint64 = (* radius#0 628318u)
-        let circumference#0: uint64 = (/ tmp%0#1 100000u)
+        let tmp%1#3: uint64 = (* radius#0 628318u)
+        let circumference#0: uint64 = (/ tmp%1#3 100000u)
         let result#5: bytes = test_cases.simplish.contract.itoa(circumference#0)
         goto block@38
     block@33: // else_body_L82
-        let tmp%4#0: bool = (== method_name#0 0x636972636c655f7265706f7274)
-        goto tmp%4#0 ? block@34 : block@35
+        let tmp%9#1: bool = (== method_name#0 0x636972636c655f7265706f7274)
+        goto tmp%9#1 ? block@34 : block@35
     block@34: // if_body_L83
         let tmp%0#1: uint64 = (exp radius#0 2u)
         let tmp%1#3: uint64 = (* tmp%0#1 314159u)
         let result#12: uint64 = (/ tmp%1#3 100000u)
-        let tmp%0#1: uint64 = (* radius#0 628318u)
-        let circumference#0: uint64 = (/ tmp%0#1 100000u)
-        let tmp%7#0: bytes = test_cases.simplish.contract.itoa(radius#0)
-        let tmp%8#0: bytes[32] = (concat 0x417070726f78696d617465206172656120616e642063697263756d666572656e6365206f6620636972636c6520776974682072616469757320 tmp%7#0)
-        let tmp%9#1: bytes = (concat tmp%8#0 0x203d20)
-        let tmp%10#1: bytes = test_cases.simplish.contract.itoa(result#12)
-        let tmp%11#1: bytes = (concat tmp%9#1 tmp%10#1)
-        let tmp%12#1: bytes = (concat tmp%11#1 0x2c20)
-        let tmp%13#1: bytes = test_cases.simplish.contract.itoa(circumference#0)
-        let result#5: bytes = (concat tmp%12#1 tmp%13#1)
+        let tmp%1#3: uint64 = (* radius#0 628318u)
+        let circumference#0: uint64 = (/ tmp%1#3 100000u)
+        let tmp%12#1: bytes = test_cases.simplish.contract.itoa(radius#0)
+        let tmp%13#1: bytes = (concat 0x417070726f78696d617465206172656120616e642063697263756d666572656e6365206f6620636972636c6520776974682072616469757320 tmp%12#1)
+        let tmp%14#1: bytes = (concat tmp%13#1 0x203d20)
+        let tmp%15#1: bytes = test_cases.simplish.contract.itoa(result#12)
+        let tmp%16#1: bytes = (concat tmp%14#1 tmp%15#1)
+        let tmp%17#0: bytes = (concat tmp%16#1 0x2c20)
+        let tmp%18#1: bytes = test_cases.simplish.contract.itoa(circumference#0)
+        let result#5: bytes = (concat tmp%17#0 tmp%18#1)
         goto block@38
     block@35: // else_body_L93
         let status#0: bool = 0u
@@ -105,9 +105,9 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         let msg#1: bytes = result#5
         goto block@25
     block@18: // else_body_L53
-        let tmp%16#0: uint64 = (txn NumAssets)
-        let tmp%17#0: bool = (== tmp%16#0 1u)
-        goto tmp%17#0 ? block@19 : block@23
+        let tmp%22#0: uint64 = (txn NumAssets)
+        let tmp%23#0: bool = (== tmp%22#0 1u)
+        goto tmp%23#0 ? block@19 : block@23
     block@19: // if_body_L54
         let (asset_balance#0: uint64, asset_exists#0: bool) = ((asset_holding_get AssetBalance) sender#0 0u)
         goto asset_exists#0 ? block@21 : block@20
@@ -115,8 +115,8 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         let msg#1: bytes = 0x596f7520646f206e6f74206861766520616e79206f6620746865206173736574
         goto block@22
     block@21: // else_body_L58
-        let tmp%18#0: bytes = test_cases.simplish.contract.itoa(asset_balance#0)
-        let msg#1: bytes = (concat 0x596f7520686176652061737365742062616c616e63653a20 tmp%18#0)
+        let tmp%26#0: bytes = test_cases.simplish.contract.itoa(asset_balance#0)
+        let msg#1: bytes = (concat 0x596f7520686176652061737365742062616c616e63653a20 tmp%26#0)
         goto block@22
     block@22: // after_if_else_L55
         let result#1: bool = 1u
@@ -130,8 +130,8 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
         (log "Incrementing counter!")
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
-        let materialized_values%0#0: uint64 = (+ maybe_value%0#0 1u)
-        (app_global_put "counter" materialized_values%0#0)
+        let tmp%0#1: uint64 = (+ maybe_value%0#0 1u)
+        (app_global_put "counter" tmp%0#1)
         let tmp%1#0: bool = result#1
         goto block@26
     block@26: // after_inlined_test_cases.simplish.contract.Simplish.approval_program_L1
@@ -139,15 +139,15 @@ main test_cases.simplish.contract.Simplish.__algopy_entrypoint_with_init:
 
 subroutine test_cases.simplish.contract.itoa(i: uint64) -> bytes:
     block@0: // L117
-        let tmp%0#0: bool = (< i#0 10u)
-        goto tmp%0#0 ? block@1 : block@2
+        let tmp%1#0: bool = (< i#0 10u)
+        goto tmp%1#0 ? block@1 : block@2
     block@1: // if_body_L123
-        let tmp%1#0: bytes = (extract3 0x30313233343536373839 i#0 1u)
-        return tmp%1#0
+        let extract%0#0: bytes = (extract3 0x30313233343536373839 i#0 1u)
+        return extract%0#0
     block@2: // after_if_else_L122
         let tmp%2#0: uint64 = (/ i#0 10u)
         let tmp%3#0: bytes = test_cases.simplish.contract.itoa(tmp%2#0)
         let tmp%4#0: uint64 = (% i#0 10u)
-        let tmp%5#0: bytes = (extract3 0x30313233343536373839 tmp%4#0 1u)
-        let tmp%6#0: bytes = (concat tmp%3#0 tmp%5#0)
-        return tmp%6#0
+        let extract%1#0: bytes = (extract3 0x30313233343536373839 tmp%4#0 1u)
+        let tmp%5#0: bytes = (concat tmp%3#0 extract%1#0)
+        return tmp%5#0

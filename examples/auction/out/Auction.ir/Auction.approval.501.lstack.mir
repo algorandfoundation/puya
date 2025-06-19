@@ -29,17 +29,17 @@ subroutine main:
         app_global_put
         // auction/contract.py:22
         // self.previous_bidder = Account()
-        global ZeroAddress                                                                   materialized_values%0#0
-        byte "previous_bidder"                                                               materialized_values%0#0,"previous_bidder"
-        l-load materialized_values%0#0 1                                                     "previous_bidder",materialized_values%0#0
+        global ZeroAddress                                                                   tmp%0#2
+        byte "previous_bidder"                                                               tmp%0#2,"previous_bidder"
+        l-load tmp%0#2 1                                                                     "previous_bidder",tmp%0#2
         app_global_put
         b main_after_if_else@2
 
     main_after_if_else@2:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txn NumAppArgs                                                                       tmp%0#2
-        l-load tmp%0#2 0                                                                     tmp%0#2
+        txn NumAppArgs                                                                       tmp%0#3
+        l-load tmp%0#3 0                                                                     tmp%0#3
         bz main_bare_routing@11 ; b main_abi_routing@4
 
     main_abi_routing@4:
@@ -68,8 +68,8 @@ subroutine main:
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 1                                                               reinterpret_bytes[1]%0#0
-        l-load reinterpret_bytes[1]%0#0 0                                                    reinterpret_bytes[1]%0#0
+        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint8)%0#0
+        l-load reinterpret_Encoded(uint8)%0#0 0                                              reinterpret_Encoded(uint8)%0#0
         btoi                                                                                 tmp%7#0
         l-load tmp%7#0 0                                                                     tmp%7#0
         txnas Assets                                                                         tmp%8#0
@@ -96,11 +96,11 @@ subroutine main:
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 1                                                               reinterpret_bytes[8]%0#0
-        l-load reinterpret_bytes[8]%0#0 0                                                    reinterpret_bytes[8]%0#0
+        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint64)%0#0
+        l-load reinterpret_Encoded(uint64)%0#0 0                                             reinterpret_Encoded(uint64)%0#0
         btoi                                                                                 tmp%13#0
-        txna ApplicationArgs 2                                                               tmp%13#0,reinterpret_bytes[8]%1#0
-        l-load reinterpret_bytes[8]%1#0 0                                                    tmp%13#0,reinterpret_bytes[8]%1#0
+        txna ApplicationArgs 2                                                               tmp%13#0,reinterpret_Encoded(uint64)%1#0
+        l-load reinterpret_Encoded(uint64)%1#0 0                                             tmp%13#0,reinterpret_Encoded(uint64)%1#0
         btoi                                                                                 tmp%13#0,tmp%14#0
         txn GroupIndex                                                                       tmp%13#0,tmp%14#0,tmp%15#0
         l-load tmp%15#0 0                                                                    tmp%13#0,tmp%14#0,tmp%15#0
@@ -207,8 +207,8 @@ subroutine main:
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 1                                                               reinterpret_bytes[1]%1#0
-        l-load reinterpret_bytes[1]%1#0 0                                                    reinterpret_bytes[1]%1#0
+        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint8)%1#0
+        l-load reinterpret_Encoded(uint8)%1#0 0                                              reinterpret_Encoded(uint8)%1#0
         btoi                                                                                 tmp%33#0
         l-load tmp%33#0 0                                                                    tmp%33#0
         txnas Assets                                                                         tmp%34#0
@@ -351,18 +351,18 @@ subroutine start_auction:
         // auction/contract.py:58
         // self.asa_amount = axfer.asset_amount
         p-load axfer#0                                                                       (𝕡) starting_price#0,length#0,axfer#0 | axfer#0 (copy)
-        gtxns AssetAmount                                                                    (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%0#0
-        byte "asa_amount"                                                                    (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%0#0,"asa_amount"
-        l-load materialized_values%0#0 1                                                     (𝕡) starting_price#0,length#0,axfer#0 | "asa_amount",materialized_values%0#0
+        gtxns AssetAmount                                                                    (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0
+        byte "asa_amount"                                                                    (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0,"asa_amount"
+        l-load tmp%7#0 1                                                                     (𝕡) starting_price#0,length#0,axfer#0 | "asa_amount",tmp%7#0
         app_global_put                                                                       (𝕡) starting_price#0,length#0,axfer#0 |
         // auction/contract.py:59
         // self.auction_end = Global.latest_timestamp + length
-        global LatestTimestamp                                                               (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0
-        l-load tmp%7#0 0                                                                     (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0
-        p-load length#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0,length#0 (copy)
-        +                                                                                    (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%1#0
-        byte "auction_end"                                                                   (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%1#0,"auction_end"
-        l-load materialized_values%1#0 1                                                     (𝕡) starting_price#0,length#0,axfer#0 | "auction_end",materialized_values%1#0
+        global LatestTimestamp                                                               (𝕡) starting_price#0,length#0,axfer#0 | tmp%8#0
+        l-load tmp%8#0 0                                                                     (𝕡) starting_price#0,length#0,axfer#0 | tmp%8#0
+        p-load length#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 | tmp%8#0,length#0 (copy)
+        +                                                                                    (𝕡) starting_price#0,length#0,axfer#0 | tmp%9#0
+        byte "auction_end"                                                                   (𝕡) starting_price#0,length#0,axfer#0 | tmp%9#0,"auction_end"
+        l-load tmp%9#0 1                                                                     (𝕡) starting_price#0,length#0,axfer#0 | "auction_end",tmp%9#0
         app_global_put                                                                       (𝕡) starting_price#0,length#0,axfer#0 |
         // auction/contract.py:60
         // self.previous_bid = starting_price
@@ -424,10 +424,10 @@ subroutine bid:
         app_global_put                                                                       (𝕡) pay#0 | tmp%5#0
         // auction/contract.py:80
         // self.claimable_amount[Txn.sender] = pay.amount
-        txn Sender                                                                           (𝕡) pay#0 | tmp%5#0,tmp%7#0
-        l-load tmp%7#0 0                                                                     (𝕡) pay#0 | tmp%5#0,tmp%7#0
-        byte "claim"                                                                         (𝕡) pay#0 | tmp%5#0,tmp%7#0,"claim"
-        l-load tmp%5#0 2                                                                     (𝕡) pay#0 | tmp%7#0,"claim",tmp%5#0
+        txn Sender                                                                           (𝕡) pay#0 | tmp%5#0,tmp%10#0
+        l-load tmp%10#0 0                                                                    (𝕡) pay#0 | tmp%5#0,tmp%10#0
+        byte "claim"                                                                         (𝕡) pay#0 | tmp%5#0,tmp%10#0,"claim"
+        l-load tmp%5#0 2                                                                     (𝕡) pay#0 | tmp%10#0,"claim",tmp%5#0
         app_local_put                                                                        (𝕡) pay#0 |
         retsub
 
@@ -508,11 +508,11 @@ subroutine claim_bids:
         // self.claimable_amount[Txn.sender] = original_amount - amount
         v-load original_amount#0                                                             amount#1,original_amount#0
         l-load amount#1 1                                                                    original_amount#0,amount#1
-        -                                                                                    materialized_values%0#0
-        txn Sender                                                                           materialized_values%0#0,tmp%3#0
-        l-load tmp%3#0 0                                                                     materialized_values%0#0,tmp%3#0
-        byte "claim"                                                                         materialized_values%0#0,tmp%3#0,"claim"
-        l-load materialized_values%0#0 2                                                     tmp%3#0,"claim",materialized_values%0#0
+        -                                                                                    tmp%4#0
+        txn Sender                                                                           tmp%4#0,tmp%5#0
+        l-load tmp%5#0 0                                                                     tmp%4#0,tmp%5#0
+        byte "claim"                                                                         tmp%4#0,tmp%5#0,"claim"
+        l-load tmp%4#0 2                                                                     tmp%5#0,"claim",tmp%4#0
         app_local_put
         retsub
 

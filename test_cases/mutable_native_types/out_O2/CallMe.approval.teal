@@ -1,0 +1,214 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 1 0
+    bytecblock 0x151f7c75 "fixed_struct" "nested_struct" "dynamic_struct" "fixed_arr" "native_arr"
+    txn NumAppArgs
+    bz main_bare_routing@17
+    pushbytess 0x24378d3c 0x11b19b95 0xd28b964a 0xea18655f 0xbb3bfdb7 0x46ec14a0 0x9b4d0926 0x4f0deb50 0x59664ab6 0x125d1376 0x818e4a62 0x9bbe1032 // method "delete()void", method "fixed_struct_arg((uint64,uint64))void", method "fixed_struct_ret()(uint64,uint64)", method "nested_struct_arg(((uint64,uint64),uint64))void", method "nested_struct_ret()((uint64,uint64),uint64)", method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void", method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])", method "fixed_arr_arg((uint64,uint64)[3])void", method "fixed_arr_ret()(uint64,uint64)[3]", method "native_arr_arg((uint64,uint64)[])void", method "native_arr_ret()(uint64,uint64)[]", method "log_it()void"
+    txna ApplicationArgs 0
+    match main_delete_route@5 main_fixed_struct_arg_route@6 main_fixed_struct_ret_route@7 main_nested_struct_arg_route@8 main_nested_struct_ret_route@9 main_dynamic_struct_arg_route@10 main_dynamic_struct_ret_route@11 main_fixed_arr_arg_route@12 main_fixed_arr_ret_route@13 main_native_arr_arg_route@14 main_native_arr_ret_route@15 main_log_it_route@16
+
+main_after_if_else@19:
+    intc_1 // 0
+    return
+
+main_log_it_route@16:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 0
+    bytec_1 // "fixed_struct"
+    app_global_get_ex
+    assert // check self.fixed_struct exists
+    log
+    intc_1 // 0
+    bytec_2 // "nested_struct"
+    app_global_get_ex
+    assert // check self.nested_struct exists
+    log
+    intc_1 // 0
+    bytec_3 // "dynamic_struct"
+    app_global_get_ex
+    assert // check self.dynamic_struct exists
+    log
+    intc_1 // 0
+    bytec 4 // "fixed_arr"
+    app_global_get_ex
+    assert // check self.fixed_arr exists
+    log
+    intc_1 // 0
+    bytec 5 // "native_arr"
+    app_global_get_ex
+    assert // check self.native_arr exists
+    log
+    intc_0 // 1
+    return
+
+main_native_arr_ret_route@15:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 0
+    bytec 5 // "native_arr"
+    app_global_get_ex
+    assert // check self.native_arr exists
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_native_arr_arg_route@14:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec 5 // "native_arr"
+    txna ApplicationArgs 1
+    app_global_put
+    intc_0 // 1
+    return
+
+main_fixed_arr_ret_route@13:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 0
+    bytec 4 // "fixed_arr"
+    app_global_get_ex
+    assert // check self.fixed_arr exists
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_fixed_arr_arg_route@12:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec 4 // "fixed_arr"
+    txna ApplicationArgs 1
+    app_global_put
+    intc_0 // 1
+    return
+
+main_dynamic_struct_ret_route@11:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 0
+    bytec_3 // "dynamic_struct"
+    app_global_get_ex
+    assert // check self.dynamic_struct exists
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_dynamic_struct_arg_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec_3 // "dynamic_struct"
+    txna ApplicationArgs 1
+    app_global_put
+    intc_0 // 1
+    return
+
+main_nested_struct_ret_route@9:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 0
+    bytec_2 // "nested_struct"
+    app_global_get_ex
+    assert // check self.nested_struct exists
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_nested_struct_arg_route@8:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec_2 // "nested_struct"
+    txna ApplicationArgs 1
+    app_global_put
+    intc_0 // 1
+    return
+
+main_fixed_struct_ret_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_1 // 0
+    bytec_1 // "fixed_struct"
+    app_global_get_ex
+    assert // check self.fixed_struct exists
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_fixed_struct_arg_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    bytec_1 // "fixed_struct"
+    txna ApplicationArgs 1
+    app_global_put
+    intc_0 // 1
+    return
+
+main_delete_route@5:
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    assert // OnCompletion is not DeleteApplication
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_0 // 1
+    return
+
+main_bare_routing@17:
+    txn OnCompletion
+    bnz main_after_if_else@19
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return

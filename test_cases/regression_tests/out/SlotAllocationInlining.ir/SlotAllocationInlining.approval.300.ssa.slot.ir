@@ -1,9 +1,9 @@
 slot_allocation(dynamic, reserved=[])
 main test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program:
     block@2: // while_top_L20
-        let tmp%0#0: uint64 = (global OpcodeBudget)
-        let tmp%1#0: bool = (> 810u tmp%0#0)
-        goto tmp%1#0 ? block@3 : block@8
+        let tmp%1#0: uint64 = (global OpcodeBudget)
+        let tmp%2#0: bool = (> 810u tmp%1#0)
+        goto tmp%2#0 ? block@3 : block@8
     block@3: // while_body_L21
         itxn_begin
         ((itxn_field TypeEnum) appl)
@@ -14,32 +14,32 @@ main test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining
         itxn_submit
         goto block@2
     block@8: // after_while_L20
-        let arr#0: encoded_uint64[]* = new()
+        let arr#0: Encoded(uint64[])* = new()
         write(arr#0, 0x)
         test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr#0)
-        let slot_contents%0#0: encoded_uint64[] = read(arr#0)
-        let array%bytes_len%0#1: uint64 = (len slot_contents%0#0)
-        let array%array_len%0#1: uint64 = (/ array%bytes_len%0#1 8u)
-        let tmp%1#1: bool = (== array%array_len%0#1 32u)
-        (assert tmp%1#1) // expected array of length 32
+        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
+        let bytes_len%0#0: uint64 = (len slot_contents%0#0)
+        let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
+        let tmp%0#1: bool = (== array_len%0#0 32u)
+        (assert tmp%0#1) // expected array of length 32
         return 1u
 
-subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: encoded_uint64[]*) -> void:
-    block@0: // L22
-        let tmp%0#0: bytes[32] = (txn Sender)
+subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: Encoded(uint64[])*) -> void:
+    block@0: // L30
+        let tmp%0#0: account = (txn Sender)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L24
+    block@1: // for_header_L32
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 32u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L25
+    block@2: // for_body_L33
         let tmp%1#0: uint64 = (getbyte tmp%0#0 item_index_internal%0#1)
-        let array%sub_item%0#1: bytes[8] = (itob tmp%1#0)
-        let slot_contents%0#0: encoded_uint64[] = read(arr#0)
-        let array%array_contents%0#1: bytes = (concat slot_contents%0#0 array%sub_item%0#1) // on error: max array length exceeded
-        write(arr#0, array%array_contents%0#1)
+        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
+        let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 aggregate%val_as_bytes%0#1) // on error: max array length exceeded
+        write(arr#0, concat%0#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L24
+    block@4: // after_for_L32
         return 

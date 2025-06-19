@@ -30,19 +30,19 @@ subroutine main:
         app_global_put
         // auction/contract.py:22
         // self.previous_bidder = Account()
-        global ZeroAddress                                                                   materialized_values%0#0
-        v-store materialized_values%0#0
+        global ZeroAddress                                                                   tmp%0#2
+        v-store tmp%0#2
         byte "previous_bidder"                                                               "previous_bidder"
-        v-load materialized_values%0#0                                                       "previous_bidder",materialized_values%0#0
+        v-load tmp%0#2                                                                       "previous_bidder",tmp%0#2
         app_global_put
         b main_after_if_else@2
 
     main_after_if_else@2:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txn NumAppArgs                                                                       tmp%0#2
-        v-store tmp%0#2
-        v-load tmp%0#2                                                                       tmp%0#2
+        txn NumAppArgs                                                                       tmp%0#3
+        v-store tmp%0#3
+        v-load tmp%0#3                                                                       tmp%0#3
         bz main_bare_routing@11 ; b main_abi_routing@4
 
     main_abi_routing@4:
@@ -75,9 +75,9 @@ subroutine main:
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 1                                                               reinterpret_bytes[1]%0#0
-        v-store reinterpret_bytes[1]%0#0
-        v-load reinterpret_bytes[1]%0#0                                                      reinterpret_bytes[1]%0#0
+        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint8)%0#0
+        v-store reinterpret_Encoded(uint8)%0#0
+        v-load reinterpret_Encoded(uint8)%0#0                                                reinterpret_Encoded(uint8)%0#0
         btoi                                                                                 tmp%7#0
         v-store tmp%7#0
         v-load tmp%7#0                                                                       tmp%7#0
@@ -109,14 +109,14 @@ subroutine main:
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 1                                                               reinterpret_bytes[8]%0#0
-        v-store reinterpret_bytes[8]%0#0
-        v-load reinterpret_bytes[8]%0#0                                                      reinterpret_bytes[8]%0#0
+        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint64)%0#0
+        v-store reinterpret_Encoded(uint64)%0#0
+        v-load reinterpret_Encoded(uint64)%0#0                                               reinterpret_Encoded(uint64)%0#0
         btoi                                                                                 tmp%13#0
         v-store tmp%13#0
-        txna ApplicationArgs 2                                                               reinterpret_bytes[8]%1#0
-        v-store reinterpret_bytes[8]%1#0
-        v-load reinterpret_bytes[8]%1#0                                                      reinterpret_bytes[8]%1#0
+        txna ApplicationArgs 2                                                               reinterpret_Encoded(uint64)%1#0
+        v-store reinterpret_Encoded(uint64)%1#0
+        v-load reinterpret_Encoded(uint64)%1#0                                               reinterpret_Encoded(uint64)%1#0
         btoi                                                                                 tmp%14#0
         v-store tmp%14#0
         txn GroupIndex                                                                       tmp%15#0
@@ -244,9 +244,9 @@ subroutine main:
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 1                                                               reinterpret_bytes[1]%1#0
-        v-store reinterpret_bytes[1]%1#0
-        v-load reinterpret_bytes[1]%1#0                                                      reinterpret_bytes[1]%1#0
+        txna ApplicationArgs 1                                                               reinterpret_Encoded(uint8)%1#0
+        v-store reinterpret_Encoded(uint8)%1#0
+        v-load reinterpret_Encoded(uint8)%1#0                                                reinterpret_Encoded(uint8)%1#0
         btoi                                                                                 tmp%33#0
         v-store tmp%33#0
         v-load tmp%33#0                                                                      tmp%33#0
@@ -410,21 +410,21 @@ subroutine start_auction:
         // auction/contract.py:58
         // self.asa_amount = axfer.asset_amount
         p-load axfer#0                                                                       (𝕡) starting_price#0,length#0,axfer#0 | axfer#0 (copy)
-        gtxns AssetAmount                                                                    (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%0#0
-        v-store materialized_values%0#0                                                      (𝕡) starting_price#0,length#0,axfer#0 |
+        gtxns AssetAmount                                                                    (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0
+        v-store tmp%7#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 |
         byte "asa_amount"                                                                    (𝕡) starting_price#0,length#0,axfer#0 | "asa_amount"
-        v-load materialized_values%0#0                                                       (𝕡) starting_price#0,length#0,axfer#0 | "asa_amount",materialized_values%0#0
+        v-load tmp%7#0                                                                       (𝕡) starting_price#0,length#0,axfer#0 | "asa_amount",tmp%7#0
         app_global_put                                                                       (𝕡) starting_price#0,length#0,axfer#0 |
         // auction/contract.py:59
         // self.auction_end = Global.latest_timestamp + length
-        global LatestTimestamp                                                               (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0
-        v-store tmp%7#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 |
-        v-load tmp%7#0                                                                       (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0
-        p-load length#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 | tmp%7#0,length#0 (copy)
-        +                                                                                    (𝕡) starting_price#0,length#0,axfer#0 | materialized_values%1#0
-        v-store materialized_values%1#0                                                      (𝕡) starting_price#0,length#0,axfer#0 |
+        global LatestTimestamp                                                               (𝕡) starting_price#0,length#0,axfer#0 | tmp%8#0
+        v-store tmp%8#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 |
+        v-load tmp%8#0                                                                       (𝕡) starting_price#0,length#0,axfer#0 | tmp%8#0
+        p-load length#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 | tmp%8#0,length#0 (copy)
+        +                                                                                    (𝕡) starting_price#0,length#0,axfer#0 | tmp%9#0
+        v-store tmp%9#0                                                                      (𝕡) starting_price#0,length#0,axfer#0 |
         byte "auction_end"                                                                   (𝕡) starting_price#0,length#0,axfer#0 | "auction_end"
-        v-load materialized_values%1#0                                                       (𝕡) starting_price#0,length#0,axfer#0 | "auction_end",materialized_values%1#0
+        v-load tmp%9#0                                                                       (𝕡) starting_price#0,length#0,axfer#0 | "auction_end",tmp%9#0
         app_global_put                                                                       (𝕡) starting_price#0,length#0,axfer#0 |
         // auction/contract.py:60
         // self.previous_bid = starting_price
@@ -497,11 +497,11 @@ subroutine bid:
         app_global_put                                                                       (𝕡) pay#0 |
         // auction/contract.py:80
         // self.claimable_amount[Txn.sender] = pay.amount
-        txn Sender                                                                           (𝕡) pay#0 | tmp%7#0
-        v-store tmp%7#0                                                                      (𝕡) pay#0 |
-        v-load tmp%7#0                                                                       (𝕡) pay#0 | tmp%7#0
-        byte "claim"                                                                         (𝕡) pay#0 | tmp%7#0,"claim"
-        v-load tmp%5#0                                                                       (𝕡) pay#0 | tmp%7#0,"claim",tmp%5#0
+        txn Sender                                                                           (𝕡) pay#0 | tmp%10#0
+        v-store tmp%10#0                                                                     (𝕡) pay#0 |
+        v-load tmp%10#0                                                                      (𝕡) pay#0 | tmp%10#0
+        byte "claim"                                                                         (𝕡) pay#0 | tmp%10#0,"claim"
+        v-load tmp%5#0                                                                       (𝕡) pay#0 | tmp%10#0,"claim",tmp%5#0
         app_local_put                                                                        (𝕡) pay#0 |
         retsub
 
@@ -588,13 +588,13 @@ subroutine claim_bids:
         // self.claimable_amount[Txn.sender] = original_amount - amount
         v-load original_amount#0                                                             original_amount#0
         v-load amount#1                                                                      original_amount#0,amount#1
-        -                                                                                    materialized_values%0#0
-        v-store materialized_values%0#0
-        txn Sender                                                                           tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                       tmp%3#0
-        byte "claim"                                                                         tmp%3#0,"claim"
-        v-load materialized_values%0#0                                                       tmp%3#0,"claim",materialized_values%0#0
+        -                                                                                    tmp%4#0
+        v-store tmp%4#0
+        txn Sender                                                                           tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                                       tmp%5#0
+        byte "claim"                                                                         tmp%5#0,"claim"
+        v-load tmp%4#0                                                                       tmp%5#0,"claim",tmp%4#0
         app_local_put
         retsub
 

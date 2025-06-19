@@ -42,7 +42,7 @@ subroutine main:
         // assert total == 3, "Total should be sum of dynamic_uint8_array items"
         v-load total#0                                                                        total#0
         int 3                                                                                 total#0,3
-        ==                                                                                    tmp%1#0
+        ==                                                                                    tmp%2#0
         assert // Total should be sum of dynamic_uint8_array items
         int 0                                                                                 0
         v-store item_index_internal%1#0
@@ -62,14 +62,14 @@ subroutine main:
         v-load item_index_internal%1#0                                                        item_index_internal%1#0
         l-store-copy item_index_internal%1#0 0                                                item_index_internal%1#0,item_index_internal%1#0 (copy)
         int 2                                                                                 item_index_internal%1#0,item_index_internal%1#0 (copy),2
-        *                                                                                     item_index_internal%1#0,item_offset%1#0
-        byte 0x0001                                                                           item_index_internal%1#0,item_offset%1#0,0x0001
+        *                                                                                     item_index_internal%1#0,aggregate%bytes_offset%1#1
+        byte 0x0001                                                                           item_index_internal%1#0,aggregate%bytes_offset%1#1,0x0001
         // arc4_types/array.py:33
         // total += uint16_item.native
-        l-load item_offset%1#0 1                                                              item_index_internal%1#0,0x0001,item_offset%1#0
-        extract_uint16                                                                        item_index_internal%1#0,tmp%2#0
-        v-load total#0                                                                        item_index_internal%1#0,tmp%2#0,total#0
-        l-load tmp%2#0 1                                                                      item_index_internal%1#0,total#0,tmp%2#0
+        l-load aggregate%bytes_offset%1#1 1                                                   item_index_internal%1#0,0x0001,aggregate%bytes_offset%1#1
+        extract_uint16                                                                        item_index_internal%1#0,tmp%3#0
+        v-load total#0                                                                        item_index_internal%1#0,tmp%3#0,total#0
+        l-load tmp%3#0 1                                                                      item_index_internal%1#0,total#0,tmp%3#0
         +                                                                                     item_index_internal%1#0,total#0
         v-store total#0                                                                       item_index_internal%1#0
         l-load item_index_internal%1#0 0                                                      item_index_internal%1#0
@@ -83,7 +83,7 @@ subroutine main:
         // assert total == 4, "Total should now include sum of aliased_dynamic items"
         v-load total#0                                                                        total#0
         int 4                                                                                 total#0,4
-        ==                                                                                    tmp%3#0
+        ==                                                                                    tmp%5#0
         assert // Total should now include sum of aliased_dynamic items
         // arc4_types/array.py:38
         // result = String("")
@@ -97,7 +97,11 @@ subroutine main:
         // arc4_types/array.py:39
         // for index, string_item in uenumerate(dynamic_string_array):
         v-load index#0                                                                        index#0
+        // arc4_types/array.py:36
+        // assert dynamic_string_array.length == 2
         int 2                                                                                 index#0,2
+        // arc4_types/array.py:39
+        // for index, string_item in uenumerate(dynamic_string_array):
         <                                                                                     continue_looping%2#0
         bz main_after_for@15 ; b main_for_body@10
 
@@ -107,18 +111,18 @@ subroutine main:
         v-load index#0                                                                        index#0
         l-store-copy index#0 0                                                                index#0,index#0 (copy)
         int 2                                                                                 index#0,index#0 (copy),2
-        *                                                                                     index#0,item_offset_offset%1#0
-        byte 0x0004000b000548656c6c6f0005576f726c64                                           index#0,item_offset_offset%1#0,0x0004000b000548656c6c6f0005576f726c64
-        l-load item_offset_offset%1#0 1                                                       index#0,0x0004000b000548656c6c6f0005576f726c64,item_offset_offset%1#0
-        extract_uint16                                                                        index#0,item_offset%3#0
-        byte 0x0004000b000548656c6c6f0005576f726c64                                           index#0,item_offset%3#0,0x0004000b000548656c6c6f0005576f726c64
-        l-load-copy item_offset%3#0 1                                                         index#0,item_offset%3#0,0x0004000b000548656c6c6f0005576f726c64,item_offset%3#0 (copy)
-        extract_uint16                                                                        index#0,item_offset%3#0,item_length%1#0
-        int 2                                                                                 index#0,item_offset%3#0,item_length%1#0,2
-        +                                                                                     index#0,item_offset%3#0,item_head_tail_length%1#0
-        byte 0x0004000b000548656c6c6f0005576f726c64                                           index#0,item_offset%3#0,item_head_tail_length%1#0,0x0004000b000548656c6c6f0005576f726c64
-        l-load item_offset%3#0 2                                                              index#0,item_head_tail_length%1#0,0x0004000b000548656c6c6f0005576f726c64,item_offset%3#0
-        l-load item_head_tail_length%1#0 2                                                    index#0,0x0004000b000548656c6c6f0005576f726c64,item_offset%3#0,item_head_tail_length%1#0
+        *                                                                                     index#0,aggregate%item_offset_offset%1#1
+        byte 0x0004000b000548656c6c6f0005576f726c64                                           index#0,aggregate%item_offset_offset%1#1,0x0004000b000548656c6c6f0005576f726c64
+        l-load aggregate%item_offset_offset%1#1 1                                             index#0,0x0004000b000548656c6c6f0005576f726c64,aggregate%item_offset_offset%1#1
+        extract_uint16                                                                        index#0,aggregate%item_offset%1#1
+        byte 0x0004000b000548656c6c6f0005576f726c64                                           index#0,aggregate%item_offset%1#1,0x0004000b000548656c6c6f0005576f726c64
+        l-load-copy aggregate%item_offset%1#1 1                                               index#0,aggregate%item_offset%1#1,0x0004000b000548656c6c6f0005576f726c64,aggregate%item_offset%1#1 (copy)
+        extract_uint16                                                                        index#0,aggregate%item_offset%1#1,aggregate%item_length%1#1
+        int 2                                                                                 index#0,aggregate%item_offset%1#1,aggregate%item_length%1#1,2
+        +                                                                                     index#0,aggregate%item_offset%1#1,aggregate%item_head_tail_length%1#1
+        byte 0x0004000b000548656c6c6f0005576f726c64                                           index#0,aggregate%item_offset%1#1,aggregate%item_head_tail_length%1#1,0x0004000b000548656c6c6f0005576f726c64
+        l-load aggregate%item_offset%1#1 2                                                    index#0,aggregate%item_head_tail_length%1#1,0x0004000b000548656c6c6f0005576f726c64,aggregate%item_offset%1#1
+        l-load aggregate%item_head_tail_length%1#1 2                                          index#0,0x0004000b000548656c6c6f0005576f726c64,aggregate%item_offset%1#1,aggregate%item_head_tail_length%1#1
         extract3                                                                              index#0,string_item#0
         x-store string_item#0                                                                 (𝕏) string_item#0 | index#0
         // arc4_types/array.py:40
@@ -138,12 +142,12 @@ subroutine main:
         // arc4_types/array.py:43
         // result += " " + string_item.native
         x-load string_item#0                                                                  string_item#0
-        extract 2 0                                                                           tmp%9#0
-        byte " "                                                                              tmp%9#0," "
-        l-load tmp%9#0 1                                                                      " ",tmp%9#0
-        concat                                                                                tmp%10#0
-        v-load result#0                                                                       tmp%10#0,result#0
-        l-load tmp%10#0 1                                                                     result#0,tmp%10#0
+        extract 2 0                                                                           tmp%10#0
+        byte " "                                                                              tmp%10#0," "
+        l-load tmp%10#0 1                                                                     " ",tmp%10#0
+        concat                                                                                tmp%11#0
+        v-load result#0                                                                       tmp%11#0,result#0
+        l-load tmp%11#0 1                                                                     result#0,tmp%11#0
         concat                                                                                result#0
         v-store result#0
         b main_after_if_else@13
@@ -160,7 +164,7 @@ subroutine main:
         // assert result == "Hello World"
         v-load result#0                                                                       result#0
         byte "Hello World"                                                                    result#0,"Hello World"
-        ==                                                                                    tmp%11#0
+        ==                                                                                    tmp%13#0
         assert
         int 0                                                                                 0
         v-store item_index_internal%3#0
@@ -180,16 +184,16 @@ subroutine main:
         v-load item_index_internal%3#0                                                        item_index_internal%3#0
         l-store-copy item_index_internal%3#0 0                                                item_index_internal%3#0,item_index_internal%3#0 (copy)
         int 4                                                                                 item_index_internal%3#0,item_index_internal%3#0 (copy),4
-        *                                                                                     item_index_internal%3#0,item_offset%4#0
+        *                                                                                     item_index_internal%3#0,aggregate%bytes_offset%2#1
         // arc4_types/array.py:47
         // static_uint32_array = StaticArray(UInt32(1), UInt32(10), UInt32(255), UInt32(128))
-        byte 0x000000010000000a000000ff00000080                                               item_index_internal%3#0,item_offset%4#0,0x000000010000000a000000ff00000080
+        byte 0x000000010000000a000000ff00000080                                               item_index_internal%3#0,aggregate%bytes_offset%2#1,0x000000010000000a000000ff00000080
         // arc4_types/array.py:50
         // total += uint32_item.native
-        l-load item_offset%4#0 1                                                              item_index_internal%3#0,0x000000010000000a000000ff00000080,item_offset%4#0
-        extract_uint32                                                                        item_index_internal%3#0,tmp%12#0
-        v-load total#0                                                                        item_index_internal%3#0,tmp%12#0,total#0
-        l-load tmp%12#0 1                                                                     item_index_internal%3#0,total#0,tmp%12#0
+        l-load aggregate%bytes_offset%2#1 1                                                   item_index_internal%3#0,0x000000010000000a000000ff00000080,aggregate%bytes_offset%2#1
+        extract_uint32                                                                        item_index_internal%3#0,tmp%14#0
+        v-load total#0                                                                        item_index_internal%3#0,tmp%14#0,total#0
+        l-load tmp%14#0 1                                                                     item_index_internal%3#0,total#0,tmp%14#0
         +                                                                                     item_index_internal%3#0,total#0
         v-store total#0                                                                       item_index_internal%3#0
         l-load item_index_internal%3#0 0                                                      item_index_internal%3#0
@@ -203,7 +207,7 @@ subroutine main:
         // assert total == 4 + 1 + 10 + 255 + 128
         v-load total#0                                                                        total#0
         int 398                                                                               total#0,398
-        ==                                                                                    tmp%13#0
+        ==                                                                                    tmp%16#0
         assert
         // arc4_types/array.py:62
         // result = String("")
@@ -227,30 +231,30 @@ subroutine main:
         v-load index#0                                                                        index#0
         l-store-copy index#0 0                                                                index#0,index#0 (copy)
         int 2                                                                                 index#0,index#0 (copy),2
-        *                                                                                     index#0,item_offset_offset%2#0
+        *                                                                                     index#0,aggregate%item_offset_offset%2#1
         // arc4_types/array.py:60
         // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-        byte 0x0004000a000450696e670004506f6e67                                               index#0,item_offset_offset%2#0,0x0004000a000450696e670004506f6e67
+        byte 0x0004000a000450696e670004506f6e67                                               index#0,aggregate%item_offset_offset%2#1,0x0004000a000450696e670004506f6e67
         // arc4_types/array.py:63
         // for index, string_item in uenumerate(static_string_array):
-        l-load item_offset_offset%2#0 1                                                       index#0,0x0004000a000450696e670004506f6e67,item_offset_offset%2#0
-        extract_uint16                                                                        index#0,item_offset%7#0
+        l-load aggregate%item_offset_offset%2#1 1                                             index#0,0x0004000a000450696e670004506f6e67,aggregate%item_offset_offset%2#1
+        extract_uint16                                                                        index#0,aggregate%item_offset%2#1
         // arc4_types/array.py:60
         // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-        byte 0x0004000a000450696e670004506f6e67                                               index#0,item_offset%7#0,0x0004000a000450696e670004506f6e67
+        byte 0x0004000a000450696e670004506f6e67                                               index#0,aggregate%item_offset%2#1,0x0004000a000450696e670004506f6e67
         // arc4_types/array.py:63
         // for index, string_item in uenumerate(static_string_array):
-        l-load-copy item_offset%7#0 1                                                         index#0,item_offset%7#0,0x0004000a000450696e670004506f6e67,item_offset%7#0 (copy)
-        extract_uint16                                                                        index#0,item_offset%7#0,item_length%2#0
-        int 2                                                                                 index#0,item_offset%7#0,item_length%2#0,2
-        +                                                                                     index#0,item_offset%7#0,item_head_tail_length%2#0
+        l-load-copy aggregate%item_offset%2#1 1                                               index#0,aggregate%item_offset%2#1,0x0004000a000450696e670004506f6e67,aggregate%item_offset%2#1 (copy)
+        extract_uint16                                                                        index#0,aggregate%item_offset%2#1,aggregate%item_length%2#1
+        int 2                                                                                 index#0,aggregate%item_offset%2#1,aggregate%item_length%2#1,2
+        +                                                                                     index#0,aggregate%item_offset%2#1,aggregate%item_head_tail_length%2#1
         // arc4_types/array.py:60
         // static_string_array = StaticArray(ARC4String("Ping"), ARC4String("Pong"))
-        byte 0x0004000a000450696e670004506f6e67                                               index#0,item_offset%7#0,item_head_tail_length%2#0,0x0004000a000450696e670004506f6e67
+        byte 0x0004000a000450696e670004506f6e67                                               index#0,aggregate%item_offset%2#1,aggregate%item_head_tail_length%2#1,0x0004000a000450696e670004506f6e67
         // arc4_types/array.py:63
         // for index, string_item in uenumerate(static_string_array):
-        l-load item_offset%7#0 2                                                              index#0,item_head_tail_length%2#0,0x0004000a000450696e670004506f6e67,item_offset%7#0
-        l-load item_head_tail_length%2#0 2                                                    index#0,0x0004000a000450696e670004506f6e67,item_offset%7#0,item_head_tail_length%2#0
+        l-load aggregate%item_offset%2#1 2                                                    index#0,aggregate%item_head_tail_length%2#1,0x0004000a000450696e670004506f6e67,aggregate%item_offset%2#1
+        l-load aggregate%item_head_tail_length%2#1 2                                          index#0,0x0004000a000450696e670004506f6e67,aggregate%item_offset%2#1,aggregate%item_head_tail_length%2#1
         extract3                                                                              index#0,string_item#0
         x-store string_item#0                                                                 (𝕏) string_item#0 | index#0
         // arc4_types/array.py:64
@@ -270,12 +274,12 @@ subroutine main:
         // arc4_types/array.py:67
         // result += " " + string_item.native
         x-load string_item#0                                                                  string_item#0
-        extract 2 0                                                                           tmp%21#0
-        byte " "                                                                              tmp%21#0," "
-        l-load tmp%21#0 1                                                                     " ",tmp%21#0
-        concat                                                                                tmp%22#0
-        v-load result#0                                                                       tmp%22#0,result#0
-        l-load tmp%22#0 1                                                                     result#0,tmp%22#0
+        extract 2 0                                                                           tmp%23#0
+        byte " "                                                                              tmp%23#0," "
+        l-load tmp%23#0 1                                                                     " ",tmp%23#0
+        concat                                                                                tmp%24#0
+        v-load result#0                                                                       tmp%24#0,result#0
+        l-load tmp%24#0 1                                                                     result#0,tmp%24#0
         concat                                                                                result#0
         v-store result#0
         b main_after_if_else@24
@@ -292,9 +296,109 @@ subroutine main:
         // assert result == "Ping Pong"
         v-load result#0                                                                       result#0
         byte "Ping Pong"                                                                      result#0,"Ping Pong"
-        ==                                                                                    tmp%23#0
+        ==                                                                                    tmp%26#0
         assert
+        int 2                                                                                 2
+        v-store head_offset#0
+        byte 0x0004000a000450696e67000450696e67                                               0x0004000a000450696e67000450696e67
+        v-store array_head_and_tail#1
+        int 10                                                                                10
+        v-store tail_offset#0
+        b main_for_header@32
+
+    main_for_header@32:
+        v-load head_offset#0                                                                  head_offset#0
+        int 4                                                                                 head_offset#0,4
+        <                                                                                     continue_looping%0#0
+        bz main_after_for@34 ; b main_for_body@33
+
+    main_for_body@33:
+        v-load tail_offset#0                                                                  tail_offset#0
+        l-store-copy tail_offset#0 0                                                          tail_offset#0,tail_offset#0 (copy)
+        itob                                                                                  tail_offset#0,tmp%6#2
+        extract 6 2                                                                           tail_offset#0,tail_offset_bytes#0
+        v-load array_head_and_tail#1                                                          tail_offset#0,tail_offset_bytes#0,array_head_and_tail#1
+        v-load head_offset#0                                                                  tail_offset#0,tail_offset_bytes#0,array_head_and_tail#1,head_offset#0
+        l-store-copy head_offset#0 3                                                          head_offset#0,tail_offset#0,tail_offset_bytes#0,array_head_and_tail#1,head_offset#0 (copy)
+        l-load tail_offset_bytes#0 2                                                          head_offset#0,tail_offset#0,array_head_and_tail#1,head_offset#0 (copy),tail_offset_bytes#0
+        replace3                                                                              head_offset#0,tail_offset#0,array_head_and_tail#1
+        l-store-copy array_head_and_tail#1 0                                                  head_offset#0,tail_offset#0,array_head_and_tail#1,array_head_and_tail#1 (copy)
+        v-store array_head_and_tail#1                                                         head_offset#0,tail_offset#0,array_head_and_tail#1
+        l-load array_head_and_tail#1 0                                                        head_offset#0,tail_offset#0,array_head_and_tail#1
+        l-load-copy tail_offset#0 1                                                           head_offset#0,tail_offset#0,array_head_and_tail#1,tail_offset#0 (copy)
+        extract_uint16                                                                        head_offset#0,tail_offset#0,tmp%9#1
+        int 2                                                                                 head_offset#0,tail_offset#0,tmp%9#1,2
+        +                                                                                     head_offset#0,tail_offset#0,tmp%10#2
+        l-load tail_offset#0 1                                                                head_offset#0,tmp%10#2,tail_offset#0
+        l-load tmp%10#2 1                                                                     head_offset#0,tail_offset#0,tmp%10#2
+        +                                                                                     head_offset#0,tail_offset#0
+        v-store tail_offset#0                                                                 head_offset#0
+        l-load head_offset#0 0                                                                head_offset#0
+        int 2                                                                                 head_offset#0,2
+        +                                                                                     head_offset#0
+        v-store head_offset#0
+        b main_for_header@32
+
+    main_after_for@34:
+        // arc4_types/array.py:72
+        // result = String()
+        byte ""                                                                               ""
+        v-store result#0
+        int 0                                                                                 0
+        v-store item_index_internal%5#0
+        b main_for_header@27
+
+    main_for_header@27:
         // arc4_types/array.py:73
+        // for string_item in static_string_array:
+        v-load item_index_internal%5#0                                                        item_index_internal%5#0
+        int 2                                                                                 item_index_internal%5#0,2
+        <                                                                                     continue_looping%5#0
+        bz main_after_for@30 ; b main_for_body@28
+
+    main_for_body@28:
+        // arc4_types/array.py:73
+        // for string_item in static_string_array:
+        v-load item_index_internal%5#0                                                        item_index_internal%5#0
+        l-store-copy item_index_internal%5#0 0                                                item_index_internal%5#0,item_index_internal%5#0 (copy)
+        int 2                                                                                 item_index_internal%5#0,item_index_internal%5#0 (copy),2
+        *                                                                                     item_index_internal%5#0,aggregate%item_offset_offset%4#1
+        v-load array_head_and_tail#1                                                          item_index_internal%5#0,aggregate%item_offset_offset%4#1,array_head_and_tail#1
+        l-store-copy array_head_and_tail#1 1                                                  item_index_internal%5#0,array_head_and_tail#1,aggregate%item_offset_offset%4#1,array_head_and_tail#1 (copy)
+        l-load aggregate%item_offset_offset%4#1 1                                             item_index_internal%5#0,array_head_and_tail#1,array_head_and_tail#1 (copy),aggregate%item_offset_offset%4#1
+        extract_uint16                                                                        item_index_internal%5#0,array_head_and_tail#1,aggregate%item_offset%4#1
+        l-load-copy array_head_and_tail#1 1                                                   item_index_internal%5#0,array_head_and_tail#1,aggregate%item_offset%4#1,array_head_and_tail#1 (copy)
+        l-load-copy aggregate%item_offset%4#1 1                                               item_index_internal%5#0,array_head_and_tail#1,aggregate%item_offset%4#1,array_head_and_tail#1 (copy),aggregate%item_offset%4#1 (copy)
+        extract_uint16                                                                        item_index_internal%5#0,array_head_and_tail#1,aggregate%item_offset%4#1,aggregate%item_length%4#1
+        int 2                                                                                 item_index_internal%5#0,array_head_and_tail#1,aggregate%item_offset%4#1,aggregate%item_length%4#1,2
+        +                                                                                     item_index_internal%5#0,array_head_and_tail#1,aggregate%item_offset%4#1,aggregate%item_head_tail_length%4#1
+        l-load array_head_and_tail#1 2                                                        item_index_internal%5#0,aggregate%item_offset%4#1,aggregate%item_head_tail_length%4#1,array_head_and_tail#1
+        l-load aggregate%item_offset%4#1 2                                                    item_index_internal%5#0,aggregate%item_head_tail_length%4#1,array_head_and_tail#1,aggregate%item_offset%4#1
+        l-load aggregate%item_head_tail_length%4#1 2                                          item_index_internal%5#0,array_head_and_tail#1,aggregate%item_offset%4#1,aggregate%item_head_tail_length%4#1
+        extract3                                                                              item_index_internal%5#0,string_item#0
+        // arc4_types/array.py:74
+        // result += string_item.native + " "
+        extract 2 0                                                                           item_index_internal%5#0,tmp%27#0
+        byte " "                                                                              item_index_internal%5#0,tmp%27#0," "
+        concat                                                                                item_index_internal%5#0,tmp%28#0
+        v-load result#0                                                                       item_index_internal%5#0,tmp%28#0,result#0
+        l-load tmp%28#0 1                                                                     item_index_internal%5#0,result#0,tmp%28#0
+        concat                                                                                item_index_internal%5#0,result#0
+        v-store result#0                                                                      item_index_internal%5#0
+        l-load item_index_internal%5#0 0                                                      item_index_internal%5#0
+        int 1                                                                                 item_index_internal%5#0,1
+        +                                                                                     item_index_internal%5#0
+        v-store item_index_internal%5#0
+        b main_for_header@27
+
+    main_after_for@30:
+        // arc4_types/array.py:75
+        // assert result == "Ping Ping "
+        v-load result#0                                                                       result#0
+        byte "Ping Ping "                                                                     result#0,"Ping Ping "
+        ==                                                                                    tmp%30#0
+        assert
+        // arc4_types/array.py:79
         // return True
         int 1                                                                                 1
         return
