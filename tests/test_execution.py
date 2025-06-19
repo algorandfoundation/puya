@@ -939,7 +939,9 @@ def test_abi_numeric(harness: _TestHarness) -> None:
 def test_abi_array(harness: _TestHarness) -> None:
     harness.deploy(
         TEST_CASES_DIR / "arc4_types" / "array.py",
-        AppCallRequest(trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "array.log"),
+        AppCallRequest(
+            trace_output=TEST_CASES_DIR / "arc4_types" / "out" / "array.log", increase_budget=1
+        ),
     )
 
 
