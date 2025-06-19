@@ -515,6 +515,8 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let aggregate%encoded_bool%2#1: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%2#1: Encoded(bool8) = aggregate%encoded_bool%2#1
         let tmp%4#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%2#1
+        let aggregate%as_Encoded(bool1)%0#1: Encoded(bool1) = tmp%4#0
+        let encoded_value%0#0: Encoded(bool1) = aggregate%as_Encoded(bool1)%0#1
         let aggregate%array_length%0#1: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
         let aggregate%lt%0#1: bool = (< 0u aggregate%array_length%0#1)
         (assert aggregate%lt%0#1) // index access is out of bounds
@@ -522,7 +524,7 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let aggregate%lt%1#1: bool = (< 0u aggregate%array_length%1#1)
         (assert aggregate%lt%1#1) // index access is out of bounds
         let aggregate%write_offset_with_length_header%1#1: uint64 = (+ 0u 16u)
-        let aggregate%get_bit%1#1: uint64 = (getbit tmp%4#0 0u)
+        let aggregate%get_bit%1#1: uint64 = (getbit encoded_value%0#0 0u)
         let aggregate%updated_target%0#1: Encoded(len+bool1[]) = (setbit dynamic_bool_array#0 aggregate%write_offset_with_length_header%1#1 aggregate%get_bit%1#1)
         let updated_array%2#0: Encoded(len+bool1[]) = aggregate%updated_target%0#1
         let dynamic_bool_array#0: Encoded(len+bool1[]) = updated_array%2#0
@@ -543,11 +545,13 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let aggregate%encoded_bool%5#1: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%5#1: Encoded(bool8) = aggregate%encoded_bool%5#1
         let tmp%8#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%5#1
+        let aggregate%as_Encoded(bool1)%1#1: Encoded(bool1) = tmp%8#0
+        let encoded_value%1#0: Encoded(bool1) = aggregate%as_Encoded(bool1)%1#1
         let aggregate%lt%2#1: bool = (< 1u 2u)
         (assert aggregate%lt%2#1) // index access is out of bounds
         let aggregate%lt%3#1: bool = (< 1u 2u)
         (assert aggregate%lt%3#1) // index access is out of bounds
-        let aggregate%get_bit%3#1: uint64 = (getbit tmp%8#0 0u)
+        let aggregate%get_bit%3#1: uint64 = (getbit encoded_value%1#0 0u)
         let aggregate%updated_target%1#1: Encoded(bool1[2]) = (setbit static_bool_array#0 1u aggregate%get_bit%3#1)
         let updated_array%3#0: Encoded(bool1[2]) = aggregate%updated_target%1#1
         let static_bool_array#0: Encoded(bool1[2]) = updated_array%3#0
@@ -590,7 +594,9 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign() -
         let aggregate%encoded_bool%1#1: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%1#1: Encoded(bool8) = aggregate%encoded_bool%1#1
         let tmp%2#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%1#1
-        let aggregate%is_true%0#1: uint64 = (getbit tmp%2#0 0u)
+        let aggregate%as_Encoded(bool1)%0#1: Encoded(bool1) = tmp%2#0
+        let encoded_value%0#0: Encoded(bool1) = aggregate%as_Encoded(bool1)%0#1
+        let aggregate%is_true%0#1: uint64 = (getbit encoded_value%0#0 0u)
         let aggregate%updated_data%0#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = (setbit test_struct#0 0u aggregate%is_true%0#1)
         let updated_tuple%0#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = aggregate%updated_data%0#1
         let test_struct#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%0#0
