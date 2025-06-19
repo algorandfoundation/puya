@@ -23,17 +23,6 @@ from tests.utils.git import check_for_diff
 ENV_WITH_NO_COLOR = dict(os.environ) | {
     "NO_COLOR": "1",  # disable colour output
 }
-APPROVAL_EXTENSIONS = (
-    ".teal",
-    ".awst",
-    ".ir",
-    ".mir",
-    ".arc32.json",
-    ".arc56.json",
-    ".map",
-    ".stats.txt",
-    ".py",
-)
 
 
 def test_compile(test_case: PuyaTestCase) -> None:
@@ -153,13 +142,13 @@ def _remove_output(path: Path) -> None:
     for out_suffix in (SUFFIX_O0, SUFFIX_O1, SUFFIX_O2):
         (path / f"puya{out_suffix}.log").unlink(missing_ok=True)
         out_dir = path / f"out{out_suffix}"
-        if out_dir.exists():
-            for file in out_dir.iterdir():
-                if file.name.endswith(APPROVAL_EXTENSIONS):
-                    if file.is_dir():
-                        shutil.rmtree(file)
-                    else:
-                        file.unlink()
+        if not out_dir.exists():
+            continue
+        for prev_out_file in out_dir.iterdir():
+            if prev_out_file.is_dir():
+                shutil.rmtree(prev_out_file)
+            elif prev_out_file.suffix != ".log":  # execution log
+                prev_out_file.unlink()
 
 
 def _normalize_arc56(path: Path) -> None:
