@@ -135,6 +135,8 @@ def encode_decode_pair_elimination(
 def _is_round_trip_safe(encoding: encodings.Encoding, native_type: IRType | TupleIRType) -> bool:
     match native_type:
         case EncodedType(encoding=ir_type_encoding):
+            # TODO: maybe if both are encodings.BoolEncoding with different packings this
+            #       would still be okay?
             return ir_type_encoding == encoding
         case PrimitiveIRType.bool:
             # there's only two valid bool values
@@ -142,20 +144,24 @@ def _is_round_trip_safe(encoding: encodings.Encoding, native_type: IRType | Tupl
         case PrimitiveIRType.string:
             # if the encoding has no length restrictions, this is fine,
             # there's no value validation here
-            return isinstance(encoding, encodings.DynamicArrayEncoding) and (
-                encoding.element == encodings.UTF8Encoding()
+            return (
+                isinstance(encoding, encodings.ArrayEncoding)
+                and encoding.size is None
+                and encoding.element == encodings.UTF8Encoding()
             )
         case PrimitiveIRType.bytes:
             # if the encoding has no length restrictions, this is fine,
             # there's no value validation here
-            return isinstance(encoding, encodings.DynamicArrayEncoding) and (
-                encoding.element == encodings.UIntEncoding(n=8)
+            return (
+                isinstance(encoding, encodings.ArrayEncoding)
+                and encoding.size is None
+                and encoding.element == encodings.UIntEncoding(n=8)
             )
         case PrimitiveIRType.account:
             return (
-                isinstance(encoding, encodings.FixedArrayEncoding)
-                and encoding.element == encodings.UIntEncoding(n=8)
+                isinstance(encoding, encodings.ArrayEncoding)
                 and encoding.size == 32
+                and encoding.element == encodings.UIntEncoding(n=8)
             )
         case PrimitiveIRType.uint64:
             return isinstance(encoding, encodings.UIntEncoding) and encoding.n >= 64
