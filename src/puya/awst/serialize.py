@@ -2,7 +2,8 @@ import decimal
 import enum
 import functools
 import typing
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 import cattrs
 from cattrs import ClassValidationError, IterableValidationError, transform_error
@@ -105,3 +106,11 @@ def awst_from_json(json: str) -> nodes.AWST:
         raise ValueError(
             "Error during deserialization of AWST json. See debug log for details"
         ) from err
+
+
+def source_annotations_to_json(sources_by_path: Mapping[Path, Sequence[str] | None]) -> str:
+    return get_converter().dumps(sources_by_path, indent=4)
+
+
+def source_annotations_from_json(json: str) -> dict[Path, list[str] | None]:
+    return get_converter().loads(json, dict[Path, list[str] | None])
