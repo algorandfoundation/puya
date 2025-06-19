@@ -87,6 +87,12 @@ def main() -> None:
         help="Output parsed result of AWST as JSON",
     )
     parser.add_argument(
+        "--output-source-annotations-json",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Output source annotations result of AWST parse as JSON",
+    )
+    parser.add_argument(
         "--output-ssa-ir",
         action=argparse.BooleanOptionalAction,
         default=False,

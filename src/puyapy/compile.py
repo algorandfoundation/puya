@@ -5,8 +5,8 @@ import mypy.errors
 
 from puya import log
 from puya.arc56 import create_arc56_json
-from puya.awst.nodes import AWST
-from puya.awst.serialize import awst_to_json
+from puya.awst.nodes import AWST, RootNode
+from puya.awst.serialize import awst_to_json, source_annotations_to_json
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compilation_artifacts import CompilationArtifact, CompiledContract
 from puya.compile import awst_to_teal
@@ -17,7 +17,7 @@ from puyapy.awst_build.arc4_client_gen import write_arc4_client
 from puyapy.awst_build.main import transform_ast
 from puyapy.client_gen import parse_arc56
 from puyapy.options import PuyaPyOptions
-from puyapy.parse import parse_python
+from puyapy.parse import ParseResult, SourceDiscoveryMechanism, parse_python
 
 logger = log.get_logger(__name__)
 
@@ -38,17 +38,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             # also this error should have already been logged
             assert log_ctx.num_errors > 0, "expected mypy errors to be logged"
         log_ctx.exit_if_errors()
-        if puyapy_options.output_awst or puyapy_options.output_awst_json:
-            awst_out_dir = (
-                puyapy_options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
-            )
-            nodes = [
-                n for n in awst if n.source_location.file in parse_result.explicit_source_paths
-            ]
-            if puyapy_options.output_awst:
-                output_awst(nodes, awst_out_dir)
-            if puyapy_options.output_awst_json:
-                output_awst_json(nodes, awst_out_dir)
+        output_inputs(awst, parse_result, puyapy_options)
         awst_lookup = {n.id: n for n in awst}
         compilation_set = {
             target_id: determine_out_dir(loc.file.parent, puyapy_options)
@@ -65,6 +55,28 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             write_arc4_clients(puyapy_options.template_vars_prefix, compilation_set, teal)
     # needs to be outside the with block
     log_ctx.exit_if_errors()
+
+
+def output_inputs(
+    awst: Sequence[RootNode], parse_result: ParseResult, puyapy_options: PuyaPyOptions
+) -> None:
+    awst_out_dir = (
+        puyapy_options.out_dir or Path.cwd()  # TODO: maybe make this defaulted on init?
+    )
+    nodes = [n for n in awst if n.source_location.file in parse_result.explicit_source_paths]
+    if puyapy_options.output_awst:
+        output_awst(nodes, awst_out_dir)
+    if puyapy_options.output_awst_json:
+        output_awst_json(nodes, awst_out_dir)
+    if puyapy_options.output_source_annotations_json:
+        output_source_annotations_json(
+            {
+                s.path: s.lines
+                for s in parse_result.ordered_modules.values()
+                if s.discovery_mechanism != SourceDiscoveryMechanism.dependency
+            },
+            awst_out_dir,
+        )
 
 
 def write_arc4_clients(
@@ -133,3 +145,12 @@ def determine_out_dir(contract_path: Path, options: PuyaPyOptions) -> Path:
 
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir
+
+
+def output_source_annotations_json(
+    sources_by_path: Mapping[Path, Sequence[str] | None], awst_out_dir: Path
+) -> None:
+    out_text = source_annotations_to_json(sources_by_path)
+    output_path = awst_out_dir / "module.source.json"
+    logger.info(f"writing {make_path_relative_to_cwd(output_path)}")
+    output_path.write_text(out_text, "utf-8")

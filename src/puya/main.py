@@ -26,9 +26,7 @@ def main(*, options_json: str, awst_json: str, source_annotations_json: str | No
         json_converter = cattrs.preconf.json.make_converter()
         sources_by_path = {}
         if source_annotations_json:
-            sources_by_path = json_converter.loads(
-                source_annotations_json, dict[Path, list[str] | None]
-            )
+            sources_by_path = serialize.source_annotations_from_json(source_annotations_json)
         log_ctx.sources_by_path = sources_by_path
         awst = serialize.awst_from_json(awst_json)
         options = json_converter.loads(options_json, PuyaOptionsWithCompilationSet)
