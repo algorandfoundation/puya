@@ -1,4 +1,3 @@
-import typing
 from collections.abc import Sequence
 
 from puya import log
@@ -81,7 +80,7 @@ def read_aggregate_index_and_decode(
         read_index, "tuple_item" if is_tup else "array_item"
     )
     element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
-    if not requires_conversion(element_ir_type, element_encoding, "decode"):
+    if not requires_conversion(element_ir_type, element_encoding):
         return tuple_item
     else:
         values = context.materialise_value_provider(
@@ -125,7 +124,7 @@ def encode_and_write_aggregate_index(
     assert isinstance(aggregate_encoding, TupleEncoding | ArrayEncoding)
     element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
     element_encoding = _get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
-    if not requires_conversion(element_ir_type, element_encoding, "encode"):
+    if not requires_conversion(element_ir_type, element_encoding):
         (encoded_value,) = values
     else:
         (encoded_value,) = context.materialise_value_provider(
@@ -186,17 +185,12 @@ def get_length(
 def requires_conversion(
     typ: IRType | TupleIRType,
     encoding: Encoding,
-    action: typing.Literal["encode", "decode"],
 ) -> bool:
     # packed bool does not require conversion to PrimitiveIRType.bool
     # as set_bit expects uint64, and similarly get_bit returns a uint64 when decoding
-    if typ == PrimitiveIRType.bool and encoding.is_bit:
-        return False
+    if typ == PrimitiveIRType.bool:
+        return not encoding.is_bit
     elif isinstance(typ, EncodedType):
-        typ_is_bool8 = isinstance(typ.encoding, BoolEncoding) and not typ.encoding.packed
-        encoding_is_bool1 = encoding.is_bit
-        if typ_is_bool8 and encoding_is_bool1 and action == "encode":
-            return False
         # are encodings different?
         return typ.encoding != encoding
     # otherwise requires conversion
