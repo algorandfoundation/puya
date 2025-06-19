@@ -1,4 +1,4 @@
-debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=0, optimization_level=2, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, _disabled_optimizations=(), paths=['arc_28'], output_awst=False, output_awst_json=False, output_source_annotations_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
+debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=0, optimization_level=2, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, _disabled_optimizations=(), expand_all_bytes=False, paths=['arc_28'], output_awst=False, output_awst_json=False, output_source_annotations_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
 info: Found python prefix: <git root>/.venv
 debug: Building IR for function _puya_lib.util.ensure_budget
 debug: Sealing block@0
@@ -491,6 +491,10 @@ debug: Removed empty block: block@5
 debug: Removed empty block: block@9
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine examples.arc_28.contract.EventEmitter.__puya_arc4_router__
 debug: Optimizer: Perform Subroutine Inlining
@@ -500,32 +504,20 @@ arc_28/contract.py:12:6 debug: inlining call to examples.arc_28.contract.EventEm
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: reinterpret_bytes[8]%0#0, a#1
+debug: Found equivalence set: reinterpret_Encoded(uint64)%0#0, a#1
 debug: selected a#1 from equivalence set
-debug: Found equivalence set: reinterpret_bytes[8]%1#0, b#1
+debug: Found equivalence set: reinterpret_Encoded(uint64)%1#0, b#1
 debug: selected b#1 from equivalence set
-debug: Found equivalence set: reinterpret_bytes[32]%0#0, a#0
+debug: Found equivalence set: reinterpret_Encoded(uint256)%0#0, a#0
 debug: selected a#0 from equivalence set
-debug: Found equivalence set: reinterpret_bytes[8]%2#0, b#0
+debug: Found equivalence set: reinterpret_Encoded(uint64)%2#0, b#0
 debug: selected b#0 from equivalence set
 debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable current_tail_offset%0#1
-debug: Removing unused variable encoded_tuple_buffer%0#1
-debug: Removing unused variable current_tail_offset%1#0
-debug: Removing unused variable encoded_tuple_buffer%3#0
-debug: Removing unused variable current_tail_offset%2#0
-debug: Removing unused variable encoded_tuple_buffer%6#0
-debug: Removing unused variable current_tail_offset%0#0
-debug: Removing unused variable encoded_tuple_buffer%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== tmp%3#0 NoOp) to (! tmp%3#0)
-debug: Simplified (concat 0x b#1) to b#1
-debug: Simplified (concat 0x b#1) to b#1
-debug: Simplified (concat 0x b#1) to b#1
 debug: Simplified (== tmp%7#0 NoOp) to (! tmp%7#0)
-debug: Simplified (concat 0x a#0) to a#0
 debug: Simplified (== tmp%12#0 0u) to (! tmp%12#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -553,20 +545,20 @@ debug: Removed empty block: block@4
 debug: Removed empty block: block@8
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let encoded_tuple_buffer%5#0: bytes = (concat b#1 a#1) with copy of existing registers (Register(source_location=arc_28/contract.py:14:18-31, ir_type=bytes, name='encoded_tuple_buffer%2', version=1),)
-debug: Replacing redundant declaration let encoded_tuple_buffer%8#0: bytes = (concat b#1 a#1) with copy of existing registers (Register(source_location=arc_28/contract.py:14:18-31, ir_type=bytes, name='encoded_tuple_buffer%2', version=1),)
-debug: Found equivalence set: b#1, encoded_tuple_buffer%1#1, encoded_tuple_buffer%4#0, encoded_tuple_buffer%7#0
-debug: selected b#1 from equivalence set
-debug: Found equivalence set: encoded_tuple_buffer%2#1, encoded_tuple_buffer%5#0, encoded_tuple_buffer%8#0
-debug: selected encoded_tuple_buffer%2#1 from equivalence set
-debug: Found equivalence set: a#0, encoded_tuple_buffer%1#0
-debug: selected a#0 from equivalence set
+debug: Replacing redundant declaration let tmp%1#1: Encoded(uint64,uint64) = encode<(uint64,uint64)>(b#1, a#1) with copy of existing registers (Register(source_location=arc_28/contract.py:14:18-31, ir_type=Encoded(uint64,uint64), name='tmp%0', version=2),)
+debug: Replacing redundant declaration let tmp%2#1: Encoded(uint64,uint64) = encode<(uint64,uint64)>(b#1, a#1) with copy of existing registers (Register(source_location=arc_28/contract.py:14:18-31, ir_type=Encoded(uint64,uint64), name='tmp%0', version=2),)
+debug: Found equivalence set: tmp%0#2, tmp%1#1, tmp%2#1
+debug: selected tmp%0#2 from equivalence set
 debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let event%1#0: bytes = (concat method "Swapped(uint64,uint64)" encoded_tuple_buffer%2#1) with copy of existing registers (Register(source_location=arc_28/contract.py:14:8-32, ir_type=bytes, name='event%0', version=1),)
-debug: Replacing redundant declaration let event%2#0: bytes = (concat method "Swapped(uint64,uint64)" encoded_tuple_buffer%2#1) with copy of existing registers (Register(source_location=arc_28/contract.py:14:8-32, ir_type=bytes, name='event%0', version=1),)
+debug: Replacing redundant declaration let event%1#0: bytes = (concat method "Swapped(uint64,uint64)" tmp%0#2) with copy of existing registers (Register(source_location=arc_28/contract.py:14:8-32, ir_type=bytes, name='event%0', version=1),)
+debug: Replacing redundant declaration let event%2#0: bytes = (concat method "Swapped(uint64,uint64)" tmp%0#2) with copy of existing registers (Register(source_location=arc_28/contract.py:14:8-32, ir_type=bytes, name='event%0', version=1),)
 debug: Found equivalence set: event%0#1, event%1#0, event%2#0
 debug: selected event%0#1 from equivalence set
 debug: Copy propagation made 2 modifications
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine examples.arc_28.contract.EventEmitter.emit_swapped
 debug: Optimizer: Perform Subroutine Inlining
@@ -575,16 +567,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable current_tail_offset%0#0
-debug: Removing unused variable encoded_tuple_buffer%0#0
-debug: Removing unused variable current_tail_offset%1#0
-debug: Removing unused variable encoded_tuple_buffer%3#0
-debug: Removing unused variable current_tail_offset%2#0
-debug: Removing unused variable encoded_tuple_buffer%6#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x b#0) to b#0
-debug: Simplified (concat 0x b#0) to b#0
-debug: Simplified (concat 0x b#0) to b#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -592,18 +575,20 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let encoded_tuple_buffer%5#0: bytes = (concat b#0 a#0) with copy of existing registers (Register(source_location=arc_28/contract.py:14:18-31, ir_type=bytes, name='encoded_tuple_buffer%2', version=0),)
-debug: Replacing redundant declaration let encoded_tuple_buffer%8#0: bytes = (concat b#0 a#0) with copy of existing registers (Register(source_location=arc_28/contract.py:14:18-31, ir_type=bytes, name='encoded_tuple_buffer%2', version=0),)
-debug: Found equivalence set: b#0, encoded_tuple_buffer%1#0, encoded_tuple_buffer%4#0, encoded_tuple_buffer%7#0
-debug: selected b#0 from equivalence set
-debug: Found equivalence set: encoded_tuple_buffer%2#0, encoded_tuple_buffer%5#0, encoded_tuple_buffer%8#0
-debug: selected encoded_tuple_buffer%2#0 from equivalence set
+debug: Replacing redundant declaration let tmp%1#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(b#0, a#0) with copy of existing registers (Register(source_location=arc_28/contract.py:14:18-31, ir_type=Encoded(uint64,uint64), name='tmp%0', version=0),)
+debug: Replacing redundant declaration let tmp%2#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(b#0, a#0) with copy of existing registers (Register(source_location=arc_28/contract.py:14:18-31, ir_type=Encoded(uint64,uint64), name='tmp%0', version=0),)
+debug: Found equivalence set: tmp%0#0, tmp%1#0, tmp%2#0
+debug: selected tmp%0#0 from equivalence set
 debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let event%1#0: bytes = (concat method "Swapped(uint64,uint64)" encoded_tuple_buffer%2#0) with copy of existing registers (Register(source_location=arc_28/contract.py:14:8-32, ir_type=bytes, name='event%0', version=0),)
-debug: Replacing redundant declaration let event%2#0: bytes = (concat method "Swapped(uint64,uint64)" encoded_tuple_buffer%2#0) with copy of existing registers (Register(source_location=arc_28/contract.py:14:8-32, ir_type=bytes, name='event%0', version=0),)
+debug: Replacing redundant declaration let event%1#0: bytes = (concat method "Swapped(uint64,uint64)" tmp%0#0) with copy of existing registers (Register(source_location=arc_28/contract.py:14:8-32, ir_type=bytes, name='event%0', version=0),)
+debug: Replacing redundant declaration let event%2#0: bytes = (concat method "Swapped(uint64,uint64)" tmp%0#0) with copy of existing registers (Register(source_location=arc_28/contract.py:14:8-32, ir_type=bytes, name='event%0', version=0),)
 debug: Found equivalence set: event%0#0, event%1#0, event%2#0
 debug: selected event%0#0 from equivalence set
 debug: Copy propagation made 2 modifications
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine examples.arc_28.contract.EventEmitter.emit_ufixed
 debug: Optimizer: Perform Subroutine Inlining
@@ -612,10 +597,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable current_tail_offset%0#0
-debug: Removing unused variable encoded_tuple_buffer%0#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (concat 0x a#0) to a#0
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -623,6 +605,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine examples.arc_28.contract.EventEmitter.__algopy_default_create
 debug: Optimizer: Perform Subroutine Inlining
@@ -639,6 +625,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine examples.arc_28.contract.EventEmitter.__puya_arc4_router__
 debug: Unused subroutines removed
@@ -653,13 +643,13 @@ arc_28/contract.py:12:6 debug: inlining call to examples.arc_28.contract.EventEm
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: reinterpret_bytes[8]%0#0, a#1
+debug: Found equivalence set: reinterpret_Encoded(uint64)%0#0, a#1
 debug: selected a#1 from equivalence set
-debug: Found equivalence set: reinterpret_bytes[8]%1#0, b#1
+debug: Found equivalence set: reinterpret_Encoded(uint64)%1#0, b#1
 debug: selected b#1 from equivalence set
-debug: Found equivalence set: reinterpret_bytes[32]%0#0, a#0, encoded_tuple_buffer%1#0
+debug: Found equivalence set: reinterpret_Encoded(uint256)%0#0, a#0
 debug: selected a#0 from equivalence set
-debug: Found equivalence set: reinterpret_bytes[8]%2#0, b#0
+debug: Found equivalence set: reinterpret_Encoded(uint64)%2#0, b#0
 debug: selected b#0 from equivalence set
 debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -687,6 +677,10 @@ debug: Merged linear block@14 into block@8
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine examples.arc_28.contract.EventEmitter.emit_swapped
 debug: Optimizer: Perform Subroutine Inlining
@@ -703,14 +697,16 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine examples.arc_28.contract.EventEmitter.emit_ufixed
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: a#0, encoded_tuple_buffer%1#0
-debug: selected a#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -721,6 +717,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine examples.arc_28.contract.EventEmitter.__algopy_default_create
 debug: Optimizer: Perform Subroutine Inlining
@@ -737,6 +737,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine examples.arc_28.contract.EventEmitter.emit_swapped
 debug: removing unused subroutine examples.arc_28.contract.EventEmitter.emit_ufixed
@@ -758,6 +762,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 3, ending loop
 debug: optimizing clear program of examples.arc_28.contract.EventEmitter at level 2
@@ -777,12 +785,75 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: lowering array IR nodes in approval program of examples.arc_28.contract.EventEmitter
 debug: lowering array IR nodes in clear program of examples.arc_28.contract.EventEmitter
 debug: optimizing approval program of examples.arc_28.contract.EventEmitter at level 2
 debug: Begin optimization pass 1/100
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: aggregate%encoded%2#1, tmp%0#3
+debug: selected aggregate%encoded%2#1 from equivalence set
+debug: Found equivalence set: aggregate%encoded%5#1, tmp%0#2
+debug: selected aggregate%encoded%5#1 from equivalence set
+debug: Copy propagation made 2 modifications
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x b#1) to b#1
+debug: Simplified (concat aggregate%encoded%1#1 0x) to aggregate%encoded%1#1
+debug: Simplified (concat 0x a#0) to a#0
+debug: Simplified (concat aggregate%encoded%4#1 0x) to aggregate%encoded%4#1
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Begin optimization pass 2/100
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Found equivalence set: b#1, aggregate%encoded%0#1
+debug: selected b#1 from equivalence set
+debug: Found equivalence set: aggregate%encoded%1#1, aggregate%encoded%2#1
+debug: selected aggregate%encoded%1#1 from equivalence set
+debug: Found equivalence set: a#0, aggregate%encoded%3#1
+debug: selected a#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded%4#1, aggregate%encoded%5#1
+debug: selected aggregate%encoded%4#1 from equivalence set
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Begin optimization pass 3/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -798,8 +869,12 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 1, ending loop
+debug: No optimizations performed in pass 3, ending loop
 debug: optimizing clear program of examples.arc_28.contract.EventEmitter at level 2
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
@@ -817,6 +892,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: removing local static slots in approval program of examples.arc_28.contract.EventEmitter
@@ -831,11 +910,10 @@ debug: Removing Phi nodes
 debug: Coalescing local variables in algopy.arc4.ARC4Contract.approval_program using strategy RootOperandGrouping
 debug: Coalescing a#0 with [a#1]
 debug: Coalescing b#0 with [b#1]
-debug: Coalescing encoded_tuple_buffer%2#0 with [encoded_tuple_buffer%2#1]
 debug: Coalescing event%0#0 with [event%0#1]
 debug: Coalescing examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0 with [examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#1, examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#2, examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#3]
 debug: Coalescing tmp%0#0 with [tmp%0#2]
-debug: Coalescing resulted in 21 replacement/s
+debug: Coalescing resulted in 19 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: Performing post-SSA optimizations at level 2
 debug: Output IR to arc_28/out_O2/EventEmitter.ir/EventEmitter.approval.400.destructured.ir
@@ -863,8 +941,8 @@ debug: Inserted main_emit_swapped_route@3.ops[26]: 'l-store-copy event%0#0 0'
 debug: Replaced main_emit_swapped_route@3.ops[28]: 'v-load event%0#0' with 'l-load event%0#0'
 debug: Inserted main_emit_swapped_route@3.ops[35]: 'l-store-copy examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0 0'
 debug: Replaced main_emit_swapped_route@3.ops[37]: 'v-load examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0' with 'l-load examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0'
-debug: Inserted main_emit_swapped_route@3.ops[22]: 'l-store-copy encoded_tuple_buffer%2#0 0'
-debug: Replaced main_emit_swapped_route@3.ops[25]: 'v-load encoded_tuple_buffer%2#0' with 'l-load encoded_tuple_buffer%2#0'
+debug: Inserted main_emit_swapped_route@3.ops[22]: 'l-store-copy aggregate%encoded%1#1 0'
+debug: Replaced main_emit_swapped_route@3.ops[25]: 'v-load aggregate%encoded%1#1' with 'l-load aggregate%encoded%1#1'
 debug: Inserted main_emit_swapped_route@3.ops[30]: 'l-store-copy event%0#0 0'
 debug: Replaced main_emit_swapped_route@3.ops[32]: 'v-load event%0#0' with 'l-load event%0#0'
 debug: Inserted main_emit_swapped_route@3.ops[33]: 'l-store-copy event%0#0 0'
@@ -883,8 +961,8 @@ debug: Inserted main_emit_ufixed_route@4.ops[30]: 'l-store-copy examples.arc_28.
 debug: Replaced main_emit_ufixed_route@4.ops[32]: 'v-load examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0' with 'l-load examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0'
 debug: Inserted main_emit_ufixed_route@4.ops[17]: 'l-store-copy b#0 0'
 debug: Replaced main_emit_ufixed_route@4.ops[20]: 'v-load b#0' with 'l-load b#0'
-debug: Inserted main_emit_ufixed_route@4.ops[22]: 'l-store-copy encoded_tuple_buffer%2#0 0'
-debug: Replaced main_emit_ufixed_route@4.ops[25]: 'v-load encoded_tuple_buffer%2#0' with 'l-load encoded_tuple_buffer%2#0'
+debug: Inserted main_emit_ufixed_route@4.ops[22]: 'l-store-copy aggregate%encoded%4#1 0'
+debug: Replaced main_emit_ufixed_route@4.ops[25]: 'v-load aggregate%encoded%4#1' with 'l-load aggregate%encoded%4#1'
 debug: Inserted main_emit_ufixed_route@4.ops[15]: 'l-store-copy a#0 0'
 debug: Replaced main_emit_ufixed_route@4.ops[20]: 'v-load a#0' with 'l-load a#0'
 debug: Inserted main_bare_routing@7.ops[1]: 'l-store-copy tmp%11#0 0'

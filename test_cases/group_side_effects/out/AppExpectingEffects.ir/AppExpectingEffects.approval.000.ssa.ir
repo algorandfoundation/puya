@@ -28,25 +28,20 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 appl)
         (assert gtxn_type_matches%1#0) // transaction type is appl
-        let (elements_to_encode%0#0: uint64, elements_to_encode%1#0: uint64) = test_cases.group_side_effects.contract.AppExpectingEffects.create_group(gtxn_idx%0#0, gtxn_idx%1#0)
-        let val_as_bytes%0#0: bytes[8] = (itob elements_to_encode%0#0)
-        let val_as_bytes%1#0: bytes[8] = (itob elements_to_encode%1#0)
-        let current_tail_offset%0#0: uint64 = 16u
-        let encoded_tuple_buffer%0#0: bytes[0] = 0x
-        let encoded_tuple_buffer%1#0: bytes = (concat encoded_tuple_buffer%0#0 val_as_bytes%0#0)
-        let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 val_as_bytes%1#0)
-        let tmp%9#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%2#0)
-        (log tmp%9#0)
+        let (tmp%9#0: uint64, tmp%10#0: uint64) = test_cases.group_side_effects.contract.AppExpectingEffects.create_group(gtxn_idx%0#0, gtxn_idx%1#0)
+        let tmp%11#0: Encoded(uint64,uint64) = encode<(uint64,uint64)>(tmp%9#0, tmp%10#0)
+        let tmp%12#0: bytes = (concat 0x151f7c75 tmp%11#0)
+        (log tmp%12#0)
         return 1u
     block@3: // log_group_route_L22
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (== tmp%10#0 NoOp)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (!= tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when not creating
-        let tmp%14#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%2#0: uint64 = (- tmp%14#0 1u)
+        let tmp%13#0: uint64 = (txn OnCompletion)
+        let tmp%14#0: bool = (== tmp%13#0 NoOp)
+        (assert tmp%14#0) // OnCompletion is not NoOp
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        let tmp%16#0: bool = (!= tmp%15#0 0u)
+        (assert tmp%16#0) // can only call when not creating
+        let tmp%17#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%2#0: uint64 = (- tmp%17#0 1u)
         let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
         let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 appl)
         (assert gtxn_type_matches%2#0) // transaction type is appl
@@ -57,12 +52,12 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc
     block@5: // switch_case_next_L4
         goto block@10
     block@6: // bare_routing_L4
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        switch tmp%15#0 {0u => block@7, * => block@8}
+        let tmp%18#0: uint64 = (txn OnCompletion)
+        switch tmp%18#0 {0u => block@7, * => block@8}
     block@7: // __algopy_default_create_L1
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (== tmp%16#0 0u)
-        (assert tmp%17#0) // can only call when creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (== tmp%19#0 0u)
+        (assert tmp%20#0) // can only call when creating
         test_cases.group_side_effects.contract.AppExpectingEffects.__algopy_default_create()
         return 1u
     block@8: // switch_case_default_L4
@@ -103,7 +98,7 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group(
         let tmp%3#0: bool = (== tmp%2#0 1u)
         (assert tmp%3#0) // expected logs
         let awst_tmp%0#0: bytes = ((gtxns LastLog) app_call#0)
-        let tmp%4#0: bytes[8] = ((extract 4 0) awst_tmp%0#0)
+        let tmp%4#0: Encoded(uint64) = ((extract 4 0) awst_tmp%0#0)
         let tmp%5#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%6#0: bool = (== tmp%5#0 0x151f7c75)
         (assert tmp%6#0) // application log value is not the result of an ABI return

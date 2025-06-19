@@ -13,9 +13,9 @@ subroutine test_cases.everything.my_base.multiplicative_identity() -> uint64:
     block@0: // L18
         return 1u
 
-subroutine test_cases.everything.contract.get_banned() -> bytes[32]:
+subroutine test_cases.everything.contract.get_banned() -> account:
     block@0: // L23
-        let addr#0: bytes[32] = addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
+        let addr#0: account = addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
         return addr#0
 
 subroutine test_cases.everything.contract.positive_one() -> uint64:
@@ -47,40 +47,40 @@ subroutine test_cases.everything.contract.Everything.__puya_arc4_router__() -> b
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
-        let tmp%12#0: bytes = (txna ApplicationArgs 1)
-        test_cases.everything.contract.Everything.register(tmp%12#0)
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        test_cases.everything.contract.Everything.register(reinterpret_Encoded(len+utf8[])%0#0)
         return 1u
     block@4: // say_hello_route_L56
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        let tmp%14#0: bool = (== tmp%13#0 NoOp)
-        (assert tmp%14#0) // OnCompletion is not NoOp
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        let tmp%16#0: bool = (!= tmp%15#0 0u)
-        (assert tmp%16#0) // can only call when not creating
-        let tmp%17#0: bytes = test_cases.everything.contract.Everything.say_hello()
-        let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
-        (log tmp%18#0)
+        let tmp%12#0: uint64 = (txn OnCompletion)
+        let tmp%13#0: bool = (== tmp%12#0 NoOp)
+        (assert tmp%13#0) // OnCompletion is not NoOp
+        let tmp%14#0: uint64 = (txn ApplicationID)
+        let tmp%15#0: bool = (!= tmp%14#0 0u)
+        (assert tmp%15#0) // can only call when not creating
+        let tmp%16#0: Encoded(len+utf8[]) = test_cases.everything.contract.Everything.say_hello()
+        let tmp%17#0: bytes = (concat 0x151f7c75 tmp%16#0)
+        (log tmp%17#0)
         return 1u
     block@5: // calculate_route_L64
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (== tmp%19#0 NoOp)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%22#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 2)
-        let tmp%23#0: bytes[8] = test_cases.everything.contract.Everything.calculate(reinterpret_bytes[8]%0#0, reinterpret_bytes[8]%1#0)
-        let tmp%24#0: bytes = (concat 0x151f7c75 tmp%23#0)
-        (log tmp%24#0)
+        let tmp%18#0: uint64 = (txn OnCompletion)
+        let tmp%19#0: bool = (== tmp%18#0 NoOp)
+        (assert tmp%19#0) // OnCompletion is not NoOp
+        let tmp%20#0: uint64 = (txn ApplicationID)
+        let tmp%21#0: bool = (!= tmp%20#0 0u)
+        (assert tmp%21#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%22#0: Encoded(uint64) = test_cases.everything.contract.Everything.calculate(reinterpret_Encoded(uint64)%0#0, reinterpret_Encoded(uint64)%1#0)
+        let tmp%23#0: bytes = (concat 0x151f7c75 tmp%22#0)
+        (log tmp%23#0)
         return 1u
     block@6: // close_out_route_L69
-        let tmp%25#0: uint64 = (txn OnCompletion)
-        let tmp%26#0: bool = (== tmp%25#0 CloseOut)
-        (assert tmp%26#0) // OnCompletion is not CloseOut
-        let tmp%27#0: uint64 = (txn ApplicationID)
-        let tmp%28#0: bool = (!= tmp%27#0 0u)
-        (assert tmp%28#0) // can only call when not creating
+        let tmp%24#0: uint64 = (txn OnCompletion)
+        let tmp%25#0: bool = (== tmp%24#0 CloseOut)
+        (assert tmp%25#0) // OnCompletion is not CloseOut
+        let tmp%26#0: uint64 = (txn ApplicationID)
+        let tmp%27#0: bool = (!= tmp%26#0 0u)
+        (assert tmp%27#0) // can only call when not creating
         test_cases.everything.contract.Everything.close_out()
         return 1u
     block@7: // switch_case_default_L37
@@ -103,7 +103,7 @@ subroutine test_cases.everything.contract.Everything.create() -> void:
         (app_global_put "counter" 0u)
         return 
 
-subroutine test_cases.everything.contract.Everything.register(name: bytes) -> void:
+subroutine test_cases.everything.contract.Everything.register(name: Encoded(len+utf8[])) -> void:
     block@0: // L47
         test_cases.everything.contract.Everything._check_ban_list()
         let tmp%0#0: uint64 = (txn OnCompletion)
@@ -111,15 +111,15 @@ subroutine test_cases.everything.contract.Everything.register(name: bytes) -> vo
         goto tmp%1#0 ? block@1 : block@4
     block@1: // if_body_L51
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex 0u 0u "name")
-        let sender_name#0: bytes = maybe_value%0#0
+        let sender_name#0: Encoded(len+utf8[]) = maybe_value%0#0
         let sender_name_existed#0: bool = maybe_exists%0#0
         goto sender_name_existed#0 ? block@3 : block@2
     block@2: // if_body_L53
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%1#0) // check self.counter exists
         let tmp%2#0: uint64 = test_cases.everything.my_base.multiplicative_identity()
-        let materialized_values%0#0: uint64 = (+ maybe_value%1#0 tmp%2#0)
-        (app_global_put "counter" materialized_values%0#0)
+        let tmp%3#0: uint64 = (+ maybe_value%1#0 tmp%2#0)
+        (app_global_put "counter" tmp%3#0)
         goto block@3
     block@3: // after_if_else_L52
         goto block@4
@@ -127,40 +127,50 @@ subroutine test_cases.everything.contract.Everything.register(name: bytes) -> vo
         (app_local_put 0u "name" name#0)
         return 
 
-subroutine test_cases.everything.contract.Everything.say_hello() -> bytes:
+subroutine test_cases.everything.contract.Everything.say_hello() -> Encoded(len+utf8[]):
     block@0: // L56
         test_cases.everything.contract.Everything._check_ban_list()
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex 0u 0u "name")
-        let name#0: bytes = maybe_value%0#0
+        let name#0: Encoded(len+utf8[]) = maybe_value%0#0
         let exists#0: bool = maybe_exists%0#0
         goto exists#0 ? block@2 : block@1
     block@1: // if_body_L61
-        return 0x000f486f77647920737472616e67657221
+        let encoded%0#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x486f77647920737472616e67657221)
+        return encoded%0#0
     block@2: // after_if_else_L60
-        let expr_value_trimmed%0#0: bytes = ((extract 2 0) 0x000748656c6c6f2c20)
-        let expr_value_trimmed%1#0: bytes = ((extract 2 0) name#0)
-        let concatenated%0#0: bytes = (concat expr_value_trimmed%0#0 expr_value_trimmed%1#0)
-        let len_%0#0: uint64 = (len concatenated%0#0)
-        let as_bytes%0#0: bytes[8] = (itob len_%0#0)
-        let len_16_bit%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let concat_result%0#0: bytes = (concat len_16_bit%0#0 concatenated%0#0)
-        let expr_value_trimmed%2#0: bytes = ((extract 2 0) concat_result%0#0)
-        let expr_value_trimmed%3#0: bytes = ((extract 2 0) 0x000121)
-        let concatenated%1#0: bytes = (concat expr_value_trimmed%2#0 expr_value_trimmed%3#0)
-        let len_%1#0: uint64 = (len concatenated%1#0)
-        let as_bytes%1#0: bytes[8] = (itob len_%1#0)
-        let len_16_bit%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let concat_result%1#0: bytes = (concat len_16_bit%1#0 concatenated%1#0)
-        return concat_result%1#0
+        let encoded%1#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x48656c6c6f2c20)
+        let array_length%0#0: uint64 = (extract_uint16 name#0 0u)
+        let extract_to_end%0#0: bytes = ((extract 2 0) name#0)
+        let concat%0#0: Encoded(len+utf8[]) = (concat encoded%1#0 extract_to_end%0#0) // on error: max array length exceeded
+        let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
+        let len%0#0: uint64 = (len extract_to_end%1#0)
+        let div_floor%0#0: uint64 = (/ len%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob div_floor%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
+        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = replace%0#0
+        let encoded%2#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x21)
+        let array_length%1#0: uint64 = (extract_uint16 encoded%2#0 0u)
+        let extract_to_end%2#0: bytes = ((extract 2 0) encoded%2#0)
+        let concat%1#0: Encoded(len+utf8[]) = (concat as_Encoded(len+utf8[])%0#0 extract_to_end%2#0) // on error: max array length exceeded
+        let extract_to_end%3#0: bytes = ((extract 2 0) concat%1#0)
+        let len%1#0: uint64 = (len extract_to_end%3#0)
+        let div_floor%1#0: uint64 = (/ len%1#0 1u)
+        let as_bytes%1#0: bytes[8] = (itob div_floor%1#0)
+        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
+        let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
+        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = replace%1#0
+        return as_Encoded(len+utf8[])%1#0
 
-subroutine test_cases.everything.contract.Everything.calculate(a: bytes[8], b: bytes[8]) -> bytes[8]:
+subroutine test_cases.everything.contract.Everything.calculate(a: Encoded(uint64), b: Encoded(uint64)) -> Encoded(uint64):
     block@0: // L64
-        let c#0: bytes[8] = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
-        let tmp%0#0: uint64 = (btoi c#0)
-        let tmp%1#0: uint64 = (btoi b#0)
-        let to_encode%0#0: uint64 = (* tmp%0#0 tmp%1#0)
-        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        return val_as_bytes%0#0
+        let tmp%0#0: Encoded(uint64) = test_cases.everything.my_base.MyMiddleBase.calculate(a#0, b#0)
+        let c#0: Encoded(uint64) = tmp%0#0
+        let tmp%1#0: uint64 = decode<uint64>(c#0)
+        let tmp%2#0: uint64 = decode<uint64>(b#0)
+        let tmp%3#0: uint64 = (* tmp%1#0 tmp%2#0)
+        let tmp%4#0: Encoded(uint64) = encode<uint64>(tmp%3#0)
+        return tmp%4#0
 
 subroutine test_cases.everything.contract.Everything.close_out() -> void:
     block@0: // L69
@@ -169,8 +179,8 @@ subroutine test_cases.everything.contract.Everything.close_out() -> void:
 
 subroutine test_cases.everything.contract.Everything._check_ban_list() -> void:
     block@0: // L77
-        let tmp%0#0: bytes[32] = (txn Sender)
-        let tmp%1#0: bytes[32] = test_cases.everything.contract.get_banned()
+        let tmp%0#0: account = (txn Sender)
+        let tmp%1#0: account = test_cases.everything.contract.get_banned()
         let tmp%2#0: bool = (!= tmp%0#0 tmp%1#0)
         (assert tmp%2#0) // You are banned, goodbye
         return 
@@ -180,8 +190,8 @@ subroutine test_cases.everything.contract.Everything._remove_sender() -> void:
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "counter")
         (assert maybe_exists%0#0) // check self.counter exists
         let tmp%0#0: uint64 = test_cases.everything.contract.positive_one()
-        let materialized_values%0#0: uint64 = (- maybe_value%0#0 tmp%0#0)
-        (app_global_put "counter" materialized_values%0#0)
+        let tmp%1#0: uint64 = (- maybe_value%0#0 tmp%0#0)
+        (app_global_put "counter" tmp%1#0)
         return 
 
 subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
@@ -189,16 +199,16 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%0#0: bool = test_cases.everything.contract.Everything.__puya_arc4_router__()
         return tmp%0#0
 
-subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes[8], b: bytes[8]) -> bytes[8]:
+subroutine test_cases.everything.my_base.MyMiddleBase.calculate(a: Encoded(uint64), b: Encoded(uint64)) -> Encoded(uint64):
     block@0: // L13
-        let tmp%0#0: uint64 = (btoi a#0)
-        let tmp%1#0: uint64 = (btoi b#0)
-        let to_encode%0#0: uint64 = (+ tmp%0#0 tmp%1#0)
-        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        return val_as_bytes%0#0
+        let tmp%0#0: uint64 = decode<uint64>(a#0)
+        let tmp%1#0: uint64 = decode<uint64>(b#0)
+        let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
+        let tmp%3#0: Encoded(uint64) = encode<uint64>(tmp%2#0)
+        return tmp%3#0
 
 subroutine test_cases.everything.my_base.MyBase.remember_creator() -> void:
     block@0: // L7
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        (app_global_put "creator" materialized_values%0#0)
+        let tmp%0#0: account = (txn Sender)
+        (app_global_put "creator" tmp%0#0)
         return 

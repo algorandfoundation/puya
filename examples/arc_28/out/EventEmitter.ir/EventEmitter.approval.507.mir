@@ -26,12 +26,12 @@ subroutine main:
         assert // can only call when not creating
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txna ApplicationArgs 1                                                        reinterpret_bytes[8]%0#0
-        txna ApplicationArgs 2                                                        reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
+        txna ApplicationArgs 1                                                        reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 2                                                        reinterpret_Encoded(uint64)%0#0,reinterpret_Encoded(uint64)%1#0
         // arc_28/contract.py:12
         // @arc4.abimethod
-        l-load reinterpret_bytes[8]%0#0 1                                             reinterpret_bytes[8]%1#0,reinterpret_bytes[8]%0#0
-        l-load reinterpret_bytes[8]%1#0 1                                             reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
+        l-load reinterpret_Encoded(uint64)%0#0 1                                      reinterpret_Encoded(uint64)%1#0,reinterpret_Encoded(uint64)%0#0
+        l-load reinterpret_Encoded(uint64)%1#0 1                                      reinterpret_Encoded(uint64)%0#0,reinterpret_Encoded(uint64)%1#0
         callsub emit_swapped
         int 1                                                                         tmp%0#0
         x-store tmp%0#0                                                               (𝕏) tmp%0#0 |
@@ -47,12 +47,12 @@ subroutine main:
         assert // can only call when not creating
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txna ApplicationArgs 1                                                        reinterpret_bytes[32]%0#0
-        txna ApplicationArgs 2                                                        reinterpret_bytes[32]%0#0,reinterpret_bytes[8]%2#0
+        txna ApplicationArgs 1                                                        reinterpret_Encoded(uint256)%0#0
+        txna ApplicationArgs 2                                                        reinterpret_Encoded(uint256)%0#0,reinterpret_Encoded(uint64)%2#0
         // arc_28/contract.py:18
         // @arc4.abimethod()
-        l-load reinterpret_bytes[32]%0#0 1                                            reinterpret_bytes[8]%2#0,reinterpret_bytes[32]%0#0
-        l-load reinterpret_bytes[8]%2#0 1                                             reinterpret_bytes[32]%0#0,reinterpret_bytes[8]%2#0
+        l-load reinterpret_Encoded(uint256)%0#0 1                                     reinterpret_Encoded(uint64)%2#0,reinterpret_Encoded(uint256)%0#0
+        l-load reinterpret_Encoded(uint64)%2#0 1                                      reinterpret_Encoded(uint256)%0#0,reinterpret_Encoded(uint64)%2#0
         callsub emit_ufixed
         int 1                                                                         tmp%0#0
         x-store tmp%0#0                                                               (𝕏) tmp%0#0 |
@@ -91,9 +91,9 @@ subroutine emit_swapped:
         // arc4.emit(Swapped(b, a))
         p-load b#0                                                                    (𝕡) a#0,b#0 | b#0 (copy)
         p-load a#0                                                                    (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
-        concat                                                                        (𝕡) a#0,b#0 | encoded_tuple_buffer%2#0
-        method Swapped(uint64,uint64)                                                 (𝕡) a#0,b#0 | encoded_tuple_buffer%2#0,Method(Swapped(uint64,uint64))
-        l-load encoded_tuple_buffer%2#0 1                                             (𝕡) a#0,b#0 | Method(Swapped(uint64,uint64)),encoded_tuple_buffer%2#0
+        concat                                                                        (𝕡) a#0,b#0 | aggregate%encoded%1#1
+        method Swapped(uint64,uint64)                                                 (𝕡) a#0,b#0 | aggregate%encoded%1#1,Method(Swapped(uint64,uint64))
+        l-load aggregate%encoded%1#1 1                                                (𝕡) a#0,b#0 | Method(Swapped(uint64,uint64)),aggregate%encoded%1#1
         concat                                                                        (𝕡) a#0,b#0 | event%0#0
         l-load-copy event%0#0 0                                                       (𝕡) a#0,b#0 | event%0#0,event%0#0 (copy)
         log                                                                           (𝕡) a#0,b#0 | event%0#0
@@ -115,9 +115,9 @@ subroutine emit_ufixed:
         // arc4.emit("AnEvent(ufixed256x16,ufixed64x2)", a, b)
         p-load a#0                                                                    (𝕡) a#0,b#0 | a#0 (copy)
         p-load b#0                                                                    (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        concat                                                                        (𝕡) a#0,b#0 | encoded_tuple_buffer%2#0
-        method AnEvent(ufixed256x16,ufixed64x2)                                       (𝕡) a#0,b#0 | encoded_tuple_buffer%2#0,Method(AnEvent(ufixed256x16,ufixed64x2))
-        l-load encoded_tuple_buffer%2#0 1                                             (𝕡) a#0,b#0 | Method(AnEvent(ufixed256x16,ufixed64x2)),encoded_tuple_buffer%2#0
+        concat                                                                        (𝕡) a#0,b#0 | aggregate%encoded%1#1
+        method AnEvent(ufixed256x16,ufixed64x2)                                       (𝕡) a#0,b#0 | aggregate%encoded%1#1,Method(AnEvent(ufixed256x16,ufixed64x2))
+        l-load aggregate%encoded%1#1 1                                                (𝕡) a#0,b#0 | Method(AnEvent(ufixed256x16,ufixed64x2)),aggregate%encoded%1#1
         concat                                                                        (𝕡) a#0,b#0 | event%0#0
         log                                                                           (𝕡) a#0,b#0 |
         retsub

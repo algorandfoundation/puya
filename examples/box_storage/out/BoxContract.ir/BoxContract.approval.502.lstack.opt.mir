@@ -37,15 +37,15 @@ subroutine main:
         assert // can only call when not creating
         // box_storage/contract.py:31
         // class BoxContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                  reinterpret_bytes[8]%0#0
+        txna ApplicationArgs 1                                                                  reinterpret_Encoded(uint64)%0#0
         btoi                                                                                    tmp%7#0
-        txna ApplicationArgs 2                                                                  tmp%7#0,tmp%8#0
-        txna ApplicationArgs 3                                                                  tmp%7#0,tmp%8#0,tmp%9#0
+        txna ApplicationArgs 2                                                                  tmp%7#0,reinterpret_Encoded(len+uint8[])%0#0
+        txna ApplicationArgs 3                                                                  tmp%7#0,reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+utf8[])%0#0
         // box_storage/contract.py:41
         // @arc4.abimethod
-        l-load tmp%7#0 2                                                                        tmp%8#0,tmp%9#0,tmp%7#0
-        l-load tmp%8#0 2                                                                        tmp%9#0,tmp%7#0,tmp%8#0
-        l-load tmp%9#0 2                                                                        tmp%7#0,tmp%8#0,tmp%9#0
+        l-load tmp%7#0 2                                                                        reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+utf8[])%0#0,tmp%7#0
+        l-load reinterpret_Encoded(len+uint8[])%0#0 2                                           reinterpret_Encoded(len+utf8[])%0#0,tmp%7#0,reinterpret_Encoded(len+uint8[])%0#0
+        l-load reinterpret_Encoded(len+utf8[])%0#0 2                                            tmp%7#0,reinterpret_Encoded(len+uint8[])%0#0,reinterpret_Encoded(len+utf8[])%0#0
         callsub set_boxes
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         v-store tmp%0#1
@@ -54,10 +54,10 @@ subroutine main:
     main_check_keys_route@6:
         // box_storage/contract.py:78
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%10#0
-        !                                                                                       tmp%11#0
+        txn OnCompletion                                                                        tmp%8#0
+        !                                                                                       tmp%9#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%12#0
+        txn ApplicationID                                                                       tmp%10#0
         assert // can only call when not creating
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         v-store tmp%0#1
@@ -66,10 +66,10 @@ subroutine main:
     main_delete_boxes_route@7:
         // box_storage/contract.py:85
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%14#0
-        !                                                                                       tmp%15#0
+        txn OnCompletion                                                                        tmp%12#0
+        !                                                                                       tmp%13#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%16#0
+        txn ApplicationID                                                                       tmp%14#0
         assert // can only call when not creating
         callsub delete_boxes
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
@@ -79,44 +79,47 @@ subroutine main:
     main_read_boxes_route@8:
         // box_storage/contract.py:98
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%18#0
-        !                                                                                       tmp%19#0
+        txn OnCompletion                                                                        tmp%16#0
+        !                                                                                       tmp%17#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%20#0
+        txn ApplicationID                                                                       tmp%18#0
         assert // can only call when not creating
-        callsub read_boxes                                                                      elements_to_encode%0#0,elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0
-        l-load elements_to_encode%0#0 3                                                         elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,elements_to_encode%0#0
-        itob                                                                                    elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,val_as_bytes%0#0
-        l-load-copy elements_to_encode%1#0 3                                                    elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,val_as_bytes%0#0,elements_to_encode%1#0 (copy)
-        len                                                                                     elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,val_as_bytes%0#0,length%0#0
-        itob                                                                                    elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,val_as_bytes%0#0,as_bytes%0#0
-        extract 6 2                                                                             elements_to_encode%1#0,elements_to_encode%2#0,elements_to_encode%3#0,val_as_bytes%0#0,length_uint16%0#0
-        l-load elements_to_encode%1#0 4                                                         elements_to_encode%2#0,elements_to_encode%3#0,val_as_bytes%0#0,length_uint16%0#0,elements_to_encode%1#0
-        concat                                                                                  elements_to_encode%2#0,elements_to_encode%3#0,val_as_bytes%0#0,encoded_value%0#0
-        l-load elements_to_encode%3#0 2                                                         elements_to_encode%2#0,val_as_bytes%0#0,encoded_value%0#0,elements_to_encode%3#0
-        itob                                                                                    elements_to_encode%2#0,val_as_bytes%0#0,encoded_value%0#0,val_as_bytes%1#0
-        l-load val_as_bytes%0#0 2                                                               elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,val_as_bytes%0#0
-        byte 0x0014                                                                             elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,val_as_bytes%0#0,0x0014
-        concat                                                                                  elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%2#0
-        l-load-copy encoded_value%0#0 2                                                         elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%2#0,encoded_value%0#0 (copy)
-        len                                                                                     elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%2#0,data_length%0#0
-        int 20                                                                                  elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%2#0,data_length%0#0,20
-        l-load data_length%0#0 1                                                                elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%2#0,20,data_length%0#0
-        +                                                                                       elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%2#0,current_tail_offset%1#0
-        itob                                                                                    elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%2#0,as_bytes%2#0
-        extract 6 2                                                                             elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%2#0,offset_as_uint16%1#0
-        l-load encoded_tuple_buffer%2#0 1                                                       elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,offset_as_uint16%1#0,encoded_tuple_buffer%2#0
-        l-load offset_as_uint16%1#0 1                                                           elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%2#0,offset_as_uint16%1#0
-        concat                                                                                  elements_to_encode%2#0,encoded_value%0#0,val_as_bytes%1#0,encoded_tuple_buffer%3#0
-        l-load val_as_bytes%1#0 1                                                               elements_to_encode%2#0,encoded_value%0#0,encoded_tuple_buffer%3#0,val_as_bytes%1#0
-        concat                                                                                  elements_to_encode%2#0,encoded_value%0#0,encoded_tuple_buffer%4#0
-        l-load encoded_value%0#0 1                                                              elements_to_encode%2#0,encoded_tuple_buffer%4#0,encoded_value%0#0
-        concat                                                                                  elements_to_encode%2#0,encoded_tuple_buffer%5#0
-        l-load elements_to_encode%2#0 1                                                         encoded_tuple_buffer%5#0,elements_to_encode%2#0
-        concat                                                                                  encoded_tuple_buffer%6#0
-        byte 0x151f7c75                                                                         encoded_tuple_buffer%6#0,0x151f7c75
-        l-load encoded_tuple_buffer%6#0 1                                                       0x151f7c75,encoded_tuple_buffer%6#0
-        concat                                                                                  tmp%22#0
+        callsub read_boxes                                                                      tmp%20#0,tmp%21#0,tmp%22#0,tmp%23#0
+        l-load tmp%20#0 3                                                                       tmp%21#0,tmp%22#0,tmp%23#0,tmp%20#0
+        itob                                                                                    tmp%21#0,tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1
+        l-load-copy tmp%21#0 3                                                                  tmp%21#0,tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,tmp%21#0 (copy)
+        len                                                                                     tmp%21#0,tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%length%0#1
+        itob                                                                                    tmp%21#0,tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%as_bytes%0#1
+        extract 6 2                                                                             tmp%21#0,tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%length_uint16%0#1
+        l-load tmp%21#0 4                                                                       tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%length_uint16%0#1,tmp%21#0
+        concat                                                                                  tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%encoded_value%0#1
+        l-load-copy aggregate%encoded_value%0#1 0                                               tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%encoded_value%0#1,aggregate%encoded_value%0#1 (copy)
+        len                                                                                     tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%encoded_value%0#1,aggregate%data_length%0#1
+        int 20                                                                                  tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%encoded_value%0#1,aggregate%data_length%0#1,20
+        l-load aggregate%data_length%0#1 1                                                      tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%encoded_value%0#1,20,aggregate%data_length%0#1
+        +                                                                                       tmp%22#0,tmp%23#0,aggregate%val_as_bytes%0#1,aggregate%encoded_value%0#1,aggregate%current_tail_offset%0#1
+        l-load aggregate%val_as_bytes%0#1 2                                                     tmp%22#0,tmp%23#0,aggregate%encoded_value%0#1,aggregate%current_tail_offset%0#1,aggregate%val_as_bytes%0#1
+        byte 0x0014                                                                             tmp%22#0,tmp%23#0,aggregate%encoded_value%0#1,aggregate%current_tail_offset%0#1,aggregate%val_as_bytes%0#1,0x0014
+        concat                                                                                  tmp%22#0,tmp%23#0,aggregate%encoded_value%0#1,aggregate%current_tail_offset%0#1,aggregate%encoded%1#1
+        l-load aggregate%encoded_value%0#1 2                                                    tmp%22#0,tmp%23#0,aggregate%current_tail_offset%0#1,aggregate%encoded%1#1,aggregate%encoded_value%0#1
+        l-load tmp%22#0 4                                                                       tmp%23#0,aggregate%current_tail_offset%0#1,aggregate%encoded%1#1,aggregate%encoded_value%0#1,tmp%22#0
+        concat                                                                                  tmp%23#0,aggregate%current_tail_offset%0#1,aggregate%encoded%1#1,aggregate%tail%1#1
+        l-load aggregate%current_tail_offset%0#1 2                                              tmp%23#0,aggregate%encoded%1#1,aggregate%tail%1#1,aggregate%current_tail_offset%0#1
+        itob                                                                                    tmp%23#0,aggregate%encoded%1#1,aggregate%tail%1#1,aggregate%as_bytes%2#1
+        extract 6 2                                                                             tmp%23#0,aggregate%encoded%1#1,aggregate%tail%1#1,aggregate%offset_as_uint16%1#1
+        l-load aggregate%encoded%1#1 2                                                          tmp%23#0,aggregate%tail%1#1,aggregate%offset_as_uint16%1#1,aggregate%encoded%1#1
+        l-load aggregate%offset_as_uint16%1#1 1                                                 tmp%23#0,aggregate%tail%1#1,aggregate%encoded%1#1,aggregate%offset_as_uint16%1#1
+        concat                                                                                  tmp%23#0,aggregate%tail%1#1,aggregate%encoded%2#1
+        l-load tmp%23#0 2                                                                       aggregate%tail%1#1,aggregate%encoded%2#1,tmp%23#0
+        itob                                                                                    aggregate%tail%1#1,aggregate%encoded%2#1,aggregate%val_as_bytes%1#1
+        l-load aggregate%encoded%2#1 1                                                          aggregate%tail%1#1,aggregate%val_as_bytes%1#1,aggregate%encoded%2#1
+        l-load aggregate%val_as_bytes%1#1 1                                                     aggregate%tail%1#1,aggregate%encoded%2#1,aggregate%val_as_bytes%1#1
+        concat                                                                                  aggregate%tail%1#1,aggregate%encoded%3#1
+        l-load aggregate%tail%1#1 1                                                             aggregate%encoded%3#1,aggregate%tail%1#1
+        concat                                                                                  aggregate%encoded%4#1
+        byte 0x151f7c75                                                                         aggregate%encoded%4#1,0x151f7c75
+        l-load aggregate%encoded%4#1 1                                                          0x151f7c75,aggregate%encoded%4#1
+        concat                                                                                  tmp%25#0
         log
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         v-store tmp%0#1
@@ -125,52 +128,28 @@ subroutine main:
     main_boxes_exist_route@9:
         // box_storage/contract.py:111
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%23#0
-        !                                                                                       tmp%24#0
+        txn OnCompletion                                                                        tmp%26#0
+        !                                                                                       tmp%27#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%25#0
+        txn ApplicationID                                                                       tmp%28#0
         assert // can only call when not creating
-        callsub boxes_exist                                                                     elements_to_encode%4#0,elements_to_encode%5#0,elements_to_encode%6#0,elements_to_encode%7#0
-        byte 0x00                                                                               elements_to_encode%4#0,elements_to_encode%5#0,elements_to_encode%6#0,elements_to_encode%7#0,0x00
-        int 0                                                                                   elements_to_encode%4#0,elements_to_encode%5#0,elements_to_encode%6#0,elements_to_encode%7#0,0x00,0
-        l-load elements_to_encode%4#0 5                                                         elements_to_encode%5#0,elements_to_encode%6#0,elements_to_encode%7#0,0x00,0,elements_to_encode%4#0
-        setbit                                                                                  elements_to_encode%5#0,elements_to_encode%6#0,elements_to_encode%7#0,encoded_bool%0#0
-        byte 0x00                                                                               elements_to_encode%5#0,elements_to_encode%6#0,elements_to_encode%7#0,encoded_bool%0#0,0x00
-        int 0                                                                                   elements_to_encode%5#0,elements_to_encode%6#0,elements_to_encode%7#0,encoded_bool%0#0,0x00,0
-        l-load elements_to_encode%5#0 5                                                         elements_to_encode%6#0,elements_to_encode%7#0,encoded_bool%0#0,0x00,0,elements_to_encode%5#0
-        setbit                                                                                  elements_to_encode%6#0,elements_to_encode%7#0,encoded_bool%0#0,encoded_bool%1#0
-        byte 0x00                                                                               elements_to_encode%6#0,elements_to_encode%7#0,encoded_bool%0#0,encoded_bool%1#0,0x00
-        int 0                                                                                   elements_to_encode%6#0,elements_to_encode%7#0,encoded_bool%0#0,encoded_bool%1#0,0x00,0
-        l-load elements_to_encode%6#0 5                                                         elements_to_encode%7#0,encoded_bool%0#0,encoded_bool%1#0,0x00,0,elements_to_encode%6#0
-        setbit                                                                                  elements_to_encode%7#0,encoded_bool%0#0,encoded_bool%1#0,encoded_bool%2#0
-        byte 0x00                                                                               elements_to_encode%7#0,encoded_bool%0#0,encoded_bool%1#0,encoded_bool%2#0,0x00
-        int 0                                                                                   elements_to_encode%7#0,encoded_bool%0#0,encoded_bool%1#0,encoded_bool%2#0,0x00,0
-        l-load elements_to_encode%7#0 5                                                         encoded_bool%0#0,encoded_bool%1#0,encoded_bool%2#0,0x00,0,elements_to_encode%7#0
-        setbit                                                                                  encoded_bool%0#0,encoded_bool%1#0,encoded_bool%2#0,encoded_bool%3#0
-        l-load encoded_bool%1#0 2                                                               encoded_bool%0#0,encoded_bool%2#0,encoded_bool%3#0,encoded_bool%1#0
-        int 0                                                                                   encoded_bool%0#0,encoded_bool%2#0,encoded_bool%3#0,encoded_bool%1#0,0
-        getbit                                                                                  encoded_bool%0#0,encoded_bool%2#0,encoded_bool%3#0,is_true%0#0
-        l-load encoded_bool%0#0 3                                                               encoded_bool%2#0,encoded_bool%3#0,is_true%0#0,encoded_bool%0#0
-        int 1                                                                                   encoded_bool%2#0,encoded_bool%3#0,is_true%0#0,encoded_bool%0#0,1
-        l-load is_true%0#0 2                                                                    encoded_bool%2#0,encoded_bool%3#0,encoded_bool%0#0,1,is_true%0#0
-        setbit                                                                                  encoded_bool%2#0,encoded_bool%3#0,encoded_tuple_buffer%9#0
-        l-load encoded_bool%2#0 2                                                               encoded_bool%3#0,encoded_tuple_buffer%9#0,encoded_bool%2#0
-        int 0                                                                                   encoded_bool%3#0,encoded_tuple_buffer%9#0,encoded_bool%2#0,0
-        getbit                                                                                  encoded_bool%3#0,encoded_tuple_buffer%9#0,is_true%1#0
-        l-load encoded_tuple_buffer%9#0 1                                                       encoded_bool%3#0,is_true%1#0,encoded_tuple_buffer%9#0
-        int 2                                                                                   encoded_bool%3#0,is_true%1#0,encoded_tuple_buffer%9#0,2
-        l-load is_true%1#0 2                                                                    encoded_bool%3#0,encoded_tuple_buffer%9#0,2,is_true%1#0
-        setbit                                                                                  encoded_bool%3#0,encoded_tuple_buffer%10#0
-        l-load encoded_bool%3#0 1                                                               encoded_tuple_buffer%10#0,encoded_bool%3#0
-        int 0                                                                                   encoded_tuple_buffer%10#0,encoded_bool%3#0,0
-        getbit                                                                                  encoded_tuple_buffer%10#0,is_true%2#0
-        l-load encoded_tuple_buffer%10#0 1                                                      is_true%2#0,encoded_tuple_buffer%10#0
-        int 3                                                                                   is_true%2#0,encoded_tuple_buffer%10#0,3
-        l-load is_true%2#0 2                                                                    encoded_tuple_buffer%10#0,3,is_true%2#0
-        setbit                                                                                  encoded_tuple_buffer%11#0
-        byte 0x151f7c75                                                                         encoded_tuple_buffer%11#0,0x151f7c75
-        l-load encoded_tuple_buffer%11#0 1                                                      0x151f7c75,encoded_tuple_buffer%11#0
-        concat                                                                                  tmp%27#0
+        callsub boxes_exist                                                                     tmp%30#0,tmp%31#0,tmp%32#0,tmp%33#0
+        byte 0x00                                                                               tmp%30#0,tmp%31#0,tmp%32#0,tmp%33#0,0x00
+        int 0                                                                                   tmp%30#0,tmp%31#0,tmp%32#0,tmp%33#0,0x00,0
+        l-load tmp%30#0 5                                                                       tmp%31#0,tmp%32#0,tmp%33#0,0x00,0,tmp%30#0
+        setbit                                                                                  tmp%31#0,tmp%32#0,tmp%33#0,aggregate%encoded_bit%0#1
+        int 1                                                                                   tmp%31#0,tmp%32#0,tmp%33#0,aggregate%encoded_bit%0#1,1
+        l-load tmp%31#0 4                                                                       tmp%32#0,tmp%33#0,aggregate%encoded_bit%0#1,1,tmp%31#0
+        setbit                                                                                  tmp%32#0,tmp%33#0,aggregate%set_bit%0#1
+        int 2                                                                                   tmp%32#0,tmp%33#0,aggregate%set_bit%0#1,2
+        l-load tmp%32#0 3                                                                       tmp%33#0,aggregate%set_bit%0#1,2,tmp%32#0
+        setbit                                                                                  tmp%33#0,aggregate%set_bit%1#1
+        int 3                                                                                   tmp%33#0,aggregate%set_bit%1#1,3
+        l-load tmp%33#0 2                                                                       aggregate%set_bit%1#1,3,tmp%33#0
+        setbit                                                                                  aggregate%set_bit%2#1
+        byte 0x151f7c75                                                                         aggregate%set_bit%2#1,0x151f7c75
+        l-load aggregate%set_bit%2#1 1                                                          0x151f7c75,aggregate%set_bit%2#1
+        concat                                                                                  tmp%35#0
         log
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         v-store tmp%0#1
@@ -179,10 +158,10 @@ subroutine main:
     main_slice_box_route@10:
         // box_storage/contract.py:115
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%28#0
-        !                                                                                       tmp%29#0
+        txn OnCompletion                                                                        tmp%36#0
+        !                                                                                       tmp%37#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%30#0
+        txn ApplicationID                                                                       tmp%38#0
         assert // can only call when not creating
         callsub slice_box
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
@@ -192,10 +171,10 @@ subroutine main:
     main_arc4_box_route@11:
         // box_storage/contract.py:124
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%32#0
-        !                                                                                       tmp%33#0
+        txn OnCompletion                                                                        tmp%40#0
+        !                                                                                       tmp%41#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%34#0
+        txn ApplicationID                                                                       tmp%42#0
         assert // can only call when not creating
         callsub arc4_box
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
@@ -205,10 +184,10 @@ subroutine main:
     main_test_box_ref_route@12:
         // box_storage/contract.py:134
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%36#0
-        !                                                                                       tmp%37#0
+        txn OnCompletion                                                                        tmp%44#0
+        !                                                                                       tmp%45#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%38#0
+        txn ApplicationID                                                                       tmp%46#0
         assert // can only call when not creating
         callsub test_box_ref
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
@@ -218,10 +197,10 @@ subroutine main:
     main_box_map_test_route@13:
         // box_storage/contract.py:182
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%40#0
-        !                                                                                       tmp%41#0
+        txn OnCompletion                                                                        tmp%48#0
+        !                                                                                       tmp%49#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%42#0
+        txn ApplicationID                                                                       tmp%50#0
         assert // can only call when not creating
         callsub box_map_test
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
@@ -231,21 +210,21 @@ subroutine main:
     main_box_map_set_route@14:
         // box_storage/contract.py:206
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%44#0
-        !                                                                                       tmp%45#0
+        txn OnCompletion                                                                        tmp%52#0
+        !                                                                                       tmp%53#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%46#0
+        txn ApplicationID                                                                       tmp%54#0
         assert // can only call when not creating
         // box_storage/contract.py:31
         // class BoxContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                  reinterpret_bytes[8]%1#0
-        btoi                                                                                    tmp%48#0
-        txna ApplicationArgs 2                                                                  tmp%48#0,tmp%49#0
-        extract 2 0                                                                             tmp%48#0,tmp%50#0
+        txna ApplicationArgs 1                                                                  reinterpret_Encoded(uint64)%1#0
+        btoi                                                                                    tmp%56#0
+        txna ApplicationArgs 2                                                                  tmp%56#0,reinterpret_Encoded(len+utf8[])%1#0
+        extract 2 0                                                                             tmp%56#0,tmp%57#0
         // box_storage/contract.py:206
         // @arc4.abimethod
-        l-load tmp%48#0 1                                                                       tmp%50#0,tmp%48#0
-        l-load tmp%50#0 1                                                                       tmp%48#0,tmp%50#0
+        l-load tmp%56#0 1                                                                       tmp%57#0,tmp%56#0
+        l-load tmp%57#0 1                                                                       tmp%56#0,tmp%57#0
         callsub box_map_set
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         v-store tmp%0#1
@@ -254,27 +233,27 @@ subroutine main:
     main_box_map_get_route@15:
         // box_storage/contract.py:210
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%51#0
-        !                                                                                       tmp%52#0
+        txn OnCompletion                                                                        tmp%58#0
+        !                                                                                       tmp%59#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%53#0
+        txn ApplicationID                                                                       tmp%60#0
         assert // can only call when not creating
         // box_storage/contract.py:31
         // class BoxContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                  reinterpret_bytes[8]%2#0
-        btoi                                                                                    tmp%55#0
+        txna ApplicationArgs 1                                                                  reinterpret_Encoded(uint64)%2#0
+        btoi                                                                                    tmp%62#0
         // box_storage/contract.py:210
         // @arc4.abimethod
-        callsub box_map_get                                                                     to_encode%0#0
-        l-load-copy to_encode%0#0 0                                                             to_encode%0#0,to_encode%0#0 (copy)
-        len                                                                                     to_encode%0#0,length%1#0
-        itob                                                                                    to_encode%0#0,as_bytes%3#0
-        extract 6 2                                                                             to_encode%0#0,length_uint16%1#0
-        l-load to_encode%0#0 1                                                                  length_uint16%1#0,to_encode%0#0
-        concat                                                                                  encoded_value%1#0
-        byte 0x151f7c75                                                                         encoded_value%1#0,0x151f7c75
-        l-load encoded_value%1#0 1                                                              0x151f7c75,encoded_value%1#0
-        concat                                                                                  tmp%56#0
+        callsub box_map_get                                                                     tmp%63#0
+        l-load-copy tmp%63#0 0                                                                  tmp%63#0,tmp%63#0 (copy)
+        len                                                                                     tmp%63#0,aggregate%length%1#1
+        itob                                                                                    tmp%63#0,aggregate%as_bytes%3#1
+        extract 6 2                                                                             tmp%63#0,aggregate%length_uint16%1#1
+        l-load tmp%63#0 1                                                                       aggregate%length_uint16%1#1,tmp%63#0
+        concat                                                                                  aggregate%encoded_value%1#1
+        byte 0x151f7c75                                                                         aggregate%encoded_value%1#1,0x151f7c75
+        l-load aggregate%encoded_value%1#1 1                                                    0x151f7c75,aggregate%encoded_value%1#1
+        concat                                                                                  tmp%65#0
         log
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         v-store tmp%0#1
@@ -283,15 +262,15 @@ subroutine main:
     main_box_map_del_route@16:
         // box_storage/contract.py:214
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%57#0
-        !                                                                                       tmp%58#0
+        txn OnCompletion                                                                        tmp%66#0
+        !                                                                                       tmp%67#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%59#0
+        txn ApplicationID                                                                       tmp%68#0
         assert // can only call when not creating
         // box_storage/contract.py:31
         // class BoxContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                  reinterpret_bytes[8]%3#0
-        btoi                                                                                    tmp%61#0
+        txna ApplicationArgs 1                                                                  reinterpret_Encoded(uint64)%3#0
+        btoi                                                                                    tmp%70#0
         // box_storage/contract.py:214
         // @arc4.abimethod
         callsub box_map_del
@@ -302,25 +281,25 @@ subroutine main:
     main_box_map_exists_route@17:
         // box_storage/contract.py:218
         // @arc4.abimethod
-        txn OnCompletion                                                                        tmp%62#0
-        !                                                                                       tmp%63#0
+        txn OnCompletion                                                                        tmp%71#0
+        !                                                                                       tmp%72#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%64#0
+        txn ApplicationID                                                                       tmp%73#0
         assert // can only call when not creating
         // box_storage/contract.py:31
         // class BoxContract(arc4.ARC4Contract):
-        txna ApplicationArgs 1                                                                  reinterpret_bytes[8]%4#0
-        btoi                                                                                    tmp%66#0
+        txna ApplicationArgs 1                                                                  reinterpret_Encoded(uint64)%4#0
+        btoi                                                                                    tmp%75#0
         // box_storage/contract.py:218
         // @arc4.abimethod
-        callsub box_map_exists                                                                  to_encode%1#0
-        byte 0x00                                                                               to_encode%1#0,0x00
-        int 0                                                                                   to_encode%1#0,0x00,0
-        l-load to_encode%1#0 2                                                                  0x00,0,to_encode%1#0
-        setbit                                                                                  encoded_bool%4#0
-        byte 0x151f7c75                                                                         encoded_bool%4#0,0x151f7c75
-        l-load encoded_bool%4#0 1                                                               0x151f7c75,encoded_bool%4#0
-        concat                                                                                  tmp%67#0
+        callsub box_map_exists                                                                  tmp%76#0
+        byte 0x00                                                                               tmp%76#0,0x00
+        int 0                                                                                   tmp%76#0,0x00,0
+        l-load tmp%76#0 2                                                                       0x00,0,tmp%76#0
+        setbit                                                                                  aggregate%encoded_bool%0#1
+        byte 0x151f7c75                                                                         aggregate%encoded_bool%0#1,0x151f7c75
+        l-load aggregate%encoded_bool%0#1 1                                                     0x151f7c75,aggregate%encoded_bool%0#1
+        concat                                                                                  tmp%78#0
         log
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         v-store tmp%0#1
@@ -329,12 +308,12 @@ subroutine main:
     main_bare_routing@18:
         // box_storage/contract.py:31
         // class BoxContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                        tmp%68#0
+        txn OnCompletion                                                                        tmp%79#0
         bz main___algopy_default_create@19 ; b main_after_if_else@20
 
     main___algopy_default_create@19:
-        txn ApplicationID                                                                       tmp%69#0
-        !                                                                                       tmp%70#0
+        txn ApplicationID                                                                       tmp%80#0
+        !                                                                                       tmp%81#0
         assert // can only call when creating
         int 1                                                                                   examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0
         v-store tmp%0#1
@@ -381,340 +360,335 @@ subroutine set_boxes:
         // box_storage/contract.py:46
         // self.box_d.value = b.native
         p-load b#0                                                                              (𝕡) a#0,b#0,c#0 | b#0 (copy)
-        extract 2 0                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_d"
-        box_del                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,{box_del}
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_d"
-        l-load-copy materialized_values%0#0 1                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_d",materialized_values%0#0 (copy)
-        box_put                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0
+        extract 2 0                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_d"
+        box_del                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,{box_del}
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_d"
+        l-load-copy tmp%0#0 1                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_d",tmp%0#0 (copy)
+        box_put                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0
         // box_storage/contract.py:47
         // self.box_large.create()
-        byte "box_large"                                                                        (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_large"
-        int 6152                                                                                (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_large",6152
-        box_create                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,{box_create}
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0
+        byte "box_large"                                                                        (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_large"
+        int 6152                                                                                (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_large",6152
+        box_create                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,{box_create}
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0
         // box_storage/contract.py:50
         // self.box_large.ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
-        byte "box_large"                                                                        (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_large"
-        int 4096                                                                                (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_large",4096
-        byte 0x000000000000002a                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_large",4096,0x000000000000002a
-        box_replace                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0
-        // box_storage/contract.py:52
-        // b_value = self.box_b.value.copy()
-        byte "b"                                                                                (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"b"
-        box_get                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,b_value#0,maybe_exists%0#0
-        l-store maybe_exists%0#0 1                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_exists%0#0,b_value#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_exists%0#0
-        l-load maybe_exists%0#0 0                                                               (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_exists%0#0
-        assert // check self.box_b exists                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0
+        byte "box_large"                                                                        (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_large"
+        int 4096                                                                                (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_large",4096
+        byte 0x000000000000002a                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_large",4096,0x000000000000002a
+        box_replace                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0
         // box_storage/contract.py:55
         // self.box_a.value += 3
-        byte "box_a"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_a"
-        box_get                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_value%2#0,maybe_exists%2#0
-        assert // check self.box_a exists                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_value%2#0
-        l-load maybe_value%2#0 0                                                                (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_value%2#0
-        btoi                                                                                    (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_value_converted%0#0
-        int 3                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,maybe_value_converted%0#0,3
-        +                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,materialized_values%1#0
-        itob                                                                                    (𝕡) a#0,b#0,c#0 | materialized_values%0#0,encoded_value%1#0
-        byte "box_a"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,encoded_value%1#0,"box_a"
-        l-load encoded_value%1#0 1                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_a",encoded_value%1#0
-        box_put                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0
+        byte "box_a"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_a"
+        box_get                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,aggregate%box_get%0#1,aggregate%box_get%1#1
+        assert // check self.box_a exists                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,aggregate%box_get%0#1
+        l-load aggregate%box_get%0#1 0                                                          (𝕡) a#0,b#0,c#0 | tmp%0#0,aggregate%box_get%0#1
+        btoi                                                                                    (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_value_converted%0#0
+        int 3                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,maybe_value_converted%0#0,3
+        +                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%3#0
+        itob                                                                                    (𝕡) a#0,b#0,c#0 | tmp%0#0,encoded_value%1#0
+        byte "box_a"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,encoded_value%1#0,"box_a"
+        l-load encoded_value%1#0 1                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_a",encoded_value%1#0
+        box_put                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0
         // box_storage/contract.py:58
         // assert self.box_a.length == 8
-        byte "box_a"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"box_a"
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%0#0,check%0#0
-        assert // check self.box_a exists                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%0#0
-        l-load value%0#0 0                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%0#0
-        int 8                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%0#0,8
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%4#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0
+        byte "box_a"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,"box_a"
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,value%0#0,check%0#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,value%0#0
+        l-store value%0#0 0                                                                     (𝕡) a#0,b#0,c#0 | tmp%0#0,value%0#0
+        l-load value%0#0 0                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,value%0#0
+        int 8                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,value%0#0,8
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%4#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0
         // box_storage/contract.py:59
         // assert self.box_b.length == b.bytes.length
-        byte "b"                                                                                (𝕡) a#0,b#0,c#0 | materialized_values%0#0,"b"
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%1#0,check%1#0
-        assert // check self.box_b exists                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%1#0
-        p-load b#0                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%1#0,b#0 (copy)
-        len                                                                                     (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%1#0,tmp%5#0
-        l-load value%1#0 1                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%5#0,value%1#0
-        l-load tmp%5#0 1                                                                        (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%1#0,tmp%5#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%6#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0
+        byte "b"                                                                                (𝕡) a#0,b#0,c#0 | tmp%0#0,"b"
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0,check%1#0
+        assert // check self.box_b exists                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0
+        p-load b#0                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0,b#0 (copy)
+        len                                                                                     (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0,tmp%5#0
+        l-load value%1#0 1                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%5#0,value%1#0
+        l-load tmp%5#0 1                                                                        (𝕡) a#0,b#0,c#0 | tmp%0#0,value%1#0,tmp%5#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%6#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0
         // box_storage/contract.py:60
         // assert self.box_c.length == c.bytes.length
-        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,0x424f585f43
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%2#0,check%2#0
-        assert // check self.box_c exists                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%2#0
-        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%2#0,c#0 (copy)
-        len                                                                                     (𝕡) a#0,b#0,c#0 | materialized_values%0#0,value%2#0,tmp%7#0
-        l-load value%2#0 1                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,value%2#0
-        l-load-copy tmp%7#0 1                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,value%2#0,tmp%7#0 (copy)
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%8#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0
+        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,0x424f585f43
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,value%2#0,check%2#0
+        assert // check self.box_c exists                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,value%2#0
+        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,value%2#0,c#0 (copy)
+        len                                                                                     (𝕡) a#0,b#0,c#0 | tmp%0#0,value%2#0,tmp%7#0
+        l-load value%2#0 1                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,value%2#0
+        l-load-copy tmp%7#0 1                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,value%2#0,tmp%7#0 (copy)
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%8#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0
         // box_storage/contract.py:61
         // assert self.box_d.length == b.native.length
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,"box_d"
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,value%3#0,check%3#0
-        assert // check self.box_d exists                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,value%3#0
-        l-load-copy materialized_values%0#0 2                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,value%3#0,materialized_values%0#0 (copy)
-        len                                                                                     (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,value%3#0,tmp%10#0
-        l-load value%3#0 1                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,value%3#0
-        l-load-copy tmp%10#0 1                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,value%3#0,tmp%10#0 (copy)
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%11#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,"box_d"
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,value%3#0,check%3#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,value%3#0
+        l-store value%3#0 0                                                                     (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,value%3#0
+        l-load-copy tmp%0#0 2                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,value%3#0,tmp%0#0 (copy)
+        len                                                                                     (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,value%3#0,tmp%10#0
+        l-load value%3#0 1                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,value%3#0
+        l-load-copy tmp%10#0 1                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,value%3#0,tmp%10#0 (copy)
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%11#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0
         // box_storage/contract.py:64
         // assert self.box_c.value.bytes[0] == c.bytes[0]
-        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43,0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43,0,1
-        box_extract                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%12#0
-        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%12#0,c#0 (copy)
-        extract 0 1                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%12#0,tmp%13#0
-        l-load tmp%12#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%13#0,tmp%12#0
-        l-load tmp%13#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%12#0,tmp%13#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%14#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0
+        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43,0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43,0,1
+        box_extract                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%12#0
+        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%12#0,c#0 (copy)
+        extract 0 1                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%12#0,extract%0#0
+        l-load tmp%12#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,extract%0#0,tmp%12#0
+        l-load extract%0#0 1                                                                    (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%12#0,extract%0#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%13#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0
         // box_storage/contract.py:65
         // assert self.box_c.value.bytes[-1] == c.bytes[-1]
-        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%15#0,tmp%16#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%15#0
-        l-store tmp%15#0 0                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%15#0
-        l-load tmp%15#0 0                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%15#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%15#0,1
-        -                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%17#0
-        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%17#0,0x424f585f43
-        l-load tmp%17#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43,tmp%17#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43,tmp%17#0,1
-        box_extract                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%18#0
-        l-load-copy tmp%7#0 2                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%18#0,tmp%7#0 (copy)
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%18#0,tmp%7#0 (copy),1
-        -                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%18#0,tmp%20#0
-        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%18#0,tmp%20#0,c#0 (copy)
-        l-load tmp%20#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%18#0,c#0 (copy),tmp%20#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%18#0,c#0 (copy),tmp%20#0,1
-        extract3                                                                                (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%18#0,tmp%21#0
-        l-load tmp%18#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%21#0,tmp%18#0
-        l-load tmp%21#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%18#0,tmp%21#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%22#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0
+        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%14#0,tmp%15#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%14#0
+        l-store tmp%14#0 0                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%14#0
+        l-load tmp%14#0 0                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%14#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%14#0,1
+        -                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%16#0
+        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%16#0,0x424f585f43
+        l-load tmp%16#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43,tmp%16#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43,tmp%16#0,1
+        box_extract                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%17#0
+        l-load-copy tmp%7#0 2                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%17#0,tmp%7#0 (copy)
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%17#0,tmp%7#0 (copy),1
+        -                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%17#0,tmp%19#0
+        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%17#0,tmp%19#0,c#0 (copy)
+        l-load tmp%19#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%17#0,c#0 (copy),tmp%19#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%17#0,c#0 (copy),tmp%19#0,1
+        extract3                                                                                (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%17#0,extract%1#0
+        l-load tmp%17#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,extract%1#0,tmp%17#0
+        l-load extract%1#0 1                                                                    (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%17#0,extract%1#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%20#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0
         // box_storage/contract.py:66
         // assert self.box_c.value.bytes[:-1] == c.bytes[:-1]
-        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0,tmp%24#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0
-        l-store tmp%23#0 0                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0,1
-        l-load-copy tmp%23#0 1                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0,1,tmp%23#0 (copy)
-        <                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0,tmp%25#0
-        l-load-copy tmp%23#0 1                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0,tmp%25#0,tmp%23#0 (copy)
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0,tmp%25#0,tmp%23#0 (copy),1
-        l-load tmp%25#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0,tmp%23#0 (copy),1,tmp%25#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0,tmp%26#0
-        l-load tmp%23#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%26#0,tmp%23#0
-        l-load tmp%26#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%23#0,tmp%26#0
-        -                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%27#0
-        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%27#0,0x424f585f43
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%27#0,0x424f585f43,0
-        l-load tmp%27#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43,0,tmp%27#0
-        box_extract                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,1
-        l-load-copy tmp%7#0 3                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,1,tmp%7#0 (copy)
-        >=                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,is_out_of_bounds%0#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,is_out_of_bounds%0#0,1
-        l-load-copy tmp%7#0 4                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,is_out_of_bounds%0#0,1,tmp%7#0 (copy)
-        l-load is_out_of_bounds%0#0 2                                                           (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,1,tmp%7#0 (copy),is_out_of_bounds%0#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,bounded_offset%0#0
-        l-load-copy tmp%7#0 3                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,bounded_offset%0#0,tmp%7#0 (copy)
-        l-load bounded_offset%0#0 1                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,tmp%7#0 (copy),bounded_offset%0#0
-        -                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,bounded_index%0#0
-        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,bounded_index%0#0,c#0 (copy)
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,bounded_index%0#0,c#0 (copy),0
-        l-load bounded_index%0#0 2                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,c#0 (copy),0,bounded_index%0#0
-        substring3                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,tmp%30#0
-        l-load tmp%29#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%30#0,tmp%29#0
-        l-load tmp%30#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%29#0,tmp%30#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%31#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0
+        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0,tmp%22#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0
+        l-store tmp%21#0 0                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0,1
+        l-load-copy tmp%21#0 1                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0,1,tmp%21#0 (copy)
+        <                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0,tmp%23#0
+        l-load-copy tmp%21#0 1                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0,tmp%23#0,tmp%21#0 (copy)
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0,tmp%23#0,tmp%21#0 (copy),1
+        l-load tmp%23#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0,tmp%21#0 (copy),1,tmp%23#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0,tmp%24#0
+        l-load tmp%21#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%24#0,tmp%21#0
+        l-load tmp%24#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%21#0,tmp%24#0
+        -                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%25#0
+        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%25#0,0x424f585f43
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%25#0,0x424f585f43,0
+        l-load tmp%25#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43,0,tmp%25#0
+        box_extract                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,1
+        l-load-copy tmp%7#0 3                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,1,tmp%7#0 (copy)
+        >=                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,is_out_of_bounds%0#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,is_out_of_bounds%0#0,1
+        l-load-copy tmp%7#0 4                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,is_out_of_bounds%0#0,1,tmp%7#0 (copy)
+        l-load is_out_of_bounds%0#0 2                                                           (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,1,tmp%7#0 (copy),is_out_of_bounds%0#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,bounded_offset%0#0
+        l-load-copy tmp%7#0 3                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,bounded_offset%0#0,tmp%7#0 (copy)
+        l-load bounded_offset%0#0 1                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,tmp%7#0 (copy),bounded_offset%0#0
+        -                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,bounded_index%0#0
+        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,bounded_index%0#0,c#0 (copy)
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,bounded_index%0#0,c#0 (copy),0
+        l-load bounded_index%0#0 2                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,c#0 (copy),0,bounded_index%0#0
+        substring3                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,tmp%28#0
+        l-load tmp%27#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%28#0,tmp%27#0
+        l-load tmp%28#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%27#0,tmp%28#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%29#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0
         // box_storage/contract.py:67
         // assert self.box_c.value.bytes[:2] == c.bytes[:2]
-        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%32#0,tmp%33#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%32#0
-        l-store tmp%32#0 0                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%32#0
-        int 2                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%32#0,2
-        l-load-copy tmp%32#0 1                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%32#0,2,tmp%32#0 (copy)
-        <                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%32#0,tmp%34#0
-        l-load tmp%32#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%34#0,tmp%32#0
-        int 2                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%34#0,tmp%32#0,2
-        l-load tmp%34#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%32#0,2,tmp%34#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%35#0
-        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%35#0,0x424f585f43
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%35#0,0x424f585f43,0
-        l-load tmp%35#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,0x424f585f43,0,tmp%35#0
-        box_extract                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%37#0
-        int 2                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%37#0,2
-        l-load-copy tmp%7#0 3                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%37#0,2,tmp%7#0 (copy)
-        >=                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%37#0,is_out_of_bounds%1#0
-        int 2                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%7#0,tmp%10#0,tmp%37#0,is_out_of_bounds%1#0,2
-        l-load tmp%7#0 4                                                                        (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%37#0,is_out_of_bounds%1#0,2,tmp%7#0
-        l-load is_out_of_bounds%1#0 2                                                           (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%37#0,2,tmp%7#0,is_out_of_bounds%1#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%37#0,bounded_index%1#0
-        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%37#0,bounded_index%1#0,c#0 (copy)
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%37#0,bounded_index%1#0,c#0 (copy),0
-        l-load bounded_index%1#0 2                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%37#0,c#0 (copy),0,bounded_index%1#0
-        substring3                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%37#0,tmp%38#0
-        l-load tmp%37#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%38#0,tmp%37#0
-        l-load tmp%38#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%37#0,tmp%38#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%39#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0
+        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%30#0,tmp%31#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%30#0
+        l-store tmp%30#0 0                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%30#0
+        int 2                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%30#0,2
+        l-load-copy tmp%30#0 1                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%30#0,2,tmp%30#0 (copy)
+        <                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%30#0,tmp%32#0
+        l-load tmp%30#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%32#0,tmp%30#0
+        int 2                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%32#0,tmp%30#0,2
+        l-load tmp%32#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%30#0,2,tmp%32#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%33#0
+        byte 0x424f585f43                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%33#0,0x424f585f43
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%33#0,0x424f585f43,0
+        l-load tmp%33#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,0x424f585f43,0,tmp%33#0
+        box_extract                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%35#0
+        int 2                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%35#0,2
+        l-load-copy tmp%7#0 3                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%35#0,2,tmp%7#0 (copy)
+        >=                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%35#0,is_out_of_bounds%1#0
+        int 2                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%7#0,tmp%10#0,tmp%35#0,is_out_of_bounds%1#0,2
+        l-load tmp%7#0 4                                                                        (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%35#0,is_out_of_bounds%1#0,2,tmp%7#0
+        l-load is_out_of_bounds%1#0 2                                                           (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%35#0,2,tmp%7#0,is_out_of_bounds%1#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%35#0,bounded_index%1#0
+        p-load c#0                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%35#0,bounded_index%1#0,c#0 (copy)
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%35#0,bounded_index%1#0,c#0 (copy),0
+        l-load bounded_index%1#0 2                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%35#0,c#0 (copy),0,bounded_index%1#0
+        substring3                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%35#0,tmp%36#0
+        l-load tmp%35#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%36#0,tmp%35#0
+        l-load tmp%36#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%35#0,tmp%36#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%37#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0
         // box_storage/contract.py:70
         // assert self.box_d.value[0] == b.native[0]
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d"
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d",0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d",0,1
-        box_extract                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%40#0
-        p-load b#0                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%40#0,b#0 (copy)
-        extract 2 1                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%40#0,tmp%42#0
-        l-load tmp%40#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%42#0,tmp%40#0
-        l-load tmp%42#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%40#0,tmp%42#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%43#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d"
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d",0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d",0,1
+        box_extract                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%38#0
+        p-load b#0                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%38#0,b#0 (copy)
+        extract 2 1                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%38#0,extract%2#0
+        l-load tmp%38#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,extract%2#0,tmp%38#0
+        l-load extract%2#0 1                                                                    (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%38#0,extract%2#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%40#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0
         // box_storage/contract.py:71
         // assert self.box_d.value[-1] == b.native[-1]
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d"
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%44#0,tmp%45#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%44#0
-        l-store tmp%44#0 0                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%44#0
-        l-load tmp%44#0 0                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%44#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%44#0,1
-        -                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%46#0
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%46#0,"box_d"
-        l-load tmp%46#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d",tmp%46#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d",tmp%46#0,1
-        box_extract                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%47#0
-        l-load-copy tmp%10#0 1                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%47#0,tmp%10#0 (copy)
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%47#0,tmp%10#0 (copy),1
-        -                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%47#0,tmp%50#0
-        l-load-copy materialized_values%0#0 3                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%47#0,tmp%50#0,materialized_values%0#0 (copy)
-        l-load tmp%50#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%47#0,materialized_values%0#0 (copy),tmp%50#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%47#0,materialized_values%0#0 (copy),tmp%50#0,1
-        extract3                                                                                (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%47#0,tmp%51#0
-        l-load tmp%47#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%51#0,tmp%47#0
-        l-load tmp%51#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%47#0,tmp%51#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%52#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d"
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%41#0,tmp%42#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%41#0
+        l-store tmp%41#0 0                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%41#0
+        l-load tmp%41#0 0                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%41#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%41#0,1
+        -                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%43#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%43#0,"box_d"
+        l-load tmp%43#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d",tmp%43#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d",tmp%43#0,1
+        box_extract                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%44#0
+        l-load-copy tmp%10#0 1                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%44#0,tmp%10#0 (copy)
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%44#0,tmp%10#0 (copy),1
+        -                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%44#0,tmp%47#0
+        l-load-copy tmp%0#0 3                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%44#0,tmp%47#0,tmp%0#0 (copy)
+        l-load tmp%47#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%44#0,tmp%0#0 (copy),tmp%47#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%44#0,tmp%0#0 (copy),tmp%47#0,1
+        extract3                                                                                (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%44#0,extract%3#0
+        l-load tmp%44#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,extract%3#0,tmp%44#0
+        l-load extract%3#0 1                                                                    (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%44#0,extract%3#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%48#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0
         // box_storage/contract.py:72
         // assert self.box_d.value[:-1] == b.native[:-1]
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d"
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0,tmp%54#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0
-        l-store tmp%53#0 0                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0,1
-        l-load-copy tmp%53#0 1                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0,1,tmp%53#0 (copy)
-        <                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0,tmp%55#0
-        l-load-copy tmp%53#0 1                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0,tmp%55#0,tmp%53#0 (copy)
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0,tmp%55#0,tmp%53#0 (copy),1
-        l-load tmp%55#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0,tmp%53#0 (copy),1,tmp%55#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0,tmp%56#0
-        l-load tmp%53#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%56#0,tmp%53#0
-        l-load tmp%56#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%53#0,tmp%56#0
-        -                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%57#0
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%57#0,"box_d"
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%57#0,"box_d",0
-        l-load tmp%57#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d",0,tmp%57#0
-        box_extract                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,1
-        l-load-copy tmp%10#0 2                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,1,tmp%10#0 (copy)
-        >=                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,is_out_of_bounds%2#0
-        int 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,is_out_of_bounds%2#0,1
-        l-load-copy tmp%10#0 3                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,is_out_of_bounds%2#0,1,tmp%10#0 (copy)
-        l-load is_out_of_bounds%2#0 2                                                           (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,1,tmp%10#0 (copy),is_out_of_bounds%2#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,bounded_offset%1#0
-        l-load-copy tmp%10#0 2                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,bounded_offset%1#0,tmp%10#0 (copy)
-        l-load bounded_offset%1#0 1                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,tmp%10#0 (copy),bounded_offset%1#0
-        -                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,bounded_index%2#0
-        l-load-copy materialized_values%0#0 3                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,bounded_index%2#0,materialized_values%0#0 (copy)
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,bounded_index%2#0,materialized_values%0#0 (copy),0
-        l-load bounded_index%2#0 2                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,materialized_values%0#0 (copy),0,bounded_index%2#0
-        substring3                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,tmp%61#0
-        l-load tmp%59#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%61#0,tmp%59#0
-        l-load tmp%61#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%59#0,tmp%61#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%62#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d"
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0,tmp%50#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0
+        l-store tmp%49#0 0                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0,1
+        l-load-copy tmp%49#0 1                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0,1,tmp%49#0 (copy)
+        <                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0,tmp%51#0
+        l-load-copy tmp%49#0 1                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0,tmp%51#0,tmp%49#0 (copy)
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0,tmp%51#0,tmp%49#0 (copy),1
+        l-load tmp%51#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0,tmp%49#0 (copy),1,tmp%51#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0,tmp%52#0
+        l-load tmp%49#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%52#0,tmp%49#0
+        l-load tmp%52#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%49#0,tmp%52#0
+        -                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%53#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%53#0,"box_d"
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%53#0,"box_d",0
+        l-load tmp%53#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d",0,tmp%53#0
+        box_extract                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,1
+        l-load-copy tmp%10#0 2                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,1,tmp%10#0 (copy)
+        >=                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,is_out_of_bounds%2#0
+        int 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,is_out_of_bounds%2#0,1
+        l-load-copy tmp%10#0 3                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,is_out_of_bounds%2#0,1,tmp%10#0 (copy)
+        l-load is_out_of_bounds%2#0 2                                                           (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,1,tmp%10#0 (copy),is_out_of_bounds%2#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,bounded_offset%1#0
+        l-load-copy tmp%10#0 2                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,bounded_offset%1#0,tmp%10#0 (copy)
+        l-load bounded_offset%1#0 1                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,tmp%10#0 (copy),bounded_offset%1#0
+        -                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,bounded_index%2#0
+        l-load-copy tmp%0#0 3                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,bounded_index%2#0,tmp%0#0 (copy)
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,bounded_index%2#0,tmp%0#0 (copy),0
+        l-load bounded_index%2#0 2                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,tmp%0#0 (copy),0,bounded_index%2#0
+        substring3                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,tmp%57#0
+        l-load tmp%55#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%57#0,tmp%55#0
+        l-load tmp%57#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%55#0,tmp%57#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%58#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0
         // box_storage/contract.py:73
         // assert self.box_d.value[:5] == b.native[:5]
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d"
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%63#0,tmp%64#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%63#0
-        l-store tmp%63#0 0                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%63#0
-        int 5                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%63#0,5
-        l-load-copy tmp%63#0 1                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%63#0,5,tmp%63#0 (copy)
-        <                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%63#0,tmp%65#0
-        l-load tmp%63#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%65#0,tmp%63#0
-        int 5                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%65#0,tmp%63#0,5
-        l-load tmp%65#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%63#0,5,tmp%65#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%66#0
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%66#0,"box_d"
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%66#0,"box_d",0
-        l-load tmp%66#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d",0,tmp%66#0
-        box_extract                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0
-        int 5                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,5
-        l-load-copy tmp%10#0 2                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,5,tmp%10#0 (copy)
-        >=                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,is_out_of_bounds%3#0
-        int 5                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,is_out_of_bounds%3#0,5
-        l-load-copy tmp%10#0 3                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,is_out_of_bounds%3#0,5,tmp%10#0 (copy)
-        l-load is_out_of_bounds%3#0 2                                                           (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,5,tmp%10#0 (copy),is_out_of_bounds%3#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,bounded_index%3#0
-        l-load-copy materialized_values%0#0 3                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,bounded_index%3#0,materialized_values%0#0 (copy)
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,bounded_index%3#0,materialized_values%0#0 (copy),0
-        l-load bounded_index%3#0 2                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,materialized_values%0#0 (copy),0,bounded_index%3#0
-        substring3                                                                              (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,tmp%70#0
-        l-load tmp%68#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%70#0,tmp%68#0
-        l-load tmp%70#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%68#0,tmp%70#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%71#0
-        assert                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d"
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%59#0,tmp%60#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%59#0
+        l-store tmp%59#0 0                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%59#0
+        int 5                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%59#0,5
+        l-load-copy tmp%59#0 1                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%59#0,5,tmp%59#0 (copy)
+        <                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%59#0,tmp%61#0
+        l-load tmp%59#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%61#0,tmp%59#0
+        int 5                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%61#0,tmp%59#0,5
+        l-load tmp%61#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%59#0,5,tmp%61#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%62#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%62#0,"box_d"
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%62#0,"box_d",0
+        l-load tmp%62#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d",0,tmp%62#0
+        box_extract                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0
+        int 5                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,5
+        l-load-copy tmp%10#0 2                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,5,tmp%10#0 (copy)
+        >=                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,is_out_of_bounds%3#0
+        int 5                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,is_out_of_bounds%3#0,5
+        l-load-copy tmp%10#0 3                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,is_out_of_bounds%3#0,5,tmp%10#0 (copy)
+        l-load is_out_of_bounds%3#0 2                                                           (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,5,tmp%10#0 (copy),is_out_of_bounds%3#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,bounded_index%3#0
+        l-load-copy tmp%0#0 3                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,bounded_index%3#0,tmp%0#0 (copy)
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,bounded_index%3#0,tmp%0#0 (copy),0
+        l-load bounded_index%3#0 2                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,tmp%0#0 (copy),0,bounded_index%3#0
+        substring3                                                                              (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,tmp%66#0
+        l-load tmp%64#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%66#0,tmp%64#0
+        l-load tmp%66#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%64#0,tmp%66#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%67#0
+        assert                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0
         // box_storage/contract.py:74
         // assert self.box_d.value[: UInt64(2)] == b.native[: UInt64(2)]
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d"
-        box_len                                                                                 (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%72#0,tmp%73#0
-        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%72#0
-        l-store tmp%72#0 0                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%72#0
-        int 2                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%72#0,2
-        l-load-copy tmp%72#0 1                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%72#0,2,tmp%72#0 (copy)
-        <                                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%72#0,tmp%74#0
-        l-load tmp%72#0 1                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%74#0,tmp%72#0
-        int 2                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%74#0,tmp%72#0,2
-        l-load tmp%74#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%72#0,2,tmp%74#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%75#0
-        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%75#0,"box_d"
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%75#0,"box_d",0
-        l-load tmp%75#0 2                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,"box_d",0,tmp%75#0
-        box_extract                                                                             (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%77#0
-        int 2                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%77#0,2
-        l-load-copy tmp%10#0 2                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%77#0,2,tmp%10#0 (copy)
-        >=                                                                                      (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%77#0,is_out_of_bounds%4#0
-        int 2                                                                                   (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%10#0,tmp%77#0,is_out_of_bounds%4#0,2
-        l-load tmp%10#0 3                                                                       (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%77#0,is_out_of_bounds%4#0,2,tmp%10#0
-        l-load is_out_of_bounds%4#0 2                                                           (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%77#0,2,tmp%10#0,is_out_of_bounds%4#0
-        select                                                                                  (𝕡) a#0,b#0,c#0 | materialized_values%0#0,tmp%77#0,bounded_index%4#0
-        l-load materialized_values%0#0 2                                                        (𝕡) a#0,b#0,c#0 | tmp%77#0,bounded_index%4#0,materialized_values%0#0
-        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%77#0,bounded_index%4#0,materialized_values%0#0,0
-        l-load bounded_index%4#0 2                                                              (𝕡) a#0,b#0,c#0 | tmp%77#0,materialized_values%0#0,0,bounded_index%4#0
-        substring3                                                                              (𝕡) a#0,b#0,c#0 | tmp%77#0,tmp%79#0
-        l-load tmp%77#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%79#0,tmp%77#0
-        l-load tmp%79#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%77#0,tmp%79#0
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%80#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d"
+        box_len                                                                                 (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%68#0,tmp%69#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%68#0
+        l-store tmp%68#0 0                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%68#0
+        int 2                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%68#0,2
+        l-load-copy tmp%68#0 1                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%68#0,2,tmp%68#0 (copy)
+        <                                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%68#0,tmp%70#0
+        l-load tmp%68#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%70#0,tmp%68#0
+        int 2                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%70#0,tmp%68#0,2
+        l-load tmp%70#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%68#0,2,tmp%70#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%71#0
+        byte "box_d"                                                                            (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%71#0,"box_d"
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%71#0,"box_d",0
+        l-load tmp%71#0 2                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,"box_d",0,tmp%71#0
+        box_extract                                                                             (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%73#0
+        int 2                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%73#0,2
+        l-load-copy tmp%10#0 2                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%73#0,2,tmp%10#0 (copy)
+        >=                                                                                      (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%73#0,is_out_of_bounds%4#0
+        int 2                                                                                   (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%10#0,tmp%73#0,is_out_of_bounds%4#0,2
+        l-load tmp%10#0 3                                                                       (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%73#0,is_out_of_bounds%4#0,2,tmp%10#0
+        l-load is_out_of_bounds%4#0 2                                                           (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%73#0,2,tmp%10#0,is_out_of_bounds%4#0
+        select                                                                                  (𝕡) a#0,b#0,c#0 | tmp%0#0,tmp%73#0,bounded_index%4#0
+        l-load tmp%0#0 2                                                                        (𝕡) a#0,b#0,c#0 | tmp%73#0,bounded_index%4#0,tmp%0#0
+        int 0                                                                                   (𝕡) a#0,b#0,c#0 | tmp%73#0,bounded_index%4#0,tmp%0#0,0
+        l-load bounded_index%4#0 2                                                              (𝕡) a#0,b#0,c#0 | tmp%73#0,tmp%0#0,0,bounded_index%4#0
+        substring3                                                                              (𝕡) a#0,b#0,c#0 | tmp%73#0,tmp%75#0
+        l-load tmp%73#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%75#0,tmp%73#0
+        l-load tmp%75#0 1                                                                       (𝕡) a#0,b#0,c#0 | tmp%73#0,tmp%75#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%76#0
         assert                                                                                  (𝕡) a#0,b#0,c#0 |
         // box_storage/contract.py:76
         // assert self.box_large.length == size_of(LargeStruct)
         byte "box_large"                                                                        (𝕡) a#0,b#0,c#0 | "box_large"
         box_len                                                                                 (𝕡) a#0,b#0,c#0 | value%4#0,check%4#0
-        assert // check self.box_large exists                                                   (𝕡) a#0,b#0,c#0 | value%4#0
+        pop 1                                                                                   (𝕡) a#0,b#0,c#0 | value%4#0
+        l-store value%4#0 0                                                                     (𝕡) a#0,b#0,c#0 | value%4#0
         l-load value%4#0 0                                                                      (𝕡) a#0,b#0,c#0 | value%4#0
         int 6152                                                                                (𝕡) a#0,b#0,c#0 | value%4#0,6152
-        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%81#0
+        ==                                                                                      (𝕡) a#0,b#0,c#0 | tmp%77#0
         assert                                                                                  (𝕡) a#0,b#0,c#0 |
         retsub
 
@@ -758,9 +732,9 @@ subroutine delete_boxes:
         l-load maybe_value%1#0 2                                                                a_exists#0,a#0,maybe_exists%1#0,0x00023432,maybe_value%1#0
         l-load maybe_exists%1#0 2                                                               a_exists#0,a#0,0x00023432,maybe_value%1#0,maybe_exists%1#0
         select                                                                                  a_exists#0,a#0,state_get%1#0
-        extract 2 0                                                                             a_exists#0,a#0,tmp%1#0
-        byte 0x3432                                                                             a_exists#0,a#0,tmp%1#0,0x3432
-        ==                                                                                      a_exists#0,a#0,tmp%2#0
+        extract 2 0                                                                             a_exists#0,a#0,tmp%2#0
+        byte 0x3432                                                                             a_exists#0,a#0,tmp%2#0,0x3432
+        ==                                                                                      a_exists#0,a#0,tmp%3#0
         assert                                                                                  a_exists#0,a#0
         // box_storage/contract.py:92
         // assert self.box_c.get(default=arc4.String("42")) == "42"
@@ -771,17 +745,17 @@ subroutine delete_boxes:
         l-load maybe_exists%2#0 2                                                               a_exists#0,a#0,0x00023432,maybe_value%2#0,maybe_exists%2#0
         select                                                                                  a_exists#0,a#0,state_get%2#0
         byte 0x00023432                                                                         a_exists#0,a#0,state_get%2#0,0x00023432
-        ==                                                                                      a_exists#0,a#0,tmp%3#0
+        ==                                                                                      a_exists#0,a#0,tmp%4#0
         assert                                                                                  a_exists#0,a#0
         // box_storage/contract.py:94
         // assert not a_exists
         l-load a_exists#0 1                                                                     a#0,a_exists#0
-        !                                                                                       a#0,tmp%4#0
+        !                                                                                       a#0,tmp%5#0
         assert                                                                                  a#0
         // box_storage/contract.py:95
         // assert a == 0
         l-load a#0 0                                                                            a#0
-        !                                                                                       tmp%5#0
+        !                                                                                       tmp%6#0
         assert
         // box_storage/contract.py:96
         // del self.box_large.value
@@ -807,9 +781,9 @@ subroutine read_boxes:
         byte "box_a"                                                                            large_e#0,"box_a"
         // box_storage/contract.py:225
         // return box.value + 1
-        box_get                                                                                 large_e#0,maybe_value%0#0,maybe_exists%0#0
-        assert // check Box exists                                                              large_e#0,maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                large_e#0,maybe_value%0#0
+        box_get                                                                                 large_e#0,aggregate%box_get%0#1,aggregate%box_get%1#1
+        assert // check Box exists                                                              large_e#0,aggregate%box_get%0#1
+        l-load aggregate%box_get%0#1 0                                                          large_e#0,aggregate%box_get%0#1
         btoi                                                                                    large_e#0,maybe_value_converted%0#0
         int 1                                                                                   large_e#0,maybe_value_converted%0#0,1
         +                                                                                       large_e#0,tmp%0#1
@@ -820,19 +794,19 @@ subroutine read_boxes:
         // box_storage/contract.py:106
         // self.box_b.value.native,
         byte "b"                                                                                large_e#0,tmp%2#0,"b"
-        box_get                                                                                 large_e#0,tmp%2#0,maybe_value%0#0,maybe_exists%0#0
-        assert // check self.box_b exists                                                       large_e#0,tmp%2#0,maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                large_e#0,tmp%2#0,maybe_value%0#0
+        box_get                                                                                 large_e#0,tmp%2#0,aggregate%box_get%2#1,aggregate%box_get%3#1
+        assert // check self.box_b exists                                                       large_e#0,tmp%2#0,aggregate%box_get%2#1
+        l-load aggregate%box_get%2#1 0                                                          large_e#0,tmp%2#0,aggregate%box_get%2#1
         extract 2 0                                                                             large_e#0,tmp%2#0,tmp%3#0
         // box_storage/contract.py:107
         // self.box_c.value,
         byte 0x424f585f43                                                                       large_e#0,tmp%2#0,tmp%3#0,0x424f585f43
-        box_get                                                                                 large_e#0,tmp%2#0,tmp%3#0,maybe_value%1#0,maybe_exists%1#0
-        assert // check self.box_c exists                                                       large_e#0,tmp%2#0,tmp%3#0,maybe_value%1#0
+        box_get                                                                                 large_e#0,tmp%2#0,tmp%3#0,aggregate%box_get%4#1,aggregate%box_get%5#1
+        assert // check self.box_c exists                                                       large_e#0,tmp%2#0,tmp%3#0,aggregate%box_get%4#1
         // box_storage/contract.py:108
         // large_e.native,
-        l-load large_e#0 3                                                                      tmp%2#0,tmp%3#0,maybe_value%1#0,large_e#0
-        btoi                                                                                    tmp%2#0,tmp%3#0,maybe_value%1#0,tmp%4#0
+        l-load large_e#0 3                                                                      tmp%2#0,tmp%3#0,aggregate%box_get%4#1,large_e#0
+        btoi                                                                                    tmp%2#0,tmp%3#0,aggregate%box_get%4#1,tmp%4#0
         // box_storage/contract.py:104-109
         // return (
         //     get_box_value_plus_1(self.box_a) - 1,
@@ -840,11 +814,11 @@ subroutine read_boxes:
         //     self.box_c.value,
         //     large_e.native,
         // )
-        l-load tmp%2#0 3                                                                        tmp%3#0,maybe_value%1#0,tmp%4#0,tmp%2#0
-        l-load tmp%3#0 3                                                                        maybe_value%1#0,tmp%4#0,tmp%2#0,tmp%3#0
-        l-load maybe_value%1#0 3                                                                tmp%4#0,tmp%2#0,tmp%3#0,maybe_value%1#0
-        l-load tmp%4#0 3                                                                        tmp%2#0,tmp%3#0,maybe_value%1#0,tmp%4#0
-        retsub                                                                                  tmp%2#0,tmp%3#0,maybe_value%1#0,tmp%4#0
+        l-load tmp%2#0 3                                                                        tmp%3#0,aggregate%box_get%4#1,tmp%4#0,tmp%2#0
+        l-load tmp%3#0 3                                                                        aggregate%box_get%4#1,tmp%4#0,tmp%2#0,tmp%3#0
+        l-load aggregate%box_get%4#1 3                                                          tmp%4#0,tmp%2#0,tmp%3#0,aggregate%box_get%4#1
+        l-load tmp%4#0 3                                                                        tmp%2#0,tmp%3#0,aggregate%box_get%4#1,tmp%4#0
+        retsub                                                                                  tmp%2#0,tmp%3#0,aggregate%box_get%4#1,tmp%4#0
 
 
 // examples.box_storage.contract.BoxContract.boxes_exist() -> uint64, uint64, uint64, uint64:
@@ -1032,16 +1006,6 @@ subroutine test_box_ref:
         int 32                                                                                  "blob",32
         box_create                                                                              tmp%4#0
         assert
-        // box_storage/contract.py:143
-        // box_ref = BoxRef(key=String("blob"))
-        byte "blob"                                                                             "blob"
-        // box_storage/contract.py:148
-        // assert box_ref, "has data"
-        box_len                                                                                 _%4#0,maybe_exists%4#0
-        l-store maybe_exists%4#0 1                                                              maybe_exists%4#0,_%4#0
-        pop 1                                                                                   maybe_exists%4#0
-        l-load maybe_exists%4#0 0                                                               maybe_exists%4#0
-        assert // has data
         // box_storage/contract.py:151
         // sender_bytes = Txn.sender.bytes
         txn Sender                                                                              sender_bytes#0
@@ -1096,23 +1060,23 @@ subroutine test_box_ref:
         // assert prefix == app_address + sender_bytes + value_3
         l-load-copy app_address#0 1                                                             sender_bytes#0,app_address#0,prefix#0,app_address#0 (copy)
         l-load-copy sender_bytes#0 3                                                            sender_bytes#0,app_address#0,prefix#0,app_address#0 (copy),sender_bytes#0 (copy)
-        concat                                                                                  sender_bytes#0,app_address#0,prefix#0,tmp%7#0
+        concat                                                                                  sender_bytes#0,app_address#0,prefix#0,tmp%10#0
         // box_storage/contract.py:153
         // value_3 = Bytes(b"hello")
-        byte 0x68656c6c6f                                                                       sender_bytes#0,app_address#0,prefix#0,tmp%7#0,0x68656c6c6f
+        byte 0x68656c6c6f                                                                       sender_bytes#0,app_address#0,prefix#0,tmp%10#0,0x68656c6c6f
         // box_storage/contract.py:159
         // assert prefix == app_address + sender_bytes + value_3
-        concat                                                                                  sender_bytes#0,app_address#0,prefix#0,tmp%8#0
-        l-load prefix#0 1                                                                       sender_bytes#0,app_address#0,tmp%8#0,prefix#0
-        l-load tmp%8#0 1                                                                        sender_bytes#0,app_address#0,prefix#0,tmp%8#0
-        ==                                                                                      sender_bytes#0,app_address#0,tmp%9#0
+        concat                                                                                  sender_bytes#0,app_address#0,prefix#0,tmp%11#0
+        l-load prefix#0 1                                                                       sender_bytes#0,app_address#0,tmp%11#0,prefix#0
+        l-load tmp%11#0 1                                                                       sender_bytes#0,app_address#0,prefix#0,tmp%11#0
+        ==                                                                                      sender_bytes#0,app_address#0,tmp%12#0
         assert                                                                                  sender_bytes#0,app_address#0
         // box_storage/contract.py:143
         // box_ref = BoxRef(key=String("blob"))
         byte "blob"                                                                             sender_bytes#0,app_address#0,"blob"
         // box_storage/contract.py:162
         // assert box_ref.delete()
-        box_del                                                                                 sender_bytes#0,app_address#0,tmp%10#0
+        box_del                                                                                 sender_bytes#0,app_address#0,tmp%13#0
         assert                                                                                  sender_bytes#0,app_address#0
         // box_storage/contract.py:143
         // box_ref = BoxRef(key=String("blob"))
@@ -1123,13 +1087,13 @@ subroutine test_box_ref:
         // box_storage/contract.py:167
         // assert not exists
         l-load-copy exists#0 0                                                                  sender_bytes#0,app_address#0,value#0,exists#0,exists#0 (copy)
-        !                                                                                       sender_bytes#0,app_address#0,value#0,exists#0,tmp%12#0
+        !                                                                                       sender_bytes#0,app_address#0,value#0,exists#0,tmp%15#0
         assert                                                                                  sender_bytes#0,app_address#0,value#0,exists#0
         // box_storage/contract.py:168
         // assert value == b""
         l-load-copy value#0 1                                                                   sender_bytes#0,app_address#0,value#0,exists#0,value#0 (copy)
         byte 0x                                                                                 sender_bytes#0,app_address#0,value#0,exists#0,value#0 (copy),0x
-        ==                                                                                      sender_bytes#0,app_address#0,value#0,exists#0,tmp%13#0
+        ==                                                                                      sender_bytes#0,app_address#0,value#0,exists#0,tmp%16#0
         assert                                                                                  sender_bytes#0,app_address#0,value#0,exists#0
         // box_storage/contract.py:169
         // assert box_ref.get(default=sender_bytes) == sender_bytes
@@ -1138,40 +1102,31 @@ subroutine test_box_ref:
         l-load exists#0 2                                                                       sender_bytes#0,app_address#0,sender_bytes#0 (copy),value#0,exists#0
         select                                                                                  sender_bytes#0,app_address#0,state_get%0#0
         l-load-copy sender_bytes#0 2                                                            sender_bytes#0,app_address#0,state_get%0#0,sender_bytes#0 (copy)
-        ==                                                                                      sender_bytes#0,app_address#0,tmp%14#0
+        ==                                                                                      sender_bytes#0,app_address#0,tmp%17#0
         assert                                                                                  sender_bytes#0,app_address#0
         // box_storage/contract.py:172
         // box_ref.put(sender_bytes + app_address)
         l-load sender_bytes#0 1                                                                 app_address#0,sender_bytes#0
         l-load app_address#0 1                                                                  sender_bytes#0,app_address#0
-        concat                                                                                  tmp%15#0
+        concat                                                                                  tmp%18#0
         // box_storage/contract.py:143
         // box_ref = BoxRef(key=String("blob"))
-        byte "blob"                                                                             tmp%15#0,"blob"
+        byte "blob"                                                                             tmp%18#0,"blob"
         // box_storage/contract.py:172
         // box_ref.put(sender_bytes + app_address)
-        l-load tmp%15#0 1                                                                       "blob",tmp%15#0
+        l-load tmp%18#0 1                                                                       "blob",tmp%18#0
         box_put
-        // box_storage/contract.py:143
-        // box_ref = BoxRef(key=String("blob"))
-        byte "blob"                                                                             "blob"
-        // box_storage/contract.py:173
-        // assert box_ref, "Blob exists"
-        box_len                                                                                 _%5#0,maybe_exists%7#0
-        l-store maybe_exists%7#0 1                                                              maybe_exists%7#0,_%5#0
-        pop 1                                                                                   maybe_exists%7#0
-        l-load maybe_exists%7#0 0                                                               maybe_exists%7#0
-        assert // Blob exists
         // box_storage/contract.py:143
         // box_ref = BoxRef(key=String("blob"))
         byte "blob"                                                                             "blob"
         // box_storage/contract.py:174
         // assert box_ref.length == 64
         box_len                                                                                 value%0#0,check%0#0
-        assert // check BoxRef exists                                                           value%0#0
+        pop 1                                                                                   value%0#0
+        l-store value%0#0 0                                                                     value%0#0
         l-load value%0#0 0                                                                      value%0#0
         int 64                                                                                  value%0#0,64
-        ==                                                                                      tmp%16#0
+        ==                                                                                      tmp%19#0
         assert
         // box_storage/contract.py:143
         // box_ref = BoxRef(key=String("blob"))
@@ -1179,12 +1134,13 @@ subroutine test_box_ref:
         // box_storage/contract.py:230
         // return ref.length
         box_len                                                                                 value%0#0,check%0#0
-        assert // check BoxRef exists                                                           value%0#0
+        pop 1                                                                                   value%0#0
+        l-store value%0#0 0                                                                     value%0#0
         // box_storage/contract.py:175
         // assert get_box_ref_length(box_ref) == 64
         l-load value%0#0 0                                                                      value%0#0
         int 64                                                                                  value%0#0,64
-        ==                                                                                      tmp%18#0
+        ==                                                                                      tmp%21#0
         assert
         // box_storage/contract.py:178
         // self.box_ref.create(size=UInt64(32))
@@ -1192,14 +1148,6 @@ subroutine test_box_ref:
         int 32                                                                                  "box_ref",32
         box_create                                                                              {box_create}
         pop 1
-        // box_storage/contract.py:179
-        // assert self.box_ref, "has data"
-        byte "box_ref"                                                                          "box_ref"
-        box_len                                                                                 _%6#0,maybe_exists%8#0
-        l-store maybe_exists%8#0 1                                                              maybe_exists%8#0,_%6#0
-        pop 1                                                                                   maybe_exists%8#0
-        l-load maybe_exists%8#0 0                                                               maybe_exists%8#0
-        assert // has data
         // box_storage/contract.py:180
         // self.box_ref.delete()
         byte "box_ref"                                                                          "box_ref"
@@ -1231,7 +1179,8 @@ subroutine box_map_test:
         // assert self.box_map[key_0].bytes.length == value.bytes.length
         l-load-copy box_0#0 0                                                                   box_0#0,box_0#0 (copy)
         box_len                                                                                 box_0#0,value%0#0,check%0#0
-        assert // check self.box_map entry exists                                               box_0#0,value%0#0
+        pop 1                                                                                   box_0#0,value%0#0
+        l-store value%0#0 0                                                                     box_0#0,value%0#0
         l-load value%0#0 0                                                                      box_0#0,value%0#0
         int 6                                                                                   box_0#0,value%0#0,6
         ==                                                                                      box_0#0,tmp%1#0
@@ -1240,50 +1189,51 @@ subroutine box_map_test:
         // assert self.box_map[key_0].bytes.length == box_0.length
         l-load-copy box_0#0 0                                                                   box_0#0,box_0#0 (copy)
         box_len                                                                                 box_0#0,value%1#0,check%1#0
-        assert // check self.box_map entry exists                                               box_0#0,value%1#0
-        l-load-copy box_0#0 1                                                                   box_0#0,value%1#0,box_0#0 (copy)
-        box_len                                                                                 box_0#0,value%1#0,value%2#0,check%2#0
-        assert // check Box exists                                                              box_0#0,value%1#0,value%2#0
-        l-load value%1#0 1                                                                      box_0#0,value%2#0,value%1#0
+        pop 1                                                                                   box_0#0,value%1#0
+        l-store value%1#0 1                                                                     value%1#0,box_0#0
+        l-load-copy box_0#0 0                                                                   value%1#0,box_0#0,box_0#0 (copy)
+        box_len                                                                                 value%1#0,box_0#0,value%2#0,check%2#0
+        pop 1                                                                                   value%1#0,box_0#0,value%2#0
+        l-store value%2#0 0                                                                     value%1#0,box_0#0,value%2#0
+        l-load value%1#0 2                                                                      box_0#0,value%2#0,value%1#0
         l-load value%2#0 1                                                                      box_0#0,value%1#0,value%2#0
         ==                                                                                      box_0#0,tmp%2#0
         assert                                                                                  box_0#0
         // box_storage/contract.py:192
         // assert self.box_map.length(key_0) == value.bytes.length
-        l-load-copy box_0#0 0                                                                   box_0#0,box_0#0 (copy)
-        box_len                                                                                 box_0#0,value%3#0,check%3#0
-        assert // check self.box_map entry exists                                               box_0#0,value%3#0
-        l-load value%3#0 0                                                                      box_0#0,value%3#0
-        int 6                                                                                   box_0#0,value%3#0,6
-        ==                                                                                      box_0#0,tmp%4#0
-        assert                                                                                  box_0#0
+        l-load box_0#0 0                                                                        box_0#0
+        box_len                                                                                 value%3#0,check%3#0
+        pop 1                                                                                   value%3#0
+        l-store value%3#0 0                                                                     value%3#0
+        l-load value%3#0 0                                                                      value%3#0
+        int 6                                                                                   value%3#0,6
+        ==                                                                                      tmp%4#0
+        assert
         // box_storage/contract.py:185
         // key_1 = UInt64(1)
-        int 1                                                                                   box_0#0,1
+        int 1                                                                                   1
         // box_storage/contract.py:194
         // assert self.box_map.get(key_1, default=String("default")) == String("default")
-        itob                                                                                    box_0#0,encoded_value%5#0
-        l-load-copy encoded_value%5#0 0                                                         box_0#0,encoded_value%5#0,encoded_value%5#0 (copy)
-        box_get                                                                                 box_0#0,encoded_value%5#0,value#1,exists#0
-        byte "default"                                                                          box_0#0,encoded_value%5#0,value#1,exists#0,"default"
-        l-load value#1 2                                                                        box_0#0,encoded_value%5#0,exists#0,"default",value#1
-        l-load-copy exists#0 2                                                                  box_0#0,encoded_value%5#0,exists#0,"default",value#1,exists#0 (copy)
-        select                                                                                  box_0#0,encoded_value%5#0,exists#0,state_get%0#0
-        byte "default"                                                                          box_0#0,encoded_value%5#0,exists#0,state_get%0#0,"default"
-        ==                                                                                      box_0#0,encoded_value%5#0,exists#0,tmp%5#0
-        assert                                                                                  box_0#0,encoded_value%5#0,exists#0
+        itob                                                                                    encoded_value%5#0
+        l-load-copy encoded_value%5#0 0                                                         encoded_value%5#0,encoded_value%5#0 (copy)
+        box_get                                                                                 encoded_value%5#0,maybe_value%0#0,maybe_exists%0#0
+        byte "default"                                                                          encoded_value%5#0,maybe_value%0#0,maybe_exists%0#0,"default"
+        l-load maybe_value%0#0 2                                                                encoded_value%5#0,maybe_exists%0#0,"default",maybe_value%0#0
+        l-load maybe_exists%0#0 2                                                               encoded_value%5#0,"default",maybe_value%0#0,maybe_exists%0#0
+        select                                                                                  encoded_value%5#0,state_get%0#0
+        byte "default"                                                                          encoded_value%5#0,state_get%0#0,"default"
+        ==                                                                                      encoded_value%5#0,tmp%5#0
+        assert                                                                                  encoded_value%5#0
+        // box_storage/contract.py:195
+        // value, exists = self.box_map.maybe(key_1)
+        l-load-copy encoded_value%5#0 0                                                         encoded_value%5#0,encoded_value%5#0 (copy)
+        box_len                                                                                 encoded_value%5#0,value#1,exists#0
+        l-store exists#0 1                                                                      encoded_value%5#0,exists#0,value#1
+        pop 1                                                                                   encoded_value%5#0,exists#0
         // box_storage/contract.py:196
         // assert not exists
-        l-load exists#0 0                                                                       box_0#0,encoded_value%5#0,exists#0
-        !                                                                                       box_0#0,encoded_value%5#0,tmp%6#0
-        assert                                                                                  box_0#0,encoded_value%5#0
-        // box_storage/contract.py:197
-        // assert key_0 in self.box_map
-        l-load box_0#0 1                                                                        encoded_value%5#0,box_0#0
-        box_len                                                                                 encoded_value%5#0,_%0#0,maybe_exists%2#0
-        l-store maybe_exists%2#0 1                                                              encoded_value%5#0,maybe_exists%2#0,_%0#0
-        pop 1                                                                                   encoded_value%5#0,maybe_exists%2#0
-        l-load maybe_exists%2#0 0                                                               encoded_value%5#0,maybe_exists%2#0
+        l-load exists#0 0                                                                       encoded_value%5#0,exists#0
+        !                                                                                       encoded_value%5#0,tmp%6#0
         assert                                                                                  encoded_value%5#0
         // box_storage/contract.py:202
         // tmp_box_map[key_1] = String("hello")
@@ -1324,10 +1274,10 @@ subroutine box_map_get:
         // return self.box_map[key]
         p-load key#0                                                                            (𝕡) key#0 | key#0 (copy)
         itob                                                                                    (𝕡) key#0 | encoded_value%0#0
-        box_get                                                                                 (𝕡) key#0 | maybe_value%0#0,maybe_exists%0#0
-        assert // check self.box_map entry exists                                               (𝕡) key#0 | maybe_value%0#0
-        l-load maybe_value%0#0 0                                                                (𝕡) key#0 | maybe_value%0#0
-        retsub                                                                                  maybe_value%0#0
+        box_get                                                                                 (𝕡) key#0 | aggregate%box_get%0#1,aggregate%box_get%1#1
+        assert // check self.box_map entry exists                                               (𝕡) key#0 | aggregate%box_get%0#1
+        l-load aggregate%box_get%0#1 0                                                          (𝕡) key#0 | aggregate%box_get%0#1
+        retsub                                                                                  aggregate%box_get%0#1
 
 
 // examples.box_storage.contract.BoxContract.box_map_del(key: uint64) -> void:

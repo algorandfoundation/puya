@@ -51,8 +51,8 @@ contract Arc4TuplesTypeContract
     (a, b, c, d, e, f, g, h, i, j, k): tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8> = arc4_decode(boolean_packing, tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8>)
     assert(reinterpret_cast<biguint>(boolean_packing[10]) == reinterpret_cast<biguint>(k))
     assert(arc4_decode(a, uint64) == 4u, comment="a is 4")
-    assert(b != hex<"00"> and d != hex<"00"> and e != hex<"00"> and f != hex<"00"> and g != hex<"00"> and i != hex<"00"> and j != hex<"00">, comment="b,d,e,f,g,i,j are true")
-    assert(!(c != hex<"00"> or h != hex<"00">), comment="c and h are false")
+    assert(b != false and d != false and e != false and f != false and g != false and i != false and j != false, comment="b,d,e,f,g,i,j are true")
+    assert(!(c != false or h != false), comment="c and h are false")
     assert(arc4_decode(k, uint64) == 16u, comment="k is 16")
     assert(boolean_packing == arc4_encode(arc4_decode(boolean_packing, tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8>), arc4.tuple<arc4.uint8,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.bool,arc4.uint8>))
     (total, concat): tuple<uint64,arc4.dynamic_array<arc4.uint8>> = this::test_stuff(my_tuple)
@@ -97,7 +97,7 @@ contract Arc4StructsTypeContract
   subroutine test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program(): bool
   {
     coord_1: test_cases.arc4_types.structs.Vector = new test_cases.arc4_types.structs.Vector(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
-    coord_2: test_cases.arc4_types.structs.Vector = new test_cases.arc4_types.structs.Vector(x=35.382882839arc4u64x9, y=150.382884930arc4u64x9)
+    coord_2: test_cases.arc4_types.structs.Vector = new test_cases.arc4_types.structs.Vector(y=150.382884930arc4u64x9, x=35.382882839arc4u64x9)
     coord_3: test_cases.arc4_types.structs.Vector = test_cases.arc4_types.structs.add(coord_1.copy(), coord_2.copy())
     for val in (coord_3.x, coord_3.y) {
       log(reinterpret_cast<bytes>(val))
@@ -119,6 +119,7 @@ contract Arc4StructsTypeContract
     immutable2: test_cases.arc4_types.structs.FrozenAndImmutable = new test_cases.arc4_types.structs.FrozenAndImmutable(one=immutable.one, two=123_arc4u64)
     assert(reinterpret_cast<biguint>(immutable2.two) == reinterpret_cast<biguint>(123_arc4u64))
     assert(reinterpret_cast<biguint>(immutable2.one) == reinterpret_cast<biguint>(immutable.one))
+    assert(new test_cases.arc4_types.structs.EmptyStruct() == new test_cases.arc4_types.structs.EmptyStruct())
     return true
   }
   
@@ -229,6 +230,7 @@ contract Arc4NumericTypesContract
     assert(arc4_decode(reinterpret_cast<arc4.uint64>(test_bytes[:8]), uint64) == 9223372036854775807u)
     assert(reinterpret_cast<biguint>((txn<NumAppArgs>() != 0u) ? (1_arc4u8) : (2_arc4u8)) == reinterpret_cast<biguint>(2_arc4u8))
     assert(reinterpret_cast<biguint>((txn<NumAppArgs>() != 0u) ? (1_arc4u512) : (2_arc4u512)) == reinterpret_cast<biguint>(2_arc4u512))
+    assert(reinterpret_cast<biguint>(arc4_encode(txn<NumAppArgs>(), arc4.uint512)) == reinterpret_cast<biguint>(0_arc4u512))
     decimals: arc4.ufixed64x10 = 145.6853943940arc4u64x10
     assert(reinterpret_cast<bytes>(decimals) == itob(1456853943940u))
     decimals_from_truncated_str: arc4.ufixed64x10 = 145.0000000000arc4u64x10
@@ -521,6 +523,11 @@ contract Arc4MutableParamsContract
     assert(reinterpret_cast<biguint>(my_array[1u]) == reinterpret_cast<biguint>(206_arc4u8))
     assert(reinterpret_cast<biguint>(my_array_copy_2[1u]) == reinterpret_cast<biguint>(207_arc4u8))
     assert(reinterpret_cast<biguint>(my_array_copy_3[1u]) == reinterpret_cast<biguint>(208_arc4u8))
+    foo: tuple<arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>,arc4.static_array<arc4.uint8, 4>> = (my_array.copy(), my_array.copy(), my_array.copy())
+    this::mutate_tuple_items_and_reassign(foo, start=222u, reassign=false)
+    assert(reinterpret_cast<biguint>(foo[0][1u]) == reinterpret_cast<biguint>(228_arc4u8))
+    assert(reinterpret_cast<biguint>(foo[1][1u]) == reinterpret_cast<biguint>(229_arc4u8))
+    assert(reinterpret_cast<biguint>(foo[2][1u]) == reinterpret_cast<biguint>(230_arc4u8))
     nested: test_cases.arc4_types.mutable_params.StructWithArray = new test_cases.arc4_types.mutable_params.StructWithArray(test_array=my_array.copy())
     this::other_routine_2(nested.test_array.copy())
   }
@@ -645,10 +652,10 @@ contract Arc4BoolEvalContract
   
   subroutine test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program(): bool
   {
-    assert(arc4_encode(false, arc4.bool) == hex<"00">)
-    assert(arc4_encode(true, arc4.bool) != hex<"00">)
-    assert('' == hex<"0000">)
-    assert('.' != hex<"0000">)
+    assert(arc4_encode(false, arc4.bool) == false)
+    assert(arc4_encode(true, arc4.bool) != false)
+    assert('' == '')
+    assert('.' != '')
     assert(global<ZeroAddress>() == global<ZeroAddress>())
     assert(reinterpret_cast<arc4.static_array<arc4.uint8, 32>>(txn<Sender>()) != global<ZeroAddress>())
     assert(reinterpret_cast<biguint>(0_arc4u8) == 0n)
@@ -674,9 +681,9 @@ contract Arc4BoolEvalContract
     assert(reinterpret_cast<biguint>(0E-10arc4n496x10) == 0n)
     assert(reinterpret_cast<biguint>(0.0100000000arc4n496x10) != 0n)
     dynamic_arr: arc4.dynamic_array<arc4.uint64> = new arc4.dynamic_array<arc4.uint64>()
-    assert(dynamic_arr == hex<"0000">)
+    assert(dynamic_arr == new arc4.dynamic_array<arc4.uint64>())
     dynamic_arr.extend((0_arc4u64))
-    assert(dynamic_arr != hex<"0000">)
+    assert(dynamic_arr != new arc4.dynamic_array<arc4.uint64>())
     assert(false == arc4_encode(false, arc4.bool))
     return true
   }
@@ -780,6 +787,12 @@ contract Arc4ArraysContract
       }
     }
     assert(result == 'Ping Pong')
+    static_string_array[1u]: arc4.dynamic_array<arc4.uint8> = 'Ping'
+    result: string = ''
+    for string_item in static_string_array {
+      result += arc4_decode(string_item, string) + ' '
+    }
+    assert(result == 'Ping Ping ')
     this::hash_as_array(hex<"54657374696E6720313233">)
     return true
   }

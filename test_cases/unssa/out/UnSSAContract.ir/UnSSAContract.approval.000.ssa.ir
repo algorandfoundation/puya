@@ -1,14 +1,15 @@
 main test_cases.unssa.contract.UnSSAContract.approval_program:
     block@0: // L5
         test_cases.unssa.contract.test_self_ref_phi()
-        let result1#0: uint64 = test_cases.unssa.contract.test_swap(1u)
-        let tmp%0#0: bytes = (itob result1#0)
-        (log tmp%0#0)
-        let tmp%1#0: bool = (>= result1#0 1u)
-        goto tmp%1#0 ? block@1 : block@3
+        let tmp%0#0: uint64 = test_cases.unssa.contract.test_swap(1u)
+        let result1#0: uint64 = tmp%0#0
+        let tmp%1#0: bytes = (itob result1#0)
+        (log tmp%1#0)
+        let tmp%2#0: bool = (>= result1#0 1u)
+        goto tmp%2#0 ? block@1 : block@3
     block@1: // and_contd_L9
-        let tmp%2#0: bool = (<= result1#0 2u)
-        goto tmp%2#0 ? block@2 : block@3
+        let tmp%3#0: bool = (<= result1#0 2u)
+        goto tmp%3#0 ? block@2 : block@3
     block@2: // bool_true_L9
         let and_result%0#0: bool = 1u
         goto block@4
@@ -18,14 +19,15 @@ main test_cases.unssa.contract.UnSSAContract.approval_program:
     block@4: // bool_merge_L9
         let and_result%0#2: bool = φ(and_result%0#0 <- block@2, and_result%0#1 <- block@3)
         (assert and_result%0#2)
-        let result2#0: uint64 = test_cases.unssa.contract.test_swap(2u)
-        let tmp%3#0: bytes = (itob result2#0)
-        (log tmp%3#0)
-        let tmp%4#0: bool = (>= result2#0 1u)
-        goto tmp%4#0 ? block@5 : block@7
+        let tmp%4#0: uint64 = test_cases.unssa.contract.test_swap(2u)
+        let result2#0: uint64 = tmp%4#0
+        let tmp%5#0: bytes = (itob result2#0)
+        (log tmp%5#0)
+        let tmp%6#0: bool = (>= result2#0 1u)
+        goto tmp%6#0 ? block@5 : block@7
     block@5: // and_contd_L12
-        let tmp%5#0: bool = (<= result2#0 2u)
-        goto tmp%5#0 ? block@6 : block@7
+        let tmp%7#0: bool = (<= result2#0 2u)
+        goto tmp%7#0 ? block@6 : block@7
     block@6: // bool_true_L12
         let and_result%1#0: bool = 1u
         goto block@8
@@ -36,26 +38,26 @@ main test_cases.unssa.contract.UnSSAContract.approval_program:
         let and_result%1#2: bool = φ(and_result%1#0 <- block@6, and_result%1#1 <- block@7)
         (assert and_result%1#2)
         test_cases.unssa.contract.test_swap_loop(7u, 11u)
-        let tmp%6#0: uint64 = test_cases.unssa.contract.test_param_update_with_reentrant_entry_block(0u)
-        let tmp%7#0: bool = (== tmp%6#0 10u)
-        (assert tmp%7#0)
+        let tmp%8#0: uint64 = test_cases.unssa.contract.test_param_update_with_reentrant_entry_block(0u)
+        let tmp%9#0: bool = (== tmp%8#0 10u)
+        (assert tmp%9#0)
         test_cases.unssa.contract.test_param_update_with_reentrant_entry_block_v2(0u)
         test_cases.unssa.contract.test_param_update_with_reentrant_entry_block_v3()
         test_cases.unssa.contract.test_swap_args()
-        let (tuple_assignment%0#0: uint64, tuple_assignment%1#0: uint64) = test_cases.unssa.contract.test_tuple_swap(100u, 200u, 0u)
-        let a#0: uint64 = tuple_assignment%0#0
-        let b#0: uint64 = tuple_assignment%1#0
-        let tmp%8#0: bool = (== a#0 100u)
-        (assert tmp%8#0)
-        let tmp%9#0: bool = (== b#0 200u)
-        (assert tmp%9#0)
-        let (tuple_assignment%2#0: uint64, tuple_assignment%3#0: uint64) = test_cases.unssa.contract.test_tuple_swap(100u, 200u, 1u)
-        let a#1: uint64 = tuple_assignment%2#0
-        let b#1: uint64 = tuple_assignment%3#0
-        let tmp%10#0: bool = (== a#1 200u)
-        (assert tmp%10#0)
-        let tmp%11#0: bool = (== b#1 100u)
-        (assert tmp%11#0)
+        let (tmp%10#0: uint64, tmp%11#0: uint64) = test_cases.unssa.contract.test_tuple_swap(100u, 200u, 0u)
+        let a#0: uint64 = tmp%10#0
+        let b#0: uint64 = tmp%11#0
+        let tmp%12#0: bool = (== a#0 100u)
+        (assert tmp%12#0)
+        let tmp%13#0: bool = (== b#0 200u)
+        (assert tmp%13#0)
+        let (tmp%14#0: uint64, tmp%15#0: uint64) = test_cases.unssa.contract.test_tuple_swap(100u, 200u, 1u)
+        let a#1: uint64 = tmp%14#0
+        let b#1: uint64 = tmp%15#0
+        let tmp%16#0: bool = (== a#1 200u)
+        (assert tmp%16#0)
+        let tmp%17#0: bool = (== b#1 100u)
+        (assert tmp%17#0)
         return 1u
 
 subroutine test_cases.unssa.contract.test_self_ref_phi() -> uint64:
@@ -79,7 +81,8 @@ subroutine test_cases.unssa.contract.test_self_ref_phi() -> uint64:
     block@5: // if_body_L39
         goto block@7
     block@6: // after_if_else_L38
-        let a#2: uint64 = (+ a#1 1u)
+        let tmp%5#0: uint64 = (+ a#1 1u)
+        let a#2: uint64 = tmp%5#0
         goto block@1
     block@7: // after_while_L35
         return a#1
@@ -99,7 +102,8 @@ subroutine test_cases.unssa.contract.test_swap(i: uint64) -> uint64:
         let tmp#0: uint64 = x#1
         let x#2: uint64 = y#1
         let y#2: uint64 = tmp#0
-        let i#2: uint64 = (- i#1 1u)
+        let tmp%1#0: uint64 = (- i#1 1u)
+        let i#2: uint64 = tmp%1#0
         goto block@1
     block@3: // after_while_L48
         return x#1
@@ -128,10 +132,12 @@ subroutine test_cases.unssa.contract.test_swap_loop(i: uint64, j: uint64) -> uin
         let tmp#0: uint64 = x#1
         let x#2: uint64 = y#1
         let y#2: uint64 = tmp#0
-        let j#2: uint64 = (- j#1 1u)
+        let tmp%2#0: uint64 = (- j#1 1u)
+        let j#2: uint64 = tmp%2#0
         goto block@3
     block@5: // after_while_L61
-        let i#3: uint64 = (- i#1 1u)
+        let tmp%3#0: uint64 = (- i#1 1u)
+        let i#3: uint64 = tmp%3#0
         goto block@1
     block@6: // after_while_L60
         return x#3
@@ -164,9 +170,10 @@ subroutine test_cases.unssa.contract.test_param_update_with_reentrant_entry_bloc
         let x#1: uint64 = φ(x#0 <- block@0, x#2 <- block@4)
         goto 1u ? block@2 : block@5
     block@2: // while_body_L80
-        let x#2: uint64 = (+ x#1 1u)
-        let tmp%0#0: bool = (>= x#2 10u)
-        goto tmp%0#0 ? block@3 : block@4
+        let tmp%0#0: uint64 = (+ x#1 1u)
+        let x#2: uint64 = tmp%0#0
+        let tmp%1#0: bool = (>= x#2 10u)
+        goto tmp%1#0 ? block@3 : block@4
     block@3: // if_body_L82
         goto block@5
     block@4: // after_if_else_L81
@@ -177,13 +184,14 @@ subroutine test_cases.unssa.contract.test_param_update_with_reentrant_entry_bloc
 
 subroutine test_cases.unssa.contract.test_param_update_with_reentrant_entry_block_v2(x: uint64) -> uint64:
     block@0: // L86
-        let x#1: uint64 = (+ x#0 1u)
+        let tmp%0#0: uint64 = (+ x#0 1u)
+        let x#1: uint64 = tmp%0#0
         goto block@1
     block@1: // while_top_L89
         goto 1u ? block@2 : block@5
     block@2: // while_body_L90
-        let tmp%0#0: bool = (>= x#1 1u)
-        goto tmp%0#0 ? block@3 : block@4
+        let tmp%1#0: bool = (>= x#1 1u)
+        goto tmp%1#0 ? block@3 : block@4
     block@3: // if_body_L91
         goto block@5
     block@4: // after_if_else_L90
@@ -218,14 +226,16 @@ subroutine test_cases.unssa.contract.swap_args(a: uint64, b: uint64) -> <uint64,
 subroutine test_cases.unssa.contract.test_swap_args() -> void:
     block@0: // L112
         let tmp%0#0: uint64 = test_cases.unssa.contract.one()
-        let a#0: uint64 = (+ tmp%0#0 123u)
-        let tmp%1#0: uint64 = test_cases.unssa.contract.one()
-        let b#0: uint64 = (+ tmp%1#0 234u)
-        let (tuple_assignment%0#0: uint64, tuple_assignment%1#0: uint64) = test_cases.unssa.contract.swap_args(a#0, b#0)
-        let a#1: uint64 = tuple_assignment%0#0
-        let b#1: uint64 = tuple_assignment%1#0
-        let tmp%2#0: bool = (== a#1 235u)
-        (assert tmp%2#0) // a == 235
-        let tmp%3#0: bool = (== b#1 124u)
-        (assert tmp%3#0) // b = 124
+        let tmp%1#0: uint64 = (+ tmp%0#0 123u)
+        let a#0: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = test_cases.unssa.contract.one()
+        let tmp%3#0: uint64 = (+ tmp%2#0 234u)
+        let b#0: uint64 = tmp%3#0
+        let (tmp%4#0: uint64, tmp%5#0: uint64) = test_cases.unssa.contract.swap_args(a#0, b#0)
+        let a#1: uint64 = tmp%4#0
+        let b#1: uint64 = tmp%5#0
+        let tmp%6#0: bool = (== a#1 235u)
+        (assert tmp%6#0) // a == 235
+        let tmp%7#0: bool = (== b#1 124u)
+        (assert tmp%7#0) // b = 124
         return 
