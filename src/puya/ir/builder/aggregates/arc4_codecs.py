@@ -68,7 +68,7 @@ def encode_value(
     encoding: Encoding,
     loc: SourceLocation,
 ) -> ValueProvider:
-    if not requires_conversion(value_type, encoding, "encode"):
+    if not requires_conversion(value_type, encoding):
         logger.debug(
             f"redundant encode operation from {_encoding_or_name(value_type)} to {encoding!s}",
             location=loc,
@@ -185,7 +185,7 @@ class _NativeTupleCodec(_ARC4Codec):
                 else:
                     element_values = values[:element_arity]
                     values = values[element_arity:]
-                if requires_conversion(element_ir_type, element_encoding, "encode"):
+                if requires_conversion(element_ir_type, element_encoding):
                     encoded_element_vp = encode_value(
                         context, element_values, element_ir_type, element_encoding, loc
                     )
@@ -256,7 +256,7 @@ class _NativeTupleCodec(_ARC4Codec):
                 loc,
             )
             assert isinstance(encoded_item, Value), "expected single item"
-            if requires_conversion(item_ir_type, item_encoding, "decode"):
+            if requires_conversion(item_ir_type, item_encoding):
                 item = decode_value(
                     context,
                     value=encoded_item,
@@ -410,10 +410,7 @@ class _BoolCodec(_ScalarCodec):
         return None
 
 
-class _BoolPackingCodec(_ScalarCodec):
-    def __init__(self, ir_type: EncodedType) -> None:
-        self.ir_type = ir_type
-
+class _ARC4BoolCodec(_ScalarCodec):
     @typing.override
     def encode_value(
         self,
@@ -422,6 +419,9 @@ class _BoolPackingCodec(_ScalarCodec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
+        match encoding:
+            case BoolEncoding(packed=True):
+                return value
         return None
 
     @typing.override
@@ -433,7 +433,7 @@ class _BoolPackingCodec(_ScalarCodec):
         loc: SourceLocation,
     ) -> ValueProvider | None:
         match encoding:
-            case BoolEncoding(packed=True) if self.ir_type.encoding == BoolEncoding(packed=False):
+            case BoolEncoding(packed=True):
                 return _BoolCodec().encode_value(context, value, BoolEncoding(packed=False), loc)
         return None
 
@@ -533,7 +533,7 @@ class _CheckedEncoding(_ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if not requires_conversion(self.native_type, encoding, "encode"):
+        if not requires_conversion(self.native_type, encoding):
             (value,) = values
             return value
         return None
@@ -546,7 +546,7 @@ class _CheckedEncoding(_ARC4Codec):
         encoding: Encoding,
         loc: SourceLocation,
     ) -> ValueProvider | None:
-        if not requires_conversion(self.native_type, encoding, "decode"):
+        if not requires_conversion(self.native_type, encoding):
             return value
         return None
 
@@ -560,7 +560,7 @@ def _get_arc4_codec(ir_type: IRType | TupleIRType) -> _ARC4Codec | None:
         case PrimitiveIRType.bool:
             return _BoolCodec()
         case EncodedType(BoolEncoding(packed=False)):
-            return _BoolPackingCodec(ir_type)
+            return _ARC4BoolCodec()
         case PrimitiveIRType.string:
             return _BytesCodec(UTF8Encoding())
         case PrimitiveIRType.account:
