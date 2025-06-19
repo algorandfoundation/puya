@@ -32,6 +32,7 @@ APPROVAL_EXTENSIONS = (
     ".arc56.json",
     ".map",
     ".stats.txt",
+    ".py",
 )
 
 
