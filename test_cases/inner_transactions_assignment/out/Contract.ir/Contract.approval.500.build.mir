@@ -1,0 +1,403 @@
+// Op                                                                                                      Stack (out)
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // inner_transactions_assignment/contract.py:11
+        // class Contract(ARC4Contract):
+        txn NumAppArgs                                                                                     tmp%0#1
+        v-store tmp%0#1
+        v-load tmp%0#1                                                                                     tmp%0#1
+        bz main_bare_routing@7 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // inner_transactions_assignment/contract.py:11
+        // class Contract(ARC4Contract):
+        txna ApplicationArgs 0                                                                             tmp%2#0
+        v-store tmp%2#0
+        method test_itxn_slice()void                                                                       Method(test_itxn_slice()void)
+        method test_itxn_nested()void                                                                      Method(test_itxn_slice()void),Method(test_itxn_nested()void)
+        v-load tmp%2#0                                                                                     Method(test_itxn_slice()void),Method(test_itxn_nested()void),tmp%2#0
+        match main_test_itxn_slice_route@3 main_test_itxn_nested_route@4 ; b main_after_if_else@11 
+
+    main_test_itxn_slice_route@3:
+        // inner_transactions_assignment/contract.py:12
+        // @arc4.abimethod
+        txn OnCompletion                                                                                   tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                                     tmp%3#0
+        !                                                                                                  tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                                     tmp%4#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                  tmp%5#0
+        v-store tmp%5#0
+        v-load tmp%5#0                                                                                     tmp%5#0
+        assert // can only call when not creating
+        callsub test_itxn_slice
+        int 1                                                                                              1
+        v-store test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0 
+        v-load test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0 test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12 
+
+    main_test_itxn_nested_route@4:
+        // inner_transactions_assignment/contract.py:29
+        // @arc4.abimethod
+        txn OnCompletion                                                                                   tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                                     tmp%7#0
+        !                                                                                                  tmp%8#0
+        v-store tmp%8#0
+        v-load tmp%8#0                                                                                     tmp%8#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                  tmp%9#0
+        v-store tmp%9#0
+        v-load tmp%9#0                                                                                     tmp%9#0
+        assert // can only call when not creating
+        callsub test_itxn_nested
+        int 1                                                                                              1
+        v-store test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0 
+        v-load test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0 test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12 
+
+    main_bare_routing@7:
+        // inner_transactions_assignment/contract.py:11
+        // class Contract(ARC4Contract):
+        txn OnCompletion                                                                                   tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                                                    tmp%11#0
+        bz main___algopy_default_create@8 ; b main_after_if_else@11
+
+    main___algopy_default_create@8:
+        txn ApplicationID                                                                                  tmp%12#0
+        v-store tmp%12#0
+        v-load tmp%12#0                                                                                    tmp%12#0
+        !                                                                                                  tmp%13#0
+        v-store tmp%13#0
+        v-load tmp%13#0                                                                                    tmp%13#0
+        assert // can only call when creating
+        int 1                                                                                              1
+        v-store test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0 
+        v-load test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0 test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12 
+
+    main_after_if_else@11:
+        // inner_transactions_assignment/contract.py:11
+        // class Contract(ARC4Contract):
+        int 0                                                                                              0
+        v-store test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0 
+        v-load test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0 test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12 
+
+    main_after_inlined_test_cases.inner_transactions_assignment.contract.Contract.__puya_arc4_router__@12:
+        v-load tmp%0#0                                                                                     tmp%0#0
+        return
+
+
+// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice() -> void:
+subroutine test_itxn_slice:
+    test_itxn_slice_block@0:
+        // inner_transactions_assignment/contract.py:20
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        txn Sender                                                                                         pay1%%param_Receiver_idx_0#0
+        v-store pay1%%param_Receiver_idx_0#0
+        // inner_transactions_assignment/contract.py:25
+        // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+        itxn_begin
+        // inner_transactions_assignment/contract.py:20
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        byte "pay1"                                                                                        "pay1"
+        itxn_field Note
+        int 0                                                                                              0
+        itxn_field Amount
+        v-load pay1%%param_Receiver_idx_0#0                                                                pay1%%param_Receiver_idx_0#0
+        itxn_field Receiver
+        int pay                                                                                            pay
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:25
+        // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+        itxn_next
+        // inner_transactions_assignment/contract.py:18
+        // total=1,
+        int 1                                                                                              1
+        itxn_field ConfigAssetTotal
+        // inner_transactions_assignment/contract.py:17
+        // note="acfg",
+        byte "acfg"                                                                                        "acfg"
+        itxn_field Note
+        // inner_transactions_assignment/contract.py:16
+        // asset_name="TEST",
+        byte "TEST"                                                                                        "TEST"
+        itxn_field ConfigAssetName
+        // inner_transactions_assignment/contract.py:15
+        // unit_name="TST",
+        byte "TST"                                                                                         "TST"
+        itxn_field ConfigAssetUnitName
+        // inner_transactions_assignment/contract.py:14
+        // acfg = itxn.AssetConfig(
+        int acfg                                                                                           acfg
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:25
+        // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+        itxn_next
+        // inner_transactions_assignment/contract.py:20
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int pay                                                                                            pay
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Amount
+        v-load pay1%%param_Receiver_idx_0#0                                                                pay1%%param_Receiver_idx_0#0
+        itxn_field Receiver
+        // inner_transactions_assignment/contract.py:22
+        // pay2.set(note="pay2")
+        byte "pay2"                                                                                        "pay2"
+        itxn_field Note
+        // inner_transactions_assignment/contract.py:20
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:25
+        // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+        itxn_next
+        // inner_transactions_assignment/contract.py:20
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int pay                                                                                            pay
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Amount
+        v-load pay1%%param_Receiver_idx_0#0                                                                pay1%%param_Receiver_idx_0#0
+        itxn_field Receiver
+        // inner_transactions_assignment/contract.py:24
+        // pay3.set(note="pay3")
+        byte "pay3"                                                                                        "pay3"
+        itxn_field Note
+        // inner_transactions_assignment/contract.py:20
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:25
+        // sliced_txns = itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1]
+        itxn_submit
+        gitxn 1 Note                                                                                       sliced_txns.0.Note#0
+        v-store sliced_txns.0.Note#0
+        gitxn 2 Note                                                                                       sliced_txns.1.Note#0
+        v-store sliced_txns.1.Note#0
+        // inner_transactions_assignment/contract.py:26
+        // assert sliced_txns[0].note == b"acfg"
+        v-load sliced_txns.0.Note#0                                                                        sliced_txns.0.Note#0
+        byte 0x61636667                                                                                    sliced_txns.0.Note#0,0x61636667
+        ==                                                                                                 tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                                     tmp%0#0
+        assert
+        // inner_transactions_assignment/contract.py:27
+        // assert sliced_txns[1].note == b"pay2"
+        v-load sliced_txns.1.Note#0                                                                        sliced_txns.1.Note#0
+        byte 0x70617932                                                                                    sliced_txns.1.Note#0,0x70617932
+        ==                                                                                                 tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                                                     tmp%1#0
+        assert
+        retsub
+
+
+// test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested() -> void:
+subroutine test_itxn_nested:
+    test_itxn_nested_block@0:
+        // inner_transactions_assignment/contract.py:37
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        txn Sender                                                                                         pay1%%param_Receiver_idx_0#0
+        v-store pay1%%param_Receiver_idx_0#0
+        // inner_transactions_assignment/contract.py:44
+        // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+        itxn_begin
+        // inner_transactions_assignment/contract.py:37
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        byte "pay1"                                                                                        "pay1"
+        itxn_field Note
+        int 0                                                                                              0
+        itxn_field Amount
+        v-load pay1%%param_Receiver_idx_0#0                                                                pay1%%param_Receiver_idx_0#0
+        itxn_field Receiver
+        int pay                                                                                            pay
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:44
+        // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+        itxn_next
+        // inner_transactions_assignment/contract.py:35
+        // total=1,
+        int 1                                                                                              1
+        itxn_field ConfigAssetTotal
+        // inner_transactions_assignment/contract.py:34
+        // note="acfg",
+        byte "acfg"                                                                                        "acfg"
+        itxn_field Note
+        // inner_transactions_assignment/contract.py:33
+        // asset_name="TEST",
+        byte "TEST"                                                                                        "TEST"
+        itxn_field ConfigAssetName
+        // inner_transactions_assignment/contract.py:32
+        // unit_name="TST",
+        byte "TST"                                                                                         "TST"
+        itxn_field ConfigAssetUnitName
+        // inner_transactions_assignment/contract.py:31
+        // acfg = itxn.AssetConfig(
+        int acfg                                                                                           acfg
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:44
+        // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+        itxn_next
+        // inner_transactions_assignment/contract.py:37
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int pay                                                                                            pay
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Amount
+        v-load pay1%%param_Receiver_idx_0#0                                                                pay1%%param_Receiver_idx_0#0
+        itxn_field Receiver
+        // inner_transactions_assignment/contract.py:39
+        // pay2.set(note="pay2")
+        byte "pay2"                                                                                        "pay2"
+        itxn_field Note
+        // inner_transactions_assignment/contract.py:37
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:44
+        // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+        itxn_next
+        // inner_transactions_assignment/contract.py:37
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int pay                                                                                            pay
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Amount
+        v-load pay1%%param_Receiver_idx_0#0                                                                pay1%%param_Receiver_idx_0#0
+        itxn_field Receiver
+        // inner_transactions_assignment/contract.py:41
+        // pay3.set(note="pay3")
+        byte "pay3"                                                                                        "pay3"
+        itxn_field Note
+        // inner_transactions_assignment/contract.py:37
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:44
+        // itxn.submit_txns(pay1, acfg, pay2, pay3)[1:-1],
+        itxn_submit
+        gitxn 1 Note                                                                                       nested_tuple.1.0.Note#0
+        v-store nested_tuple.1.0.Note#0
+        gitxn 2 Note                                                                                       nested_tuple.1.1.Note#0
+        v-store nested_tuple.1.1.Note#0
+        // inner_transactions_assignment/contract.py:48
+        // assert nested_tuple[1][0].note == b"acfg"
+        v-load nested_tuple.1.0.Note#0                                                                     nested_tuple.1.0.Note#0
+        byte 0x61636667                                                                                    nested_tuple.1.0.Note#0,0x61636667
+        ==                                                                                                 tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                                     tmp%3#0
+        assert
+        // inner_transactions_assignment/contract.py:49
+        // assert nested_tuple[1][1].note == b"pay2"
+        v-load nested_tuple.1.1.Note#0                                                                     nested_tuple.1.1.Note#0
+        byte 0x70617932                                                                                    nested_tuple.1.1.Note#0,0x70617932
+        ==                                                                                                 tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                                     tmp%4#0
+        assert
+        // inner_transactions_assignment/contract.py:60
+        // itxn.submit_txns(pay1, acfg, pay3)[1:],
+        itxn_begin
+        // inner_transactions_assignment/contract.py:37
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        byte "pay1"                                                                                        "pay1"
+        itxn_field Note
+        int 0                                                                                              0
+        itxn_field Amount
+        v-load pay1%%param_Receiver_idx_0#0                                                                pay1%%param_Receiver_idx_0#0
+        itxn_field Receiver
+        int pay                                                                                            pay
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:60
+        // itxn.submit_txns(pay1, acfg, pay3)[1:],
+        itxn_next
+        // inner_transactions_assignment/contract.py:35
+        // total=1,
+        int 1                                                                                              1
+        itxn_field ConfigAssetTotal
+        // inner_transactions_assignment/contract.py:53
+        // acfg.set(note="acfg2")
+        byte "acfg2"                                                                                       "acfg2"
+        itxn_field Note
+        // inner_transactions_assignment/contract.py:33
+        // asset_name="TEST",
+        byte "TEST"                                                                                        "TEST"
+        itxn_field ConfigAssetName
+        // inner_transactions_assignment/contract.py:32
+        // unit_name="TST",
+        byte "TST"                                                                                         "TST"
+        itxn_field ConfigAssetUnitName
+        // inner_transactions_assignment/contract.py:31
+        // acfg = itxn.AssetConfig(
+        int acfg                                                                                           acfg
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:60
+        // itxn.submit_txns(pay1, acfg, pay3)[1:],
+        itxn_next
+        // inner_transactions_assignment/contract.py:37
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int pay                                                                                            pay
+        itxn_field TypeEnum
+        int 0                                                                                              0
+        itxn_field Amount
+        v-load pay1%%param_Receiver_idx_0#0                                                                pay1%%param_Receiver_idx_0#0
+        itxn_field Receiver
+        // inner_transactions_assignment/contract.py:55
+        // pay3.set(note="pay5")
+        byte "pay5"                                                                                        "pay5"
+        itxn_field Note
+        // inner_transactions_assignment/contract.py:37
+        // pay1 = itxn.Payment(receiver=Txn.sender, amount=0, note="pay1")
+        int 0                                                                                              0
+        itxn_field Fee
+        // inner_transactions_assignment/contract.py:60
+        // itxn.submit_txns(pay1, acfg, pay3)[1:],
+        itxn_submit
+        gitxn 1 Note                                                                                       nested_tuple.1.0.Note#0
+        v-store nested_tuple.1.0.Note#0
+        itxn Note                                                                                          nested_tuple.1.1.Note#0
+        v-store nested_tuple.1.1.Note#0
+        // inner_transactions_assignment/contract.py:64
+        // assert nested_tuple[1][0].note == b"acfg2"
+        v-load nested_tuple.1.0.Note#0                                                                     nested_tuple.1.0.Note#0
+        byte 0x6163666732                                                                                  nested_tuple.1.0.Note#0,0x6163666732
+        ==                                                                                                 tmp%11#0
+        v-store tmp%11#0
+        v-load tmp%11#0                                                                                    tmp%11#0
+        assert
+        // inner_transactions_assignment/contract.py:65
+        // assert nested_tuple[1][1].note == b"pay5"
+        v-load nested_tuple.1.1.Note#0                                                                     nested_tuple.1.1.Note#0
+        byte 0x70617935                                                                                    nested_tuple.1.1.Note#0,0x70617935
+        ==                                                                                                 tmp%12#0
+        v-store tmp%12#0
+        v-load tmp%12#0                                                                                    tmp%12#0
+        assert
+        retsub
+
+

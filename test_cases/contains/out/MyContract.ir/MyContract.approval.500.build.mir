@@ -1,0 +1,233 @@
+// Op                                                                                       Stack (out)
+// test_cases.contains.contract.MyContract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // contains/contract.py:10
+        // one_true = self.is_in_tuple_1(UInt64(10), (UInt64(10), not_ten, Bytes(b"five")))
+        int 10                                                                              10
+        int 10                                                                              10,10
+        // contains/contract.py:8
+        // not_ten = UInt64(15)
+        int 15                                                                              10,10,15
+        // contains/contract.py:10
+        // one_true = self.is_in_tuple_1(UInt64(10), (UInt64(10), not_ten, Bytes(b"five")))
+        byte 0x66697665                                                                     10,10,15,0x66697665
+        callsub is_in_tuple_1                                                               one_true#0
+        v-store one_true#0
+        // contains/contract.py:11
+        // one_false = self.is_in_tuple_1(UInt64(5), (UInt64(10), not_ten, Bytes(b"five")))
+        int 5                                                                               5
+        int 10                                                                              5,10
+        // contains/contract.py:8
+        // not_ten = UInt64(15)
+        int 15                                                                              5,10,15
+        // contains/contract.py:11
+        // one_false = self.is_in_tuple_1(UInt64(5), (UInt64(10), not_ten, Bytes(b"five")))
+        byte 0x66697665                                                                     5,10,15,0x66697665
+        callsub is_in_tuple_1                                                               one_false#0
+        v-store one_false#0
+        // contains/contract.py:12
+        // assert one_true, "Should be true"
+        v-load one_true#0                                                                   one_true#0
+        assert // Should be true
+        // contains/contract.py:13
+        // assert not one_false, "Should be false"
+        v-load one_false#0                                                                  one_false#0
+        !                                                                                   tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                                      tmp%0#0
+        assert // Should be false
+        // contains/contract.py:16
+        // Bytes(b"hello"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
+        byte 0x68656c6c6f                                                                   0x68656c6c6f
+        byte 0x68656c6c6f                                                                   0x68656c6c6f,0x68656c6c6f
+        int 0                                                                               0x68656c6c6f,0x68656c6c6f,0
+        byte 0x626f6e6a6f7572                                                               0x68656c6c6f,0x68656c6c6f,0,0x626f6e6a6f7572
+        // contains/contract.py:15-17
+        // two_true = self.is_in_tuple_2(
+        //     Bytes(b"hello"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
+        // )
+        callsub is_in_tuple_2                                                               two_true#0
+        v-store two_true#0
+        // contains/contract.py:19
+        // Bytes(b"ciao"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
+        byte 0x6369616f                                                                     0x6369616f
+        byte 0x68656c6c6f                                                                   0x6369616f,0x68656c6c6f
+        int 0                                                                               0x6369616f,0x68656c6c6f,0
+        byte 0x626f6e6a6f7572                                                               0x6369616f,0x68656c6c6f,0,0x626f6e6a6f7572
+        // contains/contract.py:18-20
+        // two_false = self.is_in_tuple_2(
+        //     Bytes(b"ciao"), (Bytes(b"hello"), UInt64(0), Bytes(b"bonjour"))
+        // )
+        callsub is_in_tuple_2                                                               two_false#0
+        v-store two_false#0
+        // contains/contract.py:21
+        // assert two_true, "Should be true"
+        v-load two_true#0                                                                   two_true#0
+        assert // Should be true
+        // contains/contract.py:22
+        // assert not two_false, "Should be false"
+        v-load two_false#0                                                                  two_false#0
+        !                                                                                   tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                                      tmp%1#0
+        assert // Should be false
+        // contains/contract.py:25
+        // BigUInt(32323423423423), (BigUInt(32323423423423), BigUInt(8439439483934))
+        byte 0x1d65e22bcbbf                                                                 0x1d65e22bcbbf
+        byte 0x1d65e22bcbbf                                                                 0x1d65e22bcbbf,0x1d65e22bcbbf
+        byte 0x07acf5cae41e                                                                 0x1d65e22bcbbf,0x1d65e22bcbbf,0x07acf5cae41e
+        // contains/contract.py:24-26
+        // three_true = self.is_in_tuple_3(
+        //     BigUInt(32323423423423), (BigUInt(32323423423423), BigUInt(8439439483934))
+        // )
+        callsub is_in_tuple_3                                                               three_true#0
+        v-store three_true#0
+        // contains/contract.py:28
+        // BigUInt(32323423423423) + BigUInt(32323423423423),
+        byte 0x3acbc457977e                                                                 0x3acbc457977e
+        // contains/contract.py:29
+        // (BigUInt(32323423423423), BigUInt(8439439483934)),
+        byte 0x1d65e22bcbbf                                                                 0x3acbc457977e,0x1d65e22bcbbf
+        byte 0x07acf5cae41e                                                                 0x3acbc457977e,0x1d65e22bcbbf,0x07acf5cae41e
+        // contains/contract.py:27-30
+        // three_false = self.is_in_tuple_3(
+        //     BigUInt(32323423423423) + BigUInt(32323423423423),
+        //     (BigUInt(32323423423423), BigUInt(8439439483934)),
+        // )
+        callsub is_in_tuple_3                                                               three_false#0
+        v-store three_false#0
+        // contains/contract.py:31
+        // assert three_true, "Should be true"
+        v-load three_true#0                                                                 three_true#0
+        assert // Should be true
+        // contains/contract.py:32
+        // assert not three_false, "Should be false"
+        v-load three_false#0                                                                three_false#0
+        !                                                                                   tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                      tmp%3#0
+        assert // Should be false
+        // contains/contract.py:37
+        // return UInt64(1)
+        int 1                                                                               1
+        return
+
+
+// test_cases.contains.contract.MyContract.is_in_tuple_1(x: uint64, y.0: uint64, y.1: uint64, y.2: bytes) -> uint64:
+subroutine is_in_tuple_1:
+    is_in_tuple_1_block@0:                                                                  (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        // contains/contract.py:44
+        // return x in y
+        p-load x#0                                                                          (𝕡) x#0,y.0#0,y.1#0,y.2#0 | x#0 (copy)
+        p-load y.0#0                                                                        (𝕡) x#0,y.0#0,y.1#0,y.2#0 | x#0 (copy),y.0#0 (copy)
+        ==                                                                                  (𝕡) x#0,y.0#0,y.1#0,y.2#0 | tmp%0#0
+        v-store tmp%0#0                                                                     (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        v-load tmp%0#0                                                                      (𝕡) x#0,y.0#0,y.1#0,y.2#0 | tmp%0#0
+        bz is_in_tuple_1_or_contd@1 ; b is_in_tuple_1_bool_true@2                           (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+
+    is_in_tuple_1_or_contd@1:                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        // contains/contract.py:44
+        // return x in y
+        p-load x#0                                                                          (𝕡) x#0,y.0#0,y.1#0,y.2#0 | x#0 (copy)
+        p-load y.1#0                                                                        (𝕡) x#0,y.0#0,y.1#0,y.2#0 | x#0 (copy),y.1#0 (copy)
+        ==                                                                                  (𝕡) x#0,y.0#0,y.1#0,y.2#0 | tmp%1#0
+        v-store tmp%1#0                                                                     (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        v-load tmp%1#0                                                                      (𝕡) x#0,y.0#0,y.1#0,y.2#0 | tmp%1#0
+        bz is_in_tuple_1_bool_false@3 ; b is_in_tuple_1_bool_true@2                         (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+
+    is_in_tuple_1_bool_true@2:                                                              (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        int 1                                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 | 1
+        v-store or_result%0#0                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        b is_in_tuple_1_bool_merge@4                                                        (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+
+    is_in_tuple_1_bool_false@3:                                                             (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        int 0                                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 | 0
+        v-store or_result%0#0                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        b is_in_tuple_1_bool_merge@4                                                        (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+
+    is_in_tuple_1_bool_merge@4:                                                             (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        // contains/contract.py:44
+        // return x in y
+        v-load or_result%0#0                                                                (𝕡) x#0,y.0#0,y.1#0,y.2#0 | or_result%0#0
+        retsub                                                                              or_result%0#0
+
+
+// test_cases.contains.contract.MyContract.is_in_tuple_2(x: bytes, y.0: bytes, y.1: uint64, y.2: bytes) -> uint64:
+subroutine is_in_tuple_2:
+    is_in_tuple_2_block@0:                                                                  (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        // contains/contract.py:48
+        // return x in y
+        p-load x#0                                                                          (𝕡) x#0,y.0#0,y.1#0,y.2#0 | x#0 (copy)
+        p-load y.0#0                                                                        (𝕡) x#0,y.0#0,y.1#0,y.2#0 | x#0 (copy),y.0#0 (copy)
+        ==                                                                                  (𝕡) x#0,y.0#0,y.1#0,y.2#0 | tmp%0#0
+        v-store tmp%0#0                                                                     (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        v-load tmp%0#0                                                                      (𝕡) x#0,y.0#0,y.1#0,y.2#0 | tmp%0#0
+        bz is_in_tuple_2_or_contd@1 ; b is_in_tuple_2_bool_true@2                           (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+
+    is_in_tuple_2_or_contd@1:                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        // contains/contract.py:48
+        // return x in y
+        p-load x#0                                                                          (𝕡) x#0,y.0#0,y.1#0,y.2#0 | x#0 (copy)
+        p-load y.2#0                                                                        (𝕡) x#0,y.0#0,y.1#0,y.2#0 | x#0 (copy),y.2#0 (copy)
+        ==                                                                                  (𝕡) x#0,y.0#0,y.1#0,y.2#0 | tmp%1#0
+        v-store tmp%1#0                                                                     (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        v-load tmp%1#0                                                                      (𝕡) x#0,y.0#0,y.1#0,y.2#0 | tmp%1#0
+        bz is_in_tuple_2_bool_false@3 ; b is_in_tuple_2_bool_true@2                         (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+
+    is_in_tuple_2_bool_true@2:                                                              (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        int 1                                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 | 1
+        v-store or_result%0#0                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        b is_in_tuple_2_bool_merge@4                                                        (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+
+    is_in_tuple_2_bool_false@3:                                                             (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        int 0                                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 | 0
+        v-store or_result%0#0                                                               (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        b is_in_tuple_2_bool_merge@4                                                        (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+
+    is_in_tuple_2_bool_merge@4:                                                             (𝕡) x#0,y.0#0,y.1#0,y.2#0 |
+        // contains/contract.py:48
+        // return x in y
+        v-load or_result%0#0                                                                (𝕡) x#0,y.0#0,y.1#0,y.2#0 | or_result%0#0
+        retsub                                                                              or_result%0#0
+
+
+// test_cases.contains.contract.MyContract.is_in_tuple_3(x: bytes, y.0: bytes, y.1: bytes) -> uint64:
+subroutine is_in_tuple_3:
+    is_in_tuple_3_block@0:                                                                  (𝕡) x#0,y.0#0,y.1#0 |
+        // contains/contract.py:52
+        // return x in y
+        p-load x#0                                                                          (𝕡) x#0,y.0#0,y.1#0 | x#0 (copy)
+        p-load y.0#0                                                                        (𝕡) x#0,y.0#0,y.1#0 | x#0 (copy),y.0#0 (copy)
+        b==                                                                                 (𝕡) x#0,y.0#0,y.1#0 | tmp%0#0
+        v-store tmp%0#0                                                                     (𝕡) x#0,y.0#0,y.1#0 |
+        v-load tmp%0#0                                                                      (𝕡) x#0,y.0#0,y.1#0 | tmp%0#0
+        bz is_in_tuple_3_or_contd@1 ; b is_in_tuple_3_bool_true@2                           (𝕡) x#0,y.0#0,y.1#0 |
+
+    is_in_tuple_3_or_contd@1:                                                               (𝕡) x#0,y.0#0,y.1#0 |
+        // contains/contract.py:52
+        // return x in y
+        p-load x#0                                                                          (𝕡) x#0,y.0#0,y.1#0 | x#0 (copy)
+        p-load y.1#0                                                                        (𝕡) x#0,y.0#0,y.1#0 | x#0 (copy),y.1#0 (copy)
+        b==                                                                                 (𝕡) x#0,y.0#0,y.1#0 | tmp%1#0
+        v-store tmp%1#0                                                                     (𝕡) x#0,y.0#0,y.1#0 |
+        v-load tmp%1#0                                                                      (𝕡) x#0,y.0#0,y.1#0 | tmp%1#0
+        bz is_in_tuple_3_bool_false@3 ; b is_in_tuple_3_bool_true@2                         (𝕡) x#0,y.0#0,y.1#0 |
+
+    is_in_tuple_3_bool_true@2:                                                              (𝕡) x#0,y.0#0,y.1#0 |
+        int 1                                                                               (𝕡) x#0,y.0#0,y.1#0 | 1
+        v-store or_result%0#0                                                               (𝕡) x#0,y.0#0,y.1#0 |
+        b is_in_tuple_3_bool_merge@4                                                        (𝕡) x#0,y.0#0,y.1#0 |
+
+    is_in_tuple_3_bool_false@3:                                                             (𝕡) x#0,y.0#0,y.1#0 |
+        int 0                                                                               (𝕡) x#0,y.0#0,y.1#0 | 0
+        v-store or_result%0#0                                                               (𝕡) x#0,y.0#0,y.1#0 |
+        b is_in_tuple_3_bool_merge@4                                                        (𝕡) x#0,y.0#0,y.1#0 |
+
+    is_in_tuple_3_bool_merge@4:                                                             (𝕡) x#0,y.0#0,y.1#0 |
+        // contains/contract.py:52
+        // return x in y
+        v-load or_result%0#0                                                                (𝕡) x#0,y.0#0,y.1#0 | or_result%0#0
+        retsub                                                                              or_result%0#0
+
+

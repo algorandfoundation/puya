@@ -1,0 +1,60 @@
+// Op                                                 Stack (out)
+// test_cases.control_op_simplification.contract.MyContract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // control_op_simplification/contract.py:6
+        // do_log = False
+        int 0                                         0
+        v-store do_log#0
+        // control_op_simplification/contract.py:7
+        // match op.Txn.num_app_args:
+        txn NumAppArgs                                tmp%0#0
+        v-store tmp%0#0
+        // control_op_simplification/contract.py:7-11
+        // match op.Txn.num_app_args:
+        //     case UInt64(1):
+        //         do_log = True
+        //     case UInt64(3):
+        //         do_log = True
+        v-load tmp%0#0                                tmp%0#0
+        switch main_switch_case_next@4 main_switch_case_0@1 main_switch_case_next@4 main_switch_case_1@2 ; b main_switch_case_next@4 
+
+    main_switch_case_0@1:
+        // control_op_simplification/contract.py:9
+        // do_log = True
+        int 1                                         1
+        v-store do_log#0
+        b main_switch_case_next@4
+
+    main_switch_case_1@2:
+        // control_op_simplification/contract.py:11
+        // do_log = True
+        int 1                                         1
+        v-store do_log#0
+        b main_switch_case_next@4
+
+    main_switch_case_next@4:
+        // control_op_simplification/contract.py:12
+        // if do_log:
+        v-load do_log#0                               do_log#0
+        bz main_after_if_else@6 ; b main_if_body@5
+
+    main_if_body@5:
+        // control_op_simplification/contract.py:13
+        // log(op.itob(op.Txn.num_app_args))
+        txn NumAppArgs                                tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                tmp%1#0
+        itob                                          tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                tmp%2#0
+        log
+        b main_after_if_else@6
+
+    main_after_if_else@6:
+        // control_op_simplification/contract.py:14
+        // return True
+        int 1                                         1
+        return
+
+

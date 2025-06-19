@@ -1,0 +1,42 @@
+// Op                                                                                            Stack (out)
+// test_cases.regression_tests.teal_switch_inlining.TealSwitchInlining.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // regression_tests/teal_switch_inlining.py:11
+        // match a.Txn.num_app_args:
+        txn NumAppArgs                                                                           tmp%0#0
+        v-store tmp%0#0
+        // regression_tests/teal_switch_inlining.py:11-21
+        // match a.Txn.num_app_args:
+        //     # at -O2, this block and the default block will be de-duplicated,
+        //     # resulting in there being a reference to the default block in the `switch` cases
+        //     # also, which cannot be inlined an must be preserved despite only having a single
+        //     # predecessor block
+        //     case 0:
+        //         return True
+        //     case 1:
+        //         return False
+        //     case _:
+        //         return True
+        v-load tmp%0#0                                                                           tmp%0#0
+        switch main_switch_case_0@1 main_switch_case_1@2 ; b main_switch_case_default@3
+
+    main_switch_case_0@1:
+        // regression_tests/teal_switch_inlining.py:17
+        // return True
+        int 1                                                                                    1
+        return
+
+    main_switch_case_1@2:
+        // regression_tests/teal_switch_inlining.py:19
+        // return False
+        int 0                                                                                    0
+        return
+
+    main_switch_case_default@3:
+        // regression_tests/teal_switch_inlining.py:21
+        // return True
+        int 1                                                                                    1
+        return
+
+

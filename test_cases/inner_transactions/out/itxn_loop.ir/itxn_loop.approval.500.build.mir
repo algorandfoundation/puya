@@ -1,0 +1,187 @@
+// Op                                                                               Stack (out)
+// test_cases.inner_transactions.itxn_loop.MyContract.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        undefined                                                                   undefined
+        v-store app_params%%param_ApplicationArgs_idx_2#0
+        undefined                                                                   undefined
+        v-store app_params%%param_ApplicationArgs_idx_1#0
+        undefined                                                                   undefined
+        v-store app_params%%param_ApplicationArgs_idx_0#0
+        // inner_transactions/itxn_loop.py:25
+        // note=b"",
+        byte 0x                                                                     0x
+        v-store app_params%%param_Note_idx_0#0
+        // inner_transactions/itxn_loop.py:21
+        // app_params = itxn.ApplicationCall(
+        int 0                                                                       0
+        v-store app_params%%ApplicationArgs_length#0
+        // inner_transactions/itxn_loop.py:27
+        // for i in urange(4):
+        int 0                                                                       0
+        v-store i#0
+        b main_for_header@1
+
+    main_for_header@1:
+        // inner_transactions/itxn_loop.py:27
+        // for i in urange(4):
+        v-load i#0                                                                  i#0
+        int 4                                                                       i#0,4
+        <                                                                           continue_looping%0#0
+        v-store continue_looping%0#0
+        v-load continue_looping%0#0                                                 continue_looping%0#0
+        bz main_after_for@14 ; b main_for_body@2
+
+    main_for_body@2:
+        // inner_transactions/itxn_loop.py:20
+        // note = Bytes(b"ABCDE")
+        byte 0x4142434445                                                           0x4142434445
+        // inner_transactions/itxn_loop.py:28
+        // i_note = op.extract(note, 0, i)
+        int 0                                                                       0x4142434445,0
+        v-load i#0                                                                  0x4142434445,0,i#0
+        extract3                                                                    i_note#0
+        v-store i_note#0
+        // inner_transactions/itxn_loop.py:29-38
+        // match i:
+        //     case UInt64(1):
+        //         app_params.set(note=i_note, app_args=(Bytes(b"1"),))
+        //     case UInt64(2):
+        //         app_params.set(note=i_note, app_args=(Bytes(b"2"), Bytes(b"1")))
+        //     case UInt64(3):
+        //         app_params.set(
+        //             note=i_note,
+        //             app_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
+        //         )
+        v-load i#0                                                                  i#0
+        switch main_switch_case_next@7 main_switch_case_0@3 main_switch_case_1@4 main_switch_case_2@5 ; b main_switch_case_next@7 
+
+    main_switch_case_0@3:
+        // inner_transactions/itxn_loop.py:31
+        // app_params.set(note=i_note, app_args=(Bytes(b"1"),))
+        byte 0x31                                                                   0x31
+        v-store app_params%%param_ApplicationArgs_idx_0#0
+        int 1                                                                       1
+        v-store app_params%%ApplicationArgs_length#0
+        v-load i_note#0                                                             i_note#0
+        v-store app_params%%param_Note_idx_0#0
+        b main_switch_case_next@7
+
+    main_switch_case_1@4:
+        // inner_transactions/itxn_loop.py:33
+        // app_params.set(note=i_note, app_args=(Bytes(b"2"), Bytes(b"1")))
+        byte 0x32                                                                   0x32
+        v-store app_params%%param_ApplicationArgs_idx_0#0
+        byte 0x31                                                                   0x31
+        v-store app_params%%param_ApplicationArgs_idx_1#0
+        int 2                                                                       2
+        v-store app_params%%ApplicationArgs_length#0
+        v-load i_note#0                                                             i_note#0
+        v-store app_params%%param_Note_idx_0#0
+        b main_switch_case_next@7
+
+    main_switch_case_2@5:
+        // inner_transactions/itxn_loop.py:37
+        // app_args=(Bytes(b"3"), Bytes(b"2"), Bytes(b"1")),
+        byte 0x33                                                                   0x33
+        v-store app_params%%param_ApplicationArgs_idx_0#0
+        byte 0x32                                                                   0x32
+        v-store app_params%%param_ApplicationArgs_idx_1#0
+        byte 0x31                                                                   0x31
+        v-store app_params%%param_ApplicationArgs_idx_2#0
+        int 3                                                                       3
+        v-store app_params%%ApplicationArgs_length#0
+        v-load i_note#0                                                             i_note#0
+        v-store app_params%%param_Note_idx_0#0
+        b main_switch_case_next@7
+
+    main_switch_case_next@7:
+        // inner_transactions/itxn_loop.py:39
+        // app_txn = app_params.submit()
+        itxn_begin
+        v-load app_params%%ApplicationArgs_length#0                                 app_params%%ApplicationArgs_length#0
+        bz main_next_field@11 ; b main_set_ApplicationArgs_0_to_0@8
+
+    main_set_ApplicationArgs_0_to_0@8:
+        v-load app_params%%param_ApplicationArgs_idx_0#0                            app_params%%param_ApplicationArgs_idx_0#0
+        itxn_field ApplicationArgs
+        v-load app_params%%ApplicationArgs_length#0                                 app_params%%ApplicationArgs_length#0
+        int 2                                                                       app_params%%ApplicationArgs_length#0,2
+        >=                                                                          is_ApplicationArgs_count_gte_2%0#0
+        v-store is_ApplicationArgs_count_gte_2%0#0
+        // inner_transactions/itxn_loop.py:39
+        // app_txn = app_params.submit()
+        v-load is_ApplicationArgs_count_gte_2%0#0                                   is_ApplicationArgs_count_gte_2%0#0
+        bz main_next_field@11 ; b main_set_ApplicationArgs_1_to_1@9
+
+    main_set_ApplicationArgs_1_to_1@9:
+        v-load app_params%%param_ApplicationArgs_idx_1#0                            app_params%%param_ApplicationArgs_idx_1#0
+        itxn_field ApplicationArgs
+        v-load app_params%%ApplicationArgs_length#0                                 app_params%%ApplicationArgs_length#0
+        int 3                                                                       app_params%%ApplicationArgs_length#0,3
+        >=                                                                          is_ApplicationArgs_count_gte_3%0#0
+        v-store is_ApplicationArgs_count_gte_3%0#0
+        // inner_transactions/itxn_loop.py:39
+        // app_txn = app_params.submit()
+        v-load is_ApplicationArgs_count_gte_3%0#0                                   is_ApplicationArgs_count_gte_3%0#0
+        bz main_next_field@11 ; b main_set_ApplicationArgs_2_to_2@10
+
+    main_set_ApplicationArgs_2_to_2@10:
+        v-load app_params%%param_ApplicationArgs_idx_2#0                            app_params%%param_ApplicationArgs_idx_2#0
+        itxn_field ApplicationArgs
+        b main_next_field@11
+
+    main_next_field@11:
+        v-load app_params%%param_Note_idx_0#0                                       app_params%%param_Note_idx_0#0
+        itxn_field Note
+        // inner_transactions/itxn_loop.py:24
+        // on_completion=OnCompleteAction.DeleteApplication,
+        int DeleteApplication                                                       DeleteApplication
+        itxn_field OnCompletion
+        // inner_transactions/itxn_loop.py:23
+        // clear_state_program=programs.ALWAYS_APPROVE,
+        byte 0x0a8101                                                               0x0a8101
+        itxn_field ClearStateProgramPages
+        // inner_transactions/itxn_loop.py:22
+        // approval_program=programs.ALWAYS_APPROVE,
+        byte 0x0a8101                                                               0x0a8101
+        itxn_field ApprovalProgramPages
+        // inner_transactions/itxn_loop.py:21
+        // app_params = itxn.ApplicationCall(
+        int appl                                                                    appl
+        itxn_field TypeEnum
+        int 0                                                                       0
+        itxn_field Fee
+        // inner_transactions/itxn_loop.py:39
+        // app_txn = app_params.submit()
+        itxn_submit
+        itxn Note                                                                   app_txn.Note#0
+        v-store app_txn.Note#0
+        itxn NumAppArgs                                                             app_txn.NumAppArgs#0
+        v-store app_txn.NumAppArgs#0
+        // inner_transactions/itxn_loop.py:40
+        // log(app_txn.note)
+        v-load app_txn.Note#0                                                       app_txn.Note#0
+        log
+        // inner_transactions/itxn_loop.py:41
+        // log(app_txn.num_app_args)
+        v-load app_txn.NumAppArgs#0                                                 app_txn.NumAppArgs#0
+        itob                                                                        tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                                              tmp%0#0
+        log
+        // inner_transactions/itxn_loop.py:27
+        // for i in urange(4):
+        v-load i#0                                                                  i#0
+        int 1                                                                       i#0,1
+        +                                                                           i#0
+        v-store i#0
+        b main_for_header@1
+
+    main_after_for@14:
+        // inner_transactions/itxn_loop.py:43
+        // return True
+        int 1                                                                       1
+        return
+
+
