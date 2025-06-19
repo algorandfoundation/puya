@@ -223,24 +223,23 @@ say_hello_after_if_else@2:
     // return "Hello, " + name + "!"
     frame_dig 0
     extract 2 0
-    pushbytes 0x48656c6c6f2c20
+    pushbytes 0x000748656c6c6f2c20
     swap
-    concat
+    concat // on error: max array length exceeded
     dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
     extract 2 0
-    pushbytes 0x21
-    concat
-    dup
     len
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
+    pushbytes 0x21
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    itob
+    extract 6 2
+    replace2 0
     swap
     retsub
 
@@ -260,10 +259,8 @@ calculate:
     swap
     dig 1
     +
-    itob
     // everything/contract.py:67
     // return arc4_UInt64(c.native * b.native)
-    btoi
     *
     itob
     retsub

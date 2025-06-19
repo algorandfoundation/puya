@@ -48,26 +48,29 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@11: // after_inlined_test_cases.regression_tests.jira_142.Jira142.__puya_arc4_router___L1
         return tmp%0#0
 
-subroutine test_cases.regression_tests.jira_142.Jira142.some_subroutine(char: bytes[8]) -> bytes[8]:
+subroutine test_cases.regression_tests.jira_142.Jira142.some_subroutine(char: Encoded(uint64)) -> Encoded(uint64):
     block@0: // L9
-        let char%out#0: bytes[8] = char#0
+        let char%out#0: Encoded(uint64) = char#0
         return char%out#0
 
 subroutine test_cases.regression_tests.jira_142.Jira142.battle() -> void:
     block@0: // L13
-        let encoded_tuple_buffer%1#0: bytes = (concat 0x 0x00000000000000c8)
-        let my_struct#0: bytes[8] = encoded_tuple_buffer%1#0
-        let reinterpret_biguint%0#0: biguint = (extract3 my_struct#0 0u 8u) // on error: Index access is out of bounds
-        let tmp%0#0: bool = (b> reinterpret_biguint%0#0 0x0000000000000064)
-        let my_struct#5: bytes[8] = my_struct#0
-        goto tmp%0#0 ? block@1 : block@2
+        let aggregate%encoded%0#1: Encoded(uint64) = (concat 0x 0x00000000000000c8)
+        let aggregate%encoded%1#1: Encoded(uint64) = (concat aggregate%encoded%0#1 0x)
+        let tmp%0#0: Encoded(uint64) = aggregate%encoded%1#1
+        let my_struct#0: Encoded(uint64) = tmp%0#0
+        let aggregate%extract%0#1: bytes = (extract3 my_struct#0 0u 8u)
+        let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#1
+        let reinterpret_biguint%0#0: biguint = tuple_item%0#0
+        let tmp%1#0: bool = (b> reinterpret_biguint%0#0 0x0000000000000064)
+        let my_struct#5: Encoded(uint64) = my_struct#0
+        goto tmp%1#0 ? block@1 : block@2
     block@1: // if_body_L18
-        let some_subroutine%0#0: bytes[8] = test_cases.regression_tests.jira_142.Jira142.some_subroutine(my_struct#0)
-        let my_struct#0: bytes[8] = some_subroutine%0#0
-        let my_struct#5: bytes[8] = my_struct#0
+        let some_subroutine%0#0: Encoded(uint64) = test_cases.regression_tests.jira_142.Jira142.some_subroutine(my_struct#0)
+        let my_struct#0: Encoded(uint64) = some_subroutine%0#0
+        let my_struct#5: Encoded(uint64) = my_struct#0
         goto block@2
     block@2: // after_if_else_L17
-        let my_struct#0: bytes[8] = my_struct#5
-        let copy%0#0: bytes[8] = my_struct#0
-        (log copy%0#0)
+        let my_struct#0: Encoded(uint64) = my_struct#5
+        (log my_struct#0)
         return 

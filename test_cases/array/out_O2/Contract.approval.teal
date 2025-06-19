@@ -3,25 +3,25 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 8 0 1 5 512
-    bytecblock 0x 0x0000000000000000 0x0000000000000004 0x000000000000000100000000000000020000000000000003
+    intcblock 1 8 0 5
+    bytecblock 0x 0x0000000000000003 0x0000000000000000 0x0000000000000004 0x000000000000000100000000000000020000000000000003
     pushbytes 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     store 0
-    intc_1 // 0
+    intc_2 // 0
     dupn 5
     bytec_0 // ""
-    dupn 14
+    dupn 13
     txn NumAppArgs
-    bz main_bare_routing@16
-    pushbytess 0xa33be873 0xe0c378e9 0x366f509d 0x58351a50 0xfa99e984 0xa20e440f 0x179ac3f9 0xf17f6f0a 0x845e1b4e 0x7621cfd1 0x5661a67c // method "test_array()void", method "test_array_extend()void", method "test_array_multiple_append()void", method "overhead()void", method "test_array_too_long()void", method "test_array_copy_and_extend()void", method "test_array_evaluation_order()void", method "test_allocations(uint64)void", method "test_iteration()void", method "test_quicksort()void", method "test_unobserved_write()void"
+    bz main_bare_routing@17
+    pushbytess 0xa33be873 0xe0c378e9 0x366f509d 0x58351a50 0xfa99e984 0xa20e440f 0x179ac3f9 0x45dcc836 0xf17f6f0a 0x845e1b4e 0x7621cfd1 0x5661a67c // method "test_array()void", method "test_array_extend()void", method "test_array_multiple_append()void", method "overhead()void", method "test_array_too_long()void", method "test_array_copy_and_extend()void", method "test_array_evaluation_order()void", method "test_array_assignment_maximum_cursage()void", method "test_allocations(uint64)void", method "test_iteration()void", method "test_quicksort()void", method "test_unobserved_write()void"
     txna ApplicationArgs 0
-    match main_test_array_route@3 main_test_array_extend_route@4 main_test_array_multiple_append_route@5 main_overhead_route@6 main_test_array_too_long_route@7 main_test_array_copy_and_extend_route@8 main_test_array_evaluation_order_route@9 main_test_allocations_route@10 main_test_iteration_route@11 main_test_quicksort_route@12 main_test_unobserved_write_route@13
+    match main_test_array_route@3 main_test_array_extend_route@4 main_test_array_multiple_append_route@5 main_overhead_route@6 main_test_array_too_long_route@7 main_test_array_copy_and_extend_route@8 main_test_array_evaluation_order_route@9 main_test_array_assignment_maximum_cursage_route@10 main_test_allocations_route@11 main_test_iteration_route@12 main_test_quicksort_route@13 main_test_unobserved_write_route@14
 
-main_after_if_else@20:
-    intc_1 // 0
+main_after_if_else@21:
+    intc_2 // 0
     return
 
-main_test_unobserved_write_route@13:
+main_test_unobserved_write_route@14:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -32,45 +32,43 @@ main_test_unobserved_write_route@13:
     loads
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
-    *
-    intc_1 // 0
+    intc_2 // 0
     itob
+    swap
+    intc_1 // 8
+    *
     uncover 2
-    dig 2
-    uncover 2
+    dig 1
+    uncover 3
     replace3
     dig 2
     swap
     stores
     dig 1
     callsub assert_last_is_zero
-    dig 1
-    loads
-    intc_2 // 1
+    intc_0 // 1
     itob
     dig 2
-    swap
+    loads
+    dig 2
+    uncover 2
     replace3
     uncover 2
     dig 1
     stores
     swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
-    intc_2 // 1
+    intc_0 // 1
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     return
 
-main_test_quicksort_route@12:
+main_test_quicksort_route@13:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -82,303 +80,290 @@ main_test_quicksort_route@12:
     bytec_0 // 0x
     stores
     txn Sender
-    bury 16
-    intc_1 // 0
+    bury 15
+    intc_2 // 0
     bury 7
 
-main_for_header@27:
+main_for_header@28:
     dig 6
     pushint 32 // 32
     <
-    bz main_after_for@29
-    dig 15
+    bz main_after_for@30
+    dig 14
     dig 7
     dup
     cover 2
     getbyte
-    itob
     dig 3
     dup
     cover 2
     loads
     swap
+    itob
     concat // on error: max array length exceeded
     stores
-    intc_2 // 1
+    intc_0 // 1
     +
     bury 7
-    b main_for_header@27
+    b main_for_header@28
 
-main_after_for@29:
+main_after_for@30:
     dig 1
     dup
     loads
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     pushint 32 // 32
     ==
     assert // expected array of length 32
-    intc_2 // 1
+    intc_0 // 1
     -
     dig 1
-    intc_1 // 0
+    intc_2 // 0
     uncover 2
     callsub quicksort_window
-    intc_1 // 0
+    intc_2 // 0
     bury 6
     loads
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     bury 11
-    intc_1 // 0
+    intc_2 // 0
     bury 6
 
-main_for_header@30:
+main_for_header@31:
     dig 5
     dig 11
     <
-    bz main_after_for@54
+    bz main_after_for@55
     dig 1
     loads
     dig 6
     dup
     cover 2
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     dup
     dig 7
     >=
     assert // array is not sorted
     swap
-    intc_2 // 1
+    intc_0 // 1
     +
     bury 7
     bury 5
-    b main_for_header@30
+    b main_for_header@31
 
-main_after_for@54:
-    intc_2 // 1
+main_after_for@55:
+    intc_0 // 1
     return
 
-main_test_iteration_route@11:
+main_test_iteration_route@12:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     bytec_0 // 0x
-    bury 18
-    intc_1 // 0
+    bury 17
+    intc_2 // 0
     bury 1
 
-main_for_header@35:
+main_for_header@36:
     dup
     intc_3 // 5
     <
-    bz main_after_for@37
-    dupn 2
+    bz main_after_for@38
+    dig 16
+    dig 1
+    dup
+    cover 2
     itob
-    dig 19
-    swap
     concat // on error: max array length exceeded
-    bury 19
-    intc_2 // 1
+    bury 18
+    intc_0 // 1
     +
     bury 1
-    b main_for_header@35
+    b main_for_header@36
 
-main_after_for@37:
-    dig 17
+main_after_for@38:
+    dig 16
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
-    bury 14
+    bury 13
     intc_3 // 5
     ==
     assert // expected array of length 5
-    intc_1 // 0
+    intc_2 // 0
     bury 5
-    intc_1 // 0
+    intc_2 // 0
     bury 7
 
-main_for_header@38:
+main_for_header@39:
     dig 6
-    dig 13
+    dig 12
     <
-    bz main_after_for@40
-    dig 17
+    bz main_after_for@41
+    dig 16
     dig 7
     dup
     cover 2
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     dup
     dig 7
     >=
     assert // array is not sorted
     swap
-    intc_2 // 1
+    intc_0 // 1
     +
     bury 8
     bury 5
-    b main_for_header@38
+    b main_for_header@39
 
-main_after_for@40:
-    dig 17
+main_after_for@41:
+    dig 16
     len
-    intc_0 // 8
+    intc_1 // 8
     /
-    bury 12
-    intc_1 // 0
+    bury 11
+    intc_2 // 0
     bury 8
 
-main_for_header@41:
+main_for_header@42:
     dig 7
-    dig 12
+    dig 11
     <
-    bz main_after_for@43
-    dig 17
+    bz main_after_for@44
+    dig 16
     dig 8
     dup
     cover 2
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     dig 1
     ==
     assert // incorrect array value
-    intc_2 // 1
+    intc_0 // 1
     +
     bury 8
-    b main_for_header@41
+    b main_for_header@42
 
-main_after_for@43:
-    dig 17
+main_after_for@44:
+    dig 16
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     bury 3
 
-main_for_header@44:
+main_for_header@45:
     dig 2
-    bz main_after_for@46
+    bz main_after_for@47
     dig 2
-    intc_2 // 1
+    intc_0 // 1
     -
     dup
     bury 4
-    dig 18
+    dig 17
     swap
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     dup
     dig 6
     <=
     assert // array is not sorted
     bury 5
-    b main_for_header@44
+    b main_for_header@45
 
-main_after_for@46:
+main_after_for@47:
     pushbytes 0x0000
-    bury 21
+    bury 20
     bytec_0 // 0x
-    bury 17
-    intc_1 // 0
+    bury 16
+    intc_2 // 0
     bury 9
 
-main_for_header@47:
+main_for_header@48:
     dig 8
     intc_3 // 5
     <
-    bz main_after_for@49
-    dig 20
-    extract 2 0
-    dig 9
+    bz main_after_for@50
+    dig 8
+    dup
+    itob
+    dig 21
     dup
     cover 2
-    itob
-    swap
     dig 1
-    concat
-    dup
-    len
-    intc_0 // 8
-    /
+    concat // on error: max array length exceeded
+    uncover 2
+    intc_2 // 0
+    extract_uint16
+    intc_0 // 1
+    +
     itob
     extract 6 2
-    swap
-    concat
-    bury 23
-    dig 18
+    replace2 0
+    bury 22
+    dig 17
     swap
     concat // on error: max array length exceeded
-    bury 18
-    intc_2 // 1
+    bury 17
+    intc_0 // 1
     +
     bury 9
-    b main_for_header@47
+    b main_for_header@48
 
-main_after_for@49:
-    dig 20
-    extract 2 0
-    dig 17
-    concat
+main_after_for@50:
+    dig 19
+    dig 16
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     dup
-    intc_1 // 0
+    intc_2 // 0
     extract_uint16
     pushint 10 // 10
     ==
     assert
     dup
     extract 2 8
-    bytec_1 // 0x0000000000000000
+    bytec_2 // 0x0000000000000000
     b==
     assert
     dup
     extract 34 8
-    bytec_2 // 0x0000000000000004
+    bytec_3 // 0x0000000000000004
     b==
     assert
     dup
     extract 42 8
-    bytec_1 // 0x0000000000000000
+    bytec_2 // 0x0000000000000000
     b==
     assert
     extract 74 8
-    bytec_2 // 0x0000000000000004
+    bytec_3 // 0x0000000000000004
     b==
     assert
-    intc_2 // 1
+    intc_0 // 1
     return
 
-main_test_allocations_route@10:
+main_test_allocations_route@11:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -387,25 +372,66 @@ main_test_allocations_route@10:
     txna ApplicationArgs 1
     btoi
     bury 4
-    intc_1 // 0
-    bury 15
+    intc_2 // 0
+    bury 14
 
-main_for_header@52:
-    dig 14
+main_for_header@53:
+    dig 13
     dig 4
     <
-    bz main_after_for@54
+    bz main_after_for@55
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
     stores
-    intc_2 // 1
+    intc_0 // 1
     callsub add_x
-    dig 14
-    intc_2 // 1
+    dig 13
+    intc_0 // 1
     +
-    bury 15
-    b main_for_header@52
+    bury 14
+    b main_for_header@53
+
+main_test_array_assignment_maximum_cursage_route@10:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub _puya_lib.mem.new_slot
+    dup
+    bytec_1 // 0x0000000000000003
+    stores
+    dup
+    callsub append_length_and_return
+    pushint 42 // 42
+    itob
+    dig 1
+    loads
+    swap
+    replace2 0
+    stores
+    loads
+    dup
+    len
+    intc_1 // 8
+    /
+    pushint 2 // 2
+    ==
+    assert
+    dup
+    intc_2 // 0
+    extract_uint64
+    pushint 42 // 42
+    ==
+    assert
+    intc_1 // 8
+    extract_uint64
+    intc_0 // 1
+    ==
+    assert
+    intc_0 // 1
+    return
 
 main_test_array_evaluation_order_route@9:
     txn OnCompletion
@@ -414,10 +440,8 @@ main_test_array_evaluation_order_route@9:
     txn ApplicationID
     assert // can only call when not creating
     callsub _puya_lib.mem.new_slot
-    pushint 3 // 3
-    itob
-    dig 1
-    swap
+    dup
+    bytec_1 // 0x0000000000000003
     stores
     dup
     callsub append_length_and_return
@@ -433,48 +457,42 @@ main_test_array_evaluation_order_route@9:
     loads
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     pushint 6 // 6
     ==
     assert
     dup
-    extract 0 8
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     pushint 3 // 3
     ==
     assert
     dup
-    extract 8 8
-    intc_1 // 0
+    intc_1 // 8
     extract_uint64
-    intc_2 // 1
+    intc_0 // 1
     ==
     assert
     dup
-    extract 16 8
-    intc_1 // 0
+    pushint 16 // 16
     extract_uint64
     pushint 2 // 2
     ==
     assert
     dup
-    extract 24 8
-    intc_1 // 0
+    pushint 24 // 24
     extract_uint64
     pushint 3 // 3
     ==
     assert
     dup
-    extract 32 8
-    intc_1 // 0
+    pushint 32 // 32
     extract_uint64
-    intc_2 // 1
+    intc_0 // 1
     ==
     assert
-    extract 40 8
-    intc_1 // 0
+    pushint 40 // 40
     extract_uint64
     pushint 2 // 2
     ==
@@ -484,61 +502,54 @@ main_test_array_evaluation_order_route@9:
     loads
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
-    extract_uint64
+    intc_1 // 8
+    extract3 // on error: index access is out of bounds
     dig 1
     callsub append_length_and_return
     loads
-    extract 0 8
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     dig 2
     loads
     swap
-    intc_0 // 8
+    intc_1 // 8
     *
     uncover 2
-    itob
     replace3
     swap
     dig 1
     stores
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
-    intc_0 // 8
+    intc_1 // 8
     ==
     assert
     dup
-    extract 48 8
-    intc_1 // 0
+    pushint 48 // 48
     extract_uint64
     pushint 6 // 6
     ==
     assert
     dup
-    extract 56 8
-    intc_1 // 0
+    pushint 56 // 56
     extract_uint64
     pushint 7 // 7
     ==
     assert
-    extract 24 8
-    intc_1 // 0
+    pushint 24 // 24
     extract_uint64
     pushint 6 // 6
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     return
 
 main_test_array_copy_and_extend_route@8:
@@ -548,50 +559,46 @@ main_test_array_copy_and_extend_route@8:
     txn ApplicationID
     assert // can only call when not creating
     bytec_0 // 0x
-    bury 19
-    intc_1 // 0
+    bury 18
+    intc_2 // 0
     bury 9
 
-main_for_header@59:
+main_for_header@62:
     dig 8
     intc_3 // 5
     <
-    bz main_after_for@61
-    dig 8
+    bz main_after_for@64
+    dig 17
+    dig 9
     dup
+    cover 2
     itob
-    dig 20
-    swap
     concat // on error: max array length exceeded
-    bury 20
-    intc_2 // 1
+    bury 19
+    intc_0 // 1
     +
     bury 9
-    b main_for_header@59
+    b main_for_header@62
 
-main_after_for@61:
-    dig 18
+main_after_for@64:
+    dig 17
     dup
-    intc_3 // 5
-    itob
+    pushbytes 0x0000000000000005
     concat // on error: max array length exceeded
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     pushint 6 // 6
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
     dig 1
     swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     intc_3 // 5
     ==
@@ -599,21 +606,18 @@ main_after_for@61:
     dig 1
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     intc_3 // 5
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
     dig 1
     swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     pushint 4 // 4
     ==
@@ -621,7 +625,7 @@ main_after_for@61:
     concat // on error: max array length exceeded
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     pushint 11 // 11
@@ -629,44 +633,38 @@ main_after_for@61:
     assert
     uncover 2
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     intc_3 // 5
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
     dig 1
     swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     pushint 4 // 4
     ==
     assert // expected 4
     dup
-    extract 32 8
-    intc_1 // 0
+    pushint 32 // 32
     extract_uint64
     pushint 4 // 4
     ==
     assert // expected 4
     dup
-    extract 40 8
-    intc_1 // 0
+    pushint 40 // 40
     extract_uint64
     intc_3 // 5
     ==
     assert // expected 4
-    extract 48 8
-    intc_1 // 0
+    pushint 48 // 48
     extract_uint64
     !
     assert // expected 4
-    intc_2 // 1
+    intc_0 // 1
     return
 
 main_test_array_too_long_route@7:
@@ -676,41 +674,40 @@ main_test_array_too_long_route@7:
     txn ApplicationID
     assert // can only call when not creating
     bytec_0 // 0x
-    bury 20
-    intc_1 // 0
+    bury 19
+    intc_2 // 0
     bury 9
 
-main_for_header@64:
+main_for_header@67:
     dig 8
-    intc 4 // 512
+    pushint 512 // 512
     <
-    bz main_after_for@66
-    dig 8
+    bz main_after_for@69
+    dig 18
+    dig 9
     dup
+    cover 2
     itob
-    dig 21
-    swap
     concat // on error: max array length exceeded
-    bury 21
-    intc_2 // 1
+    bury 20
+    intc_0 // 1
     +
     bury 9
-    b main_for_header@64
+    b main_for_header@67
 
-main_after_for@66:
-    dig 19
+main_after_for@69:
+    dig 18
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
-    intc 4 // 512
+    pushint 512 // 512
     ==
     assert // array is expected length
-    intc 4 // 512
-    itob
+    pushbytes 0x0000000000000200
     concat // on error: max array length exceeded
     pop
-    intc_2 // 1
+    intc_0 // 1
     return
 
 main_overhead_route@6:
@@ -719,7 +716,7 @@ main_overhead_route@6:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    intc_2 // 1
+    intc_0 // 1
     return
 
 main_test_array_multiple_append_route@5:
@@ -733,30 +730,26 @@ main_test_array_multiple_append_route@5:
     bytec_0 // 0x
     stores
     dup
-    intc_2 // 1
+    intc_0 // 1
     callsub add_x
-    intc_2 // 1
-    itob
-    dig 1
+    dup
     loads
-    swap
+    pushbytes 0x0000000000000001
     concat // on error: max array length exceeded
-    pushint 2 // 2
-    itob
+    pushbytes 0x0000000000000002
     concat // on error: max array length exceeded
-    pushint 3 // 3
-    itob
+    bytec_1 // 0x0000000000000003
     concat // on error: max array length exceeded
     swap
     dig 1
     stores
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     pushint 4 // 4
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     return
 
 main_test_array_extend_route@4:
@@ -770,24 +763,24 @@ main_test_array_extend_route@4:
     bytec_0 // 0x
     stores
     dup
-    intc_2 // 1
+    intc_0 // 1
     callsub add_x
-    bytec_3 // 0x000000000000000100000000000000020000000000000003
+    bytec 4 // 0x000000000000000100000000000000020000000000000003
     pop
     dup
     loads
-    bytec_3 // 0x000000000000000100000000000000020000000000000003
+    bytec 4 // 0x000000000000000100000000000000020000000000000003
     concat // on error: max array length exceeded
     swap
     dig 1
     stores
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     pushint 4 // 4
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     return
 
 main_test_array_route@3:
@@ -798,11 +791,9 @@ main_test_array_route@3:
     assert // can only call when not creating
     callsub _puya_lib.mem.new_slot
     dup
-    bury 15
-    pushint 42 // 42
-    itob
-    dig 1
-    swap
+    bury 14
+    dup
+    pushbytes 0x000000000000002a
     stores
     dup
     intc_3 // 5
@@ -810,56 +801,48 @@ main_test_array_route@3:
     loads
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     pushint 6 // 6
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     pushint 4 // 4
     ==
     assert
     pushint 4 // 4
     bury 10
-    intc_1 // 0
-    bury 15
+    intc_2 // 0
+    bury 14
 
-main_for_header@75:
-    dig 14
+main_for_header@78:
+    dig 13
     pushint 3 // 3
     <
-    bz main_after_for@77
-    dig 13
+    bz main_after_for@80
+    dig 12
     dup
     loads
     dup
     len
-    intc_0 // 8
-    -
     dup
-    intc_0 // 8
-    /
+    intc_1 // 8
+    -
     dig 2
-    intc_1 // 0
+    dig 1
+    uncover 3
+    substring3
+    uncover 2
+    intc_2 // 0
     uncover 3
     extract3
     swap
-    intc_0 // 8
-    *
-    uncover 2
-    swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
-    extract_uint64
+    btoi
     cover 2
     stores
     dig 10
@@ -867,68 +850,60 @@ main_for_header@75:
     cover 2
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
     bury 10
-    dig 14
-    intc_2 // 1
-    +
-    bury 15
-    b main_for_header@75
-
-main_after_for@77:
     dig 13
+    intc_0 // 1
+    +
+    bury 14
+    b main_for_header@78
+
+main_after_for@80:
+    dig 12
     dup
     loads
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     pushint 3 // 3
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
     dig 1
     swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
-    intc_2 // 1
+    intc_0 // 1
     ==
     assert
-    pushint 43 // 43
-    itob
+    pushbytes 0x000000000000002b
     concat // on error: max array length exceeded
     dup2
     stores
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     pushint 4 // 4
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
     dig 1
     swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     pushint 43 // 43
     ==
     assert
-    extract 0 8
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     pushint 42 // 42
     ==
@@ -940,58 +915,48 @@ main_after_for@77:
     loads
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     pushint 14 // 14
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
     dig 1
     swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     pushint 9 // 9
     ==
     assert
-    pushint 44 // 44
-    itob
+    pushbytes 0x000000000000002c
     concat // on error: max array length exceeded
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     pushint 15 // 15
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
     dig 1
     swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     pushint 44 // 44
     ==
     assert
-    pushint 99 // 99
-    itob
+    pushbytes 0x0000000000000063
     concat // on error: max array length exceeded
-    pushint 100 // 100
-    itob
+    pushbytes 0x0000000000000064
     concat // on error: max array length exceeded
     dup
-    extract 0 8
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     pushint 2 // 2
     +
@@ -1002,15 +967,14 @@ main_after_for@77:
     stores
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     dup
     pushint 17 // 17
     ==
     assert
     dig 1
-    extract 0 8
-    intc_1 // 0
+    intc_2 // 0
     extract_uint64
     pushint 44 // 44
     ==
@@ -1018,38 +982,32 @@ main_after_for@77:
     dup
     pushint 2 // 2
     -
-    intc_0 // 8
+    intc_1 // 8
     *
     dig 2
     swap
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     pushint 99 // 99
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     pushint 100 // 100
     ==
     assert
-    intc_2 // 1
+    intc_0 // 1
     return
 
-main_bare_routing@16:
+main_bare_routing@17:
     txn OnCompletion
-    bnz main_after_if_else@20
+    bnz main_after_if_else@21
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_2 // 1
+    intc_0 // 1
     return
 
 
@@ -1066,11 +1024,8 @@ quicksort_window:
     frame_dig -3
     loads
     swap
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     frame_dig -1
     frame_dig -2
@@ -1079,19 +1034,16 @@ quicksort_window_while_top@3:
     frame_dig -3
     loads
     frame_dig 5
-    intc_0 // 8
+    intc_1 // 8
     *
     dup
     frame_bury 0
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     frame_dig 3
     <
     bz quicksort_window_while_top@6
     frame_dig 5
-    intc_2 // 1
+    intc_0 // 1
     +
     frame_bury 5
     b quicksort_window_while_top@3
@@ -1100,13 +1052,10 @@ quicksort_window_while_top@6:
     frame_dig -3
     loads
     frame_dig 4
-    intc_0 // 8
+    intc_1 // 8
     *
     dup
     frame_bury 1
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     frame_dig 3
     >
@@ -1114,7 +1063,7 @@ quicksort_window_while_top@6:
     frame_dig 4
     bz quicksort_window_after_while@22
     frame_dig 4
-    intc_2 // 1
+    intc_0 // 1
     -
     frame_bury 4
     b quicksort_window_while_top@6
@@ -1153,40 +1102,29 @@ quicksort_window_after_while@10:
     frame_dig 1
     dup
     cover 3
-    intc_0 // 8
-    extract3
-    intc_1 // 0
-    extract_uint64
+    intc_1 // 8
+    extract3 // on error: index access is out of bounds
     dig 1
     frame_dig 0
     dup
-    cover 4
-    intc_0 // 8
-    extract3
-    intc_1 // 0
-    extract_uint64
-    swap
-    itob
-    uncover 2
-    uncover 3
-    uncover 2
+    cover 3
+    intc_1 // 8
+    extract3 // on error: index access is out of bounds
+    cover 3
     replace3
-    swap
-    itob
-    swap
     cover 2
     replace3
     frame_dig -3
     swap
     stores
     frame_dig 5
-    intc_2 // 1
+    intc_0 // 1
     +
     frame_bury 5
     frame_dig 4
     bz quicksort_window_after_while@22
     frame_dig 4
-    intc_2 // 1
+    intc_0 // 1
     -
     dup
     frame_bury 4
@@ -1201,7 +1139,7 @@ quicksort_window_after_if_else@16:
     ==
     bz quicksort_window_after_while@22
     frame_dig 5
-    intc_2 // 1
+    intc_0 // 1
     +
     frame_bury 5
     frame_dig 4
@@ -1209,7 +1147,7 @@ quicksort_window_after_if_else@16:
     frame_bury 2
     bz quicksort_window_after_if_else@19
     frame_dig 4
-    intc_2 // 1
+    intc_0 // 1
     -
     frame_bury 2
 
@@ -1226,24 +1164,23 @@ create_array:
     dup
     bytec_0 // 0x
     stores
-    intc_1 // 0
+    intc_2 // 0
 
 create_array_for_header@1:
     frame_dig 1
     intc_3 // 5
     <
     bz create_array_after_for@4
-    frame_dig 1
-    dup
-    itob
     frame_dig 0
     dup
-    cover 2
     loads
-    swap
+    frame_dig 1
+    dup
+    cover 3
+    itob
     concat // on error: max array length exceeded
     stores
-    intc_2 // 1
+    intc_0 // 1
     +
     frame_bury 1
     b create_array_for_header@1
@@ -1259,15 +1196,12 @@ assert_last_is_zero:
     loads
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
-    intc_2 // 1
+    intc_0 // 1
     -
-    intc_0 // 8
+    intc_1 // 8
     *
-    intc_0 // 8
-    extract3
-    intc_1 // 0
     extract_uint64
     !
     assert
@@ -1277,24 +1211,24 @@ assert_last_is_zero:
 // test_cases.array.uint64.add_x(arr: uint64, x: uint64) -> void:
 add_x:
     proto 2 0
-    intc_1 // 0
+    intc_2 // 0
 
 add_x_for_header@1:
     frame_dig 0
     frame_dig -1
     <
     bz add_x_after_for@4
-    frame_dig 0
-    dup
-    itob
     frame_dig -2
     loads
-    swap
+    frame_dig 0
+    dup
+    cover 2
+    itob
     concat // on error: max array length exceeded
     frame_dig -2
     swap
     stores
-    intc_2 // 1
+    intc_0 // 1
     +
     frame_bury 0
     b add_x_for_header@1
@@ -1310,7 +1244,7 @@ append_length_and_return:
     loads
     dup
     len
-    intc_0 // 8
+    intc_1 // 8
     /
     itob
     concat // on error: max array length exceeded
@@ -1329,7 +1263,7 @@ _puya_lib.mem.new_slot:
     pushint 256 // 256
     dig 2
     -
-    intc_1 // 0
+    intc_2 // 0
     setbit // on error: no available slots
     store 0
     retsub

@@ -1,0 +1,814 @@
+contract Contract
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['nested']: test_cases.mutable_native_types.contract.NestedStruct
+    [hex<"70">]: test_cases.mutable_native_types.contract.NestedStruct
+    ['dyn']: test_cases.mutable_native_types.contract.DynamicStruct
+    ['num_payments']: uint64
+    ['payments']: arc4.static_array<test_cases.mutable_native_types.contract.Payment, 8>
+  }
+  locals {
+    [hex<"6C">]: test_cases.mutable_native_types.contract.NestedStruct
+  }
+  boxes {
+    ['box']: test_cases.mutable_native_types.contract.LargeFixedStruct
+    ['box_map']: uint64 => test_cases.mutable_native_types.contract.LargeFixedStruct
+  }
+  
+  subroutine test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.contract.Contract.__init__(): void
+  {
+    GlobalState['nested']: test_cases.mutable_native_types.contract.NestedStruct = new test_cases.mutable_native_types.contract.NestedStruct(fixed_a=new test_cases.mutable_native_types.contract.FixedStruct(a=txn<NumAppArgs>(), b=txn<NumAppArgs>()), fixed_b=new test_cases.mutable_native_types.contract.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 1u), tup=(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 1u))
+    GlobalState['dyn']: test_cases.mutable_native_types.contract.DynamicStruct = new test_cases.mutable_native_types.contract.DynamicStruct(a=txn<NumAppArgs>(), b=txn<NumAppArgs>(), c=hex<"">, d='', e=new arc4.dynamic_array<arc4.uint8>())
+    GlobalState['num_payments']: uint64 = 0u
+    GlobalState['payments']: arc4.static_array<test_cases.mutable_native_types.contract.Payment, 8> = bzero(size_of(arc4.static_array<test_cases.mutable_native_types.contract.Payment, 8>))
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.fixed_initialize(): void
+  {
+    arr_3: arc4.static_array<uint64, 3> = bzero(size_of(arc4.static_array<uint64, 3>))
+    arr_3[0u]: uint64 = 0u
+    arr_3[1u]: uint64 = 1u
+    arr_3[2u]: uint64 = 2u
+    arr_3_from_tuple: arc4.static_array<uint64, 3> = new arc4.static_array<uint64, 3>(0u, 1u, 2u)
+    assert(arr_3 == arr_3_from_tuple, comment="should be the same")
+    arr_3_from_full: arc4.static_array<uint64, 3> = new arc4.static_array<uint64, 3>(1u.copy(), 1u.copy(), 1u.copy())
+    assert(arr_3_from_full[0u] == 1u)
+    assert(arr_3_from_full[1u] == 1u)
+    assert(arr_3_from_full[2u] == 1u)
+    arr_3_from_fixed: arc4.static_array<uint64, 3> = arr_3.copy()
+    assert(arr_3 == arr_3_from_fixed, comment="should be the same")
+    dynamic_arr: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>(0u, 1u, 2u)
+    assert(arr_3 == convert_array<arc4.static_array<uint64, 3>>(dynamic_arr))
+    assert(arr_3 == new arc4.static_array<uint64, 3>(SINGLE_EVAL(id=0, source=arc4_encode((0u, 1u, 2u), arc4.tuple<uint64,uint64,uint64>))[0], SINGLE_EVAL(id=0)[1], SINGLE_EVAL(id=0)[2]))
+    static_array: arc4.static_array<arc4.uint64, 3> = new arc4.static_array<arc4.uint64, 3>(0_arc4u64, 1_arc4u64, 2_arc4u64)
+    assert(convert_array<arc4.static_array<uint64, 3>>(static_array) == arr_3)
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.add_payment(pay: test_cases.mutable_native_types.contract.Payment): void
+  {
+    assert(GlobalState['num_payments'] < 8u, comment="too many payments")
+    GlobalState['payments'][GlobalState['num_payments']]: test_cases.mutable_native_types.contract.Payment = pay.copy()
+    GlobalState['num_payments'] += 1u
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.increment_payment(index: uint64, amt: uint64): void
+  {
+    assert(index < GlobalState['num_payments'], comment="invalid payment index")
+    GlobalState['payments'][index].amt += amt
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.create_storage(box_key: uint64): void
+  {
+    GlobalState[hex<"70">]: test_cases.mutable_native_types.contract.NestedStruct = GlobalState['nested'].copy()
+    LocalState[hex<"6C">, txn<Sender>()]: test_cases.mutable_native_types.contract.NestedStruct = GlobalState['nested'].copy()
+    assert(box_create('box', size_of(test_cases.mutable_native_types.contract.LargeFixedStruct)), comment="expected box to not exist")
+    Box[BoxMapKey(prefix='box_map', key=box_key)].fixed_a: test_cases.mutable_native_types.contract.FixedStruct = GlobalState['nested'].fixed_a.copy()
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.local_struct(): test_cases.mutable_native_types.contract.Payment
+  {
+    a: test_cases.mutable_native_types.contract.Payment = new test_cases.mutable_native_types.contract.Payment(receiver=txn<Sender>(), asset=reinterpret_cast<asset>(1234u), amt=567u)
+    (foo, bar, baz): tuple<account,asset,uint64> = (a.receiver, a.asset, a.amt)
+    assert(foo != global<ZeroAddress>(), comment="use foo")
+    assert(reinterpret_cast<bool>(bar), comment="use bar")
+    assert(baz != 0u, comment="use baz")
+    test_cases.mutable_native_types.contract.do_something(a)
+    return a
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.delete_storage(box_key: uint64): void
+  {
+    STATE_DELETE(GlobalState[hex<"70">])
+    STATE_DELETE(LocalState[hex<"6C">, txn<Sender>()])
+    STATE_DELETE(Box['box'])
+    STATE_DELETE(Box[BoxMapKey(prefix='box_map', key=box_key)])
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.struct_arg(box_key: uint64, a: test_cases.mutable_native_types.contract.FixedStruct): void
+  {
+    GlobalState['nested'].fixed_a: test_cases.mutable_native_types.contract.FixedStruct = a
+    GlobalState[hex<"70">].fixed_a: test_cases.mutable_native_types.contract.FixedStruct = a
+    LocalState[hex<"6C">, txn<Sender>()].fixed_a: test_cases.mutable_native_types.contract.FixedStruct = a
+    Box['box'].fixed_a: test_cases.mutable_native_types.contract.FixedStruct = a
+    Box[BoxMapKey(prefix='box_map', key=box_key)].fixed_a: test_cases.mutable_native_types.contract.FixedStruct = a
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.struct_return(): test_cases.mutable_native_types.contract.FixedStruct
+  {
+    return GlobalState['nested'].fixed_a
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.tup_return(): test_cases.mutable_native_types.contract.NamedTup
+  {
+    return GlobalState['nested'].tup
+  }
+  
+  abimethod test_cases.mutable_native_types.contract.Contract.calculate_sum(): uint64
+  {
+    fixed_a: test_cases.mutable_native_types.contract.FixedStruct = GlobalState['nested'].fixed_a
+    fixed_b: test_cases.mutable_native_types.contract.FixedStruct = GlobalState['nested'].fixed_b
+    result: uint64 = test_cases.mutable_native_types.contract.add(fixed_a) + test_cases.mutable_native_types.contract.add(fixed_b)
+    if (result < 100u) {
+      (c, d): tuple<uint64,uint64> = GlobalState['nested'].tup
+      result += c
+      result += d
+    }
+    return result
+  }
+  
+  baremethod test_cases.mutable_native_types.contract.Contract.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+subroutine add(val: test_cases.mutable_native_types.contract.FixedStruct): uint64
+{
+  return val.a + val.b
+}
+
+subroutine do_something(pay: test_cases.mutable_native_types.contract.Payment): void
+{
+}
+
+subroutine tuple_conversion(): void
+{
+  arr3: arc4.static_array<uint64, 3> = new arc4.static_array<uint64, 3>(1u, 2u, 3u)
+  tup3: tuple<uint64,uint64,uint64> = (arr3[0u], arr3[1u], arr3[2u])
+  assert(tup3[0] + tup3[1] + tup3[2] == 6u)
+}
+
+subroutine argument_subtype(): void
+{
+  arr3: arc4.static_array<uint64, 3> = new arc4.static_array<uint64, 3>(NoOp, 2u, pay)
+  assert(arr3[1u] == 2u)
+}
+
+contract Case3WithStruct
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['tup_bag']: test_cases.mutable_native_types.case3_with_mutable_struct.TupBag
+  }
+  
+  subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.create_box(): void
+  {
+    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case3_with_mutable_struct.TupBag)), comment="box already exists")
+    Box['tup_bag'].owner: account = txn<Sender>()
+    Box['tup_bag'].app: application = global<CurrentApplicationID>()
+    Box['tup_bag'].bootstrapped: bool = true
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.num_tups(): uint64
+  {
+    return Box['tup_bag'].count
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(tup: test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup): void
+  {
+    this::_check_owner()
+    assert(Box['tup_bag'].count < 8u, comment="too many tups")
+    Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup = tup.copy()
+    Box['tup_bag'].count += 1u
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_tup(index: uint64): test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup
+  {
+    assert(index < Box['tup_bag'].count, comment="index out of bounds")
+    return Box['tup_bag'].items[index]
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.sum(): uint64
+  {
+    total: uint64 = 0u
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup = Box['tup_bag'].items[i].copy()
+      total += tup.a
+      total += tup.b
+    }
+    return total
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_many_tups(tups: arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup>): void
+  {
+    for i in range(0u, tups.length, 1u) {
+      this::add_tup(tups[i].copy())
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_fixed_tups(tups: arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>): void
+  {
+    for i in range(0u, 3u, 1u) {
+      this::add_tup(tups[i].copy())
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_a(a: uint64): void
+  {
+    this::_check_owner()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      Box['tup_bag'].items[i].a: uint64 = a
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b(b: uint64): void
+  {
+    this::_check_owner()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      Box['tup_bag'].items[i].b: uint64 = b
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_3_tups(start: uint64): arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>
+  {
+    assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
+    items: arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
+    return new arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 3>(items[start].copy(), items[start + 1u].copy(), items[start + 2u].copy())
+  }
+  
+  abimethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_all_tups(): arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup>
+  {
+    result: arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup> = new arc4.dynamic_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup>()
+    items: arc4.static_array<test_cases.mutable_native_types.case3_with_mutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      result.extend((items[i].copy()))
+    }
+    return result
+  }
+  
+  subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner(): void
+  {
+    assert(Box['tup_bag'].bootstrapped, comment="app not bootstrapped")
+    assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
+    assert(Box['tup_bag'].app == global<CurrentApplicationID>(), comment="this error should be impossible")
+  }
+  
+  baremethod test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract Case2WithImmStruct
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['tup_bag']: test_cases.mutable_native_types.case2_with_immutable_struct.TupBag
+  }
+  
+  subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box(): void
+  {
+    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case2_with_immutable_struct.TupBag)), comment="box already exists")
+    Box['tup_bag'].owner: account = txn<Sender>()
+    Box['tup_bag'].app: application = global<CurrentApplicationID>()
+    Box['tup_bag'].bootstrapped: bool = true
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups(): uint64
+  {
+    return Box['tup_bag'].count
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_tup(tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup): void
+  {
+    this::_check_owner()
+    assert(Box['tup_bag'].count < 8u, comment="too many tups")
+    Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = tup
+    Box['tup_bag'].count += 1u
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_tup(index: uint64): test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup
+  {
+    assert(index < Box['tup_bag'].count, comment="index out of bounds")
+    return Box['tup_bag'].items[index]
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.sum(): uint64
+  {
+    total: uint64 = 0u
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
+      total += tup.a
+      total += tup.b
+    }
+    return total
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups(tups: arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup>): void
+  {
+    for tup in tups {
+      this::add_tup(tup)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups(tups: arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>): void
+  {
+    for tup in tups {
+      this::add_tup(tup)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_a(a: uint64): void
+  {
+    this::_check_owner()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
+      Box['tup_bag'].items[i]: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = new test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup(a=a, b=tup.b)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b(b: uint64): void
+  {
+    this::_check_owner()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = Box['tup_bag'].items[i]
+      Box['tup_bag'].items[i]: test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup = new test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup(a=tup.a, b=b)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_3_tups(start: uint64): arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>
+  {
+    assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
+    items: arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
+    return new arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 3>(items[start], items[start + 1u], items[start + 2u])
+  }
+  
+  abimethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups(): arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup>
+  {
+    result: arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup> = new arc4.dynamic_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup>()
+    items: arc4.static_array<test_cases.mutable_native_types.case2_with_immutable_struct.NamedTup, 8> = Box['tup_bag'].items.copy()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      result.extend((items[i]))
+    }
+    return result
+  }
+  
+  subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct._check_owner(): void
+  {
+    assert(Box['tup_bag'].bootstrapped, comment="app not bootstrapped")
+    assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
+    assert(Box['tup_bag'].app == global<CurrentApplicationID>(), comment="this error should be impossible")
+  }
+  
+  baremethod test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract Case1WithTups
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  boxes {
+    ['tup_bag']: test_cases.mutable_native_types.case1_with_tups.TupBag
+  }
+  
+  subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box(): void
+  {
+    assert(box_create('tup_bag', size_of(test_cases.mutable_native_types.case1_with_tups.TupBag)), comment="box already exists")
+    Box['tup_bag'].owner: account = txn<Sender>()
+    Box['tup_bag'].app: application = global<CurrentApplicationID>()
+    Box['tup_bag'].bootstrapped: bool = true
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups(): uint64
+  {
+    return Box['tup_bag'].count
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(tup: test_cases.mutable_native_types.case1_with_tups.NamedTup): void
+  {
+    this::_check_owner()
+    assert(Box['tup_bag'].count < 8u, comment="too many tups")
+    Box['tup_bag'].items[Box['tup_bag'].count]: test_cases.mutable_native_types.case1_with_tups.NamedTup = tup
+    Box['tup_bag'].count += 1u
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup(index: uint64): test_cases.mutable_native_types.case1_with_tups.NamedTup
+  {
+    assert(index < Box['tup_bag'].count, comment="index out of bounds")
+    return Box['tup_bag'].items[index]
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum(): uint64
+  {
+    total: uint64 = 0u
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case1_with_tups.NamedTup = Box['tup_bag'].items[i]
+      total += tup.a
+      total += tup.b
+    }
+    return total
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups(tups: arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>): void
+  {
+    for tup in tups {
+      this::add_tup(tup)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_fixed_tups(tups: arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>): void
+  {
+    for tup in tups {
+      this::add_tup(tup)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a: uint64): void
+  {
+    this::_check_owner()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case1_with_tups.NamedTup = Box['tup_bag'].items[i]
+      Box['tup_bag'].items[i]: test_cases.mutable_native_types.case1_with_tups.NamedTup = (a=a, b=tup[1])
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b: uint64): void
+  {
+    this::_check_owner()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      tup: test_cases.mutable_native_types.case1_with_tups.NamedTup = Box['tup_bag'].items[i]
+      Box['tup_bag'].items[i]: test_cases.mutable_native_types.case1_with_tups.NamedTup = (a=tup[0], b=b)
+    }
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_tups(start: uint64): arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>
+  {
+    assert(Box['tup_bag'].count >= start + 3u, comment="not enough items")
+    items: arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 8> = Box['tup_bag'].items.copy()
+    return new arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 3>(items[start], items[start + 1u], items[start + 2u])
+  }
+  
+  abimethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups(): arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>
+  {
+    result: arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup> = new arc4.dynamic_array<test_cases.mutable_native_types.case1_with_tups.NamedTup>()
+    items: arc4.static_array<test_cases.mutable_native_types.case1_with_tups.NamedTup, 8> = Box['tup_bag'].items.copy()
+    for i in range(0u, Box['tup_bag'].count, 1u) {
+      result.extend((items[i]))
+    }
+    return result
+  }
+  
+  subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_owner(): void
+  {
+    assert(Box['tup_bag'].bootstrapped, comment="app not bootstrapped")
+    assert(Box['tup_bag'].owner == txn<Sender>(), comment="sender not authorized")
+    assert(Box['tup_bag'].app == global<CurrentApplicationID>(), comment="this error should be impossible")
+  }
+  
+  baremethod test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract CallMe
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['fixed_struct']: test_cases.mutable_native_types.abi_call.FixedStruct
+    ['nested_struct']: test_cases.mutable_native_types.abi_call.NestedStruct
+    ['dynamic_struct']: test_cases.mutable_native_types.abi_call.DynamicStruct
+    ['fixed_arr']: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
+    ['native_arr']: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
+  }
+  
+  subroutine test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.mutable_native_types.abi_call.CallMe.__init__(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.delete(): void
+  {
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg(arg: test_cases.mutable_native_types.abi_call.FixedStruct): void
+  {
+    GlobalState['fixed_struct']: test_cases.mutable_native_types.abi_call.FixedStruct = arg
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret(): test_cases.mutable_native_types.abi_call.FixedStruct
+  {
+    return GlobalState['fixed_struct']
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg(arg: test_cases.mutable_native_types.abi_call.NestedStruct): void
+  {
+    GlobalState['nested_struct']: test_cases.mutable_native_types.abi_call.NestedStruct = arg
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret(): test_cases.mutable_native_types.abi_call.NestedStruct
+  {
+    return GlobalState['nested_struct']
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg(arg: test_cases.mutable_native_types.abi_call.DynamicStruct): void
+  {
+    GlobalState['dynamic_struct']: test_cases.mutable_native_types.abi_call.DynamicStruct = arg.copy()
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret(): test_cases.mutable_native_types.abi_call.DynamicStruct
+  {
+    return GlobalState['dynamic_struct']
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg(arg: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>): void
+  {
+    GlobalState['fixed_arr']: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = arg.copy()
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret(): arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>
+  {
+    return GlobalState['fixed_arr']
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg(arg: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>): void
+  {
+    GlobalState['native_arr']: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct> = arg.copy()
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret(): arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>
+  {
+    return GlobalState['native_arr']
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.CallMe.log_it(): void
+  {
+    log(GlobalState['fixed_struct'])
+    log(GlobalState['nested_struct'])
+    log(GlobalState['dynamic_struct'])
+    log(reinterpret_cast<bytes>(GlobalState['fixed_arr']))
+    log(reinterpret_cast<bytes>(GlobalState['native_arr']))
+  }
+  
+  baremethod test_cases.mutable_native_types.abi_call.CallMe.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract TestAbiCall
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=2, source=SINGLE_EVAL(id=1, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=2)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=3, source=SINGLE_EVAL(id=1).clear_state_program)[0], SINGLE_EVAL(id=3)[1]), ExtraProgramPages=SINGLE_EVAL(id=1).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=1).global_bytes, GlobalNumUint=SINGLE_EVAL(id=1).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=1).local_bytes, LocalNumUint=SINGLE_EVAL(id=1).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_arg((uint64,uint64))void"), fixed_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.FixedStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=5, source=SINGLE_EVAL(id=4, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_ret()(uint64,uint64)")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=5)) == hex<"151F7C75">)), SINGLE_EVAL(id=4))
+    assert(res == fixed_struct, comment="should be the same")
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_arg((uint64,uint64))void"), fixed_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.FixedStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=7, source=SINGLE_EVAL(id=6, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_ret()(uint64,uint64)")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=7)) == hex<"151F7C75">)), SINGLE_EVAL(id=6))
+    assert(res == fixed_struct, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=9, source=SINGLE_EVAL(id=8, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=9)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=10, source=SINGLE_EVAL(id=8).clear_state_program)[0], SINGLE_EVAL(id=10)[1]), ExtraProgramPages=SINGLE_EVAL(id=8).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=8).global_bytes, GlobalNumUint=SINGLE_EVAL(id=8).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=8).local_bytes, LocalNumUint=SINGLE_EVAL(id=8).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    nested_struct: test_cases.mutable_native_types.abi_call.NestedStruct = new test_cases.mutable_native_types.abi_call.NestedStruct(fixed=new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u), c=txn<NumAppArgs>() + 3u)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_arg(((uint64,uint64),uint64))void"), nested_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.NestedStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=12, source=SINGLE_EVAL(id=11, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_ret()((uint64,uint64),uint64)")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=12)) == hex<"151F7C75">)), SINGLE_EVAL(id=11))
+    assert(res == nested_struct, comment="should be the same")
+    nested_struct: test_cases.mutable_native_types.abi_call.NestedStruct = new test_cases.mutable_native_types.abi_call.NestedStruct(fixed=new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u), c=txn<NumAppArgs>() + 4u)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_arg(((uint64,uint64),uint64))void"), nested_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.NestedStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=14, source=SINGLE_EVAL(id=13, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_ret()((uint64,uint64),uint64)")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=14)) == hex<"151F7C75">)), SINGLE_EVAL(id=13))
+    assert(res == nested_struct, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=16, source=SINGLE_EVAL(id=15, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=16)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=17, source=SINGLE_EVAL(id=15).clear_state_program)[0], SINGLE_EVAL(id=17)[1]), ExtraProgramPages=SINGLE_EVAL(id=15).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=15).global_bytes, GlobalNumUint=SINGLE_EVAL(id=15).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=15).local_bytes, LocalNumUint=SINGLE_EVAL(id=15).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
+    dynamic_struct: test_cases.mutable_native_types.abi_call.DynamicStruct = new test_cases.mutable_native_types.abi_call.DynamicStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u, c=itob(txn<NumAppArgs>() + 3u), d='Hello', e=new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>(fixed_struct))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void"), dynamic_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.DynamicStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=19, source=SINGLE_EVAL(id=18, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=19)) == hex<"151F7C75">)), SINGLE_EVAL(id=18))
+    assert(res == dynamic_struct, comment="should be the same")
+    dynamic_struct: test_cases.mutable_native_types.abi_call.DynamicStruct = new test_cases.mutable_native_types.abi_call.DynamicStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u, c=itob(txn<NumAppArgs>() + 4u), d='Hello', e=new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>(fixed_struct))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void"), dynamic_struct), ApplicationID=app))
+    (res, _txn): tuple<test_cases.mutable_native_types.abi_call.DynamicStruct,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=21, source=SINGLE_EVAL(id=20, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=21)) == hex<"151F7C75">)), SINGLE_EVAL(id=20))
+    assert(res == dynamic_struct, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=23, source=SINGLE_EVAL(id=22, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=23)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=24, source=SINGLE_EVAL(id=22).clear_state_program)[0], SINGLE_EVAL(id=24)[1]), ExtraProgramPages=SINGLE_EVAL(id=22).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=22).global_bytes, GlobalNumUint=SINGLE_EVAL(id=22).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=22).local_bytes, LocalNumUint=SINGLE_EVAL(id=22).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
+    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = new arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>(fixed_struct, fixed_struct, fixed_struct)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_arg((uint64,uint64)[3])void"), fixed_arr), ApplicationID=app))
+    (res, _txn): tuple<arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=26, source=SINGLE_EVAL(id=25, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_ret()(uint64,uint64)[3]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=26)) == hex<"151F7C75">)), SINGLE_EVAL(id=25))
+    assert(res == fixed_arr, comment="should be the same")
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u)
+    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = new arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>(fixed_struct, fixed_struct, fixed_struct)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_arg((uint64,uint64)[3])void"), fixed_arr), ApplicationID=app))
+    (res, _txn): tuple<arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=28, source=SINGLE_EVAL(id=27, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_ret()(uint64,uint64)[3]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=28)) == hex<"151F7C75">)), SINGLE_EVAL(id=27))
+    assert(res == fixed_arr, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=30, source=SINGLE_EVAL(id=29, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=30)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=31, source=SINGLE_EVAL(id=29).clear_state_program)[0], SINGLE_EVAL(id=31)[1]), ExtraProgramPages=SINGLE_EVAL(id=29).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=29).global_bytes, GlobalNumUint=SINGLE_EVAL(id=29).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=29).local_bytes, LocalNumUint=SINGLE_EVAL(id=29).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
+    native_arr: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct> = new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>(fixed_struct, fixed_struct, fixed_struct)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_arg((uint64,uint64)[])void"), native_arr), ApplicationID=app))
+    (res, _txn): tuple<arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=33, source=SINGLE_EVAL(id=32, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_ret()(uint64,uint64)[]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=33)) == hex<"151F7C75">)), SINGLE_EVAL(id=32))
+    assert(res == native_arr, comment="should be the same")
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = new test_cases.mutable_native_types.abi_call.FixedStruct(a=txn<NumAppArgs>() + 2u, b=txn<NumAppArgs>() + 3u)
+    native_arr: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct> = new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>(fixed_struct, fixed_struct, fixed_struct)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_arg((uint64,uint64)[])void"), native_arr), ApplicationID=app))
+    (res, _txn): tuple<arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>,inner_transaction_appl> = (checked_maybe((extract<4, 0>(SINGLE_EVAL(id=35, source=SINGLE_EVAL(id=34, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_ret()(uint64,uint64)[]")), ApplicationID=app))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=35)) == hex<"151F7C75">)), SINGLE_EVAL(id=34))
+    assert(res == native_arr, comment="should be the same")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  abimethod test_cases.mutable_native_types.abi_call.TestAbiCall.test_log(): void
+  {
+    create_txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=37, source=SINGLE_EVAL(id=36, source=compiled_contract(test_cases.mutable_native_types.abi_call.CallMe,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=37)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=38, source=SINGLE_EVAL(id=36).clear_state_program)[0], SINGLE_EVAL(id=38)[1]), ExtraProgramPages=SINGLE_EVAL(id=36).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=36).global_bytes, GlobalNumUint=SINGLE_EVAL(id=36).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=36).local_bytes, LocalNumUint=SINGLE_EVAL(id=36).local_uints))
+    app: application = create_txn.CreatedApplicationID
+    fixed_struct: test_cases.mutable_native_types.abi_call.FixedStruct = bzero(size_of(test_cases.mutable_native_types.abi_call.FixedStruct))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_struct_arg((uint64,uint64))void"), fixed_struct), ApplicationID=app))
+    nested_struct: test_cases.mutable_native_types.abi_call.NestedStruct = bzero(size_of(test_cases.mutable_native_types.abi_call.NestedStruct))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("nested_struct_arg(((uint64,uint64),uint64))void"), nested_struct), ApplicationID=app))
+    dynamic_struct: test_cases.mutable_native_types.abi_call.DynamicStruct = new test_cases.mutable_native_types.abi_call.DynamicStruct(a=0u, b=0u, c=hex<"">, d='', e=new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>())
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void"), dynamic_struct), ApplicationID=app))
+    fixed_arr: arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3> = bzero(size_of(arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("fixed_arr_arg((uint64,uint64)[3])void"), fixed_arr), ApplicationID=app))
+    native_arr: arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct> = new arc4.dynamic_array<test_cases.mutable_native_types.abi_call.FixedStruct>()
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("native_arr_arg((uint64,uint64)[])void"), native_arr), ApplicationID=app))
+    txn: inner_transaction_appl = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("log_it()void")), ApplicationID=app))
+    assert(txn.NumLogs == 5u, comment="expected 5 logs")
+    assert(txn.Logs[0u] == bzero(size_of(test_cases.mutable_native_types.abi_call.FixedStruct)), comment="expected fixed struct")
+    assert(txn.Logs[1u] == bzero(size_of(test_cases.mutable_native_types.abi_call.NestedStruct)), comment="expected nested struct")
+    dynamic_struct_len: uint64 = size_of(uint64) * 2u
+    dynamic_struct_len += 6u
+    dynamic_struct_len += 6u
+    assert(len(txn.Logs[2u]) == dynamic_struct_len, comment="expected dynamic struct")
+    assert(txn.Logs[3u] == bzero(size_of(arc4.static_array<test_cases.mutable_native_types.abi_call.FixedStruct, 3>)), comment="expected fixed array")
+    assert(txn.Logs[4u] == bzero(2u), comment="expected fixed array")
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("delete()void")), ApplicationID=app, OnCompletion=DeleteApplication))
+  }
+  
+  baremethod test_cases.mutable_native_types.abi_call.TestAbiCall.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}

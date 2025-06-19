@@ -36,11 +36,11 @@ subroutine main:
         assert // OnCompletion is not NoOp
         txn ApplicationID                                                                 tmp%5#0
         assert // can only call when not creating
-        callsub bootstrap                                                                 to_encode%0#0
-        itob                                                                              val_as_bytes%0#0
-        byte 0x151f7c75                                                                   val_as_bytes%0#0,0x151f7c75
-        l-load val_as_bytes%0#0 1                                                         0x151f7c75,val_as_bytes%0#0
-        concat                                                                            tmp%7#0
+        callsub bootstrap                                                                 tmp%7#0
+        itob                                                                              aggregate%val_as_bytes%0#1
+        byte 0x151f7c75                                                                   aggregate%val_as_bytes%0#1,0x151f7c75
+        l-load aggregate%val_as_bytes%0#1 1                                               0x151f7c75,aggregate%val_as_bytes%0#1
+        concat                                                                            tmp%9#0
         log
         int 1                                                                             tmp%0#0
         x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
@@ -49,14 +49,14 @@ subroutine main:
     main_log_greetings_route@6:
         // inner_transactions/c2c.py:23
         // @arc4.abimethod()
-        txn OnCompletion                                                                  tmp%8#0
-        !                                                                                 tmp%9#0
+        txn OnCompletion                                                                  tmp%10#0
+        !                                                                                 tmp%11#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                 tmp%10#0
+        txn ApplicationID                                                                 tmp%12#0
         assert // can only call when not creating
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
-        txna ApplicationArgs 1                                                            tmp%12#0
+        txna ApplicationArgs 1                                                            reinterpret_Encoded(len+utf8[])%0#0
         // inner_transactions/c2c.py:23
         // @arc4.abimethod()
         callsub log_greetings
@@ -67,12 +67,12 @@ subroutine main:
     main_bare_routing@7:
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
-        txn OnCompletion                                                                  tmp%13#0
+        txn OnCompletion                                                                  tmp%14#0
         bz main___algopy_default_create@8 ; b main_after_if_else@9
 
     main___algopy_default_create@8:
-        txn ApplicationID                                                                 tmp%14#0
-        !                                                                                 tmp%15#0
+        txn ApplicationID                                                                 tmp%15#0
+        !                                                                                 tmp%16#0
         assert // can only call when creating
         int 1                                                                             tmp%0#0
         x-store tmp%0#0                                                                   (𝕏) tmp%0#0 |
@@ -137,10 +137,10 @@ subroutine bootstrap:
         // )
         // .submit()
         // .created_app
-        itxn CreatedApplicationID                                                         materialized_values%0#0
+        itxn CreatedApplicationID                                                         tmp%1#0
         // inner_transactions/c2c.py:13
         // self.hello_app = (
-        byte "hello_app"                                                                  materialized_values%0#0,"hello_app"
+        byte "hello_app"                                                                  tmp%1#0,"hello_app"
         // inner_transactions/c2c.py:13-20
         // self.hello_app = (
         //     itxn.ApplicationCall(
@@ -150,12 +150,12 @@ subroutine bootstrap:
         //     .submit()
         //     .created_app
         // )
-        l-load-copy materialized_values%0#0 1                                             materialized_values%0#0,"hello_app",materialized_values%0#0 (copy)
-        app_global_put                                                                    materialized_values%0#0
+        l-load-copy tmp%1#0 1                                                             tmp%1#0,"hello_app",tmp%1#0 (copy)
+        app_global_put                                                                    tmp%1#0
         // inner_transactions/c2c.py:21
         // return self.hello_app.id
-        l-load materialized_values%0#0 0                                                  materialized_values%0#0
-        retsub                                                                            materialized_values%0#0
+        l-load tmp%1#0 0                                                                  tmp%1#0
+        retsub                                                                            tmp%1#0
 
 
 // test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
@@ -205,8 +205,8 @@ subroutine log_greetings:
         // log("HelloWorld returned: ", greeting.native)
         l-load hello_call.LastLog#0 0                                                     (𝕡) name#0 | hello_call.LastLog#0
         extract 6 0                                                                       (𝕡) name#0 | tmp%4#0
-        byte "HelloWorld returned: "                                                      (𝕡) name#0 | tmp%4#0,"HelloWorld returned: "
-        l-load tmp%4#0 1                                                                  (𝕡) name#0 | "HelloWorld returned: ",tmp%4#0
+        byte 0x48656c6c6f576f726c642072657475726e65643a20                                 (𝕡) name#0 | tmp%4#0,0x48656c6c6f576f726c642072657475726e65643a20
+        l-load tmp%4#0 1                                                                  (𝕡) name#0 | 0x48656c6c6f576f726c642072657475726e65643a20,tmp%4#0
         concat                                                                            (𝕡) name#0 | tmp%5#0
         log                                                                               (𝕡) name#0 |
         retsub

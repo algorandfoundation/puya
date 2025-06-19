@@ -16,20 +16,20 @@ main test_cases.loop_else.loop_else.LoopElseContract.approval_program:
     block@9: // for_header_L17
         let continue_looping%1#0: bool = (< account_index#0 tmp%5#0)
         (assert continue_looping%1#0) // access denied, missing secret account
-        let account#0: bytes[32] = ((txnas Accounts) account_index#0)
-        let tmp%6#0: bytes[32] = (global ZeroAddress)
-        let tmp%7#0: bool = (== account#0 tmp%6#0)
-        goto tmp%7#0 ? block@11 : block@12
+        let account#0: account = ((txnas Accounts) account_index#0)
+        let tmp%7#0: account = (global ZeroAddress)
+        let tmp%8#0: bool = (== account#0 tmp%7#0)
+        goto tmp%8#0 ? block@11 : block@12
     block@11: // if_body_L20
-        let tmp%9#0: uint64 = (+ arg_idx#0 48u)
-        let tmp%10#0: bytes = (itob tmp%9#0)
-        let tmp%13#0: bytes = ((extract 7 1) tmp%10#0)
-        let tmp%14#0: bytes = (concat "found secret argument at idx=" tmp%13#0)
-        let tmp%16#0: bytes = (concat tmp%14#0 " and secret account at idx=")
-        let tmp%18#0: uint64 = (+ account_index#0 48u)
-        let tmp%19#0: bytes = (itob tmp%18#0)
-        let tmp%22#0: bytes = ((extract 7 1) tmp%19#0)
-        let tmp%23#0: bytes = (concat tmp%16#0 tmp%22#0)
+        let tmp%11#0: uint64 = (+ arg_idx#0 48u)
+        let tmp%12#0: bytes = (itob tmp%11#0)
+        let extract%0#0: bytes = ((extract 7 1) tmp%12#0)
+        let tmp%15#0: bytes = (concat 0x666f756e642073656372657420617267756d656e74206174206964783d extract%0#0)
+        let tmp%17#0: bytes = (concat tmp%15#0 " and secret account at idx=")
+        let tmp%19#0: uint64 = (+ account_index#0 48u)
+        let tmp%20#0: bytes = (itob tmp%19#0)
+        let extract%1#0: bytes = ((extract 7 1) tmp%20#0)
+        let tmp%23#0: bytes = (concat tmp%17#0 extract%1#0)
         (log tmp%23#0)
         return 1u
     block@12: // after_if_else_L19

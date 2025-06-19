@@ -1,4 +1,4 @@
-debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=0, optimization_level=2, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, _disabled_optimizations=(), paths=['augmented_assignment'], output_awst=False, output_awst_json=False, output_source_annotations_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
+debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=False, output_arc56=False, output_ssa_ir=False, output_optimization_ir=False, output_destructured_ir=True, output_memory_ir=False, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=0, optimization_level=2, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, _disabled_optimizations=(), expand_all_bytes=False, paths=['augmented_assignment'], output_awst=False, output_awst_json=False, output_source_annotations_json=False, output_client=False, log_level=<LogLevel.debug: 10>)
 info: Found python prefix: <git root>/.venv
 debug: Building IR for function _puya_lib.util.ensure_budget
 debug: Sealing block@0
@@ -395,12 +395,12 @@ debug: Terminated block@1
 debug: Sealing block@2
 debug: Terminated block@2
 debug: Sealing block@3
-debug: Created Phi assignment: let me#1: bytes[32] = undefined while trying to resolve 'me' in block@2
-debug: Added me#0 to Phi node: let me#1: bytes[32] = φ(me#0 <- block@0) in block@0
-debug: Added me#0 to Phi node: let me#1: bytes[32] = φ(me#0 <- block@0, me#0 <- block@1) in block@1
-debug: Replacing trivial Phi node: let me#1: bytes[32] = φ(me#0 <- block@0, me#0 <- block@1) (me#1) with me#0
-debug: Deleting Phi assignment: let me#1: bytes[32] = φ(me#0 <- block@0, me#0 <- block@1)
-debug: Replaced trivial Phi node: let me#1: bytes[32] = φ(me#0 <- block@0, me#0 <- block@1) (me#1) with me#0 in current definition for 1 blocks
+debug: Created Phi assignment: let me#1: account = undefined while trying to resolve 'me' in block@2
+debug: Added me#0 to Phi node: let me#1: account = φ(me#0 <- block@0) in block@0
+debug: Added me#0 to Phi node: let me#1: account = φ(me#0 <- block@0, me#0 <- block@1) in block@1
+debug: Replacing trivial Phi node: let me#1: account = φ(me#0 <- block@0, me#0 <- block@1) (me#1) with me#0
+debug: Deleting Phi assignment: let me#1: account = φ(me#0 <- block@0, me#0 <- block@1)
+debug: Replaced trivial Phi node: let me#1: account = φ(me#0 <- block@0, me#0 <- block@1) (me#1) with me#0 in current definition for 1 blocks
 augmented_assignment/contract.py:34:13 debug: encountered already materialized expression ('my_uint'), reusing result: "my_uint"
 augmented_assignment/contract.py:34:26 debug: encountered already materialized expression (me), reusing result: me#0
 augmented_assignment/contract.py:35:13 debug: encountered already materialized expression ('my_bytes'), reusing result: "my_bytes"
@@ -408,9 +408,9 @@ augmented_assignment/contract.py:35:27 debug: encountered already materialized e
 augmented_assignment/contract.py:38:13 debug: encountered already materialized expression ('global_uint'), reusing result: "global_uint"
 augmented_assignment/contract.py:39:13 debug: encountered already materialized expression ('global_bytes'), reusing result: "global_bytes"
 augmented_assignment/contract.py:43:13 debug: encountered already materialized expression ('my_uint'), reusing result: "my_uint"
-augmented_assignment/contract.py:43:26 debug: encountered already materialized expression (this::get_sender_with_side_effect()), reusing result: tmp%3#0
+augmented_assignment/contract.py:43:26 debug: encountered already materialized expression (this::get_sender_with_side_effect()), reusing result: tmp%10#0
 augmented_assignment/contract.py:45:13 debug: encountered already materialized expression ('my_uint'), reusing result: "my_uint"
-augmented_assignment/contract.py:45:26 debug: encountered already materialized expression (this::get_sender_with_side_effect()), reusing result: tmp%5#0
+augmented_assignment/contract.py:45:26 debug: encountered already materialized expression (this::get_sender_with_side_effect()), reusing result: tmp%13#0
 debug: Terminated block@3
 debug: Sealing block@4
 debug: Terminated block@4
@@ -482,6 +482,13 @@ debug: inlining call to test_cases.augmented_assignment.contract.Augmented.__ini
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: tmp%0#1, me#0
+debug: selected me#0 from equivalence set
+debug: Found equivalence set: tmp%3#0, n#0
+debug: selected n#0 from equivalence set
+debug: Found equivalence set: tmp%4#0, bytes_to_add#0
+debug: selected bytes_to_add#0 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%1#0
@@ -502,6 +509,10 @@ debug: Merged linear block@8 into block@7
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 augmented_assignment/contract.py:42:20 debug: replacing app_global read with cached value for key: "counter"
 debug: Optimizing subroutine test_cases.augmented_assignment.contract.Augmented.__init__
@@ -519,12 +530,23 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.augmented_assignment.contract.Augmented.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: tmp%0#0, me#0
+debug: selected me#0 from equivalence set
+debug: Found equivalence set: tmp%3#0, n#0
+debug: selected n#0 from equivalence set
+debug: Found equivalence set: tmp%4#0, bytes_to_add#0
+debug: selected bytes_to_add#0 from equivalence set
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -536,6 +558,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 augmented_assignment/contract.py:42:20 debug: replacing app_global read with cached value for key: "counter"
 debug: Optimizing subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect
@@ -553,6 +579,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine test_cases.augmented_assignment.contract.Augmented.__init__
 debug: removing unused subroutine test_cases.augmented_assignment.contract.Augmented.approval_program
@@ -576,6 +606,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect
 debug: Optimizer: Perform Subroutine Inlining
@@ -592,6 +626,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Begin optimization pass 3/100
 debug: Optimizing subroutine test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with_init
@@ -601,7 +639,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%2#0
+debug: Removing unused variable tmp%9#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -610,6 +648,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect
 debug: Optimizer: Perform Subroutine Inlining
@@ -626,6 +668,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with_init
@@ -643,6 +689,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect
 debug: Optimizer: Perform Subroutine Inlining
@@ -659,6 +709,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 4, ending loop
 debug: optimizing clear program of test_cases.augmented_assignment.contract.Augmented at level 2
@@ -678,6 +732,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: lowering array IR nodes in approval program of test_cases.augmented_assignment.contract.Augmented
@@ -699,6 +757,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.augmented_assignment.contract.Augmented.get_sender_with_side_effect
 debug: Optimizer: Perform Subroutine Inlining
@@ -715,6 +777,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: optimizing clear program of test_cases.augmented_assignment.contract.Augmented at level 2
@@ -734,6 +800,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: removing local static slots in approval program of test_cases.augmented_assignment.contract.Augmented
@@ -768,36 +838,36 @@ debug: Performing post-SSA optimizations at level 2
 debug: Output IR to augmented_assignment/out_O2/Augmented.ir/Augmented.clear.400.destructured.ir
 debug: Inserted main_block@0.ops[1]: 'l-store-copy tmp%0#0 0'
 debug: Replaced main_block@0.ops[3]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
-debug: Inserted main_after_if_else@2.ops[3]: 'l-store-copy tmp%0#1 0'
-debug: Replaced main_after_if_else@2.ops[5]: 'v-load tmp%0#1' with 'l-load tmp%0#1'
-debug: Inserted main_after_if_else@2.ops[8]: 'l-store-copy tmp%1#1 0'
-debug: Replaced main_after_if_else@2.ops[10]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted main_after_if_else@2.ops[3]: 'l-store-copy tmp%1#1 0'
+debug: Replaced main_after_if_else@2.ops[5]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
+debug: Inserted main_after_if_else@2.ops[8]: 'l-store-copy tmp%2#0 0'
+debug: Replaced main_after_if_else@2.ops[10]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted main_if_body@4.ops[1]: 'l-store-copy me#0 0'
 debug: Replaced main_if_body@4.ops[5]: 'v-load me#0' with 'l-load me#0'
 debug: Inserted main_after_if_else@5.ops[1]: 'l-store-copy reinterpret_bool%0#0 0'
 debug: Replaced main_after_if_else@5.ops[3]: 'v-load reinterpret_bool%0#0' with 'l-load reinterpret_bool%0#0'
 debug: Inserted main_if_body@6.ops[1]: 'l-store-copy n#0 0'
 debug: Replaced main_if_body@6.ops[3]: 'v-load n#0' with 'l-load n#0'
-debug: Inserted main_if_body@6.ops[70]: 'l-store-copy tmp%3#0 0'
-debug: Replaced main_if_body@6.ops[72]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted main_if_body@6.ops[98]: 'l-store-copy tmp%4#0 0'
-debug: Replaced main_if_body@6.ops[100]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
-debug: Inserted main_if_body@6.ops[103]: 'l-store-copy tmp%5#0 0'
-debug: Replaced main_if_body@6.ops[105]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
-debug: Inserted main_if_body@6.ops[131]: 'l-store-copy tmp%6#0 0'
-debug: Replaced main_if_body@6.ops[133]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
+debug: Inserted main_if_body@6.ops[70]: 'l-store-copy tmp%10#0 0'
+debug: Replaced main_if_body@6.ops[72]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted main_if_body@6.ops[98]: 'l-store-copy tmp%12#0 0'
+debug: Replaced main_if_body@6.ops[100]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
+debug: Inserted main_if_body@6.ops[103]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_if_body@6.ops[105]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
+debug: Inserted main_if_body@6.ops[131]: 'l-store-copy tmp%15#0 0'
+debug: Replaced main_if_body@6.ops[133]: 'v-load tmp%15#0' with 'l-load tmp%15#0'
 debug: Inserted main_if_body@6.ops[10]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced main_if_body@6.ops[13]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted main_if_body@6.ops[27]: 'l-store-copy maybe_exists%1#0 1'
 debug: Replaced main_if_body@6.ops[30]: 'v-load maybe_exists%1#0' with 'l-load maybe_exists%1#0'
 debug: Inserted main_if_body@6.ops[43]: 'l-store-copy maybe_exists%2#0 1'
 debug: Replaced main_if_body@6.ops[46]: 'v-load maybe_exists%2#0' with 'l-load maybe_exists%2#0'
-debug: Inserted main_if_body@6.ops[51]: 'l-store-copy materialized_values%2#0 0'
-debug: Replaced main_if_body@6.ops[54]: 'v-load materialized_values%2#0' with 'l-load materialized_values%2#0'
+debug: Inserted main_if_body@6.ops[51]: 'l-store-copy tmp%7#0 0'
+debug: Replaced main_if_body@6.ops[54]: 'v-load tmp%7#0' with 'l-load tmp%7#0'
 debug: Inserted main_if_body@6.ops[59]: 'l-store-copy maybe_exists%3#0 1'
 debug: Replaced main_if_body@6.ops[62]: 'v-load maybe_exists%3#0' with 'l-load maybe_exists%3#0'
-debug: Inserted main_if_body@6.ops[67]: 'l-store-copy materialized_values%3#0 0'
-debug: Replaced main_if_body@6.ops[70]: 'v-load materialized_values%3#0' with 'l-load materialized_values%3#0'
+debug: Inserted main_if_body@6.ops[67]: 'l-store-copy tmp%8#0 0'
+debug: Replaced main_if_body@6.ops[70]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
 debug: Inserted main_if_body@6.ops[82]: 'l-store-copy maybe_exists%5#0 1'
 debug: Replaced main_if_body@6.ops[85]: 'v-load maybe_exists%5#0' with 'l-load maybe_exists%5#0'
 debug: Inserted main_if_body@6.ops[98]: 'l-store-copy maybe_exists%6#0 1'
@@ -808,26 +878,26 @@ debug: Inserted main_if_body@6.ops[133]: 'l-store-copy maybe_exists%8#0 1'
 debug: Replaced main_if_body@6.ops[136]: 'v-load maybe_exists%8#0' with 'l-load maybe_exists%8#0'
 debug: Inserted main_if_body@6.ops[12]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced main_if_body@6.ops[16]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
-debug: Inserted main_if_body@6.ops[19]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced main_if_body@6.ops[23]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted main_if_body@6.ops[19]: 'l-store-copy tmp%5#0 0'
+debug: Replaced main_if_body@6.ops[23]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
 debug: Inserted main_if_body@6.ops[31]: 'l-store-copy maybe_value%1#0 1'
 debug: Replaced main_if_body@6.ops[35]: 'v-load maybe_value%1#0' with 'l-load maybe_value%1#0'
-debug: Inserted main_if_body@6.ops[38]: 'l-store-copy materialized_values%1#0 0'
-debug: Replaced main_if_body@6.ops[42]: 'v-load materialized_values%1#0' with 'l-load materialized_values%1#0'
+debug: Inserted main_if_body@6.ops[38]: 'l-store-copy tmp%6#0 0'
+debug: Replaced main_if_body@6.ops[42]: 'v-load tmp%6#0' with 'l-load tmp%6#0'
 debug: Inserted main_if_body@6.ops[49]: 'l-store-copy maybe_value%2#0 1'
 debug: Replaced main_if_body@6.ops[53]: 'v-load maybe_value%2#0' with 'l-load maybe_value%2#0'
 debug: Inserted main_if_body@6.ops[66]: 'l-store-copy maybe_value%3#0 1'
 debug: Replaced main_if_body@6.ops[70]: 'v-load maybe_value%3#0' with 'l-load maybe_value%3#0'
 debug: Inserted main_if_body@6.ops[90]: 'l-store-copy maybe_value%5#0 1'
 debug: Replaced main_if_body@6.ops[94]: 'v-load maybe_value%5#0' with 'l-load maybe_value%5#0'
-debug: Inserted main_if_body@6.ops[97]: 'l-store-copy materialized_values%4#0 0'
-debug: Replaced main_if_body@6.ops[101]: 'v-load materialized_values%4#0' with 'l-load materialized_values%4#0'
+debug: Inserted main_if_body@6.ops[97]: 'l-store-copy tmp%11#0 0'
+debug: Replaced main_if_body@6.ops[101]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
 debug: Inserted main_if_body@6.ops[108]: 'l-store-copy maybe_value%6#0 1'
 debug: Replaced main_if_body@6.ops[112]: 'v-load maybe_value%6#0' with 'l-load maybe_value%6#0'
 debug: Inserted main_if_body@6.ops[128]: 'l-store-copy maybe_value%7#0 1'
 debug: Replaced main_if_body@6.ops[132]: 'v-load maybe_value%7#0' with 'l-load maybe_value%7#0'
-debug: Inserted main_if_body@6.ops[135]: 'l-store-copy materialized_values%5#0 0'
-debug: Replaced main_if_body@6.ops[139]: 'v-load materialized_values%5#0' with 'l-load materialized_values%5#0'
+debug: Inserted main_if_body@6.ops[135]: 'l-store-copy tmp%14#0 0'
+debug: Replaced main_if_body@6.ops[139]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
 debug: Inserted main_if_body@6.ops[146]: 'l-store-copy maybe_value%8#0 1'
 debug: Replaced main_if_body@6.ops[150]: 'v-load maybe_value%8#0' with 'l-load maybe_value%8#0'
 debug: Inserted main_if_body@6.ops[22]: 'l-store-copy me#0 1'
@@ -838,22 +908,22 @@ debug: Inserted main_if_body@6.ops[8]: 'l-store-copy me#0 1'
 debug: Replaced main_if_body@6.ops[23]: 'v-load me#0' with 'l-load me#0'
 debug: Inserted main_if_body@6.ops[29]: 'l-store-copy me#0 0'
 debug: Replaced main_if_body@6.ops[44]: 'v-load me#0' with 'l-load me#0'
-debug: Inserted main_if_body@6.ops[89]: 'l-store-copy tmp%3#0 0'
-debug: Replaced main_if_body@6.ops[104]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted main_if_body@6.ops[128]: 'l-store-copy tmp%5#0 0'
-debug: Replaced main_if_body@6.ops[143]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
+debug: Inserted main_if_body@6.ops[89]: 'l-store-copy tmp%10#0 0'
+debug: Replaced main_if_body@6.ops[104]: 'v-load tmp%10#0' with 'l-load tmp%10#0'
+debug: Inserted main_if_body@6.ops[128]: 'l-store-copy tmp%13#0 0'
+debug: Replaced main_if_body@6.ops[143]: 'v-load tmp%13#0' with 'l-load tmp%13#0'
 debug: Inserted main_if_body@6.ops[6]: 'l-store-copy bytes_to_add#0 1'
 debug: Replaced main_if_body@6.ops[41]: 'v-load bytes_to_add#0' with 'l-load bytes_to_add#0'
 debug: Inserted main_if_body@6.ops[42]: 'l-store-copy bytes_to_add#0 2'
 debug: Replaced main_if_body@6.ops[77]: 'v-load bytes_to_add#0' with 'l-load bytes_to_add#0'
 debug: Inserted main_if_body@6.ops[21]: 'l-store-copy n#0 3'
 debug: Replaced main_if_body@6.ops[61]: 'v-load n#0' with 'l-load n#0'
-debug: Inserted get_sender_with_side_effect_block@0.ops[15]: 'l-store-copy tmp%0#0 0'
-debug: Replaced get_sender_with_side_effect_block@0.ops[17]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
+debug: Inserted get_sender_with_side_effect_block@0.ops[15]: 'l-store-copy tmp%1#0 0'
+debug: Replaced get_sender_with_side_effect_block@0.ops[17]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
 debug: Inserted get_sender_with_side_effect_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced get_sender_with_side_effect_block@0.ops[6]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
-debug: Inserted get_sender_with_side_effect_block@0.ops[11]: 'l-store-copy materialized_values%0#0 0'
-debug: Replaced get_sender_with_side_effect_block@0.ops[14]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
+debug: Inserted get_sender_with_side_effect_block@0.ops[11]: 'l-store-copy tmp%0#0 0'
+debug: Replaced get_sender_with_side_effect_block@0.ops[14]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted get_sender_with_side_effect_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced get_sender_with_side_effect_block@0.ops[9]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Found 3 edge set/s for test_cases.augmented_assignment.contract.Augmented.__algopy_entrypoint_with_init
