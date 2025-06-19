@@ -1,0 +1,49 @@
+// Op                                                       Stack (out)
+// test_cases.chained_assignment.contract.ChainedAssignment.__algopy_entrypoint_with_init() -> uint64:
+subroutine main:
+    main_block@0:
+        txn ApplicationID                                   tmp%0#0
+        v-store tmp%0#0
+        v-load tmp%0#0                                      tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2
+
+    main_call___init__@1:
+        // chained_assignment/contract.py:29
+        // result = left + b" " + right
+        byte 0x48656c6c6f2c20776f726c642120f09f918b         0x48656c6c6f2c20776f726c642120f09f918b
+        // chained_assignment/contract.py:30
+        // log(result)
+        log
+        // chained_assignment/contract.py:10
+        // self.state1 = self.state2 = join_log_and_return(
+        byte "state2"                                       "state2"
+        // chained_assignment/contract.py:29
+        // result = left + b" " + right
+        byte 0x48656c6c6f2c20776f726c642120f09f918b         "state2",0x48656c6c6f2c20776f726c642120f09f918b
+        // chained_assignment/contract.py:10-13
+        // self.state1 = self.state2 = join_log_and_return(
+        //     right=Bytes(WAVE),
+        //     left=Bytes(b"Hello, world!"),
+        // )
+        app_global_put
+        // chained_assignment/contract.py:10
+        // self.state1 = self.state2 = join_log_and_return(
+        byte "state1"                                       "state1"
+        // chained_assignment/contract.py:29
+        // result = left + b" " + right
+        byte 0x48656c6c6f2c20776f726c642120f09f918b         "state1",0x48656c6c6f2c20776f726c642120f09f918b
+        // chained_assignment/contract.py:10-13
+        // self.state1 = self.state2 = join_log_and_return(
+        //     right=Bytes(WAVE),
+        //     left=Bytes(b"Hello, world!"),
+        // )
+        app_global_put
+        b main_after_if_else@2
+
+    main_after_if_else@2:
+        // chained_assignment/contract.py:21
+        // return True
+        int 1                                               1
+        return
+
+

@@ -1,0 +1,69 @@
+// Op                                                                                          Stack (out)
+// test_cases.conditional_expressions.literals.Literals.approval_program() -> uint64:
+subroutine main:
+    main_block@0:
+        // conditional_expressions/literals.py:6
+        // self.with_variable_condition(condition=False)
+        int 0                                                                                  0
+        callsub with_variable_condition
+        // conditional_expressions/literals.py:7
+        // self.with_variable_condition(condition=True)
+        int 1                                                                                  1
+        callsub with_variable_condition
+        // conditional_expressions/literals.py:9
+        // return True
+        int 1                                                                                  1
+        return
+
+
+// test_cases.conditional_expressions.literals.Literals.with_variable_condition(condition: uint64) -> void:
+subroutine with_variable_condition:
+    with_variable_condition_block@0:                                                           (𝕡) condition#0 |
+        // conditional_expressions/literals.py:19
+        // y = x + ((1 if condition else 2) - 1)  # test binary op with non-literal & literal
+        p-load condition#0                                                                     (𝕡) condition#0 | condition#0 (copy)
+        !                                                                                      (𝕡) condition#0 | select%2#0
+        v-store select%2#0                                                                     (𝕡) condition#0 |
+        p-load condition#0                                                                     (𝕡) condition#0 | condition#0 (copy)
+        v-load select%2#0                                                                      (𝕡) condition#0 | condition#0 (copy),select%2#0
+        +                                                                                      (𝕡) condition#0 | y#0
+        v-store y#0                                                                            (𝕡) condition#0 |
+        // conditional_expressions/literals.py:20
+        // y2 = ((1 if condition else 2) - 1) + x  # test binary op with literal & non-literal
+        v-load select%2#0                                                                      (𝕡) condition#0 | select%2#0
+        p-load condition#0                                                                     (𝕡) condition#0 | select%2#0,condition#0 (copy)
+        +                                                                                      (𝕡) condition#0 | y2#0
+        v-store y2#0                                                                           (𝕡) condition#0 |
+        // conditional_expressions/literals.py:21
+        // assert y == 1
+        v-load y#0                                                                             (𝕡) condition#0 | y#0
+        int 1                                                                                  (𝕡) condition#0 | y#0,1
+        ==                                                                                     (𝕡) condition#0 | tmp%3#0
+        v-store tmp%3#0                                                                        (𝕡) condition#0 |
+        v-load tmp%3#0                                                                         (𝕡) condition#0 | tmp%3#0
+        assert                                                                                 (𝕡) condition#0 |
+        // conditional_expressions/literals.py:22
+        // assert y2 == 1
+        v-load y2#0                                                                            (𝕡) condition#0 | y2#0
+        int 1                                                                                  (𝕡) condition#0 | y2#0,1
+        ==                                                                                     (𝕡) condition#0 | tmp%4#0
+        v-store tmp%4#0                                                                        (𝕡) condition#0 |
+        v-load tmp%4#0                                                                         (𝕡) condition#0 | tmp%4#0
+        assert                                                                                 (𝕡) condition#0 |
+        // conditional_expressions/literals.py:23
+        // maybe = (1 if condition else 0) < y  # test comparison with non-literal
+        v-load y#0                                                                             (𝕡) condition#0 | y#0
+        p-load condition#0                                                                     (𝕡) condition#0 | y#0,condition#0 (copy)
+        >                                                                                      (𝕡) condition#0 | maybe#0
+        v-store maybe#0                                                                        (𝕡) condition#0 |
+        // conditional_expressions/literals.py:24
+        // assert maybe == (not condition)
+        v-load maybe#0                                                                         (𝕡) condition#0 | maybe#0
+        v-load select%2#0                                                                      (𝕡) condition#0 | maybe#0,select%2#0
+        ==                                                                                     (𝕡) condition#0 | tmp%6#0
+        v-store tmp%6#0                                                                        (𝕡) condition#0 |
+        v-load tmp%6#0                                                                         (𝕡) condition#0 | tmp%6#0
+        assert                                                                                 (𝕡) condition#0 |
+        retsub
+
+
