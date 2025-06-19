@@ -10,6 +10,7 @@ from puya.log import get_logger
 from puya.mir import models
 from puya.mir.builder import MemoryIRBuilder, build_new_slot_sub
 from puya.mir.context import ProgramMIRContext
+from puya.mir.output import output_memory_ir
 from puya.mir.stack_allocation import global_stack_allocation
 from puya.utils import attrs_extend, bits_to_bytes
 
@@ -38,6 +39,8 @@ def program_ir_to_mir(context: ArtifactCompileContext, program_ir: ir.Program) -
         avm_version=program_ir.avm_version,
         slot_allocation=mir_allocation,
     )
+    if ctx.options.output_memory_ir:
+        output_memory_ir(ctx, result, qualifier="build")
     global_stack_allocation(ctx, result)
     return result
 
