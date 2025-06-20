@@ -18,8 +18,8 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_r
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%7#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%0#0)
         test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn(tmp%7#0)
         return 1u
     block@3: // named_tuple_itxn2_route_L17
@@ -29,8 +29,8 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_r
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
-        let reinterpret_bytes[8]%1#0: bytes[8] = (txna ApplicationArgs 1)
-        let tmp%12#0: uint64 = (btoi reinterpret_bytes[8]%1#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%12#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
         test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn2(tmp%12#0)
         return 1u
     block@4: // named_tuple_itxn3_route_L22
@@ -40,8 +40,8 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.__puya_arc4_r
         let tmp%15#0: uint64 = (txn ApplicationID)
         let tmp%16#0: bool = (!= tmp%15#0 0u)
         (assert tmp%16#0) // can only call when not creating
-        let reinterpret_bytes[8]%2#0: bytes[8] = (txna ApplicationArgs 1)
-        let tmp%17#0: uint64 = (btoi reinterpret_bytes[8]%2#0)
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%17#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
         test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_itxn3(tmp%17#0)
         return 1u
     block@5: // switch_case_default_L11
@@ -72,7 +72,7 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = pay
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_Receiver_idx_0#0: bytes[32] = (txn Sender)
+        let inner_txn_params%0%%param_Receiver_idx_0#0: account = (txn Sender)
         let inner_txn_params%0%%Receiver_length#0: uint64 = 1u
         let inner_txn_params%0%%param_Amount_idx_0#0: uint64 = amt#0
         let inner_txn_params%0%%Amount_length#0: uint64 = 1u
@@ -132,16 +132,16 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         itxn_submit
         let (hmm.foo#0: uint64, hmm.bar#0: itxn_group_idx) = (amt#0, itxn_group_idx(0))
         let hmm.bar._is_last#0: bool = 1u
-        let hmm.bar.Sender#0: bytes[32] = itxn[hmm.bar#0].Sender
+        let hmm.bar.Sender#0: account = itxn[hmm.bar#0].Sender
         let hmm.bar.Fee#0: uint64 = itxn[hmm.bar#0].Fee
         let hmm.bar.FirstValid#0: uint64 = itxn[hmm.bar#0].FirstValid
         let hmm.bar.FirstValidTime#0: uint64 = itxn[hmm.bar#0].FirstValidTime
         let hmm.bar.LastValid#0: uint64 = itxn[hmm.bar#0].LastValid
         let hmm.bar.Note#0: bytes = itxn[hmm.bar#0].Note
         let hmm.bar.Lease#0: bytes[32] = itxn[hmm.bar#0].Lease
-        let hmm.bar.Receiver#0: bytes[32] = itxn[hmm.bar#0].Receiver
+        let hmm.bar.Receiver#0: account = itxn[hmm.bar#0].Receiver
         let hmm.bar.Amount#0: uint64 = itxn[hmm.bar#0].Amount
-        let hmm.bar.CloseRemainderTo#0: bytes[32] = itxn[hmm.bar#0].CloseRemainderTo
+        let hmm.bar.CloseRemainderTo#0: account = itxn[hmm.bar#0].CloseRemainderTo
         let hmm.bar.VotePK#0: bytes[32] = itxn[hmm.bar#0].VotePK
         let hmm.bar.SelectionPK#0: bytes[32] = itxn[hmm.bar#0].SelectionPK
         let hmm.bar.VoteFirst#0: uint64 = itxn[hmm.bar#0].VoteFirst
@@ -151,9 +151,9 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let hmm.bar.TypeEnum#0: uint64 = itxn[hmm.bar#0].TypeEnum
         let hmm.bar.XferAsset#0: uint64 = itxn[hmm.bar#0].XferAsset
         let hmm.bar.AssetAmount#0: uint64 = itxn[hmm.bar#0].AssetAmount
-        let hmm.bar.AssetSender#0: bytes[32] = itxn[hmm.bar#0].AssetSender
-        let hmm.bar.AssetReceiver#0: bytes[32] = itxn[hmm.bar#0].AssetReceiver
-        let hmm.bar.AssetCloseTo#0: bytes[32] = itxn[hmm.bar#0].AssetCloseTo
+        let hmm.bar.AssetSender#0: account = itxn[hmm.bar#0].AssetSender
+        let hmm.bar.AssetReceiver#0: account = itxn[hmm.bar#0].AssetReceiver
+        let hmm.bar.AssetCloseTo#0: account = itxn[hmm.bar#0].AssetCloseTo
         let hmm.bar.GroupIndex#0: uint64 = itxn[hmm.bar#0].GroupIndex
         let hmm.bar.TxID#0: bytes[32] = itxn[hmm.bar#0].TxID
         let hmm.bar.ApplicationID#0: uint64 = itxn[hmm.bar#0].ApplicationID
@@ -162,7 +162,7 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let hmm.bar.NumAccounts#0: uint64 = itxn[hmm.bar#0].NumAccounts
         let hmm.bar.ApprovalProgram#0: bytes = itxn[hmm.bar#0].ApprovalProgram
         let hmm.bar.ClearStateProgram#0: bytes = itxn[hmm.bar#0].ClearStateProgram
-        let hmm.bar.RekeyTo#0: bytes[32] = itxn[hmm.bar#0].RekeyTo
+        let hmm.bar.RekeyTo#0: account = itxn[hmm.bar#0].RekeyTo
         let hmm.bar.ConfigAsset#0: uint64 = itxn[hmm.bar#0].ConfigAsset
         let hmm.bar.ConfigAssetTotal#0: uint64 = itxn[hmm.bar#0].ConfigAssetTotal
         let hmm.bar.ConfigAssetDecimals#0: uint64 = itxn[hmm.bar#0].ConfigAssetDecimals
@@ -171,12 +171,12 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let hmm.bar.ConfigAssetName#0: bytes = itxn[hmm.bar#0].ConfigAssetName
         let hmm.bar.ConfigAssetURL#0: bytes = itxn[hmm.bar#0].ConfigAssetURL
         let hmm.bar.ConfigAssetMetadataHash#0: bytes[32] = itxn[hmm.bar#0].ConfigAssetMetadataHash
-        let hmm.bar.ConfigAssetManager#0: bytes[32] = itxn[hmm.bar#0].ConfigAssetManager
-        let hmm.bar.ConfigAssetReserve#0: bytes[32] = itxn[hmm.bar#0].ConfigAssetReserve
-        let hmm.bar.ConfigAssetFreeze#0: bytes[32] = itxn[hmm.bar#0].ConfigAssetFreeze
-        let hmm.bar.ConfigAssetClawback#0: bytes[32] = itxn[hmm.bar#0].ConfigAssetClawback
+        let hmm.bar.ConfigAssetManager#0: account = itxn[hmm.bar#0].ConfigAssetManager
+        let hmm.bar.ConfigAssetReserve#0: account = itxn[hmm.bar#0].ConfigAssetReserve
+        let hmm.bar.ConfigAssetFreeze#0: account = itxn[hmm.bar#0].ConfigAssetFreeze
+        let hmm.bar.ConfigAssetClawback#0: account = itxn[hmm.bar#0].ConfigAssetClawback
         let hmm.bar.FreezeAsset#0: uint64 = itxn[hmm.bar#0].FreezeAsset
-        let hmm.bar.FreezeAssetAccount#0: bytes[32] = itxn[hmm.bar#0].FreezeAssetAccount
+        let hmm.bar.FreezeAssetAccount#0: account = itxn[hmm.bar#0].FreezeAssetAccount
         let hmm.bar.FreezeAssetFrozen#0: bool = itxn[hmm.bar#0].FreezeAssetFrozen
         let hmm.bar.NumAssets#0: uint64 = itxn[hmm.bar#0].NumAssets
         let hmm.bar.NumApplications#0: uint64 = itxn[hmm.bar#0].NumApplications
@@ -205,7 +205,7 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = pay
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_Receiver_idx_0#0: bytes[32] = (txn Sender)
+        let inner_txn_params%0%%param_Receiver_idx_0#0: account = (txn Sender)
         let inner_txn_params%0%%Receiver_length#0: uint64 = 1u
         let inner_txn_params%0%%param_Amount_idx_0#0: uint64 = amt#0
         let inner_txn_params%0%%Amount_length#0: uint64 = 1u
@@ -265,16 +265,16 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         itxn_submit
         let txn#0: itxn_group_idx = itxn_group_idx(0)
         let txn._is_last#0: bool = 1u
-        let txn.Sender#0: bytes[32] = itxn[txn#0].Sender
+        let txn.Sender#0: account = itxn[txn#0].Sender
         let txn.Fee#0: uint64 = itxn[txn#0].Fee
         let txn.FirstValid#0: uint64 = itxn[txn#0].FirstValid
         let txn.FirstValidTime#0: uint64 = itxn[txn#0].FirstValidTime
         let txn.LastValid#0: uint64 = itxn[txn#0].LastValid
         let txn.Note#0: bytes = itxn[txn#0].Note
         let txn.Lease#0: bytes[32] = itxn[txn#0].Lease
-        let txn.Receiver#0: bytes[32] = itxn[txn#0].Receiver
+        let txn.Receiver#0: account = itxn[txn#0].Receiver
         let txn.Amount#0: uint64 = itxn[txn#0].Amount
-        let txn.CloseRemainderTo#0: bytes[32] = itxn[txn#0].CloseRemainderTo
+        let txn.CloseRemainderTo#0: account = itxn[txn#0].CloseRemainderTo
         let txn.VotePK#0: bytes[32] = itxn[txn#0].VotePK
         let txn.SelectionPK#0: bytes[32] = itxn[txn#0].SelectionPK
         let txn.VoteFirst#0: uint64 = itxn[txn#0].VoteFirst
@@ -284,9 +284,9 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let txn.TypeEnum#0: uint64 = itxn[txn#0].TypeEnum
         let txn.XferAsset#0: uint64 = itxn[txn#0].XferAsset
         let txn.AssetAmount#0: uint64 = itxn[txn#0].AssetAmount
-        let txn.AssetSender#0: bytes[32] = itxn[txn#0].AssetSender
-        let txn.AssetReceiver#0: bytes[32] = itxn[txn#0].AssetReceiver
-        let txn.AssetCloseTo#0: bytes[32] = itxn[txn#0].AssetCloseTo
+        let txn.AssetSender#0: account = itxn[txn#0].AssetSender
+        let txn.AssetReceiver#0: account = itxn[txn#0].AssetReceiver
+        let txn.AssetCloseTo#0: account = itxn[txn#0].AssetCloseTo
         let txn.GroupIndex#0: uint64 = itxn[txn#0].GroupIndex
         let txn.TxID#0: bytes[32] = itxn[txn#0].TxID
         let txn.ApplicationID#0: uint64 = itxn[txn#0].ApplicationID
@@ -295,7 +295,7 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let txn.NumAccounts#0: uint64 = itxn[txn#0].NumAccounts
         let txn.ApprovalProgram#0: bytes = itxn[txn#0].ApprovalProgram
         let txn.ClearStateProgram#0: bytes = itxn[txn#0].ClearStateProgram
-        let txn.RekeyTo#0: bytes[32] = itxn[txn#0].RekeyTo
+        let txn.RekeyTo#0: account = itxn[txn#0].RekeyTo
         let txn.ConfigAsset#0: uint64 = itxn[txn#0].ConfigAsset
         let txn.ConfigAssetTotal#0: uint64 = itxn[txn#0].ConfigAssetTotal
         let txn.ConfigAssetDecimals#0: uint64 = itxn[txn#0].ConfigAssetDecimals
@@ -304,12 +304,12 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let txn.ConfigAssetName#0: bytes = itxn[txn#0].ConfigAssetName
         let txn.ConfigAssetURL#0: bytes = itxn[txn#0].ConfigAssetURL
         let txn.ConfigAssetMetadataHash#0: bytes[32] = itxn[txn#0].ConfigAssetMetadataHash
-        let txn.ConfigAssetManager#0: bytes[32] = itxn[txn#0].ConfigAssetManager
-        let txn.ConfigAssetReserve#0: bytes[32] = itxn[txn#0].ConfigAssetReserve
-        let txn.ConfigAssetFreeze#0: bytes[32] = itxn[txn#0].ConfigAssetFreeze
-        let txn.ConfigAssetClawback#0: bytes[32] = itxn[txn#0].ConfigAssetClawback
+        let txn.ConfigAssetManager#0: account = itxn[txn#0].ConfigAssetManager
+        let txn.ConfigAssetReserve#0: account = itxn[txn#0].ConfigAssetReserve
+        let txn.ConfigAssetFreeze#0: account = itxn[txn#0].ConfigAssetFreeze
+        let txn.ConfigAssetClawback#0: account = itxn[txn#0].ConfigAssetClawback
         let txn.FreezeAsset#0: uint64 = itxn[txn#0].FreezeAsset
-        let txn.FreezeAssetAccount#0: bytes[32] = itxn[txn#0].FreezeAssetAccount
+        let txn.FreezeAssetAccount#0: account = itxn[txn#0].FreezeAssetAccount
         let txn.FreezeAssetFrozen#0: bool = itxn[txn#0].FreezeAssetFrozen
         let txn.NumAssets#0: uint64 = itxn[txn#0].NumAssets
         let txn.NumApplications#0: uint64 = itxn[txn#0].NumApplications
@@ -338,7 +338,7 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let inner_txn_params%0%%Fee_length#0: uint64 = 1u
         let inner_txn_params%0%%param_TypeEnum_idx_0#0: uint64 = pay
         let inner_txn_params%0%%TypeEnum_length#0: uint64 = 1u
-        let inner_txn_params%0%%param_Receiver_idx_0#0: bytes[32] = (txn Sender)
+        let inner_txn_params%0%%param_Receiver_idx_0#0: account = (txn Sender)
         let inner_txn_params%0%%Receiver_length#0: uint64 = 1u
         let inner_txn_params%0%%param_Amount_idx_0#0: uint64 = amt#0
         let inner_txn_params%0%%Amount_length#0: uint64 = 1u
@@ -398,16 +398,16 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         itxn_submit
         let (hmmm.foo#0: uint64, hmmm.bar#0: itxn_group_idx) = (amt#0, itxn_group_idx(0))
         let hmmm.bar._is_last#0: bool = 1u
-        let hmmm.bar.Sender#0: bytes[32] = itxn[hmmm.bar#0].Sender
+        let hmmm.bar.Sender#0: account = itxn[hmmm.bar#0].Sender
         let hmmm.bar.Fee#0: uint64 = itxn[hmmm.bar#0].Fee
         let hmmm.bar.FirstValid#0: uint64 = itxn[hmmm.bar#0].FirstValid
         let hmmm.bar.FirstValidTime#0: uint64 = itxn[hmmm.bar#0].FirstValidTime
         let hmmm.bar.LastValid#0: uint64 = itxn[hmmm.bar#0].LastValid
         let hmmm.bar.Note#0: bytes = itxn[hmmm.bar#0].Note
         let hmmm.bar.Lease#0: bytes[32] = itxn[hmmm.bar#0].Lease
-        let hmmm.bar.Receiver#0: bytes[32] = itxn[hmmm.bar#0].Receiver
+        let hmmm.bar.Receiver#0: account = itxn[hmmm.bar#0].Receiver
         let hmmm.bar.Amount#0: uint64 = itxn[hmmm.bar#0].Amount
-        let hmmm.bar.CloseRemainderTo#0: bytes[32] = itxn[hmmm.bar#0].CloseRemainderTo
+        let hmmm.bar.CloseRemainderTo#0: account = itxn[hmmm.bar#0].CloseRemainderTo
         let hmmm.bar.VotePK#0: bytes[32] = itxn[hmmm.bar#0].VotePK
         let hmmm.bar.SelectionPK#0: bytes[32] = itxn[hmmm.bar#0].SelectionPK
         let hmmm.bar.VoteFirst#0: uint64 = itxn[hmmm.bar#0].VoteFirst
@@ -417,9 +417,9 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let hmmm.bar.TypeEnum#0: uint64 = itxn[hmmm.bar#0].TypeEnum
         let hmmm.bar.XferAsset#0: uint64 = itxn[hmmm.bar#0].XferAsset
         let hmmm.bar.AssetAmount#0: uint64 = itxn[hmmm.bar#0].AssetAmount
-        let hmmm.bar.AssetSender#0: bytes[32] = itxn[hmmm.bar#0].AssetSender
-        let hmmm.bar.AssetReceiver#0: bytes[32] = itxn[hmmm.bar#0].AssetReceiver
-        let hmmm.bar.AssetCloseTo#0: bytes[32] = itxn[hmmm.bar#0].AssetCloseTo
+        let hmmm.bar.AssetSender#0: account = itxn[hmmm.bar#0].AssetSender
+        let hmmm.bar.AssetReceiver#0: account = itxn[hmmm.bar#0].AssetReceiver
+        let hmmm.bar.AssetCloseTo#0: account = itxn[hmmm.bar#0].AssetCloseTo
         let hmmm.bar.GroupIndex#0: uint64 = itxn[hmmm.bar#0].GroupIndex
         let hmmm.bar.TxID#0: bytes[32] = itxn[hmmm.bar#0].TxID
         let hmmm.bar.ApplicationID#0: uint64 = itxn[hmmm.bar#0].ApplicationID
@@ -428,7 +428,7 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let hmmm.bar.NumAccounts#0: uint64 = itxn[hmmm.bar#0].NumAccounts
         let hmmm.bar.ApprovalProgram#0: bytes = itxn[hmmm.bar#0].ApprovalProgram
         let hmmm.bar.ClearStateProgram#0: bytes = itxn[hmmm.bar#0].ClearStateProgram
-        let hmmm.bar.RekeyTo#0: bytes[32] = itxn[hmmm.bar#0].RekeyTo
+        let hmmm.bar.RekeyTo#0: account = itxn[hmmm.bar#0].RekeyTo
         let hmmm.bar.ConfigAsset#0: uint64 = itxn[hmmm.bar#0].ConfigAsset
         let hmmm.bar.ConfigAssetTotal#0: uint64 = itxn[hmmm.bar#0].ConfigAssetTotal
         let hmmm.bar.ConfigAssetDecimals#0: uint64 = itxn[hmmm.bar#0].ConfigAssetDecimals
@@ -437,12 +437,12 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let hmmm.bar.ConfigAssetName#0: bytes = itxn[hmmm.bar#0].ConfigAssetName
         let hmmm.bar.ConfigAssetURL#0: bytes = itxn[hmmm.bar#0].ConfigAssetURL
         let hmmm.bar.ConfigAssetMetadataHash#0: bytes[32] = itxn[hmmm.bar#0].ConfigAssetMetadataHash
-        let hmmm.bar.ConfigAssetManager#0: bytes[32] = itxn[hmmm.bar#0].ConfigAssetManager
-        let hmmm.bar.ConfigAssetReserve#0: bytes[32] = itxn[hmmm.bar#0].ConfigAssetReserve
-        let hmmm.bar.ConfigAssetFreeze#0: bytes[32] = itxn[hmmm.bar#0].ConfigAssetFreeze
-        let hmmm.bar.ConfigAssetClawback#0: bytes[32] = itxn[hmmm.bar#0].ConfigAssetClawback
+        let hmmm.bar.ConfigAssetManager#0: account = itxn[hmmm.bar#0].ConfigAssetManager
+        let hmmm.bar.ConfigAssetReserve#0: account = itxn[hmmm.bar#0].ConfigAssetReserve
+        let hmmm.bar.ConfigAssetFreeze#0: account = itxn[hmmm.bar#0].ConfigAssetFreeze
+        let hmmm.bar.ConfigAssetClawback#0: account = itxn[hmmm.bar#0].ConfigAssetClawback
         let hmmm.bar.FreezeAsset#0: uint64 = itxn[hmmm.bar#0].FreezeAsset
-        let hmmm.bar.FreezeAssetAccount#0: bytes[32] = itxn[hmmm.bar#0].FreezeAssetAccount
+        let hmmm.bar.FreezeAssetAccount#0: account = itxn[hmmm.bar#0].FreezeAssetAccount
         let hmmm.bar.FreezeAssetFrozen#0: bool = itxn[hmmm.bar#0].FreezeAssetFrozen
         let hmmm.bar.NumAssets#0: uint64 = itxn[hmmm.bar#0].NumAssets
         let hmmm.bar.NumApplications#0: uint64 = itxn[hmmm.bar#0].NumApplications
@@ -460,16 +460,16 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let hmmm.bar.NumApprovalProgramPages#0: uint64 = itxn[hmmm.bar#0].NumApprovalProgramPages
         let hmmm.bar.NumClearStateProgramPages#0: uint64 = itxn[hmmm.bar#0].NumClearStateProgramPages
         let txn#0: itxn_group_idx = hmmm.bar#0
-        let txn.Sender#0: bytes[32] = hmmm.bar.Sender#0
+        let txn.Sender#0: account = hmmm.bar.Sender#0
         let txn.Fee#0: uint64 = hmmm.bar.Fee#0
         let txn.FirstValid#0: uint64 = hmmm.bar.FirstValid#0
         let txn.FirstValidTime#0: uint64 = hmmm.bar.FirstValidTime#0
         let txn.LastValid#0: uint64 = hmmm.bar.LastValid#0
         let txn.Note#0: bytes = hmmm.bar.Note#0
         let txn.Lease#0: bytes[32] = hmmm.bar.Lease#0
-        let txn.Receiver#0: bytes[32] = hmmm.bar.Receiver#0
+        let txn.Receiver#0: account = hmmm.bar.Receiver#0
         let txn.Amount#0: uint64 = hmmm.bar.Amount#0
-        let txn.CloseRemainderTo#0: bytes[32] = hmmm.bar.CloseRemainderTo#0
+        let txn.CloseRemainderTo#0: account = hmmm.bar.CloseRemainderTo#0
         let txn.VotePK#0: bytes[32] = hmmm.bar.VotePK#0
         let txn.SelectionPK#0: bytes[32] = hmmm.bar.SelectionPK#0
         let txn.VoteFirst#0: uint64 = hmmm.bar.VoteFirst#0
@@ -479,9 +479,9 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let txn.TypeEnum#0: uint64 = hmmm.bar.TypeEnum#0
         let txn.XferAsset#0: uint64 = hmmm.bar.XferAsset#0
         let txn.AssetAmount#0: uint64 = hmmm.bar.AssetAmount#0
-        let txn.AssetSender#0: bytes[32] = hmmm.bar.AssetSender#0
-        let txn.AssetReceiver#0: bytes[32] = hmmm.bar.AssetReceiver#0
-        let txn.AssetCloseTo#0: bytes[32] = hmmm.bar.AssetCloseTo#0
+        let txn.AssetSender#0: account = hmmm.bar.AssetSender#0
+        let txn.AssetReceiver#0: account = hmmm.bar.AssetReceiver#0
+        let txn.AssetCloseTo#0: account = hmmm.bar.AssetCloseTo#0
         let txn.GroupIndex#0: uint64 = hmmm.bar.GroupIndex#0
         let txn.TxID#0: bytes[32] = hmmm.bar.TxID#0
         let txn.ApplicationID#0: uint64 = hmmm.bar.ApplicationID#0
@@ -490,7 +490,7 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let txn.NumAccounts#0: uint64 = hmmm.bar.NumAccounts#0
         let txn.ApprovalProgram#0: bytes = hmmm.bar.ApprovalProgram#0
         let txn.ClearStateProgram#0: bytes = hmmm.bar.ClearStateProgram#0
-        let txn.RekeyTo#0: bytes[32] = hmmm.bar.RekeyTo#0
+        let txn.RekeyTo#0: account = hmmm.bar.RekeyTo#0
         let txn.ConfigAsset#0: uint64 = hmmm.bar.ConfigAsset#0
         let txn.ConfigAssetTotal#0: uint64 = hmmm.bar.ConfigAssetTotal#0
         let txn.ConfigAssetDecimals#0: uint64 = hmmm.bar.ConfigAssetDecimals#0
@@ -499,12 +499,12 @@ subroutine test_cases.inner_transactions.itxn_tuple.ItxnNamedTuple.named_tuple_i
         let txn.ConfigAssetName#0: bytes = hmmm.bar.ConfigAssetName#0
         let txn.ConfigAssetURL#0: bytes = hmmm.bar.ConfigAssetURL#0
         let txn.ConfigAssetMetadataHash#0: bytes[32] = hmmm.bar.ConfigAssetMetadataHash#0
-        let txn.ConfigAssetManager#0: bytes[32] = hmmm.bar.ConfigAssetManager#0
-        let txn.ConfigAssetReserve#0: bytes[32] = hmmm.bar.ConfigAssetReserve#0
-        let txn.ConfigAssetFreeze#0: bytes[32] = hmmm.bar.ConfigAssetFreeze#0
-        let txn.ConfigAssetClawback#0: bytes[32] = hmmm.bar.ConfigAssetClawback#0
+        let txn.ConfigAssetManager#0: account = hmmm.bar.ConfigAssetManager#0
+        let txn.ConfigAssetReserve#0: account = hmmm.bar.ConfigAssetReserve#0
+        let txn.ConfigAssetFreeze#0: account = hmmm.bar.ConfigAssetFreeze#0
+        let txn.ConfigAssetClawback#0: account = hmmm.bar.ConfigAssetClawback#0
         let txn.FreezeAsset#0: uint64 = hmmm.bar.FreezeAsset#0
-        let txn.FreezeAssetAccount#0: bytes[32] = hmmm.bar.FreezeAssetAccount#0
+        let txn.FreezeAssetAccount#0: account = hmmm.bar.FreezeAssetAccount#0
         let txn.FreezeAssetFrozen#0: bool = hmmm.bar.FreezeAssetFrozen#0
         let txn.NumAssets#0: uint64 = hmmm.bar.NumAssets#0
         let txn.NumApplications#0: uint64 = hmmm.bar.NumApplications#0

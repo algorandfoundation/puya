@@ -1,11 +1,11 @@
 import typing
 
 from algopy import (
-    Array,
     BigUInt,
     Box,
     Bytes,
     ImmutableArray,
+    ReferenceArray as Array,
     String,
     Txn,
     UInt64,

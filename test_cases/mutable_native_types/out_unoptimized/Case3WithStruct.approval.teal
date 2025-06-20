@@ -1,0 +1,1068 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 0 1 8 16 128 34176
+    bytecblock "tup_bag" 0x 0x151f7c75
+
+main_block@0:
+    txn ApplicationID
+    bnz main_after_if_else@2
+
+main_call___init__@1:
+    callsub __init__
+
+main_after_if_else@2:
+    callsub approval_program
+    return
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__init__() -> void:
+__init__:
+
+__init___block@0:
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.create_box() -> void:
+create_box:
+
+create_box_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:40
+    // assert self.tup_bag.create(), "box already exists"
+    bytec_0 // "tup_bag"
+    pushint 4273 // 4273
+    box_create
+    assert // box already exists
+    // mutable_native_types/case3_with_mutable_struct.py:41
+    // self.tup_bag.value.owner = Txn.sender
+    txn Sender
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    pushint 136 // 136
+    uncover 2
+    replace3
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+    // mutable_native_types/case3_with_mutable_struct.py:42
+    // self.tup_bag.value.app = Global.current_application_id
+    global CurrentApplicationID
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    swap
+    itob
+    swap
+    pushint 168 // 168
+    uncover 2
+    replace3
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+    // mutable_native_types/case3_with_mutable_struct.py:43
+    // self.tup_bag.value.bootstrapped = True
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc 5 // 34176
+    intc_1 // 1
+    setbit
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.num_tups() -> uint64:
+num_tups:
+
+num_tups_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:47
+    // return self.tup_bag.value.count
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(tup: bytes) -> bytes:
+add_tup:
+    // mutable_native_types/case3_with_mutable_struct.py:49-50
+    // @arc4.abimethod()
+    // def add_tup(self, tup: NamedTup) -> None:
+    proto 1 1
+
+add_tup_block@0:
+    frame_dig -1
+    // mutable_native_types/case3_with_mutable_struct.py:51
+    // self._check_owner()
+    callsub _check_owner
+    // mutable_native_types/case3_with_mutable_struct.py:52
+    // assert self.tup_bag.value.count < self.tup_bag.value.items.length, "too many tups"
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    intc_2 // 8
+    <
+    assert // too many tups
+    // mutable_native_types/case3_with_mutable_struct.py:53
+    // self.tup_bag.value.items[self.tup_bag.value.count] = tup.copy()
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    dig 1
+    intc_2 // 8
+    intc 4 // 128
+    extract3
+    swap
+    intc_3 // 16
+    *
+    frame_dig -1
+    replace3
+    swap
+    intc_2 // 8
+    uncover 2
+    replace3
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+    // mutable_native_types/case3_with_mutable_struct.py:54
+    // self.tup_bag.value.count += 1
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    intc_1 // 1
+    +
+    itob
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_tup(index: uint64) -> bytes:
+get_tup:
+    // mutable_native_types/case3_with_mutable_struct.py:56-57
+    // @arc4.abimethod()
+    // def get_tup(self, index: UInt64) -> NamedTup:
+    proto 1 1
+
+get_tup_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:58
+    // assert index < self.tup_bag.value.count, "index out of bounds"
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    frame_dig -1
+    >
+    assert // index out of bounds
+    // mutable_native_types/case3_with_mutable_struct.py:59
+    // return self.tup_bag.value.items[index]
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_2 // 8
+    intc 4 // 128
+    extract3
+    frame_dig -1
+    intc_3 // 16
+    *
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.sum() -> uint64:
+sum:
+    // mutable_native_types/case3_with_mutable_struct.py:61-62
+    // @arc4.abimethod()
+    // def sum(self) -> UInt64:
+    proto 0 1
+
+sum_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:63
+    // total = UInt64()
+    intc_0 // 0
+    // mutable_native_types/case3_with_mutable_struct.py:64
+    // for i in urange(self.tup_bag.value.count):
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    intc_1 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+
+sum_for_header@1:
+    // mutable_native_types/case3_with_mutable_struct.py:64
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 2
+    frame_dig 1
+    <
+    bz sum_after_for@4
+
+sum_for_body@2:
+    // mutable_native_types/case3_with_mutable_struct.py:65
+    // tup = self.tup_bag.value.items[i].copy()
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_2 // 8
+    intc 4 // 128
+    extract3
+    frame_dig 2
+    intc_3 // 16
+    *
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    // mutable_native_types/case3_with_mutable_struct.py:66
+    // total += tup.a
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    frame_dig 0
+    +
+    // mutable_native_types/case3_with_mutable_struct.py:67
+    // total += tup.b
+    swap
+    intc_2 // 8
+    dup
+    extract3
+    btoi
+    +
+    frame_bury 0
+
+sum_for_footer@3:
+    // mutable_native_types/case3_with_mutable_struct.py:64
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 2
+    intc_1 // 1
+    +
+    frame_bury 2
+    b sum_for_header@1
+
+sum_after_for@4:
+    // mutable_native_types/case3_with_mutable_struct.py:68
+    // return total
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_many_tups(tups: bytes) -> void:
+add_many_tups:
+    // mutable_native_types/case3_with_mutable_struct.py:70-71
+    // @arc4.abimethod()
+    // def add_many_tups(self, tups: NativeArray[NamedTup]) -> None:
+    proto 1 0
+
+add_many_tups_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:72
+    // for i in urange(tups.length):
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+
+add_many_tups_for_header@1:
+    // mutable_native_types/case3_with_mutable_struct.py:72
+    // for i in urange(tups.length):
+    frame_dig 1
+    frame_dig 0
+    <
+    bz add_many_tups_after_for@4
+
+add_many_tups_for_body@2:
+    // mutable_native_types/case3_with_mutable_struct.py:73
+    // self.add_tup(tups[i].copy())
+    frame_dig -1
+    extract 2 0
+    frame_dig 1
+    intc_3 // 16
+    *
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    callsub add_tup
+    pop
+
+add_many_tups_for_footer@3:
+    // mutable_native_types/case3_with_mutable_struct.py:72
+    // for i in urange(tups.length):
+    frame_dig 1
+    intc_1 // 1
+    +
+    frame_bury 1
+    b add_many_tups_for_header@1
+
+add_many_tups_after_for@4:
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_fixed_tups(tups: bytes) -> void:
+add_fixed_tups:
+    // mutable_native_types/case3_with_mutable_struct.py:75-76
+    // @arc4.abimethod()
+    // def add_fixed_tups(self, tups: FixedArray[NamedTup, typing.Literal[3]]) -> None:
+    proto 1 0
+
+add_fixed_tups_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:77
+    // for i in urange(tups.length):
+    intc_1 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+
+add_fixed_tups_for_header@1:
+    // mutable_native_types/case3_with_mutable_struct.py:77
+    // for i in urange(tups.length):
+    frame_dig 0
+    pushint 3 // 3
+    <
+    bz add_fixed_tups_after_for@4
+
+add_fixed_tups_for_body@2:
+    // mutable_native_types/case3_with_mutable_struct.py:78
+    // self.add_tup(tups[i].copy())
+    frame_dig 0
+    intc_3 // 16
+    *
+    frame_dig -1
+    swap
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    callsub add_tup
+    pop
+
+add_fixed_tups_for_footer@3:
+    // mutable_native_types/case3_with_mutable_struct.py:77
+    // for i in urange(tups.length):
+    frame_dig 0
+    intc_1 // 1
+    +
+    frame_bury 0
+    b add_fixed_tups_for_header@1
+
+add_fixed_tups_after_for@4:
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_a(a: uint64) -> void:
+set_a:
+    // mutable_native_types/case3_with_mutable_struct.py:80-81
+    // @arc4.abimethod()
+    // def set_a(self, a: UInt64) -> None:
+    proto 1 0
+
+set_a_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:82
+    // self._check_owner()
+    callsub _check_owner
+    // mutable_native_types/case3_with_mutable_struct.py:83
+    // for i in urange(self.tup_bag.value.count):
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    intc_1 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+
+set_a_for_header@1:
+    // mutable_native_types/case3_with_mutable_struct.py:83
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 1
+    frame_dig 0
+    <
+    bz set_a_after_for@4
+
+set_a_for_body@2:
+    // mutable_native_types/case3_with_mutable_struct.py:84
+    // self.tup_bag.value.items[i].a = a
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    frame_dig -1
+    itob
+    swap
+    dup
+    intc_2 // 8
+    intc 4 // 128
+    extract3
+    frame_dig 1
+    dup
+    cover 2
+    intc_3 // 16
+    *
+    dig 1
+    swap
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    intc_0 // 0
+    uncover 5
+    replace3
+    uncover 2
+    intc_3 // 16
+    *
+    uncover 2
+    swap
+    uncover 2
+    replace3
+    swap
+    intc_2 // 8
+    uncover 2
+    replace3
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+
+set_a_for_footer@3:
+    // mutable_native_types/case3_with_mutable_struct.py:83
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 1
+    intc_1 // 1
+    +
+    frame_bury 1
+    b set_a_for_header@1
+
+set_a_after_for@4:
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b(b: uint64) -> void:
+set_b:
+    // mutable_native_types/case3_with_mutable_struct.py:86-87
+    // @arc4.abimethod()
+    // def set_b(self, b: UInt64) -> None:
+    proto 1 0
+
+set_b_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:88
+    // self._check_owner()
+    callsub _check_owner
+    // mutable_native_types/case3_with_mutable_struct.py:89
+    // for i in urange(self.tup_bag.value.count):
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    intc_1 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+
+set_b_for_header@1:
+    // mutable_native_types/case3_with_mutable_struct.py:89
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 1
+    frame_dig 0
+    <
+    bz set_b_after_for@4
+
+set_b_for_body@2:
+    // mutable_native_types/case3_with_mutable_struct.py:90
+    // self.tup_bag.value.items[i].b = b
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    frame_dig -1
+    itob
+    swap
+    dup
+    intc_2 // 8
+    intc 4 // 128
+    extract3
+    frame_dig 1
+    dup
+    cover 2
+    intc_3 // 16
+    *
+    dig 1
+    swap
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    intc_2 // 8
+    uncover 5
+    replace3
+    uncover 2
+    intc_3 // 16
+    *
+    uncover 2
+    swap
+    uncover 2
+    replace3
+    swap
+    intc_2 // 8
+    uncover 2
+    replace3
+    bytec_0 // "tup_bag"
+    swap
+    box_put
+
+set_b_for_footer@3:
+    // mutable_native_types/case3_with_mutable_struct.py:89
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 1
+    intc_1 // 1
+    +
+    frame_bury 1
+    b set_b_for_header@1
+
+set_b_after_for@4:
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_3_tups(start: uint64) -> bytes:
+get_3_tups:
+    // mutable_native_types/case3_with_mutable_struct.py:92-93
+    // @arc4.abimethod()
+    // def get_3_tups(self, start: UInt64) -> FixedArray[NamedTup, typing.Literal[3]]:
+    proto 1 1
+
+get_3_tups_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:94
+    // assert self.tup_bag.value.count >= start + 3, "not enough items"
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    frame_dig -1
+    pushint 3 // 3
+    +
+    >=
+    assert // not enough items
+    // mutable_native_types/case3_with_mutable_struct.py:95
+    // items = self.tup_bag.value.items.copy()
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_2 // 8
+    intc 4 // 128
+    extract3
+    // mutable_native_types/case3_with_mutable_struct.py:99
+    // items[start].copy(),
+    frame_dig -1
+    intc_3 // 16
+    *
+    dig 1
+    swap
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    swap
+    // mutable_native_types/case3_with_mutable_struct.py:100
+    // items[start + 1].copy(),
+    frame_dig -1
+    intc_1 // 1
+    +
+    intc_3 // 16
+    *
+    dig 1
+    swap
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    swap
+    // mutable_native_types/case3_with_mutable_struct.py:101
+    // items[start + 2].copy(),
+    frame_dig -1
+    pushint 2 // 2
+    +
+    intc_3 // 16
+    *
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    // mutable_native_types/case3_with_mutable_struct.py:97-103
+    // return FixedArray[NamedTup, typing.Literal[3]](
+    //     (
+    //         items[start].copy(),
+    //         items[start + 1].copy(),
+    //         items[start + 2].copy(),
+    //     )
+    // )
+    bytec_1 // 0x
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    bytec_1 // 0x
+    concat
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_all_tups() -> bytes:
+get_all_tups:
+    // mutable_native_types/case3_with_mutable_struct.py:105-106
+    // @arc4.abimethod()
+    // def get_all_tups(self) -> NativeArray[NamedTup]:
+    proto 0 1
+
+get_all_tups_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:107
+    // result = NativeArray[NamedTup]()
+    intc_0 // 0
+    itob
+    extract 6 2
+    bytec_1 // 0x
+    concat
+    bytec_1 // 0x
+    concat
+    // mutable_native_types/case3_with_mutable_struct.py:108
+    // items = self.tup_bag.value.items.copy()
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_2 // 8
+    intc 4 // 128
+    extract3
+    // mutable_native_types/case3_with_mutable_struct.py:109-110
+    // # TODO: improve this once slicing is supported
+    // for i in urange(self.tup_bag.value.count):
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    intc_1 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+
+get_all_tups_for_header@1:
+    // mutable_native_types/case3_with_mutable_struct.py:109-110
+    // # TODO: improve this once slicing is supported
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 3
+    frame_dig 2
+    <
+    bz get_all_tups_after_for@4
+
+get_all_tups_for_body@2:
+    // mutable_native_types/case3_with_mutable_struct.py:111
+    // result.append(items[i].copy())
+    frame_dig 3
+    intc_3 // 16
+    *
+    frame_dig 1
+    swap
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    bytec_1 // 0x
+    swap
+    concat
+    bytec_1 // 0x
+    concat
+    frame_dig 0
+    dup
+    cover 2
+    swap
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    frame_bury 0
+
+get_all_tups_for_footer@3:
+    // mutable_native_types/case3_with_mutable_struct.py:109-110
+    // # TODO: improve this once slicing is supported
+    // for i in urange(self.tup_bag.value.count):
+    frame_dig 3
+    intc_1 // 1
+    +
+    frame_bury 3
+    b get_all_tups_for_header@1
+
+get_all_tups_after_for@4:
+    // mutable_native_types/case3_with_mutable_struct.py:112
+    // return result
+    retsub
+
+
+// test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct._check_owner() -> void:
+_check_owner:
+
+_check_owner_block@0:
+    // mutable_native_types/case3_with_mutable_struct.py:116
+    // assert self.tup_bag.value.bootstrapped, "app not bootstrapped"
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    intc 5 // 34176
+    getbit
+    assert // app not bootstrapped
+    // mutable_native_types/case3_with_mutable_struct.py:117
+    // assert self.tup_bag.value.owner == Txn.sender, "sender not authorized"
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    pushint 136 // 136
+    pushint 32 // 32
+    extract3
+    txn Sender
+    ==
+    assert // sender not authorized
+    // mutable_native_types/case3_with_mutable_struct.py:119
+    // self.tup_bag.value.app == Global.current_application_id
+    bytec_0 // "tup_bag"
+    box_get
+    assert // check self.tup_bag exists
+    pushint 168 // 168
+    intc_2 // 8
+    extract3
+    btoi
+    global CurrentApplicationID
+    ==
+    // mutable_native_types/case3_with_mutable_struct.py:118-120
+    // assert (
+    //     self.tup_bag.value.app == Global.current_application_id
+    // ), "this error should be impossible"
+    assert // this error should be impossible
+    retsub
+
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+
+approval_program_block@0:
+
+approval_program_block@1:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz approval_program_bare_routing@16
+
+approval_program_abi_routing@2:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xa67ea2ab // method "create_box()void"
+    pushbytes 0x028840ea // method "num_tups()uint64"
+    pushbytes 0xf75cee9d // method "add_tup((uint64,uint64))void"
+    pushbytes 0x880b5534 // method "get_tup(uint64)(uint64,uint64)"
+    pushbytes 0x53030b41 // method "sum()uint64"
+    pushbytes 0x7d39df51 // method "add_many_tups((uint64,uint64)[])void"
+    pushbytes 0x7a1e7b43 // method "add_fixed_tups((uint64,uint64)[3])void"
+    pushbytes 0x3447847f // method "set_a(uint64)void"
+    pushbytes 0x2ba64852 // method "set_b(uint64)void"
+    pushbytes 0xabc9be78 // method "get_3_tups(uint64)(uint64,uint64)[3]"
+    pushbytes 0x73457a19 // method "get_all_tups()(uint64,uint64)[]"
+    uncover 11
+    match approval_program_create_box_route@3 approval_program_num_tups_route@4 approval_program_add_tup_route@5 approval_program_get_tup_route@6 approval_program_sum_route@7 approval_program_add_many_tups_route@8 approval_program_add_fixed_tups_route@9 approval_program_set_a_route@10 approval_program_set_b_route@11 approval_program_get_3_tups_route@12 approval_program_get_all_tups_route@13
+
+approval_program_switch_case_default@14:
+
+approval_program_switch_case_next@15:
+
+approval_program_after_if_else@22:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    intc_0 // 0
+
+approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23:
+    retsub
+
+approval_program_get_all_tups_route@13:
+    // mutable_native_types/case3_with_mutable_struct.py:105
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_all_tups
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_get_3_tups_route@12:
+    // mutable_native_types/case3_with_mutable_struct.py:92
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // mutable_native_types/case3_with_mutable_struct.py:92
+    // @arc4.abimethod()
+    callsub get_3_tups
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_set_b_route@11:
+    // mutable_native_types/case3_with_mutable_struct.py:86
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // mutable_native_types/case3_with_mutable_struct.py:86
+    // @arc4.abimethod()
+    callsub set_b
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_set_a_route@10:
+    // mutable_native_types/case3_with_mutable_struct.py:80
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // mutable_native_types/case3_with_mutable_struct.py:80
+    // @arc4.abimethod()
+    callsub set_a
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_add_fixed_tups_route@9:
+    // mutable_native_types/case3_with_mutable_struct.py:75
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // mutable_native_types/case3_with_mutable_struct.py:75
+    // @arc4.abimethod()
+    callsub add_fixed_tups
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_add_many_tups_route@8:
+    // mutable_native_types/case3_with_mutable_struct.py:70
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // mutable_native_types/case3_with_mutable_struct.py:70
+    // @arc4.abimethod()
+    callsub add_many_tups
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_sum_route@7:
+    // mutable_native_types/case3_with_mutable_struct.py:61
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub sum
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_get_tup_route@6:
+    // mutable_native_types/case3_with_mutable_struct.py:56
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // mutable_native_types/case3_with_mutable_struct.py:56
+    // @arc4.abimethod()
+    callsub get_tup
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_add_tup_route@5:
+    // mutable_native_types/case3_with_mutable_struct.py:49
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // mutable_native_types/case3_with_mutable_struct.py:49
+    // @arc4.abimethod()
+    callsub add_tup
+    pop
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_num_tups_route@4:
+    // mutable_native_types/case3_with_mutable_struct.py:45
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub num_tups
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_create_box_route@3:
+    // mutable_native_types/case3_with_mutable_struct.py:38
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub create_box
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23
+
+approval_program_bare_routing@16:
+    // mutable_native_types/case3_with_mutable_struct.py:34
+    // class Case3WithStruct(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match approval_program___algopy_default_create@17
+
+approval_program_switch_case_default@20:
+
+approval_program_switch_case_next@21:
+    b approval_program_after_if_else@22
+
+approval_program___algopy_default_create@17:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+
+approval_program_block@18:
+
+approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_default_create@19:
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@23

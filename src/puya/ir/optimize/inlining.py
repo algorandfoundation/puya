@@ -92,7 +92,7 @@ def analyse_subroutines_for_inlining(
             complexity = sum(
                 len(b.phis) + len(b.ops) + len(not_none(b.terminator).targets()) for b in sub.body
             )
-            threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
+            threshold = max(3, 1 + len(sub.explicit_returns) + len(sub.parameters))
             if complexity <= threshold:
                 logger.debug(
                     f"marking simple function {sub.id} for inlining"

@@ -86,15 +86,16 @@ maybe_modify_array:
     // arc4_types/mutable_params2.py:18
     // a.append(arc4.Byte(1))  # v1: modify out
     frame_dig -2
-    extract 2 0
     pushbytes 0x01
-    concat
-    dup
-    len
+    concat // on error: max array length exceeded
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     frame_bury -2
     // arc4_types/mutable_params2.py:21
     // a = arc4.DynamicBytes(1, 2, 4)  # v4: local only
@@ -109,15 +110,16 @@ maybe_modify_array_after_if_else@13:
     // arc4_types/mutable_params2.py:25
     // a.append(arc4.Byte(4))  # v6: modify out IF not b ELSE local only
     frame_dig -2
-    extract 2 0
     pushbytes 0x04
-    concat
-    dup
-    len
+    concat // on error: max array length exceeded
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     frame_bury -2
     frame_dig 1
     bz maybe_modify_array_after_if_else@15
@@ -131,15 +133,16 @@ maybe_modify_array_else_body@10:
     // arc4_types/mutable_params2.py:23
     // a.append(arc4.Byte(42))  # v5: modify out
     frame_dig -2
-    extract 2 0
     pushbytes 0x2a
-    concat
-    dup
-    len
+    concat // on error: max array length exceeded
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     dupn 2
     frame_bury -2
     frame_bury 0

@@ -234,6 +234,7 @@ class Bool(_ABIEncoded):
         """Return the bool representation of the value after ARC-4 decoding"""
 
 _TArrayItem = typing.TypeVar("_TArrayItem")
+_TNativeArrayItem = typing.TypeVar("_TNativeArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
 
 class StaticArray(
@@ -367,6 +368,11 @@ class StaticArray(
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
 
+    def to_native(
+        self, element_type: type[_TNativeArrayItem], /
+    ) -> algopy.FixedArray[_TNativeArrayItem, _TArrayLength]:
+        """TODO DOCUMENT ME"""
+
 class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     """A dynamically sized ARC-4 Array of the specified type"""
 
@@ -406,6 +412,11 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
 
     def __bool__(self) -> bool:
         """Returns `True` if not an empty array"""
+
+    def to_native(
+        self, element_type: type[_TNativeArrayItem], /
+    ) -> algopy.Array[_TNativeArrayItem]:
+        """TODO DOCUMENT ME"""
 
 class Address(StaticArray[Byte, typing.Literal[32]]):
     """An alias for an array containing 32 bytes representing an Algorand address"""

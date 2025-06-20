@@ -34,12 +34,18 @@ main:
     ==
     assert
     callsub dynamic_array_pop_bit
-    swap
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
     bytec_1 // 0x80
     ==
     assert
     callsub dynamic_array_pop_bit
-    swap
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
     bytec_0 // 0x00
     ==
     assert
@@ -74,6 +80,12 @@ main:
     bytec 4 // 0x000548656c6c6f
     pushint 3 // 3
     callsub dynamic_array_replace_byte_length_head
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 5 // 5
+    >
+    assert // index access is out of bounds
     bytec 4 // 0x000548656c6c6f
     pushint 5 // 5
     callsub dynamic_array_replace_byte_length_head
@@ -113,7 +125,7 @@ main:
     dig 1
     intc_0 // 0
     extract_uint16
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
     dup
     intc_0 // 0
     extract_uint16
@@ -122,15 +134,17 @@ main:
     intc_1 // 2
     +
     extract3
-    extract 2 0
-    pushbytes 0xff
-    concat
     dup
-    len
+    pushbytes 0xff
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 1
+    +
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     intc_0 // 0
     callsub dynamic_array_replace_byte_length_head
     dup
@@ -142,7 +156,7 @@ main:
     dig 1
     intc_0 // 0
     extract_uint16
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
     dup
     intc_0 // 0
     extract_uint16
@@ -151,12 +165,6 @@ main:
     intc_1 // 2
     +
     extract3
-    dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 1
-    >
-    assert // Index access is out of bounds
     bytec_0 // 0x00
     replace2 3
     intc_0 // 0
@@ -174,7 +182,7 @@ main:
     return
 
 
-// _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> uint64, bytes:
 dynamic_array_pop_bit:
     proto 1 2
     frame_dig -1
@@ -193,10 +201,6 @@ dynamic_array_pop_bit:
     +
     dup2
     getbit
-    bytec_0 // 0x00
-    intc_0 // 0
-    uncover 2
-    setbit
     cover 2
     intc_0 // 0
     setbit

@@ -19,7 +19,7 @@ from puya.ir import arc4_router
 from puya.ir._contract_metadata import build_contract_metadata
 from puya.ir._utils import make_subroutine
 from puya.ir.arc4_router import AWSTContractMethodSignature
-from puya.ir.builder.lower_array import lower_array_nodes
+from puya.ir.builder.aggregates.main import lower_aggregate_nodes
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
 from puya.ir.destructure.main import destructure_ssa
@@ -182,7 +182,7 @@ def get_transform_pipeline(
     ref = artifact_ir.metadata.ref
     return [
         functools.partial(_optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.opt"),
-        functools.partial(_lower_array_ir, ref=ref),
+        functools.partial(_lower_aggregate_ir, ref=ref),
         functools.partial(
             _optimize_program_ir, artifact_ir=artifact_ir, qualifier="ssa.array.opt"
         ),
@@ -247,16 +247,14 @@ def _optimize_program_ir(
     )
 
 
-def _lower_array_ir(
+def _lower_aggregate_ir(
     context: ArtifactCompileContext,
     program: Program,
     *,
     ref: ContractReference | LogicSigReference,
 ) -> None:
     logger.debug(f"lowering array IR nodes in {program.kind} program of {ref}")
-    for sub in program.all_subroutines:
-        lower_array_nodes(sub)
-        sub.validate_with_ssa()
+    lower_aggregate_nodes(program)
     if context.options.output_ssa_ir:
         render_program(context, program, qualifier="ssa.array")
 

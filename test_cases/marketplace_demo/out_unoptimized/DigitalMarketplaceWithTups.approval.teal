@@ -1,0 +1,1738 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 0 1 8 4
+    bytecblock 0x 0x6c697374696e6773
+
+main_block@0:
+    txn ApplicationID
+    bnz main_after_if_else@2
+
+main_call___init__@1:
+    callsub __init__
+
+main_after_if_else@2:
+    callsub approval_program
+    return
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__init__() -> void:
+__init__:
+
+__init___block@0:
+    // marketplace_demo/marketplace_with_tups.py:40
+    // log("init")
+    pushbytes "init"
+    log
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.listings_box_mbr() -> uint64:
+listings_box_mbr:
+
+listings_box_mbr_block@0:
+    // marketplace_demo/marketplace_with_tups.py:45-66
+    // return UInt64(
+    //     2_500
+    //     +
+    //     # fmt: off
+    //     # Key length
+    //     (
+    //         8
+    //         + 32
+    //         + 8
+    //         + 8
+    //         +
+    //         # Value length
+    //         8
+    //         + 8
+    //         + 32
+    //         + 8
+    //         + 8
+    //     )
+    //     *
+    //     # fmt: on
+    //     400
+    // )
+    pushint 50500 // 50500
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.quantity_price(quantity: uint64, price: uint64, asset_decimals: uint64) -> uint64:
+quantity_price:
+    // marketplace_demo/marketplace_with_tups.py:68-69
+    // @subroutine
+    // def quantity_price(self, quantity: UInt64, price: UInt64, asset_decimals: UInt64) -> UInt64:
+    proto 3 1
+
+quantity_price_block@0:
+    // marketplace_demo/marketplace_with_tups.py:70
+    // amount_not_scaled_high, amount_not_scaled_low = op.mulw(price, quantity)
+    frame_dig -2
+    frame_dig -3
+    mulw
+    // marketplace_demo/marketplace_with_tups.py:71
+    // scaling_factor_high, scaling_factor_low = op.expw(10, asset_decimals)
+    pushint 10 // 10
+    frame_dig -1
+    expw
+    // marketplace_demo/marketplace_with_tups.py:72-74
+    // _quotient_high, amount_to_be_paid, _remainder_high, _remainder_low = op.divmodw(
+    //     amount_not_scaled_high, amount_not_scaled_low, scaling_factor_high, scaling_factor_low
+    // )
+    uncover 3
+    uncover 3
+    uncover 3
+    uncover 3
+    divmodw
+    popn 2
+    swap
+    // marketplace_demo/marketplace_with_tups.py:75
+    // assert _quotient_high == 0
+    intc_0 // 0
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:77
+    // return amount_to_be_paid
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.get_listings_mbr() -> uint64:
+get_listings_mbr:
+
+get_listings_mbr_block@0:
+    // marketplace_demo/marketplace_with_tups.py:81
+    // return self.listings_box_mbr()
+    callsub listings_box_mbr
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.allow_asset(mbr_pay: uint64, asset: uint64) -> void:
+allow_asset:
+    // marketplace_demo/marketplace_with_tups.py:83-84
+    // @arc4.abimethod(name="allowAsset")
+    // def allow_asset(self, mbr_pay: gtxn.PaymentTransaction, asset: Asset) -> None:
+    proto 2 0
+
+allow_asset_block@0:
+    // marketplace_demo/marketplace_with_tups.py:85
+    // assert not Global.current_application_address.is_opted_in(asset)
+    global CurrentApplicationAddress
+    frame_dig -1
+    asset_holding_get AssetBalance
+    bury 1
+    !
+    assert
+    // marketplace_demo/marketplace_with_tups.py:87
+    // assert mbr_pay.receiver == Global.current_application_address
+    frame_dig -2
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:88
+    // assert mbr_pay.amount == Global.asset_opt_in_min_balance
+    frame_dig -2
+    gtxns Amount
+    global AssetOptInMinBalance
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:90-92
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset, asset_receiver=Global.current_application_address, asset_amount=0
+    // ).submit()
+    itxn_begin
+    // marketplace_demo/marketplace_with_tups.py:91
+    // xfer_asset=asset, asset_receiver=Global.current_application_address, asset_amount=0
+    frame_dig -1
+    global CurrentApplicationAddress
+    intc_0 // 0
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // marketplace_demo/marketplace_with_tups.py:90
+    // itxn.AssetTransfer(
+    intc_3 // axfer
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+allow_asset_next_txn@1:
+    // marketplace_demo/marketplace_with_tups.py:90-92
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset, asset_receiver=Global.current_application_address, asset_amount=0
+    // ).submit()
+    itxn_submit
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.first_deposit(mbr_pay: uint64, xfer: uint64, unitary_price: uint64, nonce: uint64) -> void:
+first_deposit:
+    // marketplace_demo/marketplace_with_tups.py:94-101
+    // @arc4.abimethod(name="firstDeposit")
+    // def first_deposit(
+    //     self,
+    //     mbr_pay: gtxn.PaymentTransaction,
+    //     xfer: gtxn.AssetTransferTransaction,
+    //     unitary_price: UInt64,
+    //     nonce: UInt64,
+    // ) -> None:
+    proto 4 0
+
+first_deposit_block@0:
+    // marketplace_demo/marketplace_with_tups.py:102
+    // assert mbr_pay.sender == Txn.sender
+    frame_dig -4
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:103
+    // assert mbr_pay.receiver == Global.current_application_address
+    frame_dig -4
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:104
+    // assert mbr_pay.amount == self.listings_box_mbr()
+    frame_dig -4
+    gtxns Amount
+    callsub listings_box_mbr
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:106
+    // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
+    txn Sender
+    frame_dig -3
+    gtxns XferAsset
+    swap
+    frame_dig -1
+    cover 2
+    // marketplace_demo/marketplace_with_tups.py:107
+    // assert key not in self.listings
+    dup
+    bytec_0 // 0x
+    swap
+    concat
+    dig 2
+    itob
+    concat
+    dig 3
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    box_len
+    bury 1
+    !
+    assert
+    // marketplace_demo/marketplace_with_tups.py:109
+    // assert xfer.sender == Txn.sender
+    frame_dig -3
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:110
+    // assert xfer.asset_receiver == Global.current_application_address
+    frame_dig -3
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:111
+    // assert xfer.asset_amount > 0
+    frame_dig -3
+    gtxns AssetAmount
+    intc_0 // 0
+    >
+    assert
+    // marketplace_demo/marketplace_with_tups.py:114
+    // deposited=xfer.asset_amount,
+    frame_dig -3
+    gtxns AssetAmount
+    // marketplace_demo/marketplace_with_tups.py:116
+    // bidder=Account(),
+    global ZeroAddress
+    swap
+    // marketplace_demo/marketplace_with_tups.py:113
+    // self.listings[key] = ListingValue(
+    uncover 2
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 3
+    itob
+    concat
+    uncover 3
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    swap
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    frame_dig -2
+    itob
+    concat
+    uncover 2
+    concat
+    // marketplace_demo/marketplace_with_tups.py:117
+    // bid=UInt64(),
+    intc_0 // 0
+    // marketplace_demo/marketplace_with_tups.py:113
+    // self.listings[key] = ListingValue(
+    itob
+    concat
+    // marketplace_demo/marketplace_with_tups.py:118
+    // bidUnitaryPrice=UInt64(),
+    intc_0 // 0
+    // marketplace_demo/marketplace_with_tups.py:113
+    // self.listings[key] = ListingValue(
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    // marketplace_demo/marketplace_with_tups.py:113-119
+    // self.listings[key] = ListingValue(
+    //     deposited=xfer.asset_amount,
+    //     unitaryPrice=unitary_price,
+    //     bidder=Account(),
+    //     bid=UInt64(),
+    //     bidUnitaryPrice=UInt64(),
+    // )
+    box_put
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.deposit(xfer: uint64, nonce: uint64) -> void:
+deposit:
+    // marketplace_demo/marketplace_with_tups.py:121-122
+    // @arc4.abimethod
+    // def deposit(self, xfer: gtxn.AssetTransferTransaction, nonce: UInt64) -> None:
+    proto 2 0
+
+deposit_block@0:
+    // marketplace_demo/marketplace_with_tups.py:123
+    // key = ListingKey(owner=Txn.sender, asset=xfer.xfer_asset.id, nonce=nonce)
+    txn Sender
+    frame_dig -2
+    gtxns XferAsset
+    swap
+    frame_dig -1
+    cover 2
+    // marketplace_demo/marketplace_with_tups.py:125
+    // assert xfer.sender == Txn.sender
+    frame_dig -2
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:126
+    // assert xfer.asset_receiver == Global.current_application_address
+    frame_dig -2
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:127
+    // assert xfer.asset_amount > 0
+    frame_dig -2
+    gtxns AssetAmount
+    intc_0 // 0
+    >
+    assert
+    // marketplace_demo/marketplace_with_tups.py:129
+    // existing = self.listings[key]
+    dup
+    bytec_0 // 0x
+    swap
+    concat
+    dig 2
+    itob
+    concat
+    dig 3
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    box_get
+    assert // check self.listings entry exists
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    dup
+    intc_2 // 8
+    dup
+    extract3
+    btoi
+    swap
+    dup
+    pushint 16 // 16
+    pushint 32 // 32
+    extract3
+    swap
+    dup
+    pushint 48 // 48
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    pushint 56 // 56
+    intc_2 // 8
+    extract3
+    btoi
+    uncover 4
+    swap
+    uncover 4
+    cover 2
+    uncover 4
+    cover 3
+    cover 4
+    cover 4
+    cover 4
+    cover 4
+    cover 4
+    cover 4
+    // marketplace_demo/marketplace_with_tups.py:135
+    // deposited=existing.deposited + xfer.asset_amount,
+    frame_dig -2
+    gtxns AssetAmount
+    +
+    // marketplace_demo/marketplace_with_tups.py:130
+    // self.listings[key] = ListingValue(
+    uncover 5
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 6
+    itob
+    concat
+    uncover 6
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    swap
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    uncover 2
+    concat
+    uncover 2
+    itob
+    concat
+    uncover 2
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    // marketplace_demo/marketplace_with_tups.py:130-136
+    // self.listings[key] = ListingValue(
+    //     bid=existing.bid,
+    //     bidUnitaryPrice=existing.bidUnitaryPrice,
+    //     bidder=existing.bidder,
+    //     unitaryPrice=existing.unitaryPrice,
+    //     deposited=existing.deposited + xfer.asset_amount,
+    // )
+    box_put
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set_price(asset: uint64, nonce: uint64, unitary_price: uint64) -> void:
+set_price:
+    // marketplace_demo/marketplace_with_tups.py:138-139
+    // @arc4.abimethod(name="setPrice")
+    // def set_price(self, asset: Asset, nonce: UInt64, unitary_price: UInt64) -> None:
+    proto 3 0
+
+set_price_block@0:
+    // marketplace_demo/marketplace_with_tups.py:140
+    // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
+    txn Sender
+    frame_dig -3
+    swap
+    frame_dig -2
+    cover 2
+    // marketplace_demo/marketplace_with_tups.py:142
+    // existing = self.listings[key]
+    dup
+    bytec_0 // 0x
+    swap
+    concat
+    dig 2
+    itob
+    concat
+    dig 3
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    box_get
+    assert // check self.listings entry exists
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    dup
+    pushint 16 // 16
+    pushint 32 // 32
+    extract3
+    swap
+    dup
+    pushint 48 // 48
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    pushint 56 // 56
+    intc_2 // 8
+    extract3
+    btoi
+    uncover 3
+    swap
+    uncover 3
+    cover 2
+    cover 3
+    cover 3
+    cover 3
+    cover 3
+    cover 3
+    // marketplace_demo/marketplace_with_tups.py:143
+    // self.listings[key] = ListingValue(
+    uncover 4
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 5
+    itob
+    concat
+    uncover 5
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    swap
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    frame_dig -1
+    itob
+    concat
+    uncover 2
+    concat
+    uncover 2
+    itob
+    concat
+    uncover 2
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    // marketplace_demo/marketplace_with_tups.py:143-149
+    // self.listings[key] = ListingValue(
+    //     bid=existing.bid,
+    //     bidUnitaryPrice=existing.bidUnitaryPrice,
+    //     bidder=existing.bidder,
+    //     deposited=existing.deposited,
+    //     unitaryPrice=unitary_price,
+    // )
+    box_put
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy(owner: bytes, asset: uint64, nonce: uint64, buy_pay: uint64, quantity: uint64) -> void:
+buy:
+    // marketplace_demo/marketplace_with_tups.py:151-159
+    // @arc4.abimethod
+    // def buy(
+    //     self,
+    //     owner: Account,
+    //     asset: Asset,
+    //     nonce: UInt64,
+    //     buy_pay: gtxn.PaymentTransaction,
+    //     quantity: UInt64,
+    // ) -> None:
+    proto 5 0
+
+buy_block@0:
+    // marketplace_demo/marketplace_with_tups.py:160
+    // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
+    frame_dig -5
+    frame_dig -4
+    swap
+    frame_dig -3
+    cover 2
+    // marketplace_demo/marketplace_with_tups.py:162
+    // listing = self.listings[key]
+    dup
+    bytec_0 // 0x
+    swap
+    concat
+    dig 2
+    itob
+    concat
+    dig 3
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    box_get
+    assert // check self.listings entry exists
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    dup
+    intc_2 // 8
+    dup
+    extract3
+    btoi
+    swap
+    dup
+    pushint 16 // 16
+    pushint 32 // 32
+    extract3
+    swap
+    dup
+    pushint 48 // 48
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    pushint 56 // 56
+    intc_2 // 8
+    extract3
+    btoi
+    uncover 4
+    swap
+    uncover 4
+    cover 2
+    uncover 4
+    cover 3
+    cover 4
+    cover 4
+    cover 3
+    cover 4
+    cover 4
+    cover 4
+    // marketplace_demo/marketplace_with_tups.py:164
+    // amount_to_be_paid = self.quantity_price(quantity, listing.unitaryPrice, asset.decimals)
+    frame_dig -4
+    asset_params_get AssetDecimals
+    assert // asset exists
+    frame_dig -1
+    dig 2
+    uncover 2
+    callsub quantity_price
+    // marketplace_demo/marketplace_with_tups.py:166
+    // assert buy_pay.sender == Txn.sender
+    frame_dig -2
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:167
+    // assert buy_pay.receiver == owner
+    frame_dig -2
+    gtxns Receiver
+    frame_dig -5
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:168
+    // assert buy_pay.amount == amount_to_be_paid
+    frame_dig -2
+    gtxns Amount
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:175
+    // deposited=listing.deposited - quantity,
+    swap
+    frame_dig -1
+    -
+    // marketplace_demo/marketplace_with_tups.py:170
+    // self.listings[key] = ListingValue(
+    uncover 5
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 6
+    itob
+    concat
+    uncover 6
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    swap
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    uncover 2
+    concat
+    uncover 2
+    itob
+    concat
+    uncover 2
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    // marketplace_demo/marketplace_with_tups.py:170-176
+    // self.listings[key] = ListingValue(
+    //     bid=listing.bid,
+    //     bidUnitaryPrice=listing.bidUnitaryPrice,
+    //     bidder=listing.bidder,
+    //     unitaryPrice=listing.unitaryPrice,
+    //     deposited=listing.deposited - quantity,
+    // )
+    box_put
+    // marketplace_demo/marketplace_with_tups.py:178-180
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
+    // ).submit()
+    itxn_begin
+    // marketplace_demo/marketplace_with_tups.py:179
+    // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
+    frame_dig -4
+    txn Sender
+    frame_dig -1
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // marketplace_demo/marketplace_with_tups.py:178
+    // itxn.AssetTransfer(
+    intc_3 // axfer
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+buy_next_txn@1:
+    // marketplace_demo/marketplace_with_tups.py:178-180
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
+    // ).submit()
+    itxn_submit
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.withdraw(asset: uint64, nonce: uint64) -> void:
+withdraw:
+    // marketplace_demo/marketplace_with_tups.py:182-183
+    // @arc4.abimethod
+    // def withdraw(self, asset: Asset, nonce: UInt64) -> None:
+    proto 2 0
+
+withdraw_block@0:
+    // marketplace_demo/marketplace_with_tups.py:184
+    // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
+    txn Sender
+    dup
+    frame_dig -2
+    dup
+    cover 2
+    cover 2
+    frame_dig -1
+    dup
+    cover 3
+    cover 3
+    // marketplace_demo/marketplace_with_tups.py:186
+    // listing = self.listings[key]
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    box_get
+    assert // check self.listings entry exists
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    dup
+    pushint 16 // 16
+    pushint 32 // 32
+    extract3
+    swap
+    dup
+    pushint 48 // 48
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    pushint 56 // 56
+    intc_2 // 8
+    extract3
+    btoi
+    uncover 3
+    swap
+    uncover 3
+    cover 2
+    cover 3
+    cover 3
+    dup
+    cover 3
+    cover 3
+    cover 2
+    swap
+    // marketplace_demo/marketplace_with_tups.py:187
+    // if listing.bidder != Account():
+    global ZeroAddress
+    !=
+    bz withdraw_after_if_else@3
+
+withdraw_if_body@1:
+    // marketplace_demo/marketplace_with_tups.py:189
+    // listing.bid, listing.bidUnitaryPrice, asset.decimals
+    frame_dig -2
+    asset_params_get AssetDecimals
+    assert // asset exists
+    // marketplace_demo/marketplace_with_tups.py:188-190
+    // current_bid_deposit = self.quantity_price(
+    //     listing.bid, listing.bidUnitaryPrice, asset.decimals
+    // )
+    frame_dig 5
+    frame_dig 6
+    uncover 2
+    callsub quantity_price
+    // marketplace_demo/marketplace_with_tups.py:191
+    // itxn.Payment(receiver=listing.bidder, amount=current_bid_deposit).submit()
+    itxn_begin
+    // marketplace_demo/marketplace_with_tups.py:186
+    // listing = self.listings[key]
+    frame_dig 4
+    swap
+    itxn_field Amount
+    itxn_field Receiver
+    // marketplace_demo/marketplace_with_tups.py:191
+    // itxn.Payment(receiver=listing.bidder, amount=current_bid_deposit).submit()
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+withdraw_next_txn@2:
+    // marketplace_demo/marketplace_with_tups.py:191
+    // itxn.Payment(receiver=listing.bidder, amount=current_bid_deposit).submit()
+    itxn_submit
+
+withdraw_after_if_else@3:
+    // marketplace_demo/marketplace_with_tups.py:193
+    // del self.listings[key]
+    frame_dig 0
+    bytec_0 // 0x
+    swap
+    concat
+    frame_dig 1
+    itob
+    concat
+    frame_dig 2
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    box_del
+    pop
+    // marketplace_demo/marketplace_with_tups.py:195
+    // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
+    itxn_begin
+    txn Sender
+    callsub listings_box_mbr
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+withdraw_next_txn@4:
+    // marketplace_demo/marketplace_with_tups.py:195
+    // itxn.Payment(receiver=Txn.sender, amount=self.listings_box_mbr()).submit()
+    itxn_submit
+    // marketplace_demo/marketplace_with_tups.py:197-199
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
+    // ).submit()
+    itxn_begin
+    // marketplace_demo/marketplace_with_tups.py:198
+    // xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
+    frame_dig -2
+    txn Sender
+    // marketplace_demo/marketplace_with_tups.py:186
+    // listing = self.listings[key]
+    frame_dig 3
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // marketplace_demo/marketplace_with_tups.py:197
+    // itxn.AssetTransfer(
+    intc_3 // axfer
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+withdraw_next_txn@5:
+    // marketplace_demo/marketplace_with_tups.py:197-199
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
+    // ).submit()
+    itxn_submit
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.bid(owner: bytes, asset: uint64, nonce: uint64, bid_pay: uint64, quantity: uint64, unitary_price: uint64) -> void:
+bid:
+    // marketplace_demo/marketplace_with_tups.py:201-210
+    // @arc4.abimethod
+    // def bid(
+    //     self,
+    //     owner: Account,
+    //     asset: Asset,
+    //     nonce: UInt64,
+    //     bid_pay: gtxn.PaymentTransaction,
+    //     quantity: UInt64,
+    //     unitary_price: UInt64,
+    // ) -> None:
+    proto 6 0
+
+bid_block@0:
+    // marketplace_demo/marketplace_with_tups.py:211
+    // key = ListingKey(owner=owner, asset=asset.id, nonce=nonce)
+    frame_dig -6
+    dup
+    frame_dig -5
+    dup
+    cover 2
+    cover 2
+    frame_dig -4
+    dup
+    cover 3
+    cover 3
+    // marketplace_demo/marketplace_with_tups.py:213
+    // listing = self.listings[key]
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    box_get
+    assert // check self.listings entry exists
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    dup
+    intc_2 // 8
+    dup
+    extract3
+    btoi
+    swap
+    dup
+    pushint 16 // 16
+    pushint 32 // 32
+    extract3
+    swap
+    dup
+    pushint 48 // 48
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    pushint 56 // 56
+    intc_2 // 8
+    extract3
+    btoi
+    uncover 4
+    swap
+    uncover 4
+    cover 2
+    uncover 4
+    cover 3
+    cover 4
+    cover 4
+    cover 3
+    dup
+    cover 3
+    swap
+    cover 2
+    // marketplace_demo/marketplace_with_tups.py:214
+    // if listing.bidder != Account():
+    global ZeroAddress
+    !=
+    bz bid_after_if_else@3
+
+bid_if_body@1:
+    // marketplace_demo/marketplace_with_tups.py:215
+    // assert unitary_price > listing.bidUnitaryPrice
+    frame_dig -1
+    frame_dig 7
+    dup
+    cover 2
+    >
+    assert
+    // marketplace_demo/marketplace_with_tups.py:218
+    // listing.bid, listing.bidUnitaryPrice, asset.decimals
+    frame_dig -5
+    asset_params_get AssetDecimals
+    assert // asset exists
+    // marketplace_demo/marketplace_with_tups.py:217-219
+    // current_bid_amount = self.quantity_price(
+    //     listing.bid, listing.bidUnitaryPrice, asset.decimals
+    // )
+    frame_dig 6
+    uncover 2
+    uncover 2
+    callsub quantity_price
+    // marketplace_demo/marketplace_with_tups.py:221
+    // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
+    itxn_begin
+    // marketplace_demo/marketplace_with_tups.py:213
+    // listing = self.listings[key]
+    frame_dig 5
+    swap
+    itxn_field Amount
+    itxn_field Receiver
+    // marketplace_demo/marketplace_with_tups.py:221
+    // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+bid_next_txn@2:
+    // marketplace_demo/marketplace_with_tups.py:221
+    // itxn.Payment(receiver=listing.bidder, amount=current_bid_amount).submit()
+    itxn_submit
+
+bid_after_if_else@3:
+    // marketplace_demo/marketplace_with_tups.py:223
+    // amount_to_be_bid = self.quantity_price(quantity, unitary_price, asset.decimals)
+    frame_dig -5
+    asset_params_get AssetDecimals
+    assert // asset exists
+    frame_dig -2
+    frame_dig -1
+    uncover 2
+    callsub quantity_price
+    // marketplace_demo/marketplace_with_tups.py:225
+    // assert bid_pay.sender == Txn.sender
+    frame_dig -3
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:226
+    // assert bid_pay.receiver == Global.current_application_address
+    frame_dig -3
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:227
+    // assert bid_pay.amount == amount_to_be_bid
+    frame_dig -3
+    gtxns Amount
+    ==
+    assert
+    // marketplace_demo/marketplace_with_tups.py:232
+    // bidder=Txn.sender,
+    txn Sender
+    // marketplace_demo/marketplace_with_tups.py:229
+    // self.listings[key] = ListingValue(
+    frame_dig 0
+    bytec_0 // 0x
+    swap
+    concat
+    frame_dig 1
+    itob
+    concat
+    frame_dig 2
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    frame_dig 3
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    frame_dig 4
+    itob
+    concat
+    uncover 2
+    concat
+    frame_dig -2
+    itob
+    concat
+    frame_dig -1
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    // marketplace_demo/marketplace_with_tups.py:229-235
+    // self.listings[key] = ListingValue(
+    //     deposited=listing.deposited,
+    //     unitaryPrice=listing.unitaryPrice,
+    //     bidder=Txn.sender,
+    //     bid=quantity,
+    //     bidUnitaryPrice=unitary_price,
+    // )
+    box_put
+    retsub
+
+
+// test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid(asset: uint64, nonce: uint64) -> void:
+accept_bid:
+    // marketplace_demo/marketplace_with_tups.py:237-238
+    // @arc4.abimethod(name="acceptBid")
+    // def accept_bid(self, asset: Asset, nonce: UInt64) -> None:
+    proto 2 0
+    bytec_0 // ""
+
+accept_bid_block@0:
+    // marketplace_demo/marketplace_with_tups.py:239
+    // key = ListingKey(owner=Txn.sender, asset=asset.id, nonce=nonce)
+    txn Sender
+    dup
+    frame_dig -2
+    dup
+    cover 2
+    cover 2
+    frame_dig -1
+    dup
+    cover 3
+    cover 3
+    // marketplace_demo/marketplace_with_tups.py:241
+    // listing = self.listings[key]
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    box_get
+    assert // check self.listings entry exists
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    dup
+    intc_2 // 8
+    dup
+    extract3
+    btoi
+    swap
+    dup
+    pushint 16 // 16
+    pushint 32 // 32
+    extract3
+    swap
+    dup
+    pushint 48 // 48
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    pushint 56 // 56
+    intc_2 // 8
+    extract3
+    btoi
+    uncover 4
+    swap
+    uncover 4
+    cover 2
+    uncover 4
+    cover 3
+    cover 4
+    dup
+    cover 5
+    cover 5
+    cover 4
+    dup
+    cover 4
+    swap
+    dup
+    cover 3
+    cover 4
+    swap
+    cover 3
+    // marketplace_demo/marketplace_with_tups.py:242
+    // assert listing.bidder != Account()
+    global ZeroAddress
+    !=
+    assert
+    // marketplace_demo/marketplace_with_tups.py:244
+    // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
+    <
+    bz accept_bid_ternary_false@2
+
+accept_bid_ternary_true@1:
+    // marketplace_demo/marketplace_with_tups.py:244
+    // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
+    frame_dig 4
+
+accept_bid_ternary_merge@3:
+    // marketplace_demo/marketplace_with_tups.py:244
+    // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
+    dup
+    frame_bury 0
+    // marketplace_demo/marketplace_with_tups.py:247
+    // min_quantity, listing.bidUnitaryPrice, asset.decimals
+    frame_dig -2
+    asset_params_get AssetDecimals
+    assert // asset exists
+    // marketplace_demo/marketplace_with_tups.py:246-248
+    // best_bid_amount = self.quantity_price(
+    //     min_quantity, listing.bidUnitaryPrice, asset.decimals
+    // )
+    swap
+    frame_dig 8
+    uncover 2
+    callsub quantity_price
+    // marketplace_demo/marketplace_with_tups.py:250
+    // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
+    itxn_begin
+    txn Sender
+    swap
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+accept_bid_next_txn@4:
+    // marketplace_demo/marketplace_with_tups.py:250
+    // itxn.Payment(receiver=Txn.sender, amount=best_bid_amount).submit()
+    itxn_submit
+    // marketplace_demo/marketplace_with_tups.py:252-254
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset, asset_receiver=listing.bidder, asset_amount=min_quantity
+    // ).submit()
+    itxn_begin
+    // marketplace_demo/marketplace_with_tups.py:253
+    // xfer_asset=asset, asset_receiver=listing.bidder, asset_amount=min_quantity
+    frame_dig -2
+    // marketplace_demo/marketplace_with_tups.py:241
+    // listing = self.listings[key]
+    frame_dig 6
+    // marketplace_demo/marketplace_with_tups.py:253
+    // xfer_asset=asset, asset_receiver=listing.bidder, asset_amount=min_quantity
+    frame_dig 0
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // marketplace_demo/marketplace_with_tups.py:252
+    // itxn.AssetTransfer(
+    intc_3 // axfer
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+
+accept_bid_next_txn@5:
+    // marketplace_demo/marketplace_with_tups.py:252-254
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset, asset_receiver=listing.bidder, asset_amount=min_quantity
+    // ).submit()
+    itxn_submit
+    // marketplace_demo/marketplace_with_tups.py:260
+    // deposited=listing.deposited - min_quantity,
+    frame_dig 4
+    frame_dig 0
+    dup
+    cover 2
+    -
+    swap
+    // marketplace_demo/marketplace_with_tups.py:261
+    // bid=listing.bid - min_quantity,
+    frame_dig 7
+    swap
+    -
+    swap
+    // marketplace_demo/marketplace_with_tups.py:256
+    // self.listings[key] = ListingValue(
+    frame_dig 1
+    bytec_0 // 0x
+    swap
+    concat
+    frame_dig 2
+    itob
+    concat
+    frame_dig 3
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    bytec_1 // 0x6c697374696e6773
+    swap
+    concat
+    swap
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    frame_dig 5
+    itob
+    concat
+    frame_dig 6
+    concat
+    uncover 2
+    itob
+    concat
+    frame_dig 8
+    itob
+    concat
+    bytec_0 // 0x
+    concat
+    // marketplace_demo/marketplace_with_tups.py:256-262
+    // self.listings[key] = ListingValue(
+    //     bidder=listing.bidder,
+    //     bidUnitaryPrice=listing.bidUnitaryPrice,
+    //     unitaryPrice=listing.unitaryPrice,
+    //     deposited=listing.deposited - min_quantity,
+    //     bid=listing.bid - min_quantity,
+    // )
+    box_put
+    retsub
+
+accept_bid_ternary_false@2:
+    // marketplace_demo/marketplace_with_tups.py:244
+    // min_quantity = listing.deposited if listing.deposited < listing.bid else listing.bid
+    frame_dig 7
+    b accept_bid_ternary_merge@3
+
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+
+approval_program_block@0:
+
+approval_program_block@1:
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz approval_program_bare_routing@14
+
+approval_program_abi_routing@2:
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xd98ef6a9 // method "getListingsMbr()uint64"
+    pushbytes 0x56efcfb5 // method "allowAsset(pay,asset)void"
+    pushbytes 0x12f08c98 // method "firstDeposit(pay,axfer,uint64,uint64)void"
+    pushbytes 0x9b4b8234 // method "deposit(axfer,uint64)void"
+    pushbytes 0x5a05bc57 // method "setPrice(asset,uint64,uint64)void"
+    pushbytes 0x162fc232 // method "buy(account,asset,uint64,pay,uint64)void"
+    pushbytes 0xcbc819e5 // method "withdraw(asset,uint64)void"
+    pushbytes 0x824d4bad // method "bid(account,asset,uint64,pay,uint64,uint64)void"
+    pushbytes 0xdd619204 // method "acceptBid(asset,uint64)void"
+    uncover 9
+    match approval_program_getListingsMbr_route@3 approval_program_allowAsset_route@4 approval_program_firstDeposit_route@5 approval_program_deposit_route@6 approval_program_setPrice_route@7 approval_program_buy_route@8 approval_program_withdraw_route@9 approval_program_bid_route@10 approval_program_acceptBid_route@11
+
+approval_program_switch_case_default@12:
+
+approval_program_switch_case_next@13:
+
+approval_program_after_if_else@20:
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    intc_0 // 0
+
+approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21:
+    retsub
+
+approval_program_acceptBid_route@11:
+    // marketplace_demo/marketplace_with_tups.py:237
+    // @arc4.abimethod(name="acceptBid")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    // marketplace_demo/marketplace_with_tups.py:237
+    // @arc4.abimethod(name="acceptBid")
+    callsub accept_bid
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
+
+approval_program_bid_route@10:
+    // marketplace_demo/marketplace_with_tups.py:201
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    txna ApplicationArgs 3
+    btoi
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 4
+    btoi
+    txna ApplicationArgs 5
+    btoi
+    // marketplace_demo/marketplace_with_tups.py:201
+    // @arc4.abimethod
+    uncover 5
+    uncover 5
+    uncover 5
+    uncover 5
+    uncover 5
+    uncover 5
+    callsub bid
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
+
+approval_program_withdraw_route@9:
+    // marketplace_demo/marketplace_with_tups.py:182
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    // marketplace_demo/marketplace_with_tups.py:182
+    // @arc4.abimethod
+    callsub withdraw
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
+
+approval_program_buy_route@8:
+    // marketplace_demo/marketplace_with_tups.py:151
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    btoi
+    txnas Assets
+    txna ApplicationArgs 3
+    btoi
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 4
+    btoi
+    // marketplace_demo/marketplace_with_tups.py:151
+    // @arc4.abimethod
+    uncover 4
+    uncover 4
+    uncover 4
+    uncover 4
+    uncover 4
+    callsub buy
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
+
+approval_program_setPrice_route@7:
+    // marketplace_demo/marketplace_with_tups.py:138
+    // @arc4.abimethod(name="setPrice")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    // marketplace_demo/marketplace_with_tups.py:138
+    // @arc4.abimethod(name="setPrice")
+    uncover 2
+    uncover 2
+    uncover 2
+    callsub set_price
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
+
+approval_program_deposit_route@6:
+    // marketplace_demo/marketplace_with_tups.py:121
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_3 // axfer
+    ==
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
+    btoi
+    // marketplace_demo/marketplace_with_tups.py:121
+    // @arc4.abimethod
+    callsub deposit
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
+
+approval_program_firstDeposit_route@5:
+    // marketplace_demo/marketplace_with_tups.py:94
+    // @arc4.abimethod(name="firstDeposit")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txn GroupIndex
+    pushint 2 // 2
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_3 // axfer
+    ==
+    assert // transaction type is axfer
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    // marketplace_demo/marketplace_with_tups.py:94
+    // @arc4.abimethod(name="firstDeposit")
+    uncover 3
+    uncover 3
+    uncover 3
+    uncover 3
+    callsub first_deposit
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
+
+approval_program_allowAsset_route@4:
+    // marketplace_demo/marketplace_with_tups.py:83
+    // @arc4.abimethod(name="allowAsset")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    btoi
+    txnas Assets
+    // marketplace_demo/marketplace_with_tups.py:83
+    // @arc4.abimethod(name="allowAsset")
+    callsub allow_asset
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
+
+approval_program_getListingsMbr_route@3:
+    // marketplace_demo/marketplace_with_tups.py:79
+    // @arc4.abimethod(readonly=True, name="getListingsMbr")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub get_listings_mbr
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21
+
+approval_program_bare_routing@14:
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match approval_program___algopy_default_create@15
+
+approval_program_switch_case_default@18:
+
+approval_program_switch_case_next@19:
+    b approval_program_after_if_else@20
+
+approval_program___algopy_default_create@15:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+
+approval_program_block@16:
+
+approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_default_create@17:
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__@21

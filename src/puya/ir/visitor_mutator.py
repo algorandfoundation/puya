@@ -26,7 +26,7 @@ class IRMutator(IRVisitor[t.Any]):
         for op in block.ops:
             new_op = op.accept(self)
             if new_op is not None:
-                assert new_op is op, f"ops should be mutated in place, {op=}, {new_op=}"
+                assert new_op is op, f"ops should be mutated in place, {op=!s}, {new_op=!s}"
                 new_ops.append(new_op)
         self._current_block_ops = None
         block.ops = new_ops
@@ -96,43 +96,47 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
-    def visit_array_read_index(
-        self, read: models.ArrayReadIndex
-    ) -> models.ArrayReadIndex | models.ValueProvider:
-        read.array = read.array.accept(self)
-        read.index = read.index.accept(self)
+    def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> models.ValueProvider:
+        read.base = read.base.accept(self)
+        indexes = list[int | models.Value]()
+        for index in read.indexes:
+            if isinstance(index, int):
+                indexes.append(index)
+            else:
+                indexes.append(index.accept(self))
+        read.indexes = tuple(indexes)
         return read
 
-    def visit_array_write_index(
-        self, write: models.ArrayWriteIndex
-    ) -> models.ArrayWriteIndex | models.ValueProvider:
-        write.array = write.array.accept(self)
-        write.index = write.index.accept(self)
+    def visit_box_read(self, read: models.BoxRead) -> models.ValueProvider:
+        read.key = read.key.accept(self)
+        return read
+
+    def visit_box_write(self, write: models.BoxWrite) -> models.BoxWrite | None:
+        write.key = write.key.accept(self)
         write.value = write.value.accept(self)
         return write
 
-    def visit_array_concat(
-        self, concat: models.ArrayConcat
-    ) -> models.ArrayConcat | models.ValueProvider:
-        concat.array = concat.array.accept(self)
-        concat.other = concat.other.accept(self)
-        return concat
+    def visit_aggregate_write_index(
+        self, write: models.AggregateWriteIndex
+    ) -> models.ValueProvider:
+        write.base = write.base.accept(self)
+        indexes = list[int | models.Value]()
+        for index in write.indexes:
+            if isinstance(index, int):
+                indexes.append(index)
+            else:
+                indexes.append(index.accept(self))
+        write.indexes = tuple(indexes)
+        write.value = write.value.accept(self)
+        return write
 
-    def visit_array_encode(
-        self, encode: models.ArrayEncode
-    ) -> models.ArrayEncode | models.ValueProvider:
+    def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
         encode.values = [value.accept(self) for value in encode.values]
         return encode
 
-    def visit_array_pop(self, pop: models.ArrayPop) -> models.ArrayPop | models.ValueProvider:
-        pop.array = pop.array.accept(self)
-        return pop
-
-    def visit_array_length(
-        self, length: models.ArrayLength
-    ) -> models.ArrayLength | models.ValueProvider:
-        length.array = length.array.accept(self)
-        return length
+    def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueProvider:
+        decode.value = decode.value.accept(self)
+        return decode
 
     def visit_phi(self, phi: models.Phi) -> models.Phi | None:
         phi.register = self.visit_register(phi.register)

@@ -44,6 +44,7 @@ class Arc4NumericTypesContract(Contract):
         assert ARC4UInt64.from_bytes(test_bytes[:8]).native == 2**64 - 1 - 2**63
         assert UInt8(1 if Txn.num_app_args else 2) == 2
         assert UInt512(1 if Txn.num_app_args else 2) == 2
+        assert UInt512(Txn.num_app_args) == 0
 
         decimals = Decimal("145.6853943940")
 

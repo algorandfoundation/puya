@@ -13,8 +13,13 @@ from puyapy.awst_build.eb._bytes_backed import (
     BytesBackedInstanceExpressionBuilder,
     BytesBackedTypeBuilder,
 )
-from puyapy.awst_build.eb._utils import compare_bytes, constant_bool_and_error, dummy_value
-from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder, CopyBuilder
+from puyapy.awst_build.eb._utils import (
+    CopyBuilder,
+    compare_bytes,
+    constant_bool_and_error,
+    dummy_value,
+)
+from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import BuilderComparisonOp, InstanceBuilder, NodeBuilder
 from puyapy.awst_build.utils import get_arg_mapping
@@ -49,9 +54,9 @@ class ARC4StructTypeBuilder(BytesBackedTypeBuilder[pytypes.StructType]):
 
         values = {
             field_name: expect.argument_of_type_else_dummy(
-                field_mapping[field_name], field_type
+                field_mapping[field_name], pytype.fields[field_name]
             ).resolve()
-            for field_name, field_type in pytype.fields.items()
+            for field_name in field_mapping
         }
         assert isinstance(pytype.wtype, wtypes.ARC4Struct)
         expr = NewStruct(wtype=pytype.wtype, values=values, source_location=location)

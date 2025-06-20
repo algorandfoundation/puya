@@ -1,4 +1,5 @@
 import typing
+from collections.abc import Callable, Sequence
 
 from puya import log
 from puya.awst import (
@@ -6,17 +7,11 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_types import effective_array_encoding
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, arrays
-from puya.ir.builder._tuple_util import build_tuple_registers, get_tuple_item_values
-from puya.ir.builder._utils import (
-    assert_value,
-    assign_intrinsic_op,
-    assign_targets,
-    assign_temp,
-)
+from puya.ir.builder import sequence
+from puya.ir.builder._utils import assign, assign_temp
 from puya.ir.context import IRFunctionBuildContext
+from puya.ir.encodings import wtype_to_encoding
 from puya.ir.models import (
     ConditionalBranch,
     GotoNth,
@@ -26,7 +21,8 @@ from puya.ir.models import (
     Value,
     ValueProvider,
 )
-from puya.ir.types_ import PrimitiveIRType
+from puya.ir.op_utils import assert_value, assign_intrinsic_op, assign_targets, convert_constants
+from puya.ir.types_ import TupleIRType, ir_type_to_ir_types, wtype_to_ir_type
 from puya.ir.utils import lvalue_items
 from puya.parse import SourceLocation
 
@@ -80,8 +76,17 @@ class LoopAssigner:
 
     def _build_registers_from_lvalue(self, target: awst_nodes.Lvalue) -> list[Register]:
         match target:
-            case awst_nodes.VarExpression(name=var_name, source_location=var_loc, wtype=var_type):
-                return build_tuple_registers(self._context, var_name, var_type, var_loc)
+            case awst_nodes.VarExpression(name=var_name, source_location=var_loc):
+                ir_type = wtype_to_ir_type(target, allow_tuple=True)
+                if isinstance(ir_type, TupleIRType):
+                    exploded_names = ir_type.build_item_names(var_name)
+                else:
+                    exploded_names = [var_name]
+                ir_types = ir_type_to_ir_types(ir_type)
+                return [
+                    self._context.new_register(name, ir_type, var_loc)
+                    for name, ir_type in zip(exploded_names, ir_types, strict=True)
+                ]
             case awst_nodes.TupleExpression() as tup_expr:
                 tuple_items = lvalue_items(tup_expr)
                 return [
@@ -94,22 +99,23 @@ class LoopAssigner:
 
 
 def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.ForInLoop) -> None:
-    sequence = statement.sequence
+    loc = statement.source_location
+    sequence_ = statement.sequence
     has_enumerate = False
     reverse_items = False
     reverse_index = False
 
     while True:
-        match sequence:
+        match sequence_:
             case awst_nodes.Enumeration():
                 if has_enumerate:
                     raise CodeError(
-                        "Nested enumeration is not currently supported", sequence.source_location
+                        "Nested enumeration is not currently supported", sequence_.source_location
                     )
-                sequence = sequence.expr
+                sequence_ = sequence_.expr
                 has_enumerate = True
             case awst_nodes.Reversed():
-                sequence = sequence.expr
+                sequence_ = sequence_.expr
                 reverse_items = not reverse_items
                 if not has_enumerate:
                     reverse_index = not reverse_index
@@ -122,14 +128,14 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
         has_enumerate=has_enumerate,
     )
 
-    match sequence.wtype:
-        case wtypes.uint64_range_wtype if isinstance(sequence, awst_nodes.Range):
+    match sequence_.wtype:
+        case wtypes.uint64_range_wtype if isinstance(sequence_, awst_nodes.Range):
             _iterate_urange(
                 context,
                 loop_body=statement.loop_body,
                 assigner=assign_user_loop_vars,
                 statement_loc=statement.source_location,
-                urange=sequence,
+                urange=sequence_,
                 reverse_items=reverse_items,
                 reverse_index=reverse_index,
             )
@@ -141,13 +147,13 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                     context,
                     loop_body=statement.loop_body,
                     assigner=assign_user_loop_vars,
-                    tuple_expr=sequence,
+                    tuple_expr=sequence_,
                     statement_loc=statement.source_location,
                     reverse_index=reverse_index,
                     reverse_items=reverse_items,
                 )
         case wtypes.BytesWType():
-            bytes_value = context.visitor.visit_and_materialise_single(sequence)
+            bytes_value = context.visitor.visit_and_materialise_single(sequence_)
             byte_length = assign_temp(
                 context,
                 temp_description="bytes_length",
@@ -180,65 +186,28 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
                 reverse_index=reverse_index,
                 reverse_items=reverse_items,
             )
-        case wtypes.ARC4Array() as arc4_array_wtype:
-            iterator = arc4.build_for_in_array(
-                context,
-                arc4_array_wtype,
-                sequence,
-                statement.source_location,
-            )
-            _iterate_indexable(
-                context,
-                loop_body=statement.loop_body,
-                indexable_size=iterator.array_length,
-                get_value_at_index=iterator.get_value_at_index,
-                assigner=assign_user_loop_vars,
-                statement_loc=statement.source_location,
-                reverse_index=reverse_index,
-                reverse_items=reverse_items,
-            )
-        case wtypes.StackArray(element_type=element_type) as array_wtype:
-            arc4_encoding_wtype = effective_array_encoding(array_wtype, sequence.source_location)
-            arc4_element_type = arc4_encoding_wtype.element_type
-            iterator = arc4.build_for_in_array(
-                context,
-                arc4_encoding_wtype,
-                sequence,
-                statement.source_location,
-            )
+        case (wtypes.ARC4Array() | wtypes.ReferenceArray()) as iterable_wtype:
+            array = context.visitor.visit_and_materialise_single(sequence_)
 
-            def read_and_decode(index: Value) -> ValueProvider:
-                item_vp = iterator.get_value_at_index(index)
-                return arc4.maybe_decode_arc4_value_provider(
+            array_encoding = wtype_to_encoding(iterable_wtype, loc)
+            (indexable_size,) = context.visitor.materialise_value_provider(
+                sequence.get_length(
                     context,
-                    item_vp,
-                    arc4_element_type,
-                    element_type,
-                    statement.source_location,
-                    temp_description="value_at_index",
-                )
+                    array_encoding,
+                    array,
+                    loc,
+                ),
+                "array_length",
+            )
 
             _iterate_indexable(
                 context,
                 loop_body=statement.loop_body,
-                indexable_size=iterator.array_length,
-                get_value_at_index=read_and_decode,
-                assigner=assign_user_loop_vars,
-                statement_loc=statement.source_location,
-                reverse_index=reverse_index,
-                reverse_items=reverse_items,
-            )
-        case wtypes.ReferenceArray():
-            iterator = arrays.build_for_in_array(
-                context,
-                sequence,
-                statement.source_location,
-            )
-            _iterate_indexable(
-                context,
-                loop_body=statement.loop_body,
-                indexable_size=iterator.array_length,
-                get_value_at_index=iterator.get_value_at_index,
+                indexable_size=indexable_size,
+                # TODO: consider when array is a register and needs refreshing
+                get_value_at_index=lambda index: sequence.read_aggregate_index_and_decode(
+                    context, iterable_wtype, [array], [index], loc, check_bounds=False
+                ),
                 assigner=assign_user_loop_vars,
                 statement_loc=statement.source_location,
                 reverse_index=reverse_index,
@@ -333,7 +302,7 @@ def _iterate_urange_simple(
 
         context.block_builder.goto(footer)
         if context.block_builder.try_activate_block(footer):
-            assign_intrinsic_op(
+            _reassign_with_intrinsic_op(
                 context,
                 target=current_range_item,
                 op=AVMOp.add,
@@ -341,7 +310,7 @@ def _iterate_urange_simple(
                 source_location=range_loc,
             )
             if current_range_index:
-                assign_intrinsic_op(
+                _reassign_with_intrinsic_op(
                     context,
                     target=current_range_index,
                     op=AVMOp.add,
@@ -472,7 +441,7 @@ def _iterate_urange_with_reversal(
             )
 
             context.block_builder.activate_block(increment_block)
-            assign_intrinsic_op(
+            _reassign_with_intrinsic_op(
                 context,
                 target=current_range_item,
                 op=AVMOp.add if not reverse_items else AVMOp.sub,
@@ -480,7 +449,7 @@ def _iterate_urange_with_reversal(
                 source_location=range_loc,
             )
             if current_range_index:
-                assign_intrinsic_op(
+                _reassign_with_intrinsic_op(
                     context,
                     target=current_range_index,
                     op=AVMOp.add if not reverse_index else AVMOp.sub,
@@ -499,7 +468,7 @@ def _iterate_indexable(
     assigner: LoopAssigner,
     statement_loc: SourceLocation,
     indexable_size: Value,
-    get_value_at_index: typing.Callable[[Value], ValueProvider],
+    get_value_at_index: Callable[[Value], ValueProvider],
     reverse_items: bool,
     reverse_index: bool,
 ) -> None:
@@ -551,7 +520,7 @@ def _iterate_indexable(
 
         context.block_builder.activate_block(body)
         if reverse_items or reverse_index:
-            reverse_index_internal = assign_intrinsic_op(
+            reverse_index_internal = _reassign_with_intrinsic_op(
                 context,
                 target=reverse_index_internal,
                 op=AVMOp.sub,
@@ -570,7 +539,7 @@ def _iterate_indexable(
 
         if context.block_builder.try_activate_block(footer):
             if not (reverse_items and reverse_index):
-                assign_intrinsic_op(
+                _reassign_with_intrinsic_op(
                     context,
                     target=index_internal,
                     op=AVMOp.add,
@@ -592,29 +561,27 @@ def _iterate_tuple(
     reverse_index: bool,
     reverse_items: bool,
 ) -> None:
-    tuple_values = context.visitor.visit_and_materialise(tuple_expr)
-    assert isinstance(tuple_expr.wtype, wtypes.WTuple), "tuple_expr wtype must be WTuple"
     tuple_wtype = tuple_expr.wtype
+    assert isinstance(tuple_wtype, wtypes.WTuple), "tuple_expr wtype must be WTuple"
+
+    tuple_values = context.visitor.visit_and_materialise(tuple_expr)
+
     max_index = len(tuple_wtype.types) - 1
     loop_counter_name = context.next_tmp_name("loop_counter")
 
     def assign_counter_and_user_vars(loop_count: int) -> Register:
-        counter_reg = context.ssa.new_register(loop_counter_name, PrimitiveIRType.uint64, None)
-        assign_targets(
+        counter_reg = assign(
             context,
             source=UInt64Constant(value=loop_count, source_location=None),
-            targets=[counter_reg],
+            name=loop_counter_name,
             assignment_location=None,
         )
         item_index = loop_count if not reverse_items else (max_index - loop_count)
+        item_vp = sequence.read_aggregate_index_and_decode(
+            context, tuple_wtype, tuple_values, [item_index], statement_loc
+        )
         item_reg, index_reg = assigner.assign_user_loop_vars(
-            get_tuple_item_values(
-                tuple_values=tuple_values,
-                tuple_wtype=tuple_wtype,
-                index=item_index,
-                target_wtype=tuple_wtype.types[item_index],
-                source_location=statement_loc,
-            ),
+            item_vp,
             UInt64Constant(
                 value=loop_count if not reverse_index else (max_index - loop_count),
                 source_location=None,
@@ -678,3 +645,26 @@ def _refresh_mutated_variable(context: IRFunctionBuildContext, reg: Register) ->
     within the same block.
     """
     return context.ssa.read_variable(reg.name, reg.ir_type, context.block_builder.active_block)
+
+
+def _reassign_with_intrinsic_op(
+    context: IRFunctionBuildContext,
+    *,
+    target: Register,
+    op: AVMOp,
+    args: Sequence[int | Value],
+    source_location: SourceLocation | None,
+) -> Register:
+    intrinsic = Intrinsic(
+        op=op,
+        args=[convert_constants(a, source_location) for a in args],
+        source_location=source_location,
+    )
+    return assign(
+        context,
+        source=intrinsic,
+        name=target.name,
+        ir_type=target.ir_type,
+        register_location=target.source_location,
+        assignment_location=source_location,
+    )

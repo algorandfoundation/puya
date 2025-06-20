@@ -69,24 +69,24 @@ subroutine main:
         // @arc4.abimethod
         v-load gtxn_idx%0#0                                                                                gtxn_idx%0#0
         v-load gtxn_idx%1#0                                                                                gtxn_idx%0#0,gtxn_idx%1#0
-        callsub create_group                                                                               elements_to_encode%0#0,elements_to_encode%1#0
-        v-store elements_to_encode%1#0                                                                     elements_to_encode%0#0
-        v-store elements_to_encode%0#0
-        v-load elements_to_encode%0#0                                                                      elements_to_encode%0#0
-        itob                                                                                               val_as_bytes%0#0
-        v-store val_as_bytes%0#0
-        v-load elements_to_encode%1#0                                                                      elements_to_encode%1#0
-        itob                                                                                               val_as_bytes%1#0
-        v-store val_as_bytes%1#0
-        v-load val_as_bytes%0#0                                                                            val_as_bytes%0#0
-        v-load val_as_bytes%1#0                                                                            val_as_bytes%0#0,val_as_bytes%1#0
-        concat                                                                                             encoded_tuple_buffer%2#0
-        v-store encoded_tuple_buffer%2#0
-        byte 0x151f7c75                                                                                    0x151f7c75
-        v-load encoded_tuple_buffer%2#0                                                                    0x151f7c75,encoded_tuple_buffer%2#0
-        concat                                                                                             tmp%9#0
+        callsub create_group                                                                               tmp%9#0,tmp%10#0
+        v-store tmp%10#0                                                                                   tmp%9#0
         v-store tmp%9#0
         v-load tmp%9#0                                                                                     tmp%9#0
+        itob                                                                                               aggregate%val_as_bytes%0#1
+        v-store aggregate%val_as_bytes%0#1
+        v-load tmp%10#0                                                                                    tmp%10#0
+        itob                                                                                               aggregate%val_as_bytes%1#1
+        v-store aggregate%val_as_bytes%1#1
+        v-load aggregate%val_as_bytes%0#1                                                                  aggregate%val_as_bytes%0#1
+        v-load aggregate%val_as_bytes%1#1                                                                  aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
+        concat                                                                                             aggregate%encoded%1#1
+        v-store aggregate%encoded%1#1
+        byte 0x151f7c75                                                                                    0x151f7c75
+        v-load aggregate%encoded%1#1                                                                       0x151f7c75,aggregate%encoded%1#1
+        concat                                                                                             tmp%12#0
+        v-store tmp%12#0
+        v-load tmp%12#0                                                                                    tmp%12#0
         log
         int 1                                                                                              1
         v-store test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0 
@@ -97,23 +97,23 @@ subroutine main:
     main_log_group_route@4:
         // group_side_effects/contract.py:22
         // @arc4.abimethod
-        txn OnCompletion                                                                                   tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%10#0                                                                                    tmp%10#0
-        !                                                                                                  tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%11#0                                                                                    tmp%11#0
+        txn OnCompletion                                                                                   tmp%13#0
+        v-store tmp%13#0
+        v-load tmp%13#0                                                                                    tmp%13#0
+        !                                                                                                  tmp%14#0
+        v-store tmp%14#0
+        v-load tmp%14#0                                                                                    tmp%14#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                                  tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                                                                    tmp%12#0
+        txn ApplicationID                                                                                  tmp%15#0
+        v-store tmp%15#0
+        v-load tmp%15#0                                                                                    tmp%15#0
         assert // can only call when not creating
         // group_side_effects/contract.py:4
         // class AppExpectingEffects(ARC4Contract):
-        txn GroupIndex                                                                                     tmp%14#0
-        v-store tmp%14#0
-        v-load tmp%14#0                                                                                    tmp%14#0
-        int 1                                                                                              tmp%14#0,1
+        txn GroupIndex                                                                                     tmp%17#0
+        v-store tmp%17#0
+        v-load tmp%17#0                                                                                    tmp%17#0
+        int 1                                                                                              tmp%17#0,1
         -                                                                                                  gtxn_idx%2#0
         v-store gtxn_idx%2#0
         v-load gtxn_idx%2#0                                                                                gtxn_idx%2#0
@@ -138,18 +138,18 @@ subroutine main:
     main_bare_routing@7:
         // group_side_effects/contract.py:4
         // class AppExpectingEffects(ARC4Contract):
-        txn OnCompletion                                                                                   tmp%15#0
-        v-store tmp%15#0
-        v-load tmp%15#0                                                                                    tmp%15#0
+        txn OnCompletion                                                                                   tmp%18#0
+        v-store tmp%18#0
+        v-load tmp%18#0                                                                                    tmp%18#0
         bz main___algopy_default_create@8 ; b main_after_if_else@11
 
     main___algopy_default_create@8:
-        txn ApplicationID                                                                                  tmp%16#0
-        v-store tmp%16#0
-        v-load tmp%16#0                                                                                    tmp%16#0
-        !                                                                                                  tmp%17#0
-        v-store tmp%17#0
-        v-load tmp%17#0                                                                                    tmp%17#0
+        txn ApplicationID                                                                                  tmp%19#0
+        v-store tmp%19#0
+        v-load tmp%19#0                                                                                    tmp%19#0
+        !                                                                                                  tmp%20#0
+        v-store tmp%20#0
+        v-load tmp%20#0                                                                                    tmp%20#0
         assert // can only call when creating
         int 1                                                                                              1
         v-store test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0 

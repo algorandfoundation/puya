@@ -464,48 +464,20 @@ class DynamicSize(arc4.ARC4Contract):
         assert size_of(Bytes) == 0 ## E: bytes is dynamically sized
         assert size_of(String) == 0 ## E: string is dynamically sized
         assert size_of(tuple[Bytes, bool]) == 0 ## E: tuple<bytes,bool> is dynamically sized
-        assert size_of(Array[UInt64]) == 0 ## E: ref_array<uint64> is dynamically sized
+        assert size_of(ReferenceArray[UInt64]) == 0 ## E: ref_array<uint64> is dynamically sized
         assert size_of(arc4.Tuple[arc4.UInt64, arc4.DynamicBytes]) == 0 ## E: arc4.tuple<arc4.uint64,arc4.dynamic_array<arc4.uint8>> is dynamically sized
 
 
-## case: mutable_tuple_element_in_storage
-import typing
-
+## case: zero_bytes_bad_arg
 from algopy import *
 
-class TupleWithMutable(typing.NamedTuple):
-    arr: arc4.DynamicArray[arc4.UInt64]
-    bar: UInt64
+@subroutine
+def bad1() -> None:
+    assert zero_bytes(UInt64()) # type: ignore[arg-type] ## E: argument must be a bytes encoded type reference
 
-class NestedTuples(ARC4Contract):
-    def __init__(self) -> None:
-        self.box = Box(TupleWithMutable)
-        self.glob = GlobalState(TupleWithMutable)
-        self.loc = LocalState(TupleWithMutable)
-        self.tup = TupleWithMutable(
-            arr=arc4.DynamicArray(arc4.UInt64(0)),
-            bar=UInt64(),
-        )
-        self.box.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
-        self.glob.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
-        self.loc[Txn.sender] = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
-        self.tup = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
-
-    @arc4.abimethod()
-    def mutate_tuple(self) -> None:
-        self.tup.arr.append(arc4.UInt64(1)) ## E: updating mutable elements within a tuple in storage is not supported
-
-    @arc4.abimethod()
-    def mutate_box(self) -> None:
-        self.box.value.arr.append(arc4.UInt64(1)) ## E: updating mutable elements within a tuple in storage is not supported
-
-    @arc4.abimethod()
-    def mutate_global(self) -> None:
-        self.glob.value.arr.append(arc4.UInt64(1)) ## E: updating mutable elements within a tuple in storage is not supported
-
-    @arc4.abimethod()
-    def mutate_local(self) -> None:
-        self.loc[Txn.sender].arr.append(arc4.UInt64(1)) ## E: updating mutable elements within a tuple in storage is not supported
+@subroutine
+def bad2() -> None:
+    assert zero_bytes(UInt64) ## E: argument must be a bytes encoded type reference
 
 
 ## case: tuple_with_non_persistable_elements_cannot_be_persisted
@@ -513,3 +485,22 @@ from algopy import *
 
 class No(ARC4Contract):
     forbidden: tuple[UInt64, tuple[Bytes, gtxn.Transaction]] ## E: type is not suitable for storage
+
+
+## case: struct_with_unencodable_element
+from algopy import *
+
+class BadStruct(Struct): ## E: invalid ARC-4 Struct declaration, the following fields are not persistable: b
+    a: UInt64
+    b: gtxn.Transaction
+
+## case: arc4_tuple_with_unencodable_element
+from algopy import *
+
+BadTuple = arc4.Tuple[UInt64, gtxn.Transaction] ## E: ARC-4 tuples can only contain persistable elements
+
+class No(ARC4Contract):
+
+    @arc4.abimethod
+    def test(self, foo: BadTuple) -> None: ## E: ARC-4 tuples can only contain persistable elements
+        a, b = foo.native

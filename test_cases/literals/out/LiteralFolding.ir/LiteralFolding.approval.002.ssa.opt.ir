@@ -8,6 +8,17 @@ main test_cases.literals.folding.LiteralFolding.approval_program:
         (assert tmp%10#0)
         let tmp%11#0: bool = _puya_lib.bytes_.is_substring("a", "abc")
         (assert tmp%11#0)
+        let encoded_array%0#0: Encoded(uint64[3]) = encode<uint64[3]>(0x0000000000000061, 0x0000000000000062, 0x0000000000000063)
+        let array_item%0#0: Encoded(uint64) = agg_read_index(encoded_array%0#0, 0u)
+        let tmp%5#2: bool = (b== array_item%0#0 0x0000000000000061)
+        let array_item%1#0: Encoded(uint64) = agg_read_index(encoded_array%0#0, 1u)
+        let tmp%6#2: biguint = (itob 98u)
+        let tmp%7#2: bool = (b== array_item%1#0 tmp%6#2)
+        let tmp%8#2: bool = (&& tmp%5#2 tmp%7#2)
+        let array_item%2#0: Encoded(uint64) = agg_read_index(encoded_array%0#0, 2u)
+        let tmp%9#2: bool = (b== array_item%2#0 0x0000000000000063)
+        let tmp%10#2: bool = (&& tmp%8#2 tmp%9#2)
+        (assert tmp%10#2)
         return 1u
 
 subroutine _puya_lib.bytes_.is_substring(item: bytes, sequence: bytes) -> bool:

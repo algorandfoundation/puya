@@ -34,9 +34,9 @@ subroutine itoa:
         int 10                                               (𝕡) i#0 | i#0 (copy),10
         // with_reentrancy/contract.py:20
         // if i < radix:
-        <                                                    (𝕡) i#0 | tmp%0#0
-        v-store tmp%0#0                                      (𝕡) i#0 |
-        v-load tmp%0#0                                       (𝕡) i#0 | tmp%0#0
+        <                                                    (𝕡) i#0 | tmp%1#0
+        v-store tmp%1#0                                      (𝕡) i#0 |
+        v-load tmp%1#0                                       (𝕡) i#0 | tmp%1#0
         bz itoa_after_if_else@2 ; b itoa_if_body@1           (𝕡) i#0 |
 
     itoa_if_body@1:                                          (𝕡) i#0 |
@@ -47,10 +47,10 @@ subroutine itoa:
         // return digits[i]
         p-load i#0                                           (𝕡) i#0 | 0x30313233343536373839,i#0 (copy)
         int 1                                                (𝕡) i#0 | 0x30313233343536373839,i#0 (copy),1
-        extract3                                             (𝕡) i#0 | tmp%1#0
-        v-store tmp%1#0                                      (𝕡) i#0 |
-        v-load tmp%1#0                                       (𝕡) i#0 | tmp%1#0
-        retsub                                               tmp%1#0
+        extract3                                             (𝕡) i#0 | extract%0#0
+        v-store extract%0#0                                  (𝕡) i#0 |
+        v-load extract%0#0                                   (𝕡) i#0 | extract%0#0
+        retsub                                               extract%0#0
 
     itoa_after_if_else@2:                                    (𝕡) i#0 |
         // with_reentrancy/contract.py:22
@@ -81,14 +81,14 @@ subroutine itoa:
         // return itoa(i // radix) + digits[i % radix]
         v-load tmp%4#0                                       (𝕡) i#0 | 0x30313233343536373839,tmp%4#0
         int 1                                                (𝕡) i#0 | 0x30313233343536373839,tmp%4#0,1
-        extract3                                             (𝕡) i#0 | tmp%5#0
-        v-store tmp%5#0                                      (𝕡) i#0 |
+        extract3                                             (𝕡) i#0 | extract%1#0
+        v-store extract%1#0                                  (𝕡) i#0 |
         v-load tmp%3#0                                       (𝕡) i#0 | tmp%3#0
-        v-load tmp%5#0                                       (𝕡) i#0 | tmp%3#0,tmp%5#0
-        concat                                               (𝕡) i#0 | tmp%6#0
-        v-store tmp%6#0                                      (𝕡) i#0 |
-        v-load tmp%6#0                                       (𝕡) i#0 | tmp%6#0
-        retsub                                               tmp%6#0
+        v-load extract%1#0                                   (𝕡) i#0 | tmp%3#0,extract%1#0
+        concat                                               (𝕡) i#0 | tmp%5#0
+        v-store tmp%5#0                                      (𝕡) i#0 |
+        v-load tmp%5#0                                       (𝕡) i#0 | tmp%5#0
+        retsub                                               tmp%5#0
 
 
 // test_cases.with_reentrancy.contract.fibonacci(n: uint64) -> uint64:
@@ -153,8 +153,8 @@ subroutine silly:
         // is_even = x % 2 == 0
         v-load x#3                                           (𝕡) x#0 | x#3
         int 2                                                (𝕡) x#0 | x#3,2
-        %                                                    (𝕡) x#0 | tmp%0#2
-        v-store tmp%0#2                                      (𝕡) x#0 |
+        %                                                    (𝕡) x#0 | tmp%0#0
+        v-store tmp%0#0                                      (𝕡) x#0 |
         // with_reentrancy/contract.py:51
         // a = x + 2
         v-load x#3                                           (𝕡) x#0 | x#3
@@ -163,7 +163,7 @@ subroutine silly:
         v-store a#0                                          (𝕡) x#0 |
         // with_reentrancy/contract.py:52
         // if is_even:
-        v-load tmp%0#2                                       (𝕡) x#0 | tmp%0#2
+        v-load tmp%0#0                                       (𝕡) x#0 | tmp%0#0
         bz silly_if_body@2 ; b silly_else_body@3             (𝕡) x#0 |
 
     silly_if_body@2:                                         (𝕡) x#0 |
@@ -177,10 +177,10 @@ subroutine silly:
         // a = result // 2 - 2
         v-load result#2                                      (𝕡) x#0 | result#2
         int 2                                                (𝕡) x#0 | result#2,2
-        /                                                    (𝕡) x#0 | tmp%1#2
-        v-store tmp%1#2                                      (𝕡) x#0 |
-        v-load tmp%1#2                                       (𝕡) x#0 | tmp%1#2
-        int 2                                                (𝕡) x#0 | tmp%1#2,2
+        /                                                    (𝕡) x#0 | tmp%4#0
+        v-store tmp%4#0                                      (𝕡) x#0 |
+        v-load tmp%4#0                                       (𝕡) x#0 | tmp%4#0
+        int 2                                                (𝕡) x#0 | tmp%4#0,2
         -                                                    (𝕡) x#0 | a#0
         v-store a#0                                          (𝕡) x#0 |
         b silly_after_if_else@4                              (𝕡) x#0 |
@@ -196,7 +196,7 @@ subroutine silly:
     silly_after_if_else@4:                                   (𝕡) x#0 |
         // with_reentrancy/contract.py:58
         // if is_even:
-        v-load tmp%0#2                                       (𝕡) x#0 | tmp%0#2
+        v-load tmp%0#0                                       (𝕡) x#0 | tmp%0#0
         bz silly_if_body@5 ; b silly_after_if_else@6         (𝕡) x#0 |
 
     silly_if_body@5:                                         (𝕡) x#0 |
@@ -208,35 +208,35 @@ subroutine silly:
         // with_reentrancy/contract.py:60
         // log(Bytes(b"silly3 = ") + itoa(x))
         v-load x#3                                           (𝕡) x#0 | x#3
-        callsub itoa                                         (𝕡) x#0 | tmp%2#0
-        v-store tmp%2#0                                      (𝕡) x#0 |
+        callsub itoa                                         (𝕡) x#0 | tmp%7#0
+        v-store tmp%7#0                                      (𝕡) x#0 |
         byte 0x73696c6c7933203d20                            (𝕡) x#0 | 0x73696c6c7933203d20
-        v-load tmp%2#0                                       (𝕡) x#0 | 0x73696c6c7933203d20,tmp%2#0
-        concat                                               (𝕡) x#0 | tmp%3#0
-        v-store tmp%3#0                                      (𝕡) x#0 |
-        v-load tmp%3#0                                       (𝕡) x#0 | tmp%3#0
+        v-load tmp%7#0                                       (𝕡) x#0 | 0x73696c6c7933203d20,tmp%7#0
+        concat                                               (𝕡) x#0 | tmp%8#0
+        v-store tmp%8#0                                      (𝕡) x#0 |
+        v-load tmp%8#0                                       (𝕡) x#0 | tmp%8#0
         log                                                  (𝕡) x#0 |
         // with_reentrancy/contract.py:44
         // log(Bytes(b"silly2 = ") + itoa(x))
         v-load x#3                                           (𝕡) x#0 | x#3
-        callsub itoa                                         (𝕡) x#0 | tmp%0#0
-        v-store tmp%0#0                                      (𝕡) x#0 |
+        callsub itoa                                         (𝕡) x#0 | tmp%2#0
+        v-store tmp%2#0                                      (𝕡) x#0 |
         byte 0x73696c6c7932203d20                            (𝕡) x#0 | 0x73696c6c7932203d20
-        v-load tmp%0#0                                       (𝕡) x#0 | 0x73696c6c7932203d20,tmp%0#0
-        concat                                               (𝕡) x#0 | tmp%1#0
-        v-store tmp%1#0                                      (𝕡) x#0 |
-        v-load tmp%1#0                                       (𝕡) x#0 | tmp%1#0
+        v-load tmp%2#0                                       (𝕡) x#0 | 0x73696c6c7932203d20,tmp%2#0
+        concat                                               (𝕡) x#0 | tmp%3#0
+        v-store tmp%3#0                                      (𝕡) x#0 |
+        v-load tmp%3#0                                       (𝕡) x#0 | tmp%3#0
         log                                                  (𝕡) x#0 |
         // with_reentrancy/contract.py:36
         // log(Bytes(b"silly = ") + itoa(x))
         p-load x#0                                           (𝕡) x#0 | x#0 (copy)
-        callsub itoa                                         (𝕡) x#0 | tmp%0#0
-        v-store tmp%0#0                                      (𝕡) x#0 |
+        callsub itoa                                         (𝕡) x#0 | tmp%2#0
+        v-store tmp%2#0                                      (𝕡) x#0 |
         byte 0x73696c6c79203d20                              (𝕡) x#0 | 0x73696c6c79203d20
-        v-load tmp%0#0                                       (𝕡) x#0 | 0x73696c6c79203d20,tmp%0#0
-        concat                                               (𝕡) x#0 | tmp%1#0
-        v-store tmp%1#0                                      (𝕡) x#0 |
-        v-load tmp%1#0                                       (𝕡) x#0 | tmp%1#0
+        v-load tmp%2#0                                       (𝕡) x#0 | 0x73696c6c79203d20,tmp%2#0
+        concat                                               (𝕡) x#0 | tmp%3#0
+        v-store tmp%3#0                                      (𝕡) x#0 |
+        v-load tmp%3#0                                       (𝕡) x#0 | tmp%3#0
         log                                                  (𝕡) x#0 |
         // with_reentrancy/contract.py:37
         // return result

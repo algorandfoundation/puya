@@ -15,65 +15,76 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
-        let reinterpret_bytes[64]%0#0: bytes[64] = (txna ApplicationArgs 2)
-        let tmp%8#0: bytes = (txna ApplicationArgs 3)
-        let tmp%9#0: bytes = ((extract 2 0) tmp%8#0)
-        let tmp%10#0: bytes = (txna ApplicationArgs 4)
-        let tmp%11#0: bytes = ((extract 2 0) tmp%10#0)
-        let (elements_to_encode%0#0: uint64, elements_to_encode%1#0: biguint, elements_to_encode%2#0: bytes, elements_to_encode%3#0: bytes) = test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(tmp%7#0, reinterpret_bytes[64]%0#0, tmp%9#0, tmp%11#0)
-        let val_as_bytes%0#0: bytes[8] = (itob elements_to_encode%0#0)
-        let value_len%0#0: uint64 = (len elements_to_encode%1#0)
-        let len_ok%0#0: bool = (<= value_len%0#0 64u)
-        (assert len_ok%0#0) // overflow
-        let bzero%0#0: bytes = (bzero 64u)
-        let arc4_encoded%0#0: bytes[64] = (b| elements_to_encode%1#0 bzero%0#0)
-        let length%0#0: uint64 = (len elements_to_encode%2#0)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 elements_to_encode%2#0)
-        let length%1#0: uint64 = (len elements_to_encode%3#0)
-        let as_bytes%1#0: bytes[8] = (itob length%1#0)
-        let length_uint16%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let encoded_value%1#0: bytes = (concat length_uint16%1#0 elements_to_encode%3#0)
-        let encoded_tuple_buffer%1#0: bytes = (concat 0x val_as_bytes%0#0)
-        let encoded_tuple_buffer%2#0: bytes = (concat encoded_tuple_buffer%1#0 arc4_encoded%0#0)
-        let as_bytes%2#0: bytes[8] = (itob 76u)
-        let offset_as_uint16%0#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 offset_as_uint16%0#0)
-        let data_length%0#0: uint64 = (len encoded_value%0#0)
-        let current_tail_offset%1#0: uint64 = (+ 76u data_length%0#0)
-        let as_bytes%3#0: bytes[8] = (itob current_tail_offset%1#0)
-        let offset_as_uint16%1#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let encoded_tuple_buffer%4#0: bytes = (concat encoded_tuple_buffer%3#0 offset_as_uint16%1#0)
-        let encoded_tuple_buffer%5#0: bytes = (concat encoded_tuple_buffer%4#0 encoded_value%0#0)
-        let encoded_tuple_buffer%6#0: bytes = (concat encoded_tuple_buffer%5#0 encoded_value%1#0)
-        let tmp%12#0: bytes = (concat 0x151f7c75 encoded_tuple_buffer%6#0)
-        (log tmp%12#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%7#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let reinterpret_Encoded(uint512)%0#0: Encoded(uint512) = (txna ApplicationArgs 2)
+        let tmp%8#0: biguint = reinterpret_Encoded(uint512)%0#0
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
+        let tmp%9#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 4)
+        let tmp%10#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let (tmp%11#0: uint64, tmp%12#0: biguint, tmp%13#0: string, tmp%14#0: bytes) = test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(tmp%7#0, tmp%8#0, tmp%9#0, tmp%10#0)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%11#0)
+        let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
+        let aggregate%encoded%0#1: Encoded(uint64) = (concat 0x aggregate%as_Encoded(uint64)%0#1)
+        let aggregate%value_len%0#1: uint64 = (len tmp%12#0)
+        let aggregate%len_ok%0#1: bool = (<= aggregate%value_len%0#1 64u)
+        (assert aggregate%len_ok%0#1) // overflow
+        let aggregate%bzero%0#1: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#1: bytes[64] = (b| tmp%12#0 aggregate%bzero%0#1)
+        let aggregate%as_Encoded(uint512)%0#1: Encoded(uint512) = aggregate%arc4_encoded%0#1
+        let aggregate%encoded%1#1: Encoded(uint64,uint512) = (concat aggregate%encoded%0#1 aggregate%as_Encoded(uint512)%0#1)
+        let aggregate%length%0#1: uint64 = (len tmp%13#0)
+        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
+        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 tmp%13#0)
+        let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
+        let aggregate%tail%0#1: bytes = (concat 0x aggregate%as_Encoded(len+utf8[])%0#1)
+        let aggregate%data_length%0#1: uint64 = (len aggregate%as_Encoded(len+utf8[])%0#1)
+        let aggregate%current_tail_offset%0#1: uint64 = (+ 76u aggregate%data_length%0#1)
+        let aggregate%as_bytes%1#1: bytes[8] = (itob 76u)
+        let aggregate%offset_as_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
+        let aggregate%encoded%2#1: Encoded(uint64,uint512,(len+utf8[])) = (concat aggregate%encoded%1#1 aggregate%offset_as_uint16%0#1)
+        let aggregate%length%1#1: uint64 = (len tmp%14#0)
+        let aggregate%as_bytes%2#1: bytes[8] = (itob aggregate%length%1#1)
+        let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%2#1)
+        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 tmp%14#0)
+        let aggregate%as_Encoded(len+uint8[])%0#1: Encoded(len+uint8[]) = aggregate%encoded_value%1#1
+        let aggregate%tail%1#1: bytes = (concat aggregate%tail%0#1 aggregate%as_Encoded(len+uint8[])%0#1)
+        let aggregate%as_bytes%3#1: bytes[8] = (itob aggregate%current_tail_offset%0#1)
+        let aggregate%offset_as_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%3#1)
+        let aggregate%encoded%3#1: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = (concat aggregate%encoded%2#1 aggregate%offset_as_uint16%1#1)
+        let aggregate%encoded%4#1: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = (concat aggregate%encoded%3#1 aggregate%tail%1#1)
+        let tmp%15#0: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = aggregate%encoded%4#1
+        let tmp%16#0: bytes = (concat 0x151f7c75 tmp%15#0)
+        (log tmp%16#0)
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0
         goto block@12
     block@4: // test_tuple_route_L31
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        let tmp%14#0: bool = (== tmp%13#0 NoOp)
-        (assert tmp%14#0) // OnCompletion is not NoOp
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        let tmp%16#0: bool = (!= tmp%15#0 0u)
-        (assert tmp%16#0) // can only call when not creating
-        let tmp%17#0: bytes = (txna ApplicationArgs 1)
-        let item0%0#0: bytes = (extract3 tmp%17#0 0u 8u) // on error: Index access is out of bounds
-        let item0%1#0: uint64 = (btoi item0%0#0)
-        let item1%0#0: bytes = (extract3 tmp%17#0 8u 64u) // on error: Index access is out of bounds
-        let item_start_offset%0#0: uint64 = (extract_uint16 tmp%17#0 72u)
-        let item_end_offset%0#0: uint64 = (extract_uint16 tmp%17#0 74u)
-        let item2%0#0: bytes = (substring3 tmp%17#0 item_start_offset%0#0 item_end_offset%0#0)
-        let item2%1#0: bytes = ((extract 2 0) item2%0#0)
-        let item_start_offset%1#0: uint64 = (extract_uint16 tmp%17#0 74u)
-        let item_end_offset%1#0: uint64 = (len tmp%17#0)
-        let item3%0#0: bytes = (substring3 tmp%17#0 item_start_offset%1#0 item_end_offset%1#0)
-        let item3%1#0: bytes = ((extract 2 0) item3%0#0)
-        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(item0%1#0, item1%0#0, item2%1#0, item3%1#0)
+        let tmp%17#0: uint64 = (txn OnCompletion)
+        let tmp%18#0: bool = (== tmp%17#0 NoOp)
+        (assert tmp%18#0) // OnCompletion is not NoOp
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (!= tmp%19#0 0u)
+        (assert tmp%20#0) // can only call when not creating
+        let reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = (txna ApplicationArgs 1)
+        let aggregate%extract%0#1: bytes = (extract3 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 0u 8u)
+        let aggregate%item0%0#1: uint64 = (btoi aggregate%extract%0#1)
+        let aggregate%extract%1#1: bytes = (extract3 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 8u 64u)
+        let aggregate%extract_uint16%0#1: uint64 = (extract_uint16 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 72u)
+        let aggregate%extract_uint16%1#1: uint64 = (extract_uint16 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 74u)
+        let aggregate%substring3%0#1: bytes = (substring3 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 aggregate%extract_uint16%0#1 aggregate%extract_uint16%1#1)
+        let aggregate%item2%0#1: bytes = ((extract 2 0) aggregate%substring3%0#1)
+        let aggregate%extract_uint16%2#1: uint64 = (extract_uint16 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 74u)
+        let aggregate%len%0#1: uint64 = (len reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0)
+        let aggregate%substring3%1#1: bytes = (substring3 reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0 aggregate%extract_uint16%2#1 aggregate%len%0#1)
+        let aggregate%item3%0#1: bytes = ((extract 2 0) aggregate%substring3%1#1)
+        let tmp%21#0: uint64 = aggregate%item0%0#1
+        let tmp%22#0: biguint = aggregate%extract%1#1
+        let tmp%23#0: string = aggregate%item2%0#1
+        let tmp%24#0: bytes = aggregate%item3%0#1
+        test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(tmp%21#0, tmp%22#0, tmp%23#0, tmp%24#0)
         let test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router__%0#0
         goto block@12
@@ -82,12 +93,12 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@6: // switch_case_next_L15
         goto block@11
     block@7: // bare_routing_L15
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        switch tmp%18#0 {0u => block@8, * => block@9}
+        let tmp%25#0: uint64 = (txn OnCompletion)
+        switch tmp%25#0 {0u => block@8, * => block@9}
     block@8: // __algopy_default_create_L1
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (== tmp%19#0 0u)
-        (assert tmp%20#0) // can only call when creating
+        let tmp%26#0: uint64 = (txn ApplicationID)
+        let tmp%27#0: bool = (== tmp%26#0 0u)
+        (assert tmp%27#0) // can only call when creating
         goto block@13
     block@13: // L1
         goto block@14
@@ -106,29 +117,37 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@12: // after_inlined_test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_router___L1
         return tmp%0#0
 
-subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(a: uint64, b: biguint, c: bytes, d: bytes) -> <uint64, biguint, bytes, bytes>:
+subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(a: uint64, b: biguint, c: string, d: bytes) -> <uint64, biguint, string, bytes>:
     block@0: // L16
-        let (t1.a#0: uint64, t1.b#0: biguint, t1.c#0: bytes, t1.d#0: bytes) = test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_name(a#0, b#0, c#0, d#0)
-        let (t2.a#0: uint64, t2.b#0: biguint, t2.c#0: bytes, t2.d#0: bytes) = test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_position(a#0, b#0, c#0, d#0)
-        let tmp%0#0: bool = (== t1.a#0 t2.a#0)
-        let tmp%1#0: bool = (b== t1.b#0 t2.b#0)
-        let tmp%2#0: bool = (&& tmp%0#0 tmp%1#0)
-        let tmp%3#0: bool = (== t1.c#0 t2.c#0)
-        let tmp%4#0: bool = (&& tmp%2#0 tmp%3#0)
-        let tmp%5#0: bool = (== t1.d#0 t2.d#0)
-        let tmp%6#0: bool = (&& tmp%4#0 tmp%5#0)
-        (assert tmp%6#0)
+        let (tmp%0#0: uint64, tmp%1#0: biguint, tmp%2#0: string, tmp%3#0: bytes) = test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_name(a#0, b#0, c#0, d#0)
+        let t1.a#0: uint64 = tmp%0#0
+        let t1.b#0: biguint = tmp%1#0
+        let t1.c#0: string = tmp%2#0
+        let t1.d#0: bytes = tmp%3#0
+        let (tmp%4#0: uint64, tmp%5#0: biguint, tmp%6#0: string, tmp%7#0: bytes) = test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_position(a#0, b#0, c#0, d#0)
+        let t2.a#0: uint64 = tmp%4#0
+        let t2.b#0: biguint = tmp%5#0
+        let t2.c#0: string = tmp%6#0
+        let t2.d#0: bytes = tmp%7#0
+        let tmp%8#0: bool = (== t1.a#0 t2.a#0)
+        let tmp%9#0: bool = (b== t1.b#0 t2.b#0)
+        let tmp%10#0: bool = (&& tmp%8#0 tmp%9#0)
+        let tmp%11#0: bool = (== t1.c#0 t2.c#0)
+        let tmp%12#0: bool = (&& tmp%10#0 tmp%11#0)
+        let tmp%13#0: bool = (== t1.d#0 t2.d#0)
+        let tmp%14#0: bool = (&& tmp%12#0 tmp%13#0)
+        (assert tmp%14#0)
         return t1.a#0 t1.b#0 t1.c#0 t1.d#0
 
-subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_name(a: uint64, b: biguint, c: bytes, d: bytes) -> <uint64, biguint, bytes, bytes>:
+subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_name(a: uint64, b: biguint, c: string, d: bytes) -> <uint64, biguint, string, bytes>:
     block@0: // L23
         return a#0 b#0 c#0 d#0
 
-subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_position(a: uint64, b: biguint, c: bytes, d: bytes) -> <uint64, biguint, bytes, bytes>:
+subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple_by_position(a: uint64, b: biguint, c: string, d: bytes) -> <uint64, biguint, string, bytes>:
     block@0: // L27
         return a#0 b#0 c#0 d#0
 
-subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value.a: uint64, value.b: biguint, value.c: bytes, value.d: bytes) -> void:
+subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value.a: uint64, value.b: biguint, value.c: string, value.d: bytes) -> void:
     block@0: // L31
         let tmp%0#0: bool = (< value.a#0 1000u)
         (assert tmp%0#0)
@@ -137,7 +156,7 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(value
         let tmp%2#0: uint64 = (len value.c#0)
         let tmp%3#0: bool = (> tmp%2#0 1u)
         (assert tmp%3#0)
-        let tmp%4#0: bytes[32] = (txn Sender)
+        let tmp%4#0: account = (txn Sender)
         let tmp%5#0: bool = (== value.d#0 tmp%4#0)
         (assert tmp%5#0)
         return 
