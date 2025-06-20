@@ -7,9 +7,10 @@ from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder._utils import invoke_puya_lib_subroutine
-from puya.ir.builder.sequence import get_length, requires_conversion
+from puya.ir.builder.sequence import get_length, requires_no_conversion
 from puya.ir.encodings import (
     ArrayEncoding,
+    Bool8Encoding,
     BoolEncoding,
     DynamicArrayEncoding,
     Encoding,
@@ -65,7 +66,7 @@ def get_builder(
         array_encoding = array_ir_type.encoding
         assert isinstance(array_encoding, DynamicArrayEncoding), "expected DynamicArray encoding"
         # TODO: find a better way to handle these cases
-        if array_encoding.element in (UTF8Encoding(), BoolEncoding(packed=True)):
+        if array_encoding.element == UTF8Encoding():  # TODO: maybe make this an Array encoding?
             element_ir_type: IRType | TupleIRType = EncodedType(encoding=array_encoding.element)
         else:
             element_ir_type = wtype_to_ir_type(
@@ -75,7 +76,7 @@ def get_builder(
         builder_typ: type[_DynamicArrayBuilderImpl]
         match element_encoding:
             # BitPackedBool is a more specific match than FixedElement so do that first
-            case BoolEncoding(packed=True) if array_encoding.length_header:
+            case BoolEncoding() if array_encoding.length_header:
                 builder_typ = BitPackedBoolDynamicArrayBuilder
             case Encoding(is_dynamic=False):
                 builder_typ = FixedElementDynamicArrayBuilder
@@ -180,7 +181,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
         return self.factory.as_ir_type(value, self.array_ir_type)
 
     def _maybe_decode(self, encoded_item: ir.Value) -> ir.MultiValue:
-        if not requires_conversion(self.element_ir_type, self.array_encoding.element):
+        if requires_no_conversion(self.element_ir_type, self.array_encoding.element):
             return self.factory.materialise_single(encoded_item)
         else:
             encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
@@ -334,29 +335,30 @@ class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     ) -> ir.Value:
         assert self.array_encoding.length_header, "expected array to have a length header"
         # iterable may not be packed
+        iter_element_encoding: Encoding
         match iterable_ir_type:
             case EncodedType(
-                encoding=ArrayEncoding(element=BoolEncoding(packed=True) as iter_element_encoding)
+                encoding=ArrayEncoding(element=BoolEncoding() as iter_element_encoding)
             ):
                 pass
             case EncodedType(
-                encoding=TupleEncoding(
-                    elements=[BoolEncoding(packed=True) as iter_element_encoding, *_]
-                )
+                encoding=TupleEncoding(elements=[BoolEncoding() as iter_element_encoding, *_])
             ):
                 pass  # TODO: test case coverage
             case _:
                 # each bit is in its own byte
-                iter_element_encoding = BoolEncoding(packed=False)
+                iter_element_encoding = Bool8Encoding()
         r_count, r_head_and_tail = self._get_iterable_length_and_head_tail(
             iterable, iterable_ir_type, element_encoding=iter_element_encoding
         )
         r_count = self.factory.materialise_single(r_count)
         r_head_and_tail = self.factory.materialise_single(r_head_and_tail)
+        element_bits = iter_element_encoding.num_bits
+        assert element_bits in (1, 8)
         invoke = invoke_puya_lib_subroutine(
             self.context,
             full_name=PuyaLibIR.dynamic_array_concat_bits,
-            args=[array, r_head_and_tail, r_count, 1 if iter_element_encoding.packed else 8],
+            args=[array, r_head_and_tail, r_count, element_bits],
             source_location=self.loc,
         )
         return self._as_array_type(invoke)

@@ -324,7 +324,7 @@ def _get_fixed_byte_offset_from_bit_offset(
         # offset now points to the byte containing the desired bit
         offset=byte_containing_bit_offset,
         # pretend the byte is just a fixed array of bit packed bools
-        encoding=FixedArrayEncoding(element=BoolEncoding(packed=True), size=8),
+        encoding=FixedArrayEncoding(element=BoolEncoding(), size=8),
         # provide the calculated bit_index as the only remaining index
         remaining_indexes=[bit_index],
     )

@@ -209,8 +209,11 @@ class EncodedType(IRType):
         return f"Encoded({name})"
 
     @property
-    def maybe_avm_type(self) -> typing.Literal[AVMType.bytes]:
-        return AVMType.bytes
+    def maybe_avm_type(self) -> typing.Literal[AVMType.bytes, AVMType.uint64]:
+        if self.encoding.is_bit:
+            return AVMType.uint64
+        else:
+            return AVMType.bytes
 
     @property
     def num_bytes(self) -> int | None:

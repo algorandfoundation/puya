@@ -88,9 +88,9 @@ def _get_builder(
 
     match array_encoding:
         # BitPackedBool is a more specific match than FixedElement so do that first
-        case DynamicArrayEncoding(element=BoolEncoding(packed=True), length_header=True):
+        case DynamicArrayEncoding(element=BoolEncoding(), length_header=True):
             builder_typ = _BitPackedBoolArrayBuilder
-        case FixedArrayEncoding(element=BoolEncoding(packed=True)):
+        case FixedArrayEncoding(element=BoolEncoding()):
             builder_typ = _BitPackedBoolArrayBuilder
         case ArrayEncoding(element=Encoding(is_dynamic=False)):
             builder_typ = _FixedElementArrayBuilder
@@ -157,15 +157,7 @@ class _BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
             # TODO: consider incrementing index by 16 instead
             array = self.factory.extract_to_end(array, 2, "array_trimmed")
         # index is the bit position
-        return self.factory.materialise_single(
-            ir.Intrinsic(
-                op=AVMOp.getbit,
-                args=[array, index],
-                types=[PrimitiveIRType.bool],
-                source_location=self.loc,
-            ),
-            "is_true",
-        )
+        return self.factory.get_bit(array, index)
 
     @typing.override
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
@@ -182,8 +174,7 @@ class _BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
             write_offset = self.factory.add(index, 16, "write_offset_with_length_header")
 
         is_true = self.factory.materialise_single(value, "is_true")
-        if is_true.atype == AVMType.bytes:
-            is_true = self.factory.get_bit(is_true, 0)
+        assert is_true.atype == AVMType.uint64, "expected bool value"
         return self.factory.set_bit(
             value=array,
             index=write_offset,
