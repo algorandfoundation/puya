@@ -9,6 +9,7 @@ from puya.ir.builder import mem
 from puya.ir.builder._utils import invoke_puya_lib_subroutine, undefined_value
 from puya.ir.encodings import (
     ArrayEncoding,
+    Bool8Encoding,
     BoolEncoding,
     DynamicArrayEncoding,
     Encoding,
@@ -80,7 +81,7 @@ def read_aggregate_index_and_decode(
         read_index, "tuple_item" if is_tup else "array_item"
     )
     element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
-    if not requires_conversion(element_ir_type, element_encoding):
+    if requires_no_conversion(element_ir_type, element_encoding):
         return tuple_item
     else:
         values = context.materialise_value_provider(
@@ -124,7 +125,7 @@ def encode_and_write_aggregate_index(
     assert isinstance(aggregate_encoding, TupleEncoding | ArrayEncoding)
     element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
     element_encoding = _get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
-    if not requires_conversion(element_ir_type, element_encoding):
+    if requires_no_conversion(element_ir_type, element_encoding):
         (encoded_value,) = values
     else:
         (encoded_value,) = context.materialise_value_provider(
@@ -182,20 +183,17 @@ def get_length(
     return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")
 
 
-def requires_conversion(
+def requires_no_conversion(
     typ: IRType | TupleIRType,
     encoding: Encoding,
 ) -> bool:
-    # packed bool does not require conversion to PrimitiveIRType.bool
-    # as set_bit expects uint64, and similarly get_bit returns a uint64 when decoding
-    if typ == PrimitiveIRType.bool:
-        return not encoding.is_bit
-    elif isinstance(typ, EncodedType):
-        # are encodings different?
-        return typ.encoding != encoding
-    # otherwise requires conversion
-    else:
-        return True
+    match typ:
+        case PrimitiveIRType.bool | EncodedType(encoding=BoolEncoding()) if encoding.is_bit:
+            return True
+        case EncodedType(encoding=typ_encoding) if typ_encoding == encoding:
+            return True
+        case _:
+            return False
 
 
 def convert_array(
@@ -216,33 +214,33 @@ def convert_array(
         source = mem.read_slot(context, source, loc)
     source_length = get_length(context, source_encoding, source, loc)
 
-    match target_encoding.element, source_encoding.element:
+    match source_encoding.element, target_encoding.element:
         case (
-            BoolEncoding(packed=packed_target),
-            BoolEncoding(packed=packed_source),
-        ) if packed_target != packed_source:
-            if packed_source:
-                logger.error(
-                    "converting from a bitpacked bool array"
-                    " to an non-bitpacked bool array is currently unsupported",
-                    location=loc,
-                )
-                return undefined_value(target_ir_type, loc)
-            else:
-                assert not source_encoding.length_header, "expected ReferenceArray"
-                empty_header = factory.constant(b"\0" * 2)
-                bitpacked_source_provider = invoke_puya_lib_subroutine(
-                    context,
-                    full_name=PuyaLibIR.dynamic_array_concat_bits,
-                    args=[empty_header, source, source_length, 8],
-                    source_location=loc,
-                )
-                (source,) = context.materialise_value_provider(
-                    bitpacked_source_provider, description="bit_packed_source"
-                )
-                source_encoding = DynamicArrayEncoding(
-                    BoolEncoding(packed=True), length_header=True
-                )
+            BoolEncoding(),
+            Bool8Encoding(),
+        ):
+            logger.error(
+                "converting from a bitpacked bool array"
+                " to an non-bitpacked bool array is currently unsupported",
+                location=loc,
+            )
+            return undefined_value(target_ir_type, loc)
+        case (
+            Bool8Encoding(),
+            BoolEncoding(),
+        ):
+            assert not source_encoding.length_header, "expected ReferenceArray"
+            empty_header = factory.constant(b"\0" * 2)
+            bitpacked_source_provider = invoke_puya_lib_subroutine(
+                context,
+                full_name=PuyaLibIR.dynamic_array_concat_bits,
+                args=[empty_header, source, source_length, 8],
+                source_location=loc,
+            )
+            (source,) = context.materialise_value_provider(
+                bitpacked_source_provider, description="bit_packed_source"
+            )
+            source_encoding = DynamicArrayEncoding(BoolEncoding(), length_header=True)
 
     if target_encoding.element != source_encoding.element:
         logger.error(

@@ -64,21 +64,13 @@ class Encoding(abc.ABC):
 
 @attrs.frozen(str=False)
 class BoolEncoding(Encoding):
-    packed: bool
-
     @cached_property
     def num_bits(self) -> int:
-        if self.packed:
-            return 1
-        else:
-            return 8
+        return 1
 
     @cached_property
     def name(self) -> str:
-        if self.packed:
-            return "bool1"
-        else:
-            return "bool8"
+        return "bool1"
 
 
 @attrs.frozen(str=False)
@@ -135,7 +127,7 @@ class TupleEncoding(Encoding):
         for element in self.elements:
             if element.num_bytes is None:
                 return None
-            if isinstance(element, BoolEncoding) and element.packed:
+            if isinstance(element, BoolEncoding):
                 total_bits += 1
             else:
                 # if not a bit packed bool, need to round up to byte boundary
@@ -149,6 +141,16 @@ class TupleEncoding(Encoding):
     def name(self) -> str:
         inner = ",".join(e.name for e in self.elements)
         return f"({inner})"
+
+
+@attrs.frozen(str=False)
+class Bool8Encoding(TupleEncoding):
+    elements: Sequence[Encoding] = attrs.field(default=(BoolEncoding(),), init=False)
+    names: None = attrs.field(default=None, init=False, eq=False)
+
+    @property
+    def name(self) -> str:
+        return "bool8"
 
 
 @attrs.frozen(str=False)
@@ -201,7 +203,7 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
             return UIntEncoding(n=512)
         elif wtype == wtypes.bool_wtype:
             # bools are only packable when in a tuple sequence or as an array element
-            return BoolEncoding(packed=False)
+            return Bool8Encoding()
         elif wtype == wtypes.account_wtype:
             return wtypes.BytesWType(length=32).accept(self)
         elif wtype == wtypes.string_wtype:
@@ -216,7 +218,7 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
     def visit_basic_arc4_type(self, wtype: wtypes.ARC4Type) -> Encoding:
         if wtype == wtypes.arc4_bool_wtype:
             # bools are only packable when in a tuple sequence or as an array element
-            return BoolEncoding(packed=False)
+            return Bool8Encoding()
         self._unencodable()
 
     def visit_arc4_uint(self, wtype: wtypes.ARC4UIntN) -> Encoding:
@@ -243,34 +245,34 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
         if wtype.arc4_alias == wtypes.arc4_string_alias.arc4_alias:
             return DynamicArrayEncoding(element=UTF8Encoding(), length_header=True)
         return DynamicArrayEncoding(
-            element=self._allow_packable_bool(wtype.element_type),
+            element=self._visit_in_aggregate(wtype.element_type),
             length_header=True,
         )
 
     def visit_arc4_static_array(self, wtype: wtypes.ARC4StaticArray) -> Encoding:
         return FixedArrayEncoding(
-            element=self._allow_packable_bool(wtype.element_type),
+            element=self._visit_in_aggregate(wtype.element_type),
             size=wtype.array_size,
         )
 
     def visit_tuple_type(self, wtype: wtypes.WTuple) -> Encoding:
         return TupleEncoding(
-            elements=[self._allow_packable_bool(t) for t in wtype.types], names=wtype.names
+            elements=[self._visit_in_aggregate(t) for t in wtype.types], names=wtype.names
         )
 
     def visit_arc4_tuple(self, wtype: wtypes.ARC4Tuple) -> Encoding:
-        return TupleEncoding(elements=[self._allow_packable_bool(t) for t in wtype.types])
+        return TupleEncoding(elements=[self._visit_in_aggregate(t) for t in wtype.types])
 
     def visit_arc4_struct(self, wtype: wtypes.ARC4Struct) -> Encoding:
         return TupleEncoding(
-            elements=[self._allow_packable_bool(t) for t in wtype.types], names=wtype.names
+            elements=[self._visit_in_aggregate(t) for t in wtype.types], names=wtype.names
         )
 
-    def _allow_packable_bool(self, wtype: wtypes.WType) -> Encoding:
-        encoding = wtype.accept(self)
-        if isinstance(encoding, BoolEncoding):
-            encoding = BoolEncoding(packed=True)
-        return encoding
+    def _visit_in_aggregate(self, wtype: wtypes.WType) -> Encoding:
+        if wtype in (wtypes.bool_wtype, wtypes.arc4_bool_wtype):
+            return BoolEncoding()
+        else:
+            return wtype.accept(self)
 
     def visit_enumeration_type(self, _: wtypes.WEnumeration) -> Encoding:
         self._unencodable()
