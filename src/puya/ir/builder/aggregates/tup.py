@@ -63,15 +63,11 @@ def write_at_index(
 
     if element_encoding.is_bit:
         # Use Set bit
-        if value.ir_type.avm_type == AVMType.uint64:
-            # TODO: ensure coverage of this, might need to update requires_conversion
-            is_true = value
-        else:
-            is_true = factory.get_bit(value, 0, "is_true")
+        assert value.ir_type.avm_type == AVMType.uint64, "expected bool value"
         return factory.set_bit(
             value=tup,
             index=tuple_encoding.get_head_bit_offset(index),
-            bit=is_true,
+            bit=value,
             temp_desc="updated_data",
         )
     header_up_to_item_bytes = bits_to_bytes(tuple_encoding.get_head_bit_offset(index))

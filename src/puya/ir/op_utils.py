@@ -190,11 +190,25 @@ class OpFactory:
         )
         return result
 
-    def eq(self, a: Value | int, b: Value | int, temp_desc: str = "eq") -> Register:
+    def eq(
+        self, a: Value | int | bytes, b: Value | int | bytes, temp_desc: str = "eq"
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.eq,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def neq(
+        self, a: Value | int | bytes, b: Value | int | bytes, temp_desc: str = "neq"
+    ) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.neq,
             args=[a, b],
             source_location=self.source_location,
         )
@@ -215,6 +229,18 @@ class OpFactory:
             self.context,
             target=temp_desc,
             op=AVMOp.lte,
+            args=[a, b],
+            source_location=self.source_location,
+        )
+        return result
+
+    def neq_bytes(
+        self, a: Value | bytes, b: Value | bytes, temp_desc: str = "neq_bytes"
+    ) -> Register:
+        result = assign_intrinsic_op(
+            self.context,
+            target=temp_desc,
+            op=AVMOp.neq_bytes,
             args=[a, b],
             source_location=self.source_location,
         )
@@ -371,15 +397,31 @@ class OpFactory:
         )
         return result
 
-    def get_bit(self, value: Value, index: Value | int, temp_desc: str = "get_bit") -> Register:
+    def get_bit(
+        self,
+        value: Value,
+        index: Value | int,
+        temp_desc: str = "get_bit",
+        ir_type: IRType | None = None,
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.getbit,
             args=[value, index],
+            return_type=ir_type,
             source_location=self.source_location,
         )
         return result
+
+    def arc4_false(self) -> Value:
+        arc4_false = (0).to_bytes(1, "big")
+        return self.constant(arc4_false)
+
+    def make_arc4_bool(self, value: Value, temp_desc: str = "encoded_bool") -> Value:
+        # TODO: compare with select implementation
+        false = self.arc4_false()
+        return self.set_bit(value=false, index=0, bit=value, temp_desc=temp_desc)
 
     def extract_to_end(
         self,
