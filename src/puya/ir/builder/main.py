@@ -37,8 +37,10 @@ from puya.ir.models import (
     AddressConstant,
     BigUIntConstant,
     BytesConstant,
+    BytesEncode,
     CompiledContractReference,
     CompiledLogicSigReference,
+    DecodeBytes,
     Fail,
     Intrinsic,
     InvokeSubroutine,
@@ -51,8 +53,6 @@ from puya.ir.models import (
     UInt64Constant,
     Undefined,
     Value,
-    ValueDecode,
-    ValueEncode,
     ValueProvider,
     ValueTuple,
 )
@@ -161,9 +161,7 @@ class FunctionIRBuilder(
         encoding = wtype_to_encoding(expr.value.wtype, loc)
 
         value = self.visit_and_materialise_single(expr.value)
-        return ValueDecode(
-            value=value, encoding=encoding, decoded_type=ir_type, source_location=loc
-        )
+        return DecodeBytes(value=value, encoding=encoding, ir_type=ir_type, source_location=loc)
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         loc = expr.source_location
@@ -173,8 +171,8 @@ class FunctionIRBuilder(
 
         values = self.visit_and_materialise(expr.value)
 
-        return ValueEncode(
-            values=values, value_type=value_ir_type, encoding=encoding, source_location=loc
+        return BytesEncode(
+            values=values, values_type=value_ir_type, encoding=encoding, source_location=loc
         )
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
@@ -430,9 +428,9 @@ class FunctionIRBuilder(
             case wtypes.bool_wtype:
                 return bool_const
             case wtypes.arc4_bool_wtype:
-                return ValueEncode(
+                return BytesEncode(
                     values=[bool_const],
-                    value_type=bool_const.ir_type,
+                    values_type=bool_const.ir_type,
                     encoding=wtype_to_encoding(expr.wtype, loc),
                     source_location=loc,
                 )
@@ -483,9 +481,9 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
         if wtype == wtypes.arc4_string_alias:
-            encoded = ValueEncode(
+            encoded = BytesEncode(
                 values=[result],
-                value_type=result.ir_type,
+                values_type=result.ir_type,
                 encoding=wtype_to_encoding(wtype, loc),
                 source_location=loc,
             )
@@ -878,9 +876,9 @@ class FunctionIRBuilder(
         tuple_expr = awst_nodes.TupleExpression.from_items(expr.values, loc)
         tuple_ir_type = wtype_to_ir_type(tuple_expr.wtype, loc, allow_tuple=True)
         tuple_values = self.visit_and_materialise(tuple_expr)
-        encoded_array_vp = ValueEncode(
+        encoded_array_vp = BytesEncode(
             values=tuple_values,
-            value_type=tuple_ir_type,
+            values_type=tuple_ir_type,
             encoding=array_encoding,
             source_location=loc,
         )
@@ -1202,9 +1200,9 @@ class FunctionIRBuilder(
             element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
         ]
 
-        return ValueEncode(
+        return BytesEncode(
             values=elements,
-            value_type=tuple_ir_type,
+            values_type=tuple_ir_type,
             encoding=tuple_encoding,
             source_location=loc,
         )

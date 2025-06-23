@@ -166,10 +166,10 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
             )
 
-    def visit_aggregate_read_index(self, read: ir.AggregateReadIndex) -> None:
+    def visit_extract_value(self, read: ir.ExtractValue) -> None:
         _unexpected_node(read)
 
-    def visit_aggregate_write_index(self, write: ir.AggregateWriteIndex) -> None:
+    def visit_replace_value(self, write: ir.ReplaceValue) -> None:
         _unexpected_node(write)
 
     def visit_box_read(self, read: ir.BoxRead) -> None:
@@ -178,10 +178,10 @@ class MemoryIRBuilder(IRVisitor[None]):
     def visit_box_write(self, write: ir.BoxWrite) -> None:
         _unexpected_node(write)
 
-    def visit_value_encode(self, encode: ir.ValueEncode) -> None:
+    def visit_bytes_encode(self, encode: ir.BytesEncode) -> None:
         _unexpected_node(encode)
 
-    def visit_value_decode(self, encode: ir.ValueDecode) -> None:
+    def visit_decode_bytes(self, encode: ir.DecodeBytes) -> None:
         _unexpected_node(encode)
 
     def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:

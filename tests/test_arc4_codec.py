@@ -74,7 +74,7 @@ def test_unsupported_decodes(arc4_type: wtypes.ARC4Type, target_type: wtypes.WTy
 
 
 def _call_decode_value(arc4_type: wtypes.ARC4Type, target_type: wtypes.WType) -> list[str]:
-    from puya.ir.builder.aggregates.arc4_codecs import decode_value
+    from puya.ir.builder.aggregates.arc4_codecs import decode_bytes
 
     loc = SourceLocation(file=None, line=1)
     encoding = wtype_to_encoding(arc4_type, loc)
@@ -82,7 +82,7 @@ def _call_decode_value(arc4_type: wtypes.ARC4Type, target_type: wtypes.WType) ->
     value = BytesConstant(value=b"", encoding=AVMBytesEncoding.base16, source_location=loc)
     with logging_context() as log_ctx, log_exceptions():
         ctx = _MockRegisterContext()
-        decode_value(ctx, value=value, encoding=encoding, target_type=target_ir_type, loc=loc)
+        decode_bytes(ctx, value=value, encoding=encoding, target_type=target_ir_type, loc=loc)
     errors = [log.message for log in log_ctx.logs if log.level == LogLevel.error]
     return errors
 
