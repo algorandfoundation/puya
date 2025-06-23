@@ -60,8 +60,14 @@ contract DynamicArrayContract
     log(reinterpret_cast<bytes>(array))
     log(reinterpret_cast<bytes>(array[0u]))
     log(reinterpret_cast<bytes>(array[1u]))
+    array2: arc4.dynamic_array<test_cases.arc4_dynamic_arrays.contract.MixedSingleStruct> = array.copy()
     assert(array.pop() == struct2)
     assert(array.pop() == struct1)
+    assert(array2.length == 2u)
+    array2.extend(array2.copy())
+    assert(array2.length == 4u)
+    assert(array2[array2.length - 1u] == struct2)
+    assert(array2[array2.length - 2u] == struct1)
   }
   
   abimethod test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements(): void
