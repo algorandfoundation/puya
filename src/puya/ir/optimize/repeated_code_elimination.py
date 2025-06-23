@@ -130,21 +130,21 @@ class RCEVisitor(NoOpIRVisitor[bool]):
                 self.asserted.add(assert_arg)
         return modified
 
-    def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> bool:
+    def visit_extract_value(self, read: models.ExtractValue) -> bool:
         modified = False
         if self._assignment is not None:
             key = read.freeze()
             modified = self._cache_or_replace(self._assignment, key)
         return modified
 
-    def visit_value_encode(self, encode: models.ValueEncode) -> bool:
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> bool:
         modified = False
         if self._assignment is not None:
             key = encode.freeze()
             modified = self._cache_or_replace(self._assignment, key)
         return modified
 
-    def visit_value_decode(self, decode: models.ValueDecode) -> bool:
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> bool:
         modified = False
         if self._assignment is not None:
             key = decode.freeze()

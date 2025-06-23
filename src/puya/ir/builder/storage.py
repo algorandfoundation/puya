@@ -16,12 +16,12 @@ from puya.ir.builder._utils import assign_tuple, undefined_value
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
     BoxRead,
+    BytesEncode,
     ConditionalBranch,
+    DecodeBytes,
     Intrinsic,
     UInt64Constant,
     Value,
-    ValueDecode,
-    ValueEncode,
     ValueProvider,
     ValueTuple,
 )
@@ -484,9 +484,9 @@ class _ARC4StorageCodec(StorageCodec):
     def encode(
         self, context: IRFunctionBuildContext, values: Sequence[Value], loc: SourceLocation
     ) -> Value:
-        encoded_vp = ValueEncode(
+        encoded_vp = BytesEncode(
             values=values,
-            value_type=self._declared_type,
+            values_type=self._declared_type,
             encoding=self._encoded_type.encoding,
             source_location=loc,
         )
@@ -500,10 +500,10 @@ class _ARC4StorageCodec(StorageCodec):
     def decode(
         self, context: IRFunctionBuildContext, value: Value, loc: SourceLocation
     ) -> ValueProvider:
-        return ValueDecode(
+        return DecodeBytes(
             value=value,
             encoding=self._encoded_type.encoding,
-            decoded_type=self._declared_type,
+            ir_type=self._declared_type,
             source_location=loc,
         )
 

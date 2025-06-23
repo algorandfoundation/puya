@@ -41,7 +41,7 @@ from puya.utils import bits_to_bytes
 logger = log.get_logger(__name__)
 
 
-def decode_value(
+def decode_bytes(
     context: IRRegisterContext,
     value: Value,
     encoding: Encoding,
@@ -60,19 +60,19 @@ def decode_value(
     return undefined_value(target_type, loc)
 
 
-def encode_value(
+def encode_to_bytes(
     context: IRRegisterContext,
     values: Sequence[Value],
-    value_type: IRType | TupleIRType,
+    values_type: IRType | TupleIRType,
     encoding: Encoding,
     loc: SourceLocation,
 ) -> ValueProvider:
-    codec = _get_arc4_codec(value_type)
+    codec = _get_arc4_codec(values_type)
     if codec is not None:
         result = codec.encode(context, values, encoding, loc)
         if result is not None:
             return result
-    logger.error(f"cannot encode {_encoding_or_name(value_type)} to {encoding!s}", location=loc)
+    logger.error(f"cannot encode {_encoding_or_name(values_type)} to {encoding!s}", location=loc)
     return Undefined(
         ir_type=PrimitiveIRType.bytes,
         source_location=loc,
@@ -174,7 +174,7 @@ class _NativeTupleCodec(_ARC4Codec):
                 if requires_no_conversion(element_ir_type, element_encoding):
                     (value,) = element_values
                 else:
-                    encoded_element_vp = encode_value(
+                    encoded_element_vp = encode_to_bytes(
                         context, element_values, element_ir_type, element_encoding, loc
                     )
                     value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
@@ -245,7 +245,7 @@ class _NativeTupleCodec(_ARC4Codec):
             if requires_no_conversion(item_ir_type, item_encoding):
                 item: ValueProvider = encoded_item
             else:
-                item = decode_value(
+                item = decode_bytes(
                     context,
                     value=encoded_item,
                     encoding=item_encoding,

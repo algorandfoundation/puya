@@ -444,10 +444,8 @@ class _AggregateOp(Op, ValueProvider, abc.ABC):
 
 
 @attrs.define(eq=False)
-class AggregateReadIndex(_AggregateOp):
+class ExtractValue(_AggregateOp):
     check_bounds: bool
-    # this will generally be a bytes, and can be more specific about what those bytes encode,
-    # except for the complication of getbit/setbit for bit-packed bools
     ir_type: IRType = attrs.field(repr=lambda x: x.name)
 
     @property
@@ -458,11 +456,11 @@ class AggregateReadIndex(_AggregateOp):
         return self.base_type, self.base, self.indexes, self.check_bounds
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_aggregate_read_index(self)
+        return visitor.visit_extract_value(self)
 
 
 @attrs.define(eq=False)
-class AggregateWriteIndex(_AggregateOp):
+class ReplaceValue(_AggregateOp):
     value: Value
 
     def _frozen_data(self) -> object:
@@ -473,7 +471,7 @@ class AggregateWriteIndex(_AggregateOp):
         return (self.base_type,)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_aggregate_write_index(self)
+        return visitor.visit_replace_value(self)
 
 
 @attrs.define(eq=False)
@@ -511,60 +509,59 @@ class BoxWrite(Op):
 
 
 @attrs.define(eq=False)
-class ValueEncode(Op, ValueProvider):
-    """Encodes a sequence of values into an encoded value"""
+class BytesEncode(Op, ValueProvider):
+    """Encodes a sequence of values into encoded bytes"""
 
     source_location: SourceLocation = attrs.field(eq=False)
-    values: Sequence[Value]
     encoding: Encoding
-    value_type: IRType | TupleIRType = attrs.field()
+    values: Sequence[Value]
+    values_type: IRType | TupleIRType = attrs.field()
 
-    @value_type.validator
-    def _value_type_validator(self, _: object, value: IRType | TupleIRType) -> None:
-        if value.arity != len(self.values):
+    @values_type.validator
+    def _value_type_validator(self, _: object, values_type: IRType | TupleIRType) -> None:
+        if values_type.arity != len(self.values):
             raise InternalError(
-                "expected value_type arity to match values arity", self.source_location
+                "expected values_type arity to match values arity", self.source_location
             )
-        # TODO: re-enable this after removing StackArray
-        # if value == EncodedType(self.encoding):
-        #    raise InternalError("nothing to encode", self.source_location)
 
     def _frozen_data(self) -> object:
-        return tuple(self.values), self.value_type, self.encoding
+        return tuple(self.values), self.values_type, self.encoding
 
     @property
     def types(self) -> Sequence[IRType]:
         return (EncodedType(self.encoding),)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_value_encode(self)
+        return visitor.visit_bytes_encode(self)
 
 
 @attrs.define(eq=False)
-class ValueDecode(Op, ValueProvider):
-    """Decodes a value into a sequence of values"""
+class DecodeBytes(Op, ValueProvider):
+    """Decodes an encoded bytes into a sequence of values"""
 
     source_location: SourceLocation = attrs.field(eq=False)
-    value: Value
     encoding: Encoding
-    decoded_type: IRType | TupleIRType = attrs.field()
+    value: Value
+    ir_type: IRType | TupleIRType = attrs.field()
 
-    @decoded_type.validator
-    def _decoded_type_validator(self, _: object, decoded_type: IRType | TupleIRType) -> None:
-        _arity_matches(decoded_type, self.encoding, self.source_location)
+    @ir_type.validator
+    def _ir_type_type_validator(self, _: object, ir_type: IRType | TupleIRType) -> None:
+        _arity_matches(ir_type, self.encoding, self.source_location)
 
     def _frozen_data(self) -> object:
-        return self.value, self.encoding, self.decoded_type
+        return self.value, self.encoding, self.ir_type
 
     @property
     def types(self) -> Sequence[IRType]:
-        return ir_type_to_ir_types(self.decoded_type)
+        return ir_type_to_ir_types(self.ir_type)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
-        return visitor.visit_value_decode(self)
+        return visitor.visit_decode_bytes(self)
 
 
-def _arity_matches(ir_type: IRType | TupleIRType, encoding: Encoding, loc: SourceLocation) -> None:
+def _arity_matches(
+    ir_type: IRType | TupleIRType, encoding: Encoding, loc: SourceLocation | None
+) -> None:
     match ir_type:
         case TupleIRType(elements=elements) if isinstance(encoding, TupleEncoding) and len(
             elements

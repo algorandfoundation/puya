@@ -76,33 +76,35 @@ def encode_decode_pair_elimination(
     _context: CompileContext, subroutine: models.Subroutine
 ) -> bool:
     encodes_by_args = dict[
-        tuple[models.Value, ...], list[tuple[models.Assignment, models.ValueEncode]]
+        tuple[models.Value, ...], list[tuple[models.Assignment, models.BytesEncode]]
     ]()
-    encodes_by_target = dict[models.Register, models.ValueEncode]()
-    decodes_by_arg = dict[models.Value, list[tuple[models.Assignment, models.ValueDecode]]]()
-    decodes_by_targets = dict[tuple[models.Register, ...], models.ValueDecode]()
+    encodes_by_target = dict[models.Register, models.BytesEncode]()
+    decodes_by_arg = dict[models.Value, list[tuple[models.Assignment, models.DecodeBytes]]]()
+    decodes_by_targets = dict[tuple[models.Register, ...], models.DecodeBytes]()
     modified = False
     for block in subroutine.body:
         for op in block.ops:
             if isinstance(op, models.Assignment):
                 source = op.source
-                if isinstance(source, models.ValueEncode):
+                if isinstance(source, models.BytesEncode):
                     encodes_by_args.setdefault(tuple(source.values), []).append((op, source))
                     (target,) = op.targets
                     encodes_by_target[target] = source
-                elif isinstance(source, models.ValueDecode):
+                elif isinstance(source, models.DecodeBytes):
                     decodes_by_arg.setdefault(source.value, []).append((op, source))
                     decodes_by_targets[tuple(op.targets)] = source
 
-    # replaced ValueDecode(ValueEncode([*args])) with args
-    # where result type of decode is the input type of encode
+    # replace DecodeBytes(BytesEncode([*args])) with args where:
+    #   - result IR type of decode is the input IR type of encode
+    #   - encodings are equal (should always be true)
+    #   - removing the round-trip won't result in the loss of any validation / asserts
     for encode_target, encode_op in encodes_by_target.items():
         encode_decodes = decodes_by_arg.get(encode_target, [])
         for encode_decode_assignment, encode_decode in encode_decodes:
             if (
-                encode_decode.decoded_type == encode_op.value_type
+                encode_decode.ir_type == encode_op.values_type
                 and encode_decode.encoding == encode_op.encoding
-                and _is_round_trip_safe(encode_decode.encoding, encode_decode.decoded_type)
+                and _is_round_trip_safe(encode_decode.encoding, encode_decode.ir_type)
             ):
                 logger.debug(
                     f"replacing redundant decode-of-encode with:"
@@ -116,15 +118,17 @@ def encode_decode_pair_elimination(
                         values=encode_op.values,
                         source_location=encode_decode_assignment.source_location,
                     )
-    # replaced ValueEncode(ValueDecode(arg)) with arg
-    # where the result type of encode is in the input type of decode
+    # replace BytesEncode(DecodeBytes(arg)) with arg where:
+    #   - the result IR type of encode is in the input IR type of encode (should always be true)
+    #   - the source encoding and target encoding are the same
+    #   - removing the round-trip won't result in the loss of any validation / asserts
     for decode_targets, decode_op in decodes_by_targets.items():
         decode_encodes = encodes_by_args.get(decode_targets, [])
         for decode_encode_assignment, decode_encode in decode_encodes:
             if (
                 decode_op.encoding == decode_encode.encoding
-                and decode_op.decoded_type == decode_encode.value_type
-                and _is_round_trip_safe(decode_op.encoding, decode_op.decoded_type)
+                and decode_op.ir_type == decode_encode.values_type
+                and _is_round_trip_safe(decode_op.encoding, decode_op.ir_type)
             ):
                 logger.debug(f"replacing redundant encode-of-decode with: {decode_op.value}")
                 modified = True

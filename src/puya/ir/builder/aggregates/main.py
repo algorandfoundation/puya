@@ -31,29 +31,29 @@ def lower_aggregate_nodes(program: ir.Program) -> None:
 @attrs.define(kw_only=True)
 class _AggregateNodeReplacer(MutatingRegisterContext):
     @typing.override
-    def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> models.ValueProvider:
         self.modified = True
-        return arc4_codecs.encode_value(
+        return arc4_codecs.encode_to_bytes(
             self,
             values=encode.values,
-            value_type=encode.value_type,
+            values_type=encode.values_type,
             encoding=encode.encoding,
             loc=encode.source_location,
         )
 
     @typing.override
-    def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueProvider:
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> models.ValueProvider:
         self.modified = True
-        return arc4_codecs.decode_value(
+        return arc4_codecs.decode_bytes(
             self,
             decode.value,
             encoding=decode.encoding,
-            target_type=decode.decoded_type,
+            target_type=decode.ir_type,
             loc=decode.source_location,
         )
 
     @typing.override
-    def visit_aggregate_read_index(self, read: ir.AggregateReadIndex) -> ir.Value:
+    def visit_extract_value(self, read: ir.ExtractValue) -> ir.Value:
         self.modified = True
 
         loc = read.source_location
@@ -86,7 +86,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         return base
 
     @typing.override
-    def visit_aggregate_write_index(self, write: ir.AggregateWriteIndex) -> ir.Value:
+    def visit_replace_value(self, write: ir.ReplaceValue) -> ir.Value:
         self.modified = True
 
         loc = write.source_location

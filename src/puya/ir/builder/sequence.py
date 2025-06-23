@@ -68,7 +68,7 @@ def read_aggregate_index_and_decode(
         read_result_type: IRType = PrimitiveIRType.bool
     else:
         read_result_type = EncodedType(element_encoding)
-    read_index = ir.AggregateReadIndex(
+    read_index = ir.ExtractValue(
         base=base,
         base_type=EncodedType(aggregate_encoding),
         ir_type=read_result_type,
@@ -85,10 +85,10 @@ def read_aggregate_index_and_decode(
         return tuple_item
     else:
         values = context.materialise_value_provider(
-            ir.ValueDecode(
+            ir.DecodeBytes(
                 value=tuple_item,
                 encoding=element_encoding,
-                decoded_type=element_ir_type,
+                ir_type=element_ir_type,
                 source_location=loc,
             ),
             "values",
@@ -129,10 +129,10 @@ def encode_and_write_aggregate_index(
         (encoded_value,) = values
     else:
         (encoded_value,) = context.materialise_value_provider(
-            ir.ValueEncode(
+            ir.BytesEncode(
                 values=values,
                 encoding=element_encoding,
-                value_type=element_ir_type,
+                values_type=element_ir_type,
                 source_location=loc,
             ),
             "encoded_value",
@@ -140,7 +140,7 @@ def encode_and_write_aggregate_index(
     desc = "updated_tuple" if isinstance(aggregate_encoding, TupleEncoding) else "updated_array"
     if isinstance(aggregate_or_slot.ir_type, SlotType):
         base = mem.read_slot(context, aggregate_or_slot, loc)
-        write_index = ir.AggregateWriteIndex(
+        write_index = ir.ReplaceValue(
             base=base,
             base_type=EncodedType(aggregate_encoding),
             indexes=indexes,
@@ -151,7 +151,7 @@ def encode_and_write_aggregate_index(
         mem.write_slot(context, aggregate_or_slot, result, loc)
         return aggregate_or_slot
     else:
-        write_index = ir.AggregateWriteIndex(
+        write_index = ir.ReplaceValue(
             base=base,
             base_type=EncodedType(aggregate_encoding),
             indexes=indexes,

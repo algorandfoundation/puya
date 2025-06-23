@@ -45,14 +45,14 @@ def replace_aggregate_box_ops(
 
 @attrs.define(kw_only=True)
 class _AggregateCollector(NoOpIRVisitor[None]):
-    agg_writes: dict[models.Value, models.AggregateWriteIndex] = attrs.field(factory=dict)
+    agg_writes: dict[models.Value, models.ReplaceValue] = attrs.field(factory=dict)
     box_reads: dict[models.Value, models.BoxRead] = attrs.field(factory=dict)
 
     @typing.override
     def visit_assignment(self, ass: models.Assignment) -> None:
         source = ass.source
         match source:
-            case models.AggregateWriteIndex():
+            case models.ReplaceValue():
                 (target,) = ass.targets
                 self.agg_writes[target] = source
             case models.BoxRead():
@@ -64,7 +64,7 @@ class _AggregateCollector(NoOpIRVisitor[None]):
 class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
     aggregates: _AggregateCollector
 
-    def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> models.ValueProvider:
+    def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider:
         if not _box_extract_required(read):
             return read
 
@@ -90,7 +90,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             self.modified = True
             logger.debug(
                 f"combined BoxRead `{maybe_box_register!s} = {box_read!s}`\n"
-                f"and AggregateReadIndex `{read!s}`\n"
+                f"and ExtractValue `{read!s}`\n"
                 f"into {new_read!s}",
                 location=merged_loc,
             )
@@ -130,7 +130,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         self.add_op(new_write)
         logger.debug(
             f"combined BoxRead `{agg_write.base!s} = {read_src!s}`\n"
-            f"and AggregateWriteIndex `{write.value!s} = {agg_write!s}`\n"
+            f"and ReplaceValue `{write.value!s} = {agg_write!s}`\n"
             f"and BoxWrite `{write!s}`\n"
             f"into {new_write!s}",
             location=merged_loc,
@@ -138,7 +138,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         return None
 
 
-def _box_extract_required(read: models.AggregateReadIndex) -> bool:
+def _box_extract_required(read: models.ExtractValue) -> bool:
     aggregate_encoding = read.base_type.encoding
     # dynamic encodings not supported with box_extract optimization currently
     if aggregate_encoding.is_dynamic:
@@ -154,7 +154,7 @@ def _box_extract_required(read: models.AggregateReadIndex) -> bool:
 def _combine_box_and_aggregate_read(
     context: IRRegisterContext,
     box_key: models.Value,
-    agg_read: models.AggregateReadIndex,
+    agg_read: models.ExtractValue,
     loc: SourceLocation | None,
 ) -> models.ValueProvider:
     # TODO: it is also feasible and practical to support a DynamicArray of fixed elements at the
@@ -195,7 +195,7 @@ def _combine_box_and_aggregate_read(
 
 def _combine_aggregate_and_box_write(
     context: IRRegisterContext,
-    agg_write: models.AggregateWriteIndex,
+    agg_write: models.ReplaceValue,
     box_key: models.Value,
     loc: SourceLocation | None,
 ) -> models.Op:
@@ -223,7 +223,7 @@ def _combine_aggregate_and_box_write(
         )
         assert isinstance(encoding, TupleEncoding | ArrayEncoding), "expected aggregate encoding"
         value = factory.materialise_single(
-            models.AggregateWriteIndex(
+            models.ReplaceValue(
                 base=box_extract,
                 base_type=extract_ir_type,
                 value=agg_write.value,
