@@ -371,7 +371,12 @@ class StaticArray(
     def to_native(
         self, element_type: type[_TNativeArrayItem], /
     ) -> algopy.FixedArray[_TNativeArrayItem, _TArrayLength]:
-        """TODO DOCUMENT ME"""
+        """
+        Convert to an `algopy.FixedArray` with the specified element type.
+
+        Only allowed if the element type is compatible with this arrays element type e.g.
+        arc4.UInt64 -> UInt64
+        """
 
 class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     """A dynamically sized ARC-4 Array of the specified type"""
@@ -416,7 +421,12 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
     def to_native(
         self, element_type: type[_TNativeArrayItem], /
     ) -> algopy.Array[_TNativeArrayItem]:
-        """TODO DOCUMENT ME"""
+        """
+        Convert to an `algopy.Array` with the specified element type.
+
+        Only allowed if the element type is compatible with this arrays element type e.g.
+        arc4.UInt64 -> UInt64
+        """
 
 class Address(StaticArray[Byte, typing.Literal[32]]):
     """An alias for an array containing 32 bytes representing an Algorand address"""
