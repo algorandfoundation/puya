@@ -54,7 +54,7 @@ main test_cases.contains.contract.MyContract.approval_program:
         let tmp%9#1: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
         let tmp%10#0: string = test_cases.contains.contract.baz_string()
         let tmp%11#0: string = test_cases.contains.contract.bar_string()
-        let tmp%12#0: string = decode<string>(tmp%9#1)
+        let tmp%12#0: string = decode_bytes<string>(tmp%9#1)
         let awst_tmp%2#0: string = test_cases.contains.contract.foo_string()
         let tmp%13#0: bool = (== tmp%12#0 awst_tmp%2#0)
         goto tmp%13#0 ? block@12 : block@10
@@ -74,7 +74,7 @@ main test_cases.contains.contract.MyContract.approval_program:
         let or_result%2#2: bool = φ(or_result%2#0 <- block@12, or_result%2#1 <- block@13)
         (assert or_result%2#2) // foo in (foo, baz, bar)
         let awst_tmp%3#0: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
-        let tmp%16#0: string = decode<string>(awst_tmp%3#0)
+        let tmp%16#0: string = decode_bytes<string>(awst_tmp%3#0)
         let tmp%17#0: string = test_cases.contains.contract.foo_string()
         let tmp%18#0: string = test_cases.contains.contract.baz_string()
         let tmp%19#0: string = test_cases.contains.contract.bar_string()
@@ -97,7 +97,7 @@ main test_cases.contains.contract.MyContract.approval_program:
         (assert or_result%3#2) // foo in (foo, baz, bar)
         let tmp%25#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
         let tmp%26#0: string = test_cases.contains.contract.baz_string()
-        let tmp%27#0: string = decode<string>(tmp%25#0)
+        let tmp%27#0: string = decode_bytes<string>(tmp%25#0)
         let awst_tmp%4#0: string = test_cases.contains.contract.foo_string()
         let tmp%28#0: bool = (== tmp%27#0 awst_tmp%4#0)
         goto tmp%28#0 ? block@21 : block@20
@@ -120,7 +120,7 @@ main test_cases.contains.contract.MyContract.approval_program:
         let tmp%33#0: bool = (== awst_tmp%5#0 tmp%31#0)
         goto tmp%33#0 ? block@25 : block@24
     block@24: // or_contd_L61
-        let tmp%34#0: string = decode<string>(awst_tmp%5#0)
+        let tmp%34#0: string = decode_bytes<string>(awst_tmp%5#0)
         let tmp%35#0: bool = (== tmp%34#0 tmp%32#0)
         goto tmp%35#0 ? block@25 : block@26
     block@25: // bool_true_L61
@@ -137,7 +137,7 @@ main test_cases.contains.contract.MyContract.approval_program:
         let tmp%38#0: string = test_cases.contains.contract.baz_string()
         let tmp%39#0: string = test_cases.contains.contract.foo_string()
         let tmp%40#0: uint64 = test_cases.contains.contract.one_u64()
-        let tmp%41#0: string = decode<string>(tmp%37#0)
+        let tmp%41#0: string = decode_bytes<string>(tmp%37#0)
         let awst_tmp%6#0: string = test_cases.contains.contract.foo_string()
         let tmp%42#0: bool = (== tmp%41#0 awst_tmp%6#0)
         goto tmp%42#0 ? block@30 : block@28
@@ -164,7 +164,7 @@ main test_cases.contains.contract.MyContract.approval_program:
         let tmp%49#0: bool = (== awst_tmp%7#0 tmp%45#0)
         goto tmp%49#0 ? block@35 : block@33
     block@33: // or_contd_L68
-        let tmp%50#0: string = decode<string>(awst_tmp%7#0)
+        let tmp%50#0: string = decode_bytes<string>(awst_tmp%7#0)
         let tmp%51#0: bool = (== tmp%50#0 tmp%46#0)
         goto tmp%51#0 ? block@35 : block@34
     block@34: // or_contd_L68
@@ -182,7 +182,7 @@ main test_cases.contains.contract.MyContract.approval_program:
         let tmp%54#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
         let tmp%55#0: string = test_cases.contains.contract.baz_string()
         let tmp%56#0: uint64 = test_cases.contains.contract.one_u64()
-        let tmp%57#0: string = decode<string>(tmp%54#0)
+        let tmp%57#0: string = decode_bytes<string>(tmp%54#0)
         let awst_tmp%8#0: string = test_cases.contains.contract.foo_string()
         let tmp%58#0: bool = (== tmp%57#0 awst_tmp%8#0)
         goto tmp%58#0 ? block@39 : block@38
@@ -206,7 +206,7 @@ main test_cases.contains.contract.MyContract.approval_program:
         let tmp%64#0: bool = (== awst_tmp%9#0 tmp%61#0)
         goto tmp%64#0 ? block@43 : block@42
     block@42: // or_contd_L79
-        let tmp%65#0: string = decode<string>(awst_tmp%9#0)
+        let tmp%65#0: string = decode_bytes<string>(awst_tmp%9#0)
         let tmp%66#0: bool = (== tmp%65#0 tmp%62#0)
         goto tmp%66#0 ? block@43 : block@44
     block@43: // bool_true_L79
@@ -717,7 +717,7 @@ subroutine test_cases.contains.contract.foo_string() -> string:
 
 subroutine test_cases.contains.contract.foo_arc4() -> Encoded(len+utf8[]):
     block@0: // L172
-        let encoded%0#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x666f6f)
+        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x666f6f)
         return encoded%0#0
 
 subroutine test_cases.contains.contract.bar_string() -> string:
@@ -726,7 +726,7 @@ subroutine test_cases.contains.contract.bar_string() -> string:
 
 subroutine test_cases.contains.contract.bar_arc4() -> Encoded(len+utf8[]):
     block@0: // L182
-        let encoded%0#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x626172)
+        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x626172)
         return encoded%0#0
 
 subroutine test_cases.contains.contract.baz_string() -> string:

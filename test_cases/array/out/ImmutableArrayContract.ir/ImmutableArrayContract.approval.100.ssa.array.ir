@@ -2120,7 +2120,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_convert_to_arr
         let mutable#0: Encoded((uint64,bool1,bool1)[])* = new()
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
         let concat%0#0: Encoded((uint64,bool1,bool1)[]) = (concat encoded_array%0#0 extract_to_end%0#0) // on error: max array length exceeded
-        write(mutable#0, concat%0#0)
+        store(mutable#0, concat%0#0)
         let i#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L390
@@ -2132,7 +2132,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_convert_to_arr
         let tmp%1#0: bool = (! tmp%0#0)
         let tmp%2#0: uint64 = (% i#1 3u)
         let tmp%3#0: bool = (! tmp%2#0)
-        let slot_contents%1#0: Encoded((uint64,bool1,bool1)[]) = read(mutable#0)
+        let slot_contents%1#0: Encoded((uint64,bool1,bool1)[]) = load(mutable#0)
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob i#1)
         let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
         let aggregate%encoded%1#1: Encoded(uint64) = (concat 0x aggregate%as_Encoded(uint64)%0#1)
@@ -2144,11 +2144,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_convert_to_arr
         let aggregate%encoded%5#1: Encoded((uint64,bool1,bool1)[]) = (concat aggregate%encoded%4#1 0x)
         let tmp%4#0: Encoded((uint64,bool1,bool1)[]) = aggregate%encoded%5#1
         let concat%1#0: Encoded((uint64,bool1,bool1)[]) = (concat slot_contents%1#0 tmp%4#0) // on error: max array length exceeded
-        write(mutable#0, concat%1#0)
+        store(mutable#0, concat%1#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L390
-        let slot_contents%2#0: Encoded((uint64,bool1,bool1)[]) = read(mutable#0)
+        let slot_contents%2#0: Encoded((uint64,bool1,bool1)[]) = load(mutable#0)
         let bytes_len%0#0: uint64 = (len slot_contents%2#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 9u)
         let as_bytes%0#0: bytes[8] = (itob array_len%0#0)

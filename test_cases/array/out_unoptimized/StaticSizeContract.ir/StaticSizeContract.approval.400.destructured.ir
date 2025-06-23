@@ -62,7 +62,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
 
 subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[])*) -> uint64:
     block@0: // L165
-        let slot_contents%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
+        let slot_contents%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let aggregate%bytes_offset%0#1: uint64 = (* 0u 144u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%0#0 aggregate%bytes_offset%0#1 144u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = aggregate%encoded_element%0#1
@@ -74,7 +74,7 @@ subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64
         let last_point.x#0: Encoded(uint64) = values%0#0
         let last_point.y#0: uint64 = values%1#0
         let length#0: uint64 = 0u
-        let slot_contents%1#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
+        let slot_contents%1#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let bytes_len%0#0: uint64 = (len slot_contents%1#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 144u)
         (assert 1u) // Step cannot be zero
@@ -84,7 +84,7 @@ subroutine test_cases.array.static_size.path_length(path: Encoded((uint64,uint64
         let continue_looping%0#0: bool = (< point_idx#0 array_len%0#0)
         goto continue_looping%0#0 ? block@2 : block@10
     block@2: // for_body_L170
-        let slot_contents%2#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
+        let slot_contents%2#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let aggregate%bytes_offset%1#1: uint64 = (* point_idx#0 144u)
         let aggregate%encoded_element%1#1: bytes = (extract3 slot_contents%2#0 aggregate%bytes_offset%1#1 144u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = aggregate%encoded_element%1#1
@@ -222,7 +222,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let aggregate%encoded%33#1: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = (concat aggregate%encoded%32#1 0x)
         let encoded_array%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = aggregate%encoded%33#1
         let slot%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[])* = new()
-        write(slot%0#0, encoded_array%0#0)
+        store(slot%0#0, encoded_array%0#0)
         let path#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[])* = slot%0#0
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
@@ -231,7 +231,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let continue_looping%0#0: bool = (< i#0 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L50
-        let slot_contents%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
+        let slot_contents%0#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let aggregate%bytes_offset%0#1: uint64 = (* i#0 144u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%0#0 aggregate%bytes_offset%0#1 144u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = aggregate%encoded_element%0#1
@@ -242,7 +242,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let tmp%15#0: uint64 = (+ i#0 1u)
         let tmp%16#0: bool = (== values%3#0 tmp%15#0)
         (assert tmp%16#0)
-        let slot_contents%1#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
+        let slot_contents%1#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let aggregate%bytes_offset%1#1: uint64 = (* i#0 144u)
         let aggregate%encoded_element%1#1: bytes = (extract3 slot_contents%1#0 aggregate%bytes_offset%1#1 144u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = aggregate%encoded_element%1#1
@@ -256,7 +256,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let tmp%18#0: biguint = (itob tmp%17#0)
         let tmp%19#0: bool = (b== reinterpret_biguint%0#0 tmp%18#0)
         (assert tmp%19#0)
-        let slot_contents%2#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
+        let slot_contents%2#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let aggregate%bytes_offset%2#1: uint64 = (* i#0 144u)
         let aggregate%encoded_element%2#1: bytes = (extract3 slot_contents%2#0 aggregate%bytes_offset%2#1 144u) // on error: index access is out of bounds
         let array_item%2#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = aggregate%encoded_element%2#1
@@ -277,7 +277,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
     block@4: // after_for_L49
-        let slot_contents%3#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = read(path#0)
+        let slot_contents%3#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let bytes_len%0#0: uint64 = (len slot_contents%3#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 144u)
         let as_bytes%0#0: bytes[8] = (itob array_len%0#0)
@@ -293,27 +293,27 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tupl
         let aggregate%encoded%0#1: Encoded((uint64,uint64)[]) = (concat 0x 0x)
         let encoded_array%0#0: Encoded((uint64,uint64)[]) = aggregate%encoded%0#1
         let slot%0#0: Encoded((uint64,uint64)[])* = new()
-        write(slot%0#0, encoded_array%0#0)
+        store(slot%0#0, encoded_array%0#0)
         let arr#0: Encoded((uint64,uint64)[])* = slot%0#0
-        let slot_contents%0#0: Encoded((uint64,uint64)[]) = read(arr#0)
+        let slot_contents%0#0: Encoded((uint64,uint64)[]) = load(arr#0)
         let aggregate%encoded%1#1: Encoded((uint64,uint64)) = (concat 0x some_more.0#0)
         let aggregate%encoded%2#1: Encoded((uint64,uint64),(uint64,uint64)) = (concat aggregate%encoded%1#1 some_more.1#0)
         let aggregate%encoded%3#1: Encoded((uint64,uint64)[]) = (concat aggregate%encoded%2#1 0x)
         let tmp%0#0: Encoded((uint64,uint64)[]) = aggregate%encoded%3#1
         let concat%0#0: Encoded((uint64,uint64)[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
-        let slot_contents%1#0: Encoded((uint64,uint64)[]) = read(arr#0)
+        store(arr#0, concat%0#0)
+        let slot_contents%1#0: Encoded((uint64,uint64)[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%1#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 16u)
         let tmp%1#0: uint64 = (- array_len%0#0 1u)
-        let slot_contents%2#0: Encoded((uint64,uint64)[]) = read(arr#0)
+        let slot_contents%2#0: Encoded((uint64,uint64)[]) = load(arr#0)
         let aggregate%bytes_offset%0#1: uint64 = (* tmp%1#0 16u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%2#0 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#1
         let last#0: Encoded(uint64,uint64) = array_item%0#0
         let tmp%2#0: bool = (== last#0 some_more.1#0)
         (assert tmp%2#0)
-        let slot_contents%3#0: Encoded((uint64,uint64)[]) = read(arr#0)
+        let slot_contents%3#0: Encoded((uint64,uint64)[]) = load(arr#0)
         let bytes_len%1#0: uint64 = (len slot_contents%3#0)
         let array_len%1#0: uint64 = (/ bytes_len%1#0 16u)
         let as_bytes%0#0: bytes[8] = (itob array_len%1#0)
@@ -335,12 +335,12 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4
         let aggregate%encoded%0#1: Encoded((uint64,uint64)[]) = (concat 0x 0x)
         let encoded_array%0#0: Encoded((uint64,uint64)[]) = aggregate%encoded%0#1
         let slot%0#0: Encoded((uint64,uint64)[])* = new()
-        write(slot%0#0, encoded_array%0#0)
+        store(slot%0#0, encoded_array%0#0)
         let arr#0: Encoded((uint64,uint64)[])* = slot%0#0
-        let slot_contents%0#0: Encoded((uint64,uint64)[]) = read(arr#0)
+        let slot_contents%0#0: Encoded((uint64,uint64)[]) = load(arr#0)
         let concat%0#0: Encoded((uint64,uint64)[]) = (concat slot_contents%0#0 some_more#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
-        let slot_contents%1#0: Encoded((uint64,uint64)[]) = read(arr#0)
+        store(arr#0, concat%0#0)
+        let slot_contents%1#0: Encoded((uint64,uint64)[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%1#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 16u)
         let as_bytes%0#0: bytes[8] = (itob array_len%0#0)
@@ -353,9 +353,9 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_bool_array(lengt
         let aggregate%encoded%0#1: Encoded(bool8[]) = (concat 0x 0x)
         let encoded_array%0#0: Encoded(bool8[]) = aggregate%encoded%0#1
         let slot%0#0: Encoded(bool8[])* = new()
-        write(slot%0#0, encoded_array%0#0)
+        store(slot%0#0, encoded_array%0#0)
         let arr#0: Encoded(bool8[])* = slot%0#0
-        let slot_contents%0#0: Encoded(bool8[]) = read(arr#0)
+        let slot_contents%0#0: Encoded(bool8[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%0#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 1u)
         let tmp%0#0: bool = (== array_len%0#0 0u)
@@ -370,40 +370,40 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_bool_array(lengt
     block@2: // for_body_L81
         let tmp%2#0: uint64 = (% i#0 2u)
         let tmp%3#0: bool = (== tmp%2#0 0u)
-        let slot_contents%1#0: Encoded(bool8[]) = read(arr#0)
+        let slot_contents%1#0: Encoded(bool8[]) = load(arr#0)
         let aggregate%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u tmp%3#0)
         let aggregate%as_Encoded(bool8)%0#1: Encoded(bool8) = aggregate%encoded_bool%0#1
         let aggregate%encoded%1#1: Encoded(bool8) = (concat 0x aggregate%as_Encoded(bool8)%0#1)
         let aggregate%encoded%2#1: Encoded(bool8[]) = (concat aggregate%encoded%1#1 0x)
         let tmp%4#0: Encoded(bool8[]) = aggregate%encoded%2#1
         let concat%0#0: Encoded(bool8[]) = (concat slot_contents%1#0 tmp%4#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         goto block@3
     block@3: // for_footer_L80
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
     block@4: // after_for_L80
-        let slot_contents%2#0: Encoded(bool8[]) = read(arr#0)
+        let slot_contents%2#0: Encoded(bool8[]) = load(arr#0)
         let bytes_len%1#0: uint64 = (len slot_contents%2#0)
         let array_len%1#0: uint64 = (/ bytes_len%1#0 1u)
         let tmp%5#0: bool = (== array_len%1#0 length#0)
         (assert tmp%5#0) // expected correct length
         let slot%1#0: Encoded(bool8[])* = new()
-        let slot_contents%3#0: Encoded(bool8[]) = read(arr#0)
-        write(slot%1#0, slot_contents%3#0)
+        let slot_contents%3#0: Encoded(bool8[]) = load(arr#0)
+        store(slot%1#0, slot_contents%3#0)
         let arr2#0: Encoded(bool8[])* = slot%1#0
-        let slot_contents%4#0: Encoded(bool8[]) = read(arr#0)
-        let slot_contents%5#0: Encoded(bool8[]) = read(arr2#0)
+        let slot_contents%4#0: Encoded(bool8[]) = load(arr#0)
+        let slot_contents%5#0: Encoded(bool8[]) = load(arr2#0)
         let concat%1#0: Encoded(bool8[]) = (concat slot_contents%5#0 slot_contents%4#0) // on error: max array length exceeded
-        write(arr2#0, concat%1#0)
-        let slot_contents%6#0: Encoded(bool8[]) = read(arr2#0)
+        store(arr2#0, concat%1#0)
+        let slot_contents%6#0: Encoded(bool8[]) = load(arr2#0)
         let bytes_len%3#0: uint64 = (len slot_contents%6#0)
         let array_len%3#0: uint64 = (/ bytes_len%3#0 1u)
         let tmp%6#0: uint64 = (* length#0 2u)
         let tmp%7#0: bool = (== array_len%3#0 tmp%6#0)
         (assert tmp%7#0) // expected correct length
         let count#0: uint64 = 0u
-        let slot_contents%7#0: Encoded(bool8[]) = read(arr#0)
+        let slot_contents%7#0: Encoded(bool8[]) = load(arr#0)
         let bytes_len%4#0: uint64 = (len slot_contents%7#0)
         let array_len%4#0: uint64 = (/ bytes_len%4#0 1u)
         let item_index_internal%0#0: uint64 = 0u
@@ -412,7 +412,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_bool_array(lengt
         let continue_looping%1#0: bool = (< item_index_internal%0#0 array_len%4#0)
         goto continue_looping%1#0 ? block@6 : block@10
     block@6: // for_body_L90
-        let slot_contents%8#0: Encoded(bool8[]) = read(arr#0)
+        let slot_contents%8#0: Encoded(bool8[]) = load(arr#0)
         let aggregate%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 1u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%8#0 aggregate%bytes_offset%0#1 1u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(bool8) = aggregate%encoded_element%0#1
@@ -440,9 +440,9 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let aggregate%encoded%0#1: Encoded(uint64[]) = (concat 0x 0x)
         let encoded_array%0#0: Encoded(uint64[]) = aggregate%encoded%0#1
         let slot%0#0: Encoded(uint64[])* = new()
-        write(slot%0#0, encoded_array%0#0)
+        store(slot%0#0, encoded_array%0#0)
         let arr#0: Encoded(uint64[])* = slot%0#0
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%0#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%0#0: bool = (== array_len%0#0 0u)
@@ -458,24 +458,24 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob i#0)
         let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
         let tmp%2#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#1
-        let slot_contents%1#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%1#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%encoded%1#1: Encoded(uint64) = (concat 0x tmp%2#0)
         let aggregate%encoded%2#1: Encoded(uint64[]) = (concat aggregate%encoded%1#1 0x)
         let tmp%3#0: Encoded(uint64[]) = aggregate%encoded%2#1
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%1#0 tmp%3#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         goto block@3
     block@3: // for_footer_L99
         let i#0: uint64 = (+ i#0 1u)
         goto block@1
     block@4: // after_for_L99
-        let slot_contents%2#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%2#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%1#0: uint64 = (len slot_contents%2#0)
         let array_len%1#0: uint64 = (/ bytes_len%1#0 8u)
         let tmp%4#0: bool = (== array_len%1#0 length#0)
         (assert tmp%4#0) // expected correct length
         let count#0: uint64 = 0u
-        let slot_contents%3#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%3#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%2#0: uint64 = (len slot_contents%3#0)
         let array_len%2#0: uint64 = (/ bytes_len%2#0 8u)
         let item_index_internal%0#0: uint64 = 0u
@@ -484,7 +484,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let continue_looping%1#0: bool = (< item_index_internal%0#0 array_len%2#0)
         goto continue_looping%1#0 ? block@6 : block@10
     block@6: // for_body_L104
-        let slot_contents%4#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%4#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 8u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%4#0 aggregate%bytes_offset%0#1 8u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64) = aggregate%encoded_element%0#1
@@ -511,7 +511,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let aggregate%encoded%4#1: Encoded(len+uint64[]) = (concat aggregate%encoded%3#1 0x)
         let encoded_array%1#0: Encoded(len+uint64[]) = aggregate%encoded%4#1
         let arc4_arr#0: Encoded(len+uint64[]) = encoded_array%1#0
-        let slot_contents%5#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%5#0: Encoded(uint64[]) = load(arr#0)
         let concat%1#0: Encoded(len+uint64[]) = (concat arc4_arr#0 slot_contents%5#0) // on error: max array length exceeded
         let extract_to_end%0#0: bytes = ((extract 2 0) concat%1#0)
         let len%0#0: uint64 = (len extract_to_end%0#0)
@@ -528,14 +528,14 @@ subroutine test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: E
         let aggregate%encoded%0#1: Encoded(uint64[]) = (concat 0x 0x)
         let encoded_array%0#0: Encoded(uint64[]) = aggregate%encoded%0#1
         let slot%0#0: Encoded(uint64[])* = new()
-        write(slot%0#0, encoded_array%0#0)
+        store(slot%0#0, encoded_array%0#0)
         let arr#0: Encoded(uint64[])* = slot%0#0
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) arc4_arr#0)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 extract_to_end%0#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         let total#0: uint64 = 0u
-        let slot_contents%1#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%1#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%1#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let item_index_internal%0#0: uint64 = 0u
@@ -544,7 +544,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: E
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array_len%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L119
-        let slot_contents%2#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%2#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 8u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%2#0 aggregate%bytes_offset%0#1 8u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64) = aggregate%encoded_element%0#1
@@ -602,7 +602,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let aggregate%encoded%0#1: Encoded(bool8[]) = (concat 0x 0x)
         let encoded_array%0#0: Encoded(bool8[]) = aggregate%encoded%0#1
         let slot%0#0: Encoded(bool8[])* = new()
-        write(slot%0#0, encoded_array%0#0)
+        store(slot%0#0, encoded_array%0#0)
         let arr#0: Encoded(bool8[])* = slot%0#0
         let tmp%0#0: account = (txn Sender)
         let tmp%1#0: account = (txn Receiver)
@@ -610,31 +610,31 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let aggregate%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u tmp%2#0)
         let aggregate%as_Encoded(bool8)%0#1: Encoded(bool8) = aggregate%encoded_bool%0#1
         let tmp%3#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#1
-        let slot_contents%0#0: Encoded(bool8[]) = read(arr#0)
+        let slot_contents%0#0: Encoded(bool8[]) = load(arr#0)
         let aggregate%encoded%1#1: Encoded(bool8) = (concat 0x tmp%3#0)
         let aggregate%encoded%2#1: Encoded(bool8[]) = (concat aggregate%encoded%1#1 0x)
         let tmp%4#0: Encoded(bool8[]) = aggregate%encoded%2#1
         let concat%0#0: Encoded(bool8[]) = (concat slot_contents%0#0 tmp%4#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         let tmp%5#0: account = (txn Sender)
         let tmp%6#0: account = (txn Receiver)
         let tmp%7#0: bool = (!= tmp%5#0 tmp%6#0)
         let aggregate%encoded_bool%1#1: bytes[1] = (setbit 0x00 0u tmp%7#0)
         let aggregate%as_Encoded(bool8)%1#1: Encoded(bool8) = aggregate%encoded_bool%1#1
         let tmp%8#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%1#1
-        let slot_contents%1#0: Encoded(bool8[]) = read(arr#0)
+        let slot_contents%1#0: Encoded(bool8[]) = load(arr#0)
         let aggregate%encoded%3#1: Encoded(bool8) = (concat 0x tmp%8#0)
         let aggregate%encoded%4#1: Encoded(bool8[]) = (concat aggregate%encoded%3#1 0x)
         let tmp%9#0: Encoded(bool8[]) = aggregate%encoded%4#1
         let concat%1#0: Encoded(bool8[]) = (concat slot_contents%1#0 tmp%9#0) // on error: max array length exceeded
-        write(arr#0, concat%1#0)
+        store(arr#0, concat%1#0)
         let aggregate%as_bytes%0#1: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
         let aggregate%encoded%5#1: bytes = (concat aggregate%len_u16%0#1 0x)
         let aggregate%encoded%6#1: Encoded(len+bool1[]) = (concat aggregate%encoded%5#1 0x)
         let encoded_array%1#0: Encoded(len+bool1[]) = aggregate%encoded%6#1
         let dyn_arr#0: Encoded(len+bool1[]) = encoded_array%1#0
-        let slot_contents%2#0: Encoded(bool8[]) = read(arr#0)
+        let slot_contents%2#0: Encoded(bool8[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%2#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 1u)
         let as_Encoded(len+bool1[])%0#0: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dyn_arr#0, slot_contents%2#0, array_len%0#0, 8u)
@@ -676,8 +676,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let tmp%22#0: bool = (== tmp%18#0 tmp%21#0)
         (assert tmp%22#0) // expected correct value at 1
         let slot%1#0: Encoded(bool8[])* = new()
-        let slot_contents%3#0: Encoded(bool8[]) = read(arr#0)
-        write(slot%1#0, slot_contents%3#0)
+        let slot_contents%3#0: Encoded(bool8[]) = load(arr#0)
+        store(slot%1#0, slot_contents%3#0)
         let arr2#0: Encoded(bool8[])* = slot%1#0
         let array_length%1#0: uint64 = (extract_uint16 dyn_arr#0 0u)
         let item_index_internal%0#0: uint64 = 0u
@@ -692,23 +692,23 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let aggregate%encoded_bool%4#1: bytes[1] = (setbit 0x00 0u array_item%2#0)
         let values%2#0: Encoded(bool8) = aggregate%encoded_bool%4#1
         let b#0: Encoded(bool8) = values%2#0
-        let slot_contents%4#0: Encoded(bool8[]) = read(arr2#0)
+        let slot_contents%4#0: Encoded(bool8[]) = load(arr2#0)
         let aggregate%encoded%7#1: Encoded(bool8) = (concat 0x b#0)
         let aggregate%encoded%8#1: Encoded(bool8[]) = (concat aggregate%encoded%7#1 0x)
         let tmp%23#0: Encoded(bool8[]) = aggregate%encoded%8#1
         let concat%2#0: Encoded(bool8[]) = (concat slot_contents%4#0 tmp%23#0) // on error: max array length exceeded
-        write(arr2#0, concat%2#0)
+        store(arr2#0, concat%2#0)
         goto block@3
     block@3: // for_footer_L154
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L154
-        let slot_contents%5#0: Encoded(bool8[]) = read(arr2#0)
+        let slot_contents%5#0: Encoded(bool8[]) = load(arr2#0)
         let bytes_len%1#0: uint64 = (len slot_contents%5#0)
         let array_len%1#0: uint64 = (/ bytes_len%1#0 1u)
         let tmp%24#0: bool = (== array_len%1#0 4u)
         (assert tmp%24#0) // expected correct length
-        let slot_contents%6#0: Encoded(bool8[]) = read(arr2#0)
+        let slot_contents%6#0: Encoded(bool8[]) = load(arr2#0)
         let aggregate%bytes_offset%0#1: uint64 = (* 0u 1u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%6#0 aggregate%bytes_offset%0#1 1u) // on error: index access is out of bounds
         let array_item%3#0: Encoded(bool8) = aggregate%encoded_element%0#1
@@ -719,7 +719,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let tmp%28#0: bool = (== tmp%26#0 tmp%27#0)
         let tmp%29#0: bool = (== tmp%25#0 tmp%28#0)
         (assert tmp%29#0) // expected correct value at 0
-        let slot_contents%7#0: Encoded(bool8[]) = read(arr2#0)
+        let slot_contents%7#0: Encoded(bool8[]) = load(arr2#0)
         let aggregate%bytes_offset%1#1: uint64 = (* 1u 1u)
         let aggregate%encoded_element%1#1: bytes = (extract3 slot_contents%7#0 aggregate%bytes_offset%1#1 1u) // on error: index access is out of bounds
         let array_item%4#0: Encoded(bool8) = aggregate%encoded_element%1#1
@@ -730,7 +730,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let tmp%33#0: bool = (!= tmp%31#0 tmp%32#0)
         let tmp%34#0: bool = (== tmp%30#0 tmp%33#0)
         (assert tmp%34#0) // expected correct value at 1
-        let slot_contents%8#0: Encoded(bool8[]) = read(arr2#0)
+        let slot_contents%8#0: Encoded(bool8[]) = load(arr2#0)
         let aggregate%bytes_offset%2#1: uint64 = (* 2u 1u)
         let aggregate%encoded_element%2#1: bytes = (extract3 slot_contents%8#0 aggregate%bytes_offset%2#1 1u) // on error: index access is out of bounds
         let array_item%5#0: Encoded(bool8) = aggregate%encoded_element%2#1
@@ -741,7 +741,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let tmp%38#0: bool = (== tmp%36#0 tmp%37#0)
         let tmp%39#0: bool = (== tmp%35#0 tmp%38#0)
         (assert tmp%39#0) // expected correct value at 2
-        let slot_contents%9#0: Encoded(bool8[]) = read(arr2#0)
+        let slot_contents%9#0: Encoded(bool8[]) = load(arr2#0)
         let aggregate%bytes_offset%3#1: uint64 = (* 3u 1u)
         let aggregate%encoded_element%3#1: bytes = (extract3 slot_contents%9#0 aggregate%bytes_offset%3#1 1u) // on error: index access is out of bounds
         let array_item%6#0: Encoded(bool8) = aggregate%encoded_element%3#1
@@ -752,7 +752,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let tmp%43#0: bool = (!= tmp%41#0 tmp%42#0)
         let tmp%44#0: bool = (== tmp%40#0 tmp%43#0)
         (assert tmp%44#0) // expected correct value at 3
-        let slot_contents%10#0: Encoded(bool8[]) = read(arr#0)
+        let slot_contents%10#0: Encoded(bool8[]) = load(arr#0)
         let bytes_len%2#0: uint64 = (len slot_contents%10#0)
         let array_len%2#0: uint64 = (/ bytes_len%2#0 1u)
         let bit_packed_source%0#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(0x0000, slot_contents%10#0, array_len%2#0, 8u)

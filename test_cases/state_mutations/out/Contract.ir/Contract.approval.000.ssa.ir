@@ -210,8 +210,8 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
 
 subroutine test_cases.state_mutations.contract.get_struct() -> Encoded(uint64,(len+utf8[])):
     block@0: // L64
-        let encoded%0#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x62617a)
-        let tmp%0#0: Encoded(uint64,(len+utf8[])) = encode<(uint64,(len+utf8[]))>(0x0000000000000001, encoded%0#0)
+        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x62617a)
+        let tmp%0#0: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(0x0000000000000001, encoded%0#0)
         return tmp%0#0
 
 subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -> bool:
@@ -283,15 +283,15 @@ subroutine test_cases.state_mutations.contract.Contract.__init__() -> void:
 
 subroutine test_cases.state_mutations.contract.Contract.opt_in() -> void:
     block@0: // L29
-        let encoded_array%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = encode<(len+(uint64,(len+utf8[]))[])>()
+        let encoded_array%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = bytes_encode<(len+(uint64,(len+utf8[]))[])>()
         (app_global_put "glob" encoded_array%0#0)
-        let encoded_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = encode<(len+(uint64,(len+utf8[]))[])>()
+        let encoded_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = bytes_encode<(len+(uint64,(len+utf8[]))[])>()
         (box_del "box")
         box_write("box", encoded_array%1#0)
-        let encoded_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = encode<(len+(uint64,(len+utf8[]))[])>()
+        let encoded_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = bytes_encode<(len+(uint64,(len+utf8[]))[])>()
         let tmp%0#0: account = (txn Sender)
         (app_local_put tmp%0#0 "loc" encoded_array%2#0)
-        let encoded_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = encode<(len+(uint64,(len+utf8[]))[])>()
+        let encoded_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = bytes_encode<(len+(uint64,(len+utf8[]))[])>()
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         (box_del box_prefixed_key%0#0)
@@ -306,7 +306,7 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         (assert maybe_exists%0#0) // check self.glob exists
         let extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) maybe_value%0#0)
-        let tmp%1#0: Encoded((uint64,(len+utf8[]))[]) = encode<(uint64,(len+utf8[]))[]>(struct#0)
+        let tmp%1#0: Encoded((uint64,(len+utf8[]))[]) = bytes_encode<(uint64,(len+utf8[]))[]>(struct#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%1#0)
         (app_global_put "glob" as_Encoded(len+(uint64,(len+utf8[]))[])%0#0)
         let tmp%2#0: account = (txn Sender)
@@ -314,13 +314,13 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         (assert maybe_exists%1#0) // check self.loc exists for account
         let extract_uint16%1#0: uint64 = (extract_uint16 maybe_value%1#0 0u)
         let extract_to_end%1#0: bytes = ((extract 2 0) maybe_value%1#0)
-        let tmp%3#0: Encoded((uint64,(len+utf8[]))[]) = encode<(uint64,(len+utf8[]))[]>(struct#0)
+        let tmp%3#0: Encoded((uint64,(len+utf8[]))[]) = bytes_encode<(uint64,(len+utf8[]))[]>(struct#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, tmp%3#0)
         (app_local_put tmp%2#0 "loc" as_Encoded(len+(uint64,(len+utf8[]))[])%1#0)
         let storage_value%0#0: bytes = box_read("box")
         let extract_uint16%2#0: uint64 = (extract_uint16 storage_value%0#0 0u)
         let extract_to_end%2#0: bytes = ((extract 2 0) storage_value%0#0)
-        let tmp%4#0: Encoded((uint64,(len+utf8[]))[]) = encode<(uint64,(len+utf8[]))[]>(struct#0)
+        let tmp%4#0: Encoded((uint64,(len+utf8[]))[]) = bytes_encode<(uint64,(len+utf8[]))[]>(struct#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, 1u, tmp%4#0)
         (box_del "box")
         box_write("box", as_Encoded(len+(uint64,(len+utf8[]))[])%2#0)
@@ -329,7 +329,7 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let storage_value%1#0: bytes = box_read(box_prefixed_key%0#0)
         let extract_uint16%3#0: uint64 = (extract_uint16 storage_value%1#0 0u)
         let extract_to_end%3#0: bytes = ((extract 2 0) storage_value%1#0)
-        let tmp%5#0: Encoded((uint64,(len+utf8[]))[]) = encode<(uint64,(len+utf8[]))[]>(struct#0)
+        let tmp%5#0: Encoded((uint64,(len+utf8[]))[]) = bytes_encode<(uint64,(len+utf8[]))[]>(struct#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, tmp%5#0)
         (box_del box_prefixed_key%0#0)
         box_write(box_prefixed_key%0#0, as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)
@@ -337,27 +337,27 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
 
 subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
     block@0: // L44
-        let encoded%0#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x6d6f646966696564)
+        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6d6f646966696564)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
-        let updated_array%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = agg_write_index(maybe_value%0#0, 0u, 1, encoded%0#0)
+        let updated_array%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(maybe_value%0#0, 0u, 1, encoded%0#0)
         (app_global_put "glob" updated_array%0#0)
-        let encoded%1#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x6d6f646966696564)
+        let encoded%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6d6f646966696564)
         let tmp%0#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
-        let updated_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = agg_write_index(maybe_value%1#0, 0u, 1, encoded%1#0)
+        let updated_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(maybe_value%1#0, 0u, 1, encoded%1#0)
         (app_local_put tmp%0#0 "loc" updated_array%1#0)
-        let encoded%2#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x6d6f646966696564)
+        let encoded%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6d6f646966696564)
         let storage_value%0#0: bytes = box_read("box")
-        let updated_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = agg_write_index(storage_value%0#0, 0u, 1, encoded%2#0)
+        let updated_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%0#0, 0u, 1, encoded%2#0)
         (box_del "box")
         box_write("box", updated_array%2#0)
-        let encoded%3#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x6d6f646966696564)
+        let encoded%3#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6d6f646966696564)
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         let storage_value%1#0: bytes = box_read(box_prefixed_key%0#0)
-        let updated_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = agg_write_index(storage_value%1#0, 0u, 1, encoded%3#0)
+        let updated_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%1#0, 0u, 1, encoded%3#0)
         (box_del box_prefixed_key%0#0)
         box_write(box_prefixed_key%0#0, updated_array%3#0)
         return 

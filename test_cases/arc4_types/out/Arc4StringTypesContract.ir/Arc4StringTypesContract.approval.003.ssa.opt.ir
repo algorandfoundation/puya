@@ -1,6 +1,6 @@
 main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
     block@0: // L7
-        let some_bytes_as_string#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x48656c6c6f20576f726c6421)
+        let some_bytes_as_string#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x48656c6c6f20576f726c6421)
         let tmp%2#0: bool = (!= some_bytes_as_string#0 0x48656c6c6f20576f726c6421)
         (assert tmp%2#0) // Original bytes should not match encoded bytes
         let length%0#0: uint64 = (len some_bytes_as_string#0)
@@ -9,10 +9,10 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let tmp%3#0: bytes = (substring3 some_bytes_as_string#0 bounded_index%0#0 length%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x48656c6c6f20576f726c6421)
         (assert tmp%4#0) // Original bytes should match encoded if we strip the length header
-        let hello#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x48656c6c6f)
-        let space#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x20)
-        let world#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x576f726c6421)
-        let encoded%3#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x48656c6c6f20576f726c6421)
+        let hello#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x48656c6c6f)
+        let space#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x20)
+        let world#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x576f726c6421)
+        let encoded%3#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x48656c6c6f20576f726c6421)
         let extract_to_end%0#0: bytes = ((extract 2 0) space#0)
         let concat%0#0: Encoded(len+utf8[]) = (concat hello#0 extract_to_end%0#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
@@ -29,7 +29,7 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let replace%1#0: bytes = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
         let tmp%6#0: bool = (== encoded%3#0 replace%1#0)
         (assert tmp%6#0)
-        let thing#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x6869)
+        let thing#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6869)
         let extract_to_end%4#0: bytes = ((extract 2 0) thing#0)
         let concat%2#0: Encoded(len+utf8[]) = (concat thing#0 extract_to_end%4#0) // on error: max array length exceeded
         let extract_to_end%5#0: bytes = ((extract 2 0) concat%2#0)
@@ -37,11 +37,11 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let as_bytes%2#0: bytes[8] = (itob len%2#0)
         let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let thing#1: Encoded(len+utf8[]) = ((replace2 0) concat%2#0 as_u16_bytes%2#0)
-        let encoded%5#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x68696869)
+        let encoded%5#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x68696869)
         let tmp%7#0: bool = (== thing#1 encoded%5#0)
         (assert tmp%7#0)
-        let encoded%6#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x61)
-        let encoded%7#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x62)
+        let encoded%6#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x61)
+        let encoded%7#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x62)
         let extract_to_end%6#0: bytes = ((extract 2 0) encoded%7#0)
         let concat%3#0: Encoded(len+utf8[]) = (concat encoded%6#0 extract_to_end%6#0) // on error: max array length exceeded
         let extract_to_end%7#0: bytes = ((extract 2 0) concat%3#0)
@@ -49,7 +49,7 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let as_bytes%3#0: bytes[8] = (itob len%3#0)
         let as_u16_bytes%3#0: bytes = ((extract 6 2) as_bytes%3#0)
         let replace%3#0: bytes = ((replace2 0) concat%3#0 as_u16_bytes%3#0)
-        let encoded%8#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x6364)
+        let encoded%8#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6364)
         let extract_to_end%8#0: bytes = ((extract 2 0) encoded%8#0)
         let concat%4#0: Encoded(len+utf8[]) = (concat replace%3#0 extract_to_end%8#0) // on error: max array length exceeded
         let extract_to_end%9#0: bytes = ((extract 2 0) concat%4#0)
@@ -57,7 +57,7 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let as_bytes%4#0: bytes[8] = (itob len%4#0)
         let as_u16_bytes%4#0: bytes = ((extract 6 2) as_bytes%4#0)
         let value#0: Encoded(len+utf8[]) = ((replace2 0) concat%4#0 as_u16_bytes%4#0)
-        let encoded%9#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x65)
+        let encoded%9#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x65)
         let extract_to_end%10#0: bytes = ((extract 2 0) encoded%9#0)
         let concat%5#0: Encoded(len+utf8[]) = (concat value#0 extract_to_end%10#0) // on error: max array length exceeded
         let extract_to_end%11#0: bytes = ((extract 2 0) concat%5#0)
@@ -65,7 +65,7 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let as_bytes%5#0: bytes[8] = (itob len%5#0)
         let as_u16_bytes%5#0: bytes = ((extract 6 2) as_bytes%5#0)
         let value#1: Encoded(len+utf8[]) = ((replace2 0) concat%5#0 as_u16_bytes%5#0)
-        let encoded%10#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x66)
+        let encoded%10#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x66)
         let extract_to_end%12#0: bytes = ((extract 2 0) encoded%10#0)
         let concat%6#0: Encoded(len+utf8[]) = (concat value#1 extract_to_end%12#0) // on error: max array length exceeded
         let extract_to_end%13#0: bytes = ((extract 2 0) concat%6#0)
@@ -73,7 +73,7 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let as_bytes%6#0: bytes[8] = (itob len%6#0)
         let as_u16_bytes%6#0: bytes = ((extract 6 2) as_bytes%6#0)
         let value#2: Encoded(len+utf8[]) = ((replace2 0) concat%6#0 as_u16_bytes%6#0)
-        let encoded%11#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x67)
+        let encoded%11#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x67)
         let extract_to_end%14#0: bytes = ((extract 2 0) encoded%11#0)
         let concat%7#0: Encoded(len+utf8[]) = (concat value#2 extract_to_end%14#0) // on error: max array length exceeded
         let extract_to_end%15#0: bytes = ((extract 2 0) concat%7#0)
@@ -81,22 +81,22 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let as_bytes%7#0: bytes[8] = (itob len%7#0)
         let as_u16_bytes%7#0: bytes = ((extract 6 2) as_bytes%7#0)
         let value#3: Encoded(len+utf8[]) = ((replace2 0) concat%7#0 as_u16_bytes%7#0)
-        let encoded%12#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x61626364656667)
+        let encoded%12#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x61626364656667)
         let tmp%8#0: bool = (== encoded%12#0 value#3)
         (assert tmp%8#0)
-        let encoded%13#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x)
-        let encoded%14#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x68656c6c6f)
+        let encoded%13#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x)
+        let encoded%14#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x68656c6c6f)
         let tmp%13#0: uint64 = (txn NumAppArgs)
         goto tmp%13#0 ? block@1 : block@2
     block@1: // ternary_true_L41
-        let encoded%15#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x617965)
+        let encoded%15#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x617965)
         goto block@3
     block@2: // ternary_false_L41
-        let encoded%16#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x626565)
+        let encoded%16#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x626565)
         goto block@3
     block@3: // ternary_merge_L41
         let ternary_result%0#2: Encoded(len+utf8[]) = φ(encoded%15#0 <- block@1, encoded%16#0 <- block@2)
-        let encoded%17#0: Encoded(len+utf8[]) = encode<(len+utf8[])>(0x626565)
+        let encoded%17#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x626565)
         let tmp%15#0: bool = (== ternary_result%0#2 encoded%17#0)
         (assert tmp%15#0)
         return 1u

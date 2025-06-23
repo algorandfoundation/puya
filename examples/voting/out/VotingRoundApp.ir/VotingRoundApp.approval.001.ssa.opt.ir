@@ -70,20 +70,20 @@ subroutine examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> bool:
         let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // can only call when creating
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%7#0: string = decode<string>(reinterpret_Encoded(len+utf8[])%0#0)
+        let tmp%7#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%8#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%8#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
         let reinterpret_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
-        let tmp%9#0: string = decode<string>(reinterpret_Encoded(len+utf8[])%1#0)
+        let tmp%9#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%1#0)
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%10#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let tmp%10#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 5)
-        let tmp%11#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let tmp%11#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
         let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 6)
         let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 7)
-        let tmp%12#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+        let tmp%12#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
         let reinterpret_Encoded(len+utf8[])%2#0: Encoded(len+utf8[]) = (txna ApplicationArgs 8)
-        let tmp%13#0: string = decode<string>(reinterpret_Encoded(len+utf8[])%2#0)
+        let tmp%13#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%2#0)
         examples.voting.voting.VotingRoundApp.create(tmp%7#0, tmp%8#0, tmp%9#0, tmp%10#0, tmp%11#0, reinterpret_Encoded(len+uint8[])%1#0, tmp%12#0, tmp%13#0)
         return 1u
     block@3: // bootstrap_route_L82
@@ -117,7 +117,7 @@ subroutine examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> bool:
         let tmp%26#0: bool = (!= tmp%25#0 0u)
         (assert tmp%25#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%27#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%2#0)
+        let tmp%27#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%2#0)
         let tmp%28#0: Encoded(uint64,uint64,uint64,uint64) = examples.voting.voting.VotingRoundApp.get_preconditions(tmp%27#0)
         let tmp%29#0: bytes = (concat 0x151f7c75 tmp%28#0)
         (log tmp%29#0)
@@ -135,7 +135,7 @@ subroutine examples.voting.voting.VotingRoundApp.__puya_arc4_router__() -> bool:
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
         (assert gtxn_type_matches%1#0) // transaction type is pay
         let reinterpret_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%35#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%3#0)
+        let tmp%35#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%3#0)
         let reinterpret_Encoded(len+uint8[])%4#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
         examples.voting.voting.VotingRoundApp.vote(gtxn_idx%1#0, tmp%35#0, reinterpret_Encoded(len+uint8[])%4#0)
         return 1u
@@ -170,8 +170,8 @@ subroutine examples.voting.voting.VotingRoundApp.create(vote_id: string, snapsho
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L224
-        let item#0: Encoded(uint8) = agg_read_index(option_counts#0, item_index_internal%0#1)
-        let tmp%2#1: uint64 = decode<uint64>(item#0)
+        let item#0: Encoded(uint8) = extract_value(option_counts#0, item_index_internal%0#1)
+        let tmp%2#1: uint64 = decode_bytes<uint64>(item#0)
         let total_options#2: uint64 = (+ total_options#1 tmp%2#1)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@2
@@ -250,7 +250,7 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         let continue_looping%0#0: bool = (< question_index#0 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L133
-        let question_options#0: Encoded(uint8) = agg_read_index(maybe_value%5#0, question_index#0)
+        let question_options#0: Encoded(uint8) = extract_value(maybe_value%5#0, question_index#0)
         let tmp%14#0: bool = (> question_index#0 0u)
         goto question_index#0 ? block@3 : block@4
     block@3: // if_body_L134
@@ -262,7 +262,7 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         goto tmp%16#0 ? block@5 : block@12
     block@5: // if_body_L136
         let note#4: string = (concat note#3 "[")
-        let tmp%18#0: uint64 = decode<uint64>(question_options#0)
+        let tmp%18#0: uint64 = decode_bytes<uint64>(question_options#0)
         let option_index#0: uint64 = 0u
         goto block@6
     block@6: // for_header_L137
@@ -319,14 +319,14 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
 subroutine examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> Encoded(uint64,uint64,uint64,uint64):
     block@0: // L160
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
-        let tmp%1#0: Encoded(uint64) = encode<uint64>(tmp%0#0)
+        let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
         let tmp%2#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
-        let tmp%3#0: Encoded(uint64) = encode<uint64>(tmp%2#0)
+        let tmp%3#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#0)
         let tmp%4#0: bool = examples.voting.voting.VotingRoundApp.already_voted()
-        let tmp%5#0: Encoded(uint64) = encode<uint64>(tmp%4#0)
+        let tmp%5#0: Encoded(uint64) = bytes_encode<uint64>(tmp%4#0)
         let tmp%6#0: uint64 = (global LatestTimestamp)
-        let tmp%7#0: Encoded(uint64) = encode<uint64>(tmp%6#0)
-        let tmp%8#0: Encoded(uint64,uint64,uint64,uint64) = encode<(uint64,uint64,uint64,uint64)>(tmp%1#0, tmp%3#0, tmp%5#0, tmp%7#0)
+        let tmp%7#0: Encoded(uint64) = bytes_encode<uint64>(tmp%6#0)
+        let tmp%8#0: Encoded(uint64,uint64,uint64,uint64) = bytes_encode<(uint64,uint64,uint64,uint64)>(tmp%1#0, tmp%3#0, tmp%5#0, tmp%7#0)
         return tmp%8#0
 
 subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: Encoded(len+uint8[])) -> void:
@@ -366,12 +366,12 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         let continue_looping%0#0: bool = (< question_index#1 questions_count#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L197
-        let array_item%0#0: Encoded(uint8) = agg_read_index(answer_ids#0, question_index#1)
-        let answer_option_index#0: uint64 = decode<uint64>(array_item%0#0)
+        let array_item%0#0: Encoded(uint8) = extract_value(answer_ids#0, question_index#1)
+        let answer_option_index#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%1#0) // check self.option_counts exists
-        let array_item%1#0: Encoded(uint8) = agg_read_index(maybe_value%1#0, question_index#1)
-        let options_count#0: uint64 = decode<uint64>(array_item%1#0)
+        let array_item%1#0: Encoded(uint8) = extract_value(maybe_value%1#0, question_index#1)
+        let options_count#0: uint64 = decode_bytes<uint64>(array_item%1#0)
         let tmp%17#0: bool = (< answer_option_index#0 options_count#0)
         (assert tmp%17#0) // Answer option index invalid
         let index#0: uint64 = (+ cumulative_offset#1 answer_option_index#0)

@@ -27,7 +27,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.__puya_
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
         let tmp%7#0: uint64 = test_cases.regression_tests.leftover_branch.BranchElimination.umm()
-        let tmp%8#0: Encoded(uint64) = encode<uint64>(tmp%7#0)
+        let tmp%8#0: Encoded(uint64) = bytes_encode<uint64>(tmp%7#0)
         let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
         (log tmp%9#0)
         return 1u
@@ -178,7 +178,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let continue_looping%0#0: bool = (< i#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L39
-        let array_item%0#0: Encoded(len+uint64[]) = agg_read_index(nested_list#0, i#1)
+        let array_item%0#0: Encoded(len+uint64[]) = extract_value(nested_list#0, i#1)
         let inner_list#0: Encoded(len+uint64[]) = array_item%0#0
         let array_length%1#0: uint64 = (extract_uint16 inner_list#0 0u)
         let tmp%0#0: uint64 = (- array_length%1#0 1u)
@@ -194,7 +194,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let continue_looping%1#0: bool = (< j#1 array_length%2#0)
         goto continue_looping%1#0 ? block@4 : block@12
     block@4: // for_body_L42
-        let array_item%1#0: Encoded(uint64) = agg_read_index(inner_list#0, j#1)
+        let array_item%1#0: Encoded(uint64) = extract_value(inner_list#0, j#1)
         let value#0: Encoded(uint64) = array_item%1#0
         let reinterpret_biguint%0#0: biguint = value#0
         let reinterpret_biguint%1#0: biguint = threshold#0
@@ -208,7 +208,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let tmp%3#0: uint64 = (+ total#1 1u)
         let total#2: uint64 = tmp%3#0
         let tmp%4#0: uint64 = (+ j#1 1u)
-        let array_item%2#0: Encoded(uint64) = agg_read_index(inner_list#0, tmp%4#0)
+        let array_item%2#0: Encoded(uint64) = extract_value(inner_list#0, tmp%4#0)
         let next_value#0: Encoded(uint64) = array_item%2#0
         let reinterpret_biguint%2#0: biguint = value#0
         let reinterpret_biguint%3#0: biguint = next_value#0
