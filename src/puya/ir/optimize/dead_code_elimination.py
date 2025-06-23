@@ -200,7 +200,7 @@ class SubroutineCollector(visitor.IRTraverser):
             self.subroutines.add(subroutine)
             self.visit_all_blocks(subroutine.body)
 
-    def visit_aggregate_write_index(self, _: models.AggregateWriteIndex) -> None:
+    def visit_replace_value(self, _: models.ReplaceValue) -> None:
         self.referenced_libs |= (
             PuyaLibIR.dynamic_array_replace_byte_length_head,
             PuyaLibIR.dynamic_array_replace_dynamic_element,
@@ -270,8 +270,8 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
             models.Value
             | models.InnerTransactionField
             | models.BoxRead
-            | models.AggregateReadIndex
-            | models.AggregateWriteIndex,
+            | models.ExtractValue
+            | models.ReplaceValue,
         ) or (
             isinstance(ass.source, models.Intrinsic)
             and ass.source.op.code in SIDE_EFFECT_FREE_AVM_OPS

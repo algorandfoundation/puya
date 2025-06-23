@@ -96,7 +96,7 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
-    def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> models.ValueProvider:
+    def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider:
         read.base = read.base.accept(self)
         indexes = list[int | models.Value]()
         for index in read.indexes:
@@ -116,9 +116,7 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
-    def visit_aggregate_write_index(
-        self, write: models.AggregateWriteIndex
-    ) -> models.ValueProvider:
+    def visit_replace_value(self, write: models.ReplaceValue) -> models.ValueProvider:
         write.base = write.base.accept(self)
         indexes = list[int | models.Value]()
         for index in write.indexes:
@@ -130,11 +128,11 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
-    def visit_value_encode(self, encode: models.ValueEncode) -> models.ValueProvider:
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> models.ValueProvider:
         encode.values = [value.accept(self) for value in encode.values]
         return encode
 
-    def visit_value_decode(self, decode: models.ValueDecode) -> models.ValueProvider:
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> models.ValueProvider:
         decode.value = decode.value.accept(self)
         return decode
 

@@ -76,10 +76,10 @@ class IRVisitor[T](ABC):
     def visit_write_slot(self, write_slot: puya.ir.models.WriteSlot) -> T: ...
 
     @abstractmethod
-    def visit_aggregate_read_index(self, read: puya.ir.models.AggregateReadIndex) -> T: ...
+    def visit_extract_value(self, read: puya.ir.models.ExtractValue) -> T: ...
 
     @abstractmethod
-    def visit_aggregate_write_index(self, write: puya.ir.models.AggregateWriteIndex) -> T: ...
+    def visit_replace_value(self, write: puya.ir.models.ReplaceValue) -> T: ...
 
     @abstractmethod
     def visit_box_read(self, read: puya.ir.models.BoxRead) -> T: ...
@@ -118,10 +118,10 @@ class IRVisitor[T](ABC):
     def visit_template_var(self, deploy_var: puya.ir.models.TemplateVar) -> T: ...
 
     @abstractmethod
-    def visit_value_encode(self, encode: puya.ir.models.ValueEncode) -> T: ...
+    def visit_bytes_encode(self, encode: puya.ir.models.BytesEncode) -> T: ...
 
     @abstractmethod
-    def visit_value_decode(self, decode: puya.ir.models.ValueDecode) -> T: ...
+    def visit_decode_bytes(self, decode: puya.ir.models.DecodeBytes) -> T: ...
 
 
 class IRTraverser(IRVisitor[None]):
@@ -187,13 +187,13 @@ class IRTraverser(IRVisitor[None]):
         write.slot.accept(self)
         write.value.accept(self)
 
-    def visit_aggregate_read_index(self, read: puya.ir.models.AggregateReadIndex) -> None:
+    def visit_extract_value(self, read: puya.ir.models.ExtractValue) -> None:
         read.base.accept(self)
         for index in read.indexes:
             if not isinstance(index, int):
                 index.accept(self)
 
-    def visit_aggregate_write_index(self, write: puya.ir.models.AggregateWriteIndex) -> None:
+    def visit_replace_value(self, write: puya.ir.models.ReplaceValue) -> None:
         write.base.accept(self)
         for index in write.indexes:
             if not isinstance(index, int):
@@ -260,11 +260,11 @@ class IRTraverser(IRVisitor[None]):
         for v in tup.values:
             v.accept(self)
 
-    def visit_value_encode(self, encode: puya.ir.models.ValueEncode) -> None:
+    def visit_bytes_encode(self, encode: puya.ir.models.BytesEncode) -> None:
         for v in encode.values:
             v.accept(self)
 
-    def visit_value_decode(self, decode: puya.ir.models.ValueDecode) -> None:
+    def visit_decode_bytes(self, decode: puya.ir.models.DecodeBytes) -> None:
         decode.value.accept(self)
 
 
@@ -318,10 +318,10 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
     def visit_write_slot(self, write: puya.ir.models.WriteSlot) -> T | None:
         return None
 
-    def visit_aggregate_read_index(self, read: puya.ir.models.AggregateReadIndex) -> T | None:
+    def visit_extract_value(self, read: puya.ir.models.ExtractValue) -> T | None:
         return None
 
-    def visit_aggregate_write_index(self, write: puya.ir.models.AggregateWriteIndex) -> T | None:
+    def visit_replace_value(self, write: puya.ir.models.ReplaceValue) -> T | None:
         return None
 
     def visit_box_read(self, read: puya.ir.models.BoxRead) -> T | None:
@@ -374,8 +374,8 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
     def visit_fail(self, fail: puya.ir.models.Fail) -> T | None:
         return None
 
-    def visit_value_encode(self, encode: puya.ir.models.ValueEncode) -> T | None:
+    def visit_bytes_encode(self, encode: puya.ir.models.BytesEncode) -> T | None:
         return None
 
-    def visit_value_decode(self, decode: puya.ir.models.ValueDecode) -> T | None:
+    def visit_decode_bytes(self, decode: puya.ir.models.DecodeBytes) -> T | None:
         return None

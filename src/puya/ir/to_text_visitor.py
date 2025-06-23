@@ -97,13 +97,13 @@ class ToTextVisitor(IRVisitor[str]):
     @typing.override
     def visit_read_slot(self, read: models.ReadSlot) -> str:
         slot = read.slot.accept(self)
-        return f"read({slot})"
+        return f"load({slot})"
 
     @typing.override
     def visit_write_slot(self, write: models.WriteSlot) -> str:
         slot = write.slot.accept(self)
         value = write.value.accept(self)
-        return f"write({slot}, {value})"
+        return f"store({slot}, {value})"
 
     @typing.override
     def visit_box_read(self, read: models.BoxRead) -> str:
@@ -117,28 +117,28 @@ class ToTextVisitor(IRVisitor[str]):
         return f"box_write({box}, {value})"
 
     @typing.override
-    def visit_aggregate_read_index(self, read: models.AggregateReadIndex) -> str:
+    def visit_extract_value(self, read: models.ExtractValue) -> str:
         base = read.base.accept(self)
         indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in read.indexes]
         args = ", ".join((base, *indexes))
-        return f"agg_read_index({args})"
+        return f"extract_value({args})"
 
     @typing.override
-    def visit_aggregate_write_index(self, write: models.AggregateWriteIndex) -> str:
+    def visit_replace_value(self, write: models.ReplaceValue) -> str:
         base = write.base.accept(self)
         indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in write.indexes]
         index = ", ".join(indexes)
         value = write.value.accept(self)
-        return f"agg_write_index({base}, {index}, {value})"
+        return f"replace_value({base}, {index}, {value})"
 
     @typing.override
-    def visit_value_encode(self, encode: models.ValueEncode) -> str:
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> str:
         values = ", ".join(val.accept(self) for val in encode.values)
-        return f"encode<{encode.encoding!s}>({values})"
+        return f"bytes_encode<{encode.encoding!s}>({values})"
 
     @typing.override
-    def visit_value_decode(self, decode: models.ValueDecode) -> str:
-        return f"decode<{decode.decoded_type.name}>({decode.value.accept(self)})"
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> str:
+        return f"decode_bytes<{decode.ir_type.name}>({decode.value.accept(self)})"
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:

@@ -22,7 +22,7 @@ def merge_chained_aggregate_reads(_: CompileContext, subroutine: models.Subrouti
             merged_source_location = sequential_source_locations_merge(
                 (merged_read.source_location, base_read.source_location)
             )
-            merged_read = models.AggregateReadIndex(
+            merged_read = models.ExtractValue(
                 base=base_read.base,
                 base_type=base_read.base_type,
                 indexes=[*base_read.indexes, *merged_read.indexes],
@@ -41,7 +41,7 @@ def merge_chained_aggregate_reads(_: CompileContext, subroutine: models.Subrouti
 
 class _AggregateRead(typing.NamedTuple):
     ass: models.Assignment
-    read: models.AggregateReadIndex
+    read: models.ExtractValue
 
 
 @attrs.define(kw_only=True)
@@ -56,6 +56,6 @@ class _AggregateReadsCollector(IRTraverser):
 
     @typing.override
     def visit_assignment(self, ass: models.Assignment) -> None:
-        if isinstance(ass.source, models.AggregateReadIndex):
+        if isinstance(ass.source, models.ExtractValue):
             (target,) = ass.targets
             self.reads[target] = _AggregateRead(ass, ass.source)

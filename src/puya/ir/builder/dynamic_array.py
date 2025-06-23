@@ -168,9 +168,9 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
                 value=len(iterable_ir_type.elements), source_location=self.loc
             )
 
-            encoded_iterable = ir.ValueEncode(
+            encoded_iterable = ir.BytesEncode(
                 values=self.factory.materialise_values(iterable),
-                value_type=iterable_ir_type,
+                values_type=iterable_ir_type,
                 encoding=DynamicArrayEncoding(element=element_encoding, length_header=False),
                 source_location=self.loc,
             )
@@ -186,10 +186,10 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
         else:
             encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
             return self.factory.materialise_multi_value(
-                ir.ValueDecode(
+                ir.DecodeBytes(
                     value=encoded_item,
                     encoding=self.array_encoding.element,
-                    decoded_type=self.element_ir_type,
+                    ir_type=self.element_ir_type,
                     source_location=self.loc,
                 )
             )
@@ -255,10 +255,10 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             (element_ir_type,) = set(iterable_ir_type.elements)
             element_encoding = self.array_encoding.element
             for _ in range(tuple_size):
-                encoded_element_vp = ir.ValueEncode(
+                encoded_element_vp = ir.BytesEncode(
                     values=values[: element_ir_type.arity],
                     encoding=element_encoding,
-                    value_type=element_ir_type,
+                    values_type=element_ir_type,
                     source_location=self.loc,
                 )
                 encoded_element = self.factory.materialise_single(encoded_element_vp)
