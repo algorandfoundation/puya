@@ -83,7 +83,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%37#0: uint64 = (txn ApplicationID)
         (assert tmp%37#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%39#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%0#0)
+        let tmp%39#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
         test_cases.array.uint64.Contract.test_allocations(tmp%39#0)
         let test_cases.array.uint64.Contract.__puya_arc4_router__%0#8: bool = 1u
         goto block@22
@@ -311,9 +311,9 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
     block@0: // L201
         let tmp%0#0: uint64 = (+ window_left#0 window_right#0)
         let tmp%1#0: uint64 = (/ tmp%0#0 2u)
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%0#0: Encoded(uint64) = agg_read_index(slot_contents%0#0, tmp%1#0)
-        let pivot#0: uint64 = decode<uint64>(array_item%0#0)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
+        let array_item%0#0: Encoded(uint64) = extract_value(slot_contents%0#0, tmp%1#0)
+        let pivot#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         goto block@1
     block@1: // while_top_L208
         let arr#2: Encoded(uint64[])* = φ(arr#0 <- block@0, arr#2 <- block@14)
@@ -322,9 +322,9 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         goto block@3
     block@3: // while_top_L210
         let left#1: uint64 = φ(left#3 <- block@1, left#2 <- block@4)
-        let slot_contents%1#0: Encoded(uint64[]) = read(arr#2)
-        let array_item%1#0: Encoded(uint64) = agg_read_index(slot_contents%1#0, left#1)
-        let values%1#0: uint64 = decode<uint64>(array_item%1#0)
+        let slot_contents%1#0: Encoded(uint64[]) = load(arr#2)
+        let array_item%1#0: Encoded(uint64) = extract_value(slot_contents%1#0, left#1)
+        let values%1#0: uint64 = decode_bytes<uint64>(array_item%1#0)
         let tmp%2#0: bool = (< values%1#0 pivot#0)
         goto tmp%2#0 ? block@4 : block@5
     block@4: // while_body_L211
@@ -334,9 +334,9 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         goto block@6
     block@6: // while_top_L213
         let right#1: uint64 = φ(right#4 <- block@5, right#2 <- block@9)
-        let slot_contents%2#0: Encoded(uint64[]) = read(arr#2)
-        let array_item%2#0: Encoded(uint64) = agg_read_index(slot_contents%2#0, right#1)
-        let values%2#0: uint64 = decode<uint64>(array_item%2#0)
+        let slot_contents%2#0: Encoded(uint64[]) = load(arr#2)
+        let array_item%2#0: Encoded(uint64) = extract_value(slot_contents%2#0, right#1)
+        let values%2#0: uint64 = decode_bytes<uint64>(array_item%2#0)
         let tmp%4#0: bool = (< pivot#0 values%2#0)
         goto tmp%4#0 ? block@7 : block@10
     block@7: // while_body_L215
@@ -348,14 +348,14 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let tmp%7#0: bool = (< left#1 right#1)
         goto tmp%7#0 ? block@11 : block@16
     block@11: // if_body_L221
-        let slot_contents%3#0: Encoded(uint64[]) = read(arr#2)
-        let array_item%3#0: Encoded(uint64) = agg_read_index(slot_contents%3#0, right#1)
-        let values%3#0: uint64 = decode<uint64>(array_item%3#0)
-        let array_item%4#0: Encoded(uint64) = agg_read_index(slot_contents%3#0, left#1)
-        let values%4#0: uint64 = decode<uint64>(array_item%4#0)
-        let updated_array%0#0: Encoded(uint64[]) = agg_write_index(slot_contents%3#0, left#1, array_item%3#0)
-        let updated_array%1#0: Encoded(uint64[]) = agg_write_index(updated_array%0#0, right#1, array_item%4#0)
-        write(arr#2, updated_array%1#0)
+        let slot_contents%3#0: Encoded(uint64[]) = load(arr#2)
+        let array_item%3#0: Encoded(uint64) = extract_value(slot_contents%3#0, right#1)
+        let values%3#0: uint64 = decode_bytes<uint64>(array_item%3#0)
+        let array_item%4#0: Encoded(uint64) = extract_value(slot_contents%3#0, left#1)
+        let values%4#0: uint64 = decode_bytes<uint64>(array_item%4#0)
+        let updated_array%0#0: Encoded(uint64[]) = replace_value(slot_contents%3#0, left#1, array_item%3#0)
+        let updated_array%1#0: Encoded(uint64[]) = replace_value(updated_array%0#0, right#1, array_item%4#0)
+        store(arr#2, updated_array%1#0)
         let left#5: uint64 = (+ left#1 1u)
         goto right#1 ? block@13 : block@12
     block@12: // if_body_L225
@@ -401,9 +401,9 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
 
 subroutine test_cases.array.uint64.create_array() -> Encoded(uint64[])*:
     block@0: // L253
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
-        write(arr#0, encoded_array%0#0)
+        store(arr#0, encoded_array%0#0)
         let i#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L256
@@ -411,10 +411,10 @@ subroutine test_cases.array.uint64.create_array() -> Encoded(uint64[])*:
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L257
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(i#1)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L256
@@ -422,12 +422,12 @@ subroutine test_cases.array.uint64.create_array() -> Encoded(uint64[])*:
 
 subroutine test_cases.array.uint64.assert_last_is_zero(arr: Encoded(uint64[])*) -> void:
     block@0: // L261
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%0#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%0#0: uint64 = (- array_len%0#0 1u)
-        let array_item%0#0: Encoded(uint64) = agg_read_index(slot_contents%0#0, tmp%0#0)
-        let values%0#0: uint64 = decode<uint64>(array_item%0#0)
+        let array_item%0#0: Encoded(uint64) = extract_value(slot_contents%0#0, tmp%0#0)
+        let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let tmp%1#0: bool = (! values%0#0)
         (assert tmp%1#0)
         return 
@@ -441,10 +441,10 @@ subroutine test_cases.array.uint64.add_x(arr: Encoded(uint64[])*, x: uint64) -> 
         let continue_looping%0#0: bool = (< i#1 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L276
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(i#1)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L275
@@ -452,43 +452,43 @@ subroutine test_cases.array.uint64.add_x(arr: Encoded(uint64[])*, x: uint64) -> 
 
 subroutine test_cases.array.uint64.append_length_and_return(arr: Encoded(uint64[])*) -> Encoded(uint64[])*:
     block@0: // L287
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%0#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(array_len%0#0)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(array_len%0#0)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         return arr#0
 
 subroutine test_cases.array.uint64.Contract.test_array() -> void:
     block@0: // L14
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
         let bytes_len%0#0: uint64 = (len encoded_array%0#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%0#0: bool = (! array_len%0#0)
         (assert tmp%0#0)
-        let tmp%1#0: Encoded(uint64[]) = encode<uint64[]>(42u)
+        let tmp%1#0: Encoded(uint64[]) = bytes_encode<uint64[]>(42u)
         let concat%0#0: Encoded(uint64[]) = (concat encoded_array%0#0 tmp%1#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         let bytes_len%1#0: uint64 = (len concat%0#0)
         let array_len%1#0: uint64 = (/ bytes_len%1#0 8u)
         let tmp%2#0: bool = (== array_len%1#0 1u)
         (assert tmp%2#0)
         let tmp%3#0: uint64 = (- array_len%1#0 1u)
-        let array_item%0#0: Encoded(uint64) = agg_read_index(concat%0#0, tmp%3#0)
-        let values%0#0: uint64 = decode<uint64>(array_item%0#0)
+        let array_item%0#0: Encoded(uint64) = extract_value(concat%0#0, tmp%3#0)
+        let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let tmp%4#0: bool = (== values%0#0 42u)
         (assert tmp%4#0)
         test_cases.array.uint64.add_x(arr#0, 5u)
-        let slot_contents%5#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%5#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%3#0: uint64 = (len slot_contents%5#0)
         let array_len%3#0: uint64 = (/ bytes_len%3#0 8u)
         let tmp%5#0: bool = (== array_len%3#0 6u)
         (assert tmp%5#0)
         let tmp%6#0: uint64 = (- array_len%3#0 1u)
-        let array_item%1#0: Encoded(uint64) = agg_read_index(slot_contents%5#0, tmp%6#0)
-        let values%1#0: uint64 = decode<uint64>(array_item%1#0)
+        let array_item%1#0: Encoded(uint64) = extract_value(slot_contents%5#0, tmp%6#0)
+        let values%1#0: uint64 = decode_bytes<uint64>(array_item%1#0)
         let tmp%7#0: bool = (== values%1#0 4u)
         (assert tmp%7#0)
         let expected#0: uint64 = 4u
@@ -500,114 +500,114 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         let continue_looping%0#0: bool = (< _i#1 3u)
         goto continue_looping%0#0 ? block@3 : block@4
     block@3: // for_body_L282
-        let slot_contents%0#1: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%0#1: Encoded(uint64[]) = load(arr#0)
         let len%0#0: uint64 = (len slot_contents%0#1)
         let sub%0#0: uint64 = (- len%0#0 8u)
         let data%0#0: bytes = (substring3 slot_contents%0#1 sub%0#0 len%0#0)
         let extract%0#0: bytes = (extract3 slot_contents%0#1 0u sub%0#0)
-        let popped#0: uint64 = decode<uint64>(data%0#0)
-        write(arr#0, extract%0#0)
+        let popped#0: uint64 = decode_bytes<uint64>(data%0#0)
+        store(arr#0, extract%0#0)
         let tmp%1#1: bool = (== popped#0 expected#1)
         (assert tmp%1#1)
         let expected#2: uint64 = (- expected#1 1u)
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@2
     block@4: // after_for_L281
-        let slot_contents%8#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%8#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%5#0: uint64 = (len slot_contents%8#0)
         let array_len%5#0: uint64 = (/ bytes_len%5#0 8u)
         let tmp%8#0: bool = (== array_len%5#0 3u)
         (assert tmp%8#0)
         let tmp%9#0: uint64 = (- array_len%5#0 1u)
-        let array_item%2#0: Encoded(uint64) = agg_read_index(slot_contents%8#0, tmp%9#0)
-        let values%2#0: uint64 = decode<uint64>(array_item%2#0)
+        let array_item%2#0: Encoded(uint64) = extract_value(slot_contents%8#0, tmp%9#0)
+        let values%2#0: uint64 = decode_bytes<uint64>(array_item%2#0)
         let tmp%10#0: bool = (== values%2#0 1u)
         (assert tmp%10#0)
-        let tmp%11#0: Encoded(uint64[]) = encode<uint64[]>(43u)
+        let tmp%11#0: Encoded(uint64[]) = bytes_encode<uint64[]>(43u)
         let concat%1#0: Encoded(uint64[]) = (concat slot_contents%8#0 tmp%11#0) // on error: max array length exceeded
-        write(arr#0, concat%1#0)
+        store(arr#0, concat%1#0)
         let bytes_len%7#0: uint64 = (len concat%1#0)
         let array_len%7#0: uint64 = (/ bytes_len%7#0 8u)
         let tmp%12#0: bool = (== array_len%7#0 4u)
         (assert tmp%12#0)
         let tmp%13#0: uint64 = (- array_len%7#0 1u)
-        let array_item%3#0: Encoded(uint64) = agg_read_index(concat%1#0, tmp%13#0)
-        let values%3#0: uint64 = decode<uint64>(array_item%3#0)
+        let array_item%3#0: Encoded(uint64) = extract_value(concat%1#0, tmp%13#0)
+        let values%3#0: uint64 = decode_bytes<uint64>(array_item%3#0)
         let tmp%14#0: bool = (== values%3#0 43u)
         (assert tmp%14#0)
-        let array_item%4#0: Encoded(uint64) = agg_read_index(concat%1#0, 0u)
-        let values%4#0: uint64 = decode<uint64>(array_item%4#0)
+        let array_item%4#0: Encoded(uint64) = extract_value(concat%1#0, 0u)
+        let values%4#0: uint64 = decode_bytes<uint64>(array_item%4#0)
         let tmp%15#0: bool = (== values%4#0 42u)
         (assert tmp%15#0)
         test_cases.array.uint64.add_x(arr#0, 10u)
-        let slot_contents%16#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%16#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%9#0: uint64 = (len slot_contents%16#0)
         let array_len%9#0: uint64 = (/ bytes_len%9#0 8u)
         let tmp%16#0: bool = (== array_len%9#0 14u)
         (assert tmp%16#0)
         let tmp%17#0: uint64 = (- array_len%9#0 1u)
-        let array_item%5#0: Encoded(uint64) = agg_read_index(slot_contents%16#0, tmp%17#0)
-        let values%5#0: uint64 = decode<uint64>(array_item%5#0)
+        let array_item%5#0: Encoded(uint64) = extract_value(slot_contents%16#0, tmp%17#0)
+        let values%5#0: uint64 = decode_bytes<uint64>(array_item%5#0)
         let tmp%18#0: bool = (== values%5#0 9u)
         (assert tmp%18#0)
-        let tmp%19#0: Encoded(uint64[]) = encode<uint64[]>(44u)
+        let tmp%19#0: Encoded(uint64[]) = bytes_encode<uint64[]>(44u)
         let concat%2#0: Encoded(uint64[]) = (concat slot_contents%16#0 tmp%19#0) // on error: max array length exceeded
         let bytes_len%11#0: uint64 = (len concat%2#0)
         let array_len%11#0: uint64 = (/ bytes_len%11#0 8u)
         let tmp%20#0: bool = (== array_len%11#0 15u)
         (assert tmp%20#0)
         let tmp%21#0: uint64 = (- array_len%11#0 1u)
-        let array_item%6#0: Encoded(uint64) = agg_read_index(concat%2#0, tmp%21#0)
-        let values%6#0: uint64 = decode<uint64>(array_item%6#0)
+        let array_item%6#0: Encoded(uint64) = extract_value(concat%2#0, tmp%21#0)
+        let values%6#0: uint64 = decode_bytes<uint64>(array_item%6#0)
         let tmp%22#0: bool = (== values%6#0 44u)
         (assert tmp%22#0)
-        let tmp%0#1: Encoded(uint64[]) = encode<uint64[]>(99u)
+        let tmp%0#1: Encoded(uint64[]) = bytes_encode<uint64[]>(99u)
         let concat%0#1: Encoded(uint64[]) = (concat concat%2#0 tmp%0#1) // on error: max array length exceeded
-        let tmp%1#2: Encoded(uint64[]) = encode<uint64[]>(100u)
+        let tmp%1#2: Encoded(uint64[]) = bytes_encode<uint64[]>(100u)
         let concat%1#1: Encoded(uint64[]) = (concat concat%0#1 tmp%1#2) // on error: max array length exceeded
-        let array_item%7#0: Encoded(uint64) = agg_read_index(concat%1#1, 0u)
-        let values%7#0: uint64 = decode<uint64>(array_item%7#0)
+        let array_item%7#0: Encoded(uint64) = extract_value(concat%1#1, 0u)
+        let values%7#0: uint64 = decode_bytes<uint64>(array_item%7#0)
         let tmp%24#0: uint64 = (+ values%7#0 2u)
-        let encoded_value%0#0: Encoded(uint64) = encode<uint64>(tmp%24#0)
-        let updated_array%0#0: Encoded(uint64[]) = agg_write_index(concat%1#1, 0u, encoded_value%0#0)
-        write(arr#0, updated_array%0#0)
+        let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(tmp%24#0)
+        let updated_array%0#0: Encoded(uint64[]) = replace_value(concat%1#1, 0u, encoded_value%0#0)
+        store(arr#0, updated_array%0#0)
         let bytes_len%13#0: uint64 = (len updated_array%0#0)
         let array_len%13#0: uint64 = (/ bytes_len%13#0 8u)
         let tmp%25#0: bool = (== array_len%13#0 17u)
         (assert tmp%25#0)
-        let array_item%8#0: Encoded(uint64) = agg_read_index(updated_array%0#0, 0u)
-        let values%8#0: uint64 = decode<uint64>(array_item%8#0)
+        let array_item%8#0: Encoded(uint64) = extract_value(updated_array%0#0, 0u)
+        let values%8#0: uint64 = decode_bytes<uint64>(array_item%8#0)
         let tmp%26#0: bool = (== values%8#0 44u)
         (assert tmp%26#0)
         let tmp%27#0: uint64 = (- array_len%13#0 2u)
-        let array_item%9#0: Encoded(uint64) = agg_read_index(updated_array%0#0, tmp%27#0)
-        let values%9#0: uint64 = decode<uint64>(array_item%9#0)
+        let array_item%9#0: Encoded(uint64) = extract_value(updated_array%0#0, tmp%27#0)
+        let values%9#0: uint64 = decode_bytes<uint64>(array_item%9#0)
         let tmp%28#0: bool = (== values%9#0 99u)
         (assert tmp%28#0)
         let tmp%29#0: uint64 = (- array_len%13#0 1u)
-        let array_item%10#0: Encoded(uint64) = agg_read_index(updated_array%0#0, tmp%29#0)
-        let values%10#0: uint64 = decode<uint64>(array_item%10#0)
+        let array_item%10#0: Encoded(uint64) = extract_value(updated_array%0#0, tmp%29#0)
+        let values%10#0: uint64 = decode_bytes<uint64>(array_item%10#0)
         let tmp%30#0: bool = (== values%10#0 100u)
         (assert tmp%30#0)
         return 
 
 subroutine test_cases.array.uint64.Contract.test_array_extend() -> void:
     block@0: // L50
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
-        write(arr#0, encoded_array%0#0)
+        store(arr#0, encoded_array%0#0)
         test_cases.array.uint64.add_x(arr#0, 1u)
         let arr2#0: Encoded(uint64[])* = new()
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(1u)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(1u)
         let concat%0#0: Encoded(uint64[]) = (concat encoded_array%0#0 tmp%0#0) // on error: max array length exceeded
-        let tmp%1#0: Encoded(uint64[]) = encode<uint64[]>(2u)
+        let tmp%1#0: Encoded(uint64[]) = bytes_encode<uint64[]>(2u)
         let concat%1#0: Encoded(uint64[]) = (concat concat%0#0 tmp%1#0) // on error: max array length exceeded
-        let tmp%2#0: Encoded(uint64[]) = encode<uint64[]>(3u)
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(3u)
         let concat%2#0: Encoded(uint64[]) = (concat concat%1#0 tmp%2#0) // on error: max array length exceeded
-        write(arr2#0, concat%2#0)
-        let slot_contents%4#0: Encoded(uint64[]) = read(arr#0)
+        store(arr2#0, concat%2#0)
+        let slot_contents%4#0: Encoded(uint64[]) = load(arr#0)
         let concat%3#0: Encoded(uint64[]) = (concat slot_contents%4#0 concat%2#0) // on error: max array length exceeded
-        write(arr#0, concat%3#0)
+        store(arr#0, concat%3#0)
         let bytes_len%1#0: uint64 = (len concat%3#0)
         let array_len%1#0: uint64 = (/ bytes_len%1#0 8u)
         let tmp%3#0: bool = (== array_len%1#0 4u)
@@ -616,18 +616,18 @@ subroutine test_cases.array.uint64.Contract.test_array_extend() -> void:
 
 subroutine test_cases.array.uint64.Contract.test_array_multiple_append() -> void:
     block@0: // L62
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
-        write(arr#0, encoded_array%0#0)
+        store(arr#0, encoded_array%0#0)
         test_cases.array.uint64.add_x(arr#0, 1u)
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(1u)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(1u)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
-        let tmp%1#0: Encoded(uint64[]) = encode<uint64[]>(2u)
+        let tmp%1#0: Encoded(uint64[]) = bytes_encode<uint64[]>(2u)
         let concat%1#0: Encoded(uint64[]) = (concat concat%0#0 tmp%1#0) // on error: max array length exceeded
-        let tmp%2#0: Encoded(uint64[]) = encode<uint64[]>(3u)
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(3u)
         let concat%2#0: Encoded(uint64[]) = (concat concat%1#0 tmp%2#0) // on error: max array length exceeded
-        write(arr#0, concat%2#0)
+        store(arr#0, concat%2#0)
         let bytes_len%0#0: uint64 = (len concat%2#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%3#0: bool = (== array_len%0#0 4u)
@@ -636,9 +636,9 @@ subroutine test_cases.array.uint64.Contract.test_array_multiple_append() -> void
 
 subroutine test_cases.array.uint64.Contract.test_array_too_long() -> void:
     block@0: // L75
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let array#0: Encoded(uint64[])* = new()
-        write(array#0, encoded_array%0#0)
+        store(array#0, encoded_array%0#0)
         let i#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L78
@@ -646,28 +646,28 @@ subroutine test_cases.array.uint64.Contract.test_array_too_long() -> void:
         let continue_looping%0#0: bool = (< i#1 512u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L79
-        let slot_contents%0#0: Encoded(uint64[]) = read(array#0)
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(i#1)
+        let slot_contents%0#0: Encoded(uint64[]) = load(array#0)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
-        write(array#0, concat%0#0)
+        store(array#0, concat%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L78
-        let slot_contents%1#0: Encoded(uint64[]) = read(array#0)
+        let slot_contents%1#0: Encoded(uint64[]) = load(array#0)
         let bytes_len%0#0: uint64 = (len slot_contents%1#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%1#0: bool = (== array_len%0#0 512u)
         (assert tmp%1#0) // array is expected length
-        let tmp%2#0: Encoded(uint64[]) = encode<uint64[]>(512u)
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(512u)
         let concat%1#0: Encoded(uint64[]) = (concat slot_contents%1#0 tmp%2#0) // on error: max array length exceeded
-        write(array#0, concat%1#0)
+        store(array#0, concat%1#0)
         return 
 
 subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend() -> void:
     block@0: // L84
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let array#0: Encoded(uint64[])* = new()
-        write(array#0, encoded_array%0#0)
+        store(array#0, encoded_array%0#0)
         let i#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L87
@@ -675,166 +675,166 @@ subroutine test_cases.array.uint64.Contract.test_array_copy_and_extend() -> void
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L88
-        let slot_contents%0#0: Encoded(uint64[]) = read(array#0)
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(i#1)
+        let slot_contents%0#0: Encoded(uint64[]) = load(array#0)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
-        write(array#0, concat%0#0)
+        store(array#0, concat%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L87
         let array2#0: Encoded(uint64[])* = new()
-        let slot_contents%1#0: Encoded(uint64[]) = read(array#0)
-        write(array2#0, slot_contents%1#0)
-        let slot_contents%2#0: Encoded(uint64[]) = read(array#0)
-        let tmp%1#0: Encoded(uint64[]) = encode<uint64[]>(5u)
+        let slot_contents%1#0: Encoded(uint64[]) = load(array#0)
+        store(array2#0, slot_contents%1#0)
+        let slot_contents%2#0: Encoded(uint64[]) = load(array#0)
+        let tmp%1#0: Encoded(uint64[]) = bytes_encode<uint64[]>(5u)
         let concat%1#0: Encoded(uint64[]) = (concat slot_contents%2#0 tmp%1#0) // on error: max array length exceeded
-        write(array#0, concat%1#0)
+        store(array#0, concat%1#0)
         let bytes_len%0#0: uint64 = (len concat%1#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%2#0: bool = (== array_len%0#0 6u)
         (assert tmp%2#0)
         let tmp%3#0: uint64 = (- array_len%0#0 1u)
-        let array_item%0#0: Encoded(uint64) = agg_read_index(concat%1#0, tmp%3#0)
-        let values%0#0: uint64 = decode<uint64>(array_item%0#0)
+        let array_item%0#0: Encoded(uint64) = extract_value(concat%1#0, tmp%3#0)
+        let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let tmp%4#0: bool = (== values%0#0 5u)
         (assert tmp%4#0) // expected 5
-        let slot_contents%6#0: Encoded(uint64[]) = read(array2#0)
+        let slot_contents%6#0: Encoded(uint64[]) = load(array2#0)
         let bytes_len%2#0: uint64 = (len slot_contents%6#0)
         let array_len%2#0: uint64 = (/ bytes_len%2#0 8u)
         let tmp%5#0: bool = (== array_len%2#0 5u)
         (assert tmp%5#0)
         let tmp%6#0: uint64 = (- array_len%2#0 1u)
-        let array_item%1#0: Encoded(uint64) = agg_read_index(slot_contents%6#0, tmp%6#0)
-        let values%1#0: uint64 = decode<uint64>(array_item%1#0)
+        let array_item%1#0: Encoded(uint64) = extract_value(slot_contents%6#0, tmp%6#0)
+        let values%1#0: uint64 = decode_bytes<uint64>(array_item%1#0)
         let tmp%7#0: bool = (== values%1#0 4u)
         (assert tmp%7#0) // expected 4
         let concat%2#0: Encoded(uint64[]) = (concat concat%1#0 slot_contents%6#0) // on error: max array length exceeded
-        write(array#0, concat%2#0)
+        store(array#0, concat%2#0)
         let bytes_len%5#0: uint64 = (len concat%2#0)
         let array_len%5#0: uint64 = (/ bytes_len%5#0 8u)
         let tmp%8#0: bool = (== array_len%5#0 11u)
         (assert tmp%8#0)
-        let slot_contents%12#0: Encoded(uint64[]) = read(array2#0)
+        let slot_contents%12#0: Encoded(uint64[]) = load(array2#0)
         let bytes_len%6#0: uint64 = (len slot_contents%12#0)
         let array_len%6#0: uint64 = (/ bytes_len%6#0 8u)
         let tmp%9#0: bool = (== array_len%6#0 5u)
         (assert tmp%9#0)
         let tmp%10#0: uint64 = (- array_len%5#0 1u)
-        let array_item%2#0: Encoded(uint64) = agg_read_index(concat%2#0, tmp%10#0)
-        let values%2#0: uint64 = decode<uint64>(array_item%2#0)
+        let array_item%2#0: Encoded(uint64) = extract_value(concat%2#0, tmp%10#0)
+        let values%2#0: uint64 = decode_bytes<uint64>(array_item%2#0)
         let tmp%11#0: bool = (== values%2#0 4u)
         (assert tmp%11#0) // expected 4
-        let array_item%3#0: Encoded(uint64) = agg_read_index(concat%2#0, 4u)
-        let values%3#0: uint64 = decode<uint64>(array_item%3#0)
+        let array_item%3#0: Encoded(uint64) = extract_value(concat%2#0, 4u)
+        let values%3#0: uint64 = decode_bytes<uint64>(array_item%3#0)
         let tmp%12#0: bool = (== values%3#0 4u)
         (assert tmp%12#0) // expected 4
-        let array_item%4#0: Encoded(uint64) = agg_read_index(concat%2#0, 5u)
-        let values%4#0: uint64 = decode<uint64>(array_item%4#0)
+        let array_item%4#0: Encoded(uint64) = extract_value(concat%2#0, 5u)
+        let values%4#0: uint64 = decode_bytes<uint64>(array_item%4#0)
         let tmp%13#0: bool = (== values%4#0 5u)
         (assert tmp%13#0) // expected 4
-        let array_item%5#0: Encoded(uint64) = agg_read_index(concat%2#0, 6u)
-        let values%5#0: uint64 = decode<uint64>(array_item%5#0)
+        let array_item%5#0: Encoded(uint64) = extract_value(concat%2#0, 6u)
+        let values%5#0: uint64 = decode_bytes<uint64>(array_item%5#0)
         let tmp%14#0: bool = (! values%5#0)
         (assert tmp%14#0) // expected 4
         return 
 
 subroutine test_cases.array.uint64.Contract.test_array_evaluation_order() -> void:
     block@0: // L106
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(3u)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(3u)
         let concat%0#0: Encoded(uint64[]) = (concat encoded_array%0#0 tmp%0#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         let tmp%1#0: Encoded(uint64[])* = test_cases.array.uint64.append_length_and_return(arr#0)
         let tmp%2#0: Encoded(uint64[])* = test_cases.array.uint64.append_length_and_return(arr#0)
-        let slot_contents%1#0: Encoded(uint64[]) = read(tmp%2#0)
-        let slot_contents%2#0: Encoded(uint64[]) = read(tmp%1#0)
+        let slot_contents%1#0: Encoded(uint64[]) = load(tmp%2#0)
+        let slot_contents%2#0: Encoded(uint64[]) = load(tmp%1#0)
         let concat%1#0: Encoded(uint64[]) = (concat slot_contents%2#0 slot_contents%1#0) // on error: max array length exceeded
-        write(tmp%1#0, concat%1#0)
-        let slot_contents%3#0: Encoded(uint64[]) = read(arr#0)
+        store(tmp%1#0, concat%1#0)
+        let slot_contents%3#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%1#0: uint64 = (len slot_contents%3#0)
         let array_len%1#0: uint64 = (/ bytes_len%1#0 8u)
         let tmp%3#0: bool = (== array_len%1#0 6u)
         (assert tmp%3#0)
-        let array_item%0#0: Encoded(uint64) = agg_read_index(slot_contents%3#0, 0u)
-        let values%0#0: uint64 = decode<uint64>(array_item%0#0)
+        let array_item%0#0: Encoded(uint64) = extract_value(slot_contents%3#0, 0u)
+        let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let tmp%4#0: bool = (== values%0#0 3u)
         (assert tmp%4#0)
-        let array_item%1#0: Encoded(uint64) = agg_read_index(slot_contents%3#0, 1u)
-        let values%1#0: uint64 = decode<uint64>(array_item%1#0)
+        let array_item%1#0: Encoded(uint64) = extract_value(slot_contents%3#0, 1u)
+        let values%1#0: uint64 = decode_bytes<uint64>(array_item%1#0)
         let tmp%5#0: bool = (== values%1#0 1u)
         (assert tmp%5#0)
-        let array_item%2#0: Encoded(uint64) = agg_read_index(slot_contents%3#0, 2u)
-        let values%2#0: uint64 = decode<uint64>(array_item%2#0)
+        let array_item%2#0: Encoded(uint64) = extract_value(slot_contents%3#0, 2u)
+        let values%2#0: uint64 = decode_bytes<uint64>(array_item%2#0)
         let tmp%6#0: bool = (== values%2#0 2u)
         (assert tmp%6#0)
-        let array_item%3#0: Encoded(uint64) = agg_read_index(slot_contents%3#0, 3u)
-        let values%3#0: uint64 = decode<uint64>(array_item%3#0)
+        let array_item%3#0: Encoded(uint64) = extract_value(slot_contents%3#0, 3u)
+        let values%3#0: uint64 = decode_bytes<uint64>(array_item%3#0)
         let tmp%7#0: bool = (== values%3#0 3u)
         (assert tmp%7#0)
-        let array_item%4#0: Encoded(uint64) = agg_read_index(slot_contents%3#0, 4u)
-        let values%4#0: uint64 = decode<uint64>(array_item%4#0)
+        let array_item%4#0: Encoded(uint64) = extract_value(slot_contents%3#0, 4u)
+        let values%4#0: uint64 = decode_bytes<uint64>(array_item%4#0)
         let tmp%8#0: bool = (== values%4#0 1u)
         (assert tmp%8#0)
-        let array_item%5#0: Encoded(uint64) = agg_read_index(slot_contents%3#0, 5u)
-        let values%5#0: uint64 = decode<uint64>(array_item%5#0)
+        let array_item%5#0: Encoded(uint64) = extract_value(slot_contents%3#0, 5u)
+        let values%5#0: uint64 = decode_bytes<uint64>(array_item%5#0)
         let tmp%9#0: bool = (== values%5#0 2u)
         (assert tmp%9#0)
         let tmp%10#0: Encoded(uint64[])* = test_cases.array.uint64.append_length_and_return(arr#0)
-        let slot_contents%10#0: Encoded(uint64[]) = read(tmp%10#0)
+        let slot_contents%10#0: Encoded(uint64[]) = load(tmp%10#0)
         let bytes_len%2#0: uint64 = (len slot_contents%10#0)
         let array_len%2#0: uint64 = (/ bytes_len%2#0 8u)
         let tmp%11#0: uint64 = (- array_len%2#0 1u)
-        let array_item%6#0: Encoded(uint64) = agg_read_index(slot_contents%10#0, tmp%11#0)
-        let values%6#0: uint64 = decode<uint64>(array_item%6#0)
+        let array_item%6#0: Encoded(uint64) = extract_value(slot_contents%10#0, tmp%11#0)
+        let values%6#0: uint64 = decode_bytes<uint64>(array_item%6#0)
         let tmp%12#0: Encoded(uint64[])* = test_cases.array.uint64.append_length_and_return(arr#0)
-        let slot_contents%12#0: Encoded(uint64[]) = read(tmp%12#0)
-        let array_item%7#0: Encoded(uint64) = agg_read_index(slot_contents%12#0, 0u)
-        let values%7#0: uint64 = decode<uint64>(array_item%7#0)
-        let slot_contents%13#0: Encoded(uint64[]) = read(arr#0)
-        let updated_array%0#0: Encoded(uint64[]) = agg_write_index(slot_contents%13#0, values%7#0, array_item%6#0)
-        write(arr#0, updated_array%0#0)
+        let slot_contents%12#0: Encoded(uint64[]) = load(tmp%12#0)
+        let array_item%7#0: Encoded(uint64) = extract_value(slot_contents%12#0, 0u)
+        let values%7#0: uint64 = decode_bytes<uint64>(array_item%7#0)
+        let slot_contents%13#0: Encoded(uint64[]) = load(arr#0)
+        let updated_array%0#0: Encoded(uint64[]) = replace_value(slot_contents%13#0, values%7#0, array_item%6#0)
+        store(arr#0, updated_array%0#0)
         let bytes_len%3#0: uint64 = (len updated_array%0#0)
         let array_len%3#0: uint64 = (/ bytes_len%3#0 8u)
         let tmp%13#0: bool = (== array_len%3#0 8u)
         (assert tmp%13#0)
-        let array_item%8#0: Encoded(uint64) = agg_read_index(updated_array%0#0, 6u)
-        let values%8#0: uint64 = decode<uint64>(array_item%8#0)
+        let array_item%8#0: Encoded(uint64) = extract_value(updated_array%0#0, 6u)
+        let values%8#0: uint64 = decode_bytes<uint64>(array_item%8#0)
         let tmp%14#0: bool = (== values%8#0 6u)
         (assert tmp%14#0)
-        let array_item%9#0: Encoded(uint64) = agg_read_index(updated_array%0#0, 7u)
-        let values%9#0: uint64 = decode<uint64>(array_item%9#0)
+        let array_item%9#0: Encoded(uint64) = extract_value(updated_array%0#0, 7u)
+        let values%9#0: uint64 = decode_bytes<uint64>(array_item%9#0)
         let tmp%15#0: bool = (== values%9#0 7u)
         (assert tmp%15#0)
-        let array_item%10#0: Encoded(uint64) = agg_read_index(updated_array%0#0, 3u)
-        let values%10#0: uint64 = decode<uint64>(array_item%10#0)
+        let array_item%10#0: Encoded(uint64) = extract_value(updated_array%0#0, 3u)
+        let values%10#0: uint64 = decode_bytes<uint64>(array_item%10#0)
         let tmp%16#0: bool = (== values%10#0 6u)
         (assert tmp%16#0)
         return 
 
 subroutine test_cases.array.uint64.Contract.test_array_assignment_maximum_cursage() -> void:
     block@0: // L125
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(3u)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(3u)
         let concat%0#0: Encoded(uint64[]) = (concat encoded_array%0#0 tmp%0#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         let update_assignment_current_base_value%0#0: Encoded(uint64[])* = test_cases.array.uint64.append_length_and_return(arr#0)
-        let encoded_value%0#0: Encoded(uint64) = encode<uint64>(42u)
-        let slot_contents%1#0: Encoded(uint64[]) = read(update_assignment_current_base_value%0#0)
-        let updated_array%0#0: Encoded(uint64[]) = agg_write_index(slot_contents%1#0, 0u, encoded_value%0#0)
-        write(update_assignment_current_base_value%0#0, updated_array%0#0)
-        let slot_contents%2#0: Encoded(uint64[]) = read(arr#0)
+        let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(42u)
+        let slot_contents%1#0: Encoded(uint64[]) = load(update_assignment_current_base_value%0#0)
+        let updated_array%0#0: Encoded(uint64[]) = replace_value(slot_contents%1#0, 0u, encoded_value%0#0)
+        store(update_assignment_current_base_value%0#0, updated_array%0#0)
+        let slot_contents%2#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%2#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%1#0: bool = (== array_len%0#0 2u)
         (assert tmp%1#0)
-        let array_item%0#0: Encoded(uint64) = agg_read_index(slot_contents%2#0, 0u)
-        let values%0#0: uint64 = decode<uint64>(array_item%0#0)
+        let array_item%0#0: Encoded(uint64) = extract_value(slot_contents%2#0, 0u)
+        let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let tmp%2#0: bool = (== values%0#0 42u)
         (assert tmp%2#0)
-        let array_item%1#0: Encoded(uint64) = agg_read_index(slot_contents%2#0, 1u)
-        let values%1#0: uint64 = decode<uint64>(array_item%1#0)
+        let array_item%1#0: Encoded(uint64) = extract_value(slot_contents%2#0, 1u)
+        let values%1#0: uint64 = decode_bytes<uint64>(array_item%1#0)
         let tmp%3#0: bool = (== values%1#0 1u)
         (assert tmp%3#0)
         return 
@@ -848,9 +848,9 @@ subroutine test_cases.array.uint64.Contract.test_allocations(num: uint64) -> voi
         let continue_looping%0#0: bool = (< _i#1 num#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L137
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let alloc_test#0: Encoded(uint64[])* = new()
-        write(alloc_test#0, encoded_array%0#0)
+        store(alloc_test#0, encoded_array%0#0)
         test_cases.array.uint64.add_x(alloc_test#0, 1u)
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@1
@@ -859,9 +859,9 @@ subroutine test_cases.array.uint64.Contract.test_allocations(num: uint64) -> voi
 
 subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
     block@0: // L140
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
-        write(arr#0, encoded_array%0#0)
+        store(arr#0, encoded_array%0#0)
         let val#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L143
@@ -869,14 +869,14 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let continue_looping%0#0: bool = (< val#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L144
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
-        let tmp%0#0: Encoded(uint64[]) = encode<uint64[]>(val#1)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
+        let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         let val#2: uint64 = (+ val#1 1u)
         goto block@1
     block@4: // after_for_L143
-        let slot_contents%1#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%1#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%1#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%1#0: bool = (== array_len%0#0 5u)
@@ -890,15 +890,15 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let continue_looping%1#0: bool = (< item_index_internal%0#1 array_len%0#0)
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L150
-        let slot_contents%3#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%0#0: Encoded(uint64) = agg_read_index(slot_contents%3#0, item_index_internal%0#1)
-        let value#0: uint64 = decode<uint64>(array_item%0#0)
+        let slot_contents%3#0: Encoded(uint64[]) = load(arr#0)
+        let array_item%0#0: Encoded(uint64) = extract_value(slot_contents%3#0, item_index_internal%0#1)
+        let value#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let tmp%2#0: bool = (>= value#0 last#1)
         (assert tmp%2#0) // array is not sorted
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@5
     block@8: // after_for_L149
-        let slot_contents%4#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%4#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%2#0: uint64 = (len slot_contents%4#0)
         let array_len%2#0: uint64 = (/ bytes_len%2#0 8u)
         let item_index_internal%1#0: uint64 = 0u
@@ -908,15 +908,15 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let continue_looping%2#0: bool = (< idx#0 array_len%2#0)
         goto continue_looping%2#0 ? block@10 : block@12
     block@10: // for_body_L155
-        let slot_contents%5#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%1#0: Encoded(uint64) = agg_read_index(slot_contents%5#0, idx#0)
-        let value#1: uint64 = decode<uint64>(array_item%1#0)
+        let slot_contents%5#0: Encoded(uint64[]) = load(arr#0)
+        let array_item%1#0: Encoded(uint64) = extract_value(slot_contents%5#0, idx#0)
+        let value#1: uint64 = decode_bytes<uint64>(array_item%1#0)
         let tmp%3#0: bool = (== value#1 idx#0)
         (assert tmp%3#0) // incorrect array value
         let item_index_internal%1#2: uint64 = (+ idx#0 1u)
         goto block@9
     block@12: // after_for_L154
-        let slot_contents%6#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%6#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%3#0: uint64 = (len slot_contents%6#0)
         let array_len%3#0: uint64 = (/ bytes_len%3#0 8u)
         goto block@13
@@ -926,16 +926,16 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         goto reverse_index_internal%2#1 ? block@14 : block@16
     block@14: // for_body_L159
         let reverse_index_internal%2#2: uint64 = (- reverse_index_internal%2#1 1u)
-        let slot_contents%7#0: Encoded(uint64[]) = read(arr#0)
-        let array_item%2#0: Encoded(uint64) = agg_read_index(slot_contents%7#0, reverse_index_internal%2#2)
-        let value#2: uint64 = decode<uint64>(array_item%2#0)
+        let slot_contents%7#0: Encoded(uint64[]) = load(arr#0)
+        let array_item%2#0: Encoded(uint64) = extract_value(slot_contents%7#0, reverse_index_internal%2#2)
+        let value#2: uint64 = decode_bytes<uint64>(array_item%2#0)
         let tmp%4#0: bool = (<= value#2 last#3)
         (assert tmp%4#0) // array is not sorted
         goto block@13
     block@16: // after_for_L158
-        let arc4_arr#0: Encoded(len+uint64[]) = encode<(len+uint64[])>()
+        let arc4_arr#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>()
         let native_arr#0: Encoded(uint64[])* = new()
-        write(native_arr#0, encoded_array%0#0)
+        store(native_arr#0, encoded_array%0#0)
         let i#0: uint64 = 0u
         goto block@17
     block@17: // for_header_L164
@@ -944,21 +944,21 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let continue_looping%4#0: bool = (< i#1 5u)
         goto continue_looping%4#0 ? block@18 : block@20
     block@18: // for_body_L165
-        let tmp%5#0: Encoded(uint64) = encode<uint64>(i#1)
-        let tmp%6#0: Encoded(uint64[]) = encode<uint64[]>(tmp%5#0)
+        let tmp%5#0: Encoded(uint64) = bytes_encode<uint64>(i#1)
+        let tmp%6#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%5#0)
         let concat%1#0: Encoded(len+uint64[]) = (concat arc4_arr#1 tmp%6#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arc4_arr#1 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let arc4_arr#2: Encoded(len+uint64[]) = ((replace2 0) concat%1#0 as_u16_bytes%0#0)
-        let slot_contents%8#0: Encoded(uint64[]) = read(native_arr#0)
+        let slot_contents%8#0: Encoded(uint64[]) = load(native_arr#0)
         let concat%2#0: Encoded(uint64[]) = (concat slot_contents%8#0 tmp%6#0) // on error: max array length exceeded
-        write(native_arr#0, concat%2#0)
+        store(native_arr#0, concat%2#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@17
     block@20: // after_for_L164
-        let slot_contents%9#0: Encoded(uint64[]) = read(native_arr#0)
+        let slot_contents%9#0: Encoded(uint64[]) = load(native_arr#0)
         let concat%3#0: Encoded(len+uint64[]) = (concat arc4_arr#1 slot_contents%9#0) // on error: max array length exceeded
         let extract_to_end%0#0: bytes = ((extract 2 0) concat%3#0)
         let len%0#0: uint64 = (len extract_to_end%0#0)
@@ -969,25 +969,25 @@ subroutine test_cases.array.uint64.Contract.test_iteration() -> void:
         let array_length%0#0: uint64 = (extract_uint16 combined_arr#0 0u)
         let tmp%9#0: bool = (== array_length%0#0 10u)
         (assert tmp%9#0)
-        let array_item%3#0: Encoded(uint64) = agg_read_index(combined_arr#0, 0u)
+        let array_item%3#0: Encoded(uint64) = extract_value(combined_arr#0, 0u)
         let tmp%10#0: bool = (b== array_item%3#0 0x0000000000000000)
         (assert tmp%10#0)
-        let array_item%4#0: Encoded(uint64) = agg_read_index(combined_arr#0, 4u)
+        let array_item%4#0: Encoded(uint64) = extract_value(combined_arr#0, 4u)
         let tmp%11#0: bool = (b== array_item%4#0 0x0000000000000004)
         (assert tmp%11#0)
-        let array_item%5#0: Encoded(uint64) = agg_read_index(combined_arr#0, 5u)
+        let array_item%5#0: Encoded(uint64) = extract_value(combined_arr#0, 5u)
         let tmp%12#0: bool = (b== array_item%5#0 0x0000000000000000)
         (assert tmp%12#0)
-        let array_item%6#0: Encoded(uint64) = agg_read_index(combined_arr#0, 9u)
+        let array_item%6#0: Encoded(uint64) = extract_value(combined_arr#0, 9u)
         let tmp%13#0: bool = (b== array_item%6#0 0x0000000000000004)
         (assert tmp%13#0)
         return 
 
 subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
     block@0: // L174
-        let encoded_array%0#0: Encoded(uint64[]) = encode<uint64[]>()
+        let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let rnd#0: Encoded(uint64[])* = new()
-        write(rnd#0, encoded_array%0#0)
+        store(rnd#0, encoded_array%0#0)
         let tmp%0#0: account = (txn Sender)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
@@ -997,14 +997,14 @@ subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L179
         let tmp%1#0: uint64 = (getbyte tmp%0#0 item_index_internal%0#1)
-        let slot_contents%0#0: Encoded(uint64[]) = read(rnd#0)
-        let tmp%2#0: Encoded(uint64[]) = encode<uint64[]>(tmp%1#0)
+        let slot_contents%0#0: Encoded(uint64[]) = load(rnd#0)
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%1#0)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%2#0) // on error: max array length exceeded
-        write(rnd#0, concat%0#0)
+        store(rnd#0, concat%0#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L178
-        let slot_contents%1#0: Encoded(uint64[]) = read(rnd#0)
+        let slot_contents%1#0: Encoded(uint64[]) = load(rnd#0)
         let bytes_len%0#0: uint64 = (len slot_contents%1#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%3#0: bool = (== array_len%0#0 32u)
@@ -1012,7 +1012,7 @@ subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
         let tmp%4#0: uint64 = (- array_len%0#0 1u)
         test_cases.array.uint64.quicksort_window(rnd#0, 0u, tmp%4#0)
         let last#0: uint64 = 0u
-        let slot_contents%3#0: Encoded(uint64[]) = read(rnd#0)
+        let slot_contents%3#0: Encoded(uint64[]) = load(rnd#0)
         let bytes_len%2#0: uint64 = (len slot_contents%3#0)
         let array_len%2#0: uint64 = (/ bytes_len%2#0 8u)
         let item_index_internal%1#0: uint64 = 0u
@@ -1023,9 +1023,9 @@ subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
         let continue_looping%1#0: bool = (< item_index_internal%1#1 array_len%2#0)
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L188
-        let slot_contents%4#0: Encoded(uint64[]) = read(rnd#0)
-        let array_item%0#0: Encoded(uint64) = agg_read_index(slot_contents%4#0, item_index_internal%1#1)
-        let value#0: uint64 = decode<uint64>(array_item%0#0)
+        let slot_contents%4#0: Encoded(uint64[]) = load(rnd#0)
+        let array_item%0#0: Encoded(uint64) = extract_value(slot_contents%4#0, item_index_internal%1#1)
+        let value#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let tmp%5#0: bool = (>= value#0 last#1)
         (assert tmp%5#0) // array is not sorted
         let item_index_internal%1#2: uint64 = (+ item_index_internal%1#1 1u)
@@ -1036,20 +1036,20 @@ subroutine test_cases.array.uint64.Contract.test_quicksort() -> void:
 subroutine test_cases.array.uint64.Contract.test_unobserved_write() -> void:
     block@0: // L191
         let arr#0: Encoded(uint64[])* = test_cases.array.uint64.create_array()
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%0#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let last#0: uint64 = (- array_len%0#0 1u)
-        let encoded_value%0#0: Encoded(uint64) = encode<uint64>(0u)
-        let updated_array%0#0: Encoded(uint64[]) = agg_write_index(slot_contents%0#0, last#0, encoded_value%0#0)
-        write(arr#0, updated_array%0#0)
+        let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(0u)
+        let updated_array%0#0: Encoded(uint64[]) = replace_value(slot_contents%0#0, last#0, encoded_value%0#0)
+        store(arr#0, updated_array%0#0)
         test_cases.array.uint64.assert_last_is_zero(arr#0)
-        let encoded_value%1#0: Encoded(uint64) = encode<uint64>(1u)
-        let slot_contents%2#0: Encoded(uint64[]) = read(arr#0)
-        let updated_array%1#0: Encoded(uint64[]) = agg_write_index(slot_contents%2#0, last#0, encoded_value%1#0)
-        write(arr#0, updated_array%1#0)
-        let array_item%0#0: Encoded(uint64) = agg_read_index(updated_array%1#0, last#0)
-        let values%0#0: uint64 = decode<uint64>(array_item%0#0)
+        let encoded_value%1#0: Encoded(uint64) = bytes_encode<uint64>(1u)
+        let slot_contents%2#0: Encoded(uint64[]) = load(arr#0)
+        let updated_array%1#0: Encoded(uint64[]) = replace_value(slot_contents%2#0, last#0, encoded_value%1#0)
+        store(arr#0, updated_array%1#0)
+        let array_item%0#0: Encoded(uint64) = extract_value(updated_array%1#0, last#0)
+        let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         let tmp%2#0: bool = (== values%0#0 1u)
         (assert tmp%2#0)
         return 

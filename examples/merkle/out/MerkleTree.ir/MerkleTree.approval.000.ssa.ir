@@ -18,7 +18,7 @@ subroutine examples.merkle.contract.compute_root_hash(proof: Encoded(len+uint8[3
         let continue_looping%0#0: bool = (< idx#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L23
-        let array_item%0#0: Encoded(uint8[32]) = agg_read_index(proof#0, idx#1)
+        let array_item%0#0: Encoded(uint8[32]) = extract_value(proof#0, idx#1)
         let tmp%0#0: bytes = examples.merkle.contract.hash_pair(computed#1, array_item%0#0)
         let computed#2: bytes = tmp%0#0
         goto block@3
@@ -73,7 +73,7 @@ subroutine examples.merkle.contract.MerkleTree.__puya_arc4_router__() -> bool:
         let reinterpret_Encoded(len+uint8[32][])%0#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
         let reinterpret_Encoded(uint8[32])%1#0: Encoded(uint8[32]) = (txna ApplicationArgs 2)
         let tmp%11#0: bool = examples.merkle.contract.MerkleTree.verify(reinterpret_Encoded(len+uint8[32][])%0#0, reinterpret_Encoded(uint8[32])%1#0)
-        let tmp%12#0: Encoded(bool8) = encode<bool8>(tmp%11#0)
+        let tmp%12#0: Encoded(bool8) = bytes_encode<bool8>(tmp%11#0)
         let tmp%13#0: bytes = (concat 0x151f7c75 tmp%12#0)
         (log tmp%13#0)
         return 1u

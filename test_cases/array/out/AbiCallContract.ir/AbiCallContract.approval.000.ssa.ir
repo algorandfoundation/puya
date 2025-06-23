@@ -177,11 +177,11 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         goto block@1
     block@1: // next_txn_L18
         itxn_submit
-        let encoded_array%0#0: Encoded(len+(len+uint64[])[]) = encode<(len+(len+uint64[])[])>()
+        let encoded_array%0#0: Encoded(len+(len+uint64[])[]) = bytes_encode<(len+(len+uint64[])[])>()
         let nested_arr#0: Encoded(len+(len+uint64[])[]) = encoded_array%0#0
         let extract_uint16%0#0: uint64 = (extract_uint16 nested_arr#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) nested_arr#0)
-        let tmp%0#0: Encoded((len+uint64[])[]) = encode<(len+uint64[])[]>(arr#0)
+        let tmp%0#0: Encoded((len+uint64[])[]) = bytes_encode<(len+uint64[])[]>(arr#0)
         let as_Encoded(len+(len+uint64[])[])%0#0: Encoded(len+(len+uint64[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%0#0)
         let nested_arr#1: Encoded(len+(len+uint64[])[]) = as_Encoded(len+(len+uint64[])[])%0#0
         itxn_begin
@@ -250,12 +250,12 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         goto block@2
     block@2: // next_txn_L22
         itxn_submit
-        let encoded_array%1#0: Encoded(len+((len+uint64[]),uint64)[]) = encode<(len+((len+uint64[]),uint64)[])>()
+        let encoded_array%1#0: Encoded(len+((len+uint64[]),uint64)[]) = bytes_encode<(len+((len+uint64[]),uint64)[])>()
         let indirect_nested_arr#0: Encoded(len+((len+uint64[]),uint64)[]) = encoded_array%1#0
         let array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
         let extract_uint16%1#0: uint64 = (extract_uint16 indirect_nested_arr#0 0u)
         let extract_to_end%1#0: bytes = ((extract 2 0) indirect_nested_arr#0)
-        let tmp%1#0: Encoded(((len+uint64[]),uint64)[]) = encode<((len+uint64[]),uint64)[]>(arr#0, array_length%0#0)
+        let tmp%1#0: Encoded(((len+uint64[]),uint64)[]) = bytes_encode<((len+uint64[]),uint64)[]>(arr#0, array_length%0#0)
         let as_Encoded(len+((len+uint64[]),uint64)[])%0#0: Encoded(len+((len+uint64[]),uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, tmp%1#0)
         itxn_begin
         let inner_txn_params%2#0: itxn_field_set = itxn_field_set(2)

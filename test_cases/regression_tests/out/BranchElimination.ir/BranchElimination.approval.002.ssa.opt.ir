@@ -12,7 +12,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let tmp%7#0: uint64 = test_cases.regression_tests.leftover_branch.BranchElimination.umm()
-        let tmp%8#0: Encoded(uint64) = encode<uint64>(tmp%7#0)
+        let tmp%8#0: Encoded(uint64) = bytes_encode<uint64>(tmp%7#0)
         let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
         (log tmp%9#0)
         let test_cases.regression_tests.leftover_branch.BranchElimination.__puya_arc4_router__%0#0: bool = 1u
@@ -153,7 +153,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let continue_looping%0#0: bool = (< i#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L39
-        let inner_list#0: Encoded(len+uint64[]) = agg_read_index(nested_list#0, i#1)
+        let inner_list#0: Encoded(len+uint64[]) = extract_value(nested_list#0, i#1)
         let array_length%1#0: uint64 = (extract_uint16 inner_list#0 0u)
         let last_inner_list_index#0: uint64 = (- array_length%1#0 1u)
         let j#0: uint64 = 0u
@@ -165,7 +165,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let continue_looping%1#0: bool = (< j#1 array_length%1#0)
         goto continue_looping%1#0 ? block@4 : block@12
     block@4: // for_body_L42
-        let value#0: Encoded(uint64) = agg_read_index(nested_list#0, i#1, j#1)
+        let value#0: Encoded(uint64) = extract_value(nested_list#0, i#1, j#1)
         let tmp%1#0: bool = (b>= value#0 threshold#0)
         goto tmp%1#0 ? block@5 : block@10
     block@5: // if_body_L44
@@ -174,7 +174,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
     block@6: // if_body_L46
         let total#2: uint64 = (+ total#1 1u)
         let tmp%4#0: uint64 = (+ j#1 1u)
-        let next_value#0: Encoded(uint64) = agg_read_index(nested_list#0, i#1, tmp%4#0)
+        let next_value#0: Encoded(uint64) = extract_value(nested_list#0, i#1, tmp%4#0)
         let tmp%5#0: bool = (b< value#0 next_value#0)
         goto tmp%5#0 ? block@7 : block@8
     block@7: // if_body_L49
