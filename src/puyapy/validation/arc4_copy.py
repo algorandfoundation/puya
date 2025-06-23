@@ -118,6 +118,20 @@ class ARC4CopyValidator(AWSTTraverser):
         for item in _expand_tuple_items(expr.value):
             _check_for_arc4_copy(item, "being passed to a constructor")
 
+    def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> None:
+        expr.left.accept(self)
+        if not expr.wtype.element_type.immutable:
+            for item in _expand_tuple_items(expr.right):
+                _check_for_arc4_copy(item, "being concat")
+
+    def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> None:
+        expr.base.accept(self)
+        array_wtype = expr.base.wtype
+        assert isinstance(array_wtype, wtypes.ARC4Array | wtypes.ReferenceArray)
+        if not array_wtype.element_type.immutable:
+            for item in _expand_tuple_items(expr.other):
+                _check_for_arc4_copy(item, "being extended")
+
 
 def _is_referable_expression(expr: awst_nodes.Expression) -> bool:
     """

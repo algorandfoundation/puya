@@ -811,3 +811,18 @@ def caller() -> None:
         itxn.Payment(receiver=Txn.sender).submit(),
         app_id=1234,
     )
+
+## case: mutable_elements_append_concat_extend
+from algopy import *
+
+class Foo(Struct):
+    a: UInt64
+    b: UInt64
+
+@subroutine
+def caller() -> None:
+    arr = Array[Foo]()
+    foo = Foo(Txn.num_app_args, Txn.num_app_args)
+    arr.append(foo) ## E: mutable reference to ARC-4-encoded value must be copied using .copy() when being extended
+    arr.extend(arr) ## E: mutable reference to ARC-4-encoded value must be copied using .copy() when being extended
+    arr2 = arr + arr ## E: mutable reference to ARC-4-encoded value must be copied using .copy() when being concat
