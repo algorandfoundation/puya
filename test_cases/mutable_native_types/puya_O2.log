@@ -2227,18 +2227,18 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: replacing redundant encode-of-decode with: tuple_item%0#1
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/contract.py:131:9 debug: replacing agg_read_index(array_item%0#0, 2) with agg_read_index(maybe_value%1#3, index#0, 2)
+mutable_native_types/contract.py:131:9 debug: replacing extract_value(array_item%0#0, 2) with extract_value(maybe_value%1#3, index#0, 2)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/contract.py:138:9 debug: combined BoxRead `storage_value%0#1 = box_read(box_prefixed_key%0#2)`
-and AggregateWriteIndex `updated_tuple%0#1 = agg_write_index(storage_value%0#1, 0, tuple_item%0#4)`
+and ReplaceValue `updated_tuple%0#1 = replace_value(storage_value%0#1, 0, tuple_item%0#4)`
 and BoxWrite `box_write(box_prefixed_key%0#2, updated_tuple%0#1)`
 into (box_replace box_prefixed_key%0#2 box%offset%0#1 tuple_item%0#4)
 mutable_native_types/contract.py:166:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
-and AggregateWriteIndex `updated_tuple%3#0 = agg_write_index(storage_value%0#0, 0, a#0)`
+and ReplaceValue `updated_tuple%3#0 = replace_value(storage_value%0#0, 0, a#0)`
 and BoxWrite `box_write("box", updated_tuple%3#0)`
 into (box_replace "box" box%offset%1#1 a#0)
 mutable_native_types/contract.py:167:9 debug: combined BoxRead `storage_value%1#0 = box_read(box_prefixed_key%0#0)`
-and AggregateWriteIndex `updated_tuple%4#0 = agg_write_index(storage_value%1#0, 0, a#0)`
+and ReplaceValue `updated_tuple%4#0 = replace_value(storage_value%1#0, 0, a#0)`
 and BoxWrite `box_write(box_prefixed_key%0#0, updated_tuple%4#0)`
 into (box_replace box_prefixed_key%0#0 box%offset%2#1 a#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -2342,7 +2342,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/contract.py:131:9 debug: replacing agg_read_index(array_item%0#0, 2) with agg_read_index(maybe_value%1#0, index#0, 2)
+mutable_native_types/contract.py:131:9 debug: replacing extract_value(array_item%0#0, 2) with extract_value(maybe_value%1#0, index#0, 2)
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -2365,7 +2365,7 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/contract.py:138:9 debug: combined BoxRead `storage_value%0#0 = box_read(box_prefixed_key%0#0)`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%0#0, 0, tuple_item%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%0#0, 0, tuple_item%0#0)`
 and BoxWrite `box_write(box_prefixed_key%0#0, updated_tuple%0#0)`
 into (box_replace box_prefixed_key%0#0 box%offset%0#1 tuple_item%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -2441,11 +2441,11 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/contract.py:166:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
-and AggregateWriteIndex `updated_tuple%3#0 = agg_write_index(storage_value%0#0, 0, a#0)`
+and ReplaceValue `updated_tuple%3#0 = replace_value(storage_value%0#0, 0, a#0)`
 and BoxWrite `box_write("box", updated_tuple%3#0)`
 into (box_replace "box" box%offset%0#1 a#0)
 mutable_native_types/contract.py:167:9 debug: combined BoxRead `storage_value%1#0 = box_read(box_prefixed_key%0#0)`
-and AggregateWriteIndex `updated_tuple%4#0 = agg_write_index(storage_value%1#0, 0, a#0)`
+and ReplaceValue `updated_tuple%4#0 = replace_value(storage_value%1#0, 0, a#0)`
 and BoxWrite `box_write(box_prefixed_key%0#0, updated_tuple%4#0)`
 into (box_replace box_prefixed_key%0#0 box%offset%1#1 a#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -2585,13 +2585,13 @@ debug: Removing unused variable updated_tuple%3#0
 debug: Removing unused variable updated_tuple%4#0
 debug: Removing unused variable tmp%41#0
 debug: Removing unused variable tmp%47#0
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
 debug: Removing unused variable tmp%55#0
 debug: Removing unused variable storage_value%0#1
 debug: Removing unused variable storage_value%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 0u) to 0u
@@ -2669,13 +2669,13 @@ debug: Removing unused variable updated_tuple%3#0
 debug: Removing unused variable updated_tuple%4#0
 debug: Removing unused variable tmp%41#0
 debug: Removing unused variable tmp%47#0
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
 debug: Removing unused variable tmp%55#0
 debug: Removing unused variable storage_value%0#1
 debug: Removing unused variable storage_value%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 0u) to 0u
@@ -2893,13 +2893,13 @@ debug: Removing unused variable updated_tuple%3#0
 debug: Removing unused variable updated_tuple%4#0
 debug: Removing unused variable tmp%41#0
 debug: Removing unused variable tmp%47#0
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
 debug: Removing unused variable tmp%55#0
 debug: Removing unused variable storage_value%0#1
 debug: Removing unused variable storage_value%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 0u) to 0u
@@ -2932,8 +2932,8 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
 debug: Removing unused variable box%offset%1#1
 debug: Removing unused variable box%offset%2#1
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -3095,7 +3095,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode<(uint64,uint64,)>(tuple_item%0#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%0#1: uint64, values%1#1: uint64) = decode_bytes<(uint64,uint64,)>(tuple_item%0#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -5043,92 +5043,92 @@ debug: replacing redundant encode-of-decode with: tuple_item%0#6
 debug: replacing redundant encode-of-decode with: reinterpret_Encoded(uint64)%1#0
 debug: replacing redundant encode-of-decode with: reinterpret_Encoded(uint64)%2#0
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case3_with_mutable_struct.py:59:16 debug: replacing agg_read_index(tuple_item%1#3, index#0) with agg_read_index(storage_value%1#5, 1, index#0)
-mutable_native_types/case3_with_mutable_struct.py:65:19 debug: replacing agg_read_index(tuple_item%1#2, i#16) with agg_read_index(storage_value%1#4, 1, i#16)
-mutable_native_types/case3_with_mutable_struct.py:66:22 debug: replacing agg_read_index(tup#0, 0) with agg_read_index(storage_value%1#4, 1, i#16, 0)
-mutable_native_types/case3_with_mutable_struct.py:67:22 debug: replacing agg_read_index(tup#0, 1) with agg_read_index(storage_value%1#4, 1, i#16, 1)
-mutable_native_types/case3_with_mutable_struct.py:99:17 debug: replacing agg_read_index(items#1, start#0) with agg_read_index(storage_value%1#1, 1, start#0)
-mutable_native_types/case3_with_mutable_struct.py:100:17 debug: replacing agg_read_index(items#1, tmp%2#1) with agg_read_index(storage_value%1#1, 1, tmp%2#1)
-mutable_native_types/case3_with_mutable_struct.py:101:17 debug: replacing agg_read_index(items#1, tmp%3#1) with agg_read_index(storage_value%1#1, 1, tmp%3#1)
-mutable_native_types/case3_with_mutable_struct.py:111:27 debug: replacing agg_read_index(items#0, i#1) with agg_read_index(storage_value%0#0, 1, i#1)
+mutable_native_types/case3_with_mutable_struct.py:59:16 debug: replacing extract_value(tuple_item%1#3, index#0) with extract_value(storage_value%1#5, 1, index#0)
+mutable_native_types/case3_with_mutable_struct.py:65:19 debug: replacing extract_value(tuple_item%1#2, i#16) with extract_value(storage_value%1#4, 1, i#16)
+mutable_native_types/case3_with_mutable_struct.py:66:22 debug: replacing extract_value(tup#0, 0) with extract_value(storage_value%1#4, 1, i#16, 0)
+mutable_native_types/case3_with_mutable_struct.py:67:22 debug: replacing extract_value(tup#0, 1) with extract_value(storage_value%1#4, 1, i#16, 1)
+mutable_native_types/case3_with_mutable_struct.py:99:17 debug: replacing extract_value(items#1, start#0) with extract_value(storage_value%1#1, 1, start#0)
+mutable_native_types/case3_with_mutable_struct.py:100:17 debug: replacing extract_value(items#1, tmp%2#1) with extract_value(storage_value%1#1, 1, tmp%2#1)
+mutable_native_types/case3_with_mutable_struct.py:101:17 debug: replacing extract_value(items#1, tmp%3#1) with extract_value(storage_value%1#1, 1, tmp%3#1)
+mutable_native_types/case3_with_mutable_struct.py:111:27 debug: replacing extract_value(items#0, i#1) with extract_value(storage_value%0#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:41:9 debug: combined BoxRead `storage_value%0#7 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#2 = agg_write_index(storage_value%0#7, 2, encoded_value%0#2)`
+and ReplaceValue `updated_tuple%0#2 = replace_value(storage_value%0#7, 2, encoded_value%0#2)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#2)`
 into (box_replace "tup_bag" box%offset%0#1 encoded_value%0#2)
 mutable_native_types/case3_with_mutable_struct.py:42:9 debug: combined BoxRead `storage_value%1#6 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%1#0 = agg_write_index(storage_value%1#6, 3, encoded_value%1#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%1#6, 3, encoded_value%1#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%1#1 encoded_value%1#0)
 mutable_native_types/case3_with_mutable_struct.py:43:9 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%2#0 = agg_write_index(storage_value%2#0, 5, 1u)`
+and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, 1u)`
 and BoxWrite `box_write("tup_bag", updated_tuple%2#0)`
 into (box_replace "tup_bag" box%byte_containing_bit_offset%0#1 box%tmp%0#1)
 mutable_native_types/case3_with_mutable_struct.py:47:16 debug: combined BoxRead `storage_value%0#6 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#6, 0)`
+and ExtractValue `extract_value(storage_value%0#6, 0)`
 into box%box_extract%1#1
 mutable_native_types/case3_with_mutable_struct.py:58:24 debug: combined BoxRead `storage_value%0#5 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#5, 0)`
+and ExtractValue `extract_value(storage_value%0#5, 0)`
 into box%box_extract%2#1
 mutable_native_types/case3_with_mutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#5 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#5, 1)`
+and ExtractValue `extract_value(storage_value%1#5, 1)`
 into box%box_extract%3#1
 mutable_native_types/case3_with_mutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#5 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#5, 1, index#0)`
-into agg_read_index(box%box_extract%4#1, index#0)
+and ExtractValue `extract_value(storage_value%1#5, 1, index#0)`
+into extract_value(box%box_extract%4#1, index#0)
 mutable_native_types/case3_with_mutable_struct.py:64:25 debug: combined BoxRead `storage_value%0#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#4, 0)`
+and ExtractValue `extract_value(storage_value%0#4, 0)`
 into box%box_extract%5#1
 mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1)`
+and ExtractValue `extract_value(storage_value%1#4, 1)`
 into box%box_extract%6#1
 mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1, i#16)`
-into agg_read_index(box%box_extract%7#1, i#16)
+and ExtractValue `extract_value(storage_value%1#4, 1, i#16)`
+into extract_value(box%box_extract%7#1, i#16)
 mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1, i#16, 0)`
-into agg_read_index(box%box_extract%8#1, i#16, 0)
+and ExtractValue `extract_value(storage_value%1#4, 1, i#16, 0)`
+into extract_value(box%box_extract%8#1, i#16, 0)
 mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1, i#16, 1)`
-into agg_read_index(box%box_extract%9#1, i#16, 1)
+and ExtractValue `extract_value(storage_value%1#4, 1, i#16, 1)`
+into extract_value(box%box_extract%9#1, i#16, 1)
 mutable_native_types/case3_with_mutable_struct.py:83:25 debug: combined BoxRead `storage_value%0#3 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#3, 0)`
+and ExtractValue `extract_value(storage_value%0#3, 0)`
 into box%box_extract%10#1
 mutable_native_types/case3_with_mutable_struct.py:84:13 debug: combined BoxRead `storage_value%1#3 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#1 = agg_write_index(storage_value%1#3, 1, i#7, 0, encoded_value%0#1)`
+and ReplaceValue `updated_tuple%0#1 = replace_value(storage_value%1#3, 1, i#7, 0, encoded_value%0#1)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#1)`
 into (box_replace "tup_bag" box%offset%14#1 encoded_value%0#1)
 mutable_native_types/case3_with_mutable_struct.py:89:25 debug: combined BoxRead `storage_value%0#2 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#2, 0)`
+and ExtractValue `extract_value(storage_value%0#2, 0)`
 into box%box_extract%11#1
 mutable_native_types/case3_with_mutable_struct.py:90:13 debug: combined BoxRead `storage_value%1#2 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%1#2, 1, i#4, 1, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#2, 1, i#4, 1, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%18#1 encoded_value%0#0)
 mutable_native_types/case3_with_mutable_struct.py:94:16 debug: combined BoxRead `storage_value%0#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#1, 0)`
+and ExtractValue `extract_value(storage_value%0#1, 0)`
 into box%box_extract%12#1
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1)`
+and ExtractValue `extract_value(storage_value%1#1, 1)`
 into box%box_extract%13#1
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1, start#0)`
-into agg_read_index(box%box_extract%14#1, start#0)
+and ExtractValue `extract_value(storage_value%1#1, 1, start#0)`
+into extract_value(box%box_extract%14#1, start#0)
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1, tmp%2#1)`
-into agg_read_index(box%box_extract%15#1, tmp%2#1)
+and ExtractValue `extract_value(storage_value%1#1, 1, tmp%2#1)`
+into extract_value(box%box_extract%15#1, tmp%2#1)
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1, tmp%3#1)`
-into agg_read_index(box%box_extract%16#1, tmp%3#1)
+and ExtractValue `extract_value(storage_value%1#1, 1, tmp%3#1)`
+into extract_value(box%box_extract%16#1, tmp%3#1)
 mutable_native_types/case3_with_mutable_struct.py:108:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1)`
+and ExtractValue `extract_value(storage_value%0#0, 1)`
 into box%box_extract%17#1
 mutable_native_types/case3_with_mutable_struct.py:110:25 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 0)`
+and ExtractValue `extract_value(storage_value%1#0, 0)`
 into box%box_extract%18#1
 mutable_native_types/case3_with_mutable_struct.py:108:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1, i#1)`
-into agg_read_index(box%box_extract%19#1, i#1)
+and ExtractValue `extract_value(storage_value%0#0, 1, i#1)`
+into extract_value(box%box_extract%19#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case3_with_mutable_struct.py:59:16 debug: replacing box read with cached value for key: "tup_bag"
@@ -5173,15 +5173,15 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:41:9 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%0#0, 2, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%0#0, 2, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%0#1 encoded_value%0#0)
 mutable_native_types/case3_with_mutable_struct.py:42:9 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%1#0 = agg_write_index(storage_value%1#0, 3, encoded_value%1#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%1#0, 3, encoded_value%1#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%1#1 encoded_value%1#0)
 mutable_native_types/case3_with_mutable_struct.py:43:9 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%2#0 = agg_write_index(storage_value%2#0, 5, 1u)`
+and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, 1u)`
 and BoxWrite `box_write("tup_bag", updated_tuple%2#0)`
 into (box_replace "tup_bag" box%byte_containing_bit_offset%0#1 box%tmp%0#1)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -5205,7 +5205,7 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:47:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -5232,20 +5232,20 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:52:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:53:34 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%2#0, 0)`
+and ExtractValue `extract_value(storage_value%2#0, 0)`
 into box%box_extract%1#1
 mutable_native_types/case3_with_mutable_struct.py:53:9 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%1#0, 1, values%1#0, tup#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#0, 1, values%1#0, tup#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%3#1 tup#0)
 mutable_native_types/case3_with_mutable_struct.py:54:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%3#0, 0)`
+and ExtractValue `extract_value(storage_value%3#0, 0)`
 into box%box_extract%2#1
 mutable_native_types/case3_with_mutable_struct.py:54:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%1#0 = agg_write_index(storage_value%3#0, 0, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%3#0, 0, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%5#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -5269,17 +5269,17 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case3_with_mutable_struct.py:59:16 debug: replacing agg_read_index(tuple_item%1#0, index#0) with agg_read_index(storage_value%1#0, 1, index#0)
+mutable_native_types/case3_with_mutable_struct.py:59:16 debug: replacing extract_value(tuple_item%1#0, index#0) with extract_value(storage_value%1#0, 1, index#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:58:24 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case3_with_mutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, index#0)`
-into agg_read_index(box%box_extract%2#1, index#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, index#0)`
+into extract_value(box%box_extract%2#1, index#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case3_with_mutable_struct.py:59:16 debug: replacing box read with cached value for key: "tup_bag"
@@ -5309,25 +5309,25 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case3_with_mutable_struct.py:65:19 debug: replacing agg_read_index(tuple_item%1#0, i#1) with agg_read_index(storage_value%1#0, 1, i#1)
-mutable_native_types/case3_with_mutable_struct.py:66:22 debug: replacing agg_read_index(tup#0, 0) with agg_read_index(storage_value%1#0, 1, i#1, 0)
-mutable_native_types/case3_with_mutable_struct.py:67:22 debug: replacing agg_read_index(tup#0, 1) with agg_read_index(storage_value%1#0, 1, i#1, 1)
+mutable_native_types/case3_with_mutable_struct.py:65:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
+mutable_native_types/case3_with_mutable_struct.py:66:22 debug: replacing extract_value(tup#0, 0) with extract_value(storage_value%1#0, 1, i#1, 0)
+mutable_native_types/case3_with_mutable_struct.py:67:22 debug: replacing extract_value(tup#0, 1) with extract_value(storage_value%1#0, 1, i#1, 1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:64:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1, 0)`
-into agg_read_index(box%box_extract%3#1, i#1, 0)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 0)`
+into extract_value(box%box_extract%3#1, i#1, 0)
 mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1, 1)`
-into agg_read_index(box%box_extract%4#1, i#1, 1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 1)`
+into extract_value(box%box_extract%4#1, i#1, 1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_many_tups
@@ -5397,10 +5397,10 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:83:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:84:13 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%1#0, 1, i#1, 0, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#0, 1, i#1, 0, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%3#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -5426,10 +5426,10 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:89:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:90:13 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%1#0, 1, i#1, 1, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#0, 1, i#1, 1, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%3#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -5454,25 +5454,25 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case3_with_mutable_struct.py:99:17 debug: replacing agg_read_index(items#0, start#0) with agg_read_index(storage_value%1#0, 1, start#0)
-mutable_native_types/case3_with_mutable_struct.py:100:17 debug: replacing agg_read_index(items#0, tmp%2#0) with agg_read_index(storage_value%1#0, 1, tmp%2#0)
-mutable_native_types/case3_with_mutable_struct.py:101:17 debug: replacing agg_read_index(items#0, tmp%3#0) with agg_read_index(storage_value%1#0, 1, tmp%3#0)
+mutable_native_types/case3_with_mutable_struct.py:99:17 debug: replacing extract_value(items#0, start#0) with extract_value(storage_value%1#0, 1, start#0)
+mutable_native_types/case3_with_mutable_struct.py:100:17 debug: replacing extract_value(items#0, tmp%2#0) with extract_value(storage_value%1#0, 1, tmp%2#0)
+mutable_native_types/case3_with_mutable_struct.py:101:17 debug: replacing extract_value(items#0, tmp%3#0) with extract_value(storage_value%1#0, 1, tmp%3#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:94:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, start#0)`
-into agg_read_index(box%box_extract%2#1, start#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, start#0)`
+into extract_value(box%box_extract%2#1, start#0)
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, tmp%2#0)`
-into agg_read_index(box%box_extract%3#1, tmp%2#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, tmp%2#0)`
+into extract_value(box%box_extract%3#1, tmp%2#0)
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, tmp%3#0)`
-into agg_read_index(box%box_extract%4#1, tmp%3#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, tmp%3#0)`
+into extract_value(box%box_extract%4#1, tmp%3#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: replacing box read with cached value for key: "tup_bag"
@@ -5503,17 +5503,17 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case3_with_mutable_struct.py:111:27 debug: replacing agg_read_index(items#0, i#1) with agg_read_index(storage_value%0#0, 1, i#1)
+mutable_native_types/case3_with_mutable_struct.py:111:27 debug: replacing extract_value(items#0, i#1) with extract_value(storage_value%0#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:108:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1)`
+and ExtractValue `extract_value(storage_value%0#0, 1)`
 into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:110:25 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 0)`
+and ExtractValue `extract_value(storage_value%1#0, 0)`
 into box%box_extract%1#1
 mutable_native_types/case3_with_mutable_struct.py:108:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%0#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case3_with_mutable_struct.py:110:25 debug: replacing box read with cached value for key: "tup_bag"
@@ -5536,13 +5536,13 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:116:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 5)`
-into agg_read_index(box%box_extract%0#1, box%element_bit_offset%0#1)
+and ExtractValue `extract_value(storage_value%0#0, 5)`
+into extract_value(box%box_extract%0#1, box%element_bit_offset%0#1)
 mutable_native_types/case3_with_mutable_struct.py:117:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 2)`
+and ExtractValue `extract_value(storage_value%1#0, 2)`
 into box%box_extract%1#1
 mutable_native_types/case3_with_mutable_struct.py:119:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%2#0, 3)`
+and ExtractValue `extract_value(storage_value%2#0, 3)`
 into box%box_extract%2#1
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -5616,7 +5616,7 @@ debug: Removing unused variable updated_tuple%1#0
 debug: Removing unused variable updated_tuple%2#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable storage_value%0#6
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable tmp%17#0
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable tmp%21#0
@@ -5632,11 +5632,11 @@ debug: Not removing unused assignment since source is not marked as pure: let ad
 debug: Removing unused variable tmp%39#0
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
 debug: Removing unused variable tmp%43#0
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
 debug: Removing unused variable storage_value%0#3
 debug: Removing unused variable updated_tuple%0#1
 debug: Removing unused variable tmp%48#0
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Removing unused variable storage_value%0#2
 debug: Removing unused variable updated_tuple%0#0
 debug: Removing unused variable tmp%53#0
@@ -5648,32 +5648,32 @@ debug: Removing unused variable items#0
 debug: Removing unused variable storage_value%0#7
 debug: Removing unused variable storage_value%1#6
 debug: Removing unused variable storage_value%2#0
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable box%offset%4#1
 debug: Removing unused variable box%offset%7#1
 debug: Removing unused variable box%box_extract%7#1
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
 debug: Removing unused variable storage_value%1#3
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Removing unused variable storage_value%1#2
 debug: Removing unused variable box%offset%20#1
 debug: Removing unused variable box%offset%24#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable box%offset%8#1
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 136u) to 136u
 debug: Simplified (+ 0u 168u) to 168u
@@ -5777,7 +5777,7 @@ debug: Removing unused variable updated_tuple%1#0
 debug: Removing unused variable updated_tuple%2#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable storage_value%0#6
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable tmp%17#0
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable tmp%21#0
@@ -5793,11 +5793,11 @@ debug: Not removing unused assignment since source is not marked as pure: let ad
 debug: Removing unused variable tmp%39#0
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
 debug: Removing unused variable tmp%43#0
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
 debug: Removing unused variable storage_value%0#3
 debug: Removing unused variable updated_tuple%0#1
 debug: Removing unused variable tmp%48#0
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Removing unused variable storage_value%0#2
 debug: Removing unused variable updated_tuple%0#0
 debug: Removing unused variable tmp%53#0
@@ -5809,32 +5809,32 @@ debug: Removing unused variable items#0
 debug: Removing unused variable storage_value%0#7
 debug: Removing unused variable storage_value%1#6
 debug: Removing unused variable storage_value%2#0
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable box%offset%4#1
 debug: Removing unused variable box%offset%7#1
 debug: Removing unused variable box%box_extract%7#1
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
 debug: Removing unused variable storage_value%1#3
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Removing unused variable storage_value%1#2
 debug: Removing unused variable box%offset%20#1
 debug: Removing unused variable box%offset%24#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable box%offset%8#1
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 136u) to 136u
 debug: Simplified (+ 0u 168u) to 168u
@@ -6039,7 +6039,7 @@ debug: Removing unused variable updated_tuple%1#0
 debug: Removing unused variable updated_tuple%2#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable storage_value%0#6
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable tmp%17#0
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable tmp%21#0
@@ -6055,11 +6055,11 @@ debug: Not removing unused assignment since source is not marked as pure: let ad
 debug: Removing unused variable tmp%39#0
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
 debug: Removing unused variable tmp%43#0
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
 debug: Removing unused variable storage_value%0#3
 debug: Removing unused variable updated_tuple%0#1
 debug: Removing unused variable tmp%48#0
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Removing unused variable storage_value%0#2
 debug: Removing unused variable updated_tuple%0#0
 debug: Removing unused variable tmp%53#0
@@ -6071,32 +6071,32 @@ debug: Removing unused variable items#0
 debug: Removing unused variable storage_value%0#7
 debug: Removing unused variable storage_value%1#6
 debug: Removing unused variable storage_value%2#0
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable box%offset%4#1
 debug: Removing unused variable box%offset%7#1
 debug: Removing unused variable box%box_extract%7#1
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
 debug: Removing unused variable storage_value%1#3
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Removing unused variable storage_value%1#2
 debug: Removing unused variable box%offset%20#1
 debug: Removing unused variable box%offset%24#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable box%offset%8#1
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 136u) to 136u
 debug: Simplified (+ 0u 168u) to 168u
@@ -6221,7 +6221,7 @@ debug: Removing unused variable box%element_byte_offset%0#1
 debug: Removing unused variable box%byte_containing_bit_offset%0#1
 debug: Removing unused variable box%element_bit_offset%0#1
 debug: Removing unused variable box%offset%2#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Removing unused variable box%offset%3#1
 debug: Removing unused variable box%offset%5#1
@@ -6230,10 +6230,10 @@ debug: Removing unused variable box%offset%9#1
 debug: Removing unused variable box%offset%10#1
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
 debug: Removing unused variable box%offset%11#1
 debug: Removing unused variable box%offset%12#1
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Removing unused variable box%offset%15#1
 debug: Removing unused variable box%offset%16#1
 debug: Removing unused variable box%offset%19#1
@@ -6242,12 +6242,12 @@ debug: Removing unused variable box%offset%22#1
 debug: Removing unused variable box%offset%23#1
 debug: Removing unused variable box%offset%25#1
 debug: Removing unused variable box%offset%26#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -6419,12 +6419,12 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(reinterpret_Encoded(uint64,uint64)%0#0)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#2: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#3)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#1: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#2)
-debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%1#0)
-debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode<uint64>(reinterpret_Encoded(uint64)%2#0)
+debug: Not removing unused assignment since source is not marked as pure: let a#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+debug: Not removing unused assignment since source is not marked as pure: let b#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -7959,114 +7959,114 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: replacing redundant encode-of-decode with: tuple_item%0#6
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:59:16 debug: replacing agg_read_index(tuple_item%1#5, index#0) with agg_read_index(storage_value%1#5, 1, index#0)
-mutable_native_types/case2_with_immutable_struct.py:65:19 debug: replacing agg_read_index(tuple_item%1#4, i#10) with agg_read_index(storage_value%1#4, 1, i#10)
-mutable_native_types/case2_with_immutable_struct.py:66:22 debug: replacing agg_read_index(tup#4, 0) with agg_read_index(storage_value%1#4, 1, i#10, 0)
-mutable_native_types/case2_with_immutable_struct.py:67:22 debug: replacing agg_read_index(tup#4, 1) with agg_read_index(storage_value%1#4, 1, i#10, 1)
-mutable_native_types/case2_with_immutable_struct.py:84:19 debug: replacing agg_read_index(tuple_item%1#3, i#7) with agg_read_index(storage_value%1#3, 1, i#7)
-mutable_native_types/case2_with_immutable_struct.py:85:43 debug: replacing agg_read_index(tup#1, 1) with agg_read_index(storage_value%1#3, 1, i#7, 1)
-mutable_native_types/case2_with_immutable_struct.py:91:19 debug: replacing agg_read_index(tuple_item%1#2, i#4) with agg_read_index(storage_value%1#2, 1, i#4)
-mutable_native_types/case2_with_immutable_struct.py:92:43 debug: replacing agg_read_index(tup#0, 0) with agg_read_index(storage_value%1#2, 1, i#4, 0)
-mutable_native_types/case2_with_immutable_struct.py:101:17 debug: replacing agg_read_index(items#1, start#0) with agg_read_index(storage_value%1#1, 1, start#0)
-mutable_native_types/case2_with_immutable_struct.py:102:17 debug: replacing agg_read_index(items#1, tmp%2#1) with agg_read_index(storage_value%1#1, 1, tmp%2#1)
-mutable_native_types/case2_with_immutable_struct.py:103:17 debug: replacing agg_read_index(items#1, tmp%3#1) with agg_read_index(storage_value%1#1, 1, tmp%3#1)
-mutable_native_types/case2_with_immutable_struct.py:113:27 debug: replacing agg_read_index(items#0, i#1) with agg_read_index(storage_value%0#0, 1, i#1)
+mutable_native_types/case2_with_immutable_struct.py:59:16 debug: replacing extract_value(tuple_item%1#5, index#0) with extract_value(storage_value%1#5, 1, index#0)
+mutable_native_types/case2_with_immutable_struct.py:65:19 debug: replacing extract_value(tuple_item%1#4, i#10) with extract_value(storage_value%1#4, 1, i#10)
+mutable_native_types/case2_with_immutable_struct.py:66:22 debug: replacing extract_value(tup#4, 0) with extract_value(storage_value%1#4, 1, i#10, 0)
+mutable_native_types/case2_with_immutable_struct.py:67:22 debug: replacing extract_value(tup#4, 1) with extract_value(storage_value%1#4, 1, i#10, 1)
+mutable_native_types/case2_with_immutable_struct.py:84:19 debug: replacing extract_value(tuple_item%1#3, i#7) with extract_value(storage_value%1#3, 1, i#7)
+mutable_native_types/case2_with_immutable_struct.py:85:43 debug: replacing extract_value(tup#1, 1) with extract_value(storage_value%1#3, 1, i#7, 1)
+mutable_native_types/case2_with_immutable_struct.py:91:19 debug: replacing extract_value(tuple_item%1#2, i#4) with extract_value(storage_value%1#2, 1, i#4)
+mutable_native_types/case2_with_immutable_struct.py:92:43 debug: replacing extract_value(tup#0, 0) with extract_value(storage_value%1#2, 1, i#4, 0)
+mutable_native_types/case2_with_immutable_struct.py:101:17 debug: replacing extract_value(items#1, start#0) with extract_value(storage_value%1#1, 1, start#0)
+mutable_native_types/case2_with_immutable_struct.py:102:17 debug: replacing extract_value(items#1, tmp%2#1) with extract_value(storage_value%1#1, 1, tmp%2#1)
+mutable_native_types/case2_with_immutable_struct.py:103:17 debug: replacing extract_value(items#1, tmp%3#1) with extract_value(storage_value%1#1, 1, tmp%3#1)
+mutable_native_types/case2_with_immutable_struct.py:113:27 debug: replacing extract_value(items#0, i#1) with extract_value(storage_value%0#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:41:9 debug: combined BoxRead `storage_value%0#7 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#2 = agg_write_index(storage_value%0#7, 2, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#2 = replace_value(storage_value%0#7, 2, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#2)`
 into (box_replace "tup_bag" box%offset%0#1 encoded_value%0#0)
 mutable_native_types/case2_with_immutable_struct.py:42:9 debug: combined BoxRead `storage_value%1#6 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%1#0 = agg_write_index(storage_value%1#6, 3, encoded_value%1#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%1#6, 3, encoded_value%1#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%1#1 encoded_value%1#0)
 mutable_native_types/case2_with_immutable_struct.py:43:9 debug: combined BoxRead `storage_value%2#2 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%2#0 = agg_write_index(storage_value%2#2, 5, 1u)`
+and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#2, 5, 1u)`
 and BoxWrite `box_write("tup_bag", updated_tuple%2#0)`
 into (box_replace "tup_bag" box%byte_containing_bit_offset%0#1 box%tmp%0#1)
 mutable_native_types/case2_with_immutable_struct.py:47:16 debug: combined BoxRead `storage_value%0#6 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#6, 0)`
+and ExtractValue `extract_value(storage_value%0#6, 0)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:58:24 debug: combined BoxRead `storage_value%0#5 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#5, 0)`
+and ExtractValue `extract_value(storage_value%0#5, 0)`
 into box%box_extract%2#1
 mutable_native_types/case2_with_immutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#5 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#5, 1)`
+and ExtractValue `extract_value(storage_value%1#5, 1)`
 into box%box_extract%3#1
 mutable_native_types/case2_with_immutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#5 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#5, 1, index#0)`
-into agg_read_index(box%box_extract%4#1, index#0)
+and ExtractValue `extract_value(storage_value%1#5, 1, index#0)`
+into extract_value(box%box_extract%4#1, index#0)
 mutable_native_types/case2_with_immutable_struct.py:64:25 debug: combined BoxRead `storage_value%0#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#4, 0)`
+and ExtractValue `extract_value(storage_value%0#4, 0)`
 into box%box_extract%5#1
 mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1)`
+and ExtractValue `extract_value(storage_value%1#4, 1)`
 into box%box_extract%6#1
 mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1, i#10)`
-into agg_read_index(box%box_extract%7#1, i#10)
+and ExtractValue `extract_value(storage_value%1#4, 1, i#10)`
+into extract_value(box%box_extract%7#1, i#10)
 mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1, i#10, 0)`
-into agg_read_index(box%box_extract%8#1, i#10, 0)
+and ExtractValue `extract_value(storage_value%1#4, 1, i#10, 0)`
+into extract_value(box%box_extract%8#1, i#10, 0)
 mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1, i#10, 1)`
-into agg_read_index(box%box_extract%9#1, i#10, 1)
+and ExtractValue `extract_value(storage_value%1#4, 1, i#10, 1)`
+into extract_value(box%box_extract%9#1, i#10, 1)
 mutable_native_types/case2_with_immutable_struct.py:83:25 debug: combined BoxRead `storage_value%0#3 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#3, 0)`
+and ExtractValue `extract_value(storage_value%0#3, 0)`
 into box%box_extract%10#1
 mutable_native_types/case2_with_immutable_struct.py:84:19 debug: combined BoxRead `storage_value%1#3 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#3, 1)`
+and ExtractValue `extract_value(storage_value%1#3, 1)`
 into box%box_extract%11#1
 mutable_native_types/case2_with_immutable_struct.py:84:19 debug: combined BoxRead `storage_value%1#3 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#3, 1, i#7)`
-into agg_read_index(box%box_extract%12#1, i#7)
+and ExtractValue `extract_value(storage_value%1#3, 1, i#7)`
+into extract_value(box%box_extract%12#1, i#7)
 mutable_native_types/case2_with_immutable_struct.py:84:19 debug: combined BoxRead `storage_value%1#3 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#3, 1, i#7, 1)`
-into agg_read_index(box%box_extract%13#1, i#7, 1)
+and ExtractValue `extract_value(storage_value%1#3, 1, i#7, 1)`
+into extract_value(box%box_extract%13#1, i#7, 1)
 mutable_native_types/case2_with_immutable_struct.py:85:13 debug: combined BoxRead `storage_value%2#1 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#1 = agg_write_index(storage_value%2#1, 1, i#7, tmp%0#4)`
+and ReplaceValue `updated_tuple%0#1 = replace_value(storage_value%2#1, 1, i#7, tmp%0#4)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#1)`
 into (box_replace "tup_bag" box%offset%16#1 tmp%0#4)
 mutable_native_types/case2_with_immutable_struct.py:90:25 debug: combined BoxRead `storage_value%0#2 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#2, 0)`
+and ExtractValue `extract_value(storage_value%0#2, 0)`
 into box%box_extract%14#1
 mutable_native_types/case2_with_immutable_struct.py:91:19 debug: combined BoxRead `storage_value%1#2 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#2, 1)`
+and ExtractValue `extract_value(storage_value%1#2, 1)`
 into box%box_extract%15#1
 mutable_native_types/case2_with_immutable_struct.py:91:19 debug: combined BoxRead `storage_value%1#2 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#2, 1, i#4)`
-into agg_read_index(box%box_extract%16#1, i#4)
+and ExtractValue `extract_value(storage_value%1#2, 1, i#4)`
+into extract_value(box%box_extract%16#1, i#4)
 mutable_native_types/case2_with_immutable_struct.py:91:19 debug: combined BoxRead `storage_value%1#2 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#2, 1, i#4, 0)`
-into agg_read_index(box%box_extract%17#1, i#4, 0)
+and ExtractValue `extract_value(storage_value%1#2, 1, i#4, 0)`
+into extract_value(box%box_extract%17#1, i#4, 0)
 mutable_native_types/case2_with_immutable_struct.py:92:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%2#0, 1, i#4, tmp%0#3)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#4, tmp%0#3)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%22#1 tmp%0#3)
 mutable_native_types/case2_with_immutable_struct.py:96:16 debug: combined BoxRead `storage_value%0#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#1, 0)`
+and ExtractValue `extract_value(storage_value%0#1, 0)`
 into box%box_extract%18#1
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1)`
+and ExtractValue `extract_value(storage_value%1#1, 1)`
 into box%box_extract%19#1
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1, start#0)`
-into agg_read_index(box%box_extract%20#1, start#0)
+and ExtractValue `extract_value(storage_value%1#1, 1, start#0)`
+into extract_value(box%box_extract%20#1, start#0)
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1, tmp%2#1)`
-into agg_read_index(box%box_extract%21#1, tmp%2#1)
+and ExtractValue `extract_value(storage_value%1#1, 1, tmp%2#1)`
+into extract_value(box%box_extract%21#1, tmp%2#1)
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1, tmp%3#1)`
-into agg_read_index(box%box_extract%22#1, tmp%3#1)
+and ExtractValue `extract_value(storage_value%1#1, 1, tmp%3#1)`
+into extract_value(box%box_extract%22#1, tmp%3#1)
 mutable_native_types/case2_with_immutable_struct.py:110:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1)`
+and ExtractValue `extract_value(storage_value%0#0, 1)`
 into box%box_extract%23#1
 mutable_native_types/case2_with_immutable_struct.py:112:25 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 0)`
+and ExtractValue `extract_value(storage_value%1#0, 0)`
 into box%box_extract%24#1
 mutable_native_types/case2_with_immutable_struct.py:110:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1, i#1)`
-into agg_read_index(box%box_extract%25#1, i#1)
+and ExtractValue `extract_value(storage_value%0#0, 1, i#1)`
+into extract_value(box%box_extract%25#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:59:16 debug: replacing box read with cached value for key: "tup_bag"
@@ -8113,15 +8113,15 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:41:9 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%0#0, 2, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%0#0, 2, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%0#1 encoded_value%0#0)
 mutable_native_types/case2_with_immutable_struct.py:42:9 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%1#0 = agg_write_index(storage_value%1#0, 3, encoded_value%1#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%1#0, 3, encoded_value%1#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%1#1 encoded_value%1#0)
 mutable_native_types/case2_with_immutable_struct.py:43:9 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%2#0 = agg_write_index(storage_value%2#0, 5, 1u)`
+and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, 1u)`
 and BoxWrite `box_write("tup_bag", updated_tuple%2#0)`
 into (box_replace "tup_bag" box%byte_containing_bit_offset%0#1 box%tmp%0#1)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -8145,7 +8145,7 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:47:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -8168,20 +8168,20 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:52:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:53:34 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%2#0, 0)`
+and ExtractValue `extract_value(storage_value%2#0, 0)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:53:9 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%1#0, 1, values%1#0, tup#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#0, 1, values%1#0, tup#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%3#1 tup#0)
 mutable_native_types/case2_with_immutable_struct.py:54:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%3#0, 0)`
+and ExtractValue `extract_value(storage_value%3#0, 0)`
 into box%box_extract%2#1
 mutable_native_types/case2_with_immutable_struct.py:54:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%1#0 = agg_write_index(storage_value%3#0, 0, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%3#0, 0, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%5#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -8205,17 +8205,17 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:59:16 debug: replacing agg_read_index(tuple_item%1#0, index#0) with agg_read_index(storage_value%1#0, 1, index#0)
+mutable_native_types/case2_with_immutable_struct.py:59:16 debug: replacing extract_value(tuple_item%1#0, index#0) with extract_value(storage_value%1#0, 1, index#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:58:24 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, index#0)`
-into agg_read_index(box%box_extract%2#1, index#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, index#0)`
+into extract_value(box%box_extract%2#1, index#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:59:16 debug: replacing box read with cached value for key: "tup_bag"
@@ -8245,25 +8245,25 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:65:19 debug: replacing agg_read_index(tuple_item%1#0, i#1) with agg_read_index(storage_value%1#0, 1, i#1)
-mutable_native_types/case2_with_immutable_struct.py:66:22 debug: replacing agg_read_index(tup#0, 0) with agg_read_index(storage_value%1#0, 1, i#1, 0)
-mutable_native_types/case2_with_immutable_struct.py:67:22 debug: replacing agg_read_index(tup#0, 1) with agg_read_index(storage_value%1#0, 1, i#1, 1)
+mutable_native_types/case2_with_immutable_struct.py:65:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
+mutable_native_types/case2_with_immutable_struct.py:66:22 debug: replacing extract_value(tup#0, 0) with extract_value(storage_value%1#0, 1, i#1, 0)
+mutable_native_types/case2_with_immutable_struct.py:67:22 debug: replacing extract_value(tup#0, 1) with extract_value(storage_value%1#0, 1, i#1, 1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:64:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1, 0)`
-into agg_read_index(box%box_extract%3#1, i#1, 0)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 0)`
+into extract_value(box%box_extract%3#1, i#1, 0)
 mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1, 1)`
-into agg_read_index(box%box_extract%4#1, i#1, 1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 1)`
+into extract_value(box%box_extract%4#1, i#1, 1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups
@@ -8341,23 +8341,23 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:84:19 debug: replacing agg_read_index(tuple_item%1#0, i#1) with agg_read_index(storage_value%1#0, 1, i#1)
-mutable_native_types/case2_with_immutable_struct.py:85:43 debug: replacing agg_read_index(tup#0, 1) with agg_read_index(storage_value%1#0, 1, i#1, 1)
+mutable_native_types/case2_with_immutable_struct.py:84:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
+mutable_native_types/case2_with_immutable_struct.py:85:43 debug: replacing extract_value(tup#0, 1) with extract_value(storage_value%1#0, 1, i#1, 1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:83:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:84:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:84:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 mutable_native_types/case2_with_immutable_struct.py:84:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1, 1)`
-into agg_read_index(box%box_extract%3#1, i#1, 1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 1)`
+into extract_value(box%box_extract%3#1, i#1, 1)
 mutable_native_types/case2_with_immutable_struct.py:85:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%2#0, 1, i#1, tmp%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, tmp%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%5#1 tmp%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -8385,23 +8385,23 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:91:19 debug: replacing agg_read_index(tuple_item%1#0, i#1) with agg_read_index(storage_value%1#0, 1, i#1)
-mutable_native_types/case2_with_immutable_struct.py:92:43 debug: replacing agg_read_index(tup#0, 0) with agg_read_index(storage_value%1#0, 1, i#1, 0)
+mutable_native_types/case2_with_immutable_struct.py:91:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
+mutable_native_types/case2_with_immutable_struct.py:92:43 debug: replacing extract_value(tup#0, 0) with extract_value(storage_value%1#0, 1, i#1, 0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:90:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 mutable_native_types/case2_with_immutable_struct.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1, 0)`
-into agg_read_index(box%box_extract%3#1, i#1, 0)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 0)`
+into extract_value(box%box_extract%3#1, i#1, 0)
 mutable_native_types/case2_with_immutable_struct.py:92:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%2#0, 1, i#1, tmp%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, tmp%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%5#1 tmp%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -8427,25 +8427,25 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:101:17 debug: replacing agg_read_index(items#0, start#0) with agg_read_index(storage_value%1#0, 1, start#0)
-mutable_native_types/case2_with_immutable_struct.py:102:17 debug: replacing agg_read_index(items#0, tmp%2#0) with agg_read_index(storage_value%1#0, 1, tmp%2#0)
-mutable_native_types/case2_with_immutable_struct.py:103:17 debug: replacing agg_read_index(items#0, tmp%3#0) with agg_read_index(storage_value%1#0, 1, tmp%3#0)
+mutable_native_types/case2_with_immutable_struct.py:101:17 debug: replacing extract_value(items#0, start#0) with extract_value(storage_value%1#0, 1, start#0)
+mutable_native_types/case2_with_immutable_struct.py:102:17 debug: replacing extract_value(items#0, tmp%2#0) with extract_value(storage_value%1#0, 1, tmp%2#0)
+mutable_native_types/case2_with_immutable_struct.py:103:17 debug: replacing extract_value(items#0, tmp%3#0) with extract_value(storage_value%1#0, 1, tmp%3#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:96:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, start#0)`
-into agg_read_index(box%box_extract%2#1, start#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, start#0)`
+into extract_value(box%box_extract%2#1, start#0)
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, tmp%2#0)`
-into agg_read_index(box%box_extract%3#1, tmp%2#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, tmp%2#0)`
+into extract_value(box%box_extract%3#1, tmp%2#0)
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, tmp%3#0)`
-into agg_read_index(box%box_extract%4#1, tmp%3#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, tmp%3#0)`
+into extract_value(box%box_extract%4#1, tmp%3#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: replacing box read with cached value for key: "tup_bag"
@@ -8476,17 +8476,17 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:113:27 debug: replacing agg_read_index(items#0, i#1) with agg_read_index(storage_value%0#0, 1, i#1)
+mutable_native_types/case2_with_immutable_struct.py:113:27 debug: replacing extract_value(items#0, i#1) with extract_value(storage_value%0#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:110:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1)`
+and ExtractValue `extract_value(storage_value%0#0, 1)`
 into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:112:25 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 0)`
+and ExtractValue `extract_value(storage_value%1#0, 0)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:110:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%0#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:112:25 debug: replacing box read with cached value for key: "tup_bag"
@@ -8509,13 +8509,13 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:118:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 5)`
-into agg_read_index(box%box_extract%0#1, box%element_bit_offset%0#1)
+and ExtractValue `extract_value(storage_value%0#0, 5)`
+into extract_value(box%box_extract%0#1, box%element_bit_offset%0#1)
 mutable_native_types/case2_with_immutable_struct.py:119:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 2)`
+and ExtractValue `extract_value(storage_value%1#0, 2)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:121:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%2#0, 3)`
+and ExtractValue `extract_value(storage_value%2#0, 3)`
 into box%box_extract%2#1
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -8593,7 +8593,7 @@ debug: Removing unused variable updated_tuple%1#0
 debug: Removing unused variable updated_tuple%2#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable storage_value%0#6
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable tmp%17#0
 debug: Removing unused variable tmp%21#0
 debug: Removing unused variable storage_value%0#5
@@ -8624,7 +8624,7 @@ debug: Removing unused variable items#0
 debug: Removing unused variable storage_value%0#7
 debug: Removing unused variable storage_value%1#6
 debug: Removing unused variable storage_value%2#2
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%4#1
 debug: Removing unused variable box%offset%7#1
 debug: Removing unused variable box%box_extract%7#1
@@ -8636,11 +8636,11 @@ debug: Removing unused variable box%offset%18#1
 debug: Removing unused variable box%box_extract%16#1
 debug: Removing unused variable box%offset%24#1
 debug: Removing unused variable box%offset%28#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%8#1
 debug: Removing unused variable box%offset%13#1
 debug: Removing unused variable box%offset%19#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 136u) to 136u
 debug: Simplified (+ 0u 168u) to 168u
@@ -8749,7 +8749,7 @@ debug: Removing unused variable updated_tuple%1#0
 debug: Removing unused variable updated_tuple%2#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable storage_value%0#6
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable tmp%17#0
 debug: Removing unused variable tmp%21#0
 debug: Removing unused variable storage_value%0#5
@@ -8780,7 +8780,7 @@ debug: Removing unused variable items#0
 debug: Removing unused variable storage_value%0#7
 debug: Removing unused variable storage_value%1#6
 debug: Removing unused variable storage_value%2#2
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%4#1
 debug: Removing unused variable box%offset%7#1
 debug: Removing unused variable box%box_extract%7#1
@@ -8792,11 +8792,11 @@ debug: Removing unused variable box%offset%18#1
 debug: Removing unused variable box%box_extract%16#1
 debug: Removing unused variable box%offset%24#1
 debug: Removing unused variable box%offset%28#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%8#1
 debug: Removing unused variable box%offset%13#1
 debug: Removing unused variable box%offset%19#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 136u) to 136u
 debug: Simplified (+ 0u 168u) to 168u
@@ -9006,7 +9006,7 @@ debug: Removing unused variable updated_tuple%1#0
 debug: Removing unused variable updated_tuple%2#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable storage_value%0#6
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable tmp%17#0
 debug: Removing unused variable tmp%21#0
 debug: Removing unused variable storage_value%0#5
@@ -9037,7 +9037,7 @@ debug: Removing unused variable items#0
 debug: Removing unused variable storage_value%0#7
 debug: Removing unused variable storage_value%1#6
 debug: Removing unused variable storage_value%2#2
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%4#1
 debug: Removing unused variable box%offset%7#1
 debug: Removing unused variable box%box_extract%7#1
@@ -9049,11 +9049,11 @@ debug: Removing unused variable box%offset%18#1
 debug: Removing unused variable box%box_extract%16#1
 debug: Removing unused variable box%offset%24#1
 debug: Removing unused variable box%offset%28#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%8#1
 debug: Removing unused variable box%offset%13#1
 debug: Removing unused variable box%offset%19#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 136u) to 136u
 debug: Simplified (+ 0u 168u) to 168u
@@ -9177,7 +9177,7 @@ debug: Removing unused variable box%element_byte_offset%0#1
 debug: Removing unused variable box%byte_containing_bit_offset%0#1
 debug: Removing unused variable box%element_bit_offset%0#1
 debug: Removing unused variable box%offset%2#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%3#1
 debug: Removing unused variable box%offset%5#1
 debug: Removing unused variable box%offset%6#1
@@ -9195,7 +9195,7 @@ debug: Removing unused variable box%offset%26#1
 debug: Removing unused variable box%offset%27#1
 debug: Removing unused variable box%offset%29#1
 debug: Removing unused variable box%offset%30#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9367,7 +9367,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#6: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -10970,98 +10970,98 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: replacing redundant encode-of-decode with: tuple_item%0#6
 debug: replacing redundant encode-of-decode with: array_item%0#7
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:66:16 debug: replacing agg_read_index(tuple_item%1#5, index#0) with agg_read_index(storage_value%1#5, 1, index#0)
-mutable_native_types/case1_with_tups.py:72:19 debug: replacing agg_read_index(tuple_item%1#4, i#10) with agg_read_index(storage_value%1#4, 1, i#10)
-mutable_native_types/case1_with_tups.py:91:19 debug: replacing agg_read_index(tuple_item%1#3, i#7) with agg_read_index(storage_value%1#3, 1, i#7)
-mutable_native_types/case1_with_tups.py:98:19 debug: replacing agg_read_index(tuple_item%1#2, i#4) with agg_read_index(storage_value%1#2, 1, i#4)
-mutable_native_types/case1_with_tups.py:108:17 debug: replacing agg_read_index(items#1, start#0) with agg_read_index(storage_value%1#1, 1, start#0)
-mutable_native_types/case1_with_tups.py:109:17 debug: replacing agg_read_index(items#1, tmp%2#1) with agg_read_index(storage_value%1#1, 1, tmp%2#1)
-mutable_native_types/case1_with_tups.py:110:17 debug: replacing agg_read_index(items#1, tmp%3#1) with agg_read_index(storage_value%1#1, 1, tmp%3#1)
-mutable_native_types/case1_with_tups.py:120:27 debug: replacing agg_read_index(items#0, i#1) with agg_read_index(storage_value%0#0, 1, i#1)
+mutable_native_types/case1_with_tups.py:66:16 debug: replacing extract_value(tuple_item%1#5, index#0) with extract_value(storage_value%1#5, 1, index#0)
+mutable_native_types/case1_with_tups.py:72:19 debug: replacing extract_value(tuple_item%1#4, i#10) with extract_value(storage_value%1#4, 1, i#10)
+mutable_native_types/case1_with_tups.py:91:19 debug: replacing extract_value(tuple_item%1#3, i#7) with extract_value(storage_value%1#3, 1, i#7)
+mutable_native_types/case1_with_tups.py:98:19 debug: replacing extract_value(tuple_item%1#2, i#4) with extract_value(storage_value%1#2, 1, i#4)
+mutable_native_types/case1_with_tups.py:108:17 debug: replacing extract_value(items#1, start#0) with extract_value(storage_value%1#1, 1, start#0)
+mutable_native_types/case1_with_tups.py:109:17 debug: replacing extract_value(items#1, tmp%2#1) with extract_value(storage_value%1#1, 1, tmp%2#1)
+mutable_native_types/case1_with_tups.py:110:17 debug: replacing extract_value(items#1, tmp%3#1) with extract_value(storage_value%1#1, 1, tmp%3#1)
+mutable_native_types/case1_with_tups.py:120:27 debug: replacing extract_value(items#0, i#1) with extract_value(storage_value%0#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:48:9 debug: combined BoxRead `storage_value%0#7 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#2 = agg_write_index(storage_value%0#7, 2, encoded_value%0#2)`
+and ReplaceValue `updated_tuple%0#2 = replace_value(storage_value%0#7, 2, encoded_value%0#2)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#2)`
 into (box_replace "tup_bag" box%offset%0#1 encoded_value%0#2)
 mutable_native_types/case1_with_tups.py:49:9 debug: combined BoxRead `storage_value%1#6 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%1#0 = agg_write_index(storage_value%1#6, 3, encoded_value%1#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%1#6, 3, encoded_value%1#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%1#1 encoded_value%1#0)
 mutable_native_types/case1_with_tups.py:50:9 debug: combined BoxRead `storage_value%2#2 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%2#0 = agg_write_index(storage_value%2#2, 5, 1u)`
+and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#2, 5, 1u)`
 and BoxWrite `box_write("tup_bag", updated_tuple%2#0)`
 into (box_replace "tup_bag" box%byte_containing_bit_offset%0#1 box%tmp%0#1)
 mutable_native_types/case1_with_tups.py:54:16 debug: combined BoxRead `storage_value%0#6 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#6, 0)`
+and ExtractValue `extract_value(storage_value%0#6, 0)`
 into box%box_extract%1#1
 mutable_native_types/case1_with_tups.py:65:24 debug: combined BoxRead `storage_value%0#5 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#5, 0)`
+and ExtractValue `extract_value(storage_value%0#5, 0)`
 into box%box_extract%2#1
 mutable_native_types/case1_with_tups.py:66:16 debug: combined BoxRead `storage_value%1#5 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#5, 1)`
+and ExtractValue `extract_value(storage_value%1#5, 1)`
 into box%box_extract%3#1
 mutable_native_types/case1_with_tups.py:66:16 debug: combined BoxRead `storage_value%1#5 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#5, 1, index#0)`
-into agg_read_index(box%box_extract%4#1, index#0)
+and ExtractValue `extract_value(storage_value%1#5, 1, index#0)`
+into extract_value(box%box_extract%4#1, index#0)
 mutable_native_types/case1_with_tups.py:71:25 debug: combined BoxRead `storage_value%0#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#4, 0)`
+and ExtractValue `extract_value(storage_value%0#4, 0)`
 into box%box_extract%5#1
 mutable_native_types/case1_with_tups.py:72:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1)`
+and ExtractValue `extract_value(storage_value%1#4, 1)`
 into box%box_extract%6#1
 mutable_native_types/case1_with_tups.py:72:19 debug: combined BoxRead `storage_value%1#4 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#4, 1, i#10)`
-into agg_read_index(box%box_extract%7#1, i#10)
+and ExtractValue `extract_value(storage_value%1#4, 1, i#10)`
+into extract_value(box%box_extract%7#1, i#10)
 mutable_native_types/case1_with_tups.py:90:25 debug: combined BoxRead `storage_value%0#3 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#3, 0)`
+and ExtractValue `extract_value(storage_value%0#3, 0)`
 into box%box_extract%8#1
 mutable_native_types/case1_with_tups.py:91:19 debug: combined BoxRead `storage_value%1#3 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#3, 1)`
+and ExtractValue `extract_value(storage_value%1#3, 1)`
 into box%box_extract%9#1
 mutable_native_types/case1_with_tups.py:91:19 debug: combined BoxRead `storage_value%1#3 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#3, 1, i#7)`
-into agg_read_index(box%box_extract%10#1, i#7)
+and ExtractValue `extract_value(storage_value%1#3, 1, i#7)`
+into extract_value(box%box_extract%10#1, i#7)
 mutable_native_types/case1_with_tups.py:92:13 debug: combined BoxRead `storage_value%2#1 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#1 = agg_write_index(storage_value%2#1, 1, i#7, encoded_value%0#1)`
+and ReplaceValue `updated_tuple%0#1 = replace_value(storage_value%2#1, 1, i#7, encoded_value%0#1)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#1)`
 into (box_replace "tup_bag" box%offset%13#1 encoded_value%0#1)
 mutable_native_types/case1_with_tups.py:97:25 debug: combined BoxRead `storage_value%0#2 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#2, 0)`
+and ExtractValue `extract_value(storage_value%0#2, 0)`
 into box%box_extract%11#1
 mutable_native_types/case1_with_tups.py:98:19 debug: combined BoxRead `storage_value%1#2 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#2, 1)`
+and ExtractValue `extract_value(storage_value%1#2, 1)`
 into box%box_extract%12#1
 mutable_native_types/case1_with_tups.py:98:19 debug: combined BoxRead `storage_value%1#2 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#2, 1, i#4)`
-into agg_read_index(box%box_extract%13#1, i#4)
+and ExtractValue `extract_value(storage_value%1#2, 1, i#4)`
+into extract_value(box%box_extract%13#1, i#4)
 mutable_native_types/case1_with_tups.py:99:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%2#0, 1, i#4, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#4, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%18#1 encoded_value%0#0)
 mutable_native_types/case1_with_tups.py:103:16 debug: combined BoxRead `storage_value%0#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#1, 0)`
+and ExtractValue `extract_value(storage_value%0#1, 0)`
 into box%box_extract%14#1
 mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1)`
+and ExtractValue `extract_value(storage_value%1#1, 1)`
 into box%box_extract%15#1
 mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1, start#0)`
-into agg_read_index(box%box_extract%16#1, start#0)
+and ExtractValue `extract_value(storage_value%1#1, 1, start#0)`
+into extract_value(box%box_extract%16#1, start#0)
 mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1, tmp%2#1)`
-into agg_read_index(box%box_extract%17#1, tmp%2#1)
+and ExtractValue `extract_value(storage_value%1#1, 1, tmp%2#1)`
+into extract_value(box%box_extract%17#1, tmp%2#1)
 mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#1 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#1, 1, tmp%3#1)`
-into agg_read_index(box%box_extract%18#1, tmp%3#1)
+and ExtractValue `extract_value(storage_value%1#1, 1, tmp%3#1)`
+into extract_value(box%box_extract%18#1, tmp%3#1)
 mutable_native_types/case1_with_tups.py:117:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1)`
+and ExtractValue `extract_value(storage_value%0#0, 1)`
 into box%box_extract%19#1
 mutable_native_types/case1_with_tups.py:119:25 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 0)`
+and ExtractValue `extract_value(storage_value%1#0, 0)`
 into box%box_extract%20#1
 mutable_native_types/case1_with_tups.py:117:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1, i#1)`
-into agg_read_index(box%box_extract%21#1, i#1)
+and ExtractValue `extract_value(storage_value%0#0, 1, i#1)`
+into extract_value(box%box_extract%21#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case1_with_tups.py:66:16 debug: replacing box read with cached value for key: "tup_bag"
@@ -11108,15 +11108,15 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:48:9 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%0#0, 2, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%0#0, 2, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%0#1 encoded_value%0#0)
 mutable_native_types/case1_with_tups.py:49:9 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%1#0 = agg_write_index(storage_value%1#0, 3, encoded_value%1#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%1#0, 3, encoded_value%1#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%1#1 encoded_value%1#0)
 mutable_native_types/case1_with_tups.py:50:9 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%2#0 = agg_write_index(storage_value%2#0, 5, 1u)`
+and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, 1u)`
 and BoxWrite `box_write("tup_bag", updated_tuple%2#0)`
 into (box_replace "tup_bag" box%byte_containing_bit_offset%0#1 box%tmp%0#1)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -11140,7 +11140,7 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:54:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -11163,20 +11163,20 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:59:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:60:34 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%2#0, 0)`
+and ExtractValue `extract_value(storage_value%2#0, 0)`
 into box%box_extract%1#1
 mutable_native_types/case1_with_tups.py:60:9 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%1#0, 1, values%1#0, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#0, 1, values%1#0, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%3#1 encoded_value%0#0)
 mutable_native_types/case1_with_tups.py:61:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%3#0, 0)`
+and ExtractValue `extract_value(storage_value%3#0, 0)`
 into box%box_extract%2#1
 mutable_native_types/case1_with_tups.py:61:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%1#0 = agg_write_index(storage_value%3#0, 0, encoded_value%1#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%3#0, 0, encoded_value%1#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%5#1 encoded_value%1#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -11200,17 +11200,17 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:66:16 debug: replacing agg_read_index(tuple_item%1#0, index#0) with agg_read_index(storage_value%1#0, 1, index#0)
+mutable_native_types/case1_with_tups.py:66:16 debug: replacing extract_value(tuple_item%1#0, index#0) with extract_value(storage_value%1#0, 1, index#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:65:24 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:66:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case1_with_tups.py:66:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, index#0)`
-into agg_read_index(box%box_extract%2#1, index#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, index#0)`
+into extract_value(box%box_extract%2#1, index#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case1_with_tups.py:66:16 debug: replacing box read with cached value for key: "tup_bag"
@@ -11242,17 +11242,17 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:72:19 debug: replacing agg_read_index(tuple_item%1#0, i#1) with agg_read_index(storage_value%1#0, 1, i#1)
+mutable_native_types/case1_with_tups.py:72:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:71:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:72:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case1_with_tups.py:72:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups
@@ -11336,19 +11336,19 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:91:19 debug: replacing agg_read_index(tuple_item%1#0, i#1) with agg_read_index(storage_value%1#0, 1, i#1)
+mutable_native_types/case1_with_tups.py:91:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:90:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case1_with_tups.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 mutable_native_types/case1_with_tups.py:92:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%2#0, 1, i#1, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%4#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -11378,19 +11378,19 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:98:19 debug: replacing agg_read_index(tuple_item%1#0, i#1) with agg_read_index(storage_value%1#0, 1, i#1)
+mutable_native_types/case1_with_tups.py:98:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:97:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:98:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case1_with_tups.py:98:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 mutable_native_types/case1_with_tups.py:99:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateWriteIndex `updated_tuple%0#0 = agg_write_index(storage_value%2#0, 1, i#1, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
 into (box_replace "tup_bag" box%offset%4#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -11416,25 +11416,25 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:108:17 debug: replacing agg_read_index(items#0, start#0) with agg_read_index(storage_value%1#0, 1, start#0)
-mutable_native_types/case1_with_tups.py:109:17 debug: replacing agg_read_index(items#0, tmp%2#0) with agg_read_index(storage_value%1#0, 1, tmp%2#0)
-mutable_native_types/case1_with_tups.py:110:17 debug: replacing agg_read_index(items#0, tmp%3#0) with agg_read_index(storage_value%1#0, 1, tmp%3#0)
+mutable_native_types/case1_with_tups.py:108:17 debug: replacing extract_value(items#0, start#0) with extract_value(storage_value%1#0, 1, start#0)
+mutable_native_types/case1_with_tups.py:109:17 debug: replacing extract_value(items#0, tmp%2#0) with extract_value(storage_value%1#0, 1, tmp%2#0)
+mutable_native_types/case1_with_tups.py:110:17 debug: replacing extract_value(items#0, tmp%3#0) with extract_value(storage_value%1#0, 1, tmp%3#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:103:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 0)`
+and ExtractValue `extract_value(storage_value%0#0, 0)`
 into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1)`
+and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
 mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, start#0)`
-into agg_read_index(box%box_extract%2#1, start#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, start#0)`
+into extract_value(box%box_extract%2#1, start#0)
 mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, tmp%2#0)`
-into agg_read_index(box%box_extract%3#1, tmp%2#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, tmp%2#0)`
+into extract_value(box%box_extract%3#1, tmp%2#0)
 mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 1, tmp%3#0)`
-into agg_read_index(box%box_extract%4#1, tmp%3#0)
+and ExtractValue `extract_value(storage_value%1#0, 1, tmp%3#0)`
+into extract_value(box%box_extract%4#1, tmp%3#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case1_with_tups.py:104:17 debug: replacing box read with cached value for key: "tup_bag"
@@ -11465,17 +11465,17 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:120:27 debug: replacing agg_read_index(items#0, i#1) with agg_read_index(storage_value%0#0, 1, i#1)
+mutable_native_types/case1_with_tups.py:120:27 debug: replacing extract_value(items#0, i#1) with extract_value(storage_value%0#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:117:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1)`
+and ExtractValue `extract_value(storage_value%0#0, 1)`
 into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:119:25 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 0)`
+and ExtractValue `extract_value(storage_value%1#0, 0)`
 into box%box_extract%1#1
 mutable_native_types/case1_with_tups.py:117:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 1, i#1)`
-into agg_read_index(box%box_extract%2#1, i#1)
+and ExtractValue `extract_value(storage_value%0#0, 1, i#1)`
+into extract_value(box%box_extract%2#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case1_with_tups.py:119:25 debug: replacing box read with cached value for key: "tup_bag"
@@ -11498,13 +11498,13 @@ debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:125:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%0#0, 5)`
-into agg_read_index(box%box_extract%0#1, box%element_bit_offset%0#1)
+and ExtractValue `extract_value(storage_value%0#0, 5)`
+into extract_value(box%box_extract%0#1, box%element_bit_offset%0#1)
 mutable_native_types/case1_with_tups.py:126:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%1#0, 2)`
+and ExtractValue `extract_value(storage_value%1#0, 2)`
 into box%box_extract%1#1
 mutable_native_types/case1_with_tups.py:128:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and AggregateReadIndex `agg_read_index(storage_value%2#0, 3)`
+and ExtractValue `extract_value(storage_value%2#0, 3)`
 into box%box_extract%2#1
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -11584,12 +11584,12 @@ debug: Removing unused variable updated_tuple%1#0
 debug: Removing unused variable updated_tuple%2#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable storage_value%0#6
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable tmp%17#0
 debug: Removing unused variable tmp%23#0
 debug: Removing unused variable storage_value%0#5
 debug: Removing unused variable box%box_extract%3#1
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Removing unused variable tmp%32#0
 debug: Removing unused variable storage_value%0#4
 debug: Removing unused variable storage_value%1#4
@@ -11613,9 +11613,9 @@ debug: Removing unused variable items#0
 debug: Removing unused variable storage_value%0#7
 debug: Removing unused variable storage_value%1#6
 debug: Removing unused variable storage_value%2#2
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%4#1
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Removing unused variable box%offset%7#1
 debug: Removing unused variable storage_value%1#3
 debug: Removing unused variable box%offset%10#1
@@ -11623,8 +11623,8 @@ debug: Removing unused variable storage_value%1#2
 debug: Removing unused variable box%offset%15#1
 debug: Removing unused variable box%offset%20#1
 debug: Removing unused variable box%offset%24#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 136u) to 136u
 debug: Simplified (+ 0u 168u) to 168u
@@ -11734,12 +11734,12 @@ debug: Removing unused variable updated_tuple%1#0
 debug: Removing unused variable updated_tuple%2#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable storage_value%0#6
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable tmp%17#0
 debug: Removing unused variable tmp%23#0
 debug: Removing unused variable storage_value%0#5
 debug: Removing unused variable box%box_extract%3#1
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Removing unused variable tmp%32#0
 debug: Removing unused variable storage_value%0#4
 debug: Removing unused variable storage_value%1#4
@@ -11763,9 +11763,9 @@ debug: Removing unused variable items#0
 debug: Removing unused variable storage_value%0#7
 debug: Removing unused variable storage_value%1#6
 debug: Removing unused variable storage_value%2#2
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%4#1
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Removing unused variable box%offset%7#1
 debug: Removing unused variable storage_value%1#3
 debug: Removing unused variable box%offset%10#1
@@ -11773,8 +11773,8 @@ debug: Removing unused variable storage_value%1#2
 debug: Removing unused variable box%offset%15#1
 debug: Removing unused variable box%offset%20#1
 debug: Removing unused variable box%offset%24#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 136u) to 136u
 debug: Simplified (+ 0u 168u) to 168u
@@ -11985,12 +11985,12 @@ debug: Removing unused variable updated_tuple%1#0
 debug: Removing unused variable updated_tuple%2#0
 debug: Removing unused variable tmp%10#0
 debug: Removing unused variable storage_value%0#6
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable tmp%17#0
 debug: Removing unused variable tmp%23#0
 debug: Removing unused variable storage_value%0#5
 debug: Removing unused variable box%box_extract%3#1
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Removing unused variable tmp%32#0
 debug: Removing unused variable storage_value%0#4
 debug: Removing unused variable storage_value%1#4
@@ -12014,9 +12014,9 @@ debug: Removing unused variable items#0
 debug: Removing unused variable storage_value%0#7
 debug: Removing unused variable storage_value%1#6
 debug: Removing unused variable storage_value%2#2
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%4#1
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Removing unused variable box%offset%7#1
 debug: Removing unused variable storage_value%1#3
 debug: Removing unused variable box%offset%10#1
@@ -12024,8 +12024,8 @@ debug: Removing unused variable storage_value%1#2
 debug: Removing unused variable box%offset%15#1
 debug: Removing unused variable box%offset%20#1
 debug: Removing unused variable box%offset%24#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 136u) to 136u
 debug: Simplified (+ 0u 168u) to 168u
@@ -12148,10 +12148,10 @@ debug: Removing unused variable box%element_byte_offset%0#1
 debug: Removing unused variable box%byte_containing_bit_offset%0#1
 debug: Removing unused variable box%element_bit_offset%0#1
 debug: Removing unused variable box%offset%2#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
 debug: Removing unused variable box%offset%3#1
 debug: Removing unused variable box%offset%5#1
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Removing unused variable box%offset%6#1
 debug: Removing unused variable box%offset%8#1
 debug: Removing unused variable box%offset%9#1
@@ -12166,8 +12166,8 @@ debug: Removing unused variable box%offset%22#1
 debug: Removing unused variable box%offset%23#1
 debug: Removing unused variable box%offset%25#1
 debug: Removing unused variable box%offset%26#1
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -12339,8 +12339,8 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode<uint64>(box%box_extract%1#1)
-debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode<(uint64,uint64,)>(array_item%0#7)
+debug: Not removing unused assignment since source is not marked as pure: let values%0#8: uint64 = decode_bytes<uint64>(box%box_extract%1#1)
+debug: Not removing unused assignment since source is not marked as pure: let (values%1#7: uint64, values%2#5: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#7)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -17981,8 +17981,8 @@ debug: Removed empty block: block@8
 debug: Removed empty block: block@12
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let encoded_array%1#3: Encoded(len+(uint64,uint64)[]) = encode<(len+(uint64,uint64)[])>(fixed_struct#5) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:162:14-42, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=3),)
-debug: Replacing redundant declaration let native_arr#0: Encoded(len+(uint64,uint64)[]) = encode<(len+(uint64,uint64)[])>() with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:257:61-87, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=0),)
+debug: Replacing redundant declaration let encoded_array%1#3: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>(fixed_struct#5) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:162:14-42, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=3),)
+debug: Replacing redundant declaration let native_arr#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>() with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:257:61-87, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=0),)
 debug: Replacing redundant declaration let tmp%6#1: bytes = (bzero 16u) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:248:8-20, ir_type=Encoded(uint64,uint64), name='fixed_struct', version=0),)
 debug: Replacing redundant declaration let tmp%9#1: bytes = (bzero 24u) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:252:8-21, ir_type=Encoded((uint64,uint64),uint64), name='nested_struct', version=0),)
 debug: Replacing redundant declaration let tmp%18#1: bytes = (bzero 48u) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:262:8-17, ir_type=Encoded((uint64,uint64)[3]), name='fixed_arr', version=0),)
@@ -19679,7 +19679,7 @@ debug: Merged linear block@6 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let encoded_array%1#0: Encoded(len+(uint64,uint64)[]) = encode<(len+(uint64,uint64)[])>(fixed_struct#0) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:162:14-42, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=0),)
+debug: Replacing redundant declaration let encoded_array%1#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>(fixed_struct#0) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:162:14-42, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=0),)
 debug: Found equivalence set: encoded_array%0#0, encoded_array%1#0
 debug: selected encoded_array%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
@@ -21432,7 +21432,7 @@ debug: Merged linear block@8 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let native_arr#0: Encoded(len+(uint64,uint64)[]) = encode<(len+(uint64,uint64)[])>() with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:257:61-87, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=0),)
+debug: Replacing redundant declaration let native_arr#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>() with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:257:61-87, ir_type=Encoded(len+(uint64,uint64)[]), name='encoded_array%0', version=0),)
 debug: Replacing redundant declaration let tmp%6#0: bytes = (bzero 16u) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:248:8-20, ir_type=Encoded(uint64,uint64), name='fixed_struct', version=0),)
 debug: Replacing redundant declaration let tmp%9#0: bytes = (bzero 24u) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:252:8-21, ir_type=Encoded((uint64,uint64),uint64), name='nested_struct', version=0),)
 debug: Replacing redundant declaration let tmp%18#0: bytes = (bzero 48u) with copy of existing registers (Register(source_location=mutable_native_types/abi_call.py:262:8-17, ir_type=Encoded((uint64,uint64)[3]), name='fixed_arr', version=0),)

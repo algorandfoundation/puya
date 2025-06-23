@@ -14,9 +14,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%5#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%7#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
+        let tmp%7#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%0#0)
         let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%8#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
+        let tmp%8#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
         let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 3)
         let tmp%9#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
         let tmp%10#0: uint64 = ((txnas Applications) tmp%9#0)
@@ -31,9 +31,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%14#0: bool = (!= tmp%13#0 0u)
         (assert tmp%13#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%15#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%2#0)
+        let tmp%15#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%2#0)
         let reinterpret_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%16#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%3#0)
+        let tmp%16#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%3#0)
         let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 3)
         let tmp%17#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
         let tmp%18#0: uint64 = ((txnas Applications) tmp%17#0)
@@ -48,9 +48,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%22#0: bool = (!= tmp%21#0 0u)
         (assert tmp%21#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[])%4#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%23#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%4#0)
+        let tmp%23#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%4#0)
         let reinterpret_Encoded(len+uint8[])%5#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%24#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%5#0)
+        let tmp%24#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%5#0)
         let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 3)
         let tmp%25#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
         let tmp%26#0: uint64 = ((txnas Applications) tmp%25#0)
@@ -65,9 +65,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%30#0: bool = (!= tmp%29#0 0u)
         (assert tmp%29#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[])%6#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
-        let tmp%31#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%6#0)
+        let tmp%31#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%6#0)
         let reinterpret_Encoded(len+uint8[])%7#0: Encoded(len+uint8[]) = (txna ApplicationArgs 2)
-        let tmp%32#0: bytes = decode<bytes>(reinterpret_Encoded(len+uint8[])%7#0)
+        let tmp%32#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%7#0)
         let reinterpret_Encoded(uint8)%3#0: Encoded(uint8) = (txna ApplicationArgs 3)
         let tmp%33#0: uint64 = (btoi reinterpret_Encoded(uint8)%3#0)
         let tmp%34#0: uint64 = ((txnas Applications) tmp%33#0)
@@ -100,8 +100,8 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(a: byt
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) 0u)
         itxn_next
-        let tmp%0#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(a#0)
-        let tmp%1#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(b#0)
+        let tmp%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(a#0)
+        let tmp%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(b#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_txn(byte[],txn,byte[])uint64")
         ((itxn_field ApplicationArgs) tmp%0#0)
@@ -114,7 +114,7 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn(a: byt
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        let asset_id#0: uint64 = decode<uint64>(tmp%2#0)
+        let asset_id#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         let tmp%6#0: bool = (!= asset_id#0 0u)
         (assert asset_id#0) // expected asset id
         return 
@@ -128,8 +128,8 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg(a: by
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) 0u)
         itxn_next
-        let tmp%0#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(a#0)
-        let tmp%1#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(b#0)
+        let tmp%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(a#0)
+        let tmp%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(b#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_acfg(byte[],acfg,byte[])uint64")
         ((itxn_field ApplicationArgs) tmp%0#0)
@@ -142,7 +142,7 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg(a: by
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        let tmp%5#0: uint64 = decode<uint64>(tmp%2#0)
+        let tmp%5#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         return 
 
 subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer(a: bytes, b: bytes, app: uint64) -> void:
@@ -154,8 +154,8 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer(a: b
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) 0u)
         itxn_next
-        let tmp%0#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(a#0)
-        let tmp%1#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(b#0)
+        let tmp%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(a#0)
+        let tmp%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(b#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_acfg(byte[],acfg,byte[])uint64")
         ((itxn_field ApplicationArgs) tmp%0#0)
@@ -168,7 +168,7 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer(a: b
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        let tmp%5#0: uint64 = decode<uint64>(tmp%2#0)
+        let tmp%5#0: uint64 = decode_bytes<uint64>(tmp%2#0)
         return 
 
 subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg_no_return(a: bytes, b: bytes, app: uint64) -> void:
@@ -180,8 +180,8 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg_no_re
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) 0u)
         itxn_next
-        let tmp%0#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(a#0)
-        let tmp%1#0: Encoded(len+uint8[]) = encode<(len+uint8[])>(b#0)
+        let tmp%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(a#0)
+        let tmp%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(b#0)
         ((itxn_field Note) 0x31)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "call_with_acfg_no_return(byte[],acfg,byte[])void")

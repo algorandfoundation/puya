@@ -15,9 +15,9 @@ main test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining
         goto block@2
     block@8: // after_while_L20
         let arr#0: Encoded(uint64[])* = new()
-        write(arr#0, 0x)
+        store(arr#0, 0x)
         test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr#0)
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%0#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
         let tmp%0#1: bool = (== array_len%0#0 32u)
@@ -35,10 +35,10 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L33
         let tmp%1#0: uint64 = (getbyte tmp%0#0 item_index_internal%0#1)
-        let slot_contents%0#0: Encoded(uint64[]) = read(arr#0)
+        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 aggregate%val_as_bytes%0#1) // on error: max array length exceeded
-        write(arr#0, concat%0#0)
+        store(arr#0, concat%0#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L32
