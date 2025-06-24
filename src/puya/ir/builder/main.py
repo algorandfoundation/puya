@@ -1240,7 +1240,7 @@ class FunctionIRBuilder(
         loc = expr.source_location
 
         array_wtype = expr.base.wtype
-        assert isinstance(array_wtype, wtypes.ARC4DynamicArray), "expected StackArray"
+        assert isinstance(array_wtype, wtypes.ARC4Array), "expected ARC4Array"
 
         array = self.visit_and_materialise_single(expr.base)
         index = self.visit_and_materialise_single(expr.index)

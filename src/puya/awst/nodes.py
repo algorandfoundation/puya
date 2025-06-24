@@ -596,11 +596,11 @@ class ArrayReplace(Expression):
     base: Expression  # note: type validated by wtype factory
     index: Expression = attrs.field(validator=wtype_is_uint64)
     value: Expression = attrs.field()
-    wtype: wtypes.ARC4DynamicArray = attrs.field(init=False)
+    wtype: wtypes.ARC4Array = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.ARC4DynamicArray:
-        if not isinstance(self.base.wtype, wtypes.ARC4DynamicArray):
+    def _wtype(self) -> wtypes.ARC4Array:
+        if not isinstance(self.base.wtype, wtypes.ARC4Array):
             raise InternalError(
                 f"Unsupported base for ArrayReplace: {self.base.wtype}", self.source_location
             )
