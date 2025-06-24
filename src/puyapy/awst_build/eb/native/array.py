@@ -38,15 +38,15 @@ from puyapy.awst_build.eb.none import NoneExpressionBuilder
 from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 
 __all__ = [
-    "NativeArrayGenericTypeBuilder",
-    "NativeArrayTypeBuilder",
-    "NativeArrayExpressionBuilder",
+    "ArrayGenericTypeBuilder",
+    "ArrayTypeBuilder",
+    "ArrayExpressionBuilder",
 ]
 
 logger = log.get_logger(__name__)
 
 
-class NativeArrayGenericTypeBuilder(GenericTypeBuilder):
+class ArrayGenericTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -60,7 +60,7 @@ class NativeArrayGenericTypeBuilder(GenericTypeBuilder):
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
 
         arg_item_type = arg.iterable_item_type()
-        typ = pytypes.GenericNativeArrayType.parameterise([arg_item_type], location)
+        typ = pytypes.GenericArrayType.parameterise([arg_item_type], location)
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
 
@@ -78,13 +78,13 @@ class NativeArrayGenericTypeBuilder(GenericTypeBuilder):
         else:
             logger.error("unsupported collection type", location=arg.source_location)
             return dummy_value(typ, location)
-        return NativeArrayExpressionBuilder(new_array, typ)
+        return ArrayExpressionBuilder(new_array, typ)
 
 
-class NativeArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
+class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
-        assert typ.generic == pytypes.GenericNativeArrayType
+        assert typ.generic == pytypes.GenericArrayType
         assert typ.size is None
         super().__init__(typ, location)
 
@@ -126,10 +126,10 @@ class NativeArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
                 logger.error("unsupported collection type", location=arg.source_location)
                 return dummy_value(typ, location)
 
-        return NativeArrayExpressionBuilder(new_array, self._pytype)
+        return ArrayExpressionBuilder(new_array, self._pytype)
 
 
-class NativeArrayExpressionBuilder(_ArrayExpressionBuilder):
+class ArrayExpressionBuilder(_ArrayExpressionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
         super().__init__(typ, expr)
@@ -180,7 +180,7 @@ class NativeArrayExpressionBuilder(_ArrayExpressionBuilder):
             return NotImplemented
 
         other = _match_array_concat_arg(other, self.pytype)
-        return NativeArrayExpressionBuilder(
+        return ArrayExpressionBuilder(
             ArrayConcat(
                 left=self.resolve(),
                 right=other.resolve(),
@@ -191,7 +191,7 @@ class NativeArrayExpressionBuilder(_ArrayExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        false_builder = NativeArrayTypeBuilder(self.pytype, location).call([], [], [], location)
+        false_builder = ArrayTypeBuilder(self.pytype, location).call([], [], [], location)
         return arc4_bool_bytes(
             self,
             false_builder=false_builder,

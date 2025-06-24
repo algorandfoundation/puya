@@ -158,7 +158,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
 
     @typing.override
     def to_native_type(self, element_type: pytypes.PyType) -> pytypes.ArrayType:
-        return pytypes.GenericNativeArrayType.parameterise([element_type], self.source_location)
+        return pytypes.GenericArrayType.parameterise([element_type], self.source_location)
 
 
 class _ArrayFunc(FunctionBuilder, abc.ABC):
