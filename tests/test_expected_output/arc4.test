@@ -826,3 +826,38 @@ def caller() -> None:
     arr.append(foo) ## E: mutable reference to ARC-4-encoded value must be copied using .copy() when being extended
     arr.extend(arr) ## E: mutable reference to ARC-4-encoded value must be copied using .copy() when being extended
     arr2 = arr + arr ## E: mutable reference to ARC-4-encoded value must be copied using .copy() when being concat
+
+## case: modify_frozen_struct
+from algopy import *
+
+class Bar(Struct):
+    foo: UInt64
+
+class Frozen(Struct, frozen=True):
+    bar: Bar
+
+@subroutine
+def no() -> None:
+    arr = Array[Frozen]()
+    assert arr.length == 0
+
+    for i in urange(5):
+        arr.append(Frozen(Bar(i)))
+
+    arr[0].bar = Bar(UInt64(1)) # type: ignore[misc] ## E: expression is not valid as an assignment target - object is frozen
+
+## case: modify_immutable_struct
+from algopy import *
+
+class Imm(Struct, frozen=True):
+    bar: UInt64
+
+@subroutine
+def no() -> None:
+    arr = Array[Imm]()
+    assert arr.length == 0
+
+    for i in urange(5):
+        arr.append(Imm(i))
+
+    arr[0].bar = UInt64(1) # type: ignore[misc] ## E: expression is not valid as an assignment target - object is immutable
