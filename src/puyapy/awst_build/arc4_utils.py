@@ -188,8 +188,8 @@ def pytype_to_arc4(
         case pytypes.ArrayType(
             generic=pytypes.GenericARC4StaticArrayType
             | pytypes.GenericARC4DynamicArrayType
+            | pytypes.GenericArrayType
             | pytypes.GenericImmutableArrayType
-            | pytypes.GenericNativeArrayType
             | pytypes.GenericFixedArrayType,
             items=item_pytype,
             size=array_length,

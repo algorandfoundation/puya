@@ -859,13 +859,12 @@ def _make_array_parameterise(
     return parameterise
 
 
-GenericArrayType: typing.Final = _GenericType(
+GenericReferenceArrayType: typing.Final = _GenericType(
     name="algopy._array.ReferenceArray",
     parameterise=_make_array_parameterise(wtypes.ReferenceArray),
 )
 
-# TODO: move _native Array into _array stub
-GenericNativeArrayType: typing.Final = _GenericType(
+GenericArrayType: typing.Final = _GenericType(
     name="algopy._native.Array",
     parameterise=_make_array_parameterise(wtypes.ARC4DynamicArray),
 )

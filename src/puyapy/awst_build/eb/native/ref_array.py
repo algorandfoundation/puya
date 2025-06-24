@@ -33,7 +33,7 @@ from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
 logger = log.get_logger(__name__)
 
 
-class ArrayGenericTypeBuilder(GenericTypeBuilder):
+class ReferenceArrayGenericTypeBuilder(GenericTypeBuilder):
     @typing.override
     def call(
         self,
@@ -45,16 +45,16 @@ class ArrayGenericTypeBuilder(GenericTypeBuilder):
         if not args:
             raise CodeError("empty arrays require a type annotation to be instantiated", location)
         element_type = expect.instance_builder(args[0], default=expect.default_raise).pytype
-        typ = pytypes.GenericArrayType.parameterise([element_type], location)
-        return ArrayTypeBuilder(typ, self.source_location).call(
+        typ = pytypes.GenericReferenceArrayType.parameterise([element_type], location)
+        return ReferenceArrayTypeBuilder(typ, self.source_location).call(
             args, arg_kinds, arg_names, location
         )
 
 
-class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
+class ReferenceArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     def __init__(self, typ: pytypes.PyType, location: SourceLocation):
         assert isinstance(typ, pytypes.ArrayType)
-        assert typ.generic == pytypes.GenericArrayType
+        assert typ.generic == pytypes.GenericReferenceArrayType
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ReferenceArray)
         self._wtype = wtype
@@ -70,12 +70,12 @@ class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
     ) -> InstanceBuilder:
         typ = self.produces()
         values = tuple(expect.argument_of_type_else_dummy(a, typ.items).resolve() for a in args)
-        return ArrayExpressionBuilder(
+        return ReferenceArrayExpressionBuilder(
             NewArray(values=values, wtype=self._wtype, source_location=location), typ
         )
 
 
-class ArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
+class ReferenceArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayType]):
     def __init__(self, expr: Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
         super().__init__(typ, expr)
