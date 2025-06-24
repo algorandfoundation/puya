@@ -1113,9 +1113,13 @@ class FunctionIRBuilder(
                     )
         elif isinstance(result, Op):
             self.context.block_builder.add(result)
-        # If we get a Value (e.g. a Register or some such) it's something that's being
-        # discarded effectively.
-        # The frontend should have already warned about this
+        else:
+            # If we get a Value (e.g. a Register or some such) it's something that's being
+            # discarded effectively.
+            # The frontend should have already warned about this
+            # if this value is unused and has no side effects it will get eliminated by the
+            # optimizer
+            self.context.materialise_value_provider(result, "tmp")
 
     def visit_uint64_augmented_assignment(
         self, statement: awst_nodes.UInt64AugmentedAssignment
