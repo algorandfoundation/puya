@@ -67,7 +67,7 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
 class GenericTypeBuilder(CallableBuilder, abc.ABC):  # TODO: can we fold this with TypeBuilder?
     @typing.override
     @property
-    def pytype(self) -> None:  # TODO, take this as an init argument
+    def pytype(self) -> pytypes.PyType | None:  # TODO, take this as an init argument
         return None
 
     @typing.override
