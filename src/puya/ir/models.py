@@ -427,7 +427,7 @@ class InnerTransactionField(ValueProvider):
 
 
 @attrs.define(eq=False, kw_only=True)
-class _AggregateOp(Op, ValueProvider, abc.ABC):
+class _Aggregate(ValueProvider, abc.ABC):
     base: Value = attrs.field()
     # we retain the original type of the aggregate, in case this is lost during optimisations
     base_type: EncodedType = attrs.field(repr=lambda x: x.name)
@@ -444,7 +444,7 @@ class _AggregateOp(Op, ValueProvider, abc.ABC):
 
 
 @attrs.define(eq=False)
-class ExtractValue(_AggregateOp):
+class ExtractValue(_Aggregate):
     check_bounds: bool
     ir_type: IRType = attrs.field(repr=lambda x: x.name)
 
@@ -460,7 +460,7 @@ class ExtractValue(_AggregateOp):
 
 
 @attrs.define(eq=False)
-class ReplaceValue(_AggregateOp):
+class ReplaceValue(_Aggregate):
     value: Value
 
     def _frozen_data(self) -> object:
@@ -509,7 +509,7 @@ class BoxWrite(Op):
 
 
 @attrs.define(eq=False)
-class BytesEncode(Op, ValueProvider):
+class BytesEncode(ValueProvider):
     """Encodes a sequence of values into encoded bytes"""
 
     source_location: SourceLocation = attrs.field(eq=False)
@@ -536,7 +536,7 @@ class BytesEncode(Op, ValueProvider):
 
 
 @attrs.define(eq=False)
-class DecodeBytes(Op, ValueProvider):
+class DecodeBytes(ValueProvider):
     """Decodes an encoded bytes into a sequence of values"""
 
     source_location: SourceLocation = attrs.field(eq=False)
