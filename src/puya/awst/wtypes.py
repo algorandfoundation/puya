@@ -329,7 +329,7 @@ class ReferenceArray(_WTypeInstance):
 class WTuple(_WTypeInstance):
     types: tuple[WType, ...] = attrs.field(converter=tuple[WType, ...])
     source_location: SourceLocation | None = attrs.field(default=None)
-    immutable: bool = attrs.field(default=True, init=False)
+    immutable: bool = attrs.field(init=False)
     name: str = attrs.field(kw_only=True)
     names: tuple[str, ...] | None = attrs.field(default=None)
     desc: str | None = None
@@ -342,6 +342,10 @@ class WTuple(_WTypeInstance):
     @typing.override
     def persistable(self) -> bool:
         return all(t.persistable for t in self.types)
+
+    @immutable.default
+    def _immutable(self) -> bool:
+        return all(typ.immutable for typ in self.types)
 
     def __eq__(self, other: object) -> bool:
         # this custom equality check ensures that
