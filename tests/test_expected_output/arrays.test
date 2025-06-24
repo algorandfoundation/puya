@@ -211,3 +211,16 @@ class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def wrong_size2(self) -> FixedUInt64Of3:
         return FixedUInt64Of3((UInt64(1),)) ## E: argument has incorrect length
+
+## case: modify_immutable_array
+from algopy import *
+
+@subroutine
+def no() -> None:
+    arr = ImmutableArray[tuple[UInt64, UInt64]]()
+    assert arr.length == 0
+
+    for i in urange(5):
+        arr = arr.append((i + 1, i + 2))
+
+    arr[0] = (UInt64(123), UInt64(345))  # type: ignore[index] ## E: expression is not valid as an assignment target - object is immutable
