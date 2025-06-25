@@ -392,16 +392,12 @@ def _source_location_from_mypy(file: Path | None, node: mypy.nodes.Context) -> S
                 end_line=end_line,
             )
         case mypy.types.Type():
-            # mypy types seem to not have an end_column specified, which ends up implying to
-            # end of line, so instead make end_column end after column so it is just a
-            # single character reference
-
             if node.column < 0:
                 typ_column: int | None = None
                 typ_end_column: int | None = None
             else:
                 typ_column = node.column
-                typ_end_column = coalesce(node.end_column, typ_column + 1)
+                typ_end_column = coalesce(node.end_column, typ_column)
             return SourceLocation(
                 file=file,
                 line=node.line,
