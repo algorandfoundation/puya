@@ -45,7 +45,7 @@ class SourceLocation:
             self.end_line == self.line
             and value is not None
             and self.column is not None
-            and value <= self.column
+            and value < self.column
         ):
             raise ValueError(
                 f"source location end column = {value} is before start column = {self.column}"
