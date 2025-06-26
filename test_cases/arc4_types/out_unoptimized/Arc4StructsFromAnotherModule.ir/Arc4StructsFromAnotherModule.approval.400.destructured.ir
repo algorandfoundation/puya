@@ -12,14 +12,14 @@ main test_cases.arc4_types.structs2.Arc4StructsFromAnotherModule.approval_progra
         let aggregate%encoded_bool%3#1: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%3#1: Encoded(bool8) = aggregate%encoded_bool%3#1
         let tmp%3#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%3#1
-        let aggregate%encoded%0#1: bytes = (concat 0x tmp%0#0)
         let aggregate%get_bit%0#1: uint64 = (getbit tmp%1#0 0u)
-        let aggregate%set_bit%0#1: bytes = (setbit aggregate%encoded%0#1 1u aggregate%get_bit%0#1)
+        let aggregate%set_bit%0#1: Encoded(bool8) = (setbit tmp%0#0 1u aggregate%get_bit%0#1)
         let aggregate%get_bit%1#1: uint64 = (getbit tmp%2#0 0u)
-        let aggregate%set_bit%1#1: bytes = (setbit aggregate%set_bit%0#1 2u aggregate%get_bit%1#1)
+        let aggregate%set_bit%1#1: Encoded(bool8) = (setbit aggregate%set_bit%0#1 2u aggregate%get_bit%1#1)
         let aggregate%get_bit%2#1: uint64 = (getbit tmp%3#0 0u)
-        let aggregate%set_bit%2#1: bytes = (setbit aggregate%set_bit%1#1 3u aggregate%get_bit%2#1)
-        let aggregate%encoded%1#1: Encoded(bool1,bool1,bool1,bool1) = (concat aggregate%set_bit%2#1 0x)
+        let aggregate%set_bit%2#1: Encoded(bool8) = (setbit aggregate%set_bit%1#1 3u aggregate%get_bit%2#1)
+        let aggregate%encoded%0#1: bytes = (concat 0x aggregate%set_bit%2#1)
+        let aggregate%encoded%1#1: Encoded(bool1,bool1,bool1,bool1) = (concat aggregate%encoded%0#1 0x)
         let tmp%4#0: Encoded(bool1,bool1,bool1,bool1) = aggregate%encoded%1#1
         let flags#0: Encoded(bool1,bool1,bool1,bool1) = tmp%4#0
         (log flags#0)
