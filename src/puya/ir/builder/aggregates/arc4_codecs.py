@@ -129,10 +129,13 @@ class _NativeTupleCodec(_ARC4Codec):
             )
 
         factory = OpFactory(context, loc)
-        current_head_offset = 0
-        head = factory.constant(b"")
+        if isinstance(encoding, encodings.ArrayEncoding) and encoding.length_header:
+            head: ir.Value = factory.as_u16_bytes(len(element_ir_types), "len_u16")
+            current_head_offset = 2
+        else:
+            head = factory.constant(b"")
+            current_head_offset = 0
         tail = factory.constant(b"")
-        processed_encodings = list[encodings.Encoding]()
         header_size_bits = tuple_encoding.get_head_bit_offset(None)
         header_size = bits_to_bytes(header_size_bits)
         current_tail_offset = factory.constant(header_size)
@@ -147,15 +150,11 @@ class _NativeTupleCodec(_ARC4Codec):
                 num_bytes = bits_to_bytes(len(group))
                 current_head_offset += num_bytes
                 for bit_index, (_, _, element_values) in enumerate(group):
-                    processed_encodings.append(element_encoding)
-                    encoded_ir_type = types.EncodedType(
-                        encodings.TupleEncoding(processed_encodings)
-                    )
                     (value,) = element_values
                     if bit_index % 8 == 0:
                         if value.atype == AVMType.uint64:
                             value = factory.make_arc4_bool(value)
-                        head = factory.concat(head, value, "encoded", ir_type=encoded_ir_type)
+                        head = factory.concat(head, value, "encoded")
                     else:
                         # if element is an encoded bool then read the bit.
                         # outside an array bool elements should not be packed
@@ -190,15 +189,8 @@ class _NativeTupleCodec(_ARC4Codec):
                         value = factory.as_u16_bytes(current_tail_offset, "offset_as_uint16")
                         current_tail_offset = new_current_tail_offset
                         current_head_offset += 2
-                    processed_encodings.append(element_encoding)
-                    encoded_ir_type = types.EncodedType(
-                        encodings.TupleEncoding(processed_encodings)
-                    )
-                    head = factory.concat(head, value, "encoded", ir_type=encoded_ir_type)
+                    head = factory.concat(head, value, "encoded")
 
-        if isinstance(encoding, encodings.ArrayEncoding) and encoding.length_header:
-            len_u16 = factory.as_u16_bytes(len(element_ir_types), "len_u16")
-            head = factory.concat(len_u16, head, "encoded")
         encoded = factory.concat(head, tail, "encoded", ir_type=types.EncodedType(encoding))
         return encoded
 
