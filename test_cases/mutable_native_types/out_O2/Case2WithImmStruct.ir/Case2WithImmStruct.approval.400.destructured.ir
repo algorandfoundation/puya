@@ -165,7 +165,7 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let values%1#0: uint64 = (extract_uint64 aggregate%encoded_element%5#1 8u)
         let aggregate%val_as_bytes%2#1: bytes[8] = (itob a#0)
         let aggregate%val_as_bytes%3#1: bytes[8] = (itob values%1#0)
-        let aggregate%encoded%1#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%2#1 aggregate%val_as_bytes%3#1)
+        let aggregate%encoded%1#1: bytes = (concat aggregate%val_as_bytes%2#1 aggregate%val_as_bytes%3#1)
         let box%index_ok%0#1: bool = (< i#0 8u)
         (assert box%index_ok%0#1) // index out of bounds
         let box%offset%16#1: uint64 = (+ 8u aggregate%bytes_offset%5#1)
@@ -195,7 +195,7 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let values%1#0: uint64 = (extract_uint64 aggregate%encoded_element%6#1 0u)
         let aggregate%val_as_bytes%4#1: bytes[8] = (itob values%1#0)
         let aggregate%val_as_bytes%5#1: bytes[8] = (itob b#0)
-        let aggregate%encoded%4#1: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%4#1 aggregate%val_as_bytes%5#1)
+        let aggregate%encoded%4#1: bytes = (concat aggregate%val_as_bytes%4#1 aggregate%val_as_bytes%5#1)
         let box%index_ok%1#1: bool = (< i#0 8u)
         (assert box%index_ok%1#1) // index out of bounds
         let box%offset%22#1: uint64 = (+ 8u aggregate%bytes_offset%6#1)
@@ -226,8 +226,8 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let box%box_extract%22#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%9#1: uint64 = (* tmp%3#0 16u)
         let aggregate%encoded_element%9#1: bytes = (extract3 box%box_extract%22#1 aggregate%bytes_offset%9#1 16u) // on error: index access is out of bounds
-        let aggregate%encoded%7#1: Encoded((uint64,uint64),(uint64,uint64)) = (concat aggregate%encoded_element%7#1 aggregate%encoded_element%8#1)
-        let aggregate%encoded%8#1: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = (concat aggregate%encoded%7#1 aggregate%encoded_element%9#1)
+        let aggregate%encoded%7#1: bytes = (concat aggregate%encoded_element%7#1 aggregate%encoded_element%8#1)
+        let aggregate%encoded%8#1: bytes = (concat aggregate%encoded%7#1 aggregate%encoded_element%9#1)
         let tmp%56#0: bytes = (concat 0x151f7c75 aggregate%encoded%8#1)
         (log tmp%56#0)
         let test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__%0#0: bool = 1u

@@ -1793,10 +1793,10 @@ subroutine test_fixed_size_tuple_array:
         itob                                                                                      i#2,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
         l-load aggregate%val_as_bytes%0#1 1                                                       i#2,aggregate%val_as_bytes%1#1,aggregate%val_as_bytes%0#1
         l-load aggregate%val_as_bytes%1#1 1                                                       i#2,aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
-        concat                                                                                    i#2,aggregate%encoded%3#1
-        v-load arr#0                                                                              i#2,aggregate%encoded%3#1,arr#0
-        l-store-copy arr#0 1                                                                      i#2,arr#0,aggregate%encoded%3#1,arr#0 (copy)
-        l-load aggregate%encoded%3#1 1                                                            i#2,arr#0,arr#0 (copy),aggregate%encoded%3#1
+        concat                                                                                    i#2,aggregate%encoded%2#1
+        v-load arr#0                                                                              i#2,aggregate%encoded%2#1,arr#0
+        l-store-copy arr#0 1                                                                      i#2,arr#0,aggregate%encoded%2#1,arr#0 (copy)
+        l-load aggregate%encoded%2#1 1                                                            i#2,arr#0,arr#0 (copy),aggregate%encoded%2#1
         concat // on error: max array length exceeded                                             i#2,arr#0,concat%0#0
         l-load arr#0 1                                                                            i#2,concat%0#0,arr#0
         int 0                                                                                     i#2,concat%0#0,arr#0,0
@@ -1989,9 +1989,9 @@ subroutine test_fixed_size_named_tuple_array:
         setbit                                                                                    i#0,tmp%5#0,aggregate%val_as_bytes%0#1,aggregate%encoded_bool%0#1
         l-load aggregate%val_as_bytes%0#1 1                                                       i#0,tmp%5#0,aggregate%encoded_bool%0#1,aggregate%val_as_bytes%0#1
         l-load aggregate%encoded_bool%0#1 1                                                       i#0,tmp%5#0,aggregate%val_as_bytes%0#1,aggregate%encoded_bool%0#1
-        concat                                                                                    i#0,tmp%5#0,aggregate%encoded%3#1
-        int 65                                                                                    i#0,tmp%5#0,aggregate%encoded%3#1,65
-        l-load tmp%5#0 2                                                                          i#0,aggregate%encoded%3#1,65,tmp%5#0
+        concat                                                                                    i#0,tmp%5#0,aggregate%encoded%2#1
+        int 65                                                                                    i#0,tmp%5#0,aggregate%encoded%2#1,65
+        l-load tmp%5#0 2                                                                          i#0,aggregate%encoded%2#1,65,tmp%5#0
         setbit                                                                                    i#0,aggregate%set_bit%0#1
         v-load arr#0                                                                              i#0,aggregate%set_bit%0#1,arr#0
         l-store-copy arr#0 1                                                                      i#0,arr#0,aggregate%set_bit%0#1,arr#0 (copy)
@@ -2106,16 +2106,16 @@ subroutine test_dynamic_sized_tuple_array:
         concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%val_as_bytes%0#1,aggregate%encoded_value%0#1
         l-load aggregate%val_as_bytes%0#1 1                                                       i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%0#1,aggregate%val_as_bytes%0#1
         byte 0x000a                                                                               i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%0#1,aggregate%val_as_bytes%0#1,0x000a
-        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%0#1,aggregate%encoded%3#1
-        l-load aggregate%encoded_value%0#1 1                                                      i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%3#1,aggregate%encoded_value%0#1
-        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%4#1
-        byte 0x0002                                                                               i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%4#1,0x0002
-        l-load aggregate%encoded%4#1 1                                                            i#2,extract_uint16%0#0,extract_to_end%0#0,0x0002,aggregate%encoded%4#1
-        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%6#1
-        l-load extract_uint16%0#0 2                                                               i#2,extract_to_end%0#0,aggregate%encoded%6#1,extract_uint16%0#0
-        l-load extract_to_end%0#0 2                                                               i#2,aggregate%encoded%6#1,extract_uint16%0#0,extract_to_end%0#0
-        int 1                                                                                     i#2,aggregate%encoded%6#1,extract_uint16%0#0,extract_to_end%0#0,1
-        l-load aggregate%encoded%6#1 3                                                            i#2,extract_uint16%0#0,extract_to_end%0#0,1,aggregate%encoded%6#1
+        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%0#1,aggregate%encoded%2#1
+        l-load aggregate%encoded_value%0#1 1                                                      i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%2#1,aggregate%encoded_value%0#1
+        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%3#1
+        byte 0x0002                                                                               i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%3#1,0x0002
+        l-load aggregate%encoded%3#1 1                                                            i#2,extract_uint16%0#0,extract_to_end%0#0,0x0002,aggregate%encoded%3#1
+        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%5#1
+        l-load extract_uint16%0#0 2                                                               i#2,extract_to_end%0#0,aggregate%encoded%5#1,extract_uint16%0#0
+        l-load extract_to_end%0#0 2                                                               i#2,aggregate%encoded%5#1,extract_uint16%0#0,extract_to_end%0#0
+        int 1                                                                                     i#2,aggregate%encoded%5#1,extract_uint16%0#0,extract_to_end%0#0,1
+        l-load aggregate%encoded%5#1 3                                                            i#2,extract_uint16%0#0,extract_to_end%0#0,1,aggregate%encoded%5#1
         callsub dynamic_array_concat_dynamic_element                                              i#2,arr#0
         v-store arr#0                                                                             i#2
         l-load i#2 0                                                                              i#2
@@ -2381,16 +2381,16 @@ subroutine test_dynamic_sized_named_tuple_array:
         concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%val_as_bytes%0#1,aggregate%encoded_value%0#1
         l-load aggregate%val_as_bytes%0#1 1                                                       i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%0#1,aggregate%val_as_bytes%0#1
         byte 0x000a                                                                               i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%0#1,aggregate%val_as_bytes%0#1,0x000a
-        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%0#1,aggregate%encoded%3#1
-        l-load aggregate%encoded_value%0#1 1                                                      i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%3#1,aggregate%encoded_value%0#1
-        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%4#1
-        byte 0x0002                                                                               i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%4#1,0x0002
-        l-load aggregate%encoded%4#1 1                                                            i#2,extract_uint16%0#0,extract_to_end%0#0,0x0002,aggregate%encoded%4#1
-        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%6#1
-        l-load extract_uint16%0#0 2                                                               i#2,extract_to_end%0#0,aggregate%encoded%6#1,extract_uint16%0#0
-        l-load extract_to_end%0#0 2                                                               i#2,aggregate%encoded%6#1,extract_uint16%0#0,extract_to_end%0#0
-        int 1                                                                                     i#2,aggregate%encoded%6#1,extract_uint16%0#0,extract_to_end%0#0,1
-        l-load aggregate%encoded%6#1 3                                                            i#2,extract_uint16%0#0,extract_to_end%0#0,1,aggregate%encoded%6#1
+        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%0#1,aggregate%encoded%2#1
+        l-load aggregate%encoded_value%0#1 1                                                      i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%2#1,aggregate%encoded_value%0#1
+        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%3#1
+        byte 0x0002                                                                               i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%3#1,0x0002
+        l-load aggregate%encoded%3#1 1                                                            i#2,extract_uint16%0#0,extract_to_end%0#0,0x0002,aggregate%encoded%3#1
+        concat                                                                                    i#2,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%5#1
+        l-load extract_uint16%0#0 2                                                               i#2,extract_to_end%0#0,aggregate%encoded%5#1,extract_uint16%0#0
+        l-load extract_to_end%0#0 2                                                               i#2,aggregate%encoded%5#1,extract_uint16%0#0,extract_to_end%0#0
+        int 1                                                                                     i#2,aggregate%encoded%5#1,extract_uint16%0#0,extract_to_end%0#0,1
+        l-load aggregate%encoded%5#1 3                                                            i#2,extract_uint16%0#0,extract_to_end%0#0,1,aggregate%encoded%5#1
         callsub dynamic_array_concat_dynamic_element                                              i#2,arr#0
         v-store arr#0                                                                             i#2
         l-load i#2 0                                                                              i#2
@@ -2707,11 +2707,11 @@ subroutine test_nested_array:
         extract 2 0                                                                               (𝕡) arr_to_add#0,arr#0 | extract_uint16%1#0,extract_to_end%0#0
         byte 0x0002                                                                               (𝕡) arr_to_add#0,arr#0 | extract_uint16%1#0,extract_to_end%0#0,0x0002
         v-load extra_arr#0                                                                        (𝕡) arr_to_add#0,arr#0 | extract_uint16%1#0,extract_to_end%0#0,0x0002,extra_arr#0
-        concat                                                                                    (𝕡) arr_to_add#0,arr#0 | extract_uint16%1#0,extract_to_end%0#0,aggregate%encoded%5#1
-        l-load extract_uint16%1#0 2                                                               (𝕡) arr_to_add#0,arr#0 | extract_to_end%0#0,aggregate%encoded%5#1,extract_uint16%1#0
-        l-load extract_to_end%0#0 2                                                               (𝕡) arr_to_add#0,arr#0 | aggregate%encoded%5#1,extract_uint16%1#0,extract_to_end%0#0
-        int 1                                                                                     (𝕡) arr_to_add#0,arr#0 | aggregate%encoded%5#1,extract_uint16%1#0,extract_to_end%0#0,1
-        l-load aggregate%encoded%5#1 3                                                            (𝕡) arr_to_add#0,arr#0 | extract_uint16%1#0,extract_to_end%0#0,1,aggregate%encoded%5#1
+        concat                                                                                    (𝕡) arr_to_add#0,arr#0 | extract_uint16%1#0,extract_to_end%0#0,aggregate%encoded%4#1
+        l-load extract_uint16%1#0 2                                                               (𝕡) arr_to_add#0,arr#0 | extract_to_end%0#0,aggregate%encoded%4#1,extract_uint16%1#0
+        l-load extract_to_end%0#0 2                                                               (𝕡) arr_to_add#0,arr#0 | aggregate%encoded%4#1,extract_uint16%1#0,extract_to_end%0#0
+        int 1                                                                                     (𝕡) arr_to_add#0,arr#0 | aggregate%encoded%4#1,extract_uint16%1#0,extract_to_end%0#0,1
+        l-load aggregate%encoded%4#1 3                                                            (𝕡) arr_to_add#0,arr#0 | extract_uint16%1#0,extract_to_end%0#0,1,aggregate%encoded%4#1
         callsub dynamic_array_concat_dynamic_element                                              (𝕡) arr_to_add#0,arr#0 | arr#0
         p-store arr#0                                                                             (𝕡) arr_to_add#0,arr#0 |
         // array/immutable.py:251
@@ -2960,9 +2960,9 @@ subroutine test_bit_packed_tuples:
         l-load-copy i#0 8                                                                         i#0,tmp%5#0,aggregate%encoded_bool%0#1,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,i#0 (copy)
         itob                                                                                      i#0,tmp%5#0,aggregate%encoded_bool%0#1,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%val_as_bytes%0#1
         l-load aggregate%encoded_bool%0#1 7                                                       i#0,tmp%5#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%val_as_bytes%0#1,aggregate%encoded_bool%0#1
-        concat                                                                                    i#0,tmp%5#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%encoded%13#1
-        int 65                                                                                    i#0,tmp%5#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%encoded%13#1,65
-        l-load tmp%5#0 8                                                                          i#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%encoded%13#1,65,tmp%5#0
+        concat                                                                                    i#0,tmp%5#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%encoded%9#1
+        int 65                                                                                    i#0,tmp%5#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%encoded%9#1,65
+        l-load tmp%5#0 8                                                                          i#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%encoded%9#1,65,tmp%5#0
         setbit                                                                                    i#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%set_bit%1#1
         int 66                                                                                    i#0,tmp%9#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%set_bit%1#1,66
         l-load tmp%9#0 7                                                                          i#0,tmp%10#0,tmp%11#0,tmp%12#0,tmp%13#0,i#2,aggregate%set_bit%1#1,66,tmp%9#0
@@ -2983,10 +2983,10 @@ subroutine test_bit_packed_tuples:
         itob                                                                                      i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1
         l-load-copy aggregate%set_bit%6#1 1                                                       i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,aggregate%set_bit%6#1 (copy)
         l-load-copy aggregate%val_as_bytes%1#1 1                                                  i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,aggregate%set_bit%6#1 (copy),aggregate%val_as_bytes%1#1 (copy)
-        concat                                                                                    i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,aggregate%encoded%14#1
-        v-load arr7#0                                                                             i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,aggregate%encoded%14#1,arr7#0
-        l-store-copy arr7#0 1                                                                     i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,arr7#0,aggregate%encoded%14#1,arr7#0 (copy)
-        l-load aggregate%encoded%14#1 1                                                           i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,arr7#0,arr7#0 (copy),aggregate%encoded%14#1
+        concat                                                                                    i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,aggregate%encoded%10#1
+        v-load arr7#0                                                                             i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,aggregate%encoded%10#1,arr7#0
+        l-store-copy arr7#0 1                                                                     i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,arr7#0,aggregate%encoded%10#1,arr7#0 (copy)
+        l-load aggregate%encoded%10#1 1                                                           i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,arr7#0,arr7#0 (copy),aggregate%encoded%10#1
         concat // on error: max array length exceeded                                             i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,arr7#0,concat%1#0
         l-load arr7#0 1                                                                           i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,concat%1#0,arr7#0
         int 0                                                                                     i#0,i#2,aggregate%set_bit%6#1,aggregate%val_as_bytes%1#1,concat%1#0,arr7#0,0
@@ -3025,10 +3025,10 @@ subroutine test_bit_packed_tuples:
         setbit                                                                                    i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1
         l-load-copy aggregate%set_bit%13#1 0                                                      i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,aggregate%set_bit%13#1 (copy)
         l-load-copy aggregate%val_as_bytes%1#1 2                                                  i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,aggregate%set_bit%13#1 (copy),aggregate%val_as_bytes%1#1 (copy)
-        concat                                                                                    i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,aggregate%encoded%20#1
-        v-load arr8#0                                                                             i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,aggregate%encoded%20#1,arr8#0
-        l-store-copy arr8#0 1                                                                     i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,arr8#0,aggregate%encoded%20#1,arr8#0 (copy)
-        l-load aggregate%encoded%20#1 1                                                           i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,arr8#0,arr8#0 (copy),aggregate%encoded%20#1
+        concat                                                                                    i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,aggregate%encoded%16#1
+        v-load arr8#0                                                                             i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,aggregate%encoded%16#1,arr8#0
+        l-store-copy arr8#0 1                                                                     i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,arr8#0,aggregate%encoded%16#1,arr8#0 (copy)
+        l-load aggregate%encoded%16#1 1                                                           i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,arr8#0,arr8#0 (copy),aggregate%encoded%16#1
         concat // on error: max array length exceeded                                             i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,arr8#0,concat%2#0
         l-load arr8#0 1                                                                           i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,concat%2#0,arr8#0
         int 0                                                                                     i#0,i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,concat%2#0,arr8#0,0
@@ -3068,12 +3068,12 @@ subroutine test_bit_packed_tuples:
         setbit                                                                                    i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,aggregate%encoded_bool%4#1
         l-load aggregate%set_bit%13#1 1                                                           i#2,aggregate%val_as_bytes%1#1,aggregate%encoded_bool%4#1,aggregate%set_bit%13#1
         l-load aggregate%encoded_bool%4#1 1                                                       i#2,aggregate%val_as_bytes%1#1,aggregate%set_bit%13#1,aggregate%encoded_bool%4#1
-        concat                                                                                    i#2,aggregate%val_as_bytes%1#1,aggregate%encoded%26#1
-        l-load aggregate%val_as_bytes%1#1 1                                                       i#2,aggregate%encoded%26#1,aggregate%val_as_bytes%1#1
-        concat                                                                                    i#2,aggregate%encoded%27#1
-        v-load arr9#0                                                                             i#2,aggregate%encoded%27#1,arr9#0
-        l-store-copy arr9#0 1                                                                     i#2,arr9#0,aggregate%encoded%27#1,arr9#0 (copy)
-        l-load aggregate%encoded%27#1 1                                                           i#2,arr9#0,arr9#0 (copy),aggregate%encoded%27#1
+        concat                                                                                    i#2,aggregate%val_as_bytes%1#1,aggregate%encoded%22#1
+        l-load aggregate%val_as_bytes%1#1 1                                                       i#2,aggregate%encoded%22#1,aggregate%val_as_bytes%1#1
+        concat                                                                                    i#2,aggregate%encoded%23#1
+        v-load arr9#0                                                                             i#2,aggregate%encoded%23#1,arr9#0
+        l-store-copy arr9#0 1                                                                     i#2,arr9#0,aggregate%encoded%23#1,arr9#0 (copy)
+        l-load aggregate%encoded%23#1 1                                                           i#2,arr9#0,arr9#0 (copy),aggregate%encoded%23#1
         concat // on error: max array length exceeded                                             i#2,arr9#0,concat%3#0
         l-load arr9#0 1                                                                           i#2,concat%3#0,arr9#0
         int 0                                                                                     i#2,concat%3#0,arr9#0,0
@@ -3600,9 +3600,9 @@ subroutine test_tuple_return:
         setbit                                                                                    (𝕡) append#0 | i#0,tmp%3#0,aggregate%val_as_bytes%1#1,aggregate%encoded_bool%1#1
         l-load aggregate%val_as_bytes%1#1 1                                                       (𝕡) append#0 | i#0,tmp%3#0,aggregate%encoded_bool%1#1,aggregate%val_as_bytes%1#1
         l-load aggregate%encoded_bool%1#1 1                                                       (𝕡) append#0 | i#0,tmp%3#0,aggregate%val_as_bytes%1#1,aggregate%encoded_bool%1#1
-        concat                                                                                    (𝕡) append#0 | i#0,tmp%3#0,aggregate%encoded%7#1
-        int 65                                                                                    (𝕡) append#0 | i#0,tmp%3#0,aggregate%encoded%7#1,65
-        l-load tmp%3#0 2                                                                          (𝕡) append#0 | i#0,aggregate%encoded%7#1,65,tmp%3#0
+        concat                                                                                    (𝕡) append#0 | i#0,tmp%3#0,aggregate%encoded%6#1
+        int 65                                                                                    (𝕡) append#0 | i#0,tmp%3#0,aggregate%encoded%6#1,65
+        l-load tmp%3#0 2                                                                          (𝕡) append#0 | i#0,aggregate%encoded%6#1,65,tmp%3#0
         setbit                                                                                    (𝕡) append#0 | i#0,aggregate%set_bit%1#1
         v-load arr#0                                                                              (𝕡) append#0 | i#0,aggregate%set_bit%1#1,arr#0
         l-store-copy arr#0 1                                                                      (𝕡) append#0 | i#0,arr#0,aggregate%set_bit%1#1,arr#0 (copy)
@@ -3677,16 +3677,16 @@ subroutine test_dynamic_tuple_return:
         concat                                                                                    (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%val_as_bytes%1#1,aggregate%encoded_value%1#1
         l-load aggregate%val_as_bytes%1#1 1                                                       (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%1#1,aggregate%val_as_bytes%1#1
         byte 0x000a                                                                               (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%1#1,aggregate%val_as_bytes%1#1,0x000a
-        concat                                                                                    (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%1#1,aggregate%encoded%7#1
-        l-load aggregate%encoded_value%1#1 1                                                      (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%7#1,aggregate%encoded_value%1#1
-        concat                                                                                    (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%8#1
-        byte 0x0002                                                                               (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%8#1,0x0002
-        l-load aggregate%encoded%8#1 1                                                            (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,0x0002,aggregate%encoded%8#1
-        concat                                                                                    (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%10#1
-        l-load extract_uint16%0#0 2                                                               (𝕡) append#0 | i#0,extract_to_end%0#0,aggregate%encoded%10#1,extract_uint16%0#0
-        l-load extract_to_end%0#0 2                                                               (𝕡) append#0 | i#0,aggregate%encoded%10#1,extract_uint16%0#0,extract_to_end%0#0
-        int 1                                                                                     (𝕡) append#0 | i#0,aggregate%encoded%10#1,extract_uint16%0#0,extract_to_end%0#0,1
-        l-load aggregate%encoded%10#1 3                                                           (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,1,aggregate%encoded%10#1
+        concat                                                                                    (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded_value%1#1,aggregate%encoded%6#1
+        l-load aggregate%encoded_value%1#1 1                                                      (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%6#1,aggregate%encoded_value%1#1
+        concat                                                                                    (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%7#1
+        byte 0x0002                                                                               (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%7#1,0x0002
+        l-load aggregate%encoded%7#1 1                                                            (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,0x0002,aggregate%encoded%7#1
+        concat                                                                                    (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,aggregate%encoded%9#1
+        l-load extract_uint16%0#0 2                                                               (𝕡) append#0 | i#0,extract_to_end%0#0,aggregate%encoded%9#1,extract_uint16%0#0
+        l-load extract_to_end%0#0 2                                                               (𝕡) append#0 | i#0,aggregate%encoded%9#1,extract_uint16%0#0,extract_to_end%0#0
+        int 1                                                                                     (𝕡) append#0 | i#0,aggregate%encoded%9#1,extract_uint16%0#0,extract_to_end%0#0,1
+        l-load aggregate%encoded%9#1 3                                                            (𝕡) append#0 | i#0,extract_uint16%0#0,extract_to_end%0#0,1,aggregate%encoded%9#1
         callsub dynamic_array_concat_dynamic_element                                              (𝕡) append#0 | i#0,arr#0
         v-store arr#0                                                                             (𝕡) append#0 | i#0
         // array/immutable.py:380
@@ -3811,13 +3811,13 @@ subroutine test_concat_with_native_tuple:
         // result = prefix + arg
         p-load arg.0#0                                                                            (𝕡) arg.0#0,arg.1#0 | arg.0#0 (copy)
         p-load arg.1#0                                                                            (𝕡) arg.0#0,arg.1#0 | arg.0#0 (copy),arg.1#0 (copy)
-        concat                                                                                    (𝕡) arg.0#0,arg.1#0 | aggregate%encoded%5#1
+        concat                                                                                    (𝕡) arg.0#0,arg.1#0 | aggregate%encoded%4#1
         // array/immutable.py:406
         // prefix = ImmutableArray(arc4.UInt64(1), arc4.UInt64(2))
-        byte 0x000200000000000000010000000000000002                                               (𝕡) arg.0#0,arg.1#0 | aggregate%encoded%5#1,0x000200000000000000010000000000000002
+        byte 0x000200000000000000010000000000000002                                               (𝕡) arg.0#0,arg.1#0 | aggregate%encoded%4#1,0x000200000000000000010000000000000002
         // array/immutable.py:407
         // result = prefix + arg
-        l-load aggregate%encoded%5#1 1                                                            (𝕡) arg.0#0,arg.1#0 | 0x000200000000000000010000000000000002,aggregate%encoded%5#1
+        l-load aggregate%encoded%4#1 1                                                            (𝕡) arg.0#0,arg.1#0 | 0x000200000000000000010000000000000002,aggregate%encoded%4#1
         concat // on error: max array length exceeded                                             (𝕡) arg.0#0,arg.1#0 | concat%0#0
         byte 0x0004                                                                               (𝕡) arg.0#0,arg.1#0 | concat%0#0,0x0004
         replace2 0                                                                                (𝕡) arg.0#0,arg.1#0 | result#0

@@ -4,10 +4,10 @@
 // test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_program() -> uint64:
 main:
     intcblock 0 1 3
-    bytecblock 0x 0x0304 0x03 0x33 0x00020304 0x616263
+    bytecblock 0x0304 0x 0x03 0x33 0x00020304 0x616263
     intc_0 // 0
     dup
-    bytec_0 // ""
+    bytec_1 // ""
     dupn 3
 
 main_block@0:
@@ -16,19 +16,16 @@ main_block@0:
     intc_0 // 0
     // arc4_types/dynamic_bytes.py:12
     // dynamic_bytes = DynamicBytes(Byte(2), UInt8(3), 1)
-    bytec_0 // 0x
+    intc_2 // 3
+    itob
+    extract 6 2
     pushbytes 0x02
     concat
     bytec_2 // 0x03
     concat
     pushbytes 0x01
     concat
-    intc_2 // 3
-    itob
-    extract 6 2
-    swap
-    concat
-    bytec_0 // 0x
+    bytec_1 // 0x
     concat
     dupn 2
     // arc4_types/dynamic_bytes.py:13
@@ -90,11 +87,11 @@ main_after_for@4:
     assert // Total should be of dynamic_bytes items
     // arc4_types/dynamic_bytes.py:21
     // dynamic_bytes2 = DynamicBytes(b"\x03\x04")
-    bytec_1 // 0x0304
+    bytec_0 // 0x0304
     len
     itob
     extract 6 2
-    bytec_1 // 0x0304
+    bytec_0 // 0x0304
     concat
     dup
     bury 11
@@ -102,7 +99,7 @@ main_after_for@4:
     // assert dynamic_bytes2.native == b"\x03\x04"
     dup
     extract 2 0
-    bytec_1 // 0x0304
+    bytec_0 // 0x0304
     ==
     assert
     // arc4_types/dynamic_bytes.py:23
@@ -168,7 +165,7 @@ main_after_for@8:
     // assert dynamic_bytes3.native == b"\x03\x04"
     dup
     extract 2 0
-    bytec_1 // 0x0304
+    bytec_0 // 0x0304
     ==
     assert
     // arc4_types/dynamic_bytes.py:30
@@ -268,19 +265,16 @@ main_after_for@12:
     pushbytes 0x02
     uncover 2
     select
-    bytec_0 // 0x
+    intc_2 // 3
+    itob
+    extract 6 2
     swap
     concat
     bytec_2 // 0x03
     concat
     pushbytes 0x01
     concat
-    intc_2 // 3
-    itob
-    extract 6 2
-    swap
-    concat
-    bytec_0 // 0x
+    bytec_1 // 0x
     concat
     // arc4_types/dynamic_bytes.py:42
     // assert dynamic_bytes.native == Bytes.from_hex("030301")

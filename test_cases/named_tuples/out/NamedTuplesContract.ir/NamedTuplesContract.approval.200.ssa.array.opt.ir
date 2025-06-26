@@ -24,7 +24,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert aggregate%len_ok%0#1) // overflow
         let aggregate%bzero%0#1: bytes = (bzero 64u)
         let aggregate%arc4_encoded%0#1: bytes[64] = (b| b#0 aggregate%bzero%0#1)
-        let aggregate%encoded%1#1: Encoded(uint64,uint512) = (concat aggregate%val_as_bytes%0#1 aggregate%arc4_encoded%0#1)
+        let aggregate%encoded%1#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%arc4_encoded%0#1)
         let aggregate%length%0#1: uint64 = (len c#0)
         let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
         let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
@@ -33,7 +33,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%current_tail_offset%0#1: uint64 = (+ 76u aggregate%data_length%0#1)
         let aggregate%as_bytes%1#1: bytes[8] = (itob 76u)
         let aggregate%offset_as_uint16%0#1: bytes = 0x004c
-        let aggregate%encoded%2#1: Encoded(uint64,uint512,(len+utf8[])) = (concat aggregate%encoded%1#1 0x004c)
+        let aggregate%encoded%2#1: bytes = (concat aggregate%encoded%1#1 0x004c)
         let aggregate%length%1#1: uint64 = (len d#0)
         let aggregate%as_bytes%2#1: bytes[8] = (itob aggregate%length%1#1)
         let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%2#1)
@@ -41,7 +41,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%tail%1#1: bytes = (concat aggregate%encoded_value%0#1 aggregate%encoded_value%1#1)
         let aggregate%as_bytes%3#1: bytes[8] = (itob aggregate%current_tail_offset%0#1)
         let aggregate%offset_as_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%3#1)
-        let aggregate%encoded%3#1: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = (concat aggregate%encoded%2#1 aggregate%offset_as_uint16%1#1)
+        let aggregate%encoded%3#1: bytes = (concat aggregate%encoded%2#1 aggregate%offset_as_uint16%1#1)
         let aggregate%encoded%4#1: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = (concat aggregate%encoded%3#1 aggregate%tail%1#1)
         let tmp%16#0: bytes = (concat 0x151f7c75 aggregate%encoded%4#1)
         (log tmp%16#0)
