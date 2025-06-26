@@ -248,10 +248,10 @@ subroutine my_dyn_struct_arc4:
         v-store aggregate%encoded%2#1                                                                (𝕡) value#0 |
         v-load aggregate%encoded%2#1                                                                 (𝕡) value#0 | aggregate%encoded%2#1
         v-load aggregate%encoded_value%0#1                                                           (𝕡) value#0 | aggregate%encoded%2#1,aggregate%encoded_value%0#1
-        concat                                                                                       (𝕡) value#0 | aggregate%encoded%3#1
-        v-store aggregate%encoded%3#1                                                                (𝕡) value#0 |
-        v-load aggregate%encoded%3#1                                                                 (𝕡) value#0 | aggregate%encoded%3#1
-        retsub                                                                                       aggregate%encoded%3#1
+        concat                                                                                       (𝕡) value#0 | aggregate%concat%0#1
+        v-store aggregate%concat%0#1                                                                 (𝕡) value#0 |
+        v-load aggregate%concat%0#1                                                                  (𝕡) value#0 | aggregate%concat%0#1
+        retsub                                                                                       aggregate%concat%0#1
 
 
 // test_cases.arc4_conversions.contract.TestContract.test_literal_encoding() -> void:
@@ -854,22 +854,22 @@ subroutine test_array_uint64_encoding:
         v-store aggregate%val_as_bytes%3#1
         byte 0x0003                                                                                  0x0003
         v-load aggregate%val_as_bytes%3#1                                                            0x0003,aggregate%val_as_bytes%3#1
-        concat                                                                                       aggregate%encoded%4#1
-        v-store aggregate%encoded%4#1
+        concat                                                                                       aggregate%encoded%3#1
+        v-store aggregate%encoded%3#1
         v-load tmp%18#0                                                                              tmp%18#0
         itob                                                                                         aggregate%val_as_bytes%4#1
         v-store aggregate%val_as_bytes%4#1
-        v-load aggregate%encoded%4#1                                                                 aggregate%encoded%4#1
-        v-load aggregate%val_as_bytes%4#1                                                            aggregate%encoded%4#1,aggregate%val_as_bytes%4#1
-        concat                                                                                       aggregate%encoded%5#1
-        v-store aggregate%encoded%5#1
+        v-load aggregate%encoded%3#1                                                                 aggregate%encoded%3#1
+        v-load aggregate%val_as_bytes%4#1                                                            aggregate%encoded%3#1,aggregate%val_as_bytes%4#1
+        concat                                                                                       aggregate%encoded%4#1
+        v-store aggregate%encoded%4#1
         v-load tmp%20#0                                                                              tmp%20#0
         itob                                                                                         aggregate%val_as_bytes%5#1
         v-store aggregate%val_as_bytes%5#1
-        v-load aggregate%encoded%5#1                                                                 aggregate%encoded%5#1
-        v-load aggregate%val_as_bytes%5#1                                                            aggregate%encoded%5#1,aggregate%val_as_bytes%5#1
-        concat                                                                                       aggregate%encoded%6#1
-        v-store aggregate%encoded%6#1
+        v-load aggregate%encoded%4#1                                                                 aggregate%encoded%4#1
+        v-load aggregate%val_as_bytes%5#1                                                            aggregate%encoded%4#1,aggregate%val_as_bytes%5#1
+        concat                                                                                       aggregate%encoded%5#1
+        v-store aggregate%encoded%5#1
         v-load app#0                                                                                 app#0
         itxn_field ApplicationID
         // arc4_conversions/contract.py:111-116
@@ -881,7 +881,7 @@ subroutine test_array_uint64_encoding:
         // )
         method check_dyn_array_uin64(uint64[],byte[])void                                            Method(check_dyn_array_uin64(uint64[],byte[])void)
         itxn_field ApplicationArgs
-        v-load aggregate%encoded%6#1                                                                 aggregate%encoded%6#1
+        v-load aggregate%encoded%5#1                                                                 aggregate%encoded%5#1
         itxn_field ApplicationArgs
         // arc4_conversions/contract.py:110
         // arc4.abi_call(CheckApp.check_dyn_array_uin64, arr, expected_bytes, app_id=app)
@@ -931,15 +931,15 @@ subroutine test_array_uint64_encoding:
         v-store aggregate%val_as_bytes%7#1
         v-load aggregate%val_as_bytes%6#1                                                            aggregate%val_as_bytes%6#1
         v-load aggregate%val_as_bytes%7#1                                                            aggregate%val_as_bytes%6#1,aggregate%val_as_bytes%7#1
-        concat                                                                                       aggregate%encoded%9#1
-        v-store aggregate%encoded%9#1
+        concat                                                                                       aggregate%encoded%7#1
+        v-store aggregate%encoded%7#1
         v-load tmp%27#0                                                                              tmp%27#0
         itob                                                                                         aggregate%val_as_bytes%8#1
         v-store aggregate%val_as_bytes%8#1
-        v-load aggregate%encoded%9#1                                                                 aggregate%encoded%9#1
-        v-load aggregate%val_as_bytes%8#1                                                            aggregate%encoded%9#1,aggregate%val_as_bytes%8#1
-        concat                                                                                       aggregate%encoded%10#1
-        v-store aggregate%encoded%10#1
+        v-load aggregate%encoded%7#1                                                                 aggregate%encoded%7#1
+        v-load aggregate%val_as_bytes%8#1                                                            aggregate%encoded%7#1,aggregate%val_as_bytes%8#1
+        concat                                                                                       aggregate%encoded%8#1
+        v-store aggregate%encoded%8#1
         v-load app#0                                                                                 app#0
         itxn_field ApplicationID
         // arc4_conversions/contract.py:117-122
@@ -951,7 +951,7 @@ subroutine test_array_uint64_encoding:
         // )
         method check_static_array_uin64_3(uint64[3],byte[])void                                      Method(check_static_array_uin64_3(uint64[3],byte[])void)
         itxn_field ApplicationArgs
-        v-load aggregate%encoded%10#1                                                                aggregate%encoded%10#1
+        v-load aggregate%encoded%8#1                                                                 aggregate%encoded%8#1
         itxn_field ApplicationArgs
         // arc4_conversions/contract.py:120
         // expected_bytes[2:],
@@ -1025,25 +1025,25 @@ subroutine test_array_static_encoding:
         v-store aggregate%encoded%1#1
         byte 0x0003                                                                                  0x0003
         v-load aggregate%encoded%1#1                                                                 0x0003,aggregate%encoded%1#1
-        concat                                                                                       aggregate%encoded%3#1
-        v-store aggregate%encoded%3#1
+        concat                                                                                       aggregate%encoded%2#1
+        v-store aggregate%encoded%2#1
         int 2                                                                                        2
         itob                                                                                         aggregate%val_as_bytes%1#1
         v-store aggregate%val_as_bytes%1#1
         v-load aggregate%val_as_bytes%1#1                                                            aggregate%val_as_bytes%1#1
         v-load tmp%0#1                                                                               aggregate%val_as_bytes%1#1,tmp%0#1
+        concat                                                                                       aggregate%encoded%4#1
+        v-store aggregate%encoded%4#1
+        v-load aggregate%encoded%2#1                                                                 aggregate%encoded%2#1
+        v-load aggregate%encoded%4#1                                                                 aggregate%encoded%2#1,aggregate%encoded%4#1
         concat                                                                                       aggregate%encoded%5#1
         v-store aggregate%encoded%5#1
-        v-load aggregate%encoded%3#1                                                                 aggregate%encoded%3#1
-        v-load aggregate%encoded%5#1                                                                 aggregate%encoded%3#1,aggregate%encoded%5#1
-        concat                                                                                       aggregate%encoded%7#1
-        v-store aggregate%encoded%7#1
         v-load aggregate%as_bytes%0#1                                                                aggregate%as_bytes%0#1
         v-load tmp%0#2                                                                               aggregate%as_bytes%0#1,tmp%0#2
-        concat                                                                                       aggregate%encoded%9#1
-        v-store aggregate%encoded%9#1
-        v-load aggregate%encoded%7#1                                                                 aggregate%encoded%7#1
-        v-load aggregate%encoded%9#1                                                                 aggregate%encoded%7#1,aggregate%encoded%9#1
+        concat                                                                                       aggregate%encoded%7#1
+        v-store aggregate%encoded%7#1
+        v-load aggregate%encoded%5#1                                                                 aggregate%encoded%5#1
+        v-load aggregate%encoded%7#1                                                                 aggregate%encoded%5#1,aggregate%encoded%7#1
         concat                                                                                       arr#0
         v-store arr#0
         // arc4_conversions/contract.py:134
@@ -1176,24 +1176,24 @@ subroutine test_array_static_encoding:
         // (my_struct(UInt64(1)), my_struct(UInt64(2)), my_struct(UInt64(3))),
         v-load aggregate%val_as_bytes%0#1                                                            aggregate%val_as_bytes%0#1
         v-load tmp%0#0                                                                               aggregate%val_as_bytes%0#1,tmp%0#0
-        concat                                                                                       aggregate%encoded%14#1
-        v-store aggregate%encoded%14#1
+        concat                                                                                       aggregate%encoded%10#1
+        v-store aggregate%encoded%10#1
         v-load aggregate%val_as_bytes%1#1                                                            aggregate%val_as_bytes%1#1
         v-load tmp%0#1                                                                               aggregate%val_as_bytes%1#1,tmp%0#1
-        concat                                                                                       aggregate%encoded%18#1
-        v-store aggregate%encoded%18#1
-        v-load aggregate%encoded%14#1                                                                aggregate%encoded%14#1
-        v-load aggregate%encoded%18#1                                                                aggregate%encoded%14#1,aggregate%encoded%18#1
-        concat                                                                                       aggregate%encoded%20#1
-        v-store aggregate%encoded%20#1
+        concat                                                                                       aggregate%encoded%13#1
+        v-store aggregate%encoded%13#1
+        v-load aggregate%encoded%10#1                                                                aggregate%encoded%10#1
+        v-load aggregate%encoded%13#1                                                                aggregate%encoded%10#1,aggregate%encoded%13#1
+        concat                                                                                       aggregate%encoded%14#1
+        v-store aggregate%encoded%14#1
         v-load aggregate%as_bytes%0#1                                                                aggregate%as_bytes%0#1
         v-load tmp%0#2                                                                               aggregate%as_bytes%0#1,tmp%0#2
-        concat                                                                                       aggregate%encoded%22#1
-        v-store aggregate%encoded%22#1
-        v-load aggregate%encoded%20#1                                                                aggregate%encoded%20#1
-        v-load aggregate%encoded%22#1                                                                aggregate%encoded%20#1,aggregate%encoded%22#1
-        concat                                                                                       aggregate%encoded%24#1
-        v-store aggregate%encoded%24#1
+        concat                                                                                       aggregate%encoded%16#1
+        v-store aggregate%encoded%16#1
+        v-load aggregate%encoded%14#1                                                                aggregate%encoded%14#1
+        v-load aggregate%encoded%16#1                                                                aggregate%encoded%14#1,aggregate%encoded%16#1
+        concat                                                                                       aggregate%encoded%17#1
+        v-store aggregate%encoded%17#1
         // arc4_conversions/contract.py:144
         // expected_bytes[2:],
         int 2                                                                                        2
@@ -1234,7 +1234,7 @@ subroutine test_array_static_encoding:
         // )
         method check_static_array_struct((uint64,address)[3],byte[])void                             Method(check_static_array_struct((uint64,address)[3],byte[])void)
         itxn_field ApplicationArgs
-        v-load aggregate%encoded%24#1                                                                aggregate%encoded%24#1
+        v-load aggregate%encoded%17#1                                                                aggregate%encoded%17#1
         itxn_field ApplicationArgs
         v-load aggregate%encoded_value%1#1                                                           aggregate%encoded_value%1#1
         itxn_field ApplicationArgs
@@ -1321,9 +1321,9 @@ subroutine test_array_dynamic_encoding:
         v-store aggregate%encoded%2#1
         v-load aggregate%encoded%2#1                                                                 aggregate%encoded%2#1
         v-load aggregate%encoded_value%0#1                                                           aggregate%encoded%2#1,aggregate%encoded_value%0#1
-        concat                                                                                       aggregate%encoded%3#1
-        v-store aggregate%encoded%3#1
-        v-load aggregate%encoded%3#1                                                                 aggregate%encoded%3#1
+        concat                                                                                       aggregate%concat%0#1
+        v-store aggregate%concat%0#1
+        v-load aggregate%concat%0#1                                                                  aggregate%concat%0#1
         len                                                                                          aggregate%data_length%1#1
         v-store aggregate%data_length%1#1
         int 6                                                                                        6
@@ -1341,25 +1341,21 @@ subroutine test_array_dynamic_encoding:
         v-store aggregate%val_as_bytes%1#1
         v-load aggregate%val_as_bytes%1#1                                                            aggregate%val_as_bytes%1#1
         v-load tmp%0#1                                                                               aggregate%val_as_bytes%1#1,tmp%0#1
-        concat                                                                                       aggregate%encoded%6#1
-        v-store aggregate%encoded%6#1
+        concat                                                                                       aggregate%encoded%5#1
+        v-store aggregate%encoded%5#1
         byte 0x0020                                                                                  0x0020
         v-load tmp%1#2                                                                               0x0020,tmp%1#2
         concat                                                                                       aggregate%encoded_value%1#1
         v-store aggregate%encoded_value%1#1
+        v-load aggregate%encoded%5#1                                                                 aggregate%encoded%5#1
+        byte 0x002a                                                                                  aggregate%encoded%5#1,0x002a
+        concat                                                                                       aggregate%encoded%6#1
+        v-store aggregate%encoded%6#1
         v-load aggregate%encoded%6#1                                                                 aggregate%encoded%6#1
-        byte 0x002a                                                                                  aggregate%encoded%6#1,0x002a
-        concat                                                                                       aggregate%encoded%7#1
-        v-store aggregate%encoded%7#1
-        v-load aggregate%encoded%7#1                                                                 aggregate%encoded%7#1
-        v-load aggregate%encoded_value%1#1                                                           aggregate%encoded%7#1,aggregate%encoded_value%1#1
-        concat                                                                                       aggregate%encoded%8#1
-        v-store aggregate%encoded%8#1
-        v-load aggregate%encoded%3#1                                                                 aggregate%encoded%3#1
-        v-load aggregate%encoded%8#1                                                                 aggregate%encoded%3#1,aggregate%encoded%8#1
-        concat                                                                                       aggregate%tail%3#1
-        v-store aggregate%tail%3#1
-        v-load aggregate%encoded%8#1                                                                 aggregate%encoded%8#1
+        v-load aggregate%encoded_value%1#1                                                           aggregate%encoded%6#1,aggregate%encoded_value%1#1
+        concat                                                                                       aggregate%concat%1#1
+        v-store aggregate%concat%1#1
+        v-load aggregate%concat%1#1                                                                  aggregate%concat%1#1
         len                                                                                          aggregate%data_length%3#1
         v-store aggregate%data_length%3#1
         v-load aggregate%current_tail_offset%1#1                                                     aggregate%current_tail_offset%1#1
@@ -1374,40 +1370,44 @@ subroutine test_array_dynamic_encoding:
         v-store aggregate%offset_as_uint16%3#1
         byte 0x00030006                                                                              0x00030006
         v-load aggregate%offset_as_uint16%3#1                                                        0x00030006,aggregate%offset_as_uint16%3#1
-        concat                                                                                       aggregate%encoded%9#1
-        v-store aggregate%encoded%9#1
+        concat                                                                                       aggregate%encoded%7#1
+        v-store aggregate%encoded%7#1
         v-load aggregate%as_bytes%0#1                                                                aggregate%as_bytes%0#1
         v-load tmp%0#2                                                                               aggregate%as_bytes%0#1,tmp%0#2
-        concat                                                                                       aggregate%encoded%11#1
-        v-store aggregate%encoded%11#1
+        concat                                                                                       aggregate%encoded%9#1
+        v-store aggregate%encoded%9#1
         byte 0x0020                                                                                  0x0020
         v-load tmp%1#3                                                                               0x0020,tmp%1#3
         concat                                                                                       aggregate%encoded_value%2#1
         v-store aggregate%encoded_value%2#1
-        v-load aggregate%encoded%11#1                                                                aggregate%encoded%11#1
-        byte 0x002a                                                                                  aggregate%encoded%11#1,0x002a
-        concat                                                                                       aggregate%encoded%12#1
-        v-store aggregate%encoded%12#1
-        v-load aggregate%encoded%12#1                                                                aggregate%encoded%12#1
-        v-load aggregate%encoded_value%2#1                                                           aggregate%encoded%12#1,aggregate%encoded_value%2#1
-        concat                                                                                       aggregate%encoded%13#1
-        v-store aggregate%encoded%13#1
-        v-load aggregate%tail%3#1                                                                    aggregate%tail%3#1
-        v-load aggregate%encoded%13#1                                                                aggregate%tail%3#1,aggregate%encoded%13#1
-        concat                                                                                       aggregate%tail%5#1
-        v-store aggregate%tail%5#1
+        v-load aggregate%encoded%9#1                                                                 aggregate%encoded%9#1
+        byte 0x002a                                                                                  aggregate%encoded%9#1,0x002a
+        concat                                                                                       aggregate%encoded%10#1
+        v-store aggregate%encoded%10#1
+        v-load aggregate%encoded%10#1                                                                aggregate%encoded%10#1
+        v-load aggregate%encoded_value%2#1                                                           aggregate%encoded%10#1,aggregate%encoded_value%2#1
+        concat                                                                                       aggregate%concat%2#1
+        v-store aggregate%concat%2#1
         v-load aggregate%current_tail_offset%3#1                                                     aggregate%current_tail_offset%3#1
         itob                                                                                         aggregate%as_bytes%9#1
         v-store aggregate%as_bytes%9#1
         v-load aggregate%as_bytes%9#1                                                                aggregate%as_bytes%9#1
         extract 6 2                                                                                  aggregate%offset_as_uint16%5#1
         v-store aggregate%offset_as_uint16%5#1
-        v-load aggregate%encoded%9#1                                                                 aggregate%encoded%9#1
-        v-load aggregate%offset_as_uint16%5#1                                                        aggregate%encoded%9#1,aggregate%offset_as_uint16%5#1
-        concat                                                                                       aggregate%encoded%14#1
-        v-store aggregate%encoded%14#1
-        v-load aggregate%encoded%14#1                                                                aggregate%encoded%14#1
-        v-load aggregate%tail%5#1                                                                    aggregate%encoded%14#1,aggregate%tail%5#1
+        v-load aggregate%encoded%7#1                                                                 aggregate%encoded%7#1
+        v-load aggregate%offset_as_uint16%5#1                                                        aggregate%encoded%7#1,aggregate%offset_as_uint16%5#1
+        concat                                                                                       aggregate%encoded%11#1
+        v-store aggregate%encoded%11#1
+        v-load aggregate%encoded%11#1                                                                aggregate%encoded%11#1
+        v-load aggregate%concat%0#1                                                                  aggregate%encoded%11#1,aggregate%concat%0#1
+        concat                                                                                       aggregate%concat%3#1
+        v-store aggregate%concat%3#1
+        v-load aggregate%concat%3#1                                                                  aggregate%concat%3#1
+        v-load aggregate%concat%1#1                                                                  aggregate%concat%3#1,aggregate%concat%1#1
+        concat                                                                                       aggregate%concat%4#1
+        v-store aggregate%concat%4#1
+        v-load aggregate%concat%4#1                                                                  aggregate%concat%4#1
+        v-load aggregate%concat%2#1                                                                  aggregate%concat%4#1,aggregate%concat%2#1
         concat                                                                                       arr#0
         v-store arr#0
         // arc4_conversions/contract.py:158
@@ -1438,10 +1438,6 @@ subroutine test_array_dynamic_encoding:
         v-load aggregate%data_length%6#1                                                             6,aggregate%data_length%6#1
         +                                                                                            aggregate%current_tail_offset%6#1
         v-store aggregate%current_tail_offset%6#1
-        v-load tmp%10#0                                                                              tmp%10#0
-        v-load tmp%11#0                                                                              tmp%10#0,tmp%11#0
-        concat                                                                                       aggregate%tail%7#1
-        v-store aggregate%tail%7#1
         v-load tmp%11#0                                                                              tmp%11#0
         len                                                                                          aggregate%data_length%7#1
         v-store aggregate%data_length%7#1
@@ -1457,24 +1453,28 @@ subroutine test_array_dynamic_encoding:
         v-store aggregate%offset_as_uint16%7#1
         byte 0x00030006                                                                              0x00030006
         v-load aggregate%offset_as_uint16%7#1                                                        0x00030006,aggregate%offset_as_uint16%7#1
-        concat                                                                                       aggregate%encoded%17#1
-        v-store aggregate%encoded%17#1
-        v-load aggregate%tail%7#1                                                                    aggregate%tail%7#1
-        v-load tmp%12#0                                                                              aggregate%tail%7#1,tmp%12#0
-        concat                                                                                       aggregate%tail%8#1
-        v-store aggregate%tail%8#1
+        concat                                                                                       aggregate%encoded%13#1
+        v-store aggregate%encoded%13#1
         v-load aggregate%current_tail_offset%7#1                                                     aggregate%current_tail_offset%7#1
         itob                                                                                         aggregate%as_bytes%13#1
         v-store aggregate%as_bytes%13#1
         v-load aggregate%as_bytes%13#1                                                               aggregate%as_bytes%13#1
         extract 6 2                                                                                  aggregate%offset_as_uint16%8#1
         v-store aggregate%offset_as_uint16%8#1
-        v-load aggregate%encoded%17#1                                                                aggregate%encoded%17#1
-        v-load aggregate%offset_as_uint16%8#1                                                        aggregate%encoded%17#1,aggregate%offset_as_uint16%8#1
-        concat                                                                                       aggregate%encoded%18#1
-        v-store aggregate%encoded%18#1
-        v-load aggregate%encoded%18#1                                                                aggregate%encoded%18#1
-        v-load aggregate%tail%8#1                                                                    aggregate%encoded%18#1,aggregate%tail%8#1
+        v-load aggregate%encoded%13#1                                                                aggregate%encoded%13#1
+        v-load aggregate%offset_as_uint16%8#1                                                        aggregate%encoded%13#1,aggregate%offset_as_uint16%8#1
+        concat                                                                                       aggregate%encoded%14#1
+        v-store aggregate%encoded%14#1
+        v-load aggregate%encoded%14#1                                                                aggregate%encoded%14#1
+        v-load tmp%10#0                                                                              aggregate%encoded%14#1,tmp%10#0
+        concat                                                                                       aggregate%concat%6#1
+        v-store aggregate%concat%6#1
+        v-load aggregate%concat%6#1                                                                  aggregate%concat%6#1
+        v-load tmp%11#0                                                                              aggregate%concat%6#1,tmp%11#0
+        concat                                                                                       aggregate%concat%7#1
+        v-store aggregate%concat%7#1
+        v-load aggregate%concat%7#1                                                                  aggregate%concat%7#1
+        v-load tmp%12#0                                                                              aggregate%concat%7#1,tmp%12#0
         concat                                                                                       expected_bytes#0
         v-store expected_bytes#0
         // arc4_conversions/contract.py:162
@@ -1534,10 +1534,6 @@ subroutine test_array_dynamic_encoding:
         v-load aggregate%data_length%9#1                                                             6,aggregate%data_length%9#1
         +                                                                                            aggregate%current_tail_offset%9#1
         v-store aggregate%current_tail_offset%9#1
-        v-load tmp%14#0                                                                              tmp%14#0
-        v-load tmp%15#0                                                                              tmp%14#0,tmp%15#0
-        concat                                                                                       aggregate%tail%10#1
-        v-store aggregate%tail%10#1
         v-load tmp%15#0                                                                              tmp%15#0
         len                                                                                          aggregate%data_length%10#1
         v-store aggregate%data_length%10#1
@@ -1553,24 +1549,28 @@ subroutine test_array_dynamic_encoding:
         v-store aggregate%offset_as_uint16%10#1
         byte 0x0006                                                                                  0x0006
         v-load aggregate%offset_as_uint16%10#1                                                       0x0006,aggregate%offset_as_uint16%10#1
-        concat                                                                                       aggregate%encoded%21#1
-        v-store aggregate%encoded%21#1
-        v-load aggregate%tail%10#1                                                                   aggregate%tail%10#1
-        v-load tmp%16#0                                                                              aggregate%tail%10#1,tmp%16#0
-        concat                                                                                       aggregate%tail%11#1
-        v-store aggregate%tail%11#1
+        concat                                                                                       aggregate%encoded%16#1
+        v-store aggregate%encoded%16#1
         v-load aggregate%current_tail_offset%10#1                                                    aggregate%current_tail_offset%10#1
         itob                                                                                         aggregate%as_bytes%17#1
         v-store aggregate%as_bytes%17#1
         v-load aggregate%as_bytes%17#1                                                               aggregate%as_bytes%17#1
         extract 6 2                                                                                  aggregate%offset_as_uint16%11#1
         v-store aggregate%offset_as_uint16%11#1
-        v-load aggregate%encoded%21#1                                                                aggregate%encoded%21#1
-        v-load aggregate%offset_as_uint16%11#1                                                       aggregate%encoded%21#1,aggregate%offset_as_uint16%11#1
-        concat                                                                                       aggregate%encoded%22#1
-        v-store aggregate%encoded%22#1
-        v-load aggregate%encoded%22#1                                                                aggregate%encoded%22#1
-        v-load aggregate%tail%11#1                                                                   aggregate%encoded%22#1,aggregate%tail%11#1
+        v-load aggregate%encoded%16#1                                                                aggregate%encoded%16#1
+        v-load aggregate%offset_as_uint16%11#1                                                       aggregate%encoded%16#1,aggregate%offset_as_uint16%11#1
+        concat                                                                                       aggregate%encoded%17#1
+        v-store aggregate%encoded%17#1
+        v-load aggregate%encoded%17#1                                                                aggregate%encoded%17#1
+        v-load tmp%14#0                                                                              aggregate%encoded%17#1,tmp%14#0
+        concat                                                                                       aggregate%concat%9#1
+        v-store aggregate%concat%9#1
+        v-load aggregate%concat%9#1                                                                  aggregate%concat%9#1
+        v-load tmp%15#0                                                                              aggregate%concat%9#1,tmp%15#0
+        concat                                                                                       aggregate%concat%10#1
+        v-store aggregate%concat%10#1
+        v-load aggregate%concat%10#1                                                                 aggregate%concat%10#1
+        v-load tmp%16#0                                                                              aggregate%concat%10#1,tmp%16#0
         concat                                                                                       expected_bytes#0
         v-store expected_bytes#0
         // arc4_conversions/contract.py:169-174
@@ -1599,21 +1599,21 @@ subroutine test_array_dynamic_encoding:
         // (my_dyn_struct(UInt64(1)), my_dyn_struct(UInt64(2)), my_dyn_struct(UInt64(3))),
         v-load aggregate%val_as_bytes%0#1                                                            aggregate%val_as_bytes%0#1
         v-load tmp%0#0                                                                               aggregate%val_as_bytes%0#1,tmp%0#0
-        concat                                                                                       aggregate%encoded%25#1
-        v-store aggregate%encoded%25#1
+        concat                                                                                       aggregate%encoded%19#1
+        v-store aggregate%encoded%19#1
         byte 0x0020                                                                                  0x0020
         v-load tmp%1#1                                                                               0x0020,tmp%1#1
         concat                                                                                       aggregate%encoded_value%4#1
         v-store aggregate%encoded_value%4#1
-        v-load aggregate%encoded%25#1                                                                aggregate%encoded%25#1
-        byte 0x002a                                                                                  aggregate%encoded%25#1,0x002a
-        concat                                                                                       aggregate%encoded%26#1
-        v-store aggregate%encoded%26#1
-        v-load aggregate%encoded%26#1                                                                aggregate%encoded%26#1
-        v-load aggregate%encoded_value%4#1                                                           aggregate%encoded%26#1,aggregate%encoded_value%4#1
-        concat                                                                                       aggregate%encoded%27#1
-        v-store aggregate%encoded%27#1
-        v-load aggregate%encoded%27#1                                                                aggregate%encoded%27#1
+        v-load aggregate%encoded%19#1                                                                aggregate%encoded%19#1
+        byte 0x002a                                                                                  aggregate%encoded%19#1,0x002a
+        concat                                                                                       aggregate%encoded%20#1
+        v-store aggregate%encoded%20#1
+        v-load aggregate%encoded%20#1                                                                aggregate%encoded%20#1
+        v-load aggregate%encoded_value%4#1                                                           aggregate%encoded%20#1,aggregate%encoded_value%4#1
+        concat                                                                                       aggregate%concat%12#1
+        v-store aggregate%concat%12#1
+        v-load aggregate%concat%12#1                                                                 aggregate%concat%12#1
         len                                                                                          aggregate%data_length%13#1
         v-store aggregate%data_length%13#1
         int 6                                                                                        6
@@ -1622,25 +1622,21 @@ subroutine test_array_dynamic_encoding:
         v-store aggregate%current_tail_offset%13#1
         v-load aggregate%val_as_bytes%1#1                                                            aggregate%val_as_bytes%1#1
         v-load tmp%0#1                                                                               aggregate%val_as_bytes%1#1,tmp%0#1
-        concat                                                                                       aggregate%encoded%30#1
-        v-store aggregate%encoded%30#1
+        concat                                                                                       aggregate%encoded%23#1
+        v-store aggregate%encoded%23#1
         byte 0x0020                                                                                  0x0020
         v-load tmp%1#2                                                                               0x0020,tmp%1#2
         concat                                                                                       aggregate%encoded_value%5#1
         v-store aggregate%encoded_value%5#1
-        v-load aggregate%encoded%30#1                                                                aggregate%encoded%30#1
-        byte 0x002a                                                                                  aggregate%encoded%30#1,0x002a
-        concat                                                                                       aggregate%encoded%31#1
-        v-store aggregate%encoded%31#1
-        v-load aggregate%encoded%31#1                                                                aggregate%encoded%31#1
-        v-load aggregate%encoded_value%5#1                                                           aggregate%encoded%31#1,aggregate%encoded_value%5#1
-        concat                                                                                       aggregate%encoded%32#1
-        v-store aggregate%encoded%32#1
-        v-load aggregate%encoded%27#1                                                                aggregate%encoded%27#1
-        v-load aggregate%encoded%32#1                                                                aggregate%encoded%27#1,aggregate%encoded%32#1
-        concat                                                                                       aggregate%tail%15#1
-        v-store aggregate%tail%15#1
-        v-load aggregate%encoded%32#1                                                                aggregate%encoded%32#1
+        v-load aggregate%encoded%23#1                                                                aggregate%encoded%23#1
+        byte 0x002a                                                                                  aggregate%encoded%23#1,0x002a
+        concat                                                                                       aggregate%encoded%24#1
+        v-store aggregate%encoded%24#1
+        v-load aggregate%encoded%24#1                                                                aggregate%encoded%24#1
+        v-load aggregate%encoded_value%5#1                                                           aggregate%encoded%24#1,aggregate%encoded_value%5#1
+        concat                                                                                       aggregate%concat%13#1
+        v-store aggregate%concat%13#1
+        v-load aggregate%concat%13#1                                                                 aggregate%concat%13#1
         len                                                                                          aggregate%data_length%15#1
         v-store aggregate%data_length%15#1
         v-load aggregate%current_tail_offset%13#1                                                    aggregate%current_tail_offset%13#1
@@ -1655,42 +1651,46 @@ subroutine test_array_dynamic_encoding:
         v-store aggregate%offset_as_uint16%15#1
         byte 0x0006                                                                                  0x0006
         v-load aggregate%offset_as_uint16%15#1                                                       0x0006,aggregate%offset_as_uint16%15#1
-        concat                                                                                       aggregate%encoded%33#1
-        v-store aggregate%encoded%33#1
+        concat                                                                                       aggregate%encoded%25#1
+        v-store aggregate%encoded%25#1
         v-load aggregate%as_bytes%0#1                                                                aggregate%as_bytes%0#1
         v-load tmp%0#2                                                                               aggregate%as_bytes%0#1,tmp%0#2
-        concat                                                                                       aggregate%encoded%35#1
-        v-store aggregate%encoded%35#1
+        concat                                                                                       aggregate%encoded%27#1
+        v-store aggregate%encoded%27#1
         byte 0x0020                                                                                  0x0020
         v-load tmp%1#3                                                                               0x0020,tmp%1#3
         concat                                                                                       aggregate%encoded_value%6#1
         v-store aggregate%encoded_value%6#1
-        v-load aggregate%encoded%35#1                                                                aggregate%encoded%35#1
-        byte 0x002a                                                                                  aggregate%encoded%35#1,0x002a
-        concat                                                                                       aggregate%encoded%36#1
-        v-store aggregate%encoded%36#1
-        v-load aggregate%encoded%36#1                                                                aggregate%encoded%36#1
-        v-load aggregate%encoded_value%6#1                                                           aggregate%encoded%36#1,aggregate%encoded_value%6#1
-        concat                                                                                       aggregate%encoded%37#1
-        v-store aggregate%encoded%37#1
-        v-load aggregate%tail%15#1                                                                   aggregate%tail%15#1
-        v-load aggregate%encoded%37#1                                                                aggregate%tail%15#1,aggregate%encoded%37#1
-        concat                                                                                       aggregate%tail%17#1
-        v-store aggregate%tail%17#1
+        v-load aggregate%encoded%27#1                                                                aggregate%encoded%27#1
+        byte 0x002a                                                                                  aggregate%encoded%27#1,0x002a
+        concat                                                                                       aggregate%encoded%28#1
+        v-store aggregate%encoded%28#1
+        v-load aggregate%encoded%28#1                                                                aggregate%encoded%28#1
+        v-load aggregate%encoded_value%6#1                                                           aggregate%encoded%28#1,aggregate%encoded_value%6#1
+        concat                                                                                       aggregate%concat%14#1
+        v-store aggregate%concat%14#1
         v-load aggregate%current_tail_offset%15#1                                                    aggregate%current_tail_offset%15#1
         itob                                                                                         aggregate%as_bytes%26#1
         v-store aggregate%as_bytes%26#1
         v-load aggregate%as_bytes%26#1                                                               aggregate%as_bytes%26#1
         extract 6 2                                                                                  aggregate%offset_as_uint16%17#1
         v-store aggregate%offset_as_uint16%17#1
-        v-load aggregate%encoded%33#1                                                                aggregate%encoded%33#1
-        v-load aggregate%offset_as_uint16%17#1                                                       aggregate%encoded%33#1,aggregate%offset_as_uint16%17#1
-        concat                                                                                       aggregate%encoded%38#1
-        v-store aggregate%encoded%38#1
-        v-load aggregate%encoded%38#1                                                                aggregate%encoded%38#1
-        v-load aggregate%tail%17#1                                                                   aggregate%encoded%38#1,aggregate%tail%17#1
-        concat                                                                                       aggregate%encoded%39#1
-        v-store aggregate%encoded%39#1
+        v-load aggregate%encoded%25#1                                                                aggregate%encoded%25#1
+        v-load aggregate%offset_as_uint16%17#1                                                       aggregate%encoded%25#1,aggregate%offset_as_uint16%17#1
+        concat                                                                                       aggregate%encoded%29#1
+        v-store aggregate%encoded%29#1
+        v-load aggregate%encoded%29#1                                                                aggregate%encoded%29#1
+        v-load aggregate%concat%12#1                                                                 aggregate%encoded%29#1,aggregate%concat%12#1
+        concat                                                                                       aggregate%concat%15#1
+        v-store aggregate%concat%15#1
+        v-load aggregate%concat%15#1                                                                 aggregate%concat%15#1
+        v-load aggregate%concat%13#1                                                                 aggregate%concat%15#1,aggregate%concat%13#1
+        concat                                                                                       aggregate%concat%16#1
+        v-store aggregate%concat%16#1
+        v-load aggregate%concat%16#1                                                                 aggregate%concat%16#1
+        v-load aggregate%concat%14#1                                                                 aggregate%concat%16#1,aggregate%concat%14#1
+        concat                                                                                       aggregate%concat%17#1
+        v-store aggregate%concat%17#1
         // arc4_conversions/contract.py:172
         // expected_bytes,
         v-load expected_bytes#0                                                                      expected_bytes#0
@@ -1717,7 +1717,7 @@ subroutine test_array_dynamic_encoding:
         // )
         method check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void                  Method(check_static_array_dyn_struct((uint64,address,byte[])[3],byte[])void)
         itxn_field ApplicationArgs
-        v-load aggregate%encoded%39#1                                                                aggregate%encoded%39#1
+        v-load aggregate%concat%17#1                                                                 aggregate%concat%17#1
         itxn_field ApplicationArgs
         v-load aggregate%encoded_value%7#1                                                           aggregate%encoded_value%7#1
         itxn_field ApplicationArgs

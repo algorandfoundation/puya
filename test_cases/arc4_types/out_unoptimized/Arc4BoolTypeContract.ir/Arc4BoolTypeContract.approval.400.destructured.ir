@@ -74,8 +74,8 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let aggregate%get_bit%10#1: uint64 = (getbit tmp%17#0 0u)
         let aggregate%set_bit%9#1: Encoded(bool8) = (setbit aggregate%set_bit%8#1 3u aggregate%get_bit%10#1)
         let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 aggregate%set_bit%9#1)
-        let aggregate%encoded%2#1: Encoded(bool1[12]) = (concat aggregate%encoded%1#1 0x)
-        let encoded_array%0#0: Encoded(bool1[12]) = aggregate%encoded%2#1
+        let aggregate%as_Encoded(bool1[12])%0#1: Encoded(bool1[12]) = aggregate%encoded%1#1
+        let encoded_array%0#0: Encoded(bool1[12]) = aggregate%as_Encoded(bool1[12])%0#1
         let static_boolean_array#0: Encoded(bool1[12]) = encoded_array%0#0
         let tmp%18#0: bool = (== static_boolean_array#0 0xfff0)
         (assert tmp%18#0)
@@ -117,9 +117,9 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let aggregate%set_bit%10#1: Encoded(bool8) = (setbit tmp%24#0 1u aggregate%get_bit%13#1)
         let aggregate%get_bit%14#1: uint64 = (getbit tmp%26#0 0u)
         let aggregate%set_bit%11#1: Encoded(bool8) = (setbit aggregate%set_bit%10#1 2u aggregate%get_bit%14#1)
-        let aggregate%encoded%3#1: bytes = (concat aggregate%len_u16%0#1 aggregate%set_bit%11#1)
-        let aggregate%encoded%4#1: Encoded(len+bool1[]) = (concat aggregate%encoded%3#1 0x)
-        let encoded_array%1#0: Encoded(len+bool1[]) = aggregate%encoded%4#1
+        let aggregate%encoded%2#1: bytes = (concat aggregate%len_u16%0#1 aggregate%set_bit%11#1)
+        let aggregate%as_Encoded(len+bool1[])%0#1: Encoded(len+bool1[]) = aggregate%encoded%2#1
+        let encoded_array%1#0: Encoded(len+bool1[]) = aggregate%as_Encoded(len+bool1[])%0#1
         let dynamic_boolean_array#0: Encoded(len+bool1[]) = encoded_array%1#0
         let tmp%27#0: bool = (== dynamic_boolean_array#0 0x0003a0)
         (assert tmp%27#0)
@@ -140,13 +140,13 @@ main test_cases.arc4_types.bool.Arc4BoolTypeContract.approval_program:
         let aggregate%encoded_bool%26#1: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%24#1: Encoded(bool8) = aggregate%encoded_bool%26#1
         let tmp%33#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%24#1
-        let aggregate%encoded%5#1: bytes = (concat 0x tmp%29#0)
-        let aggregate%encoded%6#1: bytes = (concat aggregate%encoded%5#1 tmp%30#0)
-        let aggregate%encoded%7#1: bytes = (concat aggregate%encoded%6#1 tmp%31#0)
-        let aggregate%encoded%8#1: bytes = (concat aggregate%encoded%7#1 tmp%32#0)
-        let aggregate%encoded%9#1: bytes = (concat aggregate%encoded%8#1 tmp%33#0)
-        let aggregate%encoded%10#1: Encoded(bool8[]) = (concat aggregate%encoded%9#1 0x)
-        let tmp%34#0: Encoded(bool8[]) = aggregate%encoded%10#1
+        let aggregate%encoded%3#1: bytes = (concat 0x tmp%29#0)
+        let aggregate%encoded%4#1: bytes = (concat aggregate%encoded%3#1 tmp%30#0)
+        let aggregate%encoded%5#1: bytes = (concat aggregate%encoded%4#1 tmp%31#0)
+        let aggregate%encoded%6#1: bytes = (concat aggregate%encoded%5#1 tmp%32#0)
+        let aggregate%encoded%7#1: bytes = (concat aggregate%encoded%6#1 tmp%33#0)
+        let aggregate%as_Encoded(bool8[])%0#1: Encoded(bool8[]) = aggregate%encoded%7#1
+        let tmp%34#0: Encoded(bool8[]) = aggregate%as_Encoded(bool8[])%0#1
         let as_Encoded(len+bool1[])%0#0: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_boolean_array#0, tmp%34#0, 5u, 8u)
         let dynamic_boolean_array#0: Encoded(len+bool1[]) = as_Encoded(len+bool1[])%0#0
         let tmp%35#0: bool = (== dynamic_boolean_array#0 0x0005a8)
@@ -235,8 +235,8 @@ subroutine test_cases.arc4_types.bool.get_arr() -> Encoded(len+bool1[]):
     block@0: // L72
         let aggregate%as_bytes%0#1: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
-        let aggregate%encoded%0#1: Encoded(len+bool1[]) = (concat aggregate%len_u16%0#1 0x)
-        let encoded_array%0#0: Encoded(len+bool1[]) = aggregate%encoded%0#1
+        let aggregate%as_Encoded(len+bool1[])%0#1: Encoded(len+bool1[]) = aggregate%len_u16%0#1
+        let encoded_array%0#0: Encoded(len+bool1[]) = aggregate%as_Encoded(len+bool1[])%0#1
         return encoded_array%0#0
 
 subroutine test_cases.arc4_types.bool.Arc4BoolTypeContract.test_stuff(true: Encoded(bool8), false: Encoded(bool8)) -> bool:

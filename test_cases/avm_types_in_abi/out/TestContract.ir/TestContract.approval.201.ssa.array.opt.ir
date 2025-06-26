@@ -53,12 +53,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%as_bytes%2#1: bytes[8] = (itob aggregate%length%1#1)
         let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%2#1)
         let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 tmp%21#0)
-        let aggregate%tail%1#1: bytes = (concat aggregate%encoded_value%0#1 aggregate%encoded_value%1#1)
         let aggregate%as_bytes%3#1: bytes[8] = (itob aggregate%current_tail_offset%0#1)
         let aggregate%offset_as_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%3#1)
         let aggregate%encoded%4#1: bytes = (concat aggregate%encoded%3#1 aggregate%offset_as_uint16%1#1)
-        let aggregate%encoded%5#1: Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[])) = (concat aggregate%encoded%4#1 aggregate%tail%1#1)
-        let tmp%23#0: bytes = (concat 0x151f7c75 aggregate%encoded%5#1)
+        let aggregate%concat%0#1: bytes = (concat aggregate%encoded%4#1 aggregate%encoded_value%0#1)
+        let aggregate%concat%1#1: bytes = (concat aggregate%concat%0#1 aggregate%encoded_value%1#1)
+        let tmp%23#0: bytes = (concat 0x151f7c75 aggregate%concat%1#1)
         (log tmp%23#0)
         let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#0: bool = 1u
         goto block@9
@@ -72,8 +72,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%extract%2#1: bytes = ((extract 0 1) reinterpret_Encoded(uint8,uint8[32])%0#0)
         let aggregate%extract%3#1: bytes = ((extract 1 32) reinterpret_Encoded(uint8,uint8[32])%0#0)
         let (tmp%30#0: Encoded(uint8), tmp%31#0: Encoded(uint8[32])) = test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4(aggregate%extract%2#1, aggregate%extract%3#1)
-        let aggregate%encoded%7#1: bytes = (concat tmp%30#0 tmp%31#0)
-        let tmp%33#0: bytes = (concat 0x151f7c75 aggregate%encoded%7#1)
+        let aggregate%encoded%6#1: bytes = (concat tmp%30#0 tmp%31#0)
+        let tmp%33#0: bytes = (concat 0x151f7c75 aggregate%encoded%6#1)
         (log tmp%33#0)
         let test_cases.avm_types_in_abi.contract.TestContract.__puya_arc4_router__%0#1: bool = 1u
         goto block@9
