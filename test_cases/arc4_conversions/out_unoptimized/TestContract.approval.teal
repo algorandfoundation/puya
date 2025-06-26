@@ -254,11 +254,6 @@ my_dyn_struct_arc4_block@0:
     concat
     uncover 2
     concat
-    swap
-    bytec_0 // 0x
-    swap
-    concat
-    swap
     pushint 42 // 42
     itob
     extract 6 2
@@ -1107,8 +1102,6 @@ test_array_uint64_encoding_next_txn@1:
     swap
     itob
     concat
-    bytec_0 // 0x
-    concat
     // arc4_conversions/contract.py:108
     // b"\x00\x03" + op.bzero(7) + b"\x01" + op.bzero(7) + b"\x02" + op.bzero(7) + b"\x03"
     pushint 7 // 7
@@ -1190,8 +1183,6 @@ test_array_uint64_encoding_next_txn@2:
     swap
     itob
     concat
-    bytec_0 // 0x
-    concat
     // arc4_conversions/contract.py:114
     // expected_bytes,
     frame_dig 0
@@ -1259,8 +1250,6 @@ test_array_uint64_encoding_next_txn@3:
     concat
     swap
     itob
-    concat
-    bytec_0 // 0x
     concat
     // arc4_conversions/contract.py:120
     // expected_bytes[2:],
@@ -1400,7 +1389,13 @@ test_array_static_encoding_next_txn@1:
     concat
     uncover 2
     concat
+    concat
+    swap
+    itob
     bytec_0 // 0x
+    swap
+    concat
+    uncover 2
     concat
     concat
     swap
@@ -1410,20 +1405,6 @@ test_array_static_encoding_next_txn@1:
     concat
     uncover 2
     concat
-    bytec_0 // 0x
-    concat
-    concat
-    swap
-    itob
-    bytec_0 // 0x
-    swap
-    concat
-    uncover 2
-    concat
-    bytec_0 // 0x
-    concat
-    concat
-    bytec_0 // 0x
     concat
     // arc4_conversions/contract.py:133
     // + (op.bzero(7) + b"\x01")
@@ -1560,8 +1541,6 @@ test_array_static_encoding_next_txn@2:
     swap
     concat
     bytec_0 // 0x
-    concat
-    bytec_0 // 0x
     swap
     concat
     swap
@@ -1571,8 +1550,6 @@ test_array_static_encoding_next_txn@2:
     concat
     uncover 2
     concat
-    bytec_0 // 0x
-    concat
     concat
     swap
     itob
@@ -1581,10 +1558,6 @@ test_array_static_encoding_next_txn@2:
     concat
     uncover 2
     concat
-    bytec_0 // 0x
-    concat
-    concat
-    bytec_0 // 0x
     concat
     // arc4_conversions/contract.py:144
     // expected_bytes[2:],
@@ -1737,9 +1710,6 @@ test_array_dynamic_encoding_next_txn@1:
     extract 6 2
     uncover 2
     concat
-    bytec_0 // 0x
-    swap
-    concat
     pushint 42 // 42
     itob
     extract 6 2
@@ -1748,19 +1718,18 @@ test_array_dynamic_encoding_next_txn@1:
     concat
     swap
     concat
-    bytec_0 // 0x
-    dig 1
-    concat
-    cover 2
+    dup
     len
     intc_1 // 6
     +
-    cover 2
+    swap
     intc_1 // 6
     itob
     extract 6 2
+    uncover 3
+    swap
     concat
-    cover 2
+    swap
     uncover 3
     itob
     bytec_0 // 0x
@@ -1774,9 +1743,6 @@ test_array_dynamic_encoding_next_txn@1:
     extract 6 2
     uncover 5
     concat
-    bytec_0 // 0x
-    swap
-    concat
     pushint 42 // 42
     itob
     extract 6 2
@@ -1785,34 +1751,29 @@ test_array_dynamic_encoding_next_txn@1:
     concat
     swap
     concat
-    swap
-    dig 1
-    concat
-    cover 3
+    dup
     len
-    dig 1
+    dig 4
     +
     swap
+    uncover 4
     itob
     extract 6 2
-    uncover 2
-    swap
-    concat
-    uncover 3
-    itob
-    bytec_0 // 0x
+    uncover 4
     swap
     concat
     uncover 4
+    itob
+    bytec_0 // 0x
+    swap
     concat
-    dig 4
+    uncover 5
+    concat
+    dig 5
     len
     itob
     extract 6 2
-    uncover 5
-    concat
-    bytec_0 // 0x
-    swap
+    uncover 6
     concat
     pushint 42 // 42
     itob
@@ -1823,13 +1784,14 @@ test_array_dynamic_encoding_next_txn@1:
     swap
     concat
     uncover 3
-    swap
-    concat
-    uncover 2
     itob
     extract 6 2
     uncover 2
     swap
+    concat
+    uncover 3
+    concat
+    uncover 2
     concat
     swap
     concat
@@ -1857,39 +1819,36 @@ test_array_dynamic_encoding_next_txn@1:
     itob
     extract 6 2
     swap
-    bytec_0 // 0x
-    dig 1
-    concat
-    cover 2
+    dup
     len
     intc_1 // 6
     +
-    cover 2
+    swap
     intc_1 // 6
     itob
     extract 6 2
-    concat
-    cover 2
-    dig 3
-    concat
-    cover 3
-    uncover 2
-    len
-    dig 1
-    +
-    swap
-    itob
-    extract 6 2
-    uncover 2
-    swap
-    concat
-    uncover 2
     uncover 3
+    swap
     concat
     swap
+    dig 3
+    len
+    dig 3
+    +
+    swap
+    uncover 3
+    itob
+    extract 6 2
+    uncover 3
+    swap
+    concat
     uncover 2
     itob
     extract 6 2
+    concat
+    swap
+    concat
+    swap
     concat
     swap
     concat
@@ -1938,25 +1897,18 @@ test_array_dynamic_encoding_next_txn@2:
     //     my_dyn_struct_arc4(UInt64(2)),
     //     my_dyn_struct_arc4(UInt64(3)),
     // ).bytes
-    bytec_0 // 0x
-    dig 1
-    concat
-    swap
+    dup
     len
     intc_1 // 6
     +
-    swap
     intc_1 // 6
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    cover 2
+    swap
     dig 3
-    concat
-    cover 3
-    uncover 2
     len
     dig 1
     +
@@ -1966,13 +1918,13 @@ test_array_dynamic_encoding_next_txn@2:
     uncover 2
     swap
     concat
-    uncover 2
-    uncover 3
-    concat
     swap
-    uncover 2
     itob
     extract 6 2
+    concat
+    swap
+    concat
+    swap
     concat
     swap
     concat
@@ -2012,9 +1964,6 @@ test_array_dynamic_encoding_next_txn@2:
     extract 6 2
     uncover 2
     concat
-    bytec_0 // 0x
-    swap
-    concat
     pushint 42 // 42
     itob
     extract 6 2
@@ -2023,21 +1972,17 @@ test_array_dynamic_encoding_next_txn@2:
     concat
     swap
     concat
-    bytec_0 // 0x
-    dig 1
-    concat
-    swap
+    dup
     len
     intc_1 // 6
     +
-    swap
     intc_1 // 6
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    cover 2
+    swap
     uncover 3
     itob
     bytec_0 // 0x
@@ -2051,9 +1996,6 @@ test_array_dynamic_encoding_next_txn@2:
     extract 6 2
     uncover 5
     concat
-    bytec_0 // 0x
-    swap
-    concat
     pushint 42 // 42
     itob
     extract 6 2
@@ -2062,34 +2004,29 @@ test_array_dynamic_encoding_next_txn@2:
     concat
     swap
     concat
-    swap
-    dig 1
-    concat
-    cover 3
+    dup
     len
-    dig 1
+    dig 2
     +
     swap
+    uncover 2
     itob
     extract 6 2
-    uncover 2
-    swap
-    concat
     uncover 3
-    itob
-    bytec_0 // 0x
     swap
     concat
     uncover 4
+    itob
+    bytec_0 // 0x
+    swap
     concat
-    dig 4
+    uncover 5
+    concat
+    dig 5
     len
     itob
     extract 6 2
-    uncover 5
-    concat
-    bytec_0 // 0x
-    swap
+    uncover 6
     concat
     pushint 42 // 42
     itob
@@ -2100,13 +2037,14 @@ test_array_dynamic_encoding_next_txn@2:
     swap
     concat
     uncover 3
-    swap
-    concat
-    uncover 2
     itob
     extract 6 2
     uncover 2
     swap
+    concat
+    uncover 3
+    concat
+    uncover 2
     concat
     swap
     concat
