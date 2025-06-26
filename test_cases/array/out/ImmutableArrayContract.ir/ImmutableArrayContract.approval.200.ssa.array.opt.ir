@@ -943,12 +943,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_nam
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob i#1)
         let aggregate%encoded%1#1: bytes = aggregate%val_as_bytes%0#1
         let aggregate%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u tmp%2#0)
-        let aggregate%encoded%2#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%encoded_bool%0#1)
-        let aggregate%set_bit%0#1: bytes = (setbit aggregate%encoded%2#1 65u tmp%5#0)
-        let aggregate%encoded%3#1: Encoded(uint64,bool1,bool1) = aggregate%set_bit%0#1
-        let aggregate%encoded%4#1: bytes = aggregate%set_bit%0#1
-        let aggregate%encoded%5#1: Encoded((uint64,bool1,bool1)[]) = aggregate%set_bit%0#1
-        let concat%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (concat arr#1 aggregate%set_bit%0#1) // on error: max array length exceeded
+        let aggregate%set_bit%0#1: bytes[1] = (setbit aggregate%encoded_bool%0#1 1u tmp%5#0)
+        let aggregate%encoded%2#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%set_bit%0#1)
+        let aggregate%encoded%3#1: Encoded(uint64,bool1,bool1) = aggregate%encoded%2#1
+        let aggregate%encoded%4#1: bytes = aggregate%encoded%2#1
+        let aggregate%encoded%5#1: Encoded((uint64,bool1,bool1)[]) = aggregate%encoded%2#1
+        let concat%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (concat arr#1 aggregate%encoded%2#1) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
@@ -1341,7 +1341,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
         let tmp%4#0: bool = (! i#1)
         let tmp%5#0: bool = (== i#1 1u)
         let aggregate%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u tmp%4#0)
-        let aggregate%set_bit%0#1: bytes = (setbit aggregate%encoded_bool%0#1 1u tmp%5#0)
+        let aggregate%set_bit%0#1: bytes[1] = (setbit aggregate%encoded_bool%0#1 1u tmp%5#0)
         let concat%0#0: Encoded(len+(bool1,bool1)[]) = (concat arr2#1 aggregate%set_bit%0#1) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr2#1 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
@@ -1355,15 +1355,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
         let tmp%13#0: bool = (== i#1 6u)
         let i#2: uint64 = (+ i#1 1u)
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob i#1)
-        let aggregate%encoded%9#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%encoded_bool%0#1)
-        let aggregate%set_bit%1#1: bytes = (setbit aggregate%encoded%9#1 65u tmp%5#0)
-        let aggregate%set_bit%2#1: bytes = (setbit aggregate%set_bit%1#1 66u tmp%9#0)
-        let aggregate%set_bit%3#1: bytes = (setbit aggregate%set_bit%2#1 67u tmp%10#0)
-        let aggregate%set_bit%4#1: bytes = (setbit aggregate%set_bit%3#1 68u tmp%11#0)
-        let aggregate%set_bit%5#1: bytes = (setbit aggregate%set_bit%4#1 69u tmp%12#0)
-        let aggregate%set_bit%6#1: bytes = (setbit aggregate%set_bit%5#1 70u tmp%13#0)
+        let aggregate%set_bit%2#1: bytes[1] = (setbit aggregate%set_bit%0#1 2u tmp%9#0)
+        let aggregate%set_bit%3#1: bytes[1] = (setbit aggregate%set_bit%2#1 3u tmp%10#0)
+        let aggregate%set_bit%4#1: bytes[1] = (setbit aggregate%set_bit%3#1 4u tmp%11#0)
+        let aggregate%set_bit%5#1: bytes[1] = (setbit aggregate%set_bit%4#1 5u tmp%12#0)
+        let aggregate%set_bit%6#1: bytes[1] = (setbit aggregate%set_bit%5#1 6u tmp%13#0)
+        let aggregate%encoded%9#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%set_bit%6#1)
         let aggregate%val_as_bytes%1#1: bytes[8] = (itob i#2)
-        let aggregate%encoded%10#1: bytes = (concat aggregate%set_bit%6#1 aggregate%val_as_bytes%1#1)
+        let aggregate%encoded%10#1: bytes = (concat aggregate%encoded%9#1 aggregate%val_as_bytes%1#1)
         let concat%1#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = (concat arr7#1 aggregate%encoded%10#1) // on error: max array length exceeded
         let extract_uint16%1#0: uint64 = (extract_uint16 arr7#1 0u)
         let add%1#0: uint64 = (+ extract_uint16%1#0 1u)
@@ -1371,8 +1370,9 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let arr7#2: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
         let tmp%23#0: bool = (== i#1 7u)
-        let aggregate%set_bit%13#1: bytes = (setbit aggregate%set_bit%6#1 71u tmp%23#0)
-        let aggregate%encoded%16#1: bytes = (concat aggregate%set_bit%13#1 aggregate%val_as_bytes%1#1)
+        let aggregate%set_bit%13#1: bytes[1] = (setbit aggregate%set_bit%6#1 7u tmp%23#0)
+        let aggregate%encoded%15#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%set_bit%13#1)
+        let aggregate%encoded%16#1: bytes = (concat aggregate%encoded%15#1 aggregate%val_as_bytes%1#1)
         let concat%2#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = (concat arr8#1 aggregate%encoded%16#1) // on error: max array length exceeded
         let extract_uint16%2#0: uint64 = (extract_uint16 arr8#1 0u)
         let add%2#0: uint64 = (+ extract_uint16%2#0 1u)
@@ -1381,7 +1381,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
         let arr8#2: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = ((replace2 0) concat%2#0 as_u16_bytes%2#0)
         let tmp%34#0: bool = (== i#1 8u)
         let aggregate%encoded_bool%4#1: bytes[1] = (setbit 0x00 0u tmp%34#0)
-        let aggregate%encoded%22#1: bytes = (concat aggregate%set_bit%13#1 aggregate%encoded_bool%4#1)
+        let aggregate%encoded%22#1: bytes = (concat aggregate%encoded%15#1 aggregate%encoded_bool%4#1)
         let aggregate%encoded%23#1: bytes = (concat aggregate%encoded%22#1 aggregate%val_as_bytes%1#1)
         let concat%3#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = (concat arr9#1 aggregate%encoded%23#1) // on error: max array length exceeded
         let extract_uint16%3#0: uint64 = (extract_uint16 arr9#1 0u)
@@ -1553,11 +1553,11 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_return(ap
         let aggregate%as_bytes%0#1: bytes[8] = (itob 5u)
         let aggregate%len_u16%0#1: bytes = 0x0005
         let aggregate%encoded_bool%0#1: bytes[1] = 0x80
-        let aggregate%encoded%0#1: bytes = 0x000580
-        let aggregate%set_bit%0#1: bytes = 0x000580
-        let aggregate%set_bit%1#1: bytes = 0x0005a0
-        let aggregate%set_bit%2#1: bytes = 0x0005a0
-        let aggregate%set_bit%3#1: bytes = 0x0005a8
+        let aggregate%set_bit%0#1: bytes[1] = 0x80
+        let aggregate%set_bit%1#1: bytes[1] = 0xa0
+        let aggregate%set_bit%2#1: bytes[1] = 0xa0
+        let aggregate%set_bit%3#1: bytes[1] = 0xa8
+        let aggregate%encoded%0#1: bytes = 0x0005a8
         let arr#0: Encoded(len+bool1[]) = 0x0005a8
         let i#0: uint64 = 0u
         goto block@1
@@ -1585,8 +1585,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(a
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob 0u)
         let aggregate%encoded%0#1: bytes = aggregate%val_as_bytes%0#1
         let aggregate%encoded_bool%0#1: bytes[1] = 0x80
+        let aggregate%set_bit%0#1: bytes[1] = 0x80
         let aggregate%encoded%1#1: bytes = 0x000000000000000080
-        let aggregate%set_bit%0#1: bytes = 0x000000000000000080
         let aggregate%encoded%2#1: Encoded(uint64,bool1,bool1) = 0x000000000000000080
         let aggregate%encoded%3#1: bytes = 0x0001000000000000000080
         let arr#0: Encoded(len+(uint64,bool1,bool1)[]) = 0x0001000000000000000080
@@ -1605,12 +1605,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(a
         let aggregate%val_as_bytes%1#1: bytes[8] = (itob i#1)
         let aggregate%encoded%5#1: bytes = aggregate%val_as_bytes%1#1
         let aggregate%encoded_bool%1#1: bytes[1] = (setbit 0x00 0u tmp%1#0)
-        let aggregate%encoded%6#1: bytes = (concat aggregate%val_as_bytes%1#1 aggregate%encoded_bool%1#1)
-        let aggregate%set_bit%1#1: bytes = (setbit aggregate%encoded%6#1 65u tmp%3#0)
-        let aggregate%encoded%7#1: Encoded(uint64,bool1,bool1) = aggregate%set_bit%1#1
-        let aggregate%encoded%8#1: bytes = aggregate%set_bit%1#1
-        let aggregate%encoded%9#1: Encoded((uint64,bool1,bool1)[]) = aggregate%set_bit%1#1
-        let concat%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (concat arr#1 aggregate%set_bit%1#1) // on error: max array length exceeded
+        let aggregate%set_bit%1#1: bytes[1] = (setbit aggregate%encoded_bool%1#1 1u tmp%3#0)
+        let aggregate%encoded%6#1: bytes = (concat aggregate%val_as_bytes%1#1 aggregate%set_bit%1#1)
+        let aggregate%encoded%7#1: Encoded(uint64,bool1,bool1) = aggregate%encoded%6#1
+        let aggregate%encoded%8#1: bytes = aggregate%encoded%6#1
+        let aggregate%encoded%9#1: Encoded((uint64,bool1,bool1)[]) = aggregate%encoded%6#1
+        let concat%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (concat arr#1 aggregate%encoded%6#1) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
@@ -1690,12 +1690,12 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_convert_to_arr
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob i#1)
         let aggregate%encoded%1#1: bytes = aggregate%val_as_bytes%0#1
         let aggregate%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u tmp%1#0)
-        let aggregate%encoded%2#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%encoded_bool%0#1)
-        let aggregate%set_bit%0#1: bytes = (setbit aggregate%encoded%2#1 65u tmp%3#0)
-        let aggregate%encoded%3#1: Encoded(uint64,bool1,bool1) = aggregate%set_bit%0#1
-        let aggregate%encoded%4#1: bytes = aggregate%set_bit%0#1
-        let aggregate%encoded%5#1: Encoded((uint64,bool1,bool1)[]) = aggregate%set_bit%0#1
-        let concat%1#0: Encoded((uint64,bool1,bool1)[]) = (concat slot_contents%1#0 aggregate%set_bit%0#1) // on error: max array length exceeded
+        let aggregate%set_bit%0#1: bytes[1] = (setbit aggregate%encoded_bool%0#1 1u tmp%3#0)
+        let aggregate%encoded%2#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%set_bit%0#1)
+        let aggregate%encoded%3#1: Encoded(uint64,bool1,bool1) = aggregate%encoded%2#1
+        let aggregate%encoded%4#1: bytes = aggregate%encoded%2#1
+        let aggregate%encoded%5#1: Encoded((uint64,bool1,bool1)[]) = aggregate%encoded%2#1
+        let concat%1#0: Encoded((uint64,bool1,bool1)[]) = (concat slot_contents%1#0 aggregate%encoded%2#1) // on error: max array length exceeded
         store(mutable#0, concat%1#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
