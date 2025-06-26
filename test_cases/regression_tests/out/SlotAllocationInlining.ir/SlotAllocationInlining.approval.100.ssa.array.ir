@@ -13,8 +13,8 @@ main test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining
         itxn_submit
         goto block@2
     block@8: // after_while_L20
-        let aggregate%encoded%0#1: Encoded(uint64[]) = (concat 0x 0x)
-        let encoded_array%0#0: Encoded(uint64[]) = aggregate%encoded%0#1
+        let aggregate%as_Encoded(uint64[])%0#1: Encoded(uint64[]) = 0x
+        let encoded_array%0#0: Encoded(uint64[]) = aggregate%as_Encoded(uint64[])%0#1
         let arr#0: Encoded(uint64[])* = new()
         store(arr#0, encoded_array%0#0)
         test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr#0)
@@ -40,8 +40,8 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
         let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
         let aggregate%encoded%0#1: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#1)
-        let aggregate%encoded%1#1: Encoded(uint64[]) = (concat aggregate%encoded%0#1 0x)
-        let tmp%2#0: Encoded(uint64[]) = aggregate%encoded%1#1
+        let aggregate%as_Encoded(uint64[])%0#1: Encoded(uint64[]) = aggregate%encoded%0#1
+        let tmp%2#0: Encoded(uint64[]) = aggregate%as_Encoded(uint64[])%0#1
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%2#0) // on error: max array length exceeded
         store(arr#0, concat%0#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)

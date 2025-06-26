@@ -307,8 +307,8 @@ subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
         let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 0x01)
         let aggregate%encoded%2#1: bytes = (concat aggregate%encoded%1#1 0x02)
         let aggregate%encoded%3#1: bytes = (concat aggregate%encoded%2#1 0x03)
-        let aggregate%encoded%4#1: Encoded(uint8[4]) = (concat aggregate%encoded%3#1 0x)
-        let encoded_array%0#0: Encoded(uint8[4]) = aggregate%encoded%4#1
+        let aggregate%as_Encoded(uint8[4])%0#1: Encoded(uint8[4]) = aggregate%encoded%3#1
+        let encoded_array%0#0: Encoded(uint8[4]) = aggregate%as_Encoded(uint8[4])%0#1
         (box_put 0x64 encoded_array%0#0)
         let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get 0x64)
         (assert aggregate%box_get%1#1) // check Box exists
@@ -569,21 +569,21 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
         let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 tmp%21#0)
         let aggregate%as_Encoded(len+uint8[])%0#1: Encoded(len+uint8[]) = aggregate%encoded_value%0#1
-        let aggregate%tail%0#1: bytes = (concat 0x aggregate%as_Encoded(len+uint8[])%0#1)
         let aggregate%data_length%0#1: uint64 = (len aggregate%as_Encoded(len+uint8[])%0#1)
         let aggregate%current_tail_offset%0#1: uint64 = (+ 20u aggregate%data_length%0#1)
         let aggregate%as_bytes%1#1: bytes[8] = (itob 20u)
         let aggregate%offset_as_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
         let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 aggregate%offset_as_uint16%0#1)
-        let aggregate%tail%1#1: bytes = (concat aggregate%tail%0#1 tmp%22#0)
         let aggregate%as_bytes%2#1: bytes[8] = (itob aggregate%current_tail_offset%0#1)
         let aggregate%offset_as_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%2#1)
         let aggregate%encoded%2#1: bytes = (concat aggregate%encoded%1#1 aggregate%offset_as_uint16%1#1)
         let aggregate%val_as_bytes%1#1: bytes[8] = (itob tmp%23#0)
         let aggregate%as_Encoded(uint64)%1#1: Encoded(uint64) = aggregate%val_as_bytes%1#1
         let aggregate%encoded%3#1: bytes = (concat aggregate%encoded%2#1 aggregate%as_Encoded(uint64)%1#1)
-        let aggregate%encoded%4#1: Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64) = (concat aggregate%encoded%3#1 aggregate%tail%1#1)
-        let tmp%24#0: Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64) = aggregate%encoded%4#1
+        let aggregate%concat%0#1: bytes = (concat aggregate%encoded%3#1 aggregate%as_Encoded(len+uint8[])%0#1)
+        let aggregate%concat%1#1: bytes = (concat aggregate%concat%0#1 tmp%22#0)
+        let aggregate%as_Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64)%0#1: Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64) = aggregate%concat%1#1
+        let tmp%24#0: Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64) = aggregate%as_Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64)%0#1
         let tmp%25#0: bytes = (concat 0x151f7c75 tmp%24#0)
         (log tmp%25#0)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u
@@ -601,9 +601,9 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let aggregate%set_bit%0#1: bytes[1] = (setbit aggregate%encoded_bool%0#1 1u tmp%31#0)
         let aggregate%set_bit%1#1: bytes[1] = (setbit aggregate%set_bit%0#1 2u tmp%32#0)
         let aggregate%set_bit%2#1: bytes[1] = (setbit aggregate%set_bit%1#1 3u tmp%33#0)
-        let aggregate%encoded%5#1: bytes = (concat 0x aggregate%set_bit%2#1)
-        let aggregate%encoded%6#1: Encoded(bool1,bool1,bool1,bool1) = (concat aggregate%encoded%5#1 0x)
-        let tmp%34#0: Encoded(bool1,bool1,bool1,bool1) = aggregate%encoded%6#1
+        let aggregate%encoded%4#1: bytes = (concat 0x aggregate%set_bit%2#1)
+        let aggregate%as_Encoded(bool1,bool1,bool1,bool1)%0#1: Encoded(bool1,bool1,bool1,bool1) = aggregate%encoded%4#1
+        let tmp%34#0: Encoded(bool1,bool1,bool1,bool1) = aggregate%as_Encoded(bool1,bool1,bool1,bool1)%0#1
         let tmp%35#0: bytes = (concat 0x151f7c75 tmp%34#0)
         (log tmp%35#0)
         let examples.box_storage.contract.BoxContract.__puya_arc4_router__%0#0: bool = 1u

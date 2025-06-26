@@ -751,8 +751,11 @@ subroutine test_array:
         v-store arr#0
         // array/uint64.py:19
         // arr.append(UInt64(42))
+        int 42                                                                        42
+        itob                                                                          aggregate%val_as_bytes%0#1
+        v-store aggregate%val_as_bytes%0#1
         v-load arr#0                                                                  arr#0
-        byte 0x000000000000002a                                                       arr#0,0x000000000000002a
+        v-load aggregate%val_as_bytes%0#1                                             arr#0,aggregate%val_as_bytes%0#1
         stores
         // array/uint64.py:23
         // add_x(arr, UInt64(5))
@@ -913,8 +916,11 @@ subroutine test_array:
         assert
         // array/uint64.py:31
         // arr.append(UInt64(43))
+        int 43                                                                        43
+        itob                                                                          aggregate%val_as_bytes%1#1
+        v-store aggregate%val_as_bytes%1#1
         v-load slot_contents%8#0                                                      slot_contents%8#0
-        byte 0x000000000000002b                                                       slot_contents%8#0,0x000000000000002b
+        v-load aggregate%val_as_bytes%1#1                                             slot_contents%8#0,aggregate%val_as_bytes%1#1
         concat // on error: max array length exceeded                                 concat%1#0
         v-store concat%1#0
         v-load arr#0                                                                  arr#0
@@ -1012,8 +1018,11 @@ subroutine test_array:
         assert
         // array/uint64.py:40
         // arr.append(UInt64(44))
+        int 44                                                                        44
+        itob                                                                          aggregate%val_as_bytes%2#1
+        v-store aggregate%val_as_bytes%2#1
         v-load slot_contents%16#0                                                     slot_contents%16#0
-        byte 0x000000000000002c                                                       slot_contents%16#0,0x000000000000002c
+        v-load aggregate%val_as_bytes%2#1                                             slot_contents%16#0,aggregate%val_as_bytes%2#1
         concat // on error: max array length exceeded                                 concat%2#0
         v-store concat%2#0
         // array/uint64.py:41
@@ -1053,14 +1062,20 @@ subroutine test_array:
         assert
         // array/uint64.py:268
         // arr.append(UInt64(99))
+        int 99                                                                        99
+        itob                                                                          aggregate%val_as_bytes%3#1
+        v-store aggregate%val_as_bytes%3#1
         v-load concat%2#0                                                             concat%2#0
-        byte 0x0000000000000063                                                       concat%2#0,0x0000000000000063
+        v-load aggregate%val_as_bytes%3#1                                             concat%2#0,aggregate%val_as_bytes%3#1
         concat // on error: max array length exceeded                                 concat%0#1
         v-store concat%0#1
         // array/uint64.py:269
         // arr2.append(UInt64(100))
+        int 100                                                                       100
+        itob                                                                          aggregate%val_as_bytes%4#1
+        v-store aggregate%val_as_bytes%4#1
         v-load concat%0#1                                                             concat%0#1
-        byte 0x0000000000000064                                                       concat%0#1,0x0000000000000064
+        v-load aggregate%val_as_bytes%4#1                                             concat%0#1,aggregate%val_as_bytes%4#1
         concat // on error: max array length exceeded                                 concat%1#0
         v-store concat%1#0
         // array/uint64.py:44
@@ -1226,20 +1241,29 @@ subroutine test_array_multiple_append:
         v-load arr#0                                                                  arr#0
         loads                                                                         slot_contents%0#0
         v-store slot_contents%0#0
+        int 1                                                                         1
+        itob                                                                          aggregate%val_as_bytes%0#1
+        v-store aggregate%val_as_bytes%0#1
         v-load slot_contents%0#0                                                      slot_contents%0#0
-        byte 0x0000000000000001                                                       slot_contents%0#0,0x0000000000000001
+        v-load aggregate%val_as_bytes%0#1                                             slot_contents%0#0,aggregate%val_as_bytes%0#1
         concat // on error: max array length exceeded                                 concat%0#0
         v-store concat%0#0
         // array/uint64.py:67
         // arr.append(UInt64(2))
+        int 2                                                                         2
+        itob                                                                          aggregate%val_as_bytes%1#1
+        v-store aggregate%val_as_bytes%1#1
         v-load concat%0#0                                                             concat%0#0
-        byte 0x0000000000000002                                                       concat%0#0,0x0000000000000002
+        v-load aggregate%val_as_bytes%1#1                                             concat%0#0,aggregate%val_as_bytes%1#1
         concat // on error: max array length exceeded                                 concat%1#0
         v-store concat%1#0
         // array/uint64.py:68
         // arr.append(UInt64(3))
+        int 3                                                                         3
+        itob                                                                          aggregate%val_as_bytes%2#1
+        v-store aggregate%val_as_bytes%2#1
         v-load concat%1#0                                                             concat%1#0
-        byte 0x0000000000000003                                                       concat%1#0,0x0000000000000003
+        v-load aggregate%val_as_bytes%2#1                                             concat%1#0,aggregate%val_as_bytes%2#1
         concat // on error: max array length exceeded                                 concat%2#0
         v-store concat%2#0
         v-load arr#0                                                                  arr#0
@@ -1328,8 +1352,11 @@ subroutine test_array_too_long:
         assert // array is expected length
         // array/uint64.py:82
         // array.append(UInt64(512))  # this will fail
+        int 512                                                                       512
+        itob                                                                          aggregate%val_as_bytes%1#1
+        v-store aggregate%val_as_bytes%1#1
         v-load slot_contents%1#0                                                      slot_contents%1#0
-        byte 0x0000000000000200                                                       slot_contents%1#0,0x0000000000000200
+        v-load aggregate%val_as_bytes%1#1                                             slot_contents%1#0,aggregate%val_as_bytes%1#1
         concat // on error: max array length exceeded                                 concat%1#0
         v-store concat%1#0
         v-load concat%1#0                                                             concat%1#0
@@ -1393,8 +1420,11 @@ subroutine test_array_copy_and_extend:
         // array/uint64.py:91
         // array.append(UInt64(5))
         v-store slot_contents%2#0
+        int 5                                                                         5
+        itob                                                                          aggregate%val_as_bytes%1#1
+        v-store aggregate%val_as_bytes%1#1
         v-load slot_contents%2#0                                                      slot_contents%2#0
-        byte 0x0000000000000005                                                       slot_contents%2#0,0x0000000000000005
+        v-load aggregate%val_as_bytes%1#1                                             slot_contents%2#0,aggregate%val_as_bytes%1#1
         concat // on error: max array length exceeded                                 concat%1#0
         v-store concat%1#0
         v-load concat%1#0                                                             concat%1#0
@@ -1578,8 +1608,11 @@ subroutine test_array_evaluation_order:
         v-store arr#0
         // array/uint64.py:109
         // arr.append(UInt64(3))
+        int 3                                                                         3
+        itob                                                                          aggregate%val_as_bytes%0#1
+        v-store aggregate%val_as_bytes%0#1
         v-load arr#0                                                                  arr#0
-        byte 0x0000000000000003                                                       arr#0,0x0000000000000003
+        v-load aggregate%val_as_bytes%0#1                                             arr#0,aggregate%val_as_bytes%0#1
         stores
         // array/uint64.py:110
         // append_length_and_return(arr).extend(append_length_and_return(arr))
@@ -1808,8 +1841,11 @@ subroutine test_array_assignment_maximum_cursage:
         v-store arr#0
         // array/uint64.py:128
         // arr.append(UInt64(3))
+        int 3                                                                         3
+        itob                                                                          aggregate%val_as_bytes%0#1
+        v-store aggregate%val_as_bytes%0#1
         v-load arr#0                                                                  arr#0
-        byte 0x0000000000000003                                                       arr#0,0x0000000000000003
+        v-load aggregate%val_as_bytes%0#1                                             arr#0,aggregate%val_as_bytes%0#1
         stores
         // array/uint64.py:129
         // append_length_and_return(arr)[0] = UInt64(42)

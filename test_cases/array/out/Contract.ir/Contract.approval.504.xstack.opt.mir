@@ -588,8 +588,10 @@ subroutine test_array:
         v-store arr#0                                                                 arr#0
         // array/uint64.py:19
         // arr.append(UInt64(42))
-        l-load-copy arr#0 0                                                           arr#0,arr#0 (copy)
-        byte 0x000000000000002a                                                       arr#0,arr#0 (copy),0x000000000000002a
+        int 42                                                                        arr#0,42
+        itob                                                                          arr#0,aggregate%val_as_bytes%0#1
+        l-load-copy arr#0 1                                                           arr#0,aggregate%val_as_bytes%0#1,arr#0 (copy)
+        l-load aggregate%val_as_bytes%0#1 1                                           arr#0,arr#0 (copy),aggregate%val_as_bytes%0#1
         stores                                                                        arr#0
         // array/uint64.py:23
         // add_x(arr, UInt64(5))
@@ -717,8 +719,10 @@ subroutine test_array:
         assert                                                                        arr#0,slot_contents%8#0
         // array/uint64.py:31
         // arr.append(UInt64(43))
-        l-load slot_contents%8#0 0                                                    arr#0,slot_contents%8#0
-        byte 0x000000000000002b                                                       arr#0,slot_contents%8#0,0x000000000000002b
+        int 43                                                                        arr#0,slot_contents%8#0,43
+        itob                                                                          arr#0,slot_contents%8#0,aggregate%val_as_bytes%1#1
+        l-load slot_contents%8#0 1                                                    arr#0,aggregate%val_as_bytes%1#1,slot_contents%8#0
+        l-load aggregate%val_as_bytes%1#1 1                                           arr#0,slot_contents%8#0,aggregate%val_as_bytes%1#1
         concat // on error: max array length exceeded                                 arr#0,concat%1#0
         l-load-copy arr#0 1                                                           arr#0,concat%1#0,arr#0 (copy)
         l-load-copy concat%1#0 1                                                      arr#0,concat%1#0,arr#0 (copy),concat%1#0 (copy)
@@ -786,8 +790,10 @@ subroutine test_array:
         assert                                                                        arr#0,slot_contents%16#0
         // array/uint64.py:40
         // arr.append(UInt64(44))
-        l-load slot_contents%16#0 0                                                   arr#0,slot_contents%16#0
-        byte 0x000000000000002c                                                       arr#0,slot_contents%16#0,0x000000000000002c
+        int 44                                                                        arr#0,slot_contents%16#0,44
+        itob                                                                          arr#0,slot_contents%16#0,aggregate%val_as_bytes%2#1
+        l-load slot_contents%16#0 1                                                   arr#0,aggregate%val_as_bytes%2#1,slot_contents%16#0
+        l-load aggregate%val_as_bytes%2#1 1                                           arr#0,slot_contents%16#0,aggregate%val_as_bytes%2#1
         concat // on error: max array length exceeded                                 arr#0,concat%2#0
         // array/uint64.py:41
         // assert arr.length == 15
@@ -814,12 +820,17 @@ subroutine test_array:
         assert                                                                        arr#0,concat%2#0
         // array/uint64.py:268
         // arr.append(UInt64(99))
-        l-load concat%2#0 0                                                           arr#0,concat%2#0
-        byte 0x0000000000000063                                                       arr#0,concat%2#0,0x0000000000000063
+        int 99                                                                        arr#0,concat%2#0,99
+        itob                                                                          arr#0,concat%2#0,aggregate%val_as_bytes%3#1
+        l-load concat%2#0 1                                                           arr#0,aggregate%val_as_bytes%3#1,concat%2#0
+        l-load aggregate%val_as_bytes%3#1 1                                           arr#0,concat%2#0,aggregate%val_as_bytes%3#1
         concat // on error: max array length exceeded                                 arr#0,concat%0#1
         // array/uint64.py:269
         // arr2.append(UInt64(100))
-        byte 0x0000000000000064                                                       arr#0,concat%0#1,0x0000000000000064
+        int 100                                                                       arr#0,concat%0#1,100
+        itob                                                                          arr#0,concat%0#1,aggregate%val_as_bytes%4#1
+        l-load concat%0#1 1                                                           arr#0,aggregate%val_as_bytes%4#1,concat%0#1
+        l-load aggregate%val_as_bytes%4#1 1                                           arr#0,concat%0#1,aggregate%val_as_bytes%4#1
         concat // on error: max array length exceeded                                 arr#0,concat%1#0
         // array/uint64.py:44
         // return_ref(arr, arr)[0] += 2
@@ -943,15 +954,24 @@ subroutine test_array_multiple_append:
         // arr.append(UInt64(1))
         l-load-copy arr#0 0                                                           arr#0,arr#0 (copy)
         loads                                                                         arr#0,slot_contents%0#0
-        byte 0x0000000000000001                                                       arr#0,slot_contents%0#0,0x0000000000000001
+        int 1                                                                         arr#0,slot_contents%0#0,1
+        itob                                                                          arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#1
+        l-load slot_contents%0#0 1                                                    arr#0,aggregate%val_as_bytes%0#1,slot_contents%0#0
+        l-load aggregate%val_as_bytes%0#1 1                                           arr#0,slot_contents%0#0,aggregate%val_as_bytes%0#1
         concat // on error: max array length exceeded                                 arr#0,concat%0#0
         // array/uint64.py:67
         // arr.append(UInt64(2))
-        byte 0x0000000000000002                                                       arr#0,concat%0#0,0x0000000000000002
+        int 2                                                                         arr#0,concat%0#0,2
+        itob                                                                          arr#0,concat%0#0,aggregate%val_as_bytes%1#1
+        l-load concat%0#0 1                                                           arr#0,aggregate%val_as_bytes%1#1,concat%0#0
+        l-load aggregate%val_as_bytes%1#1 1                                           arr#0,concat%0#0,aggregate%val_as_bytes%1#1
         concat // on error: max array length exceeded                                 arr#0,concat%1#0
         // array/uint64.py:68
         // arr.append(UInt64(3))
-        byte 0x0000000000000003                                                       arr#0,concat%1#0,0x0000000000000003
+        int 3                                                                         arr#0,concat%1#0,3
+        itob                                                                          arr#0,concat%1#0,aggregate%val_as_bytes%2#1
+        l-load concat%1#0 1                                                           arr#0,aggregate%val_as_bytes%2#1,concat%1#0
+        l-load aggregate%val_as_bytes%2#1 1                                           arr#0,concat%1#0,aggregate%val_as_bytes%2#1
         concat // on error: max array length exceeded                                 arr#0,concat%2#0
         l-load arr#0 1                                                                concat%2#0,arr#0
         l-load-copy concat%2#0 1                                                      concat%2#0,arr#0,concat%2#0 (copy)
@@ -1021,8 +1041,10 @@ subroutine test_array_too_long:
         assert // array is expected length                                            slot_contents%1#0
         // array/uint64.py:82
         // array.append(UInt64(512))  # this will fail
-        l-load slot_contents%1#0 0                                                    slot_contents%1#0
-        byte 0x0000000000000200                                                       slot_contents%1#0,0x0000000000000200
+        int 512                                                                       slot_contents%1#0,512
+        itob                                                                          slot_contents%1#0,aggregate%val_as_bytes%1#1
+        l-load slot_contents%1#0 1                                                    aggregate%val_as_bytes%1#1,slot_contents%1#0
+        l-load aggregate%val_as_bytes%1#1 1                                           slot_contents%1#0,aggregate%val_as_bytes%1#1
         concat // on error: max array length exceeded                                 concat%1#0
         pop 1
         retsub
@@ -1075,7 +1097,10 @@ subroutine test_array_copy_and_extend:
         l-load slot%0 0                                                               slot%1,slot_contents%2#0
         // array/uint64.py:91
         // array.append(UInt64(5))
-        byte 0x0000000000000005                                                       slot%1,slot_contents%2#0,0x0000000000000005
+        int 5                                                                         slot%1,slot_contents%2#0,5
+        itob                                                                          slot%1,slot_contents%2#0,aggregate%val_as_bytes%1#1
+        l-load slot_contents%2#0 1                                                    slot%1,aggregate%val_as_bytes%1#1,slot_contents%2#0
+        l-load aggregate%val_as_bytes%1#1 1                                           slot%1,slot_contents%2#0,aggregate%val_as_bytes%1#1
         concat // on error: max array length exceeded                                 slot%1,concat%1#0
         l-load-copy concat%1#0 0                                                      slot%1,concat%1#0,concat%1#0 (copy)
         pop 1                                                                         slot%1,concat%1#0
@@ -1199,8 +1224,10 @@ subroutine test_array_evaluation_order:
         callsub _puya_lib.mem.new_slot                                                arr#0
         // array/uint64.py:109
         // arr.append(UInt64(3))
-        l-load-copy arr#0 0                                                           arr#0,arr#0 (copy)
-        byte 0x0000000000000003                                                       arr#0,arr#0 (copy),0x0000000000000003
+        int 3                                                                         arr#0,3
+        itob                                                                          arr#0,aggregate%val_as_bytes%0#1
+        l-load-copy arr#0 1                                                           arr#0,aggregate%val_as_bytes%0#1,arr#0 (copy)
+        l-load aggregate%val_as_bytes%0#1 1                                           arr#0,arr#0 (copy),aggregate%val_as_bytes%0#1
         stores                                                                        arr#0
         // array/uint64.py:110
         // append_length_and_return(arr).extend(append_length_and_return(arr))
@@ -1353,8 +1380,10 @@ subroutine test_array_assignment_maximum_cursage:
         callsub _puya_lib.mem.new_slot                                                arr#0
         // array/uint64.py:128
         // arr.append(UInt64(3))
-        l-load-copy arr#0 0                                                           arr#0,arr#0 (copy)
-        byte 0x0000000000000003                                                       arr#0,arr#0 (copy),0x0000000000000003
+        int 3                                                                         arr#0,3
+        itob                                                                          arr#0,aggregate%val_as_bytes%0#1
+        l-load-copy arr#0 1                                                           arr#0,aggregate%val_as_bytes%0#1,arr#0 (copy)
+        l-load aggregate%val_as_bytes%0#1 1                                           arr#0,arr#0 (copy),aggregate%val_as_bytes%0#1
         stores                                                                        arr#0
         // array/uint64.py:129
         // append_length_and_return(arr)[0] = UInt64(42)
