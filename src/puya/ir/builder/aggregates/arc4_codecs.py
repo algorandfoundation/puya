@@ -136,8 +136,8 @@ class _NativeTupleCodec(_ARC4Codec):
         else:
             head = factory.constant(b"")
 
-        tail = factory.constant(b"")
         current_tail_offset = factory.constant(header_size)
+        tail_parts = []
 
         # special handling to bitpack consecutive bools, this will bit pack both native bools
         # and ARC-4 bools
@@ -170,7 +170,7 @@ class _NativeTupleCodec(_ARC4Codec):
                         head_element = encoded_element
                     else:
                         # append value to tail
-                        tail = factory.concat(tail, encoded_element, "tail")
+                        tail_parts.append(encoded_element)
 
                         # update offset
                         data_length = factory.len(encoded_element, "data_length")
@@ -184,8 +184,10 @@ class _NativeTupleCodec(_ARC4Codec):
                         current_tail_offset = new_current_tail_offset
                     head = factory.concat(head, head_element, "encoded")
 
-        encoded = factory.concat(head, tail, "encoded", ir_type=types.EncodedType(encoding))
-        return encoded
+        encoded = head
+        for tail_part in tail_parts:
+            encoded = factory.concat(encoded, tail_part)
+        return factory.as_ir_type(encoded, types.EncodedType(encoding))
 
     @typing.override
     def decode(
