@@ -10,13 +10,7 @@ from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.sequence import get_length
-from puya.ir.encodings import (
-    ArrayEncoding,
-    BoolEncoding,
-    DynamicArrayEncoding,
-    Encoding,
-    FixedArrayEncoding,
-)
+from puya.ir.encodings import ArrayEncoding
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import (
@@ -86,20 +80,17 @@ def _get_builder(
         # note: this assumption may no longer hold if reading nested aggregates
         assert_bounds = array_encoding.element.is_dynamic or array_encoding.element.is_bit
 
-    match array_encoding:
+    if array_encoding.element.is_bit:
         # BitPackedBool is a more specific match than FixedElement so do that first
-        case DynamicArrayEncoding(element=BoolEncoding(), length_header=True):
-            builder_typ = _BitPackedBoolArrayBuilder
-        case FixedArrayEncoding(element=BoolEncoding()):
-            builder_typ = _BitPackedBoolArrayBuilder
-        case ArrayEncoding(element=Encoding(is_dynamic=False)):
-            builder_typ = _FixedElementArrayBuilder
-        case ArrayEncoding(element=Encoding(is_dynamic=True)):
-            builder_typ = _DynamicElementArrayBuilder
+        if array_encoding.size is None and not array_encoding.length_header:
+            raise InternalError("unsupported scenario: bit packed bools in reference array", loc)
+        builder_typ = _BitPackedBoolArrayBuilder
+    elif array_encoding.element.is_dynamic:
+        builder_typ = _DynamicElementArrayBuilder
+    else:
+        builder_typ = _FixedElementArrayBuilder
         # TODO: maybe split DynamicElementArrayBuilder into two builders
         # TODO: maybe ByteLengthHeaderElementArrayBuilder
-        case _:
-            raise InternalError(f"unsupported array encoding: {array_encoding!s}", loc)
     return builder_typ(
         context,
         array_encoding=array_encoding,

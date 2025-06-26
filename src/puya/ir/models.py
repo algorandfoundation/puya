@@ -14,12 +14,7 @@ from puya.awst.txn_fields import TxnField
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
 from puya.ir.avm_ops_models import ImmediateKind, OpSignature, Variant
-from puya.ir.encodings import (
-    ArrayEncoding,
-    Encoding,
-    FixedArrayEncoding,
-    TupleEncoding,
-)
+from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
 from puya.ir.types_ import (
     AVMBytesEncoding,
     EncodedType,
@@ -568,7 +563,7 @@ def _arity_matches(
         ) == len(encoding.elements):
             for element, encoding_element in zip(elements, encoding.elements, strict=False):
                 _arity_matches(element, encoding_element, loc)
-        case TupleIRType(elements=elements) if isinstance(encoding, FixedArrayEncoding) and len(
+        case TupleIRType(elements=elements) if isinstance(encoding, ArrayEncoding) and len(
             elements
         ) == encoding.size:
             for element in elements:

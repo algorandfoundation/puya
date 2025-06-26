@@ -12,7 +12,6 @@ from puya.ir.encodings import (
     ArrayEncoding,
     Bool8Encoding,
     BoolEncoding,
-    DynamicArrayEncoding,
     Encoding,
     TupleEncoding,
     UTF8Encoding,
@@ -64,7 +63,9 @@ def get_builder(
             array_ir_type = array_ir_type.contents
         assert isinstance(array_ir_type, EncodedType), "expected EncodedType"
         array_encoding = array_ir_type.encoding
-        assert isinstance(array_encoding, DynamicArrayEncoding), "expected DynamicArray encoding"
+        assert (
+            isinstance(array_encoding, ArrayEncoding) and array_encoding.size is None
+        ), "expected DynamicArray encoding"
         # TODO: find a better way to handle these cases
         if array_encoding.element == UTF8Encoding():  # TODO: maybe make this an Array encoding?
             element_ir_type: IRType | TupleIRType = EncodedType(encoding=array_encoding.element)
@@ -108,8 +109,9 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
     ) -> None:
         self.context = context
         self.array_ir_type = array_ir_type
-        assert isinstance(
-            array_ir_type.encoding, DynamicArrayEncoding
+        assert (
+            isinstance(array_ir_type.encoding, ArrayEncoding)
+            and array_ir_type.encoding.size is None
         ), "expected dynamic array encoding"
         self.array_encoding = array_ir_type.encoding
         self.element_ir_type = element_ir_type
@@ -171,7 +173,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
             encoded_iterable = ir.BytesEncode(
                 values=self.factory.materialise_values(iterable),
                 values_type=iterable_ir_type,
-                encoding=DynamicArrayEncoding(element=element_encoding, length_header=False),
+                encoding=ArrayEncoding.dynamic(element=element_encoding, length_header=False),
                 source_location=self.loc,
             )
 

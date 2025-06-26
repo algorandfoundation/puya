@@ -7,13 +7,7 @@ from puya import log
 from puya.algo_constants import MAX_BYTES_LENGTH
 from puya.errors import InternalError
 from puya.ir import models
-from puya.ir.encodings import (
-    ArrayEncoding,
-    BoolEncoding,
-    Encoding,
-    FixedArrayEncoding,
-    TupleEncoding,
-)
+from puya.ir.encodings import ArrayEncoding, BoolEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.optimize.context import IROptimizationContext
@@ -271,7 +265,8 @@ def _get_fixed_byte_offset(
             # if we aren't reading the last item of a tuple
             # then any following array read will need a bounds check
             check_array_bounds = check_array_bounds or has_trailing_data
-        elif isinstance(encoding, FixedArrayEncoding):
+        elif isinstance(encoding, ArrayEncoding):
+            assert encoding.size is not None
             if check_array_bounds:
                 index_ok = factory.lt(index, encoding.size, "index_ok")
                 assert_value(
@@ -324,7 +319,7 @@ def _get_fixed_byte_offset_from_bit_offset(
         # offset now points to the byte containing the desired bit
         offset=byte_containing_bit_offset,
         # pretend the byte is just a fixed array of bit packed bools
-        encoding=FixedArrayEncoding(element=BoolEncoding(), size=8),
+        encoding=ArrayEncoding.fixed(element=BoolEncoding(), size=8),
         # provide the calculated bit_index as the only remaining index
         remaining_indexes=[bit_index],
     )
