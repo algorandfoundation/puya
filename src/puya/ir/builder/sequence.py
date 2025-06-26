@@ -11,9 +11,7 @@ from puya.ir.encodings import (
     ArrayEncoding,
     Bool8Encoding,
     BoolEncoding,
-    DynamicArrayEncoding,
     Encoding,
-    FixedArrayEncoding,
     TupleEncoding,
     wtype_to_encoding,
 )
@@ -174,7 +172,7 @@ def get_length(
         array = array_or_slot
     # how length is calculated depends on the array type, rather than the element type
     factory = OpFactory(context, loc)
-    if isinstance(array_encoding, FixedArrayEncoding):
+    if array_encoding.size is not None:
         return factory.constant(array_encoding.size)
     elif array_encoding.length_header:
         return factory.extract_uint16(array, 0, "array_length")
@@ -240,7 +238,7 @@ def convert_array(
             (source,) = context.materialise_value_provider(
                 bitpacked_source_provider, description="bit_packed_source"
             )
-            source_encoding = DynamicArrayEncoding(BoolEncoding(), length_header=True)
+            source_encoding = ArrayEncoding.dynamic(BoolEncoding(), length_header=True)
 
     if target_encoding.element != source_encoding.element:
         logger.error(
