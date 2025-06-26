@@ -149,11 +149,8 @@ class _NativeTupleCodec(_ARC4Codec):
                     bit_packed_index = 0
             else:
                 element_arity = element_ir_type.arity
-                if element_arity == 1:
-                    element_values = [values.pop(0)]
-                else:
-                    element_values = values[:element_arity]
-                    values = values[element_arity:]
+                element_values = values[:element_arity]
+                values = values[element_arity:]
                 if requires_no_conversion(element_ir_type, element_encoding):
                     (value,) = element_values
                 else:
@@ -174,7 +171,7 @@ class _NativeTupleCodec(_ARC4Codec):
                     value = factory.as_u16_bytes(current_tail_offset, "offset_as_uint16")
                     current_tail_offset = new_current_tail_offset
                     current_head_offset += 2
-            if not element_encoding.is_dynamic:
+            if element_encoding.is_fixed:
                 current_head_offset += element_encoding.checked_num_bytes
             processed_encodings.append(element_encoding)
             encoded_ir_type = types.EncodedType(encodings.TupleEncoding(processed_encodings))
