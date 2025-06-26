@@ -170,8 +170,6 @@ class _NativeTupleCodec(_ARC4Codec):
                         (value,) = element_values
                         if value.atype == AVMType.uint64:
                             value = factory.make_arc4_bool(value)
-                    elif requires_no_conversion(element_ir_type, element_encoding):
-                        (value,) = element_values
                     else:
                         encoded_element_vp = encode_to_bytes(
                             context, element_values, element_ir_type, element_encoding, loc
@@ -394,6 +392,8 @@ class _Bool8Codec(_ScalarCodec):
             factory = OpFactory(context, loc)
             assert value.atype == AVMType.bytes, "expected bytes"
             return factory.get_bit(value, 0)
+        elif isinstance(encoding, encodings.Bool8Encoding):
+            return value
         return None
 
     @typing.override
@@ -408,6 +408,8 @@ class _Bool8Codec(_ScalarCodec):
             factory = OpFactory(context, loc)
             assert value.atype == AVMType.uint64, "expected uint64"
             return factory.make_arc4_bool(value)
+        elif isinstance(encoding, encodings.Bool8Encoding):
+            return value
         return None
 
 
