@@ -129,15 +129,16 @@ class _NativeTupleCodec(_ARC4Codec):
             )
 
         factory = OpFactory(context, loc)
+        header_size_bits = tuple_encoding.get_head_bit_offset(None)
+        header_size = bits_to_bytes(header_size_bits)
         if isinstance(encoding, encodings.ArrayEncoding) and encoding.length_header:
             head: ir.Value = factory.as_u16_bytes(len(element_ir_types), "len_u16")
             current_head_offset = 2
         else:
             head = factory.constant(b"")
             current_head_offset = 0
+
         tail = factory.constant(b"")
-        header_size_bits = tuple_encoding.get_head_bit_offset(None)
-        header_size = bits_to_bytes(header_size_bits)
         current_tail_offset = factory.constant(header_size)
 
         # special handling to bitpack consecutive bools, this will bit pack both native bools
