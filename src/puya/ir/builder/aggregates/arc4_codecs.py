@@ -111,6 +111,23 @@ class _NativeTupleCodec(_ARC4Codec):
                 )
             case _:
                 return None
+
+        data = list[tuple[encodings.Encoding, types.IRType | types.TupleIRType, list[ir.Value]]]()
+        for element_ir_type, element_encoding in zip(
+            element_ir_types, tuple_encoding.elements, strict=True
+        ):
+            element_arity = element_ir_type.arity
+            element_values = values[:element_arity]
+            assert len(element_values) == element_arity
+            values = values[element_arity:]
+            data.append((element_encoding, element_ir_type, element_values))
+        if values:
+            raise InternalError(
+                f"unexpected remaining values for tuple encoding:"
+                f" {len(values)=}, {self.native_type=}, {encoding=}",
+                loc,
+            )
+
         factory = OpFactory(context, loc)
         current_head_offset = 0
         head = factory.constant(b"")
@@ -119,24 +136,22 @@ class _NativeTupleCodec(_ARC4Codec):
         header_size_bits = tuple_encoding.get_head_bit_offset(None)
         header_size = bits_to_bytes(header_size_bits)
         current_tail_offset = factory.constant(header_size)
-        ir_type_and_encoding = list(zip(element_ir_types, tuple_encoding.elements, strict=True))
+
         # special handling to bitpack consecutive bools, this will bit pack both native bools
         # and ARC-4 bools
-        for element_encoding, igroup in itertools.groupby(
-            ir_type_and_encoding, key=lambda p: p[1]
-        ):
+        for element_encoding, igroup in itertools.groupby(data, key=lambda p: p[0]):
             group = list(igroup)
             # sequential bits in the same tuple are bit-packed
             if element_encoding.is_bit and len(group) > 1:
                 bits_offset = current_head_offset * 8
                 num_bytes = bits_to_bytes(len(group))
                 current_head_offset += num_bytes
-                for bit_index, _ in enumerate(group):
+                for bit_index, (_, _, element_values) in enumerate(group):
                     processed_encodings.append(element_encoding)
                     encoded_ir_type = types.EncodedType(
                         encodings.TupleEncoding(processed_encodings)
                     )
-                    value = values.pop(0)
+                    (value,) = element_values
                     if bit_index % 8 == 0:
                         if value.atype == AVMType.uint64:
                             value = factory.make_arc4_bool(value)
@@ -150,10 +165,7 @@ class _NativeTupleCodec(_ARC4Codec):
                             value=head, index=bits_offset + bit_index, bit=value
                         )
             else:
-                for element_ir_type, _ in group:
-                    element_arity = element_ir_type.arity
-                    element_values = values[:element_arity]
-                    values = values[element_arity:]
+                for _, element_ir_type, element_values in group:
                     if element_encoding.is_bit:
                         (value,) = element_values
                         if value.atype == AVMType.uint64:
@@ -185,12 +197,7 @@ class _NativeTupleCodec(_ARC4Codec):
                         encodings.TupleEncoding(processed_encodings)
                     )
                     head = factory.concat(head, value, "encoded", ir_type=encoded_ir_type)
-        if values:
-            raise InternalError(
-                f"unexpected remaining values for array encoding:"
-                f" {len(values)=}, {self.native_type=}, {encoding=}",
-                loc,
-            )
+
         if isinstance(encoding, encodings.ArrayEncoding) and encoding.length_header:
             len_u16 = factory.as_u16_bytes(len(element_ir_types), "len_u16")
             head = factory.concat(len_u16, head, "encoded")
