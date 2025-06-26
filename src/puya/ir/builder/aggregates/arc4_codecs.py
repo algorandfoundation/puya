@@ -19,7 +19,7 @@ from puya.ir.builder.sequence import requires_no_conversion
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
 from puya.parse import SourceLocation
-from puya.utils import bits_to_bytes
+from puya.utils import bits_to_bytes, chunk_array
 
 logger = log.get_logger(__name__)
 
@@ -141,28 +141,22 @@ class _NativeTupleCodec(_ARC4Codec):
 
         # special handling to bitpack consecutive bools, this will bit pack both native bools
         # and ARC-4 bools
-        for element_encoding, igroup in itertools.groupby(data, key=lambda p: p[0]):
-            group = list(igroup)
+        for element_encoding, group in itertools.groupby(data, key=lambda p: p[0]):
             # sequential bits in the same tuple are bit-packed
             if element_encoding.is_bit:
-                building: ir.Value | None = None
-                for bit_index, (_, _, element_values) in enumerate(group):
-                    (value,) = element_values
-                    bit_offset = bit_index % 8
-                    if bit_offset == 0:
-                        if building is not None:
-                            head = factory.concat(head, building, "encoded")
-                        if value.atype == AVMType.uint64:
-                            value = factory.make_arc4_bool(value)
-                        building = value
+                values_to_bitpack = [v for (_, _, element_values) in group for v in element_values]
+                for byte_group in chunk_array(values_to_bitpack, size=8):
+                    # if element is an encoded bool then read the bit.
+                    # outside an array bool elements should not be packed
+                    first, *rest = byte_group
+                    if first.atype == AVMType.bytes:
+                        building = first
                     else:
-                        # if element is an encoded bool then read the bit.
-                        # outside an array bool elements should not be packed
-                        assert building is not None
-                        if value.atype == AVMType.bytes:
-                            value = factory.get_bit(value, 0)
-                        building = factory.set_bit(value=building, index=bit_offset, bit=value)
-                if building is not None:
+                        building = factory.make_arc4_bool(first)
+                    for index, bit_value in enumerate(rest, start=1):
+                        if bit_value.atype == AVMType.bytes:
+                            bit_value = factory.get_bit(bit_value, 0)
+                        building = factory.set_bit(value=building, index=index, bit=bit_value)
                     head = factory.concat(head, building, "encoded")
             else:
                 for _, element_ir_type, element_values in group:

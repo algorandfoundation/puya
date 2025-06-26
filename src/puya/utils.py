@@ -358,3 +358,7 @@ def normalize_path(path: Path) -> str:
 def not_none[T](x: T | None) -> T:
     assert x is not None
     return x
+
+
+def chunk_array[T](arr: list[T], size: int) -> list[list[T]]:
+    return [arr[i : i + size] for i in range(0, len(arr), size)]
