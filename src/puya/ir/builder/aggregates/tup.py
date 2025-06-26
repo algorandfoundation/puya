@@ -1,9 +1,7 @@
 from puya import log
 from puya.avm import AVMType
 from puya.ir import models as ir
-from puya.ir.encodings import (
-    TupleEncoding,
-)
+from puya.ir.encodings import TupleEncoding
 from puya.ir.op_utils import OpFactory
 from puya.ir.register_context import IRRegisterContext
 from puya.parse import SourceLocation
