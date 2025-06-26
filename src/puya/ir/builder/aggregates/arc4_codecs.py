@@ -1,4 +1,5 @@
 import abc
+import itertools
 import typing
 from collections.abc import Sequence
 
@@ -111,7 +112,6 @@ class _NativeTupleCodec(_ARC4Codec):
             case _:
                 return None
         factory = OpFactory(context, loc)
-        bit_packed_index = 0
         current_head_offset = 0
         head = factory.constant(b"")
         tail = factory.constant(b"")
@@ -119,63 +119,87 @@ class _NativeTupleCodec(_ARC4Codec):
         header_size_bits = tuple_encoding.get_head_bit_offset(None)
         header_size = bits_to_bytes(header_size_bits)
         current_tail_offset = factory.constant(header_size)
-        for element_ir_type, element_encoding in zip(
-            element_ir_types, tuple_encoding.elements, strict=True
+        ir_type_and_encoding = list(zip(element_ir_types, tuple_encoding.elements, strict=True))
+        # special handling to bitpack consecutive bools, this will bit pack both native bools
+        # and ARC-4 bools
+        for element_encoding, igroup in itertools.groupby(
+            ir_type_and_encoding, key=lambda p: p[1]
         ):
-            # special handling to bitpack consecutive bools, this will bit pack both native bools
-            # and ARC-4 bools
+            group = list(igroup)
             if element_encoding.is_bit:
-                value = values.pop(0)
-                # sequential bits in the same tuple are bit-packed
-                if processed_encodings and processed_encodings[-1] == element_encoding:
-                    # if element is an encoded bool then read the bit
-                    # outside an array bool elements should not be packed
-                    if value.atype == AVMType.bytes:
-                        value = factory.get_bit(value, 0)
-                    bit_packed_index += 1
-                    bit_index = bit_packed_index % 8
-                    if bit_index:
-                        bit_index += (current_head_offset - 1) * 8
-                    bytes_to_set = head if bit_index else factory.arc4_false()
-                    value = factory.set_bit(value=bytes_to_set, index=bit_index, bit=value)
-                    # if bit_index is not 0, then just update encoded and continue
-                    # as there is nothing to concat
-                    if bit_index:
-                        head = value
-                        continue
-                else:
+                num_bits = len(group)
+                if num_bits == 1:  # TODO: check if we can make this part of outer condition
+                    value = values.pop(0)
                     if value.atype == AVMType.uint64:
-                        value = factory.make_arc4_bool(value)
-                    bit_packed_index = 0
-            else:
-                element_arity = element_ir_type.arity
-                element_values = values[:element_arity]
-                values = values[element_arity:]
-                if requires_no_conversion(element_ir_type, element_encoding):
-                    (value,) = element_values
+                        packed_bits = factory.make_arc4_bool(value)
+                    else:
+                        packed_bits = value
+                    current_head_offset += 1
+                    processed_encodings.append(element_encoding)
+                    encoded_ir_type = types.EncodedType(
+                        encodings.TupleEncoding(processed_encodings)
+                    )
+                    head = factory.concat(head, packed_bits, "encoded", ir_type=encoded_ir_type)
                 else:
-                    encoded_element_vp = encode_to_bytes(
-                        context, element_values, element_ir_type, element_encoding, loc
-                    )
-                    value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
-                if element_encoding.is_dynamic:
-                    # append value to tail
-                    tail = factory.concat(tail, value, "tail")
+                    num_bytes = bits_to_bytes(num_bits)
+                    # sequential bits in the same tuple are bit-packed
+                    bits_offset = current_head_offset * 8
+                    for bit_index, _ in enumerate(group):
+                        processed_encodings.append(element_encoding)
+                        encoded_ir_type = types.EncodedType(
+                            encodings.TupleEncoding(processed_encodings)
+                        )
 
-                    # update offset
-                    data_length = factory.len(value, "data_length")
-                    new_current_tail_offset = factory.add(
-                        current_tail_offset, data_length, "current_tail_offset"
+                        value = values.pop(0)
+                        if bit_index % 8 == 0:
+                            if value.atype == AVMType.uint64:
+                                next_byte = factory.make_arc4_bool(value)
+                            else:
+                                next_byte = value
+                            head = factory.concat(
+                                head, next_byte, "encoded", ir_type=encoded_ir_type
+                            )
+                        else:
+                            # if element is an encoded bool then read the bit.
+                            # outside an array bool elements should not be packed
+                            if value.atype == AVMType.bytes:
+                                value = factory.get_bit(value, 0)
+                            head = factory.set_bit(
+                                value=head, index=bits_offset + bit_index, bit=value
+                            )
+                    current_head_offset += num_bytes
+            else:
+                for element_ir_type, _ in group:
+                    element_arity = element_ir_type.arity
+                    element_values = values[:element_arity]
+                    values = values[element_arity:]
+                    if requires_no_conversion(element_ir_type, element_encoding):
+                        (value,) = element_values
+                    else:
+                        encoded_element_vp = encode_to_bytes(
+                            context, element_values, element_ir_type, element_encoding, loc
+                        )
+                        value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
+                    if element_encoding.is_fixed:
+                        current_head_offset += element_encoding.checked_num_bytes
+                    else:
+                        # append value to tail
+                        tail = factory.concat(tail, value, "tail")
+
+                        # update offset
+                        data_length = factory.len(value, "data_length")
+                        new_current_tail_offset = factory.add(
+                            current_tail_offset, data_length, "current_tail_offset"
+                        )
+                        # value is tail offset
+                        value = factory.as_u16_bytes(current_tail_offset, "offset_as_uint16")
+                        current_tail_offset = new_current_tail_offset
+                        current_head_offset += 2
+                    processed_encodings.append(element_encoding)
+                    encoded_ir_type = types.EncodedType(
+                        encodings.TupleEncoding(processed_encodings)
                     )
-                    # value is tail offset
-                    value = factory.as_u16_bytes(current_tail_offset, "offset_as_uint16")
-                    current_tail_offset = new_current_tail_offset
-                    current_head_offset += 2
-            if element_encoding.is_fixed:
-                current_head_offset += element_encoding.checked_num_bytes
-            processed_encodings.append(element_encoding)
-            encoded_ir_type = types.EncodedType(encodings.TupleEncoding(processed_encodings))
-            head = factory.concat(head, value, "encoded", ir_type=encoded_ir_type)
+                    head = factory.concat(head, value, "encoded", ir_type=encoded_ir_type)
         if values:
             raise InternalError(
                 f"unexpected remaining values for array encoding:"
