@@ -384,7 +384,7 @@ class CompiledLogicSigReference(Value):
 class AddressConstant(Constant):
     """Constant for address literals"""
 
-    ir_type: IRType = attrs.field(default=SizedBytesType(32), init=False)
+    ir_type: IRType = attrs.field(default=PrimitiveIRType.account, init=False)
     value: str = attrs.field()
 
     def accept(self, visitor: IRVisitor[T]) -> T:
