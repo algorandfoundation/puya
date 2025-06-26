@@ -100,11 +100,11 @@ class _NativeTupleCodec(_ARC4Codec):
                 len(element_encodings) == len(element_ir_types)
             ):
                 pass
-            case encodings.FixedArrayEncoding(element=element_encoding, size=size) if (
+            case encodings.ArrayEncoding(element=element_encoding, size=int(size)) if (
                 size == len(element_ir_types)
             ):
                 tuple_encoding = encodings.TupleEncoding([element_encoding] * size)
-            case encodings.DynamicArrayEncoding(element=element_encoding):
+            case encodings.ArrayEncoding(element=element_encoding, size=None):
                 tuple_encoding = encodings.TupleEncoding(
                     [element_encoding] * len(element_ir_types)
                 )
@@ -207,7 +207,7 @@ class _NativeTupleCodec(_ARC4Codec):
                 len(elements) == len(item_types)
             ):
                 pass
-            case encodings.FixedArrayEncoding(element=element, size=size) if (
+            case encodings.ArrayEncoding(element=element, size=int(size), length_header=False) if (
                 size == len(item_types)
             ):
                 tuple_encoding = encodings.TupleEncoding([element] * size)

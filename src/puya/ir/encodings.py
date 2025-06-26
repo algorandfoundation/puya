@@ -159,39 +159,42 @@ class ArrayEncoding(Encoding, abc.ABC):
     size: int | None
     length_header: bool
 
+    def __attrs_post_init__(self) -> None:
+        if self.length_header and self.size is not None:
+            raise InternalError("fixed size array encoding with length header is not supported")
 
-@attrs.frozen(str=False)
-class DynamicArrayEncoding(ArrayEncoding):
-    length_header: bool = attrs.field()
-    size: None = attrs.field(default=None, init=False)
+    @classmethod
+    def dynamic(cls, element: Encoding, *, length_header: bool) -> typing.Self:
+        return cls(
+            element=element,
+            size=None,
+            length_header=length_header,
+        )
 
-    @cached_property
-    def num_bits(self) -> None:
-        return None
+    @classmethod
+    def fixed(cls, element: Encoding, *, size: int) -> typing.Self:
+        return cls(
+            element=element,
+            size=size,
+            length_header=False,
+        )
 
     @cached_property
     def name(self) -> str:
-        array = f"{self.element.name}[]"
+        if self.size is not None:
+            array = f"{self.element.name}[{self.size}]"
+        else:
+            array = f"{self.element.name}[]"
         if self.length_header:
             return f"(len+{array})"
         else:
             return array
 
-
-@attrs.frozen(str=False)
-class FixedArrayEncoding(ArrayEncoding):
-    size: int
-    length_header: bool = attrs.field(default=False, init=False)
-
     @cached_property
     def num_bits(self) -> int | None:
-        if self.element.num_bits is None:
+        if (self.size is None) or (self.element.num_bits is None):
             return None
         return bits_to_bytes(self.element.num_bits * self.size) * 8
-
-    @cached_property
-    def name(self) -> str:
-        return f"{self.element.name}[{self.size}]"
 
 
 class _WTypeToEncoding(WTypeVisitor[Encoding]):
@@ -230,27 +233,27 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
     def visit_bytes_type(self, wtype: wtypes.BytesWType) -> Encoding:
         element = UIntEncoding(n=8)
         if wtype.length is None:
-            return DynamicArrayEncoding(element=element, length_header=True)
+            return ArrayEncoding.dynamic(element=element, length_header=True)
         else:
-            return FixedArrayEncoding(element=element, size=wtype.length)
+            return ArrayEncoding.fixed(element=element, size=wtype.length)
 
     def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> Encoding:
         element = wtype.element_type.accept(self)
         if element.is_dynamic:
             # TODO: is this actually a CodeError?
             raise InternalError("reference arrays can't have dynamic elements")
-        return DynamicArrayEncoding(element=element, length_header=False)
+        return ArrayEncoding.dynamic(element=element, length_header=False)
 
     def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> Encoding:
         if wtype.arc4_alias == wtypes.arc4_string_alias.arc4_alias:
-            return DynamicArrayEncoding(element=UTF8Encoding(), length_header=True)
-        return DynamicArrayEncoding(
+            return ArrayEncoding.dynamic(element=UTF8Encoding(), length_header=True)
+        return ArrayEncoding.dynamic(
             element=self._visit_in_aggregate(wtype.element_type),
             length_header=True,
         )
 
     def visit_arc4_static_array(self, wtype: wtypes.ARC4StaticArray) -> Encoding:
-        return FixedArrayEncoding(
+        return ArrayEncoding.fixed(
             element=self._visit_in_aggregate(wtype.element_type),
             size=wtype.array_size,
         )
@@ -289,18 +292,6 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
 
     def _unencodable(self) -> typing.Never:
         raise CodeError("unencodable type", self.loc)
-
-
-@typing.overload
-def wtype_to_encoding(
-    wtype: wtypes.ARC4DynamicArray | wtypes.ReferenceArray, loc: SourceLocation | None
-) -> DynamicArrayEncoding: ...
-
-
-@typing.overload
-def wtype_to_encoding(
-    wtype: wtypes.ARC4StaticArray, loc: SourceLocation | None
-) -> FixedArrayEncoding: ...
 
 
 @typing.overload
