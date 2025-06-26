@@ -303,10 +303,10 @@ subroutine examples.box_storage.contract.BoxContract.slice_box() -> void:
 
 subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
     block@0: // L124
-        let aggregate%encoded%0#1: Encoded(uint8) = (concat 0x 0x00)
-        let aggregate%encoded%1#1: Encoded(uint8,uint8) = (concat aggregate%encoded%0#1 0x01)
-        let aggregate%encoded%2#1: Encoded(uint8,uint8,uint8) = (concat aggregate%encoded%1#1 0x02)
-        let aggregate%encoded%3#1: Encoded(uint8,uint8,uint8,uint8) = (concat aggregate%encoded%2#1 0x03)
+        let aggregate%encoded%0#1: bytes = (concat 0x 0x00)
+        let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 0x01)
+        let aggregate%encoded%2#1: bytes = (concat aggregate%encoded%1#1 0x02)
+        let aggregate%encoded%3#1: bytes = (concat aggregate%encoded%2#1 0x03)
         let aggregate%encoded%4#1: Encoded(uint8[4]) = (concat aggregate%encoded%3#1 0x)
         let encoded_array%0#0: Encoded(uint8[4]) = aggregate%encoded%4#1
         (box_put 0x64 encoded_array%0#0)
@@ -563,7 +563,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let (tmp%20#0: uint64, tmp%21#0: bytes, tmp%22#0: Encoded(len+utf8[]), tmp%23#0: uint64) = examples.box_storage.contract.BoxContract.read_boxes()
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%20#0)
         let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
-        let aggregate%encoded%0#1: Encoded(uint64) = (concat 0x aggregate%as_Encoded(uint64)%0#1)
+        let aggregate%encoded%0#1: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#1)
         let aggregate%length%0#1: uint64 = (len tmp%21#0)
         let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
         let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
@@ -574,14 +574,14 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let aggregate%current_tail_offset%0#1: uint64 = (+ 20u aggregate%data_length%0#1)
         let aggregate%as_bytes%1#1: bytes[8] = (itob 20u)
         let aggregate%offset_as_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
-        let aggregate%encoded%1#1: Encoded(uint64,(len+uint8[])) = (concat aggregate%encoded%0#1 aggregate%offset_as_uint16%0#1)
+        let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 aggregate%offset_as_uint16%0#1)
         let aggregate%tail%1#1: bytes = (concat aggregate%tail%0#1 tmp%22#0)
         let aggregate%as_bytes%2#1: bytes[8] = (itob aggregate%current_tail_offset%0#1)
         let aggregate%offset_as_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%2#1)
-        let aggregate%encoded%2#1: Encoded(uint64,(len+uint8[]),(len+utf8[])) = (concat aggregate%encoded%1#1 aggregate%offset_as_uint16%1#1)
+        let aggregate%encoded%2#1: bytes = (concat aggregate%encoded%1#1 aggregate%offset_as_uint16%1#1)
         let aggregate%val_as_bytes%1#1: bytes[8] = (itob tmp%23#0)
         let aggregate%as_Encoded(uint64)%1#1: Encoded(uint64) = aggregate%val_as_bytes%1#1
-        let aggregate%encoded%3#1: Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64) = (concat aggregate%encoded%2#1 aggregate%as_Encoded(uint64)%1#1)
+        let aggregate%encoded%3#1: bytes = (concat aggregate%encoded%2#1 aggregate%as_Encoded(uint64)%1#1)
         let aggregate%encoded%4#1: Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64) = (concat aggregate%encoded%3#1 aggregate%tail%1#1)
         let tmp%24#0: Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64) = aggregate%encoded%4#1
         let tmp%25#0: bytes = (concat 0x151f7c75 tmp%24#0)
@@ -598,10 +598,10 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         (assert tmp%29#0) // can only call when not creating
         let (tmp%30#0: bool, tmp%31#0: bool, tmp%32#0: bool, tmp%33#0: bool) = examples.box_storage.contract.BoxContract.boxes_exist()
         let aggregate%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u tmp%30#0)
-        let aggregate%encoded%5#1: Encoded(bool1) = (concat 0x aggregate%encoded_bool%0#1)
-        let aggregate%set_bit%0#1: Encoded(bool1) = (setbit aggregate%encoded%5#1 1u tmp%31#0)
-        let aggregate%set_bit%1#1: Encoded(bool1) = (setbit aggregate%set_bit%0#1 2u tmp%32#0)
-        let aggregate%set_bit%2#1: Encoded(bool1) = (setbit aggregate%set_bit%1#1 3u tmp%33#0)
+        let aggregate%encoded%5#1: bytes = (concat 0x aggregate%encoded_bool%0#1)
+        let aggregate%set_bit%0#1: bytes = (setbit aggregate%encoded%5#1 1u tmp%31#0)
+        let aggregate%set_bit%1#1: bytes = (setbit aggregate%set_bit%0#1 2u tmp%32#0)
+        let aggregate%set_bit%2#1: bytes = (setbit aggregate%set_bit%1#1 3u tmp%33#0)
         let aggregate%encoded%6#1: Encoded(bool1,bool1,bool1,bool1) = (concat aggregate%set_bit%2#1 0x)
         let tmp%34#0: Encoded(bool1,bool1,bool1,bool1) = aggregate%encoded%6#1
         let tmp%35#0: bytes = (concat 0x151f7c75 tmp%34#0)
