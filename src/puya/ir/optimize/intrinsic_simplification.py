@@ -20,7 +20,7 @@ from puya.ir.optimize.dead_code_elimination import SIDE_EFFECT_FREE_AVM_OPS
 from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
-from puya.parse import SourceLocation
+from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.utils import Address, biguint_bytes_eval, biguint_bytes_length, set_add
 
 logger = log.get_logger(__name__)
@@ -160,6 +160,10 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
     while work_list:
         ass, source = work_list.dequeue()
         simplified = _try_fold_intrinsic(register_assignments, source)
+        if simplified is None:
+            simplified = _try_simplify_repeated_intrinsic(
+                register_assignments, ass, source, ssa_reads
+            )
         if simplified is not None:
             logger.debug(f"Simplified {source} to {simplified}")
             with ssa_reads.update(ass):
@@ -243,9 +247,11 @@ class _AssignmentWorkQueue:
         return bool(self._dq)
 
 
+@attrs.frozen
 class _SSAReadTracker:
-    def __init__(self) -> None:
-        self._data = defaultdict[models.Register, set[_AnyOp]](set)
+    _data: defaultdict[models.Register, set[_AnyOp]] = attrs.field(
+        factory=lambda: defaultdict(set), init=False
+    )
 
     def add(self, op: _AnyOp) -> None:
         for read_reg in self._register_reads(op):
@@ -258,6 +264,20 @@ class _SSAReadTracker:
         if copy:
             return reads.copy()
         return reads
+
+    def count(self, reg: models.Register) -> int:
+        reads = self._data.get(reg)
+        if reads is None:
+            return 0
+        return len(reads)
+
+    def is_sole_usage(self, reg: models.Register, op: _AnyOp) -> bool:
+        try:
+            (sole_usage,) = self._data[reg]
+        except (KeyError, ValueError):
+            return False
+        else:
+            return sole_usage is op
 
     @contextlib.contextmanager
     def update(self, op: _AnyOp) -> Generator[None, None, None]:
@@ -743,6 +763,110 @@ def _try_fold_intrinsic(
     return None
 
 
+def _try_simplify_repeated_intrinsic(
+    register_assignments: _RegisterAssignments,
+    ass: models.Assignment,
+    intrinsic: models.Intrinsic,
+    ssa_reads: _SSAReadTracker,
+) -> models.Value | models.Intrinsic | None:
+    # check that it's a binary op
+    try:
+        left, right = intrinsic.args
+    except ValueError:
+        return None
+    # check that the intrinsic has one constant argument and one register argument
+    expand: typing.Literal["left", "right"]
+    match left, right:
+        case models.Register() as reg, models.Constant():
+            expand = "left"
+        case models.Constant(), models.Register() as reg:
+            expand = "right"
+        case _:
+            return None
+    # check that this register argument is not used elsewhere
+    if not ssa_reads.is_sole_usage(reg, ass):
+        return None
+    # check to see if the register argument is itself the result of an intrinsic with two args
+    match register_assignments.get(reg):
+        case models.Assignment(
+            targets=[sole_target],
+            source=models.Intrinsic(args=[source_left, source_right]) as reg_intrinsic,
+        ):
+            assert sole_target == reg
+        case _:
+            return None
+    # for now, only handle cases where the op is the same - we could potentially expand this to
+    # handle distributive identities e.g. c1 * (x + c2)
+    if reg_intrinsic.op is not intrinsic.op:
+        return None
+    # check that the register source args are also a constant and a register
+    match source_left, source_right:
+        case (models.Register(), models.Constant()) | (models.Constant(), models.Register()):
+            pass
+        case _:
+            return None
+    if expand == "left":
+        return _try_simplify_triple(intrinsic, (source_left, source_right, right), reg_intrinsic)
+    else:
+        typing.assert_type(expand, typing.Literal["right"])
+        return _try_simplify_triple(intrinsic, (left, source_left, source_right), reg_intrinsic)
+
+
+def _try_simplify_triple(
+    intrinsic: models.Intrinsic,
+    args: tuple[models.Value, models.Value, models.Value],
+    parent: models.Intrinsic,
+) -> models.Intrinsic | None:
+    assert intrinsic.op == parent.op
+    merged_loc = sequential_source_locations_merge(
+        (intrinsic.source_location, parent.source_location)
+    )
+    match intrinsic.op, args:
+        case AVMOp.concat, (
+            models.Register() as reg,
+            models.Constant() as const1,
+            models.Constant() as const2,
+        ):
+            bytes_const1 = _normalise_bytes_constant(const1)
+            bytes_const2 = _normalise_bytes_constant(const2)
+            if bytes_const1 is not None and bytes_const2 is not None:
+                target_encoding = _choose_encoding(bytes_const1.encoding, bytes_const2.encoding)
+                new_const_value = bytes_const1.value + bytes_const2.value
+                new_byte_const = models.BytesConstant(
+                    value=new_const_value,
+                    encoding=target_encoding,
+                    source_location=merged_loc,
+                )
+                return models.Intrinsic(
+                    op=AVMOp.concat,
+                    args=[reg, new_byte_const],
+                    types=intrinsic.types,
+                    source_location=merged_loc,
+                )
+        case AVMOp.concat, (
+            models.Constant() as const1,
+            models.Constant() as const2,
+            models.Register() as reg,
+        ):
+            bytes_const1 = _normalise_bytes_constant(const1)
+            bytes_const2 = _normalise_bytes_constant(const2)
+            if bytes_const1 is not None and bytes_const2 is not None:
+                target_encoding = _choose_encoding(bytes_const1.encoding, bytes_const2.encoding)
+                new_const_value = bytes_const1.value + bytes_const2.value
+                new_byte_const = models.BytesConstant(
+                    value=new_const_value,
+                    encoding=target_encoding,
+                    source_location=merged_loc,
+                )
+                return models.Intrinsic(
+                    op=AVMOp.concat,
+                    args=[new_byte_const, reg],
+                    types=intrinsic.types,
+                    source_location=merged_loc,
+                )
+    return None
+
+
 def _get_int_constant(value: models.Value) -> int | None:
     if isinstance(value, models.UInt64Constant):
         return value.value
@@ -803,17 +927,23 @@ def _get_byte_constant(
                     encoding=AVMBytesEncoding.base32,
                     source_location=byte_arg.source_location,
                 )
-    elif (
-        isinstance(byte_arg, models.Constant)
-        and (bytes_const := get_bytes_constant(byte_arg)) is not None
-    ):
+    elif isinstance(byte_arg, models.Constant):
+        return _normalise_bytes_constant(byte_arg)
+    return None
+
+
+def _normalise_bytes_constant(byte_arg: models.Constant) -> models.BytesConstant | None:
+    if type(byte_arg) is models.BytesConstant:
+        return byte_arg
+    maybe_const_value = get_bytes_constant(byte_arg)
+    if maybe_const_value is not None:
         encoding = (
             AVMBytesEncoding.base32
-            if isinstance(byte_arg, models.AddressConstant)
+            if byte_arg.ir_type == PrimitiveIRType.account
             else AVMBytesEncoding.base16
         )
         return models.BytesConstant(
-            value=bytes_const,
+            value=maybe_const_value,
             encoding=encoding,
             source_location=byte_arg.source_location,
         )
@@ -1081,6 +1211,7 @@ def _try_simplify_uint64_binary_op(
         return c
     if c < 0:
         # Value cannot be folded as it would result in a negative uint64
+        # TODO: what about overflow?
         return None
     return models.UInt64Constant(value=c, source_location=intrinsic.source_location)
 

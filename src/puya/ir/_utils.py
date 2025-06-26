@@ -1,7 +1,7 @@
+import typing
 from collections import deque
 from collections.abc import Iterator
 
-from puya.avm import AVMType
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
@@ -12,6 +12,7 @@ from puya.ir import (
 from puya.ir.models import Parameter, Subroutine
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
+from puya.ir.visitor import NoOpIRVisitor
 from puya.parse import SourceLocation
 from puya.utils import Address, biguint_bytes_eval, method_selector_hash, set_add
 
@@ -74,14 +75,22 @@ def _expand_tuple_parameters_and_mark_implicit_returns(
 
 
 def get_bytes_constant(key: models.Constant) -> bytes | None:
-    if key.ir_type.avm_type != AVMType.bytes:
-        return None
-    if isinstance(key, models.BytesConstant):
-        return key.value
-    if isinstance(key, models.AddressConstant):
-        return Address.parse(key.value).public_key
-    if isinstance(key, models.MethodConstant):
-        return method_selector_hash(key.value)
-    if isinstance(key, models.BigUIntConstant):
-        return biguint_bytes_eval(key.value)
-    return None
+    return key.accept(_BytesConstantVisitor())
+
+
+class _BytesConstantVisitor(NoOpIRVisitor[bytes]):
+    @typing.override
+    def visit_bytes_constant(self, const: models.BytesConstant) -> bytes:
+        return const.value
+
+    @typing.override
+    def visit_address_constant(self, const: models.AddressConstant) -> bytes:
+        return Address.parse(const.value).public_key
+
+    @typing.override
+    def visit_method_constant(self, const: models.MethodConstant) -> bytes:
+        return method_selector_hash(const.value)
+
+    @typing.override
+    def visit_biguint_constant(self, const: models.BigUIntConstant) -> bytes:
+        return biguint_bytes_eval(const.value)
