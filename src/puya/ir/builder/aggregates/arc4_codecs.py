@@ -163,20 +163,26 @@ class _NativeTupleCodec(_ARC4Codec):
                     encoded_element_vp = encode_to_bytes(
                         context, element_values, element_ir_type, element_encoding, loc
                     )
-                    value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
-                    if element_encoding.is_dynamic:
+                    encoded_element = factory.materialise_single(
+                        encoded_element_vp, "encoded_sub_item"
+                    )
+                    if element_encoding.is_fixed:
+                        head_element = encoded_element
+                    else:
                         # append value to tail
-                        tail = factory.concat(tail, value, "tail")
+                        tail = factory.concat(tail, encoded_element, "tail")
 
                         # update offset
-                        data_length = factory.len(value, "data_length")
+                        data_length = factory.len(encoded_element, "data_length")
                         new_current_tail_offset = factory.add(
                             current_tail_offset, data_length, "current_tail_offset"
                         )
                         # value is tail offset
-                        value = factory.as_u16_bytes(current_tail_offset, "offset_as_uint16")
+                        head_element = factory.as_u16_bytes(
+                            current_tail_offset, "offset_as_uint16"
+                        )
                         current_tail_offset = new_current_tail_offset
-                    head = factory.concat(head, value, "encoded")
+                    head = factory.concat(head, head_element, "encoded")
 
         encoded = factory.concat(head, tail, "encoded", ir_type=types.EncodedType(encoding))
         return encoded
