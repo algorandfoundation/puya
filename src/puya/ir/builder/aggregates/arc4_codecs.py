@@ -144,7 +144,7 @@ class _NativeTupleCodec(_ARC4Codec):
         for element_encoding, igroup in itertools.groupby(data, key=lambda p: p[0]):
             group = list(igroup)
             # sequential bits in the same tuple are bit-packed
-            if element_encoding.is_bit and len(group) > 1:
+            if element_encoding.is_bit:
                 building: ir.Value | None = None
                 for bit_index, (_, _, element_values) in enumerate(group):
                     (value,) = element_values
@@ -166,18 +166,11 @@ class _NativeTupleCodec(_ARC4Codec):
                     head = factory.concat(head, building, "encoded")
             else:
                 for _, element_ir_type, element_values in group:
-                    if element_encoding.is_bit:
-                        (value,) = element_values
-                        if value.atype == AVMType.uint64:
-                            value = factory.make_arc4_bool(value)
-                    else:
-                        encoded_element_vp = encode_to_bytes(
-                            context, element_values, element_ir_type, element_encoding, loc
-                        )
-                        value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
-                    if element_encoding.is_fixed:
-                        pass
-                    else:
+                    encoded_element_vp = encode_to_bytes(
+                        context, element_values, element_ir_type, element_encoding, loc
+                    )
+                    value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
+                    if element_encoding.is_dynamic:
                         # append value to tail
                         tail = factory.concat(tail, value, "tail")
 
