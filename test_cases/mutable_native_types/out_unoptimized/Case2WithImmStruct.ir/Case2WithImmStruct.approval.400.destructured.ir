@@ -229,10 +229,10 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let values%1#0: uint64 = (btoi tuple_item%2#0)
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob a#0)
         let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
-        let aggregate%encoded%0#1: Encoded(uint64) = (concat 0x aggregate%as_Encoded(uint64)%0#1)
+        let aggregate%encoded%0#1: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#1)
         let aggregate%val_as_bytes%1#1: bytes[8] = (itob values%1#0)
         let aggregate%as_Encoded(uint64)%1#1: Encoded(uint64) = aggregate%val_as_bytes%1#1
-        let aggregate%encoded%1#1: Encoded(uint64,uint64) = (concat aggregate%encoded%0#1 aggregate%as_Encoded(uint64)%1#1)
+        let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 aggregate%as_Encoded(uint64)%1#1)
         let aggregate%encoded%2#1: Encoded(uint64,uint64) = (concat aggregate%encoded%1#1 0x)
         let tmp%0#0: Encoded(uint64,uint64) = aggregate%encoded%2#1
         let (aggregate%box_get%4#1: bytes, aggregate%box_get%5#1: bool) = (box_get "tup_bag")
@@ -281,10 +281,10 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let values%1#0: uint64 = (btoi tuple_item%2#0)
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob values%1#0)
         let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
-        let aggregate%encoded%0#1: Encoded(uint64) = (concat 0x aggregate%as_Encoded(uint64)%0#1)
+        let aggregate%encoded%0#1: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#1)
         let aggregate%val_as_bytes%1#1: bytes[8] = (itob b#0)
         let aggregate%as_Encoded(uint64)%1#1: Encoded(uint64) = aggregate%val_as_bytes%1#1
-        let aggregate%encoded%1#1: Encoded(uint64,uint64) = (concat aggregate%encoded%0#1 aggregate%as_Encoded(uint64)%1#1)
+        let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 aggregate%as_Encoded(uint64)%1#1)
         let aggregate%encoded%2#1: Encoded(uint64,uint64) = (concat aggregate%encoded%1#1 0x)
         let tmp%0#0: Encoded(uint64,uint64) = aggregate%encoded%2#1
         let (aggregate%box_get%4#1: bytes, aggregate%box_get%5#1: bool) = (box_get "tup_bag")
@@ -331,9 +331,9 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let aggregate%bytes_offset%2#1: uint64 = (* tmp%3#0 16u)
         let aggregate%encoded_element%2#1: bytes = (extract3 items#0 aggregate%bytes_offset%2#1 16u) // on error: index access is out of bounds
         let array_item%2#0: Encoded(uint64,uint64) = aggregate%encoded_element%2#1
-        let aggregate%encoded%0#1: Encoded((uint64,uint64)) = (concat 0x array_item%0#0)
-        let aggregate%encoded%1#1: Encoded((uint64,uint64),(uint64,uint64)) = (concat aggregate%encoded%0#1 array_item%1#0)
-        let aggregate%encoded%2#1: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = (concat aggregate%encoded%1#1 array_item%2#0)
+        let aggregate%encoded%0#1: bytes = (concat 0x array_item%0#0)
+        let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 array_item%1#0)
+        let aggregate%encoded%2#1: bytes = (concat aggregate%encoded%1#1 array_item%2#0)
         let aggregate%encoded%3#1: Encoded((uint64,uint64)[3]) = (concat aggregate%encoded%2#1 0x)
         let encoded_array%0#0: Encoded((uint64,uint64)[3]) = aggregate%encoded%3#1
         return encoded_array%0#0
@@ -342,9 +342,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
     block@0: // L107
         let aggregate%as_bytes%0#1: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
-        let aggregate%encoded%0#1: bytes = (concat aggregate%len_u16%0#1 0x)
-        let aggregate%encoded%1#1: Encoded(len+(uint64,uint64)[]) = (concat aggregate%encoded%0#1 0x)
-        let encoded_array%0#0: Encoded(len+(uint64,uint64)[]) = aggregate%encoded%1#1
+        let aggregate%encoded%0#1: Encoded(len+(uint64,uint64)[]) = (concat aggregate%len_u16%0#1 0x)
+        let encoded_array%0#0: Encoded(len+(uint64,uint64)[]) = aggregate%encoded%0#1
         let result#0: Encoded(len+(uint64,uint64)[]) = encoded_array%0#0
         let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get "tup_bag")
         (assert aggregate%box_get%1#1) // check self.tup_bag exists
@@ -368,9 +367,9 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let aggregate%bytes_offset%0#1: uint64 = (* i#0 16u)
         let aggregate%encoded_element%0#1: bytes = (extract3 items#0 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#1
-        let aggregate%encoded%2#1: Encoded((uint64,uint64)) = (concat 0x array_item%0#0)
-        let aggregate%encoded%3#1: Encoded((uint64,uint64)[]) = (concat aggregate%encoded%2#1 0x)
-        let tmp%0#0: Encoded((uint64,uint64)[]) = aggregate%encoded%3#1
+        let aggregate%encoded%1#1: bytes = (concat 0x array_item%0#0)
+        let aggregate%encoded%2#1: Encoded((uint64,uint64)[]) = (concat aggregate%encoded%1#1 0x)
+        let tmp%0#0: Encoded((uint64,uint64)[]) = aggregate%encoded%2#1
         let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#0 tmp%0#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 result#0 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
