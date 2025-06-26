@@ -126,23 +126,21 @@ class _NativeTupleCodec(_ARC4Codec):
             ir_type_and_encoding, key=lambda p: p[1]
         ):
             group = list(igroup)
+            # sequential bits in the same tuple are bit-packed
             if element_encoding.is_bit and len(group) > 1:
-                num_bytes = bits_to_bytes(len(group))
-                # sequential bits in the same tuple are bit-packed
                 bits_offset = current_head_offset * 8
+                num_bytes = bits_to_bytes(len(group))
+                current_head_offset += num_bytes
                 for bit_index, _ in enumerate(group):
                     processed_encodings.append(element_encoding)
                     encoded_ir_type = types.EncodedType(
                         encodings.TupleEncoding(processed_encodings)
                     )
-
                     value = values.pop(0)
                     if bit_index % 8 == 0:
                         if value.atype == AVMType.uint64:
-                            next_byte = factory.make_arc4_bool(value)
-                        else:
-                            next_byte = value
-                        head = factory.concat(head, next_byte, "encoded", ir_type=encoded_ir_type)
+                            value = factory.make_arc4_bool(value)
+                        head = factory.concat(head, value, "encoded", ir_type=encoded_ir_type)
                     else:
                         # if element is an encoded bool then read the bit.
                         # outside an array bool elements should not be packed
@@ -151,7 +149,6 @@ class _NativeTupleCodec(_ARC4Codec):
                         head = factory.set_bit(
                             value=head, index=bits_offset + bit_index, bit=value
                         )
-                current_head_offset += num_bytes
             else:
                 for element_ir_type, _ in group:
                     element_arity = element_ir_type.arity
