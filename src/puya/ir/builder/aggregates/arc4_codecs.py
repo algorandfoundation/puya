@@ -133,10 +133,8 @@ class _NativeTupleCodec(_ARC4Codec):
         header_size = bits_to_bytes(header_size_bits)
         if isinstance(encoding, encodings.ArrayEncoding) and encoding.length_header:
             head: ir.Value = factory.as_u16_bytes(len(element_ir_types), "len_u16")
-            current_head_offset = 2
         else:
             head = factory.constant(b"")
-            current_head_offset = 0
 
         tail = factory.constant(b"")
         current_tail_offset = factory.constant(header_size)
@@ -147,23 +145,25 @@ class _NativeTupleCodec(_ARC4Codec):
             group = list(igroup)
             # sequential bits in the same tuple are bit-packed
             if element_encoding.is_bit and len(group) > 1:
-                bits_offset = current_head_offset * 8
-                num_bytes = bits_to_bytes(len(group))
-                current_head_offset += num_bytes
+                building: ir.Value | None = None
                 for bit_index, (_, _, element_values) in enumerate(group):
                     (value,) = element_values
-                    if bit_index % 8 == 0:
+                    bit_offset = bit_index % 8
+                    if bit_offset == 0:
+                        if building is not None:
+                            head = factory.concat(head, building, "encoded")
                         if value.atype == AVMType.uint64:
                             value = factory.make_arc4_bool(value)
-                        head = factory.concat(head, value, "encoded")
+                        building = value
                     else:
                         # if element is an encoded bool then read the bit.
                         # outside an array bool elements should not be packed
+                        assert building is not None
                         if value.atype == AVMType.bytes:
                             value = factory.get_bit(value, 0)
-                        head = factory.set_bit(
-                            value=head, index=bits_offset + bit_index, bit=value
-                        )
+                        building = factory.set_bit(value=building, index=bit_offset, bit=value)
+                if building is not None:
+                    head = factory.concat(head, building, "encoded")
             else:
                 for _, element_ir_type, element_values in group:
                     if element_encoding.is_bit:
@@ -176,7 +176,7 @@ class _NativeTupleCodec(_ARC4Codec):
                         )
                         value = factory.materialise_single(encoded_element_vp, "encoded_sub_item")
                     if element_encoding.is_fixed:
-                        current_head_offset += element_encoding.checked_num_bytes
+                        pass
                     else:
                         # append value to tail
                         tail = factory.concat(tail, value, "tail")
@@ -189,7 +189,6 @@ class _NativeTupleCodec(_ARC4Codec):
                         # value is tail offset
                         value = factory.as_u16_bytes(current_tail_offset, "offset_as_uint16")
                         current_tail_offset = new_current_tail_offset
-                        current_head_offset += 2
                     head = factory.concat(head, value, "encoded")
 
         encoded = factory.concat(head, tail, "encoded", ir_type=types.EncodedType(encoding))
