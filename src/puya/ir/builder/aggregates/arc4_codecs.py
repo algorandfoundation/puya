@@ -126,54 +126,42 @@ class _NativeTupleCodec(_ARC4Codec):
             ir_type_and_encoding, key=lambda p: p[1]
         ):
             group = list(igroup)
-            if element_encoding.is_bit:
-                num_bits = len(group)
-                if num_bits == 1:  # TODO: check if we can make this part of outer condition
-                    value = values.pop(0)
-                    if value.atype == AVMType.uint64:
-                        packed_bits = factory.make_arc4_bool(value)
-                    else:
-                        packed_bits = value
-                    current_head_offset += 1
+            if element_encoding.is_bit and len(group) > 1:
+                num_bytes = bits_to_bytes(len(group))
+                # sequential bits in the same tuple are bit-packed
+                bits_offset = current_head_offset * 8
+                for bit_index, _ in enumerate(group):
                     processed_encodings.append(element_encoding)
                     encoded_ir_type = types.EncodedType(
                         encodings.TupleEncoding(processed_encodings)
                     )
-                    head = factory.concat(head, packed_bits, "encoded", ir_type=encoded_ir_type)
-                else:
-                    num_bytes = bits_to_bytes(num_bits)
-                    # sequential bits in the same tuple are bit-packed
-                    bits_offset = current_head_offset * 8
-                    for bit_index, _ in enumerate(group):
-                        processed_encodings.append(element_encoding)
-                        encoded_ir_type = types.EncodedType(
-                            encodings.TupleEncoding(processed_encodings)
-                        )
 
-                        value = values.pop(0)
-                        if bit_index % 8 == 0:
-                            if value.atype == AVMType.uint64:
-                                next_byte = factory.make_arc4_bool(value)
-                            else:
-                                next_byte = value
-                            head = factory.concat(
-                                head, next_byte, "encoded", ir_type=encoded_ir_type
-                            )
+                    value = values.pop(0)
+                    if bit_index % 8 == 0:
+                        if value.atype == AVMType.uint64:
+                            next_byte = factory.make_arc4_bool(value)
                         else:
-                            # if element is an encoded bool then read the bit.
-                            # outside an array bool elements should not be packed
-                            if value.atype == AVMType.bytes:
-                                value = factory.get_bit(value, 0)
-                            head = factory.set_bit(
-                                value=head, index=bits_offset + bit_index, bit=value
-                            )
-                    current_head_offset += num_bytes
+                            next_byte = value
+                        head = factory.concat(head, next_byte, "encoded", ir_type=encoded_ir_type)
+                    else:
+                        # if element is an encoded bool then read the bit.
+                        # outside an array bool elements should not be packed
+                        if value.atype == AVMType.bytes:
+                            value = factory.get_bit(value, 0)
+                        head = factory.set_bit(
+                            value=head, index=bits_offset + bit_index, bit=value
+                        )
+                current_head_offset += num_bytes
             else:
                 for element_ir_type, _ in group:
                     element_arity = element_ir_type.arity
                     element_values = values[:element_arity]
                     values = values[element_arity:]
-                    if requires_no_conversion(element_ir_type, element_encoding):
+                    if element_encoding.is_bit:
+                        (value,) = element_values
+                        if value.atype == AVMType.uint64:
+                            value = factory.make_arc4_bool(value)
+                    elif requires_no_conversion(element_ir_type, element_encoding):
                         (value,) = element_values
                     else:
                         encoded_element_vp = encode_to_bytes(
