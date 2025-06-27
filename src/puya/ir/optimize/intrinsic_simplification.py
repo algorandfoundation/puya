@@ -763,211 +763,6 @@ def _try_fold_intrinsic(
     return None
 
 
-def _try_simplify_triple_add(
-    register_assignments: _RegisterAssignments,
-    intrinsic: models.Intrinsic,
-    args: tuple[models.Value, models.Value, models.Value],
-    merged_loc: SourceLocation | None,
-) -> models.Intrinsic | None:
-    assert intrinsic.op is AVMOp.add
-    match args:
-        case (
-            (
-                models.Register() as reg,
-                models.UInt64Constant(value=a),
-                models.UInt64Constant(value=b),
-            )
-            | (
-                models.UInt64Constant(value=a),
-                models.Register() as reg,
-                models.UInt64Constant(value=b),
-            )
-            | (
-                models.UInt64Constant(value=a),
-                models.UInt64Constant(value=b),
-                models.Register() as reg,
-            )
-        ):
-            # TODO: maybe consider overflow? we don't consider in binary simplification..
-            new_const = models.UInt64Constant(value=a + b, source_location=merged_loc)
-            return models.Intrinsic(
-                op=AVMOp.add,
-                args=[reg, new_const],
-                types=intrinsic.types,
-                source_location=merged_loc,
-            )
-    return None
-
-
-def _try_simplify_triple_mul(
-    register_assignments: _RegisterAssignments,
-    intrinsic: models.Intrinsic,
-    args: tuple[models.Value, models.Value, models.Value],
-    merged_loc: SourceLocation | None,
-) -> models.Intrinsic | None:
-    assert intrinsic.op is AVMOp.mul
-    match args:
-        case (
-            (
-                models.Register() as reg,
-                models.UInt64Constant(value=a),
-                models.UInt64Constant(value=b),
-            )
-            | (
-                models.UInt64Constant(value=a),
-                models.Register() as reg,
-                models.UInt64Constant(value=b),
-            )
-            | (
-                models.UInt64Constant(value=a),
-                models.UInt64Constant(value=b),
-                models.Register() as reg,
-            )
-        ):
-            # TODO: maybe consider overflow? we don't consider in binary simplification..
-            new_const = models.UInt64Constant(value=a * b, source_location=merged_loc)
-            return models.Intrinsic(
-                op=AVMOp.mul,
-                args=[reg, new_const],
-                types=intrinsic.types,
-                source_location=merged_loc,
-            )
-    return None
-
-
-def _try_simplify_triple_add_bytes(
-    register_assignments: _RegisterAssignments,
-    intrinsic: models.Intrinsic,
-    args: tuple[models.Value, models.Value, models.Value],
-    merged_loc: SourceLocation | None,
-) -> models.Intrinsic | None:
-    assert intrinsic.op is AVMOp.add_bytes
-    match args:
-        case (
-            (
-                models.Register() as reg,
-                models.Constant() as big_a,
-                models.Constant() as big_b,
-            )
-            | (
-                models.Constant() as big_a,
-                models.Register() as reg,
-                models.Constant() as big_b,
-            )
-            | (
-                models.Constant() as big_a,
-                models.Constant() as big_b,
-                models.Register() as reg,
-            )
-        ):
-            biguint_const_a, _ = _get_biguint_constant(register_assignments, big_a)
-            biguint_const_b, _ = _get_biguint_constant(register_assignments, big_b)
-            if biguint_const_a is not None and biguint_const_b is not None:
-                new_big_const = models.BigUIntConstant(
-                    value=biguint_const_a + biguint_const_b, source_location=merged_loc
-                )
-                return models.Intrinsic(
-                    op=AVMOp.add,
-                    args=[reg, new_big_const],
-                    types=intrinsic.types,
-                    source_location=merged_loc,
-                )
-    return None
-
-
-def _try_simplify_triple_mul_bytes(
-    register_assignments: _RegisterAssignments,
-    intrinsic: models.Intrinsic,
-    args: tuple[models.Value, models.Value, models.Value],
-    merged_loc: SourceLocation | None,
-) -> models.Intrinsic | None:
-    assert intrinsic.op is AVMOp.mul_bytes
-    match args:
-        case (
-            (
-                models.Register() as reg,
-                models.Constant() as big_a,
-                models.Constant() as big_b,
-            )
-            | (
-                models.Constant() as big_a,
-                models.Register() as reg,
-                models.Constant() as big_b,
-            )
-            | (
-                models.Constant() as big_a,
-                models.Constant() as big_b,
-                models.Register() as reg,
-            )
-        ):
-            biguint_const_a, _ = _get_biguint_constant(register_assignments, big_a)
-            biguint_const_b, _ = _get_biguint_constant(register_assignments, big_b)
-            if biguint_const_a is not None and biguint_const_b is not None:
-                new_big_const = models.BigUIntConstant(
-                    value=biguint_const_a * biguint_const_b, source_location=merged_loc
-                )
-                return models.Intrinsic(
-                    op=AVMOp.mul_bytes,
-                    args=[reg, new_big_const],
-                    types=intrinsic.types,
-                    source_location=merged_loc,
-                )
-    return None
-
-
-def _try_simplify_triple_concat(
-    register_assignments: _RegisterAssignments,
-    intrinsic: models.Intrinsic,
-    args: tuple[models.Value, models.Value, models.Value],
-    merged_loc: SourceLocation | None,
-) -> models.Intrinsic | None:
-    assert intrinsic.op is AVMOp.concat
-    match args:
-        case (
-            models.Register() as reg,
-            models.Constant() as const1,
-            models.Constant() as const2,
-        ):
-            bytes_const1 = _normalise_bytes_constant(const1)
-            bytes_const2 = _normalise_bytes_constant(const2)
-            if bytes_const1 is not None and bytes_const2 is not None:
-                target_encoding = _choose_encoding(bytes_const1.encoding, bytes_const2.encoding)
-                new_const_value = bytes_const1.value + bytes_const2.value
-                new_byte_const = models.BytesConstant(
-                    value=new_const_value,
-                    encoding=target_encoding,
-                    source_location=merged_loc,
-                )
-                return models.Intrinsic(
-                    op=AVMOp.concat,
-                    args=[reg, new_byte_const],
-                    types=intrinsic.types,
-                    source_location=merged_loc,
-                )
-        case (
-            models.Constant() as const1,
-            models.Constant() as const2,
-            models.Register() as reg,
-        ):
-            bytes_const1 = _normalise_bytes_constant(const1)
-            bytes_const2 = _normalise_bytes_constant(const2)
-            if bytes_const1 is not None and bytes_const2 is not None:
-                target_encoding = _choose_encoding(bytes_const1.encoding, bytes_const2.encoding)
-                new_const_value = bytes_const1.value + bytes_const2.value
-                new_byte_const = models.BytesConstant(
-                    value=new_const_value,
-                    encoding=target_encoding,
-                    source_location=merged_loc,
-                )
-                return models.Intrinsic(
-                    op=AVMOp.concat,
-                    args=[new_byte_const, reg],
-                    types=intrinsic.types,
-                    source_location=merged_loc,
-                )
-    return None
-
-
 _BinaryTripleSimplifier = Callable[
     [
         _RegisterAssignments,
@@ -975,15 +770,158 @@ _BinaryTripleSimplifier = Callable[
         tuple[models.Value, models.Value, models.Value],
         SourceLocation | None,
     ],
-    models.Intrinsic | None,
+    models.Value | models.Intrinsic | None,
 ]
+
+
+def _make_try_simplify_triple_uint64_math_commutative(
+    op: AVMOp, reducer: Callable[[Iterable[int]], int]
+) -> _BinaryTripleSimplifier:
+    def simplifier(
+        _: _RegisterAssignments,
+        intrinsic: models.Intrinsic,
+        args: tuple[models.Value, models.Value, models.Value],
+        merged_loc: SourceLocation | None,
+    ) -> models.Value | models.Intrinsic | None:
+        assert intrinsic.op is op
+        other = list[models.Value]()
+        constants = list[int]()
+        for arg in args:
+            const_int = _get_int_constant(arg)
+            if const_int is not None:
+                constants.append(const_int)
+            else:
+                other.append(arg)
+        # TODO: maybe consider overflow? we don't consider in binary simplification..
+        match other:
+            case []:
+                return models.UInt64Constant(
+                    value=reducer(constants),
+                    source_location=merged_loc,
+                    # TODO: types?
+                )
+            case [reg]:
+                new_const = models.UInt64Constant(
+                    value=reducer(constants),
+                    source_location=merged_loc,
+                )
+                return models.Intrinsic(
+                    op=op,
+                    args=[reg, new_const],
+                    types=intrinsic.types,
+                    source_location=merged_loc,
+                )
+            case _:
+                return None
+
+    return simplifier
+
+
+def _make_try_simplify_triple_bytes_math_commutative(
+    op: AVMOp, reducer: Callable[[Iterable[int]], int]
+) -> _BinaryTripleSimplifier:
+    def simplifier(
+        register_assignments: _RegisterAssignments,
+        intrinsic: models.Intrinsic,
+        args: tuple[models.Value, models.Value, models.Value],
+        merged_loc: SourceLocation | None,
+    ) -> models.Value | models.Intrinsic | None:
+        assert intrinsic.op is op
+        other = list[models.Value]()
+        constants = list[int]()
+        for arg in args:
+            const_bigint, _ = _get_biguint_constant(register_assignments, arg)
+            if const_bigint is not None:
+                constants.append(const_bigint)
+            else:
+                other.append(arg)
+        # TODO: maybe consider overflow? we don't consider in binary simplification..
+        match other:
+            case []:
+                return models.BigUIntConstant(
+                    value=reducer(constants),
+                    source_location=merged_loc,
+                    # TODO: types?
+                )
+            case [reg]:
+                new_big_const = models.BigUIntConstant(
+                    value=reducer(constants),
+                    source_location=merged_loc,
+                )
+                return models.Intrinsic(
+                    op=op,
+                    args=[reg, new_big_const],
+                    types=intrinsic.types,
+                    source_location=merged_loc,
+                )
+            case _:
+                return None
+
+    return simplifier
+
+
+def _try_normalise_bytes_constant(maybe_byte_arg: models.Value) -> models.Value:
+    if isinstance(maybe_byte_arg, models.Constant):
+        maybe_normed = _normalise_bytes_constant(maybe_byte_arg)
+        if maybe_normed is not None:
+            return maybe_normed
+    return maybe_byte_arg
+
+
+def _try_simplify_triple_concat(
+    _: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
+    args: tuple[models.Value, models.Value, models.Value],
+    merged_loc: SourceLocation | None,
+) -> models.Value | models.Intrinsic | None:
+    assert intrinsic.op is AVMOp.concat
+    normalised_args = list(map(_try_normalise_bytes_constant, args))
+    match normalised_args:
+        case (
+            models.Value() as reg,
+            models.BytesConstant() as bytes_const1,
+            models.BytesConstant() as bytes_const2,
+        ):
+            target_encoding = _choose_encoding(bytes_const1.encoding, bytes_const2.encoding)
+            new_const_value = bytes_const1.value + bytes_const2.value
+            new_byte_const = models.BytesConstant(
+                value=new_const_value,
+                encoding=target_encoding,
+                source_location=merged_loc,
+            )
+            return models.Intrinsic(
+                op=AVMOp.concat,
+                args=[reg, new_byte_const],
+                types=intrinsic.types,
+                source_location=merged_loc,
+            )
+        case (
+            models.BytesConstant() as bytes_const1,
+            models.BytesConstant() as bytes_const2,
+            models.Value() as reg,
+        ):
+            target_encoding = _choose_encoding(bytes_const1.encoding, bytes_const2.encoding)
+            new_const_value = bytes_const1.value + bytes_const2.value
+            new_byte_const = models.BytesConstant(
+                value=new_const_value,
+                encoding=target_encoding,
+                source_location=merged_loc,
+            )
+            return models.Intrinsic(
+                op=AVMOp.concat,
+                args=[new_byte_const, reg],
+                types=intrinsic.types,
+                source_location=merged_loc,
+            )
+    return None
+
 
 _BINARY_TRIPLE_SIMPLIFIER: typing.Final[Mapping[AVMOp, _BinaryTripleSimplifier]] = {
     AVMOp.concat: _try_simplify_triple_concat,
-    AVMOp.add: _try_simplify_triple_add,
-    AVMOp.mul: _try_simplify_triple_mul,
-    AVMOp.add_bytes: _try_simplify_triple_add_bytes,
-    AVMOp.mul_bytes: _try_simplify_triple_mul_bytes,
+    AVMOp.add: _make_try_simplify_triple_uint64_math_commutative(AVMOp.add, sum),
+    AVMOp.mul: _make_try_simplify_triple_uint64_math_commutative(AVMOp.mul, math.prod),
+    AVMOp.add_bytes: _make_try_simplify_triple_bytes_math_commutative(AVMOp.add_bytes, sum),
+    AVMOp.mul_bytes: _make_try_simplify_triple_bytes_math_commutative(AVMOp.mul_bytes, math.prod),
 }
 
 
@@ -1003,12 +941,10 @@ def _try_simplify_repeated_binary_op(
     # check to see if either/both arguments are only used by `intrinsic`
     expand_left: models.Register | None = None
     expand_right: models.Register | None = None
-    if isinstance(left, models.Register):
-        if ssa_reads.is_sole_usage(left, ass):
-            expand_left = left
-    if isinstance(right, models.Register):
-        if ssa_reads.is_sole_usage(right, ass):
-            expand_right = right
+    if isinstance(left, models.Register) and ssa_reads.is_sole_usage(left, ass):
+        expand_left = left
+    if isinstance(right, models.Register) and ssa_reads.is_sole_usage(right, ass):
+        expand_right = right
 
     if expand_left is not None:
         # check to see if the register argument is itself the result of an intrinsic with two args
