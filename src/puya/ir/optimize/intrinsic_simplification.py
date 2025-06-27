@@ -161,7 +161,7 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
         ass, source = work_list.dequeue()
         simplified = _try_fold_intrinsic(register_assignments, source)
         if simplified is None:
-            simplified = _try_simplify_repeated_intrinsic(
+            simplified = _try_simplify_repeated_binary_op(
                 register_assignments, ass, source, ssa_reads
             )
         if simplified is not None:
@@ -763,66 +763,15 @@ def _try_fold_intrinsic(
     return None
 
 
-def _try_simplify_repeated_intrinsic(
+def _try_simplify_triple_add(
     register_assignments: _RegisterAssignments,
-    ass: models.Assignment,
-    intrinsic: models.Intrinsic,
-    ssa_reads: _SSAReadTracker,
-) -> models.Value | models.Intrinsic | None:
-    # check that it's a binary op
-    try:
-        left, right = intrinsic.args
-    except ValueError:
-        return None
-    # check that the intrinsic has one constant argument and one register argument
-    expand: typing.Literal["left", "right"]
-    match left, right:
-        case models.Register() as reg, models.Constant():
-            expand = "left"
-        case models.Constant(), models.Register() as reg:
-            expand = "right"
-        case _:
-            return None
-    # check that this register argument is not used elsewhere
-    if not ssa_reads.is_sole_usage(reg, ass):
-        return None
-    # check to see if the register argument is itself the result of an intrinsic with two args
-    match register_assignments.get(reg):
-        case models.Assignment(
-            targets=[sole_target],
-            source=models.Intrinsic(args=[source_left, source_right]) as reg_intrinsic,
-        ):
-            assert sole_target == reg
-        case _:
-            return None
-    # for now, only handle cases where the op is the same - we could potentially expand this to
-    # handle distributive identities e.g. c1 * (x + c2)
-    if reg_intrinsic.op is not intrinsic.op:
-        return None
-    # check that the register source args are also a constant and a register
-    match source_left, source_right:
-        case (models.Register(), models.Constant()) | (models.Constant(), models.Register()):
-            pass
-        case _:
-            return None
-    if expand == "left":
-        return _try_simplify_triple(intrinsic, (source_left, source_right, right), reg_intrinsic)
-    else:
-        typing.assert_type(expand, typing.Literal["right"])
-        return _try_simplify_triple(intrinsic, (left, source_left, source_right), reg_intrinsic)
-
-
-def _try_simplify_triple(
     intrinsic: models.Intrinsic,
     args: tuple[models.Value, models.Value, models.Value],
-    parent: models.Intrinsic,
+    merged_loc: SourceLocation | None,
 ) -> models.Intrinsic | None:
-    assert intrinsic.op == parent.op
-    merged_loc = sequential_source_locations_merge(
-        (intrinsic.source_location, parent.source_location)
-    )
-    match intrinsic.op, args:
-        case AVMOp.add, (
+    assert intrinsic.op is AVMOp.add
+    match args:
+        case (
             (
                 models.Register() as reg,
                 models.UInt64Constant(value=a),
@@ -847,7 +796,18 @@ def _try_simplify_triple(
                 types=intrinsic.types,
                 source_location=merged_loc,
             )
-        case AVMOp.mul, (
+    return None
+
+
+def _try_simplify_triple_mul(
+    register_assignments: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
+    args: tuple[models.Value, models.Value, models.Value],
+    merged_loc: SourceLocation | None,
+) -> models.Intrinsic | None:
+    assert intrinsic.op is AVMOp.mul
+    match args:
+        case (
             (
                 models.Register() as reg,
                 models.UInt64Constant(value=a),
@@ -872,7 +832,98 @@ def _try_simplify_triple(
                 types=intrinsic.types,
                 source_location=merged_loc,
             )
-        case AVMOp.concat, (
+    return None
+
+
+def _try_simplify_triple_add_bytes(
+    register_assignments: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
+    args: tuple[models.Value, models.Value, models.Value],
+    merged_loc: SourceLocation | None,
+) -> models.Intrinsic | None:
+    assert intrinsic.op is AVMOp.add_bytes
+    match args:
+        case (
+            (
+                models.Register() as reg,
+                models.Constant() as big_a,
+                models.Constant() as big_b,
+            )
+            | (
+                models.Constant() as big_a,
+                models.Register() as reg,
+                models.Constant() as big_b,
+            )
+            | (
+                models.Constant() as big_a,
+                models.Constant() as big_b,
+                models.Register() as reg,
+            )
+        ):
+            biguint_const_a, _ = _get_biguint_constant(register_assignments, big_a)
+            biguint_const_b, _ = _get_biguint_constant(register_assignments, big_b)
+            if biguint_const_a is not None and biguint_const_b is not None:
+                new_big_const = models.BigUIntConstant(
+                    value=biguint_const_a + biguint_const_b, source_location=merged_loc
+                )
+                return models.Intrinsic(
+                    op=AVMOp.add,
+                    args=[reg, new_big_const],
+                    types=intrinsic.types,
+                    source_location=merged_loc,
+                )
+    return None
+
+
+def _try_simplify_triple_mul_bytes(
+    register_assignments: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
+    args: tuple[models.Value, models.Value, models.Value],
+    merged_loc: SourceLocation | None,
+) -> models.Intrinsic | None:
+    assert intrinsic.op is AVMOp.mul_bytes
+    match args:
+        case (
+            (
+                models.Register() as reg,
+                models.Constant() as big_a,
+                models.Constant() as big_b,
+            )
+            | (
+                models.Constant() as big_a,
+                models.Register() as reg,
+                models.Constant() as big_b,
+            )
+            | (
+                models.Constant() as big_a,
+                models.Constant() as big_b,
+                models.Register() as reg,
+            )
+        ):
+            biguint_const_a, _ = _get_biguint_constant({}, big_a)
+            biguint_const_b, _ = _get_biguint_constant({}, big_b)
+            if biguint_const_a is not None and biguint_const_b is not None:
+                new_big_const = models.BigUIntConstant(
+                    value=biguint_const_a * biguint_const_b, source_location=merged_loc
+                )
+                return models.Intrinsic(
+                    op=AVMOp.mul_bytes,
+                    args=[reg, new_big_const],
+                    types=intrinsic.types,
+                    source_location=merged_loc,
+                )
+    return None
+
+
+def _try_simplify_triple_concat(
+    register_assignments: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
+    args: tuple[models.Value, models.Value, models.Value],
+    merged_loc: SourceLocation | None,
+) -> models.Intrinsic | None:
+    assert intrinsic.op is AVMOp.concat
+    match args:
+        case (
             models.Register() as reg,
             models.Constant() as const1,
             models.Constant() as const2,
@@ -893,7 +944,7 @@ def _try_simplify_triple(
                     types=intrinsic.types,
                     source_location=merged_loc,
                 )
-        case AVMOp.concat, (
+        case (
             models.Constant() as const1,
             models.Constant() as const2,
             models.Register() as reg,
@@ -913,6 +964,82 @@ def _try_simplify_triple(
                     args=[new_byte_const, reg],
                     types=intrinsic.types,
                     source_location=merged_loc,
+                )
+    return None
+
+
+_BinaryTripleSimplifier = Callable[
+    [
+        _RegisterAssignments,
+        models.Intrinsic,
+        tuple[models.Value, models.Value, models.Value],
+        SourceLocation | None,
+    ],
+    models.Intrinsic | None,
+]
+
+_BINARY_TRIPLE_SIMPLIFIER: typing.Final[Mapping[AVMOp, _BinaryTripleSimplifier]] = {
+    AVMOp.concat: _try_simplify_triple_concat,
+    AVMOp.add: _try_simplify_triple_add,
+    AVMOp.mul: _try_simplify_triple_mul,
+    AVMOp.add_bytes: _try_simplify_triple_add_bytes,
+    AVMOp.mul_bytes: _try_simplify_triple_mul_bytes,
+}
+
+
+def _try_simplify_repeated_binary_op(
+    register_assignments: _RegisterAssignments,
+    ass: models.Assignment,
+    intrinsic: models.Intrinsic,
+    ssa_reads: _SSAReadTracker,
+) -> models.Value | models.Intrinsic | None:
+    assert ass.source is intrinsic
+
+    # this implicitly checks that it's a binary op
+    simplifier = _BINARY_TRIPLE_SIMPLIFIER.get(intrinsic.op)
+    if simplifier is None:
+        return None
+    left, right = intrinsic.args
+    # check to see if either/both arguments are only used by `intrinsic`
+    expand_left: models.Register | None = None
+    expand_right: models.Register | None = None
+    if isinstance(left, models.Register):
+        if ssa_reads.is_sole_usage(left, ass):
+            expand_left = left
+    if isinstance(right, models.Register):
+        if ssa_reads.is_sole_usage(right, ass):
+            expand_right = right
+
+    if expand_left is not None:
+        # check to see if the register argument is itself the result of an intrinsic with two args
+        match register_assignments.get(expand_left):
+            case models.Assignment(
+                targets=[sole_target],
+                source=models.Intrinsic(args=[left1, left2]) as reg_intrinsic,
+            ) if reg_intrinsic.op == intrinsic.op:
+                assert sole_target == expand_left
+                merged_loc = sequential_source_locations_merge(
+                    (intrinsic.source_location, reg_intrinsic.source_location)
+                )
+                maybe_simplified = simplifier(
+                    register_assignments, intrinsic, (left1, left2, right), merged_loc
+                )
+                if maybe_simplified is not None:
+                    return maybe_simplified
+
+    if expand_right is not None:
+        # check to see if the register argument is itself the result of an intrinsic with two args
+        match register_assignments.get(expand_right):
+            case models.Assignment(
+                targets=[sole_target],
+                source=models.Intrinsic(args=[right1, right2]) as reg_intrinsic,
+            ) if reg_intrinsic.op == intrinsic.op:
+                assert sole_target == expand_right
+                merged_loc = sequential_source_locations_merge(
+                    (intrinsic.source_location, reg_intrinsic.source_location)
+                )
+                return simplifier(
+                    register_assignments, intrinsic, (left, right1, right2), merged_loc
                 )
     return None
 
