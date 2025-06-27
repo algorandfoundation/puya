@@ -862,6 +862,7 @@ def _make_try_simplify_triple_bytes_math_commutative(
 
 
 def _try_normalise_bytes_constant(maybe_byte_arg: models.Value) -> models.Value:
+    # TODO: may want to consider looking up register assignments at O2
     if isinstance(maybe_byte_arg, models.Constant):
         maybe_normed = _normalise_bytes_constant(maybe_byte_arg)
         if maybe_normed is not None:
