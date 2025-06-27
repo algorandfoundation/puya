@@ -3,7 +3,7 @@
 
 // test_cases.ssa.contract.MyContract.approval_program() -> uint64:
 main:
-    intcblock 2 5 1 25
+    intcblock 5 1 2 25
     pushbytes ""
     dup
     // ssa/contract.py:11-12
@@ -15,7 +15,7 @@ main_while_top@1:
     // ssa/contract.py:14
     // while a < UInt64(5):
     dig 1
-    intc_1 // 5
+    intc_0 // 5
     <
     bz main_after_while@3
     // ssa/contract.py:15
@@ -28,7 +28,7 @@ main_while_top@1:
     bury 2
     // ssa/contract.py:16
     // a = a + 1
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 2
     b main_while_top@1
@@ -43,7 +43,7 @@ main_for_header@4:
     // ssa/contract.py:18
     // for i in urange(5):
     dig 2
-    intc_1 // 5
+    intc_0 // 5
     <
     bz main_after_for@7
     // ssa/contract.py:19
@@ -63,7 +63,7 @@ main_for_header@4:
     bury 3
     // ssa/contract.py:18
     // for i in urange(5):
-    intc_2 // 1
+    intc_1 // 1
     +
     bury 3
     b main_for_header@4
@@ -77,7 +77,7 @@ main_after_for@7:
     // ssa/contract.py:23
     // if b < 2:
     dup
-    intc_0 // 2
+    intc_2 // 2
     <
     bz main_else_body@10
     // ssa/contract.py:25
@@ -85,7 +85,7 @@ main_after_for@7:
     dig 1
     // ssa/contract.py:24
     // b = 3 + UInt64(2)
-    intc_1 // 5
+    intc_0 // 5
     // ssa/contract.py:25
     // c = a + b
     +
@@ -98,7 +98,7 @@ main_after_if_else@19:
     bury 2
     // ssa/contract.py:50
     // b = UInt64(2)
-    intc_0 // 2
+    intc_2 // 2
     bury 1
     // ssa/contract.py:49
     // a = UInt64(25)
@@ -110,7 +110,7 @@ main_after_if_else@19:
     bz main_after_if_else@22
     // ssa/contract.py:52
     // b = UInt64(1)
-    intc_2 // 1
+    intc_1 // 1
     bury 1
     // ssa/contract.py:53
     // a = UInt64(100)
@@ -142,19 +142,20 @@ main_after_if_else@22:
     return
 
 main_else_body@10:
-    // ssa/contract.py:27
+    // ssa/contract.py:28
+    // if ((3 * 4) + 2) * b:
+    dig 1
+    // ssa/contract.py:27-28
     // b = 2 * a
-    intc_0 // 2
-    dig 2
+    // if ((3 * 4) + 2) * b:
+    pushint 28 // 28
     *
     // ssa/contract.py:28
     // if ((3 * 4) + 2) * b:
-    pushint 14 // 14
-    *
     bz main_else_body@12
     // ssa/contract.py:29
     // c = UInt64(2)
-    intc_0 // 2
+    intc_2 // 2
     bury 4
     b main_after_if_else@19
 
