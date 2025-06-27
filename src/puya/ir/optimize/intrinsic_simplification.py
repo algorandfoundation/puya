@@ -1,4 +1,5 @@
 import contextlib
+import functools
 import hashlib
 import math
 import operator
@@ -775,7 +776,7 @@ _BinaryTripleSimplifier = Callable[
 
 
 def _make_try_simplify_triple_uint64_math_commutative(
-    op: AVMOp, reducer: Callable[[Iterable[int]], int]
+    op: AVMOp, reducer: Callable[[int, int], int]
 ) -> _BinaryTripleSimplifier:
     def simplifier(
         _: _RegisterAssignments,
@@ -796,13 +797,13 @@ def _make_try_simplify_triple_uint64_math_commutative(
         match other:
             case []:
                 return models.UInt64Constant(
-                    value=reducer(constants),
+                    value=functools.reduce(reducer, constants),
                     source_location=merged_loc,
                     # TODO: types?
                 )
             case [reg]:
                 new_const = models.UInt64Constant(
-                    value=reducer(constants),
+                    value=functools.reduce(reducer, constants),
                     source_location=merged_loc,
                 )
                 return models.Intrinsic(
@@ -818,7 +819,7 @@ def _make_try_simplify_triple_uint64_math_commutative(
 
 
 def _make_try_simplify_triple_bytes_math_commutative(
-    op: AVMOp, reducer: Callable[[Iterable[int]], int]
+    op: AVMOp, reducer: Callable[[int, int], int]
 ) -> _BinaryTripleSimplifier:
     def simplifier(
         register_assignments: _RegisterAssignments,
@@ -839,13 +840,13 @@ def _make_try_simplify_triple_bytes_math_commutative(
         match other:
             case []:
                 return models.BigUIntConstant(
-                    value=reducer(constants),
+                    value=functools.reduce(reducer, constants),
                     source_location=merged_loc,
                     # TODO: types?
                 )
             case [reg]:
                 new_big_const = models.BigUIntConstant(
-                    value=reducer(constants),
+                    value=functools.reduce(reducer, constants),
                     source_location=merged_loc,
                 )
                 return models.Intrinsic(
@@ -918,10 +919,23 @@ def _try_simplify_triple_concat(
 
 _BINARY_TRIPLE_SIMPLIFIER: typing.Final[Mapping[AVMOp, _BinaryTripleSimplifier]] = {
     AVMOp.concat: _try_simplify_triple_concat,
-    AVMOp.add: _make_try_simplify_triple_uint64_math_commutative(AVMOp.add, sum),
-    AVMOp.mul: _make_try_simplify_triple_uint64_math_commutative(AVMOp.mul, math.prod),
-    AVMOp.add_bytes: _make_try_simplify_triple_bytes_math_commutative(AVMOp.add_bytes, sum),
-    AVMOp.mul_bytes: _make_try_simplify_triple_bytes_math_commutative(AVMOp.mul_bytes, math.prod),
+    AVMOp.add: _make_try_simplify_triple_uint64_math_commutative(AVMOp.add, operator.add),
+    AVMOp.mul: _make_try_simplify_triple_uint64_math_commutative(AVMOp.mul, operator.mul),
+    AVMOp.bitwise_and: _make_try_simplify_triple_uint64_math_commutative(
+        AVMOp.bitwise_and, operator.and_
+    ),
+    AVMOp.bitwise_or: _make_try_simplify_triple_uint64_math_commutative(
+        AVMOp.bitwise_or, operator.or_
+    ),
+    AVMOp.bitwise_xor: _make_try_simplify_triple_uint64_math_commutative(
+        AVMOp.bitwise_xor, operator.xor
+    ),
+    AVMOp.add_bytes: _make_try_simplify_triple_bytes_math_commutative(
+        AVMOp.add_bytes, operator.add
+    ),
+    AVMOp.mul_bytes: _make_try_simplify_triple_bytes_math_commutative(
+        AVMOp.mul_bytes, operator.mul
+    ),
 }
 
 
