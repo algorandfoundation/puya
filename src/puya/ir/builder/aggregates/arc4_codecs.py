@@ -157,7 +157,7 @@ class _NativeTupleCodec(_ARC4Codec):
                         if bit_value.atype == AVMType.bytes:
                             bit_value = factory.get_bit(bit_value, 0)
                         building = factory.set_bit(value=building, index=index, bit=bit_value)
-                    head = factory.concat(head, building, "encoded")
+                    head = factory.concat(head, building, "head")
             else:
                 for _, element_ir_type, element_values in group:
                     encoded_element_vp = encode_to_bytes(
@@ -167,22 +167,23 @@ class _NativeTupleCodec(_ARC4Codec):
                         encoded_element_vp, "encoded_sub_item"
                     )
                     if element_encoding.is_fixed:
-                        head_element = encoded_element
+                        # head value is element
+                        head = factory.concat(head, encoded_element, "head")
                     else:
+                        # head value is tail offset
+                        head = factory.concat(
+                            head,
+                            factory.as_u16_bytes(current_tail_offset, "offset_as_uint16"),
+                            "head",
+                        )
                         # append value to tail
                         tail_parts.append(encoded_element)
-
                         # update offset
-                        data_length = factory.len(encoded_element, "data_length")
-                        new_current_tail_offset = factory.add(
-                            current_tail_offset, data_length, "current_tail_offset"
+                        current_tail_offset = factory.add(
+                            current_tail_offset,
+                            factory.len(encoded_element, "data_length"),
+                            "current_tail_offset",
                         )
-                        # value is tail offset
-                        head_element = factory.as_u16_bytes(
-                            current_tail_offset, "offset_as_uint16"
-                        )
-                        current_tail_offset = new_current_tail_offset
-                    head = factory.concat(head, head_element, "encoded")
 
         encoded = head
         for tail_part in tail_parts:
