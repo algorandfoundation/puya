@@ -847,6 +847,31 @@ def _try_simplify_triple(
                 types=intrinsic.types,
                 source_location=merged_loc,
             )
+        case AVMOp.mul, (
+            (
+                models.Register() as reg,
+                models.UInt64Constant(value=a),
+                models.UInt64Constant(value=b),
+            )
+            | (
+                models.UInt64Constant(value=a),
+                models.Register() as reg,
+                models.UInt64Constant(value=b),
+            )
+            | (
+                models.UInt64Constant(value=a),
+                models.UInt64Constant(value=b),
+                models.Register() as reg,
+            )
+        ):
+            # TODO: maybe consider overflow? we don't consider in binary simplification..
+            new_const = models.UInt64Constant(value=a * b, source_location=merged_loc)
+            return models.Intrinsic(
+                op=AVMOp.mul,
+                args=[reg, new_const],
+                types=intrinsic.types,
+                source_location=merged_loc,
+            )
         case AVMOp.concat, (
             models.Register() as reg,
             models.Constant() as const1,
