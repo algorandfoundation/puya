@@ -201,17 +201,33 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
 
     for block in subroutine.body:
         for op in block.ops:
-            if (
-                isinstance(op, models.Assignment)
-                and isinstance(op.source, models.Intrinsic)
-                and op.source.args
-            ):
-                with_immediates = _try_convert_stack_args_to_immediates(op.source)
-                if with_immediates is not None:
-                    logger.debug(f"Simplified {op.source} to {with_immediates}")
-                    op.source = with_immediates
-                    modified += 1
-
+            match op:
+                case (
+                    models.Assignment(source=models.Intrinsic() as intrinsic) as ass
+                ) if intrinsic.args:
+                    with_immediates = _try_convert_stack_args_to_immediates(intrinsic)
+                    if with_immediates is not None:
+                        logger.debug(f"Simplified {op.source} to {with_immediates}")
+                        op.source = with_immediates
+                        modified += 1
+                    elif intrinsic.op == AVMOp.box_get:
+                        maybe_value, exists = ass.targets
+                        if ssa_reads.count(maybe_value) == 0:
+                            logger.debug(
+                                f"replacing box_get with box_len"
+                                f" because {maybe_value.local_id} is unused"
+                            )
+                            modified += 1
+                            # we've checked this isn't used, so it's safe to just change it's type
+                            len_register = attrs.evolve(
+                                maybe_value, ir_type=PrimitiveIRType.uint64
+                            )
+                            ass.targets = (len_register, exists)
+                            ass.source = attrs.evolve(
+                                intrinsic,
+                                op=AVMOp.box_len,
+                                types=(PrimitiveIRType.uint64, PrimitiveIRType.bool),
+                            )
     register_intrinsics = {
         target: ass.source
         for target, ass in register_assignments.items()
