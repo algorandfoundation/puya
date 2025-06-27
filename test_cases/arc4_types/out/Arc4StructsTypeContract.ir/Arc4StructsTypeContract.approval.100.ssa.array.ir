@@ -1,8 +1,8 @@
 main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
     block@0: // L39
-        let aggregate%encoded%0#1: bytes = (concat 0x 0x000000083cfbf217)
-        let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 0x000000230384b842)
-        let aggregate%as_Encoded(uint64,uint64)%0#1: Encoded(uint64,uint64) = aggregate%encoded%1#1
+        let aggregate%head%0#1: bytes = (concat 0x 0x000000083cfbf217)
+        let aggregate%head%1#1: bytes = (concat aggregate%head%0#1 0x000000230384b842)
+        let aggregate%as_Encoded(uint64,uint64)%0#1: Encoded(uint64,uint64) = aggregate%head%1#1
         let coord_1#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%0#1
         let aggregate%extract%0#1: bytes = (extract3 coord_1#0 0u 8u)
         let x#0: Encoded(uint64) = aggregate%extract%0#1
@@ -14,9 +14,9 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let tmp%0#5: uint64 = (btoi x#1)
         let tmp%2#4: uint64 = (+ tmp%0#5 tmp%0#5)
         let reinterpret_Encoded(uint64)%0#1: Encoded(uint64) = (itob tmp%2#4)
-        let aggregate%encoded%2#1: bytes = (concat 0x reinterpret_Encoded(uint64)%0#0)
-        let aggregate%encoded%3#1: bytes = (concat aggregate%encoded%2#1 reinterpret_Encoded(uint64)%0#1)
-        let aggregate%as_Encoded(uint64,uint64)%1#1: Encoded(uint64,uint64) = aggregate%encoded%3#1
+        let aggregate%head%2#1: bytes = (concat 0x reinterpret_Encoded(uint64)%0#0)
+        let aggregate%head%3#1: bytes = (concat aggregate%head%2#1 reinterpret_Encoded(uint64)%0#1)
+        let aggregate%as_Encoded(uint64,uint64)%1#1: Encoded(uint64,uint64) = aggregate%head%3#1
         let coord_3#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%1#1
         let aggregate%extract%2#1: bytes = (extract3 coord_3#0 0u 8u)
         let val#0: Encoded(uint64) = aggregate%extract%2#1
@@ -45,8 +45,8 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let aggregate%set_bit%1#1: Encoded(bool8) = (setbit aggregate%set_bit%0#1 2u aggregate%get_bit%1#1)
         let aggregate%get_bit%2#1: uint64 = (getbit tmp%3#0 0u)
         let aggregate%set_bit%2#1: Encoded(bool8) = (setbit aggregate%set_bit%1#1 3u aggregate%get_bit%2#1)
-        let aggregate%encoded%4#1: bytes = (concat 0x aggregate%set_bit%2#1)
-        let aggregate%as_Encoded(bool1,bool1,bool1,bool1)%0#1: Encoded(bool1,bool1,bool1,bool1) = aggregate%encoded%4#1
+        let aggregate%head%4#1: bytes = (concat 0x aggregate%set_bit%2#1)
+        let aggregate%as_Encoded(bool1,bool1,bool1,bool1)%0#1: Encoded(bool1,bool1,bool1,bool1) = aggregate%head%4#1
         let flags#0: Encoded(bool1,bool1,bool1,bool1) = aggregate%as_Encoded(bool1,bool1,bool1,bool1)%0#1
         let aggregate%get_bit%3#1: uint64 = (getbit flags#0 0u)
         let tuple_item%0#1: bool = aggregate%get_bit%3#1
@@ -79,9 +79,9 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let tmp%5#1: bool = (! tmp%4#1)
         (assert tmp%5#1)
         (log flags#0)
-        let aggregate%encoded%5#1: bytes = (concat 0x coord_1#0)
-        let aggregate%encoded%6#1: bytes = (concat aggregate%encoded%5#1 flags#0)
-        let aggregate%as_Encoded((uint64,uint64),(bool1,bool1,bool1,bool1))%0#1: Encoded((uint64,uint64),(bool1,bool1,bool1,bool1)) = aggregate%encoded%6#1
+        let aggregate%head%5#1: bytes = (concat 0x coord_1#0)
+        let aggregate%head%6#1: bytes = (concat aggregate%head%5#1 flags#0)
+        let aggregate%as_Encoded((uint64,uint64),(bool1,bool1,bool1,bool1))%0#1: Encoded((uint64,uint64),(bool1,bool1,bool1,bool1)) = aggregate%head%6#1
         let vector_flags#0: Encoded((uint64,uint64),(bool1,bool1,bool1,bool1)) = aggregate%as_Encoded((uint64,uint64),(bool1,bool1,bool1,bool1))%0#1
         let aggregate%extract%4#1: bytes = (extract3 vector_flags#0 0u 16u)
         let aggregate%extract%5#1: bytes = (extract3 aggregate%extract%4#1 0u 8u)
@@ -103,20 +103,20 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x)
         let aggregate%as_Encoded(len+uint8[])%0#1: Encoded(len+uint8[]) = aggregate%encoded_value%0#1
         let tmp%9#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%0#1
-        let aggregate%data_length%0#1: uint64 = (len tmp%9#0)
-        let aggregate%current_tail_offset%0#1: uint64 = (+ 2u aggregate%data_length%0#1)
         let aggregate%as_bytes%1#1: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
-        let aggregate%encoded%7#1: bytes = (concat 0x aggregate%offset_as_uint16%0#1)
-        let aggregate%concat%0#1: bytes = (concat aggregate%encoded%7#1 tmp%9#0)
+        let aggregate%head%7#1: bytes = (concat 0x aggregate%offset_as_uint16%0#1)
+        let aggregate%data_length%0#1: uint64 = (len tmp%9#0)
+        let aggregate%current_tail_offset%0#1: uint64 = (+ 2u aggregate%data_length%0#1)
+        let aggregate%concat%0#1: bytes = (concat aggregate%head%7#1 tmp%9#0)
         let aggregate%as_Encoded((len+uint8[]))%0#1: Encoded((len+uint8[])) = aggregate%concat%0#1
         let mutable#0: Encoded((len+uint8[])) = aggregate%as_Encoded((len+uint8[]))%0#1
         let aggregate%extract_uint16%0#1: uint64 = (extract_uint16 mutable#0 0u)
         let aggregate%len%0#1: uint64 = (len mutable#0)
         let aggregate%substring3%0#1: bytes = (substring3 mutable#0 aggregate%extract_uint16%0#1 aggregate%len%0#1)
         let tuple_item%2#0: Encoded(len+uint8[]) = aggregate%substring3%0#1
-        let aggregate%encoded%8#1: bytes = (concat 0x 0x2a)
-        let aggregate%as_Encoded(uint8[])%0#1: Encoded(uint8[]) = aggregate%encoded%8#1
+        let aggregate%head%8#1: bytes = (concat 0x 0x2a)
+        let aggregate%as_Encoded(uint8[])%0#1: Encoded(uint8[]) = aggregate%head%8#1
         let tmp%11#0: Encoded(uint8[]) = aggregate%as_Encoded(uint8[])%0#1
         let concat%0#0: Encoded(len+uint8[]) = (concat tuple_item%2#0 tmp%11#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 tuple_item%2#0 0u)
@@ -133,15 +133,15 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let copy#1: Encoded((len+uint8[])) = aggregate%updated_data%0#1
         let tmp%12#0: bool = (!= mutable#0 copy#1)
         (assert tmp%12#0) // expected copy is different
-        let aggregate%encoded%9#1: bytes = (concat 0x 0x000000000000000c)
-        let aggregate%encoded%10#1: bytes = (concat aggregate%encoded%9#1 0x0000000000000022)
-        let aggregate%as_Encoded(uint64,uint64)%2#1: Encoded(uint64,uint64) = aggregate%encoded%10#1
+        let aggregate%head%9#1: bytes = (concat 0x 0x000000000000000c)
+        let aggregate%head%10#1: bytes = (concat aggregate%head%9#1 0x0000000000000022)
+        let aggregate%as_Encoded(uint64,uint64)%2#1: Encoded(uint64,uint64) = aggregate%head%10#1
         let immutable#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%2#1
         let aggregate%extract%7#1: bytes = (extract3 immutable#0 0u 8u)
         let tuple_item%3#0: Encoded(uint64) = aggregate%extract%7#1
-        let aggregate%encoded%11#1: bytes = (concat 0x tuple_item%3#0)
-        let aggregate%encoded%12#1: bytes = (concat aggregate%encoded%11#1 0x000000000000007b)
-        let aggregate%as_Encoded(uint64,uint64)%3#1: Encoded(uint64,uint64) = aggregate%encoded%12#1
+        let aggregate%head%11#1: bytes = (concat 0x tuple_item%3#0)
+        let aggregate%head%12#1: bytes = (concat aggregate%head%11#1 0x000000000000007b)
+        let aggregate%as_Encoded(uint64,uint64)%3#1: Encoded(uint64,uint64) = aggregate%head%12#1
         let immutable2#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%3#1
         let aggregate%extract%8#1: bytes = (extract3 immutable2#0 8u 8u)
         let tuple_item%4#0: Encoded(uint64) = aggregate%extract%8#1
