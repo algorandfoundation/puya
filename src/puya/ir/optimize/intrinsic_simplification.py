@@ -900,8 +900,8 @@ def _try_simplify_triple_mul_bytes(
                 models.Register() as reg,
             )
         ):
-            biguint_const_a, _ = _get_biguint_constant({}, big_a)
-            biguint_const_b, _ = _get_biguint_constant({}, big_b)
+            biguint_const_a, _ = _get_biguint_constant(register_assignments, big_a)
+            biguint_const_b, _ = _get_biguint_constant(register_assignments, big_b)
             if biguint_const_a is not None and biguint_const_b is not None:
                 new_big_const = models.BigUIntConstant(
                     value=biguint_const_a * biguint_const_b, source_location=merged_loc
