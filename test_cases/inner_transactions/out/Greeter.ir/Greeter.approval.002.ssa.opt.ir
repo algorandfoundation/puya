@@ -17,29 +17,29 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let to_encode%0#0: uint64 = test_cases.inner_transactions.c2c.Greeter.bootstrap()
-        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let tmp%7#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
-        (log tmp%7#0)
+        let tmp%7#0: uint64 = test_cases.inner_transactions.c2c.Greeter.bootstrap()
+        let tmp%8#0: Encoded(uint64) = bytes_encode<uint64>(tmp%7#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
+        (log tmp%9#0)
         let test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#0: bool = 1u
         goto block@10
     block@6: // log_greetings_route_L23
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (! tmp%8#0)
-        (assert tmp%9#0) // OnCompletion is not NoOp
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        (assert tmp%10#0) // can only call when not creating
-        let tmp%12#0: bytes = (txna ApplicationArgs 1)
-        test_cases.inner_transactions.c2c.Greeter.log_greetings(tmp%12#0)
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        let tmp%11#0: bool = (! tmp%10#0)
+        (assert tmp%11#0) // OnCompletion is not NoOp
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        (assert tmp%12#0) // can only call when not creating
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        test_cases.inner_transactions.c2c.Greeter.log_greetings(reinterpret_Encoded(len+utf8[])%0#0)
         let test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#1: bool = 1u
         goto block@10
     block@7: // bare_routing_L6
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        goto tmp%13#0 ? block@9 : block@8
+        let tmp%14#0: uint64 = (txn OnCompletion)
+        goto tmp%14#0 ? block@9 : block@8
     block@8: // __algopy_default_create_L1
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        let tmp%15#0: bool = (! tmp%14#0)
-        (assert tmp%15#0) // can only call when creating
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        let tmp%16#0: bool = (! tmp%15#0)
+        (assert tmp%16#0) // can only call when creating
         let test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__%0#2: bool = 1u
         goto block@10
     block@9: // after_if_else_L6
@@ -61,11 +61,11 @@ subroutine test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let materialized_values%0#0: uint64 = (itxn CreatedApplicationID)
-        (app_global_put "hello_app" materialized_values%0#0)
-        return materialized_values%0#0
+        let tmp%1#0: uint64 = (itxn CreatedApplicationID)
+        (app_global_put "hello_app" tmp%1#0)
+        return tmp%1#0
 
-subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
+subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: Encoded(len+utf8[])) -> void:
     block@0: // L23
         itxn_begin
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
@@ -77,10 +77,11 @@ subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) 
         ((itxn_field Fee) 0u)
         itxn_submit
         let hello_call.LastLog#0: bytes = (itxn LastLog)
+        let greeting#0: Encoded(len+utf8[]) = ((extract 4 0) hello_call.LastLog#0)
         let tmp%1#0: bytes = ((extract 0 4) hello_call.LastLog#0)
         let tmp%2#0: bool = (== tmp%1#0 0x151f7c75)
         (assert tmp%2#0) // application log value is not the result of an ABI return
-        let tmp%4#0: bytes = ((extract 6 0) hello_call.LastLog#0)
+        let tmp%4#0: string = decode_bytes<string>(greeting#0)
         let tmp%5#0: bytes = (concat "HelloWorld returned: " tmp%4#0)
         (log tmp%5#0)
         return 

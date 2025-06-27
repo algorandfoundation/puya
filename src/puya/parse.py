@@ -45,7 +45,7 @@ class SourceLocation:
             self.end_line == self.line
             and value is not None
             and self.column is not None
-            and value <= self.column
+            and value < self.column
         ):
             raise ValueError(
                 f"source location end column = {value} is before start column = {self.column}"
@@ -155,7 +155,7 @@ def sequential_source_locations_merge(
 def sequential_source_locations_merge(
     sources: Iterable[SourceLocation | None],
 ) -> SourceLocation | None:
-    """Given a sequence of SourceLocations, try merging them one at a one in order.
+    """Given a sequence of SourceLocations, try merging them one at a time, in order.
 
     If all sources are None, then None is returned.
 

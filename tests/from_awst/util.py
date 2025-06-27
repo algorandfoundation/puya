@@ -24,9 +24,7 @@ def compile_contract(
     *,
     awst_path: Path,
     compilation_set: dict[str, Path],
-    algod_client: AlgodClient,
-    account: algokit_utils.Account,
-) -> dict[str, algokit_utils.ApplicationClient]:
+) -> None:
     awst_json = awst_path.read_text("utf8").replace("%DIR%", str(awst_path).replace("\\", "\\\\"))
 
     out_dirs = unique(compilation_set.values())
@@ -60,6 +58,15 @@ def compile_contract(
         diff = check_for_diff(out_dir, VCS_ROOT)
         assert not diff, f"Uncommitted changes were found:\n{diff}"
 
+
+def compile_contract_and_clients(
+    *,
+    awst_path: Path,
+    compilation_set: dict[str, Path],
+    algod_client: AlgodClient,
+    account: algokit_utils.Account,
+) -> dict[str, algokit_utils.ApplicationClient]:
+    compile_contract(awst_path=awst_path, compilation_set=compilation_set)
     return {
         contract_id: _make_client(
             algod_client=algod_client, account=account, out_dir=out_dir, contract_id=contract_id

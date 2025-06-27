@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 import argparse
-import os
 import subprocess
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
 GIT_ROOT = SCRIPT_DIR.parent
-ENV_WITH_NO_COLOR = dict(os.environ) | {
-    "NO_COLOR": "1",  # disable colour output
-}
 
 
 def main() -> None:
@@ -37,9 +33,7 @@ def main() -> None:
     subprocess.run(
         (*cmd, *test_cases),
         cwd=GIT_ROOT,
-        check=False,
-        env=ENV_WITH_NO_COLOR,
-        encoding="utf-8",
+        check=False,  # don't need to raise an error if pytest fails
     )
 
 

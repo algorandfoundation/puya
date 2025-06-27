@@ -4,10 +4,11 @@
 // test_cases.arc4_types.array.Arc4ArraysContract.approval_program() -> uint64:
 main:
     intcblock 2 1 0 4
-    bytecblock "" 0x0004000b000548656c6c6f0005576f726c64 0x0004000a000450696e670004506f6e67 " "
+    bytecblock "" 0x0004000b000548656c6c6f0005576f726c64 " " 0x0004000a000450696e670004506f6e67
     intc_2 // 0
+    dup
     bytec_0 // ""
-    dupn 2
+    dupn 5
     intc_2 // 0
     dup
 
@@ -35,14 +36,14 @@ main_after_for@4:
     ==
     assert // Total should be sum of dynamic_uint8_array items
     intc_2 // 0
-    bury 4
+    bury 6
 
 main_for_header@5:
-    dig 3
+    dig 5
     intc_1 // 1
     <
     bz main_after_for@8
-    dig 3
+    dig 5
     dup
     intc_0 // 2
     *
@@ -54,7 +55,7 @@ main_for_header@5:
     bury 3
     intc_1 // 1
     +
-    bury 4
+    bury 6
     b main_for_header@5
 
 main_after_for@8:
@@ -63,16 +64,16 @@ main_after_for@8:
     ==
     assert // Total should now include sum of aliased_dynamic items
     bytec_0 // ""
-    bury 6
+    bury 9
     intc_2 // 0
-    bury 5
+    bury 7
 
 main_for_header@9:
-    dig 4
+    dig 6
     intc_0 // 2
     <
     bz main_after_for@15
-    dig 4
+    dig 6
     dup
     intc_0 // 2
     *
@@ -90,40 +91,40 @@ main_for_header@9:
     swap
     bnz main_else_body@12
     extract 2 0
-    bury 6
+    bury 9
 
 main_after_if_else@13:
-    dig 4
+    dig 6
     intc_1 // 1
     +
-    bury 5
+    bury 7
     b main_for_header@9
 
 main_else_body@12:
     extract 2 0
-    bytec_3 // " "
+    bytec_2 // " "
     swap
     concat
-    dig 6
+    dig 9
     swap
     concat
-    bury 6
+    bury 9
     b main_after_if_else@13
 
 main_after_for@15:
-    dig 5
+    dig 8
     pushbytes "Hello World"
     ==
     assert
     intc_2 // 0
-    bury 3
+    bury 5
 
 main_for_header@16:
-    dig 2
+    dig 4
     intc_3 // 4
     <
     bz main_after_for@19
-    dig 2
+    dig 4
     dup
     intc_3 // 4
     *
@@ -135,7 +136,7 @@ main_for_header@16:
     bury 3
     intc_1 // 1
     +
-    bury 3
+    bury 5
     b main_for_header@16
 
 main_after_for@19:
@@ -144,56 +145,132 @@ main_after_for@19:
     ==
     assert
     bytec_0 // ""
-    bury 6
+    bury 9
     intc_2 // 0
-    bury 5
+    bury 7
 
 main_for_header@20:
-    dig 4
+    dig 6
     intc_0 // 2
     <
     bz main_after_for@26
-    dig 4
+    dig 6
     dup
     intc_0 // 2
     *
-    bytec_2 // 0x0004000a000450696e670004506f6e67
+    bytec_3 // 0x0004000a000450696e670004506f6e67
     swap
     extract_uint16
-    bytec_2 // 0x0004000a000450696e670004506f6e67
+    bytec_3 // 0x0004000a000450696e670004506f6e67
     dig 1
     extract_uint16
     intc_0 // 2
     +
-    bytec_2 // 0x0004000a000450696e670004506f6e67
+    bytec_3 // 0x0004000a000450696e670004506f6e67
     cover 2
     extract3
     swap
     bnz main_else_body@23
     extract 2 0
-    bury 6
+    bury 9
 
 main_after_if_else@24:
-    dig 4
+    dig 6
     intc_1 // 1
     +
-    bury 5
+    bury 7
     b main_for_header@20
 
 main_else_body@23:
     extract 2 0
-    bytec_3 // " "
+    bytec_2 // " "
     swap
     concat
-    dig 6
+    dig 9
     swap
     concat
-    bury 6
+    bury 9
     b main_after_if_else@24
 
 main_after_for@26:
-    dig 5
+    dig 8
     pushbytes "Ping Pong"
+    ==
+    assert
+    intc_0 // 2
+    bury 8
+    pushbytes 0x0004000a000450696e67000450696e67
+    bury 10
+    pushint 10 // 10
+    bury 3
+
+main_for_header@32:
+    dig 7
+    intc_3 // 4
+    <
+    bz main_after_for@34
+    dig 2
+    dup
+    itob
+    extract 6 2
+    dig 11
+    dig 10
+    dup
+    cover 4
+    uncover 2
+    replace3
+    dup
+    bury 13
+    dig 1
+    extract_uint16
+    intc_0 // 2
+    +
+    +
+    bury 4
+    intc_0 // 2
+    +
+    bury 8
+    b main_for_header@32
+
+main_after_for@34:
+    bytec_0 // ""
+    bury 9
+    intc_2 // 0
+    bury 4
+
+main_for_header@27:
+    dig 3
+    intc_0 // 2
+    <
+    bz main_after_for@30
+    dig 3
+    dup
+    intc_0 // 2
+    *
+    dig 11
+    dup
+    uncover 2
+    extract_uint16
+    dup2
+    extract_uint16
+    intc_0 // 2
+    +
+    extract3
+    extract 2 0
+    bytec_2 // " "
+    concat
+    dig 10
+    swap
+    concat
+    bury 10
+    intc_1 // 1
+    +
+    bury 4
+    b main_for_header@27
+
+main_after_for@30:
+    dig 8
+    pushbytes "Ping Ping "
     ==
     assert
     intc_1 // 1

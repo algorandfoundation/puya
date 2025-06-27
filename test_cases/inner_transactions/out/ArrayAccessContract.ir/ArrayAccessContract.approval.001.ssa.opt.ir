@@ -13,8 +13,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%5#0) // can only call when not creating
-        let reinterpret_bytes[1]%0#0: bytes[1] = (txna ApplicationArgs 1)
-        test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(reinterpret_bytes[1]%0#0)
+        let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
+        test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(reinterpret_Encoded(bool8)%0#0)
         let test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__%0#0: bool = 1u
         goto block@11
     block@6: // bare_routing_L20
@@ -34,10 +34,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = φ(test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__%0#0 <- block@3, test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__%0#1 <- block@7, test_cases.inner_transactions.array_access.ArrayAccessContract.__puya_arc4_router__%0#2 <- block@10)
         return tmp%0#0
 
-subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(maybe: bytes[1]) -> void:
+subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_branching_array_call(maybe: Encoded(bool8)) -> void:
     block@0: // L21
-        let tmp%0#0: bool = (!= maybe#0 0x00)
-        goto tmp%0#0 ? block@1 : block@3
+        let tmp%0#0: Encoded(bool8) = bytes_encode<bool8>(0u)
+        let tmp%1#0: bool = (!= maybe#0 tmp%0#0)
+        goto tmp%1#0 ? block@1 : block@3
     block@1: // if_body_L24
         itxn_begin
         ((itxn_field ApplicationArgs) 0x31)
@@ -47,8 +48,6 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let create_app_txn#0: itxn_group_idx = itxn_group_idx(0)
-        let create_app_txn._is_last#0: bool = 1u
         goto block@5
     block@3: // else_body_L30
         itxn_begin
@@ -61,29 +60,27 @@ subroutine test_cases.inner_transactions.array_access.ArrayAccessContract.test_b
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let create_app_txn#1: itxn_group_idx = itxn_group_idx(0)
-        let create_app_txn._is_last#1: bool = 1u
         goto block@5
     block@5: // after_if_else_L23
-        goto tmp%0#0 ? block@6 : block@7
+        goto tmp%1#0 ? block@6 : block@7
     block@6: // if_body_L37
-        let tmp%2#0: bytes = ((itxnas ApplicationArgs) 0u)
-        let tmp%3#0: bool = (== tmp%2#0 0x31)
-        (assert tmp%3#0) // correct args used 1
-        let tmp%4#0: bytes = ((itxnas ApplicationArgs) 1u)
-        let tmp%5#0: bool = (== tmp%4#0 0x32)
-        (assert tmp%5#0) // correct args used 2
+        let tmp%4#0: bytes = ((itxnas ApplicationArgs) 0u)
+        let tmp%5#0: bool = (== tmp%4#0 0x31)
+        (assert tmp%5#0) // correct args used 1
+        let tmp%6#0: bytes = ((itxnas ApplicationArgs) 1u)
+        let tmp%7#0: bool = (== tmp%6#0 0x32)
+        (assert tmp%7#0) // correct args used 2
         goto block@8
     block@7: // else_body_L40
-        let tmp%6#0: bytes = ((itxnas ApplicationArgs) 0u)
-        let tmp%7#0: bool = (== tmp%6#0 0x33)
-        (assert tmp%7#0) // correct args used 1
-        let tmp%8#0: bytes = ((itxnas ApplicationArgs) 1u)
-        let tmp%9#0: bool = (== tmp%8#0 0x34)
-        (assert tmp%9#0) // correct args used 2
-        let tmp%10#0: bytes = ((itxnas ApplicationArgs) 2u)
-        let tmp%11#0: bool = (== tmp%10#0 0x35)
-        (assert tmp%11#0) // correct args used 3
+        let tmp%8#0: bytes = ((itxnas ApplicationArgs) 0u)
+        let tmp%9#0: bool = (== tmp%8#0 0x33)
+        (assert tmp%9#0) // correct args used 1
+        let tmp%10#0: bytes = ((itxnas ApplicationArgs) 1u)
+        let tmp%11#0: bool = (== tmp%10#0 0x34)
+        (assert tmp%11#0) // correct args used 2
+        let tmp%12#0: bytes = ((itxnas ApplicationArgs) 2u)
+        let tmp%13#0: bool = (== tmp%12#0 0x35)
+        (assert tmp%13#0) // correct args used 3
         goto block@8
     block@8: // after_if_else_L36
         return 

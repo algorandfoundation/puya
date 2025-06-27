@@ -1,0 +1,440 @@
+contract DigitalMarketplaceWithTups
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  boxes {
+    [hex<"6C697374696E6773">]: test_cases.marketplace_demo.marketplace_with_tups.ListingKey => test_cases.marketplace_demo.marketplace_with_tups.ListingValue
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__init__(): void
+  {
+    log('init')
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.listings_box_mbr(): uint64
+  {
+    return 50500u
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.quantity_price(quantity: uint64, price: uint64, asset_decimals: uint64): uint64
+  {
+    (amount_not_scaled_high, amount_not_scaled_low): tuple<uint64,uint64> = mulw(price, quantity)
+    (scaling_factor_high, scaling_factor_low): tuple<uint64,uint64> = expw(10u, asset_decimals)
+    (_quotient_high, amount_to_be_paid, _remainder_high, _remainder_low): tuple<uint64,uint64,uint64,uint64> = divmodw(amount_not_scaled_high, amount_not_scaled_low, scaling_factor_high, scaling_factor_low)
+    assert(_quotient_high == 0u)
+    return amount_to_be_paid
+  }
+  
+  abimethod[name_override=getListingsMbr] test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.get_listings_mbr(): uint64
+  {
+    return this::listings_box_mbr()
+  }
+  
+  abimethod[name_override=allowAsset] test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.allow_asset(mbr_pay: group_transaction_pay, asset: asset): void
+  {
+    assert(!(asset_holding_get<AssetBalance>(global<CurrentApplicationAddress>(), asset)[1]))
+    assert(gtxns<Receiver>(mbr_pay) == global<CurrentApplicationAddress>())
+    assert(gtxns<Amount>(mbr_pay) == global<AssetOptInMinBalance>())
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=global<CurrentApplicationAddress>(), AssetAmount=0u))
+  }
+  
+  abimethod[name_override=firstDeposit] test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.first_deposit(mbr_pay: group_transaction_pay, xfer: group_transaction_axfer, unitary_price: uint64, nonce: uint64): void
+  {
+    assert(gtxns<Sender>(mbr_pay) == txn<Sender>())
+    assert(gtxns<Receiver>(mbr_pay) == global<CurrentApplicationAddress>())
+    assert(gtxns<Amount>(mbr_pay) == this::listings_box_mbr())
+    key: test_cases.marketplace_demo.marketplace_with_tups.ListingKey = (owner=txn<Sender>(), asset=reinterpret_cast<uint64>(gtxns<XferAsset>(xfer)), nonce=nonce)
+    assert(!(STATE_EXISTS(Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)])))
+    assert(gtxns<Sender>(xfer) == txn<Sender>())
+    assert(gtxns<AssetReceiver>(xfer) == global<CurrentApplicationAddress>())
+    assert(gtxns<AssetAmount>(xfer) > 0u)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=gtxns<AssetAmount>(xfer), unitaryPrice=unitary_price, bidder=global<ZeroAddress>(), bid=0u, bidUnitaryPrice=0u)
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.deposit(xfer: group_transaction_axfer, nonce: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_tups.ListingKey = (owner=txn<Sender>(), asset=reinterpret_cast<uint64>(gtxns<XferAsset>(xfer)), nonce=nonce)
+    assert(gtxns<Sender>(xfer) == txn<Sender>())
+    assert(gtxns<AssetReceiver>(xfer) == global<CurrentApplicationAddress>())
+    assert(gtxns<AssetAmount>(xfer) > 0u)
+    existing: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=existing.deposited + gtxns<AssetAmount>(xfer), unitaryPrice=existing.unitaryPrice, bidder=existing.bidder, bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice)
+  }
+  
+  abimethod[name_override=setPrice] test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set_price(asset: asset, nonce: uint64, unitary_price: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_tups.ListingKey = (owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    existing: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=existing.deposited, unitaryPrice=unitary_price, bidder=existing.bidder, bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice)
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy(owner: account, asset: asset, nonce: uint64, buy_pay: group_transaction_pay, quantity: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_tups.ListingKey = (owner=owner, asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    amount_to_be_paid: uint64 = this::quantity_price(quantity, listing.unitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+    assert(gtxns<Sender>(buy_pay) == txn<Sender>())
+    assert(gtxns<Receiver>(buy_pay) == owner)
+    assert(gtxns<Amount>(buy_pay) == amount_to_be_paid)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=listing.deposited - quantity, unitaryPrice=listing.unitaryPrice, bidder=listing.bidder, bid=listing.bid, bidUnitaryPrice=listing.bidUnitaryPrice)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=txn<Sender>(), AssetAmount=quantity))
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.withdraw(asset: asset, nonce: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_tups.ListingKey = (owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    if (listing.bidder != global<ZeroAddress>()) {
+      current_bid_deposit: uint64 = this::quantity_price(listing.bid, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+      submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=listing.bidder, Amount=current_bid_deposit))
+    }
+    STATE_DELETE(Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)])
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=this::listings_box_mbr()))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=txn<Sender>(), AssetAmount=listing.deposited))
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.bid(owner: account, asset: asset, nonce: uint64, bid_pay: group_transaction_pay, quantity: uint64, unitary_price: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_tups.ListingKey = (owner=owner, asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    if (listing.bidder != global<ZeroAddress>()) {
+      assert(unitary_price > listing.bidUnitaryPrice)
+      current_bid_amount: uint64 = this::quantity_price(listing.bid, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+      submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=listing.bidder, Amount=current_bid_amount))
+    }
+    amount_to_be_bid: uint64 = this::quantity_price(quantity, unitary_price, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+    assert(gtxns<Sender>(bid_pay) == txn<Sender>())
+    assert(gtxns<Receiver>(bid_pay) == global<CurrentApplicationAddress>())
+    assert(gtxns<Amount>(bid_pay) == amount_to_be_bid)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=listing.deposited, unitaryPrice=listing.unitaryPrice, bidder=txn<Sender>(), bid=quantity, bidUnitaryPrice=unitary_price)
+  }
+  
+  abimethod[name_override=acceptBid] test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid(asset: asset, nonce: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_tups.ListingKey = (owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    assert(listing.bidder != global<ZeroAddress>())
+    min_quantity: uint64 = (listing.deposited < listing.bid) ? (listing.deposited) : (listing.bid)
+    best_bid_amount: uint64 = this::quantity_price(min_quantity, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=best_bid_amount))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=listing.bidder, AssetAmount=min_quantity))
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_tups.ListingValue = (deposited=listing.deposited - min_quantity, unitaryPrice=listing.unitaryPrice, bidder=listing.bidder, bid=listing.bid - min_quantity, bidUnitaryPrice=listing.bidUnitaryPrice)
+  }
+  
+  baremethod test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+contract DigitalMarketplaceWithStruct
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  boxes {
+    [hex<"6C697374696E6773">]: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey => test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__init__(): void
+  {
+    log('init')
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.listings_box_mbr(): uint64
+  {
+    return 50500u
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.quantity_price(quantity: uint64, price: uint64, asset_decimals: uint64): uint64
+  {
+    (amount_not_scaled_high, amount_not_scaled_low): tuple<uint64,uint64> = mulw(price, quantity)
+    (scaling_factor_high, scaling_factor_low): tuple<uint64,uint64> = expw(10u, asset_decimals)
+    (_quotient_high, amount_to_be_paid, _remainder_high, _remainder_low): tuple<uint64,uint64,uint64,uint64> = divmodw(amount_not_scaled_high, amount_not_scaled_low, scaling_factor_high, scaling_factor_low)
+    assert(_quotient_high == 0u)
+    return amount_to_be_paid
+  }
+  
+  abimethod[name_override=getListingsMbr] test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr(): uint64
+  {
+    return this::listings_box_mbr()
+  }
+  
+  abimethod[name_override=allowAsset] test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset(mbr_pay: group_transaction_pay, asset: asset): void
+  {
+    assert(!(asset_holding_get<AssetBalance>(global<CurrentApplicationAddress>(), asset)[1]))
+    assert(gtxns<Receiver>(mbr_pay) == global<CurrentApplicationAddress>())
+    assert(gtxns<Amount>(mbr_pay) == global<AssetOptInMinBalance>())
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=global<CurrentApplicationAddress>(), AssetAmount=0u))
+  }
+  
+  abimethod[name_override=firstDeposit] test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit(mbr_pay: group_transaction_pay, xfer: group_transaction_axfer, unitary_price: uint64, nonce: uint64): void
+  {
+    assert(gtxns<Sender>(mbr_pay) == txn<Sender>())
+    assert(gtxns<Receiver>(mbr_pay) == global<CurrentApplicationAddress>())
+    assert(gtxns<Amount>(mbr_pay) == this::listings_box_mbr())
+    key: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(gtxns<XferAsset>(xfer)), nonce=nonce)
+    assert(!(STATE_EXISTS(Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)])))
+    assert(gtxns<Sender>(xfer) == txn<Sender>())
+    assert(gtxns<AssetReceiver>(xfer) == global<CurrentApplicationAddress>())
+    assert(gtxns<AssetAmount>(xfer) > 0u)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue(deposited=gtxns<AssetAmount>(xfer), unitaryPrice=unitary_price, bidder=global<ZeroAddress>(), bid=0u, bidUnitaryPrice=0u)
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit(xfer: group_transaction_axfer, nonce: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(gtxns<XferAsset>(xfer)), nonce=nonce)
+    assert(gtxns<Sender>(xfer) == txn<Sender>())
+    assert(gtxns<AssetReceiver>(xfer) == global<CurrentApplicationAddress>())
+    assert(gtxns<AssetAmount>(xfer) > 0u)
+    existing: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)].copy()
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue(bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice, bidder=existing.bidder, unitaryPrice=existing.unitaryPrice, deposited=existing.deposited + gtxns<AssetAmount>(xfer))
+  }
+  
+  abimethod[name_override=setPrice] test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price(asset: asset, nonce: uint64, unitary_price: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    existing: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)].copy()
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue(bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice, bidder=existing.bidder, deposited=existing.deposited, unitaryPrice=unitary_price)
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy(owner: account, asset: asset, nonce: uint64, buy_pay: group_transaction_pay, quantity: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey(owner=owner, asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)].copy()
+    amount_to_be_paid: uint64 = this::quantity_price(quantity, listing.unitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+    assert(gtxns<Sender>(buy_pay) == txn<Sender>())
+    assert(gtxns<Receiver>(buy_pay) == owner)
+    assert(gtxns<Amount>(buy_pay) == amount_to_be_paid)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue(bid=listing.bid, bidUnitaryPrice=listing.bidUnitaryPrice, bidder=listing.bidder, unitaryPrice=listing.unitaryPrice, deposited=listing.deposited - quantity)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=txn<Sender>(), AssetAmount=quantity))
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw(asset: asset, nonce: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)].copy()
+    if (listing.bidder != global<ZeroAddress>()) {
+      current_bid_deposit: uint64 = this::quantity_price(listing.bid, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+      submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=listing.bidder, Amount=current_bid_deposit))
+    }
+    STATE_DELETE(Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)])
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=this::listings_box_mbr()))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=txn<Sender>(), AssetAmount=listing.deposited))
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid(owner: account, asset: asset, nonce: uint64, bid_pay: group_transaction_pay, quantity: uint64, unitary_price: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey(owner=owner, asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)].copy()
+    if (listing.bidder != global<ZeroAddress>()) {
+      assert(unitary_price > listing.bidUnitaryPrice)
+      current_bid_amount: uint64 = this::quantity_price(listing.bid, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+      submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=listing.bidder, Amount=current_bid_amount))
+    }
+    amount_to_be_bid: uint64 = this::quantity_price(quantity, unitary_price, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+    assert(gtxns<Sender>(bid_pay) == txn<Sender>())
+    assert(gtxns<Receiver>(bid_pay) == global<CurrentApplicationAddress>())
+    assert(gtxns<Amount>(bid_pay) == amount_to_be_bid)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue(deposited=listing.deposited, unitaryPrice=listing.unitaryPrice, bidder=txn<Sender>(), bid=quantity, bidUnitaryPrice=unitary_price)
+  }
+  
+  abimethod[name_override=acceptBid] test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid(asset: asset, nonce: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)].copy()
+    assert(listing.bidder != global<ZeroAddress>())
+    min_quantity: uint64 = (listing.deposited < listing.bid) ? (listing.deposited) : (listing.bid)
+    best_bid_amount: uint64 = this::quantity_price(min_quantity, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=best_bid_amount))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=listing.bidder, AssetAmount=min_quantity))
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_mutable_struct.ListingValue(bidder=listing.bidder, bidUnitaryPrice=listing.bidUnitaryPrice, unitaryPrice=listing.unitaryPrice, deposited=listing.deposited - min_quantity, bid=listing.bid - min_quantity)
+  }
+  
+  baremethod test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}
+
+contract DigitalMarketplaceWithImmStruct
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+  )
+  boxes {
+    [hex<"6C697374696E6773">]: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey => test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.__init__(): void
+  {
+    log('init')
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.listings_box_mbr(): uint64
+  {
+    return 50500u
+  }
+  
+  subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.quantity_price(quantity: uint64, price: uint64, asset_decimals: uint64): uint64
+  {
+    (amount_not_scaled_high, amount_not_scaled_low): tuple<uint64,uint64> = mulw(price, quantity)
+    (scaling_factor_high, scaling_factor_low): tuple<uint64,uint64> = expw(10u, asset_decimals)
+    (_quotient_high, amount_to_be_paid, _remainder_high, _remainder_low): tuple<uint64,uint64,uint64,uint64> = divmodw(amount_not_scaled_high, amount_not_scaled_low, scaling_factor_high, scaling_factor_low)
+    assert(_quotient_high == 0u)
+    return amount_to_be_paid
+  }
+  
+  abimethod[name_override=getListingsMbr] test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.get_listings_mbr(): uint64
+  {
+    return this::listings_box_mbr()
+  }
+  
+  abimethod[name_override=allowAsset] test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.allow_asset(mbr_pay: group_transaction_pay, asset: asset): void
+  {
+    assert(!(asset_holding_get<AssetBalance>(global<CurrentApplicationAddress>(), asset)[1]))
+    assert(gtxns<Receiver>(mbr_pay) == global<CurrentApplicationAddress>())
+    assert(gtxns<Amount>(mbr_pay) == global<AssetOptInMinBalance>())
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=global<CurrentApplicationAddress>(), AssetAmount=0u))
+  }
+  
+  abimethod[name_override=firstDeposit] test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.first_deposit(mbr_pay: group_transaction_pay, xfer: group_transaction_axfer, unitary_price: uint64, nonce: uint64): void
+  {
+    assert(gtxns<Sender>(mbr_pay) == txn<Sender>())
+    assert(gtxns<Receiver>(mbr_pay) == global<CurrentApplicationAddress>())
+    assert(gtxns<Amount>(mbr_pay) == this::listings_box_mbr())
+    key: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(gtxns<XferAsset>(xfer)), nonce=nonce)
+    assert(!(STATE_EXISTS(Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)])))
+    assert(gtxns<Sender>(xfer) == txn<Sender>())
+    assert(gtxns<AssetReceiver>(xfer) == global<CurrentApplicationAddress>())
+    assert(gtxns<AssetAmount>(xfer) > 0u)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue(deposited=gtxns<AssetAmount>(xfer), unitaryPrice=unitary_price, bidder=global<ZeroAddress>(), bid=0u, bidUnitaryPrice=0u)
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.deposit(xfer: group_transaction_axfer, nonce: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(gtxns<XferAsset>(xfer)), nonce=nonce)
+    assert(gtxns<Sender>(xfer) == txn<Sender>())
+    assert(gtxns<AssetReceiver>(xfer) == global<CurrentApplicationAddress>())
+    assert(gtxns<AssetAmount>(xfer) > 0u)
+    existing: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue(bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice, bidder=existing.bidder, unitaryPrice=existing.unitaryPrice, deposited=existing.deposited + gtxns<AssetAmount>(xfer))
+  }
+  
+  abimethod[name_override=setPrice] test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.set_price(asset: asset, nonce: uint64, unitary_price: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    existing: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue(bid=existing.bid, bidUnitaryPrice=existing.bidUnitaryPrice, bidder=existing.bidder, deposited=existing.deposited, unitaryPrice=unitary_price)
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.buy(owner: account, asset: asset, nonce: uint64, buy_pay: group_transaction_pay, quantity: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey(owner=owner, asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    amount_to_be_paid: uint64 = this::quantity_price(quantity, listing.unitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+    assert(gtxns<Sender>(buy_pay) == txn<Sender>())
+    assert(gtxns<Receiver>(buy_pay) == owner)
+    assert(gtxns<Amount>(buy_pay) == amount_to_be_paid)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue(bid=listing.bid, bidUnitaryPrice=listing.bidUnitaryPrice, bidder=listing.bidder, unitaryPrice=listing.unitaryPrice, deposited=listing.deposited - quantity)
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=txn<Sender>(), AssetAmount=quantity))
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.withdraw(asset: asset, nonce: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    if (listing.bidder != global<ZeroAddress>()) {
+      current_bid_deposit: uint64 = this::quantity_price(listing.bid, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+      submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=listing.bidder, Amount=current_bid_deposit))
+    }
+    STATE_DELETE(Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)])
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=this::listings_box_mbr()))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=txn<Sender>(), AssetAmount=listing.deposited))
+  }
+  
+  abimethod test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.bid(owner: account, asset: asset, nonce: uint64, bid_pay: group_transaction_pay, quantity: uint64, unitary_price: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey(owner=owner, asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    if (listing.bidder != global<ZeroAddress>()) {
+      assert(unitary_price > listing.bidUnitaryPrice)
+      current_bid_amount: uint64 = this::quantity_price(listing.bid, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+      submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=listing.bidder, Amount=current_bid_amount))
+    }
+    amount_to_be_bid: uint64 = this::quantity_price(quantity, unitary_price, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+    assert(gtxns<Sender>(bid_pay) == txn<Sender>())
+    assert(gtxns<Receiver>(bid_pay) == global<CurrentApplicationAddress>())
+    assert(gtxns<Amount>(bid_pay) == amount_to_be_bid)
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue(deposited=listing.deposited, unitaryPrice=listing.unitaryPrice, bidder=txn<Sender>(), bid=quantity, bidUnitaryPrice=unitary_price)
+  }
+  
+  abimethod[name_override=acceptBid] test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.accept_bid(asset: asset, nonce: uint64): void
+  {
+    key: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingKey(owner=txn<Sender>(), asset=reinterpret_cast<uint64>(asset), nonce=nonce)
+    listing: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]
+    assert(listing.bidder != global<ZeroAddress>())
+    min_quantity: uint64 = (listing.deposited < listing.bid) ? (listing.deposited) : (listing.bid)
+    best_bid_amount: uint64 = this::quantity_price(min_quantity, listing.bidUnitaryPrice, checked_maybe(asset_params_get<AssetDecimals>(asset)))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=pay, Receiver=txn<Sender>(), Amount=best_bid_amount))
+    submit_txn(create_inner_transaction(Fee=0u, TypeEnum=axfer, XferAsset=asset, AssetReceiver=listing.bidder, AssetAmount=min_quantity))
+    Box[BoxMapKey(prefix=hex<"6C697374696E6773">, key=key)]: test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue = new test_cases.marketplace_demo.marketplace_with_immutable_struct.ListingValue(bidder=listing.bidder, bidUnitaryPrice=listing.bidUnitaryPrice, unitaryPrice=listing.unitaryPrice, deposited=listing.deposited - min_quantity, bid=listing.bid - min_quantity)
+  }
+  
+  baremethod test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+}

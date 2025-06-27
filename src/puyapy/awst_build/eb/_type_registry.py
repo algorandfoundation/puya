@@ -7,20 +7,18 @@ from puya.parse import SourceLocation
 from puyapy.awst_build import constants, intrinsic_data, pytypes
 from puyapy.awst_build.eb import (
     arc4,
-    array,
     biguint,
     bool as bool_,
     bytes as bytes_,
     compiled,
     ensure_budget,
-    immutable_array,
     intrinsics,
     log,
+    native,
     none,
     size_of,
     storage,
     string,
-    struct,
     template_variables,
     transaction,
     tuple as tuple_,
@@ -40,6 +38,7 @@ CallableBuilderFromSourceFactory = Callable[[SourceLocation], CallableBuilder]
 
 FUNC_NAME_TO_BUILDER: dict[str, CallableBuilderFromSourceFactory] = {
     "algopy.arc4.arc4_signature": intrinsics.Arc4SignatureBuilder,
+    "algopy._native.zero_bytes": native.ZeroBytesBuilder,
     "algopy._util.ensure_budget": ensure_budget.EnsureBudgetBuilder,
     "algopy._util.log": log.LogBuilder,
     "algopy._util.size_of": size_of.SizeOfBuilder,
@@ -83,8 +82,10 @@ PYTYPE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromSourceFactory] =
     pytypes.GenericARC4TupleType: arc4.ARC4TupleGenericTypeBuilder,
     pytypes.ARC4DynamicBytesType: arc4.DynamicBytesTypeBuilder,
     pytypes.AccountType: account.AccountTypeBuilder,
-    pytypes.GenericArrayType: array.ArrayGenericTypeBuilder,
-    pytypes.GenericImmutableArrayType: immutable_array.ImmutableArrayGenericTypeBuilder,
+    pytypes.GenericArrayType: native.ArrayGenericTypeBuilder,
+    pytypes.GenericFixedArrayType: native.FixedArrayGenericTypeBuilder,
+    pytypes.GenericReferenceArrayType: native.ReferenceArrayGenericTypeBuilder,
+    pytypes.GenericImmutableArrayType: native.ImmutableArrayGenericTypeBuilder,
     pytypes.AssetType: asset.AssetTypeBuilder,
     pytypes.ApplicationType: application.ApplicationTypeBuilder,
     pytypes.BigUIntType: biguint.BigUIntTypeBuilder,
@@ -147,8 +148,10 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
     pytypes.GenericBoxMapType: storage.BoxMapTypeBuilder,
     pytypes.GenericARC4TupleType: arc4.ARC4TupleTypeBuilder,
     pytypes.GenericTupleType: tuple_.TupleTypeBuilder,
-    pytypes.GenericArrayType: array.ArrayTypeBuilder,
-    pytypes.GenericImmutableArrayType: immutable_array.ImmutableArrayTypeBuilder,
+    pytypes.GenericArrayType: native.ArrayTypeBuilder,
+    pytypes.GenericFixedArrayType: native.FixedArrayTypeBuilder,
+    pytypes.GenericReferenceArrayType: native.ReferenceArrayTypeBuilder,
+    pytypes.GenericImmutableArrayType: native.ImmutableArrayTypeBuilder,
     pytypes.GenericARC4UFixedNxMType: arc4.UFixedNxMTypeBuilder,
     pytypes.GenericARC4BigUFixedNxMType: arc4.UFixedNxMTypeBuilder,
     pytypes.GenericARC4UIntNType: arc4.UIntNTypeBuilder,
@@ -159,7 +162,7 @@ PYTYPE_GENERIC_TO_TYPE_BUILDER: dict[
 
 PYTYPE_BASE_TO_TYPE_BUILDER: dict[pytypes.PyType, CallableBuilderFromPyTypeAndSourceFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructTypeBuilder,
-    pytypes.StructBaseType: struct.StructSubclassExpressionBuilder,
+    pytypes.StructBaseType: native.StructTypeBuilder,
     pytypes.NamedTupleBaseType: tuple_.NamedTupleTypeBuilder,
 }
 
@@ -226,8 +229,10 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
     pytypes.GenericTupleType: tuple_.TupleExpressionBuilder,
     pytypes.GenericBoxType: storage.BoxProxyExpressionBuilder,
     pytypes.GenericBoxMapType: storage.BoxMapProxyExpressionBuilder,
-    pytypes.GenericArrayType: array.ArrayExpressionBuilder,
-    pytypes.GenericImmutableArrayType: immutable_array.ImmutableArrayExpressionBuilder,
+    pytypes.GenericReferenceArrayType: native.ReferenceArrayExpressionBuilder,
+    pytypes.GenericImmutableArrayType: native.ImmutableArrayExpressionBuilder,
+    pytypes.GenericArrayType: native.ArrayExpressionBuilder,
+    pytypes.GenericFixedArrayType: native.FixedArrayExpressionBuilder,
     pytypes.GenericARC4DynamicArrayType: arc4.DynamicArrayExpressionBuilder,
     pytypes.GenericARC4StaticArrayType: arc4.StaticArrayExpressionBuilder,
     pytypes.GenericARC4TupleType: arc4.ARC4TupleExpressionBuilder,
@@ -241,7 +246,7 @@ PYTYPE_GENERIC_TO_BUILDER: dict[
 
 PYTYPE_BASE_TO_BUILDER: dict[pytypes.PyType, InstanceBuilderFromExpressionAndPyTypeFactory] = {
     pytypes.ARC4StructBaseType: arc4.ARC4StructExpressionBuilder,
-    pytypes.StructBaseType: struct.StructExpressionBuilder,
+    pytypes.StructBaseType: native.StructExpressionBuilder,
     pytypes.NamedTupleBaseType: tuple_.TupleExpressionBuilder,
 }
 

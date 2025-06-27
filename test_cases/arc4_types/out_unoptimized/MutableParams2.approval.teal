@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
-    bytecblock 0x 0x01 0x04 0x0003 0x0001
+    intcblock 0 1 3
+    bytecblock 0x01 0x04 0x 0x00
 
 main_block@0:
 
@@ -83,11 +83,10 @@ test_array_rebinding:
 test_array_rebinding_block@0:
     // arc4_types/mutable_params2.py:7
     // a = arc4.DynamicBytes(0)
-    bytec_0 // 0x
-    pushbytes 0x00
-    concat
-    bytec 4 // 0x0001
-    swap
+    intc_1 // 1
+    itob
+    extract 6 2
+    bytec_3 // 0x00
     concat
     // arc4_types/mutable_params2.py:8
     // self.maybe_modify_array(a, assign_local=True)
@@ -95,23 +94,21 @@ test_array_rebinding_block@0:
     callsub maybe_modify_array
     // arc4_types/mutable_params2.py:9
     // assert a == arc4.DynamicBytes(0, 1)
-    bytec_0 // 0x
-    pushbytes 0x00
+    pushint 2 // 2
+    itob
+    extract 6 2
+    bytec_3 // 0x00
     concat
-    bytec_1 // 0x01
-    concat
-    pushbytes 0x0002
-    swap
+    bytec_0 // 0x01
     concat
     ==
     assert
     // arc4_types/mutable_params2.py:11
     // a = arc4.DynamicBytes(1)
-    bytec_0 // 0x
-    bytec_1 // 0x01
-    concat
-    bytec 4 // 0x0001
-    swap
+    intc_1 // 1
+    itob
+    extract 6 2
+    bytec_0 // 0x01
     concat
     // arc4_types/mutable_params2.py:12
     // self.maybe_modify_array(a, assign_local=False)
@@ -119,15 +116,14 @@ test_array_rebinding_block@0:
     callsub maybe_modify_array
     // arc4_types/mutable_params2.py:13
     // assert a == arc4.DynamicBytes(1, 42, 4)
-    bytec_0 // 0x
-    bytec_1 // 0x01
+    intc_2 // 3
+    itob
+    extract 6 2
+    bytec_0 // 0x01
     concat
     pushbytes 0x2a
     concat
-    bytec_2 // 0x04
-    concat
-    bytec_3 // 0x0003
-    swap
+    bytec_1 // 0x04
     concat
     ==
     assert
@@ -152,21 +148,23 @@ maybe_modify_array_block@0:
 maybe_modify_array_if_body@1:
     // arc4_types/mutable_params2.py:18
     // a.append(arc4.Byte(1))  # v1: modify out
+    bytec_2 // 0x
+    bytec_0 // 0x01
+    concat
     frame_dig -2
-    extract 2 0
-    bytec_0 // 0x
-    bytec_1 // 0x01
-    concat
-    bytec_0 // 0x
     swap
-    concat
-    concat
-    dup
-    len
+    concat // on error: max array length exceeded
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     frame_bury -2
     intc_1 // 1
     bz maybe_modify_array_after_if_else@3
@@ -178,15 +176,14 @@ maybe_modify_array_if_body@2:
 maybe_modify_array_after_if_else@3:
     // arc4_types/mutable_params2.py:19
     // a = arc4.DynamicBytes(1, 2, 3)  # v2: BOUNDARY
-    bytec_0 // 0x
-    bytec_1 // 0x01
+    intc_2 // 3
+    itob
+    extract 6 2
+    bytec_0 // 0x01
     concat
     pushbytes 0x02
     concat
     pushbytes 0x03
-    concat
-    bytec_3 // 0x0003
-    swap
     concat
     frame_bury -2
     intc_0 // 0
@@ -199,21 +196,23 @@ maybe_modify_array_if_body@4:
 maybe_modify_array_after_if_else@5:
     // arc4_types/mutable_params2.py:20
     // a.append(arc4.Byte(4))  # v3: local only
+    bytec_2 // 0x
+    bytec_1 // 0x04
+    concat
     frame_dig -2
-    extract 2 0
-    bytec_0 // 0x
-    bytec_2 // 0x04
-    concat
-    bytec_0 // 0x
     swap
-    concat
-    concat
-    dup
-    len
+    concat // on error: max array length exceeded
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     frame_bury -2
     intc_0 // 0
     bz maybe_modify_array_after_if_else@7
@@ -225,15 +224,14 @@ maybe_modify_array_if_body@6:
 maybe_modify_array_after_if_else@7:
     // arc4_types/mutable_params2.py:21
     // a = arc4.DynamicBytes(1, 2, 4)  # v4: local only
-    bytec_0 // 0x
-    bytec_1 // 0x01
+    intc_2 // 3
+    itob
+    extract 6 2
+    bytec_0 // 0x01
     concat
     pushbytes 0x02
     concat
-    bytec_2 // 0x04
-    concat
-    bytec_3 // 0x0003
-    swap
+    bytec_1 // 0x04
     concat
     intc_0 // 0
     frame_bury 0
@@ -250,21 +248,23 @@ maybe_modify_array_after_if_else@9:
 maybe_modify_array_after_if_else@13:
     // arc4_types/mutable_params2.py:25
     // a.append(arc4.Byte(4))  # v6: modify out IF not b ELSE local only
+    bytec_2 // 0x
+    bytec_1 // 0x04
+    concat
     frame_dig -2
-    extract 2 0
-    bytec_0 // 0x
-    bytec_2 // 0x04
-    concat
-    bytec_0 // 0x
     swap
-    concat
-    concat
-    dup
-    len
+    concat // on error: max array length exceeded
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     frame_bury -2
     frame_dig 0
     bz maybe_modify_array_after_if_else@15
@@ -281,21 +281,23 @@ maybe_modify_array_after_if_else@15:
 maybe_modify_array_else_body@10:
     // arc4_types/mutable_params2.py:23
     // a.append(arc4.Byte(42))  # v5: modify out
-    frame_dig -2
-    extract 2 0
-    bytec_0 // 0x
+    bytec_2 // 0x
     pushbytes 0x2a
     concat
-    bytec_0 // 0x
+    frame_dig -2
     swap
-    concat
-    concat
-    dup
-    len
+    concat // on error: max array length exceeded
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     frame_bury -2
     intc_1 // 1
     bz maybe_modify_array_after_if_else@12

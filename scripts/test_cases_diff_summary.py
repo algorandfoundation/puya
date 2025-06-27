@@ -268,17 +268,22 @@ def _render_summary(diffs: dict[Artifact, ArtifactDiff], *, show_all: bool) -> s
 
 
 def _render_opt_values(values: list[int], *, include_emoji: bool) -> Iterable[str]:
+    last_value = None
     for opt, value in enumerate(values):
         if value == 0:
             yield "-"
         else:
-            if opt == 0 or not include_emoji:  # no emoji at opt 0 to reduce visual noise
+            if (
+                # no emoji at opt 0, or repeated values to reduce visual noise
+                not include_emoji or opt == 0 or last_value == value
+            ):
                 emoji = ""
             elif value < 0:
                 emoji = Status.decrease
             else:
                 emoji = Status.increase
             yield f"{value:+}{emoji}"
+        last_value = value
 
 
 if __name__ == "__main__":

@@ -1,0 +1,609 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 0 1 10 2
+    bytecblock 0x "tup" 0x0000000000000000 "box" "glob" "loc"
+
+main_block@0:
+    txn ApplicationID
+    bnz main_after_if_else@2
+
+main_call___init__@1:
+    callsub __init__
+
+main_after_if_else@2:
+    callsub approval_program
+    return
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__init__() -> void:
+__init__:
+
+__init___block@0:
+    // tuple_support/tuple_storage.py:17
+    // arr=arc4.DynamicArray(arc4.UInt64(0)),
+    intc_1 // 1
+    itob
+    extract 6 2
+    bytec_2 // 0x0000000000000000
+    concat
+    // tuple_support/tuple_storage.py:16
+    // self.tup = TupleWithMutable(
+    intc_2 // 10
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    // tuple_support/tuple_storage.py:18
+    // bar=UInt64(),
+    intc_0 // 0
+    // tuple_support/tuple_storage.py:16
+    // self.tup = TupleWithMutable(
+    itob
+    concat
+    swap
+    concat
+    bytec_1 // "tup"
+    // tuple_support/tuple_storage.py:16-19
+    // self.tup = TupleWithMutable(
+    //     arr=arc4.DynamicArray(arc4.UInt64(0)),
+    //     bar=UInt64(),
+    // )
+    swap
+    app_global_put
+    // tuple_support/tuple_storage.py:20
+    // self.glob.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+    intc_1 // 1
+    itob
+    extract 6 2
+    bytec_2 // 0x0000000000000000
+    concat
+    intc_0 // 0
+    bytec_1 // "tup"
+    app_global_get_ex
+    assert // check self.tup exists
+    intc_3 // 2
+    pushint 8 // 8
+    extract3
+    btoi
+    intc_2 // 10
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    swap
+    concat
+    bytec 4 // "glob"
+    swap
+    app_global_put
+    // tuple_support/tuple_storage.py:21
+    // self.tup = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+    intc_1 // 1
+    itob
+    extract 6 2
+    bytec_2 // 0x0000000000000000
+    concat
+    intc_0 // 0
+    bytec_1 // "tup"
+    app_global_get_ex
+    assert // check self.tup exists
+    intc_3 // 2
+    pushint 8 // 8
+    extract3
+    btoi
+    intc_2 // 10
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    swap
+    concat
+    bytec_1 // "tup"
+    swap
+    app_global_put
+    retsub
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap() -> void:
+bootstrap:
+
+bootstrap_block@0:
+    // tuple_support/tuple_storage.py:25
+    // self.box.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+    intc_1 // 1
+    itob
+    extract 6 2
+    bytec_2 // 0x0000000000000000
+    concat
+    intc_0 // 0
+    bytec_1 // "tup"
+    app_global_get_ex
+    assert // check self.tup exists
+    intc_3 // 2
+    pushint 8 // 8
+    extract3
+    btoi
+    bytec_3 // "box"
+    box_del
+    pop
+    intc_2 // 10
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    swap
+    concat
+    bytec_3 // "box"
+    swap
+    box_put
+    // tuple_support/tuple_storage.py:26
+    // self.loc[Txn.sender] = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+    intc_1 // 1
+    itob
+    extract 6 2
+    bytec_2 // 0x0000000000000000
+    concat
+    intc_0 // 0
+    bytec_1 // "tup"
+    app_global_get_ex
+    assert // check self.tup exists
+    intc_3 // 2
+    pushint 8 // 8
+    extract3
+    btoi
+    txn Sender
+    swap
+    intc_2 // 10
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    uncover 2
+    concat
+    swap
+    bytec 5 // "loc"
+    uncover 2
+    app_local_put
+    retsub
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(val: bytes) -> void:
+mutate_tuple:
+    // tuple_support/tuple_storage.py:28-29
+    // @arc4.abimethod()
+    // def mutate_tuple(self, val: arc4.UInt64) -> None:
+    proto 1 0
+
+mutate_tuple_block@0:
+    // tuple_support/tuple_storage.py:30
+    // self.tup.arr.append(val)
+    intc_0 // 0
+    bytec_1 // "tup"
+    app_global_get_ex
+    assert // check self.tup exists
+    dup
+    intc_0 // 0
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    swap
+    intc_3 // 2
+    pushint 8 // 8
+    extract3
+    btoi
+    swap
+    bytec_0 // 0x
+    frame_dig -1
+    concat
+    dig 1
+    swap
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    intc_2 // 10
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    concat
+    bytec_1 // "tup"
+    swap
+    app_global_put
+    retsub
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(val: bytes) -> void:
+mutate_box:
+    // tuple_support/tuple_storage.py:32-33
+    // @arc4.abimethod()
+    // def mutate_box(self, val: arc4.UInt64) -> None:
+    proto 1 0
+
+mutate_box_block@0:
+    // tuple_support/tuple_storage.py:34
+    // self.box.value.arr.append(val)
+    bytec_3 // "box"
+    box_get
+    assert // check self.box exists
+    dup
+    intc_0 // 0
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    swap
+    intc_3 // 2
+    pushint 8 // 8
+    extract3
+    btoi
+    swap
+    bytec_0 // 0x
+    frame_dig -1
+    concat
+    dig 1
+    swap
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    bytec_3 // "box"
+    box_del
+    pop
+    intc_2 // 10
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    concat
+    bytec_3 // "box"
+    swap
+    box_put
+    retsub
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(val: bytes) -> void:
+mutate_global:
+    // tuple_support/tuple_storage.py:36-37
+    // @arc4.abimethod()
+    // def mutate_global(self, val: arc4.UInt64) -> None:
+    proto 1 0
+
+mutate_global_block@0:
+    // tuple_support/tuple_storage.py:38
+    // self.glob.value.arr.append(val)
+    intc_0 // 0
+    bytec 4 // "glob"
+    app_global_get_ex
+    assert // check self.glob exists
+    dup
+    intc_0 // 0
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    swap
+    intc_3 // 2
+    pushint 8 // 8
+    extract3
+    btoi
+    swap
+    bytec_0 // 0x
+    frame_dig -1
+    concat
+    dig 1
+    swap
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    intc_2 // 10
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    concat
+    bytec 4 // "glob"
+    swap
+    app_global_put
+    retsub
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(val: bytes) -> void:
+mutate_local:
+    // tuple_support/tuple_storage.py:40-41
+    // @arc4.abimethod()
+    // def mutate_local(self, val: arc4.UInt64) -> None:
+    proto 1 0
+
+mutate_local_block@0:
+    // tuple_support/tuple_storage.py:42
+    // self.loc[Txn.sender].arr.append(val)
+    txn Sender
+    dup
+    intc_0 // 0
+    bytec 5 // "loc"
+    app_local_get_ex
+    assert // check self.loc exists for account
+    dup
+    intc_0 // 0
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    dup
+    uncover 3
+    uncover 3
+    substring3
+    swap
+    intc_3 // 2
+    pushint 8 // 8
+    extract3
+    btoi
+    swap
+    bytec_0 // 0x
+    frame_dig -1
+    concat
+    dig 1
+    swap
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    intc_2 // 10
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    concat
+    swap
+    bytec 5 // "loc"
+    uncover 2
+    app_local_put
+    retsub
+
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+approval_program:
+
+approval_program_block@0:
+
+approval_program_block@1:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txn NumAppArgs
+    intc_0 // 0
+    !=
+    bz approval_program_bare_routing@10
+
+approval_program_abi_routing@2:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xbec76d87 // method "bootstrap()void"
+    pushbytes 0xacc253ae // method "mutate_tuple(uint64)void"
+    pushbytes 0xe844940c // method "mutate_box(uint64)void"
+    pushbytes 0x6222ef1a // method "mutate_global(uint64)void"
+    pushbytes 0x1b269b50 // method "mutate_local(uint64)void"
+    uncover 5
+    match approval_program_bootstrap_route@3 approval_program_mutate_tuple_route@4 approval_program_mutate_box_route@5 approval_program_mutate_global_route@6 approval_program_mutate_local_route@7
+
+approval_program_switch_case_default@8:
+
+approval_program_switch_case_next@9:
+
+approval_program_after_if_else@16:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    intc_0 // 0
+
+approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@17:
+    retsub
+
+approval_program_mutate_local_route@7:
+    // tuple_support/tuple_storage.py:40
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // tuple_support/tuple_storage.py:40
+    // @arc4.abimethod()
+    callsub mutate_local
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@17
+
+approval_program_mutate_global_route@6:
+    // tuple_support/tuple_storage.py:36
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // tuple_support/tuple_storage.py:36
+    // @arc4.abimethod()
+    callsub mutate_global
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@17
+
+approval_program_mutate_box_route@5:
+    // tuple_support/tuple_storage.py:32
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // tuple_support/tuple_storage.py:32
+    // @arc4.abimethod()
+    callsub mutate_box
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@17
+
+approval_program_mutate_tuple_route@4:
+    // tuple_support/tuple_storage.py:28
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // tuple_support/tuple_storage.py:28
+    // @arc4.abimethod()
+    callsub mutate_tuple
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@17
+
+approval_program_bootstrap_route@3:
+    // tuple_support/tuple_storage.py:23
+    // @arc4.abimethod(allow_actions=["OptIn"])
+    txn OnCompletion
+    intc_1 // OptIn
+    ==
+    assert // OnCompletion is not OptIn
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    callsub bootstrap
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@17
+
+approval_program_bare_routing@10:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    swap
+    match approval_program___algopy_default_create@11
+
+approval_program_switch_case_default@14:
+
+approval_program_switch_case_next@15:
+    b approval_program_after_if_else@16
+
+approval_program___algopy_default_create@11:
+    txn ApplicationID
+    intc_0 // 0
+    ==
+    assert // can only call when creating
+
+approval_program_block@12:
+
+approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_default_create@13:
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@17

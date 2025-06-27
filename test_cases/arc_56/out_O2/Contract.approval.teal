@@ -4,7 +4,7 @@
 // test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 2 10 TMPL_AVM_UINT64
-    bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_STRUCT TMPL_AVM_STRING
+    bytecblock 0x 0x151f7c75 TMPL_ARC4_UINT8 TMPL_AVM_STRING TMPL_STRUCT
     intc_1 // 0
     dupn 3
     bytec_0 // ""
@@ -65,12 +65,12 @@ main_with_constant_defaults_route@14:
     assert
     len
     assert
-    extract 0 8 // on error: Index access is out of bounds
+    extract 0 8
     bytec_0 // 0x
     b!=
     bnz main_bool_true@16
     dig 6
-    extract 8 8 // on error: Index access is out of bounds
+    extract 8 8
     bytec_0 // 0x
     b!=
     bz main_bool_false@17
@@ -135,26 +135,29 @@ main_template_value_route@13:
     txn ApplicationID
     assert // can only call when not creating
     bytec_2 // TMPL_ARC4_UINT8
-    bytec_3 // TMPL_STRUCT
-    bytec 4 // TMPL_AVM_STRING
+    bytec_3 // TMPL_AVM_STRING
     intc 4 // TMPL_AVM_UINT64
-    itob
-    dig 1
-    len
-    itob
-    extract 6 2
-    uncover 2
-    concat
-    dig 2
+    bytec 4 // TMPL_STRUCT
+    dup
     len
     pushint 13 // 13
     +
+    uncover 2
+    itob
     pushbytes 0x000d
-    uncover 3
-    concat
     swap
+    concat
+    dig 3
+    len
     itob
     extract 6 2
+    uncover 4
+    concat
+    uncover 2
+    itob
+    extract 6 2
+    uncover 2
+    swap
     concat
     uncover 3
     concat
@@ -206,7 +209,7 @@ main_emits_error_route@8:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    extract 0 8 // on error: Index access is out of bounds
+    extract 0 8
     pushbytes 0x00
     ==
     assert // this will error

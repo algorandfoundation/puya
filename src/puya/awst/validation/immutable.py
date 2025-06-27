@@ -1,5 +1,8 @@
 from puya import log
-from puya.awst import nodes as awst_nodes
+from puya.awst import (
+    nodes as awst_nodes,
+    wtypes,
+)
 from puya.awst.awst_traverser import AWSTTraverser
 
 logger = log.get_logger(__name__)
@@ -44,6 +47,12 @@ def _validate_lvalue(lvalue: awst_nodes.Expression) -> None:
                 "expression is not valid as an assignment target - object is immutable",
                 location=lvalue.source_location,
             )
+        elif isinstance(lvalue.base.wtype, wtypes.ARC4Struct) and lvalue.base.wtype.frozen:
+            logger.error(
+                "expression is not valid as an assignment target - object is frozen",
+                location=lvalue.source_location,
+            )
+
     elif isinstance(lvalue, awst_nodes.TupleExpression):
         for item in lvalue.items:
             _validate_lvalue(item)

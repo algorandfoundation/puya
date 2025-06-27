@@ -30,7 +30,8 @@ subroutine test_cases.abi_routing.custom_approval.CustomApproval.approval_progra
         (log "\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89\xf0\x9f\x8e\x89")
         goto block@3
     block@3: // after_if_else_L13
-        let result#0: bool = algopy.arc4.ARC4Contract.approval_program()
+        let tmp%5#0: bool = algopy.arc4.ARC4Contract.approval_program()
+        let result#0: bool = tmp%5#0
         goto result#0 ? block@5 : block@4
     block@4: // if_body_L17
         (log "this will never be seen unless you're running in simulation mode anyway so I can say whatever I want here")
@@ -60,12 +61,14 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let reinterpret_bytes[8]%0#0: bytes[8] = (txna ApplicationArgs 1)
-        let tmp%7#0: uint64 = (btoi reinterpret_bytes[8]%0#0)
-        let to_encode%0#0: uint64 = test_cases.abi_routing.custom_approval.CustomApproval.add_one(tmp%7#0)
-        let val_as_bytes%0#0: bytes[8] = (itob to_encode%0#0)
-        let tmp%8#0: bytes = (concat 0x151f7c75 val_as_bytes%0#0)
-        (log tmp%8#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%7#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
+        let tmp%8#0: uint64 = test_cases.abi_routing.custom_approval.CustomApproval.add_one(tmp%7#0)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%8#0)
+        let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
+        let tmp%9#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#1
+        let tmp%10#0: bytes = (concat 0x151f7c75 tmp%9#0)
+        (log tmp%10#0)
         let test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__%0#0
         goto block@13
@@ -74,12 +77,12 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@5: // switch_case_next_L6
         goto block@12
     block@6: // bare_routing_L6
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        switch tmp%9#0 {0u => block@7, * => block@10}
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        switch tmp%11#0 {0u => block@7, * => block@10}
     block@7: // __algopy_default_create_L1
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (== tmp%10#0 0u)
-        (assert tmp%11#0) // can only call when creating
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        let tmp%13#0: bool = (== tmp%12#0 0u)
+        (assert tmp%13#0) // can only call when creating
         goto block@8
     block@8: // L1
         goto block@9
