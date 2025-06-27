@@ -530,10 +530,10 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let aggregate%bytes_offset%2#1: uint64 = (* tmp%3#0 16u)
         let aggregate%encoded_element%2#1: bytes = (extract3 box%box_extract%4#1 aggregate%bytes_offset%2#1 16u) // on error: index access is out of bounds
         let array_item%2#0: Encoded(uint64,uint64) = aggregate%encoded_element%2#1
-        let aggregate%encoded%0#1: bytes = (concat 0x array_item%0#0)
-        let aggregate%encoded%1#1: bytes = (concat aggregate%encoded%0#1 array_item%1#0)
-        let aggregate%encoded%2#1: bytes = (concat aggregate%encoded%1#1 array_item%2#0)
-        let aggregate%as_Encoded((uint64,uint64)[3])%0#1: Encoded((uint64,uint64)[3]) = aggregate%encoded%2#1
+        let aggregate%head%0#1: bytes = (concat 0x array_item%0#0)
+        let aggregate%head%1#1: bytes = (concat aggregate%head%0#1 array_item%1#0)
+        let aggregate%head%2#1: bytes = (concat aggregate%head%1#1 array_item%2#0)
+        let aggregate%as_Encoded((uint64,uint64)[3])%0#1: Encoded((uint64,uint64)[3]) = aggregate%head%2#1
         let encoded_array%0#0: Encoded((uint64,uint64)[3]) = aggregate%as_Encoded((uint64,uint64)[3])%0#1
         return encoded_array%0#0
 
@@ -557,8 +557,8 @@ subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithSt
         let aggregate%bytes_offset%0#1: uint64 = (* i#1 16u)
         let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#1
-        let aggregate%encoded%0#1: bytes = (concat 0x array_item%0#0)
-        let aggregate%as_Encoded((uint64,uint64)[])%0#1: Encoded((uint64,uint64)[]) = aggregate%encoded%0#1
+        let aggregate%head%0#1: bytes = (concat 0x array_item%0#0)
+        let aggregate%as_Encoded((uint64,uint64)[])%0#1: Encoded((uint64,uint64)[]) = aggregate%head%0#1
         let tmp%0#0: Encoded((uint64,uint64)[]) = aggregate%as_Encoded((uint64,uint64)[])%0#1
         let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#1 tmp%0#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 result#1 0u)

@@ -5,12 +5,12 @@ main test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypo
     block@1: // call __init___L1
         let aggregate%as_bytes%0#1: bytes[8] = (itob 1u)
         let aggregate%len_u16%0#1: bytes = 0x0001
-        let aggregate%encoded%0#1: bytes = 0x00010000000000000000
+        let aggregate%head%0#1: bytes = 0x00010000000000000000
         let aggregate%as_bytes%1#1: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#1: bytes = 0x000a
-        let aggregate%encoded%1#1: bytes = 0x000a
+        let aggregate%head%1#1: bytes = 0x000a
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob 0u)
-        let aggregate%encoded%2#1: bytes = 0x000a0000000000000000
+        let aggregate%head%2#1: bytes = 0x000a0000000000000000
         let aggregate%concat%0#1: bytes = 0x000a000000000000000000010000000000000000
         (app_global_put "tup" 0x000a000000000000000000010000000000000000)
         (app_global_put "glob" 0x000a000000000000000000010000000000000000)
@@ -19,10 +19,10 @@ main test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypo
         let aggregate%extract%0#1: bytes = ((extract 2 8) maybe_value%1#0)
         let aggregate%item1%0#1: uint64 = (extract_uint64 maybe_value%1#0 2u)
         let aggregate%offset_as_uint16%1#1: bytes = 0x000a
-        let aggregate%encoded%3#1: bytes = 0x000a
+        let aggregate%head%3#1: bytes = 0x000a
         let aggregate%val_as_bytes%1#1: bytes[8] = (itob aggregate%item1%0#1)
-        let aggregate%encoded%4#1: bytes = (concat 0x000a aggregate%val_as_bytes%1#1)
-        let aggregate%concat%1#1: bytes = (concat aggregate%encoded%4#1 0x00010000000000000000)
+        let aggregate%head%4#1: bytes = (concat 0x000a aggregate%val_as_bytes%1#1)
+        let aggregate%concat%1#1: bytes = (concat aggregate%head%4#1 0x00010000000000000000)
         (app_global_put "tup" aggregate%concat%1#1)
         goto block@2
     block@2: // after_if_else_L1
@@ -100,7 +100,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap(
     block@0: // L23
         let aggregate%as_bytes%0#1: bytes[8] = (itob 1u)
         let aggregate%len_u16%0#1: bytes = 0x0001
-        let aggregate%encoded%0#1: bytes = 0x00010000000000000000
+        let aggregate%head%0#1: bytes = 0x00010000000000000000
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
         let aggregate%extract%0#1: bytes = ((extract 2 8) maybe_value%0#0)
@@ -108,10 +108,10 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap(
         (box_del "box")
         let aggregate%as_bytes%1#1: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#1: bytes = 0x000a
-        let aggregate%encoded%1#1: bytes = 0x000a
+        let aggregate%head%1#1: bytes = 0x000a
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob aggregate%item1%0#1)
-        let aggregate%encoded%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
-        let aggregate%concat%0#1: bytes = (concat aggregate%encoded%2#1 0x00010000000000000000)
+        let aggregate%head%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
+        let aggregate%concat%0#1: bytes = (concat aggregate%head%2#1 0x00010000000000000000)
         (box_put "box" aggregate%concat%0#1)
         let tmp%0#0: account = (txn Sender)
         (app_local_put tmp%0#0 "loc" aggregate%concat%0#1)
@@ -126,7 +126,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tup
         let aggregate%substring3%0#1: bytes = (substring3 maybe_value%0#0 aggregate%extract_uint16%0#1 aggregate%len%0#1)
         let aggregate%extract%0#1: bytes = ((extract 2 8) maybe_value%0#0)
         let aggregate%item1%0#1: uint64 = (extract_uint64 maybe_value%0#0 2u)
-        let aggregate%encoded%0#1: bytes = val#0
+        let aggregate%head%0#1: bytes = val#0
         let concat%0#0: Encoded(len+uint64[]) = (concat aggregate%substring3%0#1 val#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#1 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
@@ -135,10 +135,10 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tup
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let aggregate%as_bytes%0#1: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#1: bytes = 0x000a
-        let aggregate%encoded%1#1: bytes = 0x000a
+        let aggregate%head%1#1: bytes = 0x000a
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob aggregate%item1%0#1)
-        let aggregate%encoded%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
-        let aggregate%concat%0#1: bytes = (concat aggregate%encoded%2#1 replace%0#0)
+        let aggregate%head%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
+        let aggregate%concat%0#1: bytes = (concat aggregate%head%2#1 replace%0#0)
         (app_global_put "tup" aggregate%concat%0#1)
         return 
 
@@ -151,7 +151,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box
         let aggregate%substring3%0#1: bytes = (substring3 aggregate%box_get%0#1 aggregate%extract_uint16%0#1 aggregate%len%0#1)
         let aggregate%extract%0#1: bytes = ((extract 2 8) aggregate%box_get%0#1)
         let aggregate%item1%0#1: uint64 = (extract_uint64 aggregate%box_get%0#1 2u)
-        let aggregate%encoded%0#1: bytes = val#0
+        let aggregate%head%0#1: bytes = val#0
         let concat%0#0: Encoded(len+uint64[]) = (concat aggregate%substring3%0#1 val#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#1 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
@@ -161,10 +161,10 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box
         (box_del "box")
         let aggregate%as_bytes%0#1: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#1: bytes = 0x000a
-        let aggregate%encoded%1#1: bytes = 0x000a
+        let aggregate%head%1#1: bytes = 0x000a
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob aggregate%item1%0#1)
-        let aggregate%encoded%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
-        let aggregate%concat%0#1: bytes = (concat aggregate%encoded%2#1 replace%0#0)
+        let aggregate%head%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
+        let aggregate%concat%0#1: bytes = (concat aggregate%head%2#1 replace%0#0)
         (box_put "box" aggregate%concat%0#1)
         return 
 
@@ -177,7 +177,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_glo
         let aggregate%substring3%0#1: bytes = (substring3 maybe_value%0#0 aggregate%extract_uint16%0#1 aggregate%len%0#1)
         let aggregate%extract%0#1: bytes = ((extract 2 8) maybe_value%0#0)
         let aggregate%item1%0#1: uint64 = (extract_uint64 maybe_value%0#0 2u)
-        let aggregate%encoded%0#1: bytes = val#0
+        let aggregate%head%0#1: bytes = val#0
         let concat%0#0: Encoded(len+uint64[]) = (concat aggregate%substring3%0#1 val#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#1 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
@@ -186,10 +186,10 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_glo
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let aggregate%as_bytes%0#1: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#1: bytes = 0x000a
-        let aggregate%encoded%1#1: bytes = 0x000a
+        let aggregate%head%1#1: bytes = 0x000a
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob aggregate%item1%0#1)
-        let aggregate%encoded%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
-        let aggregate%concat%0#1: bytes = (concat aggregate%encoded%2#1 replace%0#0)
+        let aggregate%head%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
+        let aggregate%concat%0#1: bytes = (concat aggregate%head%2#1 replace%0#0)
         (app_global_put "glob" aggregate%concat%0#1)
         return 
 
@@ -203,7 +203,7 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_loc
         let aggregate%substring3%0#1: bytes = (substring3 maybe_value%0#0 aggregate%extract_uint16%0#1 aggregate%len%0#1)
         let aggregate%extract%0#1: bytes = ((extract 2 8) maybe_value%0#0)
         let aggregate%item1%0#1: uint64 = (extract_uint64 maybe_value%0#0 2u)
-        let aggregate%encoded%0#1: bytes = val#0
+        let aggregate%head%0#1: bytes = val#0
         let concat%0#0: Encoded(len+uint64[]) = (concat aggregate%substring3%0#1 val#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 aggregate%substring3%0#1 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
@@ -212,9 +212,9 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_loc
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let aggregate%as_bytes%0#1: bytes[8] = (itob 10u)
         let aggregate%offset_as_uint16%0#1: bytes = 0x000a
-        let aggregate%encoded%1#1: bytes = 0x000a
+        let aggregate%head%1#1: bytes = 0x000a
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob aggregate%item1%0#1)
-        let aggregate%encoded%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
-        let aggregate%concat%0#1: bytes = (concat aggregate%encoded%2#1 replace%0#0)
+        let aggregate%head%2#1: bytes = (concat 0x000a aggregate%val_as_bytes%0#1)
+        let aggregate%concat%0#1: bytes = (concat aggregate%head%2#1 replace%0#0)
         (app_local_put tmp%0#0 "loc" aggregate%concat%0#1)
         return 
