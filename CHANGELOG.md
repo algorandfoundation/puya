@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--scriv-insert-here-->
 
+<a id='changelog-v4.10.0'></a>
+## v4.10.0 (2025-06-30)
+
+### Added
+
+- New `--output-op-statistics` option in `puyapy` CLI that provide a simple summary of AVM op counts and sizes
+
+### Fixed
+
+- Error gracefully when attempting to extend a ReferenceArray with an ARC-4 bool iterable
+
+- Fix a [multiple inheritance issue](https://github.com/algorandfoundation/puya/issues/491)
+  whereby overrides of `Contract.__init__` which only call `super().__init()` were
+  incorrectly treated as no-ops.
+
 <a id='changelog-v4.9.0'></a>
 ## v4.9.0 (2025-05-21)
 
