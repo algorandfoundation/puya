@@ -160,8 +160,20 @@ class ArrayEncoding(Encoding, abc.ABC):
     length_header: bool
 
     def __attrs_post_init__(self) -> None:
-        if self.length_header and self.size is not None:
-            raise InternalError("fixed size array encoding with length header is not supported")
+        if self.size is not None:
+            if self.length_header:
+                # we could support this scenario, even though it's redundant,
+                # but it's never constructed currently
+                raise InternalError(
+                    "fixed size array encoding with length header is not supported"
+                )
+        else:  # array is runtime sized # noqa: PLR5501
+            if self.length_header is None and self.element.is_dynamic:
+                # this is an impossible scenario, we can only omit the length header
+                # if we know the element size and can use that to divide the length
+                raise InternalError(
+                    "dynamically sized array must have static-sized elements or a length header"
+                )
 
     @classmethod
     def dynamic(cls, element: Encoding, *, length_header: bool) -> typing.Self:
