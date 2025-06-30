@@ -40,6 +40,7 @@ _ContractMethodBuilder: typing.TypeAlias = Callable[
 ]
 
 _INIT_METHOD = "__init__"
+_CONTRACT_BASE_CREF = ContractReference(constants.CONTRACT_BASE)
 _ARC4_CONTRACT_BASE_CREF = ContractReference(constants.ARC4_CONTRACT_BASE)
 _SYNTHETIC_LOCATION = SourceLocation(file=None, line=1)
 
@@ -180,10 +181,25 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             pass  # error during method construction, already logged
         else:
             approval_program = approval_method.implementation
-            if self.fragment.resolve_method(_INIT_METHOD) is not None:
-                approval_program = _insert_init_call_on_create(
-                    self.fragment.id, approval_program.return_type
-                )
+            match self.fragment.resolve_method(_INIT_METHOD):
+                case None:
+                    # we expect _at least_ algopy.Contract.__init__ to be resolved
+                    raise InternalError(
+                        "failed to resolve any __init__ method", self.fragment.source_location
+                    )
+                case ContractFragmentMethod(
+                    implementation=awst_nodes.ContractMethod(body=awst_nodes.Block(body=[])),
+                    synthetic=True,
+                ):
+                    # in the case where algopy.Contract.__init__ is the only method,
+                    # don't insert call-on-create as it can have deleterious effects on
+                    # optimisation, particularly in subroutine inlining
+                    pass
+                case _:
+                    approval_program = _insert_init_call_on_create(
+                        current_contract=self.fragment.id,
+                        approval_method_return_type=approval_program.return_type,
+                    )
 
         clear_method = self.fragment.resolve_method(constants.CLEAR_STATE_METHOD)
         if clear_method is None or clear_method.is_trivial:
@@ -428,6 +444,39 @@ class _StaticContractBase(_UserContractBase):
     def state(self, *, include_inherited: bool = True) -> Iterator[ContractFragmentStorage]:
         yield from ()
 
+    def add_stub_method(
+        self,
+        name: str,
+        body: Sequence[awst_nodes.Statement],
+        *,
+        return_type: pytypes.RuntimeType = pytypes.BoolType,
+    ) -> None:
+        self.symbols[name] = pytypes.FuncType(
+            name=".".join((self.id, name)),
+            args=(),
+            ret_type=return_type,
+        )
+        implementation = awst_nodes.ContractMethod(
+            cref=self.id,
+            member_name=name,
+            source_location=_SYNTHETIC_LOCATION,
+            args=[],
+            arc4_method_config=None,
+            return_type=return_type.wtype,
+            documentation=awst_nodes.MethodDocumentation(),
+            body=awst_nodes.Block(body=body, source_location=_SYNTHETIC_LOCATION),
+            inline=None,
+        )
+        self.methods_[name] = ContractFragmentMethod(
+            member_name=name,
+            source_location=_SYNTHETIC_LOCATION,
+            metadata=None,
+            is_trivial=False,
+            synthetic=True,
+            inheritable=True,
+            implementation=implementation,
+        )
+
 
 @attrs.frozen(kw_only=True)
 class _ContractFragment(_UserContractBase):
@@ -532,7 +581,7 @@ class _ContractFragment(_UserContractBase):
 
 
 def _insert_init_call_on_create(
-    current_contract: ContractReference, return_type: wtypes.WType
+    current_contract: ContractReference, *, approval_method_return_type: wtypes.WType
 ) -> awst_nodes.ContractMethod:
     call_init = awst_nodes.Block(
         comment="call __init__",
@@ -562,7 +611,7 @@ def _insert_init_call_on_create(
         member_name="__algopy_entrypoint_with_init",
         args=[],
         arc4_method_config=None,
-        return_type=return_type,
+        return_type=approval_method_return_type,
         documentation=awst_nodes.MethodDocumentation(),
         body=awst_nodes.Block(
             body=[
@@ -573,7 +622,7 @@ def _insert_init_call_on_create(
                             member_name=constants.APPROVAL_METHOD,
                         ),
                         args=[],
-                        wtype=return_type,
+                        wtype=approval_method_return_type,
                         source_location=_SYNTHETIC_LOCATION,
                     ),
                     source_location=_SYNTHETIC_LOCATION,
@@ -592,7 +641,7 @@ def _build_resolved_mro(
     contract_bases_mro = list[_UserContractBase]()
     for ancestor in contract_type.mro:
         if ancestor == pytypes.ContractBaseType:
-            pass
+            contract_bases_mro.append(_base_contract_fragment())
         elif ancestor == pytypes.ARC4ContractBaseType:
             contract_bases_mro.append(_arc4_contract_fragment())
         elif isinstance(ancestor, pytypes.ContractType):
@@ -608,42 +657,29 @@ def _build_resolved_mro(
     return contract_bases_mro
 
 
+def _base_contract_fragment() -> _UserContractBase:
+    result = _StaticContractBase(
+        id=_CONTRACT_BASE_CREF,
+        mro=(),
+        methods_={},
+        symbols={},
+    )
+    result.add_stub_method(
+        name=_INIT_METHOD,
+        body=[],
+        return_type=pytypes.NoneType,
+    )
+    return result
+
+
 def _arc4_contract_fragment() -> _UserContractBase:
-    result = _StaticContractBase(id=_ARC4_CONTRACT_BASE_CREF, mro=(), methods_={}, symbols={})
-
-    def add_program_method(
-        name: str,
-        body: Sequence[awst_nodes.Statement],
-        *,
-        return_type: pytypes.RuntimeType = pytypes.BoolType,
-    ) -> None:
-        result.symbols[name] = pytypes.FuncType(
-            name=".".join((_ARC4_CONTRACT_BASE_CREF, name)),
-            args=(),
-            ret_type=return_type,
-        )
-        implementation = awst_nodes.ContractMethod(
-            cref=_ARC4_CONTRACT_BASE_CREF,
-            member_name=name,
-            source_location=_SYNTHETIC_LOCATION,
-            args=[],
-            arc4_method_config=None,
-            return_type=return_type.wtype,
-            documentation=awst_nodes.MethodDocumentation(),
-            body=awst_nodes.Block(body=body, source_location=_SYNTHETIC_LOCATION),
-            inline=None,
-        )
-        result.methods_[name] = ContractFragmentMethod(
-            member_name=name,
-            source_location=_SYNTHETIC_LOCATION,
-            metadata=None,
-            is_trivial=False,
-            synthetic=True,
-            inheritable=True,
-            implementation=implementation,
-        )
-
-    add_program_method(
+    result = _StaticContractBase(
+        id=_ARC4_CONTRACT_BASE_CREF,
+        mro=(_base_contract_fragment(),),
+        methods_={},
+        symbols={},
+    )
+    result.add_stub_method(
         name=constants.APPROVAL_METHOD,
         body=[
             awst_nodes.ReturnStatement(
@@ -652,7 +688,7 @@ def _arc4_contract_fragment() -> _UserContractBase:
             )
         ],
     )
-    add_program_method(
+    result.add_stub_method(
         name=constants.CLEAR_STATE_METHOD,
         body=[
             awst_nodes.ReturnStatement(
@@ -661,7 +697,6 @@ def _arc4_contract_fragment() -> _UserContractBase:
             )
         ],
     )
-
     return result
 
 

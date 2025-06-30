@@ -1,6 +1,7 @@
 contract TealSwitchInlining
 {
   method_resolution_order: (
+    algopy._contract.Contract,
   )
   
   subroutine test_cases.regression_tests.teal_switch_inlining.TealSwitchInlining.approval_program(): bool
@@ -22,11 +23,16 @@ contract TealSwitchInlining
   {
     return true
   }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
 
 contract SlotAllocationInlining
 {
   method_resolution_order: (
+    algopy._contract.Contract,
   )
   
   subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program(): bool
@@ -39,6 +45,10 @@ contract SlotAllocationInlining
   subroutine test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.clear_state_program(): bool
   {
     return true
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
   }
 }
 
@@ -60,6 +70,7 @@ contract BranchElimination
 {
   method_resolution_order: (
     algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
   )
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -136,6 +147,10 @@ contract BranchElimination
   baremethod test_cases.regression_tests.leftover_branch.BranchElimination.__algopy_default_create(): void
   {
   }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
 
 subroutine hmm(): bool
@@ -152,6 +167,7 @@ contract Jira241
 {
   method_resolution_order: (
     algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
   )
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -175,12 +191,17 @@ contract Jira241
   baremethod test_cases.regression_tests.jira_241.Jira241.__algopy_default_create(): void
   {
   }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
 
 contract Jira142
 {
   method_resolution_order: (
     algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
   )
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -209,12 +230,154 @@ contract Jira142
   baremethod test_cases.regression_tests.jira_142.Jira142.__algopy_default_create(): void
   {
   }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract Parent
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['is_initialised']: bool
+  }
+  
+  subroutine test_cases.regression_tests.issue_491.Parent.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.issue_491.Parent.__init__(): void
+  {
+    super::__init__()
+    GlobalState['is_initialised']: bool = false
+  }
+  
+  baremethod test_cases.regression_tests.issue_491.Parent.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract Orphan
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine test_cases.regression_tests.issue_491.Orphan.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.issue_491.Orphan.__init__(): void
+  {
+    super::__init__()
+  }
+  
+  baremethod test_cases.regression_tests.issue_491.Orphan.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
+contract Child
+{
+  method_resolution_order: (
+    test_cases.regression_tests.issue_491.Orphan,
+    test_cases.regression_tests.issue_491.Parent,
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['is_initialised']: bool
+  }
+  
+  subroutine test_cases.regression_tests.issue_491.Child.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.regression_tests.issue_491.Child.__init__(): void
+  {
+    super::__init__()
+  }
+  
+  baremethod test_cases.regression_tests.issue_491.Child.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine test_cases.regression_tests.issue_491.Orphan.__init__(): void
+  {
+    super::__init__()
+  }
+  
+  subroutine test_cases.regression_tests.issue_491.Parent.__init__(): void
+  {
+    super::__init__()
+    GlobalState['is_initialised']: bool = false
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
 
 contract Issue434
 {
   method_resolution_order: (
     algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
   )
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -243,11 +406,16 @@ contract Issue434
   baremethod test_cases.regression_tests.issue_434.Issue434.__algopy_default_create(): void
   {
   }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
 
 contract Issue194
 {
   method_resolution_order: (
+    algopy._contract.Contract,
   )
   
   subroutine test_cases.regression_tests.issue_194.Issue194.approval_program(): bool
@@ -268,12 +436,17 @@ contract Issue194
   {
     return true
   }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
 
 contract Issue118
 {
   method_resolution_order: (
     algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
   )
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -298,12 +471,17 @@ contract Issue118
   baremethod test_cases.regression_tests.issue_118.Issue118.__algopy_default_create(): void
   {
   }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
 
 contract VRFVerifier
 {
   method_resolution_order: (
     algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
   )
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -325,12 +503,17 @@ contract VRFVerifier
   baremethod test_cases.regression_tests.branch_to_proto.VRFVerifier.__algopy_default_create(): void
   {
   }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
 }
 
 contract ConstBigIntToIntOverflow
 {
   method_resolution_order: (
     algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
   )
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -360,6 +543,10 @@ contract ConstBigIntToIntOverflow
   }
   
   baremethod test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
   {
   }
 }

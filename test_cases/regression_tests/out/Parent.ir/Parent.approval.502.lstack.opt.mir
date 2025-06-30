@@ -1,0 +1,47 @@
+// Op                                                                                       Stack (out)
+// test_cases.regression_tests.issue_491.Parent.__algopy_entrypoint_with_init() -> uint64:
+subroutine main:
+    main_block@0:
+        txn ApplicationID                                                                   tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2
+
+    main_call___init__@1:
+        // regression_tests/issue_491.py:7
+        // self.is_initialised = False
+        byte "is_initialised"                                                               "is_initialised"
+        int 0                                                                               "is_initialised",0
+        app_global_put
+        b main_after_if_else@2
+
+    main_after_if_else@2:
+        // regression_tests/issue_491.py:4
+        // class Parent(ARC4Contract):
+        txn NumAppArgs                                                                      tmp%0#2
+        bz main_bare_routing@4 ; b main_after_if_else@6
+
+    main_bare_routing@4:
+        // regression_tests/issue_491.py:4
+        // class Parent(ARC4Contract):
+        txn OnCompletion                                                                    tmp%2#0
+        bz main___algopy_default_create@5 ; b main_after_if_else@6
+
+    main___algopy_default_create@5:
+        txn ApplicationID                                                                   tmp%3#0
+        !                                                                                   tmp%4#0
+        assert // can only call when creating
+        int 1                                                                               test_cases.regression_tests.issue_491.Parent.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.regression_tests.issue_491.Parent.__puya_arc4_router__@7 
+
+    main_after_if_else@6:
+        // regression_tests/issue_491.py:4
+        // class Parent(ARC4Contract):
+        int 0                                                                               test_cases.regression_tests.issue_491.Parent.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.regression_tests.issue_491.Parent.__puya_arc4_router__@7 
+
+    main_after_inlined_test_cases.regression_tests.issue_491.Parent.__puya_arc4_router__@7:
+        v-load tmp%0#0                                                                      tmp%0#0
+        return
+
+

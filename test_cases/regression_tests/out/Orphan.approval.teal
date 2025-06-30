@@ -1,0 +1,22 @@
+#pragma version 10
+#pragma typetrack false
+
+// test_cases.regression_tests.issue_491.Orphan.__algopy_entrypoint_with_init() -> uint64:
+main:
+    // regression_tests/issue_491.py:10
+    // class Orphan(ARC4Contract):
+    txn NumAppArgs
+    bnz main_after_if_else@6
+    txn OnCompletion
+    bnz main_after_if_else@6
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return
+
+main_after_if_else@6:
+    // regression_tests/issue_491.py:10
+    // class Orphan(ARC4Contract):
+    pushint 0 // 0
+    return

@@ -76,7 +76,6 @@ from puyapy.awst_build.eb.interface import (
     StorageProxyConstructorResult,
 )
 from puyapy.awst_build.eb.logicsig import LogicSigExpressionBuilder
-from puyapy.awst_build.eb.none import NoneTypeBuilder
 from puyapy.awst_build.eb.subroutine import SubroutineInvokerExpressionBuilder
 from puyapy.awst_build.utils import (
     extract_bytes_literal_from_mypy,
@@ -767,11 +766,6 @@ class FunctionASTConverter(
                     raise CodeError("call to trivial method via super()", super_loc)
                 break
         else:
-            if super_expr.name == "__init__":
-                # support fall through to object __init__, it's the only method from
-                # non-member bases that is callable, and it's a no-op, but it can be useful
-                # in the case of multiple inheritance
-                return NoneTypeBuilder(super_loc)
             raise CodeError(
                 f"unable to locate method {super_expr.name}"
                 f" in bases of {self.contract_method_info.fragment.id}",
