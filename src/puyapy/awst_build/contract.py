@@ -181,10 +181,25 @@ class ContractASTConverter(BaseMyPyStatementVisitor[None]):
             pass  # error during method construction, already logged
         else:
             approval_program = approval_method.implementation
-            if self.fragment.resolve_method(_INIT_METHOD) is not None:
-                approval_program = _insert_init_call_on_create(
-                    self.fragment.id, approval_program.return_type
-                )
+            match self.fragment.resolve_method(_INIT_METHOD):
+                case None:
+                    # we expect _at least_ algopy.Contract.__init__ to be resolved
+                    raise InternalError(
+                        "failed to resolve any __init__ method", self.fragment.source_location
+                    )
+                case ContractFragmentMethod(
+                    implementation=awst_nodes.ContractMethod(body=awst_nodes.Block(body=[])),
+                    synthetic=True,
+                ):
+                    # in the case where algopy.Contract.__init__ is the only method,
+                    # don't insert call-on-create as it can have deleterious effects on
+                    # optimisation, particularly in subroutine inlining
+                    pass
+                case _:
+                    approval_program = _insert_init_call_on_create(
+                        current_contract=self.fragment.id,
+                        approval_method_return_type=approval_program.return_type,
+                    )
 
         clear_method = self.fragment.resolve_method(constants.CLEAR_STATE_METHOD)
         if clear_method is None or clear_method.is_trivial:
@@ -566,7 +581,7 @@ class _ContractFragment(_UserContractBase):
 
 
 def _insert_init_call_on_create(
-    current_contract: ContractReference, return_type: wtypes.WType
+    current_contract: ContractReference, *, approval_method_return_type: wtypes.WType
 ) -> awst_nodes.ContractMethod:
     call_init = awst_nodes.Block(
         comment="call __init__",
@@ -596,7 +611,7 @@ def _insert_init_call_on_create(
         member_name="__algopy_entrypoint_with_init",
         args=[],
         arc4_method_config=None,
-        return_type=return_type,
+        return_type=approval_method_return_type,
         documentation=awst_nodes.MethodDocumentation(),
         body=awst_nodes.Block(
             body=[
@@ -607,7 +622,7 @@ def _insert_init_call_on_create(
                             member_name=constants.APPROVAL_METHOD,
                         ),
                         args=[],
-                        wtype=return_type,
+                        wtype=approval_method_return_type,
                         source_location=_SYNTHETIC_LOCATION,
                     ),
                     source_location=_SYNTHETIC_LOCATION,
