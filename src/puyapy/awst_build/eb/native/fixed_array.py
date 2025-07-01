@@ -189,6 +189,8 @@ class _FixedArrayExpressionBuilder(_ArrayExpressionBuilder, StaticSizedCollectio
         match name:
             case "replace":
                 return _Replace(self.resolve(), self.pytype, location)
+            case "freeze":
+                return _Freeze(self.resolve(), self.pytype, location)
             case _:
                 return super().member_access(name, location)
 
@@ -232,12 +234,14 @@ class _Full(FunctionBuilder):
         return builder_for_instance(self._array_type, new_array)
 
 
-class _Replace(FunctionBuilder):
+class _ArrayFunc(FunctionBuilder):
     def __init__(self, expr: Expression, typ: pytypes.ArrayType, location: SourceLocation):
         super().__init__(location)
         self.expr = expr
         self.typ = typ
 
+
+class _Replace(_ArrayFunc):
     @typing.override
     def call(
         self,
@@ -263,3 +267,26 @@ class _Replace(FunctionBuilder):
                 source_location=location,
             ),
         )
+
+
+class _Freeze(_ArrayFunc):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        expect.no_args(args, location)
+        imm_typ = pytypes.GenericImmutableFixedArrayType.parameterise(
+            [
+                self.typ.items,
+                pytypes.TypingLiteralType(value=self.typ.size, source_location=location),
+            ],
+            location,
+        )
+        wtype = imm_typ.checked_wtype(location)
+        assert isinstance(wtype, wtypes.ARC4DynamicArray)
+        result_expr = ConvertArray(expr=self.expr, wtype=wtype, source_location=location)
+        return builder_for_instance(self.typ, result_expr)

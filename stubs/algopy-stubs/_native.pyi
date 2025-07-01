@@ -41,6 +41,9 @@ class FixedArray(ImmutableFixedArray[_TArrayItem, _TArrayLength]):
     def __setitem__(self, index: algopy.UInt64 | int, value: _TArrayItem) -> _TArrayItem:
         """Sets the item of the array at the specified index to provided value"""
 
+    def freeze(self) -> ImmutableFixedArray[_TArrayItem, _TArrayLength]:
+        """Returns an immutable copy of this array"""
+
 class ImmutableArray(Reversible[_TArrayItem]):
     """
     An immutable array that supports fixed and dynamically sized immutable elements.
@@ -173,6 +176,9 @@ class Array(typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
 
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
+
+    def freeze(self) -> ImmutableArray[_TArrayItem]:
+        """Returns an immutable copy of this array"""
 
     def __bool__(self) -> bool:
         """Returns `True` if not an empty array"""
