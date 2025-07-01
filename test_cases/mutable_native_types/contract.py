@@ -9,6 +9,7 @@ from algopy import (
     Bytes,
     FixedArray,
     GlobalState,
+    ImmutableArray,
     LocalState,
     OnCompleteAction,
     String,
@@ -18,6 +19,7 @@ from algopy import (
     UInt64,
     arc4,
     subroutine,
+    urange,
     zero_bytes,
 )
 
@@ -155,8 +157,6 @@ class Contract(arc4.ARC4Contract):
         del self.box.value
         del self.box_map[box_key]
 
-    # TODO: add FixedArray and NativeArray args
-
     @arc4.abimethod()
     def struct_arg(self, box_key: UInt64, a: FixedStruct) -> None:
         self.nested.fixed_a = a
@@ -185,6 +185,43 @@ class Contract(arc4.ARC4Contract):
             result += c
             result += d
         return result
+
+    @arc4.abimethod()
+    def test_arr(self, arr: Array[FixedStruct]) -> Array[FixedStruct]:
+        arr2 = arr.copy()
+        assert arr == arr2, "expected arrays to be the same"
+        fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
+        arr2.append(fixed_struct)
+        assert arr != arr2, "expected arrays to be different"
+
+        arr2 = Array[FixedStruct]()
+
+        for _i in urange(3):
+            arr2.append(fixed_struct)
+
+        assert arr2.length == 3, "expected 3 elements"
+
+        frozen1 = arr2.freeze()
+        assert sum_frozen_arr(frozen1) == 15, "expected sum to be 15"
+
+        arr2.pop()
+        frozen2 = arr2.freeze()
+        assert sum_frozen_arr(frozen1) == 15, "expected sum to be 15"
+        assert sum_frozen_arr(frozen2) == 10, "expected sum to be 10"
+
+        self.arr = arr2.copy()
+        assert self.arr == arr2, "expected array in storage to be the same"
+
+        return self.arr
+
+
+@subroutine()
+def sum_frozen_arr(arr: ImmutableArray[FixedStruct]) -> UInt64:
+    total = UInt64(0)
+    for element in arr:
+        total += element.a
+        total += element.b
+    return total
 
 
 @subroutine()
