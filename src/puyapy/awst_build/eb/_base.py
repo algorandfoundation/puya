@@ -67,7 +67,7 @@ class FunctionBuilder(CallableBuilder, abc.ABC):
 class GenericTypeBuilder(CallableBuilder, abc.ABC):  # TODO: can we fold this with TypeBuilder?
     @typing.override
     @property
-    def pytype(self) -> None:  # TODO, take this as an init argument
+    def pytype(self) -> pytypes.PyType | None:  # TODO, take this as an init argument
         return None
 
     @typing.override
@@ -90,7 +90,9 @@ class InstanceExpressionBuilder(
         super().__init__(expr.source_location)
         if expr.wtype != pytype.wtype:
             raise InternalError(
-                f"invalid expression wtype {str(expr.wtype)!r} for Python type {str(pytype)!r}",
+                f"invalid expression wtype {str(expr.wtype)!r}"
+                f" for Python type {str(pytype)!r}"
+                f" (expected: {str(pytype.wtype)!r})",
                 expr.source_location,
             )
         self._pytype = pytype

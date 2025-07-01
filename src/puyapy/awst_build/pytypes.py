@@ -860,7 +860,7 @@ def _make_array_parameterise(
 
 
 GenericReferenceArrayType: typing.Final = _GenericType(
-    name="algopy._array.ReferenceArray",
+    name="algopy._native.ReferenceArray",
     parameterise=_make_array_parameterise(wtypes.ReferenceArray),
 )
 
@@ -902,7 +902,7 @@ def _imm_array_parameterise(
 
 
 GenericImmutableArrayType: typing.Final = _GenericType(
-    name="algopy._array.ImmutableArray",
+    name="algopy._native.ImmutableArray",
     parameterise=_imm_array_parameterise,
 )
 ARC4DynamicBytesType: typing.Final = _register_builtin(
@@ -919,42 +919,55 @@ ARC4DynamicBytesType: typing.Final = _register_builtin(
 )
 
 
-def _parameterise_arc4_static_array(
-    self: _GenericType[ArrayType], args: _TypeArgs, source_location: SourceLocation | None
-) -> ArrayType:
-    try:
-        items, size_t = args
-    except ValueError:
-        raise CodeError(
-            f"expected a single type parameter, got {len(args)} parameters", source_location
-        ) from None
-    size = _require_int_literal(self, size_t, source_location, position_qualifier="second")
-    if size < 0:
-        raise CodeError("array size should be non-negative", source_location)
+def _make_arc4_static_array_backed_parameterise(*, immutable: bool) -> _Parameterise[ArrayType]:
+    def parameterise(
+        self: _GenericType[ArrayType],
+        args: _TypeArgs,
+        source_location: SourceLocation | None,
+    ) -> ArrayType:
+        try:
+            items, size_t = args
+        except ValueError:
+            raise CodeError(
+                f"expected a single type parameter, got {len(args)} parameters", source_location
+            ) from None
+        size = _require_int_literal(self, size_t, source_location, position_qualifier="second")
+        if size < 0:
+            raise CodeError("array size should be non-negative", source_location)
 
-    name = f"{self.name}[{items.name}, {size_t.name}]"
-    items_wtype = items.checked_wtype(source_location)
+        name = f"{self.name}[{items.name}, {size_t.name}]"
+        items_wtype = items.checked_wtype(source_location)
+        return ArrayType(
+            generic=self,
+            mro=(),
+            bases=(),
+            name=name,
+            size=size,
+            items=items,
+            wtype=wtypes.ARC4StaticArray(
+                element_type=items_wtype,
+                array_size=size,
+                immutable=immutable,
+                source_location=source_location,
+            ),
+            items_wtype=items_wtype,
+            source_location=source_location,
+        )
 
-    return ArrayType(
-        generic=self,
-        name=name,
-        size=size,
-        items=items,
-        wtype=wtypes.ARC4StaticArray(
-            element_type=items_wtype, array_size=size, source_location=source_location
-        ),
-        items_wtype=items_wtype,
-        source_location=source_location,
-    )
+    return parameterise
 
 
 GenericFixedArrayType: typing.Final = _GenericType(
     name="algopy._native.FixedArray",
-    parameterise=_parameterise_arc4_static_array,
+    parameterise=_make_arc4_static_array_backed_parameterise(immutable=False),
+)
+GenericImmutableFixedArrayType: typing.Final = _GenericType(
+    name="algopy._native.ImmutableFixedArray",
+    parameterise=_make_arc4_static_array_backed_parameterise(immutable=True),
 )
 GenericARC4StaticArrayType: typing.Final = _GenericType(
     name="algopy.arc4.StaticArray",
-    parameterise=_parameterise_arc4_static_array,
+    parameterise=_make_arc4_static_array_backed_parameterise(immutable=False),
 )
 ARC4AddressType: typing.Final = _register_builtin(
     ArrayType(

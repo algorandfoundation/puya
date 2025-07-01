@@ -6,7 +6,9 @@ from algopy import (
     BoxRef,
     Bytes,
     Global,
+    ImmutableFixedArray,
     String,
+    Struct,
     Txn,
     UInt64,
     arc4,
@@ -15,17 +17,18 @@ from algopy import (
 )
 
 StaticInts: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[4]]
-Bytes1024 = arc4.StaticArray[arc4.Byte, typing.Literal[1024]]
+Bytes1024 = ImmutableFixedArray[arc4.Byte, typing.Literal[1024]]
 
 
-class LargeStruct(arc4.Struct):
+class LargeStruct(Struct):
     a: Bytes1024
     b: Bytes1024
     c: Bytes1024
     d: Bytes1024
-    e: arc4.UInt64
+    e: UInt64
     f: Bytes1024
     g: Bytes1024
+    h: UInt64
 
 
 class BoxContract(arc4.ARC4Contract):
@@ -45,8 +48,7 @@ class BoxContract(arc4.ARC4Contract):
         self.box_c.value = c
         self.box_d.value = b.native
         self.box_large.create()
-        # TODO: support direct mutation of large structs in boxes
-        # self.box_large.value.e = arc4.UInt64(42)
+        self.box_large.value.e = UInt64(42)
         self.box_large.ref.replace(size_of(Bytes1024) * 4, arc4.UInt64(42).bytes)
 
         b_value = self.box_b.value.copy()

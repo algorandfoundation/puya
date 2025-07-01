@@ -152,6 +152,8 @@ class ArrayExpressionBuilder(_ArrayExpressionBuilder):
                 return _Extend(self.resolve(), self.pytype, location)
             case "pop":
                 return _Pop(self.resolve(), self.pytype, location)
+            case "freeze":
+                return _Freeze(self.resolve(), self.pytype, location)
             case _:
                 return super().member_access(name, location)
 
@@ -236,6 +238,23 @@ class _Pop(_ArrayFunc):
         expect.no_args(args, location)
         result_expr = ArrayPop(base=self.expr, source_location=location)
         return builder_for_instance(self.typ.items, result_expr)
+
+
+class _Freeze(_ArrayFunc):
+    @typing.override
+    def call(
+        self,
+        args: Sequence[NodeBuilder],
+        arg_kinds: list[models.ArgKind],
+        arg_names: list[str | None],
+        location: SourceLocation,
+    ) -> InstanceBuilder:
+        expect.no_args(args, location)
+        imm_typ = pytypes.GenericImmutableArrayType.parameterise([self.typ.items], location)
+        wtype = imm_typ.checked_wtype(location)
+        assert isinstance(wtype, wtypes.ARC4DynamicArray)
+        result_expr = ConvertArray(expr=self.expr, wtype=wtype, source_location=location)
+        return builder_for_instance(imm_typ, result_expr)
 
 
 class _Extend(_ArrayFunc):

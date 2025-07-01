@@ -180,6 +180,8 @@ def pytype_to_arc4(
             | pytypes.GenericARC4DynamicArrayType
             | pytypes.GenericArrayType
             | pytypes.GenericImmutableArrayType
+            | pytypes.GenericArrayType
+            | pytypes.GenericImmutableFixedArrayType
             | pytypes.GenericFixedArrayType,
             items=item_pytype,
             size=array_length,

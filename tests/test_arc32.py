@@ -2122,6 +2122,21 @@ def test_immutable_array(
         [1, 2],
     ]
 
+    response = simulate_call(
+        immutable_array_app,
+        "test_imm_fixed_arr",
+    )
+    expected_imm_fixed_arr_value = [
+        [2, 3],
+        [2, 3],
+        [2, 3],
+    ]
+    assert response.abi_results[0].return_value == expected_imm_fixed_arr_value
+    assert _get_global_state(response, b"imm_fixed_arr") == _get_arc4_bytes(
+        "(uint64,uint64)[3]",
+        expected_imm_fixed_arr_value,
+    )
+
 
 _EXPECTED_LENGTH_20 = [False, False, True, *(False,) * 17]
 
