@@ -7,7 +7,7 @@ from algopy import (
     FixedArray,
     ImmutableArray,
     ImmutableFixedArray,
-    ReferenceArray as Array,
+    ReferenceArray,
     String,
     Struct,
     Txn,
@@ -397,7 +397,7 @@ class ImmutableArrayContract(arc4.ARC4Contract):
     def test_convert_to_array_and_back(
         self, arr: ImmutableArray[MyTuple], append: UInt64
     ) -> ImmutableArray[MyTuple]:
-        mutable = Array[MyTuple]()
+        mutable = ReferenceArray[MyTuple]()
         mutable.extend(arr)
         for i in urange(append):
             mutable.append(MyTuple(foo=i, bar=i % 2 == 0, baz=i % 3 == 0))
@@ -471,7 +471,7 @@ class ImmutableArrayContract(arc4.ARC4Contract):
         assert sum_imm_fixed(mut_arr) == 15, "expected sum to be 15"
 
         mut_arr[0] = NativeStruct(UInt64(), UInt64())
-        assert sum_imm_fixed(mut_arr) == 10, "expected sum to be 10"
+        assert sum_imm_fixed(mut_arr.freeze()) == 10, "expected sum to be 10"
 
         return self.imm_fixed_arr
 

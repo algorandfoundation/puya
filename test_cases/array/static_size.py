@@ -5,7 +5,7 @@ from algopy import (
     BigUInt,
     Box,
     ImmutableArray,
-    ReferenceArray as Array,
+    ReferenceArray,
     Txn,
     UInt64,
     arc4,
@@ -41,7 +41,7 @@ class StaticSizeContract(arc4.ARC4Contract):
     @arc4.abimethod()
     def test_array(self, x1: arc4.UInt64, y1: UInt64, x2: arc4.UInt64, y2: UInt64) -> UInt64:
         self.count = UInt64(0)
-        path = Array(
+        path = ReferenceArray(
             Point(x=arc4.UInt64(), y=UInt64(), other=self.xtra()),
             Point(x=x1, y=y1, other=self.xtra()),
             Point(x=x2, y=y2, other=self.xtra()),
@@ -56,7 +56,7 @@ class StaticSizeContract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def test_extend_from_tuple(self, some_more: tuple[More, More]) -> ImmutableArray[More]:
-        arr = Array[More]()
+        arr = ReferenceArray[More]()
         arr.extend(some_more)
         last = arr[-1]
         assert last == some_more[1]
@@ -68,13 +68,13 @@ class StaticSizeContract(arc4.ARC4Contract):
     def test_extend_from_arc4_tuple(
         self, some_more: arc4.Tuple[More, More]
     ) -> ImmutableArray[More]:
-        arr = Array[More]()
+        arr = ReferenceArray[More]()
         arr.extend(some_more)
         return arr.freeze()
 
     @arc4.abimethod()
     def test_bool_array(self, length: UInt64) -> UInt64:
-        arr = Array[bool]()
+        arr = ReferenceArray[bool]()
         assert arr.length == 0
 
         for i in urange(1, length + 1):
@@ -93,7 +93,7 @@ class StaticSizeContract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def test_arc4_conversion(self, length: UInt64) -> arc4.DynamicArray[arc4.UInt64]:
-        arr = Array[arc4.UInt64]()
+        arr = ReferenceArray[arc4.UInt64]()
         assert arr.length == 0
 
         for i in urange(1, length + 1):
@@ -111,7 +111,7 @@ class StaticSizeContract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def sum_array(self, arc4_arr: arc4.DynamicArray[arc4.UInt64]) -> UInt64:
-        arr = Array[arc4.UInt64]()
+        arr = ReferenceArray[arc4.UInt64]()
         arr.extend(arc4_arr)
 
         total = UInt64(0)
@@ -137,7 +137,7 @@ class StaticSizeContract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def test_arc4_bool(self) -> ImmutableArray[arc4.Bool]:
-        arr = Array[arc4.Bool]()
+        arr = ReferenceArray[arc4.Bool]()
         arr.append(arc4.Bool(Txn.sender == Txn.receiver))
         arr.append(arc4.Bool(Txn.sender != Txn.receiver))
 
@@ -163,7 +163,7 @@ class StaticSizeContract(arc4.ARC4Contract):
 
 
 @subroutine
-def path_length(path: Array[Point]) -> UInt64:
+def path_length(path: ReferenceArray[Point]) -> UInt64:
     last_point = path[0]
     length = UInt64()
     for point_idx in urange(1, path.length):

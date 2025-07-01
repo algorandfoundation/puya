@@ -2,8 +2,7 @@ import typing
 
 from algopy import (
     Account,
-    # TODO: remove alias
-    Array as NativeArray,
+    Array,
     Asset,
     Box,
     BoxMap,
@@ -62,7 +61,7 @@ class DynamicStruct(Struct):
     b: UInt64
     c: Bytes
     d: String
-    e: NativeArray[arc4.Byte]
+    e: Array[arc4.Byte]
 
 
 class Contract(arc4.ARC4Contract):
@@ -83,7 +82,7 @@ class Contract(arc4.ARC4Contract):
             b=Txn.num_app_args,
             c=Bytes(),
             d=String(),
-            e=NativeArray[arc4.Byte](),
+            e=Array[arc4.Byte](),
         )
 
         self.num_payments = UInt64(0)
@@ -109,7 +108,7 @@ class Contract(arc4.ARC4Contract):
         arr_3_from_fixed = FixedUInt64Of3(arr_3)
         assert arr_3 == arr_3_from_fixed, "should be the same"
 
-        dynamic_arr = NativeArray((UInt64(0), UInt64(1), UInt64(2)))
+        dynamic_arr = Array((UInt64(0), UInt64(1), UInt64(2)))
         assert arr_3 == FixedUInt64Of3(dynamic_arr)
 
         assert arr_3 == FixedUInt64Of3(arc4.Tuple((UInt64(0), UInt64(1), UInt64(2))))
