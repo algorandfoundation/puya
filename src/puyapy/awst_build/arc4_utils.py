@@ -36,6 +36,9 @@ def pytype_to_arc4_pytype(
     encode_resource_types: bool,
     source_location: SourceLocation | None,
 ) -> pytypes.PyType:
+    if isinstance(pytype.wtype, wtypes.ARC4Type):
+        return pytype
+
     match pytype:
         case pytypes.BoolType:
             return pytypes.ARC4BoolType
@@ -55,18 +58,6 @@ def pytype_to_arc4_pytype(
                 },
                 frozen=True,
                 source_location=pytype.source_location,
-            )
-        case pytypes.ArrayType(generic=pytypes.GenericImmutableArrayType):
-            return pytypes.GenericARC4DynamicArrayType.parameterise(
-                [
-                    pytype_to_arc4_pytype(
-                        pytype.items,
-                        on_error,
-                        encode_resource_types=True,
-                        source_location=pytype.source_location or source_location,
-                    )
-                ],
-                pytype.source_location,
             )
         case pytypes.TupleType():
             return pytypes.GenericARC4TupleType.parameterise(
@@ -102,8 +93,6 @@ def pytype_to_arc4_pytype(
             return pytypes.ARC4AddressType
         else:
             return pytype
-    elif isinstance(pytype.wtype, wtypes.ARC4Type):
-        return pytype
     else:
         return on_error(pytype, source_location)
 
