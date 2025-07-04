@@ -511,6 +511,7 @@ class BytesEncode(ValueProvider):
     encoding: Encoding
     values: Sequence[Value]
     values_type: IRType | TupleIRType = attrs.field()
+    error_message_override: str | None = attrs.field(default=None, eq=False)
 
     @values_type.validator
     def _value_type_validator(self, _: object, values_type: IRType | TupleIRType) -> None:
@@ -538,6 +539,7 @@ class DecodeBytes(ValueProvider):
     encoding: Encoding
     value: Value
     ir_type: IRType | TupleIRType = attrs.field()
+    error_message_override: str | None = attrs.field(default=None, eq=False)
 
     @ir_type.validator
     def _ir_type_type_validator(self, _: object, ir_type: IRType | TupleIRType) -> None:

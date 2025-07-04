@@ -439,6 +439,8 @@ class AddressConstant(Expression):
 class ARC4Encode(Expression):
     value: Expression
     wtype: wtypes.ARC4Type = attrs.field()
+    error_message: str | None = None
+    """Custom error message for if encoding fails"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_encode(self)
@@ -447,6 +449,8 @@ class ARC4Encode(Expression):
 @attrs.frozen
 class ARC4Decode(Expression):
     value: Expression = attrs.field(validator=expression_has_wtype(wtypes.ARC4Type))
+    error_message: str | None = None
+    """Custom error message for if decoding fails"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_decode(self)

@@ -38,6 +38,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
             values=encode.values,
             values_type=encode.values_type,
             encoding=encode.encoding,
+            error_message_override=encode.error_message_override,
             loc=encode.source_location,
         )
 
@@ -49,6 +50,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
             decode.value,
             encoding=decode.encoding,
             target_type=decode.ir_type,
+            error_message_override=decode.error_message_override,
             loc=decode.source_location,
         )
 

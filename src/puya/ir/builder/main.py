@@ -161,7 +161,13 @@ class FunctionIRBuilder(
         encoding = wtype_to_encoding(expr.value.wtype, loc)
 
         value = self.visit_and_materialise_single(expr.value)
-        return DecodeBytes(value=value, encoding=encoding, ir_type=ir_type, source_location=loc)
+        return DecodeBytes(
+            value=value,
+            encoding=encoding,
+            ir_type=ir_type,
+            error_message_override=expr.error_message,
+            source_location=loc,
+        )
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
         loc = expr.source_location
@@ -172,7 +178,11 @@ class FunctionIRBuilder(
         values = self.visit_and_materialise(expr.value)
 
         return BytesEncode(
-            values=values, values_type=value_ir_type, encoding=encoding, source_location=loc
+            values=values,
+            values_type=value_ir_type,
+            encoding=encoding,
+            error_message_override=expr.error_message,
+            source_location=loc,
         )
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:

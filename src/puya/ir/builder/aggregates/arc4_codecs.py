@@ -30,17 +30,31 @@ def decode_bytes(
     encoding: encodings.Encoding,
     target_type: types.IRType | types.TupleIRType,
     loc: SourceLocation,
+    *,
+    error_message_override: str | None = None,
 ) -> ir.ValueProvider:
-    codec = _get_arc4_codec(target_type)
-    if codec is not None:
-        result = codec.decode(context, value, encoding, loc)
-        if result is not None:
-            return result
+    result = _try_decode_bytes(context, value, encoding, target_type, loc)
+    if result is not None:
+        return result
     logger.error(
-        f"cannot decode from {encoding!s} to {_encoding_or_name(target_type)}",
+        error_message_override
+        or f"cannot decode from {encoding!s} to {_encoding_or_name(target_type)}",
         location=loc,
     )
     return undefined_value(target_type, loc)
+
+
+def _try_decode_bytes(
+    context: IRRegisterContext,
+    value: ir.Value,
+    encoding: encodings.Encoding,
+    target_type: types.IRType | types.TupleIRType,
+    loc: SourceLocation,
+) -> ir.ValueProvider | None:
+    codec = _get_arc4_codec(target_type)
+    if codec is None:
+        return None
+    return codec.decode(context, value, encoding, loc)
 
 
 def encode_to_bytes(
@@ -49,17 +63,34 @@ def encode_to_bytes(
     values_type: types.IRType | types.TupleIRType,
     encoding: encodings.Encoding,
     loc: SourceLocation,
+    *,
+    error_message_override: str | None = None,
 ) -> ir.ValueProvider:
-    codec = _get_arc4_codec(values_type)
-    if codec is not None:
-        result = codec.encode(context, values, encoding, loc)
-        if result is not None:
-            return result
-    logger.error(f"cannot encode {_encoding_or_name(values_type)} to {encoding!s}", location=loc)
+    result = _try_encode_to_bytes(context, values, values_type, encoding, loc)
+    if result is not None:
+        return result
+    logger.error(
+        error_message_override
+        or f"cannot encode {_encoding_or_name(values_type)} to {encoding!s}",
+        location=loc,
+    )
     return ir.Undefined(
         ir_type=types.PrimitiveIRType.bytes,
         source_location=loc,
     )
+
+
+def _try_encode_to_bytes(
+    context: IRRegisterContext,
+    values: Sequence[ir.Value],
+    values_type: types.IRType | types.TupleIRType,
+    encoding: encodings.Encoding,
+    loc: SourceLocation,
+) -> ir.ValueProvider | None:
+    codec = _get_arc4_codec(values_type)
+    if codec is None:
+        return None
+    return codec.encode(context, values, encoding, loc)
 
 
 class _ARC4Codec(abc.ABC):
@@ -160,9 +191,11 @@ class _NativeTupleCodec(_ARC4Codec):
                     head = factory.concat(head, building, "head")
             else:
                 for _, element_ir_type, element_values in group:
-                    encoded_element_vp = encode_to_bytes(
+                    encoded_element_vp = _try_encode_to_bytes(
                         context, element_values, element_ir_type, element_encoding, loc
                     )
+                    if encoded_element_vp is None:
+                        return None
                     encoded_element = factory.materialise_single(
                         encoded_element_vp, "encoded_sub_item"
                     )
@@ -222,13 +255,15 @@ class _NativeTupleCodec(_ARC4Codec):
             if requires_no_conversion(item_ir_type, item_encoding):
                 result.append(encoded_item)
             else:
-                item = decode_bytes(
+                item = _try_decode_bytes(
                     context,
                     value=encoded_item,
                     encoding=item_encoding,
                     target_type=item_ir_type,
                     loc=loc,
                 )
+                if item is None:
+                    return None
                 items = factory.materialise_values(item, f"item{index}")
                 result.extend(items)
         return ir.ValueTuple(values=result, source_location=loc)
@@ -533,7 +568,7 @@ def _get_arc4_codec(ir_type: types.IRType | types.TupleIRType) -> _ARC4Codec | N
             return _CheckedEncoding(ir_type)
         case types.PrimitiveIRType.bytes | types.SizedBytesType():
             return _BytesCodec(encodings.UIntEncoding(n=8))
-        case _ if ir_type.maybe_avm_type == AVMType.uint64:
+        case types.IRType(maybe_avm_type=AVMType.uint64):
             return _UInt64Codec()
         case _:
             return None
