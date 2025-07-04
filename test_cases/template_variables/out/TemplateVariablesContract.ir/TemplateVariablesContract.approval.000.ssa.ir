@@ -18,48 +18,45 @@ subroutine test_cases.template_variables.contract.TemplateVariablesContract.__pu
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let to_encode%0#0: bytes = test_cases.template_variables.contract.TemplateVariablesContract.get_bytes()
-        let length%0#0: uint64 = (len to_encode%0#0)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 to_encode%0#0)
-        let tmp%7#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
-        (log tmp%7#0)
+        let tmp%7#0: bytes = test_cases.template_variables.contract.TemplateVariablesContract.get_bytes()
+        let tmp%8#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%7#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
+        (log tmp%9#0)
         return 1u
     block@3: // get_big_uint_route_L10
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (== tmp%8#0 NoOp)
-        (assert tmp%9#0) // OnCompletion is not NoOp
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (!= tmp%10#0 0u)
-        (assert tmp%11#0) // can only call when not creating
-        let tmp%12#0: bytes[64] = test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint()
-        let tmp%13#0: bytes = (concat 0x151f7c75 tmp%12#0)
-        (log tmp%13#0)
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        let tmp%11#0: bool = (== tmp%10#0 NoOp)
+        (assert tmp%11#0) // OnCompletion is not NoOp
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        let tmp%13#0: bool = (!= tmp%12#0 0u)
+        (assert tmp%13#0) // can only call when not creating
+        let tmp%14#0: Encoded(uint512) = test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint()
+        let tmp%15#0: bytes = (concat 0x151f7c75 tmp%14#0)
+        (log tmp%15#0)
         return 1u
     block@4: // switch_case_default_L5
         goto block@5
     block@5: // switch_case_next_L5
         goto block@12
     block@6: // bare_routing_L5
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        switch tmp%14#0 {4u => block@7, 5u => block@8, 0u => block@9, * => block@10}
+        let tmp%16#0: uint64 = (txn OnCompletion)
+        switch tmp%16#0 {4u => block@7, 5u => block@8, 0u => block@9, * => block@10}
     block@7: // on_update_L15
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        let tmp%16#0: bool = (!= tmp%15#0 0u)
-        (assert tmp%16#0) // can only call when not creating
-        test_cases.template_variables.contract.TemplateVariablesContract.on_update()
-        return 1u
-    block@8: // on_delete_L19
         let tmp%17#0: uint64 = (txn ApplicationID)
         let tmp%18#0: bool = (!= tmp%17#0 0u)
         (assert tmp%18#0) // can only call when not creating
+        test_cases.template_variables.contract.TemplateVariablesContract.on_update()
+        return 1u
+    block@8: // on_delete_L19
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (!= tmp%19#0 0u)
+        (assert tmp%20#0) // can only call when not creating
         test_cases.template_variables.contract.TemplateVariablesContract.on_delete()
         return 1u
     block@9: // __algopy_default_create_L1
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (== tmp%19#0 0u)
-        (assert tmp%20#0) // can only call when creating
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        let tmp%22#0: bool = (== tmp%21#0 0u)
+        (assert tmp%22#0) // can only call when creating
         test_cases.template_variables.contract.TemplateVariablesContract.__algopy_default_create()
         return 1u
     block@10: // switch_case_default_L5
@@ -74,15 +71,11 @@ subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_
         let tmp%0#0: bytes = test_cases.template_variables.contract.TemplateVariablesContract.receive_value(TemplateVar[bytes](TMPL_SOME_BYTES))
         return tmp%0#0
 
-subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> bytes[64]:
+subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint() -> Encoded(uint512):
     block@0: // L10
         let x#0: biguint = TemplateVar[biguint](TMPL_SOME_BIG_UINT)
-        let value_len%0#0: uint64 = (len x#0)
-        let len_ok%0#0: bool = (<= value_len%0#0 64u)
-        (assert len_ok%0#0) // overflow
-        let bzero%0#0: bytes = (bzero 64u)
-        let arc4_encoded%0#0: bytes[64] = (b| x#0 bzero%0#0)
-        return arc4_encoded%0#0
+        let tmp%0#0: Encoded(uint512) = bytes_encode<uint512>(x#0)
+        return tmp%0#0
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.on_update() -> void:
     block@0: // L15

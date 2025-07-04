@@ -14,8 +14,7 @@ from puya.awst.visitors import ExpressionVisitor
 from puya.awst.wtypes import WInnerTransactionFields
 from puya.errors import CodeError, InternalError
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder._tuple_util import build_tuple_item_names
-from puya.ir.builder._utils import assign, assign_intrinsic_op
+from puya.ir.builder._utils import assign
 from puya.ir.builder.blocks import BlocksBuilder
 from puya.ir.context import IRFunctionBuildContext
 from puya.ir.models import (
@@ -30,10 +29,13 @@ from puya.ir.models import (
     ValueProvider,
     ValueTuple,
 )
+from puya.ir.op_utils import assign_intrinsic_op
 from puya.ir.ssa import BraunSSA
 from puya.ir.types_ import (
     PrimitiveIRType,
+    TupleIRType,
     get_wtype_arity,
+    ir_type_to_ir_types,
     sum_wtypes_arity,
     wtype_to_ir_type,
     wtype_to_ir_types,
@@ -172,17 +174,6 @@ class InnerTransactionBuilder:
             case _:
                 return False
 
-    def _visit_submit_expr(self, expr: awst_nodes.Expression) -> Sequence[Value]:
-        value_provider = self.context.visitor.visit_expr(expr)
-        match value_provider:
-            case ValueTuple(values=values):
-                return values
-            case Value() as value:
-                return (value,)
-        raise InternalError(
-            "Unexpected result for SubmitInnerTransaction expr", expr.source_location
-        )
-
     def add_inner_transaction_submit_result_assignments(
         self,
         targets: Sequence[Value],
@@ -239,9 +230,9 @@ class InnerTransactionBuilder:
 
         itxn = self.context.visitor.visit_expr(itxn_field.itxn)
         if not isinstance(itxn, Register | ITxnConstant):
-            itxn_field_desc = {itxn_field.itxn.accept(ToCodeVisitor())}
+            itxn_field_desc = itxn_field.itxn.accept(ToCodeVisitor())
             raise CodeError(
-                f"Could not resolve inner transaction group index for {itxn_field_desc}",
+                f"could not resolve inner transaction group index for {itxn_field_desc}",
                 src_loc,
             )
 
@@ -688,12 +679,18 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
 
     @typing.override
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> list[_SourceAction]:
-        return [
-            _CopySource(var_name=name) if ir_type == PrimitiveIRType.itxn_group_idx else None
-            for name, ir_type in build_tuple_item_names(
-                expr.name, expr.wtype, expr.source_location
-            )
-        ]
+        ir_type = wtype_to_ir_type(expr, allow_tuple=True)
+        if isinstance(ir_type, TupleIRType):
+            exploded_names = ir_type.build_item_names(expr.name)
+            ir_types = ir_type_to_ir_types(ir_type)
+            return [
+                _CopySource(var_name=name) if ir_type == PrimitiveIRType.itxn_group_idx else None
+                for name, ir_type in zip(exploded_names, ir_types, strict=True)
+            ]
+        elif ir_type == PrimitiveIRType.itxn_group_idx:
+            return [_CopySource(expr.name)]
+        else:
+            return [None]
 
     @typing.override
     def visit_single_evaluation(self, expr: awst_nodes.SingleEvaluation) -> list[_SourceAction]:
@@ -1060,6 +1057,10 @@ class _ITxnSourceValueActionExtractor(ExpressionVisitor[list[_SourceAction]]):
     def visit_inner_transaction_field(
         self, expr: awst_nodes.InnerTransactionField
     ) -> list[_SourceAction]:
+        return self._empty_actions_from_wtype(expr)
+
+    @typing.override
+    def visit_convert_array(self, expr: awst_nodes.ConvertArray) -> list[_SourceAction]:
         return self._empty_actions_from_wtype(expr)
 
     # endregion

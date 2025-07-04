@@ -31,6 +31,10 @@ class FrozenAndImmutable(arc4.Struct, frozen=True):
     two: arc4.UInt64
 
 
+class EmptyStruct(arc4.Struct):
+    pass
+
+
 class Arc4StructsTypeContract(Contract):
     def approval_program(self) -> bool:
         coord_1 = Vector(x=Decimal("35.382882839"), y=Decimal("150.382884930"))
@@ -60,6 +64,8 @@ class Arc4StructsTypeContract(Contract):
         immutable2 = immutable._replace(two=arc4.UInt64(123))
         assert immutable2.two == 123
         assert immutable2.one == immutable.one
+
+        assert EmptyStruct() == EmptyStruct()
 
         return True
 

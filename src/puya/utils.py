@@ -22,9 +22,20 @@ from puya.algo_constants import (
 @attrs.frozen
 class Address:
     address: str
-    public_key: bytes = b""
-    check_sum: bytes = b""
-    is_valid: bool = False
+    public_key: bytes
+    check_sum: bytes
+    is_valid: bool = attrs.field()
+
+    @is_valid.default
+    def _is_valid_factory(self) -> bool:
+        if len(self.address) != ENCODED_ADDRESS_LENGTH:
+            return False
+        if len(self.public_key) != PUBLIC_KEY_HASH_LENGTH:
+            return False
+        if len(self.check_sum) != ADDRESS_CHECKSUM_LENGTH:
+            return False
+        check_sum = sha512_256_hash(self.public_key)[-ADDRESS_CHECKSUM_LENGTH:]
+        return self.check_sum == check_sum
 
     @classmethod
     def from_public_key(cls, public_key: bytes) -> typing.Self:
@@ -43,20 +54,18 @@ class Address:
     def parse(cls, address: str) -> typing.Self:
         # Pad address so it's a valid b32 string
         padded_address = address + (6 * "=")
-        if not (len(address) == ENCODED_ADDRESS_LENGTH and valid_base32(padded_address)):
-            return cls(address)
-        address_bytes = base64.b32decode(padded_address)
-        if len(address_bytes) != PUBLIC_KEY_HASH_LENGTH + ADDRESS_CHECKSUM_LENGTH:
-            return cls(address)
+        try:
+            address_bytes = base64.b32decode(padded_address)
+        except ValueError:
+            # give empty values for any decode failure
+            address_bytes = b""
 
         public_key_hash = address_bytes[:PUBLIC_KEY_HASH_LENGTH]
         check_sum = address_bytes[PUBLIC_KEY_HASH_LENGTH:]
-        verified_address = cls.from_public_key(public_key_hash)
         return cls(
             address=address,
             public_key=public_key_hash,
             check_sum=check_sum,
-            is_valid=verified_address.check_sum == check_sum,
         )
 
 
@@ -349,3 +358,7 @@ def normalize_path(path: Path) -> str:
 def not_none[T](x: T | None) -> T:
     assert x is not None
     return x
+
+
+def chunk_array[T](arr: list[T], size: int) -> list[list[T]]:
+    return [arr[i : i + size] for i in range(0, len(arr), size)]

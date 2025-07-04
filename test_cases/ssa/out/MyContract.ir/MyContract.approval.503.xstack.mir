@@ -17,7 +17,7 @@ subroutine main:
         // while a < UInt64(5):
         v-load a#1                                   a#1
         int 5                                        a#1,5
-        <                                            tmp%0#0
+        <                                            tmp%4#0
         bz main_after_while@3 ; b main_while_body@2
 
     main_while_body@2:
@@ -79,7 +79,7 @@ subroutine main:
         // if a < b:
         v-load a#1                                   a#1
         v-load b#1                                   a#1,b#1
-        <                                            tmp%1#0
+        <                                            tmp%9#0
         bz main_else_body@15 ; b main_if_body@8
 
     main_if_body@8:
@@ -87,7 +87,7 @@ subroutine main:
         // if b < 2:
         v-load b#1                                   b#1
         int 2                                        b#1,2
-        <                                            tmp%2#0
+        <                                            tmp%10#0
         bz main_else_body@10 ; b main_if_body@9
 
     main_if_body@9:
@@ -104,16 +104,16 @@ subroutine main:
         b main_after_if_else@19
 
     main_else_body@10:
-        // ssa/contract.py:27
-        // b = 2 * a
-        int 2                                        2
-        v-load a#1                                   2,a#1
-        *                                            b#1
         // ssa/contract.py:28
         // if ((3 * 4) + 2) * b:
-        int 14                                       b#1,14
-        l-load b#1 1                                 14,b#1
-        *                                            tmp%3#0
+        v-load a#1                                   a#1
+        // ssa/contract.py:27-28
+        // b = 2 * a
+        // if ((3 * 4) + 2) * b:
+        int 28                                       a#1,28
+        *                                            tmp%14#0
+        // ssa/contract.py:28
+        // if ((3 * 4) + 2) * b:
         bz main_else_body@12 ; b main_if_body@11
 
     main_if_body@11:
@@ -134,7 +134,7 @@ subroutine main:
         // elif b == a:
         v-load b#1                                   b#1
         v-load a#1                                   b#1,a#1
-        ==                                           tmp%5#0
+        ==                                           tmp%16#0
         bz main_else_body@17 ; b main_if_body@16
 
     main_if_body@16:
@@ -170,7 +170,7 @@ subroutine main:
         // ssa/contract.py:51
         // if a < c:
         v-load c#0                                   25,c#0
-        <                                            tmp%0#0
+        <                                            tmp%0#1
         bz main_after_if_else@22 ; b main_if_body@21
 
     main_if_body@21:
@@ -195,11 +195,11 @@ subroutine main:
         // return a * b
         v-load a#1                                   b#1,a#1
         l-load b#1 1                                 a#1,b#1
-        *                                            tmp%1#1
+        *                                            tmp%2#1
         // ssa/contract.py:36
         // c = c + one_hundred(c)
-        v-load c#0                                   tmp%1#1,c#0
-        l-load tmp%1#1 1                             c#0,tmp%1#1
+        v-load c#0                                   tmp%2#1,c#0
+        l-load tmp%2#1 1                             c#0,tmp%2#1
         +                                            c#0
         // ssa/contract.py:37
         // c_bytes = op.itob(c)

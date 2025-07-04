@@ -83,8 +83,16 @@ class DynamicArrayContract(ARC4Contract):
         log(array[0])
         log(array[1])
 
+        array2 = array.copy()
+
         assert array.pop() == struct2
         assert array.pop() == struct1
+
+        assert array2.length == 2
+        array2.extend(array2.copy())
+        assert array2.length == 4
+        assert array2[-1] == struct2
+        assert array2[-2] == struct1
 
     @arc4.abimethod()
     def test_mixed_multiple_dynamic_elements(self) -> None:

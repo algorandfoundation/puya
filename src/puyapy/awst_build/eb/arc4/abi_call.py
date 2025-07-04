@@ -29,11 +29,16 @@ from puya.parse import SourceLocation, sequential_source_locations_merge
 from puya.program_refs import ContractReference
 from puya.utils import StableSet
 from puyapy import models
-from puyapy.awst_build import constants, pytypes
+from puyapy.awst_build import arc4_utils, constants, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
-from puyapy.awst_build.eb.arc4._utils import ARC4Signature, get_arc4_signature
+from puyapy.awst_build.eb.arc4._utils import (
+    ARC4Signature,
+    implicit_arc4_conversion,
+    implicit_arc4_type_arg_conversion,
+    split_arc4_signature,
+)
 from puyapy.awst_build.eb.bytes import BytesExpressionBuilder
 from puyapy.awst_build.eb.compiled import (
     APP_ALLOCATION_FIELDS,
@@ -300,7 +305,6 @@ def _abi_call(
     method, abi_args, kwargs = _get_method_abi_args_and_kwargs(
         args, arg_names, _get_python_kwargs(_ABI_CALL_TRANSACTION_FIELDS)
     )
-    declared_result_type: pytypes.PyType
     arc4_config = None
     match method:
         case None:
@@ -321,12 +325,32 @@ def _abi_call(
                     location=location,
                 )
         case _:
-            method_str, signature = get_arc4_signature(method, abi_args, location)
             declared_result_type = return_type_annotation
+            method_sig = split_arc4_signature(method)
+            method_str = method_sig.value
+            if method_sig.maybe_args is None:
+                arg_types = [
+                    implicit_arc4_type_arg_conversion(
+                        expect.instance_builder(na, default=expect.default_raise).pytype, location
+                    )
+                    for na in abi_args
+                ]
+            else:
+                arg_types = [arc4_utils.arc4_to_pytype(a, location) for a in method_sig.maybe_args]
             if declared_result_type != pytypes.NoneType:
                 # this will be validated against signature below, by comparing
                 # the generated method_selector against the supplied method_str
-                signature = attrs.evolve(signature, return_type=declared_result_type)
+                return_type = declared_result_type
+            elif method_sig.maybe_returns:
+                return_type = arc4_utils.arc4_to_pytype(method_sig.maybe_returns, location)
+            else:
+                return_type = pytypes.NoneType
+            signature = ARC4Signature(
+                method_name=method_sig.name,
+                arg_types=arg_types,
+                return_type=return_type,
+                source_location=location,
+            )
             if not signature.method_selector.startswith(method_str):
                 logger.error(
                     f"method selector from args '{signature.method_selector}' "
@@ -464,12 +488,31 @@ def _get_lifecycle_method_call(
 def _method_selector_and_arc4_args(
     signature: ARC4Signature, abi_args: Sequence[NodeBuilder], location: SourceLocation
 ) -> Sequence[InstanceBuilder]:
+    num_args = len(abi_args)
+    num_sig_args = len(signature.arg_types)
+    if num_sig_args != num_args:
+        logger.error(
+            f"expected {num_sig_args} ABI argument{'' if num_sig_args == 1 else 's'},"
+            f" got {num_args}",
+            location=signature.source_location,
+        )
+    arg_types = list(map(_gtxn_to_itxn, signature.arg_types))
+    arc4_args = [
+        implicit_arc4_conversion(arg, pt) for arg, pt in zip(abi_args, arg_types, strict=False)
+    ]
+    converted_args = arc4_args
     return [
         BytesExpressionBuilder(
             MethodConstant(value=signature.method_selector, source_location=location)
         ),
-        *signature.convert_args(abi_args, expect_itxn_args=True),
+        *converted_args,
     ]
+
+
+def _gtxn_to_itxn(pytype: pytypes.PyType) -> pytypes.PyType:
+    if isinstance(pytype, pytypes.GroupTransactionType):
+        return pytypes.InnerTransactionFieldsetTypes[pytype.transaction_type]
+    return pytype
 
 
 def _create_abi_call_expr(

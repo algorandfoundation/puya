@@ -35,6 +35,7 @@ class PuyaOptions:
     #       but it'll do for now
     locals_coalescing_strategy: LocalsCoalescingStrategy = LocalsCoalescingStrategy.root_operand
     _disabled_optimizations: Sequence[str] = ()
+    expand_all_bytes: bool = False
 
     @cached_property
     def disabled_optimizations(self) -> Set[str]:

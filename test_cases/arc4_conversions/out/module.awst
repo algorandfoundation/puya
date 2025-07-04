@@ -8,9 +8,9 @@ contract ReferenceReturn
     ['acc']: account
     ['asset']: asset
     ['app']: application
-    ['apps']: stack_array<application>
-    ['assets']: stack_array<asset>
-    ['accounts']: stack_array<account>
+    ['apps']: arc4.dynamic_array<application>
+    ['assets']: arc4.dynamic_array<asset>
+    ['accounts']: arc4.dynamic_array<account>
   }
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -45,32 +45,32 @@ contract ReferenceReturn
     GlobalState['app']: application = app
   }
   
-  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.store_apps(apps: stack_array<application>): void
+  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.store_apps(apps: arc4.dynamic_array<application>): void
   {
-    GlobalState['apps']: stack_array<application> = apps
+    GlobalState['apps']: arc4.dynamic_array<application> = apps
   }
   
-  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.store_assets(assets: stack_array<asset>): void
+  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.store_assets(assets: arc4.dynamic_array<asset>): void
   {
-    GlobalState['assets']: stack_array<asset> = assets
+    GlobalState['assets']: arc4.dynamic_array<asset> = assets
   }
   
-  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.store_accounts(accounts: stack_array<account>): void
+  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.store_accounts(accounts: arc4.dynamic_array<account>): void
   {
-    GlobalState['accounts']: stack_array<account> = accounts
+    GlobalState['accounts']: arc4.dynamic_array<account> = accounts
   }
   
-  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.return_apps(): stack_array<application>
+  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.return_apps(): arc4.dynamic_array<application>
   {
     return GlobalState['apps']
   }
   
-  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.return_assets(): stack_array<asset>
+  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.return_assets(): arc4.dynamic_array<asset>
   {
     return GlobalState['assets']
   }
   
-  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.return_accounts(): stack_array<account>
+  abimethod test_cases.arc4_conversions.reference.ReferenceReturn.return_accounts(): arc4.dynamic_array<account>
   {
     return GlobalState['accounts']
   }
@@ -137,7 +137,7 @@ contract TestContract
   abimethod test_cases.arc4_conversions.contract.TestContract.test_array_uint64_encoding(): void
   {
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=10, source=SINGLE_EVAL(id=9, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=10)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=11, source=SINGLE_EVAL(id=9).clear_state_program)[0], SINGLE_EVAL(id=11)[1]), ExtraProgramPages=SINGLE_EVAL(id=9).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=9).global_bytes, GlobalNumUint=SINGLE_EVAL(id=9).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=9).local_bytes, LocalNumUint=SINGLE_EVAL(id=9).local_uints)).CreatedApplicationID
-    arr: stack_array<uint64> = new stack_array<uint64>(txn<NumAppArgs>(), txn<NumAppArgs>() + 1u, txn<NumAppArgs>() + 2u)
+    arr: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>(txn<NumAppArgs>(), txn<NumAppArgs>() + 1u, txn<NumAppArgs>() + 2u)
     expected_bytes: bytes = hex<"0003"> + bzero(7u) + hex<"01"> + bzero(7u) + hex<"02"> + bzero(7u) + hex<"03">
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dyn_array_uin64(uint64[],byte[])void"), arc4_encode(arr, arc4.dynamic_array<arc4.uint64>), arc4_encode(expected_bytes, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dyn_array_uin64(uint64[],byte[])void"), arc4_encode((txn<NumAppArgs>(), txn<NumAppArgs>() + 1u, txn<NumAppArgs>() + 2u), arc4.dynamic_array<arc4.uint64>), arc4_encode(expected_bytes, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
@@ -148,7 +148,7 @@ contract TestContract
   abimethod test_cases.arc4_conversions.contract.TestContract.test_array_static_encoding(): void
   {
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=13, source=SINGLE_EVAL(id=12, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=13)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=14, source=SINGLE_EVAL(id=12).clear_state_program)[0], SINGLE_EVAL(id=14)[1]), ExtraProgramPages=SINGLE_EVAL(id=12).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=12).global_bytes, GlobalNumUint=SINGLE_EVAL(id=12).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=12).local_bytes, LocalNumUint=SINGLE_EVAL(id=12).local_uints)).CreatedApplicationID
-    arr: stack_array<test_cases.arc4_conversions.contract.MyStruct> = new stack_array<test_cases.arc4_conversions.contract.MyStruct>(test_cases.arc4_conversions.contract.my_struct(1u), test_cases.arc4_conversions.contract.my_struct(2u), test_cases.arc4_conversions.contract.my_struct(3u))
+    arr: arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStruct> = new arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStruct>(test_cases.arc4_conversions.contract.my_struct(1u), test_cases.arc4_conversions.contract.my_struct(2u), test_cases.arc4_conversions.contract.my_struct(3u))
     expected_bytes: bytes = hex<"0003"> + bzero(7u) + hex<"01"> + reinterpret_cast<bytes>(txn<Sender>()) + bzero(7u) + hex<"02"> + reinterpret_cast<bytes>(txn<Sender>()) + bzero(7u) + hex<"03"> + reinterpret_cast<bytes>(txn<Sender>())
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dyn_array_struct((uint64,address)[],byte[])void"), arc4_encode(arr, arc4.dynamic_array<test_cases.arc4_conversions.contract.MyStructARC4>), arc4_encode(expected_bytes, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_static_array_struct((uint64,address)[3],byte[])void"), arc4_encode((test_cases.arc4_conversions.contract.my_struct(1u), test_cases.arc4_conversions.contract.my_struct(2u), test_cases.arc4_conversions.contract.my_struct(3u)), arc4.static_array<test_cases.arc4_conversions.contract.MyStructARC4, 3>), arc4_encode(expected_bytes[2:], arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
@@ -158,7 +158,7 @@ contract TestContract
   abimethod test_cases.arc4_conversions.contract.TestContract.test_array_dynamic_encoding(): void
   {
     app: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(SINGLE_EVAL(id=16, source=SINGLE_EVAL(id=15, source=compiled_contract(test_cases.arc4_conversions.contract.CheckApp,,, prefix=None, variables={})).approval_program)[0], SINGLE_EVAL(id=16)[1]), ClearStateProgramPages=(SINGLE_EVAL(id=17, source=SINGLE_EVAL(id=15).clear_state_program)[0], SINGLE_EVAL(id=17)[1]), ExtraProgramPages=SINGLE_EVAL(id=15).extra_program_pages, GlobalNumByteSlice=SINGLE_EVAL(id=15).global_bytes, GlobalNumUint=SINGLE_EVAL(id=15).global_uints, LocalNumByteSlice=SINGLE_EVAL(id=15).local_bytes, LocalNumUint=SINGLE_EVAL(id=15).local_uints)).CreatedApplicationID
-    arr: stack_array<test_cases.arc4_conversions.contract.MyDynStruct> = new stack_array<test_cases.arc4_conversions.contract.MyDynStruct>(test_cases.arc4_conversions.contract.my_dyn_struct(1u), test_cases.arc4_conversions.contract.my_dyn_struct(2u), test_cases.arc4_conversions.contract.my_dyn_struct(3u))
+    arr: arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStruct> = new arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStruct>(test_cases.arc4_conversions.contract.my_dyn_struct(1u), test_cases.arc4_conversions.contract.my_dyn_struct(2u), test_cases.arc4_conversions.contract.my_dyn_struct(3u))
     expected_bytes: bytes = reinterpret_cast<bytes>(new arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>(test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u), test_cases.arc4_conversions.contract.my_dyn_struct_arc4(2u), test_cases.arc4_conversions.contract.my_dyn_struct_arc4(3u)))
     submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("check_dyn_array_dyn_struct((uint64,address,byte[])[],byte[])void"), arc4_encode(arr, arc4.dynamic_array<test_cases.arc4_conversions.contract.MyDynStructARC4>), arc4_encode(expected_bytes, arc4.dynamic_array<arc4.uint8>)), ApplicationID=app))
     expected_bytes: bytes = reinterpret_cast<bytes>(new arc4.static_array<test_cases.arc4_conversions.contract.MyDynStructARC4, 3>(test_cases.arc4_conversions.contract.my_dyn_struct_arc4(1u), test_cases.arc4_conversions.contract.my_dyn_struct_arc4(2u), test_cases.arc4_conversions.contract.my_dyn_struct_arc4(3u)))

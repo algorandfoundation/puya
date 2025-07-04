@@ -1,18 +1,24 @@
 main test_cases.ssa.contract.MyContract.approval_program:
     block@0: // L7
-        let a#0: uint64 = (+ 1u 2u)
-        let b#0: uint64 = (* 4u 5u)
-        let a#1: uint64 = (* a#0 b#0)
-        let b#1: uint64 = (+ a#1 b#0)
+        let tmp%0#0: uint64 = (+ 1u 2u)
+        let a#0: uint64 = tmp%0#0
+        let tmp%1#0: uint64 = (* 4u 5u)
+        let b#0: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = (* a#0 b#0)
+        let a#1: uint64 = tmp%2#0
+        let tmp%3#0: uint64 = (+ a#1 b#0)
+        let b#1: uint64 = tmp%3#0
         goto block@1
     block@1: // while_top_L14
         let a#2: uint64 = φ(a#1 <- block@0, a#3 <- block@2)
         let b#2: uint64 = φ(b#1 <- block@0, b#3 <- block@2)
-        let tmp%0#0: bool = (< a#2 5u)
-        goto tmp%0#0 ? block@2 : block@3
+        let tmp%4#0: bool = (< a#2 5u)
+        goto tmp%4#0 ? block@2 : block@3
     block@2: // while_body_L15
-        let b#3: uint64 = (+ b#2 a#2)
-        let a#3: uint64 = (+ a#2 1u)
+        let tmp%5#0: uint64 = (+ b#2 a#2)
+        let b#3: uint64 = tmp%5#0
+        let tmp%6#0: uint64 = (+ a#2 1u)
+        let a#3: uint64 = tmp%6#0
         goto block@1
     block@3: // after_while_L14
         (assert 1u) // Step cannot be zero
@@ -25,27 +31,32 @@ main test_cases.ssa.contract.MyContract.approval_program:
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@5 : block@7
     block@5: // for_body_L19
-        let b#5: uint64 = (+ b#4 a#4)
-        let a#5: uint64 = (+ a#4 i#1)
+        let tmp%7#0: uint64 = (+ b#4 a#4)
+        let b#5: uint64 = tmp%7#0
+        let tmp%8#0: uint64 = (+ a#4 i#1)
+        let a#5: uint64 = tmp%8#0
         goto block@6
     block@6: // for_footer_L18
         let i#2: uint64 = (+ i#1 1u)
         goto block@4
     block@7: // after_for_L18
-        let tmp%1#0: bool = (< a#4 b#4)
-        goto tmp%1#0 ? block@8 : block@15
+        let tmp%9#0: bool = (< a#4 b#4)
+        goto tmp%9#0 ? block@8 : block@15
     block@8: // if_body_L23
-        let tmp%2#0: bool = (< b#4 2u)
-        goto tmp%2#0 ? block@9 : block@10
+        let tmp%10#0: bool = (< b#4 2u)
+        goto tmp%10#0 ? block@9 : block@10
     block@9: // if_body_L24
-        let b#6: uint64 = (+ 3u 2u)
-        let c#0: uint64 = (+ a#4 b#6)
+        let tmp%11#0: uint64 = (+ 3u 2u)
+        let b#6: uint64 = tmp%11#0
+        let tmp%12#0: uint64 = (+ a#4 b#6)
+        let c#0: uint64 = tmp%12#0
         goto block@14
     block@10: // else_body_L27
-        let b#7: uint64 = (* 2u a#4)
-        let tmp%3#0: uint64 = (* 14u b#7)
-        let tmp%4#0: bool = (!= tmp%3#0 0u)
-        goto tmp%4#0 ? block@11 : block@12
+        let tmp%13#0: uint64 = (* 2u a#4)
+        let b#7: uint64 = tmp%13#0
+        let tmp%14#0: uint64 = (* 14u b#7)
+        let tmp%15#0: bool = (!= tmp%14#0 0u)
+        goto tmp%15#0 ? block@11 : block@12
     block@11: // if_body_L29
         let c#1: uint64 = 2u
         goto block@13
@@ -57,29 +68,33 @@ main test_cases.ssa.contract.MyContract.approval_program:
         let c#5: uint64 = φ(c#0 <- block@9, c#1 <- block@13)
         goto block@19
     block@15: // else_body_L32
-        let tmp%5#0: bool = (== b#4 a#4)
-        goto tmp%5#0 ? block@16 : block@17
+        let tmp%16#0: bool = (== b#4 a#4)
+        goto tmp%16#0 ? block@16 : block@17
     block@16: // if_body_L33
-        let c#2: uint64 = (* a#4 b#4)
+        let tmp%17#0: uint64 = (* a#4 b#4)
+        let c#2: uint64 = tmp%17#0
         goto block@18
     block@17: // else_body_L35
-        let c#3: uint64 = (- a#4 b#4)
+        let tmp%18#0: uint64 = (- a#4 b#4)
+        let c#3: uint64 = tmp%18#0
         goto block@18
     block@18: // after_if_else_L32
         let c#6: uint64 = φ(c#2 <- block@16, c#3 <- block@17)
         goto block@19
     block@19: // after_if_else_L22
         let c#4: uint64 = φ(c#5 <- block@14, c#6 <- block@18)
-        let tmp%6#0: uint64 = test_cases.ssa.contract.one_hundred(c#4)
-        let c#7: uint64 = (+ c#4 tmp%6#0)
-        let c_bytes#0: bytes = (itob c#7)
+        let tmp%19#0: uint64 = test_cases.ssa.contract.one_hundred(c#4)
+        let tmp%20#0: uint64 = (+ c#4 tmp%19#0)
+        let c#7: uint64 = tmp%20#0
+        let tmp%21#0: bytes = (itob c#7)
+        let c_bytes#0: bytes = tmp%21#0
         (log c_bytes#0)
-        let tmp%7#0: uint64 = test_cases.ssa.contract.phi_in_equiv_class(3u, 1u)
-        let tmp%8#0: bool = (== tmp%7#0 4u)
-        (assert tmp%8#0)
-        let tmp%9#0: uint64 = test_cases.ssa.contract.phi_in_equiv_class(3u, 0u)
-        let tmp%10#0: bool = (== tmp%9#0 4u)
-        (assert tmp%10#0)
+        let tmp%22#0: uint64 = test_cases.ssa.contract.phi_in_equiv_class(3u, 1u)
+        let tmp%23#0: bool = (== tmp%22#0 4u)
+        (assert tmp%23#0)
+        let tmp%24#0: uint64 = test_cases.ssa.contract.phi_in_equiv_class(3u, 0u)
+        let tmp%25#0: bool = (== tmp%24#0 4u)
+        (assert tmp%25#0)
         return c#7
 
 subroutine test_cases.ssa.contract.one_hundred(c: uint64) -> uint64:
@@ -95,9 +110,10 @@ subroutine test_cases.ssa.contract.one_hundred(c: uint64) -> uint64:
     block@2: // after_if_else_L51
         let b#2: uint64 = φ(b#0 <- block@0, b#1 <- block@1)
         let a#2: uint64 = φ(a#0 <- block@0, a#1 <- block@1)
-        let b#3: uint64 = (* b#2 b#2)
-        let tmp%1#0: uint64 = (* a#2 b#3)
-        return tmp%1#0
+        let tmp%1#0: uint64 = (* b#2 b#2)
+        let b#3: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = (* a#2 b#3)
+        return tmp%2#0
 
 subroutine test_cases.ssa.contract.phi_in_equiv_class(y: uint64, b: bool) -> uint64:
     block@0: // L59
@@ -112,5 +128,6 @@ subroutine test_cases.ssa.contract.phi_in_equiv_class(y: uint64, b: bool) -> uin
         goto block@3
     block@3: // after_if_else_L61
         let x#2: uint64 = φ(x#0 <- block@1, x#1 <- block@2)
-        let x#3: uint64 = (+ x#2 1u)
+        let tmp%0#0: uint64 = (+ x#2 1u)
+        let x#3: uint64 = tmp%0#0
         return x#3

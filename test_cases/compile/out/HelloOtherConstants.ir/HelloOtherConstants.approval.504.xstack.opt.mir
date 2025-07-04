@@ -62,11 +62,11 @@ subroutine main:
     main_delete_route@6:
         // compile/apps.py:87
         // @arc4.abimethod(allow_actions=["DeleteApplication"])
-        txn OnCompletion                                                                              tmp%8#0
-        int DeleteApplication                                                                         tmp%8#0,DeleteApplication
-        ==                                                                                            tmp%9#0
+        txn OnCompletion                                                                              tmp%10#0
+        int DeleteApplication                                                                         tmp%10#0,DeleteApplication
+        ==                                                                                            tmp%11#0
         assert // OnCompletion is not DeleteApplication
-        txn ApplicationID                                                                             tmp%10#0
+        txn ApplicationID                                                                             tmp%12#0
         assert // can only call when not creating
         int 1                                                                                         tmp%0#0
         x-store tmp%0#0                                                                               (𝕏) tmp%0#0 |
@@ -75,27 +75,27 @@ subroutine main:
     main_greet_route@7:
         // compile/apps.py:91
         // @arc4.abimethod()
-        txn OnCompletion                                                                              tmp%12#0
-        !                                                                                             tmp%13#0
+        txn OnCompletion                                                                              tmp%14#0
+        !                                                                                             tmp%15#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                             tmp%14#0
+        txn ApplicationID                                                                             tmp%16#0
         assert // can only call when not creating
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
-        txna ApplicationArgs 1                                                                        tmp%16#0
-        extract 2 0                                                                                   tmp%17#0
+        txna ApplicationArgs 1                                                                        reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                                                                   tmp%18#0
         // compile/apps.py:91
         // @arc4.abimethod()
-        callsub greet                                                                                 to_encode%1#0
-        l-load-copy to_encode%1#0 0                                                                   to_encode%1#0,to_encode%1#0 (copy)
-        len                                                                                           to_encode%1#0,length%0#0
-        itob                                                                                          to_encode%1#0,as_bytes%0#0
-        extract 6 2                                                                                   to_encode%1#0,length_uint16%0#0
-        l-load to_encode%1#0 1                                                                        length_uint16%0#0,to_encode%1#0
-        concat                                                                                        encoded_value%0#0
-        byte 0x151f7c75                                                                               encoded_value%0#0,0x151f7c75
-        l-load encoded_value%0#0 1                                                                    0x151f7c75,encoded_value%0#0
-        concat                                                                                        tmp%18#0
+        callsub greet                                                                                 tmp%19#0
+        l-load-copy tmp%19#0 0                                                                        tmp%19#0,tmp%19#0 (copy)
+        len                                                                                           tmp%19#0,aggregate%length%0#1
+        itob                                                                                          tmp%19#0,aggregate%as_bytes%0#1
+        extract 6 2                                                                                   tmp%19#0,aggregate%length_uint16%0#1
+        l-load tmp%19#0 1                                                                             aggregate%length_uint16%0#1,tmp%19#0
+        concat                                                                                        aggregate%encoded_value%0#1
+        byte 0x151f7c75                                                                               aggregate%encoded_value%0#1,0x151f7c75
+        l-load aggregate%encoded_value%0#1 1                                                          0x151f7c75,aggregate%encoded_value%0#1
+        concat                                                                                        tmp%21#0
         log
         int 1                                                                                         tmp%0#0
         x-store tmp%0#0                                                                               (𝕏) tmp%0#0 |

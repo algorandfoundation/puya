@@ -166,23 +166,23 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
             )
 
-    def visit_array_read_index(self, read: ir.ArrayReadIndex) -> None:
+    def visit_extract_value(self, read: ir.ExtractValue) -> None:
         _unexpected_node(read)
 
-    def visit_array_write_index(self, write: ir.ArrayWriteIndex) -> None:
+    def visit_replace_value(self, write: ir.ReplaceValue) -> None:
         _unexpected_node(write)
 
-    def visit_array_concat(self, concat: ir.ArrayConcat) -> None:
-        _unexpected_node(concat)
+    def visit_box_read(self, read: ir.BoxRead) -> None:
+        _unexpected_node(read)
 
-    def visit_array_encode(self, encode: ir.ArrayEncode) -> None:
+    def visit_box_write(self, write: ir.BoxWrite) -> None:
+        _unexpected_node(write)
+
+    def visit_bytes_encode(self, encode: ir.BytesEncode) -> None:
         _unexpected_node(encode)
 
-    def visit_array_length(self, length: ir.ArrayLength) -> None:
-        _unexpected_node(length)
-
-    def visit_array_pop(self, pop: ir.ArrayPop) -> None:
-        _unexpected_node(pop)
+    def visit_decode_bytes(self, encode: ir.DecodeBytes) -> None:
+        _unexpected_node(encode)
 
     def visit_template_var(self, deploy_var: ir.TemplateVar) -> None:
         self._add_op(
@@ -349,8 +349,8 @@ class MemoryIRBuilder(IRVisitor[None]):
             self.active_op = op
             op.accept(self)
             # pop any values that may have been left on the stack and not assigned
-            if isinstance(op, ir.ValueProvider) and op.atypes:
-                self._add_op(models.Pop(len(op.atypes)))
+            if isinstance(op, ir.ValueProvider) and op.types:
+                self._add_op(models.Pop(len(op.types)))
 
         assert self.terminator is not None
         block_name = self._get_block_name(block)
