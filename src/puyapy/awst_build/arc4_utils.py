@@ -17,6 +17,7 @@ __all__ = [
     "arc4_to_pytype",
     "pytype_to_arc4",
     "pytype_to_arc4_pytype",
+    "split_tuple_types",
 ]
 
 logger = log.get_logger(__name__)

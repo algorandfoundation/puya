@@ -47,10 +47,6 @@ def abi_call_none_return() -> None:
 
 
 @subroutine
-def wrong_arg_type1() -> None:
-    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: expected type algopy.arc4.UIntN[typing.Literal[64]], got type algopy.arc4.UIntN[typing.Literal[8]]
-
-@subroutine
 def wrong_arg_type2() -> None:
     arc4.emit("Event(string,uint8)", b"a", 1) ## E: can't covert literal to algopy.arc4.String
 
@@ -60,12 +56,7 @@ def wrong_arg_type3() -> None:
 
 @subroutine
 def wrong_arg_type4() -> None:
-    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: expected type algopy.arc4.String, got type test_emit_errors.Event \
-                                                                             ## E: expected 2 ABI arguments, got 1
-
-@subroutine
-def wrong_arg_type5() -> None:
-    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: expected type algopy.arc4.String, got type test_emit_errors.Event2
+    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: expected 2 ABI arguments, got 1
 
 @subroutine
 def wrong_number_args() -> None:
@@ -93,6 +84,30 @@ def invalid_signature6() -> None:
 def dont_copy_array() -> None:
     a = arc4.DynamicBytes()
     arc4.emit("Event(byte[])", a)  # this should not need a .copy()
+
+## case: test_emit_errors_ir
+from algopy import *
+
+class Event(arc4.Struct):
+    a: arc4.String
+    b: arc4.UInt8
+
+class Event2(arc4.Struct):
+    a: arc4.String
+
+@subroutine
+def wrong_arg_type1() -> None:
+    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt128(1)) ## E: expected type algopy.arc4.UIntN[typing.Literal[64]], got type algopy.arc4.BigUIntN[typing.Literal[128]]
+
+@subroutine
+def wrong_arg_type5() -> None:
+    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: expected type algopy.arc4.String, got type test_emit_errors_ir.Event2
+
+class MyContract(ARC4Contract):
+    @arc4.abimethod()
+    def foo(self) -> None:
+        wrong_arg_type1()
+        wrong_arg_type5()
 
 ## case: test_bad_uint_sizes
 
