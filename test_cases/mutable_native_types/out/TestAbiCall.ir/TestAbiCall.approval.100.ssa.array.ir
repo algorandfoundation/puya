@@ -130,9 +130,10 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         let aggregate%as_Encoded(uint64,uint64)%1#1: Encoded(uint64,uint64) = aggregate%head%3#1
         let fixed_struct#1: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%1#1
         itxn_begin
+        let tmp%14#0: Encoded(uint64,uint64) = fixed_struct#1
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "fixed_struct_arg((uint64,uint64))void")
-        ((itxn_field ApplicationArgs) fixed_struct#1)
+        ((itxn_field ApplicationArgs) tmp%14#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -144,11 +145,11 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let res#1: Encoded(uint64,uint64) = ((extract 4 0) awst_tmp%1#0)
-        let tmp%15#0: bytes = ((extract 0 4) awst_tmp%1#0)
-        let tmp%16#0: bool = (== tmp%15#0 0x151f7c75)
-        (assert tmp%16#0) // application log value is not the result of an ABI return
-        let tmp%17#0: bool = (== res#1 fixed_struct#1)
-        (assert tmp%17#0) // should be the same
+        let tmp%16#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%17#0: bool = (== tmp%16#0 0x151f7c75)
+        (assert tmp%17#0) // application log value is not the result of an ABI return
+        let tmp%18#0: bool = (== res#1 fixed_struct#1)
+        (assert tmp%18#0) // should be the same
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
@@ -229,9 +230,10 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         let aggregate%as_Encoded((uint64,uint64),uint64)%1#1: Encoded((uint64,uint64),uint64) = aggregate%head%7#1
         let nested_struct#1: Encoded((uint64,uint64),uint64) = aggregate%as_Encoded((uint64,uint64),uint64)%1#1
         itxn_begin
+        let tmp%20#0: Encoded((uint64,uint64),uint64) = nested_struct#1
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "nested_struct_arg(((uint64,uint64),uint64))void")
-        ((itxn_field ApplicationArgs) nested_struct#1)
+        ((itxn_field ApplicationArgs) tmp%20#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -243,11 +245,11 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let res#1: Encoded((uint64,uint64),uint64) = ((extract 4 0) awst_tmp%1#0)
-        let tmp%21#0: bytes = ((extract 0 4) awst_tmp%1#0)
-        let tmp%22#0: bool = (== tmp%21#0 0x151f7c75)
-        (assert tmp%22#0) // application log value is not the result of an ABI return
-        let tmp%23#0: bool = (== res#1 nested_struct#1)
-        (assert tmp%23#0) // should be the same
+        let tmp%22#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%23#0: bool = (== tmp%22#0 0x151f7c75)
+        (assert tmp%23#0) // application log value is not the result of an ABI return
+        let tmp%24#0: bool = (== res#1 nested_struct#1)
+        (assert tmp%24#0) // should be the same
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
@@ -391,9 +393,10 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         let aggregate%as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = aggregate%concat%5#1
         let dynamic_struct#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = aggregate%as_Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[]))%1#1
         itxn_begin
+        let tmp%25#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = dynamic_struct#1
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void")
-        ((itxn_field ApplicationArgs) dynamic_struct#1)
+        ((itxn_field ApplicationArgs) tmp%25#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -405,11 +408,11 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let res#1: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = ((extract 4 0) awst_tmp%1#0)
-        let tmp%26#0: bytes = ((extract 0 4) awst_tmp%1#0)
-        let tmp%27#0: bool = (== tmp%26#0 0x151f7c75)
-        (assert tmp%27#0) // application log value is not the result of an ABI return
-        let tmp%28#0: bool = (== res#1 dynamic_struct#1)
-        (assert tmp%28#0) // should be the same
+        let tmp%27#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%28#0: bool = (== tmp%27#0 0x151f7c75)
+        (assert tmp%28#0) // application log value is not the result of an ABI return
+        let tmp%29#0: bool = (== res#1 dynamic_struct#1)
+        (assert tmp%29#0) // should be the same
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
@@ -484,9 +487,10 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         let aggregate%as_Encoded((uint64,uint64)[3])%1#1: Encoded((uint64,uint64)[3]) = aggregate%head%9#1
         let fixed_arr#1: Encoded((uint64,uint64)[3]) = aggregate%as_Encoded((uint64,uint64)[3])%1#1
         itxn_begin
+        let tmp%14#0: Encoded((uint64,uint64)[3]) = fixed_arr#1
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "fixed_arr_arg((uint64,uint64)[3])void")
-        ((itxn_field ApplicationArgs) fixed_arr#1)
+        ((itxn_field ApplicationArgs) tmp%14#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -498,11 +502,11 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let res#1: Encoded((uint64,uint64)[3]) = ((extract 4 0) awst_tmp%1#0)
-        let tmp%15#0: bytes = ((extract 0 4) awst_tmp%1#0)
-        let tmp%16#0: bool = (== tmp%15#0 0x151f7c75)
-        (assert tmp%16#0) // application log value is not the result of an ABI return
-        let tmp%17#0: bool = (== res#1 fixed_arr#1)
-        (assert tmp%17#0) // should be the same
+        let tmp%16#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%17#0: bool = (== tmp%16#0 0x151f7c75)
+        (assert tmp%17#0) // application log value is not the result of an ABI return
+        let tmp%18#0: bool = (== res#1 fixed_arr#1)
+        (assert tmp%18#0) // should be the same
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
@@ -581,9 +585,10 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         let aggregate%as_Encoded(len+(uint64,uint64)[])%1#1: Encoded(len+(uint64,uint64)[]) = aggregate%head%9#1
         let native_arr#1: Encoded(len+(uint64,uint64)[]) = aggregate%as_Encoded(len+(uint64,uint64)[])%1#1
         itxn_begin
+        let tmp%14#0: Encoded(len+(uint64,uint64)[]) = native_arr#1
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
         ((itxn_field ApplicationArgs) method "native_arr_arg((uint64,uint64)[])void")
-        ((itxn_field ApplicationArgs) native_arr#1)
+        ((itxn_field ApplicationArgs) tmp%14#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -595,11 +600,11 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         itxn_submit
         let awst_tmp%1#0: bytes = (itxn LastLog)
         let res#1: Encoded(len+(uint64,uint64)[]) = ((extract 4 0) awst_tmp%1#0)
-        let tmp%15#0: bytes = ((extract 0 4) awst_tmp%1#0)
-        let tmp%16#0: bool = (== tmp%15#0 0x151f7c75)
-        (assert tmp%16#0) // application log value is not the result of an ABI return
-        let tmp%17#0: bool = (== res#1 native_arr#1)
-        (assert tmp%17#0) // should be the same
+        let tmp%16#0: bytes = ((extract 0 4) awst_tmp%1#0)
+        let tmp%17#0: bool = (== tmp%16#0 0x151f7c75)
+        (assert tmp%17#0) // application log value is not the result of an ABI return
+        let tmp%18#0: bool = (== res#1 native_arr#1)
+        (assert tmp%18#0) // should be the same
         itxn_begin
         ((itxn_field OnCompletion) DeleteApplication)
         ((itxn_field ApplicationID) create_txn.CreatedApplicationID#0)
