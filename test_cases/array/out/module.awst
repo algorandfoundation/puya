@@ -254,7 +254,7 @@ subroutine quicksort_window(arr: ref_array<uint64>, window_left: uint64, window_
     }
     while (pivot < arr[right]) {
       if (right == 0u) {
-        goto after_loop_L213
+        goto after_loop_L215
       }
       right -= 1u
     }
@@ -277,7 +277,7 @@ subroutine quicksort_window(arr: ref_array<uint64>, window_left: uint64, window_
       }
       break
     }
-    after_loop_L213:
+    after_loop_L215:
     break
   }
   if (window_left < right) {
@@ -531,6 +531,7 @@ contract ImmutableArrayContract
     ['bool7']: arc4.dynamic_array<test_cases.array.immutable.SevenBoolTuple>
     ['bool8']: arc4.dynamic_array<test_cases.array.immutable.EightBoolTuple>
     ['bool9']: arc4.dynamic_array<test_cases.array.immutable.NineBoolTuple>
+    ['imm_fixed_arr']: arc4.static_array<test_cases.array.immutable.NativeStruct, 3>
   }
   
   subroutine algopy.arc4.ARC4Contract.approval_program(): bool
@@ -859,6 +860,30 @@ contract ImmutableArrayContract
     return imm
   }
   
+  abimethod test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr(): arc4.static_array<test_cases.array.immutable.NativeStruct, 3>
+  {
+    arr1: arc4.static_array<test_cases.array.immutable.NativeStruct, 3> = bzero(size_of(arc4.static_array<test_cases.array.immutable.NativeStruct, 3>))
+    struct12: test_cases.array.immutable.NativeStruct = new test_cases.array.immutable.NativeStruct(foo=txn<NumAppArgs>() + 1u, bar=txn<NumAppArgs>() + 2u)
+    arr2: arc4.static_array<test_cases.array.immutable.NativeStruct, 3> = new arc4.static_array<test_cases.array.immutable.NativeStruct, 3>(struct12, struct12, struct12)
+    arr3: arc4.static_array<test_cases.array.immutable.NativeStruct, 3> = new arc4.static_array<test_cases.array.immutable.NativeStruct, 3>(struct12.copy(), struct12.copy(), struct12.copy())
+    assert(arr1 != arr2, comment="expected arrays to be different")
+    assert(arr2 == arr3, comment="expected arrays to be the same")
+    for i in range(0u, 3u, 1u) {
+      arr1: arc4.static_array<test_cases.array.immutable.NativeStruct, 3> = arr1.replace(i, struct12)
+    }
+    assert(arr1 == arr2, comment="expected arrays to be the same")
+    for struct_it in arr1 {
+      assert(struct_it == struct12, comment="expected items on iteration to be the same")
+    }
+    GlobalState['imm_fixed_arr']: arc4.static_array<test_cases.array.immutable.NativeStruct, 3> = arr1
+    assert(GlobalState['imm_fixed_arr'] == arr2, comment="expected array in storage to be the same")
+    mut_arr: arc4.static_array<test_cases.array.immutable.NativeStruct, 3> = convert_array<arc4.static_array<test_cases.array.immutable.NativeStruct, 3>>(arr1)
+    assert(test_cases.array.immutable.sum_imm_fixed(convert_array<arc4.static_array<test_cases.array.immutable.NativeStruct, 3>>(mut_arr)) == 15u, comment="expected sum to be 15")
+    mut_arr[0u]: test_cases.array.immutable.NativeStruct = new test_cases.array.immutable.NativeStruct(foo=0u, bar=0u)
+    assert(test_cases.array.immutable.sum_imm_fixed(convert_array<arc4.static_array<test_cases.array.immutable.NativeStruct, 3>>(mut_arr)) == 10u, comment="expected sum to be 10")
+    return GlobalState['imm_fixed_arr']
+  }
+  
   baremethod test_cases.array.immutable.ImmutableArrayContract.__algopy_default_create(): void
   {
   }
@@ -866,6 +891,16 @@ contract ImmutableArrayContract
   subroutine algopy._contract.Contract.__init__(): void
   {
   }
+}
+
+subroutine sum_imm_fixed(arr: arc4.static_array<test_cases.array.immutable.NativeStruct, 3>): uint64
+{
+  total: uint64 = 0u
+  for item in arr {
+    total += item.foo
+    total += item.bar
+  }
+  return total
 }
 
 subroutine times(n: uint64): string

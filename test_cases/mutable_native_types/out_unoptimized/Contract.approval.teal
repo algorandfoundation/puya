@@ -4,7 +4,7 @@
 // test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 16
-    bytecblock 0x "nested" "num_payments" "payments" 0x70 0x6c "box" 0x151f7c75 "box_map"
+    bytecblock 0x "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map" "arr"
 
 main_block@0:
     txn ApplicationID
@@ -18,15 +18,113 @@ main_after_if_else@2:
     return
 
 
+// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+dynamic_array_pop_fixed_size:
+    proto 2 2
+
+dynamic_array_pop_fixed_size_block@0:
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    -
+    itob
+    extract 6 0
+    frame_dig -2
+    swap
+    replace2 0
+    dup
+    len
+    frame_dig -1
+    -
+    dup2
+    frame_dig -1
+    extract3
+    cover 2
+    swap
+    intc_0 // 0
+    uncover 2
+    substring3
+    retsub
+
+
+// test_cases.mutable_native_types.contract.sum_frozen_arr(arr: bytes) -> uint64:
+sum_frozen_arr:
+    // mutable_native_types/contract.py:218-219
+    // @subroutine()
+    // def sum_frozen_arr(arr: ImmutableArray[FixedStruct]) -> UInt64:
+    proto 1 1
+
+sum_frozen_arr_block@0:
+    // mutable_native_types/contract.py:220
+    // total = UInt64(0)
+    intc_0 // 0
+    // mutable_native_types/contract.py:221
+    // for element in arr:
+    frame_dig -1
+    intc_0 // 0
+    extract_uint16
+    intc_0 // 0
+
+sum_frozen_arr_for_header@1:
+    // mutable_native_types/contract.py:221
+    // for element in arr:
+    frame_dig 2
+    frame_dig 1
+    <
+    bz sum_frozen_arr_after_for@4
+
+sum_frozen_arr_for_body@2:
+    // mutable_native_types/contract.py:221
+    // for element in arr:
+    frame_dig -1
+    extract 2 0
+    frame_dig 2
+    intc_3 // 16
+    *
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    // mutable_native_types/contract.py:222
+    // total += element.a
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    frame_dig 0
+    +
+    // mutable_native_types/contract.py:223
+    // total += element.b
+    swap
+    intc_2 // 8
+    dup
+    extract3
+    btoi
+    +
+    frame_bury 0
+
+sum_frozen_arr_for_footer@3:
+    frame_dig 2
+    intc_1 // 1
+    +
+    frame_bury 2
+    b sum_frozen_arr_for_header@1
+
+sum_frozen_arr_after_for@4:
+    // mutable_native_types/contract.py:224
+    // return total
+    retsub
+
+
 // test_cases.mutable_native_types.contract.add(val: bytes) -> uint64:
 add:
-    // mutable_native_types/contract.py:191-192
+    // mutable_native_types/contract.py:227-228
     // @subroutine()
     // def add(val: FixedStruct) -> UInt64:
     proto 1 1
 
 add_block@0:
-    // mutable_native_types/contract.py:193
+    // mutable_native_types/contract.py:229
     // return val.a + val.b
     frame_dig -1
     intc_0 // 0
@@ -44,7 +142,7 @@ add_block@0:
 
 // test_cases.mutable_native_types.contract.do_something(pay: bytes) -> bytes:
 do_something:
-    // mutable_native_types/contract.py:196-197
+    // mutable_native_types/contract.py:232-233
     // @subroutine(inline=False)
     // def do_something(pay: Payment) -> None:
     proto 1 1
@@ -58,7 +156,7 @@ do_something_block@0:
 __init__:
 
 __init___block@0:
-    // mutable_native_types/contract.py:72
+    // mutable_native_types/contract.py:73
     // FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
     txn NumAppArgs
     dup
@@ -70,7 +168,7 @@ __init___block@0:
     swap
     itob
     concat
-    // mutable_native_types/contract.py:73
+    // mutable_native_types/contract.py:74
     // FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
     txn NumAppArgs
     intc_1 // 1
@@ -86,7 +184,7 @@ __init___block@0:
     swap
     itob
     concat
-    // mutable_native_types/contract.py:74
+    // mutable_native_types/contract.py:75
     // NamedTup(a=Txn.num_app_args + 1, b=Txn.num_app_args + 1),
     txn NumAppArgs
     intc_1 // 1
@@ -95,7 +193,7 @@ __init___block@0:
     intc_1 // 1
     +
     cover 2
-    // mutable_native_types/contract.py:70-75
+    // mutable_native_types/contract.py:71-76
     // # storage
     // self.nested = NestedStruct(
     //     FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
@@ -116,11 +214,11 @@ __init___block@0:
     itob
     concat
     concat
-    // mutable_native_types/contract.py:70-71
+    // mutable_native_types/contract.py:71-72
     // # storage
     // self.nested = NestedStruct(
     bytec_1 // "nested"
-    // mutable_native_types/contract.py:70-75
+    // mutable_native_types/contract.py:71-76
     // # storage
     // self.nested = NestedStruct(
     //     FixedStruct(a=Txn.num_app_args, b=Txn.num_app_args),
@@ -129,26 +227,26 @@ __init___block@0:
     // )
     swap
     app_global_put
-    // mutable_native_types/contract.py:82
+    // mutable_native_types/contract.py:83
     // a=Txn.num_app_args,
     txn NumAppArgs
-    // mutable_native_types/contract.py:83
+    // mutable_native_types/contract.py:84
     // b=Txn.num_app_args,
     dup
     swap
-    // mutable_native_types/contract.py:86
-    // e=NativeArray[arc4.Byte](),
+    // mutable_native_types/contract.py:87
+    // e=Array[arc4.Byte](),
     intc_0 // 0
     itob
     extract 6 2
     cover 2
-    // mutable_native_types/contract.py:81-87
+    // mutable_native_types/contract.py:82-88
     // self.dyn = DynamicStruct(
     //     a=Txn.num_app_args,
     //     b=Txn.num_app_args,
     //     c=Bytes(),
     //     d=String(),
-    //     e=NativeArray[arc4.Byte](),
+    //     e=Array[arc4.Byte](),
     // )
     itob
     bytec_0 // 0x
@@ -157,30 +255,30 @@ __init___block@0:
     swap
     itob
     concat
-    // mutable_native_types/contract.py:84
+    // mutable_native_types/contract.py:85
     // c=Bytes(),
     bytec_0 // 0x
-    // mutable_native_types/contract.py:81-87
+    // mutable_native_types/contract.py:82-88
     // self.dyn = DynamicStruct(
     //     a=Txn.num_app_args,
     //     b=Txn.num_app_args,
     //     c=Bytes(),
     //     d=String(),
-    //     e=NativeArray[arc4.Byte](),
+    //     e=Array[arc4.Byte](),
     // )
     len
     itob
     extract 6 2
-    // mutable_native_types/contract.py:84
+    // mutable_native_types/contract.py:85
     // c=Bytes(),
     bytec_0 // 0x
-    // mutable_native_types/contract.py:81-87
+    // mutable_native_types/contract.py:82-88
     // self.dyn = DynamicStruct(
     //     a=Txn.num_app_args,
     //     b=Txn.num_app_args,
     //     c=Bytes(),
     //     d=String(),
-    //     e=NativeArray[arc4.Byte](),
+    //     e=Array[arc4.Byte](),
     // )
     concat
     pushint 22 // 22
@@ -194,30 +292,30 @@ __init___block@0:
     len
     pushint 22 // 22
     +
-    // mutable_native_types/contract.py:85
+    // mutable_native_types/contract.py:86
     // d=String(),
     bytec_0 // ""
-    // mutable_native_types/contract.py:81-87
+    // mutable_native_types/contract.py:82-88
     // self.dyn = DynamicStruct(
     //     a=Txn.num_app_args,
     //     b=Txn.num_app_args,
     //     c=Bytes(),
     //     d=String(),
-    //     e=NativeArray[arc4.Byte](),
+    //     e=Array[arc4.Byte](),
     // )
     len
     itob
     extract 6 2
-    // mutable_native_types/contract.py:85
+    // mutable_native_types/contract.py:86
     // d=String(),
     bytec_0 // ""
-    // mutable_native_types/contract.py:81-87
+    // mutable_native_types/contract.py:82-88
     // self.dyn = DynamicStruct(
     //     a=Txn.num_app_args,
     //     b=Txn.num_app_args,
     //     c=Bytes(),
     //     d=String(),
-    //     e=NativeArray[arc4.Byte](),
+    //     e=Array[arc4.Byte](),
     // )
     concat
     dig 1
@@ -242,25 +340,25 @@ __init___block@0:
     concat
     swap
     concat
-    // mutable_native_types/contract.py:81
+    // mutable_native_types/contract.py:82
     // self.dyn = DynamicStruct(
     pushbytes "dyn"
-    // mutable_native_types/contract.py:81-87
+    // mutable_native_types/contract.py:82-88
     // self.dyn = DynamicStruct(
     //     a=Txn.num_app_args,
     //     b=Txn.num_app_args,
     //     c=Bytes(),
     //     d=String(),
-    //     e=NativeArray[arc4.Byte](),
+    //     e=Array[arc4.Byte](),
     // )
     swap
     app_global_put
-    // mutable_native_types/contract.py:89
+    // mutable_native_types/contract.py:90
     // self.num_payments = UInt64(0)
     bytec_2 // "num_payments"
     intc_0 // 0
     app_global_put
-    // mutable_native_types/contract.py:90
+    // mutable_native_types/contract.py:91
     // self.payments = zero_bytes(FixedArray[Payment, typing.Literal[8]])
     pushint 384 // 384
     bzero
@@ -274,11 +372,11 @@ __init___block@0:
 fixed_initialize:
 
 fixed_initialize_block@0:
-    // mutable_native_types/contract.py:94
+    // mutable_native_types/contract.py:95
     // arr_3 = zero_bytes(FixedUInt64Of3)
     pushint 24 // 24
     bzero
-    // mutable_native_types/contract.py:95
+    // mutable_native_types/contract.py:96
     // arr_3[0] = UInt64(0)
     intc_0 // 0
     itob
@@ -289,7 +387,7 @@ fixed_initialize_block@0:
     swap
     uncover 2
     replace3
-    // mutable_native_types/contract.py:96
+    // mutable_native_types/contract.py:97
     // arr_3[1] = UInt64(1)
     intc_1 // 1
     itob
@@ -300,7 +398,7 @@ fixed_initialize_block@0:
     swap
     uncover 2
     replace3
-    // mutable_native_types/contract.py:97
+    // mutable_native_types/contract.py:98
     // arr_3[2] = UInt64(2)
     pushint 2 // 2
     itob
@@ -311,10 +409,10 @@ fixed_initialize_block@0:
     swap
     uncover 2
     replace3
-    // mutable_native_types/contract.py:100
+    // mutable_native_types/contract.py:101
     // (UInt64(0), UInt64(1), UInt64(2)),
     intc_0 // 0
-    // mutable_native_types/contract.py:99-101
+    // mutable_native_types/contract.py:100-102
     // arr_3_from_tuple = FixedUInt64Of3(
     //     (UInt64(0), UInt64(1), UInt64(2)),
     // )
@@ -322,30 +420,30 @@ fixed_initialize_block@0:
     bytec_0 // 0x
     swap
     concat
-    // mutable_native_types/contract.py:100
+    // mutable_native_types/contract.py:101
     // (UInt64(0), UInt64(1), UInt64(2)),
     intc_1 // 1
-    // mutable_native_types/contract.py:99-101
+    // mutable_native_types/contract.py:100-102
     // arr_3_from_tuple = FixedUInt64Of3(
     //     (UInt64(0), UInt64(1), UInt64(2)),
     // )
     itob
     concat
-    // mutable_native_types/contract.py:100
+    // mutable_native_types/contract.py:101
     // (UInt64(0), UInt64(1), UInt64(2)),
     pushint 2 // 2
-    // mutable_native_types/contract.py:99-101
+    // mutable_native_types/contract.py:100-102
     // arr_3_from_tuple = FixedUInt64Of3(
     //     (UInt64(0), UInt64(1), UInt64(2)),
     // )
     itob
     concat
-    // mutable_native_types/contract.py:102
+    // mutable_native_types/contract.py:103
     // assert arr_3 == arr_3_from_tuple, "should be the same"
     dig 1
     ==
     assert // should be the same
-    // mutable_native_types/contract.py:104
+    // mutable_native_types/contract.py:105
     // arr_3_from_full = FixedUInt64Of3.full(UInt64(1))
     intc_1 // 1
     itob
@@ -358,7 +456,7 @@ fixed_initialize_block@0:
     intc_1 // 1
     itob
     concat
-    // mutable_native_types/contract.py:105
+    // mutable_native_types/contract.py:106
     // assert arr_3_from_full[0] == 1
     intc_0 // 0
     intc_2 // 8
@@ -371,7 +469,7 @@ fixed_initialize_block@0:
     intc_1 // 1
     ==
     assert
-    // mutable_native_types/contract.py:106
+    // mutable_native_types/contract.py:107
     // assert arr_3_from_full[1] == 1
     intc_1 // 1
     intc_2 // 8
@@ -384,7 +482,7 @@ fixed_initialize_block@0:
     intc_1 // 1
     ==
     assert
-    // mutable_native_types/contract.py:107
+    // mutable_native_types/contract.py:108
     // assert arr_3_from_full[2] == 1
     pushint 2 // 2
     intc_2 // 8
@@ -395,16 +493,16 @@ fixed_initialize_block@0:
     intc_1 // 1
     ==
     assert
-    // mutable_native_types/contract.py:109
+    // mutable_native_types/contract.py:110
     // arr_3_from_fixed = FixedUInt64Of3(arr_3)
     dupn 2
-    // mutable_native_types/contract.py:110
+    // mutable_native_types/contract.py:111
     // assert arr_3 == arr_3_from_fixed, "should be the same"
     uncover 2
     ==
     assert // should be the same
-    // mutable_native_types/contract.py:112
-    // dynamic_arr = NativeArray((UInt64(0), UInt64(1), UInt64(2)))
+    // mutable_native_types/contract.py:113
+    // dynamic_arr = Array((UInt64(0), UInt64(1), UInt64(2)))
     pushint 3 // 3
     itob
     extract 6 2
@@ -417,7 +515,7 @@ fixed_initialize_block@0:
     pushint 2 // 2
     itob
     concat
-    // mutable_native_types/contract.py:113
+    // mutable_native_types/contract.py:114
     // assert arr_3 == FixedUInt64Of3(dynamic_arr)
     dup
     intc_0 // 0
@@ -429,7 +527,7 @@ fixed_initialize_block@0:
     dig 1
     ==
     assert
-    // mutable_native_types/contract.py:115
+    // mutable_native_types/contract.py:116
     // assert arr_3 == FixedUInt64Of3(arc4.Tuple((UInt64(0), UInt64(1), UInt64(2))))
     intc_0 // 0
     itob
@@ -472,36 +570,36 @@ fixed_initialize_block@0:
     dig 1
     ==
     assert
-    // mutable_native_types/contract.py:117-119
+    // mutable_native_types/contract.py:118-120
     // static_array = arc4.StaticArray[arc4.UInt64, typing.Literal[3]](
     //     arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2)
     // )
     bytec_0 // 0x
-    // mutable_native_types/contract.py:118
+    // mutable_native_types/contract.py:119
     // arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2)
     pushbytes 0x0000000000000000
-    // mutable_native_types/contract.py:117-119
+    // mutable_native_types/contract.py:118-120
     // static_array = arc4.StaticArray[arc4.UInt64, typing.Literal[3]](
     //     arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2)
     // )
     concat
-    // mutable_native_types/contract.py:118
+    // mutable_native_types/contract.py:119
     // arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2)
     pushbytes 0x0000000000000001
-    // mutable_native_types/contract.py:117-119
+    // mutable_native_types/contract.py:118-120
     // static_array = arc4.StaticArray[arc4.UInt64, typing.Literal[3]](
     //     arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2)
     // )
     concat
-    // mutable_native_types/contract.py:118
+    // mutable_native_types/contract.py:119
     // arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2)
     pushbytes 0x0000000000000002
-    // mutable_native_types/contract.py:117-119
+    // mutable_native_types/contract.py:118-120
     // static_array = arc4.StaticArray[arc4.UInt64, typing.Literal[3]](
     //     arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2)
     // )
     concat
-    // mutable_native_types/contract.py:120
+    // mutable_native_types/contract.py:121
     // assert static_array.to_native(UInt64) == arr_3
     ==
     assert
@@ -510,13 +608,13 @@ fixed_initialize_block@0:
 
 // test_cases.mutable_native_types.contract.Contract.add_payment(pay: bytes) -> void:
 add_payment:
-    // mutable_native_types/contract.py:122-123
+    // mutable_native_types/contract.py:123-124
     // @arc4.abimethod()
     // def add_payment(self, pay: Payment) -> None:
     proto 1 0
 
 add_payment_block@0:
-    // mutable_native_types/contract.py:124
+    // mutable_native_types/contract.py:125
     // assert self.num_payments < self.payments.length, "too many payments"
     intc_0 // 0
     bytec_2 // "num_payments"
@@ -525,7 +623,7 @@ add_payment_block@0:
     intc_2 // 8
     <
     assert // too many payments
-    // mutable_native_types/contract.py:125
+    // mutable_native_types/contract.py:126
     // self.payments[self.num_payments] = pay.copy()
     intc_0 // 0
     bytec_3 // "payments"
@@ -542,7 +640,7 @@ add_payment_block@0:
     bytec_3 // "payments"
     swap
     app_global_put
-    // mutable_native_types/contract.py:126
+    // mutable_native_types/contract.py:127
     // self.num_payments += 1
     intc_0 // 0
     bytec_2 // "num_payments"
@@ -558,13 +656,13 @@ add_payment_block@0:
 
 // test_cases.mutable_native_types.contract.Contract.increment_payment(index: uint64, amt: uint64) -> void:
 increment_payment:
-    // mutable_native_types/contract.py:128-129
+    // mutable_native_types/contract.py:129-130
     // @arc4.abimethod()
     // def increment_payment(self, index: UInt64, amt: UInt64) -> None:
     proto 2 0
 
 increment_payment_block@0:
-    // mutable_native_types/contract.py:130
+    // mutable_native_types/contract.py:131
     // assert index < self.num_payments, "invalid payment index"
     intc_0 // 0
     bytec_2 // "num_payments"
@@ -573,7 +671,7 @@ increment_payment_block@0:
     frame_dig -2
     >
     assert // invalid payment index
-    // mutable_native_types/contract.py:131
+    // mutable_native_types/contract.py:132
     // self.payments[index].amt += amt
     intc_0 // 0
     bytec_3 // "payments"
@@ -618,38 +716,38 @@ increment_payment_block@0:
 
 // test_cases.mutable_native_types.contract.Contract.create_storage(box_key: uint64) -> void:
 create_storage:
-    // mutable_native_types/contract.py:133-134
+    // mutable_native_types/contract.py:134-135
     // @arc4.abimethod()
     // def create_storage(self, box_key: UInt64) -> None:
     proto 1 0
 
 create_storage_block@0:
-    // mutable_native_types/contract.py:135
+    // mutable_native_types/contract.py:136
     // self.nested_proxy.value = self.nested.copy()
     intc_0 // 0
     bytec_1 // "nested"
     app_global_get_ex
     assert // check self.nested exists
-    bytec 4 // 0x70
+    bytec 5 // 0x70
     swap
     app_global_put
-    // mutable_native_types/contract.py:136
+    // mutable_native_types/contract.py:137
     // self.nested_local[Txn.sender] = self.nested.copy()
     intc_0 // 0
     bytec_1 // "nested"
     app_global_get_ex
     assert // check self.nested exists
     txn Sender
-    bytec 5 // 0x6c
+    bytec 6 // 0x6c
     uncover 2
     app_local_put
-    // mutable_native_types/contract.py:137
+    // mutable_native_types/contract.py:138
     // assert self.box.create(), "expected box to not exist"
-    bytec 6 // "box"
+    bytec 7 // "box"
     pushint 2064 // 2064
     box_create
     assert // expected box to not exist
-    // mutable_native_types/contract.py:138
+    // mutable_native_types/contract.py:139
     // self.box_map[box_key].fixed_a = self.nested.fixed_a.copy()
     intc_0 // 0
     bytec_1 // "nested"
@@ -677,7 +775,7 @@ create_storage_block@0:
 local_struct:
 
 local_struct_block@0:
-    // mutable_native_types/contract.py:142
+    // mutable_native_types/contract.py:143
     // a = Payment(Txn.sender, Asset(1234), UInt64(567))
     txn Sender
     bytec_0 // 0x
@@ -689,7 +787,7 @@ local_struct_block@0:
     pushint 567 // 567
     itob
     concat
-    // mutable_native_types/contract.py:143-145
+    // mutable_native_types/contract.py:144-146
     // # python equivalent to typescript destructuring e.g.
     // # { foo, bar, baz } = a
     // (foo, bar, baz) = (a.receiver, a.asset, a.amt)
@@ -714,50 +812,50 @@ local_struct_block@0:
     uncover 3
     cover 2
     cover 2
-    // mutable_native_types/contract.py:146
+    // mutable_native_types/contract.py:147
     // assert foo, "use foo"
     global ZeroAddress
     !=
     assert // use foo
-    // mutable_native_types/contract.py:147
+    // mutable_native_types/contract.py:148
     // assert bar, "use bar"
     assert // use bar
-    // mutable_native_types/contract.py:148
+    // mutable_native_types/contract.py:149
     // assert baz, "use baz"
     intc_0 // 0
     !=
     assert // use baz
-    // mutable_native_types/contract.py:149
+    // mutable_native_types/contract.py:150
     // do_something(a)
     callsub do_something
-    // mutable_native_types/contract.py:150
+    // mutable_native_types/contract.py:151
     // return a
     retsub
 
 
 // test_cases.mutable_native_types.contract.Contract.delete_storage(box_key: uint64) -> void:
 delete_storage:
-    // mutable_native_types/contract.py:152-153
+    // mutable_native_types/contract.py:153-154
     // @arc4.abimethod()
     // def delete_storage(self, box_key: UInt64) -> None:
     proto 1 0
 
 delete_storage_block@0:
-    // mutable_native_types/contract.py:154
-    // del self.nested_proxy.value
-    bytec 4 // 0x70
-    app_global_del
     // mutable_native_types/contract.py:155
+    // del self.nested_proxy.value
+    bytec 5 // 0x70
+    app_global_del
+    // mutable_native_types/contract.py:156
     // del self.nested_local[Txn.sender]
     txn Sender
-    bytec 5 // 0x6c
+    bytec 6 // 0x6c
     app_local_del
-    // mutable_native_types/contract.py:156
+    // mutable_native_types/contract.py:157
     // del self.box.value
-    bytec 6 // "box"
+    bytec 7 // "box"
     box_del
     pop
-    // mutable_native_types/contract.py:157
+    // mutable_native_types/contract.py:158
     // del self.box_map[box_key]
     frame_dig -1
     itob
@@ -771,13 +869,13 @@ delete_storage_block@0:
 
 // test_cases.mutable_native_types.contract.Contract.struct_arg(box_key: uint64, a: bytes) -> void:
 struct_arg:
-    // mutable_native_types/contract.py:161-162
+    // mutable_native_types/contract.py:160-161
     // @arc4.abimethod()
     // def struct_arg(self, box_key: UInt64, a: FixedStruct) -> None:
     proto 2 0
 
 struct_arg_block@0:
-    // mutable_native_types/contract.py:163
+    // mutable_native_types/contract.py:162
     // self.nested.fixed_a = a
     intc_0 // 0
     bytec_1 // "nested"
@@ -789,45 +887,45 @@ struct_arg_block@0:
     bytec_1 // "nested"
     swap
     app_global_put
-    // mutable_native_types/contract.py:164
+    // mutable_native_types/contract.py:163
     // self.nested_proxy.value.fixed_a = a
     intc_0 // 0
-    bytec 4 // 0x70
+    bytec 5 // 0x70
     app_global_get_ex
     assert // check self.nested_proxy exists
     intc_0 // 0
     frame_dig -1
     replace3
-    bytec 4 // 0x70
+    bytec 5 // 0x70
     swap
     app_global_put
-    // mutable_native_types/contract.py:165
+    // mutable_native_types/contract.py:164
     // self.nested_local[Txn.sender].fixed_a = a
     txn Sender
     dup
     intc_0 // 0
-    bytec 5 // 0x6c
+    bytec 6 // 0x6c
     app_local_get_ex
     assert // check self.nested_local exists for account
     intc_0 // 0
     frame_dig -1
     replace3
     swap
-    bytec 5 // 0x6c
+    bytec 6 // 0x6c
     uncover 2
     app_local_put
-    // mutable_native_types/contract.py:166
+    // mutable_native_types/contract.py:165
     // self.box.value.fixed_a = a
-    bytec 6 // "box"
+    bytec 7 // "box"
     box_get
     assert // check self.box exists
     intc_0 // 0
     frame_dig -1
     replace3
-    bytec 6 // "box"
+    bytec 7 // "box"
     swap
     box_put
-    // mutable_native_types/contract.py:167
+    // mutable_native_types/contract.py:166
     // self.box_map[box_key].fixed_a = a
     frame_dig -2
     itob
@@ -848,7 +946,7 @@ struct_arg_block@0:
 struct_return:
 
 struct_return_block@0:
-    // mutable_native_types/contract.py:173
+    // mutable_native_types/contract.py:172
     // return self.nested.fixed_a
     intc_0 // 0
     bytec_1 // "nested"
@@ -864,7 +962,7 @@ struct_return_block@0:
 tup_return:
 
 tup_return_block@0:
-    // mutable_native_types/contract.py:177
+    // mutable_native_types/contract.py:176
     // return self.nested.tup
     intc_0 // 0
     bytec_1 // "nested"
@@ -888,13 +986,13 @@ tup_return_block@0:
 
 // test_cases.mutable_native_types.contract.Contract.calculate_sum() -> uint64:
 calculate_sum:
-    // mutable_native_types/contract.py:179-180
+    // mutable_native_types/contract.py:178-179
     // @arc4.abimethod()
     // def calculate_sum(self) -> UInt64:
     proto 0 1
 
 calculate_sum_block@0:
-    // mutable_native_types/contract.py:181
+    // mutable_native_types/contract.py:180
     // fixed_a = self.nested.fixed_a
     intc_0 // 0
     bytec_1 // "nested"
@@ -903,7 +1001,7 @@ calculate_sum_block@0:
     intc_0 // 0
     intc_3 // 16
     extract3
-    // mutable_native_types/contract.py:182
+    // mutable_native_types/contract.py:181
     // fixed_b = self.nested.fixed_b
     intc_0 // 0
     bytec_1 // "nested"
@@ -912,7 +1010,7 @@ calculate_sum_block@0:
     intc_3 // 16
     dup
     extract3
-    // mutable_native_types/contract.py:183
+    // mutable_native_types/contract.py:182
     // result = add(fixed_a) + add(fixed_b)
     swap
     callsub add
@@ -920,14 +1018,14 @@ calculate_sum_block@0:
     callsub add
     +
     dupn 2
-    // mutable_native_types/contract.py:184
+    // mutable_native_types/contract.py:183
     // if result < 100:
     pushint 100 // 100
     <
     bz calculate_sum_after_if_else@2
 
 calculate_sum_if_body@1:
-    // mutable_native_types/contract.py:185
+    // mutable_native_types/contract.py:184
     // c, d = self.nested.tup
     intc_0 // 0
     bytec_1 // "nested"
@@ -947,19 +1045,194 @@ calculate_sum_if_body@1:
     extract3
     btoi
     swap
-    // mutable_native_types/contract.py:186
+    // mutable_native_types/contract.py:185
     // result += c
     frame_dig 0
     +
-    // mutable_native_types/contract.py:187
+    // mutable_native_types/contract.py:186
     // result += d
     +
     frame_bury 1
 
 calculate_sum_after_if_else@2:
     frame_dig 1
-    // mutable_native_types/contract.py:188
+    // mutable_native_types/contract.py:187
     // return result
+    frame_bury 0
+    retsub
+
+
+// test_cases.mutable_native_types.contract.Contract.test_arr(arr: bytes) -> bytes:
+test_arr:
+    // mutable_native_types/contract.py:189-190
+    // @arc4.abimethod()
+    // def test_arr(self, arr: Array[FixedStruct]) -> Array[FixedStruct]:
+    proto 1 1
+
+test_arr_block@0:
+    // mutable_native_types/contract.py:191
+    // arr2 = arr.copy()
+    frame_dig -1
+    // mutable_native_types/contract.py:192
+    // assert arr == arr2, "expected arrays to be the same"
+    dup
+    dig 1
+    ==
+    assert // expected arrays to be the same
+    // mutable_native_types/contract.py:193
+    // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
+    txn NumAppArgs
+    intc_1 // 1
+    +
+    txn NumAppArgs
+    pushint 2 // 2
+    +
+    swap
+    itob
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    dup
+    cover 2
+    // mutable_native_types/contract.py:194
+    // arr2.append(fixed_struct)
+    bytec_0 // 0x
+    swap
+    concat
+    dig 1
+    swap
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    // mutable_native_types/contract.py:195
+    // assert arr != arr2, "expected arrays to be different"
+    frame_dig -1
+    !=
+    assert // expected arrays to be different
+    // mutable_native_types/contract.py:197
+    // arr2 = Array[FixedStruct]()
+    intc_0 // 0
+    itob
+    extract 6 2
+    // mutable_native_types/contract.py:199
+    // for _i in urange(3):
+    intc_1 // 1
+    assert // Step cannot be zero
+    intc_0 // 0
+
+test_arr_for_header@1:
+    // mutable_native_types/contract.py:199
+    // for _i in urange(3):
+    frame_dig 2
+    pushint 3 // 3
+    <
+    bz test_arr_after_for@4
+
+test_arr_for_body@2:
+    // mutable_native_types/contract.py:200
+    // arr2.append(fixed_struct)
+    bytec_0 // 0x
+    frame_dig 0
+    concat
+    frame_dig 1
+    dup
+    cover 2
+    swap
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
+    frame_bury 1
+
+test_arr_for_footer@3:
+    // mutable_native_types/contract.py:199
+    // for _i in urange(3):
+    frame_dig 2
+    intc_1 // 1
+    +
+    frame_bury 2
+    b test_arr_for_header@1
+
+test_arr_after_for@4:
+    // mutable_native_types/contract.py:202
+    // assert arr2.length == 3, "expected 3 elements"
+    frame_dig 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 3 // 3
+    ==
+    assert // expected 3 elements
+    // mutable_native_types/contract.py:204
+    // frozen1 = arr2.freeze()
+    dupn 2
+    // mutable_native_types/contract.py:205
+    // assert sum_frozen_arr(frozen1) == 15, "expected sum to be 15"
+    callsub sum_frozen_arr
+    pushint 15 // 15
+    ==
+    assert // expected sum to be 15
+    // mutable_native_types/contract.py:207
+    // arr2.pop()
+    swap
+    intc_3 // 16
+    callsub dynamic_array_pop_fixed_size
+    bury 1
+    // mutable_native_types/contract.py:208
+    // frozen2 = arr2.freeze()
+    dup
+    // mutable_native_types/contract.py:209
+    // assert sum_frozen_arr(frozen1) == 15, "expected sum to be 15"
+    uncover 2
+    callsub sum_frozen_arr
+    pushint 15 // 15
+    ==
+    assert // expected sum to be 15
+    // mutable_native_types/contract.py:210
+    // assert sum_frozen_arr(frozen2) == 10, "expected sum to be 10"
+    callsub sum_frozen_arr
+    pushint 10 // 10
+    ==
+    assert // expected sum to be 10
+    // mutable_native_types/contract.py:212
+    // self.arr = arr2.copy()
+    bytec 9 // "arr"
+    dig 1
+    app_global_put
+    // mutable_native_types/contract.py:213
+    // assert self.arr == arr2, "expected array in storage to be the same"
+    intc_0 // 0
+    bytec 9 // "arr"
+    app_global_get_ex
+    assert // check self.arr exists
+    ==
+    assert // expected array in storage to be the same
+    // mutable_native_types/contract.py:215
+    // return self.arr
+    intc_0 // 0
+    bytec 9 // "arr"
+    app_global_get_ex
+    assert // check self.arr exists
     frame_bury 0
     retsub
 
@@ -970,15 +1243,15 @@ approval_program:
 approval_program_block@0:
 
 approval_program_block@1:
-    // mutable_native_types/contract.py:68
+    // mutable_native_types/contract.py:69
     // class Contract(arc4.ARC4Contract):
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@15
+    bz approval_program_bare_routing@16
 
 approval_program_abi_routing@2:
-    // mutable_native_types/contract.py:68
+    // mutable_native_types/contract.py:69
     // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 0
     pushbytes 0xd1276f81 // method "fixed_initialize()void"
@@ -991,23 +1264,48 @@ approval_program_abi_routing@2:
     pushbytes 0x01aaa39c // method "struct_return()(uint64,uint64)"
     pushbytes 0x8313dee7 // method "tup_return()(uint64,uint64)"
     pushbytes 0x2ca849c1 // method "calculate_sum()uint64"
-    uncover 10
-    match approval_program_fixed_initialize_route@3 approval_program_add_payment_route@4 approval_program_increment_payment_route@5 approval_program_create_storage_route@6 approval_program_local_struct_route@7 approval_program_delete_storage_route@8 approval_program_struct_arg_route@9 approval_program_struct_return_route@10 approval_program_tup_return_route@11 approval_program_calculate_sum_route@12
+    pushbytes 0x3d8e707d // method "test_arr((uint64,uint64)[])(uint64,uint64)[]"
+    uncover 11
+    match approval_program_fixed_initialize_route@3 approval_program_add_payment_route@4 approval_program_increment_payment_route@5 approval_program_create_storage_route@6 approval_program_local_struct_route@7 approval_program_delete_storage_route@8 approval_program_struct_arg_route@9 approval_program_struct_return_route@10 approval_program_tup_return_route@11 approval_program_calculate_sum_route@12 approval_program_test_arr_route@13
 
-approval_program_switch_case_default@13:
+approval_program_switch_case_default@14:
 
-approval_program_switch_case_next@14:
+approval_program_switch_case_next@15:
 
-approval_program_after_if_else@21:
-    // mutable_native_types/contract.py:68
+approval_program_after_if_else@22:
+    // mutable_native_types/contract.py:69
     // class Contract(arc4.ARC4Contract):
     intc_0 // 0
 
-approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22:
+approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23:
     retsub
 
+approval_program_test_arr_route@13:
+    // mutable_native_types/contract.py:189
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // mutable_native_types/contract.py:69
+    // class Contract(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // mutable_native_types/contract.py:189
+    // @arc4.abimethod()
+    callsub test_arr
+    bytec 4 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
+
 approval_program_calculate_sum_route@12:
-    // mutable_native_types/contract.py:179
+    // mutable_native_types/contract.py:178
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1019,15 +1317,15 @@ approval_program_calculate_sum_route@12:
     assert // can only call when not creating
     callsub calculate_sum
     itob
-    bytec 7 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
 approval_program_tup_return_route@11:
-    // mutable_native_types/contract.py:175
+    // mutable_native_types/contract.py:174
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1046,15 +1344,15 @@ approval_program_tup_return_route@11:
     swap
     itob
     concat
-    bytec 7 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
 approval_program_struct_return_route@10:
-    // mutable_native_types/contract.py:171
+    // mutable_native_types/contract.py:170
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1065,15 +1363,15 @@ approval_program_struct_return_route@10:
     !=
     assert // can only call when not creating
     callsub struct_return
-    bytec 7 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
 approval_program_struct_arg_route@9:
-    // mutable_native_types/contract.py:161
+    // mutable_native_types/contract.py:160
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1083,19 +1381,19 @@ approval_program_struct_arg_route@9:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // mutable_native_types/contract.py:68
+    // mutable_native_types/contract.py:69
     // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
-    // mutable_native_types/contract.py:161
+    // mutable_native_types/contract.py:160
     // @arc4.abimethod()
     callsub struct_arg
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
 approval_program_delete_storage_route@8:
-    // mutable_native_types/contract.py:152
+    // mutable_native_types/contract.py:153
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1105,18 +1403,18 @@ approval_program_delete_storage_route@8:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // mutable_native_types/contract.py:68
+    // mutable_native_types/contract.py:69
     // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // mutable_native_types/contract.py:152
+    // mutable_native_types/contract.py:153
     // @arc4.abimethod()
     callsub delete_storage
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
 approval_program_local_struct_route@7:
-    // mutable_native_types/contract.py:140
+    // mutable_native_types/contract.py:141
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1127,15 +1425,15 @@ approval_program_local_struct_route@7:
     !=
     assert // can only call when not creating
     callsub local_struct
-    bytec 7 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
 approval_program_create_storage_route@6:
-    // mutable_native_types/contract.py:133
+    // mutable_native_types/contract.py:134
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1145,18 +1443,18 @@ approval_program_create_storage_route@6:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // mutable_native_types/contract.py:68
+    // mutable_native_types/contract.py:69
     // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
-    // mutable_native_types/contract.py:133
+    // mutable_native_types/contract.py:134
     // @arc4.abimethod()
     callsub create_storage
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
 approval_program_increment_payment_route@5:
-    // mutable_native_types/contract.py:128
+    // mutable_native_types/contract.py:129
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1166,20 +1464,20 @@ approval_program_increment_payment_route@5:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // mutable_native_types/contract.py:68
+    // mutable_native_types/contract.py:69
     // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
     txna ApplicationArgs 2
     btoi
-    // mutable_native_types/contract.py:128
+    // mutable_native_types/contract.py:129
     // @arc4.abimethod()
     callsub increment_payment
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
 approval_program_add_payment_route@4:
-    // mutable_native_types/contract.py:122
+    // mutable_native_types/contract.py:123
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1189,17 +1487,17 @@ approval_program_add_payment_route@4:
     intc_0 // 0
     !=
     assert // can only call when not creating
-    // mutable_native_types/contract.py:68
+    // mutable_native_types/contract.py:69
     // class Contract(arc4.ARC4Contract):
     txna ApplicationArgs 1
-    // mutable_native_types/contract.py:122
+    // mutable_native_types/contract.py:123
     // @arc4.abimethod()
     callsub add_payment
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
 approval_program_fixed_initialize_route@3:
-    // mutable_native_types/contract.py:92
+    // mutable_native_types/contract.py:93
     // @arc4.abimethod()
     txn OnCompletion
     intc_0 // NoOp
@@ -1211,29 +1509,29 @@ approval_program_fixed_initialize_route@3:
     assert // can only call when not creating
     callsub fixed_initialize
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23
 
-approval_program_bare_routing@15:
-    // mutable_native_types/contract.py:68
+approval_program_bare_routing@16:
+    // mutable_native_types/contract.py:69
     // class Contract(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match approval_program___algopy_default_create@16
+    match approval_program___algopy_default_create@17
 
-approval_program_switch_case_default@19:
+approval_program_switch_case_default@20:
 
-approval_program_switch_case_next@20:
-    b approval_program_after_if_else@21
+approval_program_switch_case_next@21:
+    b approval_program_after_if_else@22
 
-approval_program___algopy_default_create@16:
+approval_program___algopy_default_create@17:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-approval_program_block@17:
+approval_program_block@18:
 
-approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__algopy_default_create@18:
+approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__algopy_default_create@19:
     intc_1 // 1
-    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@22
+    b approval_program_after_inlined_test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__@23

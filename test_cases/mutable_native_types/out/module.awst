@@ -10,6 +10,7 @@ contract Contract
     ['dyn']: test_cases.mutable_native_types.contract.DynamicStruct
     ['num_payments']: uint64
     ['payments']: arc4.static_array<test_cases.mutable_native_types.contract.Payment, 8>
+    ['arr']: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>
   }
   locals {
     [hex<"6C">]: test_cases.mutable_native_types.contract.NestedStruct
@@ -133,6 +134,29 @@ contract Contract
     return result
   }
   
+  abimethod test_cases.mutable_native_types.contract.Contract.test_arr(arr: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>): arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>
+  {
+    arr2: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = arr.copy()
+    assert(arr == arr2, comment="expected arrays to be the same")
+    fixed_struct: test_cases.mutable_native_types.contract.FixedStruct = new test_cases.mutable_native_types.contract.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
+    arr2.extend((fixed_struct))
+    assert(arr != arr2, comment="expected arrays to be different")
+    arr2: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = new arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>()
+    for _i in range(0u, 3u, 1u) {
+      arr2.extend((fixed_struct))
+    }
+    assert(arr2.length == 3u, comment="expected 3 elements")
+    frozen1: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = convert_array<arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>>(arr2)
+    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen1) == 15u, comment="expected sum to be 15")
+    arr2.pop()
+    frozen2: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = convert_array<arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>>(arr2)
+    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen1) == 15u, comment="expected sum to be 15")
+    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2) == 10u, comment="expected sum to be 10")
+    GlobalState['arr']: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = arr2.copy()
+    assert(GlobalState['arr'] == arr2, comment="expected array in storage to be the same")
+    return GlobalState['arr']
+  }
+  
   baremethod test_cases.mutable_native_types.contract.Contract.__algopy_default_create(): void
   {
   }
@@ -145,6 +169,16 @@ contract Contract
   subroutine algopy._contract.Contract.__init__(): void
   {
   }
+}
+
+subroutine sum_frozen_arr(arr: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>): uint64
+{
+  total: uint64 = 0u
+  for element in arr {
+    total += element.a
+    total += element.b
+  }
+  return total
 }
 
 subroutine add(val: test_cases.mutable_native_types.contract.FixedStruct): uint64

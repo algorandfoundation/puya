@@ -315,39 +315,39 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         let array_item%0#0: Encoded(uint64) = extract_value(slot_contents%0#0, tmp%1#0)
         let pivot#0: uint64 = decode_bytes<uint64>(array_item%0#0)
         goto block@1
-    block@1: // while_top_L208
+    block@1: // while_top_L210
         let arr#2: Encoded(uint64[])* = φ(arr#0 <- block@0, arr#2 <- block@14)
         let left#3: uint64 = φ(window_left#0 <- block@0, left#5 <- block@14)
         let right#4: uint64 = φ(window_right#0 <- block@0, right#5 <- block@14)
         goto block@3
-    block@3: // while_top_L210
+    block@3: // while_top_L212
         let left#1: uint64 = φ(left#3 <- block@1, left#2 <- block@4)
         let slot_contents%1#0: Encoded(uint64[]) = load(arr#2)
         let array_item%1#0: Encoded(uint64) = extract_value(slot_contents%1#0, left#1)
         let values%1#0: uint64 = decode_bytes<uint64>(array_item%1#0)
         let tmp%2#0: bool = (< values%1#0 pivot#0)
         goto tmp%2#0 ? block@4 : block@5
-    block@4: // while_body_L211
+    block@4: // while_body_L213
         let left#2: uint64 = (+ left#1 1u)
         goto block@3
-    block@5: // after_while_L210
+    block@5: // after_while_L212
         goto block@6
-    block@6: // while_top_L213
+    block@6: // while_top_L215
         let right#1: uint64 = φ(right#4 <- block@5, right#2 <- block@9)
         let slot_contents%2#0: Encoded(uint64[]) = load(arr#2)
         let array_item%2#0: Encoded(uint64) = extract_value(slot_contents%2#0, right#1)
         let values%2#0: uint64 = decode_bytes<uint64>(array_item%2#0)
         let tmp%4#0: bool = (< pivot#0 values%2#0)
         goto tmp%4#0 ? block@7 : block@10
-    block@7: // while_body_L215
+    block@7: // while_body_L217
         goto right#1 ? block@9 : block@21
-    block@9: // after_if_else_L215
+    block@9: // after_if_else_L217
         let right#2: uint64 = (- right#1 1u)
         goto block@6
-    block@10: // after_while_L213
+    block@10: // after_while_L215
         let tmp%7#0: bool = (< left#1 right#1)
         goto tmp%7#0 ? block@11 : block@16
-    block@11: // if_body_L221
+    block@11: // if_body_L223
         let slot_contents%3#0: Encoded(uint64[]) = load(arr#2)
         let array_item%3#0: Encoded(uint64) = extract_value(slot_contents%3#0, right#1)
         let values%3#0: uint64 = decode_bytes<uint64>(array_item%3#0)
@@ -358,70 +358,70 @@ subroutine test_cases.array.uint64.quicksort_window(arr: Encoded(uint64[])*, win
         store(arr#2, updated_array%1#0)
         let left#5: uint64 = (+ left#1 1u)
         goto right#1 ? block@13 : block@12
-    block@12: // if_body_L225
+    block@12: // if_body_L227
         goto block@22
-    block@13: // after_if_else_L224
+    block@13: // after_if_else_L226
         let right#5: uint64 = (- right#1 1u)
         let tmp%11#0: bool = (<= left#5 right#5)
         goto tmp%11#0 ? block@14 : block@15
-    block@14: // if_body_L229
+    block@14: // if_body_L231
         goto block@1
-    block@15: // after_if_else_L228
+    block@15: // after_if_else_L230
         goto block@22
-    block@16: // after_if_else_L220
+    block@16: // after_if_else_L222
         let tmp%12#0: bool = (== left#1 right#1)
         goto tmp%12#0 ? block@17 : block@21
-    block@17: // if_body_L235
+    block@17: // if_body_L237
         let left#6: uint64 = (+ left#1 1u)
         goto right#1 ? block@18 : block@19
-    block@18: // if_body_L238
+    block@18: // if_body_L240
         let right#6: uint64 = (- right#1 1u)
         goto block@19
-    block@19: // after_if_else_L237
+    block@19: // after_if_else_L239
         let right#8: uint64 = φ(right#1 <- block@17, right#6 <- block@18)
         goto block@22
-    block@21: // L213
+    block@21: // L215
         goto block@22
-    block@22: // after_while_L208
+    block@22: // after_while_L210
         let right#7: uint64 = φ(right#1 <- block@12, right#5 <- block@15, right#8 <- block@19, right#1 <- block@21)
         let left#8: uint64 = φ(left#5 <- block@12, left#5 <- block@15, left#6 <- block@19, left#1 <- block@21)
         let tmp%16#0: bool = (< window_left#0 right#7)
         goto tmp%16#0 ? block@23 : block@24
-    block@23: // if_body_L247
+    block@23: // if_body_L249
         test_cases.array.uint64.quicksort_window(arr#2, window_left#0, right#7)
         goto block@24
-    block@24: // after_if_else_L246
+    block@24: // after_if_else_L248
         let tmp%17#0: bool = (< left#8 window_right#0)
         goto tmp%17#0 ? block@25 : block@26
-    block@25: // if_body_L250
+    block@25: // if_body_L252
         test_cases.array.uint64.quicksort_window(arr#2, left#8, window_right#0)
         goto block@26
-    block@26: // after_if_else_L249
+    block@26: // after_if_else_L251
         return 
 
 subroutine test_cases.array.uint64.create_array() -> Encoded(uint64[])*:
-    block@0: // L253
+    block@0: // L255
         let encoded_array%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>()
         let arr#0: Encoded(uint64[])* = new()
         store(arr#0, encoded_array%0#0)
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L256
+    block@1: // for_header_L258
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@2)
         let continue_looping%0#0: bool = (< i#1 5u)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L257
+    block@2: // for_body_L259
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
         store(arr#0, concat%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L256
+    block@4: // after_for_L258
         return arr#0
 
 subroutine test_cases.array.uint64.assert_last_is_zero(arr: Encoded(uint64[])*) -> void:
-    block@0: // L261
+    block@0: // L263
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%0#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
@@ -433,25 +433,25 @@ subroutine test_cases.array.uint64.assert_last_is_zero(arr: Encoded(uint64[])*) 
         return 
 
 subroutine test_cases.array.uint64.add_x(arr: Encoded(uint64[])*, x: uint64) -> void:
-    block@0: // L273
+    block@0: // L277
         let i#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L275
+    block@1: // for_header_L279
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@2)
         let continue_looping%0#0: bool = (< i#1 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L276
+    block@2: // for_body_L280
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%0#0) // on error: max array length exceeded
         store(arr#0, concat%0#0)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
-    block@4: // after_for_L275
+    block@4: // after_for_L279
         return 
 
 subroutine test_cases.array.uint64.append_length_and_return(arr: Encoded(uint64[])*) -> Encoded(uint64[])*:
-    block@0: // L287
+    block@0: // L291
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%0#0: uint64 = (len slot_contents%0#0)
         let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
@@ -494,12 +494,12 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         let expected#0: uint64 = 4u
         let _i#0: uint64 = 0u
         goto block@2
-    block@2: // for_header_L281
+    block@2: // for_header_L285
         let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@3)
         let expected#1: uint64 = φ(expected#0 <- block@0, expected#2 <- block@3)
         let continue_looping%0#0: bool = (< _i#1 3u)
         goto continue_looping%0#0 ? block@3 : block@4
-    block@3: // for_body_L282
+    block@3: // for_body_L286
         let slot_contents%0#1: Encoded(uint64[]) = load(arr#0)
         let len%0#0: uint64 = (len slot_contents%0#1)
         let sub%0#0: uint64 = (- len%0#0 8u)
@@ -512,7 +512,7 @@ subroutine test_cases.array.uint64.Contract.test_array() -> void:
         let expected#2: uint64 = (- expected#1 1u)
         let _i#2: uint64 = (+ _i#1 1u)
         goto block@2
-    block@4: // after_for_L281
+    block@4: // after_for_L285
         let slot_contents%8#0: Encoded(uint64[]) = load(arr#0)
         let bytes_len%5#0: uint64 = (len slot_contents%8#0)
         let array_len%5#0: uint64 = (/ bytes_len%5#0 8u)

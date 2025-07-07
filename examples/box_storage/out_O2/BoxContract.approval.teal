@@ -3,7 +3,7 @@
 
 // examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0 2 5
+    intcblock 1 0 2 5 4096
     bytecblock 0x424f585f43 0x626c6f62 "box_d" "box_a" "b" "box_large" 0x151f7c75 "0" 0x68656c6c6f 0x00023432 "default" "box_ref"
     txn NumAppArgs
     bz main_bare_routing@18
@@ -386,7 +386,8 @@ main_read_boxes_route@8:
     txn ApplicationID
     assert // can only call when not creating
     bytec 5 // "box_large"
-    pushints 4096 8 // 4096, 8
+    intc 4 // 4096
+    pushint 8 // 8
     box_extract
     bytec_3 // "box_a"
     box_get
@@ -536,11 +537,17 @@ main_set_boxes_route@5:
     dig 1
     box_put
     bytec 5 // "box_large"
-    pushint 6152 // 6152
+    pushint 6160 // 6160
     box_create
     pop
+    pushint 42 // 42
+    itob
     bytec 5 // "box_large"
-    pushint 4096 // 4096
+    intc 4 // 4096
+    uncover 2
+    box_replace
+    bytec 5 // "box_large"
+    intc 4 // 4096
     pushbytes 0x000000000000002a
     box_replace
     bytec_3 // "box_a"
@@ -779,7 +786,7 @@ main_set_boxes_route@5:
     bytec 5 // "box_large"
     box_len
     pop
-    pushint 6152 // 6152
+    pushint 6160 // 6160
     ==
     assert
     intc_0 // 1

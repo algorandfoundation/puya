@@ -75,3 +75,9 @@ class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     def calculate_sum(
         self,
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
+    def test_arr(
+        self,
+        arr: algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]],
+    ) -> algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]]: ...
