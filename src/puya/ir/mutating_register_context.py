@@ -20,7 +20,6 @@ from puya.parse import SourceLocation
 class MutatingRegisterContext(IRMutator, IRRegisterContext):
     temp_prefix: str
     subroutine: ir.Subroutine
-    modified: bool = False
     _versions: dict[str, int] = attrs.field()
     _tmp_counters: defaultdict[str, Iterator[int]] = attrs.field(
         factory=lambda: defaultdict(itertools.count)

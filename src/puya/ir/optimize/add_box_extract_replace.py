@@ -57,6 +57,7 @@ class _AggregateCollector(NoOpIRVisitor[None]):
 @attrs.define
 class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
     aggregates: _AggregateCollector
+    modified: bool = False
 
     def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider:
         if not _box_extract_required(read):
