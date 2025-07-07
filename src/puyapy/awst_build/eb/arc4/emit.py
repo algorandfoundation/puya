@@ -69,7 +69,8 @@ class EmitBuilder(FunctionBuilder):
                 else:
                     if (num_sig_args := len(method_sig.maybe_args)) != len(rest):
                         logger.error(
-                            f"expected {num_sig_args} ABI argument{'' if num_sig_args == 1 else 's'},"
+                            f"expected {num_sig_args} ABI "
+                            f"argument{'' if num_sig_args == 1 else 's'},"
                             f" got {len(rest)}",
                             location=self.source_location,
                         )

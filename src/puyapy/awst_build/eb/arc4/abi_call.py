@@ -32,6 +32,7 @@ from puyapy import models
 from puyapy.awst_build import arc4_utils, constants, pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder
+from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.arc4._base import ARC4FromLogBuilder
 from puyapy.awst_build.eb.arc4._utils import (
     ARC4Signature,
@@ -496,23 +497,41 @@ def _method_selector_and_arc4_args(
             f" got {num_args}",
             location=signature.source_location,
         )
-    arg_types = list(map(_gtxn_to_itxn, signature.arg_types))
-    arc4_args = [
-        implicit_arc4_conversion(arg, pt) for arg, pt in zip(abi_args, arg_types, strict=False)
-    ]
-    converted_args = arc4_args
-    return [
+    result: list[InstanceBuilder] = [
         BytesExpressionBuilder(
             MethodConstant(value=signature.method_selector, source_location=location)
-        ),
-        *converted_args,
+        )
     ]
+    for arg_in, target_type in zip(abi_args, signature.arg_types, strict=False):
+        if not isinstance(target_type, pytypes.GroupTransactionType):
+            arg = implicit_arc4_conversion(arg_in, target_type)
+        else:
+            target_type = pytypes.InnerTransactionFieldsetTypes[target_type.transaction_type]
+            instance = expect.instance_builder(
+                arg_in, default=expect.default_dummy_value(target_type)
+            )
+            if _inner_transaction_type_matches(instance.pytype, target_type):
+                arg = instance
+            else:
+                logger.error(
+                    f"expected type {target_type}, got type {instance.pytype}",
+                    location=instance.source_location,
+                )
+                arg = dummy_value(target_type, instance.source_location)
+        result.append(arg)
+    return result
 
 
-def _gtxn_to_itxn(pytype: pytypes.PyType) -> pytypes.PyType:
-    if isinstance(pytype, pytypes.GroupTransactionType):
-        return pytypes.InnerTransactionFieldsetTypes[pytype.transaction_type]
-    return pytype
+def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.PyType) -> bool:
+    if not isinstance(instance, pytypes.InnerTransactionFieldsetType):
+        return False
+    if not isinstance(target, pytypes.InnerTransactionFieldsetType):
+        return False
+    return (
+        instance.transaction_type == target.transaction_type
+        or instance.transaction_type is None
+        or target.transaction_type is None
+    )
 
 
 def _create_abi_call_expr(

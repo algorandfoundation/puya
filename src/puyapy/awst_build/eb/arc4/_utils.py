@@ -14,7 +14,6 @@ from puya.parse import SourceLocation
 from puyapy.awst_build import arc4_utils, pytypes
 from puyapy.awst_build.arc4_utils import pytype_to_arc4_pytype, split_tuple_types
 from puyapy.awst_build.eb import _expect as expect
-from puyapy.awst_build.eb._utils import dummy_value
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import InstanceBuilder, NodeBuilder
 from puyapy.awst_build.utils import maybe_resolve_literal
@@ -117,38 +116,16 @@ def implicit_arc4_type_arg_conversion(typ: pytypes.PyType, loc: SourceLocation) 
     return pytype_to_arc4_pytype(typ, on_error, encode_resource_types=False, source_location=loc)
 
 
-def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.PyType) -> bool:
-    if not isinstance(instance, pytypes.InnerTransactionFieldsetType):
-        return False
-    if not isinstance(target, pytypes.InnerTransactionFieldsetType):
-        return False
-    return (
-        instance.transaction_type == target.transaction_type
-        or instance.transaction_type is None
-        or target.transaction_type is None
-    )
-
-
 def implicit_arc4_conversion(operand: NodeBuilder, target_type: pytypes.PyType) -> InstanceBuilder:
     instance = expect.instance_builder(operand, default=expect.default_dummy_value(target_type))
     instance = _maybe_resolve_arc4_literal(instance, target_type)
     if target_type <= instance.pytype:
         return instance
 
-    if isinstance(target_type, pytypes.TransactionRelatedType):
-        if _inner_transaction_type_matches(instance.pytype, target_type):
-            return instance
-        else:
-            logger.error(
-                f"expected type {target_type}, got type {instance.pytype}",
-                location=instance.source_location,
-            )
-            return dummy_value(target_type, instance.source_location)
-
     target_wtype = target_type.wtype
     if not isinstance(target_wtype, wtypes.ARC4Type):
         raise InternalError(
-            "implicit_operand_conversion expected target_type to be an ARC-4 type,"
+            "implicit_arc4_conversion expected target_type to be an ARC-4 type,"
             f" got {target_type}",
             instance.source_location,
         )
