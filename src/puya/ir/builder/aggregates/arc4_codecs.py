@@ -15,7 +15,6 @@ from puya.ir import (
 )
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import undefined_value
-from puya.ir.builder.sequence import requires_no_conversion
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
 from puya.parse import SourceLocation
@@ -51,6 +50,8 @@ def _try_decode_bytes(
     target_type: types.IRType | types.TupleIRType,
     loc: SourceLocation,
 ) -> ir.ValueProvider | None:
+    if isinstance(target_type, types.EncodedType) and target_type.encoding == encoding:
+        return value
     codec = _get_arc4_codec(target_type)
     if codec is None:
         return None
@@ -87,6 +88,12 @@ def _try_encode_to_bytes(
     encoding: encodings.Encoding,
     loc: SourceLocation,
 ) -> ir.ValueProvider | None:
+    if isinstance(values_type, types.EncodedType) and values_type.encoding == encoding:
+        if isinstance(values_type, types.TupleIRType):
+            return ir.ValueTuple(values=values, source_location=loc)
+        else:
+            (value,) = values
+            return value
     codec = _get_arc4_codec(values_type)
     if codec is None:
         return None
@@ -252,20 +259,17 @@ class _NativeTupleCodec(_ARC4Codec):
             zip(tuple_encoding.elements, item_types, strict=True)
         ):
             encoded_item = read_at_index(context, tuple_encoding, value, index, loc)
-            if requires_no_conversion(item_ir_type, item_encoding):
-                result.append(encoded_item)
-            else:
-                item = _try_decode_bytes(
-                    context,
-                    value=encoded_item,
-                    encoding=item_encoding,
-                    target_type=item_ir_type,
-                    loc=loc,
-                )
-                if item is None:
-                    return None
-                items = factory.materialise_values(item, f"item{index}")
-                result.extend(items)
+            item = _try_decode_bytes(
+                context,
+                value=encoded_item,
+                encoding=item_encoding,
+                target_type=item_ir_type,
+                loc=loc,
+            )
+            if item is None:
+                return None
+            items = factory.materialise_values(item, f"item{index}")
+            result.extend(items)
         return ir.ValueTuple(values=result, source_location=loc)
 
 
@@ -517,43 +521,13 @@ class _AccountCodec(_ScalarCodec):
                 return None
 
 
-@attrs.frozen
-class _CheckedEncoding(_ARC4Codec):
-    native_type: types.EncodedType
-
-    @typing.override
-    def encode(
-        self,
-        context: IRRegisterContext,
-        values: Sequence[ir.Value],
-        encoding: encodings.Encoding,
-        loc: SourceLocation,
-    ) -> ir.ValueProvider | None:
-        if self.native_type.encoding == encoding:
-            (value,) = values
-            return value
-        return None
-
-    @typing.override
-    def decode(
-        self,
-        context: IRRegisterContext,
-        value: ir.Value,
-        encoding: encodings.Encoding,
-        loc: SourceLocation,
-    ) -> ir.ValueProvider | None:
-        if self.native_type.encoding == encoding:
-            return value
-        return None
-
-
 def _get_arc4_codec(ir_type: types.IRType | types.TupleIRType) -> _ARC4Codec | None:
     match ir_type:
         case types.TupleIRType() as aggregate:
             return _NativeTupleCodec(aggregate)
         case types.PrimitiveIRType.biguint:
             return _BigUIntCodec()
-        case types.PrimitiveIRType.bool | types.EncodedType(encoding=encodings.BoolEncoding()):
+        case types.PrimitiveIRType.bool:
             return _BoolCodec()
         case types.EncodedType(encoding=encodings.Bool8Encoding()):
             return _Bool8Codec()
@@ -561,11 +535,6 @@ def _get_arc4_codec(ir_type: types.IRType | types.TupleIRType) -> _ARC4Codec | N
             return _BytesCodec(encodings.UTF8Encoding())
         case types.PrimitiveIRType.account:
             return _AccountCodec()
-        case types.EncodedType():
-            # this supports conversion of high-level types to another high-level type
-            # that has the same encoding e.g.
-            # ARC4DynamicArray[arc4.UInt64] -> ARC4DynamicArray[UInt64]
-            return _CheckedEncoding(ir_type)
         case types.PrimitiveIRType.bytes | types.SizedBytesType():
             return _BytesCodec(encodings.UIntEncoding(n=8))
         case types.IRType(maybe_avm_type=AVMType.uint64):
