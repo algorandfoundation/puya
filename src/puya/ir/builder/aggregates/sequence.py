@@ -140,10 +140,9 @@ class _BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
         # e.g. reading index 6 & 7 of an array that has a length of 6
         self._maybe_bounds_check(array, index)
 
-        if self.array_encoding.length_header:
-            # TODO: consider incrementing index by 16 instead
-            array = self.factory.extract_to_end(array, 2, "array_trimmed")
         # index is the bit position
+        if self.array_encoding.length_header:
+            index = self.factory.add(index, 16)
         return self.factory.get_bit(array, index)
 
     @typing.override
