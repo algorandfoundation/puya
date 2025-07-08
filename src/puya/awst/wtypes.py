@@ -539,18 +539,6 @@ class ARC4DynamicArray(ARC4Array):
         return visitor.visit_arc4_dynamic_array(self)
 
 
-# TODO: remove once puya-ts has stopped using wtypes.StackArray
-@typing.final
-@attrs.frozen(kw_only=True)
-class StackArray(ARC4DynamicArray):
-    immutable: bool = attrs.field(default=True, init=False)
-    name: str = attrs.field(init=False)
-
-    @name.default
-    def _name(self) -> str:
-        return f"stack_array<{self.element_type.name}>"
-
-
 @typing.final
 @attrs.frozen(kw_only=True)
 class ARC4StaticArray(ARC4Array):
