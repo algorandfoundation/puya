@@ -13,9 +13,7 @@ from puya.ir.builder.sequence import get_length
 from puya.ir.encodings import ArrayEncoding
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import (
-    PrimitiveIRType,
-)
+from puya.ir.types_ import PrimitiveIRType
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -89,8 +87,6 @@ def _get_builder(
         builder_typ = _DynamicElementArrayBuilder
     else:
         builder_typ = _FixedElementArrayBuilder
-        # TODO: maybe split DynamicElementArrayBuilder into two builders
-        # TODO: maybe ByteLengthHeaderElementArrayBuilder
     return builder_typ(
         context,
         array_encoding=array_encoding,
@@ -225,6 +221,7 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
         array_head_and_tail = array
         if self.array_encoding.length_header:
             array_head_and_tail = self.factory.extract_to_end(array, 2, "array_head_and_tail")
+        # TODO: maybe split DynamicElementArrayBuilder into two builders
         if self.inner_element_size is not None:
             self._maybe_bounds_check(array, index)
             item = self._read_item_from_array_length_and_fixed_size(array_head_and_tail, index)
