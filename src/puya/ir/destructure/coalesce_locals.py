@@ -1,14 +1,17 @@
 import itertools
 import typing
 import typing as t
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 
 import attrs
 
 from puya import log
 from puya.avm import AVMType
-from puya.ir import models
-from puya.ir.types_ import PrimitiveIRType, SlotType
+from puya.errors import InternalError
+from puya.ir import (
+    models,
+    types_ as types,
+)
 from puya.ir.visitor_mem_replacer import MemoryReplacer
 from puya.ir.vla import VariableLifetimeAnalysis
 from puya.options import LocalsCoalescingStrategy
@@ -26,13 +29,17 @@ class MemoryReplacerWithRedundantAssignmentRemoval(MemoryReplacer):
         return ass
 
 
-class CoalesceGroupStrategy(t.Protocol):
-    def get_group_key(self, reg: models.Register) -> object: ...
+class CoalesceGroupStrategy[TKey](t.Protocol):
+    def get_group_key(self, reg: models.Register) -> TKey: ...
 
-    def determine_group_replacement(self, regs: Iterable[models.Register]) -> models.Register: ...
+    def determine_group_replacement(
+        self, group_key: TKey, regs: Iterable[models.Register]
+    ) -> models.Register: ...
 
 
-def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subroutine) -> int:
+def coalesce_registers(
+    group_strategy: CoalesceGroupStrategy[object], sub: models.Subroutine, *, allow_params: bool
+) -> int:
     """
     A local can be merged with another local if they are never live at the same time.
 
@@ -49,8 +56,9 @@ def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subrou
     #       which has already been partially implemented (phase 1 + 4 have been, anyway)
 
     variables_live_at_definition = dict[models.Register, StableSet[models.Register]]()
-    for param in sub.parameters:
-        variables_live_at_definition[param] = StableSet.from_iter(sub.parameters)
+    if allow_params:
+        for param in sub.parameters:
+            variables_live_at_definition[param] = StableSet.from_iter(sub.parameters)
     for block in sub.body:
         for op in block.ops:
             match op:
@@ -89,11 +97,13 @@ def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subrou
             coalescable_groups.append((StableSet(defined_reg), StableSet.from_iter(live_set)))
 
     replacements = dict[models.Register, models.Register]()
-    for group in coalescable_groups_by_key.values():
+    for group_key, group in coalescable_groups_by_key.items():
         for coalescable_register_set, _ in group:
             if len(coalescable_register_set) < 2:
                 continue
-            replacement = group_strategy.determine_group_replacement(coalescable_register_set)
+            replacement = group_strategy.determine_group_replacement(
+                group_key, coalescable_register_set
+            )
             find = coalescable_register_set - {replacement}
 
             logger.debug(f"Coalescing {replacement} with [{', '.join(map(str, find))}]")
@@ -104,68 +114,103 @@ def coalesce_registers(group_strategy: CoalesceGroupStrategy, sub: models.Subrou
     return total_replacements
 
 
-class RootOperandGrouping(CoalesceGroupStrategy):
-    def __init__(self, isolate: frozenset[models.Register] | None = None) -> None:
-        self._isolate = isolate or frozenset()
+_RootOperandKey = tuple[str, types.IRType]
 
-    def get_group_key(self, reg: models.Register) -> object:
-        if reg in self._isolate:
-            return reg
+
+class RootOperandGrouping(CoalesceGroupStrategy[_RootOperandKey]):
+    def __init__(self, params: Sequence[models.Parameter]) -> None:
+        self._params = params
+
+    @typing.override
+    def get_group_key(self, reg: models.Register) -> _RootOperandKey:
         ir_type = reg.ir_type
         # preserve PrimitiveIRType, because this seems to provide a decent balance
         # preserve SlotType because otherwise MIR will error
-        if not isinstance(ir_type, PrimitiveIRType | SlotType):
+        if not isinstance(ir_type, types.PrimitiveIRType | types.SlotType):
             match ir_type.maybe_avm_type:
                 case AVMType.uint64:
-                    ir_type = PrimitiveIRType.uint64
+                    ir_type = types.PrimitiveIRType.uint64
                 case AVMType.bytes:
-                    ir_type = PrimitiveIRType.bytes
+                    ir_type = types.PrimitiveIRType.bytes
         return reg.name, ir_type
 
-    def determine_group_replacement(self, regs: Iterable[models.Register]) -> models.Register:
-        return min(regs, key=lambda r: r.version)
+    @typing.override
+    def determine_group_replacement(
+        self, group_key: _RootOperandKey, regs: Iterable[models.Register]
+    ) -> models.Register:
+        params = [r for r in regs if r in self._params]
+        match params:
+            case [param]:
+                # if there is a parameter in the group, we must use that, it wouldn't be updated
+                return param
+            case []:
+                # otherwise use the smallest version number, and if they're all the same type use
+                # that, otherwise use the type they were grouped by
+                version = min(r.version for r in regs)
+                name, ir_type_key = group_key
+                try:
+                    (ir_type,) = {r.ir_type for r in regs}
+                except ValueError:
+                    ir_type = ir_type_key
+                return models.Register(
+                    name=name,
+                    ir_type=ir_type,
+                    version=version,
+                    source_location=None,
+                )
+            case _:
+                # this shouldn't happen, if params are being considered for coalescing, they
+                # should all be alive at their definition point and thus not grouped together
+                raise InternalError(
+                    f"coalesced register set ({[r.local_id for r in regs]})"
+                    f" contained multiple parameters: {[p.local_id for p in params]}"
+                )
 
 
-class AggressiveGrouping(CoalesceGroupStrategy):
-    def __init__(self, sub: models.Subroutine) -> None:
-        self._params = frozenset(sub.parameters)
+class AggressiveGrouping(CoalesceGroupStrategy[types.IRType]):
+    def __init__(self) -> None:
         self._counter = itertools.count()
 
-    def get_group_key(self, reg: models.Register) -> object:
-        if reg in self._params:
-            return reg
+    @typing.override
+    def get_group_key(self, reg: models.Register) -> types.IRType:
+        if isinstance(reg.ir_type, types.SlotType):
+            match reg.ir_type.contents.avm_type:
+                case AVMType.uint64:
+                    return types.SlotType(types.PrimitiveIRType.uint64)
+                case _:
+                    return types.SlotType(types.PrimitiveIRType.bytes)
         else:
-            return reg.atype
+            match reg.atype:
+                case AVMType.uint64:
+                    return types.PrimitiveIRType.uint64
+                case AVMType.bytes:
+                    return types.PrimitiveIRType.bytes
 
-    def determine_group_replacement(self, regs: Iterable[models.Register]) -> models.Register:
+    @typing.override
+    def determine_group_replacement(
+        self, group_key: types.IRType, regs: Iterable[models.Register]
+    ) -> models.Register:
         next_id = next(self._counter)
-        (atype,) = {r.atype for r in regs}
-        match atype:
-            case AVMType.uint64:
-                ir_type = PrimitiveIRType.uint64
-            case AVMType.bytes:
-                ir_type = PrimitiveIRType.bytes
-            case _:
-                typing.assert_never(atype)
         return models.Register(
-            name="",
-            version=next_id,
-            ir_type=ir_type,
+            name=f"%{next_id}",
+            version=0,
+            ir_type=group_key,
             source_location=None,
         )
 
 
 def coalesce_locals(subroutine: models.Subroutine, strategy: LocalsCoalescingStrategy) -> None:
+    logger.debug(f"Coalescing local variables in {subroutine.id} using strategy {strategy.name!r}")
+    group_strategy: CoalesceGroupStrategy[typing.Any]
     match strategy:
         case LocalsCoalescingStrategy.root_operand:
-            group_strategy: CoalesceGroupStrategy = RootOperandGrouping()
+            group_strategy = RootOperandGrouping(params=subroutine.parameters)
+            allow_params = True
         case LocalsCoalescingStrategy.root_operand_excluding_args:
-            group_strategy = RootOperandGrouping(isolate=frozenset(subroutine.parameters))
+            group_strategy = RootOperandGrouping(params=subroutine.parameters)
+            allow_params = False
         case LocalsCoalescingStrategy.aggressive:
-            group_strategy = AggressiveGrouping(subroutine)
-    logger.debug(
-        f"Coalescing local variables in {subroutine.id}"
-        f" using strategy {type(group_strategy).__name__}"
-    )
-    replacements = coalesce_registers(group_strategy, subroutine)
+            group_strategy = AggressiveGrouping()
+            allow_params = False
+    replacements = coalesce_registers(group_strategy, subroutine, allow_params=allow_params)
     logger.debug(f"Coalescing resulted in {replacements} replacement/s")
