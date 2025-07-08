@@ -10751,6 +10751,8 @@ debug: Simplified (concat 0x aggregate%encoded_bool%1#1) to aggregate%encoded_bo
 debug: Simplified (concat 0x aggregate%encoded_bool%1#1) // on error: max array length exceeded to aggregate%encoded_bool%1#1
 debug: Simplified (concat 0x aggregate%encoded_bool%2#1) to aggregate%encoded_bool%2#1
 debug: Simplified ((extract 6 2) aggregate%as_bytes%1#1) to 0x0000
+debug: Simplified (+ 0u 16u) to 16u
+debug: Simplified (+ 1u 16u) to 17u
 debug: Simplified (concat 0x b#0) to b#0
 debug: Simplified (* 0u 1u) to 0u
 debug: Simplified (* 1u 1u) to 1u
@@ -10783,8 +10785,6 @@ debug: Replacing redundant declaration let aggregate%bzero%1#1: bytes = (bzero 6
 debug: Replacing redundant declaration let aggregate%bzero%2#1: bytes = (bzero 64u) with copy of existing registers (Register(source_location=array/static_size.py:44-48:15-9, ir_type=bytes, name='aggregate%bzero%0', version=1),)
 debug: Replacing redundant declaration let aggregate%array_length%0#1: uint64 = (extract_uint16 dyn_arr#1 0u) with copy of existing registers (Register(source_location=array/static_size.py:146:15-29, ir_type=uint64, name='array_length%0', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%1#1: uint64 = (extract_uint16 dyn_arr#1 0u) with copy of existing registers (Register(source_location=array/static_size.py:146:15-29, ir_type=uint64, name='array_length%0', version=0),)
-debug: Replacing redundant declaration let aggregate%array_trimmed%2#1: bytes = ((extract 2 0) dyn_arr#1) with copy of existing registers (Register(source_location=array/static_size.py:148:15-25, ir_type=bytes, name='aggregate%array_trimmed%1', version=1),)
-debug: Replacing redundant declaration let aggregate%array_trimmed%3#1: bytes = ((extract 2 0) dyn_arr#1) with copy of existing registers (Register(source_location=array/static_size.py:148:15-25, ir_type=bytes, name='aggregate%array_trimmed%1', version=1),)
 debug: Found equivalence set: aggregate%val_as_bytes%1#1, aggregate%head%2#1
 debug: selected aggregate%val_as_bytes%1#1 from equivalence set
 debug: Found equivalence set: aggregate%head%7#1, aggregate%head%8#1
@@ -10819,11 +10819,9 @@ debug: Found equivalence set: aggregate%encoded_bool%2#1, aggregate%head%32#1
 debug: selected aggregate%encoded_bool%2#1 from equivalence set
 debug: Found equivalence set: array_length%0#0, aggregate%array_length%0#1, aggregate%array_length%1#1
 debug: selected array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_trimmed%1#1, aggregate%array_trimmed%2#1, aggregate%array_trimmed%3#1
-debug: selected aggregate%array_trimmed%1#1 from equivalence set
 debug: Found equivalence set: b#0, aggregate%head%33#1
 debug: selected b#0 from equivalence set
-debug: Copy propagation made 7 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -10923,6 +10921,8 @@ debug: Removing unused variable item#0
 debug: Removing unused variable aggregate%as_bytes%1#1
 debug: Removing unused variable dyn_arr#0
 debug: Removing unused variable aggregate%lt%0#1
+debug: Removing unused variable aggregate%add%0#1
+debug: Removing unused variable aggregate%add%1#1
 debug: Removing unused variable aggregate%bytes_offset%8#1
 debug: Removing unused variable aggregate%bytes_offset%9#1
 debug: Removing unused variable aggregate%bytes_offset%10#1
@@ -11833,20 +11833,18 @@ debug: Inserted main_test_arc4_bool_route@33.ops[71]: 'l-store-copy tmp%11#1 0'
 debug: Replaced main_test_arc4_bool_route@33.ops[73]: 'v-load tmp%11#1' with 'l-load tmp%11#1'
 debug: Inserted main_test_arc4_bool_route@33.ops[76]: 'l-store-copy tmp%12#1 0'
 debug: Replaced main_test_arc4_bool_route@33.ops[78]: 'v-load tmp%12#1' with 'l-load tmp%12#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[84]: 'l-store-copy aggregate%array_trimmed%1#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[86]: 'v-load aggregate%array_trimmed%1#1' with 'l-load aggregate%array_trimmed%1#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[94]: 'l-store-copy aggregate%encoded_bool%3#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[96]: 'v-load aggregate%encoded_bool%3#1' with 'l-load aggregate%encoded_bool%3#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[111]: 'l-store-copy tmp%17#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[113]: 'v-load tmp%17#1' with 'l-load tmp%17#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[118]: 'l-store-copy aggregate%lt%1#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[120]: 'v-load aggregate%lt%1#1' with 'l-load aggregate%lt%1#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[130]: 'l-store-copy aggregate%encoded_bool%4#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[132]: 'v-load aggregate%encoded_bool%4#1' with 'l-load aggregate%encoded_bool%4#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[147]: 'l-store-copy tmp%22#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[149]: 'v-load tmp%22#1' with 'l-load tmp%22#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[152]: 'l-store-copy slot_contents%3#0 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[154]: 'v-load slot_contents%3#0' with 'l-load slot_contents%3#0'
+debug: Inserted main_test_arc4_bool_route@33.ops[90]: 'l-store-copy aggregate%encoded_bool%3#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[92]: 'v-load aggregate%encoded_bool%3#1' with 'l-load aggregate%encoded_bool%3#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[107]: 'l-store-copy tmp%17#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[109]: 'v-load tmp%17#1' with 'l-load tmp%17#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[114]: 'l-store-copy aggregate%lt%1#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[116]: 'v-load aggregate%lt%1#1' with 'l-load aggregate%lt%1#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[126]: 'l-store-copy aggregate%encoded_bool%4#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[128]: 'v-load aggregate%encoded_bool%4#1' with 'l-load aggregate%encoded_bool%4#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[143]: 'l-store-copy tmp%22#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[145]: 'v-load tmp%22#1' with 'l-load tmp%22#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[148]: 'l-store-copy slot_contents%3#0 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[150]: 'v-load slot_contents%3#0' with 'l-load slot_contents%3#0'
 debug: Inserted main_test_arc4_bool_route@33.ops[17]: 'l-store-copy tmp%1#1 0'
 debug: Replaced main_test_arc4_bool_route@33.ops[20]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
 debug: Inserted main_test_arc4_bool_route@33.ops[31]: 'l-store-copy tmp%6#1 0'
@@ -11855,14 +11853,14 @@ debug: Inserted main_test_arc4_bool_route@33.ops[41]: 'l-store-copy aggregate%en
 debug: Replaced main_test_arc4_bool_route@33.ops[44]: 'v-load aggregate%encoded_bool%2#1' with 'l-load aggregate%encoded_bool%2#1'
 debug: Inserted main_test_arc4_bool_route@33.ops[49]: 'l-store-copy concat%1#0 0'
 debug: Replaced main_test_arc4_bool_route@33.ops[51]: 'v-load concat%1#0' with 'l-load concat%1#0'
-debug: Inserted main_test_arc4_bool_route@33.ops[107]: 'l-store-copy tmp%15#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[110]: 'v-load tmp%15#1' with 'l-load tmp%15#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[112]: 'l-store-copy tmp%16#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[115]: 'v-load tmp%16#1' with 'l-load tmp%16#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[145]: 'l-store-copy tmp%20#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[148]: 'v-load tmp%20#1' with 'l-load tmp%20#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[150]: 'l-store-copy tmp%21#0 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[153]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
+debug: Inserted main_test_arc4_bool_route@33.ops[103]: 'l-store-copy tmp%15#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[106]: 'v-load tmp%15#1' with 'l-load tmp%15#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[108]: 'l-store-copy tmp%16#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[111]: 'v-load tmp%16#1' with 'l-load tmp%16#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[141]: 'l-store-copy tmp%20#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[144]: 'v-load tmp%20#1' with 'l-load tmp%20#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[146]: 'l-store-copy tmp%21#0 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[149]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
 debug: Inserted main_test_arc4_bool_route@33.ops[15]: 'l-store-copy tmp%0#3 0'
 debug: Replaced main_test_arc4_bool_route@33.ops[20]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
 debug: Inserted main_test_arc4_bool_route@33.ops[23]: 'l-store-copy tmp%2#1 0'
@@ -11873,20 +11871,20 @@ debug: Inserted main_test_arc4_bool_route@33.ops[39]: 'l-store-copy tmp%7#1 0'
 debug: Replaced main_test_arc4_bool_route@33.ops[43]: 'v-load tmp%7#1' with 'l-load tmp%7#1'
 debug: Inserted main_test_arc4_bool_route@33.ops[57]: 'l-store-copy bytes_len%0#0 0'
 debug: Replaced main_test_arc4_bool_route@33.ops[61]: 'v-load bytes_len%0#0' with 'l-load bytes_len%0#0'
-debug: Inserted main_test_arc4_bool_route@33.ops[98]: 'l-store-copy aggregate%get_bit%1#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[102]: 'v-load aggregate%get_bit%1#1' with 'l-load aggregate%get_bit%1#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[111]: 'l-store-copy tmp%14#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[116]: 'v-load tmp%14#1' with 'l-load tmp%14#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[138]: 'l-store-copy aggregate%get_bit%3#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[142]: 'v-load aggregate%get_bit%3#1' with 'l-load aggregate%get_bit%3#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[151]: 'l-store-copy tmp%19#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[156]: 'v-load tmp%19#1' with 'l-load tmp%19#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[94]: 'l-store-copy aggregate%get_bit%1#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[98]: 'v-load aggregate%get_bit%1#1' with 'l-load aggregate%get_bit%1#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[107]: 'l-store-copy tmp%14#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[112]: 'v-load tmp%14#1' with 'l-load tmp%14#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[134]: 'l-store-copy aggregate%get_bit%3#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[138]: 'v-load aggregate%get_bit%3#1' with 'l-load aggregate%get_bit%3#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[147]: 'l-store-copy tmp%19#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[152]: 'v-load tmp%19#1' with 'l-load tmp%19#1'
 debug: Inserted main_test_arc4_bool_route@33.ops[56]: 'l-store-copy concat%1#0 0'
 debug: Replaced main_test_arc4_bool_route@33.ops[61]: 'v-load concat%1#0' with 'l-load concat%1#0'
-debug: Inserted main_test_arc4_bool_route@33.ops[110]: 'l-store-copy aggregate%get_bit%2#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[123]: 'v-load aggregate%get_bit%2#1' with 'l-load aggregate%get_bit%2#1'
-debug: Inserted main_test_arc4_bool_route@33.ops[151]: 'l-store-copy aggregate%get_bit%4#1 0'
-debug: Replaced main_test_arc4_bool_route@33.ops[164]: 'v-load aggregate%get_bit%4#1' with 'l-load aggregate%get_bit%4#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[106]: 'l-store-copy aggregate%get_bit%2#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[119]: 'v-load aggregate%get_bit%2#1' with 'l-load aggregate%get_bit%2#1'
+debug: Inserted main_test_arc4_bool_route@33.ops[147]: 'l-store-copy aggregate%get_bit%4#1 0'
+debug: Replaced main_test_arc4_bool_route@33.ops[160]: 'v-load aggregate%get_bit%4#1' with 'l-load aggregate%get_bit%4#1'
 debug: Inserted main_test_arc4_bool_route@33.ops[68]: 'l-store-copy dyn_arr#1 0'
 debug: Replaced main_test_arc4_bool_route@33.ops[80]: 'v-load dyn_arr#1' with 'l-load dyn_arr#1'
 debug: Inserted main_test_arc4_bool_route@33.ops[81]: 'l-store-copy dyn_arr#1 0'
@@ -11896,23 +11894,25 @@ debug: Replaced main_test_arc4_bool_route@33.ops[48]: 'v-load aggregate%encoded_
 debug: Inserted main_test_arc4_bool_route@33.ops[75]: 'l-store-copy array_length%0#0 1'
 debug: Replaced main_test_arc4_bool_route@33.ops[94]: 'v-load array_length%0#0' with 'l-load array_length%0#0'
 debug: Inserted main_test_arc4_bool_route@33.ops[95]: 'l-store-copy array_length%0#0 1'
-debug: Replaced main_test_arc4_bool_route@33.ops[136]: 'v-load array_length%0#0' with 'l-load array_length%0#0'
-debug: Inserted main_test_arc4_bool_route@33.ops[102]: 'l-store-copy aggregate%array_trimmed%1#1 1'
-debug: Replaced main_test_arc4_bool_route@33.ops[143]: 'v-load aggregate%array_trimmed%1#1' with 'l-load aggregate%array_trimmed%1#1'
+debug: Replaced main_test_arc4_bool_route@33.ops[132]: 'v-load array_length%0#0' with 'l-load array_length%0#0'
+debug: Inserted main_test_arc4_bool_route@33.ops[98]: 'l-store-copy dyn_arr#1 1'
+debug: Replaced main_test_arc4_bool_route@33.ops[139]: 'v-load dyn_arr#1' with 'l-load dyn_arr#1'
 debug: Inserted main_test_arc4_bool_route@33.ops[55]: 'l-store-copy slot%7 1'
-debug: Replaced main_test_arc4_bool_route@33.ops[178]: 'v-load slot%7' with 'l-load slot%7'
+debug: Replaced main_test_arc4_bool_route@33.ops[174]: 'v-load slot%7' with 'l-load slot%7'
 debug: Inserted main_for_header@34.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced main_for_header@34.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted main_for_body@35.ops[10]: 'l-store-copy slot_contents%4#0 0'
-debug: Replaced main_for_body@35.ops[12]: 'v-load slot_contents%4#0' with 'l-load slot_contents%4#0'
-debug: Inserted main_for_body@35.ops[15]: 'l-store-copy concat%2#0 0'
-debug: Replaced main_for_body@35.ops[17]: 'v-load concat%2#0' with 'l-load concat%2#0'
-debug: Inserted main_for_body@35.ops[3]: 'l-store-copy aggregate%get_bit%5#1 0'
-debug: Replaced main_for_body@35.ops[7]: 'v-load aggregate%get_bit%5#1' with 'l-load aggregate%get_bit%5#1'
-debug: Inserted main_for_body@35.ops[9]: 'l-store-copy b#0 0'
-debug: Replaced main_for_body@35.ops[15]: 'v-load b#0' with 'l-load b#0'
-debug: Inserted main_for_body@35.ops[2]: 'l-store-copy item_index_internal%0#0 1'
-debug: Replaced main_for_body@35.ops[22]: 'v-load item_index_internal%0#0' with 'l-load item_index_internal%0#0'
+debug: Inserted main_for_body@35.ops[14]: 'l-store-copy slot_contents%4#0 0'
+debug: Replaced main_for_body@35.ops[16]: 'v-load slot_contents%4#0' with 'l-load slot_contents%4#0'
+debug: Inserted main_for_body@35.ops[19]: 'l-store-copy concat%2#0 0'
+debug: Replaced main_for_body@35.ops[21]: 'v-load concat%2#0' with 'l-load concat%2#0'
+debug: Inserted main_for_body@35.ops[3]: 'l-store-copy aggregate%add%2#1 0'
+debug: Replaced main_for_body@35.ops[6]: 'v-load aggregate%add%2#1' with 'l-load aggregate%add%2#1'
+debug: Inserted main_for_body@35.ops[8]: 'l-store-copy aggregate%get_bit%5#1 0'
+debug: Replaced main_for_body@35.ops[12]: 'v-load aggregate%get_bit%5#1' with 'l-load aggregate%get_bit%5#1'
+debug: Inserted main_for_body@35.ops[14]: 'l-store-copy b#0 0'
+debug: Replaced main_for_body@35.ops[20]: 'v-load b#0' with 'l-load b#0'
+debug: Inserted main_for_body@35.ops[1]: 'l-store-copy item_index_internal%0#0 0'
+debug: Replaced main_for_body@35.ops[27]: 'v-load item_index_internal%0#0' with 'l-load item_index_internal%0#0'
 debug: Inserted main_after_for@36.ops[1]: 'l-store-copy slot_contents%5#0 0'
 debug: Replaced main_after_for@36.ops[3]: 'v-load slot_contents%5#0' with 'l-load slot_contents%5#0'
 debug: Inserted main_after_for@36.ops[5]: 'l-store-copy bytes_len%1#0 0'
@@ -12091,7 +12091,7 @@ debug: shared x-stack for main___algopy_default_create@38 -> main_after_inlined_
 debug: shared x-stack for main_after_if_else@39 -> main_after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__@40: tmp%0#0
 debug: shared x-stack for main_after_for@50 -> main_after_inlined_test_cases.array.static_size.StaticSizeContract.__puya_arc4_router__@40: tmp%0#0
 debug: Found 3 edge set/s for _puya_lib.arc4.dynamic_array_concat_bits
-debug: test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init f-stack entry: ['aggregate%array_trimmed%1#1', 'aggregate%encoded_element%1#1', 'last_point.x#0', 'slot%0', 'slot%3', 'slot%5', 'slot%6', 'slot%7', 'slot%8', 'array_len%0#1', 'array_len%1#1', 'array_length%0#0', 'bytes_len%4#0', 'count#0', 'count#13', 'dx#0', 'i#0', 'item_index_internal%0#0', 'last_point.y#0', 'length#0', 'point.y#0', 'point_idx#0', 'tmp%1#3', 'total#0']
+debug: test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init f-stack entry: ['aggregate%encoded_element%1#1', 'dyn_arr#1', 'last_point.x#0', 'slot%0', 'slot%3', 'slot%5', 'slot%6', 'slot%7', 'slot%8', 'array_len%0#1', 'array_len%1#1', 'array_length%0#0', 'bytes_len%4#0', 'count#0', 'count#13', 'dx#0', 'i#0', 'item_index_internal%0#0', 'last_point.y#0', 'length#0', 'point.y#0', 'point_idx#0', 'tmp%1#3', 'total#0']
 debug: test_cases.array.static_size.StaticSizeContract.__algopy_entrypoint_with_init f-stack on first store: []
 debug: _puya_lib.arc4.dynamic_array_concat_bits f-stack entry: ['read_offset#0', 'write_end#0', 'write_offset#0']
 debug: _puya_lib.arc4.dynamic_array_concat_bits f-stack on first store: ['array_length#0', 'result#0', 'current_bytes#0', 'required_bytes#0', 'result#7']
@@ -16657,7 +16657,7 @@ debug: Removing unused variable aggregate%data_length%8#1
 debug: Removing unused variable aggregate%data_length%9#1
 debug: Removing unused variable aggregate%data_length%11#1
 debug: Removing unused variable aggregate%data_length%13#1
-debug: Removing unused variable aggregate%array_trimmed%29#1
+debug: Removing unused variable aggregate%array_trimmed%24#1
 debug: Removing unused variable aggregate%bytes_offset%24#1
 debug: Removing unused variable aggregate%bytes_offset%25#1
 debug: Removing unused variable aggregate%bytes_offset%27#1
@@ -16721,19 +16721,22 @@ debug: Simplified ((extract 6 2) aggregate%as_bytes%2#1) to 0x0000
 debug: Simplified (extract_uint16 0x0000 0u) to 0u
 debug: Simplified (! 0u) to 1u
 debug: Simplified (concat 0x aggregate%encoded_bool%0#1) to aggregate%encoded_bool%0#1
+debug: Simplified (+ 0u 16u) to 16u
+debug: Simplified (+ 1u 16u) to 17u
+debug: Simplified (+ 2u 16u) to 18u
 debug: Simplified ((extract 6 2) aggregate%as_bytes%3#1) to 0x0000
 debug: Simplified (extract_uint16 0x0000 0u) to 0u
 debug: Simplified (! 0u) to 1u
 debug: Simplified (concat 0x aggregate%val_as_bytes%4#1) to aggregate%val_as_bytes%4#1
 debug: Simplified (concat 0x aggregate%head%9#1) to aggregate%head%9#1
 debug: Simplified (* 0u 16u) to 0u
-debug: Simplified (extract3 aggregate%array_trimmed%19#1 0u 16u) // on error: index access is out of bounds to ((extract 2 16) arr#33)
+debug: Simplified (extract3 aggregate%array_trimmed%15#1 0u 16u) // on error: index access is out of bounds to ((extract 2 16) arr#33)
 debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 aggregate%encoded_element%15#1 0u)
 debug: Simplified (btoi aggregate%extract%1#1) to (extract_uint64 aggregate%encoded_element%15#1 8u)
 debug: Simplified (btoi aggregate%extract%2#1) to (extract_uint64 aggregate%encoded_element%16#1 0u)
 debug: Simplified (btoi aggregate%extract%3#1) to (extract_uint64 aggregate%encoded_element%16#1 8u)
 debug: Simplified (* 0u 16u) to 0u
-debug: Simplified (extract3 aggregate%array_trimmed%21#1 0u 16u) // on error: index access is out of bounds to ((extract 2 16) arr#35)
+debug: Simplified (extract3 aggregate%array_trimmed%17#1 0u 16u) // on error: index access is out of bounds to ((extract 2 16) arr#35)
 debug: Simplified (btoi aggregate%extract%6#1) to (extract_uint64 aggregate%encoded_element%17#1 0u)
 debug: Simplified (btoi aggregate%extract%7#1) to (extract_uint64 aggregate%encoded_element%17#1 8u)
 debug: Simplified (btoi aggregate%extract%8#1) to (extract_uint64 aggregate%encoded_element%18#1 0u)
@@ -16744,7 +16747,7 @@ debug: Simplified (! 0u) to 1u
 debug: Simplified (concat 0x aggregate%val_as_bytes%6#1) to aggregate%val_as_bytes%6#1
 debug: Simplified (concat 0x aggregate%head%12#1) to aggregate%head%12#1
 debug: Simplified (* 0u 9u) to 0u
-debug: Simplified (extract3 aggregate%array_trimmed%23#1 0u 9u) // on error: index access is out of bounds to ((extract 2 9) arr#30)
+debug: Simplified (extract3 aggregate%array_trimmed%19#1 0u 9u) // on error: index access is out of bounds to ((extract 2 9) arr#30)
 debug: Simplified (btoi aggregate%extract%10#1) to (extract_uint64 aggregate%encoded_element%19#1 0u)
 debug: Simplified ((extract 6 2) aggregate%as_bytes%5#1) to 0x0000
 debug: Simplified (extract_uint16 0x0000 0u) to 0u
@@ -16780,7 +16783,7 @@ debug: Simplified (concat 0x aggregate%val_as_bytes%9#1) to aggregate%val_as_byt
 debug: Simplified ((extract 6 2) aggregate%as_bytes%15#1) to 0x0002
 debug: Simplified (concat 0x 0x0002) to 0x0002
 debug: Simplified ((extract 6 2) aggregate%as_bytes%16#1) to 0x0000
-debug: Simplified (btoi aggregate%encoded_element%20#1) to (extract_uint64 aggregate%array_trimmed%24#1 aggregate%bytes_offset%20#1)
+debug: Simplified (btoi aggregate%encoded_element%20#1) to (extract_uint64 aggregate%array_trimmed%20#1 aggregate%bytes_offset%20#1)
 debug: Simplified (concat 0x aggregate%val_as_bytes%10#1) to aggregate%val_as_bytes%10#1
 debug: Simplified ((extract 6 2) aggregate%as_bytes%17#1) to 0x0000
 debug: Simplified ((extract 6 2) aggregate%as_bytes%18#1) to 0x0000
@@ -16802,7 +16805,7 @@ debug: Simplified (concat 0x aggregate%val_as_bytes%13#1) to aggregate%val_as_by
 debug: Simplified (concat 0x aggregate%head%32#1) to aggregate%head%32#1
 debug: Simplified (concat 0x aggregate%val_as_bytes%15#1) to aggregate%val_as_bytes%15#1
 debug: Simplified (concat 0x aggregate%head%37#1) to aggregate%head%37#1
-debug: Simplified (btoi aggregate%encoded_element%21#1) to (extract_uint64 aggregate%array_trimmed%25#1 aggregate%bytes_offset%21#1)
+debug: Simplified (btoi aggregate%encoded_element%21#1) to (extract_uint64 aggregate%array_trimmed%21#1 aggregate%bytes_offset%21#1)
 debug: Simplified (btoi aggregate%extract%19#1) to (extract_uint64 aggregate%encoded_element%22#1 0u)
 debug: Simplified (btoi aggregate%extract%20#1) to (extract_uint64 aggregate%substring3%14#1 0u)
 debug: Simplified (concat 0x aggregate%val_as_bytes%17#1) to aggregate%val_as_bytes%17#1
@@ -16886,7 +16889,7 @@ debug: Simplified (concat 0x00020004 0x0007) to 0x000200040007
 debug: Simplified (concat 0x000200040007 0x000161) to 0x000200040007000161
 debug: Simplified (concat 0x000200040007000161 0x000162) to 0x000200040007000161000162
 debug: Simplified (* 0u 16u) to 0u
-debug: Simplified (extract3 aggregate%array_trimmed%28#1 0u 16u) // on error: index access is out of bounds to ((extract 2 16) imm#0)
+debug: Simplified (extract3 aggregate%array_trimmed%23#1 0u 16u) // on error: index access is out of bounds to ((extract 2 16) imm#0)
 debug: Simplified (concat 0x aggregate%val_as_bytes%30#1) to aggregate%val_as_bytes%30#1
 debug: Simplified (concat 0x struct12#0) to struct12#0
 debug: Simplified (concat 0x aggregate%val_as_bytes%32#1) to aggregate%val_as_bytes%32#1
@@ -16924,8 +16927,8 @@ debug: Replacing redundant declaration let aggregate%array_trimmed%3#1: bytes = 
 debug: Replacing redundant declaration let aggregate%array_trimmed%12#1: bytes = ((extract 2 0) arr#42) with copy of existing registers (Register(source_location=array/immutable.py:145:15-22, ir_type=bytes, name='aggregate%array_trimmed%11', version=1),)
 debug: Replacing redundant declaration let aggregate%bzero%3#1: bytes = (bzero 64u) with copy of existing registers (Register(source_location=array/immutable.py:143:14-64, ir_type=bytes, name='aggregate%bzero%2', version=1),)
 debug: Replacing redundant declaration let aggregate%array_trimmed%14#1: bytes = ((extract 2 0) arr#43) with copy of existing registers (Register(source_location=array/immutable.py:150:15-22, ir_type=bytes, name='aggregate%array_trimmed%13', version=1),)
-debug: Replacing redundant declaration let aggregate%array_trimmed%20#1: bytes = ((extract 2 0) arr#33) with copy of existing registers (Register(source_location=array/immutable.py:188:15-21, ir_type=bytes, name='aggregate%array_trimmed%19', version=1),)
-debug: Replacing redundant declaration let aggregate%array_trimmed%22#1: bytes = ((extract 2 0) arr#35) with copy of existing registers (Register(source_location=array/immutable.py:193:15-21, ir_type=bytes, name='aggregate%array_trimmed%21', version=1),)
+debug: Replacing redundant declaration let aggregate%array_trimmed%16#1: bytes = ((extract 2 0) arr#33) with copy of existing registers (Register(source_location=array/immutable.py:188:15-21, ir_type=bytes, name='aggregate%array_trimmed%15', version=1),)
+debug: Replacing redundant declaration let aggregate%array_trimmed%18#1: bytes = ((extract 2 0) arr#35) with copy of existing registers (Register(source_location=array/immutable.py:193:15-21, ir_type=bytes, name='aggregate%array_trimmed%17', version=1),)
 debug: Replacing redundant declaration let i#37: uint64 = (+ i#36 1u) with copy of existing registers (Register(source_location=array/immutable.py:222:19-25, ir_type=uint64, name='aggregate%next_index%0', version=1),)
 debug: Replacing redundant declaration let aggregate%array_length%5#1: uint64 = (extract_uint16 arr#28 0u) with copy of existing registers (Register(source_location=array/immutable.py:226:15-25, ir_type=uint64, name='array_length%2', version=3),)
 debug: Replacing redundant declaration let aggregate%array_head_and_tail%2#1: bytes = ((extract 2 0) arr#28) with copy of existing registers (Register(source_location=array/immutable.py:227:15-21, ir_type=bytes, name='aggregate%array_head_and_tail%1', version=1),)
@@ -16991,10 +16994,10 @@ debug: Found equivalence set: aggregate%val_as_bytes%4#1, aggregate%head%8#1
 debug: selected aggregate%val_as_bytes%4#1 from equivalence set
 debug: Found equivalence set: aggregate%head%9#1, aggregate%head%10#1
 debug: selected aggregate%head%9#1 from equivalence set
-debug: Found equivalence set: aggregate%array_trimmed%19#1, aggregate%array_trimmed%20#1
-debug: selected aggregate%array_trimmed%19#1 from equivalence set
-debug: Found equivalence set: aggregate%array_trimmed%21#1, aggregate%array_trimmed%22#1
-debug: selected aggregate%array_trimmed%21#1 from equivalence set
+debug: Found equivalence set: aggregate%array_trimmed%15#1, aggregate%array_trimmed%16#1
+debug: selected aggregate%array_trimmed%15#1 from equivalence set
+debug: Found equivalence set: aggregate%array_trimmed%17#1, aggregate%array_trimmed%18#1
+debug: selected aggregate%array_trimmed%17#1 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%6#1, aggregate%head%11#1
 debug: selected aggregate%val_as_bytes%6#1 from equivalence set
 debug: Found equivalence set: aggregate%head%12#1, aggregate%head%13#1
@@ -17509,6 +17512,9 @@ debug: Removing unused variable aggregate%as_bytes%2#1
 debug: Removing unused variable array_length%0#10
 debug: Removing unused variable tmp%0#17
 debug: Removing unused variable aggregate%lt%0#1
+debug: Removing unused variable aggregate%add%0#1
+debug: Removing unused variable aggregate%add%1#1
+debug: Removing unused variable aggregate%add%2#1
 debug: Removing unused variable aggregate%as_bytes%3#1
 debug: Removing unused variable array_length%0#9
 debug: Removing unused variable tmp%0#16
@@ -17525,7 +17531,7 @@ debug: Removing unused variable aggregate%extract%9#1
 debug: Removing unused variable aggregate%as_bytes%4#1
 debug: Removing unused variable array_length%0#8
 debug: Removing unused variable tmp%0#15
-debug: Removing unused variable aggregate%array_trimmed%23#1
+debug: Removing unused variable aggregate%array_trimmed%19#1
 debug: Removing unused variable aggregate%bytes_offset%19#1
 debug: Removing unused variable aggregate%extract%10#1
 debug: Removing unused variable aggregate%as_bytes%5#1
@@ -17664,7 +17670,7 @@ debug: Removing unused variable aggregate%offset_as_uint16%13#1
 debug: Removing unused variable aggregate%head%73#1
 debug: Removing unused variable aggregate%concat%12#1
 debug: Removing unused variable prefix#0
-debug: Removing unused variable aggregate%array_trimmed%28#1
+debug: Removing unused variable aggregate%array_trimmed%23#1
 debug: Removing unused variable aggregate%bytes_offset%23#1
 debug: Removing unused variable aggregate%val_as_bytes%32#1
 debug: Removing unused variable aggregate%head%80#1
@@ -19389,44 +19395,38 @@ debug: Inserted main_after_for@154.ops[8]: 'l-store-copy tmp%4#0 0'
 debug: Replaced main_after_for@154.ops[10]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
 debug: Inserted main_after_for@154.ops[7]: 'l-store-copy length#0 1'
 debug: Replaced main_after_for@154.ops[13]: 'v-load length#0' with 'l-load length#0'
-debug: Inserted main_if_body@155.ops[4]: 'l-store-copy aggregate%array_trimmed%15#1 0'
-debug: Replaced main_if_body@155.ops[6]: 'v-load aggregate%array_trimmed%15#1' with 'l-load aggregate%array_trimmed%15#1'
-debug: Inserted main_if_body@155.ops[9]: 'l-store-copy aggregate%get_bit%0#1 0'
-debug: Replaced main_if_body@155.ops[11]: 'v-load aggregate%get_bit%0#1' with 'l-load aggregate%get_bit%0#1'
-debug: Inserted main_if_body@155.ops[13]: 'l-store-copy tmp%6#1 0'
-debug: Replaced main_if_body@155.ops[15]: 'v-load tmp%6#1' with 'l-load tmp%6#1'
+debug: Inserted main_if_body@155.ops[5]: 'l-store-copy aggregate%get_bit%0#1 0'
+debug: Replaced main_if_body@155.ops[7]: 'v-load aggregate%get_bit%0#1' with 'l-load aggregate%get_bit%0#1'
+debug: Inserted main_if_body@155.ops[9]: 'l-store-copy tmp%6#1 0'
+debug: Replaced main_if_body@155.ops[11]: 'v-load tmp%6#1' with 'l-load tmp%6#1'
 debug: Inserted main_after_if_else@156.ops[3]: 'l-store-copy tmp%7#4 0'
 debug: Replaced main_after_if_else@156.ops[5]: 'v-load tmp%7#4' with 'l-load tmp%7#4'
 debug: Inserted main_if_body@157.ops[3]: 'l-store-copy aggregate%lt%1#1 0'
 debug: Replaced main_if_body@157.ops[5]: 'v-load aggregate%lt%1#1' with 'l-load aggregate%lt%1#1'
-debug: Inserted main_if_body@157.ops[9]: 'l-store-copy aggregate%array_trimmed%16#1 0'
-debug: Replaced main_if_body@157.ops[11]: 'v-load aggregate%array_trimmed%16#1' with 'l-load aggregate%array_trimmed%16#1'
-debug: Inserted main_if_body@157.ops[14]: 'l-store-copy aggregate%get_bit%1#1 0'
-debug: Replaced main_if_body@157.ops[16]: 'v-load aggregate%get_bit%1#1' with 'l-load aggregate%get_bit%1#1'
-debug: Inserted main_if_body@157.ops[18]: 'l-store-copy tmp%8#0 0'
-debug: Replaced main_if_body@157.ops[20]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
+debug: Inserted main_if_body@157.ops[10]: 'l-store-copy aggregate%get_bit%1#1 0'
+debug: Replaced main_if_body@157.ops[12]: 'v-load aggregate%get_bit%1#1' with 'l-load aggregate%get_bit%1#1'
+debug: Inserted main_if_body@157.ops[14]: 'l-store-copy tmp%8#0 0'
+debug: Replaced main_if_body@157.ops[16]: 'v-load tmp%8#0' with 'l-load tmp%8#0'
 debug: Inserted main_after_if_else@158.ops[3]: 'l-store-copy tmp%9#1 0'
 debug: Replaced main_after_if_else@158.ops[5]: 'v-load tmp%9#1' with 'l-load tmp%9#1'
 debug: Inserted main_if_body@159.ops[3]: 'l-store-copy aggregate%lt%2#1 0'
 debug: Replaced main_if_body@159.ops[5]: 'v-load aggregate%lt%2#1' with 'l-load aggregate%lt%2#1'
-debug: Inserted main_if_body@159.ops[9]: 'l-store-copy aggregate%array_trimmed%17#1 0'
-debug: Replaced main_if_body@159.ops[11]: 'v-load aggregate%array_trimmed%17#1' with 'l-load aggregate%array_trimmed%17#1'
-debug: Inserted main_if_body@159.ops[14]: 'l-store-copy aggregate%get_bit%2#1 0'
-debug: Replaced main_if_body@159.ops[16]: 'v-load aggregate%get_bit%2#1' with 'l-load aggregate%get_bit%2#1'
+debug: Inserted main_if_body@159.ops[10]: 'l-store-copy aggregate%get_bit%2#1 0'
+debug: Replaced main_if_body@159.ops[12]: 'v-load aggregate%get_bit%2#1' with 'l-load aggregate%get_bit%2#1'
 debug: Inserted main_after_if_else@160.ops[3]: 'l-store-copy tmp%10#2 0'
 debug: Replaced main_after_if_else@160.ops[5]: 'v-load tmp%10#2' with 'l-load tmp%10#2'
 debug: Inserted main_if_body@161.ops[3]: 'l-store-copy tmp%11#0 0'
 debug: Replaced main_if_body@161.ops[5]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
 debug: Inserted main_if_body@161.ops[8]: 'l-store-copy aggregate%lt%3#1 0'
 debug: Replaced main_if_body@161.ops[10]: 'v-load aggregate%lt%3#1' with 'l-load aggregate%lt%3#1'
-debug: Inserted main_if_body@161.ops[14]: 'l-store-copy aggregate%array_trimmed%18#1 0'
-debug: Replaced main_if_body@161.ops[16]: 'v-load aggregate%array_trimmed%18#1' with 'l-load aggregate%array_trimmed%18#1'
 debug: Inserted main_if_body@161.ops[19]: 'l-store-copy aggregate%get_bit%3#1 0'
 debug: Replaced main_if_body@161.ops[21]: 'v-load aggregate%get_bit%3#1' with 'l-load aggregate%get_bit%3#1'
 debug: Inserted main_if_body@161.ops[23]: 'l-store-copy tmp%12#0 0'
 debug: Replaced main_if_body@161.ops[25]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
+debug: Inserted main_if_body@161.ops[15]: 'l-store-copy aggregate%add%3#1 0'
+debug: Replaced main_if_body@161.ops[18]: 'v-load aggregate%add%3#1' with 'l-load aggregate%add%3#1'
 debug: Inserted main_if_body@161.ops[6]: 'l-store-copy tmp%11#0 0'
-debug: Replaced main_if_body@161.ops[18]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
+debug: Replaced main_if_body@161.ops[13]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
 debug: Inserted main_if_body@163.ops[3]: 'l-store-copy length_minus_1#0 0'
 debug: Replaced main_if_body@163.ops[5]: 'v-load length_minus_1#0' with 'l-load length_minus_1#0'
 debug: Inserted main_if_body@163.ops[7]: 'l-store-copy tmp%2#0 0'
@@ -19579,12 +19579,12 @@ debug: Inserted main_after_for@149.ops[100]: 'l-store-copy arr#0 0'
 debug: Replaced main_after_for@149.ops[112]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted main_after_for@149.ops[7]: 'l-store-copy array_length%1#0 1'
 debug: Replaced main_after_for@149.ops[50]: 'v-load array_length%1#0' with 'l-load array_length%1#0'
-debug: Inserted main_after_for@149.ops[17]: 'l-store-copy aggregate%array_trimmed%19#1 2'
-debug: Replaced main_after_for@149.ops[61]: 'v-load aggregate%array_trimmed%19#1' with 'l-load aggregate%array_trimmed%19#1'
+debug: Inserted main_after_for@149.ops[17]: 'l-store-copy aggregate%array_trimmed%15#1 2'
+debug: Replaced main_after_for@149.ops[61]: 'v-load aggregate%array_trimmed%15#1' with 'l-load aggregate%array_trimmed%15#1'
 debug: Inserted main_after_for@149.ops[108]: 'l-store-copy array_length%3#0 1'
 debug: Replaced main_after_for@149.ops[151]: 'v-load array_length%3#0' with 'l-load array_length%3#0'
-debug: Inserted main_after_for@149.ops[118]: 'l-store-copy aggregate%array_trimmed%21#1 2'
-debug: Replaced main_after_for@149.ops[162]: 'v-load aggregate%array_trimmed%21#1' with 'l-load aggregate%array_trimmed%21#1'
+debug: Inserted main_after_for@149.ops[118]: 'l-store-copy aggregate%array_trimmed%17#1 2'
+debug: Replaced main_after_for@149.ops[162]: 'v-load aggregate%array_trimmed%17#1' with 'l-load aggregate%array_trimmed%17#1'
 debug: Inserted main_after_for@149.ops[20]: 'l-store-copy arr#0 2'
 debug: Replaced main_after_for@149.ops[96]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted main_after_for@149.ops[122]: 'l-store-copy arr#0 2'
@@ -20175,8 +20175,8 @@ debug: Inserted main_for_body@117.ops[6]: 'l-store-copy aggregate%bytes_offset%2
 debug: Replaced main_for_body@117.ops[9]: 'v-load aggregate%bytes_offset%20#1' with 'l-load aggregate%bytes_offset%20#1'
 debug: Inserted main_for_body@117.ops[11]: 'l-store-copy i#0 0'
 debug: Replaced main_for_body@117.ops[14]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted main_for_body@117.ops[2]: 'l-store-copy aggregate%array_trimmed%24#1 0'
-debug: Replaced main_for_body@117.ops[9]: 'v-load aggregate%array_trimmed%24#1' with 'l-load aggregate%array_trimmed%24#1'
+debug: Inserted main_for_body@117.ops[2]: 'l-store-copy aggregate%array_trimmed%20#1 0'
+debug: Replaced main_for_body@117.ops[9]: 'v-load aggregate%array_trimmed%20#1' with 'l-load aggregate%array_trimmed%20#1'
 debug: Inserted main_for_body@117.ops[5]: 'l-store-copy item_index_internal%0#9 1'
 debug: Replaced main_for_body@117.ops[19]: 'v-load item_index_internal%0#9' with 'l-load item_index_internal%0#9'
 debug: Inserted main_after_for@118.ops[10]: 'l-store-copy extract_uint16%2#0 0'
@@ -20381,16 +20381,16 @@ debug: Inserted main_for_body@84.ops[6]: 'l-store-copy aggregate%bytes_offset%21
 debug: Replaced main_for_body@84.ops[9]: 'v-load aggregate%bytes_offset%21#1' with 'l-load aggregate%bytes_offset%21#1'
 debug: Inserted main_for_body@84.ops[11]: 'l-store-copy i#0 0'
 debug: Replaced main_for_body@84.ops[14]: 'v-load i#0' with 'l-load i#0'
-debug: Inserted main_for_body@84.ops[2]: 'l-store-copy aggregate%array_trimmed%25#1 0'
-debug: Replaced main_for_body@84.ops[9]: 'v-load aggregate%array_trimmed%25#1' with 'l-load aggregate%array_trimmed%25#1'
+debug: Inserted main_for_body@84.ops[2]: 'l-store-copy aggregate%array_trimmed%21#1 0'
+debug: Replaced main_for_body@84.ops[9]: 'v-load aggregate%array_trimmed%21#1' with 'l-load aggregate%array_trimmed%21#1'
 debug: Inserted main_for_body@84.ops[5]: 'l-store-copy item_index_internal%0#0 1'
 debug: Replaced main_for_body@84.ops[19]: 'v-load item_index_internal%0#0' with 'l-load item_index_internal%0#0'
 debug: Inserted main_for_header@86.ops[3]: 'l-store-copy continue_looping%1#0 0'
 debug: Replaced main_for_header@86.ops[5]: 'v-load continue_looping%1#0' with 'l-load continue_looping%1#0'
-debug: Inserted main_for_body@87.ops[2]: 'l-store-copy aggregate%array_trimmed%26#1 0'
-debug: Replaced main_for_body@87.ops[4]: 'v-load aggregate%array_trimmed%26#1' with 'l-load aggregate%array_trimmed%26#1'
-debug: Inserted main_for_body@87.ops[7]: 'l-store-copy b#0 0'
-debug: Replaced main_for_body@87.ops[11]: 'v-load b#0' with 'l-load b#0'
+debug: Inserted main_for_body@87.ops[3]: 'l-store-copy aggregate%add%4#1 0'
+debug: Replaced main_for_body@87.ops[6]: 'v-load aggregate%add%4#1' with 'l-load aggregate%add%4#1'
+debug: Inserted main_for_body@87.ops[8]: 'l-store-copy b#0 0'
+debug: Replaced main_for_body@87.ops[12]: 'v-load b#0' with 'l-load b#0'
 debug: Inserted main_if_body@88.ops[3]: 'l-store-copy sum2#0 0'
 debug: Replaced main_if_body@88.ops[5]: 'v-load sum2#0' with 'l-load sum2#0'
 debug: Inserted main_for_header@91.ops[3]: 'l-store-copy continue_looping%2#0 0'
@@ -20405,8 +20405,8 @@ debug: Inserted main_for_body@92.ops[15]: 'l-store-copy aggregate%encoded_elemen
 debug: Replaced main_for_body@92.ops[19]: 'v-load aggregate%encoded_element%22#1' with 'l-load aggregate%encoded_element%22#1'
 debug: Inserted main_for_body@92.ops[20]: 'l-store-copy aggregate%encoded_element%22#1 0'
 debug: Replaced main_for_body@92.ops[24]: 'v-load aggregate%encoded_element%22#1' with 'l-load aggregate%encoded_element%22#1'
-debug: Inserted main_for_body@92.ops[2]: 'l-store-copy aggregate%array_trimmed%27#1 0'
-debug: Replaced main_for_body@92.ops[9]: 'v-load aggregate%array_trimmed%27#1' with 'l-load aggregate%array_trimmed%27#1'
+debug: Inserted main_for_body@92.ops[2]: 'l-store-copy aggregate%array_trimmed%22#1 0'
+debug: Replaced main_for_body@92.ops[9]: 'v-load aggregate%array_trimmed%22#1' with 'l-load aggregate%array_trimmed%22#1'
 debug: Inserted main_for_body@92.ops[19]: 'l-store-copy tup.foo#0 1'
 debug: Replaced main_for_body@92.ops[31]: 'v-load tup.foo#0' with 'l-load tup.foo#0'
 debug: Inserted main_for_body@92.ops[25]: 'l-store-copy tup.bar#0 2'

@@ -744,8 +744,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         goto length#0 ? block@5 : block@6
     block@5: // if_body_L166
         (assert array_length#0) // index access is out of bounds
-        let aggregate%array_trimmed%0#1: bytes = ((extract 2 0) arr#1)
-        let aggregate%get_bit%0#1: uint64 = (getbit aggregate%array_trimmed%0#1 0u)
+        let aggregate%get_bit%0#1: uint64 = (getbit arr#1 16u)
         let tmp%6#0: bool = (! aggregate%get_bit%0#1)
         (assert tmp%6#0) // expected element 0 to be False
         goto block@6
@@ -755,8 +754,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
     block@7: // if_body_L168
         let aggregate%lt%1#1: bool = (< 1u array_length#0)
         (assert aggregate%lt%1#1) // index access is out of bounds
-        let aggregate%array_trimmed%1#1: bytes = ((extract 2 0) arr#1)
-        let aggregate%get_bit%1#1: uint64 = (getbit aggregate%array_trimmed%1#1 1u)
+        let aggregate%get_bit%1#1: uint64 = (getbit arr#1 17u)
         let tmp%8#0: bool = (! aggregate%get_bit%1#1)
         (assert tmp%8#0) // expected element 1 to be False
         goto block@8
@@ -766,8 +764,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
     block@9: // if_body_L170
         let aggregate%lt%2#1: bool = (< 2u array_length#0)
         (assert aggregate%lt%2#1) // index access is out of bounds
-        let aggregate%array_trimmed%2#1: bytes = ((extract 2 0) arr#1)
-        let aggregate%get_bit%2#1: uint64 = (getbit aggregate%array_trimmed%2#1 2u)
+        let aggregate%get_bit%2#1: uint64 = (getbit arr#1 18u)
         (assert aggregate%get_bit%2#1) // expected element 2 to be True
         goto block@10
     block@10: // after_if_else_L169
@@ -777,8 +774,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bool_array(len
         let tmp%11#0: uint64 = (- length#0 1u)
         let aggregate%lt%3#1: bool = (< tmp%11#0 array_length#0)
         (assert aggregate%lt%3#1) // index access is out of bounds
-        let aggregate%array_trimmed%3#1: bytes = ((extract 2 0) arr#1)
-        let aggregate%get_bit%3#1: uint64 = (getbit aggregate%array_trimmed%3#1 tmp%11#0)
+        let aggregate%add%3#1: uint64 = (+ tmp%11#0 16u)
+        let aggregate%get_bit%3#1: uint64 = (getbit arr#1 aggregate%add%3#1)
         let tmp%12#0: bool = (! aggregate%get_bit%3#1)
         (assert tmp%12#0) // expected last element to be False
         goto block@12
@@ -1325,8 +1322,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let continue_looping%1#0: bool = (< item_index_internal%1#1 array_length%1#0)
         goto continue_looping%1#0 ? block@6 : block@10
     block@6: // for_body_L353
-        let aggregate%array_trimmed%1#1: bytes = ((extract 2 0) arr2#0)
-        let b#0: bool = (getbit aggregate%array_trimmed%1#1 item_index_internal%1#1)
+        let aggregate%add%0#1: uint64 = (+ item_index_internal%1#1 16u)
+        let b#0: bool = (getbit arr2#0 aggregate%add%0#1)
         goto b#0 ? block@7 : block@8
     block@7: // if_body_L354
         let sum2#2: uint64 = (+ sum2#1 1u)
@@ -1345,9 +1342,9 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.sum_uints_and_lengt
         let continue_looping%2#0: bool = (< item_index_internal%2#1 array_length%2#0)
         goto continue_looping%2#0 ? block@12 : block@18
     block@12: // for_body_L356
-        let aggregate%array_trimmed%2#1: bytes = ((extract 2 0) arr3#0)
+        let aggregate%array_trimmed%1#1: bytes = ((extract 2 0) arr3#0)
         let aggregate%bytes_offset%1#1: uint64 = (* item_index_internal%2#1 9u)
-        let aggregate%encoded_element%1#1: bytes = (extract3 aggregate%array_trimmed%2#1 aggregate%bytes_offset%1#1 9u) // on error: index access is out of bounds
+        let aggregate%encoded_element%1#1: bytes = (extract3 aggregate%array_trimmed%1#1 aggregate%bytes_offset%1#1 9u) // on error: index access is out of bounds
         let tup.foo#0: uint64 = (extract_uint64 aggregate%encoded_element%1#1 0u)
         let tup.bar#0: bool = (getbit aggregate%encoded_element%1#1 64u)
         let tup.baz#0: bool = (getbit aggregate%encoded_element%1#1 65u)

@@ -1640,10 +1640,7 @@ subroutine test_arc4_bool:
         v-load array_length%0#0                                                                   array_length%0#0
         assert // index access is out of bounds
         v-load dyn_arr#1                                                                          dyn_arr#1
-        extract 2 0                                                                               aggregate%array_trimmed%0#1
-        v-store aggregate%array_trimmed%0#1
-        v-load aggregate%array_trimmed%0#1                                                        aggregate%array_trimmed%0#1
-        int 0                                                                                     aggregate%array_trimmed%0#1,0
+        int 16                                                                                    dyn_arr#1,16
         getbit                                                                                    aggregate%get_bit%0#1
         v-store aggregate%get_bit%0#1
         byte 0x00                                                                                 0x00
@@ -1677,8 +1674,8 @@ subroutine test_arc4_bool:
         v-store aggregate%lt%1#1
         v-load aggregate%lt%1#1                                                                   aggregate%lt%1#1
         assert // index access is out of bounds
-        v-load aggregate%array_trimmed%0#1                                                        aggregate%array_trimmed%0#1
-        int 1                                                                                     aggregate%array_trimmed%0#1,1
+        v-load dyn_arr#1                                                                          dyn_arr#1
+        int 17                                                                                    dyn_arr#1,17
         getbit                                                                                    aggregate%get_bit%2#1
         v-store aggregate%get_bit%2#1
         byte 0x00                                                                                 0x00
@@ -1727,8 +1724,12 @@ subroutine test_arc4_bool:
     test_arc4_bool_for_body@2:
         // array/static_size.py:154
         // for b in dyn_arr:
-        v-load aggregate%array_trimmed%0#1                                                        aggregate%array_trimmed%0#1
-        v-load item_index_internal%0#0                                                            aggregate%array_trimmed%0#1,item_index_internal%0#0
+        v-load item_index_internal%0#0                                                            item_index_internal%0#0
+        int 16                                                                                    item_index_internal%0#0,16
+        +                                                                                         aggregate%add%2#1
+        v-store aggregate%add%2#1
+        v-load dyn_arr#1                                                                          dyn_arr#1
+        v-load aggregate%add%2#1                                                                  dyn_arr#1,aggregate%add%2#1
         getbit                                                                                    aggregate%get_bit%4#1
         v-store aggregate%get_bit%4#1
         byte 0x00                                                                                 0x00

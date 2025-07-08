@@ -217,8 +217,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto length#0 ? block@155 : block@156
     block@155: // if_body_L166
         (assert array_length#0) // index access is out of bounds
-        let aggregate%array_trimmed%15#1: bytes = ((extract 2 0) arr#0)
-        let aggregate%get_bit%0#1: uint64 = (getbit aggregate%array_trimmed%15#1 0u)
+        let aggregate%get_bit%0#1: uint64 = (getbit arr#0 16u)
         let tmp%6#1: bool = (! aggregate%get_bit%0#1)
         (assert tmp%6#1) // expected element 0 to be False
         goto block@156
@@ -228,8 +227,7 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@157: // if_body_L168
         let aggregate%lt%1#1: bool = (< 1u array_length#0)
         (assert aggregate%lt%1#1) // index access is out of bounds
-        let aggregate%array_trimmed%16#1: bytes = ((extract 2 0) arr#0)
-        let aggregate%get_bit%1#1: uint64 = (getbit aggregate%array_trimmed%16#1 1u)
+        let aggregate%get_bit%1#1: uint64 = (getbit arr#0 17u)
         let tmp%8#0: bool = (! aggregate%get_bit%1#1)
         (assert tmp%8#0) // expected element 1 to be False
         goto block@158
@@ -239,8 +237,7 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@159: // if_body_L170
         let aggregate%lt%2#1: bool = (< 2u array_length#0)
         (assert aggregate%lt%2#1) // index access is out of bounds
-        let aggregate%array_trimmed%17#1: bytes = ((extract 2 0) arr#0)
-        let aggregate%get_bit%2#1: uint64 = (getbit aggregate%array_trimmed%17#1 2u)
+        let aggregate%get_bit%2#1: uint64 = (getbit arr#0 18u)
         (assert aggregate%get_bit%2#1) // expected element 2 to be True
         goto block@160
     block@160: // after_if_else_L169
@@ -250,8 +247,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%11#0: uint64 = (- length#0 1u)
         let aggregate%lt%3#1: bool = (< tmp%11#0 array_length#0)
         (assert aggregate%lt%3#1) // index access is out of bounds
-        let aggregate%array_trimmed%18#1: bytes = ((extract 2 0) arr#0)
-        let aggregate%get_bit%3#1: uint64 = (getbit aggregate%array_trimmed%18#1 tmp%11#0)
+        let aggregate%add%3#1: uint64 = (+ tmp%11#0 16u)
+        let aggregate%get_bit%3#1: uint64 = (getbit arr#0 aggregate%add%3#1)
         let tmp%12#0: bool = (! aggregate%get_bit%3#1)
         (assert tmp%12#0) // expected last element to be False
         goto block@162
@@ -308,7 +305,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let array_length%1#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%4#0: bool = (== array_length%1#0 5u)
         (assert tmp%4#0)
-        let aggregate%array_trimmed%19#1: bytes = ((extract 2 0) arr#0)
+        let aggregate%array_trimmed%15#1: bytes = ((extract 2 0) arr#0)
         let aggregate%encoded_element%15#1: bytes = ((extract 2 16) arr#0)
         let aggregate%item0%0#1: uint64 = (extract_uint64 aggregate%encoded_element%15#1 0u)
         let aggregate%item1%0#1: uint64 = (extract_uint64 aggregate%encoded_element%15#1 8u)
@@ -318,7 +315,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%7#4)
         let tmp%8#5: uint64 = (- array_length%1#0 1u)
         let aggregate%bytes_offset%16#1: uint64 = (* tmp%8#5 16u)
-        let aggregate%encoded_element%16#1: bytes = (extract3 aggregate%array_trimmed%19#1 aggregate%bytes_offset%16#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%16#1: bytes = (extract3 aggregate%array_trimmed%15#1 aggregate%bytes_offset%16#1 16u) // on error: index access is out of bounds
         let aggregate%item0%1#1: uint64 = (extract_uint64 aggregate%encoded_element%16#1 0u)
         let aggregate%item1%1#1: uint64 = (extract_uint64 aggregate%encoded_element%16#1 8u)
         let tmp%9#1: bool = (== aggregate%item0%1#1 5u)
@@ -329,7 +326,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let array_length%3#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%16#1: bool = (== array_length%3#0 4u)
         (assert tmp%16#1)
-        let aggregate%array_trimmed%21#1: bytes = ((extract 2 0) arr#0)
+        let aggregate%array_trimmed%17#1: bytes = ((extract 2 0) arr#0)
         let aggregate%encoded_element%17#1: bytes = ((extract 2 16) arr#0)
         let aggregate%item0%3#1: uint64 = (extract_uint64 aggregate%encoded_element%17#1 0u)
         let aggregate%item1%3#1: uint64 = (extract_uint64 aggregate%encoded_element%17#1 8u)
@@ -339,7 +336,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%19#1)
         let tmp%20#0: uint64 = (- array_length%3#0 1u)
         let aggregate%bytes_offset%18#1: uint64 = (* tmp%20#0 16u)
-        let aggregate%encoded_element%18#1: bytes = (extract3 aggregate%array_trimmed%21#1 aggregate%bytes_offset%18#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%18#1: bytes = (extract3 aggregate%array_trimmed%17#1 aggregate%bytes_offset%18#1 16u) // on error: index access is out of bounds
         let aggregate%item0%4#1: uint64 = (extract_uint64 aggregate%encoded_element%18#1 0u)
         let aggregate%item1%4#1: uint64 = (extract_uint64 aggregate%encoded_element%18#1 8u)
         let tmp%21#0: bool = (== aggregate%item0%4#1 4u)
@@ -687,9 +684,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< item_index_internal%0#9 array_length%0#5)
         goto continue_looping%0#0 ? block@117 : block@118
     block@117: // for_body_L521
-        let aggregate%array_trimmed%24#1: bytes = ((extract 2 0) inner_arr#0)
+        let aggregate%array_trimmed%20#1: bytes = ((extract 2 0) inner_arr#0)
         let aggregate%bytes_offset%20#1: uint64 = (* item_index_internal%0#9 8u)
-        let i#0: uint64 = (extract_uint64 aggregate%array_trimmed%24#1 aggregate%bytes_offset%20#1)
+        let i#0: uint64 = (extract_uint64 aggregate%array_trimmed%20#1 aggregate%bytes_offset%20#1)
         let total#0: uint64 = (+ total#0 i#0)
         let item_index_internal%0#9: uint64 = (+ item_index_internal%0#9 1u)
         goto block@116
@@ -819,9 +816,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
         goto continue_looping%0#0 ? block@84 : block@85
     block@84: // for_body_L351
-        let aggregate%array_trimmed%25#1: bytes = ((extract 2 0) arr1#0)
+        let aggregate%array_trimmed%21#1: bytes = ((extract 2 0) arr1#0)
         let aggregate%bytes_offset%21#1: uint64 = (* item_index_internal%0#0 8u)
-        let i#0: uint64 = (extract_uint64 aggregate%array_trimmed%25#1 aggregate%bytes_offset%21#1)
+        let i#0: uint64 = (extract_uint64 aggregate%array_trimmed%21#1 aggregate%bytes_offset%21#1)
         let sum1#0: uint64 = (+ sum1#0 i#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@83
@@ -833,8 +830,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%1#0: bool = (< item_index_internal%1#0 array_length%1#0)
         goto continue_looping%1#0 ? block@87 : block@90
     block@87: // for_body_L353
-        let aggregate%array_trimmed%26#1: bytes = ((extract 2 0) arr2#0)
-        let b#0: bool = (getbit aggregate%array_trimmed%26#1 item_index_internal%1#0)
+        let aggregate%add%4#1: uint64 = (+ item_index_internal%1#0 16u)
+        let b#0: bool = (getbit arr2#0 aggregate%add%4#1)
         let sum2#10: uint64 = sum2#0
         goto b#0 ? block@88 : block@89
     block@88: // if_body_L354
@@ -853,9 +850,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%2#0: bool = (< item_index_internal%2#0 array_length%2#0)
         goto continue_looping%2#0 ? block@92 : block@97
     block@92: // for_body_L356
-        let aggregate%array_trimmed%27#1: bytes = ((extract 2 0) arr3#0)
+        let aggregate%array_trimmed%22#1: bytes = ((extract 2 0) arr3#0)
         let aggregate%bytes_offset%22#1: uint64 = (* item_index_internal%2#0 9u)
-        let aggregate%encoded_element%22#1: bytes = (extract3 aggregate%array_trimmed%27#1 aggregate%bytes_offset%22#1 9u) // on error: index access is out of bounds
+        let aggregate%encoded_element%22#1: bytes = (extract3 aggregate%array_trimmed%22#1 aggregate%bytes_offset%22#1 9u) // on error: index access is out of bounds
         let tup.foo#0: uint64 = (extract_uint64 aggregate%encoded_element%22#1 0u)
         let tup.bar#0: bool = (getbit aggregate%encoded_element%22#1 64u)
         let tup.baz#0: bool = (getbit aggregate%encoded_element%22#1 65u)

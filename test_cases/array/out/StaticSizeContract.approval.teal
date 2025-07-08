@@ -1079,6 +1079,8 @@ test_arc4_bool:
     cover 2
     intc_2 // 8
     callsub dynamic_array_concat_bits
+    dup
+    cover 2
     // array/static_size.py:146
     // assert dyn_arr.length == 2, "expected correct length"
     dup
@@ -1101,12 +1103,8 @@ test_arc4_bool:
     // assert dyn_arr[0] == (Txn.sender == Txn.receiver), "expected correct value at 0"
     dup
     assert // index access is out of bounds
-    swap
-    extract 2 0
-    dup
-    cover 3
-    dup
-    intc_0 // 0
+    dig 1
+    intc_3 // 16
     getbit
     bytec_2 // 0x00
     intc_0 // 0
@@ -1122,10 +1120,9 @@ test_arc4_bool:
     // array/static_size.py:149
     // assert dyn_arr[1] == (Txn.sender != Txn.receiver), "expected correct value at 1"
     intc_1 // 1
-    uncover 2
-    <
+    >
     assert // index access is out of bounds
-    intc_1 // 1
+    pushint 17 // 17
     getbit
     bytec_2 // 0x00
     intc_0 // 0
@@ -1146,13 +1143,15 @@ test_arc4_bool_for_header@1:
     // # arr2.extend(dyn_array)
     // for b in dyn_arr:
     frame_dig 4
-    frame_dig 1
+    frame_dig 2
     <
     bz test_arc4_bool_after_for@4
-    frame_dig 2
     frame_dig 4
     dup
-    cover 2
+    intc_3 // 16
+    +
+    frame_dig 1
+    swap
     getbit
     bytec_2 // 0x00
     intc_0 // 0
