@@ -110,6 +110,7 @@ class _ArrayBuilderImpl(_SequenceBuilder, abc.ABC):
         self.loc = loc
         self.factory = OpFactory(context, loc)
 
+    @typing.final
     def _maybe_bounds_check(self, array: ir.Value, index: ir.Value) -> None:
         if not self.assert_bounds:
             return
@@ -120,7 +121,7 @@ class _ArrayBuilderImpl(_SequenceBuilder, abc.ABC):
         ):
             logger.error("index access is out of bounds", location=self.loc)
 
-        array_length = self.factory.materialise_single(self._length(array), "array_length")
+        array_length = self._length(array)
         index_is_in_bounds = self.factory.lt(index, array_length)
         assert_value(
             self.context,
@@ -129,6 +130,7 @@ class _ArrayBuilderImpl(_SequenceBuilder, abc.ABC):
             source_location=self.loc,
         )
 
+    @typing.final
     def _length(self, array: ir.Value) -> ir.Value:
         return get_length(self.context, self.array_encoding, array, self.loc)
 
@@ -172,11 +174,6 @@ class _BitPackedBoolArrayBuilder(_ArrayBuilderImpl):
 class _FixedElementArrayBuilder(_ArrayBuilderImpl):
     @typing.override
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
-        # TODO: is it safe to not bounds check on fixed element arrays?
-        #       in some cases yes, e.g. after an extract of the whole array
-        #       but in other cases no, e.g. txn arguments
-        #       perhaps we could assert the array len once and then trust the size after that?
-        # self._maybe_bounds_check(array, index)
         if self.array_encoding.length_header:
             # note: this could also be achieved by incrementing the offset by 2
             #       the current approach uses more space but less ops
@@ -193,9 +190,6 @@ class _FixedElementArrayBuilder(_ArrayBuilderImpl):
 
     @typing.override
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
-        # TODO: is it safe to not bounds check on fixed element arrays?
-        # self._maybe_bounds_check(array, index)
-
         element_encoding = self.array_encoding.element
 
         write_offset = self.factory.mul(index, element_encoding.checked_num_bytes, "write_offset")
