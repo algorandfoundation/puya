@@ -3,8 +3,23 @@ name: Check Python Code
 on:
   pull_request:
 
+permissions:
+  pull-requests: write # needed for thollander/actions-comment-pull-request
+
 jobs:
+  generate-token:
+    runs-on: ubuntu-latest
+    outputs:
+      token: ${{ steps.app_token.outputs.token }}
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
   check-change-log-fragment:
+    needs: generate-token
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -27,6 +42,7 @@ jobs:
         with:
           comment-tag: no_changelog_fragment_detected
           mode: delete
+          github-token: ${{ needs.generate-token.outputs.token }}
 
       - name: Create or update comment if no changelog fragment
         if: steps.check_changelog.outputs.has_changelog == 'false'
@@ -35,7 +51,9 @@ jobs:
           comment-tag: no_changelog_fragment_detected
           mode: upsert
           message: ⚠️ No changelog fragment detected
+          github-token: ${{ needs.generate-token.outputs.token }}
   summarize-size:
+    needs: generate-token
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -55,6 +73,7 @@ jobs:
           comment-tag: size_diff_summary
           mode: upsert
           file-path: sizes.md
+          github-token: ${{ needs.generate-token.outputs.token }}
   check-python:
     runs-on: "ubuntu-latest"
     steps:
@@ -124,7 +143,7 @@ jobs:
           if-no-files-found: error
 
   coverage:
-    needs: tests
+    needs: [tests, generate-token]
     runs-on: ubuntu-latest
     steps:
       # uv is fast...
@@ -166,6 +185,7 @@ jobs:
         with:
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest-junit.xml
+          github-token: ${{ needs.generate-token.outputs.token }}
 
   compile-all:
     runs-on: "ubuntu-latest"
