@@ -110,7 +110,7 @@ class OpFactory:
     context: IRRegisterContext
     source_location: SourceLocation | None
 
-    def add(self, a: Value, b: Value | int, temp_desc: str = "add") -> Register:
+    def add(self, a: Value | int, b: Value | int, temp_desc: str = "add") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
