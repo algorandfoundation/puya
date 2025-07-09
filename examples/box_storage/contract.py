@@ -5,6 +5,7 @@ from algopy import (
     BoxMap,
     BoxRef,
     Bytes,
+    FixedArray,
     Global,
     ImmutableFixedArray,
     String,
@@ -12,12 +13,14 @@ from algopy import (
     Txn,
     UInt64,
     arc4,
+    ensure_budget,
     size_of,
     subroutine,
 )
 
 StaticInts: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[4]]
 Bytes1024 = ImmutableFixedArray[arc4.Byte, typing.Literal[1024]]
+ManyInts = FixedArray[UInt64, typing.Literal[513]]
 
 
 class LargeStruct(Struct):
@@ -40,6 +43,8 @@ class BoxContract(arc4.ARC4Contract):
         self.box_map = BoxMap(UInt64, String, key_prefix="")
         self.box_ref = BoxRef()
         self.box_large = Box(LargeStruct)
+        self.many_ints = Box(ManyInts)
+        assert size_of(ManyInts) > 4096, "expected ManyInts to exceed max bytes size"
 
     @arc4.abimethod
     def set_boxes(self, a: UInt64, b: arc4.DynamicBytes, c: arc4.String) -> None:
@@ -83,6 +88,22 @@ class BoxContract(arc4.ARC4Contract):
         assert self.box_b.key == b"b", "box b key ok"
         assert self.box_c.key == b"BOX_C", "box c key ok"
         assert self.box_large.key == b"box_large", "box large key ok"
+
+    @arc4.abimethod()
+    def create_many_ints(self) -> None:
+        self.many_ints.create()
+
+    @arc4.abimethod()
+    def set_many_ints(self, index: UInt64, value: UInt64) -> None:
+        self.many_ints.value[index] = value
+
+    @arc4.abimethod()
+    def sum_many_ints(self) -> UInt64:
+        ensure_budget(10_500)
+        total = UInt64(0)
+        for val in self.many_ints.value:
+            total = total + val
+        return total
 
     @arc4.abimethod
     def delete_boxes(self) -> None:

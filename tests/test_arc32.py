@@ -1546,6 +1546,22 @@ def test_box(box_client: algokit_utils.ApplicationClient) -> None:
 
     box_client.call(call_abi_method="arc4_box", transaction_parameters=_params_with_boxes(b"d"))
 
+    many_ints_txn = _params_with_boxes("many_ints", additional_refs=4)
+    sp = box_client.algod_client.suggested_params()
+    sp.flat_fee = True
+    sp.fee = 1_000 * 16
+    many_ints_txn.suggested_params = sp
+    box_client.call("create_many_ints", transaction_parameters=many_ints_txn)
+
+    box_client.call("set_many_ints", index=1, value=1, transaction_parameters=many_ints_txn)
+    box_client.call("set_many_ints", index=2, value=2, transaction_parameters=many_ints_txn)
+    box_client.call("set_many_ints", index=256, value=256, transaction_parameters=many_ints_txn)
+    box_client.call("set_many_ints", index=511, value=511, transaction_parameters=many_ints_txn)
+    box_client.call("set_many_ints", index=512, value=512, transaction_parameters=many_ints_txn)
+
+    sum_many_ints = box_client.call("sum_many_ints", transaction_parameters=many_ints_txn)
+    assert sum_many_ints.return_value == (1 + 2 + 256 + 511 + 512)
+
 
 def test_box_ref(box_client: algokit_utils.ApplicationClient) -> None:
     box_client.call(
