@@ -12,6 +12,7 @@ import pytest
 from algokit_utils import (
     ApplicationClient,
     LogicError,
+    OnCompleteCallParameters,
     OnCompleteCallParametersDict,
 )
 from algosdk import abi, constants, transaction
@@ -1571,20 +1572,59 @@ def test_box(box_client: algokit_utils.ApplicationClient) -> None:
 def test_dynamic_box(box_client: algokit_utils.ApplicationClient) -> None:
     txn_params = _params_with_boxes("dynamic_box", additional_refs=7)
 
-    # below max stack size
-    box_client.call("create_dynamic_box", size=511 * 8 + 2, transaction_parameters=txn_params)
+    box_client.call("create_dynamic_box", transaction_parameters=txn_params)
 
     length = box_client.call("append_dynamic_box", times=0, transaction_parameters=txn_params)
     assert length.return_value == 0, "expected empty array"
 
+    total = box_client.call("sum_dynamic_box", transaction_parameters=txn_params)
+    expected_sum = 0
+    assert total.return_value == expected_sum, f"expected sum to be {expected_sum}"
+
     length = box_client.call("append_dynamic_box", times=5, transaction_parameters=txn_params)
     assert length.return_value == 5, "expected 5 items"
+
+    total = box_client.call("sum_dynamic_box", transaction_parameters=txn_params)
+    expected_sum = 1 * sum(range(5))
+    assert total.return_value == expected_sum, f"expected sum to be {expected_sum}"
 
     length = box_client.call("append_dynamic_box", times=5, transaction_parameters=txn_params)
     assert length.return_value == 10, "expected 10 items"
 
     total = box_client.call("sum_dynamic_box", transaction_parameters=txn_params)
-    assert total.return_value == 30, "expected sum to be 30"
+    expected_sum = 2 * sum(range(5))
+    assert total.return_value == expected_sum, f"expected sum to be {expected_sum}"
+
+    length = box_client.call("pop_dynamic_box", times=5, transaction_parameters=txn_params)
+    assert length.return_value == 5, "expected 5 items"
+
+    total = box_client.call("sum_dynamic_box", transaction_parameters=txn_params)
+    expected_sum = 1 * sum(range(5))
+    assert total.return_value == expected_sum, f"expected sum to be {expected_sum}"
+
+    # append until exceeding max stack array size
+    for i in range(110):
+        length = box_client.call("append_dynamic_box", times=5, transaction_parameters=txn_params)
+        expected_items = 5 * (i + 2)
+        assert length.return_value == expected_items, f"expected {expected_items} items"
+
+    # use simulate to ignore large op budget requirements
+    total_sim = simulate_call(box_client, "sum_dynamic_box", txn_params=txn_params)
+    expected_sum = 111 * sum(range(5))
+    assert (
+        total_sim.abi_results[0].return_value == expected_sum
+    ), f"expected sum to be {expected_sum}"
+
+    # compare actual box contents too
+    expected_array = list(range(5)) * 111
+    box_response = box_client.algod_client.application_box_by_name(
+        box_client.app_id, b"dynamic_box"
+    )
+    assert isinstance(box_response, dict)
+    dynamic_box_bytes = base64.b64decode(box_response["value"])
+    assert len(dynamic_box_bytes) > 4096, "expected box contents to exceed max stack value size"
+    dynamic_box = algosdk.abi.ABIType.from_string("uint64[]").decode(dynamic_box_bytes)
+    assert dynamic_box == expected_array, "expected box contents to be correct"
 
     box_client.call("delete_dynamic_box", transaction_parameters=txn_params)
 
@@ -2623,7 +2663,7 @@ def simulate_call(
     app_client: algokit_utils.ApplicationClient,
     method: str,
     extra_budget: int = 20_000,
-    txn_params: OnCompleteCallParametersDict | None = None,
+    txn_params: OnCompleteCallParametersDict | OnCompleteCallParameters | None = None,
     **kwargs: object,
 ) -> SimulateAtomicTransactionResponse:
     atc = algosdk.atomic_transaction_composer.AtomicTransactionComposer()

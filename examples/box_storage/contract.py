@@ -1,6 +1,7 @@
 import typing
 
 from algopy import (
+    Array,
     Box,
     BoxMap,
     BoxRef,
@@ -16,6 +17,7 @@ from algopy import (
     ensure_budget,
     size_of,
     subroutine,
+    urange,
 )
 
 StaticInts: typing.TypeAlias = arc4.StaticArray[arc4.UInt8, typing.Literal[4]]
@@ -34,6 +36,11 @@ class LargeStruct(Struct):
     h: UInt64
 
 
+class FixedArrayUInt64(Struct):
+    length: arc4.UInt16
+    arr: FixedArray[UInt64, typing.Literal[4095]]
+
+
 class BoxContract(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.box_a = Box(UInt64)
@@ -45,6 +52,7 @@ class BoxContract(arc4.ARC4Contract):
         self.box_large = Box(LargeStruct)
         self.many_ints = Box(ManyInts)
         assert size_of(ManyInts) > 4096, "expected ManyInts to exceed max bytes size"
+        self.dynamic_box = Box(Array[UInt64])
 
     @arc4.abimethod
     def set_boxes(self, a: UInt64, b: arc4.DynamicBytes, c: arc4.String) -> None:
@@ -136,6 +144,47 @@ class BoxContract(arc4.ARC4Contract):
     @arc4.abimethod
     def boxes_exist(self) -> tuple[bool, bool, bool, bool]:
         return bool(self.box_a), bool(self.box_b), bool(self.box_c), bool(self.box_large)
+
+    @arc4.abimethod
+    def create_dynamic_box(self) -> None:
+        self.dynamic_box.value = Array[UInt64]()
+
+    @arc4.abimethod
+    def delete_dynamic_box(self) -> None:
+        del self.dynamic_box.value
+
+    @arc4.abimethod
+    def append_dynamic_box(self, times: UInt64) -> UInt64:
+        # TODO: support append using high level array operations
+
+        box = Box(FixedArrayUInt64, key=self.dynamic_box.key)
+        arr_len = box.value.length.native
+
+        self.dynamic_box.ref.resize(2 + (arr_len + times) * 8)
+        for i in urange(times):
+            box.value.arr[arr_len] = i
+            arr_len += 1
+
+        box.value.length = arc4.UInt16(arr_len)
+        return self.dynamic_box.value.length
+
+    @arc4.abimethod
+    def pop_dynamic_box(self, times: UInt64) -> UInt64:
+        # TODO: support pop using high level array operations
+
+        box = Box(FixedArrayUInt64, key=self.dynamic_box.key)
+        arr_len = box.value.length.native - times
+        box.value.length = arc4.UInt16(arr_len)
+        self.dynamic_box.ref.resize(2 + arr_len * 8)
+
+        return self.dynamic_box.value.length
+
+    @arc4.abimethod
+    def sum_dynamic_box(self) -> UInt64:
+        total = UInt64()
+        for val in self.dynamic_box.value:
+            total += val
+        return total
 
     @arc4.abimethod
     def slice_box(self) -> None:
