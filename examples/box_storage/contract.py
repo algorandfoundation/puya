@@ -118,6 +118,12 @@ class BoxContract(arc4.ARC4Contract):
         assert a == 0
         del self.box_large.value
 
+    @arc4.abimethod()
+    def indirect_extract_and_replace(self) -> None:
+        large = self.box_large.value.copy()
+        large.e += 1
+        self.box_large.value = large.copy()
+
     @arc4.abimethod
     def read_boxes(self) -> tuple[UInt64, Bytes, arc4.String, UInt64]:
         return (

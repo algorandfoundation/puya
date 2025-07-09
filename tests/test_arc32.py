@@ -1528,6 +1528,11 @@ def test_box(box_client: algokit_utils.ApplicationClient) -> None:
 
     assert (a, bytes(b), c, large) == (59, b"Hello", "World", 42)
 
+    box_client.call(
+        call_abi_method="indirect_extract_and_replace",
+        transaction_parameters=_params_with_boxes("box_large", additional_refs=6),
+    )
+
     box_client.call("delete_boxes", transaction_parameters=transaction_parameters)
 
     (a_exist, b_exist, c_exist, large_exist) = box_client.call(
