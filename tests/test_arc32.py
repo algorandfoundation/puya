@@ -1568,6 +1568,27 @@ def test_box(box_client: algokit_utils.ApplicationClient) -> None:
     assert sum_many_ints.return_value == (1 + 2 + 256 + 511 + 512)
 
 
+def test_dynamic_box(box_client: algokit_utils.ApplicationClient) -> None:
+    txn_params = _params_with_boxes("dynamic_box", additional_refs=7)
+
+    # below max stack size
+    box_client.call("create_dynamic_box", size=511 * 8 + 2, transaction_parameters=txn_params)
+
+    length = box_client.call("append_dynamic_box", times=0, transaction_parameters=txn_params)
+    assert length.return_value == 0, "expected empty array"
+
+    length = box_client.call("append_dynamic_box", times=5, transaction_parameters=txn_params)
+    assert length.return_value == 5, "expected 5 items"
+
+    length = box_client.call("append_dynamic_box", times=5, transaction_parameters=txn_params)
+    assert length.return_value == 10, "expected 10 items"
+
+    total = box_client.call("sum_dynamic_box", transaction_parameters=txn_params)
+    assert total.return_value == 30, "expected sum to be 30"
+
+    box_client.call("delete_dynamic_box", transaction_parameters=txn_params)
+
+
 def test_box_ref(box_client: algokit_utils.ApplicationClient) -> None:
     box_client.call(
         call_abi_method="test_box_ref",
