@@ -10,6 +10,7 @@ from puya.context import CompileContext
 from puya.ir import models
 from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
+from puya.ir.optimize._utils import HasHighLevelOps
 from puya.ir.types_ import PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor
 
@@ -19,6 +20,9 @@ logger = log.get_logger(__name__)
 def constant_reads_and_unobserved_writes_elimination(
     _: CompileContext, subroutine: models.Subroutine
 ) -> bool:
+    if HasHighLevelOps.check(subroutine.body):
+        return False
+
     any_modified = False
     # TODO: consider dominator blocks
     for block in subroutine.body:

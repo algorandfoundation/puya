@@ -11,8 +11,8 @@ from puya.ir import (
     types_ as types,
 )
 from puya.ir._puya_lib import PuyaLibIR
+from puya.ir.builder import mem
 from puya.ir.builder._utils import invoke_puya_lib_subroutine
-from puya.ir.builder.sequence import get_length
 from puya.ir.encodings import ArrayEncoding
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
@@ -46,6 +46,27 @@ def write_at_index(
 ) -> ir.Value:
     builder = _get_builder(context, array_encoding, loc, assert_bounds=assert_bounds)
     return builder.write_at_index(array, index, value)
+
+
+def get_length(
+    context: IRRegisterContext,
+    array_encoding: ArrayEncoding,
+    array_or_slot: ir.Value,
+    loc: SourceLocation | None,
+) -> ir.Value:
+    if isinstance(array_or_slot.ir_type, types.SlotType):
+        array = mem.read_slot(context, array_or_slot, loc)
+    else:
+        array = array_or_slot
+    # how length is calculated depends on the array type, rather than the element type
+    factory = OpFactory(context, loc)
+    if array_encoding.size is not None:
+        return factory.constant(array_encoding.size)
+    elif array_encoding.length_header:
+        return factory.extract_uint16(array, 0, "array_length")
+    assert array_encoding.size is None, "expected dynamic array"
+    bytes_len = factory.len(array, "bytes_len")
+    return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")
 
 
 class _SequenceBuilder(abc.ABC):

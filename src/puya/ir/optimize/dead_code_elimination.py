@@ -243,7 +243,8 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
             | models.InnerTransactionField
             | models.BoxRead
             | models.ExtractValue
-            | models.ReplaceValue,
+            | models.ReplaceValue
+            | models.ArrayLength,
         ) or (
             isinstance(ass.source, models.Intrinsic)
             and ass.source.op.code in SIDE_EFFECT_FREE_AVM_OPS

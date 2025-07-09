@@ -424,6 +424,24 @@ class InnerTransactionField(ValueProvider):
 
 
 @attrs.define(eq=False, kw_only=True)
+class ArrayLength(ValueProvider):
+    base: Value = attrs.field()
+    # we retain the original type of the aggregate, in case this is lost during optimisations
+    base_type: IRType = attrs.field(repr=lambda x: x.name)
+    array_encoding: ArrayEncoding
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (PrimitiveIRType.uint64,)
+
+    def _frozen_data(self) -> object:
+        return self.base_type, self.base, self.array_encoding
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_length(self)
+
+
+@attrs.define(eq=False, kw_only=True)
 class _Aggregate(ValueProvider, abc.ABC):
     base: Value = attrs.field()
     # we retain the original type of the aggregate, in case this is lost during optimisations

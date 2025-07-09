@@ -52,6 +52,12 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         )
 
     @typing.override
+    def visit_array_length(self, length: ir.ArrayLength) -> ir.ValueProvider:
+        return sequence.get_length(
+            self, length.array_encoding, length.base, length.source_location
+        )
+
+    @typing.override
     def visit_extract_value(self, read: ir.ExtractValue) -> ir.Value:
         loc = read.source_location
 

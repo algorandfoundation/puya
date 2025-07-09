@@ -120,7 +120,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
             ):
                 materialised_iterable = self.factory.materialise_single(iterable)
                 iterable_length: ir.ValueProvider = get_length(
-                    self.context, iterable_encoding, materialised_iterable, self.loc
+                    iterable_encoding, materialised_iterable, self.loc
                 )
                 if iterable_encoding.length_header:
                     iterable = self.factory.extract_to_end(materialised_iterable, 2)

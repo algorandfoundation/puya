@@ -1293,7 +1293,7 @@ class FunctionIRBuilder(
         array = self.visit_and_materialise_single(expr.array)
 
         array_encoding = wtype_to_encoding(array_wtype, loc)
-        return sequence.get_length(self.context, array_encoding, array, loc)
+        return sequence.get_length(array_encoding, array, loc)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root

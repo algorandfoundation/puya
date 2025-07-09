@@ -166,6 +166,9 @@ class MemoryIRBuilder(IRVisitor[None]):
                 )
             )
 
+    def visit_array_length(self, length: ir.ArrayLength) -> None:
+        _unexpected_node(length)
+
     def visit_extract_value(self, read: ir.ExtractValue) -> None:
         _unexpected_node(read)
 

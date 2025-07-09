@@ -153,25 +153,16 @@ def encode_and_write_aggregate_index(
 
 
 def get_length(
-    context: IRRegisterContext,
     array_encoding: encodings.ArrayEncoding,
     array_or_slot: ir.Value,
     loc: SourceLocation | None,
-) -> ir.Value:
-    if isinstance(array_or_slot.ir_type, types.SlotType):
-        array = mem.read_slot(context, array_or_slot, loc)
-    else:
-        array = array_or_slot
-    # how length is calculated depends on the array type, rather than the element type
-    factory = OpFactory(context, loc)
-    if array_encoding.size is not None:
-        return factory.constant(array_encoding.size)
-    elif array_encoding.length_header:
-        return factory.extract_uint16(array, 0, "array_length")
-    else:
-        bytes_len = factory.len(array, "bytes_len")
-        fixed_element_size = array_encoding.element.checked_num_bytes
-        return factory.div_floor(bytes_len, fixed_element_size, "array_len")
+) -> ir.ArrayLength:
+    return ir.ArrayLength(
+        base=array_or_slot,
+        base_type=array_or_slot.ir_type,
+        array_encoding=array_encoding,
+        source_location=loc,
+    )
 
 
 def convert_array(
@@ -190,7 +181,7 @@ def convert_array(
 
     if isinstance(source.ir_type, types.SlotType):
         source = mem.read_slot(context, source, loc)
-    source_length = get_length(context, source_encoding, source, loc)
+    source_length = factory.materialise_single(get_length(source_encoding, source, loc))
 
     match source_encoding.element, target_encoding.element:
         case (
