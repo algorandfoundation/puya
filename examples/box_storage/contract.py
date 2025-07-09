@@ -120,15 +120,11 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def read_boxes(self) -> tuple[UInt64, Bytes, arc4.String, UInt64]:
-        # TODO: support direct reading of large structs in boxes
-        # large_e = self.box_large.value.e
-        large_box_ref = BoxRef(key=self.box_large.key)
-        large_e = arc4.UInt64.from_bytes(large_box_ref.extract(size_of(Bytes1024) * 4, 8))
         return (
             get_box_value_plus_1(self.box_a) - 1,
             self.box_b.value.native,
             self.box_c.value,
-            large_e.native,
+            self.box_large.value.e,
         )
 
     @arc4.abimethod
