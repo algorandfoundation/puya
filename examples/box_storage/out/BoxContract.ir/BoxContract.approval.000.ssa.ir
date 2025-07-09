@@ -9,6 +9,37 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
         return tmp%1#0
 
+subroutine _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+    block@0: // L12
+        let tmp%0#0: uint64 = (+ required_budget#0 10u)
+        let required_budget_with_buffer#0: uint64 = tmp%0#0
+        goto block@1
+    block@1: // while_top_L20
+        let tmp%1#0: uint64 = (global OpcodeBudget)
+        let tmp%2#0: bool = (> required_budget_with_buffer#0 tmp%1#0)
+        goto tmp%2#0 ? block@2 : block@7
+    block@2: // while_body_L21
+        itxn_begin
+        ((itxn_field TypeEnum) appl)
+        ((itxn_field OnCompletion) DeleteApplication)
+        ((itxn_field ApprovalProgram) 0x068101)
+        ((itxn_field ClearStateProgram) 0x068101)
+        switch fee_source#0 {0u => block@3, 1u => block@4, * => block@5}
+    block@3: // switch_case_0_L28
+        ((itxn_field Fee) 0u)
+        goto block@6
+    block@4: // switch_case_1_L30
+        let tmp%3#0: uint64 = (global MinTxnFee)
+        ((itxn_field Fee) tmp%3#0)
+        goto block@6
+    block@5: // switch_case_default_L26
+        goto block@6
+    block@6: // switch_case_next_L26
+        itxn_submit
+        goto block@1
+    block@7: // after_while_L20
+        return 
+
 subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
     block@0: // L221
         let tmp%0#0: bytes = ((substring 0 2) array#0)
@@ -144,20 +175,20 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         return array_head_and_tail#1
 
 subroutine examples.box_storage.contract.get_box_value_plus_1(box: bytes) -> uint64:
-    block@0: // L225
+    block@0: // L248
         let storage_value%0#0: bytes = box_read(box#0)
         let maybe_value_converted%0#0: uint64 = (btoi storage_value%0#0)
         let tmp%0#0: uint64 = (+ maybe_value_converted%0#0 1u)
         return tmp%0#0
 
 subroutine examples.box_storage.contract.get_box_ref_length(ref: bytes) -> uint64:
-    block@0: // L230
+    block@0: // L253
         let (value%0#0: uint64, check%0#0: bool) = (box_len ref#0)
         (assert check%0#0) // check BoxRef exists
         return value%0#0
 
 subroutine examples.box_storage.contract.get_box_map_value_from_key_plus_1(box_map: bytes, key: uint64) -> string:
-    block@0: // L235
+    block@0: // L258
         let materialized_values%0#0: uint64 = (+ key#0 1u)
         let encoded_value%0#0: bytes[8] = (itob materialized_values%0#0)
         let box_prefixed_key%0#0: bytes = (concat box_map#0 encoded_value%0#0)
@@ -165,14 +196,14 @@ subroutine examples.box_storage.contract.get_box_map_value_from_key_plus_1(box_m
         return storage_value%0#0
 
 subroutine examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> bool:
-    block@0: // L34
+    block@0: // L37
         let tmp%0#0: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        goto tmp%1#0 ? block@1 : block@17
-    block@1: // abi_routing_L34
+        goto tmp%1#0 ? block@1 : block@21
+    block@1: // abi_routing_L37
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "set_boxes(uint64,byte[],string)void" => block@2, method "check_keys()void" => block@3, method "delete_boxes()void" => block@4, method "read_boxes()(uint64,byte[],string,uint64)" => block@5, method "boxes_exist()(bool,bool,bool,bool)" => block@6, method "slice_box()void" => block@7, method "arc4_box()void" => block@8, method "test_box_ref()void" => block@9, method "box_map_test()void" => block@10, method "box_map_set(uint64,string)void" => block@11, method "box_map_get(uint64)string" => block@12, method "box_map_del(uint64)void" => block@13, method "box_map_exists(uint64)bool" => block@14, * => block@15}
-    block@2: // set_boxes_route_L44
+        switch tmp%2#0 {method "set_boxes(uint64,byte[],string)void" => block@2, method "check_keys()void" => block@3, method "create_many_ints()void" => block@4, method "set_many_ints(uint64,uint64)void" => block@5, method "sum_many_ints()uint64" => block@6, method "delete_boxes()void" => block@7, method "indirect_extract_and_replace()void" => block@8, method "read_boxes()(uint64,byte[],string,uint64)" => block@9, method "boxes_exist()(bool,bool,bool,bool)" => block@10, method "slice_box()void" => block@11, method "arc4_box()void" => block@12, method "test_box_ref()void" => block@13, method "box_map_test()void" => block@14, method "box_map_set(uint64,string)void" => block@15, method "box_map_get(uint64)string" => block@16, method "box_map_del(uint64)void" => block@17, method "box_map_exists(uint64)bool" => block@18, * => block@19}
+    block@2: // set_boxes_route_L49
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
@@ -185,7 +216,7 @@ subroutine examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> b
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 3)
         examples.box_storage.contract.BoxContract.set_boxes(tmp%7#0, reinterpret_Encoded(len+uint8[])%0#0, reinterpret_Encoded(len+utf8[])%0#0)
         return 1u
-    block@3: // check_keys_route_L80
+    block@3: // check_keys_route_L85
         let tmp%8#0: uint64 = (txn OnCompletion)
         let tmp%9#0: bool = (== tmp%8#0 NoOp)
         (assert tmp%9#0) // OnCompletion is not NoOp
@@ -194,153 +225,198 @@ subroutine examples.box_storage.contract.BoxContract.__puya_arc4_router__() -> b
         (assert tmp%11#0) // can only call when not creating
         examples.box_storage.contract.BoxContract.check_keys()
         return 1u
-    block@4: // delete_boxes_route_L87
+    block@4: // create_many_ints_route_L92
         let tmp%12#0: uint64 = (txn OnCompletion)
         let tmp%13#0: bool = (== tmp%12#0 NoOp)
         (assert tmp%13#0) // OnCompletion is not NoOp
         let tmp%14#0: uint64 = (txn ApplicationID)
         let tmp%15#0: bool = (!= tmp%14#0 0u)
         (assert tmp%15#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.delete_boxes()
+        examples.box_storage.contract.BoxContract.create_many_ints()
         return 1u
-    block@5: // read_boxes_route_L100
+    block@5: // set_many_ints_route_L96
         let tmp%16#0: uint64 = (txn OnCompletion)
         let tmp%17#0: bool = (== tmp%16#0 NoOp)
         (assert tmp%17#0) // OnCompletion is not NoOp
         let tmp%18#0: uint64 = (txn ApplicationID)
         let tmp%19#0: bool = (!= tmp%18#0 0u)
         (assert tmp%19#0) // can only call when not creating
-        let (tmp%20#0: uint64, tmp%21#0: bytes, tmp%22#0: Encoded(len+utf8[]), tmp%23#0: uint64) = examples.box_storage.contract.BoxContract.read_boxes()
-        let tmp%24#0: Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64) = bytes_encode<(uint64,(len+uint8[]),(len+utf8[]),uint64)>(tmp%20#0, tmp%21#0, tmp%22#0, tmp%23#0)
-        let tmp%25#0: bytes = (concat 0x151f7c75 tmp%24#0)
-        (log tmp%25#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%20#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%21#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
+        examples.box_storage.contract.BoxContract.set_many_ints(tmp%20#0, tmp%21#0)
         return 1u
-    block@6: // boxes_exist_route_L113
-        let tmp%26#0: uint64 = (txn OnCompletion)
-        let tmp%27#0: bool = (== tmp%26#0 NoOp)
-        (assert tmp%27#0) // OnCompletion is not NoOp
-        let tmp%28#0: uint64 = (txn ApplicationID)
-        let tmp%29#0: bool = (!= tmp%28#0 0u)
-        (assert tmp%29#0) // can only call when not creating
-        let (tmp%30#0: bool, tmp%31#0: bool, tmp%32#0: bool, tmp%33#0: bool) = examples.box_storage.contract.BoxContract.boxes_exist()
-        let tmp%34#0: Encoded(bool1,bool1,bool1,bool1) = bytes_encode<(bool1,bool1,bool1,bool1)>(tmp%30#0, tmp%31#0, tmp%32#0, tmp%33#0)
-        let tmp%35#0: bytes = (concat 0x151f7c75 tmp%34#0)
-        (log tmp%35#0)
+    block@6: // sum_many_ints_route_L100
+        let tmp%22#0: uint64 = (txn OnCompletion)
+        let tmp%23#0: bool = (== tmp%22#0 NoOp)
+        (assert tmp%23#0) // OnCompletion is not NoOp
+        let tmp%24#0: uint64 = (txn ApplicationID)
+        let tmp%25#0: bool = (!= tmp%24#0 0u)
+        (assert tmp%25#0) // can only call when not creating
+        let tmp%26#0: uint64 = examples.box_storage.contract.BoxContract.sum_many_ints()
+        let tmp%27#0: Encoded(uint64) = bytes_encode<uint64>(tmp%26#0)
+        let tmp%28#0: bytes = (concat 0x151f7c75 tmp%27#0)
+        (log tmp%28#0)
         return 1u
-    block@7: // slice_box_route_L117
-        let tmp%36#0: uint64 = (txn OnCompletion)
-        let tmp%37#0: bool = (== tmp%36#0 NoOp)
-        (assert tmp%37#0) // OnCompletion is not NoOp
-        let tmp%38#0: uint64 = (txn ApplicationID)
-        let tmp%39#0: bool = (!= tmp%38#0 0u)
-        (assert tmp%39#0) // can only call when not creating
+    block@7: // delete_boxes_route_L108
+        let tmp%29#0: uint64 = (txn OnCompletion)
+        let tmp%30#0: bool = (== tmp%29#0 NoOp)
+        (assert tmp%30#0) // OnCompletion is not NoOp
+        let tmp%31#0: uint64 = (txn ApplicationID)
+        let tmp%32#0: bool = (!= tmp%31#0 0u)
+        (assert tmp%32#0) // can only call when not creating
+        examples.box_storage.contract.BoxContract.delete_boxes()
+        return 1u
+    block@8: // indirect_extract_and_replace_route_L121
+        let tmp%33#0: uint64 = (txn OnCompletion)
+        let tmp%34#0: bool = (== tmp%33#0 NoOp)
+        (assert tmp%34#0) // OnCompletion is not NoOp
+        let tmp%35#0: uint64 = (txn ApplicationID)
+        let tmp%36#0: bool = (!= tmp%35#0 0u)
+        (assert tmp%36#0) // can only call when not creating
+        examples.box_storage.contract.BoxContract.indirect_extract_and_replace()
+        return 1u
+    block@9: // read_boxes_route_L127
+        let tmp%37#0: uint64 = (txn OnCompletion)
+        let tmp%38#0: bool = (== tmp%37#0 NoOp)
+        (assert tmp%38#0) // OnCompletion is not NoOp
+        let tmp%39#0: uint64 = (txn ApplicationID)
+        let tmp%40#0: bool = (!= tmp%39#0 0u)
+        (assert tmp%40#0) // can only call when not creating
+        let (tmp%41#0: uint64, tmp%42#0: bytes, tmp%43#0: Encoded(len+utf8[]), tmp%44#0: uint64) = examples.box_storage.contract.BoxContract.read_boxes()
+        let tmp%45#0: Encoded(uint64,(len+uint8[]),(len+utf8[]),uint64) = bytes_encode<(uint64,(len+uint8[]),(len+utf8[]),uint64)>(tmp%41#0, tmp%42#0, tmp%43#0, tmp%44#0)
+        let tmp%46#0: bytes = (concat 0x151f7c75 tmp%45#0)
+        (log tmp%46#0)
+        return 1u
+    block@10: // boxes_exist_route_L136
+        let tmp%47#0: uint64 = (txn OnCompletion)
+        let tmp%48#0: bool = (== tmp%47#0 NoOp)
+        (assert tmp%48#0) // OnCompletion is not NoOp
+        let tmp%49#0: uint64 = (txn ApplicationID)
+        let tmp%50#0: bool = (!= tmp%49#0 0u)
+        (assert tmp%50#0) // can only call when not creating
+        let (tmp%51#0: bool, tmp%52#0: bool, tmp%53#0: bool, tmp%54#0: bool) = examples.box_storage.contract.BoxContract.boxes_exist()
+        let tmp%55#0: Encoded(bool1,bool1,bool1,bool1) = bytes_encode<(bool1,bool1,bool1,bool1)>(tmp%51#0, tmp%52#0, tmp%53#0, tmp%54#0)
+        let tmp%56#0: bytes = (concat 0x151f7c75 tmp%55#0)
+        (log tmp%56#0)
+        return 1u
+    block@11: // slice_box_route_L140
+        let tmp%57#0: uint64 = (txn OnCompletion)
+        let tmp%58#0: bool = (== tmp%57#0 NoOp)
+        (assert tmp%58#0) // OnCompletion is not NoOp
+        let tmp%59#0: uint64 = (txn ApplicationID)
+        let tmp%60#0: bool = (!= tmp%59#0 0u)
+        (assert tmp%60#0) // can only call when not creating
         examples.box_storage.contract.BoxContract.slice_box()
         return 1u
-    block@8: // arc4_box_route_L126
-        let tmp%40#0: uint64 = (txn OnCompletion)
-        let tmp%41#0: bool = (== tmp%40#0 NoOp)
-        (assert tmp%41#0) // OnCompletion is not NoOp
-        let tmp%42#0: uint64 = (txn ApplicationID)
-        let tmp%43#0: bool = (!= tmp%42#0 0u)
-        (assert tmp%43#0) // can only call when not creating
+    block@12: // arc4_box_route_L149
+        let tmp%61#0: uint64 = (txn OnCompletion)
+        let tmp%62#0: bool = (== tmp%61#0 NoOp)
+        (assert tmp%62#0) // OnCompletion is not NoOp
+        let tmp%63#0: uint64 = (txn ApplicationID)
+        let tmp%64#0: bool = (!= tmp%63#0 0u)
+        (assert tmp%64#0) // can only call when not creating
         examples.box_storage.contract.BoxContract.arc4_box()
         return 1u
-    block@9: // test_box_ref_route_L136
-        let tmp%44#0: uint64 = (txn OnCompletion)
-        let tmp%45#0: bool = (== tmp%44#0 NoOp)
-        (assert tmp%45#0) // OnCompletion is not NoOp
-        let tmp%46#0: uint64 = (txn ApplicationID)
-        let tmp%47#0: bool = (!= tmp%46#0 0u)
-        (assert tmp%47#0) // can only call when not creating
+    block@13: // test_box_ref_route_L159
+        let tmp%65#0: uint64 = (txn OnCompletion)
+        let tmp%66#0: bool = (== tmp%65#0 NoOp)
+        (assert tmp%66#0) // OnCompletion is not NoOp
+        let tmp%67#0: uint64 = (txn ApplicationID)
+        let tmp%68#0: bool = (!= tmp%67#0 0u)
+        (assert tmp%68#0) // can only call when not creating
         examples.box_storage.contract.BoxContract.test_box_ref()
         return 1u
-    block@10: // box_map_test_route_L184
-        let tmp%48#0: uint64 = (txn OnCompletion)
-        let tmp%49#0: bool = (== tmp%48#0 NoOp)
-        (assert tmp%49#0) // OnCompletion is not NoOp
-        let tmp%50#0: uint64 = (txn ApplicationID)
-        let tmp%51#0: bool = (!= tmp%50#0 0u)
-        (assert tmp%51#0) // can only call when not creating
+    block@14: // box_map_test_route_L207
+        let tmp%69#0: uint64 = (txn OnCompletion)
+        let tmp%70#0: bool = (== tmp%69#0 NoOp)
+        (assert tmp%70#0) // OnCompletion is not NoOp
+        let tmp%71#0: uint64 = (txn ApplicationID)
+        let tmp%72#0: bool = (!= tmp%71#0 0u)
+        (assert tmp%72#0) // can only call when not creating
         examples.box_storage.contract.BoxContract.box_map_test()
         return 1u
-    block@11: // box_map_set_route_L208
-        let tmp%52#0: uint64 = (txn OnCompletion)
-        let tmp%53#0: bool = (== tmp%52#0 NoOp)
-        (assert tmp%53#0) // OnCompletion is not NoOp
-        let tmp%54#0: uint64 = (txn ApplicationID)
-        let tmp%55#0: bool = (!= tmp%54#0 0u)
-        (assert tmp%55#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%56#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
-        let reinterpret_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = (txna ApplicationArgs 2)
-        let tmp%57#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%1#0)
-        examples.box_storage.contract.BoxContract.box_map_set(tmp%56#0, tmp%57#0)
-        return 1u
-    block@12: // box_map_get_route_L212
-        let tmp%58#0: uint64 = (txn OnCompletion)
-        let tmp%59#0: bool = (== tmp%58#0 NoOp)
-        (assert tmp%59#0) // OnCompletion is not NoOp
-        let tmp%60#0: uint64 = (txn ApplicationID)
-        let tmp%61#0: bool = (!= tmp%60#0 0u)
-        (assert tmp%61#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%62#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
-        let tmp%63#0: string = examples.box_storage.contract.BoxContract.box_map_get(tmp%62#0)
-        let tmp%64#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%63#0)
-        let tmp%65#0: bytes = (concat 0x151f7c75 tmp%64#0)
-        (log tmp%65#0)
-        return 1u
-    block@13: // box_map_del_route_L216
-        let tmp%66#0: uint64 = (txn OnCompletion)
-        let tmp%67#0: bool = (== tmp%66#0 NoOp)
-        (assert tmp%67#0) // OnCompletion is not NoOp
-        let tmp%68#0: uint64 = (txn ApplicationID)
-        let tmp%69#0: bool = (!= tmp%68#0 0u)
-        (assert tmp%69#0) // can only call when not creating
+    block@15: // box_map_set_route_L231
+        let tmp%73#0: uint64 = (txn OnCompletion)
+        let tmp%74#0: bool = (== tmp%73#0 NoOp)
+        (assert tmp%74#0) // OnCompletion is not NoOp
+        let tmp%75#0: uint64 = (txn ApplicationID)
+        let tmp%76#0: bool = (!= tmp%75#0 0u)
+        (assert tmp%76#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%70#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
-        examples.box_storage.contract.BoxContract.box_map_del(tmp%70#0)
+        let tmp%77#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
+        let reinterpret_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = (txna ApplicationArgs 2)
+        let tmp%78#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%1#0)
+        examples.box_storage.contract.BoxContract.box_map_set(tmp%77#0, tmp%78#0)
         return 1u
-    block@14: // box_map_exists_route_L220
-        let tmp%71#0: uint64 = (txn OnCompletion)
-        let tmp%72#0: bool = (== tmp%71#0 NoOp)
-        (assert tmp%72#0) // OnCompletion is not NoOp
-        let tmp%73#0: uint64 = (txn ApplicationID)
-        let tmp%74#0: bool = (!= tmp%73#0 0u)
-        (assert tmp%74#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%4#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%75#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%4#0)
-        let tmp%76#0: bool = examples.box_storage.contract.BoxContract.box_map_exists(tmp%75#0)
-        let tmp%77#0: Encoded(bool8) = bytes_encode<bool8>(tmp%76#0)
-        let tmp%78#0: bytes = (concat 0x151f7c75 tmp%77#0)
-        (log tmp%78#0)
-        return 1u
-    block@15: // switch_case_default_L34
-        goto block@16
-    block@16: // switch_case_next_L34
-        goto block@21
-    block@17: // bare_routing_L34
+    block@16: // box_map_get_route_L235
         let tmp%79#0: uint64 = (txn OnCompletion)
-        switch tmp%79#0 {0u => block@18, * => block@19}
-    block@18: // __algopy_default_create_L1
-        let tmp%80#0: uint64 = (txn ApplicationID)
-        let tmp%81#0: bool = (== tmp%80#0 0u)
-        (assert tmp%81#0) // can only call when creating
+        let tmp%80#0: bool = (== tmp%79#0 NoOp)
+        (assert tmp%80#0) // OnCompletion is not NoOp
+        let tmp%81#0: uint64 = (txn ApplicationID)
+        let tmp%82#0: bool = (!= tmp%81#0 0u)
+        (assert tmp%82#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%4#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%83#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%4#0)
+        let tmp%84#0: string = examples.box_storage.contract.BoxContract.box_map_get(tmp%83#0)
+        let tmp%85#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%84#0)
+        let tmp%86#0: bytes = (concat 0x151f7c75 tmp%85#0)
+        (log tmp%86#0)
+        return 1u
+    block@17: // box_map_del_route_L239
+        let tmp%87#0: uint64 = (txn OnCompletion)
+        let tmp%88#0: bool = (== tmp%87#0 NoOp)
+        (assert tmp%88#0) // OnCompletion is not NoOp
+        let tmp%89#0: uint64 = (txn ApplicationID)
+        let tmp%90#0: bool = (!= tmp%89#0 0u)
+        (assert tmp%90#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%5#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%91#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%5#0)
+        examples.box_storage.contract.BoxContract.box_map_del(tmp%91#0)
+        return 1u
+    block@18: // box_map_exists_route_L243
+        let tmp%92#0: uint64 = (txn OnCompletion)
+        let tmp%93#0: bool = (== tmp%92#0 NoOp)
+        (assert tmp%93#0) // OnCompletion is not NoOp
+        let tmp%94#0: uint64 = (txn ApplicationID)
+        let tmp%95#0: bool = (!= tmp%94#0 0u)
+        (assert tmp%95#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%6#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%96#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%6#0)
+        let tmp%97#0: bool = examples.box_storage.contract.BoxContract.box_map_exists(tmp%96#0)
+        let tmp%98#0: Encoded(bool8) = bytes_encode<bool8>(tmp%97#0)
+        let tmp%99#0: bytes = (concat 0x151f7c75 tmp%98#0)
+        (log tmp%99#0)
+        return 1u
+    block@19: // switch_case_default_L37
+        goto block@20
+    block@20: // switch_case_next_L37
+        goto block@25
+    block@21: // bare_routing_L37
+        let tmp%100#0: uint64 = (txn OnCompletion)
+        switch tmp%100#0 {0u => block@22, * => block@23}
+    block@22: // __algopy_default_create_L1
+        let tmp%101#0: uint64 = (txn ApplicationID)
+        let tmp%102#0: bool = (== tmp%101#0 0u)
+        (assert tmp%102#0) // can only call when creating
         examples.box_storage.contract.BoxContract.__algopy_default_create()
         return 1u
-    block@19: // switch_case_default_L34
-        goto block@20
-    block@20: // switch_case_next_L34
-        goto block@21
-    block@21: // after_if_else_L34
+    block@23: // switch_case_default_L37
+        goto block@24
+    block@24: // switch_case_next_L37
+        goto block@25
+    block@25: // after_if_else_L37
         return 0u
 
 subroutine examples.box_storage.contract.BoxContract.__init__() -> void:
-    block@0: // L35
+    block@0: // L38
+        let tmp%0#0: bool = (> 4104u 4096u)
+        (assert tmp%0#0) // expected ManyInts to exceed max bytes size
         return 
 
 subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Encoded(len+uint8[]), c: Encoded(len+utf8[])) -> void:
-    block@0: // L44
+    block@0: // L49
         let encoded_value%0#0: bytes[8] = (itob a#0)
         box_write("box_a", encoded_value%0#0)
         (box_del "b")
@@ -484,7 +560,7 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: Enc
         return 
 
 subroutine examples.box_storage.contract.BoxContract.check_keys() -> void:
-    block@0: // L80
+    block@0: // L85
         let tmp%0#0: bool = (== "box_a" 0x626f785f61)
         (assert tmp%0#0) // box a key ok
         let tmp%1#0: bool = (== "b" 0x62)
@@ -495,8 +571,47 @@ subroutine examples.box_storage.contract.BoxContract.check_keys() -> void:
         (assert tmp%3#0) // box large key ok
         return 
 
+subroutine examples.box_storage.contract.BoxContract.create_many_ints() -> void:
+    block@0: // L92
+        (box_create "many_ints" 4104u)
+        return 
+
+subroutine examples.box_storage.contract.BoxContract.set_many_ints(index: uint64, value: uint64) -> void:
+    block@0: // L96
+        let storage_value%0#0: bytes = box_read("many_ints")
+        let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(value#0)
+        let updated_array%0#0: Encoded(uint64[513]) = replace_value(storage_value%0#0, index#0, encoded_value%0#0)
+        box_write("many_ints", updated_array%0#0)
+        return 
+
+subroutine examples.box_storage.contract.BoxContract.sum_many_ints() -> uint64:
+    block@0: // L100
+        _puya_lib.util.ensure_budget(10500u, 0u)
+        let total#0: uint64 = 0u
+        let storage_value%0#0: bytes = box_read("many_ints")
+        let item_index_internal%0#0: uint64 = 0u
+        let reverse_index_internal%0#0: uint64 = 513u
+        goto block@1
+    block@1: // for_header_L104
+        let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
+        let total#1: uint64 = φ(total#0 <- block@0, total#2 <- block@3)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 513u)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L105
+        let array_item%0#0: Encoded(uint64) = extract_value(storage_value%0#0, item_index_internal%0#1)
+        let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
+        let val#0: uint64 = values%0#0
+        let tmp%0#0: uint64 = (+ total#1 val#0)
+        let total#2: uint64 = tmp%0#0
+        goto block@3
+    block@3: // for_footer_L104
+        let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
+        goto block@1
+    block@4: // after_for_L104
+        return total#1
+
 subroutine examples.box_storage.contract.BoxContract.delete_boxes() -> void:
-    block@0: // L87
+    block@0: // L108
         (box_del "box_a")
         (box_del "b")
         (box_del 0x424f585f43)
@@ -528,22 +643,33 @@ subroutine examples.box_storage.contract.BoxContract.delete_boxes() -> void:
         (box_del "box_large")
         return 
 
+subroutine examples.box_storage.contract.BoxContract.indirect_extract_and_replace() -> void:
+    block@0: // L121
+        let storage_value%0#0: bytes = box_read("box_large")
+        let large#0: Encoded(uint8[1024],uint8[1024],uint8[1024],uint8[1024],uint64,uint8[1024],uint8[1024],uint64) = storage_value%0#0
+        let tuple_item%0#0: Encoded(uint64) = extract_value(large#0, 4)
+        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let tmp%0#0: uint64 = (+ values%0#0 1u)
+        let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
+        let updated_tuple%0#0: Encoded(uint8[1024],uint8[1024],uint8[1024],uint8[1024],uint64,uint8[1024],uint8[1024],uint64) = replace_value(large#0, 4, encoded_value%0#0)
+        let large#1: Encoded(uint8[1024],uint8[1024],uint8[1024],uint8[1024],uint64,uint8[1024],uint8[1024],uint64) = updated_tuple%0#0
+        box_write("box_large", large#1)
+        return 
+
 subroutine examples.box_storage.contract.BoxContract.read_boxes() -> <uint64, bytes, Encoded(len+utf8[]), uint64>:
-    block@0: // L100
-        let large_box_ref#0: bytes = "box_large"
-        let tmp%0#0: uint64 = (* 1024u 4u)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (box_extract large_box_ref#0 tmp%0#0 8u)
-        let large_e#0: Encoded(uint64) = reinterpret_Encoded(uint64)%0#0
-        let tmp%1#0: uint64 = examples.box_storage.contract.get_box_value_plus_1("box_a")
-        let tmp%2#0: uint64 = (- tmp%1#0 1u)
+    block@0: // L127
+        let tmp%0#0: uint64 = examples.box_storage.contract.get_box_value_plus_1("box_a")
+        let tmp%1#0: uint64 = (- tmp%0#0 1u)
         let storage_value%0#0: bytes = box_read("b")
-        let tmp%3#0: bytes = decode_bytes<bytes>(storage_value%0#0)
+        let tmp%2#0: bytes = decode_bytes<bytes>(storage_value%0#0)
         let storage_value%1#0: bytes = box_read(0x424f585f43)
-        let tmp%4#0: uint64 = decode_bytes<uint64>(large_e#0)
-        return tmp%2#0 tmp%3#0 storage_value%1#0 tmp%4#0
+        let storage_value%2#0: bytes = box_read("box_large")
+        let tuple_item%0#0: Encoded(uint64) = extract_value(storage_value%2#0, 4)
+        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        return tmp%1#0 tmp%2#0 storage_value%1#0 values%0#0
 
 subroutine examples.box_storage.contract.BoxContract.boxes_exist() -> <bool, bool, bool, bool>:
-    block@0: // L113
+    block@0: // L136
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "box_a")
         let (_%1#0: uint64, maybe_exists%1#0: bool) = (box_len "b")
         let (_%2#0: uint64, maybe_exists%2#0: bool) = (box_len 0x424f585f43)
@@ -551,7 +677,7 @@ subroutine examples.box_storage.contract.BoxContract.boxes_exist() -> <bool, boo
         return maybe_exists%0#0 maybe_exists%1#0 maybe_exists%2#0 maybe_exists%3#0
 
 subroutine examples.box_storage.contract.BoxContract.slice_box() -> void:
-    block@0: // L117
+    block@0: // L140
         let box_0#0: bytes = "0"
         (box_del box_0#0)
         box_write(box_0#0, 0x54657374696e672074657374696e6720313233)
@@ -579,7 +705,7 @@ subroutine examples.box_storage.contract.BoxContract.slice_box() -> void:
         return 
 
 subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
-    block@0: // L126
+    block@0: // L149
         let box_d#0: bytes = 0x64
         let encoded_array%0#0: Encoded(uint8[4]) = bytes_encode<uint8[4]>(0x00, 0x01, 0x02, 0x03)
         box_write(box_d#0, encoded_array%0#0)
@@ -614,7 +740,7 @@ subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
         return 
 
 subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:
-    block@0: // L136
+    block@0: // L159
         let box_ref#0: bytes = "blob"
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_ref#0)
         let tmp%0#0: bool = (! maybe_exists%0#0)
@@ -685,7 +811,7 @@ subroutine examples.box_storage.contract.BoxContract.test_box_ref() -> void:
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
-    block@0: // L184
+    block@0: // L207
         let key_0#0: uint64 = 0u
         let key_1#0: uint64 = 1u
         let value#0: string = "Hmmmmm"
@@ -751,7 +877,7 @@ subroutine examples.box_storage.contract.BoxContract.box_map_test() -> void:
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_set(key: uint64, value: string) -> void:
-    block@0: // L208
+    block@0: // L231
         let encoded_value%0#0: bytes[8] = (itob key#0)
         let box_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
         (box_del box_prefixed_key%0#0)
@@ -759,21 +885,21 @@ subroutine examples.box_storage.contract.BoxContract.box_map_set(key: uint64, va
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_get(key: uint64) -> string:
-    block@0: // L212
+    block@0: // L235
         let encoded_value%0#0: bytes[8] = (itob key#0)
         let box_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
         let storage_value%0#0: bytes = box_read(box_prefixed_key%0#0)
         return storage_value%0#0
 
 subroutine examples.box_storage.contract.BoxContract.box_map_del(key: uint64) -> void:
-    block@0: // L216
+    block@0: // L239
         let encoded_value%0#0: bytes[8] = (itob key#0)
         let box_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
         (box_del box_prefixed_key%0#0)
         return 
 
 subroutine examples.box_storage.contract.BoxContract.box_map_exists(key: uint64) -> bool:
-    block@0: // L220
+    block@0: // L243
         let encoded_value%0#0: bytes[8] = (itob key#0)
         let box_prefixed_key%0#0: bytes = (concat "" encoded_value%0#0)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len box_prefixed_key%0#0)

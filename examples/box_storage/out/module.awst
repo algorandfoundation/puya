@@ -12,6 +12,7 @@ contract BoxContract
     ['']: uint64 => string
     ['box_ref']: bytes
     ['box_large']: examples.box_storage.contract.LargeStruct
+    ['many_ints']: arc4.static_array<uint64, 513>
   }
   
   subroutine examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init(): bool
@@ -29,6 +30,7 @@ contract BoxContract
   
   subroutine examples.box_storage.contract.BoxContract.__init__(): void
   {
+    assert(size_of(arc4.static_array<uint64, 513>) > 4096u, comment="expected ManyInts to exceed max bytes size")
   }
   
   abimethod examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: arc4.dynamic_array<arc4.uint8>, c: arc4.dynamic_array<arc4.uint8>): void
@@ -67,6 +69,26 @@ contract BoxContract
     assert(reinterpret_cast<bytes>('box_large') == hex<"626F785F6C61726765">, comment="box large key ok")
   }
   
+  abimethod examples.box_storage.contract.BoxContract.create_many_ints(): void
+  {
+    box_create('many_ints', size_of(arc4.static_array<uint64, 513>))
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.set_many_ints(index: uint64, value: uint64): void
+  {
+    Box['many_ints'][index]: uint64 = value
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.sum_many_ints(): uint64
+  {
+    _puya_lib.util.ensure_budget(required_budget=10500u, fee_source=0u)
+    total: uint64 = 0u
+    for val in Box['many_ints'] {
+      total: uint64 = total + val
+    }
+    return total
+  }
+  
   abimethod examples.box_storage.contract.BoxContract.delete_boxes(): void
   {
     STATE_DELETE(Box['box_a'])
@@ -81,11 +103,16 @@ contract BoxContract
     STATE_DELETE(Box['box_large'])
   }
   
+  abimethod examples.box_storage.contract.BoxContract.indirect_extract_and_replace(): void
+  {
+    large: examples.box_storage.contract.LargeStruct = Box['box_large'].copy()
+    large.e += 1u
+    Box['box_large']: examples.box_storage.contract.LargeStruct = large.copy()
+  }
+  
   abimethod examples.box_storage.contract.BoxContract.read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>,uint64>
   {
-    large_box_ref: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('box_large'))
-    large_e: arc4.uint64 = reinterpret_cast<arc4.uint64>(box_extract(large_box_ref, size_of(arc4.static_array<arc4.uint8, 1024>) * 4u, 8u))
-    return (examples.box_storage.contract.get_box_value_plus_1('box_a') - 1u, arc4_decode(Box['b'], bytes), Box[hex<"424F585F43">], arc4_decode(large_e, uint64))
+    return (examples.box_storage.contract.get_box_value_plus_1('box_a') - 1u, arc4_decode(Box['b'], bytes), Box[hex<"424F585F43">], Box['box_large'].e)
   }
   
   abimethod examples.box_storage.contract.BoxContract.boxes_exist(): tuple<bool,bool,bool,bool>

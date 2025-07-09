@@ -21,7 +21,29 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def create_many_ints(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def set_many_ints(
+        self,
+        index: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def sum_many_ints(
+        self,
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
     def delete_boxes(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def indirect_extract_and_replace(
         self,
     ) -> None: ...
 
