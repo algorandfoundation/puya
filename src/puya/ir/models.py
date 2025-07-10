@@ -510,10 +510,11 @@ class BoxRead(ValueProvider):
 class BoxWrite(Op):
     key: Value
     value: Value
+    delete_first: bool
     source_location: SourceLocation | None
 
     def _frozen_data(self) -> object:
-        return self.key, self.value
+        return self.key, self.value, self.delete_first
 
     @property
     def types(self) -> Sequence[IRType]:
