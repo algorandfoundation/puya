@@ -78,10 +78,7 @@ def write_at_index(
 
         # update tail portion with new item
         next_item_offset = factory.extract_uint16(tup, dynamic_head_offsets[0], "next_item_offset")
-        total_data_length = factory.len(tup, "total_data_length")
-        data_beyond_item = factory.substring3(
-            tup, next_item_offset, total_data_length, "data_beyond_item"
-        )
+        data_beyond_item = factory.extract_to_end(tup, next_item_offset, "data_beyond_item")
         updated_data = factory.concat(data_up_to_item, value, "updated_data")
         updated_data = factory.concat(updated_data, data_beyond_item, "updated_data")
 
