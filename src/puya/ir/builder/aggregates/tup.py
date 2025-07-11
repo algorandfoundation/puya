@@ -82,13 +82,13 @@ def write_at_index(
             result = factory.concat(result, data_beyond_item, "updated_data")
 
             # loop through head and update any offsets after modified item
-            item_length = factory.sub(next_item_offset, item_offset, "item_length")
+            old_value_length = factory.sub(next_item_offset, item_offset, "old_value_length")
             new_value_length = factory.len(value, "new_value_length")
             for dynamic_head_offset in dynamic_head_offsets:
                 tail_offset = factory.extract_uint16(tup, dynamic_head_offset, "tail_offset")
                 # have to add the new length and then subtract the original to avoid underflow
                 tail_offset = factory.add(tail_offset, new_value_length, "tail_offset")
-                tail_offset = factory.sub(tail_offset, item_length, "tail_offset")
+                tail_offset = factory.sub(tail_offset, old_value_length, "tail_offset")
                 tail_offset_u16 = factory.as_u16_bytes(tail_offset, "tail_offset_bytes")
 
                 result = factory.replace(
