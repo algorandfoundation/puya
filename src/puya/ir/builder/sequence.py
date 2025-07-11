@@ -50,7 +50,7 @@ def read_aggregate_index_and_decode(
         skip_values = sum(e.arity for e in tuple_ir_type.elements[:index])
         target_arity = tuple_ir_type.elements[index].arity
         element_values = values[skip_values : skip_values + target_arity]
-
+        # TODO: base on type not arity
         if len(element_values) == 1:
             return element_values[0]
         else:
