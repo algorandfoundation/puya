@@ -204,10 +204,10 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
     @cached_property
     def inner_element_size(self) -> int | None:
         element_encoding = self.array_encoding.element
-        if not isinstance(element_encoding, ArrayEncoding) or element_encoding.element.is_dynamic:
-            return None
+        if isinstance(element_encoding, ArrayEncoding):
+            return element_encoding.element.num_bytes
         else:
-            return element_encoding.element.checked_num_bytes
+            return None
 
     @typing.override
     def read_at_index(self, array: ir.Value, index: ir.Value) -> ir.Value:
