@@ -1,6 +1,7 @@
 import abc
 import typing
-from functools import cached_property
+
+import attrs
 
 from puya import log
 from puya.avm import AVMType
@@ -94,20 +95,17 @@ def _get_builder(
     )
 
 
+@attrs.define
 class _ArrayBuilderImpl(_SequenceBuilder, abc.ABC):
-    def __init__(
-        self,
-        context: IRRegisterContext,
-        *,
-        array_encoding: ArrayEncoding,
-        assert_bounds: bool,
-        loc: SourceLocation | None,
-    ) -> None:
-        self.context = context
-        self.array_encoding = array_encoding
-        self.assert_bounds = assert_bounds
-        self.loc = loc
-        self.factory = OpFactory(context, loc)
+    context: IRRegisterContext
+    array_encoding: ArrayEncoding
+    assert_bounds: bool
+    loc: SourceLocation | None
+    factory: OpFactory = attrs.field(init=False)
+
+    @factory.default
+    def _factory_factory(self) -> OpFactory:
+        return OpFactory(self.context, self.loc)
 
     @typing.final
     def _maybe_bounds_check(self, array: ir.Value, index: ir.Value) -> None:
@@ -199,10 +197,14 @@ class _FixedElementArrayBuilder(_ArrayBuilderImpl):
         return array
 
 
+@attrs.define
 class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
-    @cached_property
-    def inner_element_size(self) -> int | None:
+    inner_element_size: int | None = attrs.field(init=False)
+
+    @inner_element_size.default
+    def _inner_element_size_factory(self) -> int | None:
         element_encoding = self.array_encoding.element
+        assert element_encoding.is_dynamic
         if isinstance(element_encoding, ArrayEncoding):
             return element_encoding.element.num_bytes
         else:
@@ -300,31 +302,23 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
         self._maybe_bounds_check(array, index)
 
-        value = self.factory.materialise_single(value, "encoded_value")
-
-        element_encoding = self.array_encoding.element
-        assert element_encoding.is_dynamic
-
-        if self.array_encoding.size is not None:
-            array_type = "static"
-            args: list[ir.Value | int] = [array, value, index, self.array_encoding.size]
-        else:
+        if self.array_encoding.size is None:
             array_type = "dynamic"
-            args = [array, value, index]
-        if (
-            isinstance(element_encoding, ArrayEncoding)
-            and element_encoding.length_header
-            and element_encoding.element.num_bytes == 1
-        ):
-            # elements where their length header is also their size in bytes
-            # e.g. string, byte[], uint8[]
-            element_type = "byte_length_head"
+            args: list[ir.Value | int] = [array, value, index]
         else:
-            element_type = "dynamic_element"
+            array_type = "static"
+            args = [array, value, index, self.array_encoding.size]
+
+        match self.array_encoding.element:
+            case ArrayEncoding(length_header=True, element=element) if element.num_bytes == 1:
+                # elements where their length header is also their size in bytes
+                # e.g. string, byte[], uint8[]
+                element_type = "byte_length_head"
+            case _:
+                element_type = "dynamic_element"
+
+        target = PuyaLibIR[f"{array_type}_array_replace_{element_type}"]
         invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR[f"{array_type}_array_replace_{element_type}"],
-            args=args,
-            source_location=self.loc,
+            self.context, full_name=target, args=args, source_location=self.loc
         )
         return self.factory.materialise_single(invoke, "updated_array")
