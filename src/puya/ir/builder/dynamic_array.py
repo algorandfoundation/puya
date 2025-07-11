@@ -1,6 +1,8 @@
 import abc
 import typing
 
+import attrs
+
 from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
@@ -87,7 +89,7 @@ def get_builder(
                 raise CodeError(f"unsupported dynamic array type {wtype}", loc)
         return builder_typ(
             context,
-            array_ir_type=array_ir_type,
+            array_encoding=array_encoding,
             element_ir_type=element_ir_type,
             loc=loc,
         )
@@ -95,25 +97,17 @@ def get_builder(
     raise InternalError(f"unsupported array type: {wtype!s}", loc)
 
 
-class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
-    def __init__(
-        self,
-        context: IRRegisterContext,
-        *,
-        array_ir_type: types.EncodedType,
-        element_ir_type: types.IRType | types.TupleIRType,
-        loc: SourceLocation,
-    ) -> None:
-        self.context = context
-        self.array_ir_type = array_ir_type
-        assert (
-            isinstance(array_ir_type.encoding, encodings.ArrayEncoding)
-            and array_ir_type.encoding.size is None
-        ), "expected dynamic array encoding"
-        self.array_encoding = array_ir_type.encoding
-        self.element_ir_type = element_ir_type
-        self.loc = loc
-        self.factory = OpFactory(context, loc)
+@attrs.define
+class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
+    context: IRRegisterContext
+    array_encoding: encodings.ArrayEncoding
+    element_ir_type: types.IRType | types.TupleIRType
+    loc: SourceLocation
+    factory: OpFactory = attrs.field(init=False)
+
+    @factory.default
+    def _factory_factory(self) -> OpFactory:
+        return OpFactory(self.context, self.loc)
 
     def _get_iterable_length_and_head_tail(
         self,
@@ -179,7 +173,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
         return iterable_length, encoded_iterable
 
     def _as_array_type(self, value: ir.ValueProvider) -> ir.Value:
-        return self.factory.as_ir_type(value, self.array_ir_type)
+        return self.factory.as_ir_type(value, types.EncodedType(self.array_encoding))
 
     def _maybe_decode(self, encoded_item: ir.Value) -> ir.MultiValue:
         if requires_no_conversion(self.element_ir_type, self.array_encoding.element):
