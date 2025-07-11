@@ -6,19 +6,14 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError, InternalError
-from puya.ir import models as ir
+from puya.ir import (
+    models as ir,
+    types_ as types,
+)
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence, storage
 from puya.ir.builder._utils import assign, assign_tuple, get_implicit_return_is_original
 from puya.ir.context import IRFunctionBuildContext
-from puya.ir.types_ import (
-    PrimitiveIRType,
-    SlotType,
-    TupleIRType,
-    get_wtype_arity,
-    ir_type_to_ir_types,
-    wtype_to_ir_type,
-)
 from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
@@ -56,13 +51,14 @@ def handle_assignment(
             assert not is_nested_update, "tuple literal item assignment is not supported"
             results = list[ir.Value]()
             for item in tup_expr.items:
-                arity = get_wtype_arity(item.wtype)
+                arity = types.get_wtype_arity(item.wtype)
                 values = source[:arity]
                 del source[:arity]
                 if len(values) != arity:
                     raise CodeError("not enough values to unpack", assignment_location)
-                if arity == 1:
-                    nested_value: ir.MultiValue = values[0]
+                nested_value: ir.MultiValue
+                if not isinstance(item.wtype, wtypes.WTuple):
+                    (nested_value,) = values
                 else:
                     nested_value = ir.ValueTuple(
                         values=values, source_location=value.source_location
@@ -80,8 +76,8 @@ def handle_assignment(
                 raise CodeError("too many values to unpack", assignment_location)
             return results
         case awst_nodes.VarExpression(name=base_name, source_location=var_loc, wtype=var_type):
-            ir_type = wtype_to_ir_type(var_type, var_loc, allow_tuple=True)
-            if isinstance(ir_type, TupleIRType):
+            ir_type = types.wtype_to_ir_type(var_type, var_loc, allow_tuple=True)
+            if isinstance(ir_type, types.TupleIRType):
                 exploded_names = ir_type.build_item_names(base_name)
             else:
                 exploded_names = [base_name]
@@ -95,7 +91,7 @@ def handle_assignment(
                     assign(
                         context,
                         ir.UInt64Constant(
-                            value=0, ir_type=PrimitiveIRType.bool, source_location=None
+                            value=0, ir_type=types.PrimitiveIRType.bool, source_location=None
                         ),
                         name=get_implicit_return_is_original(exploded_name),
                         assignment_location=None,
@@ -104,7 +100,7 @@ def handle_assignment(
                 context,
                 source=value,
                 names=exploded_names,
-                ir_types=ir_type_to_ir_types(ir_type),
+                ir_types=types.ir_type_to_ir_types(ir_type),
                 assignment_location=assignment_location,
                 register_location=var_loc,
             )
@@ -193,7 +189,7 @@ def handle_assignment(
                 handle_assignment(
                     context, base_target, new_value, assignment_location, is_nested_update=True
                 )
-            elif isinstance(base_eval, ir.Value) and isinstance(base_eval.ir_type, SlotType):
+            elif isinstance(base_eval, ir.Value) and isinstance(base_eval.ir_type, types.SlotType):
                 logger.debug("base assignment target is in a slot", location=assignment_location)
             else:
                 logger.error("unsupported assignment target", location=assignment_location)
