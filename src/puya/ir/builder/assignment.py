@@ -47,22 +47,23 @@ def handle_assignment(
 ) -> Sequence[ir.Value]:
     source = list(value.values) if isinstance(value, ir.ValueTuple) else [value]
     match target:
-        case awst_nodes.TupleExpression() as tup_expr:
+        case awst_nodes.TupleExpression(source_location=tup_loc) as tup_expr:
             assert not is_nested_update, "tuple literal item assignment is not supported"
             results = list[ir.Value]()
             for item in tup_expr.items:
-                arity = types.get_wtype_arity(item.wtype)
-                values = source[:arity]
-                del source[:arity]
-                if len(values) != arity:
-                    raise CodeError("not enough values to unpack", assignment_location)
-                nested_value: ir.MultiValue
-                if not isinstance(item.wtype, wtypes.WTuple):
-                    (nested_value,) = values
+                ir_type = types.wtype_to_ir_type(item.wtype, tup_loc, allow_tuple=True)
+                if not isinstance(ir_type, types.TupleIRType):
+                    nested_value: ir.MultiValue = source.pop(0)
                 else:
+                    arity = ir_type.arity
+                    values = source[:arity]
+                    if len(values) != arity:
+                        raise CodeError("not enough values to unpack", assignment_location)
+                    del source[:arity]
                     nested_value = ir.ValueTuple(
                         values=values, source_location=value.source_location
                     )
+
                 results.extend(
                     handle_assignment(
                         context,
