@@ -50,8 +50,9 @@ def handle_assignment(
         case awst_nodes.TupleExpression(source_location=tup_loc) as tup_expr:
             assert not is_nested_update, "tuple literal item assignment is not supported"
             results = list[ir.Value]()
-            for item in tup_expr.items:
-                ir_type = types.wtype_to_ir_type(item.wtype, tup_loc, allow_tuple=True)
+            tuple_ir_type = types.wtype_to_ir_type(tup_expr.wtype, tup_loc, allow_tuple=True)
+            assert len(tuple_ir_type.elements) == len(tup_expr.items), "tuple type length mismatch"
+            for item, ir_type in zip(tup_expr.items, tuple_ir_type.elements, strict=True):
                 if not isinstance(ir_type, types.TupleIRType):
                     nested_value: ir.MultiValue = source.pop(0)
                 else:
