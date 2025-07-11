@@ -47,12 +47,12 @@ def handle_assignment(
 ) -> Sequence[ir.Value]:
     source = list(value.values) if isinstance(value, ir.ValueTuple) else [value]
     match target:
-        case awst_nodes.TupleExpression(source_location=tup_loc) as tup_expr:
+        case awst_nodes.TupleExpression(items=items, wtype=wtype, source_location=loc):
             assert not is_nested_update, "tuple literal item assignment is not supported"
+            tuple_ir_type = types.wtype_to_ir_type(wtype, loc, allow_tuple=True)
+            assert len(items) == len(tuple_ir_type.elements), "tuple type length mismatch"
             results = list[ir.Value]()
-            tuple_ir_type = types.wtype_to_ir_type(tup_expr.wtype, tup_loc, allow_tuple=True)
-            assert len(tuple_ir_type.elements) == len(tup_expr.items), "tuple type length mismatch"
-            for item, ir_type in zip(tup_expr.items, tuple_ir_type.elements, strict=True):
+            for item, ir_type in zip(items, tuple_ir_type.elements, strict=True):
                 if not isinstance(ir_type, types.TupleIRType):
                     nested_value: ir.MultiValue = source.pop(0)
                 else:
