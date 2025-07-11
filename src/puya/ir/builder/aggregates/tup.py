@@ -71,15 +71,15 @@ def write_at_index(
 
         dynamic_head_offsets = _get_subsequent_dynamic_head_offsets(tuple_encoding, index)
         data_up_to_item = factory.extract3(tup, 0, item_offset, "data_up_to_item")
+        updated_data = factory.concat(data_up_to_item, value, "updated_data")
         if not dynamic_head_offsets:
             # This is the last dynamic type in the tuple, thus this element should be
             # the final tail element, so no need to update headers
-            return factory.concat(data_up_to_item, value, "updated_data")
+            return updated_data
 
         # update tail portion with new item
         next_item_offset = factory.extract_uint16(tup, dynamic_head_offsets[0], "next_item_offset")
         data_beyond_item = factory.extract_to_end(tup, next_item_offset, "data_beyond_item")
-        updated_data = factory.concat(data_up_to_item, value, "updated_data")
         updated_data = factory.concat(updated_data, data_beyond_item, "updated_data")
 
         # loop through head and update any offsets after modified item
