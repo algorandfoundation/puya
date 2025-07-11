@@ -72,29 +72,30 @@ def write_at_index(
         dynamic_head_offsets = _get_subsequent_dynamic_head_offsets(tuple_encoding, index)
         data_up_to_item = factory.extract3(tup, 0, item_offset, "data_up_to_item")
         updated_data = factory.concat(data_up_to_item, value, "updated_data")
-        if not dynamic_head_offsets:
-            # This is the last dynamic type in the tuple, thus this element should be
-            # the final tail element, so no need to update headers
-            return updated_data
-
-        # update tail portion with new item
-        next_item_offset = factory.extract_uint16(tup, dynamic_head_offsets[0], "next_item_offset")
-        data_beyond_item = factory.extract_to_end(tup, next_item_offset, "data_beyond_item")
-        updated_data = factory.concat(updated_data, data_beyond_item, "updated_data")
-
-        # loop through head and update any offsets after modified item
-        item_length = factory.sub(next_item_offset, item_offset, "item_length")
-        new_value_length = factory.len(value, "new_value_length")
-        for dynamic_head_offset in dynamic_head_offsets:
-            tail_offset = factory.extract_uint16(updated_data, dynamic_head_offset, "tail_offset")
-            # have to add the new length and then subtract the original to avoid underflow
-            tail_offset = factory.add(tail_offset, new_value_length, "tail_offset")
-            tail_offset = factory.sub(tail_offset, item_length, "tail_offset")
-            tail_offset_u16 = factory.as_u16_bytes(tail_offset, "tail_offset_bytes")
-
-            updated_data = factory.replace(
-                updated_data, dynamic_head_offset, tail_offset_u16, "updated_data"
+        if dynamic_head_offsets:
+            # If there are subsequent dynamic elements in this tuple, we need to update
+            # their offsets in the header
+            next_item_offset = factory.extract_uint16(
+                tup, dynamic_head_offsets[0], "next_item_offset"
             )
+            data_beyond_item = factory.extract_to_end(tup, next_item_offset, "data_beyond_item")
+            updated_data = factory.concat(updated_data, data_beyond_item, "updated_data")
+
+            # loop through head and update any offsets after modified item
+            item_length = factory.sub(next_item_offset, item_offset, "item_length")
+            new_value_length = factory.len(value, "new_value_length")
+            for dynamic_head_offset in dynamic_head_offsets:
+                tail_offset = factory.extract_uint16(
+                    updated_data, dynamic_head_offset, "tail_offset"
+                )
+                # have to add the new length and then subtract the original to avoid underflow
+                tail_offset = factory.add(tail_offset, new_value_length, "tail_offset")
+                tail_offset = factory.sub(tail_offset, item_length, "tail_offset")
+                tail_offset_u16 = factory.as_u16_bytes(tail_offset, "tail_offset_bytes")
+
+                updated_data = factory.replace(
+                    updated_data, dynamic_head_offset, tail_offset_u16, "updated_data"
+                )
         return updated_data
 
 
