@@ -15,6 +15,7 @@ from puya.ir import (
 )
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import undefined_value
+from puya.ir.builder.aggregates.tup import read_at_index
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
 from puya.parse import SourceLocation
@@ -132,24 +133,21 @@ class _NativeTupleCodec(_ARC4Codec):
         encoding: encodings.Encoding,
         loc: SourceLocation,
     ) -> ir.ValueProvider | None:
-        values = list(values)
         element_ir_types = self.native_type.elements
+        num_tuple_elements = len(element_ir_types)
         match encoding:
             case encodings.TupleEncoding(elements=element_encodings) as tuple_encoding if (
-                len(element_encodings) == len(element_ir_types)
+                len(element_encodings) == num_tuple_elements
             ):
                 pass
-            case encodings.ArrayEncoding(element=element_encoding, size=int(size)) if (
-                size == len(element_ir_types)
+            case encodings.ArrayEncoding(element=element_encoding, size=size) if (
+                size in (None, num_tuple_elements)
             ):
-                tuple_encoding = encodings.TupleEncoding([element_encoding] * size)
-            case encodings.ArrayEncoding(element=element_encoding, size=None):
-                tuple_encoding = encodings.TupleEncoding(
-                    [element_encoding] * len(element_ir_types)
-                )
+                tuple_encoding = encodings.TupleEncoding([element_encoding] * num_tuple_elements)
             case _:
                 return None
 
+        values = list(values)
         data = list[tuple[encodings.Encoding, types.IRType | types.TupleIRType, list[ir.Value]]]()
         for element_ir_type, element_encoding in zip(
             element_ir_types, tuple_encoding.elements, strict=True
@@ -170,7 +168,7 @@ class _NativeTupleCodec(_ARC4Codec):
         header_size_bits = tuple_encoding.get_head_bit_offset(None)
         header_size = bits_to_bytes(header_size_bits)
         if isinstance(encoding, encodings.ArrayEncoding) and encoding.length_header:
-            head: ir.Value = factory.as_u16_bytes(len(element_ir_types), "len_u16")
+            head: ir.Value = factory.as_u16_bytes(num_tuple_elements, "len_u16")
         else:
             head = factory.constant(b"")
 
@@ -238,32 +236,35 @@ class _NativeTupleCodec(_ARC4Codec):
         encoding: encodings.Encoding,
         loc: SourceLocation,
     ) -> ir.ValueProvider | None:
-        from puya.ir.builder.aggregates.tup import read_at_index
-
-        item_types = self.native_type.elements
+        element_ir_types = self.native_type.elements
+        num_tuple_elements = len(element_ir_types)
         match encoding:
             case encodings.TupleEncoding(elements=elements) as tuple_encoding if (
-                len(elements) == len(item_types)
+                len(elements) == num_tuple_elements
             ):
                 pass
-            case encodings.ArrayEncoding(element=element, size=int(size), length_header=False) if (
-                size == len(item_types)
+            # asymmetrical encode/decode support here
+            # reasons:
+            #   1) fixed size and length_header=True is not supported currently
+            #   2) size=None is not supported as dynamically sized tuples are not supported
+            case encodings.ArrayEncoding(element=element, size=size, length_header=False) if (
+                size == num_tuple_elements
             ):
-                tuple_encoding = encodings.TupleEncoding([element] * size)
+                tuple_encoding = encodings.TupleEncoding([element] * num_tuple_elements)
             case _:
                 return None
 
         factory = OpFactory(context, loc)
         result = list[ir.Value]()
-        for index, (item_encoding, item_ir_type) in enumerate(
-            zip(tuple_encoding.elements, item_types, strict=True)
+        for index, (element_encoding, element_ir_type) in enumerate(
+            zip(tuple_encoding.elements, element_ir_types, strict=True)
         ):
-            encoded_item = read_at_index(context, tuple_encoding, value, index, loc)
+            encoded_element = read_at_index(context, tuple_encoding, value, index, loc)
             item = _try_decode_bytes(
                 context,
-                value=encoded_item,
-                encoding=item_encoding,
-                target_type=item_ir_type,
+                value=encoded_element,
+                encoding=element_encoding,
+                target_type=element_ir_type,
                 loc=loc,
             )
             if item is None:
