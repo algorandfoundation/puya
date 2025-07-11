@@ -120,12 +120,15 @@ class OpFactory:
         )
         return result
 
-    def sub(self, a: Value, b: Value | int, temp_desc: str = "sub") -> Register:
+    def sub(
+        self, a: Value, b: Value | int, temp_desc: str = "sub", *, error_message: str | None = None
+    ) -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
             op=AVMOp.sub,
             args=[a, b],
+            error_message=error_message,
             source_location=self.source_location,
         )
         return result

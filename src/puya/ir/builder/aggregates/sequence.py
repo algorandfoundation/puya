@@ -7,7 +7,6 @@ from puya.avm import AVMType
 from puya.errors import InternalError
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.avm_ops import AVMOp
 from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.sequence import get_length
 from puya.ir.encodings import ArrayEncoding
@@ -217,70 +216,65 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
         # TODO: maybe split DynamicElementArrayBuilder into two builders
         if self.inner_element_size is not None:
             self._maybe_bounds_check(array, index)
-            item = self._read_item_from_array_length_and_fixed_size(array_head_and_tail, index)
+            item = self._read_item_from_array_length_and_fixed_size(
+                self.factory, self.inner_element_size, array_head_and_tail, index
+            )
         else:
             # no _assert_index_in_bounds here as end offset calculation implicitly checks
+            length = self._length(array)
             item = self._read_item_using_next_offset(
-                array_length_vp=self._length(array),
+                self.factory,
+                array_length=length,
                 array_head_and_tail=array_head_and_tail,
                 index=index,
             )
         return self.factory.materialise_single(item)
 
+    @staticmethod
     def _read_item_from_array_length_and_fixed_size(
-        self, array_head_and_tail: ir.Value, index: ir.Value
+        factory: OpFactory, inner_element_size: int, array_head_and_tail: ir.Value, index: ir.Value
     ) -> ir.ValueProvider:
         """ "
         Reads an item that has a dynamic size computable from a length and known inner element size
         e.g. len+<inner_element_size>[]
         """
-        assert self.inner_element_size is not None
-        item_offset_offset = self.factory.mul(index, 2, "item_offset_offset")
-        item_start_offset = self.factory.extract_uint16(
+        item_offset_offset = factory.mul(index, 2, "item_offset_offset")
+        item_start_offset = factory.extract_uint16(
             array_head_and_tail, item_offset_offset, "item_offset"
         )
-        item_length = self.factory.extract_uint16(
-            array_head_and_tail, item_start_offset, "item_length"
-        )
-        item_length_in_bytes = self.factory.mul(
-            item_length, self.inner_element_size, "item_length_in_bytes"
-        )
-        item_total_length = self.factory.add(item_length_in_bytes, 2, "item_head_tail_length")
-        return self.factory.extract3(
-            array_head_and_tail, item_start_offset, item_total_length, "item"
-        )
+        item_length = factory.extract_uint16(array_head_and_tail, item_start_offset, "item_length")
+        item_length_in_bytes = factory.mul(item_length, inner_element_size, "item_length_in_bytes")
+        item_total_length = factory.add(item_length_in_bytes, 2, "item_head_tail_length")
+        return factory.extract3(array_head_and_tail, item_start_offset, item_total_length, "item")
 
+    @staticmethod
     def _read_item_using_next_offset(
-        self,
+        factory: OpFactory,
         array_head_and_tail: ir.Value,
-        array_length_vp: ir.ValueProvider,
+        array_length: ir.Value,
         index: ir.Value,
     ) -> ir.ValueProvider:
         """ "
         Reads an item by using its offset and the next items offset
         """
-        item_offset_offset = self.factory.mul(index, 2, "item_offset_offset")
-        item_start_offset = self.factory.extract_uint16(
+        item_offset_offset = factory.mul(index, 2, "item_offset_offset")
+        item_start_offset = factory.extract_uint16(
             array_head_and_tail, item_offset_offset, "item_offset"
         )
 
-        array_length = self.factory.materialise_single(array_length_vp, "array_length")
-        next_item_index = self.factory.add(index, 1, "next_index")
+        next_item_index = factory.add(index, 1, "next_index")
         # three possible outcomes of this op will determine the end offset
         # next_item_index < array_length -> has_next is true, use next_item_offset
         # next_item_index == array_length -> has_next is false, use array_length
         # next_item_index > array_length -> op will fail, comment provides context to error
-        has_next = self.factory.materialise_single(
-            ir.Intrinsic(
-                op=AVMOp.sub,
-                args=[array_length, next_item_index],
-                source_location=self.factory.source_location,
-                error_message="index access is out of bounds",
-            ),
+        has_next = factory.sub(
+            array_length,
+            next_item_index,
             "has_next",
+            error_message="index access is out of bounds",
         )
-        end_of_array = self.factory.len(array_head_and_tail, "end_of_array")
-        next_item_offset_offset = self.factory.mul(next_item_index, 2, "next_item_offset_offset")
+        end_of_array = factory.len(array_head_and_tail, "end_of_array")
+        next_item_offset_offset = factory.mul(next_item_index, 2, "next_item_offset_offset")
         # next_item_offset_offset will be past the array head when has_next is false,
         # but this is ok as the value will not be used.
         # Additionally, next_item_offset_offset will always be a valid offset of the overall array
@@ -289,18 +283,18 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
         # e.g. reading here...   has at least one u16 ........
         #                    v                               v
         # ArrayHead(u16, u16) ArrayTail(DynamicItemHead(... u16, ...), ..., DynamicItemTail, ...)
-        next_item_offset = self.factory.extract_uint16(
+        next_item_offset = factory.extract_uint16(
             array_head_and_tail, next_item_offset_offset, "next_item_offset"
         )
 
-        item_end_offset = self.factory.select(
+        item_end_offset = factory.select(
             false=end_of_array,
             true=next_item_offset,
             condition=has_next,
             temp_desc="end_offset",
             ir_type=PrimitiveIRType.uint64,
         )
-        return self.factory.substring3(array_head_and_tail, item_start_offset, item_end_offset)
+        return factory.substring3(array_head_and_tail, item_start_offset, item_end_offset)
 
     @typing.override
     def write_at_index(self, array: ir.Value, index: ir.Value, value: ir.Value) -> ir.Value:
