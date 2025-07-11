@@ -75,16 +75,16 @@ def get_builder(
         match element_encoding:
             # BitPackedBool is a more specific match than FixedElement so do that first
             case encodings.BoolEncoding() if array_encoding.length_header:
-                builder_typ = BitPackedBoolDynamicArrayBuilder
+                builder_typ = _BitPackedBoolDynamicArrayBuilder
             case encodings.Encoding(is_dynamic=False):
-                builder_typ = FixedElementDynamicArrayBuilder
+                builder_typ = _FixedElementDynamicArrayBuilder
             case encodings.ArrayEncoding(
                 element=encodings.Encoding(num_bytes=1), length_header=True
             ):
-                builder_typ = DynamicByteLengthElementDynamicArrayBuilder
+                builder_typ = _DynamicByteLengthElementDynamicArrayBuilder
             case _ if array_encoding.length_header:
                 assert element_encoding.is_dynamic, "expected dynamic element"
-                builder_typ = DynamicElementDynamicArrayBuilder
+                builder_typ = _DynamicElementDynamicArrayBuilder
             case _:
                 raise CodeError(f"unsupported dynamic array type {wtype}", loc)
         return builder_typ(
@@ -190,7 +190,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
             )
 
 
-class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
+class _FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
     def concat(
         self,
@@ -239,7 +239,7 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return data, self._maybe_decode(popped)
 
 
-class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
+class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
     def concat(
         self,
@@ -296,7 +296,7 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return data, self._maybe_decode(popped)
 
 
-class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
+class _DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
     def concat(
         self,
@@ -332,7 +332,7 @@ class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return data, self._maybe_decode(popped)
 
 
-class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
+class _BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
     def concat(
         self,
