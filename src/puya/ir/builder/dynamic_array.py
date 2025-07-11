@@ -4,28 +4,16 @@ import typing
 from puya import log
 from puya.awst import wtypes
 from puya.errors import CodeError, InternalError
-from puya.ir import models as ir
+from puya.ir import (
+    encodings,
+    models as ir,
+    types_ as types,
+)
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.sequence import get_length, requires_no_conversion
-from puya.ir.encodings import (
-    ArrayEncoding,
-    Bool8Encoding,
-    BoolEncoding,
-    Encoding,
-    TupleEncoding,
-    UTF8Encoding,
-)
 from puya.ir.op_utils import OpFactory
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import (
-    EncodedType,
-    IRType,
-    PrimitiveIRType,
-    SlotType,
-    TupleIRType,
-    wtype_to_ir_type,
-)
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -37,7 +25,10 @@ class DynamicArrayBuilder(abc.ABC):
 
     @abc.abstractmethod
     def concat(
-        self, array: ir.Value, iterable: ir.MultiValue, iterable_ir_type: IRType | TupleIRType
+        self,
+        array: ir.Value,
+        iterable: ir.MultiValue,
+        iterable_ir_type: types.IRType | types.TupleIRType,
     ) -> ir.Value:
         """Returns the concatenation of an array and iterable"""
 
@@ -57,31 +48,37 @@ def get_builder(
     loc: SourceLocation,
 ) -> DynamicArrayBuilder:
     if isinstance(wtype, wtypes.ReferenceArray | wtypes.ARC4DynamicArray):
-        array_ir_type = wtype_to_ir_type(wtype, source_location=loc)
+        array_ir_type = types.wtype_to_ir_type(wtype, source_location=loc)
         # only concerned with actual encoded of arrays, not where they are stored
-        if isinstance(array_ir_type, SlotType):
+        if isinstance(array_ir_type, types.SlotType):
             array_ir_type = array_ir_type.contents
-        assert isinstance(array_ir_type, EncodedType), "expected EncodedType"
+        assert isinstance(array_ir_type, types.EncodedType), "expected EncodedType"
         array_encoding = array_ir_type.encoding
         assert (
-            isinstance(array_encoding, ArrayEncoding) and array_encoding.size is None
+            isinstance(array_encoding, encodings.ArrayEncoding) and array_encoding.size is None
         ), "expected DynamicArray encoding"
         # TODO: find a better way to handle these cases
-        if array_encoding.element == UTF8Encoding():  # TODO: maybe make this an Array encoding?
-            element_ir_type: IRType | TupleIRType = EncodedType(encoding=array_encoding.element)
+        if (
+            array_encoding.element == encodings.UTF8Encoding()
+        ):  # TODO: maybe make this an Array encoding?
+            element_ir_type: types.IRType | types.TupleIRType = types.EncodedType(
+                encoding=array_encoding.element
+            )
         else:
-            element_ir_type = wtype_to_ir_type(
+            element_ir_type = types.wtype_to_ir_type(
                 wtype.element_type, source_location=loc, allow_tuple=True
             )
         element_encoding = array_encoding.element
         builder_typ: type[_DynamicArrayBuilderImpl]
         match element_encoding:
             # BitPackedBool is a more specific match than FixedElement so do that first
-            case BoolEncoding() if array_encoding.length_header:
+            case encodings.BoolEncoding() if array_encoding.length_header:
                 builder_typ = BitPackedBoolDynamicArrayBuilder
-            case Encoding(is_dynamic=False):
+            case encodings.Encoding(is_dynamic=False):
                 builder_typ = FixedElementDynamicArrayBuilder
-            case ArrayEncoding(element=Encoding(num_bytes=1), length_header=True):
+            case encodings.ArrayEncoding(
+                element=encodings.Encoding(num_bytes=1), length_header=True
+            ):
                 builder_typ = DynamicByteLengthElementDynamicArrayBuilder
             case _ if array_encoding.length_header:
                 assert element_encoding.is_dynamic, "expected dynamic element"
@@ -103,14 +100,14 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
         self,
         context: IRRegisterContext,
         *,
-        array_ir_type: EncodedType,
-        element_ir_type: IRType | TupleIRType,
+        array_ir_type: types.EncodedType,
+        element_ir_type: types.IRType | types.TupleIRType,
         loc: SourceLocation,
     ) -> None:
         self.context = context
         self.array_ir_type = array_ir_type
         assert (
-            isinstance(array_ir_type.encoding, ArrayEncoding)
+            isinstance(array_ir_type.encoding, encodings.ArrayEncoding)
             and array_ir_type.encoding.size is None
         ), "expected dynamic array encoding"
         self.array_encoding = array_ir_type.encoding
@@ -121,16 +118,16 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
     def _get_iterable_length_and_head_tail(
         self,
         iterable: ir.ValueProvider,
-        iterable_ir_type: IRType | TupleIRType,
-        element_encoding: Encoding | None = None,
+        iterable_ir_type: types.IRType | types.TupleIRType,
+        element_encoding: encodings.Encoding | None = None,
     ) -> tuple[ir.ValueProvider, ir.ValueProvider]:
         element_encoding = element_encoding or self.array_encoding.element
         # iterable is already encoded
-        if isinstance(iterable_ir_type, EncodedType):
+        if isinstance(iterable_ir_type, types.EncodedType):
             iterable_encoding = iterable_ir_type.encoding
             # array of element
             if (
-                isinstance(iterable_encoding, ArrayEncoding)
+                isinstance(iterable_encoding, encodings.ArrayEncoding)
                 and iterable_encoding.element == element_encoding
             ):
                 materialised_iterable = self.factory.materialise_single(iterable)
@@ -140,7 +137,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
                 if iterable_encoding.length_header:
                     iterable = self.factory.extract_to_end(materialised_iterable, 2)
             # homogenous tuple of element
-            elif isinstance(iterable_encoding, TupleEncoding) and set(
+            elif isinstance(iterable_encoding, encodings.TupleEncoding) and set(
                 iterable_encoding.elements
             ) == {element_encoding}:
                 iterable_length = ir.UInt64Constant(
@@ -148,7 +145,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
                 )
             else:
                 iterable_length = ir.Undefined(
-                    ir_type=PrimitiveIRType.uint64, source_location=self.loc
+                    ir_type=types.PrimitiveIRType.uint64, source_location=self.loc
                 )
                 logger.error(
                     f"cannot concat {self.array_encoding} and {iterable_encoding}",
@@ -158,7 +155,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
             encoded_iterable = iterable
         # iterable is an unencoded or tuple type
         else:
-            if not isinstance(iterable_ir_type, TupleIRType):
+            if not isinstance(iterable_ir_type, types.TupleIRType):
                 raise InternalError("expected tuple type for concatenation", self.loc)
             # the iterable could be either
             # a tuple of compatible native elements
@@ -173,7 +170,9 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
             encoded_iterable = ir.BytesEncode(
                 values=self.factory.materialise_values(iterable),
                 values_type=iterable_ir_type,
-                encoding=ArrayEncoding.dynamic(element=element_encoding, length_header=False),
+                encoding=encodings.ArrayEncoding.dynamic(
+                    element=element_encoding, length_header=False
+                ),
                 source_location=self.loc,
             )
 
@@ -200,7 +199,10 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder):
 class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
     def concat(
-        self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
+        self,
+        array: ir.Value,
+        iterable: ir.ValueProvider,
+        iterable_ir_type: types.IRType | types.TupleIRType,
     ) -> ir.Value:
         _, iter_head_and_tail = self._get_iterable_length_and_head_tail(iterable, iterable_ir_type)
         iter_head_and_tail = self.factory.materialise_single(iter_head_and_tail)
@@ -211,7 +213,7 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             error_message="max array length exceeded",
         )
         if self.array_encoding.length_header:
-            if isinstance(iterable_ir_type, TupleIRType):
+            if isinstance(iterable_ir_type, types.TupleIRType):
                 existing_len = self.factory.extract_uint16(array, 0)
                 array_len = self.factory.add(existing_len, len(iterable_ir_type.elements))
             else:
@@ -246,9 +248,12 @@ class FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
     def concat(
-        self, array: ir.Value, iterable: ir.MultiValue, iterable_ir_type: IRType | TupleIRType
+        self,
+        array: ir.Value,
+        iterable: ir.MultiValue,
+        iterable_ir_type: types.IRType | types.TupleIRType,
     ) -> ir.Value:
-        if isinstance(iterable_ir_type, TupleIRType):
+        if isinstance(iterable_ir_type, types.TupleIRType):
             tuple_size = len(iterable_ir_type.elements)
             r_count: ir.Value = self.factory.constant(tuple_size)
             # only need to construct the tail, so iterate and concat
@@ -300,7 +305,10 @@ class DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
     def concat(
-        self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
+        self,
+        array: ir.Value,
+        iterable: ir.ValueProvider,
+        iterable_ir_type: types.IRType | types.TupleIRType,
     ) -> ir.Value:
         assert self.array_encoding.length_header, "expected array to have a length header"
         l_count = self.factory.extract_uint16(array, 0)
@@ -333,23 +341,30 @@ class DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 class BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     @typing.override
     def concat(
-        self, array: ir.Value, iterable: ir.ValueProvider, iterable_ir_type: IRType | TupleIRType
+        self,
+        array: ir.Value,
+        iterable: ir.ValueProvider,
+        iterable_ir_type: types.IRType | types.TupleIRType,
     ) -> ir.Value:
         assert self.array_encoding.length_header, "expected array to have a length header"
         # iterable may not be packed
-        iter_element_encoding: Encoding
+        iter_element_encoding: encodings.Encoding
         match iterable_ir_type:
-            case EncodedType(
-                encoding=ArrayEncoding(element=BoolEncoding() as iter_element_encoding)
+            case types.EncodedType(
+                encoding=encodings.ArrayEncoding(
+                    element=encodings.BoolEncoding() as iter_element_encoding
+                )
             ):
                 pass
-            case EncodedType(
-                encoding=TupleEncoding(elements=[BoolEncoding() as iter_element_encoding, *_])
+            case types.EncodedType(
+                encoding=encodings.TupleEncoding(
+                    elements=[encodings.BoolEncoding() as iter_element_encoding, *_]
+                )
             ):
                 pass  # TODO: test case coverage
             case _:
                 # each bit is in its own byte
-                iter_element_encoding = Bool8Encoding()
+                iter_element_encoding = encodings.Bool8Encoding()
         r_count, r_head_and_tail = self._get_iterable_length_and_head_tail(
             iterable, iterable_ir_type, element_encoding=iter_element_encoding
         )
