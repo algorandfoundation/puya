@@ -88,10 +88,7 @@ def get_builder(
             case _:
                 raise CodeError(f"unsupported dynamic array type {wtype}", loc)
         return builder_typ(
-            context,
-            array_encoding=array_encoding,
-            element_ir_type=element_ir_type,
-            loc=loc,
+            context, array_encoding=array_encoding, element_ir_type=element_ir_type, loc=loc
         )
 
     raise InternalError(f"unsupported array type: {wtype!s}", loc)
@@ -131,9 +128,9 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
                 if iterable_encoding.length_header:
                     iterable = self.factory.extract_to_end(materialised_iterable, 2)
             # homogenous tuple of element
-            elif isinstance(iterable_encoding, encodings.TupleEncoding) and set(
-                iterable_encoding.elements
-            ) == {element_encoding}:
+            elif isinstance(iterable_encoding, encodings.TupleEncoding) and (
+                set(iterable_encoding.elements) == {element_encoding}
+            ):
                 iterable_length = ir.UInt64Constant(
                     value=len(iterable_encoding.elements), source_location=self.loc
                 )
