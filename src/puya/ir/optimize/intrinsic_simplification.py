@@ -677,13 +677,30 @@ def _try_fold_intrinsic(
                         case models.Intrinsic(
                             op=AVMOp.extract, args=[src_bytes_arg], immediates=[int(src_start), 0]
                         ):
-                            # simplify a chained extract
-                            return models.Intrinsic(
-                                op=AVMOp.extract,
-                                args=[src_bytes_arg],
-                                immediates=[S + src_start, L],
-                                source_location=op_loc,
-                            )
+                            # only use extract variant if it is safe to do so
+                            # (i.e. values are valid immediates)
+                            if L < 256 and (S + src_start) < 256:
+                                return models.Intrinsic(
+                                    op=AVMOp.extract,
+                                    args=[src_bytes_arg],
+                                    immediates=[S + src_start, L],
+                                    source_location=op_loc,
+                                )
+                            # only use extract3 if L is not 0 as that has special behaviour
+                            elif L != 0:
+                                # simplify a chained extract
+                                return models.Intrinsic(
+                                    # always use extract3, if possible it can be simplified to
+                                    # extract by another optimization
+                                    op=AVMOp.extract3,
+                                    args=[
+                                        src_bytes_arg,
+                                        UInt64Constant(value=S + src_start, source_location=None),
+                                        UInt64Constant(value=L, source_location=None),
+                                    ],
+                                    source_location=op_loc,
+                                )
+                            # else we cant safely optimize this
     elif intrinsic.op.code.startswith("substring"):
         match intrinsic:
             case (
