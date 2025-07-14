@@ -311,9 +311,12 @@ def _inlined_blocks(
         sub not in ref_collector.subroutines
     ), "auto recursive blocks should already be filtered out"
     memo = {id(s): s for s in ref_collector.subroutines}
-    blocks = copy.deepcopy(sub.body, memo=memo)
-    _OffsetRegisterVersions.apply(blocks, register_offsets=register_offsets)
-    return blocks
+    assert sub not in ref_collector.subroutines
+    # cloning entire sub even though only the blocks are needed,
+    # because Subroutine has special logic to prevent hitting recursion limits on deep copy
+    sub_copy = copy.deepcopy(sub, memo=memo)
+    _OffsetRegisterVersions.apply(sub_copy.body, register_offsets=register_offsets)
+    return sub_copy.body
 
 
 @attrs.define
