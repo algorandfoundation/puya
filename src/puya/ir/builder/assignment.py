@@ -206,12 +206,16 @@ _IndexOp = awst_nodes.IndexExpression | awst_nodes.FieldExpression | awst_nodes.
 
 
 def _extract_write_path(target: _IndexOp) -> tuple[awst_nodes.Expression, list[_IndexOp]]:
+    # turn the syntax tree inside out, get to the base of any repeated indexing operations,
+    # and turn the tree of indexes into a linear list.
     indexes = list[_IndexOp]()
     base: awst_nodes.Expression = target
     while isinstance(base, _IndexOp):
         indexes.append(base)
         base = base.base
-    # special case: we currently explode native tuples during IR construction
+    # special case: we currently explode native tuples during IR construction,
+    # so if the base is a var expression of WTuple type, we need to "index" it
+    # by altering the base target until we reach a tuple item that is not itself of tuple type.
     if isinstance(base, awst_nodes.VarExpression):
         while indexes and isinstance(base.wtype, wtypes.WTuple):
             tuple_index_op = indexes.pop()
@@ -230,6 +234,10 @@ def _extract_write_path(target: _IndexOp) -> tuple[awst_nodes.Expression, list[_
             base = awst_nodes.VarExpression(
                 name=new_name, wtype=new_wtype, source_location=new_loc
             )
+    # now that the base target is not a tuple-type, we reverse the indexes, since they were
+    # collected whilst descending the tree, this puts them in order of application,
+    # i.e. the op at indexes[0] should be applied to base first, and then indexes[1] should be
+    # applied to that result, and so on
     indexes.reverse()
     return base, indexes
 
@@ -237,6 +245,8 @@ def _extract_write_path(target: _IndexOp) -> tuple[awst_nodes.Expression, list[_
 def _materialise_indexes(
     context: IRFunctionBuildContext, index_src_ops: Sequence[_IndexOp]
 ) -> list[int | ir.Value]:
+    """Given a list of indexing operations order of application, materialize any variable-indexing
+    in the semantically correct order, and also convert any field expressions to indexes."""
     indexes = list[int | ir.Value]()
     for index_src_op in index_src_ops:
         match index_src_op, index_src_op.base.wtype:
