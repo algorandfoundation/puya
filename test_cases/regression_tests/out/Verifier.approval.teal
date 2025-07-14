@@ -1,0 +1,93 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
+    txna ApplicationArgs 0
+    match main_verify_route@3
+
+main_after_if_else@10:
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    pushint 0 // 0
+    return
+
+main_verify_route@3:
+    // regression_tests/jira_ak_752.py:13
+    // @abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    txna ApplicationArgs 1
+    // regression_tests/jira_ak_752.py:13
+    // @abimethod
+    callsub verify
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1 // 1
+    return
+
+main_bare_routing@6:
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return
+
+
+// test_cases.regression_tests.jira_ak_752.Verifier.verify(proof: bytes) -> bytes:
+verify:
+    // regression_tests/jira_ak_752.py:13-17
+    // @abimethod
+    // def verify(
+    //     self,
+    //     proof: DynamicArray[Bytes32],
+    // ) -> algopy.Bytes:
+    proto 1 1
+    // regression_tests/jira_ak_752.py:18
+    // x = proof[8].bytes  # ok
+    frame_dig -1
+    pushints 258 32 // 258, 32
+    extract3
+    // regression_tests/jira_ak_752.py:19
+    // y = proof[6].bytes + proof[7].bytes  # ok
+    frame_dig -1
+    extract 194 32
+    frame_dig -1
+    extract 226 32
+    swap
+    dig 1
+    concat
+    // regression_tests/jira_ak_752.py:20
+    // z = proof[7].bytes + proof[8].bytes  # Invalid immediate, expected value between 0 and 255
+    swap
+    dig 2
+    concat
+    // regression_tests/jira_ak_752.py:22
+    // return x + y + z
+    cover 2
+    concat
+    swap
+    concat
+    retsub
