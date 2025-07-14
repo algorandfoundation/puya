@@ -1,0 +1,155 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 32 0 1 8
+
+main_block@0:
+
+main_block@1:
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    txn NumAppArgs
+    intc_1 // 0
+    !=
+    bz main_bare_routing@6
+
+main_abi_routing@2:
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
+    swap
+    match main_verify_route@3
+
+main_switch_case_default@4:
+
+main_switch_case_next@5:
+
+main_after_if_else@10:
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    intc_1 // 0
+
+main_after_inlined_test_cases.regression_tests.jira_ak_752.Verifier.__puya_arc4_router__@11:
+    return
+
+main_verify_route@3:
+    // regression_tests/jira_ak_752.py:13
+    // @abimethod
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    assert // can only call when not creating
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    txna ApplicationArgs 1
+    // regression_tests/jira_ak_752.py:13
+    // @abimethod
+    callsub verify
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    b main_after_inlined_test_cases.regression_tests.jira_ak_752.Verifier.__puya_arc4_router__@11
+
+main_bare_routing@6:
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    txn OnCompletion
+    intc_1 // 0
+    swap
+    match main___algopy_default_create@7
+
+main_switch_case_default@8:
+
+main_switch_case_next@9:
+    b main_after_if_else@10
+
+main___algopy_default_create@7:
+    txn ApplicationID
+    intc_1 // 0
+    ==
+    assert // can only call when creating
+
+main_block@12:
+
+main_after_inlined_test_cases.regression_tests.jira_ak_752.Verifier.__algopy_default_create@13:
+    intc_2 // 1
+    b main_after_inlined_test_cases.regression_tests.jira_ak_752.Verifier.__puya_arc4_router__@11
+
+
+// test_cases.regression_tests.jira_ak_752.Verifier.verify(proof: bytes) -> bytes:
+verify:
+    // regression_tests/jira_ak_752.py:13-17
+    // @abimethod
+    // def verify(
+    //     self,
+    //     proof: DynamicArray[Bytes32],
+    // ) -> algopy.Bytes:
+    proto 1 1
+
+verify_block@0:
+    // regression_tests/jira_ak_752.py:18
+    // x = proof[8].bytes  # ok
+    frame_dig -1
+    extract 2 0
+    intc_3 // 8
+    intc_0 // 32
+    *
+    intc_0 // 32
+    extract3 // on error: Index access is out of bounds
+    // regression_tests/jira_ak_752.py:19
+    // y = proof[6].bytes + proof[7].bytes  # ok
+    frame_dig -1
+    extract 2 0
+    pushint 6 // 6
+    intc_0 // 32
+    *
+    intc_0 // 32
+    extract3 // on error: Index access is out of bounds
+    frame_dig -1
+    extract 2 0
+    pushint 7 // 7
+    intc_0 // 32
+    *
+    intc_0 // 32
+    extract3 // on error: Index access is out of bounds
+    concat
+    // regression_tests/jira_ak_752.py:20
+    // z = proof[7].bytes + proof[8].bytes  # Invalid immediate, expected value between 0 and 255
+    frame_dig -1
+    extract 2 0
+    pushint 7 // 7
+    intc_0 // 32
+    *
+    intc_0 // 32
+    extract3 // on error: Index access is out of bounds
+    frame_dig -1
+    extract 2 0
+    intc_3 // 8
+    intc_0 // 32
+    *
+    intc_0 // 32
+    extract3 // on error: Index access is out of bounds
+    concat
+    // regression_tests/jira_ak_752.py:22
+    // return x + y + z
+    uncover 2
+    uncover 2
+    concat
+    swap
+    concat
+    retsub

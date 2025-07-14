@@ -1,0 +1,60 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
+    txna ApplicationArgs 0
+    match main_verify_route@3
+
+main_after_if_else@10:
+    pushint 0 // 0
+    return
+
+main_verify_route@3:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    dup
+    pushints 258 32 // 258, 32
+    extract3
+    dig 1
+    extract 194 32
+    uncover 2
+    extract 226 32
+    swap
+    dig 1
+    concat
+    swap
+    dig 2
+    concat
+    cover 2
+    concat
+    swap
+    concat
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1 // 1
+    return
+
+main_bare_routing@6:
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return

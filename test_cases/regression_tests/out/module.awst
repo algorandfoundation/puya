@@ -163,6 +163,40 @@ subroutine hmm_uint64(): uint64
   return 0u
 }
 
+contract Verifier
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.regression_tests.jira_ak_752.Verifier.verify(proof: arc4.dynamic_array<arc4.static_array<arc4.uint8, 32>>): bytes
+  {
+    x: bytes = reinterpret_cast<bytes>(proof[8u])
+    y: bytes = reinterpret_cast<bytes>(proof[6u]) + reinterpret_cast<bytes>(proof[7u])
+    z: bytes = reinterpret_cast<bytes>(proof[7u]) + reinterpret_cast<bytes>(proof[8u])
+    return x + y + z
+  }
+  
+  baremethod test_cases.regression_tests.jira_ak_752.Verifier.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract Jira241
 {
   method_resolution_order: (
