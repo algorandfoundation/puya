@@ -692,11 +692,8 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_comma_expression(self, expr: nodes.CommaExpression) -> str:
-        tuple_expr = nodes.TupleExpression.from_items(
-            expr.expressions,
-            expr.source_location,
-        )
-        return tuple_expr.accept(self) + "[-1]"
+        items = ", ".join([item.accept(self) for item in expr.expressions])
+        return f"({items})[-1]"
 
     @typing.override
     def visit_convert_array(self, expr: nodes.ConvertArray) -> str:
