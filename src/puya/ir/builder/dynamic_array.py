@@ -226,8 +226,8 @@ class _FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         else:
             array_bytes_len = self.factory.len(array)
             start_offset = self.factory.sub(array_bytes_len, element_encoding.checked_num_bytes)
-            popped = self.factory.extract_to_end(array, start_offset)
             data = self.factory.extract3(array, 0, start_offset)
+            popped = self.factory.extract_to_end(array, start_offset)
         return data, self._decode_popped_element(popped)
 
 
