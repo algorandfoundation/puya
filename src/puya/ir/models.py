@@ -2,7 +2,6 @@ import abc
 import copy
 import enum
 import typing
-import typing as t
 from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
 
 import attrs
@@ -39,10 +38,10 @@ from puya.utils import unique
 logger = log.get_logger(__name__)
 
 TMP_VAR_INDICATOR = "%"
-T = t.TypeVar("T")
+T = typing.TypeVar("T")
 
 
-class Context(t.Protocol):
+class Context(typing.Protocol):
     source_location: SourceLocation | None
 
 
@@ -83,7 +82,7 @@ class ValueProvider(IRVisitable, _Freezable, abc.ABC):
     def types(self) -> Sequence[IRType]: ...
 
 
-@attrs.define
+@attrs.frozen
 class Value(ValueProvider, abc.ABC):
     """Base class for value types.
 
@@ -94,7 +93,7 @@ class Value(ValueProvider, abc.ABC):
     ir_type: IRType = attrs.field(repr=lambda x: x.name)
 
     @property
-    @t.final
+    @typing.final
     def atype(self) -> typing.Literal[AVMType.uint64, AVMType.bytes]:
         atype = self.ir_type.avm_type
         if atype == AVMType.any:
@@ -105,6 +104,8 @@ class Value(ValueProvider, abc.ABC):
     def types(self) -> Sequence[IRType]:
         return (self.ir_type,)
 
+    @typing.override
+    @typing.final
     def _frozen_data(self) -> object:
         return self
 
@@ -350,7 +351,7 @@ class BytesConstant(Constant):
         return visitor.visit_bytes_constant(self)
 
 
-@attrs.define
+@attrs.frozen
 class CompiledContractReference(Value):
     """
     Represents static information about a contract after it is fully compiled,
@@ -371,7 +372,7 @@ class CompiledContractReference(Value):
         return visitor.visit_compiled_contract_reference(self)
 
 
-@attrs.define
+@attrs.frozen
 class CompiledLogicSigReference(Value):
     artifact: LogicSigReference
     template_variables: Mapping[str, Value] = attrs.field(converter=immutabledict)
@@ -1250,4 +1251,4 @@ class LogicSignature(Context):
         return [self.program]
 
 
-ModuleArtifact: t.TypeAlias = Contract | LogicSignature
+ModuleArtifact = Contract | LogicSignature

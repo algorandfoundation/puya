@@ -71,18 +71,22 @@ class IRMutator(IRVisitor[t.Any]):
     def visit_compiled_contract_reference(
         self, const: models.CompiledContractReference
     ) -> models.CompiledContractReference:
-        const.template_variables = {
-            var: value.accept(self) for var, value in const.template_variables.items()
-        }
-        return const
+        return attrs.evolve(
+            const,
+            template_variables={
+                var: value.accept(self) for var, value in const.template_variables.items()
+            },
+        )
 
     def visit_compiled_logicsig_reference(
         self, const: models.CompiledLogicSigReference
     ) -> models.CompiledLogicSigReference:
-        const.template_variables = {
-            var: value.accept(self) for var, value in const.template_variables.items()
-        }
-        return const
+        return attrs.evolve(
+            const,
+            template_variables={
+                var: value.accept(self) for var, value in const.template_variables.items()
+            },
+        )
 
     def visit_new_slot(self, new_slot: models.NewSlot) -> models.NewSlot:
         return new_slot
