@@ -79,22 +79,19 @@ def read_aggregate_index_and_decode(
         read_index, "tuple_item" if is_tup else "array_item"
     )
     element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
-    if requires_no_conversion(element_ir_type, element_encoding):
-        return tuple_item
+    values = context.materialise_value_provider(
+        ir.DecodeBytes(
+            value=tuple_item,
+            encoding=element_encoding,
+            ir_type=element_ir_type,
+            source_location=loc,
+        ),
+        "values",
+    )
+    if len(values) == 1:
+        return values[0]
     else:
-        values = context.materialise_value_provider(
-            ir.DecodeBytes(
-                value=tuple_item,
-                encoding=element_encoding,
-                ir_type=element_ir_type,
-                source_location=loc,
-            ),
-            "values",
-        )
-        if len(values) == 1:
-            return values[0]
-        else:
-            return ir.ValueTuple(values=values, source_location=loc)
+        return ir.ValueTuple(values=values, source_location=loc)
 
 
 def encode_and_write_aggregate_index(
@@ -123,18 +120,15 @@ def encode_and_write_aggregate_index(
     assert isinstance(aggregate_encoding, TupleEncoding | ArrayEncoding)
     element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
     element_encoding = _get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
-    if requires_no_conversion(element_ir_type, element_encoding):
-        (encoded_value,) = values
-    else:
-        (encoded_value,) = context.materialise_value_provider(
-            ir.BytesEncode(
-                values=values,
-                encoding=element_encoding,
-                values_type=element_ir_type,
-                source_location=loc,
-            ),
-            "encoded_value",
-        )
+    (encoded_value,) = context.materialise_value_provider(
+        ir.BytesEncode(
+            values=values,
+            encoding=element_encoding,
+            values_type=element_ir_type,
+            source_location=loc,
+        ),
+        "encoded_value",
+    )
     desc = "updated_tuple" if isinstance(aggregate_encoding, TupleEncoding) else "updated_array"
     if isinstance(aggregate_or_slot.ir_type, SlotType):
         base = mem.read_slot(context, aggregate_or_slot, loc)
@@ -179,19 +173,6 @@ def get_length(
     assert array_encoding.size is None, "expected dynamic array"
     bytes_len = factory.len(array, "bytes_len")
     return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")
-
-
-def requires_no_conversion(
-    typ: IRType | TupleIRType,
-    encoding: Encoding,
-) -> bool:
-    match typ:
-        case PrimitiveIRType.bool | EncodedType(encoding=BoolEncoding()) if encoding.is_bit:
-            return True
-        case EncodedType(encoding=typ_encoding) if typ_encoding == encoding:
-            return True
-        case _:
-            return False
 
 
 def convert_array(

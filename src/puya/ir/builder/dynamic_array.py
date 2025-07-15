@@ -13,7 +13,7 @@ from puya.ir import (
 )
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder._utils import invoke_puya_lib_subroutine
-from puya.ir.builder.sequence import get_length, requires_no_conversion
+from puya.ir.builder.sequence import get_length
 from puya.ir.op_utils import OpFactory
 from puya.ir.register_context import IRRegisterContext
 from puya.parse import SourceLocation
@@ -172,17 +172,14 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
         return self.factory.as_ir_type(value, types.EncodedType(self.array_encoding))
 
     def _maybe_decode(self, encoded_item: ir.Value) -> ir.MultiValue:
-        if requires_no_conversion(self.element_ir_type, self.array_encoding.element):
-            return encoded_item
-        else:
-            return self.factory.materialise_multi_value(
-                ir.DecodeBytes(
-                    value=encoded_item,
-                    encoding=self.array_encoding.element,
-                    ir_type=self.element_ir_type,
-                    source_location=self.loc,
-                )
+        return self.factory.materialise_multi_value(
+            ir.DecodeBytes(
+                value=encoded_item,
+                encoding=self.array_encoding.element,
+                ir_type=self.element_ir_type,
+                source_location=self.loc,
             )
+        )
 
 
 class _FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
