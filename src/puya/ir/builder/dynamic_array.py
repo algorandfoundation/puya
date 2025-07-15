@@ -334,23 +334,20 @@ class _BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
     ) -> ir.Value:
         assert self.array_encoding.length_header, "expected array to have a length header"
         # iterable may not be packed
-        iter_element_encoding: encodings.Encoding
         match iterable_ir_type:
             case types.EncodedType(
-                encoding=encodings.ArrayEncoding(
-                    element=encodings.BoolEncoding() as iter_element_encoding
+                encoding=(
+                    encodings.ArrayEncoding(element=iter_element_encoding)
+                    # if tuple is non-homogenous, _get_iterable_length_and_head_tail will error
+                    | encodings.TupleEncoding(elements=[iter_element_encoding, *_])
                 )
             ):
                 pass
-            case types.EncodedType(
-                encoding=encodings.TupleEncoding(
-                    elements=[encodings.BoolEncoding() as iter_element_encoding, *_]
-                )
-            ):
-                pass  # TODO: test case coverage
             case _:
-                # each bit is in its own byte
+                # assume each bit is in its own byte,
+                # will error in _get_iterable_length_and_head_tail if unsupported
                 iter_element_encoding = encodings.Bool8Encoding()
+
         r_count, r_head_and_tail = self._get_iterable_length_and_head_tail(
             iterable, iterable_ir_type, element_encoding=iter_element_encoding
         )
