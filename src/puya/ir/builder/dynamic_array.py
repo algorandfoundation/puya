@@ -21,7 +21,6 @@ from puya.parse import SourceLocation
 logger = log.get_logger(__name__)
 
 
-# region Dynamic arrays
 class DynamicArrayBuilder(abc.ABC):
     # TODO: allow insert?
 
@@ -51,7 +50,7 @@ def get_builder(
 ) -> DynamicArrayBuilder:
     if isinstance(wtype, wtypes.ReferenceArray | wtypes.ARC4DynamicArray):
         array_ir_type = types.wtype_to_ir_type(wtype, source_location=loc)
-        # only concerned with actual encoded of arrays, not where they are stored
+        # only concerned with actual encoding of arrays, not where they are stored
         if isinstance(array_ir_type, types.SlotType):
             array_ir_type = array_ir_type.contents
         assert isinstance(array_ir_type, types.EncodedType), "expected EncodedType"
@@ -174,9 +173,8 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
 
     def _maybe_decode(self, encoded_item: ir.Value) -> ir.MultiValue:
         if requires_no_conversion(self.element_ir_type, self.array_encoding.element):
-            return self.factory.materialise_single(encoded_item)
+            return encoded_item
         else:
-            encoded_item = self.factory.materialise_single(encoded_item, "encoded_item")
             return self.factory.materialise_multi_value(
                 ir.DecodeBytes(
                     value=encoded_item,
