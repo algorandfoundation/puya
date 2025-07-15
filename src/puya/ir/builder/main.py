@@ -4,7 +4,6 @@ from collections.abc import Iterator, Sequence
 import attrs
 
 import puya.awst.visitors
-import puya.ir.builder.assignment
 from puya import algo_constants, log, utils
 from puya.avm import AVMType
 from puya.awst import (
