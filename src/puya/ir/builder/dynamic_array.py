@@ -58,18 +58,13 @@ def get_builder(
         assert (
             isinstance(array_encoding, encodings.ArrayEncoding) and array_encoding.size is None
         ), "expected DynamicArray encoding"
-        # TODO: find a better way to handle these cases
-        if (
-            array_encoding.element == encodings.UTF8Encoding()
-        ):  # TODO: maybe make this an Array encoding?
-            element_ir_type: types.IRType | types.TupleIRType = types.EncodedType(
-                encoding=array_encoding.element
-            )
+        element_encoding = array_encoding.element
+        if type(element_encoding) is encodings.UTF8Encoding:
+            pop_element_ir_type: types.IRType | types.TupleIRType | None = None
         else:
-            element_ir_type = types.wtype_to_ir_type(
+            pop_element_ir_type = types.wtype_to_ir_type(
                 wtype.element_type, source_location=loc, allow_tuple=True
             )
-        element_encoding = array_encoding.element
         builder_typ: type[_DynamicArrayBuilderImpl]
         match element_encoding:
             # BitPackedBool is a more specific match than FixedElement so do that first
@@ -87,7 +82,10 @@ def get_builder(
             case _:
                 raise CodeError(f"unsupported dynamic array type {wtype}", loc)
         return builder_typ(
-            context, array_encoding=array_encoding, element_ir_type=element_ir_type, loc=loc
+            context,
+            array_encoding=array_encoding,
+            pop_element_ir_type=pop_element_ir_type,
+            loc=loc,
         )
 
     raise InternalError(f"unsupported array type: {wtype!s}", loc)
@@ -97,7 +95,8 @@ def get_builder(
 class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
     context: IRRegisterContext
     array_encoding: encodings.ArrayEncoding
-    element_ir_type: types.IRType | types.TupleIRType
+    pop_element_ir_type: types.IRType | types.TupleIRType | None
+    """Should only be None if pop is not supported"""
     loc: SourceLocation
     factory: OpFactory = attrs.field(init=False)
 
@@ -171,12 +170,14 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
     def _as_array_type(self, value: ir.ValueProvider) -> ir.Value:
         return self.factory.as_ir_type(value, types.EncodedType(self.array_encoding))
 
-    def _maybe_decode(self, encoded_item: ir.Value) -> ir.MultiValue:
+    def _decode_popped_element(self, encoded_item: ir.Value) -> ir.MultiValue:
+        if self.pop_element_ir_type is None:
+            raise CodeError("unsupported pop operation", self.loc)
         return self.factory.materialise_multi_value(
             ir.DecodeBytes(
                 value=encoded_item,
                 encoding=self.array_encoding.element,
-                ir_type=self.element_ir_type,
+                ir_type=self.pop_element_ir_type,
                 source_location=self.loc,
             )
         )
@@ -228,7 +229,7 @@ class _FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             start_offset = self.factory.sub(array_bytes_len, element_encoding.checked_num_bytes)
             popped = self.factory.extract_to_end(array, start_offset)
             data = self.factory.extract3(array, 0, start_offset)
-        return data, self._maybe_decode(popped)
+        return data, self._decode_popped_element(popped)
 
 
 class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -285,7 +286,7 @@ class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             source_location=self.loc,
         )
         popped, data = self.factory.materialise_values(invoke)
-        return data, self._maybe_decode(popped)
+        return data, self._decode_popped_element(popped)
 
 
 class _DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -321,7 +322,7 @@ class _DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             source_location=self.loc,
         )
         popped, data = self.factory.materialise_values(invoke)
-        return data, self._maybe_decode(popped)
+        return data, self._decode_popped_element(popped)
 
 
 class _BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
@@ -375,4 +376,4 @@ class _BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             source_location=self.loc,
         )
         popped, data = self.factory.materialise_values(invoke)
-        return data, self._maybe_decode(popped)
+        return data, self._decode_popped_element(popped)
