@@ -70,14 +70,13 @@ def get_builder(
             # BitPackedBool is a more specific match than FixedElement so do that first
             case encodings.BoolEncoding() if array_encoding.length_header:
                 builder_typ = _BitPackedBoolDynamicArrayBuilder
-            case encodings.Encoding(is_dynamic=False):
-                builder_typ = _FixedElementDynamicArrayBuilder
             case encodings.ArrayEncoding(
-                element=encodings.Encoding(num_bytes=1), length_header=True
+                element=encodings.Encoding(num_bytes=1), length_header=True, size=None
             ):
                 builder_typ = _DynamicByteLengthElementDynamicArrayBuilder
-            case _ if array_encoding.length_header:
-                assert element_encoding.is_dynamic, "expected dynamic element"
+            case encodings.Encoding(is_dynamic=False):
+                builder_typ = _FixedElementDynamicArrayBuilder
+            case encodings.Encoding(is_dynamic=True) if array_encoding.length_header:
                 builder_typ = _DynamicElementDynamicArrayBuilder
             case _:
                 raise CodeError(f"unsupported dynamic array type {wtype}", loc)
