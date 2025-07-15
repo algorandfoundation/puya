@@ -2980,11 +2980,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_item%0#0, inner_list#0
+debug: Found equivalence set: values%0#0, inner_list#0
 debug: selected inner_list#0 from equivalence set
 debug: Found equivalence set: tmp%0#0, last_inner_list_index#0
 debug: selected last_inner_list_index#0 from equivalence set
-debug: Found equivalence set: array_item%1#0, value#0, reinterpret_biguint%0#0, reinterpret_biguint%2#0
+debug: Found equivalence set: values%1#0, value#0, reinterpret_biguint%0#0, reinterpret_biguint%2#0
 debug: selected value#0 from equivalence set
 debug: Found equivalence set: threshold#0, reinterpret_biguint%1#0
 debug: selected threshold#0 from equivalence set
@@ -2992,7 +2992,7 @@ debug: Found equivalence set: tmp%2#0, has_next#0
 debug: selected has_next#0 from equivalence set
 debug: Found equivalence set: tmp%3#0, total#2
 debug: selected total#2 from equivalence set
-debug: Found equivalence set: array_item%2#0, next_value#0, reinterpret_biguint%3#0
+debug: Found equivalence set: values%2#0, next_value#0, reinterpret_biguint%3#0
 debug: selected next_value#0 from equivalence set
 debug: Found equivalence set: tmp%6#0, total#3
 debug: selected total#3 from equivalence set
@@ -3019,8 +3019,6 @@ debug: selected array_length%1#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-regression_tests/leftover_branch.py:42:25 debug: replacing extract_value(inner_list#0, j#1) with extract_value(nested_list#0, i#1, j#1)
-regression_tests/leftover_branch.py:47:38 debug: replacing extract_value(inner_list#0, tmp%4#0) with extract_value(nested_list#0, i#1, tmp%4#0)
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -3465,11 +3463,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%item%0#1, inner_list#0
+debug: Found equivalence set: aggregate%item%0#1, array_item%0#0, inner_list#0
 debug: selected inner_list#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%0#1, value#0
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%1#0, value#0
 debug: selected value#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%1#1, next_value#0
+debug: Found equivalence set: aggregate%encoded_element%1#1, array_item%2#0, next_value#0
 debug: selected next_value#0 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -3483,54 +3481,15 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let aggregate%array_length%0#1: uint64 = (extract_uint16 nested_list#0 0u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:38:24-42, ir_type=uint64, name='array_length%0', version=0),)
-debug: Replacing redundant declaration let aggregate%array_head_and_tail%1#1: bytes = ((extract 2 0) nested_list#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=bytes, name='aggregate%array_head_and_tail%0', version=1),)
-debug: Replacing redundant declaration let aggregate%array_length%1#1: uint64 = (extract_uint16 nested_list#0 0u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=uint64, name='aggregate%array_length%0', version=1),)
-debug: Replacing redundant declaration let aggregate%item_offset_offset%1#1: uint64 = (* i#1 2u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=uint64, name='aggregate%item_offset_offset%0', version=1),)
-debug: Replacing redundant declaration let aggregate%array_head_and_tail%2#1: bytes = ((extract 2 0) nested_list#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=bytes, name='aggregate%array_head_and_tail%1', version=1),)
-debug: Replacing redundant declaration let aggregate%array_length%2#1: uint64 = (extract_uint16 nested_list#0 0u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%array_length%1', version=1),)
-debug: Replacing redundant declaration let aggregate%item_offset_offset%2#1: uint64 = (* i#1 2u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%item_offset_offset%1', version=1),)
-debug: Found equivalence set: array_length%0#0, aggregate%array_length%0#1, aggregate%array_length%1#1, aggregate%array_length%2#1
-debug: selected array_length%0#0 from equivalence set
-debug: Found equivalence set: aggregate%array_head_and_tail%0#1, aggregate%array_head_and_tail%1#1, aggregate%array_head_and_tail%2#1
-debug: selected aggregate%array_head_and_tail%0#1 from equivalence set
-debug: Found equivalence set: aggregate%item_offset_offset%0#1, aggregate%item_offset_offset%1#1, aggregate%item_offset_offset%2#1
-debug: selected aggregate%item_offset_offset%0#1 from equivalence set
-debug: Copy propagation made 11 modifications
-debug: Replacing redundant declaration let aggregate%lt%0#1: bool = (< i#1 array_length%0#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:38:17-43, ir_type=bool, name='continue_looping%0', version=0),)
-debug: Replacing redundant declaration let aggregate%lt%1#1: bool = (< i#1 array_length%0#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=bool, name='aggregate%lt%0', version=1),)
-debug: Replacing redundant declaration let aggregate%item_offset%1#1: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#1 aggregate%item_offset_offset%0#1) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=uint64, name='aggregate%item_offset%0', version=1),)
-debug: Replacing redundant declaration let aggregate%lt%2#1: bool = (< i#1 array_length%0#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=bool, name='aggregate%lt%1', version=1),)
-debug: Replacing redundant declaration let aggregate%item_offset%2#1: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#1 aggregate%item_offset_offset%0#1) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%item_offset%1', version=1),)
-debug: Found equivalence set: continue_looping%0#0, aggregate%lt%0#1, aggregate%lt%1#1, aggregate%lt%2#1
-debug: selected continue_looping%0#0 from equivalence set
-debug: Found equivalence set: aggregate%item_offset%0#1, aggregate%item_offset%1#1, aggregate%item_offset%2#1
-debug: selected aggregate%item_offset%0#1 from equivalence set
-debug: Copy propagation made 7 modifications
-debug: Removing redundant assert of continue_looping%0#0
-debug: Replacing redundant declaration let aggregate%item_length%1#1: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#1 aggregate%item_offset%0#1) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=uint64, name='aggregate%item_length%0', version=1),)
-debug: Removing redundant assert of continue_looping%0#0
-debug: Replacing redundant declaration let aggregate%item_length%2#1: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#1 aggregate%item_offset%0#1) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%item_length%1', version=1),)
-debug: Found equivalence set: aggregate%item_length%0#1, aggregate%item_length%1#1, aggregate%item_length%2#1
-debug: selected aggregate%item_length%0#1 from equivalence set
-debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let aggregate%item_length_in_bytes%1#1: uint64 = (* aggregate%item_length%0#1 8u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=uint64, name='aggregate%item_length_in_bytes%0', version=1),)
-debug: Replacing redundant declaration let aggregate%item_length_in_bytes%2#1: uint64 = (* aggregate%item_length%0#1 8u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%item_length_in_bytes%1', version=1),)
-debug: Found equivalence set: aggregate%item_length_in_bytes%0#1, aggregate%item_length_in_bytes%1#1, aggregate%item_length_in_bytes%2#1
-debug: selected aggregate%item_length_in_bytes%0#1 from equivalence set
-debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let aggregate%item_head_tail_length%1#1: uint64 = (+ aggregate%item_length_in_bytes%0#1 2u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=uint64, name='aggregate%item_head_tail_length%0', version=1),)
-debug: Replacing redundant declaration let aggregate%item_head_tail_length%2#1: uint64 = (+ aggregate%item_length_in_bytes%0#1 2u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%item_head_tail_length%1', version=1),)
-debug: Found equivalence set: aggregate%item_head_tail_length%0#1, aggregate%item_head_tail_length%1#1, aggregate%item_head_tail_length%2#1
-debug: selected aggregate%item_head_tail_length%0#1 from equivalence set
-debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let aggregate%item%1#1: bytes = (extract3 aggregate%array_head_and_tail%0#1 aggregate%item_offset%0#1 aggregate%item_head_tail_length%0#1) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:12-22, ir_type=Encoded(len+uint64[]), name='inner_list', version=0),)
-debug: Replacing redundant declaration let aggregate%item%2#1: bytes = (extract3 aggregate%array_head_and_tail%0#1 aggregate%item_offset%0#1 aggregate%item_head_tail_length%0#1) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=bytes, name='aggregate%item%1', version=1),)
-debug: Found equivalence set: inner_list#0, aggregate%item%1#1, aggregate%item%2#1
-debug: selected inner_list#0 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Replacing redundant declaration let aggregate%array_trimmed%1#1: bytes = ((extract 2 0) inner_list#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=bytes, name='aggregate%array_trimmed%0', version=1),)
+debug: Found equivalence set: array_length%0#0, aggregate%array_length%0#1
+debug: selected array_length%0#0 from equivalence set
 debug: Found equivalence set: aggregate%array_trimmed%0#1, aggregate%array_trimmed%1#1
 debug: selected aggregate%array_trimmed%0#1 from equivalence set
+debug: Copy propagation made 2 modifications
+debug: Replacing redundant declaration let aggregate%lt%0#1: bool = (< i#1 array_length%0#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:38:17-43, ir_type=bool, name='continue_looping%0', version=0),)
+debug: Found equivalence set: continue_looping%0#0, aggregate%lt%0#1
+debug: selected continue_looping%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -4214,7 +4173,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_item%0#0, x#0
+debug: Found equivalence set: values%0#0, x#0
 debug: selected x#0 from equivalence set
 debug: Found equivalence set: tmp%0#0, y#0
 debug: selected y#0 from equivalence set
@@ -4232,10 +4191,17 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let array_item%3#0: Encoded(uint8[32]) = extract_value(proof#0, 7u) with copy of existing registers (Register(source_location=regression_tests/jira_ak_752.py:19:29-37, ir_type=Encoded(uint8[32]), name='array_item%2', version=0),)
-debug: Replacing redundant declaration let array_item%4#0: Encoded(uint8[32]) = extract_value(proof#0, 8u) with copy of existing registers (Register(source_location=regression_tests/jira_ak_752.py:18:8-9, ir_type=bytes, name='x', version=0),)
+debug: Replacing redundant declaration let array_item%4#0: Encoded(uint8[32]) = extract_value(proof#0, 8u) with copy of existing registers (Register(source_location=regression_tests/jira_ak_752.py:18:12-20, ir_type=Encoded(uint8[32]), name='array_item%0', version=0),)
 debug: Found equivalence set: array_item%2#0, array_item%3#0
 debug: selected array_item%2#0 from equivalence set
-debug: Found equivalence set: x#0, array_item%4#0
+debug: Found equivalence set: array_item%0#0, array_item%4#0
+debug: selected array_item%0#0 from equivalence set
+debug: Copy propagation made 2 modifications
+debug: Replacing redundant declaration let values%3#0: Encoded(uint8[32]) = decode_bytes<Encoded(uint8[32])>(array_item%2#0) with copy of existing registers (Register(source_location=regression_tests/jira_ak_752.py:19:29-37, ir_type=Encoded(uint8[32]), name='values%2', version=0),)
+debug: Replacing redundant declaration let values%4#0: Encoded(uint8[32]) = decode_bytes<Encoded(uint8[32])>(array_item%0#0) with copy of existing registers (Register(source_location=regression_tests/jira_ak_752.py:18:8-9, ir_type=bytes, name='x', version=0),)
+debug: Found equivalence set: values%2#0, values%3#0
+debug: selected values%2#0 from equivalence set
+debug: Found equivalence set: x#0, values%4#0
 debug: selected x#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Encode Decode Pair Elimination
@@ -4436,11 +4402,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_element%0#1, x#0
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, x#0
 debug: selected x#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%1#1, array_item%1#0
+debug: Found equivalence set: aggregate%encoded_element%1#1, array_item%1#0, values%1#0
 debug: selected aggregate%encoded_element%1#1 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%2#1, array_item%2#0
+debug: Found equivalence set: aggregate%encoded_element%2#1, array_item%2#0, values%2#0
 debug: selected aggregate%encoded_element%2#1 from equivalence set
 debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -5275,8 +5241,8 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: tmp%0#0, my_struct#0, char#0, some_subroutine%0#0, my_struct#1
 debug: selected my_struct#0 from equivalence set
-debug: Found equivalence set: tuple_item%0#0, reinterpret_biguint%0#0
-debug: selected tuple_item%0#0 from equivalence set
+debug: Found equivalence set: values%0#0, reinterpret_biguint%0#0
+debug: selected values%0#0 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -5360,7 +5326,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%1#0
-debug: Removing unused variable tuple_item%0#0
+debug: Not removing unused assignment since source is not marked as pure: let values%0#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -5426,6 +5392,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let values%0#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -5496,9 +5463,12 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%head%0#1, aggregate%as_Encoded(uint64)%0#1, my_struct#0
 debug: selected my_struct#0 from equivalence set
+debug: Found equivalence set: aggregate%extract%0#1, tuple_item%0#0, values%0#0
+debug: selected aggregate%extract%0#1 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%extract%0#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x 0x00000000000000c8) to 0x00000000000000c8
 debug: Optimizer: Inner Txn Field Replacer

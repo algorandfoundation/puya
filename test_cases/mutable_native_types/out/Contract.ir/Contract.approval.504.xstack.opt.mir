@@ -407,9 +407,8 @@ subroutine sum_frozen_arr:
         bz sum_frozen_arr_after_for@4 ; b sum_frozen_arr_for_body@2                               (𝕡) arr#0 |
 
     sum_frozen_arr_for_body@2:                                                                    (𝕡) arr#0 |
-        // mutable_native_types/contract.py:221-222
+        // mutable_native_types/contract.py:221
         // for element in arr:
-        //     total += element.a
         p-load arr#0                                                                              (𝕡) arr#0 | arr#0 (copy)
         extract 2 0                                                                               (𝕡) arr#0 | aggregate%array_trimmed%0#1
         v-load item_index_internal%0#0                                                            (𝕡) arr#0 | aggregate%array_trimmed%0#1,item_index_internal%0#0
@@ -419,27 +418,22 @@ subroutine sum_frozen_arr:
         l-load aggregate%array_trimmed%0#1 1                                                      (𝕡) arr#0 | item_index_internal%0#0,aggregate%bytes_offset%0#1,aggregate%array_trimmed%0#1
         l-load aggregate%bytes_offset%0#1 1                                                       (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%0#1,aggregate%bytes_offset%0#1
         int 16                                                                                    (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%0#1,aggregate%bytes_offset%0#1,16
-        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1
+        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | item_index_internal%0#0,element#0
         // mutable_native_types/contract.py:222
         // total += element.a
-        l-load-copy aggregate%encoded_element%0#1 0                                               (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,aggregate%encoded_element%0#1 (copy)
-        // mutable_native_types/contract.py:221-222
-        // for element in arr:
-        //     total += element.a
-        int 0                                                                                     (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,aggregate%encoded_element%0#1 (copy),0
-        // mutable_native_types/contract.py:222
-        // total += element.a
-        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,values%0#0
-        v-load total#0                                                                            (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,values%0#0,total#0
-        l-load values%0#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,total#0,values%0#0
-        +                                                                                         (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,total#0
+        l-load-copy element#0 0                                                                   (𝕡) arr#0 | item_index_internal%0#0,element#0,element#0 (copy)
+        int 0                                                                                     (𝕡) arr#0 | item_index_internal%0#0,element#0,element#0 (copy),0
+        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,element#0,values%1#0
+        v-load total#0                                                                            (𝕡) arr#0 | item_index_internal%0#0,element#0,values%1#0,total#0
+        l-load values%1#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,element#0,total#0,values%1#0
+        +                                                                                         (𝕡) arr#0 | item_index_internal%0#0,element#0,total#0
         // mutable_native_types/contract.py:223
         // total += element.b
-        l-load aggregate%encoded_element%0#1 1                                                    (𝕡) arr#0 | item_index_internal%0#0,total#0,aggregate%encoded_element%0#1
-        int 8                                                                                     (𝕡) arr#0 | item_index_internal%0#0,total#0,aggregate%encoded_element%0#1,8
-        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,total#0,values%1#0
-        l-load total#0 1                                                                          (𝕡) arr#0 | item_index_internal%0#0,values%1#0,total#0
-        l-load values%1#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,total#0,values%1#0
+        l-load element#0 1                                                                        (𝕡) arr#0 | item_index_internal%0#0,total#0,element#0
+        int 8                                                                                     (𝕡) arr#0 | item_index_internal%0#0,total#0,element#0,8
+        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,total#0,values%2#0
+        l-load total#0 1                                                                          (𝕡) arr#0 | item_index_internal%0#0,values%2#0,total#0
+        l-load values%2#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,total#0,values%2#0
         +                                                                                         (𝕡) arr#0 | item_index_internal%0#0,total#0
         v-store total#0                                                                           (𝕡) arr#0 | item_index_internal%0#0
         l-load item_index_internal%0#0 0                                                          (𝕡) arr#0 | item_index_internal%0#0
@@ -534,8 +528,8 @@ subroutine increment_payment:
         extract3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1
         l-load-copy aggregate%encoded_element%0#1 0                                               (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,aggregate%encoded_element%0#1 (copy)
         int 40                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,aggregate%encoded_element%0#1 (copy),40
-        extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,values%0#0
-        p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,values%0#0,amt#0 (copy)
+        extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,values%1#0
+        p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,values%1#0,amt#0 (copy)
         +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,tmp%1#0
         itob                                                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%encoded_element%0#1,aggregate%val_as_bytes%0#1
         l-load aggregate%encoded_element%0#1 1                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#1,aggregate%val_as_bytes%0#1,aggregate%encoded_element%0#1
@@ -724,9 +718,9 @@ subroutine struct_arg:
         // mutable_native_types/contract.py:166
         // self.box_map[box_key].fixed_a = a
         p-load box_key#0                                                                          (𝕡) box_key#0,a#0 | box_key#0 (copy)
-        itob                                                                                      (𝕡) box_key#0,a#0 | encoded_value%0#0
-        byte "box_map"                                                                            (𝕡) box_key#0,a#0 | encoded_value%0#0,"box_map"
-        l-load encoded_value%0#0 1                                                                (𝕡) box_key#0,a#0 | "box_map",encoded_value%0#0
+        itob                                                                                      (𝕡) box_key#0,a#0 | encoded_value%4#0
+        byte "box_map"                                                                            (𝕡) box_key#0,a#0 | encoded_value%4#0,"box_map"
+        l-load encoded_value%4#0 1                                                                (𝕡) box_key#0,a#0 | "box_map",encoded_value%4#0
         concat                                                                                    (𝕡) box_key#0,a#0 | box_prefixed_key%0#0
         int 0                                                                                     (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,0
         p-load a#0                                                                                (𝕡) box_key#0,a#0 | box_prefixed_key%0#0,0,a#0 (copy)
@@ -980,16 +974,16 @@ subroutine test_arr:
         // mutable_native_types/contract.py:209
         // assert sum_frozen_arr(frozen1) == 15, "expected sum to be 15"
         l-load arr2#1 1                                                                           (𝕡) arr#0 | result#0,arr2#1
-        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%14#0
-        int 15                                                                                    (𝕡) arr#0 | result#0,tmp%14#0,15
-        ==                                                                                        (𝕡) arr#0 | result#0,tmp%15#0
+        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%15#0
+        int 15                                                                                    (𝕡) arr#0 | result#0,tmp%15#0,15
+        ==                                                                                        (𝕡) arr#0 | result#0,tmp%16#0
         assert // expected sum to be 15                                                           (𝕡) arr#0 | result#0
         // mutable_native_types/contract.py:210
         // assert sum_frozen_arr(frozen2) == 10, "expected sum to be 10"
         l-load-copy result#0 0                                                                    (𝕡) arr#0 | result#0,result#0 (copy)
-        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%16#0
-        int 10                                                                                    (𝕡) arr#0 | result#0,tmp%16#0,10
-        ==                                                                                        (𝕡) arr#0 | result#0,tmp%17#0
+        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%17#0
+        int 10                                                                                    (𝕡) arr#0 | result#0,tmp%17#0,10
+        ==                                                                                        (𝕡) arr#0 | result#0,tmp%18#0
         assert // expected sum to be 10                                                           (𝕡) arr#0 | result#0
         // mutable_native_types/contract.py:212
         // self.arr = arr2.copy()

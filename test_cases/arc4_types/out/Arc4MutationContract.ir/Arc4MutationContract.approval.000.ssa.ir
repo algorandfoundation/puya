@@ -355,19 +355,22 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let tmp%4#0: bool = (== array_of_array#2 0x00020004000700010a000110)
         (assert tmp%4#0)
         let array_item%0#0: Encoded(len+uint8[]) = extract_value(array_of_array#2, 0u)
+        let values%0#0: Encoded(len+uint8[]) = decode_bytes<Encoded(len+uint8[])>(array_item%0#0)
         let tmp%5#0: Encoded(uint8[]) = bytes_encode<uint8[]>(0xff)
-        let concat%2#0: Encoded(len+uint8[]) = (concat array_item%0#0 tmp%5#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 array_item%0#0 0u)
+        let concat%2#0: Encoded(len+uint8[]) = (concat values%0#0 tmp%5#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 values%0#0 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = (replace3 concat%2#0 0u as_u16_bytes%0#0)
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = replace%0#0
-        let updated_array%0#0: Encoded(len+(len+uint8[])[]) = replace_value(array_of_array#2, 0u, as_Encoded(len+uint8[])%0#0)
+        let encoded_value%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(as_Encoded(len+uint8[])%0#0)
+        let updated_array%0#0: Encoded(len+(len+uint8[])[]) = replace_value(array_of_array#2, 0u, encoded_value%0#0)
         let array_of_array#3: Encoded(len+(len+uint8[])[]) = updated_array%0#0
         let tmp%6#0: bool = (== array_of_array#3 0x00020004000800020aff000110)
         (assert tmp%6#0)
-        let updated_array%1#0: Encoded(len+(len+uint8[])[]) = replace_value(array_of_array#3, 0u, 1u, 0x00)
+        let encoded_value%1#0: Encoded(uint8) = bytes_encode<uint8>(0x00)
+        let updated_array%1#0: Encoded(len+(len+uint8[])[]) = replace_value(array_of_array#3, 0u, 1u, encoded_value%1#0)
         let array_of_array#4: Encoded(len+(len+uint8[])[]) = updated_array%1#0
         let tmp%7#0: bool = (== array_of_array#4 0x00020004000800020a00000110)
         (assert tmp%7#0)
@@ -382,11 +385,13 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_st
         let tmp%0#0: bool = (== array_of_array#0 0x0a094080)
         (assert tmp%0#0)
         let encoded_array%3#0: Encoded(uint8[2]) = bytes_encode<uint8[2]>(0xff, 0xfe)
-        let updated_array%0#0: Encoded(uint8[2][2]) = replace_value(array_of_array#0, 0u, encoded_array%3#0)
+        let encoded_value%0#0: Encoded(uint8[2]) = bytes_encode<uint8[2]>(encoded_array%3#0)
+        let updated_array%0#0: Encoded(uint8[2][2]) = replace_value(array_of_array#0, 0u, encoded_value%0#0)
         let array_of_array#1: Encoded(uint8[2][2]) = updated_array%0#0
         let tmp%1#0: bool = (== array_of_array#1 0xfffe4080)
         (assert tmp%1#0)
-        let updated_array%1#0: Encoded(uint8[2][2]) = replace_value(array_of_array#1, 1u, 0u, 0x01)
+        let encoded_value%1#0: Encoded(uint8) = bytes_encode<uint8>(0x01)
+        let updated_array%1#0: Encoded(uint8[2][2]) = replace_value(array_of_array#1, 1u, 0u, encoded_value%1#0)
         let array_of_array#2: Encoded(uint8[2][2]) = updated_array%1#0
         let tmp%2#0: bool = (== array_of_array#2 0xfffe0180)
         (assert tmp%2#0)
@@ -396,13 +401,15 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
     block@0: // L100
         let encoded_array%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x01, 0x02)
         let dynamic_uint8_array#0: Encoded(len+uint8[]) = encoded_array%0#0
-        let updated_array%0#0: Encoded(len+uint8[]) = replace_value(dynamic_uint8_array#0, 0u, 0xff)
+        let encoded_value%0#0: Encoded(uint8) = bytes_encode<uint8>(0xff)
+        let updated_array%0#0: Encoded(len+uint8[]) = replace_value(dynamic_uint8_array#0, 0u, encoded_value%0#0)
         let dynamic_uint8_array#1: Encoded(len+uint8[]) = updated_array%0#0
         let tmp%0#0: bool = (== dynamic_uint8_array#1 0x0002ff02)
         (assert tmp%0#0)
         let encoded_array%1#0: Encoded(uint8[2]) = bytes_encode<uint8[2]>(0x01, 0x02)
         let static_uint8_array#0: Encoded(uint8[2]) = encoded_array%1#0
-        let updated_array%1#0: Encoded(uint8[2]) = replace_value(static_uint8_array#0, 1u, 0xff)
+        let encoded_value%1#0: Encoded(uint8) = bytes_encode<uint8>(0xff)
+        let updated_array%1#0: Encoded(uint8[2]) = replace_value(static_uint8_array#0, 1u, encoded_value%1#0)
         let static_uint8_array#1: Encoded(uint8[2]) = updated_array%1#0
         let tmp%1#0: bool = (== static_uint8_array#1 0x01ff)
         (assert tmp%1#0)
@@ -411,8 +418,8 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let encoded_array%2#0: Encoded(len+bool1[]) = bytes_encode<(len+bool1[])>(tmp%2#0, tmp%3#0)
         let dynamic_bool_array#0: Encoded(len+bool1[]) = encoded_array%2#0
         let tmp%4#0: Encoded(bool8) = bytes_encode<bool8>(0u)
-        let encoded_value%0#0: Encoded(bool1) = bytes_encode<bool1>(tmp%4#0)
-        let updated_array%2#0: Encoded(len+bool1[]) = replace_value(dynamic_bool_array#0, 0u, encoded_value%0#0)
+        let encoded_value%2#0: Encoded(bool1) = bytes_encode<bool1>(tmp%4#0)
+        let updated_array%2#0: Encoded(len+bool1[]) = replace_value(dynamic_bool_array#0, 0u, encoded_value%2#0)
         let dynamic_bool_array#1: Encoded(len+bool1[]) = updated_array%2#0
         let tmp%5#0: bool = (== dynamic_bool_array#1 0x000200)
         (assert tmp%5#0)
@@ -421,8 +428,8 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.index_assign() ->
         let encoded_array%3#0: Encoded(bool1[2]) = bytes_encode<bool1[2]>(tmp%6#0, tmp%7#0)
         let static_bool_array#0: Encoded(bool1[2]) = encoded_array%3#0
         let tmp%8#0: Encoded(bool8) = bytes_encode<bool8>(0u)
-        let encoded_value%1#0: Encoded(bool1) = bytes_encode<bool1>(tmp%8#0)
-        let updated_array%3#0: Encoded(bool1[2]) = replace_value(static_bool_array#0, 1u, encoded_value%1#0)
+        let encoded_value%3#0: Encoded(bool1) = bytes_encode<bool1>(tmp%8#0)
+        let updated_array%3#0: Encoded(bool1[2]) = replace_value(static_bool_array#0, 1u, encoded_value%3#0)
         let static_bool_array#1: Encoded(bool1[2]) = updated_array%3#0
         let tmp%9#0: bool = (== static_bool_array#1 0x80)
         (assert tmp%9#0)
@@ -439,7 +446,8 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign() -
         let encoded_value%0#0: Encoded(bool1) = bytes_encode<bool1>(tmp%2#0)
         let updated_tuple%0#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = replace_value(test_struct#0, 0, encoded_value%0#0)
         let test_struct#1: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%0#0
-        let updated_tuple%1#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = replace_value(test_struct#1, 1, 0x0c)
+        let encoded_value%1#0: Encoded(uint8) = bytes_encode<uint8>(0x0c)
+        let updated_tuple%1#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = replace_value(test_struct#1, 1, encoded_value%1#0)
         let test_struct#2: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%1#0
         let tmp%3#0: Encoded(bool8) = bytes_encode<bool8>(0u)
         let encoded%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x4861707079)
@@ -448,10 +456,12 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign() -
         let tmp%5#0: bool = (== test_struct#2 tmp%4#0)
         (assert tmp%5#0)
         let encoded%4#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x486d6d6d6d)
-        let updated_tuple%2#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = replace_value(test_struct#2, 2, encoded%4#0)
+        let encoded_value%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(encoded%4#0)
+        let updated_tuple%2#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = replace_value(test_struct#2, 2, encoded_value%2#0)
         let test_struct#3: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%2#0
         let encoded%5#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x4f682077656c6c)
-        let updated_tuple%3#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = replace_value(test_struct#3, 3, encoded%5#0)
+        let encoded_value%3#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(encoded%5#0)
+        let updated_tuple%3#0: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = replace_value(test_struct#3, 3, encoded_value%3#0)
         let test_struct#4: Encoded(bool1,uint8,(len+utf8[]),(len+utf8[])) = updated_tuple%3#0
         let tmp%6#0: Encoded(bool8) = bytes_encode<bool8>(0u)
         let encoded%6#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x486d6d6d6d)
@@ -504,15 +514,16 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fix
         let tmp%4#0: bool = (== dynamic_uint8_array#3 encoded_array%3#0)
         (assert tmp%4#0)
         let (tmp%5#0: bytes, tmp%6#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(dynamic_uint8_array#3, 1u)
+        let tmp%7#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(tmp%5#0)
         let dynamic_uint8_array#4: Encoded(len+uint8[]) = tmp%6#0
-        let popped#0: Encoded(uint8) = tmp%5#0
+        let popped#0: Encoded(uint8) = tmp%7#0
         let reinterpret_biguint%0#0: biguint = popped#0
         let reinterpret_biguint%1#0: biguint = 0x5a
-        let tmp%7#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
-        (assert tmp%7#0)
-        let encoded_array%4#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x01, 0x02, 0x32, 0x01, 0x02, 0x32, 0x04)
-        let tmp%8#0: bool = (== dynamic_uint8_array#4 encoded_array%4#0)
+        let tmp%8#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
         (assert tmp%8#0)
+        let encoded_array%4#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x01, 0x02, 0x32, 0x01, 0x02, 0x32, 0x04)
+        let tmp%9#0: bool = (== dynamic_uint8_array#4 encoded_array%4#0)
+        (assert tmp%9#0)
         return 
 
 subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_bool() -> void:
@@ -626,22 +637,26 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         (assert tmp%4#0)
         let encoded_array%2#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(hello#0, world#0, foo#0, bar#0, hello#0, world#0, foo#0, bar#0)
         let dynamic_string_array#3: Encoded(len+(len+utf8[])[]) = encoded_array%2#0
-        let updated_array%0#0: Encoded(len+(len+utf8[])[]) = replace_value(dynamic_string_array#3, 3u, hello#0)
+        let encoded_value%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(hello#0)
+        let updated_array%0#0: Encoded(len+(len+utf8[])[]) = replace_value(dynamic_string_array#3, 3u, encoded_value%0#0)
         let dynamic_string_array#4: Encoded(len+(len+utf8[])[]) = updated_array%0#0
-        let updated_array%1#0: Encoded(len+(len+utf8[])[]) = replace_value(dynamic_string_array#4, 5u, hello#0)
+        let encoded_value%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(hello#0)
+        let updated_array%1#0: Encoded(len+(len+utf8[])[]) = replace_value(dynamic_string_array#4, 5u, encoded_value%1#0)
         let dynamic_string_array#5: Encoded(len+(len+utf8[])[]) = updated_array%1#0
         let encoded_array%3#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(hello#0, world#0, foo#0, hello#0, hello#0, hello#0, foo#0, bar#0)
         let tmp%5#0: bool = (== dynamic_string_array#5 encoded_array%3#0)
         (assert tmp%5#0)
         let (tmp%6#0: bytes, tmp%7#0: bytes) = _puya_lib.arc4.dynamic_array_pop_byte_length_head(dynamic_string_array#5)
+        let tmp%8#0: Encoded(len+utf8[]) = decode_bytes<Encoded(len+utf8[])>(tmp%6#0)
         let dynamic_string_array#6: Encoded(len+(len+utf8[])[]) = tmp%7#0
-        let tmp%8#0: bool = (== tmp%6#0 bar#0)
-        (assert tmp%8#0)
-        let (tmp%9#0: bytes, tmp%10#0: bytes) = _puya_lib.arc4.dynamic_array_pop_byte_length_head(dynamic_string_array#6)
-        let dynamic_string_array#7: Encoded(len+(len+utf8[])[]) = tmp%10#0
-        let tmp%11#0: bool = (== tmp%9#0 foo#0)
-        (assert tmp%11#0)
+        let tmp%9#0: bool = (== tmp%8#0 bar#0)
+        (assert tmp%9#0)
+        let (tmp%10#0: bytes, tmp%11#0: bytes) = _puya_lib.arc4.dynamic_array_pop_byte_length_head(dynamic_string_array#6)
+        let tmp%12#0: Encoded(len+utf8[]) = decode_bytes<Encoded(len+utf8[])>(tmp%10#0)
+        let dynamic_string_array#7: Encoded(len+(len+utf8[])[]) = tmp%11#0
+        let tmp%13#0: bool = (== tmp%12#0 foo#0)
+        (assert tmp%13#0)
         let encoded_array%4#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(hello#0, world#0, foo#0, hello#0, hello#0, hello#0)
-        let tmp%12#0: bool = (== dynamic_string_array#7 encoded_array%4#0)
-        (assert tmp%12#0)
+        let tmp%14#0: bool = (== dynamic_string_array#7 encoded_array%4#0)
+        (assert tmp%14#0)
         return 

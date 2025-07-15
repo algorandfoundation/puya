@@ -179,7 +179,8 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L39
         let array_item%0#0: Encoded(len+uint64[]) = extract_value(nested_list#0, i#1)
-        let inner_list#0: Encoded(len+uint64[]) = array_item%0#0
+        let values%0#0: Encoded(len+uint64[]) = decode_bytes<Encoded(len+uint64[])>(array_item%0#0)
+        let inner_list#0: Encoded(len+uint64[]) = values%0#0
         let array_length%1#0: uint64 = (extract_uint16 inner_list#0 0u)
         let tmp%0#0: uint64 = (- array_length%1#0 1u)
         let last_inner_list_index#0: uint64 = tmp%0#0
@@ -195,7 +196,8 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         goto continue_looping%1#0 ? block@4 : block@12
     block@4: // for_body_L42
         let array_item%1#0: Encoded(uint64) = extract_value(inner_list#0, j#1)
-        let value#0: Encoded(uint64) = array_item%1#0
+        let values%1#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(array_item%1#0)
+        let value#0: Encoded(uint64) = values%1#0
         let reinterpret_biguint%0#0: biguint = value#0
         let reinterpret_biguint%1#0: biguint = threshold#0
         let tmp%1#0: bool = (b>= reinterpret_biguint%0#0 reinterpret_biguint%1#0)
@@ -209,7 +211,8 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let total#2: uint64 = tmp%3#0
         let tmp%4#0: uint64 = (+ j#1 1u)
         let array_item%2#0: Encoded(uint64) = extract_value(inner_list#0, tmp%4#0)
-        let next_value#0: Encoded(uint64) = array_item%2#0
+        let values%2#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(array_item%2#0)
+        let next_value#0: Encoded(uint64) = values%2#0
         let reinterpret_biguint%2#0: biguint = value#0
         let reinterpret_biguint%3#0: biguint = next_value#0
         let tmp%5#0: bool = (b< reinterpret_biguint%2#0 reinterpret_biguint%3#0)

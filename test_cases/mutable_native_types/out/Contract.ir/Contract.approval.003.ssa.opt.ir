@@ -361,12 +361,14 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L222
-        let tuple_item%0#0: Encoded(uint64) = extract_value(arr#0, item_index_internal%0#1, 0)
-        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
-        let total#2: uint64 = (+ total#1 values%0#0)
-        let tuple_item%1#0: Encoded(uint64) = extract_value(arr#0, item_index_internal%0#1, 1)
-        let values%1#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
-        let total#3: uint64 = (+ total#2 values%1#0)
+        let array_item%0#0: Encoded(uint64,uint64) = extract_value(arr#0, item_index_internal%0#1)
+        let element#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%0#0)
+        let tuple_item%0#0: Encoded(uint64) = extract_value(element#0, 0)
+        let values%1#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let total#2: uint64 = (+ total#1 values%1#0)
+        let tuple_item%1#0: Encoded(uint64) = extract_value(element#0, 1)
+        let values%2#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
+        let total#3: uint64 = (+ total#2 values%2#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L221
@@ -440,7 +442,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: En
         (assert tmp%0#0) // too many payments
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
-        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = replace_value(maybe_value%1#0, maybe_value%0#0, pay#0)
+        let encoded_value%0#0: Encoded(uint8[32],uint64,uint64) = bytes_encode<(uint8[32],uint64,uint64)>(pay#0)
+        let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = replace_value(maybe_value%1#0, maybe_value%0#0, encoded_value%0#0)
         (app_global_put "payments" updated_array%0#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%3#0) // check self.num_payments exists
@@ -456,9 +459,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         (assert tmp%0#0) // invalid payment index
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "payments")
         (assert maybe_exists%1#0) // check self.payments exists
-        let tuple_item%0#0: Encoded(uint64) = extract_value(maybe_value%1#0, index#0, 2)
-        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
-        let tmp%1#0: uint64 = (+ values%0#0 amt#0)
+        let array_item%0#0: Encoded(uint8[32],uint64,uint64) = extract_value(maybe_value%1#0, index#0)
+        let values%0#0: Encoded(uint8[32],uint64,uint64) = decode_bytes<Encoded(uint8[32],uint64,uint64)>(array_item%0#0)
+        let tuple_item%0#0: Encoded(uint64) = extract_value(values%0#0, 2)
+        let values%1#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let tmp%1#0: uint64 = (+ values%1#0 amt#0)
         let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#0)
         let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = replace_value(maybe_value%1#0, index#0, 2, encoded_value%0#0)
         (app_global_put "payments" updated_array%0#0)
@@ -476,6 +481,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         let tmp%1#0: bool = (box_create "box" 2064u)
         (assert tmp%1#0) // expected box to not exist
         let tuple_item%0#0: Encoded(uint64,uint64) = extract_value(maybe_value%1#0, 0)
+        let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%0#0)
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_replace box_prefixed_key%0#0 0u tuple_item%0#0)
@@ -514,21 +520,22 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
     block@0: // L160
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let updated_tuple%0#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = replace_value(maybe_value%0#0, 0, a#0)
+        let encoded_value%0#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(a#0)
+        let updated_tuple%0#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = replace_value(maybe_value%0#0, 0, encoded_value%0#0)
         (app_global_put "nested" updated_tuple%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u 0x70)
         (assert maybe_exists%1#0) // check self.nested_proxy exists
-        let updated_tuple%1#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = replace_value(maybe_value%1#0, 0, a#0)
+        let updated_tuple%1#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = replace_value(maybe_value%1#0, 0, encoded_value%0#0)
         (app_global_put 0x70 updated_tuple%1#0)
         let tmp%0#0: account = (txn Sender)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%0#0 0u 0x6c)
         (assert maybe_exists%2#0) // check self.nested_local exists for account
-        let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = replace_value(maybe_value%2#0, 0, a#0)
+        let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = replace_value(maybe_value%2#0, 0, encoded_value%0#0)
         (app_local_put tmp%0#0 0x6c updated_tuple%2#0)
-        (box_replace "box" 0u a#0)
-        let encoded_value%0#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
-        (box_replace box_prefixed_key%0#0 0u a#0)
+        (box_replace "box" 0u encoded_value%0#0)
+        let encoded_value%4#0: bytes[8] = (itob box_key#0)
+        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%4#0)
+        (box_replace box_prefixed_key%0#0 0u encoded_value%0#0)
         return 
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> Encoded(uint64,uint64):
@@ -536,7 +543,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> 
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
         let tuple_item%0#0: Encoded(uint64,uint64) = extract_value(maybe_value%0#0, 0)
-        return tuple_item%0#0
+        let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%0#0)
+        return values%0#0
 
 subroutine test_cases.mutable_native_types.contract.Contract.tup_return() -> <uint64, uint64>:
     block@0: // L174
@@ -550,8 +558,10 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
     block@0: // L178
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let fixed_a#0: Encoded(uint64,uint64) = extract_value(maybe_value%0#0, 0)
-        let fixed_b#0: Encoded(uint64,uint64) = extract_value(maybe_value%0#0, 1)
+        let tuple_item%0#0: Encoded(uint64,uint64) = extract_value(maybe_value%0#0, 0)
+        let fixed_a#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%0#0)
+        let tuple_item%1#0: Encoded(uint64,uint64) = extract_value(maybe_value%0#0, 1)
+        let fixed_b#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%1#0)
         let tmp%0#0: uint64 = test_cases.mutable_native_types.contract.add(fixed_a#0)
         let tmp%1#0: uint64 = test_cases.mutable_native_types.contract.add(fixed_b#0)
         let result#0: uint64 = (+ tmp%0#0 tmp%1#0)
@@ -615,12 +625,14 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let result#0: bytes = ((replace2 0) arr2#3 tmp%3#1)
         let tmp%5#1: uint64 = (len result#0)
         let item_location#0: uint64 = (- tmp%5#1 16u)
+        let popped#0: bytes = (extract3 result#0 item_location#0 16u)
         let result#1: bytes = (substring3 result#0 0u item_location#0)
-        let tmp%14#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#3)
-        let tmp%15#0: bool = (== tmp%14#0 15u)
-        (assert tmp%15#0) // expected sum to be 15
-        let tmp%16#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(result#1)
-        let tmp%17#0: bool = (== tmp%16#0 10u)
-        (assert tmp%17#0) // expected sum to be 10
+        let tmp%14#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
+        let tmp%15#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#3)
+        let tmp%16#0: bool = (== tmp%15#0 15u)
+        (assert tmp%16#0) // expected sum to be 15
+        let tmp%17#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(result#1)
+        let tmp%18#0: bool = (== tmp%17#0 10u)
+        (assert tmp%18#0) // expected sum to be 10
         (app_global_put "arr" result#1)
         return result#1

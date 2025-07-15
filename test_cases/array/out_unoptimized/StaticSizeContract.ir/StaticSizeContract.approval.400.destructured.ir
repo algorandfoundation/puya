@@ -251,7 +251,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let values%12#0: Encoded(uint64,uint64) = aggregate%extract%14#1
         let aggregate%extract%16#1: bytes = (extract3 values%12#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = aggregate%extract%16#1
-        let reinterpret_biguint%0#0: biguint = tuple_item%0#0
+        let values%14#0: Encoded(uint64) = tuple_item%0#0
+        let reinterpret_biguint%0#0: biguint = values%14#0
         let tmp%17#0: uint64 = (+ i#0 2u)
         let tmp%18#0: biguint = (itob tmp%17#0)
         let tmp%19#0: bool = (b== reinterpret_biguint%0#0 tmp%18#0)
@@ -262,10 +263,11 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let array_item%2#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = aggregate%encoded_element%2#1
         let aggregate%extract%19#1: bytes = (extract3 array_item%2#0 16u 128u)
         let aggregate%extract%23#1: bytes = (extract3 aggregate%extract%19#1 48u 16u)
-        let values%19#0: Encoded(uint64,uint64) = aggregate%extract%23#1
-        let aggregate%extract%25#1: bytes = (extract3 values%19#0 8u 8u)
+        let values%20#0: Encoded(uint64,uint64) = aggregate%extract%23#1
+        let aggregate%extract%25#1: bytes = (extract3 values%20#0 8u 8u)
         let tuple_item%1#0: Encoded(uint64) = aggregate%extract%25#1
-        let reinterpret_biguint%1#0: biguint = tuple_item%1#0
+        let values%22#0: Encoded(uint64) = tuple_item%1#0
+        let reinterpret_biguint%1#0: biguint = values%22#0
         let tmp%20#0: uint64 = (+ i#0 1u)
         let tmp%21#0: uint64 = (+ i#0 1u)
         let tmp%22#0: uint64 = (* tmp%20#0 tmp%21#0)
@@ -308,7 +310,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tupl
         let aggregate%bytes_offset%0#1: uint64 = (* tmp%1#0 16u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%2#0 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#1
-        let last#0: Encoded(uint64,uint64) = array_item%0#0
+        let values%0#0: Encoded(uint64,uint64) = array_item%0#0
+        let last#0: Encoded(uint64,uint64) = values%0#0
         let tmp%2#0: bool = (== last#0 some_more.1#0)
         (assert tmp%2#0)
         let slot_contents%3#0: Encoded((uint64,uint64)[]) = load(arr#0)
@@ -324,7 +327,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tupl
         let aggregate%bytes_offset%1#1: uint64 = (* tmp%3#0 16u)
         let aggregate%encoded_element%1#1: bytes = (extract3 aggregate%array_trimmed%0#1 aggregate%bytes_offset%1#1 16u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint64,uint64) = aggregate%encoded_element%1#1
-        let tmp%4#0: bool = (== array_item%1#0 last#0)
+        let values%1#0: Encoded(uint64,uint64) = array_item%1#0
+        let tmp%4#0: bool = (== values%1#0 last#0)
         (assert tmp%4#0)
         return result#0
 
@@ -480,7 +484,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let aggregate%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 8u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%4#0 aggregate%bytes_offset%0#1 8u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64) = aggregate%encoded_element%0#1
-        let val#0: Encoded(uint64) = array_item%0#0
+        let values%0#0: Encoded(uint64) = array_item%0#0
+        let val#0: Encoded(uint64) = values%0#0
         let reinterpret_biguint%0#0: biguint = val#0
         let tmp%5#0: bool = (b!= reinterpret_biguint%0#0 0b)
         let count#9: uint64 = count#0
@@ -537,7 +542,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: E
         let aggregate%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 8u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%2#0 aggregate%bytes_offset%0#1 8u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64) = aggregate%encoded_element%0#1
-        let item#0: Encoded(uint64) = array_item%0#0
+        let values%0#0: Encoded(uint64) = array_item%0#0
+        let item#0: Encoded(uint64) = values%0#0
         let tmp%0#0: uint64 = (btoi item#0)
         let tmp%1#0: uint64 = (+ total#0 tmp%0#0)
         let total#0: uint64 = tmp%1#0
@@ -698,7 +704,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let aggregate%bytes_offset%0#1: uint64 = (* 0u 1u)
         let aggregate%encoded_element%0#1: bytes = (extract3 slot_contents%6#0 aggregate%bytes_offset%0#1 1u) // on error: index access is out of bounds
         let array_item%3#0: Encoded(bool8) = aggregate%encoded_element%0#1
-        let aggregate%get_bit%5#1: bool = (getbit array_item%3#0 0u)
+        let values%3#0: Encoded(bool8) = array_item%3#0
+        let aggregate%get_bit%5#1: bool = (getbit values%3#0 0u)
         let tmp%25#0: bool = aggregate%get_bit%5#1
         let tmp%26#0: account = (txn Sender)
         let tmp%27#0: account = (txn Receiver)
@@ -709,7 +716,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let aggregate%bytes_offset%1#1: uint64 = (* 1u 1u)
         let aggregate%encoded_element%1#1: bytes = (extract3 slot_contents%7#0 aggregate%bytes_offset%1#1 1u) // on error: index access is out of bounds
         let array_item%4#0: Encoded(bool8) = aggregate%encoded_element%1#1
-        let aggregate%get_bit%6#1: bool = (getbit array_item%4#0 0u)
+        let values%4#0: Encoded(bool8) = array_item%4#0
+        let aggregate%get_bit%6#1: bool = (getbit values%4#0 0u)
         let tmp%30#0: bool = aggregate%get_bit%6#1
         let tmp%31#0: account = (txn Sender)
         let tmp%32#0: account = (txn Receiver)
@@ -720,7 +728,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let aggregate%bytes_offset%2#1: uint64 = (* 2u 1u)
         let aggregate%encoded_element%2#1: bytes = (extract3 slot_contents%8#0 aggregate%bytes_offset%2#1 1u) // on error: index access is out of bounds
         let array_item%5#0: Encoded(bool8) = aggregate%encoded_element%2#1
-        let aggregate%get_bit%7#1: bool = (getbit array_item%5#0 0u)
+        let values%5#0: Encoded(bool8) = array_item%5#0
+        let aggregate%get_bit%7#1: bool = (getbit values%5#0 0u)
         let tmp%35#0: bool = aggregate%get_bit%7#1
         let tmp%36#0: account = (txn Sender)
         let tmp%37#0: account = (txn Receiver)
@@ -731,7 +740,8 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         let aggregate%bytes_offset%3#1: uint64 = (* 3u 1u)
         let aggregate%encoded_element%3#1: bytes = (extract3 slot_contents%9#0 aggregate%bytes_offset%3#1 1u) // on error: index access is out of bounds
         let array_item%6#0: Encoded(bool8) = aggregate%encoded_element%3#1
-        let aggregate%get_bit%8#1: bool = (getbit array_item%6#0 0u)
+        let values%6#0: Encoded(bool8) = array_item%6#0
+        let aggregate%get_bit%8#1: bool = (getbit values%6#0 0u)
         let tmp%40#0: bool = aggregate%get_bit%8#1
         let tmp%41#0: account = (txn Sender)
         let tmp%42#0: account = (txn Receiver)

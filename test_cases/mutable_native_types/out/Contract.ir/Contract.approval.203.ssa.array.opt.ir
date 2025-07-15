@@ -197,11 +197,11 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
     block@2: // for_body_L222
         let aggregate%array_trimmed%0#1: bytes = ((extract 2 0) arr#0)
         let aggregate%bytes_offset%0#1: uint64 = (* item_index_internal%0#1 16u)
-        let aggregate%encoded_element%0#1: bytes = (extract3 aggregate%array_trimmed%0#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
-        let values%0#0: uint64 = (extract_uint64 aggregate%encoded_element%0#1 0u)
-        let total#2: uint64 = (+ total#1 values%0#0)
-        let values%1#0: uint64 = (extract_uint64 aggregate%encoded_element%0#1 8u)
-        let total#3: uint64 = (+ total#2 values%1#0)
+        let element#0: Encoded(uint64,uint64) = (extract3 aggregate%array_trimmed%0#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let values%1#0: uint64 = (extract_uint64 element#0 0u)
+        let total#2: uint64 = (+ total#1 values%1#0)
+        let values%2#0: uint64 = (extract_uint64 element#0 8u)
+        let total#3: uint64 = (+ total#2 values%2#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L221
@@ -238,8 +238,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         (assert maybe_exists%1#0) // check self.payments exists
         let aggregate%bytes_offset%0#1: uint64 = (* index#0 48u)
         let aggregate%encoded_element%0#1: bytes = (extract3 maybe_value%1#0 aggregate%bytes_offset%0#1 48u) // on error: index access is out of bounds
-        let values%0#0: uint64 = (extract_uint64 aggregate%encoded_element%0#1 40u)
-        let tmp%1#0: uint64 = (+ values%0#0 amt#0)
+        let values%1#0: uint64 = (extract_uint64 aggregate%encoded_element%0#1 40u)
+        let tmp%1#0: uint64 = (+ values%1#0 amt#0)
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
         let aggregate%updated_data%0#1: bytes = ((replace2 40) aggregate%encoded_element%0#1 aggregate%val_as_bytes%0#1)
         let aggregate%updated_array%0#1: bytes = (replace3 maybe_value%1#0 aggregate%bytes_offset%0#1 aggregate%updated_data%0#1)
@@ -308,8 +308,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
         let aggregate%updated_data%2#1: bytes = ((replace2 0) maybe_value%2#0 a#0)
         (app_local_put tmp%0#0 0x6c aggregate%updated_data%2#1)
         (box_replace "box" 0u a#0)
-        let encoded_value%0#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
+        let encoded_value%4#0: bytes[8] = (itob box_key#0)
+        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%4#0)
         (box_replace box_prefixed_key%0#0 0u a#0)
         return 
 
@@ -405,11 +405,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let tmp%5#1: uint64 = (len result#0)
         let item_location#0: uint64 = (- tmp%5#1 16u)
         let result#1: bytes = (substring3 result#0 0u item_location#0)
-        let tmp%14#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#3)
-        let tmp%15#0: bool = (== tmp%14#0 15u)
-        (assert tmp%15#0) // expected sum to be 15
-        let tmp%16#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(result#1)
-        let tmp%17#0: bool = (== tmp%16#0 10u)
-        (assert tmp%17#0) // expected sum to be 10
+        let tmp%15#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#3)
+        let tmp%16#0: bool = (== tmp%15#0 15u)
+        (assert tmp%16#0) // expected sum to be 15
+        let tmp%17#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(result#1)
+        let tmp%18#0: bool = (== tmp%17#0 10u)
+        (assert tmp%18#0) // expected sum to be 10
         (app_global_put "arr" result#1)
         return result#1

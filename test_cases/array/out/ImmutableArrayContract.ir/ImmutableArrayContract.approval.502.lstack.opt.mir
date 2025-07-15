@@ -1005,9 +1005,8 @@ subroutine sum_imm_fixed:
         bz sum_imm_fixed_after_for@4 ; b sum_imm_fixed_for_body@2                                 (𝕡) arr#0 |
 
     sum_imm_fixed_for_body@2:                                                                     (𝕡) arr#0 |
-        // array/immutable.py:482-483
+        // array/immutable.py:482
         // for item in arr:
-        //     total += item.foo
         v-load item_index_internal%0#0                                                            (𝕡) arr#0 | item_index_internal%0#0
         l-store-copy item_index_internal%0#0 0                                                    (𝕡) arr#0 | item_index_internal%0#0,item_index_internal%0#0 (copy)
         int 16                                                                                    (𝕡) arr#0 | item_index_internal%0#0,item_index_internal%0#0 (copy),16
@@ -1015,27 +1014,22 @@ subroutine sum_imm_fixed:
         p-load arr#0                                                                              (𝕡) arr#0 | item_index_internal%0#0,aggregate%bytes_offset%0#1,arr#0 (copy)
         l-load aggregate%bytes_offset%0#1 1                                                       (𝕡) arr#0 | item_index_internal%0#0,arr#0 (copy),aggregate%bytes_offset%0#1
         int 16                                                                                    (𝕡) arr#0 | item_index_internal%0#0,arr#0 (copy),aggregate%bytes_offset%0#1,16
-        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1
+        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | item_index_internal%0#0,item#0
         // array/immutable.py:483
         // total += item.foo
-        l-load-copy aggregate%encoded_element%0#1 0                                               (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,aggregate%encoded_element%0#1 (copy)
-        // array/immutable.py:482-483
-        // for item in arr:
-        //     total += item.foo
-        int 0                                                                                     (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,aggregate%encoded_element%0#1 (copy),0
-        // array/immutable.py:483
-        // total += item.foo
-        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,values%0#0
-        v-load total#0                                                                            (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,values%0#0,total#0
-        l-load values%0#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,total#0,values%0#0
-        +                                                                                         (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%0#1,total#0
+        l-load-copy item#0 0                                                                      (𝕡) arr#0 | item_index_internal%0#0,item#0,item#0 (copy)
+        int 0                                                                                     (𝕡) arr#0 | item_index_internal%0#0,item#0,item#0 (copy),0
+        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,item#0,values%1#0
+        v-load total#0                                                                            (𝕡) arr#0 | item_index_internal%0#0,item#0,values%1#0,total#0
+        l-load values%1#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,item#0,total#0,values%1#0
+        +                                                                                         (𝕡) arr#0 | item_index_internal%0#0,item#0,total#0
         // array/immutable.py:484
         // total += item.bar
-        l-load aggregate%encoded_element%0#1 1                                                    (𝕡) arr#0 | item_index_internal%0#0,total#0,aggregate%encoded_element%0#1
-        int 8                                                                                     (𝕡) arr#0 | item_index_internal%0#0,total#0,aggregate%encoded_element%0#1,8
-        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,total#0,values%1#0
-        l-load total#0 1                                                                          (𝕡) arr#0 | item_index_internal%0#0,values%1#0,total#0
-        l-load values%1#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,total#0,values%1#0
+        l-load item#0 1                                                                           (𝕡) arr#0 | item_index_internal%0#0,total#0,item#0
+        int 8                                                                                     (𝕡) arr#0 | item_index_internal%0#0,total#0,item#0,8
+        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,total#0,values%2#0
+        l-load total#0 1                                                                          (𝕡) arr#0 | item_index_internal%0#0,values%2#0,total#0
+        l-load values%2#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,total#0,values%2#0
         +                                                                                         (𝕡) arr#0 | item_index_internal%0#0,total#0
         v-store total#0                                                                           (𝕡) arr#0 | item_index_internal%0#0
         l-load item_index_internal%0#0 0                                                          (𝕡) arr#0 | item_index_internal%0#0
@@ -1832,10 +1826,10 @@ subroutine test_bool_array:
         extract_uint16                                                                            (𝕡) length#0 | array_length%2#0
         p-load length#0                                                                           (𝕡) length#0 | array_length%2#0,length#0 (copy)
         int 1                                                                                     (𝕡) length#0 | array_length%2#0,length#0 (copy),1
-        -                                                                                         (𝕡) length#0 | array_length%2#0,tmp%16#0
-        l-load array_length%2#0 1                                                                 (𝕡) length#0 | tmp%16#0,array_length%2#0
-        l-load tmp%16#0 1                                                                         (𝕡) length#0 | array_length%2#0,tmp%16#0
-        ==                                                                                        (𝕡) length#0 | tmp%17#0
+        -                                                                                         (𝕡) length#0 | array_length%2#0,tmp%17#0
+        l-load array_length%2#0 1                                                                 (𝕡) length#0 | tmp%17#0,array_length%2#0
+        l-load tmp%17#0 1                                                                         (𝕡) length#0 | array_length%2#0,tmp%17#0
+        ==                                                                                        (𝕡) length#0 | tmp%18#0
         assert                                                                                    (𝕡) length#0 |
         b test_bool_array_after_if_else@14                                                        (𝕡) length#0 |
 

@@ -42,16 +42,17 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
         let aggregate%bytes_offset%0#1: uint64 = (* item_index_internal%0#0 16u)
         let aggregate%encoded_element%0#1: bytes = (extract3 aggregate%array_trimmed%0#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#1
-        let element#0: Encoded(uint64,uint64) = array_item%0#0
+        let values%0#0: Encoded(uint64,uint64) = array_item%0#0
+        let element#0: Encoded(uint64,uint64) = values%0#0
         let aggregate%extract%0#1: bytes = (extract3 element#0 0u 8u)
         let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#1
-        let values%0#0: uint64 = (btoi tuple_item%0#0)
-        let tmp%0#0: uint64 = (+ total#0 values%0#0)
+        let values%1#0: uint64 = (btoi tuple_item%0#0)
+        let tmp%0#0: uint64 = (+ total#0 values%1#0)
         let total#0: uint64 = tmp%0#0
         let aggregate%extract%1#1: bytes = (extract3 element#0 8u 8u)
         let tuple_item%1#0: Encoded(uint64) = aggregate%extract%1#1
-        let values%1#0: uint64 = (btoi tuple_item%1#0)
-        let tmp%1#0: uint64 = (+ total#0 values%1#0)
+        let values%2#0: uint64 = (btoi tuple_item%1#0)
+        let tmp%1#0: uint64 = (+ total#0 values%2#0)
         let total#0: uint64 = tmp%1#0
         goto block@3
     block@3: // for_footer_L221
@@ -308,8 +309,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment(pay: En
         (assert maybe_exists%1#0) // check self.payments exists
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "num_payments")
         (assert maybe_exists%2#0) // check self.num_payments exists
+        let encoded_value%0#0: Encoded(uint8[32],uint64,uint64) = pay#0
         let aggregate%write_offset%0#1: uint64 = (* maybe_value%2#0 48u)
-        let aggregate%updated_array%0#1: bytes = (replace3 maybe_value%1#0 aggregate%write_offset%0#1 pay#0)
+        let aggregate%updated_array%0#1: bytes = (replace3 maybe_value%1#0 aggregate%write_offset%0#1 encoded_value%0#0)
         let updated_array%0#0: Encoded((uint8[32],uint64,uint64)[8]) = aggregate%updated_array%0#1
         (app_global_put "payments" updated_array%0#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "num_payments")
@@ -329,10 +331,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         let aggregate%bytes_offset%0#1: uint64 = (* index#0 48u)
         let aggregate%encoded_element%0#1: bytes = (extract3 maybe_value%1#0 aggregate%bytes_offset%0#1 48u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint8[32],uint64,uint64) = aggregate%encoded_element%0#1
-        let aggregate%extract%0#1: bytes = (extract3 array_item%0#0 40u 8u)
+        let values%0#0: Encoded(uint8[32],uint64,uint64) = array_item%0#0
+        let aggregate%extract%0#1: bytes = (extract3 values%0#0 40u 8u)
         let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#1
-        let values%0#0: uint64 = (btoi tuple_item%0#0)
-        let tmp%1#0: uint64 = (+ values%0#0 amt#0)
+        let values%1#0: uint64 = (btoi tuple_item%0#0)
+        let tmp%1#0: uint64 = (+ values%1#0 amt#0)
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%1#0)
         let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
         let encoded_value%0#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#1
@@ -360,12 +363,14 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage(box_
         (assert maybe_exists%2#0) // check self.nested exists
         let aggregate%extract%0#1: bytes = (extract3 maybe_value%2#0 0u 16u)
         let tuple_item%0#0: Encoded(uint64,uint64) = aggregate%extract%0#1
+        let values%0#0: Encoded(uint64,uint64) = tuple_item%0#0
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get box_prefixed_key%0#0)
         (assert aggregate%box_get%1#1) // check self.box_map entry exists
         let storage_value%0#0: bytes = aggregate%box_get%0#1
-        let aggregate%updated_data%0#1: bytes = (replace3 storage_value%0#0 0u tuple_item%0#0)
+        let encoded_value%1#0: Encoded(uint64,uint64) = values%0#0
+        let aggregate%updated_data%0#1: bytes = (replace3 storage_value%0#0 0u encoded_value%1#0)
         let updated_tuple%0#0: Encoded((uint64,uint64),uint8[2048]) = aggregate%updated_data%0#1
         (box_put box_prefixed_key%0#0 updated_tuple%0#0)
         return 
@@ -422,32 +427,37 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
     block@0: // L160
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%0#0) // check self.nested exists
-        let aggregate%updated_data%0#1: bytes = (replace3 maybe_value%0#0 0u a#0)
+        let encoded_value%0#0: Encoded(uint64,uint64) = a#0
+        let aggregate%updated_data%0#1: bytes = (replace3 maybe_value%0#0 0u encoded_value%0#0)
         let updated_tuple%0#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = aggregate%updated_data%0#1
         (app_global_put "nested" updated_tuple%0#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u 0x70)
         (assert maybe_exists%1#0) // check self.nested_proxy exists
-        let aggregate%updated_data%1#1: bytes = (replace3 maybe_value%1#0 0u a#0)
+        let encoded_value%1#0: Encoded(uint64,uint64) = a#0
+        let aggregate%updated_data%1#1: bytes = (replace3 maybe_value%1#0 0u encoded_value%1#0)
         let updated_tuple%1#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = aggregate%updated_data%1#1
         (app_global_put 0x70 updated_tuple%1#0)
         let tmp%0#0: account = (txn Sender)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (app_local_get_ex tmp%0#0 0u 0x6c)
         (assert maybe_exists%2#0) // check self.nested_local exists for account
-        let aggregate%updated_data%2#1: bytes = (replace3 maybe_value%2#0 0u a#0)
+        let encoded_value%2#0: Encoded(uint64,uint64) = a#0
+        let aggregate%updated_data%2#1: bytes = (replace3 maybe_value%2#0 0u encoded_value%2#0)
         let updated_tuple%2#0: Encoded((uint64,uint64),(uint64,uint64),(uint64,uint64)) = aggregate%updated_data%2#1
         (app_local_put tmp%0#0 0x6c updated_tuple%2#0)
         let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get "box")
         (assert aggregate%box_get%1#1) // check self.box exists
         let storage_value%0#0: bytes = aggregate%box_get%0#1
-        let aggregate%updated_data%3#1: bytes = (replace3 storage_value%0#0 0u a#0)
+        let encoded_value%3#0: Encoded(uint64,uint64) = a#0
+        let aggregate%updated_data%3#1: bytes = (replace3 storage_value%0#0 0u encoded_value%3#0)
         let updated_tuple%3#0: Encoded((uint64,uint64),uint8[2048]) = aggregate%updated_data%3#1
         (box_put "box" updated_tuple%3#0)
-        let encoded_value%0#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
+        let encoded_value%4#0: bytes[8] = (itob box_key#0)
+        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%4#0)
         let (aggregate%box_get%2#1: bytes, aggregate%box_get%3#1: bool) = (box_get box_prefixed_key%0#0)
         (assert aggregate%box_get%3#1) // check self.box_map entry exists
         let storage_value%1#0: bytes = aggregate%box_get%2#1
-        let aggregate%updated_data%4#1: bytes = (replace3 storage_value%1#0 0u a#0)
+        let encoded_value%5#0: Encoded(uint64,uint64) = a#0
+        let aggregate%updated_data%4#1: bytes = (replace3 storage_value%1#0 0u encoded_value%5#0)
         let updated_tuple%4#0: Encoded((uint64,uint64),uint8[2048]) = aggregate%updated_data%4#1
         (box_put box_prefixed_key%0#0 updated_tuple%4#0)
         return 
@@ -458,7 +468,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_return() -> 
         (assert maybe_exists%0#0) // check self.nested exists
         let aggregate%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 16u)
         let tuple_item%0#0: Encoded(uint64,uint64) = aggregate%extract%0#1
-        return tuple_item%0#0
+        let values%0#0: Encoded(uint64,uint64) = tuple_item%0#0
+        return values%0#0
 
 subroutine test_cases.mutable_native_types.contract.Contract.tup_return() -> <uint64, uint64>:
     block@0: // L174
@@ -480,12 +491,14 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
         (assert maybe_exists%0#0) // check self.nested exists
         let aggregate%extract%0#1: bytes = (extract3 maybe_value%0#0 0u 16u)
         let tuple_item%0#0: Encoded(uint64,uint64) = aggregate%extract%0#1
-        let fixed_a#0: Encoded(uint64,uint64) = tuple_item%0#0
+        let values%0#0: Encoded(uint64,uint64) = tuple_item%0#0
+        let fixed_a#0: Encoded(uint64,uint64) = values%0#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "nested")
         (assert maybe_exists%1#0) // check self.nested exists
         let aggregate%extract%1#1: bytes = (extract3 maybe_value%1#0 16u 16u)
         let tuple_item%1#0: Encoded(uint64,uint64) = aggregate%extract%1#1
-        let fixed_b#0: Encoded(uint64,uint64) = tuple_item%1#0
+        let values%1#0: Encoded(uint64,uint64) = tuple_item%1#0
+        let fixed_b#0: Encoded(uint64,uint64) = values%1#0
         let tmp%0#0: uint64 = test_cases.mutable_native_types.contract.add(fixed_a#0)
         let tmp%1#0: uint64 = test_cases.mutable_native_types.contract.add(fixed_b#0)
         let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
@@ -502,10 +515,10 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum() -> 
         let aggregate%item0%0#1: uint64 = (btoi aggregate%extract%3#1)
         let aggregate%extract%4#1: bytes = (extract3 tuple_item%2#0 8u 8u)
         let aggregate%item1%0#1: uint64 = (btoi aggregate%extract%4#1)
-        let values%0#0: uint64 = aggregate%item0%0#1
-        let values%1#0: uint64 = aggregate%item1%0#1
-        let c#0: uint64 = values%0#0
-        let d#0: uint64 = values%1#0
+        let values%2#0: uint64 = aggregate%item0%0#1
+        let values%3#0: uint64 = aggregate%item1%0#1
+        let c#0: uint64 = values%2#0
+        let d#0: uint64 = values%3#0
         let tmp%4#0: uint64 = (+ result#0 c#0)
         let result#0: uint64 = tmp%4#0
         let tmp%5#0: uint64 = (+ result#0 d#0)
@@ -585,17 +598,17 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let (tmp%12#0: bytes, tmp%13#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr2#0, 16u)
         let arr2#0: Encoded(len+(uint64,uint64)[]) = tmp%13#0
         let frozen2#0: Encoded(len+(uint64,uint64)[]) = arr2#0
-        let tmp%14#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(frozen1#0)
-        let tmp%15#0: bool = (== tmp%14#0 15u)
-        (assert tmp%15#0) // expected sum to be 15
-        let tmp%16#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2#0)
-        let tmp%17#0: bool = (== tmp%16#0 10u)
-        (assert tmp%17#0) // expected sum to be 10
+        let tmp%15#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(frozen1#0)
+        let tmp%16#0: bool = (== tmp%15#0 15u)
+        (assert tmp%16#0) // expected sum to be 15
+        let tmp%17#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2#0)
+        let tmp%18#0: bool = (== tmp%17#0 10u)
+        (assert tmp%18#0) // expected sum to be 10
         (app_global_put "arr" arr2#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "arr")
         (assert maybe_exists%0#0) // check self.arr exists
-        let tmp%18#0: bool = (== maybe_value%0#0 arr2#0)
-        (assert tmp%18#0) // expected array in storage to be the same
+        let tmp%19#0: bool = (== maybe_value%0#0 arr2#0)
+        (assert tmp%19#0) // expected array in storage to be the same
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "arr")
         (assert maybe_exists%1#0) // check self.arr exists
         return maybe_value%1#0

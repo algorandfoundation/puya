@@ -56,20 +56,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = φ(examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0 <- block@3, examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#1 <- block@4, examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#2 <- block@5, examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#3 <- block@9, examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#4 <- block@12)
         return tmp%0#0
 
-subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: Encoded((len+utf8[]),uint64,uint64)) -> Encoded((len+utf8[]),uint64,uint64):
-    block@0: // L17
-        let box_key#0: bytes = ((extract 2 8) user#0)
-        (box_del box_key#0)
-        (box_put box_key#0 user#0)
-        return user#0
-
 subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[]),uint64,uint64)) -> void:
     block@0: // L30
         let user_id#0: Encoded(uint64) = ((extract 2 8) user#0)
         let (_data#0: uint64, exists#0: bool) = (box_len user_id#0)
         let tmp%1#0: bool = (! exists#0)
         (assert tmp%1#0) // User with id must not exist
-        let user#1: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
+        (box_del user_id#0)
+        (box_put user_id#0 user#0)
         return 
 
 subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(user_id: Encoded(uint64), asset: uint64) -> void:
@@ -78,7 +72,9 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(
         (assert exists#0) // User with that id does not exist
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob asset#0)
         let user#1: Encoded((len+utf8[]),uint64,uint64) = ((replace2 10) box_data#0 aggregate%val_as_bytes%0#1)
-        let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
+        let box_key#0: bytes = ((extract 2 8) user#1)
+        (box_del box_key#0)
+        (box_put box_key#0 user#1)
         return 
 
 subroutine examples.struct_in_box.contract.ExampleContract.get_user(user_id: Encoded(uint64)) -> Encoded((len+utf8[]),uint64,uint64):

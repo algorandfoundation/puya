@@ -255,6 +255,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
+        let encoded_value%0#0: Encoded(len+utf8[]) = encoded%0#0
         let aggregate%array_head_and_tail%0#1: bytes = ((extract 2 0) maybe_value%0#0)
         let aggregate%array_length%0#1: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let aggregate%item_offset_offset%0#1: uint64 = (* 0u 2u)
@@ -268,7 +269,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let aggregate%substring3%0#1: bytes = (substring3 aggregate%array_head_and_tail%0#1 aggregate%item_offset%0#1 aggregate%end_offset%0#1)
         let aggregate%item_offset%1#1: uint64 = (extract_uint16 aggregate%substring3%0#1 8u)
         let aggregate%data_up_to_item%0#1: bytes = (extract3 aggregate%substring3%0#1 0u aggregate%item_offset%1#1)
-        let aggregate%updated_data%0#1: bytes = (concat aggregate%data_up_to_item%0#1 encoded%0#0)
+        let aggregate%updated_data%0#1: bytes = (concat aggregate%data_up_to_item%0#1 encoded_value%0#0)
         let aggregate%array_length%1#1: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let aggregate%lt%0#1: bool = (< 0u aggregate%array_length%1#1)
         (assert aggregate%lt%0#1) // index access is out of bounds
@@ -284,6 +285,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let tmp%0#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
+        let encoded_value%1#0: Encoded(len+utf8[]) = encoded%1#0
         let aggregate%array_head_and_tail%1#1: bytes = ((extract 2 0) maybe_value%1#0)
         let aggregate%array_length%2#1: uint64 = (extract_uint16 maybe_value%1#0 0u)
         let aggregate%item_offset_offset%1#1: uint64 = (* 0u 2u)
@@ -297,7 +299,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let aggregate%substring3%2#1: bytes = (substring3 aggregate%array_head_and_tail%1#1 aggregate%item_offset%2#1 aggregate%end_offset%1#1)
         let aggregate%item_offset%3#1: uint64 = (extract_uint16 aggregate%substring3%2#1 8u)
         let aggregate%data_up_to_item%1#1: bytes = (extract3 aggregate%substring3%2#1 0u aggregate%item_offset%3#1)
-        let aggregate%updated_data%1#1: bytes = (concat aggregate%data_up_to_item%1#1 encoded%1#0)
+        let aggregate%updated_data%1#1: bytes = (concat aggregate%data_up_to_item%1#1 encoded_value%1#0)
         let aggregate%array_length%3#1: uint64 = (extract_uint16 maybe_value%1#0 0u)
         let aggregate%lt%1#1: bool = (< 0u aggregate%array_length%3#1)
         (assert aggregate%lt%1#1) // index access is out of bounds
@@ -313,6 +315,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get "box")
         (assert aggregate%box_get%1#1) // check self.box exists
         let storage_value%0#0: bytes = aggregate%box_get%0#1
+        let encoded_value%2#0: Encoded(len+utf8[]) = encoded%2#0
         let aggregate%array_head_and_tail%2#1: bytes = ((extract 2 0) storage_value%0#0)
         let aggregate%array_length%4#1: uint64 = (extract_uint16 storage_value%0#0 0u)
         let aggregate%item_offset_offset%2#1: uint64 = (* 0u 2u)
@@ -326,7 +329,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let aggregate%substring3%4#1: bytes = (substring3 aggregate%array_head_and_tail%2#1 aggregate%item_offset%4#1 aggregate%end_offset%2#1)
         let aggregate%item_offset%5#1: uint64 = (extract_uint16 aggregate%substring3%4#1 8u)
         let aggregate%data_up_to_item%2#1: bytes = (extract3 aggregate%substring3%4#1 0u aggregate%item_offset%5#1)
-        let aggregate%updated_data%2#1: bytes = (concat aggregate%data_up_to_item%2#1 encoded%2#0)
+        let aggregate%updated_data%2#1: bytes = (concat aggregate%data_up_to_item%2#1 encoded_value%2#0)
         let aggregate%array_length%5#1: uint64 = (extract_uint16 storage_value%0#0 0u)
         let aggregate%lt%2#1: bool = (< 0u aggregate%array_length%5#1)
         (assert aggregate%lt%2#1) // index access is out of bounds
@@ -345,6 +348,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let (aggregate%box_get%2#1: bytes, aggregate%box_get%3#1: bool) = (box_get box_prefixed_key%0#0)
         (assert aggregate%box_get%3#1) // check self.map entry exists
         let storage_value%1#0: bytes = aggregate%box_get%2#1
+        let encoded_value%3#0: Encoded(len+utf8[]) = encoded%3#0
         let aggregate%array_head_and_tail%3#1: bytes = ((extract 2 0) storage_value%1#0)
         let aggregate%array_length%6#1: uint64 = (extract_uint16 storage_value%1#0 0u)
         let aggregate%item_offset_offset%3#1: uint64 = (* 0u 2u)
@@ -358,7 +362,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let aggregate%substring3%6#1: bytes = (substring3 aggregate%array_head_and_tail%3#1 aggregate%item_offset%6#1 aggregate%end_offset%3#1)
         let aggregate%item_offset%7#1: uint64 = (extract_uint16 aggregate%substring3%6#1 8u)
         let aggregate%data_up_to_item%3#1: bytes = (extract3 aggregate%substring3%6#1 0u aggregate%item_offset%7#1)
-        let aggregate%updated_data%3#1: bytes = (concat aggregate%data_up_to_item%3#1 encoded%3#0)
+        let aggregate%updated_data%3#1: bytes = (concat aggregate%data_up_to_item%3#1 encoded_value%3#0)
         let aggregate%array_length%7#1: uint64 = (extract_uint16 storage_value%1#0 0u)
         let aggregate%lt%3#1: bool = (< 0u aggregate%array_length%7#1)
         (assert aggregate%lt%3#1) // index access is out of bounds

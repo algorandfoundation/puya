@@ -2128,7 +2128,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
-debug: Found equivalence set: array_item%0#0, element#0
+debug: Found equivalence set: values%0#0, element#0
 debug: selected element#0 from equivalence set
 debug: Found equivalence set: tmp%0#0, total#2
 debug: selected total#2 from equivalence set
@@ -2149,8 +2149,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/contract.py:222:18 debug: replacing extract_value(element#0, 0) with extract_value(arr#0, item_index_internal%0#1, 0)
-mutable_native_types/contract.py:223:18 debug: replacing extract_value(element#0, 1) with extract_value(arr#0, item_index_internal%0#1, 1)
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -2340,7 +2338,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/contract.py:132:9 debug: replacing extract_value(array_item%0#0, 2) with extract_value(maybe_value%1#0, index#0, 2)
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -2360,12 +2357,13 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
+debug: replacing redundant encode-of-decode with: tuple_item%0#0
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/contract.py:139:9 debug: combined BoxRead `storage_value%0#0 = box_read(box_prefixed_key%0#0)`
-and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%0#0, 0, tuple_item%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%0#0, 0, encoded_value%1#0)`
 and BoxWrite `box_write(box_prefixed_key%0#0, updated_tuple%0#0)`
-into (box_replace box_prefixed_key%0#0 box%offset%0#1 tuple_item%0#0)
+into (box_replace box_prefixed_key%0#0 box%offset%0#1 encoded_value%1#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/contract.py:139:41 debug: replacing app_global read with cached value for key: "nested"
@@ -2435,17 +2433,24 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let encoded_value%1#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(a#0) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:162:8-31, ir_type=Encoded(uint64,uint64), name='encoded_value%0', version=0),)
+debug: Replacing redundant declaration let encoded_value%2#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(a#0) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:162:8-31, ir_type=Encoded(uint64,uint64), name='encoded_value%0', version=0),)
+debug: Replacing redundant declaration let encoded_value%3#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(a#0) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:162:8-31, ir_type=Encoded(uint64,uint64), name='encoded_value%0', version=0),)
+debug: Replacing redundant declaration let encoded_value%5#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(a#0) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:162:8-31, ir_type=Encoded(uint64,uint64), name='encoded_value%0', version=0),)
+debug: Found equivalence set: encoded_value%0#0, encoded_value%1#0, encoded_value%2#0, encoded_value%3#0, encoded_value%5#0
+debug: selected encoded_value%0#0 from equivalence set
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/contract.py:165:9 debug: combined BoxRead `storage_value%0#0 = box_read("box")`
-and ReplaceValue `updated_tuple%3#0 = replace_value(storage_value%0#0, 0, a#0)`
+and ReplaceValue `updated_tuple%3#0 = replace_value(storage_value%0#0, 0, encoded_value%0#0)`
 and BoxWrite `box_write("box", updated_tuple%3#0)`
-into (box_replace "box" box%offset%0#1 a#0)
+into (box_replace "box" box%offset%0#1 encoded_value%0#0)
 mutable_native_types/contract.py:166:9 debug: combined BoxRead `storage_value%1#0 = box_read(box_prefixed_key%0#0)`
-and ReplaceValue `updated_tuple%4#0 = replace_value(storage_value%1#0, 0, a#0)`
+and ReplaceValue `updated_tuple%4#0 = replace_value(storage_value%1#0, 0, encoded_value%0#0)`
 and BoxWrite `box_write(box_prefixed_key%0#0, updated_tuple%4#0)`
-into (box_replace box_prefixed_key%0#0 box%offset%1#1 a#0)
+into (box_replace box_prefixed_key%0#0 box%offset%1#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.contract.Contract.struct_return
@@ -2493,15 +2498,15 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tuple_item%0#0, fixed_a#0
+debug: Found equivalence set: values%0#0, fixed_a#0
 debug: selected fixed_a#0 from equivalence set
-debug: Found equivalence set: tuple_item%1#0, fixed_b#0
+debug: Found equivalence set: values%1#0, fixed_b#0
 debug: selected fixed_b#0 from equivalence set
 debug: Found equivalence set: tmp%2#0, result#0
 debug: selected result#0 from equivalence set
-debug: Found equivalence set: values%0#0, c#0
+debug: Found equivalence set: values%2#0, c#0
 debug: selected c#0 from equivalence set
-debug: Found equivalence set: values%1#0, d#0
+debug: Found equivalence set: values%3#0, d#0
 debug: selected d#0 from equivalence set
 debug: Found equivalence set: tmp%4#0, result#1
 debug: selected result#1 from equivalence set
@@ -2546,13 +2551,14 @@ debug: Found equivalence set: popped#0, tmp%12#0
 debug: selected popped#0 from equivalence set
 debug: Found equivalence set: result#1, tmp%13#0, arr2#5, frozen2#0
 debug: selected result#1 from equivalence set
-debug: Copy propagation made 15 modifications
+debug: Copy propagation made 16 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_length%1#0
 debug: Removing unused variable fixed_byte_size#0
-debug: Removing unused variable popped#0
+debug: Not removing unused assignment since source is not marked as pure: let tmp%14#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
 debug: Removing unused variable array_length%2#0
+debug: Not removing unused assignment since source is not marked as pure: let tmp%14#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== arr#0 arr#0) to 1u
 debug: Simplified (replace3 concat%0#0 0u as_u16_bytes%0#0) to ((replace2 0) concat%0#0 as_u16_bytes%0#0)
@@ -2807,7 +2813,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable element#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -2947,7 +2952,6 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable array_item%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -2970,11 +2974,16 @@ debug: Found equivalence set: maybe_value%1#0, maybe_value%2#0
 debug: selected maybe_value%1#0 from equivalence set
 debug: Found equivalence set: maybe_exists%1#0, maybe_exists%2#0
 debug: selected maybe_exists%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Found equivalence set: tuple_item%0#0, encoded_value%1#0
+debug: selected tuple_item%0#0 from equivalence set
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%0#0)
 debug: Removing unused variable updated_tuple%0#0
+debug: Not removing unused assignment since source is not marked as pure: let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%0#0)
 debug: Removing unused variable storage_value%0#0
+debug: Not removing unused assignment since source is not marked as pure: let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Optimizer: Inner Txn Field Replacer
@@ -3134,8 +3143,10 @@ debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#0
+debug: Not removing unused assignment since source is not marked as pure: let tmp%14#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
 debug: Removing unused variable maybe_exists%0#0
 debug: Removing unused variable maybe_exists%1#0
+debug: Not removing unused assignment since source is not marked as pure: let tmp%14#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== result#1 result#1) to 1u
 debug: Optimizer: Inner Txn Field Replacer
@@ -3401,7 +3412,9 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%0#0)
 debug: Removing unused variable box%offset%0#1
+debug: Not removing unused assignment since source is not marked as pure: let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -3544,7 +3557,9 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%18#0
+debug: Not removing unused assignment since source is not marked as pure: let tmp%14#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
+debug: Removing unused variable tmp%19#0
+debug: Not removing unused assignment since source is not marked as pure: let tmp%14#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -3807,6 +3822,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(tuple_item%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -3947,6 +3963,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let tmp%14#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -4199,18 +4216,20 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, element#0
+debug: selected element#0 from equivalence set
 debug: Found equivalence set: aggregate%extract%0#1, tuple_item%0#0
 debug: selected aggregate%extract%0#1 from equivalence set
 debug: Found equivalence set: aggregate%extract%1#1, tuple_item%1#0
 debug: selected aggregate%extract%1#1 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 aggregate%encoded_element%0#1 0u)
-debug: Simplified (btoi aggregate%extract%1#1) to (extract_uint64 aggregate%encoded_element%1#1 8u)
-debug: Simplified (extract3 aggregate%encoded_element%0#1 0u 8u) to ((extract 0 8) aggregate%encoded_element%0#1)
-debug: Simplified (extract3 aggregate%encoded_element%1#1 8u 8u) to ((extract 8 8) aggregate%encoded_element%1#1)
+debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 element#0 0u)
+debug: Simplified (btoi aggregate%extract%1#1) to (extract_uint64 element#0 8u)
+debug: Simplified (extract3 element#0 0u 8u) to ((extract 0 8) element#0)
+debug: Simplified (extract3 element#0 8u 8u) to ((extract 8 8) element#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -4218,17 +4237,6 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%array_trimmed%1#1: bytes = ((extract 2 0) arr#0) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:221-222, ir_type=bytes, name='aggregate%array_trimmed%0', version=1),)
-debug: Replacing redundant declaration let aggregate%bytes_offset%1#1: uint64 = (* item_index_internal%0#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:221-222, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
-debug: Found equivalence set: aggregate%array_trimmed%0#1, aggregate%array_trimmed%1#1
-debug: selected aggregate%array_trimmed%0#1 from equivalence set
-debug: Found equivalence set: aggregate%bytes_offset%0#1, aggregate%bytes_offset%1#1
-debug: selected aggregate%bytes_offset%0#1 from equivalence set
-debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let aggregate%encoded_element%1#1: bytes = (extract3 aggregate%array_trimmed%0#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds with copy of existing registers (Register(source_location=mutable_native_types/contract.py:221-222, ir_type=bytes, name='aggregate%encoded_element%0', version=1),)
-debug: Found equivalence set: aggregate%encoded_element%0#1, aggregate%encoded_element%1#1
-debug: selected aggregate%encoded_element%0#1 from equivalence set
-debug: Copy propagation made 2 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -4452,9 +4460,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: pay#0, encoded_value%0#0
+debug: selected pay#0 from equivalence set
 debug: Found equivalence set: aggregate%updated_array%0#1, updated_array%0#0
 debug: selected aggregate%updated_array%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%encoded_element%0#1
@@ -4477,13 +4487,15 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, values%0#0
+debug: selected aggregate%encoded_element%0#1 from equivalence set
 debug: Found equivalence set: aggregate%extract%0#1, tuple_item%0#0
 debug: selected aggregate%extract%0#1 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%as_Encoded(uint64)%0#1, encoded_value%0#0
 debug: selected aggregate%val_as_bytes%0#1 from equivalence set
 debug: Found equivalence set: aggregate%updated_array%0#1, updated_array%0#0
 debug: selected aggregate%updated_array%0#1 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%extract%1#1
@@ -4498,12 +4510,12 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%bytes_offset%1#1: uint64 = (* index#0 48u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:132:8-32, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
-debug: Replacing redundant declaration let aggregate%write_offset%0#1: uint64 = (* index#0 48u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:132:8-32, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
+debug: Replacing redundant declaration let aggregate%bytes_offset%1#1: uint64 = (* index#0 48u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:132:8-28, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
+debug: Replacing redundant declaration let aggregate%write_offset%0#1: uint64 = (* index#0 48u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:132:8-28, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
 debug: Found equivalence set: aggregate%bytes_offset%0#1, aggregate%bytes_offset%1#1, aggregate%write_offset%0#1
 debug: selected aggregate%bytes_offset%0#1 from equivalence set
 debug: Copy propagation made 2 modifications
-debug: Replacing redundant declaration let aggregate%encoded_element%1#1: bytes = (extract3 maybe_value%1#0 aggregate%bytes_offset%0#1 48u) // on error: index access is out of bounds with copy of existing registers (Register(source_location=mutable_native_types/contract.py:132:8-32, ir_type=bytes, name='aggregate%encoded_element%0', version=1),)
+debug: Replacing redundant declaration let aggregate%encoded_element%1#1: bytes = (extract3 maybe_value%1#0 aggregate%bytes_offset%0#1 48u) // on error: index access is out of bounds with copy of existing registers (Register(source_location=mutable_native_types/contract.py:132:8-28, ir_type=bytes, name='aggregate%encoded_element%0', version=1),)
 debug: Found equivalence set: aggregate%encoded_element%0#1, aggregate%encoded_element%1#1
 debug: selected aggregate%encoded_element%0#1 from equivalence set
 debug: Copy propagation made 1 modifications
@@ -4517,7 +4529,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%extract%0#1, tuple_item%0#0
+debug: Found equivalence set: aggregate%extract%0#1, tuple_item%0#0, values%0#0
 debug: selected aggregate%extract%0#1 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -4602,13 +4614,15 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: a#0, encoded_value%0#0
+debug: selected a#0 from equivalence set
 debug: Found equivalence set: aggregate%updated_data%0#1, updated_tuple%0#0
 debug: selected aggregate%updated_data%0#1 from equivalence set
 debug: Found equivalence set: aggregate%updated_data%1#1, updated_tuple%1#0
 debug: selected aggregate%updated_data%1#1 from equivalence set
 debug: Found equivalence set: aggregate%updated_data%2#1, updated_tuple%2#0
 debug: selected aggregate%updated_data%2#1 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%extract%0#1
@@ -4635,7 +4649,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%extract%0#1, tuple_item%0#0
+debug: Found equivalence set: aggregate%extract%0#1, tuple_item%0#0, values%0#0
 debug: selected aggregate%extract%0#1 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -4691,9 +4705,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%extract%0#1, fixed_a#0
+debug: Found equivalence set: aggregate%extract%0#1, tuple_item%0#0, fixed_a#0
 debug: selected fixed_a#0 from equivalence set
-debug: Found equivalence set: aggregate%extract%1#1, fixed_b#0
+debug: Found equivalence set: aggregate%extract%1#1, tuple_item%1#0, fixed_b#0
 debug: selected fixed_b#0 from equivalence set
 debug: Found equivalence set: aggregate%extract%2#1, tuple_item%2#0
 debug: selected aggregate%extract%2#1 from equivalence set
@@ -4739,9 +4753,12 @@ debug: Found equivalence set: aggregate%head%2#1, aggregate%as_Encoded((uint64,u
 debug: selected aggregate%head%2#1 from equivalence set
 debug: Found equivalence set: aggregate%len_u16%0#1, aggregate%as_Encoded(len+(uint64,uint64)[])%0#1, arr2#2
 debug: selected arr2#2 from equivalence set
+debug: Found equivalence set: popped#0, tmp%14#0
+debug: selected popped#0 from equivalence set
 debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable popped#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x aggregate%val_as_bytes%0#1) to aggregate%val_as_bytes%0#1
 debug: Simplified (concat 0x fixed_struct#0) to fixed_struct#0
@@ -6450,20 +6467,20 @@ debug: Inserted main_after_if_else@18.ops[1]: 'l-store-copy test_cases.mutable_n
 debug: Replaced main_after_if_else@18.ops[3]: 'v-load test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__%0#0'
 debug: Inserted sum_frozen_arr_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced sum_frozen_arr_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted sum_frozen_arr_for_body@2.ops[11]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced sum_frozen_arr_for_body@2.ops[13]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
+debug: Inserted sum_frozen_arr_for_body@2.ops[11]: 'l-store-copy element#0 0'
+debug: Replaced sum_frozen_arr_for_body@2.ops[13]: 'v-load element#0' with 'l-load element#0'
 debug: Inserted sum_frozen_arr_for_body@2.ops[6]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced sum_frozen_arr_for_body@2.ops[9]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted sum_frozen_arr_for_body@2.ops[17]: 'l-store-copy values%0#0 0'
-debug: Replaced sum_frozen_arr_for_body@2.ops[20]: 'v-load values%0#0' with 'l-load values%0#0'
-debug: Inserted sum_frozen_arr_for_body@2.ops[26]: 'l-store-copy values%1#0 0'
-debug: Replaced sum_frozen_arr_for_body@2.ops[29]: 'v-load values%1#0' with 'l-load values%1#0'
+debug: Inserted sum_frozen_arr_for_body@2.ops[17]: 'l-store-copy values%1#0 0'
+debug: Replaced sum_frozen_arr_for_body@2.ops[20]: 'v-load values%1#0' with 'l-load values%1#0'
+debug: Inserted sum_frozen_arr_for_body@2.ops[26]: 'l-store-copy values%2#0 0'
+debug: Replaced sum_frozen_arr_for_body@2.ops[29]: 'v-load values%2#0' with 'l-load values%2#0'
 debug: Inserted sum_frozen_arr_for_body@2.ops[2]: 'l-store-copy aggregate%array_trimmed%0#1 0'
 debug: Replaced sum_frozen_arr_for_body@2.ops[9]: 'v-load aggregate%array_trimmed%0#1' with 'l-load aggregate%array_trimmed%0#1'
 debug: Inserted sum_frozen_arr_for_body@2.ops[23]: 'l-store-copy total#0 0'
 debug: Replaced sum_frozen_arr_for_body@2.ops[30]: 'v-load total#0' with 'l-load total#0'
-debug: Inserted sum_frozen_arr_for_body@2.ops[16]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced sum_frozen_arr_for_body@2.ops[26]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
+debug: Inserted sum_frozen_arr_for_body@2.ops[16]: 'l-store-copy element#0 0'
+debug: Replaced sum_frozen_arr_for_body@2.ops[26]: 'v-load element#0' with 'l-load element#0'
 debug: Inserted sum_frozen_arr_for_body@2.ops[5]: 'l-store-copy item_index_internal%0#0 1'
 debug: Replaced sum_frozen_arr_for_body@2.ops[36]: 'v-load item_index_internal%0#0' with 'l-load item_index_internal%0#0'
 debug: Inserted add_payment_block@0.ops[10]: 'l-store-copy tmp%0#0 0'
@@ -6492,8 +6509,8 @@ debug: Inserted increment_payment_block@0.ops[10]: 'l-store-copy tmp%0#0 0'
 debug: Replaced increment_payment_block@0.ops[12]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted increment_payment_block@0.ops[29]: 'l-store-copy aggregate%encoded_element%0#1 0'
 debug: Replaced increment_payment_block@0.ops[31]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted increment_payment_block@0.ops[34]: 'l-store-copy values%0#0 0'
-debug: Replaced increment_payment_block@0.ops[36]: 'v-load values%0#0' with 'l-load values%0#0'
+debug: Inserted increment_payment_block@0.ops[34]: 'l-store-copy values%1#0 0'
+debug: Replaced increment_payment_block@0.ops[36]: 'v-load values%1#0' with 'l-load values%1#0'
 debug: Inserted increment_payment_block@0.ops[39]: 'l-store-copy tmp%1#0 0'
 debug: Replaced increment_payment_block@0.ops[41]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
 debug: Inserted increment_payment_block@0.ops[3]: 'l-store-copy maybe_exists%0#0 1'
@@ -6586,8 +6603,8 @@ debug: Inserted struct_arg_block@0.ops[27]: 'l-store-copy aggregate%updated_data
 debug: Replaced struct_arg_block@0.ops[30]: 'v-load aggregate%updated_data%1#1' with 'l-load aggregate%updated_data%1#1'
 debug: Inserted struct_arg_block@0.ops[39]: 'l-store-copy maybe_exists%2#0 1'
 debug: Replaced struct_arg_block@0.ops[42]: 'v-load maybe_exists%2#0' with 'l-load maybe_exists%2#0'
-debug: Inserted struct_arg_block@0.ops[58]: 'l-store-copy encoded_value%0#0 0'
-debug: Replaced struct_arg_block@0.ops[61]: 'v-load encoded_value%0#0' with 'l-load encoded_value%0#0'
+debug: Inserted struct_arg_block@0.ops[58]: 'l-store-copy encoded_value%4#0 0'
+debug: Replaced struct_arg_block@0.ops[61]: 'v-load encoded_value%4#0' with 'l-load encoded_value%4#0'
 debug: Inserted struct_arg_block@0.ops[5]: 'l-store-copy maybe_value%0#0 1'
 debug: Replaced struct_arg_block@0.ops[9]: 'v-load maybe_value%0#0' with 'l-load maybe_value%0#0'
 debug: Inserted struct_arg_block@0.ops[22]: 'l-store-copy maybe_value%1#0 1'
@@ -6724,14 +6741,14 @@ debug: Inserted test_arr_after_for@4.ops[38]: 'l-store-copy result#0 0'
 debug: Replaced test_arr_after_for@4.ops[40]: 'v-load result#0' with 'l-load result#0'
 debug: Inserted test_arr_after_for@4.ops[42]: 'l-store-copy tmp%5#1 0'
 debug: Replaced test_arr_after_for@4.ops[44]: 'v-load tmp%5#1' with 'l-load tmp%5#1'
-debug: Inserted test_arr_after_for@4.ops[55]: 'l-store-copy tmp%14#0 0'
-debug: Replaced test_arr_after_for@4.ops[57]: 'v-load tmp%14#0' with 'l-load tmp%14#0'
-debug: Inserted test_arr_after_for@4.ops[60]: 'l-store-copy tmp%15#0 0'
-debug: Replaced test_arr_after_for@4.ops[62]: 'v-load tmp%15#0' with 'l-load tmp%15#0'
-debug: Inserted test_arr_after_for@4.ops[66]: 'l-store-copy tmp%16#0 0'
-debug: Replaced test_arr_after_for@4.ops[68]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
-debug: Inserted test_arr_after_for@4.ops[71]: 'l-store-copy tmp%17#0 0'
-debug: Replaced test_arr_after_for@4.ops[73]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
+debug: Inserted test_arr_after_for@4.ops[55]: 'l-store-copy tmp%15#0 0'
+debug: Replaced test_arr_after_for@4.ops[57]: 'v-load tmp%15#0' with 'l-load tmp%15#0'
+debug: Inserted test_arr_after_for@4.ops[60]: 'l-store-copy tmp%16#0 0'
+debug: Replaced test_arr_after_for@4.ops[62]: 'v-load tmp%16#0' with 'l-load tmp%16#0'
+debug: Inserted test_arr_after_for@4.ops[66]: 'l-store-copy tmp%17#0 0'
+debug: Replaced test_arr_after_for@4.ops[68]: 'v-load tmp%17#0' with 'l-load tmp%17#0'
+debug: Inserted test_arr_after_for@4.ops[71]: 'l-store-copy tmp%18#0 0'
+debug: Replaced test_arr_after_for@4.ops[73]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
 debug: Inserted test_arr_after_for@4.ops[34]: 'l-store-copy tmp%3#1 0'
 debug: Replaced test_arr_after_for@4.ops[37]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
 debug: Inserted test_arr_after_for@4.ops[78]: 'l-store-copy result#0 1'
@@ -7261,7 +7278,7 @@ and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%1#0, 3, encode
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%1#1 encoded_value%1#0)
 mutable_native_types/case3_with_mutable_struct.py:43:9 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, 1u)`
+and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, encoded_value%2#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%2#0)`
 into (box_replace "tup_bag" box%byte_containing_bit_offset%0#1 box%tmp%0#1)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -7318,16 +7335,16 @@ mutable_native_types/case3_with_mutable_struct.py:53:34 debug: combined BoxRead 
 and ExtractValue `extract_value(storage_value%2#0, 0)`
 into box%box_extract%1#1
 mutable_native_types/case3_with_mutable_struct.py:53:9 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#0, 1, values%1#0, tup#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#0, 1, values%1#0, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
-into (box_replace "tup_bag" box%offset%3#1 tup#0)
+into (box_replace "tup_bag" box%offset%3#1 encoded_value%0#0)
 mutable_native_types/case3_with_mutable_struct.py:54:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%3#0, 0)`
 into box%box_extract%2#1
 mutable_native_types/case3_with_mutable_struct.py:54:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
-and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%3#0, 0, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%3#0, 0, encoded_value%1#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
-into (box_replace "tup_bag" box%offset%5#1 encoded_value%0#0)
+into (box_replace "tup_bag" box%offset%5#1 encoded_value%1#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case3_with_mutable_struct.py:53:9 debug: replacing box read with cached value for key: "tup_bag"
@@ -7349,7 +7366,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case3_with_mutable_struct.py:59:16 debug: replacing extract_value(tuple_item%1#0, index#0) with extract_value(storage_value%1#0, 1, index#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:58:24 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -7357,9 +7373,6 @@ into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case3_with_mutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, index#0)`
-into extract_value(box%box_extract%2#1, index#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case3_with_mutable_struct.py:59:16 debug: replacing box read with cached value for key: "tup_bag"
@@ -7368,7 +7381,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_item%0#0, tup#0
+debug: Found equivalence set: values%2#0, tup#0
 debug: selected tup#0 from equivalence set
 debug: Found equivalence set: tmp%0#0, total#2
 debug: selected total#2 from equivalence set
@@ -7389,9 +7402,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case3_with_mutable_struct.py:65:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
-mutable_native_types/case3_with_mutable_struct.py:66:22 debug: replacing extract_value(tup#0, 0) with extract_value(storage_value%1#0, 1, i#1, 0)
-mutable_native_types/case3_with_mutable_struct.py:67:22 debug: replacing extract_value(tup#0, 1) with extract_value(storage_value%1#0, 1, i#1, 1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:64:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -7399,15 +7409,6 @@ into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
-mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 0)`
-into extract_value(box%box_extract%3#1, i#1, 0)
-mutable_native_types/case3_with_mutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 1)`
-into extract_value(box%box_extract%4#1, i#1, 1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_many_tups
@@ -7417,7 +7418,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(values%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -7440,7 +7441,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(values%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -7519,7 +7520,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tuple_item%1#0, items#0
+debug: Found equivalence set: values%1#0, items#0
 debug: selected items#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -7534,9 +7535,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case3_with_mutable_struct.py:99:17 debug: replacing extract_value(items#0, start#0) with extract_value(storage_value%1#0, 1, start#0)
-mutable_native_types/case3_with_mutable_struct.py:100:17 debug: replacing extract_value(items#0, tmp%2#0) with extract_value(storage_value%1#0, 1, tmp%2#0)
-mutable_native_types/case3_with_mutable_struct.py:101:17 debug: replacing extract_value(items#0, tmp%3#0) with extract_value(storage_value%1#0, 1, tmp%3#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:94:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -7544,15 +7542,6 @@ into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, start#0)`
-into extract_value(box%box_extract%2#1, start#0)
-mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, tmp%2#0)`
-into extract_value(box%box_extract%3#1, tmp%2#0)
-mutable_native_types/case3_with_mutable_struct.py:95:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, tmp%3#0)`
-into extract_value(box%box_extract%4#1, tmp%3#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case3_with_mutable_struct.py:95:17 debug: replacing box read with cached value for key: "tup_bag"
@@ -7563,7 +7552,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_array%0#0, result#0
 debug: selected result#0 from equivalence set
-debug: Found equivalence set: tuple_item%0#0, items#0
+debug: Found equivalence set: values%0#0, items#0
 debug: selected items#0 from equivalence set
 debug: Found equivalence set: replace%0#0, as_Encoded(len+(uint64,uint64)[])%0#0, result#2
 debug: selected result#2 from equivalence set
@@ -7583,7 +7572,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case3_with_mutable_struct.py:111:27 debug: replacing extract_value(items#0, i#1) with extract_value(storage_value%0#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case3_with_mutable_struct.py:108:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 1)`
@@ -7591,9 +7579,6 @@ into box%box_extract%0#1
 mutable_native_types/case3_with_mutable_struct.py:110:25 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 0)`
 into box%box_extract%1#1
-mutable_native_types/case3_with_mutable_struct.py:108:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%0#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case3_with_mutable_struct.py:110:25 debug: replacing box read with cached value for key: "tup_bag"
@@ -7990,12 +7975,10 @@ debug: Found equivalence set: storage_value%0#0, storage_value%1#0
 debug: selected storage_value%0#0 from equivalence set
 debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable box%box_extract%1#1
-debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
@@ -8020,19 +8003,13 @@ debug: Found equivalence set: box%box_extract%0#1, tuple_item%0#0
 debug: selected box%box_extract%0#1 from equivalence set
 debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Removing unused variable box%box_extract%1#1
-debug: Removing unused variable tup#0
-debug: Removing unused variable box%offset%1#1
-debug: Removing unused variable box%box_extract%2#1
-debug: Removing unused variable box%offset%2#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
-debug: Simplified (+ 0u 8u) to 8u
 debug: Simplified (+ 0u 8u) to 8u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8053,7 +8030,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(values%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8074,7 +8051,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(values%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8155,18 +8132,14 @@ debug: Found equivalence set: box%box_extract%0#1, tuple_item%0#0
 debug: selected box%box_extract%0#1 from equivalence set
 debug: Found equivalence set: storage_value%0#0, storage_value%1#0
 debug: selected storage_value%0#0 from equivalence set
-debug: Found equivalence set: box%box_extract%1#1, items#0
-debug: selected items#0 from equivalence set
+debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
+debug: selected box%box_extract%1#1 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable items#0
-debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
-debug: Simplified (+ 0u 8u) to 8u
-debug: Simplified (+ 0u 8u) to 8u
 debug: Simplified (+ 0u 8u) to 8u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8185,8 +8158,8 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: box%box_extract%0#1, items#0
-debug: selected items#0 from equivalence set
+debug: Found equivalence set: box%box_extract%0#1, tuple_item%0#0
+debug: selected box%box_extract%0#1 from equivalence set
 debug: Found equivalence set: storage_value%0#0, storage_value%1#0
 debug: selected storage_value%0#0 from equivalence set
 debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
@@ -8195,11 +8168,9 @@ debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable items#0
-debug: Removing unused variable box%offset%0#1
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
+debug: Simplified (+ 0u 0u) to 0u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -8449,7 +8420,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%2#1
+debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8471,8 +8442,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%3#1
-debug: Removing unused variable box%offset%4#1
+debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8493,7 +8463,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(values%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8514,7 +8484,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(values%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8583,9 +8553,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%2#1
-debug: Removing unused variable box%offset%3#1
-debug: Removing unused variable box%offset%4#1
+debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8606,8 +8574,8 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable box%offset%0#1
 debug: Removing unused variable box%offset%1#1
-debug: Removing unused variable box%offset%2#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8876,7 +8844,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(values%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -8897,7 +8865,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
-debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(array_item%0#0)
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(values%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -9181,6 +9149,8 @@ debug: selected aggregate%updated_target%0#1 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%as_Encoded(bool1)%0#1
+debug: Removing unused variable encoded_value%2#0
 debug: Removing unused variable aggregate%get_bit%0#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (< 0u 8u) to 1u
@@ -9222,9 +9192,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%as_Encoded(uint64)%0#1, encoded_value%0#0
+debug: Found equivalence set: tup#0, encoded_value%0#0
+debug: selected tup#0 from equivalence set
+debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%as_Encoded(uint64)%0#1, encoded_value%1#0
 debug: selected aggregate%val_as_bytes%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -9245,9 +9217,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, values%2#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -9268,18 +9242,22 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, tup#0
+debug: selected tup#0 from equivalence set
 debug: Found equivalence set: aggregate%extract%0#1, tuple_item%2#0
 debug: selected aggregate%extract%0#1 from equivalence set
 debug: Found equivalence set: aggregate%extract%1#1, tuple_item%3#0
 debug: selected aggregate%extract%1#1 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 aggregate%encoded_element%0#1 0u)
-debug: Simplified (btoi aggregate%extract%1#1) to (extract_uint64 aggregate%encoded_element%1#1 8u)
-debug: Simplified (extract3 aggregate%encoded_element%0#1 0u 8u) to ((extract 0 8) aggregate%encoded_element%0#1)
-debug: Simplified (extract3 aggregate%encoded_element%1#1 8u 8u) to ((extract 8 8) aggregate%encoded_element%1#1)
+debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 tup#0 0u)
+debug: Simplified (btoi aggregate%extract%1#1) to (extract_uint64 tup#0 8u)
+debug: Simplified (extract3 tup#0 0u 8u) to ((extract 0 8) tup#0)
+debug: Simplified (extract3 tup#0 8u 8u) to ((extract 8 8) tup#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9287,10 +9265,6 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%bytes_offset%1#1: uint64 = (* i#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/case3_with_mutable_struct.py:65-66:18-26, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
-debug: Found equivalence set: aggregate%bytes_offset%0#1, aggregate%bytes_offset%1#1
-debug: selected aggregate%bytes_offset%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -9301,7 +9275,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, values%0#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -9325,7 +9299,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, values%0#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -9395,15 +9369,17 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
+debug: Found equivalence set: box%box_extract%1#1, items#0
+debug: selected items#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, values%2#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%1#1, array_item%1#0
+debug: Found equivalence set: aggregate%encoded_element%1#1, array_item%1#0, values%3#0
 debug: selected aggregate%encoded_element%1#1 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%2#1, array_item%2#0
+debug: Found equivalence set: aggregate%encoded_element%2#1, array_item%2#0, values%4#0
 debug: selected aggregate%encoded_element%2#1 from equivalence set
 debug: Found equivalence set: aggregate%head%2#1, aggregate%as_Encoded((uint64,uint64)[3])%0#1, encoded_array%0#0
 debug: selected aggregate%head%2#1 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -9427,11 +9403,13 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%len_u16%0#1, aggregate%as_Encoded(len+(uint64,uint64)[])%0#1, result#0
 debug: selected result#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
+debug: Found equivalence set: box%box_extract%0#1, items#0
+debug: selected items#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, values%2#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
 debug: Found equivalence set: aggregate%head%0#1, aggregate%as_Encoded((uint64,uint64)[])%0#1, tmp%0#0
 debug: selected aggregate%head%0#1 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -9454,9 +9432,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%get_bit%0#1, tuple_item%0#0
+debug: Found equivalence set: aggregate%get_bit%0#1, tuple_item%0#0, values%0#0
 debug: selected aggregate%get_bit%0#1 from equivalence set
-debug: Found equivalence set: box%box_extract%1#1, values%0#0
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
 debug: selected box%box_extract%1#1 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -10411,32 +10389,28 @@ debug: Inserted get_tup_block@0.ops[8]: 'l-store-copy values%0#0 0'
 debug: Replaced get_tup_block@0.ops[11]: 'v-load values%0#0' with 'l-load values%0#0'
 debug: Inserted get_tup_block@0.ops[25]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced get_tup_block@0.ops[28]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted get_tup_block@0.ops[21]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced get_tup_block@0.ops[28]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
+debug: Inserted get_tup_block@0.ops[21]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced get_tup_block@0.ops[28]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted sum_block@0.ops[6]: 'l-store-copy box%box_extract%0#1 0'
 debug: Replaced sum_block@0.ops[8]: 'v-load box%box_extract%0#1' with 'l-load box%box_extract%0#1'
 debug: Inserted sum_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced sum_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted sum_for_body@2.ops[13]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced sum_for_body@2.ops[15]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted sum_for_body@2.ops[27]: 'l-store-copy box%box_extract%4#1 0'
-debug: Replaced sum_for_body@2.ops[29]: 'v-load box%box_extract%4#1' with 'l-load box%box_extract%4#1'
-debug: Inserted sum_for_body@2.ops[33]: 'l-store-copy aggregate%encoded_element%1#1 0'
-debug: Replaced sum_for_body@2.ops[35]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
+debug: Inserted sum_for_body@2.ops[13]: 'l-store-copy tup#0 0'
+debug: Replaced sum_for_body@2.ops[15]: 'v-load tup#0' with 'l-load tup#0'
 debug: Inserted sum_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced sum_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted sum_for_body@2.ops[19]: 'l-store-copy values%1#0 0'
-debug: Replaced sum_for_body@2.ops[22]: 'v-load values%1#0' with 'l-load values%1#0'
-debug: Inserted sum_for_body@2.ops[40]: 'l-store-copy values%2#0 0'
-debug: Replaced sum_for_body@2.ops[43]: 'v-load values%2#0' with 'l-load values%2#0'
-debug: Inserted sum_for_body@2.ops[4]: 'l-store-copy box%box_extract%3#1 0'
-debug: Replaced sum_for_body@2.ops[11]: 'v-load box%box_extract%3#1' with 'l-load box%box_extract%3#1'
+debug: Inserted sum_for_body@2.ops[19]: 'l-store-copy values%3#0 0'
+debug: Replaced sum_for_body@2.ops[22]: 'v-load values%3#0' with 'l-load values%3#0'
+debug: Inserted sum_for_body@2.ops[28]: 'l-store-copy values%4#0 0'
+debug: Replaced sum_for_body@2.ops[31]: 'v-load values%4#0' with 'l-load values%4#0'
+debug: Inserted sum_for_body@2.ops[4]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced sum_for_body@2.ops[11]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted sum_for_body@2.ops[25]: 'l-store-copy total#0 0'
-debug: Replaced sum_for_body@2.ops[44]: 'v-load total#0' with 'l-load total#0'
-debug: Inserted sum_for_body@2.ops[13]: 'l-store-copy aggregate%bytes_offset%0#1 1'
-debug: Replaced sum_for_body@2.ops[35]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
+debug: Replaced sum_for_body@2.ops[32]: 'v-load total#0' with 'l-load total#0'
+debug: Inserted sum_for_body@2.ops[18]: 'l-store-copy tup#0 0'
+debug: Replaced sum_for_body@2.ops[28]: 'v-load tup#0' with 'l-load tup#0'
 debug: Inserted sum_for_body@2.ops[7]: 'l-store-copy i#0 1'
-debug: Replaced sum_for_body@2.ops[50]: 'v-load i#0' with 'l-load i#0'
+debug: Replaced sum_for_body@2.ops[38]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted add_many_tups_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced add_many_tups_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted add_many_tups_for_body@2.ops[11]: 'l-store-copy aggregate%encoded_element%0#1 0'
@@ -10491,60 +10465,58 @@ debug: Inserted get_3_tups_block@0.ops[4]: 'l-store-copy box%box_extract%0#1 0'
 debug: Replaced get_3_tups_block@0.ops[6]: 'v-load box%box_extract%0#1' with 'l-load box%box_extract%0#1'
 debug: Inserted get_3_tups_block@0.ops[16]: 'l-store-copy tmp%1#0 0'
 debug: Replaced get_3_tups_block@0.ops[18]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted get_3_tups_block@0.ops[73]: 'l-store-copy aggregate%head%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[75]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
-debug: Inserted get_3_tups_block@0.ops[78]: 'l-store-copy aggregate%head%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[80]: 'v-load aggregate%head%2#1' with 'l-load aggregate%head%2#1'
+debug: Inserted get_3_tups_block@0.ops[37]: 'l-store-copy tmp%2#0 0'
+debug: Replaced get_3_tups_block@0.ops[39]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted get_3_tups_block@0.ops[51]: 'l-store-copy tmp%3#0 0'
+debug: Replaced get_3_tups_block@0.ops[53]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
+debug: Inserted get_3_tups_block@0.ops[65]: 'l-store-copy aggregate%head%1#1 0'
+debug: Replaced get_3_tups_block@0.ops[67]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
+debug: Inserted get_3_tups_block@0.ops[70]: 'l-store-copy aggregate%head%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[72]: 'v-load aggregate%head%2#1' with 'l-load aggregate%head%2#1'
 debug: Inserted get_3_tups_block@0.ops[12]: 'l-store-copy tmp%0#0 0'
 debug: Replaced get_3_tups_block@0.ops[15]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted get_3_tups_block@0.ops[29]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced get_3_tups_block@0.ops[32]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted get_3_tups_block@0.ops[48]: 'l-store-copy aggregate%bytes_offset%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[51]: 'v-load aggregate%bytes_offset%1#1' with 'l-load aggregate%bytes_offset%1#1'
-debug: Inserted get_3_tups_block@0.ops[67]: 'l-store-copy aggregate%bytes_offset%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[70]: 'v-load aggregate%bytes_offset%2#1' with 'l-load aggregate%bytes_offset%2#1'
+debug: Inserted get_3_tups_block@0.ops[44]: 'l-store-copy aggregate%bytes_offset%1#1 0'
+debug: Replaced get_3_tups_block@0.ops[47]: 'v-load aggregate%bytes_offset%1#1' with 'l-load aggregate%bytes_offset%1#1'
+debug: Inserted get_3_tups_block@0.ops[59]: 'l-store-copy aggregate%bytes_offset%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[62]: 'v-load aggregate%bytes_offset%2#1' with 'l-load aggregate%bytes_offset%2#1'
 debug: Inserted get_3_tups_block@0.ops[8]: 'l-store-copy values%0#0 0'
 debug: Replaced get_3_tups_block@0.ops[15]: 'v-load values%0#0' with 'l-load values%0#0'
-debug: Inserted get_3_tups_block@0.ops[26]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[33]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
-debug: Inserted get_3_tups_block@0.ops[46]: 'l-store-copy box%box_extract%3#1 0'
-debug: Replaced get_3_tups_block@0.ops[53]: 'v-load box%box_extract%3#1' with 'l-load box%box_extract%3#1'
-debug: Inserted get_3_tups_block@0.ops[66]: 'l-store-copy box%box_extract%4#1 0'
-debug: Replaced get_3_tups_block@0.ops[73]: 'v-load box%box_extract%4#1' with 'l-load box%box_extract%4#1'
-debug: Inserted get_3_tups_block@0.ops[41]: 'l-store-copy tmp%2#0 0'
-debug: Replaced get_3_tups_block@0.ops[49]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted get_3_tups_block@0.ops[62]: 'l-store-copy tmp%3#0 0'
-debug: Replaced get_3_tups_block@0.ops[70]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted get_3_tups_block@0.ops[79]: 'l-store-copy aggregate%encoded_element%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[87]: 'v-load aggregate%encoded_element%2#1' with 'l-load aggregate%encoded_element%2#1'
-debug: Inserted get_3_tups_block@0.ops[58]: 'l-store-copy aggregate%encoded_element%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[83]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
-debug: Inserted get_3_tups_block@0.ops[37]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced get_3_tups_block@0.ops[83]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted get_all_tups_block@0.ops[6]: 'l-store-copy box%box_extract%1#1 0'
-debug: Replaced get_all_tups_block@0.ops[8]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
+debug: Inserted get_3_tups_block@0.ops[26]: 'l-store-copy items#0 0'
+debug: Replaced get_3_tups_block@0.ops[33]: 'v-load items#0' with 'l-load items#0'
+debug: Inserted get_3_tups_block@0.ops[67]: 'l-store-copy aggregate%encoded_element%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[75]: 'v-load aggregate%encoded_element%2#1' with 'l-load aggregate%encoded_element%2#1'
+debug: Inserted get_3_tups_block@0.ops[34]: 'l-store-copy items#0 1'
+debug: Replaced get_3_tups_block@0.ops[49]: 'v-load items#0' with 'l-load items#0'
+debug: Inserted get_3_tups_block@0.ops[50]: 'l-store-copy items#0 1'
+debug: Replaced get_3_tups_block@0.ops[65]: 'v-load items#0' with 'l-load items#0'
+debug: Inserted get_3_tups_block@0.ops[54]: 'l-store-copy aggregate%encoded_element%1#1 1'
+debug: Replaced get_3_tups_block@0.ops[73]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
+debug: Inserted get_3_tups_block@0.ops[38]: 'l-store-copy aggregate%encoded_element%0#1 1'
+debug: Replaced get_3_tups_block@0.ops[73]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
+debug: Inserted get_all_tups_block@0.ops[11]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced get_all_tups_block@0.ops[13]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted get_all_tups_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced get_all_tups_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[21]: 'l-store-copy extract_uint16%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[23]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[26]: 'l-store-copy add%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[28]: 'v-load add%0#0' with 'l-load add%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[30]: 'l-store-copy as_bytes%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[32]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[14]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[17]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[36]: 'l-store-copy as_u16_bytes%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[39]: 'v-load as_u16_bytes%0#0' with 'l-load as_u16_bytes%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[17]: 'l-store-copy result#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[21]: 'v-load result#0' with 'l-load result#0'
-debug: Inserted get_all_tups_for_body@2.ops[4]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[11]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
-debug: Inserted get_all_tups_for_body@2.ops[21]: 'l-store-copy concat%0#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[41]: 'v-load concat%0#0' with 'l-load concat%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[7]: 'l-store-copy i#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[46]: 'v-load i#0' with 'l-load i#0'
+debug: Inserted get_all_tups_for_body@2.ops[16]: 'l-store-copy extract_uint16%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[18]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[21]: 'l-store-copy add%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[23]: 'v-load add%0#0' with 'l-load add%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[25]: 'l-store-copy as_bytes%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[27]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[3]: 'l-store-copy aggregate%bytes_offset%0#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[6]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[9]: 'l-store-copy aggregate%encoded_element%0#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[12]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[31]: 'l-store-copy as_u16_bytes%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[34]: 'v-load as_u16_bytes%0#0' with 'l-load as_u16_bytes%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[12]: 'l-store-copy result#0 1'
+debug: Replaced get_all_tups_for_body@2.ops[16]: 'v-load result#0' with 'l-load result#0'
+debug: Inserted get_all_tups_for_body@2.ops[15]: 'l-store-copy concat%0#0 1'
+debug: Replaced get_all_tups_for_body@2.ops[35]: 'v-load concat%0#0' with 'l-load concat%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[1]: 'l-store-copy i#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[40]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted _check_owner_block@0.ops[4]: 'l-store-copy box%box_extract%0#1 0'
 debug: Replaced _check_owner_block@0.ops[6]: 'v-load box%box_extract%0#1' with 'l-load box%box_extract%0#1'
 debug: Inserted _check_owner_block@0.ops[9]: 'l-store-copy aggregate%get_bit%0#1 0'
@@ -10561,8 +10533,8 @@ debug: Inserted _check_owner_block@0.ops[38]: 'l-store-copy tmp%2#0 0'
 debug: Replaced _check_owner_block@0.ops[41]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted _check_owner_block@0.ops[17]: 'l-store-copy box%box_extract%1#1 0'
 debug: Replaced _check_owner_block@0.ops[22]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
-debug: Inserted _check_owner_block@0.ops[37]: 'l-store-copy values%1#0 0'
-debug: Replaced _check_owner_block@0.ops[42]: 'v-load values%1#0' with 'l-load values%1#0'
+debug: Inserted _check_owner_block@0.ops[37]: 'l-store-copy values%2#0 0'
+debug: Replaced _check_owner_block@0.ops[42]: 'v-load values%2#0' with 'l-load values%2#0'
 debug: Found 3 edge set/s for test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_entrypoint_with_init
 debug: Allocated 1 variable/s to x-stack: tmp%0#1
 debug: shared x-stack for main_create_box_route@5 -> main_after_inlined_test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__puya_arc4_router__@19: tmp%0#1
@@ -10595,7 +10567,7 @@ debug: test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct
 debug: test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b f-stack entry: []
 debug: test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.set_b f-stack on first store: ['values%0#0', 'i#0']
 debug: test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_all_tups f-stack entry: []
-debug: test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_all_tups f-stack on first store: ['result#0', 'values%0#0', 'i#0']
+debug: test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.get_all_tups f-stack on first store: ['result#0', 'items#0', 'values%1#0', 'i#0']
 debug: optimizing TEAL subroutine ops test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.__algopy_entrypoint_with_init() -> uint64:
 mutable_native_types/case3_with_mutable_struct.py:38 debug: optimizing TEAL subroutine ops test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.create_box() -> void:
 mutable_native_types/case3_with_mutable_struct.py:45 debug: optimizing TEAL subroutine ops test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.num_tups() -> uint64:
@@ -11084,7 +11056,7 @@ and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%1#0, 3, encode
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%1#1 encoded_value%1#0)
 mutable_native_types/case2_with_immutable_struct.py:43:9 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, 1u)`
+and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, encoded_value%2#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%2#0)`
 into (box_replace "tup_bag" box%byte_containing_bit_offset%0#1 box%tmp%0#1)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -11137,16 +11109,16 @@ mutable_native_types/case2_with_immutable_struct.py:53:34 debug: combined BoxRea
 and ExtractValue `extract_value(storage_value%2#0, 0)`
 into box%box_extract%1#1
 mutable_native_types/case2_with_immutable_struct.py:53:9 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#0, 1, values%1#0, tup#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%1#0, 1, values%1#0, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
-into (box_replace "tup_bag" box%offset%3#1 tup#0)
+into (box_replace "tup_bag" box%offset%3#1 encoded_value%0#0)
 mutable_native_types/case2_with_immutable_struct.py:54:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%3#0, 0)`
 into box%box_extract%2#1
 mutable_native_types/case2_with_immutable_struct.py:54:9 debug: combined BoxRead `storage_value%3#0 = box_read("tup_bag")`
-and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%3#0, 0, encoded_value%0#0)`
+and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%3#0, 0, encoded_value%1#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
-into (box_replace "tup_bag" box%offset%5#1 encoded_value%0#0)
+into (box_replace "tup_bag" box%offset%5#1 encoded_value%1#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:53:9 debug: replacing box read with cached value for key: "tup_bag"
@@ -11168,7 +11140,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:59:16 debug: replacing extract_value(tuple_item%1#0, index#0) with extract_value(storage_value%1#0, 1, index#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:58:24 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -11176,9 +11147,6 @@ into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case2_with_immutable_struct.py:59:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, index#0)`
-into extract_value(box%box_extract%2#1, index#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:59:16 debug: replacing box read with cached value for key: "tup_bag"
@@ -11187,7 +11155,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_item%0#0, tup#0
+debug: Found equivalence set: values%2#0, tup#0
 debug: selected tup#0 from equivalence set
 debug: Found equivalence set: tmp%0#0, total#2
 debug: selected total#2 from equivalence set
@@ -11208,9 +11176,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:65:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
-mutable_native_types/case2_with_immutable_struct.py:66:22 debug: replacing extract_value(tup#0, 0) with extract_value(storage_value%1#0, 1, i#1, 0)
-mutable_native_types/case2_with_immutable_struct.py:67:22 debug: replacing extract_value(tup#0, 1) with extract_value(storage_value%1#0, 1, i#1, 1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:64:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -11218,15 +11183,6 @@ into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
-mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 0)`
-into extract_value(box%box_extract%3#1, i#1, 0)
-mutable_native_types/case2_with_immutable_struct.py:65:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 1)`
-into extract_value(box%box_extract%4#1, i#1, 1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups
@@ -11236,7 +11192,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: array_length%0#0, reverse_index_internal%0#0
 debug: selected array_length%0#0 from equivalence set
-debug: Found equivalence set: array_item%0#0, tup#0
+debug: Found equivalence set: values%0#0, tup#0
 debug: selected tup#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -11261,7 +11217,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_item%0#0, tup#0
+debug: Found equivalence set: values%0#0, tup#0
 debug: selected tup#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -11287,7 +11243,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_item%0#0, tup#0
+debug: Found equivalence set: values%2#0, tup#0
 debug: selected tup#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -11304,8 +11260,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:84:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
-mutable_native_types/case2_with_immutable_struct.py:85:43 debug: replacing extract_value(tup#0, 1) with extract_value(storage_value%1#0, 1, i#1, 1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:83:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -11313,16 +11267,10 @@ into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:84:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case2_with_immutable_struct.py:84:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
-mutable_native_types/case2_with_immutable_struct.py:84:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 1)`
-into extract_value(box%box_extract%3#1, i#1, 1)
 mutable_native_types/case2_with_immutable_struct.py:85:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, tmp%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
-into (box_replace "tup_bag" box%offset%5#1 tmp%0#0)
+into (box_replace "tup_bag" box%offset%3#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:85:13 debug: replacing box read with cached value for key: "tup_bag"
@@ -11331,7 +11279,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_item%0#0, tup#0
+debug: Found equivalence set: values%2#0, tup#0
 debug: selected tup#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -11348,8 +11296,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:91:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
-mutable_native_types/case2_with_immutable_struct.py:92:43 debug: replacing extract_value(tup#0, 0) with extract_value(storage_value%1#0, 1, i#1, 0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:90:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -11357,16 +11303,10 @@ into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case2_with_immutable_struct.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
-mutable_native_types/case2_with_immutable_struct.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1, 0)`
-into extract_value(box%box_extract%3#1, i#1, 0)
 mutable_native_types/case2_with_immutable_struct.py:92:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, tmp%0#0)`
+and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
-into (box_replace "tup_bag" box%offset%5#1 tmp%0#0)
+into (box_replace "tup_bag" box%offset%3#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:92:13 debug: replacing box read with cached value for key: "tup_bag"
@@ -11375,7 +11315,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tuple_item%1#0, items#0
+debug: Found equivalence set: values%1#0, items#0
 debug: selected items#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -11390,9 +11330,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:101:17 debug: replacing extract_value(items#0, start#0) with extract_value(storage_value%1#0, 1, start#0)
-mutable_native_types/case2_with_immutable_struct.py:102:17 debug: replacing extract_value(items#0, tmp%2#0) with extract_value(storage_value%1#0, 1, tmp%2#0)
-mutable_native_types/case2_with_immutable_struct.py:103:17 debug: replacing extract_value(items#0, tmp%3#0) with extract_value(storage_value%1#0, 1, tmp%3#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:96:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -11400,15 +11337,6 @@ into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, start#0)`
-into extract_value(box%box_extract%2#1, start#0)
-mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, tmp%2#0)`
-into extract_value(box%box_extract%3#1, tmp%2#0)
-mutable_native_types/case2_with_immutable_struct.py:97:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, tmp%3#0)`
-into extract_value(box%box_extract%4#1, tmp%3#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:97:17 debug: replacing box read with cached value for key: "tup_bag"
@@ -11419,7 +11347,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_array%0#0, result#0
 debug: selected result#0 from equivalence set
-debug: Found equivalence set: tuple_item%0#0, items#0
+debug: Found equivalence set: values%0#0, items#0
 debug: selected items#0 from equivalence set
 debug: Found equivalence set: replace%0#0, as_Encoded(len+(uint64,uint64)[])%0#0, result#2
 debug: selected result#2 from equivalence set
@@ -11439,7 +11367,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case2_with_immutable_struct.py:113:27 debug: replacing extract_value(items#0, i#1) with extract_value(storage_value%0#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case2_with_immutable_struct.py:110:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 1)`
@@ -11447,9 +11374,6 @@ into box%box_extract%0#1
 mutable_native_types/case2_with_immutable_struct.py:112:25 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 0)`
 into box%box_extract%1#1
-mutable_native_types/case2_with_immutable_struct.py:110:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%0#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case2_with_immutable_struct.py:112:25 debug: replacing box read with cached value for key: "tup_bag"
@@ -11840,12 +11764,10 @@ debug: Found equivalence set: storage_value%0#0, storage_value%1#0
 debug: selected storage_value%0#0 from equivalence set
 debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable box%box_extract%1#1
-debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
@@ -11870,19 +11792,13 @@ debug: Found equivalence set: box%box_extract%0#1, tuple_item%0#0
 debug: selected box%box_extract%0#1 from equivalence set
 debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Removing unused variable box%box_extract%1#1
-debug: Removing unused variable tup#0
-debug: Removing unused variable box%offset%1#1
-debug: Removing unused variable box%box_extract%2#1
-debug: Removing unused variable box%offset%2#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
-debug: Simplified (+ 0u 8u) to 8u
 debug: Simplified (+ 0u 8u) to 8u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -11947,17 +11863,12 @@ debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
 debug: Found equivalence set: storage_value%1#0, storage_value%2#0
 debug: selected storage_value%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable box%box_extract%1#1
-debug: Removing unused variable tup#0
 debug: Removing unused variable updated_tuple%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Removing unused variable box%offset%1#1
-debug: Removing unused variable box%box_extract%2#1
-debug: Removing unused variable box%offset%2#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
@@ -11985,17 +11896,12 @@ debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
 debug: Found equivalence set: storage_value%1#0, storage_value%2#0
 debug: selected storage_value%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable box%box_extract%1#1
-debug: Removing unused variable tup#0
 debug: Removing unused variable updated_tuple%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Removing unused variable box%offset%1#1
-debug: Removing unused variable box%box_extract%2#1
-debug: Removing unused variable box%offset%2#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
@@ -12021,18 +11927,14 @@ debug: Found equivalence set: box%box_extract%0#1, tuple_item%0#0
 debug: selected box%box_extract%0#1 from equivalence set
 debug: Found equivalence set: storage_value%0#0, storage_value%1#0
 debug: selected storage_value%0#0 from equivalence set
-debug: Found equivalence set: box%box_extract%1#1, items#0
-debug: selected items#0 from equivalence set
+debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
+debug: selected box%box_extract%1#1 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable items#0
-debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
-debug: Simplified (+ 0u 8u) to 8u
-debug: Simplified (+ 0u 8u) to 8u
 debug: Simplified (+ 0u 8u) to 8u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -12051,8 +11953,8 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: box%box_extract%0#1, items#0
-debug: selected items#0 from equivalence set
+debug: Found equivalence set: box%box_extract%0#1, tuple_item%0#0
+debug: selected box%box_extract%0#1 from equivalence set
 debug: Found equivalence set: storage_value%0#0, storage_value%1#0
 debug: selected storage_value%0#0 from equivalence set
 debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
@@ -12061,11 +11963,9 @@ debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable items#0
-debug: Removing unused variable box%offset%0#1
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
+debug: Simplified (+ 0u 0u) to 0u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -12314,7 +12214,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%2#1
+debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -12336,8 +12236,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%3#1
-debug: Removing unused variable box%offset%4#1
+debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -12399,8 +12298,8 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%3#1
-debug: Removing unused variable box%offset%4#1
+debug: Removing unused variable box%offset%1#1
+debug: Removing unused variable box%offset%2#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -12422,8 +12321,8 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%3#1
-debug: Removing unused variable box%offset%4#1
+debug: Removing unused variable box%offset%1#1
+debug: Removing unused variable box%offset%2#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -12445,9 +12344,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%2#1
-debug: Removing unused variable box%offset%3#1
-debug: Removing unused variable box%offset%4#1
+debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -12468,8 +12365,8 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable box%offset%0#1
 debug: Removing unused variable box%offset%1#1
-debug: Removing unused variable box%offset%2#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -13039,6 +12936,8 @@ debug: selected aggregate%updated_target%0#1 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%as_Encoded(bool1)%0#1
+debug: Removing unused variable encoded_value%2#0
 debug: Removing unused variable aggregate%get_bit%0#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (< 0u 8u) to 1u
@@ -13080,9 +12979,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%as_Encoded(uint64)%0#1, encoded_value%0#0
+debug: Found equivalence set: tup#0, encoded_value%0#0
+debug: selected tup#0 from equivalence set
+debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%as_Encoded(uint64)%0#1, encoded_value%1#0
 debug: selected aggregate%val_as_bytes%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -13103,9 +13004,11 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, values%2#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -13126,18 +13029,22 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, tup#0
+debug: selected tup#0 from equivalence set
 debug: Found equivalence set: aggregate%extract%0#1, tuple_item%2#0
 debug: selected aggregate%extract%0#1 from equivalence set
 debug: Found equivalence set: aggregate%extract%1#1, tuple_item%3#0
 debug: selected aggregate%extract%1#1 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 aggregate%encoded_element%0#1 0u)
-debug: Simplified (btoi aggregate%extract%1#1) to (extract_uint64 aggregate%encoded_element%1#1 8u)
-debug: Simplified (extract3 aggregate%encoded_element%0#1 0u 8u) to ((extract 0 8) aggregate%encoded_element%0#1)
-debug: Simplified (extract3 aggregate%encoded_element%1#1 8u 8u) to ((extract 8 8) aggregate%encoded_element%1#1)
+debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 tup#0 0u)
+debug: Simplified (btoi aggregate%extract%1#1) to (extract_uint64 tup#0 8u)
+debug: Simplified (extract3 tup#0 0u 8u) to ((extract 0 8) tup#0)
+debug: Simplified (extract3 tup#0 8u 8u) to ((extract 8 8) tup#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -13145,10 +13052,6 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let aggregate%bytes_offset%1#1: uint64 = (* i#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/case2_with_immutable_struct.py:65-66:18-26, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
-debug: Found equivalence set: aggregate%bytes_offset%0#1, aggregate%bytes_offset%1#1
-debug: selected aggregate%bytes_offset%0#1 from equivalence set
-debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -13159,7 +13062,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_element%0#1, tup#0
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, tup#0
 debug: selected tup#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -13182,7 +13085,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_element%0#1, tup#0
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, tup#0
 debug: selected tup#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -13205,21 +13108,25 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, tup#0
+debug: selected tup#0 from equivalence set
 debug: Found equivalence set: aggregate%extract%0#1, tuple_item%2#0
 debug: selected aggregate%extract%0#1 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%as_Encoded(uint64)%0#1
 debug: selected aggregate%val_as_bytes%0#1 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%1#1, aggregate%as_Encoded(uint64)%1#1
 debug: selected aggregate%val_as_bytes%1#1 from equivalence set
-debug: Found equivalence set: aggregate%head%1#1, aggregate%as_Encoded(uint64,uint64)%0#1, tmp%0#0
+debug: Found equivalence set: aggregate%head%1#1, aggregate%as_Encoded(uint64,uint64)%0#1, tmp%0#0, encoded_value%0#0
 debug: selected aggregate%head%1#1 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 aggregate%encoded_element%0#1 8u)
+debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 tup#0 8u)
 debug: Simplified (concat 0x aggregate%val_as_bytes%0#1) to aggregate%val_as_bytes%0#1
-debug: Simplified (extract3 aggregate%encoded_element%0#1 8u 8u) to ((extract 8 8) aggregate%encoded_element%0#1)
+debug: Simplified (extract3 tup#0 8u 8u) to ((extract 8 8) tup#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -13227,7 +13134,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let box%element_offset%0#1: uint64 = (* i#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/case2_with_immutable_struct.py:84-85:18-59, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
+debug: Replacing redundant declaration let box%element_offset%0#1: uint64 = (* i#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/case2_with_immutable_struct.py:84:18-45, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
 debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%head%0#1
 debug: selected aggregate%val_as_bytes%0#1 from equivalence set
 debug: Found equivalence set: aggregate%bytes_offset%0#1, box%element_offset%0#1
@@ -13243,21 +13150,25 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, tup#0
+debug: selected tup#0 from equivalence set
 debug: Found equivalence set: aggregate%extract%0#1, tuple_item%2#0
 debug: selected aggregate%extract%0#1 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%as_Encoded(uint64)%0#1
 debug: selected aggregate%val_as_bytes%0#1 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%1#1, aggregate%as_Encoded(uint64)%1#1
 debug: selected aggregate%val_as_bytes%1#1 from equivalence set
-debug: Found equivalence set: aggregate%head%1#1, aggregate%as_Encoded(uint64,uint64)%0#1, tmp%0#0
+debug: Found equivalence set: aggregate%head%1#1, aggregate%as_Encoded(uint64,uint64)%0#1, tmp%0#0, encoded_value%0#0
 debug: selected aggregate%head%1#1 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 aggregate%encoded_element%0#1 0u)
+debug: Simplified (btoi aggregate%extract%0#1) to (extract_uint64 tup#0 0u)
 debug: Simplified (concat 0x aggregate%val_as_bytes%0#1) to aggregate%val_as_bytes%0#1
-debug: Simplified (extract3 aggregate%encoded_element%0#1 0u 8u) to ((extract 0 8) aggregate%encoded_element%0#1)
+debug: Simplified (extract3 tup#0 0u 8u) to ((extract 0 8) tup#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -13265,7 +13176,7 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
-debug: Replacing redundant declaration let box%element_offset%0#1: uint64 = (* i#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/case2_with_immutable_struct.py:91-92:18-59, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
+debug: Replacing redundant declaration let box%element_offset%0#1: uint64 = (* i#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/case2_with_immutable_struct.py:91:18-45, ir_type=uint64, name='aggregate%bytes_offset%0', version=1),)
 debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%head%0#1
 debug: selected aggregate%val_as_bytes%0#1 from equivalence set
 debug: Found equivalence set: aggregate%bytes_offset%0#1, box%element_offset%0#1
@@ -13281,15 +13192,17 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
+debug: Found equivalence set: box%box_extract%1#1, items#0
+debug: selected items#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, values%2#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%1#1, array_item%1#0
+debug: Found equivalence set: aggregate%encoded_element%1#1, array_item%1#0, values%3#0
 debug: selected aggregate%encoded_element%1#1 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%2#1, array_item%2#0
+debug: Found equivalence set: aggregate%encoded_element%2#1, array_item%2#0, values%4#0
 debug: selected aggregate%encoded_element%2#1 from equivalence set
 debug: Found equivalence set: aggregate%head%2#1, aggregate%as_Encoded((uint64,uint64)[3])%0#1, encoded_array%0#0
 debug: selected aggregate%head%2#1 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -13313,11 +13226,13 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%len_u16%0#1, aggregate%as_Encoded(len+(uint64,uint64)[])%0#1, result#0
 debug: selected result#0 from equivalence set
-debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
+debug: Found equivalence set: box%box_extract%0#1, items#0
+debug: selected items#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0, values%2#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
 debug: Found equivalence set: aggregate%head%0#1, aggregate%as_Encoded((uint64,uint64)[])%0#1, tmp%0#0
 debug: selected aggregate%head%0#1 from equivalence set
-debug: Copy propagation made 3 modifications
+debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -13340,9 +13255,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%get_bit%0#1, tuple_item%0#0
+debug: Found equivalence set: aggregate%get_bit%0#1, tuple_item%0#0, values%0#0
 debug: selected aggregate%get_bit%0#1 from equivalence set
-debug: Found equivalence set: box%box_extract%1#1, values%0#0
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
 debug: selected box%box_extract%1#1 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -14293,32 +14208,28 @@ debug: Inserted get_tup_block@0.ops[8]: 'l-store-copy values%0#0 0'
 debug: Replaced get_tup_block@0.ops[11]: 'v-load values%0#0' with 'l-load values%0#0'
 debug: Inserted get_tup_block@0.ops[25]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced get_tup_block@0.ops[28]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted get_tup_block@0.ops[21]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced get_tup_block@0.ops[28]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
+debug: Inserted get_tup_block@0.ops[21]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced get_tup_block@0.ops[28]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted sum_block@0.ops[6]: 'l-store-copy box%box_extract%0#1 0'
 debug: Replaced sum_block@0.ops[8]: 'v-load box%box_extract%0#1' with 'l-load box%box_extract%0#1'
 debug: Inserted sum_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced sum_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted sum_for_body@2.ops[13]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced sum_for_body@2.ops[15]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted sum_for_body@2.ops[27]: 'l-store-copy box%box_extract%4#1 0'
-debug: Replaced sum_for_body@2.ops[29]: 'v-load box%box_extract%4#1' with 'l-load box%box_extract%4#1'
-debug: Inserted sum_for_body@2.ops[33]: 'l-store-copy aggregate%encoded_element%1#1 0'
-debug: Replaced sum_for_body@2.ops[35]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
+debug: Inserted sum_for_body@2.ops[13]: 'l-store-copy tup#0 0'
+debug: Replaced sum_for_body@2.ops[15]: 'v-load tup#0' with 'l-load tup#0'
 debug: Inserted sum_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced sum_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted sum_for_body@2.ops[19]: 'l-store-copy values%1#0 0'
-debug: Replaced sum_for_body@2.ops[22]: 'v-load values%1#0' with 'l-load values%1#0'
-debug: Inserted sum_for_body@2.ops[40]: 'l-store-copy values%2#0 0'
-debug: Replaced sum_for_body@2.ops[43]: 'v-load values%2#0' with 'l-load values%2#0'
-debug: Inserted sum_for_body@2.ops[4]: 'l-store-copy box%box_extract%3#1 0'
-debug: Replaced sum_for_body@2.ops[11]: 'v-load box%box_extract%3#1' with 'l-load box%box_extract%3#1'
+debug: Inserted sum_for_body@2.ops[19]: 'l-store-copy values%3#0 0'
+debug: Replaced sum_for_body@2.ops[22]: 'v-load values%3#0' with 'l-load values%3#0'
+debug: Inserted sum_for_body@2.ops[28]: 'l-store-copy values%4#0 0'
+debug: Replaced sum_for_body@2.ops[31]: 'v-load values%4#0' with 'l-load values%4#0'
+debug: Inserted sum_for_body@2.ops[4]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced sum_for_body@2.ops[11]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted sum_for_body@2.ops[25]: 'l-store-copy total#0 0'
-debug: Replaced sum_for_body@2.ops[44]: 'v-load total#0' with 'l-load total#0'
-debug: Inserted sum_for_body@2.ops[13]: 'l-store-copy aggregate%bytes_offset%0#1 1'
-debug: Replaced sum_for_body@2.ops[35]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
+debug: Replaced sum_for_body@2.ops[32]: 'v-load total#0' with 'l-load total#0'
+debug: Inserted sum_for_body@2.ops[18]: 'l-store-copy tup#0 0'
+debug: Replaced sum_for_body@2.ops[28]: 'v-load tup#0' with 'l-load tup#0'
 debug: Inserted sum_for_body@2.ops[7]: 'l-store-copy i#0 1'
-debug: Replaced sum_for_body@2.ops[50]: 'v-load i#0' with 'l-load i#0'
+debug: Replaced sum_for_body@2.ops[38]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted add_many_tups_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced add_many_tups_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted add_many_tups_for_body@2.ops[11]: 'l-store-copy tup#0 0'
@@ -14341,22 +14252,22 @@ debug: Inserted set_a_block@0.ops[5]: 'l-store-copy box%box_extract%0#1 0'
 debug: Replaced set_a_block@0.ops[7]: 'v-load box%box_extract%0#1' with 'l-load box%box_extract%0#1'
 debug: Inserted set_a_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced set_a_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted set_a_for_body@2.ops[13]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced set_a_for_body@2.ops[15]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
+debug: Inserted set_a_for_body@2.ops[13]: 'l-store-copy tup#0 0'
+debug: Replaced set_a_for_body@2.ops[15]: 'v-load tup#0' with 'l-load tup#0'
 debug: Inserted set_a_for_body@2.ops[32]: 'l-store-copy box%index_ok%0#1 0'
 debug: Replaced set_a_for_body@2.ops[34]: 'v-load box%index_ok%0#1' with 'l-load box%index_ok%0#1'
 debug: Inserted set_a_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced set_a_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
 debug: Inserted set_a_for_body@2.ops[25]: 'l-store-copy aggregate%val_as_bytes%1#1 0'
 debug: Replaced set_a_for_body@2.ops[28]: 'v-load aggregate%val_as_bytes%1#1' with 'l-load aggregate%val_as_bytes%1#1'
-debug: Inserted set_a_for_body@2.ops[41]: 'l-store-copy box%offset%5#1 0'
-debug: Replaced set_a_for_body@2.ops[44]: 'v-load box%offset%5#1' with 'l-load box%offset%5#1'
-debug: Inserted set_a_for_body@2.ops[19]: 'l-store-copy values%1#0 0'
-debug: Replaced set_a_for_body@2.ops[24]: 'v-load values%1#0' with 'l-load values%1#0'
+debug: Inserted set_a_for_body@2.ops[41]: 'l-store-copy box%offset%3#1 0'
+debug: Replaced set_a_for_body@2.ops[44]: 'v-load box%offset%3#1' with 'l-load box%offset%3#1'
+debug: Inserted set_a_for_body@2.ops[19]: 'l-store-copy values%3#0 0'
+debug: Replaced set_a_for_body@2.ops[24]: 'v-load values%3#0' with 'l-load values%3#0'
 debug: Inserted set_a_for_body@2.ops[23]: 'l-store-copy aggregate%val_as_bytes%0#1 1'
 debug: Replaced set_a_for_body@2.ops[29]: 'v-load aggregate%val_as_bytes%0#1' with 'l-load aggregate%val_as_bytes%0#1'
-debug: Inserted set_a_for_body@2.ops[4]: 'l-store-copy box%box_extract%3#1 0'
-debug: Replaced set_a_for_body@2.ops[11]: 'v-load box%box_extract%3#1' with 'l-load box%box_extract%3#1'
+debug: Inserted set_a_for_body@2.ops[4]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced set_a_for_body@2.ops[11]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted set_a_for_body@2.ops[33]: 'l-store-copy aggregate%head%1#1 0'
 debug: Replaced set_a_for_body@2.ops[49]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
 debug: Inserted set_a_for_body@2.ops[36]: 'l-store-copy i#0 1'
@@ -14369,22 +14280,22 @@ debug: Inserted set_b_block@0.ops[5]: 'l-store-copy box%box_extract%0#1 0'
 debug: Replaced set_b_block@0.ops[7]: 'v-load box%box_extract%0#1' with 'l-load box%box_extract%0#1'
 debug: Inserted set_b_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced set_b_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted set_b_for_body@2.ops[13]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced set_b_for_body@2.ops[15]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted set_b_for_body@2.ops[18]: 'l-store-copy values%1#0 0'
-debug: Replaced set_b_for_body@2.ops[20]: 'v-load values%1#0' with 'l-load values%1#0'
+debug: Inserted set_b_for_body@2.ops[13]: 'l-store-copy tup#0 0'
+debug: Replaced set_b_for_body@2.ops[15]: 'v-load tup#0' with 'l-load tup#0'
+debug: Inserted set_b_for_body@2.ops[18]: 'l-store-copy values%3#0 0'
+debug: Replaced set_b_for_body@2.ops[20]: 'v-load values%3#0' with 'l-load values%3#0'
 debug: Inserted set_b_for_body@2.ops[33]: 'l-store-copy box%index_ok%0#1 0'
 debug: Replaced set_b_for_body@2.ops[35]: 'v-load box%index_ok%0#1' with 'l-load box%index_ok%0#1'
 debug: Inserted set_b_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced set_b_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
 debug: Inserted set_b_for_body@2.ops[26]: 'l-store-copy aggregate%val_as_bytes%1#1 0'
 debug: Replaced set_b_for_body@2.ops[29]: 'v-load aggregate%val_as_bytes%1#1' with 'l-load aggregate%val_as_bytes%1#1'
-debug: Inserted set_b_for_body@2.ops[42]: 'l-store-copy box%offset%5#1 0'
-debug: Replaced set_b_for_body@2.ops[45]: 'v-load box%offset%5#1' with 'l-load box%offset%5#1'
+debug: Inserted set_b_for_body@2.ops[42]: 'l-store-copy box%offset%3#1 0'
+debug: Replaced set_b_for_body@2.ops[45]: 'v-load box%offset%3#1' with 'l-load box%offset%3#1'
 debug: Inserted set_b_for_body@2.ops[23]: 'l-store-copy aggregate%val_as_bytes%0#1 0'
 debug: Replaced set_b_for_body@2.ops[29]: 'v-load aggregate%val_as_bytes%0#1' with 'l-load aggregate%val_as_bytes%0#1'
-debug: Inserted set_b_for_body@2.ops[4]: 'l-store-copy box%box_extract%3#1 0'
-debug: Replaced set_b_for_body@2.ops[11]: 'v-load box%box_extract%3#1' with 'l-load box%box_extract%3#1'
+debug: Inserted set_b_for_body@2.ops[4]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced set_b_for_body@2.ops[11]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted set_b_for_body@2.ops[33]: 'l-store-copy aggregate%head%1#1 0'
 debug: Replaced set_b_for_body@2.ops[49]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
 debug: Inserted set_b_for_body@2.ops[36]: 'l-store-copy i#0 1'
@@ -14397,60 +14308,58 @@ debug: Inserted get_3_tups_block@0.ops[4]: 'l-store-copy box%box_extract%0#1 0'
 debug: Replaced get_3_tups_block@0.ops[6]: 'v-load box%box_extract%0#1' with 'l-load box%box_extract%0#1'
 debug: Inserted get_3_tups_block@0.ops[16]: 'l-store-copy tmp%1#0 0'
 debug: Replaced get_3_tups_block@0.ops[18]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
-debug: Inserted get_3_tups_block@0.ops[73]: 'l-store-copy aggregate%head%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[75]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
-debug: Inserted get_3_tups_block@0.ops[78]: 'l-store-copy aggregate%head%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[80]: 'v-load aggregate%head%2#1' with 'l-load aggregate%head%2#1'
+debug: Inserted get_3_tups_block@0.ops[37]: 'l-store-copy tmp%2#0 0'
+debug: Replaced get_3_tups_block@0.ops[39]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted get_3_tups_block@0.ops[51]: 'l-store-copy tmp%3#0 0'
+debug: Replaced get_3_tups_block@0.ops[53]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
+debug: Inserted get_3_tups_block@0.ops[65]: 'l-store-copy aggregate%head%1#1 0'
+debug: Replaced get_3_tups_block@0.ops[67]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
+debug: Inserted get_3_tups_block@0.ops[70]: 'l-store-copy aggregate%head%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[72]: 'v-load aggregate%head%2#1' with 'l-load aggregate%head%2#1'
 debug: Inserted get_3_tups_block@0.ops[12]: 'l-store-copy tmp%0#0 0'
 debug: Replaced get_3_tups_block@0.ops[15]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted get_3_tups_block@0.ops[29]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced get_3_tups_block@0.ops[32]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted get_3_tups_block@0.ops[48]: 'l-store-copy aggregate%bytes_offset%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[51]: 'v-load aggregate%bytes_offset%1#1' with 'l-load aggregate%bytes_offset%1#1'
-debug: Inserted get_3_tups_block@0.ops[67]: 'l-store-copy aggregate%bytes_offset%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[70]: 'v-load aggregate%bytes_offset%2#1' with 'l-load aggregate%bytes_offset%2#1'
+debug: Inserted get_3_tups_block@0.ops[44]: 'l-store-copy aggregate%bytes_offset%1#1 0'
+debug: Replaced get_3_tups_block@0.ops[47]: 'v-load aggregate%bytes_offset%1#1' with 'l-load aggregate%bytes_offset%1#1'
+debug: Inserted get_3_tups_block@0.ops[59]: 'l-store-copy aggregate%bytes_offset%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[62]: 'v-load aggregate%bytes_offset%2#1' with 'l-load aggregate%bytes_offset%2#1'
 debug: Inserted get_3_tups_block@0.ops[8]: 'l-store-copy values%0#0 0'
 debug: Replaced get_3_tups_block@0.ops[15]: 'v-load values%0#0' with 'l-load values%0#0'
-debug: Inserted get_3_tups_block@0.ops[26]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[33]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
-debug: Inserted get_3_tups_block@0.ops[46]: 'l-store-copy box%box_extract%3#1 0'
-debug: Replaced get_3_tups_block@0.ops[53]: 'v-load box%box_extract%3#1' with 'l-load box%box_extract%3#1'
-debug: Inserted get_3_tups_block@0.ops[66]: 'l-store-copy box%box_extract%4#1 0'
-debug: Replaced get_3_tups_block@0.ops[73]: 'v-load box%box_extract%4#1' with 'l-load box%box_extract%4#1'
-debug: Inserted get_3_tups_block@0.ops[41]: 'l-store-copy tmp%2#0 0'
-debug: Replaced get_3_tups_block@0.ops[49]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted get_3_tups_block@0.ops[62]: 'l-store-copy tmp%3#0 0'
-debug: Replaced get_3_tups_block@0.ops[70]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted get_3_tups_block@0.ops[79]: 'l-store-copy aggregate%encoded_element%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[87]: 'v-load aggregate%encoded_element%2#1' with 'l-load aggregate%encoded_element%2#1'
-debug: Inserted get_3_tups_block@0.ops[58]: 'l-store-copy aggregate%encoded_element%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[83]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
-debug: Inserted get_3_tups_block@0.ops[37]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced get_3_tups_block@0.ops[83]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted get_all_tups_block@0.ops[6]: 'l-store-copy box%box_extract%1#1 0'
-debug: Replaced get_all_tups_block@0.ops[8]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
+debug: Inserted get_3_tups_block@0.ops[26]: 'l-store-copy items#0 0'
+debug: Replaced get_3_tups_block@0.ops[33]: 'v-load items#0' with 'l-load items#0'
+debug: Inserted get_3_tups_block@0.ops[67]: 'l-store-copy aggregate%encoded_element%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[75]: 'v-load aggregate%encoded_element%2#1' with 'l-load aggregate%encoded_element%2#1'
+debug: Inserted get_3_tups_block@0.ops[34]: 'l-store-copy items#0 1'
+debug: Replaced get_3_tups_block@0.ops[49]: 'v-load items#0' with 'l-load items#0'
+debug: Inserted get_3_tups_block@0.ops[50]: 'l-store-copy items#0 1'
+debug: Replaced get_3_tups_block@0.ops[65]: 'v-load items#0' with 'l-load items#0'
+debug: Inserted get_3_tups_block@0.ops[54]: 'l-store-copy aggregate%encoded_element%1#1 1'
+debug: Replaced get_3_tups_block@0.ops[73]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
+debug: Inserted get_3_tups_block@0.ops[38]: 'l-store-copy aggregate%encoded_element%0#1 1'
+debug: Replaced get_3_tups_block@0.ops[73]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
+debug: Inserted get_all_tups_block@0.ops[11]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced get_all_tups_block@0.ops[13]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted get_all_tups_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced get_all_tups_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[21]: 'l-store-copy extract_uint16%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[23]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[26]: 'l-store-copy add%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[28]: 'v-load add%0#0' with 'l-load add%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[30]: 'l-store-copy as_bytes%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[32]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[14]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[17]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[36]: 'l-store-copy as_u16_bytes%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[39]: 'v-load as_u16_bytes%0#0' with 'l-load as_u16_bytes%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[17]: 'l-store-copy result#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[21]: 'v-load result#0' with 'l-load result#0'
-debug: Inserted get_all_tups_for_body@2.ops[4]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[11]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
-debug: Inserted get_all_tups_for_body@2.ops[21]: 'l-store-copy concat%0#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[41]: 'v-load concat%0#0' with 'l-load concat%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[7]: 'l-store-copy i#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[46]: 'v-load i#0' with 'l-load i#0'
+debug: Inserted get_all_tups_for_body@2.ops[16]: 'l-store-copy extract_uint16%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[18]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[21]: 'l-store-copy add%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[23]: 'v-load add%0#0' with 'l-load add%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[25]: 'l-store-copy as_bytes%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[27]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[3]: 'l-store-copy aggregate%bytes_offset%0#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[6]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[9]: 'l-store-copy aggregate%encoded_element%0#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[12]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[31]: 'l-store-copy as_u16_bytes%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[34]: 'v-load as_u16_bytes%0#0' with 'l-load as_u16_bytes%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[12]: 'l-store-copy result#0 1'
+debug: Replaced get_all_tups_for_body@2.ops[16]: 'v-load result#0' with 'l-load result#0'
+debug: Inserted get_all_tups_for_body@2.ops[15]: 'l-store-copy concat%0#0 1'
+debug: Replaced get_all_tups_for_body@2.ops[35]: 'v-load concat%0#0' with 'l-load concat%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[1]: 'l-store-copy i#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[40]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted _check_owner_block@0.ops[4]: 'l-store-copy box%box_extract%0#1 0'
 debug: Replaced _check_owner_block@0.ops[6]: 'v-load box%box_extract%0#1' with 'l-load box%box_extract%0#1'
 debug: Inserted _check_owner_block@0.ops[9]: 'l-store-copy aggregate%get_bit%0#1 0'
@@ -14467,8 +14376,8 @@ debug: Inserted _check_owner_block@0.ops[38]: 'l-store-copy tmp%2#0 0'
 debug: Replaced _check_owner_block@0.ops[41]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted _check_owner_block@0.ops[17]: 'l-store-copy box%box_extract%1#1 0'
 debug: Replaced _check_owner_block@0.ops[22]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
-debug: Inserted _check_owner_block@0.ops[37]: 'l-store-copy values%1#0 0'
-debug: Replaced _check_owner_block@0.ops[42]: 'v-load values%1#0' with 'l-load values%1#0'
+debug: Inserted _check_owner_block@0.ops[37]: 'l-store-copy values%2#0 0'
+debug: Replaced _check_owner_block@0.ops[42]: 'v-load values%2#0' with 'l-load values%2#0'
 debug: Found 3 edge set/s for test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_entrypoint_with_init
 debug: Allocated 1 variable/s to x-stack: tmp%0#1
 debug: shared x-stack for main_create_box_route@5 -> main_after_inlined_test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__puya_arc4_router__@19: tmp%0#1
@@ -14501,7 +14410,7 @@ debug: test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmS
 debug: test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b f-stack entry: []
 debug: test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.set_b f-stack on first store: ['values%0#0', 'i#0']
 debug: test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups f-stack entry: []
-debug: test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups f-stack on first store: ['result#0', 'values%0#0', 'i#0']
+debug: test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.get_all_tups f-stack on first store: ['result#0', 'items#0', 'values%1#0', 'i#0']
 debug: optimizing TEAL subroutine ops test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.__algopy_entrypoint_with_init() -> uint64:
 mutable_native_types/case2_with_immutable_struct.py:38 debug: optimizing TEAL subroutine ops test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.create_box() -> void:
 mutable_native_types/case2_with_immutable_struct.py:45 debug: optimizing TEAL subroutine ops test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.num_tups() -> uint64:
@@ -14990,7 +14899,7 @@ and ReplaceValue `updated_tuple%1#0 = replace_value(storage_value%1#0, 3, encode
 and BoxWrite `box_write("tup_bag", updated_tuple%1#0)`
 into (box_replace "tup_bag" box%offset%1#1 encoded_value%1#0)
 mutable_native_types/case1_with_tups.py:50:9 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
-and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, 1u)`
+and ReplaceValue `updated_tuple%2#0 = replace_value(storage_value%2#0, 5, encoded_value%2#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%2#0)`
 into (box_replace "tup_bag" box%byte_containing_bit_offset%0#1 box%tmp%0#1)
 debug: Optimizer: Minimize Box Exist Asserts
@@ -15074,7 +14983,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:66:16 debug: replacing extract_value(tuple_item%1#0, index#0) with extract_value(storage_value%1#0, 1, index#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:65:24 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -15082,9 +14990,6 @@ into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:66:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case1_with_tups.py:66:16 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, index#0)`
-into extract_value(box%box_extract%2#1, index#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case1_with_tups.py:66:16 debug: replacing box read with cached value for key: "tup_bag"
@@ -15093,9 +14998,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: values%1#0, tup.a#0
+debug: Found equivalence set: values%2#0, tup.a#0
 debug: selected tup.a#0 from equivalence set
-debug: Found equivalence set: values%2#0, tup.b#0
+debug: Found equivalence set: values%3#0, tup.b#0
 debug: selected tup.b#0 from equivalence set
 debug: Found equivalence set: tmp%0#0, total#2
 debug: selected total#2 from equivalence set
@@ -15116,7 +15021,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:72:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:71:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -15124,9 +15028,6 @@ into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:72:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case1_with_tups.py:72:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_many_tups
@@ -15191,9 +15092,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: values%1#0, tup.a#0
+debug: Found equivalence set: values%2#0, tup.a#0
 debug: selected tup.a#0 from equivalence set
-debug: Found equivalence set: values%2#0, tup.b#0
+debug: Found equivalence set: values%3#0, tup.b#0
 debug: selected tup.b#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -15210,7 +15111,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:91:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:90:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -15218,13 +15118,10 @@ into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case1_with_tups.py:91:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
 mutable_native_types/case1_with_tups.py:92:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
 and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
-into (box_replace "tup_bag" box%offset%4#1 encoded_value%0#0)
+into (box_replace "tup_bag" box%offset%3#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case1_with_tups.py:92:13 debug: replacing box read with cached value for key: "tup_bag"
@@ -15233,9 +15130,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: values%1#0, tup.a#0
+debug: Found equivalence set: values%2#0, tup.a#0
 debug: selected tup.a#0 from equivalence set
-debug: Found equivalence set: values%2#0, tup.b#0
+debug: Found equivalence set: values%3#0, tup.b#0
 debug: selected tup.b#0 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -15252,7 +15149,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:98:19 debug: replacing extract_value(tuple_item%1#0, i#1) with extract_value(storage_value%1#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:97:25 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -15260,13 +15156,10 @@ into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:98:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case1_with_tups.py:98:19 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
 mutable_native_types/case1_with_tups.py:99:13 debug: combined BoxRead `storage_value%2#0 = box_read("tup_bag")`
 and ReplaceValue `updated_tuple%0#0 = replace_value(storage_value%2#0, 1, i#1, encoded_value%0#0)`
 and BoxWrite `box_write("tup_bag", updated_tuple%0#0)`
-into (box_replace "tup_bag" box%offset%4#1 encoded_value%0#0)
+into (box_replace "tup_bag" box%offset%3#1 encoded_value%0#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case1_with_tups.py:99:13 debug: replacing box read with cached value for key: "tup_bag"
@@ -15275,7 +15168,7 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: tuple_item%1#0, items#0
+debug: Found equivalence set: values%1#0, items#0
 debug: selected items#0 from equivalence set
 debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -15290,9 +15183,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:108:17 debug: replacing extract_value(items#0, start#0) with extract_value(storage_value%1#0, 1, start#0)
-mutable_native_types/case1_with_tups.py:109:17 debug: replacing extract_value(items#0, tmp%2#0) with extract_value(storage_value%1#0, 1, tmp%2#0)
-mutable_native_types/case1_with_tups.py:110:17 debug: replacing extract_value(items#0, tmp%3#0) with extract_value(storage_value%1#0, 1, tmp%3#0)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:103:16 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 0)`
@@ -15300,15 +15190,6 @@ into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 1)`
 into box%box_extract%1#1
-mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, start#0)`
-into extract_value(box%box_extract%2#1, start#0)
-mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, tmp%2#0)`
-into extract_value(box%box_extract%3#1, tmp%2#0)
-mutable_native_types/case1_with_tups.py:104:17 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%1#0, 1, tmp%3#0)`
-into extract_value(box%box_extract%4#1, tmp%3#0)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case1_with_tups.py:104:17 debug: replacing box read with cached value for key: "tup_bag"
@@ -15319,7 +15200,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: encoded_array%0#0, result#0
 debug: selected result#0 from equivalence set
-debug: Found equivalence set: tuple_item%0#0, items#0
+debug: Found equivalence set: values%0#0, items#0
 debug: selected items#0 from equivalence set
 debug: Found equivalence set: replace%0#0, as_Encoded(len+(uint64,uint64)[])%0#0, result#2
 debug: selected result#2 from equivalence set
@@ -15339,7 +15220,6 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
-mutable_native_types/case1_with_tups.py:120:27 debug: replacing extract_value(items#0, i#1) with extract_value(storage_value%0#0, 1, i#1)
 debug: Optimizer: Replace Aggregate Box Ops
 mutable_native_types/case1_with_tups.py:117:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%0#0, 1)`
@@ -15347,9 +15227,6 @@ into box%box_extract%0#1
 mutable_native_types/case1_with_tups.py:119:25 debug: combined BoxRead `storage_value%1#0 = box_read("tup_bag")`
 and ExtractValue `extract_value(storage_value%1#0, 0)`
 into box%box_extract%1#1
-mutable_native_types/case1_with_tups.py:117:17 debug: combined BoxRead `storage_value%0#0 = box_read("tup_bag")`
-and ExtractValue `extract_value(storage_value%0#0, 1, i#1)`
-into extract_value(box%box_extract%2#1, i#1)
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 mutable_native_types/case1_with_tups.py:119:25 debug: replacing box read with cached value for key: "tup_bag"
@@ -15740,12 +15617,10 @@ debug: Found equivalence set: storage_value%0#0, storage_value%1#0
 debug: selected storage_value%0#0 from equivalence set
 debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable box%box_extract%1#1
-debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
@@ -15770,13 +15645,11 @@ debug: Found equivalence set: box%box_extract%0#1, tuple_item%0#0
 debug: selected box%box_extract%0#1 from equivalence set
 debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
-debug: Copy propagation made 1 modifications
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Removing unused variable box%box_extract%1#1
-debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
@@ -15843,14 +15716,12 @@ debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
 debug: Found equivalence set: storage_value%1#0, storage_value%2#0
 debug: selected storage_value%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable box%box_extract%1#1
 debug: Removing unused variable updated_tuple%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
@@ -15878,14 +15749,12 @@ debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
 debug: selected box%box_extract%1#1 from equivalence set
 debug: Found equivalence set: storage_value%1#0, storage_value%2#0
 debug: selected storage_value%1#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable box%box_extract%1#1
 debug: Removing unused variable updated_tuple%0#0
 debug: Removing unused variable storage_value%1#0
-debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
@@ -15911,18 +15780,14 @@ debug: Found equivalence set: box%box_extract%0#1, tuple_item%0#0
 debug: selected box%box_extract%0#1 from equivalence set
 debug: Found equivalence set: storage_value%0#0, storage_value%1#0
 debug: selected storage_value%0#0 from equivalence set
-debug: Found equivalence set: box%box_extract%1#1, items#0
-debug: selected items#0 from equivalence set
+debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
+debug: selected box%box_extract%1#1 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable items#0
-debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (+ 0u 0u) to 0u
-debug: Simplified (+ 0u 8u) to 8u
-debug: Simplified (+ 0u 8u) to 8u
 debug: Simplified (+ 0u 8u) to 8u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -15941,8 +15806,8 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: box%box_extract%0#1, items#0
-debug: selected items#0 from equivalence set
+debug: Found equivalence set: box%box_extract%0#1, tuple_item%0#0
+debug: selected box%box_extract%0#1 from equivalence set
 debug: Found equivalence set: storage_value%0#0, storage_value%1#0
 debug: selected storage_value%0#0 from equivalence set
 debug: Found equivalence set: box%box_extract%1#1, tuple_item%1#0
@@ -15951,11 +15816,9 @@ debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable storage_value%0#0
-debug: Removing unused variable items#0
-debug: Removing unused variable box%offset%0#1
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (+ 0u 0u) to 0u
 debug: Simplified (+ 0u 8u) to 8u
+debug: Simplified (+ 0u 0u) to 0u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -16204,7 +16067,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%2#1
+debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -16226,7 +16089,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%2#1
+debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -16288,8 +16151,8 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
+debug: Removing unused variable box%offset%1#1
 debug: Removing unused variable box%offset%2#1
-debug: Removing unused variable box%offset%3#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -16311,8 +16174,8 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
+debug: Removing unused variable box%offset%1#1
 debug: Removing unused variable box%offset%2#1
-debug: Removing unused variable box%offset%3#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -16334,9 +16197,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable box%offset%0#1
-debug: Removing unused variable box%offset%2#1
-debug: Removing unused variable box%offset%3#1
-debug: Removing unused variable box%offset%4#1
+debug: Removing unused variable box%offset%1#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -16357,8 +16218,8 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable box%offset%0#1
 debug: Removing unused variable box%offset%1#1
-debug: Removing unused variable box%offset%2#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -16943,6 +16804,8 @@ debug: selected aggregate%updated_target%0#1 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%as_Encoded(bool1)%0#1
+debug: Removing unused variable encoded_value%2#0
 debug: Removing unused variable aggregate%get_bit%0#1
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (< 0u 8u) to 1u
@@ -17014,13 +16877,15 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
-debug: Found equivalence set: aggregate%item0%0#1, values%1#0
+debug: Found equivalence set: aggregate%item0%0#1, values%2#0
 debug: selected aggregate%item0%0#1 from equivalence set
-debug: Found equivalence set: aggregate%item1%0#1, values%2#0
+debug: Found equivalence set: aggregate%item1%0#1, values%3#0
 debug: selected aggregate%item1%0#1 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -17045,13 +16910,15 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
 debug: Found equivalence set: aggregate%item0%0#1, tup.a#0
 debug: selected tup.a#0 from equivalence set
 debug: Found equivalence set: aggregate%item1%0#1, tup.b#0
 debug: selected tup.b#0 from equivalence set
-debug: Copy propagation made 4 modifications
+debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -17138,6 +17005,8 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
 debug: Found equivalence set: aggregate%item0%0#1, tup.a#0
@@ -17150,7 +17019,7 @@ debug: Found equivalence set: aggregate%val_as_bytes%1#1, aggregate%as_Encoded(u
 debug: selected aggregate%val_as_bytes%1#1 from equivalence set
 debug: Found equivalence set: aggregate%head%1#1, aggregate%as_Encoded(uint64,uint64)%0#1, encoded_value%0#0
 debug: selected aggregate%head%1#1 from equivalence set
-debug: Copy propagation made 7 modifications
+debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tup.a#0
@@ -17182,6 +17051,8 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
+debug: selected box%box_extract%1#1 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
 debug: Found equivalence set: aggregate%item0%0#1, tup.a#0
@@ -17194,7 +17065,7 @@ debug: Found equivalence set: aggregate%val_as_bytes%1#1, aggregate%as_Encoded(u
 debug: selected aggregate%val_as_bytes%1#1 from equivalence set
 debug: Found equivalence set: aggregate%head%1#1, aggregate%as_Encoded(uint64,uint64)%0#1, encoded_value%0#0
 debug: selected aggregate%head%1#1 from equivalence set
-debug: Copy propagation made 7 modifications
+debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tup.b#0
@@ -17226,23 +17097,25 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: box%box_extract%1#1, items#0
+debug: selected items#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
-debug: Found equivalence set: aggregate%item0%0#1, values%1#0
+debug: Found equivalence set: aggregate%item0%0#1, values%2#0
 debug: selected aggregate%item0%0#1 from equivalence set
-debug: Found equivalence set: aggregate%item1%0#1, values%2#0
+debug: Found equivalence set: aggregate%item1%0#1, values%3#0
 debug: selected aggregate%item1%0#1 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%1#1, array_item%1#0
 debug: selected aggregate%encoded_element%1#1 from equivalence set
-debug: Found equivalence set: aggregate%item0%1#1, values%3#0
+debug: Found equivalence set: aggregate%item0%1#1, values%4#0
 debug: selected aggregate%item0%1#1 from equivalence set
-debug: Found equivalence set: aggregate%item1%1#1, values%4#0
+debug: Found equivalence set: aggregate%item1%1#1, values%5#0
 debug: selected aggregate%item1%1#1 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%2#1, array_item%2#0
 debug: selected aggregate%encoded_element%2#1 from equivalence set
-debug: Found equivalence set: aggregate%item0%2#1, values%5#0
+debug: Found equivalence set: aggregate%item0%2#1, values%6#0
 debug: selected aggregate%item0%2#1 from equivalence set
-debug: Found equivalence set: aggregate%item1%2#1, values%6#0
+debug: Found equivalence set: aggregate%item1%2#1, values%7#0
 debug: selected aggregate%item1%2#1 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%as_Encoded(uint64)%0#1
 debug: selected aggregate%val_as_bytes%0#1 from equivalence set
@@ -17264,7 +17137,7 @@ debug: Found equivalence set: aggregate%head%7#1, aggregate%as_Encoded(uint64,ui
 debug: selected aggregate%head%7#1 from equivalence set
 debug: Found equivalence set: aggregate%head%8#1, aggregate%as_Encoded((uint64,uint64)[3])%0#1, encoded_array%0#0
 debug: selected aggregate%head%8#1 from equivalence set
-debug: Copy propagation made 22 modifications
+debug: Copy propagation made 23 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -17303,11 +17176,13 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Found equivalence set: aggregate%len_u16%0#1, aggregate%as_Encoded(len+(uint64,uint64)[])%0#1, result#0
 debug: selected result#0 from equivalence set
+debug: Found equivalence set: box%box_extract%0#1, items#0
+debug: selected items#0 from equivalence set
 debug: Found equivalence set: aggregate%encoded_element%0#1, array_item%0#0
 debug: selected aggregate%encoded_element%0#1 from equivalence set
-debug: Found equivalence set: aggregate%item0%0#1, values%1#0
+debug: Found equivalence set: aggregate%item0%0#1, values%2#0
 debug: selected aggregate%item0%0#1 from equivalence set
-debug: Found equivalence set: aggregate%item1%0#1, values%2#0
+debug: Found equivalence set: aggregate%item1%0#1, values%3#0
 debug: selected aggregate%item1%0#1 from equivalence set
 debug: Found equivalence set: aggregate%val_as_bytes%0#1, aggregate%as_Encoded(uint64)%0#1
 debug: selected aggregate%val_as_bytes%0#1 from equivalence set
@@ -17317,7 +17192,7 @@ debug: Found equivalence set: aggregate%head%1#1, aggregate%as_Encoded(uint64,ui
 debug: selected aggregate%head%1#1 from equivalence set
 debug: Found equivalence set: aggregate%head%2#1, aggregate%as_Encoded((uint64,uint64)[])%0#1, tmp%0#0
 debug: selected aggregate%head%2#1 from equivalence set
-debug: Copy propagation made 9 modifications
+debug: Copy propagation made 10 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -17345,9 +17220,9 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%get_bit%0#1, tuple_item%0#0
+debug: Found equivalence set: aggregate%get_bit%0#1, tuple_item%0#0, values%0#0
 debug: selected aggregate%get_bit%0#1 from equivalence set
-debug: Found equivalence set: box%box_extract%1#1, values%0#0
+debug: Found equivalence set: box%box_extract%1#1, values%1#0
 debug: selected box%box_extract%1#1 from equivalence set
 debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
@@ -18350,8 +18225,8 @@ debug: Inserted get_tup_block@0.ops[40]: 'l-store-copy aggregate%item1%0#1 0'
 debug: Replaced get_tup_block@0.ops[43]: 'v-load aggregate%item1%0#1' with 'l-load aggregate%item1%0#1'
 debug: Inserted get_tup_block@0.ops[34]: 'l-store-copy aggregate%encoded_element%0#1 0'
 debug: Replaced get_tup_block@0.ops[38]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted get_tup_block@0.ops[21]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced get_tup_block@0.ops[28]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
+debug: Inserted get_tup_block@0.ops[21]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced get_tup_block@0.ops[28]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted get_tup_block@0.ops[38]: 'l-store-copy aggregate%item0%0#1 1'
 debug: Replaced get_tup_block@0.ops[45]: 'v-load aggregate%item0%0#1' with 'l-load aggregate%item0%0#1'
 debug: Inserted sum_block@0.ops[6]: 'l-store-copy box%box_extract%0#1 0'
@@ -18366,8 +18241,8 @@ debug: Inserted sum_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#1 
 debug: Replaced sum_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
 debug: Inserted sum_for_body@2.ops[17]: 'l-store-copy aggregate%encoded_element%0#1 0'
 debug: Replaced sum_for_body@2.ops[21]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted sum_for_body@2.ops[4]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced sum_for_body@2.ops[11]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
+debug: Inserted sum_for_body@2.ops[4]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced sum_for_body@2.ops[11]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted sum_for_body@2.ops[21]: 'l-store-copy tup.a#0 1'
 debug: Replaced sum_for_body@2.ops[28]: 'v-load tup.a#0' with 'l-load tup.a#0'
 debug: Inserted sum_for_body@2.ops[26]: 'l-store-copy tup.b#0 1'
@@ -18416,14 +18291,14 @@ debug: Inserted set_a_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#
 debug: Replaced set_a_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
 debug: Inserted set_a_for_body@2.ops[25]: 'l-store-copy aggregate%val_as_bytes%1#1 0'
 debug: Replaced set_a_for_body@2.ops[28]: 'v-load aggregate%val_as_bytes%1#1' with 'l-load aggregate%val_as_bytes%1#1'
-debug: Inserted set_a_for_body@2.ops[41]: 'l-store-copy box%offset%4#1 0'
-debug: Replaced set_a_for_body@2.ops[44]: 'v-load box%offset%4#1' with 'l-load box%offset%4#1'
+debug: Inserted set_a_for_body@2.ops[41]: 'l-store-copy box%offset%3#1 0'
+debug: Replaced set_a_for_body@2.ops[44]: 'v-load box%offset%3#1' with 'l-load box%offset%3#1'
 debug: Inserted set_a_for_body@2.ops[19]: 'l-store-copy tup.b#0 0'
 debug: Replaced set_a_for_body@2.ops[24]: 'v-load tup.b#0' with 'l-load tup.b#0'
 debug: Inserted set_a_for_body@2.ops[23]: 'l-store-copy aggregate%val_as_bytes%0#1 1'
 debug: Replaced set_a_for_body@2.ops[29]: 'v-load aggregate%val_as_bytes%0#1' with 'l-load aggregate%val_as_bytes%0#1'
-debug: Inserted set_a_for_body@2.ops[4]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced set_a_for_body@2.ops[11]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
+debug: Inserted set_a_for_body@2.ops[4]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced set_a_for_body@2.ops[11]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted set_a_for_body@2.ops[33]: 'l-store-copy aggregate%head%1#1 0'
 debug: Replaced set_a_for_body@2.ops[49]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
 debug: Inserted set_a_for_body@2.ops[36]: 'l-store-copy i#0 1'
@@ -18446,12 +18321,12 @@ debug: Inserted set_b_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#
 debug: Replaced set_b_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
 debug: Inserted set_b_for_body@2.ops[26]: 'l-store-copy aggregate%val_as_bytes%1#1 0'
 debug: Replaced set_b_for_body@2.ops[29]: 'v-load aggregate%val_as_bytes%1#1' with 'l-load aggregate%val_as_bytes%1#1'
-debug: Inserted set_b_for_body@2.ops[42]: 'l-store-copy box%offset%4#1 0'
-debug: Replaced set_b_for_body@2.ops[45]: 'v-load box%offset%4#1' with 'l-load box%offset%4#1'
+debug: Inserted set_b_for_body@2.ops[42]: 'l-store-copy box%offset%3#1 0'
+debug: Replaced set_b_for_body@2.ops[45]: 'v-load box%offset%3#1' with 'l-load box%offset%3#1'
 debug: Inserted set_b_for_body@2.ops[23]: 'l-store-copy aggregate%val_as_bytes%0#1 0'
 debug: Replaced set_b_for_body@2.ops[29]: 'v-load aggregate%val_as_bytes%0#1' with 'l-load aggregate%val_as_bytes%0#1'
-debug: Inserted set_b_for_body@2.ops[4]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced set_b_for_body@2.ops[11]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
+debug: Inserted set_b_for_body@2.ops[4]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced set_b_for_body@2.ops[11]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted set_b_for_body@2.ops[33]: 'l-store-copy aggregate%head%1#1 0'
 debug: Replaced set_b_for_body@2.ops[49]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
 debug: Inserted set_b_for_body@2.ops[36]: 'l-store-copy i#0 1'
@@ -18466,106 +18341,104 @@ debug: Inserted get_3_tups_block@0.ops[16]: 'l-store-copy tmp%1#0 0'
 debug: Replaced get_3_tups_block@0.ops[18]: 'v-load tmp%1#0' with 'l-load tmp%1#0'
 debug: Inserted get_3_tups_block@0.ops[33]: 'l-store-copy aggregate%encoded_element%0#1 0'
 debug: Replaced get_3_tups_block@0.ops[35]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted get_3_tups_block@0.ops[60]: 'l-store-copy aggregate%encoded_element%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[62]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
-debug: Inserted get_3_tups_block@0.ops[87]: 'l-store-copy aggregate%encoded_element%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[89]: 'v-load aggregate%encoded_element%2#1' with 'l-load aggregate%encoded_element%2#1'
-debug: Inserted get_3_tups_block@0.ops[134]: 'l-store-copy aggregate%head%8#1 0'
-debug: Replaced get_3_tups_block@0.ops[136]: 'v-load aggregate%head%8#1' with 'l-load aggregate%head%8#1'
+debug: Inserted get_3_tups_block@0.ops[46]: 'l-store-copy tmp%2#0 0'
+debug: Replaced get_3_tups_block@0.ops[48]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
+debug: Inserted get_3_tups_block@0.ops[56]: 'l-store-copy aggregate%encoded_element%1#1 0'
+debug: Replaced get_3_tups_block@0.ops[58]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
+debug: Inserted get_3_tups_block@0.ops[69]: 'l-store-copy tmp%3#0 0'
+debug: Replaced get_3_tups_block@0.ops[71]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
+debug: Inserted get_3_tups_block@0.ops[79]: 'l-store-copy aggregate%encoded_element%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[81]: 'v-load aggregate%encoded_element%2#1' with 'l-load aggregate%encoded_element%2#1'
+debug: Inserted get_3_tups_block@0.ops[126]: 'l-store-copy aggregate%head%8#1 0'
+debug: Replaced get_3_tups_block@0.ops[128]: 'v-load aggregate%head%8#1' with 'l-load aggregate%head%8#1'
 debug: Inserted get_3_tups_block@0.ops[12]: 'l-store-copy tmp%0#0 0'
 debug: Replaced get_3_tups_block@0.ops[15]: 'v-load tmp%0#0' with 'l-load tmp%0#0'
 debug: Inserted get_3_tups_block@0.ops[29]: 'l-store-copy aggregate%bytes_offset%0#1 0'
 debug: Replaced get_3_tups_block@0.ops[32]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted get_3_tups_block@0.ops[57]: 'l-store-copy aggregate%bytes_offset%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[60]: 'v-load aggregate%bytes_offset%1#1' with 'l-load aggregate%bytes_offset%1#1'
-debug: Inserted get_3_tups_block@0.ops[85]: 'l-store-copy aggregate%bytes_offset%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[88]: 'v-load aggregate%bytes_offset%2#1' with 'l-load aggregate%bytes_offset%2#1'
-debug: Inserted get_3_tups_block@0.ops[106]: 'l-store-copy aggregate%val_as_bytes%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[109]: 'v-load aggregate%val_as_bytes%1#1' with 'l-load aggregate%val_as_bytes%1#1'
-debug: Inserted get_3_tups_block@0.ops[117]: 'l-store-copy aggregate%val_as_bytes%3#1 0'
-debug: Replaced get_3_tups_block@0.ops[120]: 'v-load aggregate%val_as_bytes%3#1' with 'l-load aggregate%val_as_bytes%3#1'
-debug: Inserted get_3_tups_block@0.ops[122]: 'l-store-copy aggregate%head%4#1 0'
-debug: Replaced get_3_tups_block@0.ops[125]: 'v-load aggregate%head%4#1' with 'l-load aggregate%head%4#1'
-debug: Inserted get_3_tups_block@0.ops[133]: 'l-store-copy aggregate%val_as_bytes%5#1 0'
-debug: Replaced get_3_tups_block@0.ops[136]: 'v-load aggregate%val_as_bytes%5#1' with 'l-load aggregate%val_as_bytes%5#1'
-debug: Inserted get_3_tups_block@0.ops[138]: 'l-store-copy aggregate%head%7#1 0'
-debug: Replaced get_3_tups_block@0.ops[141]: 'v-load aggregate%head%7#1' with 'l-load aggregate%head%7#1'
+debug: Inserted get_3_tups_block@0.ops[53]: 'l-store-copy aggregate%bytes_offset%1#1 0'
+debug: Replaced get_3_tups_block@0.ops[56]: 'v-load aggregate%bytes_offset%1#1' with 'l-load aggregate%bytes_offset%1#1'
+debug: Inserted get_3_tups_block@0.ops[77]: 'l-store-copy aggregate%bytes_offset%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[80]: 'v-load aggregate%bytes_offset%2#1' with 'l-load aggregate%bytes_offset%2#1'
+debug: Inserted get_3_tups_block@0.ops[98]: 'l-store-copy aggregate%val_as_bytes%1#1 0'
+debug: Replaced get_3_tups_block@0.ops[101]: 'v-load aggregate%val_as_bytes%1#1' with 'l-load aggregate%val_as_bytes%1#1'
+debug: Inserted get_3_tups_block@0.ops[109]: 'l-store-copy aggregate%val_as_bytes%3#1 0'
+debug: Replaced get_3_tups_block@0.ops[112]: 'v-load aggregate%val_as_bytes%3#1' with 'l-load aggregate%val_as_bytes%3#1'
+debug: Inserted get_3_tups_block@0.ops[114]: 'l-store-copy aggregate%head%4#1 0'
+debug: Replaced get_3_tups_block@0.ops[117]: 'v-load aggregate%head%4#1' with 'l-load aggregate%head%4#1'
+debug: Inserted get_3_tups_block@0.ops[125]: 'l-store-copy aggregate%val_as_bytes%5#1 0'
+debug: Replaced get_3_tups_block@0.ops[128]: 'v-load aggregate%val_as_bytes%5#1' with 'l-load aggregate%val_as_bytes%5#1'
+debug: Inserted get_3_tups_block@0.ops[130]: 'l-store-copy aggregate%head%7#1 0'
+debug: Replaced get_3_tups_block@0.ops[133]: 'v-load aggregate%head%7#1' with 'l-load aggregate%head%7#1'
 debug: Inserted get_3_tups_block@0.ops[38]: 'l-store-copy aggregate%encoded_element%0#1 0'
 debug: Replaced get_3_tups_block@0.ops[42]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted get_3_tups_block@0.ops[67]: 'l-store-copy aggregate%encoded_element%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[71]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
-debug: Inserted get_3_tups_block@0.ops[96]: 'l-store-copy aggregate%encoded_element%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[100]: 'v-load aggregate%encoded_element%2#1' with 'l-load aggregate%encoded_element%2#1'
-debug: Inserted get_3_tups_block@0.ops[106]: 'l-store-copy aggregate%val_as_bytes%0#1 0'
-debug: Replaced get_3_tups_block@0.ops[112]: 'v-load aggregate%val_as_bytes%0#1' with 'l-load aggregate%val_as_bytes%0#1'
-debug: Inserted get_3_tups_block@0.ops[118]: 'l-store-copy aggregate%val_as_bytes%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[124]: 'v-load aggregate%val_as_bytes%2#1' with 'l-load aggregate%val_as_bytes%2#1'
-debug: Inserted get_3_tups_block@0.ops[135]: 'l-store-copy aggregate%val_as_bytes%4#1 0'
-debug: Replaced get_3_tups_block@0.ops[141]: 'v-load aggregate%val_as_bytes%4#1' with 'l-load aggregate%val_as_bytes%4#1'
+debug: Inserted get_3_tups_block@0.ops[63]: 'l-store-copy aggregate%encoded_element%1#1 0'
+debug: Replaced get_3_tups_block@0.ops[67]: 'v-load aggregate%encoded_element%1#1' with 'l-load aggregate%encoded_element%1#1'
+debug: Inserted get_3_tups_block@0.ops[88]: 'l-store-copy aggregate%encoded_element%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[92]: 'v-load aggregate%encoded_element%2#1' with 'l-load aggregate%encoded_element%2#1'
+debug: Inserted get_3_tups_block@0.ops[98]: 'l-store-copy aggregate%val_as_bytes%0#1 0'
+debug: Replaced get_3_tups_block@0.ops[104]: 'v-load aggregate%val_as_bytes%0#1' with 'l-load aggregate%val_as_bytes%0#1'
+debug: Inserted get_3_tups_block@0.ops[110]: 'l-store-copy aggregate%val_as_bytes%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[116]: 'v-load aggregate%val_as_bytes%2#1' with 'l-load aggregate%val_as_bytes%2#1'
+debug: Inserted get_3_tups_block@0.ops[127]: 'l-store-copy aggregate%val_as_bytes%4#1 0'
+debug: Replaced get_3_tups_block@0.ops[133]: 'v-load aggregate%val_as_bytes%4#1' with 'l-load aggregate%val_as_bytes%4#1'
 debug: Inserted get_3_tups_block@0.ops[8]: 'l-store-copy values%0#0 0'
 debug: Replaced get_3_tups_block@0.ops[15]: 'v-load values%0#0' with 'l-load values%0#0'
-debug: Inserted get_3_tups_block@0.ops[26]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[33]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
-debug: Inserted get_3_tups_block@0.ops[56]: 'l-store-copy box%box_extract%3#1 0'
-debug: Replaced get_3_tups_block@0.ops[63]: 'v-load box%box_extract%3#1' with 'l-load box%box_extract%3#1'
-debug: Inserted get_3_tups_block@0.ops[86]: 'l-store-copy box%box_extract%4#1 0'
-debug: Replaced get_3_tups_block@0.ops[93]: 'v-load box%box_extract%4#1' with 'l-load box%box_extract%4#1'
-debug: Inserted get_3_tups_block@0.ops[51]: 'l-store-copy tmp%2#0 0'
-debug: Replaced get_3_tups_block@0.ops[59]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
-debug: Inserted get_3_tups_block@0.ops[82]: 'l-store-copy tmp%3#0 0'
-debug: Replaced get_3_tups_block@0.ops[90]: 'v-load tmp%3#0' with 'l-load tmp%3#0'
-debug: Inserted get_3_tups_block@0.ops[121]: 'l-store-copy aggregate%head%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[136]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
-debug: Inserted get_3_tups_block@0.ops[139]: 'l-store-copy aggregate%head%5#1 0'
-debug: Replaced get_3_tups_block@0.ops[154]: 'v-load aggregate%head%5#1' with 'l-load aggregate%head%5#1'
-debug: Inserted get_3_tups_block@0.ops[109]: 'l-store-copy aggregate%item1%2#1 0'
-debug: Replaced get_3_tups_block@0.ops[146]: 'v-load aggregate%item1%2#1' with 'l-load aggregate%item1%2#1'
-debug: Inserted get_3_tups_block@0.ops[105]: 'l-store-copy aggregate%item0%2#1 1'
-debug: Replaced get_3_tups_block@0.ops[143]: 'v-load aggregate%item0%2#1' with 'l-load aggregate%item0%2#1'
-debug: Inserted get_3_tups_block@0.ops[78]: 'l-store-copy aggregate%item1%1#1 0'
-debug: Replaced get_3_tups_block@0.ops[130]: 'v-load aggregate%item1%1#1' with 'l-load aggregate%item1%1#1'
-debug: Inserted get_3_tups_block@0.ops[74]: 'l-store-copy aggregate%item0%1#1 1'
-debug: Replaced get_3_tups_block@0.ops[127]: 'v-load aggregate%item0%1#1' with 'l-load aggregate%item0%1#1'
-debug: Inserted get_3_tups_block@0.ops[47]: 'l-store-copy aggregate%item1%0#1 0'
-debug: Replaced get_3_tups_block@0.ops[119]: 'v-load aggregate%item1%0#1' with 'l-load aggregate%item1%0#1'
-debug: Inserted get_3_tups_block@0.ops[43]: 'l-store-copy aggregate%item0%0#1 1'
-debug: Replaced get_3_tups_block@0.ops[116]: 'v-load aggregate%item0%0#1' with 'l-load aggregate%item0%0#1'
-debug: Inserted get_all_tups_block@0.ops[6]: 'l-store-copy box%box_extract%1#1 0'
-debug: Replaced get_all_tups_block@0.ops[8]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
+debug: Inserted get_3_tups_block@0.ops[26]: 'l-store-copy items#0 0'
+debug: Replaced get_3_tups_block@0.ops[33]: 'v-load items#0' with 'l-load items#0'
+debug: Inserted get_3_tups_block@0.ops[109]: 'l-store-copy aggregate%head%1#1 0'
+debug: Replaced get_3_tups_block@0.ops[124]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
+debug: Inserted get_3_tups_block@0.ops[127]: 'l-store-copy aggregate%head%5#1 0'
+debug: Replaced get_3_tups_block@0.ops[142]: 'v-load aggregate%head%5#1' with 'l-load aggregate%head%5#1'
+debug: Inserted get_3_tups_block@0.ops[34]: 'l-store-copy items#0 1'
+debug: Replaced get_3_tups_block@0.ops[59]: 'v-load items#0' with 'l-load items#0'
+debug: Inserted get_3_tups_block@0.ops[60]: 'l-store-copy items#0 1'
+debug: Replaced get_3_tups_block@0.ops[85]: 'v-load items#0' with 'l-load items#0'
+debug: Inserted get_3_tups_block@0.ops[99]: 'l-store-copy aggregate%item1%2#1 0'
+debug: Replaced get_3_tups_block@0.ops[136]: 'v-load aggregate%item1%2#1' with 'l-load aggregate%item1%2#1'
+debug: Inserted get_3_tups_block@0.ops[95]: 'l-store-copy aggregate%item0%2#1 1'
+debug: Replaced get_3_tups_block@0.ops[133]: 'v-load aggregate%item0%2#1' with 'l-load aggregate%item0%2#1'
+debug: Inserted get_3_tups_block@0.ops[74]: 'l-store-copy aggregate%item1%1#1 1'
+debug: Replaced get_3_tups_block@0.ops[120]: 'v-load aggregate%item1%1#1' with 'l-load aggregate%item1%1#1'
+debug: Inserted get_3_tups_block@0.ops[70]: 'l-store-copy aggregate%item0%1#1 2'
+debug: Replaced get_3_tups_block@0.ops[117]: 'v-load aggregate%item0%1#1' with 'l-load aggregate%item0%1#1'
+debug: Inserted get_3_tups_block@0.ops[48]: 'l-store-copy aggregate%item1%0#1 1'
+debug: Replaced get_3_tups_block@0.ops[109]: 'v-load aggregate%item1%0#1' with 'l-load aggregate%item1%0#1'
+debug: Inserted get_3_tups_block@0.ops[44]: 'l-store-copy aggregate%item0%0#1 2'
+debug: Replaced get_3_tups_block@0.ops[106]: 'v-load aggregate%item0%0#1' with 'l-load aggregate%item0%0#1'
+debug: Inserted get_all_tups_block@0.ops[11]: 'l-store-copy box%box_extract%1#1 0'
+debug: Replaced get_all_tups_block@0.ops[13]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
 debug: Inserted get_all_tups_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced get_all_tups_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[13]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[15]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[40]: 'l-store-copy extract_uint16%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[42]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[45]: 'l-store-copy add%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[47]: 'v-load add%0#0' with 'l-load add%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[49]: 'l-store-copy as_bytes%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[51]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[8]: 'l-store-copy aggregate%bytes_offset%0#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[11]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[29]: 'l-store-copy aggregate%val_as_bytes%1#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[32]: 'v-load aggregate%val_as_bytes%1#1' with 'l-load aggregate%val_as_bytes%1#1'
-debug: Inserted get_all_tups_for_body@2.ops[34]: 'l-store-copy aggregate%head%1#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[37]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
-debug: Inserted get_all_tups_for_body@2.ops[56]: 'l-store-copy as_u16_bytes%0#0 0'
-debug: Replaced get_all_tups_for_body@2.ops[59]: 'v-load as_u16_bytes%0#0' with 'l-load as_u16_bytes%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[17]: 'l-store-copy aggregate%encoded_element%0#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[21]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[24]: 'l-store-copy aggregate%item1%0#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[29]: 'v-load aggregate%item1%0#1' with 'l-load aggregate%item1%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[28]: 'l-store-copy aggregate%val_as_bytes%0#1 1'
-debug: Replaced get_all_tups_for_body@2.ops[34]: 'v-load aggregate%val_as_bytes%0#1' with 'l-load aggregate%val_as_bytes%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[40]: 'l-store-copy result#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[44]: 'v-load result#0' with 'l-load result#0'
-debug: Inserted get_all_tups_for_body@2.ops[4]: 'l-store-copy box%box_extract%2#1 0'
-debug: Replaced get_all_tups_for_body@2.ops[11]: 'v-load box%box_extract%2#1' with 'l-load box%box_extract%2#1'
-debug: Inserted get_all_tups_for_body@2.ops[21]: 'l-store-copy aggregate%item0%0#1 1'
-debug: Replaced get_all_tups_for_body@2.ops[28]: 'v-load aggregate%item0%0#1' with 'l-load aggregate%item0%0#1'
-debug: Inserted get_all_tups_for_body@2.ops[45]: 'l-store-copy concat%0#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[65]: 'v-load concat%0#0' with 'l-load concat%0#0'
-debug: Inserted get_all_tups_for_body@2.ops[7]: 'l-store-copy i#0 1'
-debug: Replaced get_all_tups_for_body@2.ops[70]: 'v-load i#0' with 'l-load i#0'
+debug: Inserted get_all_tups_for_body@2.ops[8]: 'l-store-copy aggregate%encoded_element%0#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[10]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[35]: 'l-store-copy extract_uint16%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[37]: 'v-load extract_uint16%0#0' with 'l-load extract_uint16%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[40]: 'l-store-copy add%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[42]: 'v-load add%0#0' with 'l-load add%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[44]: 'l-store-copy as_bytes%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[46]: 'v-load as_bytes%0#0' with 'l-load as_bytes%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[3]: 'l-store-copy aggregate%bytes_offset%0#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[6]: 'v-load aggregate%bytes_offset%0#1' with 'l-load aggregate%bytes_offset%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[24]: 'l-store-copy aggregate%val_as_bytes%1#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[27]: 'v-load aggregate%val_as_bytes%1#1' with 'l-load aggregate%val_as_bytes%1#1'
+debug: Inserted get_all_tups_for_body@2.ops[29]: 'l-store-copy aggregate%head%1#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[32]: 'v-load aggregate%head%1#1' with 'l-load aggregate%head%1#1'
+debug: Inserted get_all_tups_for_body@2.ops[51]: 'l-store-copy as_u16_bytes%0#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[54]: 'v-load as_u16_bytes%0#0' with 'l-load as_u16_bytes%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[12]: 'l-store-copy aggregate%encoded_element%0#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[16]: 'v-load aggregate%encoded_element%0#1' with 'l-load aggregate%encoded_element%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[19]: 'l-store-copy aggregate%item1%0#1 0'
+debug: Replaced get_all_tups_for_body@2.ops[24]: 'v-load aggregate%item1%0#1' with 'l-load aggregate%item1%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[23]: 'l-store-copy aggregate%val_as_bytes%0#1 1'
+debug: Replaced get_all_tups_for_body@2.ops[29]: 'v-load aggregate%val_as_bytes%0#1' with 'l-load aggregate%val_as_bytes%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[35]: 'l-store-copy result#0 1'
+debug: Replaced get_all_tups_for_body@2.ops[39]: 'v-load result#0' with 'l-load result#0'
+debug: Inserted get_all_tups_for_body@2.ops[15]: 'l-store-copy aggregate%item0%0#1 1'
+debug: Replaced get_all_tups_for_body@2.ops[22]: 'v-load aggregate%item0%0#1' with 'l-load aggregate%item0%0#1'
+debug: Inserted get_all_tups_for_body@2.ops[39]: 'l-store-copy concat%0#0 1'
+debug: Replaced get_all_tups_for_body@2.ops[59]: 'v-load concat%0#0' with 'l-load concat%0#0'
+debug: Inserted get_all_tups_for_body@2.ops[1]: 'l-store-copy i#0 0'
+debug: Replaced get_all_tups_for_body@2.ops[64]: 'v-load i#0' with 'l-load i#0'
 debug: Inserted _check_owner_block@0.ops[4]: 'l-store-copy box%box_extract%0#1 0'
 debug: Replaced _check_owner_block@0.ops[6]: 'v-load box%box_extract%0#1' with 'l-load box%box_extract%0#1'
 debug: Inserted _check_owner_block@0.ops[9]: 'l-store-copy aggregate%get_bit%0#1 0'
@@ -18582,8 +18455,8 @@ debug: Inserted _check_owner_block@0.ops[38]: 'l-store-copy tmp%2#0 0'
 debug: Replaced _check_owner_block@0.ops[41]: 'v-load tmp%2#0' with 'l-load tmp%2#0'
 debug: Inserted _check_owner_block@0.ops[17]: 'l-store-copy box%box_extract%1#1 0'
 debug: Replaced _check_owner_block@0.ops[22]: 'v-load box%box_extract%1#1' with 'l-load box%box_extract%1#1'
-debug: Inserted _check_owner_block@0.ops[37]: 'l-store-copy values%1#0 0'
-debug: Replaced _check_owner_block@0.ops[42]: 'v-load values%1#0' with 'l-load values%1#0'
+debug: Inserted _check_owner_block@0.ops[37]: 'l-store-copy values%2#0 0'
+debug: Replaced _check_owner_block@0.ops[42]: 'v-load values%2#0' with 'l-load values%2#0'
 debug: Found 3 edge set/s for test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init
 debug: Allocated 1 variable/s to x-stack: tmp%0#1
 debug: shared x-stack for main_create_box_route@5 -> main_after_inlined_test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__puya_arc4_router__@19: tmp%0#1
@@ -18616,7 +18489,7 @@ debug: test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a f-sta
 debug: test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b f-stack entry: []
 debug: test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b f-stack on first store: ['values%0#0', 'i#0']
 debug: test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups f-stack entry: []
-debug: test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups f-stack on first store: ['result#0', 'values%0#0', 'i#0']
+debug: test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all_tups f-stack on first store: ['result#0', 'items#0', 'values%1#0', 'i#0']
 debug: optimizing TEAL subroutine ops test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init() -> uint64:
 mutable_native_types/case1_with_tups.py:45 debug: optimizing TEAL subroutine ops test_cases.mutable_native_types.case1_with_tups.Case1WithTups.create_box() -> void:
 mutable_native_types/case1_with_tups.py:52 debug: optimizing TEAL subroutine ops test_cases.mutable_native_types.case1_with_tups.Case1WithTups.num_tups() -> uint64:

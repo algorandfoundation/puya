@@ -3,12 +3,12 @@
 
 // test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 8 0 16 1 128 4272
+    intcblock 0 8 16 1 128 4272
     bytecblock "tup_bag" 0x151f7c75
-    intc_1 // 0
-    dup
+    intc_0 // 0
+    dupn 2
     pushbytes ""
-    dupn 6
+    dupn 7
     txn NumAppArgs
     bz main_bare_routing@34
     pushbytess 0xa67ea2ab 0x028840ea 0xf75cee9d 0x880b5534 0x53030b41 0x7d39df51 0x7a1e7b43 0x3447847f 0x2ba64852 0xabc9be78 0x73457a19 // method "create_box()void", method "num_tups()uint64", method "add_tup((uint64,uint64))void", method "get_tup(uint64)(uint64,uint64)", method "sum()uint64", method "add_many_tups((uint64,uint64)[])void", method "add_fixed_tups((uint64,uint64)[3])void", method "set_a(uint64)void", method "set_b(uint64)void", method "get_3_tups(uint64)(uint64,uint64)[3]", method "get_all_tups()(uint64,uint64)[]"
@@ -16,7 +16,7 @@ main:
     match main_create_box_route@5 main_num_tups_route@6 main_add_tup_route@7 main_get_tup_route@8 main_sum_route@9 main_add_many_tups_route@13 main_add_fixed_tups_route@17 main_set_a_route@21 main_set_b_route@25 main_get_3_tups_route@29 main_get_all_tups_route@30
 
 main_after_if_else@36:
-    intc_1 // 0
+    intc_0 // 0
     return
 
 main_get_all_tups_route@30:
@@ -26,64 +26,66 @@ main_get_all_tups_route@30:
     txn ApplicationID
     assert // can only call when not creating
     pushbytes 0x0000
-    bury 9
+    bury 10
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_1 // 8
+    intc 4 // 128
+    box_extract
+    bury 11
+    bytec_0 // "tup_bag"
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     btoi
     bury 1
-    intc_1 // 0
-    bury 4
+    intc_0 // 0
+    bury 5
 
 main_for_header@31:
-    dig 3
+    dig 4
     dig 1
     <
     bz main_after_for@33
-    bytec_0 // "tup_bag"
-    intc_0 // 8
-    intc 4 // 128
-    box_extract
     dig 4
     dup
-    cover 2
     intc_2 // 16
     *
+    dig 12
+    swap
     intc_2 // 16
     extract3 // on error: index access is out of bounds
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     swap
-    intc_0 // 8
+    intc_1 // 8
     extract_uint64
     swap
     itob
     swap
     itob
     concat
-    dig 10
+    dig 11
     dup
     uncover 2
     concat // on error: max array length exceeded
     swap
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
     intc_3 // 1
     +
     itob
     extract 6 2
     replace2 0
-    bury 10
+    bury 11
     intc_3 // 1
     +
-    bury 4
+    bury 5
     b main_for_header@31
 
 main_after_for@33:
     bytec_1 // 0x151f7c75
-    dig 9
+    dig 10
     concat
     log
     intc_3 // 1
@@ -98,8 +100,8 @@ main_get_3_tups_route@29:
     txna ApplicationArgs 1
     btoi
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     btoi
     dig 1
@@ -108,55 +110,51 @@ main_get_3_tups_route@29:
     >=
     assert // not enough items
     bytec_0 // "tup_bag"
-    intc_0 // 8
+    intc_1 // 8
     intc 4 // 128
     box_extract
     dig 1
     intc_2 // 16
     *
+    dig 1
+    swap
     intc_2 // 16
     extract3 // on error: index access is out of bounds
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     swap
-    intc_0 // 8
+    intc_1 // 8
     extract_uint64
-    dig 2
+    dig 3
     intc_3 // 1
     +
-    bytec_0 // "tup_bag"
-    intc_0 // 8
-    intc 4 // 128
-    box_extract
-    swap
     intc_2 // 16
     *
+    dig 3
+    swap
     intc_2 // 16
     extract3 // on error: index access is out of bounds
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     swap
-    intc_0 // 8
+    intc_1 // 8
     extract_uint64
-    uncover 4
+    uncover 5
     pushint 2 // 2
     +
-    bytec_0 // "tup_bag"
-    intc_0 // 8
-    intc 4 // 128
-    box_extract
-    swap
     intc_2 // 16
     *
+    uncover 5
+    swap
     intc_2 // 16
     extract3 // on error: index access is out of bounds
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     swap
-    intc_0 // 8
+    intc_1 // 8
     extract_uint64
     uncover 5
     itob
@@ -190,27 +188,27 @@ main_set_b_route@25:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    bury 5
+    bury 6
     callsub _check_owner
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     btoi
-    bury 1
-    intc_1 // 0
-    bury 4
+    bury 2
+    intc_0 // 0
+    bury 5
 
 main_for_header@26:
-    dig 3
-    dig 1
+    dig 4
+    dig 2
     <
     bz main_after_for@16
     bytec_0 // "tup_bag"
-    intc_0 // 8
+    intc_1 // 8
     intc 4 // 128
     box_extract
-    dig 4
+    dig 5
     dup
     cover 2
     intc_2 // 16
@@ -219,17 +217,17 @@ main_for_header@26:
     dig 1
     intc_2 // 16
     extract3 // on error: index access is out of bounds
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     itob
-    dig 7
+    dig 8
     itob
     concat
     dig 2
-    intc_0 // 8
+    intc_1 // 8
     <
     assert // index out of bounds
-    intc_0 // 8
+    intc_1 // 8
     uncover 2
     +
     bytec_0 // "tup_bag"
@@ -238,7 +236,7 @@ main_for_header@26:
     box_replace
     intc_3 // 1
     +
-    bury 4
+    bury 5
     b main_for_header@26
 
 main_after_for@16:
@@ -253,27 +251,27 @@ main_set_a_route@21:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    bury 7
+    bury 8
     callsub _check_owner
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     btoi
-    bury 1
-    intc_1 // 0
-    bury 4
+    bury 2
+    intc_0 // 0
+    bury 5
 
 main_for_header@22:
-    dig 3
-    dig 1
+    dig 4
+    dig 2
     <
     bz main_after_for@16
     bytec_0 // "tup_bag"
-    intc_0 // 8
+    intc_1 // 8
     intc 4 // 128
     box_extract
-    dig 4
+    dig 5
     dup
     cover 2
     intc_2 // 16
@@ -282,18 +280,18 @@ main_for_header@22:
     dig 1
     intc_2 // 16
     extract3 // on error: index access is out of bounds
-    intc_0 // 8
+    intc_1 // 8
     extract_uint64
-    dig 9
+    dig 10
     itob
     swap
     itob
     concat
     dig 2
-    intc_0 // 8
+    intc_1 // 8
     <
     assert // index out of bounds
-    intc_0 // 8
+    intc_1 // 8
     uncover 2
     +
     bytec_0 // "tup_bag"
@@ -302,7 +300,7 @@ main_for_header@22:
     box_replace
     intc_3 // 1
     +
-    bury 4
+    bury 5
     b main_for_header@22
 
 main_add_fixed_tups_route@17:
@@ -312,33 +310,33 @@ main_add_fixed_tups_route@17:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    bury 8
-    intc_1 // 0
-    bury 3
+    bury 9
+    intc_0 // 0
+    bury 4
 
 main_for_header@18:
-    dig 2
+    dig 3
     pushint 3 // 3
     <
     bz main_after_for@16
-    dig 2
+    dig 3
     dup
     intc_2 // 16
     *
-    dig 9
+    dig 10
     swap
     intc_2 // 16
     extract3 // on error: index access is out of bounds
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     swap
-    intc_0 // 8
+    intc_1 // 8
     extract_uint64
     callsub add_tup
     intc_3 // 1
     +
-    bury 3
+    bury 4
     b main_for_header@18
 
 main_add_many_tups_route@13:
@@ -349,21 +347,21 @@ main_add_many_tups_route@13:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
-    bury 9
-    intc_1 // 0
+    bury 10
+    intc_0 // 0
     extract_uint16
-    bury 6
-    intc_1 // 0
-    bury 3
+    bury 7
+    intc_0 // 0
+    bury 4
 
 main_for_header@14:
-    dig 2
-    dig 6
+    dig 3
+    dig 7
     <
     bz main_after_for@16
-    dig 7
+    dig 8
     extract 2 0
-    dig 3
+    dig 4
     dup
     cover 2
     intc_2 // 16
@@ -371,15 +369,15 @@ main_for_header@14:
     intc_2 // 16
     extract3 // on error: index access is out of bounds
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     swap
-    intc_0 // 8
+    intc_1 // 8
     extract_uint64
     callsub add_tup
     intc_3 // 1
     +
-    bury 3
+    bury 4
     b main_for_header@14
 
 main_sum_route@9:
@@ -388,27 +386,27 @@ main_sum_route@9:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 0
-    bury 2
+    intc_0 // 0
+    bury 3
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     btoi
-    bury 1
-    intc_1 // 0
-    bury 4
+    bury 2
+    intc_0 // 0
+    bury 5
 
 main_for_header@10:
-    dig 3
-    dig 1
+    dig 4
+    dig 2
     <
     bz main_after_for@12
     bytec_0 // "tup_bag"
-    intc_0 // 8
+    intc_1 // 8
     intc 4 // 128
     box_extract
-    dig 4
+    dig 5
     dup
     cover 2
     intc_2 // 16
@@ -416,23 +414,23 @@ main_for_header@10:
     intc_2 // 16
     extract3 // on error: index access is out of bounds
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     swap
-    intc_0 // 8
+    intc_1 // 8
     extract_uint64
-    dig 4
+    dig 5
     uncover 2
     +
     +
-    bury 3
+    bury 4
     intc_3 // 1
     +
-    bury 4
+    bury 5
     b main_for_header@10
 
 main_after_for@12:
-    dig 1
+    dig 2
     itob
     bytec_1 // 0x151f7c75
     swap
@@ -450,15 +448,15 @@ main_get_tup_route@8:
     txna ApplicationArgs 1
     btoi
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     btoi
     dig 1
     >
     assert // index out of bounds
     bytec_0 // "tup_bag"
-    intc_0 // 8
+    intc_1 // 8
     intc 4 // 128
     box_extract
     swap
@@ -481,10 +479,10 @@ main_add_tup_route@7:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
-    intc_1 // 0
+    intc_0 // 0
     extract_uint64
     swap
-    intc_0 // 8
+    intc_1 // 8
     extract_uint64
     callsub add_tup
     intc_3 // 1
@@ -497,8 +495,8 @@ main_num_tups_route@6:
     txn ApplicationID
     assert // can only call when not creating
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     bytec_1 // 0x151f7c75
     swap
@@ -531,7 +529,7 @@ main_create_box_route@5:
     intc 5 // 4272
     intc_3 // 1
     box_extract
-    intc_1 // 0
+    intc_0 // 0
     intc_3 // 1
     setbit
     bytec_0 // "tup_bag"
@@ -556,16 +554,16 @@ add_tup:
     proto 2 0
     callsub _check_owner
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     btoi
-    intc_0 // 8
+    intc_1 // 8
     <
     assert // too many tups
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     btoi
     frame_dig -2
@@ -574,28 +572,28 @@ add_tup:
     itob
     concat
     dig 1
-    intc_0 // 8
+    intc_1 // 8
     <
     assert // index out of bounds
     swap
     intc_2 // 16
     *
-    intc_0 // 8
+    intc_1 // 8
     +
     bytec_0 // "tup_bag"
     swap
     uncover 2
     box_replace
     bytec_0 // "tup_bag"
-    intc_1 // 0
-    intc_0 // 8
+    intc_0 // 0
+    intc_1 // 8
     box_extract
     btoi
     intc_3 // 1
     +
     itob
     bytec_0 // "tup_bag"
-    intc_1 // 0
+    intc_0 // 0
     uncover 2
     box_replace
     retsub
@@ -607,7 +605,7 @@ _check_owner:
     intc 5 // 4272
     intc_3 // 1
     box_extract
-    intc_1 // 0
+    intc_0 // 0
     getbit
     assert // app not bootstrapped
     bytec_0 // "tup_bag"
@@ -618,7 +616,7 @@ _check_owner:
     assert // sender not authorized
     bytec_0 // "tup_bag"
     pushint 168 // 168
-    intc_0 // 8
+    intc_1 // 8
     box_extract
     btoi
     global CurrentApplicationID

@@ -204,9 +204,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_tup
         let values%0#0: uint64 = (btoi box%box_extract%0#1)
         let tmp%0#0: bool = (< index#0 values%0#0)
         (assert tmp%0#0) // index out of bounds
-        let box%box_extract%2#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%1#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#1: uint64 = (* index#0 16u)
-        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%1#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let aggregate%extract%0#1: bytes = ((extract 0 8) aggregate%encoded_element%0#1)
         let aggregate%item0%0#1: uint64 = (extract_uint64 aggregate%encoded_element%0#1 0u)
         let aggregate%extract%1#1: bytes = ((extract 8 8) aggregate%encoded_element%0#1)
@@ -226,9 +226,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.sum() -
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L72
-        let box%box_extract%2#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%1#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#1: uint64 = (* i#1 16u)
-        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%1#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let aggregate%extract%0#1: bytes = ((extract 0 8) aggregate%encoded_element%0#1)
         let tup.a#0: uint64 = (extract_uint64 aggregate%encoded_element%0#1 0u)
         let aggregate%extract%1#1: bytes = ((extract 8 8) aggregate%encoded_element%0#1)
@@ -296,9 +296,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L91
-        let box%box_extract%2#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%1#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#1: uint64 = (* i#1 16u)
-        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%1#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let aggregate%extract%1#1: bytes = ((extract 8 8) aggregate%encoded_element%0#1)
         let tup.b#0: uint64 = (extract_uint64 aggregate%encoded_element%0#1 8u)
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob a#0)
@@ -306,8 +306,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_a(a
         let aggregate%head%1#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%val_as_bytes%1#1)
         let box%index_ok%0#1: bool = (< i#1 8u)
         (assert box%index_ok%0#1) // index out of bounds
-        let box%offset%4#1: uint64 = (+ 8u aggregate%bytes_offset%0#1)
-        (box_replace "tup_bag" box%offset%4#1 aggregate%head%1#1)
+        let box%offset%3#1: uint64 = (+ 8u aggregate%bytes_offset%0#1)
+        (box_replace "tup_bag" box%offset%3#1 aggregate%head%1#1)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L90
@@ -325,9 +325,9 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let continue_looping%0#0: bool = (< i#1 values%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L98
-        let box%box_extract%2#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let box%box_extract%1#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#1: uint64 = (* i#1 16u)
-        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%1#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let aggregate%extract%0#1: bytes = ((extract 0 8) aggregate%encoded_element%0#1)
         let tup.a#0: uint64 = (extract_uint64 aggregate%encoded_element%0#1 0u)
         let aggregate%val_as_bytes%0#1: bytes[8] = (itob tup.a#0)
@@ -335,8 +335,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.set_b(b
         let aggregate%head%1#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%val_as_bytes%1#1)
         let box%index_ok%0#1: bool = (< i#1 8u)
         (assert box%index_ok%0#1) // index out of bounds
-        let box%offset%4#1: uint64 = (+ 8u aggregate%bytes_offset%0#1)
-        (box_replace "tup_bag" box%offset%4#1 aggregate%head%1#1)
+        let box%offset%3#1: uint64 = (+ 8u aggregate%bytes_offset%0#1)
+        (box_replace "tup_bag" box%offset%3#1 aggregate%head%1#1)
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L97
@@ -349,25 +349,23 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_3_t
         let tmp%0#0: uint64 = (+ start#0 3u)
         let tmp%1#0: bool = (>= values%0#0 tmp%0#0)
         (assert tmp%1#0) // not enough items
-        let box%box_extract%2#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
+        let items#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#1: uint64 = (* start#0 16u)
-        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%0#1: bytes = (extract3 items#0 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let aggregate%extract%0#1: bytes = ((extract 0 8) aggregate%encoded_element%0#1)
         let aggregate%item0%0#1: uint64 = (extract_uint64 aggregate%encoded_element%0#1 0u)
         let aggregate%extract%1#1: bytes = ((extract 8 8) aggregate%encoded_element%0#1)
         let aggregate%item1%0#1: uint64 = (extract_uint64 aggregate%encoded_element%0#1 8u)
         let tmp%2#0: uint64 = (+ start#0 1u)
-        let box%box_extract%3#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%1#1: uint64 = (* tmp%2#0 16u)
-        let aggregate%encoded_element%1#1: bytes = (extract3 box%box_extract%3#1 aggregate%bytes_offset%1#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%1#1: bytes = (extract3 items#0 aggregate%bytes_offset%1#1 16u) // on error: index access is out of bounds
         let aggregate%extract%2#1: bytes = ((extract 0 8) aggregate%encoded_element%1#1)
         let aggregate%item0%1#1: uint64 = (extract_uint64 aggregate%encoded_element%1#1 0u)
         let aggregate%extract%3#1: bytes = ((extract 8 8) aggregate%encoded_element%1#1)
         let aggregate%item1%1#1: uint64 = (extract_uint64 aggregate%encoded_element%1#1 8u)
         let tmp%3#0: uint64 = (+ start#0 2u)
-        let box%box_extract%4#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%2#1: uint64 = (* tmp%3#0 16u)
-        let aggregate%encoded_element%2#1: bytes = (extract3 box%box_extract%4#1 aggregate%bytes_offset%2#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%2#1: bytes = (extract3 items#0 aggregate%bytes_offset%2#1 16u) // on error: index access is out of bounds
         let aggregate%extract%4#1: bytes = ((extract 0 8) aggregate%encoded_element%2#1)
         let aggregate%item0%2#1: uint64 = (extract_uint64 aggregate%encoded_element%2#1 0u)
         let aggregate%extract%5#1: bytes = ((extract 8 8) aggregate%encoded_element%2#1)
@@ -393,19 +391,19 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups.get_all
     block@0: // L114
         let aggregate%as_bytes%0#1: bytes[8] = (itob 0u)
         let result#0: Encoded(len+(uint64,uint64)[]) = 0x0000
+        let items#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let box%box_extract%1#1: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
-        let values%0#0: uint64 = (btoi box%box_extract%1#1)
+        let values%1#0: uint64 = (btoi box%box_extract%1#1)
         let i#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L119
         let i#1: uint64 = φ(i#0 <- block@0, i#2 <- block@2)
         let result#1: Encoded(len+(uint64,uint64)[]) = φ(result#0 <- block@0, result#2 <- block@2)
-        let continue_looping%0#0: bool = (< i#1 values%0#0)
+        let continue_looping%0#0: bool = (< i#1 values%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L120
-        let box%box_extract%2#1: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%0#1: uint64 = (* i#1 16u)
-        let aggregate%encoded_element%0#1: bytes = (extract3 box%box_extract%2#1 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
+        let aggregate%encoded_element%0#1: bytes = (extract3 items#0 aggregate%bytes_offset%0#1 16u) // on error: index access is out of bounds
         let aggregate%extract%0#1: bytes = ((extract 0 8) aggregate%encoded_element%0#1)
         let aggregate%item0%0#1: uint64 = (extract_uint64 aggregate%encoded_element%0#1 0u)
         let aggregate%extract%1#1: bytes = ((extract 8 8) aggregate%encoded_element%0#1)
@@ -437,8 +435,8 @@ subroutine test_cases.mutable_native_types.case1_with_tups.Case1WithTups._check_
         let tmp%1#0: bool = (== box%box_extract%1#1 tmp%0#0)
         (assert tmp%1#0) // sender not authorized
         let box%box_extract%2#1: Encoded(uint64) = (box_extract "tup_bag" 168u 8u)
-        let values%1#0: uint64 = (btoi box%box_extract%2#1)
+        let values%2#0: uint64 = (btoi box%box_extract%2#1)
         let tmp%2#0: uint64 = (global CurrentApplicationID)
-        let tmp%3#0: bool = (== values%1#0 tmp%2#0)
+        let tmp%3#0: bool = (== values%2#0 tmp%2#0)
         (assert tmp%3#0) // this error should be impossible
         return 

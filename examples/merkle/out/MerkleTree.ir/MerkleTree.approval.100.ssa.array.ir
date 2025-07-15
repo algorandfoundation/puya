@@ -60,7 +60,8 @@ subroutine examples.merkle.contract.MerkleTree.verify(proof: Encoded(len+uint8[3
         let aggregate%array_trimmed%0#1: bytes = ((extract 2 0) proof#0)
         let aggregate%bytes_offset%0#1: uint64 = (* idx#1 32u)
         let aggregate%encoded_element%0#1: bytes = (extract3 aggregate%array_trimmed%0#1 aggregate%bytes_offset%0#1 32u) // on error: index access is out of bounds
-        let b#0: bytes = aggregate%encoded_element%0#1
+        let array_item%0#0: Encoded(uint8[32]) = aggregate%encoded_element%0#1
+        let b#0: bytes = array_item%0#0
         let tmp%0#2: bool = (b< computed#1 b#0)
         goto tmp%0#2 ? block@4 : block@5
     block@4: // ternary_true_L29

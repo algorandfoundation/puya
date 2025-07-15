@@ -163,24 +163,29 @@ subroutine test_cases.arc_56.contract.Contract.transient() -> void:
 subroutine test_cases.arc_56.contract.Contract.struct_arg(arg: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8)), shared: Encoded((len+uint8[]),uint8)) -> uint64:
     block@0: // L89
         let tuple_item%0#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
-        let tmp%0#0: bool = (== tuple_item%0#0 shared#0)
+        let values%0#0: Encoded((len+uint8[]),uint8) = decode_bytes<Encoded((len+uint8[]),uint8)>(tuple_item%0#0)
+        let tmp%0#0: bool = (== values%0#0 shared#0)
         (assert tmp%0#0) // this might error
         return 42u
 
 subroutine test_cases.arc_56.contract.Contract.struct_return(arg: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))) -> Encoded((len+uint8[]),uint8):
     block@0: // L95
         let tuple_item%0#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
+        let values%0#0: Encoded((len+uint8[]),uint8) = decode_bytes<Encoded((len+uint8[]),uint8)>(tuple_item%0#0)
         let tuple_item%1#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
-        let (echo%0#0: Encoded((len+uint8[]),uint8), echo%1#0: Encoded((len+uint8[]),uint8)) = test_cases.arc_56.contract.echo(tuple_item%1#0)
-        let tmp%0#0: bool = (== tuple_item%0#0 echo%0#0)
+        let values%1#0: Encoded((len+uint8[]),uint8) = decode_bytes<Encoded((len+uint8[]),uint8)>(tuple_item%1#0)
+        let (echo%0#0: Encoded((len+uint8[]),uint8), echo%1#0: Encoded((len+uint8[]),uint8)) = test_cases.arc_56.contract.echo(values%1#0)
+        let tmp%0#0: bool = (== values%0#0 echo%0#0)
         (assert tmp%0#0) // this won't error
         let tuple_item%2#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
-        return tuple_item%2#0
+        let values%2#0: Encoded((len+uint8[]),uint8) = decode_bytes<Encoded((len+uint8[]),uint8)>(tuple_item%2#0)
+        return values%2#0
 
 subroutine test_cases.arc_56.contract.Contract.errors(arg: Encoded(uint64,(len+utf8[]),((len+uint8[]),uint8))) -> void:
     block@0: // L100
         let tuple_item%0#0: Encoded(uint64) = extract_value(arg#0, 0)
-        let tmp%0#0: bool = (== tuple_item%0#0 0x00)
+        let values%0#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%0#0)
+        let tmp%0#0: bool = (== values%0#0 0x00)
         (assert tmp%0#0) // this will error
         return 
 
@@ -227,12 +232,14 @@ subroutine test_cases.arc_56.contract.Contract.with_constant_defaults(a: Encoded
         let tmp%3#0: bool = (!= tmp%2#0 0u)
         (assert tmp%3#0)
         let tuple_item%0#0: Encoded(uint64) = extract_value(d#0, 0)
-        let reinterpret_biguint%1#0: biguint = tuple_item%0#0
+        let values%0#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%0#0)
+        let reinterpret_biguint%1#0: biguint = values%0#0
         let tmp%4#0: bool = (b!= reinterpret_biguint%1#0 0b)
         goto tmp%4#0 ? block@2 : block@1
     block@1: // or_contd_L160
         let tuple_item%1#0: Encoded(uint64) = extract_value(d#0, 1)
-        let reinterpret_biguint%2#0: biguint = tuple_item%1#0
+        let values%1#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%1#0)
+        let reinterpret_biguint%2#0: biguint = values%1#0
         let tmp%5#0: bool = (b!= reinterpret_biguint%2#0 0b)
         goto tmp%5#0 ? block@2 : block@3
     block@2: // bool_true_L160
@@ -260,8 +267,9 @@ subroutine test_cases.arc_56.contract.Contract.with_constant_defaults(a: Encoded
         let or_result%1#2: bool = φ(or_result%1#0 <- block@6, or_result%1#1 <- block@7)
         (assert or_result%1#2)
         let array_item%0#0: Encoded(len+utf8[]) = extract_value(f#0, 0u)
+        let values%2#0: Encoded(len+utf8[]) = decode_bytes<Encoded(len+utf8[])>(array_item%0#0)
         let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6869)
-        let tmp%9#0: bool = (== array_item%0#0 encoded%0#0)
+        let tmp%9#0: bool = (== values%2#0 encoded%0#0)
         (assert tmp%9#0)
         let array_length%0#0: uint64 = (extract_uint16 g#0 0u)
         let tmp%10#0: bool = (== array_length%0#0 2u)

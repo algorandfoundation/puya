@@ -227,14 +227,16 @@ subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id
 
 subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: Encoded((len+utf8[]),uint64,uint64)) -> Encoded((len+utf8[]),uint64,uint64):
     block@0: // L17
-        let box_key#0: bytes = extract_value(user#0, 1)
+        let tuple_item%0#0: Encoded(uint64) = extract_value(user#0, 1)
+        let box_key#0: bytes = decode_bytes<Encoded(uint64)>(tuple_item%0#0)
         (box_del box_key#0)
         (box_put box_key#0 user#0)
         return user#0
 
 subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[]),uint64,uint64)) -> void:
     block@0: // L30
-        let user_id#0: Encoded(uint64) = extract_value(user#0, 1)
+        let tuple_item%0#0: Encoded(uint64) = extract_value(user#0, 1)
+        let user_id#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%0#0)
         let (_data#0: uint64, exists#0: bool) = (box_len user_id#0)
         let tmp%1#0: bool = (! exists#0)
         (assert tmp%1#0) // User with id must not exist
@@ -245,7 +247,8 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(
     block@0: // L35
         let user#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
         let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(asset#0)
-        let user#1: Encoded((len+utf8[]),uint64,uint64) = replace_value(user#0, 2, tmp%1#0)
+        let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(tmp%1#0)
+        let user#1: Encoded((len+utf8[]),uint64,uint64) = replace_value(user#0, 2, encoded_value%0#0)
         let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
         return 
 
