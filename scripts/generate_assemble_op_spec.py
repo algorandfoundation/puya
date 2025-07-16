@@ -5,9 +5,7 @@ from pathlib import Path
 
 from puya import log
 from puya.ussemble.op_spec_models import ImmediateEnum, ImmediateKind, OpSpec
-from scripts.transform_lang_spec import (
-    LanguageSpec,
-)
+from scripts.transform_lang_spec import LanguageSpec
 
 logger = log.get_logger(__name__)
 VCS_ROOT = Path(__file__).parent.parent

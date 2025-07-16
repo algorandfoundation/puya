@@ -6,9 +6,7 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.ir import (
-    models,
-)
+from puya.ir import models
 from puya.ir.models import Parameter, Subroutine
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index

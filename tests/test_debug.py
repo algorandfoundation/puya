@@ -4,9 +4,7 @@ import algokit_utils
 import algokit_utils.config
 import attrs
 import pytest
-from algosdk.atomic_transaction_composer import (
-    AtomicTransactionComposer,
-)
+from algosdk.atomic_transaction_composer import AtomicTransactionComposer
 from algosdk.source_map import SourceMap
 from algosdk.v2client.algod import AlgodClient
 from algosdk.v2client.models import SimulateRequest, SimulateTraceConfig
