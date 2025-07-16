@@ -1,4 +1,5 @@
 from algopy import (
+    Account,
     Application,
     ARC4Contract,
     Asset,
@@ -379,3 +380,46 @@ class Greeter(ARC4Contract):
         )
         assert result == log, "expected output to match input"
         assert LogStruct.from_log(txn.last_log) == log, "expected output to match input"
+
+    @arc4.abimethod()
+    def test_resource_encoding(self, app_to_call: Application, asset: Asset) -> None:
+        app = Global.current_application_id
+        acc = Global.current_application_address
+
+        result, txn = arc4.abi_call(
+            Logger.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+        )
+        assert result == (asset, app, acc), "expected echo to return same resources"
+
+        result, txn = arc4.abi_call(
+            Logger.echo_resource_by_value, asset, app, acc, app_id=app_to_call
+        )
+        assert result == (asset, app, acc), "expected echo to return same resources"
+
+        result, txn = arc4.abi_call(
+            LoggerClient.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+        )
+        assert result == (asset, app, acc), "expected echo to return same resources"
+
+        result, txn = arc4.abi_call(
+            LoggerClient.echo_resource_by_value, asset, app, acc, app_id=app_to_call
+        )
+        assert result == (asset, app, acc), "expected echo to return same resources"
+
+        result, txn = arc4.abi_call[tuple[Asset, Application, Account]](
+            "echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)",
+            asset,
+            app,
+            acc,
+            app_id=app_to_call,
+        )
+        assert result == (asset, app, acc), "expected echo to return same resources"
+
+        result, txn = arc4.abi_call[tuple[Asset, Application, Account]](
+            "echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)",
+            asset,
+            app,
+            acc,
+            app_id=app_to_call,
+        )
+        assert result == (asset, app, acc), "expected echo to return same resources"

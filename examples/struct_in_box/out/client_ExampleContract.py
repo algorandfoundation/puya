@@ -21,7 +21,7 @@ class ExampleContract(algopy.arc4.ARC4Client, typing.Protocol):
     def attach_asset_to_user(
         self,
         user_id: algopy.arc4.UIntN[typing.Literal[64]],
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod

@@ -103,6 +103,10 @@ class ARC4ABIMethod:
         return self._config.readonly
 
     @property
+    def resource_encoding(self) -> typing.Literal["foreign_index", "value"]:
+        return self._config.resource_encoding
+
+    @property
     def config_location(self) -> SourceLocation:
         return self._config.source_location
 

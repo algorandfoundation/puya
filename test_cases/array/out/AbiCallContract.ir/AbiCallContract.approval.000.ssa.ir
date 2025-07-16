@@ -75,7 +75,7 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_route
         goto tmp%1#0 ? block@1 : block@5
     block@1: // abi_routing_L12
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_implicit_conversion_abi_call(uint64[],application)void" => block@2, * => block@3}
+        switch tmp%2#0 {method "test_implicit_conversion_abi_call(uint64[],uint64)void" => block@2, * => block@3}
     block@2: // test_implicit_conversion_abi_call_route_L13
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
@@ -84,22 +84,21 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.__puya_arc4_route
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
         let reinterpret_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%7#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let tmp%8#0: uint64 = ((txnas Applications) tmp%7#0)
-        test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call(reinterpret_Encoded(len+uint64[])%0#0, tmp%8#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%7#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call(reinterpret_Encoded(len+uint64[])%0#0, tmp%7#0)
         return 1u
     block@3: // switch_case_default_L12
         goto block@4
     block@4: // switch_case_next_L12
         goto block@9
     block@5: // bare_routing_L12
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        switch tmp%9#0 {0u => block@6, * => block@7}
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        switch tmp%8#0 {0u => block@6, * => block@7}
     block@6: // __algopy_default_create_L1
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (== tmp%10#0 0u)
-        (assert tmp%11#0) // can only call when creating
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (== tmp%9#0 0u)
+        (assert tmp%10#0) // can only call when creating
         test_cases.array.unused_opt_allowed.AbiCallContract.__algopy_default_create()
         return 1u
     block@7: // switch_case_default_L12

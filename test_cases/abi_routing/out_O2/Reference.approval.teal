@@ -25,7 +25,7 @@ main:
 main_after_if_else@2:
     txn NumAppArgs
     bz main_bare_routing@20
-    pushbytess 0xd78db35b 0x01040023 0x3a5353fc 0xd2f2f53c 0x2826b202 0x6f8e94cd 0x17dc68f0 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x670dc055 0x5732195a 0xd17552fb 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8", method "opt_into_asset(asset)void", method "with_transactions(asset,uint64,pay,uint64)void", method "compare_assets(asset,asset)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(asset,asset,account,account,application,application,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],asset,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
+    pushbytess 0xd78db35b 0x01040023 0x3a5353fc 0xd2f2f53c 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8", method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
     txna ApplicationArgs 0
     match main_noop_with_uint64_route@5 main_opt_in_route@6 main_all_the_things_route@7 main_mixed_oca_route@8 main_opt_into_asset_route@9 main_with_transactions_route@10 main_compare_assets_route@11 main_get_address_route@12 main_get_asset_route@13 main_get_application_route@14 main_get_an_int_route@15 main_method_with_default_args_route@16 main_method_with_15_args_route@17 main_method_with_more_than_15_args_route@18 main_hello_with_algopy_string_route@19
 
@@ -72,7 +72,6 @@ main_method_with_more_than_15_args_route@18:
     btoi
     txna ApplicationArgs 5
     btoi
-    txnas Assets
     txna ApplicationArgs 6
     txna ApplicationArgs 7
     txn GroupIndex
@@ -113,8 +112,7 @@ main_method_with_more_than_15_args_route@18:
     extract 2 0
     txna ApplicationArgs 15
     pushint 44 // 44
-    getbyte
-    txnas Assets
+    extract_uint64
     txn GroupIndex
     intc_0 // 1
     -
@@ -203,11 +201,11 @@ main_method_with_more_than_15_args_route@18:
     extract_uint64
     +
     uncover 2
-    pushint 45 // 45
+    pushint 52 // 52
     extract_uint64
     +
     swap
-    pushint 53 // 53
+    pushint 60 // 60
     extract_uint64
     +
     itob
@@ -296,22 +294,14 @@ main_method_with_default_args_route@16:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    txnas Assets
     txna ApplicationArgs 2
     btoi
-    txnas Assets
     txna ApplicationArgs 3
-    btoi
-    txnas Accounts
     txna ApplicationArgs 4
-    btoi
-    txnas Accounts
     txna ApplicationArgs 5
     btoi
-    txnas Applications
     txna ApplicationArgs 6
     btoi
-    txnas Applications
     txna ApplicationArgs 7
     txna ApplicationArgs 8
     txna ApplicationArgs 9
@@ -448,10 +438,8 @@ main_compare_assets_route@11:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    txnas Assets
     txna ApplicationArgs 2
     btoi
-    txnas Assets
     ==
     assert // asset a == b
     intc_0 // 1
@@ -465,7 +453,6 @@ main_with_transactions_route@10:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    txnas Assets
     txna ApplicationArgs 2
     txn GroupIndex
     intc_0 // 1
@@ -508,7 +495,6 @@ main_opt_into_asset_route@9:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    txnas Assets
     txn Sender
     global CreatorAddress
     ==

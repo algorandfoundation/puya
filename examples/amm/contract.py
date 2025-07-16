@@ -46,7 +46,7 @@ class ConstantProductAMM(ARC4Contract):
         self._check_is_governor()
         self.governor = new_governor
 
-    @arc4.abimethod()
+    @arc4.abimethod(resource_encoding="foreign_index")
     def bootstrap(self, seed: gtxn.PaymentTransaction, a_asset: Asset, b_asset: Asset) -> UInt64:
         """bootstraps the contract by opting into the assets and creating the pool token.
 
@@ -84,6 +84,7 @@ class ConstantProductAMM(ARC4Contract):
             "a_asset": "asset_a",
             "b_asset": "asset_b",
         },
+        resource_encoding="foreign_index",
     )
     def mint(
         self,
@@ -150,6 +151,7 @@ class ConstantProductAMM(ARC4Contract):
             "a_asset": "asset_a",
             "b_asset": "asset_b",
         },
+        resource_encoding="foreign_index",
     )
     def burn(
         self,
@@ -206,6 +208,7 @@ class ConstantProductAMM(ARC4Contract):
             "a_asset": "asset_a",
             "b_asset": "asset_b",
         },
+        resource_encoding="foreign_index",
     )
     def swap(
         self,

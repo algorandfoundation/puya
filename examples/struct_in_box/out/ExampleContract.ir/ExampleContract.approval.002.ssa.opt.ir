@@ -4,7 +4,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto tmp%0#1 ? block@2 : block@8
     block@2: // abi_routing_L10
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "add_user((string,uint64,uint64))void" => block@3, method "attach_asset_to_user(uint64,asset)void" => block@4, method "get_user(uint64)(string,uint64,uint64)" => block@5, * => block@12}
+        switch tmp%2#0 {method "add_user((string,uint64,uint64))void" => block@3, method "attach_asset_to_user(uint64,uint64)void" => block@4, method "get_user(uint64)(string,uint64,uint64)" => block@5, * => block@12}
     block@3: // add_user_route_L30
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -22,31 +22,30 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%11#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let tmp%12#0: uint64 = ((txnas Assets) tmp%11#0)
-        examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(reinterpret_Encoded(uint64)%0#0, tmp%12#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%11#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(reinterpret_Encoded(uint64)%0#0, tmp%11#0)
         let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#1: bool = 1u
         goto block@13
     block@5: // get_user_route_L41
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        let tmp%14#0: bool = (! tmp%13#0)
-        (assert tmp%14#0) // OnCompletion is not NoOp
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        (assert tmp%15#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%17#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_Encoded(uint64)%1#0)
-        let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
-        (log tmp%18#0)
+        let tmp%12#0: uint64 = (txn OnCompletion)
+        let tmp%13#0: bool = (! tmp%12#0)
+        (assert tmp%13#0) // OnCompletion is not NoOp
+        let tmp%14#0: uint64 = (txn ApplicationID)
+        (assert tmp%14#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%16#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.get_user(reinterpret_Encoded(uint64)%2#0)
+        let tmp%17#0: bytes = (concat 0x151f7c75 tmp%16#0)
+        (log tmp%17#0)
         let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#2: bool = 1u
         goto block@13
     block@8: // bare_routing_L10
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        goto tmp%19#0 ? block@12 : block@9
+        let tmp%18#0: uint64 = (txn OnCompletion)
+        goto tmp%18#0 ? block@12 : block@9
     block@9: // __algopy_default_create_L1
-        let tmp%20#0: uint64 = (txn ApplicationID)
-        let tmp%21#0: bool = (! tmp%20#0)
-        (assert tmp%21#0) // can only call when creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // can only call when creating
         let examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#3: bool = 1u
         goto block@13
     block@12: // after_if_else_L10

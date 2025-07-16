@@ -39,6 +39,7 @@ def abimethod(
             "DeleteApplication",
         ]
     ] = ("NoOp",),
+    resource_encoding: typing.Literal["foreign_index", "value"] = ...,
     readonly: bool = False,
     default_args: Mapping[str, str | _ReadOnlyNoArgsMethod | object] = ...,
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
@@ -48,6 +49,13 @@ def abimethod(
     :arg create: Controls the validation of the Application ID. "require" means it must be zero,
                  "disallow" requires it must be non-zero, and "allow" disables the validation.
     :arg allow_actions: A sequence of allowed On-Completion Actions to validate against.
+    :arg resource_encoding: If "foreign_index", then resource types (Application, Asset, Account)
+                            should be passed as an index into their appropriate foreign array.
+                            The default option "value", as of PuyaPy 5.0, is for these values to be
+                            passed directly.
+                            This can be overridden at the compiler level with the
+                            "resource_encoding" CLI flag.
+                            This option will be reflected in the method signature.
     :arg readonly: If True, then this method can be used via dry-run / simulate.
     :arg default_args: Default argument sources for clients to use. For dynamic defaults, this can
                        be the name of, or reference to a method member, or the name of a storage

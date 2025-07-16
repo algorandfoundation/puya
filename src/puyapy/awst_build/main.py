@@ -6,6 +6,7 @@ from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import make_path_relative_to_cwd
 from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.module import ModuleASTConverter
+from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult, SourceDiscoveryMechanism
 from puyapy.validation.main import validate_awst
 
@@ -14,8 +15,9 @@ logger = log.get_logger(__name__)
 
 def transform_ast(
     parse_result: ParseResult,
+    puyapy_options: PuyaPyOptions,
 ) -> tuple[Sequence[RootNode], Sequence[ContractReference | LogicSigReference]]:
-    ctx = ASTConversionContext(parse_result=parse_result)
+    ctx = ASTConversionContext(parse_result=parse_result, options=puyapy_options)
     user_modules = []
 
     for module_name, src in parse_result.ordered_modules.items():

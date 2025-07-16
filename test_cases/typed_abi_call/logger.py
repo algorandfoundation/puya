@@ -12,6 +12,7 @@ from algopy import (
     UInt64,
     arc4,
     log,
+    op,
 )
 
 LOG_METHOD_NAME = "log"
@@ -85,6 +86,36 @@ class Logger(ARC4Contract):
     def echo_native_biguint(self, value: BigUInt) -> BigUInt:
         return value + 1
 
+    @arc4.abimethod(
+        resource_encoding="foreign_index",
+    )
+    def echo_resource_by_foreign_index(
+        self, asset: Asset, app: Application, acc: Account
+    ) -> tuple[Asset, Application, Account]:
+        asset_idx = op.btoi(Txn.application_args(1))
+        assert asset == Txn.assets(asset_idx), "expected asset to be passed by foreign_index"
+        app_idx = op.btoi(Txn.application_args(2))
+        assert app == Txn.applications(
+            app_idx
+        ), "expected application to be passed by foreign_index"
+        acc_idx = op.btoi(Txn.application_args(3))
+        assert acc == Txn.accounts(acc_idx), "expected account to be passed by foreign_index"
+        return asset, app, acc
+
+    @arc4.abimethod(
+        resource_encoding="value",
+    )
+    def echo_resource_by_value(
+        self, asset: Asset, app: Application, acc: Account
+    ) -> tuple[Asset, Application, Account]:
+        asset_id = op.btoi(Txn.application_args(1))
+        assert asset.id == asset_id, "expected asset to be passed by value"
+        app_id = op.btoi(Txn.application_args(2))
+        assert app.id == app_id, "expected application to be passed by value"
+        address = Txn.application_args(3)
+        assert acc.bytes == address, "expected account to be passed by value"
+        return asset, app, acc
+
     @arc4.abimethod
     def echo_native_tuple(
         self, s: String, b: Bytes, u: UInt64, bu: BigUInt
@@ -142,3 +173,13 @@ class Logger(ARC4Contract):
 class LoggerClient(arc4.ARC4Client, typing.Protocol):
     @arc4.abimethod
     def echo(self, value: arc4.String) -> arc4.String: ...
+
+    @arc4.abimethod(resource_encoding="foreign_index")
+    def echo_resource_by_foreign_index(
+        self, asset: Asset, app: Application, acc: Account
+    ) -> tuple[Asset, Application, Account]: ...
+
+    @arc4.abimethod(resource_encoding="value")
+    def echo_resource_by_value(
+        self, asset: Asset, app: Application, acc: Account
+    ) -> tuple[Asset, Application, Account]: ...

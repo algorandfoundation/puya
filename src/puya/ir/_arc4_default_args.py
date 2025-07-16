@@ -100,10 +100,9 @@ def _convert_member_arg_default(
             return f"{member_name!r} does not take zero arguments"
         if method_source.return_type == wtypes.void_wtype:
             return f"{member_name!r} does not provide a value"
-        # return is used here so reference types are treated as their ARC-4 encoded equivalents
-        param_arc4_type = wtype_to_arc4("return", param.wtype, param.source_location)
+        param_arc4_type = wtype_to_arc4(param.wtype, param.source_location, is_return=False)
         return_type_arc4 = wtype_to_arc4(
-            "return", method_source.return_type, method_source.source_location
+            method_source.return_type, method_source.source_location, is_return=True
         )
         if return_type_arc4 != param_arc4_type:
             return f"{method_source.member_name!r} does not provide {param_arc4_type!r} type"
