@@ -973,7 +973,7 @@ def test_typed_abi_call(
 
     increased_fee = algod_client.suggested_params()
     increased_fee.flat_fee = True
-    increased_fee.fee = constants.min_txn_fee * 6
+    increased_fee.fee = constants.min_txn_fee * 7
     txn_params = algokit_utils.OnCompleteCallParameters(
         suggested_params=increased_fee, foreign_apps=[logger.app_id], foreign_assets=[asset_a]
     )
@@ -1087,6 +1087,13 @@ def test_typed_abi_call(
         "test_arc4_struct",
         transaction_parameters=txn_params,
         app=logger.app_id,
+    )
+
+    app_client.call(
+        "test_resource_encoding",
+        transaction_parameters=txn_params,
+        asset=asset_a,
+        app_to_call=logger.app_id,
     )
 
 

@@ -251,6 +251,9 @@ def convert_type_annotation(
     origin = typing.get_origin(t)
     if origin is not None:
         args = typing.get_args(t)
+        if origin is typing.Literal:  # type: ignore[comparison-overlap]
+            assert all(isinstance(a, str) for a in args), "expected str literals"
+            return " | ".join(map(repr, args))
         mapped_args = tuple(map(convert_type_annotation, args))
         match origin, mapped_args:
             case (collections.abc.Sequence, (element_type,)):

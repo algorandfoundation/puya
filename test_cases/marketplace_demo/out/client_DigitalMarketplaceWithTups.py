@@ -16,7 +16,7 @@ class DigitalMarketplaceWithTups(algopy.arc4.ARC4Client, typing.Protocol):
     def allowAsset(
         self,
         mbr_pay: algopy.gtxn.PaymentTransaction,
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod
@@ -38,7 +38,7 @@ class DigitalMarketplaceWithTups(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def setPrice(
         self,
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
         nonce: algopy.arc4.UIntN[typing.Literal[64]],
         unitary_price: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
@@ -46,8 +46,8 @@ class DigitalMarketplaceWithTups(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def buy(
         self,
-        owner: algopy.Account,
-        asset: algopy.Asset,
+        owner: algopy.arc4.Address,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
         nonce: algopy.arc4.UIntN[typing.Literal[64]],
         buy_pay: algopy.gtxn.PaymentTransaction,
         quantity: algopy.arc4.UIntN[typing.Literal[64]],
@@ -56,15 +56,15 @@ class DigitalMarketplaceWithTups(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def withdraw(
         self,
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
         nonce: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod
     def bid(
         self,
-        owner: algopy.Account,
-        asset: algopy.Asset,
+        owner: algopy.arc4.Address,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
         nonce: algopy.arc4.UIntN[typing.Literal[64]],
         bid_pay: algopy.gtxn.PaymentTransaction,
         quantity: algopy.arc4.UIntN[typing.Literal[64]],
@@ -74,6 +74,6 @@ class DigitalMarketplaceWithTups(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def acceptBid(
         self,
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
         nonce: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...

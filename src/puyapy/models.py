@@ -60,11 +60,12 @@ class ARC4ABIMethodData:
         def on_error(bad_type: pytypes.PyType, loc: SourceLocation | None) -> typing.Never:
             raise CodeError(f"invalid type for an ARC-4 method: {bad_type}", loc)
 
+        pass_resources_by_value = self.config.resource_encoding == "value"
         return {
             k: pytype_to_arc4_pytype(
                 v,
                 on_error=on_error,
-                encode_resource_types=k == "output",
+                encode_resource_types=pass_resources_by_value or k == "output",
                 source_location=self.source_location,
             )
             for k, v in self._signature.items()

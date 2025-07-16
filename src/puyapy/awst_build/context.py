@@ -17,6 +17,7 @@ from puya.program_refs import ContractReference
 from puya.utils import attrs_extend, coalesce, unique
 from puyapy.awst_build import pytypes
 from puyapy.models import ConstantValue, ContractFragmentBase
+from puyapy.options import PuyaPyOptions
 from puyapy.parse import ParseResult
 
 logger = log.get_logger(__name__)
@@ -28,6 +29,7 @@ class ASTConversionContext:
     constants: dict[str, ConstantValue] = attrs.field(factory=dict)
     _pytypes: dict[str, pytypes.PyType] = attrs.field(factory=pytypes.builtins_registry)
     _contract_fragments: dict[ContractReference, ContractFragmentBase] = attrs.field(factory=dict)
+    options: PuyaPyOptions
 
     @property
     def mypy_options(self) -> mypy.options.Options:

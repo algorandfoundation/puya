@@ -12,7 +12,7 @@ class Caller(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         a: algopy.arc4.DynamicBytes,
         b: algopy.arc4.DynamicBytes,
-        app: algopy.Application,
+        app: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod
@@ -20,7 +20,7 @@ class Caller(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         a: algopy.arc4.DynamicBytes,
         b: algopy.arc4.DynamicBytes,
-        app: algopy.Application,
+        app: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod
@@ -28,7 +28,7 @@ class Caller(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         a: algopy.arc4.DynamicBytes,
         b: algopy.arc4.DynamicBytes,
-        app: algopy.Application,
+        app: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod
@@ -36,5 +36,5 @@ class Caller(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         a: algopy.arc4.DynamicBytes,
         b: algopy.arc4.DynamicBytes,
-        app: algopy.Application,
+        app: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...

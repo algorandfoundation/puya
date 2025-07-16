@@ -180,6 +180,9 @@ def _arc4_method_to_decorator(python_method: str, method: arc56.Method) -> str:
         abimethod_args["name"] = method.name
     if method.readonly:
         abimethod_args["readonly"] = True
+    # if any alias types are encountered, force foreign_index encoding
+    if {a.type for a in method.args}.intersection(("asset", "application", "account")):
+        abimethod_args["resource_encoding"] = "foreign_index"
     if not _compatible_actions(method.actions.create, method.actions.call):
         # TODO: support this, once decorators support it
         raise CodeError(

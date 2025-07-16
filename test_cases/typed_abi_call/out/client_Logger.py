@@ -65,9 +65,9 @@ class Logger(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod(name='log')
     def log6(
         self,
-        asset: algopy.Asset,
-        account: algopy.Account,
-        app: algopy.Application,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
+        account: algopy.arc4.Address,
+        app: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod(name='log')
@@ -99,6 +99,22 @@ class Logger(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         value: algopy.arc4.BigUIntN[typing.Literal[512]],
     ) -> algopy.arc4.BigUIntN[typing.Literal[512]]: ...
+
+    @algopy.arc4.abimethod(resource_encoding='foreign_index')
+    def echo_resource_by_foreign_index(
+        self,
+        asset: algopy.Asset,
+        app: algopy.Application,
+        acc: algopy.Account,
+    ) -> algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.Address]: ...
+
+    @algopy.arc4.abimethod
+    def echo_resource_by_value(
+        self,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
+        app: algopy.arc4.UIntN[typing.Literal[64]],
+        acc: algopy.arc4.Address,
+    ) -> algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.Address]: ...
 
     @algopy.arc4.abimethod
     def echo_native_tuple(

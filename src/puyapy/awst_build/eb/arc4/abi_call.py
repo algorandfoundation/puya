@@ -266,8 +266,11 @@ class _ARC4CompilationFunctionBuilder(FunctionBuilder):
             method_location=method_or_type.source_location,
             call_location=location,
         )
+        arg_value_and_types = list(
+            zip(method_call.arc4_args, method_call.arc4_param_types, strict=True)
+        )
         return _create_abi_call_expr(
-            abi_args=method_call.arc4_args,
+            arg_value_and_types=arg_value_and_types,
             arc4_return_type=method_call.arc4_return_type,
             declared_result_type=method_call.method_return_type,
             field_nodes=field_nodes,
@@ -325,6 +328,7 @@ def _abi_call(
                     "mismatch between return type of method and generic parameter",
                     location=location,
                 )
+            arg_value_and_types = list(zip(arc4_args, method_call.arc4_param_types, strict=True))
         case _:
             declared_result_type = return_type_annotation
             method_sig = split_arc4_signature(method)
@@ -360,6 +364,9 @@ def _abi_call(
                 )
             arc4_args = _method_selector_and_arc4_args(signature, abi_args, location)
             arc4_return_type = signature.return_type
+            arg_value_and_types = list(
+                zip(arc4_args, (pytypes.BytesType, *arg_types), strict=True)
+            )
 
     field_nodes = {PYTHON_ITXN_ARGUMENTS[kwarg].field: node for kwarg, node in kwargs.items()}
     # set on_completion if it can be inferred from config
@@ -377,7 +384,7 @@ def _abi_call(
     )
     return _create_abi_call_expr(
         arc4_return_type=arc4_return_type,
-        abi_args=arc4_args,
+        arg_value_and_types=arg_value_and_types,
         declared_result_type=declared_result_type,
         field_nodes=field_nodes,
         location=location,
@@ -407,6 +414,7 @@ def _get_method_abi_args_and_kwargs(
 class _ARC4MethodCall:
     config: ARC4MethodConfig | None
     arc4_args: Sequence[InstanceBuilder]
+    arc4_param_types: Sequence[pytypes.PyType]
     method_return_type: pytypes.PyType
     """
     Return type as declared on the method, this may not be an ARC-4 type due to automatic
@@ -442,6 +450,7 @@ def _map_arc4_method_data_to_call(
             return _ARC4MethodCall(
                 config=abi_method_data.config,
                 arc4_args=_method_selector_and_arc4_args(signature, abi_args, location),
+                arc4_param_types=[pytypes.BytesType, *signature.arg_types],
                 method_return_type=abi_method_data.return_type,
                 arc4_return_type=abi_method_data.arc4_return_type,
             )
@@ -450,6 +459,7 @@ def _map_arc4_method_data_to_call(
             return _ARC4MethodCall(
                 config=bare_method_data.config,
                 arc4_args=[],
+                arc4_param_types=[],
                 method_return_type=pytypes.NoneType,
                 arc4_return_type=pytypes.NoneType,
             )
@@ -492,17 +502,17 @@ def _method_selector_and_arc4_args(
     num_args = len(abi_args)
     num_sig_args = len(signature.arg_types)
     if num_sig_args != num_args:
-        logger.error(
+        raise CodeError(
             f"expected {num_sig_args} ABI argument{'' if num_sig_args == 1 else 's'},"
             f" got {num_args}",
-            location=signature.source_location,
+            signature.source_location,
         )
     result: list[InstanceBuilder] = [
         BytesExpressionBuilder(
             MethodConstant(value=signature.method_selector, source_location=location)
         )
     ]
-    for arg_in, target_type in zip(abi_args, signature.arg_types, strict=False):
+    for arg_in, target_type in zip(abi_args, signature.arg_types, strict=True):
         if not isinstance(target_type, pytypes.GroupTransactionType):
             arg = implicit_arc4_conversion(arg_in, target_type)
         else:
@@ -536,7 +546,7 @@ def _inner_transaction_type_matches(instance: pytypes.PyType, target: pytypes.Py
 
 def _create_abi_call_expr(
     *,
-    abi_args: Sequence[InstanceBuilder],
+    arg_value_and_types: Sequence[tuple[InstanceBuilder, pytypes.PyType]],
     arc4_return_type: pytypes.PyType,
     declared_result_type: pytypes.PyType,
     field_nodes: dict[TxnField, NodeBuilder],
@@ -562,10 +572,12 @@ def _create_abi_call_expr(
             source_location=arg.source_location,
         )
 
-    for arg_b in abi_args:
+    for arg_b, param_type in arg_value_and_types:
         arg_expr = None
-        match arg_b.pytype:
-            case pytypes.InnerTransactionFieldsetType():
+        match param_type:
+            case pytypes.GroupTransactionType() if isinstance(
+                arg_b.pytype, pytypes.InnerTransactionFieldsetType
+            ):
                 group.append(arg_b.resolve())
                 # no arg_expr as txn aren't part of the app args
             case pytypes.TransactionRelatedType():

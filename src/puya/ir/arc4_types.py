@@ -183,29 +183,36 @@ def get_arc4_name(wtype: wtypes.ARC4Type, *, use_alias: bool = False) -> str:
 
 
 def wtype_to_arc4(
-    kind: typing.Literal["argument", "return"],
     wtype: wtypes.WType,
     loc: SourceLocation,
+    *,
+    is_return: bool,
+    use_reference_alias: bool = False,
 ) -> str:
     """
     Returns the ARC-4 name for a WType, non ARC-4 types are first converted to ARC-4 equivalents.
-    Reference types and transaction types return their applicable ARC-4 aliases when used
-    as an argument
+    Reference types and transaction types are only returned if allowed
     """
     match wtype:
         case (
             wtypes.asset_wtype
             | wtypes.account_wtype
             | wtypes.application_wtype
-        ) if kind == "argument":
+        ) if use_reference_alias:
+            # if not use_reference_alias, these types are still allowed, but will
+            # fall through to using the value encoding below
             return wtype.name
-        case wtypes.WGroupTransaction(transaction_type=transaction_type) if kind == "argument":
+        case wtypes.WGroupTransaction(transaction_type=transaction_type):
+            if is_return:
+                raise CodeError("transactions are not supported as a return type", loc)
             return transaction_type.name if transaction_type else "txn"
-        case wtypes.void_wtype if kind == "return":
+        case wtypes.void_wtype:
+            if not is_return:
+                raise CodeError("void type is not supported at this location", loc)
             return wtype.name
     maybe_arc4_wtype = maybe_wtype_to_arc4_wtype(wtype)
     if maybe_arc4_wtype is None:
-        raise CodeError(f"unsupported {kind} type for an ARC-4 method", loc)
+        raise CodeError("unsupported type for an ARC-4 method", loc)
     return get_arc4_name(maybe_arc4_wtype, use_alias=True)
 
 

@@ -325,7 +325,7 @@ def check_allowed_oca(
 
 
 def _map_abi_args(
-    arg_types: Sequence[wtypes.WType], location: SourceLocation
+    arg_types: Sequence[wtypes.WType], location: SourceLocation, *, use_reference_alias: bool
 ) -> Iterable[awst_nodes.Expression]:
     transaction_arg_offset = 0
     incoming_types = []
@@ -335,7 +335,7 @@ def _map_abi_args(
         else:
             if isinstance(a, wtypes.ARC4Type):
                 arc4_type = a
-            elif _reference_type_array(a) is not None:
+            elif use_reference_alias and _reference_type_array(a) is not None:
                 arc4_type = wtypes.arc4_byte_alias
             else:
                 arc4_type = wtype_to_arc4_wtype(a, location)
@@ -375,7 +375,7 @@ def _map_abi_args(
             transaction_arg_offset -= 1
         else:
             abi_arg = abi_args.pop()
-            if (ref_array := _reference_type_array(arg)) is not None:
+            if use_reference_alias and (ref_array := _reference_type_array(arg)) is not None:
                 uint64_index = _btoi(abi_arg, location)
                 yield awst_nodes.IntrinsicCall(
                     op_code="txnas",
@@ -400,7 +400,10 @@ def route_abi_methods(
     seen_signatures = set[str]()
     for method, sig in methods.items():
         abi_loc = method.config_location
-        abi_args = list(_map_abi_args(sig.parameter_types, location))
+        use_reference_alias = method.resource_encoding == "foreign_index"
+        abi_args = list(
+            _map_abi_args(sig.parameter_types, location, use_reference_alias=use_reference_alias)
+        )
         method_result = call(abi_loc, sig, *abi_args)
         match sig.return_type:
             case wtypes.void_wtype:

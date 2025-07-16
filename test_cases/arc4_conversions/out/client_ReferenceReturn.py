@@ -25,9 +25,9 @@ class ReferenceReturn(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def store(
         self,
-        acc: algopy.Account,
-        app: algopy.Application,
-        asset: algopy.Asset,
+        acc: algopy.arc4.Address,
+        app: algopy.arc4.UIntN[typing.Literal[64]],
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod

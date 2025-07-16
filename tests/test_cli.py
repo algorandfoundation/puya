@@ -136,9 +136,9 @@ def test_puyapy_clientgen_arc56() -> None:
     run_puyapy_clientgen(path)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def hello_world_awst_json() -> Iterable[Path]:
-    path = EXAMPLES_DIR / "hello_world_arc4"
+    path = EXAMPLES_DIR / "hello_world_arc4" / "contract.py"
     with TemporaryDirectory() as tmp_dir:
         run_puyapy(["--output-awst-json", "--out-dir", tmp_dir, path])
         awst_json = Path(tmp_dir) / "module.awst.json"

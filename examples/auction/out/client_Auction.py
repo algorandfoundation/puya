@@ -10,7 +10,7 @@ class Auction(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def opt_into_asset(
         self,
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod
@@ -40,5 +40,5 @@ class Auction(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def claim_asset(
         self,
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...

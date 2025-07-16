@@ -74,7 +74,7 @@ def get_awst_cache(root_dir: Path) -> _CompileCache:
             mypy_options=mypy_options,
             ordered_modules=ordered_modules,
         )
-        awst, compilation_set = transform_ast(parse_result)
+        awst, compilation_set = transform_ast(parse_result, PuyaPyOptions())
     return _CompileCache(parse_result, awst, compilation_set, log_ctx.logs)
 
 

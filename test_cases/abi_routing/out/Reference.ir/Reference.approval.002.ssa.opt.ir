@@ -16,7 +16,7 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         goto tmp%0#3 ? block@4 : block@20
     block@4: // abi_routing_L24
         let tmp%2#1: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#1 {method "noop_with_uint64(uint64)uint8" => block@5, method "opt_in(uint64,byte[])void" => block@6, method "all_the_things(uint64)uint8" => block@7, method "mixed_oca(uint64)uint8" => block@8, method "opt_into_asset(asset)void" => block@9, method "with_transactions(asset,uint64,pay,uint64)void" => block@10, method "compare_assets(asset,asset)void" => block@11, method "get_address()address" => block@12, method "get_asset()uint64" => block@13, method "get_application()uint64" => block@14, method "get_an_int()uint64" => block@15, method "method_with_default_args(asset,asset,account,account,application,application,byte[3],uint64,uint64,uint32,string,uint64,byte[])void" => block@16, method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]" => block@17, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,asset,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],asset,pay,uint64,uint64)uint64" => block@18, method "hello_with_algopy_string(string)string" => block@19, * => block@22}
+        switch tmp%2#1 {method "noop_with_uint64(uint64)uint8" => block@5, method "opt_in(uint64,byte[])void" => block@6, method "all_the_things(uint64)uint8" => block@7, method "mixed_oca(uint64)uint8" => block@8, method "opt_into_asset(uint64)void" => block@9, method "with_transactions(uint64,uint64,pay,uint64)void" => block@10, method "compare_assets(uint64,uint64)void" => block@11, method "get_address()address" => block@12, method "get_asset()uint64" => block@13, method "get_application()uint64" => block@14, method "get_an_int()uint64" => block@15, method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void" => block@16, method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]" => block@17, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64" => block@18, method "hello_with_algopy_string(string)string" => block@19, * => block@22}
     block@5: // noop_with_uint64_route_L40
         let tmp%3#1: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#1)
@@ -68,256 +68,244 @@ main test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init:
         (assert tmp%25#0) // OnCompletion is not NoOp
         let tmp%26#0: uint64 = (txn ApplicationID)
         (assert tmp%26#0) // can only call when not creating
-        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%28#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let tmp%29#0: uint64 = ((txnas Assets) tmp%28#0)
-        test_cases.abi_routing.contract.Reference.opt_into_asset(tmp%29#0)
+        let reinterpret_Encoded(uint64)%4#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%28#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%4#0)
+        test_cases.abi_routing.contract.Reference.opt_into_asset(tmp%28#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#4: bool = 1u
         goto block@23
     block@10: // with_transactions_route_L109
-        let tmp%30#0: uint64 = (txn OnCompletion)
-        let tmp%31#0: bool = (! tmp%30#0)
-        (assert tmp%31#0) // OnCompletion is not NoOp
-        let tmp%32#0: uint64 = (txn ApplicationID)
-        (assert tmp%32#0) // can only call when not creating
-        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%34#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let tmp%35#0: uint64 = ((txnas Assets) tmp%34#0)
-        let reinterpret_Encoded(uint64)%4#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%36#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%0#0: uint64 = (- tmp%36#0 1u)
+        let tmp%29#0: uint64 = (txn OnCompletion)
+        let tmp%30#0: bool = (! tmp%29#0)
+        (assert tmp%30#0) // OnCompletion is not NoOp
+        let tmp%31#0: uint64 = (txn ApplicationID)
+        (assert tmp%31#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%5#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%33#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%5#0)
+        let reinterpret_Encoded(uint64)%6#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%34#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%0#0: uint64 = (- tmp%34#0 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let reinterpret_Encoded(uint64)%5#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        test_cases.abi_routing.contract.Reference.with_transactions(tmp%35#0, reinterpret_Encoded(uint64)%4#0, gtxn_idx%0#0, reinterpret_Encoded(uint64)%5#0)
+        let reinterpret_Encoded(uint64)%7#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        test_cases.abi_routing.contract.Reference.with_transactions(tmp%33#0, reinterpret_Encoded(uint64)%6#0, gtxn_idx%0#0, reinterpret_Encoded(uint64)%7#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#5: bool = 1u
         goto block@23
     block@11: // compare_assets_route_L122
-        let tmp%37#0: uint64 = (txn OnCompletion)
-        let tmp%38#0: bool = (! tmp%37#0)
-        (assert tmp%38#0) // OnCompletion is not NoOp
-        let tmp%39#0: uint64 = (txn ApplicationID)
-        (assert tmp%39#0) // can only call when not creating
-        let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%41#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
-        let tmp%42#0: uint64 = ((txnas Assets) tmp%41#0)
-        let reinterpret_Encoded(uint8)%3#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%43#0: uint64 = (btoi reinterpret_Encoded(uint8)%3#0)
-        let tmp%44#0: uint64 = ((txnas Assets) tmp%43#0)
-        test_cases.abi_routing.contract.Reference.compare_assets(tmp%42#0, tmp%44#0)
+        let tmp%35#0: uint64 = (txn OnCompletion)
+        let tmp%36#0: bool = (! tmp%35#0)
+        (assert tmp%36#0) // OnCompletion is not NoOp
+        let tmp%37#0: uint64 = (txn ApplicationID)
+        (assert tmp%37#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%8#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%39#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%8#0)
+        let reinterpret_Encoded(uint64)%9#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%40#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%9#0)
+        test_cases.abi_routing.contract.Reference.compare_assets(tmp%39#0, tmp%40#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#6: bool = 1u
         goto block@23
     block@12: // get_address_route_L126
-        let tmp%45#0: uint64 = (txn OnCompletion)
-        let tmp%46#0: bool = (! tmp%45#0)
-        (assert tmp%46#0) // OnCompletion is not NoOp
-        let tmp%47#0: uint64 = (txn ApplicationID)
-        (assert tmp%47#0) // can only call when not creating
-        let tmp%49#0: Encoded(uint8[32]) = test_cases.abi_routing.contract.Reference.get_address()
-        let tmp%50#0: bytes = (concat 0x151f7c75 tmp%49#0)
-        (log tmp%50#0)
+        let tmp%41#0: uint64 = (txn OnCompletion)
+        let tmp%42#0: bool = (! tmp%41#0)
+        (assert tmp%42#0) // OnCompletion is not NoOp
+        let tmp%43#0: uint64 = (txn ApplicationID)
+        (assert tmp%43#0) // can only call when not creating
+        let tmp%45#0: Encoded(uint8[32]) = test_cases.abi_routing.contract.Reference.get_address()
+        let tmp%46#0: bytes = (concat 0x151f7c75 tmp%45#0)
+        (log tmp%46#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#7: bool = 1u
         goto block@23
     block@13: // get_asset_route_L130
-        let tmp%51#0: uint64 = (txn OnCompletion)
-        let tmp%52#0: bool = (! tmp%51#0)
-        (assert tmp%52#0) // OnCompletion is not NoOp
-        let tmp%53#0: uint64 = (txn ApplicationID)
-        (assert tmp%53#0) // can only call when not creating
+        let tmp%47#0: uint64 = (txn OnCompletion)
+        let tmp%48#0: bool = (! tmp%47#0)
+        (assert tmp%48#0) // OnCompletion is not NoOp
+        let tmp%49#0: uint64 = (txn ApplicationID)
+        (assert tmp%49#0) // can only call when not creating
         (log 0x151f7c7500000000000001c8)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#8: bool = 1u
         goto block@23
     block@14: // get_application_route_L134
-        let tmp%57#0: uint64 = (txn OnCompletion)
-        let tmp%58#0: bool = (! tmp%57#0)
-        (assert tmp%58#0) // OnCompletion is not NoOp
-        let tmp%59#0: uint64 = (txn ApplicationID)
-        (assert tmp%59#0) // can only call when not creating
+        let tmp%53#0: uint64 = (txn OnCompletion)
+        let tmp%54#0: bool = (! tmp%53#0)
+        (assert tmp%54#0) // OnCompletion is not NoOp
+        let tmp%55#0: uint64 = (txn ApplicationID)
+        (assert tmp%55#0) // can only call when not creating
         (log 0x151f7c7500000000000001c8)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#9: bool = 1u
         goto block@23
     block@15: // get_an_int_route_L138
-        let tmp%63#0: uint64 = (txn OnCompletion)
-        let tmp%64#0: bool = (! tmp%63#0)
-        (assert tmp%64#0) // OnCompletion is not NoOp
-        let tmp%65#0: uint64 = (txn ApplicationID)
-        (assert tmp%65#0) // can only call when not creating
+        let tmp%59#0: uint64 = (txn OnCompletion)
+        let tmp%60#0: bool = (! tmp%59#0)
+        (assert tmp%60#0) // OnCompletion is not NoOp
+        let tmp%61#0: uint64 = (txn ApplicationID)
+        (assert tmp%61#0) // can only call when not creating
         (log 0x151f7c750000000000000003)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#10: bool = 1u
         goto block@23
     block@16: // method_with_default_args_route_L142
-        let tmp%69#0: uint64 = (txn OnCompletion)
-        let tmp%70#0: bool = (! tmp%69#0)
-        (assert tmp%70#0) // OnCompletion is not NoOp
-        let tmp%71#0: uint64 = (txn ApplicationID)
-        (assert tmp%71#0) // can only call when not creating
-        let reinterpret_Encoded(uint8)%4#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%73#0: uint64 = (btoi reinterpret_Encoded(uint8)%4#0)
-        let tmp%74#0: uint64 = ((txnas Assets) tmp%73#0)
-        let reinterpret_Encoded(uint8)%5#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%75#0: uint64 = (btoi reinterpret_Encoded(uint8)%5#0)
-        let tmp%76#0: uint64 = ((txnas Assets) tmp%75#0)
-        let reinterpret_Encoded(uint8)%6#0: Encoded(uint8) = (txna ApplicationArgs 3)
-        let tmp%77#0: uint64 = (btoi reinterpret_Encoded(uint8)%6#0)
-        let tmp%78#0: account = ((txnas Accounts) tmp%77#0)
-        let reinterpret_Encoded(uint8)%7#0: Encoded(uint8) = (txna ApplicationArgs 4)
-        let tmp%79#0: uint64 = (btoi reinterpret_Encoded(uint8)%7#0)
-        let tmp%80#0: account = ((txnas Accounts) tmp%79#0)
-        let reinterpret_Encoded(uint8)%8#0: Encoded(uint8) = (txna ApplicationArgs 5)
-        let tmp%81#0: uint64 = (btoi reinterpret_Encoded(uint8)%8#0)
-        let tmp%82#0: uint64 = ((txnas Applications) tmp%81#0)
-        let reinterpret_Encoded(uint8)%9#0: Encoded(uint8) = (txna ApplicationArgs 6)
-        let tmp%83#0: uint64 = (btoi reinterpret_Encoded(uint8)%9#0)
-        let tmp%84#0: uint64 = ((txnas Applications) tmp%83#0)
+        let tmp%65#0: uint64 = (txn OnCompletion)
+        let tmp%66#0: bool = (! tmp%65#0)
+        (assert tmp%66#0) // OnCompletion is not NoOp
+        let tmp%67#0: uint64 = (txn ApplicationID)
+        (assert tmp%67#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%10#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%69#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%10#0)
+        let reinterpret_Encoded(uint64)%11#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%70#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%11#0)
+        let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 3)
+        let tmp%71#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%0#0)
+        let reinterpret_Encoded(uint8[32])%1#0: Encoded(uint8[32]) = (txna ApplicationArgs 4)
+        let tmp%72#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%1#0)
+        let reinterpret_Encoded(uint64)%12#0: Encoded(uint64) = (txna ApplicationArgs 5)
+        let tmp%73#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%12#0)
+        let reinterpret_Encoded(uint64)%13#0: Encoded(uint64) = (txna ApplicationArgs 6)
+        let tmp%74#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%13#0)
         let reinterpret_Encoded(uint8[3])%0#0: Encoded(uint8[3]) = (txna ApplicationArgs 7)
-        let reinterpret_Encoded(uint64)%6#0: Encoded(uint64) = (txna ApplicationArgs 8)
-        let reinterpret_Encoded(uint64)%7#0: Encoded(uint64) = (txna ApplicationArgs 9)
+        let reinterpret_Encoded(uint64)%14#0: Encoded(uint64) = (txna ApplicationArgs 8)
+        let reinterpret_Encoded(uint64)%15#0: Encoded(uint64) = (txna ApplicationArgs 9)
         let reinterpret_Encoded(uint32)%0#0: Encoded(uint32) = (txna ApplicationArgs 10)
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 11)
-        let reinterpret_Encoded(uint64)%8#0: Encoded(uint64) = (txna ApplicationArgs 12)
-        let tmp%85#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%8#0)
+        let reinterpret_Encoded(uint64)%16#0: Encoded(uint64) = (txna ApplicationArgs 12)
+        let tmp%75#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%16#0)
         let reinterpret_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = (txna ApplicationArgs 13)
-        let tmp%86#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
-        test_cases.abi_routing.contract.Reference.method_with_default_args(tmp%74#0, tmp%76#0, tmp%78#0, tmp%80#0, tmp%82#0, tmp%84#0, reinterpret_Encoded(uint8[3])%0#0, reinterpret_Encoded(uint64)%6#0, reinterpret_Encoded(uint64)%7#0, reinterpret_Encoded(uint32)%0#0, reinterpret_Encoded(len+utf8[])%0#0, tmp%85#0, tmp%86#0)
+        let tmp%76#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%1#0)
+        test_cases.abi_routing.contract.Reference.method_with_default_args(tmp%69#0, tmp%70#0, tmp%71#0, tmp%72#0, tmp%73#0, tmp%74#0, reinterpret_Encoded(uint8[3])%0#0, reinterpret_Encoded(uint64)%14#0, reinterpret_Encoded(uint64)%15#0, reinterpret_Encoded(uint32)%0#0, reinterpret_Encoded(len+utf8[])%0#0, tmp%75#0, tmp%76#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#11: bool = 1u
         goto block@23
     block@17: // method_with_15_args_route_L191
-        let tmp%87#0: uint64 = (txn OnCompletion)
-        let tmp%88#0: bool = (! tmp%87#0)
-        (assert tmp%88#0) // OnCompletion is not NoOp
-        let tmp%89#0: uint64 = (txn ApplicationID)
-        (assert tmp%89#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%9#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%91#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%9#0)
-        let reinterpret_Encoded(uint64)%10#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%92#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%10#0)
-        let reinterpret_Encoded(uint64)%11#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let tmp%93#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%11#0)
-        let reinterpret_Encoded(uint64)%12#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%94#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%12#0)
-        let reinterpret_Encoded(uint64)%13#0: Encoded(uint64) = (txna ApplicationArgs 5)
-        let tmp%95#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%13#0)
-        let reinterpret_Encoded(uint64)%14#0: Encoded(uint64) = (txna ApplicationArgs 6)
-        let tmp%96#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%14#0)
-        let reinterpret_Encoded(uint64)%15#0: Encoded(uint64) = (txna ApplicationArgs 7)
-        let tmp%97#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%15#0)
-        let reinterpret_Encoded(uint64)%16#0: Encoded(uint64) = (txna ApplicationArgs 8)
-        let tmp%98#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%16#0)
-        let reinterpret_Encoded(uint64)%17#0: Encoded(uint64) = (txna ApplicationArgs 9)
-        let tmp%99#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%17#0)
-        let reinterpret_Encoded(uint64)%18#0: Encoded(uint64) = (txna ApplicationArgs 10)
-        let tmp%100#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%18#0)
-        let reinterpret_Encoded(uint64)%19#0: Encoded(uint64) = (txna ApplicationArgs 11)
-        let tmp%101#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%19#0)
-        let reinterpret_Encoded(uint64)%20#0: Encoded(uint64) = (txna ApplicationArgs 12)
-        let tmp%102#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%20#0)
-        let reinterpret_Encoded(uint64)%21#0: Encoded(uint64) = (txna ApplicationArgs 13)
-        let tmp%103#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%21#0)
-        let reinterpret_Encoded(uint64)%22#0: Encoded(uint64) = (txna ApplicationArgs 14)
-        let tmp%104#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%22#0)
+        let tmp%77#0: uint64 = (txn OnCompletion)
+        let tmp%78#0: bool = (! tmp%77#0)
+        (assert tmp%78#0) // OnCompletion is not NoOp
+        let tmp%79#0: uint64 = (txn ApplicationID)
+        (assert tmp%79#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%17#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%81#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%17#0)
+        let reinterpret_Encoded(uint64)%18#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%82#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%18#0)
+        let reinterpret_Encoded(uint64)%19#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        let tmp%83#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%19#0)
+        let reinterpret_Encoded(uint64)%20#0: Encoded(uint64) = (txna ApplicationArgs 4)
+        let tmp%84#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%20#0)
+        let reinterpret_Encoded(uint64)%21#0: Encoded(uint64) = (txna ApplicationArgs 5)
+        let tmp%85#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%21#0)
+        let reinterpret_Encoded(uint64)%22#0: Encoded(uint64) = (txna ApplicationArgs 6)
+        let tmp%86#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%22#0)
+        let reinterpret_Encoded(uint64)%23#0: Encoded(uint64) = (txna ApplicationArgs 7)
+        let tmp%87#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%23#0)
+        let reinterpret_Encoded(uint64)%24#0: Encoded(uint64) = (txna ApplicationArgs 8)
+        let tmp%88#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%24#0)
+        let reinterpret_Encoded(uint64)%25#0: Encoded(uint64) = (txna ApplicationArgs 9)
+        let tmp%89#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%25#0)
+        let reinterpret_Encoded(uint64)%26#0: Encoded(uint64) = (txna ApplicationArgs 10)
+        let tmp%90#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%26#0)
+        let reinterpret_Encoded(uint64)%27#0: Encoded(uint64) = (txna ApplicationArgs 11)
+        let tmp%91#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%27#0)
+        let reinterpret_Encoded(uint64)%28#0: Encoded(uint64) = (txna ApplicationArgs 12)
+        let tmp%92#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%28#0)
+        let reinterpret_Encoded(uint64)%29#0: Encoded(uint64) = (txna ApplicationArgs 13)
+        let tmp%93#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%29#0)
+        let reinterpret_Encoded(uint64)%30#0: Encoded(uint64) = (txna ApplicationArgs 14)
+        let tmp%94#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%30#0)
         let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 15)
-        let tmp%105#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%2#0)
-        let tmp%106#0: bytes = test_cases.abi_routing.contract.Reference.method_with_15_args(tmp%91#0, tmp%92#0, tmp%93#0, tmp%94#0, tmp%95#0, tmp%96#0, tmp%97#0, tmp%98#0, tmp%99#0, tmp%100#0, tmp%101#0, tmp%102#0, tmp%103#0, tmp%104#0, tmp%105#0)
-        let tmp%107#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%106#0)
-        let tmp%108#0: bytes = (concat 0x151f7c75 tmp%107#0)
-        (log tmp%108#0)
+        let tmp%95#0: bytes = decode_bytes<bytes>(reinterpret_Encoded(len+uint8[])%2#0)
+        let tmp%96#0: bytes = test_cases.abi_routing.contract.Reference.method_with_15_args(tmp%81#0, tmp%82#0, tmp%83#0, tmp%84#0, tmp%85#0, tmp%86#0, tmp%87#0, tmp%88#0, tmp%89#0, tmp%90#0, tmp%91#0, tmp%92#0, tmp%93#0, tmp%94#0, tmp%95#0)
+        let tmp%97#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%96#0)
+        let tmp%98#0: bytes = (concat 0x151f7c75 tmp%97#0)
+        (log tmp%98#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#12: bool = 1u
         goto block@23
     block@18: // method_with_more_than_15_args_route_L229
-        let tmp%109#0: uint64 = (txn OnCompletion)
-        let tmp%110#0: bool = (! tmp%109#0)
-        (assert tmp%110#0) // OnCompletion is not NoOp
-        let tmp%111#0: uint64 = (txn ApplicationID)
-        (assert tmp%111#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%23#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%24#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let reinterpret_Encoded(uint64)%25#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let reinterpret_Encoded(uint64)%26#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%113#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%26#0)
-        let reinterpret_Encoded(uint8)%10#0: Encoded(uint8) = (txna ApplicationArgs 5)
-        let tmp%114#0: uint64 = (btoi reinterpret_Encoded(uint8)%10#0)
-        let tmp%115#0: uint64 = ((txnas Assets) tmp%114#0)
-        let reinterpret_Encoded(uint64)%27#0: Encoded(uint64) = (txna ApplicationArgs 6)
-        let reinterpret_Encoded(uint64)%28#0: Encoded(uint64) = (txna ApplicationArgs 7)
-        let tmp%116#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%116#0 2u)
+        let tmp%99#0: uint64 = (txn OnCompletion)
+        let tmp%100#0: bool = (! tmp%99#0)
+        (assert tmp%100#0) // OnCompletion is not NoOp
+        let tmp%101#0: uint64 = (txn ApplicationID)
+        (assert tmp%101#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%31#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let reinterpret_Encoded(uint64)%32#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let reinterpret_Encoded(uint64)%33#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        let reinterpret_Encoded(uint64)%34#0: Encoded(uint64) = (txna ApplicationArgs 4)
+        let tmp%103#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%34#0)
+        let reinterpret_Encoded(uint64)%35#0: Encoded(uint64) = (txna ApplicationArgs 5)
+        let tmp%104#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%35#0)
+        let reinterpret_Encoded(uint64)%36#0: Encoded(uint64) = (txna ApplicationArgs 6)
+        let reinterpret_Encoded(uint64)%37#0: Encoded(uint64) = (txna ApplicationArgs 7)
+        let tmp%105#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%1#0: uint64 = (- tmp%105#0 2u)
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
         (assert gtxn_type_matches%1#0) // transaction type is pay
-        let reinterpret_Encoded(uint64)%29#0: Encoded(uint64) = (txna ApplicationArgs 8)
-        let reinterpret_Encoded(uint64)%30#0: Encoded(uint64) = (txna ApplicationArgs 9)
-        let reinterpret_Encoded(uint64)%31#0: Encoded(uint64) = (txna ApplicationArgs 10)
-        let reinterpret_Encoded(uint64)%32#0: Encoded(uint64) = (txna ApplicationArgs 11)
-        let reinterpret_Encoded(uint64)%33#0: Encoded(uint64) = (txna ApplicationArgs 12)
-        let reinterpret_Encoded(uint64)%34#0: Encoded(uint64) = (txna ApplicationArgs 13)
-        let reinterpret_Encoded(uint64)%35#0: Encoded(uint64) = (txna ApplicationArgs 14)
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%0#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%0#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%0#0, 0)
+        let reinterpret_Encoded(uint64)%38#0: Encoded(uint64) = (txna ApplicationArgs 8)
+        let reinterpret_Encoded(uint64)%39#0: Encoded(uint64) = (txna ApplicationArgs 9)
+        let reinterpret_Encoded(uint64)%40#0: Encoded(uint64) = (txna ApplicationArgs 10)
+        let reinterpret_Encoded(uint64)%41#0: Encoded(uint64) = (txna ApplicationArgs 11)
+        let reinterpret_Encoded(uint64)%42#0: Encoded(uint64) = (txna ApplicationArgs 12)
+        let reinterpret_Encoded(uint64)%43#0: Encoded(uint64) = (txna ApplicationArgs 13)
+        let reinterpret_Encoded(uint64)%44#0: Encoded(uint64) = (txna ApplicationArgs 14)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%0#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%0#0, 0)
         let values%0#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%0#0)
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%1#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%1#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%1#0, 1)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%1#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%1#0, 1)
         let values%1#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%1#0)
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%2#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%2#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%2#0, 2)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%2#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%2#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%2#0, 2)
         let values%2#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%2#0)
-        let tmp%117#0: uint64 = decode_bytes<uint64>(values%2#0)
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%3#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%3#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%3#0, 3)
+        let tmp%106#0: uint64 = decode_bytes<uint64>(values%2#0)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%3#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%3#0, 3)
         let values%3#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%3#0)
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%4#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%4#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%4#0, 4)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%4#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%4#0, 4)
         let values%4#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%4#0)
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%5#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%5#0: Encoded(len+uint8[]) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%5#0, 5)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%5#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%5#0: Encoded(len+uint8[]) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%5#0, 5)
         let values%5#0: Encoded(len+uint8[]) = decode_bytes<Encoded(len+uint8[])>(tuple_item%5#0)
-        let tmp%118#0: bytes = decode_bytes<bytes>(values%5#0)
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%6#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%6#0: Encoded(len+uint8[]) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%6#0, 6)
+        let tmp%107#0: bytes = decode_bytes<bytes>(values%5#0)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%6#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%6#0: Encoded(len+uint8[]) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%6#0, 6)
         let values%6#0: Encoded(len+uint8[]) = decode_bytes<Encoded(len+uint8[])>(tuple_item%6#0)
-        let tmp%119#0: bytes = decode_bytes<bytes>(values%6#0)
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%7#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%7#0: Encoded(uint8) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%7#0, 7)
-        let values%7#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(tuple_item%7#0)
-        let tmp%120#0: uint64 = (btoi values%7#0)
-        let tmp%121#0: uint64 = ((txnas Assets) tmp%120#0)
-        let tmp%122#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%2#0: uint64 = (- tmp%122#0 1u)
+        let tmp%108#0: bytes = decode_bytes<bytes>(values%6#0)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%7#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%7#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%7#0, 7)
+        let values%7#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%7#0)
+        let tmp%109#0: uint64 = decode_bytes<uint64>(values%7#0)
+        let tmp%110#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%2#0: uint64 = (- tmp%110#0 1u)
         let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
         let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 pay)
         (assert gtxn_type_matches%2#0) // transaction type is pay
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%8#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%8#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%8#0, 8)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%8#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%8#0, 8)
         let values%8#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%8#0)
-        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%9#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64) = (txna ApplicationArgs 15)
-        let tuple_item%9#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint8,uint64,uint64)%9#0, 9)
+        let reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0: Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64) = (txna ApplicationArgs 15)
+        let tuple_item%9#0: Encoded(uint64) = extract_value(reinterpret_Encoded(uint64,uint64,uint64,uint64,uint64,(len+uint8[]),(len+uint8[]),uint64,uint64,uint64)%9#0, 9)
         let values%9#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%9#0)
-        let tmp%123#0: Encoded(uint64) = test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(reinterpret_Encoded(uint64)%23#0, reinterpret_Encoded(uint64)%24#0, reinterpret_Encoded(uint64)%25#0, tmp%113#0, tmp%115#0, reinterpret_Encoded(uint64)%27#0, reinterpret_Encoded(uint64)%28#0, gtxn_idx%1#0, reinterpret_Encoded(uint64)%29#0, reinterpret_Encoded(uint64)%30#0, reinterpret_Encoded(uint64)%31#0, reinterpret_Encoded(uint64)%32#0, reinterpret_Encoded(uint64)%33#0, reinterpret_Encoded(uint64)%34#0, reinterpret_Encoded(uint64)%35#0, values%0#0, values%1#0, tmp%117#0, values%3#0, values%4#0, tmp%118#0, tmp%119#0, tmp%121#0, gtxn_idx%2#0, values%8#0, values%9#0)
-        let tmp%124#0: bytes = (concat 0x151f7c75 tmp%123#0)
-        (log tmp%124#0)
+        let tmp%111#0: Encoded(uint64) = test_cases.abi_routing.contract.Reference.method_with_more_than_15_args(reinterpret_Encoded(uint64)%31#0, reinterpret_Encoded(uint64)%32#0, reinterpret_Encoded(uint64)%33#0, tmp%103#0, tmp%104#0, reinterpret_Encoded(uint64)%36#0, reinterpret_Encoded(uint64)%37#0, gtxn_idx%1#0, reinterpret_Encoded(uint64)%38#0, reinterpret_Encoded(uint64)%39#0, reinterpret_Encoded(uint64)%40#0, reinterpret_Encoded(uint64)%41#0, reinterpret_Encoded(uint64)%42#0, reinterpret_Encoded(uint64)%43#0, reinterpret_Encoded(uint64)%44#0, values%0#0, values%1#0, tmp%106#0, values%3#0, values%4#0, tmp%107#0, tmp%108#0, tmp%109#0, gtxn_idx%2#0, values%8#0, values%9#0)
+        let tmp%112#0: bytes = (concat 0x151f7c75 tmp%111#0)
+        (log tmp%112#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#13: bool = 1u
         goto block@23
     block@19: // hello_with_algopy_string_route_L295
-        let tmp%125#0: uint64 = (txn OnCompletion)
-        let tmp%126#0: bool = (! tmp%125#0)
-        (assert tmp%126#0) // OnCompletion is not NoOp
-        let tmp%127#0: uint64 = (txn ApplicationID)
-        (assert tmp%127#0) // can only call when not creating
+        let tmp%113#0: uint64 = (txn OnCompletion)
+        let tmp%114#0: bool = (! tmp%113#0)
+        (assert tmp%114#0) // OnCompletion is not NoOp
+        let tmp%115#0: uint64 = (txn ApplicationID)
+        (assert tmp%115#0) // can only call when not creating
         let reinterpret_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%129#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%1#0)
-        let tmp%130#0: string = test_cases.abi_routing.contract.Reference.hello_with_algopy_string(tmp%129#0)
-        let tmp%131#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%130#0)
-        let tmp%132#0: bytes = (concat 0x151f7c75 tmp%131#0)
-        (log tmp%132#0)
+        let tmp%117#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%1#0)
+        let tmp%118#0: string = test_cases.abi_routing.contract.Reference.hello_with_algopy_string(tmp%117#0)
+        let tmp%119#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%118#0)
+        let tmp%120#0: bytes = (concat 0x151f7c75 tmp%119#0)
+        (log tmp%120#0)
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#14: bool = 1u
         goto block@23
     block@20: // bare_routing_L24
-        let tmp%133#0: uint64 = (txn OnCompletion)
-        goto_nth [block@21, block@21, block@21, block@22, block@21, block@21][tmp%133#0] else goto block@22
+        let tmp%121#0: uint64 = (txn OnCompletion)
+        goto_nth [block@21, block@21, block@21, block@22, block@21, block@21][tmp%121#0] else goto block@22
     block@21: // bare_abi_config_L79
-        let tmp%134#0: uint64 = (txn ApplicationID)
-        let tmp%135#0: bool = (! tmp%134#0)
-        (assert tmp%135#0) // can only call when creating
+        let tmp%122#0: uint64 = (txn ApplicationID)
+        let tmp%123#0: bool = (! tmp%122#0)
+        (assert tmp%123#0) // can only call when creating
         test_cases.abi_routing.contract.Reference.bare_abi_config()
         let test_cases.abi_routing.contract.Reference.__puya_arc4_router__%0#15: bool = 1u
         goto block@23

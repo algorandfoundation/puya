@@ -35,13 +35,13 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def opt_into_asset(
         self,
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod
     def with_transactions(
         self,
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
         an_int: algopy.arc4.UIntN[typing.Literal[64]],
         pay: algopy.gtxn.PaymentTransaction,
         another_int: algopy.arc4.UIntN[typing.Literal[64]],
@@ -50,8 +50,8 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def compare_assets(
         self,
-        asset_a: algopy.Asset,
-        asset_b: algopy.Asset,
+        asset_a: algopy.arc4.UIntN[typing.Literal[64]],
+        asset_b: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> None: ...
 
     @algopy.arc4.abimethod(readonly=True)
@@ -77,12 +77,12 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
     def method_with_default_args(
         self,
-        asset_from_storage: algopy.Asset,
-        asset_from_function: algopy.Asset,
-        account_from_storage: algopy.Account,
-        account_from_function: algopy.Account,
-        application_from_storage: algopy.Application,
-        application_from_function: algopy.Application,
+        asset_from_storage: algopy.arc4.UIntN[typing.Literal[64]],
+        asset_from_function: algopy.arc4.UIntN[typing.Literal[64]],
+        account_from_storage: algopy.arc4.Address,
+        account_from_function: algopy.arc4.Address,
+        application_from_storage: algopy.arc4.UIntN[typing.Literal[64]],
+        application_from_function: algopy.arc4.UIntN[typing.Literal[64]],
         bytes_from_storage: algopy.arc4.StaticArray[algopy.arc4.Byte, typing.Literal[3]],
         int_from_storage: algopy.arc4.UIntN[typing.Literal[64]],
         int_from_function: algopy.arc4.UIntN[typing.Literal[64]],
@@ -122,7 +122,7 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         b: algopy.arc4.UIntN[typing.Literal[64]],
         c: algopy.arc4.UIntN[typing.Literal[64]],
         d: algopy.arc4.UIntN[typing.Literal[64]],
-        asset: algopy.Asset,
+        asset: algopy.arc4.UIntN[typing.Literal[64]],
         e: algopy.arc4.UIntN[typing.Literal[64]],
         f: algopy.arc4.UIntN[typing.Literal[64]],
         pay: algopy.gtxn.PaymentTransaction,
@@ -140,7 +140,7 @@ class Reference(algopy.arc4.ARC4Client, typing.Protocol):
         r: algopy.arc4.UIntN[typing.Literal[64]],
         s: algopy.arc4.DynamicBytes,
         t: algopy.arc4.DynamicBytes,
-        asset2: algopy.Asset,
+        asset2: algopy.arc4.UIntN[typing.Literal[64]],
         pay2: algopy.gtxn.PaymentTransaction,
         u: algopy.arc4.UIntN[typing.Literal[64]],
         v: algopy.arc4.UIntN[typing.Literal[64]],

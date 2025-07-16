@@ -10,7 +10,7 @@ main test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTup
         goto tmp%0#2 ? block@4 : block@14
     block@4: // abi_routing_L38
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "getListingsMbr()uint64" => block@5, method "allowAsset(pay,asset)void" => block@6, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@7, method "deposit(axfer,uint64)void" => block@8, method "setPrice(asset,uint64,uint64)void" => block@9, method "buy(account,asset,uint64,pay,uint64)void" => block@10, method "withdraw(asset,uint64)void" => block@11, method "bid(account,asset,uint64,pay,uint64,uint64)void" => block@12, method "acceptBid(asset,uint64)void" => block@13, * => block@16}
+        switch tmp%2#0 {method "getListingsMbr()uint64" => block@5, method "allowAsset(pay,uint64)void" => block@6, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@7, method "deposit(axfer,uint64)void" => block@8, method "setPrice(uint64,uint64,uint64)void" => block@9, method "buy(address,uint64,uint64,pay,uint64)void" => block@10, method "withdraw(uint64,uint64)void" => block@11, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@12, method "acceptBid(uint64,uint64)void" => block@13, * => block@16}
     block@5: // getListingsMbr_route_L79
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -33,152 +33,144 @@ main test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTup
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) gtxn_idx%0#0)
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 pay)
         (assert gtxn_type_matches%0#0) // transaction type is pay
-        let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%15#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let tmp%16#0: uint64 = ((txnas Assets) tmp%15#0)
-        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.allow_asset(gtxn_idx%0#0, tmp%16#0)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%15#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
+        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.allow_asset(gtxn_idx%0#0, tmp%15#0)
         let test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#1: bool = 1u
         goto block@17
     block@7: // firstDeposit_route_L94
-        let tmp%17#0: uint64 = (txn OnCompletion)
-        let tmp%18#0: bool = (! tmp%17#0)
-        (assert tmp%18#0) // OnCompletion is not NoOp
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        (assert tmp%19#0) // can only call when not creating
-        let tmp%21#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%1#0: uint64 = (- tmp%21#0 2u)
+        let tmp%16#0: uint64 = (txn OnCompletion)
+        let tmp%17#0: bool = (! tmp%16#0)
+        (assert tmp%17#0) // OnCompletion is not NoOp
+        let tmp%18#0: uint64 = (txn ApplicationID)
+        (assert tmp%18#0) // can only call when not creating
+        let tmp%20#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%1#0: uint64 = (- tmp%20#0 2u)
         let gtxn_type%1#0: uint64 = ((gtxns TypeEnum) gtxn_idx%1#0)
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 pay)
         (assert gtxn_type_matches%1#0) // transaction type is pay
-        let tmp%22#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%2#0: uint64 = (- tmp%22#0 1u)
+        let tmp%21#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%2#0: uint64 = (- tmp%21#0 1u)
         let gtxn_type%2#0: uint64 = ((gtxns TypeEnum) gtxn_idx%2#0)
         let gtxn_type_matches%2#0: bool = (== gtxn_type%2#0 axfer)
         (assert gtxn_type_matches%2#0) // transaction type is axfer
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%23#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%0#0)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%24#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
-        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.first_deposit(gtxn_idx%1#0, gtxn_idx%2#0, tmp%23#0, tmp%24#0)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%22#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%1#0)
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%23#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
+        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.first_deposit(gtxn_idx%1#0, gtxn_idx%2#0, tmp%22#0, tmp%23#0)
         let test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#2: bool = 1u
         goto block@17
     block@8: // deposit_route_L121
-        let tmp%25#0: uint64 = (txn OnCompletion)
-        let tmp%26#0: bool = (! tmp%25#0)
-        (assert tmp%26#0) // OnCompletion is not NoOp
-        let tmp%27#0: uint64 = (txn ApplicationID)
-        (assert tmp%27#0) // can only call when not creating
-        let tmp%29#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%3#0: uint64 = (- tmp%29#0 1u)
+        let tmp%24#0: uint64 = (txn OnCompletion)
+        let tmp%25#0: bool = (! tmp%24#0)
+        (assert tmp%25#0) // OnCompletion is not NoOp
+        let tmp%26#0: uint64 = (txn ApplicationID)
+        (assert tmp%26#0) // can only call when not creating
+        let tmp%28#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%3#0: uint64 = (- tmp%28#0 1u)
         let gtxn_type%3#0: uint64 = ((gtxns TypeEnum) gtxn_idx%3#0)
         let gtxn_type_matches%3#0: bool = (== gtxn_type%3#0 axfer)
         (assert gtxn_type_matches%3#0) // transaction type is axfer
-        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let tmp%30#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%2#0)
-        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.deposit(gtxn_idx%3#0, tmp%30#0)
+        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%29#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
+        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.deposit(gtxn_idx%3#0, tmp%29#0)
         let test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#3: bool = 1u
         goto block@17
     block@9: // setPrice_route_L138
-        let tmp%31#0: uint64 = (txn OnCompletion)
-        let tmp%32#0: bool = (! tmp%31#0)
-        (assert tmp%32#0) // OnCompletion is not NoOp
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        (assert tmp%33#0) // can only call when not creating
-        let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%35#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let tmp%36#0: uint64 = ((txnas Assets) tmp%35#0)
-        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%37#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%3#0)
-        let reinterpret_Encoded(uint64)%4#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let tmp%38#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%4#0)
-        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set_price(tmp%36#0, tmp%37#0, tmp%38#0)
+        let tmp%30#0: uint64 = (txn OnCompletion)
+        let tmp%31#0: bool = (! tmp%30#0)
+        (assert tmp%31#0) // OnCompletion is not NoOp
+        let tmp%32#0: uint64 = (txn ApplicationID)
+        (assert tmp%32#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%4#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%34#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%4#0)
+        let reinterpret_Encoded(uint64)%5#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%35#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%5#0)
+        let reinterpret_Encoded(uint64)%6#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        let tmp%36#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%6#0)
+        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set_price(tmp%34#0, tmp%35#0, tmp%36#0)
         let test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#4: bool = 1u
         goto block@17
     block@10: // buy_route_L151
-        let tmp%39#0: uint64 = (txn OnCompletion)
-        let tmp%40#0: bool = (! tmp%39#0)
-        (assert tmp%40#0) // OnCompletion is not NoOp
-        let tmp%41#0: uint64 = (txn ApplicationID)
-        (assert tmp%41#0) // can only call when not creating
-        let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%43#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
-        let tmp%44#0: account = ((txnas Accounts) tmp%43#0)
-        let reinterpret_Encoded(uint8)%3#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%45#0: uint64 = (btoi reinterpret_Encoded(uint8)%3#0)
-        let tmp%46#0: uint64 = ((txnas Assets) tmp%45#0)
-        let reinterpret_Encoded(uint64)%5#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let tmp%47#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%5#0)
-        let tmp%48#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%4#0: uint64 = (- tmp%48#0 1u)
+        let tmp%37#0: uint64 = (txn OnCompletion)
+        let tmp%38#0: bool = (! tmp%37#0)
+        (assert tmp%38#0) // OnCompletion is not NoOp
+        let tmp%39#0: uint64 = (txn ApplicationID)
+        (assert tmp%39#0) // can only call when not creating
+        let reinterpret_Encoded(uint8[32])%0#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let tmp%41#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%0#0)
+        let reinterpret_Encoded(uint64)%7#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%42#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%7#0)
+        let reinterpret_Encoded(uint64)%8#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        let tmp%43#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%8#0)
+        let tmp%44#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%4#0: uint64 = (- tmp%44#0 1u)
         let gtxn_type%4#0: uint64 = ((gtxns TypeEnum) gtxn_idx%4#0)
         let gtxn_type_matches%4#0: bool = (== gtxn_type%4#0 pay)
         (assert gtxn_type_matches%4#0) // transaction type is pay
-        let reinterpret_Encoded(uint64)%6#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%49#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%6#0)
-        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy(tmp%44#0, tmp%46#0, tmp%47#0, gtxn_idx%4#0, tmp%49#0)
+        let reinterpret_Encoded(uint64)%9#0: Encoded(uint64) = (txna ApplicationArgs 4)
+        let tmp%45#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%9#0)
+        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy(tmp%41#0, tmp%42#0, tmp%43#0, gtxn_idx%4#0, tmp%45#0)
         let test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#5: bool = 1u
         goto block@17
     block@11: // withdraw_route_L182
-        let tmp%50#0: uint64 = (txn OnCompletion)
-        let tmp%51#0: bool = (! tmp%50#0)
-        (assert tmp%51#0) // OnCompletion is not NoOp
-        let tmp%52#0: uint64 = (txn ApplicationID)
-        (assert tmp%52#0) // can only call when not creating
-        let reinterpret_Encoded(uint8)%4#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%54#0: uint64 = (btoi reinterpret_Encoded(uint8)%4#0)
-        let tmp%55#0: uint64 = ((txnas Assets) tmp%54#0)
-        let reinterpret_Encoded(uint64)%7#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%56#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%7#0)
-        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.withdraw(tmp%55#0, tmp%56#0)
+        let tmp%46#0: uint64 = (txn OnCompletion)
+        let tmp%47#0: bool = (! tmp%46#0)
+        (assert tmp%47#0) // OnCompletion is not NoOp
+        let tmp%48#0: uint64 = (txn ApplicationID)
+        (assert tmp%48#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%10#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%50#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%10#0)
+        let reinterpret_Encoded(uint64)%11#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%51#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%11#0)
+        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.withdraw(tmp%50#0, tmp%51#0)
         let test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#6: bool = 1u
         goto block@17
     block@12: // bid_route_L201
-        let tmp%57#0: uint64 = (txn OnCompletion)
-        let tmp%58#0: bool = (! tmp%57#0)
-        (assert tmp%58#0) // OnCompletion is not NoOp
-        let tmp%59#0: uint64 = (txn ApplicationID)
-        (assert tmp%59#0) // can only call when not creating
-        let reinterpret_Encoded(uint8)%5#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%61#0: uint64 = (btoi reinterpret_Encoded(uint8)%5#0)
-        let tmp%62#0: account = ((txnas Accounts) tmp%61#0)
-        let reinterpret_Encoded(uint8)%6#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%63#0: uint64 = (btoi reinterpret_Encoded(uint8)%6#0)
-        let tmp%64#0: uint64 = ((txnas Assets) tmp%63#0)
-        let reinterpret_Encoded(uint64)%8#0: Encoded(uint64) = (txna ApplicationArgs 3)
-        let tmp%65#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%8#0)
-        let tmp%66#0: uint64 = (txn GroupIndex)
-        let gtxn_idx%5#0: uint64 = (- tmp%66#0 1u)
+        let tmp%52#0: uint64 = (txn OnCompletion)
+        let tmp%53#0: bool = (! tmp%52#0)
+        (assert tmp%53#0) // OnCompletion is not NoOp
+        let tmp%54#0: uint64 = (txn ApplicationID)
+        (assert tmp%54#0) // can only call when not creating
+        let reinterpret_Encoded(uint8[32])%1#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
+        let tmp%56#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%1#0)
+        let reinterpret_Encoded(uint64)%12#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%57#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%12#0)
+        let reinterpret_Encoded(uint64)%13#0: Encoded(uint64) = (txna ApplicationArgs 3)
+        let tmp%58#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%13#0)
+        let tmp%59#0: uint64 = (txn GroupIndex)
+        let gtxn_idx%5#0: uint64 = (- tmp%59#0 1u)
         let gtxn_type%5#0: uint64 = ((gtxns TypeEnum) gtxn_idx%5#0)
         let gtxn_type_matches%5#0: bool = (== gtxn_type%5#0 pay)
         (assert gtxn_type_matches%5#0) // transaction type is pay
-        let reinterpret_Encoded(uint64)%9#0: Encoded(uint64) = (txna ApplicationArgs 4)
-        let tmp%67#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%9#0)
-        let reinterpret_Encoded(uint64)%10#0: Encoded(uint64) = (txna ApplicationArgs 5)
-        let tmp%68#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%10#0)
-        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.bid(tmp%62#0, tmp%64#0, tmp%65#0, gtxn_idx%5#0, tmp%67#0, tmp%68#0)
+        let reinterpret_Encoded(uint64)%14#0: Encoded(uint64) = (txna ApplicationArgs 4)
+        let tmp%60#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%14#0)
+        let reinterpret_Encoded(uint64)%15#0: Encoded(uint64) = (txna ApplicationArgs 5)
+        let tmp%61#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%15#0)
+        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.bid(tmp%56#0, tmp%57#0, tmp%58#0, gtxn_idx%5#0, tmp%60#0, tmp%61#0)
         let test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#7: bool = 1u
         goto block@17
     block@13: // acceptBid_route_L237
-        let tmp%69#0: uint64 = (txn OnCompletion)
-        let tmp%70#0: bool = (! tmp%69#0)
-        (assert tmp%70#0) // OnCompletion is not NoOp
-        let tmp%71#0: uint64 = (txn ApplicationID)
-        (assert tmp%71#0) // can only call when not creating
-        let reinterpret_Encoded(uint8)%7#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%73#0: uint64 = (btoi reinterpret_Encoded(uint8)%7#0)
-        let tmp%74#0: uint64 = ((txnas Assets) tmp%73#0)
-        let reinterpret_Encoded(uint64)%11#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%75#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%11#0)
-        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid(tmp%74#0, tmp%75#0)
+        let tmp%62#0: uint64 = (txn OnCompletion)
+        let tmp%63#0: bool = (! tmp%62#0)
+        (assert tmp%63#0) // OnCompletion is not NoOp
+        let tmp%64#0: uint64 = (txn ApplicationID)
+        (assert tmp%64#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%16#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let tmp%66#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%16#0)
+        let reinterpret_Encoded(uint64)%17#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%67#0: uint64 = decode_bytes<uint64>(reinterpret_Encoded(uint64)%17#0)
+        test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid(tmp%66#0, tmp%67#0)
         let test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#8: bool = 1u
         goto block@17
     block@14: // bare_routing_L38
-        let tmp%76#0: uint64 = (txn OnCompletion)
-        goto tmp%76#0 ? block@16 : block@15
+        let tmp%68#0: uint64 = (txn OnCompletion)
+        goto tmp%68#0 ? block@16 : block@15
     block@15: // __algopy_default_create_L1
-        let tmp%77#0: uint64 = (txn ApplicationID)
-        let tmp%78#0: bool = (! tmp%77#0)
-        (assert tmp%78#0) // can only call when creating
+        let tmp%69#0: uint64 = (txn ApplicationID)
+        let tmp%70#0: bool = (! tmp%69#0)
+        (assert tmp%70#0) // can only call when creating
         let test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.__puya_arc4_router__%0#9: bool = 1u
         goto block@17
     block@16: // after_if_else_L38

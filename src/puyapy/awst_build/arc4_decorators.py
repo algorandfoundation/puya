@@ -60,6 +60,7 @@ def get_arc4_baremethod_data(
 
 
 _READONLY = "readonly"
+_RESOURCE_ENCODING = "resource_encoding"
 _CLIENT_DEFAULTS = "default_args"
 _ALLOWED_ACTIONS = "allow_actions"
 _CREATE_OPTIONS = "create"
@@ -98,6 +99,16 @@ def get_arc4_abimethod_data(
             context.error(f"invalid readonly option: {invalid_readonly_option}", dec_loc)
             readonly = default_readonly
 
+    # map "resource_encoding" param
+    default_resource_encoding = context.options.resource_encoding
+    resource_encoding: typing.Literal["foreign_index", "value"]
+    match evaluated_args.pop(_RESOURCE_ENCODING, default_resource_encoding):
+        case str("foreign_index" | "value") as resource_encoding:
+            pass
+        case invalid_option:
+            context.error(f"invalid resource_encoding option: {invalid_option}", dec_loc)
+            resource_encoding = default_resource_encoding
+
     # map "default_args" param
     default_args = dict[str, ABIMethodArgDefault]()
     match evaluated_args.pop(_CLIENT_DEFAULTS, {}):
@@ -127,6 +138,7 @@ def get_arc4_abimethod_data(
         create=create,
         name=name,
         readonly=readonly,
+        resource_encoding=resource_encoding,
         default_args=immutabledict(default_args),
     )
     return ARC4ABIMethodData(

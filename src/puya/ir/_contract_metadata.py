@@ -1,7 +1,7 @@
 import contextlib
 import typing
 from collections import Counter
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from operator import itemgetter
 
 import attrs
@@ -269,9 +269,15 @@ def _extract_arc4_methods_and_type_refs(
     return methods, type_refs
 
 
-_ARC4TypeMapper = Callable[
-    [typing.Literal["argument", "return"], wtypes.WType, SourceLocation], str
-]
+class _ARC4TypeMapper(typing.Protocol):
+    def __call__(
+        self,
+        wtype: wtypes.WType,
+        loc: SourceLocation,
+        *,
+        use_reference_alias: bool,
+        is_return: bool,
+    ) -> str: ...
 
 
 @contextlib.contextmanager
@@ -279,13 +285,22 @@ def _collect_arc4_type_mapping_errors() -> Iterator[_ARC4TypeMapper]:
     errors = list[Exception]()
 
     def _map(
-        kind: typing.Literal["argument", "return"], wtype: wtypes.WType, loc: SourceLocation
+        wtype: wtypes.WType,
+        loc: SourceLocation,
+        *,
+        use_reference_alias: bool,
+        is_return: bool,
     ) -> str:
         try:
-            return wtype_to_arc4(kind, wtype, loc)
+            return wtype_to_arc4(
+                wtype,
+                loc,
+                use_reference_alias=use_reference_alias,
+                is_return=is_return,
+            )
         # collect CodeErrors from this function, let any other errors propagate
-        except CodeError as ex:
-            errors.append(ex)
+        except CodeError as cex:
+            errors.append(cex)
             return ""
 
     try:
@@ -331,10 +346,16 @@ def _abi_method_metadata(
 ) -> models.ARC4ABIMethod:
     assert config is m.arc4_method_config
     default_args = convert_default_args(ctx, contract, m, config)
+    use_reference_alias = config.resource_encoding == "foreign_index"
     args = [
         models.ARC4MethodArg(
             name=a.name,
-            type_=type_mapper("argument", a.wtype, a.source_location),
+            type_=type_mapper(
+                a.wtype,
+                a.source_location,
+                use_reference_alias=use_reference_alias,
+                is_return=False,
+            ),
             struct=_get_arc4_struct_name(a.wtype),
             desc=m.documentation.args.get(a.name),
             client_default=default_args[a],
@@ -343,7 +364,9 @@ def _abi_method_metadata(
     ]
     returns = models.ARC4Returns(
         desc=m.documentation.returns,
-        type_=type_mapper("return", m.return_type, m.source_location),
+        type_=type_mapper(
+            m.return_type, m.source_location, use_reference_alias=False, is_return=True
+        ),
         struct=_get_arc4_struct_name(m.return_type),
     )
     return models.ARC4ABIMethod(

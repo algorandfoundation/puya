@@ -6,7 +6,7 @@ main:
     intcblock 1
     txn NumAppArgs
     bz main_bare_routing@8
-    pushbytess 0xda8534bd 0x4eb4e9f1 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,asset)void", method "get_user(uint64)(string,uint64,uint64)"
+    pushbytess 0xda8534bd 0xb4633ddd 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,uint64)void", method "get_user(uint64)(string,uint64,uint64)"
     txna ApplicationArgs 0
     match main_add_user_route@3 main_attach_asset_to_user_route@4 main_get_user_route@5
 
@@ -36,15 +36,11 @@ main_attach_asset_to_user_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    txna ApplicationArgs 1
     txna ApplicationArgs 2
-    btoi
-    txnas Assets
-    swap
+    txna ApplicationArgs 1
     box_get
     assert // User with that id does not exist
     swap
-    itob
     replace2 10
     dup
     extract 2 8
