@@ -9,6 +9,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError, InternalError
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.arc4 import (
     get_arc4_static_bit_size,
     get_arc4_tuple_head_size,
@@ -885,7 +886,7 @@ def dynamic_array_concat_and_convert(
         raise InternalError("unexpected element type", source_location)
     invoke = _invoke_puya_lib_subroutine(
         context,
-        full_name=f"_puya_lib.arc4.{invoke_name}",
+        full_name=PuyaLibIR(f"_puya_lib.arc4.{invoke_name}"),
         args=invoke_args,
         source_location=source_location,
     )
@@ -1054,7 +1055,7 @@ def invoke_arc4_array_pop(
         targets=[popped, data],
         source=_invoke_puya_lib_subroutine(
             context,
-            full_name=f"_puya_lib.arc4.{method_name}",
+            full_name=PuyaLibIR(f"_puya_lib.arc4.{method_name}"),
             args=args,
             source_location=source_location,
         ),
@@ -1585,7 +1586,7 @@ def arc4_replace_array_item(
     def updated_result(method_name: str, args: list[Value | int | bytes]) -> Register:
         invoke = _invoke_puya_lib_subroutine(
             context,
-            full_name=f"_puya_lib.arc4.{method_name}",
+            full_name=PuyaLibIR(f"_puya_lib.arc4.{method_name}"),
             args=args,
             source_location=source_location,
         )
@@ -1845,7 +1846,7 @@ def _get_arc4_array_tail(
 def _invoke_puya_lib_subroutine(
     context: IRFunctionBuildContext,
     *,
-    full_name: str,
+    full_name: PuyaLibIR,
     args: Sequence[Value | int | bytes],
     source_location: SourceLocation,
 ) -> InvokeSubroutine:

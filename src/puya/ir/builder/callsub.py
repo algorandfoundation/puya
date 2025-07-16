@@ -8,6 +8,7 @@ from puya.awst import (
     wtypes,
 )
 from puya.errors import CodeError
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder._tuple_util import build_tuple_item_names
 from puya.ir.builder._utils import assign_targets, new_register_version
 from puya.ir.context import IRFunctionBuildContext
@@ -28,7 +29,7 @@ def visit_puya_lib_call_expression(
     context: IRFunctionBuildContext, call: awst_nodes.PuyaLibCall
 ) -> ValueProvider | None:
     try:
-        target = context.embedded_funcs_lookup[call.func.value.id]
+        target = context.embedded_funcs_lookup[PuyaLibIR(call.func.value.id)]
     except KeyError:
         raise CodeError(f"invalid puya_lib {call.func.name}", call.source_location) from None
     return _call_subroutine(context, target, call.args, call.source_location)

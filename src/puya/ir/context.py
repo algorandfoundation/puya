@@ -10,6 +10,7 @@ import attrs
 import puya.awst.nodes as awst_nodes
 from puya.context import CompileContext
 from puya.errors import CodeError, log_exceptions
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder._utils import (
     assign,
     get_implicit_return_is_original,
@@ -40,7 +41,7 @@ if typing.TYPE_CHECKING:
 class IRBuildContext(CompileContext):
     awst: awst_nodes.AWST
     subroutines: dict[awst_nodes.Function, Subroutine]
-    embedded_funcs_lookup: Mapping[str, Subroutine]
+    embedded_funcs_lookup: Mapping[PuyaLibIR, Subroutine]
     root: awst_nodes.Contract | awst_nodes.LogicSignature | None = None
     routers: dict[ContractReference, Subroutine] = attrs.field(factory=dict)
 

@@ -17,6 +17,7 @@ from puya.awst.serialize import awst_from_json
 from puya.context import ArtifactCompileContext, CompileContext
 from puya.ir import arc4_router
 from puya.ir._contract_metadata import build_contract_metadata
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import make_subroutine
 from puya.ir.arc4_router import AWSTContractMethodSignature
 from puya.ir.builder.lower_array import lower_array_nodes
@@ -83,7 +84,9 @@ def _build_subroutines(ctx: CompileContext, awst: awst_nodes.AWST) -> IRBuildCon
         ctx,
         subroutines={**embedded_subroutines, **user_subroutines},
         awst=[*embedded_awst, *awst],
-        embedded_funcs_lookup={func.id: sub for func, sub in embedded_subroutines.items()},
+        embedded_funcs_lookup={
+            PuyaLibIR(func.id): sub for func, sub in embedded_subroutines.items()
+        },
     )
     for func, sub in ir_ctx.subroutines.items():
         FunctionIRBuilder.build_body(ir_ctx, function=func, subroutine=sub)
