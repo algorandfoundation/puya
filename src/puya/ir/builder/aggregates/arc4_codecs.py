@@ -91,7 +91,7 @@ def _try_encode_to_bytes(
 ) -> ir.ValueProvider | None:
     if isinstance(values_type, types.EncodedType) and values_type.encoding == encoding:
         if isinstance(values_type, types.TupleIRType):
-            return ir.ValueTuple(values=values, source_location=loc)
+            return ir.ValueTuple(values=values, ir_type=values_type, source_location=loc)
         else:
             (value,) = values
             return value
@@ -271,7 +271,7 @@ class _NativeTupleCodec(_ARC4Codec):
                 return None
             items = factory.materialise_values(item, f"item{index}")
             result.extend(items)
-        return ir.ValueTuple(values=result, source_location=loc)
+        return ir.ValueTuple(values=result, ir_type=self.native_type, source_location=loc)
 
 
 class _ScalarCodec(_ARC4Codec, abc.ABC):

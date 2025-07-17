@@ -63,7 +63,7 @@ def handle_assignment(
                         raise CodeError("not enough values to unpack", assignment_location)
                     del source[:arity]
                     nested_value = ir.ValueTuple(
-                        values=values, source_location=value.source_location
+                        values=values, ir_type=ir_type, source_location=value.source_location
                     )
 
                 results.extend(

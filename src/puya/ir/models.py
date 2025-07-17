@@ -745,13 +745,26 @@ class InvokeSubroutine(Op, ValueProvider):
 @attrs.define(eq=False)
 class ValueTuple(ValueProvider):
     values: Sequence[Value]
+    ir_type: TupleIRType = attrs.field()
+
+    @ir_type.default
+    def _default_ir_type(self) -> TupleIRType:
+        return TupleIRType(elements=[v.ir_type for v in self.values], fields=None)
+
+    @ir_type.validator
+    def _validate_arity(self, _: object, ir_type: TupleIRType) -> None:
+        if ir_type.arity != len(self.values):
+            raise InternalError(
+                f"invalid type arity: {self.ir_type=}, {len(self.values)=}",
+                self.source_location,
+            )
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_value_tuple(self)
 
     @property
     def types(self) -> Sequence[IRType]:
-        return [val.ir_type for val in self.values]
+        return ir_type_to_ir_types(self.ir_type)
 
     def _frozen_data(self) -> object:
         return tuple(self.values)

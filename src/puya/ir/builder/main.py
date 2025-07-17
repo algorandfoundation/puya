@@ -259,13 +259,16 @@ class FunctionIRBuilder(
             value=expr.value,
             assignment_location=expr.source_location,
         )
-        if not result:
-            # HOW DID YOU GET HERE
-            raise CodeError("Assignment expression did not return a result", expr.source_location)
-        if len(result) == 1:
-            return result[0]
+        ir_type = types.wtype_to_ir_type(expr, allow_tuple=True)
+        if isinstance(ir_type, types.TupleIRType):
+            return ir.ValueTuple(
+                values=list(result),
+                ir_type=ir_type,
+                source_location=expr.source_location,
+            )
         else:
-            return ir.ValueTuple(expr.source_location, list(result))
+            (result_value,) = result
+            return result_value
 
     def visit_biguint_postfix_unary_operation(
         self, expr: awst_nodes.BigUIntPostfixUnaryOperation
@@ -539,7 +542,11 @@ class FunctionIRBuilder(
                     default_source_location=expr.source_location,
                 )
             )
-            return ir.ValueTuple(values=values, source_location=expr.source_location)
+            return ir.ValueTuple(
+                values=values,
+                ir_type=types.wtype_to_ir_type(expr.wtype, expr.source_location, allow_tuple=True),
+                source_location=expr.source_location,
+            )
         ir_type = types.wtype_to_ir_type(expr)
         variable = self.context.ssa.read_variable(
             expr.name, ir_type, self.context.block_builder.active_block
@@ -652,12 +659,15 @@ class FunctionIRBuilder(
         self, submit: awst_nodes.SubmitInnerTransaction
     ) -> TExpression:
         result = self._itxn.handle_submit_inner_transaction(submit)
-        if len(result) == 1:
-            return result[0]
-        return ir.ValueTuple(
-            values=list(result),
-            source_location=submit.source_location,
-        )
+        result_ir_type = types.wtype_to_ir_type(submit, allow_tuple=True)
+        if isinstance(result_ir_type, types.TupleIRType):
+            return ir.ValueTuple(
+                values=list(result),
+                ir_type=result_ir_type,
+                source_location=submit.source_location,
+            )
+        (result_value,) = result
+        return result_value
 
     def visit_update_inner_transaction(self, call: awst_nodes.UpdateInnerTransaction) -> None:
         self._itxn.handle_update_inner_transaction(call)
@@ -677,6 +687,7 @@ class FunctionIRBuilder(
             items.extend(nested_values)
         return ir.ValueTuple(
             values=items,
+            ir_type=types.wtype_to_ir_type(expr.wtype, expr.source_location, allow_tuple=True),
             source_location=expr.source_location,
         )
 
@@ -761,8 +772,13 @@ class FunctionIRBuilder(
                 sequence.read_tuple_index(base_wtype, tup_value, index, loc)
             )
         ]
+        base_ir_type = types.wtype_to_ir_type(base_wtype, loc, allow_tuple=True)
+        ir_type = types.TupleIRType(
+            elements=base_ir_type.elements[start_i:end_i],
+            fields=base_ir_type.fields[start_i:end_i] if base_ir_type.fields is not None else None,
+        )
 
-        return ir.ValueTuple(values=values, source_location=loc)
+        return ir.ValueTuple(values=values, ir_type=ir_type, source_location=loc)
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
         loc = expr.source_location
@@ -798,10 +814,13 @@ class FunctionIRBuilder(
             result: TExpression = None
         else:
             values = self.materialise_value_provider(source, description="awst_tmp")
-            if len(values) == 1:
+            ir_type = types.wtype_to_ir_type(expr, allow_tuple=True)
+            if not isinstance(ir_type, types.TupleIRType):
                 (result,) = values
             else:
-                result = ir.ValueTuple(values=values, source_location=expr.source_location)
+                result = ir.ValueTuple(
+                    values=values, ir_type=ir_type, source_location=expr.source_location
+                )
         self._single_eval_cache[expr] = result
         return result
 
@@ -1264,26 +1283,25 @@ class FunctionIRBuilder(
         Returns the original array and the concatenation result
         """
 
-        # get dynamic array builder
-        array_wtype = array_expr.wtype
-        iterable_wtype = iter_expr.wtype
-        builder = dynamic_array.get_builder(self.context, array_wtype, loc)
-
         # materialise expressions
         array_or_slot = self.visit_and_materialise_single(array_expr)
-        array_ir_type = array_or_slot.ir_type
         iterable = self.visit_and_materialise_as_value_or_tuple(iter_expr)
-        iterable_ir_type = types.wtype_to_ir_type(iterable_wtype, loc, allow_tuple=True)
-        if isinstance(iterable_ir_type, types.SlotType):
+
+        # read iterable
+        iterable_ir_type = types.wtype_to_ir_type(iter_expr.wtype, loc, allow_tuple=True)
+        if isinstance(iterable.ir_type, types.SlotType):
+            iterable_ir_type = iterable.ir_type.contents
             assert isinstance(iterable, ir.Value), "expected Value for SlotType"
             iterable = mem.read_slot(self.context, iterable, loc)
-            iterable_ir_type = iterable_ir_type.contents
 
-        # concat array
-        if isinstance(array_ir_type, types.SlotType):
+        # read array
+        if isinstance(array_or_slot.ir_type, types.SlotType):
             array = mem.read_slot(self.context, array_or_slot, loc)
         else:
             array = array_or_slot
+
+        # do concat
+        builder = dynamic_array.get_builder(self.context, array_expr.wtype, loc)
         return array_or_slot, builder.concat(array, iterable, iterable_ir_type)
 
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:

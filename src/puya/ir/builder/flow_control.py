@@ -229,6 +229,9 @@ def handle_conditional_expression(
         context.ssa.read_variable(variable=name, ir_type=ir_type, block=merge_block)
         for name, ir_type in zip(tmp_var_names, tmp_var_ir_types, strict=True)
     ]
-    if len(result) == 1:
-        return result[0]
-    return ValueTuple(values=result, source_location=expr.source_location)
+    if isinstance(expr_ir_type, TupleIRType):
+        return ValueTuple(
+            values=result, ir_type=expr_ir_type, source_location=expr.source_location
+        )
+    (result_value,) = result
+    return result_value

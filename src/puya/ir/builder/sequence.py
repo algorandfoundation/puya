@@ -30,10 +30,10 @@ def read_tuple_index(
 ) -> ir.MultiValue:
     tuple_ir_type = types.wtype_to_ir_type(wtype, loc, allow_tuple=True)
     skip_values = sum(e.arity for e in tuple_ir_type.elements[:index])
-    target_arity = tuple_ir_type.elements[index].arity
-    element_values = values[skip_values : skip_values + target_arity]
-    if isinstance(wtype.types[index], wtypes.WTuple):
-        return ir.ValueTuple(values=element_values, source_location=loc)
+    target_ir_type = tuple_ir_type.elements[index]
+    element_values = values[skip_values : skip_values + target_ir_type.arity]
+    if isinstance(target_ir_type, types.TupleIRType):
+        return ir.ValueTuple(values=element_values, ir_type=target_ir_type, source_location=loc)
     else:
         (result,) = element_values
         return result
@@ -85,11 +85,11 @@ def read_aggregate_index_and_decode(
         ),
         "values",
     )
-    if not isinstance(element_wtype, wtypes.WTuple):
+    if not isinstance(element_ir_type, types.TupleIRType):
         (value,) = values
         return value
     else:
-        return ir.ValueTuple(values=values, source_location=loc)
+        return ir.ValueTuple(values=values, ir_type=element_ir_type, source_location=loc)
 
 
 def encode_and_write_aggregate_index(
@@ -108,7 +108,7 @@ def encode_and_write_aggregate_index(
         target_arity = tuple_ir_type.elements[index].arity
         new_values = context.materialise_value_provider(base, "new_values")
         new_values[skip_values : skip_values + target_arity] = values
-        return ir.ValueTuple(values=new_values, source_location=loc)
+        return ir.ValueTuple(values=new_values, ir_type=tuple_ir_type, source_location=loc)
     (base,) = context.materialise_value_provider(base, "base")
     aggregate_or_slot = base
     aggregate_encoding = encodings.wtype_to_encoding(aggregate_wtype, loc)

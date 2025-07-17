@@ -111,11 +111,12 @@ def encode_decode_pair_elimination(
                     f" {", ".join(map(str, encode_op.values))}"
                 )
                 modified = True
-                if len(encode_op.values) == 1:
+                if not isinstance(encode_decode.ir_type, TupleIRType):
                     (encode_decode_assignment.source,) = encode_op.values
                 else:
                     encode_decode_assignment.source = models.ValueTuple(
                         values=encode_op.values,
+                        ir_type=encode_decode.ir_type,
                         source_location=encode_decode_assignment.source_location,
                     )
     # replace BytesEncode(DecodeBytes(arg)) with arg where:

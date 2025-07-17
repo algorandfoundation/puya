@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 
-from puya.errors import InternalError
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.models import (
     TMP_VAR_INDICATOR,
@@ -90,20 +89,13 @@ def get_implicit_return_out(var_name: str) -> str:
     return f"{var_name}{TMP_VAR_INDICATOR}out"
 
 
-def undefined_value(typ: IRType | TupleIRType, loc: SourceLocation) -> ValueProvider:
-    """For a given WType, produce an "undefined" ValueProvider of the correct arity.
-
-    It is invalid to request an "undefined" value of type void
-    """
-    ir_types = ir_type_to_ir_types(typ)
-    values = [Undefined(ir_type=ir_type, source_location=loc) for ir_type in ir_types]
-    match values:
-        case []:
-            raise InternalError("unexpected void type", loc)
-        case [value]:
-            return value
-        case _:
-            return ValueTuple(values=values, source_location=loc)
+def undefined_value(typ: IRType | TupleIRType, loc: SourceLocation) -> Value | ValueTuple:
+    if not isinstance(typ, TupleIRType):
+        return Undefined(ir_type=typ, source_location=loc)
+    else:
+        ir_types = ir_type_to_ir_types(typ)
+        values = [Undefined(ir_type=ir_type, source_location=loc) for ir_type in ir_types]
+        return ValueTuple(values=values, ir_type=typ, source_location=loc)
 
 
 def invoke_puya_lib_subroutine(
