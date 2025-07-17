@@ -756,7 +756,7 @@ class FunctionIRBuilder(
         values = [
             v
             for index in range(start_i, end_i)
-            for v in self.context.materialise_value_provider(
+            for v in self.materialise_value_provider(
                 sequence.read_aggregate_index_and_decode(
                     self.context, base_wtype, tup_value, [index], loc
                 ),
@@ -1093,7 +1093,7 @@ class FunctionIRBuilder(
             # The frontend should have already warned about this
             # if this value is unused and has no side effects it will get eliminated by the
             # optimizer
-            self.context.materialise_value_provider(result, "tmp")
+            self.materialise_value_provider(result, "tmp")
 
     def visit_uint64_augmented_assignment(
         self, statement: awst_nodes.UInt64AugmentedAssignment
