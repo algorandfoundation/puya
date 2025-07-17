@@ -1892,9 +1892,9 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_na
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple(arg: Encoded((len+utf8[]),(len+utf8[]))) -> Encoded(len+(len+utf8[])[]):
     block@0: // L422
-        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x61)
-        let encoded%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x62)
-        let encoded_array%0#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(encoded%0#0, encoded%1#0)
+        let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("a")
+        let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("b")
+        let encoded_array%0#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(tmp%0#0, tmp%1#0)
         let prefix#0: Encoded(len+(len+utf8[])[]) = encoded_array%0#0
         let start_of_tail%0#0: uint64 = (* 2u 2u)
         let total_length%0#0: uint64 = (len arg#0)
@@ -1905,14 +1905,14 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_native_tuple(arg.0: Encoded(len+utf8[]), arg.1: Encoded(len+utf8[])) -> Encoded(len+(len+utf8[])[]):
     block@0: // L430
-        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x61)
-        let encoded%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x62)
-        let encoded_array%0#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(encoded%0#0, encoded%1#0)
+        let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("a")
+        let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("b")
+        let encoded_array%0#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(tmp%0#0, tmp%1#0)
         let prefix#0: Encoded(len+(len+utf8[])[]) = encoded_array%0#0
-        let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(arg.0#0)
-        let concat%0#0: bytes = (concat 0x tmp%0#0)
-        let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(arg.1#0)
-        let concat%1#0: bytes = (concat concat%0#0 tmp%1#0)
+        let tmp%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(arg.0#0)
+        let concat%0#0: bytes = (concat 0x tmp%2#0)
+        let tmp%3#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(arg.1#0)
+        let concat%1#0: bytes = (concat concat%0#0 tmp%3#0)
         let as_Encoded(len+(len+utf8[])[])%0#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(prefix#0, concat%1#0, 2u)
         let result#0: Encoded(len+(len+utf8[])[]) = as_Encoded(len+(len+utf8[])[])%0#0
         return result#0

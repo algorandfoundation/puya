@@ -1,15 +1,15 @@
 main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     block@0: // L14
-        let aggregate%length%0#1: uint64 = (len 0x68656c6c6f)
+        let aggregate%length%0#1: uint64 = (len "hello")
         let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
         let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
-        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x68656c6c6f)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 "hello")
         let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
         let c#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
-        let aggregate%length%1#1: uint64 = (len 0x776f726c64)
+        let aggregate%length%1#1: uint64 = (len "world")
         let aggregate%as_bytes%1#1: bytes[8] = (itob aggregate%length%1#1)
         let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
-        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 0x776f726c64)
+        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 "world")
         let aggregate%as_Encoded(len+utf8[])%1#1: Encoded(len+utf8[]) = aggregate%encoded_value%1#1
         let d#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#1
         let aggregate%head%0#1: bytes = (concat 0x 0x01)
@@ -29,36 +29,36 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let aggregate%concat%1#1: bytes = (concat aggregate%concat%0#1 d#1)
         let aggregate%as_Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8)%0#1: Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8) = aggregate%concat%1#1
         let my_tuple#0: Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8) = aggregate%as_Encoded(uint8,uint8,(len+utf8[]),(len+utf8[]),uint8)%0#1
-        let tmp%1#0: bool = (== my_tuple#0 0x01020007000eff000568656c6c6f0005776f726c64)
-        (assert tmp%1#0)
+        let tmp%3#0: bool = (== my_tuple#0 0x01020007000eff000568656c6c6f0005776f726c64)
+        (assert tmp%3#0)
         let aggregate%encoded_bool%0#1: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%0#1: Encoded(bool8) = aggregate%encoded_bool%0#1
-        let tmp%2#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#1
+        let tmp%4#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%0#1
         let aggregate%encoded_bool%1#1: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%1#1: Encoded(bool8) = aggregate%encoded_bool%1#1
-        let tmp%3#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%1#1
+        let tmp%5#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%1#1
         let aggregate%head%5#1: bytes = (concat 0x 0x04)
-        let aggregate%get_bit%0#1: uint64 = (getbit tmp%3#0 0u)
-        let aggregate%set_bit%0#1: Encoded(bool8) = (setbit tmp%2#0 1u aggregate%get_bit%0#1)
-        let aggregate%get_bit%1#1: uint64 = (getbit tmp%2#0 0u)
+        let aggregate%get_bit%0#1: uint64 = (getbit tmp%5#0 0u)
+        let aggregate%set_bit%0#1: Encoded(bool8) = (setbit tmp%4#0 1u aggregate%get_bit%0#1)
+        let aggregate%get_bit%1#1: uint64 = (getbit tmp%4#0 0u)
         let aggregate%set_bit%1#1: Encoded(bool8) = (setbit aggregate%set_bit%0#1 2u aggregate%get_bit%1#1)
-        let aggregate%get_bit%2#1: uint64 = (getbit tmp%2#0 0u)
+        let aggregate%get_bit%2#1: uint64 = (getbit tmp%4#0 0u)
         let aggregate%set_bit%2#1: Encoded(bool8) = (setbit aggregate%set_bit%1#1 3u aggregate%get_bit%2#1)
-        let aggregate%get_bit%3#1: uint64 = (getbit tmp%2#0 0u)
+        let aggregate%get_bit%3#1: uint64 = (getbit tmp%4#0 0u)
         let aggregate%set_bit%3#1: Encoded(bool8) = (setbit aggregate%set_bit%2#1 4u aggregate%get_bit%3#1)
-        let aggregate%get_bit%4#1: uint64 = (getbit tmp%2#0 0u)
+        let aggregate%get_bit%4#1: uint64 = (getbit tmp%4#0 0u)
         let aggregate%set_bit%4#1: Encoded(bool8) = (setbit aggregate%set_bit%3#1 5u aggregate%get_bit%4#1)
-        let aggregate%get_bit%5#1: uint64 = (getbit tmp%3#0 0u)
+        let aggregate%get_bit%5#1: uint64 = (getbit tmp%5#0 0u)
         let aggregate%set_bit%5#1: Encoded(bool8) = (setbit aggregate%set_bit%4#1 6u aggregate%get_bit%5#1)
-        let aggregate%get_bit%6#1: uint64 = (getbit tmp%2#0 0u)
+        let aggregate%get_bit%6#1: uint64 = (getbit tmp%4#0 0u)
         let aggregate%set_bit%6#1: Encoded(bool8) = (setbit aggregate%set_bit%5#1 7u aggregate%get_bit%6#1)
         let aggregate%head%6#1: bytes = (concat aggregate%head%5#1 aggregate%set_bit%6#1)
-        let aggregate%head%7#1: bytes = (concat aggregate%head%6#1 tmp%2#0)
+        let aggregate%head%7#1: bytes = (concat aggregate%head%6#1 tmp%4#0)
         let aggregate%head%8#1: bytes = (concat aggregate%head%7#1 0x10)
         let aggregate%as_Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8)%0#1: Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8) = aggregate%head%8#1
         let boolean_packing#0: Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8) = aggregate%as_Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8)%0#1
-        let tmp%12#0: bool = (== boolean_packing#0 0x04bd8010)
-        (assert tmp%12#0)
+        let tmp%14#0: bool = (== boolean_packing#0 0x04bd8010)
+        (assert tmp%14#0)
         let aggregate%extract%0#1: bytes = (extract3 boolean_packing#0 0u 1u)
         let aggregate%get_bit%7#1: uint64 = (getbit boolean_packing#0 8u)
         let aggregate%encoded_bool%2#1: bytes[1] = (setbit 0x00 0u aggregate%get_bit%7#1)
@@ -83,31 +83,31 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let aggregate%extract%2#1: bytes = (extract3 boolean_packing#0 3u 1u)
         let tuple_item%0#0: Encoded(uint8) = aggregate%extract%2#1
         let values%0#0: Encoded(uint8) = tuple_item%0#0
-        let tmp%24#0: bool = (b== values%0#0 k#0)
-        (assert tmp%24#0)
-        let tmp%25#0: uint64 = (btoi a#0)
-        let tmp%26#0: bool = (== tmp%25#0 4u)
-        (assert tmp%26#0) // a is 4
-        let tmp%28#0: bool = (!= b#0 tmp%3#0)
-        goto tmp%28#0 ? block@1 : block@8
+        let tmp%26#0: bool = (b== values%0#0 k#0)
+        (assert tmp%26#0)
+        let tmp%27#0: uint64 = (btoi a#0)
+        let tmp%28#0: bool = (== tmp%27#0 4u)
+        (assert tmp%28#0) // a is 4
+        let tmp%30#0: bool = (!= b#0 tmp%5#0)
+        goto tmp%30#0 ? block@1 : block@8
     block@1: // and_contd_L39
-        let tmp%30#0: bool = (!= d#0 tmp%3#0)
-        goto tmp%30#0 ? block@2 : block@8
+        let tmp%32#0: bool = (!= d#0 tmp%5#0)
+        goto tmp%32#0 ? block@2 : block@8
     block@2: // and_contd_L39
-        let tmp%32#0: bool = (!= e#0 tmp%3#0)
-        goto tmp%32#0 ? block@3 : block@8
+        let tmp%34#0: bool = (!= e#0 tmp%5#0)
+        goto tmp%34#0 ? block@3 : block@8
     block@3: // and_contd_L39
-        let tmp%34#0: bool = (!= f#0 tmp%3#0)
-        goto tmp%34#0 ? block@4 : block@8
+        let tmp%36#0: bool = (!= f#0 tmp%5#0)
+        goto tmp%36#0 ? block@4 : block@8
     block@4: // and_contd_L39
-        let tmp%36#0: bool = (!= g#0 tmp%3#0)
-        goto tmp%36#0 ? block@5 : block@8
+        let tmp%38#0: bool = (!= g#0 tmp%5#0)
+        goto tmp%38#0 ? block@5 : block@8
     block@5: // and_contd_L39
-        let tmp%38#0: bool = (!= i#0 tmp%3#0)
-        goto tmp%38#0 ? block@6 : block@8
+        let tmp%40#0: bool = (!= i#0 tmp%5#0)
+        goto tmp%40#0 ? block@6 : block@8
     block@6: // and_contd_L39
-        let tmp%40#0: bool = (!= j#0 tmp%3#0)
-        goto tmp%40#0 ? block@7 : block@8
+        let tmp%42#0: bool = (!= j#0 tmp%5#0)
+        goto tmp%42#0 ? block@7 : block@8
     block@7: // bool_true_L39
         let and_result%0#0: bool = 1u
         goto block@9
@@ -117,11 +117,11 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
     block@9: // bool_merge_L39
         let and_result%0#2: bool = φ(and_result%0#0 <- block@7, and_result%0#1 <- block@8)
         (assert and_result%0#2) // b,d,e,f,g,i,j are true
-        let tmp%42#0: bool = (!= c#0 tmp%3#0)
-        goto tmp%42#0 ? block@11 : block@10
+        let tmp%44#0: bool = (!= c#0 tmp%5#0)
+        goto tmp%44#0 ? block@11 : block@10
     block@10: // or_contd_L40
-        let tmp%44#0: bool = (!= h#0 tmp%3#0)
-        goto tmp%44#0 ? block@11 : block@12
+        let tmp%46#0: bool = (!= h#0 tmp%5#0)
+        goto tmp%46#0 ? block@11 : block@12
     block@11: // bool_true_L40
         let or_result%0#0: bool = 1u
         goto block@13
@@ -130,11 +130,11 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         goto block@13
     block@13: // bool_merge_L40
         let or_result%0#2: bool = φ(or_result%0#0 <- block@11, or_result%0#1 <- block@12)
-        let tmp%45#0: bool = (! or_result%0#2)
-        (assert tmp%45#0) // c and h are false
-        let tmp%46#0: uint64 = (btoi k#0)
-        let tmp%47#0: bool = (== tmp%46#0 16u)
-        (assert tmp%47#0) // k is 16
+        let tmp%47#0: bool = (! or_result%0#2)
+        (assert tmp%47#0) // c and h are false
+        let tmp%48#0: uint64 = (btoi k#0)
+        let tmp%49#0: bool = (== tmp%48#0 16u)
+        (assert tmp%49#0) // k is 16
         let aggregate%head%9#1: bytes = (concat 0x a#0)
         let aggregate%get_bit%16#1: uint64 = (getbit c#0 0u)
         let aggregate%set_bit%7#1: Encoded(bool8) = (setbit b#0 1u aggregate%get_bit%16#1)
@@ -154,9 +154,9 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let aggregate%head%11#1: bytes = (concat aggregate%head%10#1 j#0)
         let aggregate%head%12#1: bytes = (concat aggregate%head%11#1 k#0)
         let aggregate%as_Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8)%1#1: Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8) = aggregate%head%12#1
-        let tmp%59#0: Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8) = aggregate%as_Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8)%1#1
-        let tmp%60#0: bool = (== boolean_packing#0 tmp%59#0)
-        (assert tmp%60#0)
+        let tmp%61#0: Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8) = aggregate%as_Encoded(uint8,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint8)%1#1
+        let tmp%62#0: bool = (== boolean_packing#0 tmp%61#0)
+        (assert tmp%62#0)
         let aggregate%extract%3#1: bytes = (extract3 my_tuple#0 0u 1u)
         let tuple_item%0#1: Encoded(uint8) = aggregate%extract%3#1
         let values%0#1: Encoded(uint8) = tuple_item%0#1
@@ -179,14 +179,14 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let tmp%10#1: uint64 = (+ tmp%8#1 tmp%9#1)
         let tmp%11#1: uint64 = (btoi 0xff)
         let total#1: uint64 = (+ tmp%10#1 tmp%11#1)
-        let aggregate%length%2#1: uint64 = (len 0x68656c6c6f20776f726c64)
+        let aggregate%length%2#1: uint64 = (len "hello world")
         let aggregate%as_bytes%4#1: bytes[8] = (itob aggregate%length%2#1)
         let aggregate%length_uint16%2#1: bytes = ((extract 6 2) aggregate%as_bytes%4#1)
-        let aggregate%encoded_value%2#1: bytes = (concat aggregate%length_uint16%2#1 0x68656c6c6f20776f726c64)
+        let aggregate%encoded_value%2#1: bytes = (concat aggregate%length_uint16%2#1 "hello world")
         let aggregate%as_Encoded(len+utf8[])%2#1: Encoded(len+utf8[]) = aggregate%encoded_value%2#1
         let concat#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%2#1
-        let tmp%65#0: bool = (== total#1 258u)
-        (assert tmp%65#0)
+        let tmp%67#0: bool = (== total#1 258u)
+        (assert tmp%67#0)
         let aggregate%length%3#1: uint64 = (len 0x)
         let aggregate%as_bytes%5#1: bytes[8] = (itob aggregate%length%3#1)
         let aggregate%length_uint16%3#1: bytes = ((extract 6 2) aggregate%as_bytes%5#1)

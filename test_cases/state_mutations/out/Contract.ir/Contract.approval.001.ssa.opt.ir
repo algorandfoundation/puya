@@ -283,8 +283,8 @@ subroutine test_cases.state_mutations.contract.Contract.opt_in() -> void:
 
 subroutine test_cases.state_mutations.contract.Contract.append() -> void:
     block@0: // L36
-        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x62617a)
-        let struct#0: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(0x0000000000000001, encoded%0#0)
+        let tmp%0#1: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("baz")
+        let struct#0: Encoded(uint64,(len+utf8[])) = bytes_encode<(uint64,(len+utf8[]))>(0x0000000000000001, tmp%0#1)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
         let extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
@@ -317,17 +317,17 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
 
 subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
     block@0: // L44
-        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6d6f646966696564)
+        let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("modified")
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
-        let encoded_value%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(encoded%0#0)
+        let encoded_value%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%0#0)
         let updated_array%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(maybe_value%0#0, 0u, 1, encoded_value%0#0)
         (app_global_put "glob" updated_array%0#0)
-        let tmp%0#0: account = (txn Sender)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
+        let tmp%2#0: account = (txn Sender)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%2#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let updated_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(maybe_value%1#0, 0u, 1, encoded_value%0#0)
-        (app_local_put tmp%0#0 "loc" updated_array%1#0)
+        (app_local_put tmp%2#0 "loc" updated_array%1#0)
         let storage_value%0#0: bytes = box_read("box")
         let updated_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%0#0, 0u, 1, encoded_value%0#0)
         (box_del "box")

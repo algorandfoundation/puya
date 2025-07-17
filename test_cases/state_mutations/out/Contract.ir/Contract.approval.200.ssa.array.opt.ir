@@ -232,8 +232,8 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         (assert aggregate%array_length%0#1) // index access is out of bounds
         let aggregate%updated_array%0#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%0#0, aggregate%updated_data%0#1, 0u)
         (app_global_put "glob" aggregate%updated_array%0#1)
-        let tmp%0#0: account = (txn Sender)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
+        let tmp%2#0: account = (txn Sender)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%2#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
         let aggregate%array_head_and_tail%1#1: bytes = ((extract 2 0) maybe_value%1#0)
         let aggregate%array_length%2#1: uint64 = (extract_uint16 maybe_value%1#0 0u)
@@ -252,7 +252,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let aggregate%lt%1#1: bool = (< 0u aggregate%array_length%2#1)
         (assert aggregate%array_length%2#1) // index access is out of bounds
         let aggregate%updated_array%1#1: bytes = _puya_lib.arc4.dynamic_array_replace_dynamic_element(maybe_value%1#0, aggregate%updated_data%1#1, 0u)
-        (app_local_put tmp%0#0 "loc" aggregate%updated_array%1#1)
+        (app_local_put tmp%2#0 "loc" aggregate%updated_array%1#1)
         let (aggregate%box_get%0#1: bytes, aggregate%box_get%1#1: bool) = (box_get "box")
         (assert aggregate%box_get%1#1) // check self.box exists
         let aggregate%array_head_and_tail%2#1: bytes = ((extract 2 0) aggregate%box_get%0#1)

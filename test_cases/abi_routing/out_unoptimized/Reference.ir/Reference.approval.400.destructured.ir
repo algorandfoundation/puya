@@ -192,24 +192,24 @@ subroutine test_cases.abi_routing.contract.Reference.method_with_default_args(as
         let reinterpret_biguint%6#0: biguint = int_from_const#0
         let tmp%15#0: bool = (b== reinterpret_biguint%6#0 0x0000007b)
         (assert tmp%15#0)
-        let aggregate%length%0#1: uint64 = (len 0x616263)
+        let aggregate%length%0#1: uint64 = (len "abc")
         let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
         let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
-        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x616263)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 "abc")
         let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
-        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
-        let tmp%16#0: bool = (== str_from_const#0 encoded%0#0)
-        (assert tmp%16#0)
-        let tmp%17#0: account = (txn Sender)
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%17#0 0u "local_uint")
+        let tmp%16#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
+        let tmp%17#0: bool = (== str_from_const#0 tmp%16#0)
+        (assert tmp%17#0)
+        let tmp%18#0: account = (txn Sender)
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%18#0 0u "local_uint")
         (assert maybe_exists%0#0) // check self.local_uint exists for account
-        let tmp%18#0: bool = (== int_from_local#0 maybe_value%0#0)
-        (assert tmp%18#0)
-        let tmp%19#0: account = (txn Sender)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%19#0 0u "local_bytes")
+        let tmp%19#0: bool = (== int_from_local#0 maybe_value%0#0)
+        (assert tmp%19#0)
+        let tmp%20#0: account = (txn Sender)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%20#0 0u "local_bytes")
         (assert maybe_exists%1#0) // check self.local_bytes exists for account
-        let tmp%20#0: bool = (== bytes_from_local#0 maybe_value%1#0)
-        (assert tmp%20#0)
+        let tmp%21#0: bool = (== bytes_from_local#0 maybe_value%1#0)
+        (assert tmp%21#0)
         return 
 
 subroutine test_cases.abi_routing.contract.Reference.method_with_15_args(one: uint64, two: uint64, three: uint64, four: uint64, five: uint64, six: uint64, seven: uint64, eight: uint64, nine: uint64, ten: uint64, eleven: uint64, twelve: uint64, thirteen: uint64, fourteen: uint64, fifteen: bytes) -> bytes:

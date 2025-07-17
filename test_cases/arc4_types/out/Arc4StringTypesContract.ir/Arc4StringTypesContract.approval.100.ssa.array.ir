@@ -14,30 +14,30 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let tmp%3#0: bytes = (substring3 some_bytes_as_string#0 bounded_index%0#0 length%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x48656c6c6f20576f726c6421)
         (assert tmp%4#0) // Original bytes should match encoded if we strip the length header
-        let aggregate%length%1#1: uint64 = (len 0x48656c6c6f)
+        let aggregate%length%1#1: uint64 = (len "Hello")
         let aggregate%as_bytes%1#1: bytes[8] = (itob aggregate%length%1#1)
         let aggregate%length_uint16%1#1: bytes = ((extract 6 2) aggregate%as_bytes%1#1)
-        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 0x48656c6c6f)
+        let aggregate%encoded_value%1#1: bytes = (concat aggregate%length_uint16%1#1 "Hello")
         let aggregate%as_Encoded(len+utf8[])%1#1: Encoded(len+utf8[]) = aggregate%encoded_value%1#1
         let hello#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%1#1
-        let aggregate%length%2#1: uint64 = (len 0x20)
+        let aggregate%length%2#1: uint64 = (len " ")
         let aggregate%as_bytes%2#1: bytes[8] = (itob aggregate%length%2#1)
         let aggregate%length_uint16%2#1: bytes = ((extract 6 2) aggregate%as_bytes%2#1)
-        let aggregate%encoded_value%2#1: bytes = (concat aggregate%length_uint16%2#1 0x20)
+        let aggregate%encoded_value%2#1: bytes = (concat aggregate%length_uint16%2#1 " ")
         let aggregate%as_Encoded(len+utf8[])%2#1: Encoded(len+utf8[]) = aggregate%encoded_value%2#1
         let space#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%2#1
-        let aggregate%length%3#1: uint64 = (len 0x576f726c6421)
+        let aggregate%length%3#1: uint64 = (len "World!")
         let aggregate%as_bytes%3#1: bytes[8] = (itob aggregate%length%3#1)
         let aggregate%length_uint16%3#1: bytes = ((extract 6 2) aggregate%as_bytes%3#1)
-        let aggregate%encoded_value%3#1: bytes = (concat aggregate%length_uint16%3#1 0x576f726c6421)
+        let aggregate%encoded_value%3#1: bytes = (concat aggregate%length_uint16%3#1 "World!")
         let aggregate%as_Encoded(len+utf8[])%3#1: Encoded(len+utf8[]) = aggregate%encoded_value%3#1
         let world#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%3#1
-        let aggregate%length%4#1: uint64 = (len 0x48656c6c6f20576f726c6421)
+        let aggregate%length%4#1: uint64 = (len "Hello World!")
         let aggregate%as_bytes%4#1: bytes[8] = (itob aggregate%length%4#1)
         let aggregate%length_uint16%4#1: bytes = ((extract 6 2) aggregate%as_bytes%4#1)
-        let aggregate%encoded_value%4#1: bytes = (concat aggregate%length_uint16%4#1 0x48656c6c6f20576f726c6421)
+        let aggregate%encoded_value%4#1: bytes = (concat aggregate%length_uint16%4#1 "Hello World!")
         let aggregate%as_Encoded(len+utf8[])%4#1: Encoded(len+utf8[]) = aggregate%encoded_value%4#1
-        let encoded%3#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%4#1
+        let tmp%9#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%4#1
         let extract_to_end%0#0: bytes = ((extract 2 0) space#0)
         let concat%0#0: Encoded(len+utf8[]) = (concat hello#0 extract_to_end%0#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
@@ -52,12 +52,12 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let as_bytes%1#0: bytes[8] = (itob len%1#0)
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let replace%1#0: bytes = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
-        let tmp%6#0: bool = (== encoded%3#0 replace%1#0)
-        (assert tmp%6#0)
-        let aggregate%length%5#1: uint64 = (len 0x6869)
+        let tmp%10#0: bool = (== tmp%9#0 replace%1#0)
+        (assert tmp%10#0)
+        let aggregate%length%5#1: uint64 = (len "hi")
         let aggregate%as_bytes%5#1: bytes[8] = (itob aggregate%length%5#1)
         let aggregate%length_uint16%5#1: bytes = ((extract 6 2) aggregate%as_bytes%5#1)
-        let aggregate%encoded_value%5#1: bytes = (concat aggregate%length_uint16%5#1 0x6869)
+        let aggregate%encoded_value%5#1: bytes = (concat aggregate%length_uint16%5#1 "hi")
         let aggregate%as_Encoded(len+utf8[])%5#1: Encoded(len+utf8[]) = aggregate%encoded_value%5#1
         let thing#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%5#1
         let extract_to_end%4#0: bytes = ((extract 2 0) thing#0)
@@ -67,131 +67,131 @@ main test_cases.arc4_types.string.Arc4StringTypesContract.approval_program:
         let as_bytes%2#0: bytes[8] = (itob len%2#0)
         let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let thing#1: Encoded(len+utf8[]) = ((replace2 0) concat%2#0 as_u16_bytes%2#0)
-        let aggregate%length%6#1: uint64 = (len 0x68696869)
+        let aggregate%length%6#1: uint64 = (len "hihi")
         let aggregate%as_bytes%6#1: bytes[8] = (itob aggregate%length%6#1)
         let aggregate%length_uint16%6#1: bytes = ((extract 6 2) aggregate%as_bytes%6#1)
-        let aggregate%encoded_value%6#1: bytes = (concat aggregate%length_uint16%6#1 0x68696869)
+        let aggregate%encoded_value%6#1: bytes = (concat aggregate%length_uint16%6#1 "hihi")
         let aggregate%as_Encoded(len+utf8[])%6#1: Encoded(len+utf8[]) = aggregate%encoded_value%6#1
-        let encoded%5#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%6#1
-        let tmp%7#0: bool = (== thing#1 encoded%5#0)
-        (assert tmp%7#0)
-        let aggregate%length%7#1: uint64 = (len 0x61)
+        let tmp%12#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%6#1
+        let tmp%13#0: bool = (== thing#1 tmp%12#0)
+        (assert tmp%13#0)
+        let aggregate%length%7#1: uint64 = (len "a")
         let aggregate%as_bytes%7#1: bytes[8] = (itob aggregate%length%7#1)
         let aggregate%length_uint16%7#1: bytes = ((extract 6 2) aggregate%as_bytes%7#1)
-        let aggregate%encoded_value%7#1: bytes = (concat aggregate%length_uint16%7#1 0x61)
+        let aggregate%encoded_value%7#1: bytes = (concat aggregate%length_uint16%7#1 "a")
         let aggregate%as_Encoded(len+utf8[])%7#1: Encoded(len+utf8[]) = aggregate%encoded_value%7#1
-        let encoded%6#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%7#1
-        let aggregate%length%8#1: uint64 = (len 0x62)
+        let tmp%14#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%7#1
+        let aggregate%length%8#1: uint64 = (len "b")
         let aggregate%as_bytes%8#1: bytes[8] = (itob aggregate%length%8#1)
         let aggregate%length_uint16%8#1: bytes = ((extract 6 2) aggregate%as_bytes%8#1)
-        let aggregate%encoded_value%8#1: bytes = (concat aggregate%length_uint16%8#1 0x62)
+        let aggregate%encoded_value%8#1: bytes = (concat aggregate%length_uint16%8#1 "b")
         let aggregate%as_Encoded(len+utf8[])%8#1: Encoded(len+utf8[]) = aggregate%encoded_value%8#1
-        let encoded%7#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%8#1
-        let extract_to_end%6#0: bytes = ((extract 2 0) encoded%7#0)
-        let concat%3#0: Encoded(len+utf8[]) = (concat encoded%6#0 extract_to_end%6#0) // on error: max array length exceeded
+        let tmp%15#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%8#1
+        let extract_to_end%6#0: bytes = ((extract 2 0) tmp%15#0)
+        let concat%3#0: Encoded(len+utf8[]) = (concat tmp%14#0 extract_to_end%6#0) // on error: max array length exceeded
         let extract_to_end%7#0: bytes = ((extract 2 0) concat%3#0)
         let len%3#0: uint64 = (len extract_to_end%7#0)
         let as_bytes%3#0: bytes[8] = (itob len%3#0)
         let as_u16_bytes%3#0: bytes = ((extract 6 2) as_bytes%3#0)
         let replace%3#0: bytes = ((replace2 0) concat%3#0 as_u16_bytes%3#0)
-        let aggregate%length%9#1: uint64 = (len 0x6364)
+        let aggregate%length%9#1: uint64 = (len "cd")
         let aggregate%as_bytes%9#1: bytes[8] = (itob aggregate%length%9#1)
         let aggregate%length_uint16%9#1: bytes = ((extract 6 2) aggregate%as_bytes%9#1)
-        let aggregate%encoded_value%9#1: bytes = (concat aggregate%length_uint16%9#1 0x6364)
+        let aggregate%encoded_value%9#1: bytes = (concat aggregate%length_uint16%9#1 "cd")
         let aggregate%as_Encoded(len+utf8[])%9#1: Encoded(len+utf8[]) = aggregate%encoded_value%9#1
-        let encoded%8#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%9#1
-        let extract_to_end%8#0: bytes = ((extract 2 0) encoded%8#0)
+        let tmp%16#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%9#1
+        let extract_to_end%8#0: bytes = ((extract 2 0) tmp%16#0)
         let concat%4#0: Encoded(len+utf8[]) = (concat replace%3#0 extract_to_end%8#0) // on error: max array length exceeded
         let extract_to_end%9#0: bytes = ((extract 2 0) concat%4#0)
         let len%4#0: uint64 = (len extract_to_end%9#0)
         let as_bytes%4#0: bytes[8] = (itob len%4#0)
         let as_u16_bytes%4#0: bytes = ((extract 6 2) as_bytes%4#0)
         let value#0: Encoded(len+utf8[]) = ((replace2 0) concat%4#0 as_u16_bytes%4#0)
-        let aggregate%length%10#1: uint64 = (len 0x65)
+        let aggregate%length%10#1: uint64 = (len "e")
         let aggregate%as_bytes%10#1: bytes[8] = (itob aggregate%length%10#1)
         let aggregate%length_uint16%10#1: bytes = ((extract 6 2) aggregate%as_bytes%10#1)
-        let aggregate%encoded_value%10#1: bytes = (concat aggregate%length_uint16%10#1 0x65)
+        let aggregate%encoded_value%10#1: bytes = (concat aggregate%length_uint16%10#1 "e")
         let aggregate%as_Encoded(len+utf8[])%10#1: Encoded(len+utf8[]) = aggregate%encoded_value%10#1
-        let encoded%9#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%10#1
-        let extract_to_end%10#0: bytes = ((extract 2 0) encoded%9#0)
+        let tmp%17#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%10#1
+        let extract_to_end%10#0: bytes = ((extract 2 0) tmp%17#0)
         let concat%5#0: Encoded(len+utf8[]) = (concat value#0 extract_to_end%10#0) // on error: max array length exceeded
         let extract_to_end%11#0: bytes = ((extract 2 0) concat%5#0)
         let len%5#0: uint64 = (len extract_to_end%11#0)
         let as_bytes%5#0: bytes[8] = (itob len%5#0)
         let as_u16_bytes%5#0: bytes = ((extract 6 2) as_bytes%5#0)
         let value#1: Encoded(len+utf8[]) = ((replace2 0) concat%5#0 as_u16_bytes%5#0)
-        let aggregate%length%11#1: uint64 = (len 0x66)
+        let aggregate%length%11#1: uint64 = (len "f")
         let aggregate%as_bytes%11#1: bytes[8] = (itob aggregate%length%11#1)
         let aggregate%length_uint16%11#1: bytes = ((extract 6 2) aggregate%as_bytes%11#1)
-        let aggregate%encoded_value%11#1: bytes = (concat aggregate%length_uint16%11#1 0x66)
+        let aggregate%encoded_value%11#1: bytes = (concat aggregate%length_uint16%11#1 "f")
         let aggregate%as_Encoded(len+utf8[])%11#1: Encoded(len+utf8[]) = aggregate%encoded_value%11#1
-        let encoded%10#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%11#1
-        let extract_to_end%12#0: bytes = ((extract 2 0) encoded%10#0)
+        let tmp%18#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%11#1
+        let extract_to_end%12#0: bytes = ((extract 2 0) tmp%18#0)
         let concat%6#0: Encoded(len+utf8[]) = (concat value#1 extract_to_end%12#0) // on error: max array length exceeded
         let extract_to_end%13#0: bytes = ((extract 2 0) concat%6#0)
         let len%6#0: uint64 = (len extract_to_end%13#0)
         let as_bytes%6#0: bytes[8] = (itob len%6#0)
         let as_u16_bytes%6#0: bytes = ((extract 6 2) as_bytes%6#0)
         let value#2: Encoded(len+utf8[]) = ((replace2 0) concat%6#0 as_u16_bytes%6#0)
-        let aggregate%length%12#1: uint64 = (len 0x67)
+        let aggregate%length%12#1: uint64 = (len "g")
         let aggregate%as_bytes%12#1: bytes[8] = (itob aggregate%length%12#1)
         let aggregate%length_uint16%12#1: bytes = ((extract 6 2) aggregate%as_bytes%12#1)
-        let aggregate%encoded_value%12#1: bytes = (concat aggregate%length_uint16%12#1 0x67)
+        let aggregate%encoded_value%12#1: bytes = (concat aggregate%length_uint16%12#1 "g")
         let aggregate%as_Encoded(len+utf8[])%12#1: Encoded(len+utf8[]) = aggregate%encoded_value%12#1
-        let encoded%11#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%12#1
-        let extract_to_end%14#0: bytes = ((extract 2 0) encoded%11#0)
+        let tmp%19#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%12#1
+        let extract_to_end%14#0: bytes = ((extract 2 0) tmp%19#0)
         let concat%7#0: Encoded(len+utf8[]) = (concat value#2 extract_to_end%14#0) // on error: max array length exceeded
         let extract_to_end%15#0: bytes = ((extract 2 0) concat%7#0)
         let len%7#0: uint64 = (len extract_to_end%15#0)
         let as_bytes%7#0: bytes[8] = (itob len%7#0)
         let as_u16_bytes%7#0: bytes = ((extract 6 2) as_bytes%7#0)
         let value#3: Encoded(len+utf8[]) = ((replace2 0) concat%7#0 as_u16_bytes%7#0)
-        let aggregate%length%13#1: uint64 = (len 0x61626364656667)
+        let aggregate%length%13#1: uint64 = (len "abcdefg")
         let aggregate%as_bytes%13#1: bytes[8] = (itob aggregate%length%13#1)
         let aggregate%length_uint16%13#1: bytes = ((extract 6 2) aggregate%as_bytes%13#1)
-        let aggregate%encoded_value%13#1: bytes = (concat aggregate%length_uint16%13#1 0x61626364656667)
+        let aggregate%encoded_value%13#1: bytes = (concat aggregate%length_uint16%13#1 "abcdefg")
         let aggregate%as_Encoded(len+utf8[])%13#1: Encoded(len+utf8[]) = aggregate%encoded_value%13#1
-        let encoded%12#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%13#1
-        let tmp%8#0: bool = (== encoded%12#0 value#3)
-        (assert tmp%8#0)
-        let aggregate%length%14#1: uint64 = (len 0x)
+        let tmp%20#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%13#1
+        let tmp%21#0: bool = (== tmp%20#0 value#3)
+        (assert tmp%21#0)
+        let aggregate%length%14#1: uint64 = (len "")
         let aggregate%as_bytes%14#1: bytes[8] = (itob aggregate%length%14#1)
         let aggregate%length_uint16%14#1: bytes = ((extract 6 2) aggregate%as_bytes%14#1)
-        let aggregate%encoded_value%14#1: bytes = (concat aggregate%length_uint16%14#1 0x)
+        let aggregate%encoded_value%14#1: bytes = (concat aggregate%length_uint16%14#1 "")
         let aggregate%as_Encoded(len+utf8[])%14#1: Encoded(len+utf8[]) = aggregate%encoded_value%14#1
-        let encoded%13#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%14#1
-        let aggregate%length%15#1: uint64 = (len 0x68656c6c6f)
+        let tmp%22#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%14#1
+        let aggregate%length%15#1: uint64 = (len "hello")
         let aggregate%as_bytes%15#1: bytes[8] = (itob aggregate%length%15#1)
         let aggregate%length_uint16%15#1: bytes = ((extract 6 2) aggregate%as_bytes%15#1)
-        let aggregate%encoded_value%15#1: bytes = (concat aggregate%length_uint16%15#1 0x68656c6c6f)
+        let aggregate%encoded_value%15#1: bytes = (concat aggregate%length_uint16%15#1 "hello")
         let aggregate%as_Encoded(len+utf8[])%15#1: Encoded(len+utf8[]) = aggregate%encoded_value%15#1
-        let encoded%14#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%15#1
-        let tmp%13#0: uint64 = (txn NumAppArgs)
-        goto tmp%13#0 ? block@1 : block@2
+        let tmp%25#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%15#1
+        let tmp%28#0: uint64 = (txn NumAppArgs)
+        goto tmp%28#0 ? block@1 : block@2
     block@1: // ternary_true_L41
-        let aggregate%length%16#1: uint64 = (len 0x617965)
+        let aggregate%length%16#1: uint64 = (len "aye")
         let aggregate%as_bytes%16#1: bytes[8] = (itob aggregate%length%16#1)
         let aggregate%length_uint16%16#1: bytes = ((extract 6 2) aggregate%as_bytes%16#1)
-        let aggregate%encoded_value%16#1: bytes = (concat aggregate%length_uint16%16#1 0x617965)
+        let aggregate%encoded_value%16#1: bytes = (concat aggregate%length_uint16%16#1 "aye")
         let aggregate%as_Encoded(len+utf8[])%16#1: Encoded(len+utf8[]) = aggregate%encoded_value%16#1
-        let encoded%15#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%16#1
+        let ternary_result%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%16#1
         goto block@3
     block@2: // ternary_false_L41
-        let aggregate%length%17#1: uint64 = (len 0x626565)
+        let aggregate%length%17#1: uint64 = (len "bee")
         let aggregate%as_bytes%17#1: bytes[8] = (itob aggregate%length%17#1)
         let aggregate%length_uint16%17#1: bytes = ((extract 6 2) aggregate%as_bytes%17#1)
-        let aggregate%encoded_value%17#1: bytes = (concat aggregate%length_uint16%17#1 0x626565)
+        let aggregate%encoded_value%17#1: bytes = (concat aggregate%length_uint16%17#1 "bee")
         let aggregate%as_Encoded(len+utf8[])%17#1: Encoded(len+utf8[]) = aggregate%encoded_value%17#1
-        let encoded%16#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%17#1
+        let ternary_result%0#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%17#1
         goto block@3
     block@3: // ternary_merge_L41
-        let ternary_result%0#2: Encoded(len+utf8[]) = φ(encoded%15#0 <- block@1, encoded%16#0 <- block@2)
-        let aggregate%length%18#1: uint64 = (len 0x626565)
+        let ternary_result%0#2: Encoded(len+utf8[]) = φ(ternary_result%0#0 <- block@1, ternary_result%0#1 <- block@2)
+        let aggregate%length%18#1: uint64 = (len "bee")
         let aggregate%as_bytes%18#1: bytes[8] = (itob aggregate%length%18#1)
         let aggregate%length_uint16%18#1: bytes = ((extract 6 2) aggregate%as_bytes%18#1)
-        let aggregate%encoded_value%18#1: bytes = (concat aggregate%length_uint16%18#1 0x626565)
+        let aggregate%encoded_value%18#1: bytes = (concat aggregate%length_uint16%18#1 "bee")
         let aggregate%as_Encoded(len+utf8[])%18#1: Encoded(len+utf8[]) = aggregate%encoded_value%18#1
-        let encoded%17#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%18#1
-        let tmp%15#0: bool = (== ternary_result%0#2 encoded%17#0)
-        (assert tmp%15#0)
+        let tmp%30#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%18#1
+        let tmp%31#0: bool = (== ternary_result%0#2 tmp%30#0)
+        (assert tmp%31#0)
         return 1u

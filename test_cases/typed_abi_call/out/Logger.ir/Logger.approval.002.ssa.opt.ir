@@ -305,9 +305,9 @@ subroutine test_cases.typed_abi_call.logger.Logger.is_a_b(a: bytes, b: bytes) ->
 
 subroutine test_cases.typed_abi_call.logger.Logger.echo(value: Encoded(len+utf8[])) -> Encoded(len+utf8[]):
     block@0: // L36
-        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6563686f3a20)
+        let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("echo: ")
         let extract_to_end%0#0: bytes = ((extract 2 0) value#0)
-        let concat%0#0: Encoded(len+utf8[]) = (concat encoded%0#0 extract_to_end%0#0) // on error: max array length exceeded
+        let concat%0#0: Encoded(len+utf8[]) = (concat tmp%0#0 extract_to_end%0#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
         let len%0#0: uint64 = (len extract_to_end%1#0)
         let as_bytes%0#0: bytes[8] = (itob len%0#0)
@@ -391,20 +391,20 @@ subroutine test_cases.typed_abi_call.logger.Logger.echo_native_tuple(s: string, 
 subroutine test_cases.typed_abi_call.logger.Logger.echo_nested_tuple(tuple_of_tuples.0.0: string, tuple_of_tuples.0.1: Encoded(len+utf8[]), tuple_of_tuples.1.0: uint64, tuple_of_tuples.1.1: Encoded(uint64), tuple_of_tuples.1.2: bytes) -> <string, Encoded(len+utf8[]), uint64, Encoded(uint64), bytes>:
     block@0: // L94
         let tmp%0#0: bytes = (concat "echo: " tuple_of_tuples.0.0#0)
-        let encoded%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(0x6563686f3a20)
+        let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("echo: ")
         let extract_to_end%0#0: bytes = ((extract 2 0) tuple_of_tuples.0.1#0)
-        let concat%0#0: Encoded(len+utf8[]) = (concat encoded%0#0 extract_to_end%0#0) // on error: max array length exceeded
+        let concat%0#0: Encoded(len+utf8[]) = (concat tmp%1#0 extract_to_end%0#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
         let len%0#0: uint64 = (len extract_to_end%1#0)
         let as_bytes%0#0: bytes[8] = (itob len%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        let tmp%1#0: uint64 = (+ tuple_of_tuples.1.0#0 1u)
-        let tmp%2#0: uint64 = decode_bytes<uint64>(tuple_of_tuples.1.1#0)
-        let tmp%3#0: uint64 = (+ tmp%2#0 1u)
-        let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(tmp%3#0)
-        let tmp%5#0: bytes = (concat 0x6563686f3a20 tuple_of_tuples.1.2#0)
-        return tmp%0#0 replace%0#0 tmp%1#0 tmp%4#0 tmp%5#0
+        let tmp%2#0: uint64 = (+ tuple_of_tuples.1.0#0 1u)
+        let tmp%3#0: uint64 = decode_bytes<uint64>(tuple_of_tuples.1.1#0)
+        let tmp%4#0: uint64 = (+ tmp%3#0 1u)
+        let tmp%5#0: Encoded(uint64) = bytes_encode<uint64>(tmp%4#0)
+        let tmp%6#0: bytes = (concat 0x6563686f3a20 tuple_of_tuples.1.2#0)
+        return tmp%0#0 replace%0#0 tmp%2#0 tmp%5#0 tmp%6#0
 
 subroutine test_cases.typed_abi_call.logger.Logger.return_args_after_14th(_a1: Encoded(uint64), _a2: Encoded(uint64), _a3: Encoded(uint64), _a4: Encoded(uint64), _a5: Encoded(uint64), _a6: Encoded(uint64), _a7: Encoded(uint64), _a8: Encoded(uint64), _a9: Encoded(uint64), _a10: Encoded(uint64), _a11: Encoded(uint64), _a12: Encoded(uint64), _a13: Encoded(uint64), _a14: Encoded(uint64), a15: Encoded(uint8), a16: Encoded(uint8), a17: Encoded(uint8), a18: Encoded(uint8), a19: Encoded(uint8,uint8,uint8,uint8), a20: Encoded(uint8)) -> Encoded(len+uint8[]):
     block@0: // L105

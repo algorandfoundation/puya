@@ -350,23 +350,23 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_string1() -> Encoded(len+utf8[]):
     block@0: // L180
-        let aggregate%length%0#1: uint64 = (len 0x61)
+        let aggregate%length%0#1: uint64 = (len "a")
         let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
         let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
-        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x61)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 "a")
         let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
-        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
-        return encoded%0#0
+        let tmp%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
+        return tmp%0#0
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_string2() -> Encoded(len+utf8[]):
     block@0: // L185
-        let aggregate%length%0#1: uint64 = (len 0x626565)
+        let aggregate%length%0#1: uint64 = (len "bee")
         let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
         let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
-        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x626565)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 "bee")
         let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
-        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
-        return encoded%0#0
+        let tmp%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
+        return tmp%0#0
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_u16_arr1() -> Encoded(len+uint16[]):
     block@0: // L225
@@ -452,24 +452,24 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let aggregate%concat%1#1: bytes = (concat aggregate%concat%0#1 tmp%1#0)
         let aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#1: Encoded((len+utf8[]),(len+utf8[])) = aggregate%concat%1#1
         let struct1#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%0#1
-        let aggregate%length%0#1: uint64 = (len 0x48656c6c6f20576f726c64)
+        let aggregate%length%0#1: uint64 = (len "Hello World")
         let aggregate%as_bytes%2#1: bytes[8] = (itob aggregate%length%0#1)
         let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%2#1)
-        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 0x48656c6c6f20576f726c64)
+        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 "Hello World")
         let aggregate%as_Encoded(len+utf8[])%0#1: Encoded(len+utf8[]) = aggregate%encoded_value%0#1
-        let encoded%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
+        let tmp%0#1: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#1
         let tmp%4#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string1()
         let aggregate%as_bytes%3#1: bytes[8] = (itob 4u)
         let aggregate%offset_as_uint16%2#1: bytes = ((extract 6 2) aggregate%as_bytes%3#1)
         let aggregate%head%2#1: bytes = (concat 0x aggregate%offset_as_uint16%2#1)
-        let aggregate%data_length%2#1: uint64 = (len encoded%0#0)
+        let aggregate%data_length%2#1: uint64 = (len tmp%0#1)
         let aggregate%current_tail_offset%2#1: uint64 = (+ 4u aggregate%data_length%2#1)
         let aggregate%as_bytes%4#1: bytes[8] = (itob aggregate%current_tail_offset%2#1)
         let aggregate%offset_as_uint16%3#1: bytes = ((extract 6 2) aggregate%as_bytes%4#1)
         let aggregate%head%3#1: bytes = (concat aggregate%head%2#1 aggregate%offset_as_uint16%3#1)
         let aggregate%data_length%3#1: uint64 = (len tmp%4#0)
         let aggregate%current_tail_offset%3#1: uint64 = (+ aggregate%current_tail_offset%2#1 aggregate%data_length%3#1)
-        let aggregate%concat%2#1: bytes = (concat aggregate%head%3#1 encoded%0#0)
+        let aggregate%concat%2#1: bytes = (concat aggregate%head%3#1 tmp%0#1)
         let aggregate%concat%3#1: bytes = (concat aggregate%concat%2#1 tmp%4#0)
         let aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%1#1: Encoded((len+utf8[]),(len+utf8[])) = aggregate%concat%3#1
         let struct2#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%as_Encoded((len+utf8[]),(len+utf8[]))%1#1
