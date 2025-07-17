@@ -140,6 +140,14 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%0#1: bool = φ(examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#0 <- block@5, examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#1 <- block@6, examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#2 <- block@7, examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#3 <- block@8, examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#4 <- block@9, examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#5 <- block@11, examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#6 <- block@12)
         return tmp%0#1
 
+subroutine examples.amm.contract.tokens_to_burn(pool_balance: uint64, supply: uint64, amount: uint64) -> uint64:
+    block@0: // L343
+        let tmp%0#0: uint64 = (- 10000000000u pool_balance#0)
+        let issued#0: uint64 = (- tmp%0#0 amount#0)
+        let tmp%2#0: uint64 = (* supply#0 amount#0)
+        let tmp%3#0: uint64 = (/ tmp%2#0 issued#0)
+        return tmp%3#0
+
 subroutine examples.amm.contract.do_asset_transfer(receiver: account, asset: uint64, amount: uint64) -> void:
     block@0: // L356
         itxn_begin
@@ -201,24 +209,22 @@ subroutine examples.amm.contract.ConstantProductAMM.bootstrap(seed: uint64, a_as
         itxn_submit
         let tmp%2#1: uint64 = (itxn CreatedAssetID)
         (app_global_put "pool_token" tmp%2#1)
-        let (asset#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
+        let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
-        let tmp%0#2: account = (global CurrentApplicationAddress)
-        examples.amm.contract.do_asset_transfer(tmp%0#2, asset#0, 0u)
-        let (asset#1: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
+        examples.amm.contract.ConstantProductAMM._do_opt_in(maybe_value%1#0)
+        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "asset_b")
         (assert maybe_exists%2#0) // check self.asset_b exists
-        let tmp%0#3: account = (global CurrentApplicationAddress)
-        examples.amm.contract.do_asset_transfer(tmp%0#3, asset#1, 0u)
+        examples.amm.contract.ConstantProductAMM._do_opt_in(maybe_value%2#0)
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%3#0) // check self.pool_token exists
         return maybe_value%3#0
 
 subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:
     block@0: // L81
-        let (maybe_value%0#1: uint64, maybe_exists%0#1: bool) = (app_global_get_ex 0u "pool_token")
-        (assert maybe_exists%0#1) // check self.pool_token exists
-        (assert maybe_value%0#1) // bootstrap method needs to be called first
-        let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#1)
+        examples.amm.contract.ConstantProductAMM._check_bootstrapped()
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
+        (assert maybe_exists%0#0) // check self.pool_token exists
+        let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#0)
         (assert tmp%0#0) // asset pool incorrect
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
@@ -306,10 +312,10 @@ subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer:
 
 subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool_asset: uint64, a_asset: uint64, b_asset: uint64) -> void:
     block@0: // L147
-        let (maybe_value%0#1: uint64, maybe_exists%0#1: bool) = (app_global_get_ex 0u "pool_token")
-        (assert maybe_exists%0#1) // check self.pool_token exists
-        (assert maybe_value%0#1) // bootstrap method needs to be called first
-        let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#1)
+        examples.amm.contract.ConstantProductAMM._check_bootstrapped()
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
+        (assert maybe_exists%0#0) // check self.pool_token exists
+        let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#0)
         (assert tmp%0#0) // asset pool incorrect
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
@@ -323,24 +329,20 @@ subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool
         let tmp%4#0: account = (global CurrentApplicationAddress)
         let tmp%5#0: bool = (== tmp%3#0 tmp%4#0)
         (assert tmp%5#0) // receiver not app address
-        let amount#0: uint64 = ((gtxns AssetAmount) pool_xfer#0)
-        (assert amount#0) // amount minimum not met
+        let tmp%6#0: uint64 = ((gtxns AssetAmount) pool_xfer#0)
+        (assert tmp%6#0) // amount minimum not met
         let tmp%8#0: uint64 = ((gtxns XferAsset) pool_xfer#0)
-        let tmp%9#0: bool = (== tmp%8#0 maybe_value%0#1)
+        let tmp%9#0: bool = (== tmp%8#0 maybe_value%0#0)
         (assert tmp%9#0) // asset pool incorrect
         let tmp%10#0: account = ((gtxns Sender) pool_xfer#0)
         let tmp%11#0: account = (txn Sender)
         let tmp%12#0: bool = (== tmp%10#0 tmp%11#0)
         (assert tmp%12#0) // sender invalid
         let pool_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_pool_balance()
-        let supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
-        let tmp%0#1: uint64 = (- 10000000000u pool_balance#0)
-        let issued#0: uint64 = (- tmp%0#1 amount#0)
-        let tmp%2#1: uint64 = (* supply#0 amount#0)
-        let a_amt#0: uint64 = (/ tmp%2#1 issued#0)
-        let supply#1: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
-        let tmp%2#2: uint64 = (* supply#1 amount#0)
-        let b_amt#0: uint64 = (/ tmp%2#2 issued#0)
+        let tmp%14#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
+        let a_amt#0: uint64 = examples.amm.contract.tokens_to_burn(pool_balance#0, tmp%14#0, tmp%6#0)
+        let tmp%17#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
+        let b_amt#0: uint64 = examples.amm.contract.tokens_to_burn(pool_balance#0, tmp%17#0, tmp%6#0)
         let tmp%20#0: account = (txn Sender)
         let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%4#0) // check self.asset_a exists
@@ -354,9 +356,7 @@ subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool
 
 subroutine examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_asset: uint64, b_asset: uint64) -> void:
     block@0: // L204
-        let (maybe_value%0#1: uint64, maybe_exists%0#1: bool) = (app_global_get_ex 0u "pool_token")
-        (assert maybe_exists%0#1) // check self.pool_token exists
-        (assert maybe_value%0#1) // bootstrap method needs to be called first
+        examples.amm.contract.ConstantProductAMM._check_bootstrapped()
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%0#0) // check self.asset_a exists
         let tmp%0#0: bool = (== a_asset#0 maybe_value%0#0)
@@ -403,6 +403,13 @@ subroutine examples.amm.contract.ConstantProductAMM.swap(swap_xfer: uint64, a_as
         examples.amm.contract.ConstantProductAMM._update_ratio()
         return 
 
+subroutine examples.amm.contract.ConstantProductAMM._check_bootstrapped() -> void:
+    block@0: // L251
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
+        (assert maybe_exists%0#0) // check self.pool_token exists
+        (assert maybe_value%0#0) // bootstrap method needs to be called first
+        return 
+
 subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
     block@0: // L255
         let a_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
@@ -419,6 +426,12 @@ subroutine examples.amm.contract.ConstantProductAMM._check_is_governor() -> void
         (assert maybe_exists%0#0) // check self.governor exists
         let tmp%1#0: bool = (== tmp%0#0 maybe_value%0#0)
         (assert tmp%1#0) // Only the account set in global_state.governor may call this method
+        return 
+
+subroutine examples.amm.contract.ConstantProductAMM._do_opt_in(asset: uint64) -> void:
+    block@0: // L283
+        let tmp%0#0: account = (global CurrentApplicationAddress)
+        examples.amm.contract.do_asset_transfer(tmp%0#0, asset#0, 0u)
         return 
 
 subroutine examples.amm.contract.ConstantProductAMM._current_pool_balance() -> uint64:

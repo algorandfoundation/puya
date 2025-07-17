@@ -46,8 +46,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%16#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
         let tmp%17#0: uint64 = ((txnas Assets) tmp%16#0)
         let tmp%18#0: uint64 = examples.amm.contract.ConstantProductAMM.bootstrap(gtxn_idx%0#0, tmp%15#0, tmp%17#0)
-        let tmp%19#0: Encoded(uint64) = bytes_encode<uint64>(tmp%18#0)
-        let tmp%20#0: bytes = (concat 0x151f7c75 tmp%19#0)
+        let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%18#0)
+        let tmp%20#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#1)
         (log tmp%20#0)
         let examples.amm.contract.ConstantProductAMM.__puya_arc4_router__%0#1: bool = 1u
         goto block@13
@@ -216,9 +216,7 @@ subroutine examples.amm.contract.ConstantProductAMM.mint(a_xfer: uint64, b_xfer:
         let (maybe_value%0#1: uint64, maybe_exists%0#1: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%0#1) // check self.pool_token exists
         (assert maybe_value%0#1) // bootstrap method needs to be called first
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (maybe_value%0#1, maybe_exists%0#1)
-        (assert maybe_exists%0#0) // check self.pool_token exists
-        let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#0)
+        let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#1)
         (assert tmp%0#0) // asset pool incorrect
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
@@ -309,9 +307,7 @@ subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool
         let (maybe_value%0#1: uint64, maybe_exists%0#1: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%0#1) // check self.pool_token exists
         (assert maybe_value%0#1) // bootstrap method needs to be called first
-        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (maybe_value%0#1, maybe_exists%0#1)
-        (assert maybe_exists%0#0) // check self.pool_token exists
-        let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#0)
+        let tmp%0#0: bool = (== pool_asset#0 maybe_value%0#1)
         (assert tmp%0#0) // asset pool incorrect
         let (maybe_value%1#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
@@ -328,7 +324,7 @@ subroutine examples.amm.contract.ConstantProductAMM.burn(pool_xfer: uint64, pool
         let amount#0: uint64 = ((gtxns AssetAmount) pool_xfer#0)
         (assert amount#0) // amount minimum not met
         let tmp%8#0: uint64 = ((gtxns XferAsset) pool_xfer#0)
-        let tmp%9#0: bool = (== tmp%8#0 maybe_value%0#0)
+        let tmp%9#0: bool = (== tmp%8#0 maybe_value%0#1)
         (assert tmp%9#0) // asset pool incorrect
         let tmp%10#0: account = ((gtxns Sender) pool_xfer#0)
         let tmp%11#0: account = (txn Sender)
