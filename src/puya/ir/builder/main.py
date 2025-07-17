@@ -15,7 +15,6 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_types import wtype_to_arc4_wtype
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import dynamic_array, flow_control, mem, sequence, storage
 from puya.ir.builder._utils import assign, get_implicit_return_is_original, get_implicit_return_out
@@ -188,12 +187,13 @@ class FunctionIRBuilder(
         loc = size_of.source_location
 
         wtype = size_of.size_wtype
-        if isinstance(wtype, wtypes.WTuple):
-            wtype = wtype_to_arc4_wtype(wtype, loc)
-        ir_type = wtype_to_ir_type(wtype, loc)
-        if ir_type.num_bytes is None:
-            logger.error(f"{size_of.size_wtype} is dynamically sized", location=loc)
-        num_bytes = ir_type.num_bytes or 0
+        if wtype.is_aggregate:
+            num_bytes = wtype_to_encoding(wtype, loc).num_bytes
+        else:
+            num_bytes = wtype_to_ir_type(wtype, loc).num_bytes
+        if num_bytes is None:
+            logger.error("type is dynamically sized", location=loc)
+            return Undefined(ir_type=PrimitiveIRType.uint64, source_location=loc)
         return UInt64Constant(value=num_bytes, source_location=loc)
 
     def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> TExpression:
