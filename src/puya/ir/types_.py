@@ -147,6 +147,17 @@ class PrimitiveIRType(IRType, enum.StrEnum):
         return f"{type(self).__name__}.{self.name}"
 
 
+bytes_: typing.Final = PrimitiveIRType.bytes
+uint64: typing.Final = PrimitiveIRType.uint64
+string: typing.Final = PrimitiveIRType.string
+bool_: typing.Final = PrimitiveIRType.bool
+account: typing.Final = PrimitiveIRType.account
+biguint: typing.Final = PrimitiveIRType.biguint
+itxn_group_idx: typing.Final = PrimitiveIRType.itxn_group_idx
+itxn_field_set: typing.Final = PrimitiveIRType.itxn_field_set
+any_: typing.Final = PrimitiveIRType.any
+
+
 @attrs.frozen(str=False, order=False)
 class TupleIRType:
     """

@@ -129,9 +129,9 @@ class RootOperandGrouping(CoalesceGroupStrategy[_RootOperandKey]):
         if not isinstance(ir_type, types.PrimitiveIRType | types.SlotType):
             match ir_type.maybe_avm_type:
                 case AVMType.uint64:
-                    ir_type = types.PrimitiveIRType.uint64
+                    ir_type = types.uint64
                 case AVMType.bytes:
-                    ir_type = types.PrimitiveIRType.bytes
+                    ir_type = types.bytes_
         return reg.name, ir_type
 
     @typing.override
@@ -176,15 +176,15 @@ class AggressiveGrouping(CoalesceGroupStrategy[types.IRType]):
         if isinstance(reg.ir_type, types.SlotType):
             match reg.ir_type.contents.avm_type:
                 case AVMType.uint64:
-                    return types.SlotType(types.PrimitiveIRType.uint64)
+                    return types.SlotType(types.uint64)
                 case _:
-                    return types.SlotType(types.PrimitiveIRType.bytes)
+                    return types.SlotType(types.bytes_)
         else:
             match reg.atype:
                 case AVMType.uint64:
-                    return types.PrimitiveIRType.uint64
+                    return types.uint64
                 case AVMType.bytes:
-                    return types.PrimitiveIRType.bytes
+                    return types.bytes_
 
     @typing.override
     def determine_group_replacement(

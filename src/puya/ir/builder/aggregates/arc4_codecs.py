@@ -77,7 +77,7 @@ def encode_to_bytes(
         location=loc,
     )
     return ir.Undefined(
-        ir_type=types.PrimitiveIRType.bytes,
+        ir_type=types.bytes_,
         source_location=loc,
     )
 
@@ -401,7 +401,7 @@ class _BoolCodec(_ScalarCodec):
             case encodings.BoolEncoding():
                 return value
             case encodings.Bool8Encoding():
-                return factory.get_bit(value, 0, ir_type=types.PrimitiveIRType.bool)
+                return factory.get_bit(value, 0, ir_type=types.bool_)
             case encodings.UIntEncoding():
                 return factory.neq_bytes(value, b"")
         return None
@@ -526,17 +526,17 @@ def _get_arc4_codec(ir_type: types.IRType | types.TupleIRType) -> _ARC4Codec | N
     match ir_type:
         case types.TupleIRType() as aggregate:
             return _NativeTupleCodec(aggregate)
-        case types.PrimitiveIRType.biguint:
+        case types.biguint:
             return _BigUIntCodec()
-        case types.PrimitiveIRType.bool:
+        case types.bool_:
             return _BoolCodec()
         case types.EncodedType(encoding=encodings.Bool8Encoding()):
             return _Bool8Codec()
-        case types.PrimitiveIRType.string:
+        case types.string:
             return _BytesCodec(encodings.UTF8Encoding())
-        case types.PrimitiveIRType.account:
+        case types.account:
             return _AccountCodec()
-        case types.PrimitiveIRType.bytes | types.SizedBytesType():
+        case types.bytes_ | types.SizedBytesType():
             return _BytesCodec(encodings.UIntEncoding(n=8))
         case types.IRType(maybe_avm_type=AVMType.uint64):
             return _UInt64Codec()

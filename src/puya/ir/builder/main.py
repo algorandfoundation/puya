@@ -73,9 +73,7 @@ class FunctionIRBuilder(
                 if p.implicit_return:
                     assign(
                         func_ctx,
-                        ir.UInt64Constant(
-                            value=1, ir_type=types.PrimitiveIRType.bool, source_location=None
-                        ),
+                        ir.UInt64Constant(value=1, ir_type=types.bool_, source_location=None),
                         name=get_implicit_return_is_original(p.name),
                         assignment_location=None,
                     )
@@ -167,7 +165,7 @@ class FunctionIRBuilder(
             num_bytes = types.wtype_to_ir_type(wtype, loc).num_bytes
         if num_bytes is None:
             logger.error("type is dynamically sized", location=loc)
-            return ir.Undefined(ir_type=types.PrimitiveIRType.uint64, source_location=loc)
+            return ir.Undefined(ir_type=types.uint64, source_location=loc)
         return ir.UInt64Constant(value=num_bytes, source_location=loc)
 
     def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> TExpression:
@@ -187,7 +185,7 @@ class FunctionIRBuilder(
                 artifact=expr.contract,
                 field=field,
                 program_page=page,
-                ir_type=types.PrimitiveIRType.bytes,
+                ir_type=types.bytes_,
                 source_location=expr.source_location,
                 template_variables=template_variables,
             )
@@ -206,7 +204,7 @@ class FunctionIRBuilder(
                     else ir.CompiledContractReference(
                         artifact=expr.contract,
                         field=field,
-                        ir_type=types.PrimitiveIRType.uint64,
+                        ir_type=types.uint64,
                         source_location=expr.source_location,
                         template_variables=template_variables,
                     )
@@ -232,7 +230,7 @@ class FunctionIRBuilder(
             values=[
                 ir.CompiledLogicSigReference(
                     artifact=expr.logic_sig,
-                    ir_type=types.PrimitiveIRType.bytes,
+                    ir_type=types.bytes_,
                     source_location=expr.source_location,
                     template_variables=template_variables,
                 )
@@ -404,7 +402,7 @@ class FunctionIRBuilder(
 
         bool_const = ir.UInt64Constant(
             value=int(expr.value),
-            ir_type=types.PrimitiveIRType.bool,
+            ir_type=types.bool_,
             source_location=loc,
         )
         match expr.wtype:
@@ -426,7 +424,7 @@ class FunctionIRBuilder(
         if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
             raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
         ir_type = types.wtype_to_ir_type(expr)
-        if ir_type is types.PrimitiveIRType.bytes:
+        if ir_type is types.bytes_:
             ir_type = types.SizedBytesType(num_bytes=len(expr.value))
         return ir.BytesConstant(
             value=expr.value,
@@ -460,7 +458,7 @@ class FunctionIRBuilder(
         result: ir.Value = ir.BytesConstant(
             value=value,
             encoding=encoding,
-            ir_type=types.PrimitiveIRType.string,
+            ir_type=types.string,
             source_location=expr.source_location,
         )
         if wtype == wtypes.arc4_string_alias:
@@ -925,9 +923,7 @@ class FunctionIRBuilder(
             self.context.block_builder.activate_block(true_block)
             assign(
                 self.context,
-                ir.UInt64Constant(
-                    value=1, ir_type=types.PrimitiveIRType.bool, source_location=None
-                ),
+                ir.UInt64Constant(value=1, ir_type=types.bool_, source_location=None),
                 name=tmp_name,
                 assignment_location=None,
             )
@@ -936,16 +932,14 @@ class FunctionIRBuilder(
             self.context.block_builder.activate_block(false_block)
             assign(
                 self.context,
-                ir.UInt64Constant(
-                    value=0, ir_type=types.PrimitiveIRType.bool, source_location=None
-                ),
+                ir.UInt64Constant(value=0, ir_type=types.bool_, source_location=None),
                 name=tmp_name,
                 assignment_location=None,
             )
             self.context.block_builder.goto(merge_block)
             self.context.block_builder.activate_block(merge_block)
             return self.context.ssa.read_variable(
-                variable=tmp_name, ir_type=types.PrimitiveIRType.bool, block=merge_block
+                variable=tmp_name, ir_type=types.bool_, block=merge_block
             )
 
         left = self.visit_and_materialise_single(expr.left)
@@ -1555,7 +1549,7 @@ def create_biguint_binary_op(
     return ir.Intrinsic(
         op=avm_op,
         args=[left, right],
-        types=(types.PrimitiveIRType.biguint,),
+        types=(types.biguint,),
         source_location=source_location,
     )
 

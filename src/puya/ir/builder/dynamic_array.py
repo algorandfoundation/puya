@@ -132,9 +132,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
                     value=len(iterable_encoding.elements), source_location=self.loc
                 )
             else:
-                iterable_length = ir.Undefined(
-                    ir_type=types.PrimitiveIRType.uint64, source_location=self.loc
-                )
+                iterable_length = ir.Undefined(ir_type=types.uint64, source_location=self.loc)
                 logger.error(
                     f"cannot concat {self.array_encoding} and {iterable_encoding}",
                     location=self.loc,

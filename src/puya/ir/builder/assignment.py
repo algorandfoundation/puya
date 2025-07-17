@@ -92,9 +92,7 @@ def handle_assignment(
                 if is_implicit_return and not is_nested_update:
                     assign(
                         context,
-                        ir.UInt64Constant(
-                            value=0, ir_type=types.PrimitiveIRType.bool, source_location=None
-                        ),
+                        ir.UInt64Constant(value=0, ir_type=types.bool_, source_location=None),
                         name=get_implicit_return_is_original(exploded_name),
                         assignment_location=None,
                     )

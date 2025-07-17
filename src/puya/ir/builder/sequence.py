@@ -51,7 +51,7 @@ def read_aggregate_index_and_decode(
     assert isinstance(aggregate_encoding, encodings.ArrayEncoding | encodings.TupleEncoding)
     element_encoding = _get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
     if element_encoding.is_bit:
-        read_result_type: types.IRType = types.PrimitiveIRType.bool
+        read_result_type: types.IRType = types.bool_
     else:
         read_result_type = types.EncodedType(element_encoding)
     read_index = ir.ExtractValue(
