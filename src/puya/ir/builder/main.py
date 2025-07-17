@@ -422,7 +422,7 @@ class FunctionIRBuilder(
 
     def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> ir.BytesConstant:
         if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
-            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+            raise CodeError("bytes constant exceeds stack size limits", expr.source_location)
         ir_type = types.wtype_to_ir_type(expr)
         if ir_type is types.bytes_:
             ir_type = types.SizedBytesType(num_bytes=len(expr.value))
@@ -433,43 +433,34 @@ class FunctionIRBuilder(
             source_location=expr.source_location,
         )
 
-    def visit_string_constant(self, expr: awst_nodes.StringConstant) -> ir.Value:
+    def visit_string_constant(self, expr: awst_nodes.StringConstant) -> ir.ValueProvider:
         loc = expr.source_location
+        ir_type = types.wtype_to_ir_type(expr)
 
-        wtype = expr.wtype
         try:
             value = expr.value.encode("utf8")
         except UnicodeError:
-            value = None
-        if value is None:
-            raise CodeError(f"invalid {wtype} value", loc)
-
-        match wtype:
-            case wtypes.string_wtype:
-                encoding = types.AVMBytesEncoding.utf8
-            case wtypes.arc4_string_alias:
-                encoding = types.AVMBytesEncoding.base16
-            case _:
-                raise InternalError(f"Unexpected wtype {wtype} for StringConstant", loc)
-
+            raise CodeError("invalid UTF-8 constant", loc) from None
         if len(value) > algo_constants.MAX_BYTES_LENGTH:
-            raise CodeError(f"invalid {wtype} value", loc)
+            raise CodeError("bytes constant exceeds stack size limits", loc)
 
-        result: ir.Value = ir.BytesConstant(
+        const = ir.BytesConstant(
             value=value,
-            encoding=encoding,
+            encoding=types.AVMBytesEncoding.utf8,
             ir_type=types.string,
-            source_location=expr.source_location,
+            source_location=loc,
         )
-        if wtype == wtypes.arc4_string_alias:
-            encoded = ir.BytesEncode(
-                values=[result],
-                values_type=result.ir_type,
-                encoding=wtype_to_encoding(wtype, loc),
+        if ir_type == const.ir_type:
+            return const
+        elif isinstance(ir_type, types.EncodedType):
+            return ir.BytesEncode(
+                values=[const],
+                values_type=const.ir_type,
+                encoding=ir_type.encoding,
                 source_location=loc,
             )
-            (result,) = self.context.materialise_value_provider(encoded, "encoded")
-        return result
+        else:
+            raise InternalError(f"Unexpected {ir_type=} for StringConstant", loc)
 
     @typing.override
     def visit_void_constant(self, expr: awst_nodes.VoidConstant) -> TExpression:

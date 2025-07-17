@@ -63,12 +63,12 @@ def test_bytes_validation() -> None:
     expr = awst.BytesConstant(
         value=b"0" * 4097, encoding=BytesEncoding.base16, source_location=_location
     )
-    assert _build_ir_and_return_errors(expr) == ["invalid bytes value"]
+    assert _build_ir_and_return_errors(expr) == ["bytes constant exceeds stack size limits"]
 
 
 def test_string_validation() -> None:
     expr = awst.StringConstant(value="0" * 4097, source_location=_location)
-    assert _build_ir_and_return_errors(expr) == ["invalid string value"]
+    assert _build_ir_and_return_errors(expr) == ["bytes constant exceeds stack size limits"]
 
 
 def test_address_validation() -> None:
