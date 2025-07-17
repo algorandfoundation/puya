@@ -31,6 +31,7 @@ from puya.ir.optimize.repeated_loads_elimination import (
     constant_reads_and_unobserved_writes_elimination,
 )
 from puya.ir.to_text_visitor import render_program
+from puya.options import PuyaOptions
 from puya.utils import attrs_extend
 
 MAX_PASSES = 100
@@ -44,14 +45,22 @@ class SubroutineOptimization:
     desc: str
     _optimize: SubroutineOptimizerCallable
     loop: bool
+    qualifiers: tuple[str, ...]
+
+    def can_optimize(self, options: PuyaOptions, qualifier: str) -> bool:
+        return self.id not in options.disabled_optimizations and (
+            not self.qualifiers or qualifier in self.qualifiers
+        )
 
     @classmethod
     def from_function(
-        cls, func: SubroutineOptimizerCallable, *, loop: bool = False
+        cls, func: SubroutineOptimizerCallable, *qualifiers: str, loop: bool = False
     ) -> "SubroutineOptimization":
         func_name = func.__name__
         func_desc = func_name.replace("_", " ").title().strip()
-        return SubroutineOptimization(id=func_name, desc=func_desc, optimize=func, loop=loop)
+        return SubroutineOptimization(
+            id=func_name, desc=func_desc, optimize=func, loop=loop, qualifiers=qualifiers
+        )
 
     def optimize(self, context: IROptimizationContext, ir: models.Subroutine) -> bool:
         did_modify = self._optimize(context, ir)
@@ -132,7 +141,7 @@ def optimize_program_ir(
     pipeline = [
         o
         for o in get_subroutine_optimizations(context.options.optimization_level)
-        if o.id not in context.options.disabled_optimizations
+        if o.can_optimize(context.options, qualifier)
     ]
     opt_context = attrs_extend(
         IROptimizationContext,
@@ -140,10 +149,13 @@ def optimize_program_ir(
         expand_all_bytes=context.options.expand_all_bytes,
         embedded_funcs={PuyaLibIR(s.id): s for s in program.subroutines if s.id in PuyaLibIR},
     )
+    is_after_lowering = qualifier == "ssa.array.opt"
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
-        analyse_subroutines_for_inlining(opt_context, program, routable_method_ids)
+        analyse_subroutines_for_inlining(
+            opt_context, program, routable_method_ids, enable_op_counting=is_after_lowering
+        )
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:

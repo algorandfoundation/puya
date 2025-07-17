@@ -23,6 +23,8 @@ def analyse_subroutines_for_inlining(
     context: IROptimizationContext,
     program: models.Program,
     routable_method_ids: Collection[str] | None,
+    *,
+    enable_op_counting: bool,
 ) -> None:
     context.inlineable_calls.clear()
     context.constant_with_constant_args.clear()
@@ -86,6 +88,8 @@ def analyse_subroutines_for_inlining(
                         logger.debug(f"marking single-use function {sub.id} for inlining")
                         context.inlineable_calls.add((callee_id, sub.id))
     if context.inlineable_calls:
+        return
+    if not enable_op_counting:
         return
     for sub in program.subroutines:
         if sub.inline is None and sub.id not in skip_routable_ids:
