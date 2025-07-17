@@ -92,3 +92,10 @@ class _BytesConstantVisitor(NoOpIRVisitor[bytes]):
     @typing.override
     def visit_biguint_constant(self, const: models.BigUIntConstant) -> bytes:
         return biguint_bytes_eval(const.value)
+
+
+def multi_value_to_values(arg: models.MultiValue) -> list[models.Value]:
+    if isinstance(arg, models.ValueTuple):
+        return list(arg.values)
+    else:
+        return [arg]

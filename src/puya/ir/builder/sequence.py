@@ -22,6 +22,23 @@ WAggregate = (
 )
 
 
+def read_tuple_index(
+    wtype: wtypes.WTuple,
+    values: Sequence[ir.Value],
+    index: int,
+    loc: SourceLocation,
+) -> ir.MultiValue:
+    tuple_ir_type = types.wtype_to_ir_type(wtype, loc, allow_tuple=True)
+    skip_values = sum(e.arity for e in tuple_ir_type.elements[:index])
+    target_arity = tuple_ir_type.elements[index].arity
+    element_values = values[skip_values : skip_values + target_arity]
+    if isinstance(wtype.types[index], wtypes.WTuple):
+        return ir.ValueTuple(values=element_values, source_location=loc)
+    else:
+        (result,) = element_values
+        return result
+
+
 def read_aggregate_index_and_decode(
     context: IRRegisterContext,
     aggregate_wtype: WAggregate,
@@ -34,16 +51,7 @@ def read_aggregate_index_and_decode(
     if isinstance(aggregate_wtype, wtypes.WTuple):
         (index,) = indexes
         assert isinstance(index, int), "expected integer"
-        tuple_ir_type = types.wtype_to_ir_type(aggregate_wtype, loc, allow_tuple=True)
-        skip_values = sum(e.arity for e in tuple_ir_type.elements[:index])
-        target_arity = tuple_ir_type.elements[index].arity
-        element_values = values[skip_values : skip_values + target_arity]
-        # TODO: base on type not arity
-        if len(element_values) == 1:
-            return element_values[0]
-        else:
-            return ir.ValueTuple(values=element_values, source_location=loc)
-
+        return read_tuple_index(aggregate_wtype, values, index, loc)
     (base,) = values
     if isinstance(base.ir_type, types.SlotType):
         base = mem.read_slot(context, base, loc)
@@ -66,7 +74,8 @@ def read_aggregate_index_and_decode(
     (tuple_item,) = context.materialise_value_provider(
         read_index, "tuple_item" if is_tup else "array_item"
     )
-    element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
+    element_wtype = _get_nested_element_wtype(aggregate_wtype, indexes, loc)
+    element_ir_type = types.wtype_to_ir_type(element_wtype, loc, allow_tuple=True)
     values = context.materialise_value_provider(
         ir.DecodeBytes(
             value=tuple_item,
@@ -76,8 +85,9 @@ def read_aggregate_index_and_decode(
         ),
         "values",
     )
-    if len(values) == 1:
-        return values[0]
+    if not isinstance(element_wtype, wtypes.WTuple):
+        (value,) = values
+        return value
     else:
         return ir.ValueTuple(values=values, source_location=loc)
 
@@ -98,15 +108,13 @@ def encode_and_write_aggregate_index(
         target_arity = tuple_ir_type.elements[index].arity
         new_values = context.materialise_value_provider(base, "new_values")
         new_values[skip_values : skip_values + target_arity] = values
-        if len(new_values) == 1:
-            return new_values[0]
-        else:
-            return ir.ValueTuple(values=new_values, source_location=loc)
+        return ir.ValueTuple(values=new_values, source_location=loc)
     (base,) = context.materialise_value_provider(base, "base")
     aggregate_or_slot = base
     aggregate_encoding = encodings.wtype_to_encoding(aggregate_wtype, loc)
     assert isinstance(aggregate_encoding, encodings.TupleEncoding | encodings.ArrayEncoding)
-    element_ir_type = _get_nested_element_ir_type(aggregate_wtype, indexes, loc)
+    element_wtype = _get_nested_element_wtype(aggregate_wtype, indexes, loc)
+    element_ir_type = types.wtype_to_ir_type(element_wtype, loc, allow_tuple=True)
     element_encoding = _get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
     (encoded_value,) = context.materialise_value_provider(
         ir.BytesEncode(
@@ -260,9 +268,9 @@ def convert_array(
     return new_value
 
 
-def _get_nested_element_ir_type(
+def _get_nested_element_wtype(
     aggregate: WAggregate, indexes: Sequence[int | ir.Value], loc: SourceLocation
-) -> types.IRType | types.TupleIRType:
+) -> wtypes.WType:
     last_i = len(indexes) - 1
     element = None
     for i, index in enumerate(indexes):
@@ -286,7 +294,7 @@ def _get_nested_element_ir_type(
             raise InternalError(f"invalid index sequence: {aggregate=!s}, {index=!s}", loc)
     if element is None:
         raise InternalError(f"invalid index sequence: {aggregate=!s}, {indexes=!s}", loc)
-    return types.wtype_to_ir_type(element, loc, allow_tuple=True)
+    return element
 
 
 def _get_aggregate_element_encoding(

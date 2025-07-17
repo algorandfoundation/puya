@@ -19,6 +19,7 @@ from puya.ir import (
     models as ir,
     types_ as types,
 )
+from puya.ir._utils import multi_value_to_values
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import (
     assignment,
@@ -756,11 +757,8 @@ class FunctionIRBuilder(
         values = [
             v
             for index in range(start_i, end_i)
-            for v in self.materialise_value_provider(
-                sequence.read_aggregate_index_and_decode(
-                    self.context, base_wtype, tup_value, [index], loc
-                ),
-                "tup_slice",
+            for v in multi_value_to_values(
+                sequence.read_tuple_index(base_wtype, tup_value, index, loc)
             )
         ]
 
@@ -1488,10 +1486,7 @@ class FunctionIRBuilder(
         Given a ValueProvider with arity of N, return a Value sequence of length N.
         """
         value_or_tuple = self.materialise_value_provider_as_value_or_tuple(provider, description)
-        if isinstance(value_or_tuple, ir.Value):
-            return [value_or_tuple]
-        else:
-            return list(value_or_tuple.values)
+        return multi_value_to_values(value_or_tuple)
 
 
 def create_uint64_binary_op(

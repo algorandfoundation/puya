@@ -10,6 +10,7 @@ from puya.ir import (
     models as ir,
     types_ as types,
 )
+from puya.ir._utils import multi_value_to_values
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder import sequence, storage
 from puya.ir.builder._utils import assign, assign_tuple, get_implicit_return_is_original
@@ -45,7 +46,7 @@ def handle_assignment(
     *,
     is_nested_update: bool,
 ) -> Sequence[ir.Value]:
-    source = list(value.values) if isinstance(value, ir.ValueTuple) else [value]
+    source = multi_value_to_values(value)
     match target:
         case awst_nodes.TupleExpression(items=items, wtype=wtype, source_location=loc):
             assert not is_nested_update, "tuple literal item assignment is not supported"

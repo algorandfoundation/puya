@@ -7,7 +7,8 @@ import attrs
 
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.models import Register, Subroutine, Value, ValueProvider, ValueTuple
+from puya.ir._utils import multi_value_to_values
+from puya.ir.models import MultiValue, Register, Subroutine, Value, ValueProvider
 from puya.ir.op_utils import assign_targets
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType
@@ -41,10 +42,8 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
     def materialise_value_provider(
         self, value_provider: ValueProvider, description: str | Sequence[str]
     ) -> list[Value]:
-        if isinstance(value_provider, Value):
-            return [value_provider]
-        elif isinstance(value_provider, ValueTuple):
-            return list(value_provider.values)
+        if isinstance(value_provider, MultiValue):
+            return multi_value_to_values(value_provider)
         descriptions = (
             [description] * len(value_provider.types)
             if isinstance(description, str)

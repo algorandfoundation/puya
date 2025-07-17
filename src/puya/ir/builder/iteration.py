@@ -577,9 +577,7 @@ def _iterate_tuple(
             assignment_location=None,
         )
         item_index = loop_count if not reverse_items else (max_index - loop_count)
-        item_vp = sequence.read_aggregate_index_and_decode(
-            context, tuple_wtype, tuple_values, [item_index], statement_loc
-        )
+        item_vp = sequence.read_tuple_index(tuple_wtype, tuple_values, item_index, statement_loc)
         item_reg, index_reg = assigner.assign_user_loop_vars(
             item_vp,
             UInt64Constant(
