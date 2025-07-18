@@ -57,7 +57,7 @@ subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_
 
 subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings() -> void:
     block@0: // L41
-        let aggregate%val_as_bytes%0#1: bytes[8] = (itob 5u)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 5u)
         let (tmp%2#0: bytes, arr#2: Encoded(len+uint64[])) = _puya_lib.arc4.dynamic_array_pop_fixed_size(0x000500000000000000010000000000000002000000000000000300000000000000040000000000000005, 8u)
         let tmp%4#0: uint64 = (btoi tmp%2#0)
         let tmp%5#0: bool = (== tmp%4#0 5u)
@@ -89,16 +89,16 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings() ->
         goto block@7
     block@7: // bool_merge_L46
         (assert and_result%0#0) // assert target is match for conditions
-        let aggregate%array_trimmed%4#1: bytes = ((extract 2 0) arr#2)
+        let aggregate%array_trimmed%4#0: bytes = ((extract 2 0) arr#2)
         let values%4#0: uint64 = (extract_uint64 arr#2 2u)
         let tmp%11#0: bool = (== values%4#0 1u)
         (assert tmp%11#0)
         let tmp%12#0: uint64 = (- array_length%1#0 1u)
-        let aggregate%bytes_offset%5#1: uint64 = (* tmp%12#0 8u)
-        let values%5#0: uint64 = (extract_uint64 aggregate%array_trimmed%4#1 aggregate%bytes_offset%5#1)
+        let aggregate%bytes_offset%5#0: uint64 = (* tmp%12#0 8u)
+        let values%5#0: uint64 = (extract_uint64 aggregate%array_trimmed%4#0 aggregate%bytes_offset%5#0)
         let tmp%13#0: bool = (== values%5#0 4u)
         (assert tmp%13#0)
-        let concat%1#0: Encoded(len+uint64[]) = (concat arr#2 aggregate%val_as_bytes%0#1) // on error: max array length exceeded
+        let concat%1#0: Encoded(len+uint64[]) = (concat arr#2 aggregate%val_as_bytes%0#0) // on error: max array length exceeded
         let add%1#0: uint64 = (+ array_length%1#0 1u)
         let as_bytes%1#0: bytes[8] = (itob add%1#0)
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
@@ -153,8 +153,8 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings() ->
         goto block@19
     block@19: // bool_merge_L61
         (assert and_result%2#0) // assert target is match for conditions
-        let aggregate%val_as_bytes%1#1: bytes[8] = (itob 10u)
-        let arr#2: Encoded(len+uint64[]) = ((replace2 10) arr#2 aggregate%val_as_bytes%1#1)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob 10u)
+        let arr#2: Encoded(len+uint64[]) = ((replace2 10) arr#2 aggregate%val_as_bytes%1#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#2)
         let concat%2#0: Encoded(len+uint64[]) = (concat arr#2 extract_to_end%0#0) // on error: max array length exceeded
         let extract_to_end%1#0: bytes = ((extract 2 0) concat%2#0)
@@ -163,8 +163,8 @@ subroutine tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings() ->
         let as_bytes%2#0: bytes[8] = (itob div_floor%0#0)
         let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
         let replace%2#0: bytes = ((replace2 0) concat%2#0 as_u16_bytes%2#0)
-        let aggregate%val_as_bytes%5#1: bytes[8] = (itob 11u)
-        let concat%3#0: Encoded(len+uint64[]) = (concat replace%2#0 aggregate%val_as_bytes%5#1) // on error: max array length exceeded
+        let aggregate%val_as_bytes%5#0: bytes[8] = (itob 11u)
+        let concat%3#0: Encoded(len+uint64[]) = (concat replace%2#0 aggregate%val_as_bytes%5#0) // on error: max array length exceeded
         let extract_uint16%2#0: uint64 = (extract_uint16 replace%2#0 0u)
         let add%2#0: uint64 = (+ extract_uint16%2#0 1u)
         let as_bytes%3#0: bytes[8] = (itob add%2#0)

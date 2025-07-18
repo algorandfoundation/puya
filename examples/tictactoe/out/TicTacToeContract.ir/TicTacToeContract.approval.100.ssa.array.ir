@@ -10,11 +10,11 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // OnCompletion is not NoOp
         let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let aggregate%extract%0#1: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 0u 8u)
-        let aggregate%item0%0#1: uint64 = (btoi aggregate%extract%0#1)
-        let aggregate%extract%1#1: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 8u 8u)
-        let aggregate%item1%0#1: uint64 = (btoi aggregate%extract%1#1)
-        let (tmp%5#0: uint64, tmp%6#0: uint64) = (aggregate%item0%0#1, aggregate%item1%0#1)
+        let aggregate%extract%0#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 0u 8u)
+        let aggregate%item0%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let aggregate%extract%1#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%0#0 8u 8u)
+        let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%1#0)
+        let (tmp%5#0: uint64, tmp%6#0: uint64) = (aggregate%item0%0#0, aggregate%item1%0#0)
         examples.tictactoe.tictactoe.TicTacToeContract.new_game(tmp%5#0, tmp%6#0)
         let examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#0: bool = 1u
         goto block@10
@@ -25,11 +25,11 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
         let reinterpret_Encoded(uint64,uint64)%1#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let aggregate%extract%2#1: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%1#0 0u 8u)
-        let aggregate%item0%1#1: uint64 = (btoi aggregate%extract%2#1)
-        let aggregate%extract%3#1: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%1#0 8u 8u)
-        let aggregate%item1%1#1: uint64 = (btoi aggregate%extract%3#1)
-        let (tmp%11#0: uint64, tmp%12#0: uint64) = (aggregate%item0%1#1, aggregate%item1%1#1)
+        let aggregate%extract%2#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%1#0 0u 8u)
+        let aggregate%item0%1#0: uint64 = (btoi aggregate%extract%2#0)
+        let aggregate%extract%3#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%1#0 8u 8u)
+        let aggregate%item1%1#0: uint64 = (btoi aggregate%extract%3#0)
+        let (tmp%11#0: uint64, tmp%12#0: uint64) = (aggregate%item0%1#0, aggregate%item1%1#0)
         examples.tictactoe.tictactoe.TicTacToeContract.join_game(tmp%11#0, tmp%12#0)
         let examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#1: bool = 1u
         goto block@10
@@ -51,11 +51,11 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         let tmp%21#0: uint64 = (txn ApplicationID)
         (assert tmp%21#0) // can only call when not creating
         let reinterpret_Encoded(uint64,uint64)%2#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
-        let aggregate%extract%4#1: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%2#0 0u 8u)
-        let aggregate%item0%2#1: uint64 = (btoi aggregate%extract%4#1)
-        let aggregate%extract%5#1: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%2#0 8u 8u)
-        let aggregate%item1%2#1: uint64 = (btoi aggregate%extract%5#1)
-        let (tmp%23#0: uint64, tmp%24#0: uint64) = (aggregate%item0%2#1, aggregate%item1%2#1)
+        let aggregate%extract%4#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%2#0 0u 8u)
+        let aggregate%item0%2#0: uint64 = (btoi aggregate%extract%4#0)
+        let aggregate%extract%5#0: bytes = (extract3 reinterpret_Encoded(uint64,uint64)%2#0 8u 8u)
+        let aggregate%item1%2#0: uint64 = (btoi aggregate%extract%5#0)
+        let (tmp%23#0: uint64, tmp%24#0: uint64) = (aggregate%item0%2#0, aggregate%item1%2#0)
         examples.tictactoe.tictactoe.TicTacToeContract.play(tmp%23#0, tmp%24#0)
         let examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#3: bool = 1u
         goto block@10
@@ -280,15 +280,15 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         let (maybe_value%0#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%2#0) // check self.game exists
         let encoded_value%0#0: Encoded(uint8) = 0x01
-        let aggregate%bytes_offset%0#1: uint64 = (* move.1#0 3u)
-        let aggregate%encoded_element%0#1: bytes = (extract3 maybe_value%0#0 aggregate%bytes_offset%0#1 3u) // on error: index access is out of bounds
-        let aggregate%bytes_offset%1#1: uint64 = (* move.0#0 1u)
-        let aggregate%encoded_element%1#1: bytes = (extract3 aggregate%encoded_element%0#1 aggregate%bytes_offset%1#1 1u) // on error: index access is out of bounds
-        let aggregate%write_offset%0#1: uint64 = (* move.0#0 1u)
-        let aggregate%updated_array%0#1: bytes = (replace3 aggregate%encoded_element%0#1 aggregate%write_offset%0#1 encoded_value%0#0)
-        let aggregate%write_offset%1#1: uint64 = (* move.1#0 3u)
-        let aggregate%updated_array%1#1: bytes = (replace3 maybe_value%0#0 aggregate%write_offset%1#1 aggregate%updated_array%0#1)
-        let updated_array%0#0: Encoded(uint8[3][3]) = aggregate%updated_array%1#1
+        let aggregate%bytes_offset%0#0: uint64 = (* move.1#0 3u)
+        let aggregate%encoded_element%0#0: bytes = (extract3 maybe_value%0#0 aggregate%bytes_offset%0#0 3u) // on error: index access is out of bounds
+        let aggregate%bytes_offset%1#0: uint64 = (* move.0#0 1u)
+        let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%encoded_element%0#0 aggregate%bytes_offset%1#0 1u) // on error: index access is out of bounds
+        let aggregate%write_offset%0#0: uint64 = (* move.0#0 1u)
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%0#0 aggregate%write_offset%0#0 encoded_value%0#0)
+        let aggregate%write_offset%1#0: uint64 = (* move.1#0 3u)
+        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%0#0 aggregate%write_offset%1#0 aggregate%updated_array%0#0)
+        let updated_array%0#0: Encoded(uint8[3][3]) = aggregate%updated_array%1#0
         (app_global_put "game" updated_array%0#0)
         (app_global_put "turns" 0u)
         return 
@@ -360,26 +360,26 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         (assert and_result%0#2) // Move must be in range
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%0#0) // check self.game exists
-        let aggregate%bytes_offset%0#1: uint64 = (* move.1#0 3u)
-        let aggregate%encoded_element%0#1: bytes = (extract3 maybe_value%0#0 aggregate%bytes_offset%0#1 3u) // on error: index access is out of bounds
-        let array_item%0#0: Encoded(uint8[3]) = aggregate%encoded_element%0#1
+        let aggregate%bytes_offset%0#0: uint64 = (* move.1#0 3u)
+        let aggregate%encoded_element%0#0: bytes = (extract3 maybe_value%0#0 aggregate%bytes_offset%0#0 3u) // on error: index access is out of bounds
+        let array_item%0#0: Encoded(uint8[3]) = aggregate%encoded_element%0#0
         let values%0#0: Encoded(uint8[3]) = array_item%0#0
-        let aggregate%bytes_offset%1#1: uint64 = (* move.0#0 1u)
-        let aggregate%encoded_element%1#1: bytes = (extract3 values%0#0 aggregate%bytes_offset%1#1 1u) // on error: index access is out of bounds
-        let array_item%1#0: Encoded(uint8) = aggregate%encoded_element%1#1
+        let aggregate%bytes_offset%1#0: uint64 = (* move.0#0 1u)
+        let aggregate%encoded_element%1#0: bytes = (extract3 values%0#0 aggregate%bytes_offset%1#0 1u) // on error: index access is out of bounds
+        let array_item%1#0: Encoded(uint8) = aggregate%encoded_element%1#0
         let values%1#0: Encoded(uint8) = array_item%1#0
         let tmp%2#0: bool = (b== values%1#0 0x00)
         (assert tmp%2#0) // Square is already taken
         let encoded_value%0#0: Encoded(uint8) = player#0
-        let aggregate%bytes_offset%2#1: uint64 = (* move.1#0 3u)
-        let aggregate%encoded_element%2#1: bytes = (extract3 maybe_value%0#0 aggregate%bytes_offset%2#1 3u) // on error: index access is out of bounds
-        let aggregate%bytes_offset%3#1: uint64 = (* move.0#0 1u)
-        let aggregate%encoded_element%3#1: bytes = (extract3 aggregate%encoded_element%2#1 aggregate%bytes_offset%3#1 1u) // on error: index access is out of bounds
-        let aggregate%write_offset%0#1: uint64 = (* move.0#0 1u)
-        let aggregate%updated_array%0#1: bytes = (replace3 aggregate%encoded_element%2#1 aggregate%write_offset%0#1 encoded_value%0#0)
-        let aggregate%write_offset%1#1: uint64 = (* move.1#0 3u)
-        let aggregate%updated_array%1#1: bytes = (replace3 maybe_value%0#0 aggregate%write_offset%1#1 aggregate%updated_array%0#1)
-        let updated_array%0#0: Encoded(uint8[3][3]) = aggregate%updated_array%1#1
+        let aggregate%bytes_offset%2#0: uint64 = (* move.1#0 3u)
+        let aggregate%encoded_element%2#0: bytes = (extract3 maybe_value%0#0 aggregate%bytes_offset%2#0 3u) // on error: index access is out of bounds
+        let aggregate%bytes_offset%3#0: uint64 = (* move.0#0 1u)
+        let aggregate%encoded_element%3#0: bytes = (extract3 aggregate%encoded_element%2#0 aggregate%bytes_offset%3#0 1u) // on error: index access is out of bounds
+        let aggregate%write_offset%0#0: uint64 = (* move.0#0 1u)
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%2#0 aggregate%write_offset%0#0 encoded_value%0#0)
+        let aggregate%write_offset%1#0: uint64 = (* move.1#0 3u)
+        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%0#0 aggregate%write_offset%1#0 aggregate%updated_array%0#0)
+        let updated_array%0#0: Encoded(uint8[3][3]) = aggregate%updated_array%1#0
         (app_global_put "game" updated_array%0#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%2#0) // check self.turns exists
@@ -387,24 +387,24 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         (app_global_put "turns" tmp%3#0)
         let (g#0: Encoded(uint8[3][3]), maybe_exists%0#1: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%0#1) // check self.game exists
-        let aggregate%bytes_offset%4#1: uint64 = (* move.1#0 3u)
-        let aggregate%encoded_element%4#1: bytes = (extract3 g#0 aggregate%bytes_offset%4#1 3u) // on error: index access is out of bounds
-        let array_item%0#1: Encoded(uint8[3]) = aggregate%encoded_element%4#1
+        let aggregate%bytes_offset%4#0: uint64 = (* move.1#0 3u)
+        let aggregate%encoded_element%4#0: bytes = (extract3 g#0 aggregate%bytes_offset%4#0 3u) // on error: index access is out of bounds
+        let array_item%0#1: Encoded(uint8[3]) = aggregate%encoded_element%4#0
         let values%0#1: Encoded(uint8[3]) = array_item%0#1
-        let aggregate%bytes_offset%5#1: uint64 = (* 0u 1u)
-        let aggregate%encoded_element%5#1: bytes = (extract3 values%0#1 aggregate%bytes_offset%5#1 1u) // on error: index access is out of bounds
-        let array_item%1#1: Encoded(uint8) = aggregate%encoded_element%5#1
+        let aggregate%bytes_offset%5#0: uint64 = (* 0u 1u)
+        let aggregate%encoded_element%5#0: bytes = (extract3 values%0#1 aggregate%bytes_offset%5#0 1u) // on error: index access is out of bounds
+        let array_item%1#1: Encoded(uint8) = aggregate%encoded_element%5#0
         let values%1#1: Encoded(uint8) = array_item%1#1
-        let aggregate%bytes_offset%6#1: uint64 = (* 1u 1u)
-        let aggregate%encoded_element%6#1: bytes = (extract3 values%0#1 aggregate%bytes_offset%6#1 1u) // on error: index access is out of bounds
-        let array_item%3#0: Encoded(uint8) = aggregate%encoded_element%6#1
+        let aggregate%bytes_offset%6#0: uint64 = (* 1u 1u)
+        let aggregate%encoded_element%6#0: bytes = (extract3 values%0#1 aggregate%bytes_offset%6#0 1u) // on error: index access is out of bounds
+        let array_item%3#0: Encoded(uint8) = aggregate%encoded_element%6#0
         let values%3#0: Encoded(uint8) = array_item%3#0
         let tmp%0#1: bool = (b== values%1#1 values%3#0)
         goto tmp%0#1 ? block@11 : block@13
     block@11: // and_contd_L76
-        let aggregate%bytes_offset%7#1: uint64 = (* 2u 1u)
-        let aggregate%encoded_element%7#1: bytes = (extract3 values%0#1 aggregate%bytes_offset%7#1 1u) // on error: index access is out of bounds
-        let array_item%5#0: Encoded(uint8) = aggregate%encoded_element%7#1
+        let aggregate%bytes_offset%7#0: uint64 = (* 2u 1u)
+        let aggregate%encoded_element%7#0: bytes = (extract3 values%0#1 aggregate%bytes_offset%7#0 1u) // on error: index access is out of bounds
+        let array_item%5#0: Encoded(uint8) = aggregate%encoded_element%7#0
         let values%5#0: Encoded(uint8) = array_item%5#0
         let tmp%1#1: bool = (b== values%3#0 values%5#0)
         goto tmp%1#1 ? block@12 : block@13
@@ -412,32 +412,32 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0: bool = 1u
         goto block@25
     block@13: // after_if_else_L76
-        let aggregate%bytes_offset%8#1: uint64 = (* 0u 3u)
-        let aggregate%encoded_element%8#1: bytes = (extract3 g#0 aggregate%bytes_offset%8#1 3u) // on error: index access is out of bounds
-        let array_item%6#0: Encoded(uint8[3]) = aggregate%encoded_element%8#1
+        let aggregate%bytes_offset%8#0: uint64 = (* 0u 3u)
+        let aggregate%encoded_element%8#0: bytes = (extract3 g#0 aggregate%bytes_offset%8#0 3u) // on error: index access is out of bounds
+        let array_item%6#0: Encoded(uint8[3]) = aggregate%encoded_element%8#0
         let values%6#0: Encoded(uint8[3]) = array_item%6#0
-        let aggregate%bytes_offset%9#1: uint64 = (* move.0#0 1u)
-        let aggregate%encoded_element%9#1: bytes = (extract3 values%6#0 aggregate%bytes_offset%9#1 1u) // on error: index access is out of bounds
-        let array_item%7#0: Encoded(uint8) = aggregate%encoded_element%9#1
+        let aggregate%bytes_offset%9#0: uint64 = (* move.0#0 1u)
+        let aggregate%encoded_element%9#0: bytes = (extract3 values%6#0 aggregate%bytes_offset%9#0 1u) // on error: index access is out of bounds
+        let array_item%7#0: Encoded(uint8) = aggregate%encoded_element%9#0
         let values%7#0: Encoded(uint8) = array_item%7#0
-        let aggregate%bytes_offset%10#1: uint64 = (* 1u 3u)
-        let aggregate%encoded_element%10#1: bytes = (extract3 g#0 aggregate%bytes_offset%10#1 3u) // on error: index access is out of bounds
-        let array_item%8#0: Encoded(uint8[3]) = aggregate%encoded_element%10#1
+        let aggregate%bytes_offset%10#0: uint64 = (* 1u 3u)
+        let aggregate%encoded_element%10#0: bytes = (extract3 g#0 aggregate%bytes_offset%10#0 3u) // on error: index access is out of bounds
+        let array_item%8#0: Encoded(uint8[3]) = aggregate%encoded_element%10#0
         let values%8#0: Encoded(uint8[3]) = array_item%8#0
-        let aggregate%bytes_offset%11#1: uint64 = (* move.0#0 1u)
-        let aggregate%encoded_element%11#1: bytes = (extract3 values%8#0 aggregate%bytes_offset%11#1 1u) // on error: index access is out of bounds
-        let array_item%9#0: Encoded(uint8) = aggregate%encoded_element%11#1
+        let aggregate%bytes_offset%11#0: uint64 = (* move.0#0 1u)
+        let aggregate%encoded_element%11#0: bytes = (extract3 values%8#0 aggregate%bytes_offset%11#0 1u) // on error: index access is out of bounds
+        let array_item%9#0: Encoded(uint8) = aggregate%encoded_element%11#0
         let values%9#0: Encoded(uint8) = array_item%9#0
         let tmp%2#1: bool = (b== values%7#0 values%9#0)
         goto tmp%2#1 ? block@14 : block@16
     block@14: // and_contd_L79
-        let aggregate%bytes_offset%12#1: uint64 = (* 2u 3u)
-        let aggregate%encoded_element%12#1: bytes = (extract3 g#0 aggregate%bytes_offset%12#1 3u) // on error: index access is out of bounds
-        let array_item%10#0: Encoded(uint8[3]) = aggregate%encoded_element%12#1
+        let aggregate%bytes_offset%12#0: uint64 = (* 2u 3u)
+        let aggregate%encoded_element%12#0: bytes = (extract3 g#0 aggregate%bytes_offset%12#0 3u) // on error: index access is out of bounds
+        let array_item%10#0: Encoded(uint8[3]) = aggregate%encoded_element%12#0
         let values%10#0: Encoded(uint8[3]) = array_item%10#0
-        let aggregate%bytes_offset%13#1: uint64 = (* move.0#0 1u)
-        let aggregate%encoded_element%13#1: bytes = (extract3 values%10#0 aggregate%bytes_offset%13#1 1u) // on error: index access is out of bounds
-        let array_item%11#0: Encoded(uint8) = aggregate%encoded_element%13#1
+        let aggregate%bytes_offset%13#0: uint64 = (* move.0#0 1u)
+        let aggregate%encoded_element%13#0: bytes = (extract3 values%10#0 aggregate%bytes_offset%13#0 1u) // on error: index access is out of bounds
+        let array_item%11#0: Encoded(uint8) = aggregate%encoded_element%13#0
         let values%11#0: Encoded(uint8) = array_item%11#0
         let tmp%3#1: bool = (b== values%9#0 values%11#0)
         goto tmp%3#1 ? block@15 : block@16
@@ -445,27 +445,27 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#1: bool = 1u
         goto block@25
     block@16: // after_if_else_L79
-        let aggregate%bytes_offset%14#1: uint64 = (* 1u 1u)
-        let aggregate%encoded_element%14#1: bytes = (extract3 values%8#0 aggregate%bytes_offset%14#1 1u) // on error: index access is out of bounds
-        let array_item%13#0: Encoded(uint8) = aggregate%encoded_element%14#1
+        let aggregate%bytes_offset%14#0: uint64 = (* 1u 1u)
+        let aggregate%encoded_element%14#0: bytes = (extract3 values%8#0 aggregate%bytes_offset%14#0 1u) // on error: index access is out of bounds
+        let array_item%13#0: Encoded(uint8) = aggregate%encoded_element%14#0
         let values%13#0: Encoded(uint8) = array_item%13#0
         let tmp%4#1: bool = (b== player#0 values%13#0)
         goto tmp%4#1 ? block@17 : block@24
     block@17: // if_body_L84
-        let aggregate%bytes_offset%15#1: uint64 = (* 0u 1u)
-        let aggregate%encoded_element%15#1: bytes = (extract3 values%6#0 aggregate%bytes_offset%15#1 1u) // on error: index access is out of bounds
-        let array_item%15#0: Encoded(uint8) = aggregate%encoded_element%15#1
+        let aggregate%bytes_offset%15#0: uint64 = (* 0u 1u)
+        let aggregate%encoded_element%15#0: bytes = (extract3 values%6#0 aggregate%bytes_offset%15#0 1u) // on error: index access is out of bounds
+        let array_item%15#0: Encoded(uint8) = aggregate%encoded_element%15#0
         let values%15#0: Encoded(uint8) = array_item%15#0
         let tmp%5#1: bool = (b== values%15#0 player#0)
         goto tmp%5#1 ? block@18 : block@20
     block@18: // and_contd_L84
-        let aggregate%bytes_offset%16#1: uint64 = (* 2u 3u)
-        let aggregate%encoded_element%16#1: bytes = (extract3 g#0 aggregate%bytes_offset%16#1 3u) // on error: index access is out of bounds
-        let array_item%16#0: Encoded(uint8[3]) = aggregate%encoded_element%16#1
+        let aggregate%bytes_offset%16#0: uint64 = (* 2u 3u)
+        let aggregate%encoded_element%16#0: bytes = (extract3 g#0 aggregate%bytes_offset%16#0 3u) // on error: index access is out of bounds
+        let array_item%16#0: Encoded(uint8[3]) = aggregate%encoded_element%16#0
         let values%16#0: Encoded(uint8[3]) = array_item%16#0
-        let aggregate%bytes_offset%17#1: uint64 = (* 2u 1u)
-        let aggregate%encoded_element%17#1: bytes = (extract3 values%16#0 aggregate%bytes_offset%17#1 1u) // on error: index access is out of bounds
-        let array_item%17#0: Encoded(uint8) = aggregate%encoded_element%17#1
+        let aggregate%bytes_offset%17#0: uint64 = (* 2u 1u)
+        let aggregate%encoded_element%17#0: bytes = (extract3 values%16#0 aggregate%bytes_offset%17#0 1u) // on error: index access is out of bounds
+        let array_item%17#0: Encoded(uint8) = aggregate%encoded_element%17#0
         let values%17#0: Encoded(uint8) = array_item%17#0
         let tmp%6#0: bool = (b== player#0 values%17#0)
         goto tmp%6#0 ? block@19 : block@20
@@ -473,20 +473,20 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#2: bool = 1u
         goto block@25
     block@20: // after_if_else_L84
-        let aggregate%bytes_offset%18#1: uint64 = (* 2u 1u)
-        let aggregate%encoded_element%18#1: bytes = (extract3 values%6#0 aggregate%bytes_offset%18#1 1u) // on error: index access is out of bounds
-        let array_item%19#0: Encoded(uint8) = aggregate%encoded_element%18#1
+        let aggregate%bytes_offset%18#0: uint64 = (* 2u 1u)
+        let aggregate%encoded_element%18#0: bytes = (extract3 values%6#0 aggregate%bytes_offset%18#0 1u) // on error: index access is out of bounds
+        let array_item%19#0: Encoded(uint8) = aggregate%encoded_element%18#0
         let values%19#0: Encoded(uint8) = array_item%19#0
         let tmp%7#0: bool = (b== values%19#0 player#0)
         goto tmp%7#0 ? block@21 : block@24
     block@21: // and_contd_L86
-        let aggregate%bytes_offset%19#1: uint64 = (* 2u 3u)
-        let aggregate%encoded_element%19#1: bytes = (extract3 g#0 aggregate%bytes_offset%19#1 3u) // on error: index access is out of bounds
-        let array_item%20#0: Encoded(uint8[3]) = aggregate%encoded_element%19#1
+        let aggregate%bytes_offset%19#0: uint64 = (* 2u 3u)
+        let aggregate%encoded_element%19#0: bytes = (extract3 g#0 aggregate%bytes_offset%19#0 3u) // on error: index access is out of bounds
+        let array_item%20#0: Encoded(uint8[3]) = aggregate%encoded_element%19#0
         let values%20#0: Encoded(uint8[3]) = array_item%20#0
-        let aggregate%bytes_offset%20#1: uint64 = (* 0u 1u)
-        let aggregate%encoded_element%20#1: bytes = (extract3 values%20#0 aggregate%bytes_offset%20#1 1u) // on error: index access is out of bounds
-        let array_item%21#0: Encoded(uint8) = aggregate%encoded_element%20#1
+        let aggregate%bytes_offset%20#0: uint64 = (* 0u 1u)
+        let aggregate%encoded_element%20#0: bytes = (extract3 values%20#0 aggregate%bytes_offset%20#0 1u) // on error: index access is out of bounds
+        let array_item%21#0: Encoded(uint8) = aggregate%encoded_element%20#0
         let values%21#0: Encoded(uint8) = array_item%21#0
         let tmp%8#0: bool = (b== player#0 values%21#0)
         goto tmp%8#0 ? block@22 : block@24

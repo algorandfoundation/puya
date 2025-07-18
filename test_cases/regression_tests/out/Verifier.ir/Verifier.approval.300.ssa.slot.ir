@@ -13,11 +13,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%5#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[32][])%0#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
         let tmp%7#0: bytes = test_cases.regression_tests.jira_ak_752.Verifier.verify(reinterpret_Encoded(len+uint8[32][])%0#0)
-        let aggregate%length%0#1: uint64 = (len tmp%7#0)
-        let aggregate%as_bytes%0#1: bytes[8] = (itob aggregate%length%0#1)
-        let aggregate%length_uint16%0#1: bytes = ((extract 6 2) aggregate%as_bytes%0#1)
-        let aggregate%encoded_value%0#1: bytes = (concat aggregate%length_uint16%0#1 tmp%7#0)
-        let tmp%9#0: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#1)
+        let aggregate%length%0#0: uint64 = (len tmp%7#0)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
+        let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%7#0)
+        let tmp%9#0: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
         (log tmp%9#0)
         let test_cases.regression_tests.jira_ak_752.Verifier.__puya_arc4_router__%0#0: bool = 1u
         goto block@11
@@ -40,10 +40,10 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine test_cases.regression_tests.jira_ak_752.Verifier.verify(proof: Encoded(len+uint8[32][])) -> bytes:
     block@0: // L13
         let x#0: bytes = (extract3 proof#0 258u 32u)
-        let aggregate%encoded_element%1#1: bytes = ((extract 194 32) proof#0)
-        let aggregate%encoded_element%2#1: bytes = ((extract 226 32) proof#0)
-        let y#0: bytes = (concat aggregate%encoded_element%1#1 aggregate%encoded_element%2#1)
-        let z#0: bytes = (concat aggregate%encoded_element%2#1 x#0)
+        let aggregate%encoded_element%1#0: bytes = ((extract 194 32) proof#0)
+        let aggregate%encoded_element%2#0: bytes = ((extract 226 32) proof#0)
+        let y#0: bytes = (concat aggregate%encoded_element%1#0 aggregate%encoded_element%2#0)
+        let z#0: bytes = (concat aggregate%encoded_element%2#0 x#0)
         let tmp%2#0: bytes = (concat x#0 y#0)
         let tmp%3#0: bytes = (concat tmp%2#0 z#0)
         return tmp%3#0

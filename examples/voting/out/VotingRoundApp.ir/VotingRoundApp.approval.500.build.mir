@@ -492,12 +492,12 @@ subroutine create:
         // voting/voting.py:223
         // for item in option_counts:
         p-load option_counts#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | option_counts#0 (copy)
-        extract 2 0                                                                               (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_trimmed%0#1
-        v-store aggregate%array_trimmed%0#1                                                       (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
+        extract 2 0                                                                               (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_trimmed%0#0
+        v-store aggregate%array_trimmed%0#0                                                       (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
         // voting/voting.py:224
         // total_options += item.native
-        v-load aggregate%array_trimmed%0#1                                                        (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_trimmed%0#1
-        v-load item_index_internal%0#0                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_trimmed%0#1,item_index_internal%0#0
+        v-load aggregate%array_trimmed%0#0                                                        (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_trimmed%0#0
+        v-load item_index_internal%0#0                                                            (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | aggregate%array_trimmed%0#0,item_index_internal%0#0
         getbyte                                                                                   (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | tmp%2#1
         v-store tmp%2#1                                                                           (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 |
         v-load total_options#0                                                                    (𝕡) vote_id#0,snapshot_public_key#0,metadata_ipfs_cid#0,start_time#0,end_time#0,option_counts#0,quorum#0,nft_image_url#0 | total_options#0
@@ -934,11 +934,11 @@ subroutine close:
         // voting/voting.py:132
         // for question_index, question_options in uenumerate(self.option_counts):
         v-load maybe_value%5#0                                                                    maybe_value%5#0
-        extract 2 0                                                                               aggregate%array_trimmed%0#1
-        v-store aggregate%array_trimmed%0#1
-        v-load aggregate%array_trimmed%0#1                                                        aggregate%array_trimmed%0#1
-        v-load question_index#0                                                                   aggregate%array_trimmed%0#1,question_index#0
-        int 1                                                                                     aggregate%array_trimmed%0#1,question_index#0,1
+        extract 2 0                                                                               aggregate%array_trimmed%0#0
+        v-store aggregate%array_trimmed%0#0
+        v-load aggregate%array_trimmed%0#0                                                        aggregate%array_trimmed%0#0
+        v-load question_index#0                                                                   aggregate%array_trimmed%0#0,question_index#0
+        int 1                                                                                     aggregate%array_trimmed%0#0,question_index#0,1
         extract3 // on error: index access is out of bounds                                       question_options#0
         v-store question_options#0
         v-load note#0                                                                             note#0
@@ -984,8 +984,8 @@ subroutine close:
         v-store note#0
         // voting/voting.py:137
         // for option_index in urange(question_options.native):
-        v-load aggregate%array_trimmed%0#1                                                        aggregate%array_trimmed%0#1
-        v-load question_index#0                                                                   aggregate%array_trimmed%0#1,question_index#0
+        v-load aggregate%array_trimmed%0#0                                                        aggregate%array_trimmed%0#0
+        v-load question_index#0                                                                   aggregate%array_trimmed%0#0,question_index#0
         getbyte                                                                                   tmp%18#0
         v-store tmp%18#0
         int 0                                                                                     0
@@ -1216,16 +1216,16 @@ subroutine get_preconditions:
         callsub voting_open                                                                       (𝕡) signature#0 | tmp%0#0
         v-store tmp%0#0                                                                           (𝕡) signature#0 |
         v-load tmp%0#0                                                                            (𝕡) signature#0 | tmp%0#0
-        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%0#1
-        v-store aggregate%val_as_bytes%0#1                                                        (𝕡) signature#0 |
+        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%0#0
+        v-store aggregate%val_as_bytes%0#0                                                        (𝕡) signature#0 |
         // voting/voting.py:164
         // is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature)),
         p-load signature#0                                                                        (𝕡) signature#0 | signature#0 (copy)
         callsub allowed_to_vote                                                                   (𝕡) signature#0 | tmp%2#0
         v-store tmp%2#0                                                                           (𝕡) signature#0 |
         v-load tmp%2#0                                                                            (𝕡) signature#0 | tmp%2#0
-        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%1#1
-        v-store aggregate%val_as_bytes%1#1                                                        (𝕡) signature#0 |
+        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%1#0
+        v-store aggregate%val_as_bytes%1#0                                                        (𝕡) signature#0 |
         // voting/voting.py:215
         // return Txn.sender in self.votes_by_account
         txn Sender                                                                                (𝕡) signature#0 | materialized_values%0#0
@@ -1237,15 +1237,15 @@ subroutine get_preconditions:
         // voting/voting.py:165
         // has_already_voted=arc4.UInt64(self.already_voted()),
         v-load maybe_exists%0#0                                                                   (𝕡) signature#0 | maybe_exists%0#0
-        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%2#1
-        v-store aggregate%val_as_bytes%2#1                                                        (𝕡) signature#0 |
+        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%2#0
+        v-store aggregate%val_as_bytes%2#0                                                        (𝕡) signature#0 |
         // voting/voting.py:166
         // current_time=arc4.UInt64(Global.latest_timestamp),
         global LatestTimestamp                                                                    (𝕡) signature#0 | tmp%6#0
         v-store tmp%6#0                                                                           (𝕡) signature#0 |
         v-load tmp%6#0                                                                            (𝕡) signature#0 | tmp%6#0
-        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%3#1
-        v-store aggregate%val_as_bytes%3#1                                                        (𝕡) signature#0 |
+        itob                                                                                      (𝕡) signature#0 | aggregate%val_as_bytes%3#0
+        v-store aggregate%val_as_bytes%3#0                                                        (𝕡) signature#0 |
         // voting/voting.py:162-167
         // return VotingPreconditions(
         //     is_voting_open=arc4.UInt64(self.voting_open()),
@@ -1253,20 +1253,20 @@ subroutine get_preconditions:
         //     has_already_voted=arc4.UInt64(self.already_voted()),
         //     current_time=arc4.UInt64(Global.latest_timestamp),
         // )
-        v-load aggregate%val_as_bytes%0#1                                                         (𝕡) signature#0 | aggregate%val_as_bytes%0#1
-        v-load aggregate%val_as_bytes%1#1                                                         (𝕡) signature#0 | aggregate%val_as_bytes%0#1,aggregate%val_as_bytes%1#1
-        concat                                                                                    (𝕡) signature#0 | aggregate%head%1#1
-        v-store aggregate%head%1#1                                                                (𝕡) signature#0 |
-        v-load aggregate%head%1#1                                                                 (𝕡) signature#0 | aggregate%head%1#1
-        v-load aggregate%val_as_bytes%2#1                                                         (𝕡) signature#0 | aggregate%head%1#1,aggregate%val_as_bytes%2#1
-        concat                                                                                    (𝕡) signature#0 | aggregate%head%2#1
-        v-store aggregate%head%2#1                                                                (𝕡) signature#0 |
-        v-load aggregate%head%2#1                                                                 (𝕡) signature#0 | aggregate%head%2#1
-        v-load aggregate%val_as_bytes%3#1                                                         (𝕡) signature#0 | aggregate%head%2#1,aggregate%val_as_bytes%3#1
-        concat                                                                                    (𝕡) signature#0 | aggregate%head%3#1
-        v-store aggregate%head%3#1                                                                (𝕡) signature#0 |
-        v-load aggregate%head%3#1                                                                 (𝕡) signature#0 | aggregate%head%3#1
-        retsub                                                                                    aggregate%head%3#1
+        v-load aggregate%val_as_bytes%0#0                                                         (𝕡) signature#0 | aggregate%val_as_bytes%0#0
+        v-load aggregate%val_as_bytes%1#0                                                         (𝕡) signature#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                    (𝕡) signature#0 | aggregate%head%1#0
+        v-store aggregate%head%1#0                                                                (𝕡) signature#0 |
+        v-load aggregate%head%1#0                                                                 (𝕡) signature#0 | aggregate%head%1#0
+        v-load aggregate%val_as_bytes%2#0                                                         (𝕡) signature#0 | aggregate%head%1#0,aggregate%val_as_bytes%2#0
+        concat                                                                                    (𝕡) signature#0 | aggregate%head%2#0
+        v-store aggregate%head%2#0                                                                (𝕡) signature#0 |
+        v-load aggregate%head%2#0                                                                 (𝕡) signature#0 | aggregate%head%2#0
+        v-load aggregate%val_as_bytes%3#0                                                         (𝕡) signature#0 | aggregate%head%2#0,aggregate%val_as_bytes%3#0
+        concat                                                                                    (𝕡) signature#0 | aggregate%head%3#0
+        v-store aggregate%head%3#0                                                                (𝕡) signature#0 |
+        v-load aggregate%head%3#0                                                                 (𝕡) signature#0 | aggregate%head%3#0
+        retsub                                                                                    aggregate%head%3#0
 
 
 // examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: bytes) -> void:
@@ -1409,10 +1409,10 @@ subroutine vote:
         // voting/voting.py:197
         // answer_option_index = answer_ids[question_index].native
         p-load answer_ids#0                                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | answer_ids#0 (copy)
-        extract 2 0                                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%0#1
-        v-store aggregate%array_trimmed%0#1                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
-        v-load aggregate%array_trimmed%0#1                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%0#1
-        v-load question_index#0                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%0#1,question_index#0
+        extract 2 0                                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%0#0
+        v-store aggregate%array_trimmed%0#0                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        v-load aggregate%array_trimmed%0#0                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%0#0
+        v-load question_index#0                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%0#0,question_index#0
         getbyte                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | answer_option_index#0
         v-store answer_option_index#0                                                             (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
         // voting/voting.py:198
@@ -1425,10 +1425,10 @@ subroutine vote:
         v-load maybe_exists%1#0                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_exists%1#0
         assert // check self.option_counts exists                                                 (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
         v-load maybe_value%1#0                                                                    (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | maybe_value%1#0
-        extract 2 0                                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%1#1
-        v-store aggregate%array_trimmed%1#1                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
-        v-load aggregate%array_trimmed%1#1                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%1#1
-        v-load question_index#0                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%1#1,question_index#0
+        extract 2 0                                                                               (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%1#0
+        v-store aggregate%array_trimmed%1#0                                                       (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
+        v-load aggregate%array_trimmed%1#0                                                        (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%1#0
+        v-load question_index#0                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | aggregate%array_trimmed%1#0,question_index#0
         getbyte                                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 | options_count#0
         v-store options_count#0                                                                   (𝕡) fund_min_bal_req#0,signature#0,answer_ids#0 |
         // voting/voting.py:199

@@ -30,13 +30,13 @@ subroutine main:
         // @abimethod
         callsub verify                                                                                tmp%7#0
         l-load-copy tmp%7#0 0                                                                         tmp%7#0,tmp%7#0 (copy)
-        len                                                                                           tmp%7#0,aggregate%length%0#1
-        itob                                                                                          tmp%7#0,aggregate%as_bytes%0#1
-        extract 6 2                                                                                   tmp%7#0,aggregate%length_uint16%0#1
-        l-load tmp%7#0 1                                                                              aggregate%length_uint16%0#1,tmp%7#0
-        concat                                                                                        aggregate%encoded_value%0#1
-        byte 0x151f7c75                                                                               aggregate%encoded_value%0#1,0x151f7c75
-        l-load aggregate%encoded_value%0#1 1                                                          0x151f7c75,aggregate%encoded_value%0#1
+        len                                                                                           tmp%7#0,aggregate%length%0#0
+        itob                                                                                          tmp%7#0,aggregate%as_bytes%0#0
+        extract 6 2                                                                                   tmp%7#0,aggregate%length_uint16%0#0
+        l-load tmp%7#0 1                                                                              aggregate%length_uint16%0#0,tmp%7#0
+        concat                                                                                        aggregate%encoded_value%0#0
+        byte 0x151f7c75                                                                               aggregate%encoded_value%0#0,0x151f7c75
+        l-load aggregate%encoded_value%0#0 1                                                          0x151f7c75,aggregate%encoded_value%0#0
         concat                                                                                        tmp%9#0
         log
         int 1                                                                                         test_cases.regression_tests.jira_ak_752.Verifier.__puya_arc4_router__%0#0
@@ -81,16 +81,16 @@ subroutine verify:
         // regression_tests/jira_ak_752.py:19
         // y = proof[6].bytes + proof[7].bytes  # ok
         p-load proof#0                                                                                (𝕡) proof#0 | x#0,proof#0 (copy)
-        extract 194 32                                                                                (𝕡) proof#0 | x#0,aggregate%encoded_element%1#1
-        p-load proof#0                                                                                (𝕡) proof#0 | x#0,aggregate%encoded_element%1#1,proof#0 (copy)
-        extract 226 32                                                                                (𝕡) proof#0 | x#0,aggregate%encoded_element%1#1,aggregate%encoded_element%2#1
-        l-load aggregate%encoded_element%1#1 1                                                        (𝕡) proof#0 | x#0,aggregate%encoded_element%2#1,aggregate%encoded_element%1#1
-        l-load-copy aggregate%encoded_element%2#1 1                                                   (𝕡) proof#0 | x#0,aggregate%encoded_element%2#1,aggregate%encoded_element%1#1,aggregate%encoded_element%2#1 (copy)
-        concat                                                                                        (𝕡) proof#0 | x#0,aggregate%encoded_element%2#1,y#0
+        extract 194 32                                                                                (𝕡) proof#0 | x#0,aggregate%encoded_element%1#0
+        p-load proof#0                                                                                (𝕡) proof#0 | x#0,aggregate%encoded_element%1#0,proof#0 (copy)
+        extract 226 32                                                                                (𝕡) proof#0 | x#0,aggregate%encoded_element%1#0,aggregate%encoded_element%2#0
+        l-load aggregate%encoded_element%1#0 1                                                        (𝕡) proof#0 | x#0,aggregate%encoded_element%2#0,aggregate%encoded_element%1#0
+        l-load-copy aggregate%encoded_element%2#0 1                                                   (𝕡) proof#0 | x#0,aggregate%encoded_element%2#0,aggregate%encoded_element%1#0,aggregate%encoded_element%2#0 (copy)
+        concat                                                                                        (𝕡) proof#0 | x#0,aggregate%encoded_element%2#0,y#0
         // regression_tests/jira_ak_752.py:20
         // z = proof[7].bytes + proof[8].bytes  # Invalid immediate, expected value between 0 and 255
-        l-load aggregate%encoded_element%2#1 1                                                        (𝕡) proof#0 | x#0,y#0,aggregate%encoded_element%2#1
-        l-load-copy x#0 2                                                                             (𝕡) proof#0 | x#0,y#0,aggregate%encoded_element%2#1,x#0 (copy)
+        l-load aggregate%encoded_element%2#0 1                                                        (𝕡) proof#0 | x#0,y#0,aggregate%encoded_element%2#0
+        l-load-copy x#0 2                                                                             (𝕡) proof#0 | x#0,y#0,aggregate%encoded_element%2#0,x#0 (copy)
         concat                                                                                        (𝕡) proof#0 | x#0,y#0,z#0
         // regression_tests/jira_ak_752.py:22
         // return x + y + z

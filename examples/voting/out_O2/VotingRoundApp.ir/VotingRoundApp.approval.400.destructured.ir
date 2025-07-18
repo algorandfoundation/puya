@@ -57,8 +57,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#1)
         goto continue_looping%0#0 ? block@31 : block@32
     block@31: // for_body_L224
-        let aggregate%array_trimmed%0#1: bytes = ((extract 2 0) option_counts#0)
-        let tmp%2#7: uint64 = (getbyte aggregate%array_trimmed%0#1 item_index_internal%0#0)
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) option_counts#0)
+        let tmp%2#7: uint64 = (getbyte aggregate%array_trimmed%0#0 item_index_internal%0#0)
         let total_options#0: uint64 = (+ total_options#0 tmp%2#7)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@30
@@ -148,8 +148,8 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let continue_looping%0#0: bool = (< question_index#0 array_length%0#1)
         goto continue_looping%0#0 ? block@9 : block@19
     block@9: // for_body_L133
-        let aggregate%array_trimmed%1#1: bytes = ((extract 2 0) maybe_value%5#0)
-        let question_options#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%1#1 question_index#0 1u) // on error: index access is out of bounds
+        let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) maybe_value%5#0)
+        let question_options#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%1#0 question_index#0 1u) // on error: index access is out of bounds
         let note#17: string = note#0
         goto question_index#0 ? block@10 : block@11
     block@10: // if_body_L134
@@ -164,7 +164,7 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         goto tmp%16#2 ? block@12 : block@18
     block@12: // if_body_L136
         let note#0: string = (concat note#0 "[")
-        let tmp%18#0: uint64 = (getbyte aggregate%array_trimmed%1#1 question_index#0)
+        let tmp%18#0: uint64 = (getbyte aggregate%array_trimmed%1#0 question_index#0)
         let option_index#0: uint64 = 0u
         goto block@13
     block@13: // for_header_L137
@@ -230,18 +230,18 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let reinterpret_Encoded(len+uint8[])%2#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
         let signature#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%2#0)
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
-        let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
         let tmp%2#2: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
-        let aggregate%val_as_bytes%1#1: bytes[8] = (itob tmp%2#2)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%2#2)
         let materialized_values%0#0: account = (txn Sender)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#0)
-        let aggregate%val_as_bytes%2#1: bytes[8] = (itob maybe_exists%0#0)
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob maybe_exists%0#0)
         let tmp%6#1: uint64 = (global LatestTimestamp)
-        let aggregate%val_as_bytes%3#1: bytes[8] = (itob tmp%6#1)
-        let aggregate%head%1#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%val_as_bytes%1#1)
-        let aggregate%head%2#1: bytes = (concat aggregate%head%1#1 aggregate%val_as_bytes%2#1)
-        let aggregate%head%3#1: bytes = (concat aggregate%head%2#1 aggregate%val_as_bytes%3#1)
-        let tmp%29#0: bytes = (concat 0x151f7c75 aggregate%head%3#1)
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%6#1)
+        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%2#0)
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%val_as_bytes%3#0)
+        let tmp%29#0: bytes = (concat 0x151f7c75 aggregate%head%3#0)
         (log tmp%29#0)
         let examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.__puya_arc4_router__%0#0
@@ -294,12 +294,12 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let continue_looping%0#0: bool = (< question_index#0 questions_count#0)
         goto continue_looping%0#0 ? block@23 : block@24
     block@23: // for_body_L197
-        let aggregate%array_trimmed%2#1: bytes = ((extract 2 0) answer_ids#0)
-        let answer_option_index#0: uint64 = (getbyte aggregate%array_trimmed%2#1 question_index#0)
+        let aggregate%array_trimmed%2#0: bytes = ((extract 2 0) answer_ids#0)
+        let answer_option_index#0: uint64 = (getbyte aggregate%array_trimmed%2#0 question_index#0)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%1#0) // check self.option_counts exists
-        let aggregate%array_trimmed%3#1: bytes = ((extract 2 0) maybe_value%1#0)
-        let options_count#0: uint64 = (getbyte aggregate%array_trimmed%3#1 question_index#0)
+        let aggregate%array_trimmed%3#0: bytes = ((extract 2 0) maybe_value%1#0)
+        let options_count#0: uint64 = (getbyte aggregate%array_trimmed%3#0 question_index#0)
         let tmp%17#1: bool = (< answer_option_index#0 options_count#0)
         (assert tmp%17#1) // Answer option index invalid
         let index#0: uint64 = (+ cumulative_offset#0 answer_option_index#0)

@@ -55,9 +55,9 @@ subroutine main:
         byte 0x00                                                                              tmp%11#0,0x00
         int 0                                                                                  tmp%11#0,0x00,0
         l-load tmp%11#0 2                                                                      0x00,0,tmp%11#0
-        setbit                                                                                 aggregate%encoded_bool%0#1
-        byte 0x151f7c75                                                                        aggregate%encoded_bool%0#1,0x151f7c75
-        l-load aggregate%encoded_bool%0#1 1                                                    0x151f7c75,aggregate%encoded_bool%0#1
+        setbit                                                                                 aggregate%encoded_bool%0#0
+        byte 0x151f7c75                                                                        aggregate%encoded_bool%0#0,0x151f7c75
+        l-load aggregate%encoded_bool%0#0 1                                                    0x151f7c75,aggregate%encoded_bool%0#0
         concat                                                                                 tmp%13#0
         log
         int 1                                                                                  tmp%0#0
@@ -123,13 +123,13 @@ subroutine verify:
         // merkle/contract.py:23
         // computed = hash_pair(computed, proof[idx].bytes)
         p-load proof#0                                                                         (𝕡) proof#0,leaf#0 | proof#0 (copy)
-        extract 2 0                                                                            (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#1
-        v-load idx#0                                                                           (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#1,idx#0
-        int 32                                                                                 (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#1,idx#0,32
-        *                                                                                      (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#1,aggregate%bytes_offset%0#1
-        l-load aggregate%array_trimmed%0#1 1                                                   (𝕡) proof#0,leaf#0 | aggregate%bytes_offset%0#1,aggregate%array_trimmed%0#1
-        l-load aggregate%bytes_offset%0#1 1                                                    (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#1,aggregate%bytes_offset%0#1
-        int 32                                                                                 (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#1,aggregate%bytes_offset%0#1,32
+        extract 2 0                                                                            (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0
+        v-load idx#0                                                                           (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,idx#0
+        int 32                                                                                 (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,idx#0,32
+        *                                                                                      (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        l-load aggregate%array_trimmed%0#0 1                                                   (𝕡) proof#0,leaf#0 | aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
+        l-load aggregate%bytes_offset%0#0 1                                                    (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        int 32                                                                                 (𝕡) proof#0,leaf#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,32
         extract3 // on error: index access is out of bounds                                    (𝕡) proof#0,leaf#0 | b#0
         l-store-copy b#0 0                                                                     (𝕡) proof#0,leaf#0 | b#0,b#0
         x-store b#0                                                                            (𝕡) proof#0,leaf#0 | (𝕏) b#0 | b#0

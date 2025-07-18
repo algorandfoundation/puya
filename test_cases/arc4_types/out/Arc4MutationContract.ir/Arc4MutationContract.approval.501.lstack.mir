@@ -81,11 +81,11 @@ subroutine main:
         byte 0x00                                                                                          tmp%33#0,dynamic_bool_array#1,0x00
         int 0                                                                                              tmp%33#0,dynamic_bool_array#1,0x00,0
         l-load tmp%33#0 3                                                                                  dynamic_bool_array#1,0x00,0,tmp%33#0
-        setbit                                                                                             dynamic_bool_array#1,aggregate%encoded_bool%2#1
-        l-load aggregate%encoded_bool%2#1 0                                                                dynamic_bool_array#1,aggregate%encoded_bool%2#1
+        setbit                                                                                             dynamic_bool_array#1,aggregate%encoded_bool%2#0
+        l-load aggregate%encoded_bool%2#0 0                                                                dynamic_bool_array#1,aggregate%encoded_bool%2#0
         // arc4_types/mutation.py:168
         // dynamic_bool_array = DynamicArray[Bool](Bool(True), Bool(False))
-        byte 0x80                                                                                          dynamic_bool_array#1,aggregate%encoded_bool%2#1,0x80
+        byte 0x80                                                                                          dynamic_bool_array#1,aggregate%encoded_bool%2#0,0x80
         // arc4_types/mutation.py:201
         // assert dynamic_bool_array.pop() == Bool(True)
         ==                                                                                                 dynamic_bool_array#1,tmp%37#0
@@ -98,11 +98,11 @@ subroutine main:
         byte 0x00                                                                                          tmp%38#0,dynamic_bool_array#1,0x00
         int 0                                                                                              tmp%38#0,dynamic_bool_array#1,0x00,0
         l-load tmp%38#0 3                                                                                  dynamic_bool_array#1,0x00,0,tmp%38#0
-        setbit                                                                                             dynamic_bool_array#1,aggregate%encoded_bool%3#1
-        l-load aggregate%encoded_bool%3#1 0                                                                dynamic_bool_array#1,aggregate%encoded_bool%3#1
+        setbit                                                                                             dynamic_bool_array#1,aggregate%encoded_bool%3#0
+        l-load aggregate%encoded_bool%3#0 0                                                                dynamic_bool_array#1,aggregate%encoded_bool%3#0
         // arc4_types/mutation.py:168
         // dynamic_bool_array = DynamicArray[Bool](Bool(True), Bool(False))
-        byte 0x00                                                                                          dynamic_bool_array#1,aggregate%encoded_bool%3#1,0x00
+        byte 0x00                                                                                          dynamic_bool_array#1,aggregate%encoded_bool%3#0,0x00
         // arc4_types/mutation.py:202
         // assert dynamic_bool_array.pop() == Bool(False)
         ==                                                                                                 dynamic_bool_array#1,tmp%42#0
@@ -179,11 +179,11 @@ subroutine main:
         // dynamic_string_array[5] = hello
         l-load-copy dynamic_string_array#1 0                                                               dynamic_string_array#1,dynamic_string_array#1 (copy)
         int 0                                                                                              dynamic_string_array#1,dynamic_string_array#1 (copy),0
-        extract_uint16                                                                                     dynamic_string_array#1,aggregate%array_length%2#1
-        int 5                                                                                              dynamic_string_array#1,aggregate%array_length%2#1,5
-        l-load aggregate%array_length%2#1 1                                                                dynamic_string_array#1,5,aggregate%array_length%2#1
-        <                                                                                                  dynamic_string_array#1,aggregate%lt%2#1
-        l-load aggregate%lt%2#1 0                                                                          dynamic_string_array#1,aggregate%lt%2#1
+        extract_uint16                                                                                     dynamic_string_array#1,aggregate%array_length%2#0
+        int 5                                                                                              dynamic_string_array#1,aggregate%array_length%2#0,5
+        l-load aggregate%array_length%2#0 1                                                                dynamic_string_array#1,5,aggregate%array_length%2#0
+        <                                                                                                  dynamic_string_array#1,aggregate%lt%2#0
+        l-load aggregate%lt%2#0 0                                                                          dynamic_string_array#1,aggregate%lt%2#0
         assert // index access is out of bounds                                                            dynamic_string_array#1
         l-load dynamic_string_array#1 0                                                                    dynamic_string_array#1
         // arc4_types/mutation.py:215
@@ -266,30 +266,30 @@ subroutine main:
         // arc4_types/mutation.py:78
         // array_of_array[0].append(UInt8(255))
         l-load-copy array_of_array#1 0                                                                     array_of_array#1,array_of_array#1 (copy)
-        extract 2 0                                                                                        array_of_array#1,aggregate%array_head_and_tail%2#1
-        l-load-copy array_of_array#1 1                                                                     array_of_array#1,aggregate%array_head_and_tail%2#1,array_of_array#1 (copy)
-        int 0                                                                                              array_of_array#1,aggregate%array_head_and_tail%2#1,array_of_array#1 (copy),0
-        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1
-        l-load aggregate%array_length%4#1 0                                                                array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1
-        assert // index access is out of bounds                                                            array_of_array#1,aggregate%array_head_and_tail%2#1
-        l-load-copy aggregate%array_head_and_tail%2#1 0                                                    array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%array_head_and_tail%2#1 (copy)
-        int 0                                                                                              array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%array_head_and_tail%2#1 (copy),0
-        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%2#1
-        l-load-copy aggregate%array_head_and_tail%2#1 1                                                    array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%2#1,aggregate%array_head_and_tail%2#1 (copy)
-        l-load-copy aggregate%item_offset%2#1 1                                                            array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%2#1,aggregate%array_head_and_tail%2#1 (copy),aggregate%item_offset%2#1 (copy)
-        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%2#1,aggregate%item_length%2#1
-        l-load aggregate%item_length%2#1 0                                                                 array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%2#1,aggregate%item_length%2#1
-        int 2                                                                                              array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%2#1,aggregate%item_length%2#1,2
-        +                                                                                                  array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%2#1,aggregate%item_head_tail_length%2#1
-        l-load aggregate%array_head_and_tail%2#1 2                                                         array_of_array#1,aggregate%item_offset%2#1,aggregate%item_head_tail_length%2#1,aggregate%array_head_and_tail%2#1
-        l-load aggregate%item_offset%2#1 2                                                                 array_of_array#1,aggregate%item_head_tail_length%2#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%2#1
-        l-load aggregate%item_head_tail_length%2#1 2                                                       array_of_array#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%2#1,aggregate%item_head_tail_length%2#1
-        extract3                                                                                           array_of_array#1,aggregate%item%2#1
-        l-load-copy aggregate%item%2#1 0                                                                   array_of_array#1,aggregate%item%2#1,aggregate%item%2#1 (copy)
-        byte 0xff                                                                                          array_of_array#1,aggregate%item%2#1,aggregate%item%2#1 (copy),0xff
-        concat // on error: max array length exceeded                                                      array_of_array#1,aggregate%item%2#1,concat%2#1
-        l-load aggregate%item%2#1 1                                                                        array_of_array#1,concat%2#1,aggregate%item%2#1
-        int 0                                                                                              array_of_array#1,concat%2#1,aggregate%item%2#1,0
+        extract 2 0                                                                                        array_of_array#1,aggregate%array_head_and_tail%2#0
+        l-load-copy array_of_array#1 1                                                                     array_of_array#1,aggregate%array_head_and_tail%2#0,array_of_array#1 (copy)
+        int 0                                                                                              array_of_array#1,aggregate%array_head_and_tail%2#0,array_of_array#1 (copy),0
+        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0
+        l-load aggregate%array_length%4#0 0                                                                array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0
+        assert // index access is out of bounds                                                            array_of_array#1,aggregate%array_head_and_tail%2#0
+        l-load-copy aggregate%array_head_and_tail%2#0 0                                                    array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%array_head_and_tail%2#0 (copy)
+        int 0                                                                                              array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%array_head_and_tail%2#0 (copy),0
+        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%item_offset%2#0
+        l-load-copy aggregate%array_head_and_tail%2#0 1                                                    array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%item_offset%2#0,aggregate%array_head_and_tail%2#0 (copy)
+        l-load-copy aggregate%item_offset%2#0 1                                                            array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%item_offset%2#0,aggregate%array_head_and_tail%2#0 (copy),aggregate%item_offset%2#0 (copy)
+        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%item_offset%2#0,aggregate%item_length%2#0
+        l-load aggregate%item_length%2#0 0                                                                 array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%item_offset%2#0,aggregate%item_length%2#0
+        int 2                                                                                              array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%item_offset%2#0,aggregate%item_length%2#0,2
+        +                                                                                                  array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%item_offset%2#0,aggregate%item_head_tail_length%2#0
+        l-load aggregate%array_head_and_tail%2#0 2                                                         array_of_array#1,aggregate%item_offset%2#0,aggregate%item_head_tail_length%2#0,aggregate%array_head_and_tail%2#0
+        l-load aggregate%item_offset%2#0 2                                                                 array_of_array#1,aggregate%item_head_tail_length%2#0,aggregate%array_head_and_tail%2#0,aggregate%item_offset%2#0
+        l-load aggregate%item_head_tail_length%2#0 2                                                       array_of_array#1,aggregate%array_head_and_tail%2#0,aggregate%item_offset%2#0,aggregate%item_head_tail_length%2#0
+        extract3                                                                                           array_of_array#1,aggregate%item%2#0
+        l-load-copy aggregate%item%2#0 0                                                                   array_of_array#1,aggregate%item%2#0,aggregate%item%2#0 (copy)
+        byte 0xff                                                                                          array_of_array#1,aggregate%item%2#0,aggregate%item%2#0 (copy),0xff
+        concat // on error: max array length exceeded                                                      array_of_array#1,aggregate%item%2#0,concat%2#1
+        l-load aggregate%item%2#0 1                                                                        array_of_array#1,concat%2#1,aggregate%item%2#0
+        int 0                                                                                              array_of_array#1,concat%2#1,aggregate%item%2#0,0
         extract_uint16                                                                                     array_of_array#1,concat%2#1,extract_uint16%0#1
         l-load extract_uint16%0#1 0                                                                        array_of_array#1,concat%2#1,extract_uint16%0#1
         int 1                                                                                              array_of_array#1,concat%2#1,extract_uint16%0#1,1
@@ -315,31 +315,31 @@ subroutine main:
         // arc4_types/mutation.py:82
         // array_of_array[0][1] = UInt8(0)
         l-load-copy array_of_array#1 0                                                                     array_of_array#1,array_of_array#1 (copy)
-        extract 2 0                                                                                        array_of_array#1,aggregate%array_head_and_tail%4#1
-        l-load-copy array_of_array#1 1                                                                     array_of_array#1,aggregate%array_head_and_tail%4#1,array_of_array#1 (copy)
-        int 0                                                                                              array_of_array#1,aggregate%array_head_and_tail%4#1,array_of_array#1 (copy),0
-        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%array_length%7#1
-        l-load aggregate%array_length%7#1 0                                                                array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%array_length%7#1
-        assert // index access is out of bounds                                                            array_of_array#1,aggregate%array_head_and_tail%4#1
-        l-load-copy aggregate%array_head_and_tail%4#1 0                                                    array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%array_head_and_tail%4#1 (copy)
-        int 0                                                                                              array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%array_head_and_tail%4#1 (copy),0
-        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%item_offset%4#1
-        l-load-copy aggregate%array_head_and_tail%4#1 1                                                    array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%item_offset%4#1,aggregate%array_head_and_tail%4#1 (copy)
-        l-load-copy aggregate%item_offset%4#1 1                                                            array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%item_offset%4#1,aggregate%array_head_and_tail%4#1 (copy),aggregate%item_offset%4#1 (copy)
-        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%item_offset%4#1,aggregate%item_length%4#1
-        l-load aggregate%item_length%4#1 0                                                                 array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%item_offset%4#1,aggregate%item_length%4#1
-        int 2                                                                                              array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%item_offset%4#1,aggregate%item_length%4#1,2
-        +                                                                                                  array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%item_offset%4#1,aggregate%item_head_tail_length%4#1
-        l-load aggregate%array_head_and_tail%4#1 2                                                         array_of_array#1,aggregate%item_offset%4#1,aggregate%item_head_tail_length%4#1,aggregate%array_head_and_tail%4#1
-        l-load aggregate%item_offset%4#1 2                                                                 array_of_array#1,aggregate%item_head_tail_length%4#1,aggregate%array_head_and_tail%4#1,aggregate%item_offset%4#1
-        l-load aggregate%item_head_tail_length%4#1 2                                                       array_of_array#1,aggregate%array_head_and_tail%4#1,aggregate%item_offset%4#1,aggregate%item_head_tail_length%4#1
-        extract3                                                                                           array_of_array#1,aggregate%item%4#1
-        l-load aggregate%item%4#1 0                                                                        array_of_array#1,aggregate%item%4#1
-        byte 0x00                                                                                          array_of_array#1,aggregate%item%4#1,0x00
-        replace2 3                                                                                         array_of_array#1,aggregate%updated_array%3#1
-        l-load array_of_array#1 1                                                                          aggregate%updated_array%3#1,array_of_array#1
-        l-load aggregate%updated_array%3#1 1                                                               array_of_array#1,aggregate%updated_array%3#1
-        int 0                                                                                              array_of_array#1,aggregate%updated_array%3#1,0
+        extract 2 0                                                                                        array_of_array#1,aggregate%array_head_and_tail%4#0
+        l-load-copy array_of_array#1 1                                                                     array_of_array#1,aggregate%array_head_and_tail%4#0,array_of_array#1 (copy)
+        int 0                                                                                              array_of_array#1,aggregate%array_head_and_tail%4#0,array_of_array#1 (copy),0
+        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%array_length%7#0
+        l-load aggregate%array_length%7#0 0                                                                array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%array_length%7#0
+        assert // index access is out of bounds                                                            array_of_array#1,aggregate%array_head_and_tail%4#0
+        l-load-copy aggregate%array_head_and_tail%4#0 0                                                    array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%array_head_and_tail%4#0 (copy)
+        int 0                                                                                              array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%array_head_and_tail%4#0 (copy),0
+        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%item_offset%4#0
+        l-load-copy aggregate%array_head_and_tail%4#0 1                                                    array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%item_offset%4#0,aggregate%array_head_and_tail%4#0 (copy)
+        l-load-copy aggregate%item_offset%4#0 1                                                            array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%item_offset%4#0,aggregate%array_head_and_tail%4#0 (copy),aggregate%item_offset%4#0 (copy)
+        extract_uint16                                                                                     array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%item_offset%4#0,aggregate%item_length%4#0
+        l-load aggregate%item_length%4#0 0                                                                 array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%item_offset%4#0,aggregate%item_length%4#0
+        int 2                                                                                              array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%item_offset%4#0,aggregate%item_length%4#0,2
+        +                                                                                                  array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%item_offset%4#0,aggregate%item_head_tail_length%4#0
+        l-load aggregate%array_head_and_tail%4#0 2                                                         array_of_array#1,aggregate%item_offset%4#0,aggregate%item_head_tail_length%4#0,aggregate%array_head_and_tail%4#0
+        l-load aggregate%item_offset%4#0 2                                                                 array_of_array#1,aggregate%item_head_tail_length%4#0,aggregate%array_head_and_tail%4#0,aggregate%item_offset%4#0
+        l-load aggregate%item_head_tail_length%4#0 2                                                       array_of_array#1,aggregate%array_head_and_tail%4#0,aggregate%item_offset%4#0,aggregate%item_head_tail_length%4#0
+        extract3                                                                                           array_of_array#1,aggregate%item%4#0
+        l-load aggregate%item%4#0 0                                                                        array_of_array#1,aggregate%item%4#0
+        byte 0x00                                                                                          array_of_array#1,aggregate%item%4#0,0x00
+        replace2 3                                                                                         array_of_array#1,aggregate%updated_array%3#0
+        l-load array_of_array#1 1                                                                          aggregate%updated_array%3#0,array_of_array#1
+        l-load aggregate%updated_array%3#0 1                                                               array_of_array#1,aggregate%updated_array%3#0
+        int 0                                                                                              array_of_array#1,aggregate%updated_array%3#0,0
         callsub dynamic_array_replace_byte_length_head                                                     array_of_array#1
         // arc4_types/mutation.py:83
         // assert array_of_array.bytes == Bytes.from_hex("00020004000800020A00000110")

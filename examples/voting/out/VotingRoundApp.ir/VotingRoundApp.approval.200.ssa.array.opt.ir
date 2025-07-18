@@ -167,10 +167,10 @@ subroutine examples.voting.voting.VotingRoundApp.create(vote_id: string, snapsho
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L224
-        let aggregate%array_trimmed%0#1: bytes = ((extract 2 0) option_counts#0)
-        let aggregate%bytes_offset%0#1: uint64 = item_index_internal%0#1
-        let item#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%0#1 item_index_internal%0#1 1u) // on error: index access is out of bounds
-        let tmp%2#1: uint64 = (getbyte aggregate%array_trimmed%0#1 item_index_internal%0#1)
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) option_counts#0)
+        let aggregate%bytes_offset%0#0: uint64 = item_index_internal%0#1
+        let item#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%0#0 item_index_internal%0#1 1u) // on error: index access is out of bounds
+        let tmp%2#1: uint64 = (getbyte aggregate%array_trimmed%0#0 item_index_internal%0#1)
         let total_options#2: uint64 = (+ total_options#1 tmp%2#1)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@2
@@ -247,9 +247,9 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         let continue_looping%0#0: bool = (< question_index#0 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L133
-        let aggregate%array_trimmed%0#1: bytes = ((extract 2 0) maybe_value%5#0)
-        let aggregate%bytes_offset%0#1: uint64 = question_index#0
-        let question_options#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%0#1 question_index#0 1u) // on error: index access is out of bounds
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) maybe_value%5#0)
+        let aggregate%bytes_offset%0#0: uint64 = question_index#0
+        let question_options#0: Encoded(uint8) = (extract3 aggregate%array_trimmed%0#0 question_index#0 1u) // on error: index access is out of bounds
         goto question_index#0 ? block@3 : block@4
     block@3: // if_body_L134
         let note#2: string = (concat note#1 ",")
@@ -260,7 +260,7 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         goto tmp%16#0 ? block@5 : block@12
     block@5: // if_body_L136
         let note#4: string = (concat note#3 "[")
-        let tmp%18#0: uint64 = (getbyte aggregate%array_trimmed%0#1 question_index#0)
+        let tmp%18#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#0)
         let option_index#0: uint64 = 0u
         goto block@6
     block@6: // for_header_L137
@@ -317,19 +317,19 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
 subroutine examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> Encoded(uint64,uint64,uint64,uint64):
     block@0: // L160
         let tmp%0#0: bool = examples.voting.voting.VotingRoundApp.voting_open()
-        let aggregate%val_as_bytes%0#1: bytes[8] = (itob tmp%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%0#0)
         let tmp%2#0: bool = examples.voting.voting.VotingRoundApp.allowed_to_vote(signature#0)
-        let aggregate%val_as_bytes%1#1: bytes[8] = (itob tmp%2#0)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%2#0)
         let materialized_values%0#0: account = (txn Sender)
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len materialized_values%0#0)
-        let aggregate%val_as_bytes%2#1: bytes[8] = (itob maybe_exists%0#0)
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob maybe_exists%0#0)
         let tmp%6#0: uint64 = (global LatestTimestamp)
-        let aggregate%val_as_bytes%3#1: bytes[8] = (itob tmp%6#0)
-        let aggregate%head%0#1: bytes = aggregate%val_as_bytes%0#1
-        let aggregate%head%1#1: bytes = (concat aggregate%val_as_bytes%0#1 aggregate%val_as_bytes%1#1)
-        let aggregate%head%2#1: bytes = (concat aggregate%head%1#1 aggregate%val_as_bytes%2#1)
-        let aggregate%head%3#1: bytes = (concat aggregate%head%2#1 aggregate%val_as_bytes%3#1)
-        return aggregate%head%3#1
+        let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%6#0)
+        let aggregate%head%0#0: bytes = aggregate%val_as_bytes%0#0
+        let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%2#0)
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%val_as_bytes%3#0)
+        return aggregate%head%3#0
 
 subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: Encoded(len+uint8[])) -> void:
     block@0: // L169
@@ -369,16 +369,16 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         let continue_looping%0#0: bool = (< question_index#1 questions_count#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L197
-        let aggregate%array_trimmed%0#1: bytes = ((extract 2 0) answer_ids#0)
-        let aggregate%bytes_offset%0#1: uint64 = question_index#1
-        let aggregate%encoded_element%0#1: bytes = (extract3 aggregate%array_trimmed%0#1 question_index#1 1u) // on error: index access is out of bounds
-        let answer_option_index#0: uint64 = (getbyte aggregate%array_trimmed%0#1 question_index#1)
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) answer_ids#0)
+        let aggregate%bytes_offset%0#0: uint64 = question_index#1
+        let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 question_index#1 1u) // on error: index access is out of bounds
+        let answer_option_index#0: uint64 = (getbyte aggregate%array_trimmed%0#0 question_index#1)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%1#0) // check self.option_counts exists
-        let aggregate%array_trimmed%1#1: bytes = ((extract 2 0) maybe_value%1#0)
-        let aggregate%bytes_offset%1#1: uint64 = question_index#1
-        let aggregate%encoded_element%1#1: bytes = (extract3 aggregate%array_trimmed%1#1 question_index#1 1u) // on error: index access is out of bounds
-        let options_count#0: uint64 = (getbyte aggregate%array_trimmed%1#1 question_index#1)
+        let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) maybe_value%1#0)
+        let aggregate%bytes_offset%1#0: uint64 = question_index#1
+        let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%array_trimmed%1#0 question_index#1 1u) // on error: index access is out of bounds
+        let options_count#0: uint64 = (getbyte aggregate%array_trimmed%1#0 question_index#1)
         let tmp%17#0: bool = (< answer_option_index#0 options_count#0)
         (assert tmp%17#0) // Answer option index invalid
         let index#0: uint64 = (+ cumulative_offset#1 answer_option_index#0)

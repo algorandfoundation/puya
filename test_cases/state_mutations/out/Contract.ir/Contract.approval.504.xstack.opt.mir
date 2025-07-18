@@ -401,12 +401,12 @@ subroutine append:
         // state_mutations/contract.py:41
         // self.box.value.append(struct.copy())
         byte "box"                                                                           "box"
-        box_get                                                                              aggregate%box_get%0#1,aggregate%box_get%1#1
-        assert // check self.box exists                                                      aggregate%box_get%0#1
-        l-load-copy aggregate%box_get%0#1 0                                                  aggregate%box_get%0#1,aggregate%box_get%0#1 (copy)
-        int 0                                                                                aggregate%box_get%0#1,aggregate%box_get%0#1 (copy),0
-        extract_uint16                                                                       aggregate%box_get%0#1,extract_uint16%2#0
-        l-load aggregate%box_get%0#1 1                                                       extract_uint16%2#0,aggregate%box_get%0#1
+        box_get                                                                              aggregate%box_get%0#0,aggregate%box_get%1#0
+        assert // check self.box exists                                                      aggregate%box_get%0#0
+        l-load-copy aggregate%box_get%0#0 0                                                  aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
+        int 0                                                                                aggregate%box_get%0#0,aggregate%box_get%0#0 (copy),0
+        extract_uint16                                                                       aggregate%box_get%0#0,extract_uint16%2#0
+        l-load aggregate%box_get%0#0 1                                                       extract_uint16%2#0,aggregate%box_get%0#0
         extract 2 0                                                                          extract_uint16%2#0,extract_to_end%2#0
         l-load extract_uint16%2#0 1                                                          extract_to_end%2#0,extract_uint16%2#0
         l-load extract_to_end%2#0 1                                                          extract_uint16%2#0,extract_to_end%2#0
@@ -430,12 +430,12 @@ subroutine append:
         l-load materialized_values%0#0 1                                                     "map",materialized_values%0#0
         concat                                                                               box_prefixed_key%0#0
         l-load-copy box_prefixed_key%0#0 0                                                   box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
-        box_get                                                                              box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%box_get%3#1
-        assert // check self.map entry exists                                                box_prefixed_key%0#0,aggregate%box_get%2#1
-        l-load-copy aggregate%box_get%2#1 0                                                  box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%box_get%2#1 (copy)
-        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%box_get%2#1 (copy),0
-        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#1,extract_uint16%3#0
-        l-load aggregate%box_get%2#1 1                                                       box_prefixed_key%0#0,extract_uint16%3#0,aggregate%box_get%2#1
+        box_get                                                                              box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%3#0
+        assert // check self.map entry exists                                                box_prefixed_key%0#0,aggregate%box_get%2#0
+        l-load-copy aggregate%box_get%2#0 0                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%2#0 (copy)
+        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%2#0 (copy),0
+        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#0,extract_uint16%3#0
+        l-load aggregate%box_get%2#0 1                                                       box_prefixed_key%0#0,extract_uint16%3#0,aggregate%box_get%2#0
         extract 2 0                                                                          box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0
         l-load extract_uint16%3#0 1                                                          box_prefixed_key%0#0,extract_to_end%3#0,extract_uint16%3#0
         l-load extract_to_end%3#0 1                                                          box_prefixed_key%0#0,extract_uint16%3#0,extract_to_end%3#0
@@ -465,46 +465,46 @@ subroutine modify:
         app_global_get_ex                                                                    maybe_value%0#0,maybe_exists%0#0
         assert // check self.glob exists                                                     maybe_value%0#0
         l-load-copy maybe_value%0#0 0                                                        maybe_value%0#0,maybe_value%0#0 (copy)
-        extract 2 0                                                                          maybe_value%0#0,aggregate%array_head_and_tail%0#1
-        l-load-copy maybe_value%0#0 1                                                        maybe_value%0#0,aggregate%array_head_and_tail%0#1,maybe_value%0#0 (copy)
-        int 0                                                                                maybe_value%0#0,aggregate%array_head_and_tail%0#1,maybe_value%0#0 (copy),0
-        extract_uint16                                                                       maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1
-        l-load-copy aggregate%array_head_and_tail%0#1 1                                      maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%array_head_and_tail%0#1 (copy)
-        int 0                                                                                maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%array_head_and_tail%0#1 (copy),0
-        extract_uint16                                                                       maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1
-        l-load-copy aggregate%array_length%0#1 1                                             maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%array_length%0#1 (copy)
-        int 1                                                                                maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%array_length%0#1 (copy),1
-        - // on error: index access is out of bounds                                         maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%has_next%0#1
-        l-load-copy aggregate%array_head_and_tail%0#1 3                                      maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%has_next%0#1,aggregate%array_head_and_tail%0#1 (copy)
-        len                                                                                  maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%has_next%0#1,aggregate%end_of_array%0#1
-        l-load-copy aggregate%array_head_and_tail%0#1 4                                      maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%has_next%0#1,aggregate%end_of_array%0#1,aggregate%array_head_and_tail%0#1 (copy)
-        int 2                                                                                maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%has_next%0#1,aggregate%end_of_array%0#1,aggregate%array_head_and_tail%0#1 (copy),2
-        extract_uint16                                                                       maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%has_next%0#1,aggregate%end_of_array%0#1,aggregate%next_item_offset%0#1
-        l-load aggregate%end_of_array%0#1 1                                                  maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%has_next%0#1,aggregate%next_item_offset%0#1,aggregate%end_of_array%0#1
-        l-load aggregate%next_item_offset%0#1 1                                              maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%has_next%0#1,aggregate%end_of_array%0#1,aggregate%next_item_offset%0#1
-        l-load aggregate%has_next%0#1 2                                                      maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%end_of_array%0#1,aggregate%next_item_offset%0#1,aggregate%has_next%0#1
-        select                                                                               maybe_value%0#0,aggregate%array_head_and_tail%0#1,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%end_offset%0#1
-        l-load aggregate%array_head_and_tail%0#1 3                                           maybe_value%0#0,aggregate%array_length%0#1,aggregate%item_offset%0#1,aggregate%end_offset%0#1,aggregate%array_head_and_tail%0#1
-        l-load aggregate%item_offset%0#1 2                                                   maybe_value%0#0,aggregate%array_length%0#1,aggregate%end_offset%0#1,aggregate%array_head_and_tail%0#1,aggregate%item_offset%0#1
-        l-load aggregate%end_offset%0#1 2                                                    maybe_value%0#0,aggregate%array_length%0#1,aggregate%array_head_and_tail%0#1,aggregate%item_offset%0#1,aggregate%end_offset%0#1
-        substring3                                                                           maybe_value%0#0,aggregate%array_length%0#1,aggregate%substring3%0#1
-        l-load-copy aggregate%substring3%0#1 0                                               maybe_value%0#0,aggregate%array_length%0#1,aggregate%substring3%0#1,aggregate%substring3%0#1 (copy)
-        int 8                                                                                maybe_value%0#0,aggregate%array_length%0#1,aggregate%substring3%0#1,aggregate%substring3%0#1 (copy),8
-        extract_uint16                                                                       maybe_value%0#0,aggregate%array_length%0#1,aggregate%substring3%0#1,aggregate%item_offset%1#1
-        l-load aggregate%substring3%0#1 1                                                    maybe_value%0#0,aggregate%array_length%0#1,aggregate%item_offset%1#1,aggregate%substring3%0#1
-        int 0                                                                                maybe_value%0#0,aggregate%array_length%0#1,aggregate%item_offset%1#1,aggregate%substring3%0#1,0
-        l-load aggregate%item_offset%1#1 2                                                   maybe_value%0#0,aggregate%array_length%0#1,aggregate%substring3%0#1,0,aggregate%item_offset%1#1
-        extract3                                                                             maybe_value%0#0,aggregate%array_length%0#1,aggregate%data_up_to_item%0#1
-        byte 0x00086d6f646966696564                                                          maybe_value%0#0,aggregate%array_length%0#1,aggregate%data_up_to_item%0#1,0x00086d6f646966696564
-        concat                                                                               maybe_value%0#0,aggregate%array_length%0#1,aggregate%updated_data%0#1
-        l-load aggregate%array_length%0#1 1                                                  maybe_value%0#0,aggregate%updated_data%0#1,aggregate%array_length%0#1
-        assert // index access is out of bounds                                              maybe_value%0#0,aggregate%updated_data%0#1
-        l-load maybe_value%0#0 1                                                             aggregate%updated_data%0#1,maybe_value%0#0
-        l-load aggregate%updated_data%0#1 1                                                  maybe_value%0#0,aggregate%updated_data%0#1
-        int 0                                                                                maybe_value%0#0,aggregate%updated_data%0#1,0
-        callsub dynamic_array_replace_dynamic_element                                        aggregate%updated_array%0#1
-        byte "glob"                                                                          aggregate%updated_array%0#1,"glob"
-        l-load aggregate%updated_array%0#1 1                                                 "glob",aggregate%updated_array%0#1
+        extract 2 0                                                                          maybe_value%0#0,aggregate%array_head_and_tail%0#0
+        l-load-copy maybe_value%0#0 1                                                        maybe_value%0#0,aggregate%array_head_and_tail%0#0,maybe_value%0#0 (copy)
+        int 0                                                                                maybe_value%0#0,aggregate%array_head_and_tail%0#0,maybe_value%0#0 (copy),0
+        extract_uint16                                                                       maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0
+        l-load-copy aggregate%array_head_and_tail%0#0 1                                      maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%array_head_and_tail%0#0 (copy)
+        int 0                                                                                maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%array_head_and_tail%0#0 (copy),0
+        extract_uint16                                                                       maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0
+        l-load-copy aggregate%array_length%0#0 1                                             maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%array_length%0#0 (copy)
+        int 1                                                                                maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%array_length%0#0 (copy),1
+        - // on error: index access is out of bounds                                         maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0
+        l-load-copy aggregate%array_head_and_tail%0#0 3                                      maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%array_head_and_tail%0#0 (copy)
+        len                                                                                  maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0
+        l-load-copy aggregate%array_head_and_tail%0#0 4                                      maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0,aggregate%array_head_and_tail%0#0 (copy)
+        int 2                                                                                maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0,aggregate%array_head_and_tail%0#0 (copy),2
+        extract_uint16                                                                       maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
+        l-load aggregate%end_of_array%0#0 1                                                  maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%next_item_offset%0#0,aggregate%end_of_array%0#0
+        l-load aggregate%next_item_offset%0#0 1                                              maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%has_next%0#0,aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0
+        l-load aggregate%has_next%0#0 2                                                      maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%end_of_array%0#0,aggregate%next_item_offset%0#0,aggregate%has_next%0#0
+        select                                                                               maybe_value%0#0,aggregate%array_head_and_tail%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%end_offset%0#0
+        l-load aggregate%array_head_and_tail%0#0 3                                           maybe_value%0#0,aggregate%array_length%0#0,aggregate%item_offset%0#0,aggregate%end_offset%0#0,aggregate%array_head_and_tail%0#0
+        l-load aggregate%item_offset%0#0 2                                                   maybe_value%0#0,aggregate%array_length%0#0,aggregate%end_offset%0#0,aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0
+        l-load aggregate%end_offset%0#0 2                                                    maybe_value%0#0,aggregate%array_length%0#0,aggregate%array_head_and_tail%0#0,aggregate%item_offset%0#0,aggregate%end_offset%0#0
+        substring3                                                                           maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0
+        l-load-copy aggregate%substring3%0#0 0                                               maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy)
+        int 8                                                                                maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0,aggregate%substring3%0#0 (copy),8
+        extract_uint16                                                                       maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0,aggregate%item_offset%1#0
+        l-load aggregate%substring3%0#0 1                                                    maybe_value%0#0,aggregate%array_length%0#0,aggregate%item_offset%1#0,aggregate%substring3%0#0
+        int 0                                                                                maybe_value%0#0,aggregate%array_length%0#0,aggregate%item_offset%1#0,aggregate%substring3%0#0,0
+        l-load aggregate%item_offset%1#0 2                                                   maybe_value%0#0,aggregate%array_length%0#0,aggregate%substring3%0#0,0,aggregate%item_offset%1#0
+        extract3                                                                             maybe_value%0#0,aggregate%array_length%0#0,aggregate%data_up_to_item%0#0
+        byte 0x00086d6f646966696564                                                          maybe_value%0#0,aggregate%array_length%0#0,aggregate%data_up_to_item%0#0,0x00086d6f646966696564
+        concat                                                                               maybe_value%0#0,aggregate%array_length%0#0,aggregate%updated_data%0#0
+        l-load aggregate%array_length%0#0 1                                                  maybe_value%0#0,aggregate%updated_data%0#0,aggregate%array_length%0#0
+        assert // index access is out of bounds                                              maybe_value%0#0,aggregate%updated_data%0#0
+        l-load maybe_value%0#0 1                                                             aggregate%updated_data%0#0,maybe_value%0#0
+        l-load aggregate%updated_data%0#0 1                                                  maybe_value%0#0,aggregate%updated_data%0#0
+        int 0                                                                                maybe_value%0#0,aggregate%updated_data%0#0,0
+        callsub dynamic_array_replace_dynamic_element                                        aggregate%updated_array%0#0
+        byte "glob"                                                                          aggregate%updated_array%0#0,"glob"
+        l-load aggregate%updated_array%0#0 1                                                 "glob",aggregate%updated_array%0#0
         app_global_put
         // state_mutations/contract.py:47
         // self.loc[Txn.sender][0].baz = arc4.String("modified")
@@ -515,105 +515,105 @@ subroutine modify:
         app_local_get_ex                                                                     tmp%2#0,maybe_value%1#0,maybe_exists%1#0
         assert // check self.loc exists for account                                          tmp%2#0,maybe_value%1#0
         l-load-copy maybe_value%1#0 0                                                        tmp%2#0,maybe_value%1#0,maybe_value%1#0 (copy)
-        extract 2 0                                                                          tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1
-        l-load-copy maybe_value%1#0 1                                                        tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,maybe_value%1#0 (copy)
-        int 0                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,maybe_value%1#0 (copy),0
-        extract_uint16                                                                       tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1
-        l-load-copy aggregate%array_head_and_tail%1#1 1                                      tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%array_head_and_tail%1#1 (copy)
-        int 0                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%array_head_and_tail%1#1 (copy),0
-        extract_uint16                                                                       tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1
-        l-load-copy aggregate%array_length%2#1 1                                             tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%array_length%2#1 (copy)
-        int 1                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%array_length%2#1 (copy),1
-        - // on error: index access is out of bounds                                         tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%has_next%1#1
-        l-load-copy aggregate%array_head_and_tail%1#1 3                                      tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%has_next%1#1,aggregate%array_head_and_tail%1#1 (copy)
-        len                                                                                  tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%has_next%1#1,aggregate%end_of_array%1#1
-        l-load-copy aggregate%array_head_and_tail%1#1 4                                      tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%has_next%1#1,aggregate%end_of_array%1#1,aggregate%array_head_and_tail%1#1 (copy)
-        int 2                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%has_next%1#1,aggregate%end_of_array%1#1,aggregate%array_head_and_tail%1#1 (copy),2
-        extract_uint16                                                                       tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%has_next%1#1,aggregate%end_of_array%1#1,aggregate%next_item_offset%1#1
-        l-load aggregate%end_of_array%1#1 1                                                  tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%has_next%1#1,aggregate%next_item_offset%1#1,aggregate%end_of_array%1#1
-        l-load aggregate%next_item_offset%1#1 1                                              tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%has_next%1#1,aggregate%end_of_array%1#1,aggregate%next_item_offset%1#1
-        l-load aggregate%has_next%1#1 2                                                      tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%end_of_array%1#1,aggregate%next_item_offset%1#1,aggregate%has_next%1#1
-        select                                                                               tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#1,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%end_offset%1#1
-        l-load aggregate%array_head_and_tail%1#1 3                                           tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%item_offset%2#1,aggregate%end_offset%1#1,aggregate%array_head_and_tail%1#1
-        l-load aggregate%item_offset%2#1 2                                                   tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%end_offset%1#1,aggregate%array_head_and_tail%1#1,aggregate%item_offset%2#1
-        l-load aggregate%end_offset%1#1 2                                                    tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%array_head_and_tail%1#1,aggregate%item_offset%2#1,aggregate%end_offset%1#1
-        substring3                                                                           tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%substring3%2#1
-        l-load-copy aggregate%substring3%2#1 0                                               tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%substring3%2#1,aggregate%substring3%2#1 (copy)
-        int 8                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%substring3%2#1,aggregate%substring3%2#1 (copy),8
-        extract_uint16                                                                       tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%substring3%2#1,aggregate%item_offset%3#1
-        l-load aggregate%substring3%2#1 1                                                    tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%item_offset%3#1,aggregate%substring3%2#1
-        int 0                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%item_offset%3#1,aggregate%substring3%2#1,0
-        l-load aggregate%item_offset%3#1 2                                                   tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%substring3%2#1,0,aggregate%item_offset%3#1
-        extract3                                                                             tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%data_up_to_item%1#1
+        extract 2 0                                                                          tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0
+        l-load-copy maybe_value%1#0 1                                                        tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,maybe_value%1#0 (copy)
+        int 0                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,maybe_value%1#0 (copy),0
+        extract_uint16                                                                       tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0
+        l-load-copy aggregate%array_head_and_tail%1#0 1                                      tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%array_head_and_tail%1#0 (copy)
+        int 0                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%array_head_and_tail%1#0 (copy),0
+        extract_uint16                                                                       tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0
+        l-load-copy aggregate%array_length%2#0 1                                             tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%array_length%2#0 (copy)
+        int 1                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%array_length%2#0 (copy),1
+        - // on error: index access is out of bounds                                         tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0
+        l-load-copy aggregate%array_head_and_tail%1#0 3                                      tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%array_head_and_tail%1#0 (copy)
+        len                                                                                  tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0
+        l-load-copy aggregate%array_head_and_tail%1#0 4                                      tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0,aggregate%array_head_and_tail%1#0 (copy)
+        int 2                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0,aggregate%array_head_and_tail%1#0 (copy),2
+        extract_uint16                                                                       tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0,aggregate%next_item_offset%1#0
+        l-load aggregate%end_of_array%1#0 1                                                  tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%next_item_offset%1#0,aggregate%end_of_array%1#0
+        l-load aggregate%next_item_offset%1#0 1                                              tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%has_next%1#0,aggregate%end_of_array%1#0,aggregate%next_item_offset%1#0
+        l-load aggregate%has_next%1#0 2                                                      tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%end_of_array%1#0,aggregate%next_item_offset%1#0,aggregate%has_next%1#0
+        select                                                                               tmp%2#0,maybe_value%1#0,aggregate%array_head_and_tail%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%end_offset%1#0
+        l-load aggregate%array_head_and_tail%1#0 3                                           tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%item_offset%2#0,aggregate%end_offset%1#0,aggregate%array_head_and_tail%1#0
+        l-load aggregate%item_offset%2#0 2                                                   tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%end_offset%1#0,aggregate%array_head_and_tail%1#0,aggregate%item_offset%2#0
+        l-load aggregate%end_offset%1#0 2                                                    tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%array_head_and_tail%1#0,aggregate%item_offset%2#0,aggregate%end_offset%1#0
+        substring3                                                                           tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0
+        l-load-copy aggregate%substring3%2#0 0                                               tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0,aggregate%substring3%2#0 (copy)
+        int 8                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0,aggregate%substring3%2#0 (copy),8
+        extract_uint16                                                                       tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0,aggregate%item_offset%3#0
+        l-load aggregate%substring3%2#0 1                                                    tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%item_offset%3#0,aggregate%substring3%2#0
+        int 0                                                                                tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%item_offset%3#0,aggregate%substring3%2#0,0
+        l-load aggregate%item_offset%3#0 2                                                   tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%substring3%2#0,0,aggregate%item_offset%3#0
+        extract3                                                                             tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%data_up_to_item%1#0
         // state_mutations/contract.py:46
         // self.glob.value[0].baz = arc4.String("modified")
-        byte 0x00086d6f646966696564                                                          tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%data_up_to_item%1#1,0x00086d6f646966696564
+        byte 0x00086d6f646966696564                                                          tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%data_up_to_item%1#0,0x00086d6f646966696564
         // state_mutations/contract.py:47
         // self.loc[Txn.sender][0].baz = arc4.String("modified")
-        concat                                                                               tmp%2#0,maybe_value%1#0,aggregate%array_length%2#1,aggregate%updated_data%1#1
-        l-load aggregate%array_length%2#1 1                                                  tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#1,aggregate%array_length%2#1
-        assert // index access is out of bounds                                              tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#1
-        l-load maybe_value%1#0 1                                                             tmp%2#0,aggregate%updated_data%1#1,maybe_value%1#0
-        l-load aggregate%updated_data%1#1 1                                                  tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#1
-        int 0                                                                                tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#1,0
-        callsub dynamic_array_replace_dynamic_element                                        tmp%2#0,aggregate%updated_array%1#1
-        l-load tmp%2#0 1                                                                     aggregate%updated_array%1#1,tmp%2#0
-        byte "loc"                                                                           aggregate%updated_array%1#1,tmp%2#0,"loc"
-        l-load aggregate%updated_array%1#1 2                                                 tmp%2#0,"loc",aggregate%updated_array%1#1
+        concat                                                                               tmp%2#0,maybe_value%1#0,aggregate%array_length%2#0,aggregate%updated_data%1#0
+        l-load aggregate%array_length%2#0 1                                                  tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#0,aggregate%array_length%2#0
+        assert // index access is out of bounds                                              tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#0
+        l-load maybe_value%1#0 1                                                             tmp%2#0,aggregate%updated_data%1#0,maybe_value%1#0
+        l-load aggregate%updated_data%1#0 1                                                  tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#0
+        int 0                                                                                tmp%2#0,maybe_value%1#0,aggregate%updated_data%1#0,0
+        callsub dynamic_array_replace_dynamic_element                                        tmp%2#0,aggregate%updated_array%1#0
+        l-load tmp%2#0 1                                                                     aggregate%updated_array%1#0,tmp%2#0
+        byte "loc"                                                                           aggregate%updated_array%1#0,tmp%2#0,"loc"
+        l-load aggregate%updated_array%1#0 2                                                 tmp%2#0,"loc",aggregate%updated_array%1#0
         app_local_put
         // state_mutations/contract.py:48
         // self.box.value[0].baz = arc4.String("modified")
         byte "box"                                                                           "box"
-        box_get                                                                              aggregate%box_get%0#1,aggregate%box_get%1#1
-        assert // check self.box exists                                                      aggregate%box_get%0#1
-        l-load-copy aggregate%box_get%0#1 0                                                  aggregate%box_get%0#1,aggregate%box_get%0#1 (copy)
-        extract 2 0                                                                          aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1
-        l-load-copy aggregate%box_get%0#1 1                                                  aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%box_get%0#1 (copy)
-        int 0                                                                                aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%box_get%0#1 (copy),0
-        extract_uint16                                                                       aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1
-        l-load-copy aggregate%array_head_and_tail%2#1 1                                      aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%array_head_and_tail%2#1 (copy)
-        int 0                                                                                aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%array_head_and_tail%2#1 (copy),0
-        extract_uint16                                                                       aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1
-        l-load-copy aggregate%array_length%4#1 1                                             aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%array_length%4#1 (copy)
-        int 1                                                                                aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%array_length%4#1 (copy),1
-        - // on error: index access is out of bounds                                         aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%has_next%2#1
-        l-load-copy aggregate%array_head_and_tail%2#1 3                                      aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%has_next%2#1,aggregate%array_head_and_tail%2#1 (copy)
-        len                                                                                  aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%has_next%2#1,aggregate%end_of_array%2#1
-        l-load-copy aggregate%array_head_and_tail%2#1 4                                      aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%has_next%2#1,aggregate%end_of_array%2#1,aggregate%array_head_and_tail%2#1 (copy)
-        int 2                                                                                aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%has_next%2#1,aggregate%end_of_array%2#1,aggregate%array_head_and_tail%2#1 (copy),2
-        extract_uint16                                                                       aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%has_next%2#1,aggregate%end_of_array%2#1,aggregate%next_item_offset%2#1
-        l-load aggregate%end_of_array%2#1 1                                                  aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%has_next%2#1,aggregate%next_item_offset%2#1,aggregate%end_of_array%2#1
-        l-load aggregate%next_item_offset%2#1 1                                              aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%has_next%2#1,aggregate%end_of_array%2#1,aggregate%next_item_offset%2#1
-        l-load aggregate%has_next%2#1 2                                                      aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%end_of_array%2#1,aggregate%next_item_offset%2#1,aggregate%has_next%2#1
-        select                                                                               aggregate%box_get%0#1,aggregate%array_head_and_tail%2#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%end_offset%2#1
-        l-load aggregate%array_head_and_tail%2#1 3                                           aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%item_offset%4#1,aggregate%end_offset%2#1,aggregate%array_head_and_tail%2#1
-        l-load aggregate%item_offset%4#1 2                                                   aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%end_offset%2#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%4#1
-        l-load aggregate%end_offset%2#1 2                                                    aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%array_head_and_tail%2#1,aggregate%item_offset%4#1,aggregate%end_offset%2#1
-        substring3                                                                           aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%substring3%4#1
-        l-load-copy aggregate%substring3%4#1 0                                               aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%substring3%4#1,aggregate%substring3%4#1 (copy)
-        int 8                                                                                aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%substring3%4#1,aggregate%substring3%4#1 (copy),8
-        extract_uint16                                                                       aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%substring3%4#1,aggregate%item_offset%5#1
-        l-load aggregate%substring3%4#1 1                                                    aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%item_offset%5#1,aggregate%substring3%4#1
-        int 0                                                                                aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%item_offset%5#1,aggregate%substring3%4#1,0
-        l-load aggregate%item_offset%5#1 2                                                   aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%substring3%4#1,0,aggregate%item_offset%5#1
-        extract3                                                                             aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%data_up_to_item%2#1
+        box_get                                                                              aggregate%box_get%0#0,aggregate%box_get%1#0
+        assert // check self.box exists                                                      aggregate%box_get%0#0
+        l-load-copy aggregate%box_get%0#0 0                                                  aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
+        extract 2 0                                                                          aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0
+        l-load-copy aggregate%box_get%0#0 1                                                  aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%box_get%0#0 (copy)
+        int 0                                                                                aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%box_get%0#0 (copy),0
+        extract_uint16                                                                       aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0
+        l-load-copy aggregate%array_head_and_tail%2#0 1                                      aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%array_head_and_tail%2#0 (copy)
+        int 0                                                                                aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%array_head_and_tail%2#0 (copy),0
+        extract_uint16                                                                       aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0
+        l-load-copy aggregate%array_length%4#0 1                                             aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%array_length%4#0 (copy)
+        int 1                                                                                aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%array_length%4#0 (copy),1
+        - // on error: index access is out of bounds                                         aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0
+        l-load-copy aggregate%array_head_and_tail%2#0 3                                      aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%array_head_and_tail%2#0 (copy)
+        len                                                                                  aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0
+        l-load-copy aggregate%array_head_and_tail%2#0 4                                      aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0,aggregate%array_head_and_tail%2#0 (copy)
+        int 2                                                                                aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0,aggregate%array_head_and_tail%2#0 (copy),2
+        extract_uint16                                                                       aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0,aggregate%next_item_offset%2#0
+        l-load aggregate%end_of_array%2#0 1                                                  aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%next_item_offset%2#0,aggregate%end_of_array%2#0
+        l-load aggregate%next_item_offset%2#0 1                                              aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%has_next%2#0,aggregate%end_of_array%2#0,aggregate%next_item_offset%2#0
+        l-load aggregate%has_next%2#0 2                                                      aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%end_of_array%2#0,aggregate%next_item_offset%2#0,aggregate%has_next%2#0
+        select                                                                               aggregate%box_get%0#0,aggregate%array_head_and_tail%2#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%end_offset%2#0
+        l-load aggregate%array_head_and_tail%2#0 3                                           aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%item_offset%4#0,aggregate%end_offset%2#0,aggregate%array_head_and_tail%2#0
+        l-load aggregate%item_offset%4#0 2                                                   aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%end_offset%2#0,aggregate%array_head_and_tail%2#0,aggregate%item_offset%4#0
+        l-load aggregate%end_offset%2#0 2                                                    aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%array_head_and_tail%2#0,aggregate%item_offset%4#0,aggregate%end_offset%2#0
+        substring3                                                                           aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0
+        l-load-copy aggregate%substring3%4#0 0                                               aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0,aggregate%substring3%4#0 (copy)
+        int 8                                                                                aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0,aggregate%substring3%4#0 (copy),8
+        extract_uint16                                                                       aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0,aggregate%item_offset%5#0
+        l-load aggregate%substring3%4#0 1                                                    aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%item_offset%5#0,aggregate%substring3%4#0
+        int 0                                                                                aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%item_offset%5#0,aggregate%substring3%4#0,0
+        l-load aggregate%item_offset%5#0 2                                                   aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%substring3%4#0,0,aggregate%item_offset%5#0
+        extract3                                                                             aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%data_up_to_item%2#0
         // state_mutations/contract.py:46
         // self.glob.value[0].baz = arc4.String("modified")
-        byte 0x00086d6f646966696564                                                          aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%data_up_to_item%2#1,0x00086d6f646966696564
+        byte 0x00086d6f646966696564                                                          aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%data_up_to_item%2#0,0x00086d6f646966696564
         // state_mutations/contract.py:48
         // self.box.value[0].baz = arc4.String("modified")
-        concat                                                                               aggregate%box_get%0#1,aggregate%array_length%4#1,aggregate%updated_data%2#1
-        l-load aggregate%array_length%4#1 1                                                  aggregate%box_get%0#1,aggregate%updated_data%2#1,aggregate%array_length%4#1
-        assert // index access is out of bounds                                              aggregate%box_get%0#1,aggregate%updated_data%2#1
-        l-load aggregate%box_get%0#1 1                                                       aggregate%updated_data%2#1,aggregate%box_get%0#1
-        l-load aggregate%updated_data%2#1 1                                                  aggregate%box_get%0#1,aggregate%updated_data%2#1
-        int 0                                                                                aggregate%box_get%0#1,aggregate%updated_data%2#1,0
-        callsub dynamic_array_replace_dynamic_element                                        aggregate%updated_array%2#1
-        byte "box"                                                                           aggregate%updated_array%2#1,"box"
-        box_del                                                                              aggregate%updated_array%2#1,{box_del}
-        pop 1                                                                                aggregate%updated_array%2#1
-        byte "box"                                                                           aggregate%updated_array%2#1,"box"
-        l-load aggregate%updated_array%2#1 1                                                 "box",aggregate%updated_array%2#1
+        concat                                                                               aggregate%box_get%0#0,aggregate%array_length%4#0,aggregate%updated_data%2#0
+        l-load aggregate%array_length%4#0 1                                                  aggregate%box_get%0#0,aggregate%updated_data%2#0,aggregate%array_length%4#0
+        assert // index access is out of bounds                                              aggregate%box_get%0#0,aggregate%updated_data%2#0
+        l-load aggregate%box_get%0#0 1                                                       aggregate%updated_data%2#0,aggregate%box_get%0#0
+        l-load aggregate%updated_data%2#0 1                                                  aggregate%box_get%0#0,aggregate%updated_data%2#0
+        int 0                                                                                aggregate%box_get%0#0,aggregate%updated_data%2#0,0
+        callsub dynamic_array_replace_dynamic_element                                        aggregate%updated_array%2#0
+        byte "box"                                                                           aggregate%updated_array%2#0,"box"
+        box_del                                                                              aggregate%updated_array%2#0,{box_del}
+        pop 1                                                                                aggregate%updated_array%2#0
+        byte "box"                                                                           aggregate%updated_array%2#0,"box"
+        l-load aggregate%updated_array%2#0 1                                                 "box",aggregate%updated_array%2#0
         box_put
         // state_mutations/contract.py:49
         // self.map[Txn.sender][0].baz = arc4.String("modified")
@@ -622,56 +622,56 @@ subroutine modify:
         l-load materialized_values%0#0 1                                                     "map",materialized_values%0#0
         concat                                                                               box_prefixed_key%0#0
         l-load-copy box_prefixed_key%0#0 0                                                   box_prefixed_key%0#0,box_prefixed_key%0#0 (copy)
-        box_get                                                                              box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%box_get%3#1
-        assert // check self.map entry exists                                                box_prefixed_key%0#0,aggregate%box_get%2#1
-        l-load-copy aggregate%box_get%2#1 0                                                  box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%box_get%2#1 (copy)
-        extract 2 0                                                                          box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1
-        l-load-copy aggregate%box_get%2#1 1                                                  box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%box_get%2#1 (copy)
-        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%box_get%2#1 (copy),0
-        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1
-        l-load-copy aggregate%array_head_and_tail%3#1 1                                      box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%array_head_and_tail%3#1 (copy)
-        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%array_head_and_tail%3#1 (copy),0
-        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1
-        l-load-copy aggregate%array_length%6#1 1                                             box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%array_length%6#1 (copy)
-        int 1                                                                                box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%array_length%6#1 (copy),1
-        - // on error: index access is out of bounds                                         box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%has_next%3#1
-        l-load-copy aggregate%array_head_and_tail%3#1 3                                      box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%has_next%3#1,aggregate%array_head_and_tail%3#1 (copy)
-        len                                                                                  box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%has_next%3#1,aggregate%end_of_array%3#1
-        l-load-copy aggregate%array_head_and_tail%3#1 4                                      box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%has_next%3#1,aggregate%end_of_array%3#1,aggregate%array_head_and_tail%3#1 (copy)
-        int 2                                                                                box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%has_next%3#1,aggregate%end_of_array%3#1,aggregate%array_head_and_tail%3#1 (copy),2
-        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%has_next%3#1,aggregate%end_of_array%3#1,aggregate%next_item_offset%3#1
-        l-load aggregate%end_of_array%3#1 1                                                  box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%has_next%3#1,aggregate%next_item_offset%3#1,aggregate%end_of_array%3#1
-        l-load aggregate%next_item_offset%3#1 1                                              box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%has_next%3#1,aggregate%end_of_array%3#1,aggregate%next_item_offset%3#1
-        l-load aggregate%has_next%3#1 2                                                      box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%end_of_array%3#1,aggregate%next_item_offset%3#1,aggregate%has_next%3#1
-        select                                                                               box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_head_and_tail%3#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%end_offset%3#1
-        l-load aggregate%array_head_and_tail%3#1 3                                           box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%item_offset%6#1,aggregate%end_offset%3#1,aggregate%array_head_and_tail%3#1
-        l-load aggregate%item_offset%6#1 2                                                   box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%end_offset%3#1,aggregate%array_head_and_tail%3#1,aggregate%item_offset%6#1
-        l-load aggregate%end_offset%3#1 2                                                    box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%array_head_and_tail%3#1,aggregate%item_offset%6#1,aggregate%end_offset%3#1
-        substring3                                                                           box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%substring3%6#1
-        l-load-copy aggregate%substring3%6#1 0                                               box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%substring3%6#1,aggregate%substring3%6#1 (copy)
-        int 8                                                                                box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%substring3%6#1,aggregate%substring3%6#1 (copy),8
-        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%substring3%6#1,aggregate%item_offset%7#1
-        l-load aggregate%substring3%6#1 1                                                    box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%item_offset%7#1,aggregate%substring3%6#1
-        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%item_offset%7#1,aggregate%substring3%6#1,0
-        l-load aggregate%item_offset%7#1 2                                                   box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%substring3%6#1,0,aggregate%item_offset%7#1
-        extract3                                                                             box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%data_up_to_item%3#1
+        box_get                                                                              box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%3#0
+        assert // check self.map entry exists                                                box_prefixed_key%0#0,aggregate%box_get%2#0
+        l-load-copy aggregate%box_get%2#0 0                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%box_get%2#0 (copy)
+        extract 2 0                                                                          box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0
+        l-load-copy aggregate%box_get%2#0 1                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%box_get%2#0 (copy)
+        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%box_get%2#0 (copy),0
+        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0
+        l-load-copy aggregate%array_head_and_tail%3#0 1                                      box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%array_head_and_tail%3#0 (copy)
+        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%array_head_and_tail%3#0 (copy),0
+        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0
+        l-load-copy aggregate%array_length%6#0 1                                             box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%array_length%6#0 (copy)
+        int 1                                                                                box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%array_length%6#0 (copy),1
+        - // on error: index access is out of bounds                                         box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0
+        l-load-copy aggregate%array_head_and_tail%3#0 3                                      box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%array_head_and_tail%3#0 (copy)
+        len                                                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0
+        l-load-copy aggregate%array_head_and_tail%3#0 4                                      box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0,aggregate%array_head_and_tail%3#0 (copy)
+        int 2                                                                                box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0,aggregate%array_head_and_tail%3#0 (copy),2
+        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0,aggregate%next_item_offset%3#0
+        l-load aggregate%end_of_array%3#0 1                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%next_item_offset%3#0,aggregate%end_of_array%3#0
+        l-load aggregate%next_item_offset%3#0 1                                              box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%has_next%3#0,aggregate%end_of_array%3#0,aggregate%next_item_offset%3#0
+        l-load aggregate%has_next%3#0 2                                                      box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%end_of_array%3#0,aggregate%next_item_offset%3#0,aggregate%has_next%3#0
+        select                                                                               box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_head_and_tail%3#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%end_offset%3#0
+        l-load aggregate%array_head_and_tail%3#0 3                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%item_offset%6#0,aggregate%end_offset%3#0,aggregate%array_head_and_tail%3#0
+        l-load aggregate%item_offset%6#0 2                                                   box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%end_offset%3#0,aggregate%array_head_and_tail%3#0,aggregate%item_offset%6#0
+        l-load aggregate%end_offset%3#0 2                                                    box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%array_head_and_tail%3#0,aggregate%item_offset%6#0,aggregate%end_offset%3#0
+        substring3                                                                           box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0
+        l-load-copy aggregate%substring3%6#0 0                                               box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0,aggregate%substring3%6#0 (copy)
+        int 8                                                                                box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0,aggregate%substring3%6#0 (copy),8
+        extract_uint16                                                                       box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0,aggregate%item_offset%7#0
+        l-load aggregate%substring3%6#0 1                                                    box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%item_offset%7#0,aggregate%substring3%6#0
+        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%item_offset%7#0,aggregate%substring3%6#0,0
+        l-load aggregate%item_offset%7#0 2                                                   box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%substring3%6#0,0,aggregate%item_offset%7#0
+        extract3                                                                             box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%data_up_to_item%3#0
         // state_mutations/contract.py:46
         // self.glob.value[0].baz = arc4.String("modified")
-        byte 0x00086d6f646966696564                                                          box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%data_up_to_item%3#1,0x00086d6f646966696564
+        byte 0x00086d6f646966696564                                                          box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%data_up_to_item%3#0,0x00086d6f646966696564
         // state_mutations/contract.py:49
         // self.map[Txn.sender][0].baz = arc4.String("modified")
-        concat                                                                               box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%array_length%6#1,aggregate%updated_data%3#1
-        l-load aggregate%array_length%6#1 1                                                  box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%updated_data%3#1,aggregate%array_length%6#1
-        assert // index access is out of bounds                                              box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%updated_data%3#1
-        l-load aggregate%box_get%2#1 1                                                       box_prefixed_key%0#0,aggregate%updated_data%3#1,aggregate%box_get%2#1
-        l-load aggregate%updated_data%3#1 1                                                  box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%updated_data%3#1
-        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#1,aggregate%updated_data%3#1,0
-        callsub dynamic_array_replace_dynamic_element                                        box_prefixed_key%0#0,aggregate%updated_array%3#1
-        l-load-copy box_prefixed_key%0#0 1                                                   box_prefixed_key%0#0,aggregate%updated_array%3#1,box_prefixed_key%0#0 (copy)
-        box_del                                                                              box_prefixed_key%0#0,aggregate%updated_array%3#1,{box_del}
-        pop 1                                                                                box_prefixed_key%0#0,aggregate%updated_array%3#1
-        l-load box_prefixed_key%0#0 1                                                        aggregate%updated_array%3#1,box_prefixed_key%0#0
-        l-load aggregate%updated_array%3#1 1                                                 box_prefixed_key%0#0,aggregate%updated_array%3#1
+        concat                                                                               box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%array_length%6#0,aggregate%updated_data%3#0
+        l-load aggregate%array_length%6#0 1                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%updated_data%3#0,aggregate%array_length%6#0
+        assert // index access is out of bounds                                              box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%updated_data%3#0
+        l-load aggregate%box_get%2#0 1                                                       box_prefixed_key%0#0,aggregate%updated_data%3#0,aggregate%box_get%2#0
+        l-load aggregate%updated_data%3#0 1                                                  box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%updated_data%3#0
+        int 0                                                                                box_prefixed_key%0#0,aggregate%box_get%2#0,aggregate%updated_data%3#0,0
+        callsub dynamic_array_replace_dynamic_element                                        box_prefixed_key%0#0,aggregate%updated_array%3#0
+        l-load-copy box_prefixed_key%0#0 1                                                   box_prefixed_key%0#0,aggregate%updated_array%3#0,box_prefixed_key%0#0 (copy)
+        box_del                                                                              box_prefixed_key%0#0,aggregate%updated_array%3#0,{box_del}
+        pop 1                                                                                box_prefixed_key%0#0,aggregate%updated_array%3#0
+        l-load box_prefixed_key%0#0 1                                                        aggregate%updated_array%3#0,box_prefixed_key%0#0
+        l-load aggregate%updated_array%3#0 1                                                 box_prefixed_key%0#0,aggregate%updated_array%3#0
         box_put
         retsub
 
@@ -695,7 +695,7 @@ subroutine get:
         // state_mutations/contract.py:55
         // a3 = self.box.value.copy()
         byte "box"                                                                           a1#0,a2#0,"box"
-        box_get                                                                              a1#0,a2#0,a3#0,aggregate%box_get%1#1
+        box_get                                                                              a1#0,a2#0,a3#0,aggregate%box_get%1#0
         assert // check self.box exists                                                      a1#0,a2#0,a3#0
         // state_mutations/contract.py:56
         // a4 = self.map[Txn.sender].copy()
@@ -703,7 +703,7 @@ subroutine get:
         byte "map"                                                                           a1#0,a2#0,a3#0,materialized_values%0#0,"map"
         l-load materialized_values%0#0 1                                                     a1#0,a2#0,a3#0,"map",materialized_values%0#0
         concat                                                                               a1#0,a2#0,a3#0,box_prefixed_key%0#0
-        box_get                                                                              a1#0,a2#0,a3#0,a4#0,aggregate%box_get%3#1
+        box_get                                                                              a1#0,a2#0,a3#0,a4#0,aggregate%box_get%3#0
         assert // check self.map entry exists                                                a1#0,a2#0,a3#0,a4#0
         // state_mutations/contract.py:58
         // assert a1 == a2, "expected local == global"

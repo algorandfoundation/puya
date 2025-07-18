@@ -90,8 +90,8 @@ subroutine examples.struct_in_box.contract.ExampleContract.read_from_box(user_id
 subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: Encoded((len+utf8[]),uint64,uint64)) -> Encoded((len+utf8[]),uint64,uint64):
     block@0: // L17
         let user%out#0: Encoded((len+utf8[]),uint64,uint64) = user#0
-        let aggregate%extract%0#1: bytes = (extract3 user#0 2u 8u)
-        let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#1
+        let aggregate%extract%0#0: bytes = (extract3 user#0 2u 8u)
+        let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#0
         let values%0#0: Encoded(uint64) = tuple_item%0#0
         let box_key#0: bytes = values%0#0
         (box_del box_key#0)
@@ -106,8 +106,8 @@ subroutine examples.struct_in_box.contract.ExampleContract.box_exists(user_id: E
 
 subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[]),uint64,uint64)) -> void:
     block@0: // L30
-        let aggregate%extract%0#1: bytes = (extract3 user#0 2u 8u)
-        let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#1
+        let aggregate%extract%0#0: bytes = (extract3 user#0 2u 8u)
+        let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#0
         let values%0#0: Encoded(uint64) = tuple_item%0#0
         let tmp%0#0: bool = examples.struct_in_box.contract.ExampleContract.box_exists(values%0#0)
         let tmp%1#0: bool = (! tmp%0#0)
@@ -119,12 +119,12 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(
     block@0: // L35
         let tmp%0#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.read_from_box(user_id#0)
         let user#0: Encoded((len+utf8[]),uint64,uint64) = tmp%0#0
-        let aggregate%val_as_bytes%0#1: bytes[8] = (itob asset#0)
-        let aggregate%as_Encoded(uint64)%0#1: Encoded(uint64) = aggregate%val_as_bytes%0#1
-        let tmp%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#1
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob asset#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let tmp%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let encoded_value%0#0: Encoded(uint64) = tmp%1#0
-        let aggregate%updated_data%0#1: bytes = (replace3 user#0 10u encoded_value%0#0)
-        let updated_tuple%0#0: Encoded((len+utf8[]),uint64,uint64) = aggregate%updated_data%0#1
+        let aggregate%updated_data%0#0: bytes = (replace3 user#0 10u encoded_value%0#0)
+        let updated_tuple%0#0: Encoded((len+utf8[]),uint64,uint64) = aggregate%updated_data%0#0
         let user#0: Encoded((len+utf8[]),uint64,uint64) = updated_tuple%0#0
         let write_to_box%0#0: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#0)
         return 

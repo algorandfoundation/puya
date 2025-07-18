@@ -63,7 +63,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addr
         (assert array_length%0#0) // must provide some accounts
         let tmp%3#0: uint64 = ((gtxns Amount) funds#0)
         let share#0: uint64 = (/ tmp%3#0 array_length%0#0)
-        let aggregate%array_trimmed%0#1: bytes = ((extract 2 0) addresses#0)
+        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) addresses#0)
         let payFields.receiver#0: bytes = ((extract 2 32) addresses#0)
         itxn_begin
         ((itxn_field Receiver) payFields.receiver#0)
@@ -76,8 +76,8 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute(addr
         let continue_looping%0#0: bool = (< i#0 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L32
-        let aggregate%bytes_offset%1#1: uint64 = (* i#0 32u)
-        let addr#0: Encoded(uint8[32]) = (extract3 aggregate%array_trimmed%0#1 aggregate%bytes_offset%1#1 32u) // on error: index access is out of bounds
+        let aggregate%bytes_offset%1#0: uint64 = (* i#0 32u)
+        let addr#0: Encoded(uint8[32]) = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%1#0 32u) // on error: index access is out of bounds
         itxn_next
         ((itxn_field Amount) share#0)
         ((itxn_field TypeEnum) 1u)
