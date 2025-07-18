@@ -65,7 +65,7 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
         try:
             version = self._versions[name] + 1
         except KeyError:
-            version = 1
+            version = 0
         self._versions[name] = version
         return version
 
