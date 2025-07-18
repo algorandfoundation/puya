@@ -189,17 +189,17 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         return array_head_and_tail#1
 
 subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(len+(uint64,uint64)[])) -> uint64:
-    block@0: // L245
+    block@0: // L248
         let total#0: uint64 = 0u
         let array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L248
+    block@1: // for_header_L251
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@2)
         let total#1: uint64 = φ(total#0 <- block@0, total#3 <- block@2)
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L249
+    block@2: // for_body_L252
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(arr#0, item_index_internal%0#1)
         let element#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%0#0)
         let tuple_item%0#0: Encoded(uint64) = extract_value(element#0, 0)
@@ -210,11 +210,11 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
         let total#3: uint64 = (+ total#2 values%2#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
-    block@4: // after_for_L248
+    block@4: // after_for_L251
         return total#1
 
 subroutine test_cases.mutable_native_types.contract.add(val: Encoded(uint64,uint64)) -> uint64:
-    block@0: // L254
+    block@0: // L257
         let tuple_item%0#0: Encoded(uint64) = extract_value(val#0, 0)
         let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
         let tuple_item%1#0: Encoded(uint64) = extract_value(val#0, 1)
@@ -223,7 +223,7 @@ subroutine test_cases.mutable_native_types.contract.add(val: Encoded(uint64,uint
         return tmp%0#0
 
 subroutine test_cases.mutable_native_types.contract.do_something(pay: Encoded(uint8[32],uint64,uint64)) -> Encoded(uint8[32],uint64,uint64):
-    block@0: // L259
+    block@0: // L262
         return pay#0
 
 subroutine test_cases.mutable_native_types.contract.Contract.__puya_arc4_router__() -> bool:
@@ -641,14 +641,23 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let arr8#1: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%2#0 as_u16_bytes%2#0)
         let tmp%17#0: bool = (== arr2#1 arr8#1)
         (assert tmp%17#0) // expected arrays to be the same
+        let tmp%18#0: bool = (!= arr8#0 arr8#0)
+        goto tmp%18#0 ? block@1 : block@2
+    block@1: // if_body_L227
+        let array_length%8#0: uint64 = (extract_uint16 arr8#0 0u)
+        let array_length%9#0: uint64 = (extract_uint16 arr8#1 0u)
+        let tmp%19#0: bool = (== array_length%8#0 array_length%9#0)
+        (assert tmp%19#0) // expected array lengths to be the same
+        goto block@2
+    block@2: // after_if_else_L226
         let _i#0: uint64 = 0u
-        goto block@1
-    block@1: // for_header_L226
-        let _i#1: uint64 = φ(_i#0 <- block@0, _i#2 <- block@2)
-        let arr2#3: Encoded(len+(uint64,uint64)[]) = φ(arr8#0 <- block@0, arr2#4 <- block@2)
+        goto block@3
+    block@3: // for_header_L229
+        let _i#1: uint64 = φ(_i#0 <- block@2, _i#2 <- block@4)
+        let arr2#3: Encoded(len+(uint64,uint64)[]) = φ(arr8#0 <- block@2, arr2#4 <- block@4)
         let continue_looping%0#0: bool = (< _i#1 3u)
-        goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L227
+        goto continue_looping%0#0 ? block@4 : block@6
+    block@4: // for_body_L230
         let concat%3#0: Encoded(len+(uint64,uint64)[]) = (concat arr2#3 tmp%11#0) // on error: max array length exceeded
         let extract_uint16%1#0: uint64 = (extract_uint16 arr2#3 0u)
         let add%1#0: uint64 = (+ extract_uint16%1#0 1u)
@@ -656,14 +665,14 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let as_u16_bytes%3#0: bytes = ((extract 6 2) as_bytes%3#0)
         let arr2#4: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%3#0 as_u16_bytes%3#0)
         let _i#2: uint64 = (+ _i#1 1u)
-        goto block@1
-    block@4: // after_for_L226
+        goto block@3
+    block@6: // after_for_L229
         let array_length#0: uint64 = (extract_uint16 arr2#3 0u)
-        let tmp%19#0: bool = (== array_length#0 3u)
-        (assert tmp%19#0) // expected 3 elements
-        let tmp%20#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#3)
-        let tmp%21#0: bool = (== tmp%20#0 21u)
-        (assert tmp%21#0) // expected sum to be 21
+        let tmp%21#0: bool = (== array_length#0 3u)
+        (assert tmp%21#0) // expected 3 elements
+        let tmp%22#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#3)
+        let tmp%23#0: bool = (== tmp%22#0 21u)
+        (assert tmp%23#0) // expected sum to be 21
         let length_minus_1#0: uint64 = (- array_length#0 1u)
         let tmp%2#1: bytes = (itob length_minus_1#0)
         let tmp%3#1: bytes = ((extract 6 0) tmp%2#1)
@@ -672,18 +681,18 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let item_location#0: uint64 = (- tmp%5#1 16u)
         let popped#0: bytes = (extract3 result#0 item_location#0 16u)
         let result#1: bytes = (substring3 result#0 0u item_location#0)
-        let tmp%24#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
-        let tmp%25#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#3)
-        let tmp%26#0: bool = (== tmp%25#0 21u)
-        (assert tmp%26#0) // expected sum to be 21
-        let tmp%27#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(result#1)
-        let tmp%28#0: bool = (== tmp%27#0 14u)
-        (assert tmp%28#0) // expected sum to be 14
+        let tmp%26#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(popped#0)
+        let tmp%27#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#3)
+        let tmp%28#0: bool = (== tmp%27#0 21u)
+        (assert tmp%28#0) // expected sum to be 21
+        let tmp%29#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(result#1)
+        let tmp%30#0: bool = (== tmp%29#0 14u)
+        (assert tmp%30#0) // expected sum to be 14
         (app_global_put "arr" result#1)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (result#1, 1u)
         (assert maybe_exists%0#0) // check self.arr exists
-        let tmp%29#0: bool = (== maybe_value%0#0 result#1)
-        (assert tmp%29#0) // expected array in storage to be the same
+        let tmp%31#0: bool = (== maybe_value%0#0 result#1)
+        (assert tmp%31#0) // expected array in storage to be the same
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (result#1, 1u)
         (assert maybe_exists%1#0) // check self.arr exists
         return maybe_value%1#0

@@ -223,6 +223,9 @@ class Contract(arc4.ARC4Contract):
 
         arr2 = Array[FixedStruct]()
 
+        if arr2:
+            assert arr2.length == arr8.length, "expected array lengths to be the same"
+
         for _i in urange(3):
             arr2.append(fixed_struct)
 
