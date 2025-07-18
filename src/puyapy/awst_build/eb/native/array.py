@@ -110,7 +110,7 @@ class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
                     "iterable element type does not match collection type",
                     location=arg.source_location,
                 )
-                return dummy_value(typ, location)
+                arg = dummy_value(typ, location)
             if arg.pytype.wtype == wtype:
                 new_array = Copy(value=arg.resolve(), source_location=location)
             elif isinstance(
@@ -124,7 +124,7 @@ class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
                 new_array = NewArray(values=items, wtype=wtype, source_location=location)
             else:
                 logger.error("unsupported collection type", location=arg.source_location)
-                return dummy_value(typ, location)
+                new_array = Copy(value=dummy_value(typ, location).resolve(), source_location=location)
 
         return ArrayExpressionBuilder(new_array, self._pytype)
 
