@@ -1,0 +1,53 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
+
+## case: unrecognised_member
+from algopy import *
+
+class EmptyStruct(Struct):
+    pass
+
+@subroutine
+def bad() -> None:
+    struct = EmptyStruct()
+    assert struct.foo # type: ignore[attr-defined,misc] ## E: unrecognised member of unrecognised_member.EmptyStruct: foo
+
+
+## case: missing_ctor_arg
+from algopy import *
+
+class MyStruct(Struct):
+    a: UInt64
+
+@subroutine
+def bad() -> MyStruct:
+    return MyStruct() # type: ignore[call-arg] ## E: missing required positional argument(s): a
+
+
+## case: bool_eval
+from algopy import *
+
+class EmptyStruct(Struct):
+    pass
+
+class MyStruct(Struct):
+    a: UInt64
+
+@subroutine
+def bad() -> None:
+    assert EmptyStruct() ## E: expression is always True
+    assert MyStruct(UInt64(1)) ## E: expression is always True
+
+
+## case: mutable_field_replace
+from algopy import *
+
+class MyStruct(Struct):
+    a: Array[bool]
+    b: UInt64
+
+@subroutine
+def bad(arg: MyStruct) -> MyStruct:
+    return arg._replace(b=UInt64(1)) ## E: mutable field 'a' requires explicit copy
