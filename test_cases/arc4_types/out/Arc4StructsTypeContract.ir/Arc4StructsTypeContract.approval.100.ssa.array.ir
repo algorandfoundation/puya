@@ -6,14 +6,18 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let coord_1#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%0#1
         let aggregate%extract%0#1: bytes = (extract3 coord_1#0 0u 8u)
         let tuple_item%0#3: Encoded(uint64) = aggregate%extract%0#1
-        let values%0#3: Encoded(uint64) = tuple_item%0#3
-        let tmp%0#3: Encoded(uint64) = test_cases.arc4_types.structs.add_decimal(values%0#3, values%0#3)
+        let x#0: Encoded(uint64) = tuple_item%0#3
+        let tmp%0#4: uint64 = (btoi x#0)
+        let tmp%2#3: uint64 = (+ tmp%0#4 tmp%0#4)
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (itob tmp%2#3)
         let aggregate%extract%1#1: bytes = (extract3 coord_1#0 8u 8u)
         let tuple_item%2#3: Encoded(uint64) = aggregate%extract%1#1
-        let values%2#3: Encoded(uint64) = tuple_item%2#3
-        let tmp%1#3: Encoded(uint64) = test_cases.arc4_types.structs.add_decimal(values%2#3, values%2#3)
-        let aggregate%head%2#1: bytes = (concat 0x tmp%0#3)
-        let aggregate%head%3#1: bytes = (concat aggregate%head%2#1 tmp%1#3)
+        let x#1: Encoded(uint64) = tuple_item%2#3
+        let tmp%0#5: uint64 = (btoi x#1)
+        let tmp%2#4: uint64 = (+ tmp%0#5 tmp%0#5)
+        let reinterpret_Encoded(uint64)%0#1: Encoded(uint64) = (itob tmp%2#4)
+        let aggregate%head%2#1: bytes = (concat 0x reinterpret_Encoded(uint64)%0#0)
+        let aggregate%head%3#1: bytes = (concat aggregate%head%2#1 reinterpret_Encoded(uint64)%0#1)
         let aggregate%as_Encoded(uint64,uint64)%1#1: Encoded(uint64,uint64) = aggregate%head%3#1
         let coord_3#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%1#1
         let aggregate%extract%2#1: bytes = (extract3 coord_3#0 0u 8u)
@@ -341,11 +345,3 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         goto block@1
     block@4: // after_for_L331
         return array_head_and_tail#1
-
-subroutine test_cases.arc4_types.structs.add_decimal(x: Encoded(uint64), y: Encoded(uint64)) -> Encoded(uint64):
-    block@0: // L98
-        let tmp%0#0: uint64 = (btoi x#0)
-        let tmp%1#0: uint64 = (btoi y#0)
-        let tmp%2#0: uint64 = (+ tmp%0#0 tmp%1#0)
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (itob tmp%2#0)
-        return reinterpret_Encoded(uint64)%0#0

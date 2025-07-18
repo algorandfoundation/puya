@@ -1277,8 +1277,18 @@ debug: Output IR to conditional_expressions/out/MyContract.ir/MyContract.approva
 debug: Output IR to conditional_expressions/out/MyContract.ir/MyContract.clear.000.ssa.ir
 debug: optimizing approval program of test_cases.conditional_expressions.contract.MyContract at level 1
 debug: Begin optimization pass 1/100
+debug: marking simple function test_cases.conditional_expressions.contract.MyContract.expensive_op for inlining (complexity=3 <= threshold=3)
+debug: marking simple function test_cases.conditional_expressions.contract.MyContract.side_effecting_op for inlining (complexity=3 <= threshold=3)
 debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
+conditional_expressions/contract.py:18:51 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.expensive_op in test_cases.conditional_expressions.contract.MyContract.approval_program
+conditional_expressions/contract.py:18:13 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.side_effecting_op in test_cases.conditional_expressions.contract.MyContract.approval_program
+conditional_expressions/contract.py:17:51 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.expensive_op in test_cases.conditional_expressions.contract.MyContract.approval_program
+conditional_expressions/contract.py:17:13 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.side_effecting_op in test_cases.conditional_expressions.contract.MyContract.approval_program
+conditional_expressions/contract.py:15:45 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.side_effecting_op in test_cases.conditional_expressions.contract.MyContract.approval_program
+conditional_expressions/contract.py:15:13 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.expensive_op in test_cases.conditional_expressions.contract.MyContract.approval_program
+conditional_expressions/contract.py:14:45 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.side_effecting_op in test_cases.conditional_expressions.contract.MyContract.approval_program
+conditional_expressions/contract.py:14:13 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.expensive_op in test_cases.conditional_expressions.contract.MyContract.approval_program
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
@@ -1286,38 +1296,52 @@ debug: Found equivalence set: select%0#0, c#0
 debug: selected c#0 from equivalence set
 debug: Found equivalence set: select%1#0, d#0
 debug: selected d#0 from equivalence set
-debug: Found equivalence set: awst_tmp%0#0, ternary_result%0#0
-debug: selected awst_tmp%0#0 from equivalence set
 debug: Found equivalence set: ternary_result%0#2, e#0
 debug: selected e#0 from equivalence set
-debug: Found equivalence set: awst_tmp%1#0, ternary_result%1#0
-debug: selected awst_tmp%1#0 from equivalence set
 debug: Found equivalence set: ternary_result%1#2, f#0
 debug: selected f#0 from equivalence set
-debug: Found equivalence set: awst_tmp%2#0, ternary_result%2#0
-debug: selected awst_tmp%2#0 from equivalence set
 debug: Found equivalence set: ternary_result%2#2, g#0
 debug: selected g#0 from equivalence set
-debug: Found equivalence set: awst_tmp%3#0, ternary_result%3#0
-debug: selected awst_tmp%3#0 from equivalence set
 debug: Found equivalence set: ternary_result%3#2, h#0
 debug: selected h#0 from equivalence set
 debug: Found equivalence set: ternary_result%4#2, i#0
 debug: selected i#0 from equivalence set
 debug: Found equivalence set: tmp%14#0, result#0
 debug: selected result#0 from equivalence set
-debug: Copy propagation made 12 modifications
+debug: Copy propagation made 8 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable a#0
 debug: Removing unused variable b#0
+debug: Removing unused variable val#7
+debug: Removing unused variable awst_tmp%0#0
+debug: Removing unused variable val#6
+debug: Removing unused variable val#5
+debug: Removing unused variable awst_tmp%1#0
+debug: Removing unused variable val#4
+debug: Removing unused variable val#3
+debug: Removing unused variable awst_tmp%2#0
+debug: Removing unused variable val#2
+debug: Removing unused variable val#1
+debug: Removing unused variable awst_tmp%3#0
+debug: Removing unused variable val#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (!= 1u 0u) to 1u
 debug: Simplified (select 2u 1u 1u) to 1u
 debug: Simplified (== 2u 0u) to 0u
 debug: Simplified (select 1u 2u 0u) to 1u
-debug: Simplified (== awst_tmp%2#0 0u) to (! awst_tmp%2#0)
-debug: Simplified (== awst_tmp%3#0 0u) to (! awst_tmp%3#0)
+debug: Simplified (!= 0u 42u) to 1u
+debug: Simplified (!= 0u 0u) to 0u
+debug: Simplified (!= 1u 42u) to 1u
+debug: Simplified (!= 3u 42u) to 1u
+debug: Simplified (!= 3u 0u) to 1u
+debug: Simplified (!= 42u 42u) to 0u
+debug: Simplified (!= 0u 42u) to 1u
+debug: Simplified (== 0u 0u) to 1u
+debug: Simplified (!= 42u 42u) to 0u
+debug: Simplified (!= 2u 42u) to 1u
+debug: Simplified (== 2u 0u) to 0u
+debug: Simplified (!= 3u 42u) to 1u
 debug: Simplified (< 2u 1u) to 0u
 debug: Simplified (* 1u 2u) to 2u
 debug: Simplified (* 2u 1u) to 2u
@@ -1325,23 +1349,79 @@ debug: Simplified (* 2u 1u) to 2u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
-debug: simplified branch on !tmp%4#0 by swapping zero and non-zero targets
-debug: simplified terminator of block@6 from goto tmp%4#0 ? block@7 : block@8 to goto awst_tmp%2#0 ? block@8 : block@7
-debug: simplified branch on !tmp%5#0 by swapping zero and non-zero targets
-debug: simplified terminator of block@9 from goto tmp%5#0 ? block@10 : block@11 to goto awst_tmp%3#0 ? block@11 : block@10
+debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@31 from goto 0u ? block@1 : block@2 to goto block@2
+debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@27 from goto 1u ? block@4 : block@5 to goto block@4
+debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@23 from goto 1u ? block@7 : block@8 to goto block@7
+debug: simplifying conditional branch with a constant into a goto
+debug: simplified terminator of block@19 from goto 0u ? block@10 : block@11 to goto block@11
 debug: simplifying conditional branch with a constant into a goto
 debug: simplified terminator of block@12 from goto 0u ? block@13 : block@14 to goto block@14
 debug: Optimizer: Remove Linear Jump
+debug: Replaced predecessor block@30 with block@0 in block@31
+debug: Merged linear block@30 into block@0
+debug: Replaced predecessor block@31 with block@0 in block@2
+debug: Merged linear block@31 into block@0
+debug: Replaced predecessor block@2 with block@0 in block@28
+debug: Merged linear block@2 into block@0
+debug: Replaced predecessor block@28 with block@0 in block@29
+debug: Merged linear block@28 into block@0
+debug: Replaced predecessor block@29 with block@0 in block@3
+debug: Merged linear block@29 into block@0
+debug: Replaced predecessor block@26 with block@3 in block@27
+debug: Merged linear block@26 into block@3
+debug: Replaced predecessor block@27 with block@3 in block@4
+debug: Merged linear block@27 into block@3
+debug: Replaced predecessor block@4 with block@3 in block@6
+debug: Merged linear block@4 into block@3
+debug: Replaced predecessor block@24 with block@5 in block@25
+debug: Merged linear block@24 into block@5
+debug: Replaced predecessor block@25 with block@5 in block@6
+debug: Merged linear block@25 into block@5
+debug: Replaced predecessor block@22 with block@6 in block@23
+debug: Merged linear block@22 into block@6
+debug: Replaced predecessor block@23 with block@6 in block@7
+debug: Merged linear block@23 into block@6
+debug: Replaced predecessor block@7 with block@6 in block@9
+debug: Merged linear block@7 into block@6
+debug: Replaced predecessor block@20 with block@8 in block@21
+debug: Merged linear block@20 into block@8
+debug: Replaced predecessor block@21 with block@8 in block@9
+debug: Merged linear block@21 into block@8
+debug: Replaced predecessor block@18 with block@9 in block@19
+debug: Merged linear block@18 into block@9
+debug: Replaced predecessor block@19 with block@9 in block@11
+debug: Merged linear block@19 into block@9
+debug: Replaced predecessor block@11 with block@9 in block@16
+debug: Merged linear block@11 into block@9
+debug: Replaced predecessor block@16 with block@9 in block@17
+debug: Merged linear block@16 into block@9
+debug: Replaced predecessor block@17 with block@9 in block@12
+debug: Merged linear block@17 into block@9
 debug: Replaced predecessor block@14 with block@12 in block@15
 debug: Merged linear block@14 into block@12
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@1 because it's used by phi nodes
-debug: Not removing empty block block@4 because it's used by phi nodes
-debug: Not removing empty block block@7 because it's used by phi nodes
-debug: Not removing empty block block@10 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@13
+debug: Removing unreachable blocks: block@1, block@5, block@8, block@10, block@13
+debug: Removed unreachable predecessors from block@3
+debug: Removed unreachable predecessors from block@6
+debug: Removed unreachable predecessors from block@9
+debug: Removed unreachable predecessors from block@12
 debug: Removed unreachable predecessors from block@15
+debug: Removing unreachable phi arguments: ternary_result%0#0 <- block@1
+debug: Replacing trivial Phi node: let e#0: uint64 = φ(ternary_result%0#1 <- block@0) (e#0) with ternary_result%0#1
+debug: Deleting Phi assignment: let e#0: uint64 = φ(ternary_result%0#1 <- block@0)
+debug: Removing unreachable phi arguments: ternary_result%1#1 <- block@5
+debug: Replacing trivial Phi node: let f#0: uint64 = φ(ternary_result%1#0 <- block@3) (f#0) with ternary_result%1#0
+debug: Deleting Phi assignment: let f#0: uint64 = φ(ternary_result%1#0 <- block@3)
+debug: Removing unreachable phi arguments: ternary_result%2#1 <- block@8
+debug: Replacing trivial Phi node: let g#0: uint64 = φ(ternary_result%2#0 <- block@6) (g#0) with ternary_result%2#0
+debug: Deleting Phi assignment: let g#0: uint64 = φ(ternary_result%2#0 <- block@6)
+debug: Removing unreachable phi arguments: ternary_result%3#0 <- block@10
+debug: Replacing trivial Phi node: let h#0: uint64 = φ(ternary_result%3#1 <- block@9) (h#0) with ternary_result%3#1
+debug: Deleting Phi assignment: let h#0: uint64 = φ(ternary_result%3#1 <- block@9)
 debug: Removing unreachable phi arguments: ternary_result%4#0 <- block@13
 debug: Replacing trivial Phi node: let i#0: uint64 = φ(ternary_result%4#1 <- block@12) (i#0) with ternary_result%4#1
 debug: Deleting Phi assignment: let i#0: uint64 = φ(ternary_result%4#1 <- block@12)
@@ -1391,6 +1471,9 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: removing unused subroutine test_cases.conditional_expressions.contract.MyContract.expensive_op
+debug: removing unused subroutine test_cases.conditional_expressions.contract.MyContract.side_effecting_op
+debug: Unused subroutines removed
 debug: Output IR to conditional_expressions/out/MyContract.ir/MyContract.approval.001.ssa.opt.ir
 debug: Begin optimization pass 2/100
 debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
@@ -1404,64 +1487,44 @@ debug: Removing unused variable tmp%0#0
 debug: Removing unused variable c#0
 debug: Removing unused variable tmp%1#0
 debug: Removing unused variable d#0
+debug: Removing unused variable tmp%0#8
 debug: Removing unused variable tmp%2#0
+debug: Removing unused variable tmp%0#7
+debug: Removing unused variable ternary_result%0#1
+debug: Removing unused variable tmp%0#6
 debug: Removing unused variable tmp%3#0
+debug: Removing unused variable ternary_result%1#0
+debug: Removing unused variable tmp%0#4
 debug: Removing unused variable tmp%4#0
+debug: Removing unused variable ternary_result%2#0
+debug: Removing unused variable tmp%0#2
 debug: Removing unused variable tmp%5#0
+debug: Removing unused variable tmp%0#1
+debug: Removing unused variable ternary_result%3#1
 debug: Removing unused variable tmp%6#0
 debug: Removing unused variable tmp%7#0
 debug: Removing unused variable tmp%8#0
 debug: Removing unused variable tmp%9#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (+ 1u 1u) to 2u
+debug: Simplified (* 2u 3u) to 6u
+debug: Simplified (* 6u 3u) to 18u
+debug: Simplified (- 18u 1u) to 17u
+debug: Simplified (- 17u 0u) to 17u
+debug: Simplified (+ 17u 2u) to 19u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
-debug: Merged linear block@15 into block@12
-debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@1 because it's used by phi nodes
-debug: Not removing empty block block@4 because it's used by phi nodes
-debug: Not removing empty block block@7 because it's used by phi nodes
-debug: Not removing empty block block@10 because it's used by phi nodes
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.expensive_op
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.side_effecting_op
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
+debug: Replaced predecessor block@3 with block@0 in block@6
+debug: Merged linear block@3 into block@0
+debug: Replaced predecessor block@6 with block@0 in block@9
+debug: Merged linear block@6 into block@0
+debug: Replaced predecessor block@9 with block@0 in block@12
+debug: Merged linear block@9 into block@0
+debug: Replaced predecessor block@12 with block@0 in block@15
+debug: Merged linear block@12 into block@0
+debug: Merged linear block@15 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
@@ -1479,16 +1542,18 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable ternary_result%4#1
+debug: Removing unused variable tmp%10#0
+debug: Removing unused variable tmp%11#0
+debug: Removing unused variable tmp%12#0
+debug: Removing unused variable tmp%13#0
+debug: Removing unused variable result#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@1 because it's used by phi nodes
-debug: Not removing empty block block@4 because it's used by phi nodes
-debug: Not removing empty block block@7 because it's used by phi nodes
-debug: Not removing empty block block@10 because it's used by phi nodes
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
@@ -1496,7 +1561,9 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.expensive_op
+debug: Output IR to conditional_expressions/out/MyContract.ir/MyContract.approval.003.ssa.opt.ir
+debug: Begin optimization pass 4/100
+debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
@@ -1516,27 +1583,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.side_effecting_op
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 3, ending loop
+debug: No optimizations performed in pass 4, ending loop
 debug: optimizing clear program of test_cases.conditional_expressions.contract.MyContract at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.clear_state_program
@@ -1566,239 +1613,6 @@ debug: lowering array IR nodes in clear program of test_cases.conditional_expres
 debug: Output IR to conditional_expressions/out/MyContract.ir/MyContract.clear.100.ssa.array.ir
 debug: optimizing approval program of test_cases.conditional_expressions.contract.MyContract at level 1
 debug: Begin optimization pass 1/100
-debug: marking simple function test_cases.conditional_expressions.contract.MyContract.expensive_op for inlining (complexity=3 <= threshold=3)
-debug: marking simple function test_cases.conditional_expressions.contract.MyContract.side_effecting_op for inlining (complexity=3 <= threshold=3)
-debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
-debug: Optimizer: Perform Subroutine Inlining
-conditional_expressions/contract.py:18:51 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.expensive_op in test_cases.conditional_expressions.contract.MyContract.approval_program
-conditional_expressions/contract.py:18:13 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.side_effecting_op in test_cases.conditional_expressions.contract.MyContract.approval_program
-conditional_expressions/contract.py:17:51 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.expensive_op in test_cases.conditional_expressions.contract.MyContract.approval_program
-conditional_expressions/contract.py:17:13 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.side_effecting_op in test_cases.conditional_expressions.contract.MyContract.approval_program
-conditional_expressions/contract.py:15:45 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.side_effecting_op in test_cases.conditional_expressions.contract.MyContract.approval_program
-conditional_expressions/contract.py:15:13 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.expensive_op in test_cases.conditional_expressions.contract.MyContract.approval_program
-conditional_expressions/contract.py:14:45 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.side_effecting_op in test_cases.conditional_expressions.contract.MyContract.approval_program
-conditional_expressions/contract.py:14:13 debug: inlining call to test_cases.conditional_expressions.contract.MyContract.expensive_op in test_cases.conditional_expressions.contract.MyContract.approval_program
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable val#7
-debug: Removing unused variable val#6
-debug: Removing unused variable val#5
-debug: Removing unused variable val#4
-debug: Removing unused variable val#3
-debug: Removing unused variable val#2
-debug: Removing unused variable val#1
-debug: Removing unused variable val#0
-debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (!= 0u 42u) to 1u
-debug: Simplified (!= 1u 42u) to 1u
-debug: Simplified (!= 3u 42u) to 1u
-debug: Simplified (!= 42u 42u) to 0u
-debug: Simplified (!= 0u 42u) to 1u
-debug: Simplified (!= 42u 42u) to 0u
-debug: Simplified (!= 2u 42u) to 1u
-debug: Simplified (!= 3u 42u) to 1u
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@28 from goto 0u ? block@1 : block@2 to goto block@2
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@24 from goto 3u ? block@4 : block@5 to goto block@4
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@20 from goto 0u ? block@8 : block@7 to goto block@7
-debug: simplifying conditional branch with a constant into a goto
-debug: simplified terminator of block@16 from goto 2u ? block@11 : block@10 to goto block@11
-debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@27 with block@0 in block@28
-debug: Merged linear block@27 into block@0
-debug: Replaced predecessor block@28 with block@0 in block@2
-debug: Merged linear block@28 into block@0
-debug: Replaced predecessor block@2 with block@0 in block@25
-debug: Merged linear block@2 into block@0
-debug: Replaced predecessor block@25 with block@0 in block@26
-debug: Merged linear block@25 into block@0
-debug: Replaced predecessor block@26 with block@0 in block@3
-debug: Merged linear block@26 into block@0
-debug: Replaced predecessor block@23 with block@3 in block@24
-debug: Merged linear block@23 into block@3
-debug: Replaced predecessor block@24 with block@3 in block@4
-debug: Merged linear block@24 into block@3
-debug: Replaced predecessor block@4 with block@3 in block@6
-debug: Merged linear block@4 into block@3
-debug: Replaced predecessor block@21 with block@5 in block@22
-debug: Merged linear block@21 into block@5
-debug: Replaced predecessor block@22 with block@5 in block@6
-debug: Merged linear block@22 into block@5
-debug: Replaced predecessor block@19 with block@6 in block@20
-debug: Merged linear block@19 into block@6
-debug: Replaced predecessor block@20 with block@6 in block@7
-debug: Merged linear block@20 into block@6
-debug: Replaced predecessor block@7 with block@6 in block@9
-debug: Merged linear block@7 into block@6
-debug: Replaced predecessor block@17 with block@8 in block@18
-debug: Merged linear block@17 into block@8
-debug: Replaced predecessor block@18 with block@8 in block@9
-debug: Merged linear block@18 into block@8
-debug: Replaced predecessor block@15 with block@9 in block@16
-debug: Merged linear block@15 into block@9
-debug: Replaced predecessor block@16 with block@9 in block@11
-debug: Merged linear block@16 into block@9
-debug: Replaced predecessor block@11 with block@9 in block@13
-debug: Merged linear block@11 into block@9
-debug: Replaced predecessor block@13 with block@9 in block@14
-debug: Merged linear block@13 into block@9
-debug: Replaced predecessor block@14 with block@9 in block@12
-debug: Merged linear block@14 into block@9
-debug: Optimizer: Remove Empty Blocks
-debug: Not removing empty block block@1 because it's used by phi nodes
-debug: Not removing empty block block@10 because it's used by phi nodes
-debug: Optimizer: Remove Unreachable Blocks
-debug: Removing unreachable blocks: block@1, block@5, block@8, block@10
-debug: Removed unreachable predecessors from block@3
-debug: Removed unreachable predecessors from block@6
-debug: Removed unreachable predecessors from block@9
-debug: Removed unreachable predecessors from block@12
-debug: Removing unreachable phi arguments: awst_tmp%0#0 <- block@1
-debug: Replacing trivial Phi node: let e#0: uint64 = φ(ternary_result%0#1 <- block@0) (e#0) with ternary_result%0#1
-debug: Deleting Phi assignment: let e#0: uint64 = φ(ternary_result%0#1 <- block@0)
-debug: Removing unreachable phi arguments: ternary_result%1#1 <- block@5
-debug: Replacing trivial Phi node: let f#0: uint64 = φ(awst_tmp%1#0 <- block@3) (f#0) with awst_tmp%1#0
-debug: Deleting Phi assignment: let f#0: uint64 = φ(awst_tmp%1#0 <- block@3)
-debug: Removing unreachable phi arguments: ternary_result%2#1 <- block@8
-debug: Replacing trivial Phi node: let g#0: uint64 = φ(awst_tmp%2#0 <- block@6) (g#0) with awst_tmp%2#0
-debug: Deleting Phi assignment: let g#0: uint64 = φ(awst_tmp%2#0 <- block@6)
-debug: Removing unreachable phi arguments: awst_tmp%3#0 <- block@10
-debug: Replacing trivial Phi node: let h#0: uint64 = φ(ternary_result%3#1 <- block@9) (h#0) with ternary_result%3#1
-debug: Deleting Phi assignment: let h#0: uint64 = φ(ternary_result%3#1 <- block@9)
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.expensive_op
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.side_effecting_op
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: removing unused subroutine test_cases.conditional_expressions.contract.MyContract.expensive_op
-debug: removing unused subroutine test_cases.conditional_expressions.contract.MyContract.side_effecting_op
-debug: Unused subroutines removed
-debug: Output IR to conditional_expressions/out/MyContract.ir/MyContract.approval.200.ssa.array.opt.ir
-debug: Begin optimization pass 2/100
-debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable tmp%0#7
-debug: Removing unused variable awst_tmp%0#0
-debug: Removing unused variable tmp%0#6
-debug: Removing unused variable ternary_result%0#1
-debug: Removing unused variable tmp%0#5
-debug: Removing unused variable awst_tmp%1#0
-debug: Removing unused variable tmp%0#3
-debug: Removing unused variable awst_tmp%2#0
-debug: Removing unused variable tmp%0#1
-debug: Removing unused variable awst_tmp%3#0
-debug: Removing unused variable tmp%0#0
-debug: Removing unused variable ternary_result%3#1
-debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (+ 1u 1u) to 2u
-debug: Simplified (* 2u 3u) to 6u
-debug: Simplified (* 6u 3u) to 18u
-debug: Simplified (- 18u 1u) to 17u
-debug: Simplified (- 17u 0u) to 17u
-debug: Simplified (+ 17u 2u) to 19u
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@3 with block@0 in block@6
-debug: Merged linear block@3 into block@0
-debug: Replaced predecessor block@6 with block@0 in block@9
-debug: Merged linear block@6 into block@0
-debug: Replaced predecessor block@9 with block@0 in block@12
-debug: Merged linear block@9 into block@0
-debug: Merged linear block@12 into block@0
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Output IR to conditional_expressions/out/MyContract.ir/MyContract.approval.201.ssa.array.opt.ir
-debug: Begin optimization pass 3/100
-debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
-debug: Optimizer: Perform Subroutine Inlining
-debug: Optimizer: Split Parallel Copies
-debug: Optimizer: Constant Replacer
-debug: Optimizer: Copy Propagation
-debug: Optimizer: Elide Itxn Field Calls
-debug: Optimizer: Remove Unused Variables
-debug: Removing unused variable ternary_result%4#1
-debug: Removing unused variable tmp%10#0
-debug: Removing unused variable tmp%11#0
-debug: Removing unused variable tmp%12#0
-debug: Removing unused variable tmp%13#0
-debug: Removing unused variable result#0
-debug: Optimizer: Intrinsic Simplifier
-debug: Optimizer: Inner Txn Field Replacer
-debug: Optimizer: Replace Compiled References
-debug: Optimizer: Simplify Control Ops
-debug: Optimizer: Remove Linear Jump
-debug: Optimizer: Remove Empty Blocks
-debug: Optimizer: Remove Unreachable Blocks
-debug: Optimizer: Repeated Expression Elimination
-debug: Optimizer: Encode Decode Pair Elimination
-debug: Optimizer: Merge Chained Aggregate Reads
-debug: Optimizer: Replace Aggregate Box Ops
-debug: Optimizer: Minimize Box Exist Asserts
-debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: Output IR to conditional_expressions/out/MyContract.ir/MyContract.approval.202.ssa.array.opt.ir
-debug: Begin optimization pass 4/100
 debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -1819,7 +1633,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 4, ending loop
+debug: No optimizations performed in pass 1, ending loop
 debug: optimizing clear program of test_cases.conditional_expressions.contract.MyContract at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.conditional_expressions.contract.MyContract.clear_state_program
