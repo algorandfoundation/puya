@@ -233,8 +233,9 @@ def _get_fixed_byte_offset(
     factory = OpFactory(context, loc)
     check_array_bounds = False
     box_offset = factory.constant(0)
-    next_index = 0
-    for index in indexes:
+    indexes = list(indexes)
+    while indexes:
+        index = indexes.pop(0)
         if isinstance(encoding, TupleEncoding) and isinstance(index, int):
             bit_offset = encoding.get_head_bit_offset(index)
             has_trailing_data = (index + 1) != len(encoding.elements)
@@ -268,7 +269,6 @@ def _get_fixed_byte_offset(
         else:
             raise InternalError("invalid aggregate encoding and index", loc)
         box_offset = factory.add(box_offset, element_offset, "offset")
-        next_index += 1
         # exit loop if the resulting value can fit on stack
         # generally more optimizations are possible the sooner a value is read
         if stop_at_valid_stack_value and encoding.checked_num_bytes < MAX_BYTES_LENGTH:
@@ -279,9 +279,7 @@ def _get_fixed_byte_offset(
     if encoding.checked_num_bytes > MAX_BYTES_LENGTH:
         logger.warning(f"value exceeds {MAX_BYTES_LENGTH} bytes", location=loc)
 
-    return _FixedOffset(
-        offset=box_offset, encoding=encoding, remaining_indexes=indexes[next_index:]
-    )
+    return _FixedOffset(offset=box_offset, encoding=encoding, remaining_indexes=indexes)
 
 
 def _get_fixed_byte_offset_from_bit_offset(
