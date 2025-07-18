@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Iterator, Sequence
+from collections.abc import Sequence
 
 import attrs
 
@@ -37,7 +37,6 @@ from puya.ir.builder._utils import assign, get_implicit_return_is_original, get_
 from puya.ir.context import IRBuildContext
 from puya.ir.encodings import wtype_to_encoding
 from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
-from puya.ir.utils import format_tuple_index
 from puya.parse import SourceLocation
 
 TExpression: typing.TypeAlias = ir.ValueProvider | None
@@ -515,44 +514,22 @@ class FunctionIRBuilder(
         )
         return value
 
-    def _expand_tuple_var(
-        self, name: str, wtype: wtypes.WTuple, *, default_source_location: SourceLocation
-    ) -> Iterator[ir.Value]:
-        for idx, wt in enumerate(wtype.types):
-            item_name = format_tuple_index(wtype, name, idx)
-            if isinstance(wt, wtypes.WTuple):
-                yield from self._expand_tuple_var(
-                    item_name, wt, default_source_location=default_source_location
-                )
-            else:
-                yield self.context.ssa.read_variable(
-                    variable=item_name,
-                    ir_type=types.wtype_to_ir_type(
-                        wt, wtype.source_location or default_source_location
-                    ),
-                    block=self.context.block_builder.active_block,
-                )
-
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
-        if isinstance(expr.wtype, wtypes.WTuple):
-            values = tuple(
-                self._expand_tuple_var(
-                    expr.name,
-                    expr.wtype,
-                    default_source_location=expr.source_location,
-                )
-            )
+        ir_type = types.wtype_to_ir_type(expr, allow_tuple=True)
+        active_block = self.context.block_builder.active_block
+        if not isinstance(ir_type, types.TupleIRType):
+            variable = self.context.ssa.read_variable(expr.name, ir_type, active_block)
+            return attrs.evolve(variable, source_location=expr.source_location)
+        else:
+            item_names = ir_type.build_item_names(expr.name)
+            item_ir_types = types.ir_type_to_ir_types(ir_type)
+            items = [
+                self.context.ssa.read_variable(item_name, item_ir_type, active_block)
+                for item_name, item_ir_type in zip(item_names, item_ir_types, strict=True)
+            ]
             return ir.ValueTuple(
-                values=values,
-                ir_type=types.wtype_to_ir_type(expr.wtype, expr.source_location, allow_tuple=True),
-                source_location=expr.source_location,
+                values=items, ir_type=ir_type, source_location=expr.source_location
             )
-        ir_type = types.wtype_to_ir_type(expr)
-        variable = self.context.ssa.read_variable(
-            expr.name, ir_type, self.context.block_builder.active_block
-        )
-        variable = attrs.evolve(variable, source_location=expr.source_location)
-        return variable
 
     def _add_assert(
         self,
