@@ -125,8 +125,8 @@ class _ARC4NameWTypeVisitor(ARC4WTypeVisitor[str]):
 
     def _wtype_arc4_name(self, wtype: wtypes.WType) -> str:
         arc4_wtype = wtype.accept(self._arc4_converter)
-        if arc4_wtype is None:  # TODO: coverage or CodeError or validation elsewhere
-            raise InternalError(f"unencodable ARC-4 type member on {wtype}")
+        if arc4_wtype is None:
+            raise CodeError(f"unencodable ARC-4 type member on {wtype}")
         return arc4_wtype.accept(self)
 
     @typing.override
