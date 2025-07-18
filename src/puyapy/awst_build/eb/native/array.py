@@ -77,7 +77,7 @@ class ArrayGenericTypeBuilder(GenericTypeBuilder):
             new_array = NewArray(values=items, wtype=wtype, source_location=location)
         else:
             logger.error("unsupported collection type", location=arg.source_location)
-            return dummy_value(typ, location)
+            new_array = Copy(value=dummy_value(typ, location).resolve(), source_location=location)
         return ArrayExpressionBuilder(new_array, typ)
 
 
