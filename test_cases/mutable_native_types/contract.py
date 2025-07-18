@@ -217,6 +217,10 @@ class Contract(arc4.ARC4Contract):
         arr7 = Array[FixedStruct]((arr2[0],))
         assert arr2 == arr7, "expected arrays to be the same"
 
+        arr8 = Array[FixedStruct]()
+        arr8 += arr2
+        assert arr2 == arr8, "expected arrays to be the same"
+
         arr2 = Array[FixedStruct]()
 
         for _i in urange(3):

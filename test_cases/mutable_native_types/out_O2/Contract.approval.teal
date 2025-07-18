@@ -4,7 +4,7 @@
 // test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 16 8
-    bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map"
+    bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map" 0x0000
     intc_0 // 0
     dup
     pushbytes ""
@@ -145,16 +145,33 @@ main_test_arr_route@17:
     !=
     assert // expected arrays to be different
     dup
+    extract 2 0
+    dig 1
     extract 2 16
     pushbytes 0x0001
     swap
     concat
+    dig 2
     ==
     assert // expected arrays to be the same
-    pushbytes 0x0000
-    bury 5
+    bytec 8 // 0x0000
+    cover 2
+    bytec 8 // 0x0000
+    swap
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_2 // 16
+    /
+    itob
+    extract 6 2
+    replace2 0
+    ==
+    assert // expected arrays to be the same
     intc_0 // 0
-    bury 3
+    bury 4
+    bury 5
 
 main_for_header@18:
     dig 2
