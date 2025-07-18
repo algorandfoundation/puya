@@ -326,3 +326,36 @@ def bad2() -> None:
 def bad3() -> None:
     ok = ImmutableFixedArray[UInt64, typing.Literal[2]].full(UInt64())
     bad = ok.replace(1, UInt64(), True) # type: ignore[call-arg] ## E: expected 2 arguments, got 3
+
+## case: array_bad
+import typing
+
+from algopy import *
+
+class Foo(Struct):
+    a: UInt64
+
+@subroutine
+def bad1() -> None:
+    arr = Array[Foo]()
+    for foo in arr: ## N: use `algopy.urange(<array>.length)` to iterate by index \
+                    ## E: cannot directly iterate an ARC-4 array of mutable objects, construct a for-loop over the indexes instead
+        pass
+
+
+@subroutine
+def bad2() -> None:
+    arr = Array[Foo]()
+    no = arr.bad # type: ignore[attr-defined, misc] ## E: unrecognised member of algopy.Array[array_bad.Foo]: bad
+
+
+@subroutine
+def bad3() -> None:
+    arr = Array[Foo]()
+    no = Foo(UInt64())
+    assert no in arr, "bad" ## E: item containment with arrays is currently unsupported
+
+@subroutine
+def bad4() -> None:
+    arr = Array[Foo]()
+    no = arr[1:-1] # type: ignore[index] ## E: slicing arrays is currently unsupported
