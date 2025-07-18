@@ -36,7 +36,7 @@ def analyse_subroutines_for_inlining(
                 f"function has phi node(s) with arguments in entry block: {sub.id}",
                 location=sub.source_location,
             )
-            if sub.inline is True:
+            if sub.inline:
                 logger.warning(
                     "function not suitable for inlining due to complex control flow",
                     location=sub.source_location,
@@ -44,10 +44,10 @@ def analyse_subroutines_for_inlining(
             sub.inline = False
         elif call_graph.is_auto_recursive(sub):
             logger.debug(f"function is auto-recursive: {sub.id}", location=sub.source_location)
-            if sub.inline is True:
+            if sub.inline:
                 logger.warning("unable to inline recursive function", location=sub.source_location)
             sub.inline = False
-        elif sub.inline is True:
+        elif sub.inline:
             for callee_id, _ in call_graph.callees(sub):
                 if not call_graph.has_path(sub.id, callee_id):
                     context.inlineable_calls.add((callee_id, sub.id))
@@ -89,10 +89,14 @@ def analyse_subroutines_for_inlining(
         return
     for sub in program.subroutines:
         if sub.inline is None and sub.id not in skip_routable_ids:
+            try:
+                _HasHighLevelOps().visit_all_blocks(sub.body)
+            except _HighLevelOpError:
+                continue
             complexity = sum(
                 len(b.phis) + len(b.ops) + len(not_none(b.terminator).targets()) for b in sub.body
             )
-            threshold = max(3, 1 + len(sub._returns) + len(sub.parameters))  # noqa: SLF001
+            threshold = max(3, 1 + len(sub.explicit_returns) + len(sub.parameters))
             if complexity <= threshold:
                 logger.debug(
                     f"marking simple function {sub.id} for inlining"
@@ -101,6 +105,37 @@ def analyse_subroutines_for_inlining(
                 for callee_id, _ in call_graph.callees(sub):
                     if not call_graph.has_path(sub.id, callee_id):
                         context.inlineable_calls.add((callee_id, sub.id))
+
+
+class _HighLevelOpError(Exception):
+    pass
+
+
+@attrs.define
+class _HasHighLevelOps(IRTraverser):
+    @typing.override
+    def visit_box_read(self, read: models.BoxRead) -> None:
+        raise _HighLevelOpError
+
+    @typing.override
+    def visit_box_write(self, write: models.BoxWrite) -> None:
+        raise _HighLevelOpError
+
+    @typing.override
+    def visit_extract_value(self, read: models.ExtractValue) -> None:
+        raise _HighLevelOpError
+
+    @typing.override
+    def visit_replace_value(self, write: models.ReplaceValue) -> None:
+        raise _HighLevelOpError
+
+    @typing.override
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> None:
+        raise _HighLevelOpError
+
+    @typing.override
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> None:
+        raise _HighLevelOpError
 
 
 def _is_trivial(sub: models.Subroutine) -> bool:
@@ -311,9 +346,12 @@ def _inlined_blocks(
         sub not in ref_collector.subroutines
     ), "auto recursive blocks should already be filtered out"
     memo = {id(s): s for s in ref_collector.subroutines}
-    blocks = copy.deepcopy(sub.body, memo=memo)
-    _OffsetRegisterVersions.apply(blocks, register_offsets=register_offsets)
-    return blocks
+    assert sub not in ref_collector.subroutines
+    # cloning entire sub even though only the blocks are needed,
+    # because Subroutine has special logic to prevent hitting recursion limits on deep copy
+    sub_copy = copy.deepcopy(sub, memo=memo)
+    _OffsetRegisterVersions.apply(sub_copy.body, register_offsets=register_offsets)
+    return sub_copy.body
 
 
 @attrs.define

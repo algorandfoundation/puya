@@ -4,7 +4,7 @@
 // test_cases.arc4_types.bool_eval.Arc4BoolEvalContract.approval_program() -> uint64:
 main:
     intcblock 0 1
-    bytecblock 0x 0x00 0x0000 0x0000000000000000
+    bytecblock 0x 0x00 "." 0x0000000000000000
 
 main_block@0:
     // arc4_types/bool_eval.py:9
@@ -14,6 +14,9 @@ main_block@0:
     dup
     setbit
     bytec_1 // 0x00
+    intc_0 // 0
+    dup
+    setbit
     ==
     assert
     // arc4_types/bool_eval.py:10
@@ -23,18 +26,41 @@ main_block@0:
     intc_1 // 1
     setbit
     bytec_1 // 0x00
+    intc_0 // 0
+    dup
+    setbit
     !=
     assert
     // arc4_types/bool_eval.py:12
     // assert not arc4.String("")
-    bytec_2 // 0x0000
-    dup
+    bytec_0 // ""
+    len
+    itob
+    extract 6 2
+    bytec_0 // ""
+    concat
+    bytec_0 // ""
+    len
+    itob
+    extract 6 2
+    bytec_0 // ""
+    concat
     ==
     assert
     // arc4_types/bool_eval.py:13
     // assert arc4.String(".")
-    pushbytes 0x00012e
-    bytec_2 // 0x0000
+    bytec_2 // "."
+    len
+    itob
+    extract 6 2
+    bytec_2 // "."
+    concat
+    bytec_0 // ""
+    len
+    itob
+    extract 6 2
+    bytec_0 // ""
+    concat
     !=
     assert
     // arc4_types/bool_eval.py:15
@@ -63,7 +89,7 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:21
     // assert not arc4.UInt16(0)
-    bytec_2 // 0x0000
+    pushbytes 0x0000
     bytec_0 // 0x
     b==
     assert
@@ -183,36 +209,41 @@ main_block@0:
     assert
     // arc4_types/bool_eval.py:51
     // dynamic_arr = arc4.DynamicArray[arc4.UInt64]()
-    bytec_2 // 0x0000
-    bytec_0 // 0x
-    concat
+    intc_0 // 0
+    itob
+    extract 6 2
     // arc4_types/bool_eval.py:52
     // assert not dynamic_arr
-    dup
-    bytec_2 // 0x0000
+    intc_0 // 0
+    itob
+    extract 6 2
+    dig 1
     ==
     assert
     // arc4_types/bool_eval.py:53
     // dynamic_arr.append(arc4.UInt64(0))
-    extract 2 0
     bytec_0 // 0x
     bytec_3 // 0x0000000000000000
     concat
-    bytec_0 // 0x
+    dig 1
     swap
-    concat
-    concat
-    dup
-    len
-    pushint 8 // 8
-    /
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
     extract 6 2
     swap
-    concat
+    intc_0 // 0
+    uncover 2
+    replace3
     // arc4_types/bool_eval.py:54
     // assert dynamic_arr
-    bytec_2 // 0x0000
+    intc_0 // 0
+    itob
+    extract 6 2
     !=
     assert
     // arc4_types/bool_eval.py:56
@@ -222,6 +253,9 @@ main_block@0:
     dup
     setbit
     bytec_1 // 0x00
+    intc_0 // 0
+    dup
+    setbit
     ==
     assert
     // arc4_types/bool_eval.py:58

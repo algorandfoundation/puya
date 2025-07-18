@@ -11,44 +11,44 @@ MutableDynamic = arc4.DynamicArray[arc4.UInt64]
 class ArrayContract(arc4.ARC4Contract):
 
     def __init__(self) -> None:
-        self.wont_work = Array[UInt64]() ## E: type is not suitable for storage
+        self.wont_work = ReferenceArray[UInt64]() ## E: type is not suitable for storage
 
     @arc4.abimethod
     def array_log(self) -> None:
-        log(Array[UInt64]()) ## E: cannot serialize algopy.Array[algopy.UInt64], try using .freeze() to get an immutable array
+        log(ReferenceArray[UInt64]()) ## E: cannot serialize algopy.ReferenceArray[algopy.UInt64], try using .freeze() to get an immutable array
 
 
     @arc4.abimethod
     def array_emit(self) -> None:
-        arc4.emit("test", Array[UInt64]()) ## E: algopy.Array[algopy.UInt64] is not an ARC-4 type and no implicit ARC-4 conversion possible
+        arc4.emit("test", ReferenceArray[UInt64]()) ## E: algopy.ReferenceArray[algopy.UInt64] is not an ARC-4 type and no implicit ARC-4 conversion possible
 
     @arc4.abimethod
     def array_fixed(self) -> None:
-        arr = Array[UInt64]()
+        arr = ReferenceArray[UInt64]()
 
     @arc4.abimethod
     def array_dynamic(self) -> None:
-        arr = Array[Bytes]()
+        arr = ReferenceArray[Bytes]()
 
     @arc4.abimethod
     def array_nested(self) -> None:
-        arr = Array[Array[Bytes]]() ## E: arrays must have immutable elements
+        arr = ReferenceArray[ReferenceArray[Bytes]]() ## E: arrays must have immutable elements
 
     @arc4.abimethod
     def array_mutable_fixed(self) -> None:
-        arr = Array[MutableFixed]() ## E: arrays must have immutable elements
+        arr = ReferenceArray[MutableFixed]() ## E: arrays must have immutable elements
 
     @arc4.abimethod
     def array_mutable_dynamic(self) -> None:
-        arr = Array[MutableDynamic]() ## E: arrays must have immutable elements
+        arr = ReferenceArray[MutableDynamic]() ## E: arrays must have immutable elements
 
     @arc4.abimethod
     def array_arc4_bool(self) -> None:
-        arr = Array[arc4.Bool]()
+        arr = ReferenceArray[arc4.Bool]()
 
     @arc4.abimethod
     def array_bool(self) -> None:
-        arr = Array[bool]()
+        arr = ReferenceArray[bool]()
 
     @arc4.abimethod
     def imm_array_fixed(self) -> None:
@@ -64,11 +64,11 @@ class ArrayContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def imm_array_mutable_fixed(self) -> None:
-        arr = ImmutableArray[MutableFixed]() ## E: arrays must have immutable elements
+        arr = ImmutableArray[MutableFixed]() ## E: immutable arrays must have immutable elements
 
     @arc4.abimethod
     def imm_array_mutable_dynamic(self) -> None:
-        arr = ImmutableArray[MutableDynamic]() ## E: arrays must have immutable elements
+        arr = ImmutableArray[MutableDynamic]() ## E: immutable arrays must have immutable elements
 
     @arc4.abimethod
     def imm_array_arc4_bool(self) -> None:
@@ -79,40 +79,40 @@ class ArrayContract(arc4.ARC4Contract):
         arr = ImmutableArray[bool]()
 
     @arc4.abimethod
-    def imm_txn_arg(self, arr: ImmutableArray[gtxn.Transaction]) -> None: ## E: ARC-4 arrays can only contain ARC-4 elements
+    def imm_txn_arg(self, arr: ImmutableArray[gtxn.Transaction]) -> None: ## E: arrays can only contain persistable elements
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.itxn.Payment
-    def imm_itxn_arg(self, arr: ImmutableArray[itxn.Payment]) -> None:
+    @arc4.abimethod
+    def imm_itxn_arg(self, arr: ImmutableArray[itxn.Payment]) -> None: ## E: arrays can only contain persistable elements
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.itxn.PaymentInnerTransaction
-    def imm_itxn2_arg(self, arr: ImmutableArray[itxn.PaymentInnerTransaction]) -> None:
+    @arc4.abimethod
+    def imm_itxn2_arg(self, arr: ImmutableArray[itxn.PaymentInnerTransaction]) -> None: ## E: arrays can only contain persistable elements
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.Array[algopy.gtxn.Transaction]
-    def arr_txn_arg(self, arr: Array[gtxn.Transaction]) -> None:
+    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.gtxn.Transaction]
+    def arr_txn_arg(self, arr: ReferenceArray[gtxn.Transaction]) -> None:
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.Array[algopy.itxn.Payment]
-    def arr_itxn_arg(self, arr: Array[itxn.Payment]) -> None:
+    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.itxn.Payment]
+    def arr_itxn_arg(self, arr: ReferenceArray[itxn.Payment]) -> None:
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.Array[algopy.itxn.PaymentInnerTransaction]
-    def arr_itxn2_arg(self, arr: Array[itxn.PaymentInnerTransaction]) -> None:
+    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.itxn.PaymentInnerTransaction]
+    def arr_itxn2_arg(self, arr: ReferenceArray[itxn.PaymentInnerTransaction]) -> None:
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.Array[algopy.Asset]
-    def arr_asset_arg(self, arr: Array[Asset]) -> None:
+    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.Asset]
+    def arr_asset_arg(self, arr: ReferenceArray[Asset]) -> None:
         pass
 
-    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.Array[algopy.Account]
-    def arr_account_arg(self, arr: Array[Account]) -> None:
+    @arc4.abimethod ## E: invalid type for an ARC-4 method: algopy.ReferenceArray[algopy.Account]
+    def arr_account_arg(self, arr: ReferenceArray[Account]) -> None:
         pass
 
     @arc4.abimethod()
     def test_reference_array_extend_with_arc4_bool(self) -> None:
-        arr = Array[arc4.Bool]()
+        arr = ReferenceArray[arc4.Bool]()
         dyn_arr = arc4.DynamicArray[arc4.Bool]()
         arr.extend(dyn_arr) ## E: extending a reference array with an ARC-4 encoded bool type is not supported
 
@@ -123,7 +123,7 @@ class MyContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def imm_txn_expr(self, txn: gtxn.Transaction) -> None:
-        arr = ImmutableArray[gtxn.Transaction]() ## E: unsupported array element type
+        arr = ImmutableArray[gtxn.Transaction]() ## E: arrays can only contain persistable elements
         arr = arr.append(txn)
 
 ## case: test_imm_array_itxn
@@ -132,7 +132,7 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn_expr(self) -> None:
-        arr = ImmutableArray[itxn.Payment]() ## E: unsupported array element type
+        arr = ImmutableArray[itxn.Payment]() ## E: arrays can only contain persistable elements
 
 ## case: test_imm_array_itxn_result
 from algopy import *
@@ -140,7 +140,7 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn2_expr(self) -> None:
-        arr = ImmutableArray[itxn.PaymentInnerTransaction]() ## E: unsupported array element type
+        arr = ImmutableArray[itxn.PaymentInnerTransaction]() ## E: arrays can only contain persistable elements
 
 
 ## case: test_array_txn
@@ -150,9 +150,9 @@ class MyContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def imm_txn_expr(self, txn: gtxn.Transaction) -> None:
-        arr = Array[gtxn.Transaction]() ## E: unsupported array element type
+        arr = ReferenceArray[gtxn.Transaction]()
         arr.append(txn)
-        imm_arr = arr.freeze()
+        imm_arr = arr.freeze() ## E: arrays can only contain persistable elements
 
 ## case: test_array_itxn
 from algopy import *
@@ -160,7 +160,7 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn_expr(self) -> None:
-        arr = Array[itxn.Payment]() ## E: unsupported array element type
+        arr = ReferenceArray[itxn.Payment]() ## E: unencodable type
         pay = itxn.Payment(receiver=Txn.sender)
         arr.append(pay)
 
@@ -170,4 +170,192 @@ from algopy import *
 class MyContract(arc4.ARC4Contract):
     @arc4.abimethod
     def imm_itxn2_expr(self) -> None:
-        arr = Array[itxn.PaymentInnerTransaction]() ## E: unsupported array element type
+        arr = ReferenceArray[itxn.PaymentInnerTransaction]() ## E: unencodable type
+
+
+## case: test_fixed_array_errors
+import typing
+from algopy import *
+
+FixedUInt64Of3 = FixedArray[UInt64, typing.Literal[3]]
+
+class MyContract(arc4.ARC4Contract):
+    @arc4.abimethod
+    def truthiness_is_static(self, arr: FixedUInt64Of3) -> None:
+        assert arr ## E: expression is always True
+
+    @arc4.abimethod
+    def full_requires_params(self, value: UInt64) -> FixedUInt64Of3:
+        return FixedArray.full(value) ## E: generic type requires parameters
+
+    @arc4.abimethod
+    def invalid_arg_element_types(self, tup: tuple[String, String, String]) -> FixedUInt64Of3:
+        return FixedUInt64Of3(tup) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+    @arc4.abimethod
+    def no_implicit_arc4_conversion(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(arc4.StaticArray(arc4.UInt64(0), arc4.UInt64(1), arc4.UInt64(2))) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+    @arc4.abimethod
+    def non_iterable_arg_type(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(UInt64(1)) # type: ignore[arg-type] ## E: expression is not iterable
+
+    @arc4.abimethod
+    def wrong_size(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3(()) ## E: cannot determine item type of empty tuple
+
+    @arc4.abimethod
+    def wrong_size2(self) -> FixedUInt64Of3:
+        return FixedUInt64Of3((UInt64(1),)) ## E: argument has incorrect length
+
+## case: modify_immutable_array
+from algopy import *
+
+@subroutine
+def no() -> None:
+    arr = ImmutableArray[tuple[UInt64, UInt64]]()
+    assert arr.length == 0
+
+    for i in urange(5):
+        arr = arr.append((i + 1, i + 2))
+
+    arr[0] = (UInt64(123), UInt64(345))  # type: ignore[index] ## E: expression is not valid as an assignment target - object is immutable
+
+
+## case: missing_type_args
+
+from algopy import *
+
+@subroutine
+def dyn_arr() -> None:
+    arr = arc4.DynamicArray() # type: ignore[var-annotated] ## E: empty arrays require a type annotation to be instantiated
+
+@subroutine
+def static_arr() -> None:
+    arr = arc4.StaticArray() # type: ignore[var-annotated] ## E: empty arrays require a type annotation to be instantiated
+
+@subroutine
+def arr() -> None:
+    arr = Array() # type: ignore[var-annotated] ## E: empty arrays require a type annotation to be instantiated
+
+@subroutine
+def fixed_arr() -> None:
+    arr = FixedArray(()) # type: ignore[var-annotated] ## E: cannot determine item type of empty tuple
+
+@subroutine
+def fixed_arr2() -> None:
+    dyn_arr = Array[UInt64]()
+    arr = FixedArray(dyn_arr) # type: ignore[var-annotated] ## E: requires a statically sized argument
+
+
+## case: array_init
+
+from algopy import *
+
+@subroutine
+def copy() -> None:
+    arr = Array(Bytes()) ## E: unsupported collection type
+
+
+@subroutine
+def copy2() -> None:
+    arr = Array[Bytes]()
+    arr2 = Array[UInt64](arr) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+
+@subroutine
+def copy3() -> None:
+    arr = arc4.DynamicArray[Bytes]()
+    arr2 = Array[UInt64](arr) # type: ignore[arg-type] ## E: iterable element type does not match collection type
+
+
+@subroutine
+def copy4() -> None:
+    bites = Bytes()
+    arr2 = Array[Bytes](bites) ## E: unsupported collection type
+
+## case: array_concat
+
+from algopy import *
+
+
+@subroutine
+def bad1() -> None:
+    arr = Array[UInt64]()
+    arr -= () # type: ignore[operator] ## E: unsupported operator for type: '-'
+
+
+@subroutine
+def bad2() -> None:
+    arr = Array[UInt64]()
+    arr = arr - () # type: ignore[operator] ## E: unsupported operation - between types
+
+@subroutine
+def bad3() -> None:
+    arr = Array[UInt64]()
+    arr += (UInt64(), True) # type: ignore[operator] ## E: expected an array or tuple of the same element type
+
+
+@subroutine
+def bad4() -> None:
+    arr = Array[UInt64]()
+    arr.extend() # type: ignore[call-arg] ## E: expected 1 argument, got 0
+
+@subroutine
+def bad5() -> None:
+    arr = Array[UInt64]()
+    arr.extend(UInt64()) # type: ignore[arg-type] ## E: expected an array or tuple of the same element type
+
+## case: fixed_array_bad
+import typing
+
+from algopy import *
+
+
+@subroutine
+def bad1() -> None:
+    no = FixedArray[UInt64, typing.Literal[2]].bad() # type: ignore[attr-defined, misc] ## E: unrecognised member 'bad' of type 'algopy.FixedArray[algopy.UInt64, typing.Literal[2]]'
+
+
+@subroutine
+def bad2() -> None:
+    bad = ImmutableFixedArray[Bytes, typing.Literal[2]](Bytes()) ## E: unsupported collection type
+
+
+@subroutine
+def bad3() -> None:
+    ok = ImmutableFixedArray[UInt64, typing.Literal[2]].full(UInt64())
+    bad = ok.replace(1, UInt64(), True) # type: ignore[call-arg] ## E: expected 2 arguments, got 3
+
+## case: array_bad
+import typing
+
+from algopy import *
+
+class Foo(Struct):
+    a: UInt64
+
+@subroutine
+def bad1() -> None:
+    arr = Array[Foo]()
+    for foo in arr: ## N: use `algopy.urange(<array>.length)` to iterate by index \
+                    ## E: cannot directly iterate an ARC-4 array of mutable objects, construct a for-loop over the indexes instead
+        pass
+
+
+@subroutine
+def bad2() -> None:
+    arr = Array[Foo]()
+    no = arr.bad # type: ignore[attr-defined, misc] ## E: unrecognised member of algopy.Array[array_bad.Foo]: bad
+
+
+@subroutine
+def bad3() -> None:
+    arr = Array[Foo]()
+    no = Foo(UInt64())
+    assert no in arr, "bad" ## E: item containment with arrays is currently unsupported
+
+@subroutine
+def bad4() -> None:
+    arr = Array[Foo]()
+    no = arr[1:-1] # type: ignore[index] ## E: slicing arrays is currently unsupported

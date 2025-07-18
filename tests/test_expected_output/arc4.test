@@ -5,16 +5,11 @@
 ## case: test_invalid_arc4_struct_member_type
 from algopy import *
 
-class BadStruct(arc4.Struct):  ## E: invalid ARC-4 Struct declaration, the following fields are not ARC-4 encoded types: a, c
-    a: UInt64
-    b: arc4.UInt64
+class BadStruct(arc4.Struct): ## E: invalid ARC-4 Struct declaration, the following fields are not persistable: a, b
+    a: gtxn.Transaction
+    b: itxn.Payment
     c: bool
 
-## case: test_invalid_arc4_struct_empty
-from algopy import *
-
-class BadStruct2(arc4.Struct):  ## E: arc4.Struct needs at least one element
-    pass
 
 ## case: test_invalid_arc4_member_syntax
 from algopy import *
@@ -52,10 +47,6 @@ def abi_call_none_return() -> None:
 
 
 @subroutine
-def wrong_arg_type1() -> None:
-    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt8(1)) ## E: expected type algopy.arc4.UIntN[typing.Literal[64]], got type algopy.arc4.UIntN[typing.Literal[8]]
-
-@subroutine
 def wrong_arg_type2() -> None:
     arc4.emit("Event(string,uint8)", b"a", 1) ## E: can't covert literal to algopy.arc4.String
 
@@ -65,12 +56,7 @@ def wrong_arg_type3() -> None:
 
 @subroutine
 def wrong_arg_type4() -> None:
-    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: expected type algopy.arc4.String, got type test_emit_errors.Event \
-                                                                             ## E: expected 2 ABI arguments, got 1
-
-@subroutine
-def wrong_arg_type5() -> None:
-    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: expected type algopy.arc4.String, got type test_emit_errors.Event2
+    arc4.emit("Event(string,uint8)", Event(arc4.String("a"), arc4.UInt8(1))) ## E: expected 2 ABI arguments, got 1
 
 @subroutine
 def wrong_number_args() -> None:
@@ -98,6 +84,30 @@ def invalid_signature6() -> None:
 def dont_copy_array() -> None:
     a = arc4.DynamicBytes()
     arc4.emit("Event(byte[])", a)  # this should not need a .copy()
+
+## case: test_emit_errors_ir
+from algopy import *
+
+class Event(arc4.Struct):
+    a: arc4.String
+    b: arc4.UInt8
+
+class Event2(arc4.Struct):
+    a: arc4.String
+
+@subroutine
+def wrong_arg_type1() -> None:
+    arc4.emit("Event(string,uint64)", arc4.String("a"), arc4.UInt128(1)) ## E: expected type algopy.arc4.UIntN[typing.Literal[64]], got type algopy.arc4.BigUIntN[typing.Literal[128]]
+
+@subroutine
+def wrong_arg_type5() -> None:
+    arc4.emit("Event2(string)", Event2(arc4.String("a"))) ## E: expected type algopy.arc4.String, got type test_emit_errors_ir.Event2
+
+class MyContract(ARC4Contract):
+    @arc4.abimethod()
+    def foo(self) -> None:
+        wrong_arg_type1()
+        wrong_arg_type5()
 
 ## case: test_bad_uint_sizes
 
@@ -545,7 +555,7 @@ def test_txn_arg_with_gtxn() -> None:
 def test_txn_arg_with_literal() -> None:
     arc4.abi_call(
         Logger.acfg_arg,
-        1, ## E: can't covert literal to algopy.itxn.AssetConfig
+        1, ## E: expected type algopy.itxn.AssetConfig, got type int
         app_id=1,
     )
 
@@ -553,7 +563,7 @@ def test_txn_arg_with_literal() -> None:
 def test_txn_arg_with_wrong_literal_type() -> None:
     arc4.abi_call(
         Logger.acfg_arg,
-        "", ## E: can't covert literal to algopy.itxn.AssetConfig
+        "", ## E: expected type algopy.itxn.AssetConfig, got type str
         app_id=1,
     )
 
@@ -754,9 +764,10 @@ def correct_kwarg() -> MyStruct:
 def correct_array_positional() -> None:
     arc4.abi_call(Client.check, ImmutableArray((UInt64(), True)), app_id=1234)
 
-@subroutine
-def incorrect_array_positional() -> None:
-    arc4.abi_call(Client.check, ImmutableArray((True, UInt64())), app_id=1234) ## E: unsupported ARC-4 encode operation to type (uint64,bool)[]
+class Caller(arc4.ARC4Contract):
+    @arc4.abimethod
+    def incorrect_array_positional(self) -> None:
+        arc4.abi_call(Client.check, ImmutableArray((True, UInt64())), app_id=1234) ## E: expected type algopy.arc4.DynamicArray[struct_member_ordering2.MyStruct], got type algopy.ImmutableArray[tuple[bool, algopy.UInt64]]
 
 
 ## case: array_encoding
@@ -768,10 +779,11 @@ class Client(arc4.ARC4Client, typing.Protocol):
     @arc4.abimethod
     def take_arc4_uint8(self, arr: arc4.DynamicArray[arc4.UInt8]) -> None: ...
 
-@subroutine
-def stack_uint64_to_arc4_uint8() -> None:
-    arr = ImmutableArray[UInt64]()
-    arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: unsupported ARC-4 encode operation to type uint8[]
+class Caller(arc4.ARC4Contract):
+    @arc4.abimethod
+    def stack_uint64_to_arc4_uint8(self) -> None:
+        arr = ImmutableArray[UInt64]()
+        arc4.abi_call(Client.take_arc4_uint8, arr, app_id=1234) ## E: expected type algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[8]]], got type algopy.ImmutableArray[algopy.UInt64]
 
 ## case: abimethod_reference_type_in_tuple
 from algopy import *
@@ -814,3 +826,53 @@ def caller() -> None:
         itxn.Payment(receiver=Txn.sender).submit(),
         app_id=1234,
     )
+
+## case: mutable_elements_append_concat_extend
+from algopy import *
+
+class Foo(Struct):
+    a: UInt64
+    b: UInt64
+
+@subroutine
+def caller() -> None:
+    arr = Array[Foo]()
+    foo = Foo(Txn.num_app_args, Txn.num_app_args)
+    arr.append(foo) ## E: mutable reference to ARC-4-encoded value must be copied using .copy() when being extended
+    arr.extend(arr) ## E: mutable reference to ARC-4-encoded value must be copied using .copy() when being extended
+    arr2 = arr + arr ## E: mutable reference to ARC-4-encoded value must be copied using .copy() when being concat
+
+## case: modify_frozen_struct
+from algopy import *
+
+class Bar(Struct):
+    foo: UInt64
+
+class Frozen(Struct, frozen=True):
+    bar: Bar
+
+@subroutine
+def no() -> None:
+    arr = Array[Frozen]()
+    assert arr.length == 0
+
+    for i in urange(5):
+        arr.append(Frozen(Bar(i)))
+
+    arr[0].bar = Bar(UInt64(1)) # type: ignore[misc] ## E: expression is not valid as an assignment target - object is frozen
+
+## case: modify_immutable_struct
+from algopy import *
+
+class Imm(Struct, frozen=True):
+    bar: UInt64
+
+@subroutine
+def no() -> None:
+    arr = Array[Imm]()
+    assert arr.length == 0
+
+    for i in urange(5):
+        arr.append(Imm(i))
+
+    arr[0].bar = UInt64(1) # type: ignore[misc] ## E: expression is not valid as an assignment target - object is immutable

@@ -33,10 +33,10 @@ STACK_TYPE_TO_IR_TYPE: Mapping[langspec.StackType, IRType] = {
     langspec.StackType.bytes: PrimitiveIRType.bytes,
     langspec.StackType.box_name: PrimitiveIRType.bytes,
     langspec.StackType.state_key: PrimitiveIRType.bytes,
-    langspec.StackType.address: SizedBytesType(num_bytes=32),
+    langspec.StackType.address: PrimitiveIRType.account,
     langspec.StackType.any: PrimitiveIRType.any,
     langspec.StackType.address_or_index: UnionType(
-        types=(SizedBytesType(num_bytes=32), PrimitiveIRType.uint64)
+        types=(PrimitiveIRType.account, PrimitiveIRType.uint64)
     ),
 }
 operator_names = {

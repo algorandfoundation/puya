@@ -1,5 +1,5 @@
 import typing
-from collections.abc import Iterator, Sequence
+from collections.abc import Sequence
 
 import attrs
 
@@ -10,76 +10,36 @@ from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.awst.nodes import BigUIntBinaryOperator, TupleExpression, UInt64BinaryOperator
+from puya.awst.nodes import BigUIntBinaryOperator, UInt64BinaryOperator
 from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.awst.txn_fields import TxnField
 from puya.awst.wtypes import WInnerTransaction, WInnerTransactionFields
 from puya.errors import CodeError, InternalError
-from puya.ir.arc4_types import effective_array_encoding, wtype_to_arc4_wtype
+from puya.ir import (
+    models as ir,
+    types_ as types,
+)
+from puya.ir._utils import multi_value_to_values
 from puya.ir.avm_ops import AVMOp
-from puya.ir.builder import arc4, arrays, flow_control, mem, storage
-from puya.ir.builder._tuple_util import get_tuple_item_values
-from puya.ir.builder._utils import (
-    OpFactory,
-    assert_value,
-    assign,
-    assign_intrinsic_op,
-    assign_targets,
-    assign_temp,
-    extract_const_int,
-    get_implicit_return_is_original,
-    get_implicit_return_out,
-    mktemp,
+from puya.ir.builder import (
+    assignment,
+    bytes,
+    callsub,
+    dynamic_array,
+    flow_control,
+    iteration,
+    itxn,
+    mem,
+    sequence,
+    storage,
 )
-from puya.ir.builder.arc4 import ARC4_FALSE, ARC4_TRUE
-from puya.ir.builder.assignment import handle_assignment, handle_assignment_expr
-from puya.ir.builder.bytes import (
-    visit_bytes_intersection_slice_expression,
-    visit_bytes_slice_expression,
-)
-from puya.ir.builder.callsub import (
-    visit_puya_lib_call_expression,
-    visit_subroutine_call_expression,
-)
-from puya.ir.builder.iteration import handle_for_in_loop
-from puya.ir.builder.itxn import InnerTransactionBuilder
+from puya.ir.builder._utils import assign, get_implicit_return_is_original, get_implicit_return_out
 from puya.ir.context import IRBuildContext
-from puya.ir.models import (
-    AddressConstant,
-    ArrayReadIndex,
-    BigUIntConstant,
-    BytesConstant,
-    CompiledContractReference,
-    CompiledLogicSigReference,
-    Fail,
-    Intrinsic,
-    InvokeSubroutine,
-    MethodConstant,
-    Op,
-    ProgramExit,
-    Subroutine,
-    SubroutineReturn,
-    TemplateVar,
-    UInt64Constant,
-    Value,
-    ValueProvider,
-    ValueTuple,
-    WriteSlot,
-)
-from puya.ir.types_ import (
-    ArrayType,
-    AVMBytesEncoding,
-    PrimitiveIRType,
-    SizedBytesType,
-    SlotType,
-    bytes_enc_to_avm_bytes_enc,
-    wtype_to_ir_type,
-    wtype_to_ir_types,
-)
-from puya.ir.utils import format_tuple_index
+from puya.ir.encodings import wtype_to_encoding
+from puya.ir.op_utils import OpFactory, assert_value, assign_intrinsic_op, assign_targets, mktemp
 from puya.parse import SourceLocation
 
-TExpression: typing.TypeAlias = ValueProvider | None
+TExpression: typing.TypeAlias = ir.ValueProvider | None
 TStatement: typing.TypeAlias = None
 
 logger = log.get_logger(__name__)
@@ -90,10 +50,10 @@ class FunctionIRBuilder(
     puya.awst.visitors.StatementVisitor[TStatement],
 ):
     def __init__(
-        self, context: IRBuildContext, function: awst_nodes.Function, subroutine: Subroutine
+        self, context: IRBuildContext, function: awst_nodes.Function, subroutine: ir.Subroutine
     ):
         self.context = context.for_function(function, subroutine, self)
-        self._itxn = InnerTransactionBuilder(self.context)
+        self._itxn = itxn.InnerTransactionBuilder(self.context)
         self._single_eval_cache = dict[awst_nodes.SingleEvaluation, TExpression]()
         self._visited_exprs = dict[tuple[int, awst_nodes.Expression], TExpression]()
 
@@ -102,7 +62,7 @@ class FunctionIRBuilder(
         cls,
         ctx: IRBuildContext,
         function: awst_nodes.Function,
-        subroutine: Subroutine,
+        subroutine: ir.Subroutine,
     ) -> None:
         logger.debug(f"Building IR for function {function.full_name}")
         builder = cls(ctx, function, subroutine)
@@ -113,9 +73,7 @@ class FunctionIRBuilder(
                 if p.implicit_return:
                     assign(
                         func_ctx,
-                        UInt64Constant(
-                            value=1, ir_type=PrimitiveIRType.bool, source_location=None
-                        ),
+                        ir.UInt64Constant(value=1, ir_type=types.bool_, source_location=None),
                         name=get_implicit_return_is_original(p.name),
                         assignment_location=None,
                     )
@@ -131,7 +89,7 @@ class FunctionIRBuilder(
                 if function.return_type != wtypes.void_wtype:
                     raise CodeError("not all paths return a value", function.body.source_location)
                 block_builder.terminate(
-                    SubroutineReturn(
+                    ir.SubroutineReturn(
                         result=[
                             block_builder.ssa.read_variable(
                                 get_implicit_return_out(p.name), p.ir_type, final_block
@@ -146,58 +104,69 @@ class FunctionIRBuilder(
             subroutine.validate_with_ssa()
 
     def visit_copy(self, expr: awst_nodes.Copy) -> TExpression:
+        loc = expr.source_location
+        result_ir_type = types.wtype_to_ir_type(expr.wtype, loc, allow_tuple=True)
+        ir_type = types.wtype_to_ir_type(
+            expr.value.wtype, expr.value.source_location, allow_tuple=True
+        )
+        if result_ir_type != ir_type:
+            raise InternalError("copy node cannot change the structure of a value", loc)
+
         # For reference types, we need to clone the data
         # For value types, we can just visit the expression and the resulting read
-        # will effectively be a copy. We assign the copy to a new register in case it is
-        # mutated.
-        match expr.value.wtype:
-            case wtypes.ARC4Type():
-                # Arc4 encoded types are value types
-                original_value = self.visit_and_materialise_single(expr.value)
-                return assign_temp(
-                    temp_description="copy",
-                    source=original_value,
-                    source_location=expr.source_location,
-                    context=self.context,
-                )
-            case wtypes.ReferenceArray():
-                loc = expr.source_location
-                original_slot = self.visit_and_materialise_single(expr.value)
-                new_slot = mem.new_slot(self.context, original_slot.ir_type, loc)
-                value = mem.read_slot(self.context, original_slot, loc)
-                mem.write_slot(self.context, new_slot, value, loc)
-                return new_slot
-
-        raise InternalError(
-            f"Invalid source wtype for Copy {expr.value.wtype}", expr.source_location
-        )
+        # will effectively be a copy.
+        if not isinstance(ir_type, types.SlotType):
+            return self.visit_and_materialise_as_value_or_tuple(expr.value)
+        else:
+            original_slot = self.visit_and_materialise_single(expr.value)
+            new_slot = mem.new_slot(self.context, original_slot.ir_type, loc)
+            value = mem.read_slot(self.context, original_slot, loc)
+            mem.write_slot(self.context, new_slot, value, loc)
+            return new_slot
 
     def visit_arc4_decode(self, expr: awst_nodes.ARC4Decode) -> TExpression:
+        loc = expr.source_location
+
+        ir_type = types.wtype_to_ir_type(expr.wtype, loc, allow_tuple=True)
+        encoding = wtype_to_encoding(expr.value.wtype, loc)
+
         value = self.visit_and_materialise_single(expr.value)
-        assert isinstance(
-            expr.value.wtype, wtypes.ARC4Type
-        ), f"ARC4Decode node should have value with ARC-4 type, got: {expr.value.wtype}"
-        return arc4.decode_arc4_value(
-            self.context, value, expr.value.wtype, expr.wtype, expr.source_location
+        return ir.DecodeBytes(
+            value=value,
+            encoding=encoding,
+            ir_type=ir_type,
+            error_message_override=expr.error_message,
+            source_location=loc,
         )
 
     def visit_arc4_encode(self, expr: awst_nodes.ARC4Encode) -> TExpression:
-        value = self.visit_expr(expr.value)
-        return arc4.encode_value_provider(
-            self.context, value, expr.value.wtype, expr.wtype, expr.source_location
+        loc = expr.source_location
+
+        value_ir_type = types.wtype_to_ir_type(expr.value.wtype, loc, allow_tuple=True)
+        encoding = wtype_to_encoding(expr.wtype, loc)
+
+        values = self.visit_and_materialise(expr.value)
+
+        return ir.BytesEncode(
+            values=values,
+            values_type=value_ir_type,
+            encoding=encoding,
+            error_message_override=expr.error_message,
+            source_location=loc,
         )
 
     def visit_size_of(self, size_of: awst_nodes.SizeOf) -> TExpression:
+        loc = size_of.source_location
+
         wtype = size_of.size_wtype
-        if isinstance(wtype, wtypes.WTuple):
-            wtype = wtype_to_arc4_wtype(wtype, size_of.source_location)
-        ir_type = wtype_to_ir_type(wtype, size_of.source_location)
-        if ir_type.num_bytes is None:
-            logger.error(
-                f"{size_of.size_wtype} is dynamically sized", location=size_of.source_location
-            )
-        num_bytes = ir_type.num_bytes or 0
-        return UInt64Constant(value=num_bytes, source_location=size_of.source_location)
+        if wtype.is_aggregate:
+            num_bytes = wtype_to_encoding(wtype, loc).num_bytes
+        else:
+            num_bytes = types.wtype_to_ir_type(wtype, loc).num_bytes
+        if num_bytes is None:
+            logger.error("type is dynamically sized", location=loc)
+            return ir.Undefined(ir_type=types.uint64, source_location=loc)
+        return ir.UInt64Constant(value=num_bytes, source_location=loc)
 
     def visit_compiled_contract(self, expr: awst_nodes.CompiledContract) -> TExpression:
         prefix = self.context.options.template_vars_prefix if expr.prefix is None else expr.prefix
@@ -212,11 +181,11 @@ class FunctionIRBuilder(
         #       and instead support names on WTuple, then each value can be accessed and lowered
         #       via a FieldExpression
         program_pages = [
-            CompiledContractReference(
+            ir.CompiledContractReference(
                 artifact=expr.contract,
                 field=field,
                 program_page=page,
-                ir_type=PrimitiveIRType.bytes,
+                ir_type=types.bytes_,
                 source_location=expr.source_location,
                 template_variables=template_variables,
             )
@@ -226,16 +195,16 @@ class FunctionIRBuilder(
             )
             for page in (0, 1)
         ]
-        return ValueTuple(
+        return ir.ValueTuple(
             values=program_pages
             + [
                 (
                     self.visit_and_materialise_single(expr.allocation_overrides[field])
                     if field in expr.allocation_overrides
-                    else CompiledContractReference(
+                    else ir.CompiledContractReference(
                         artifact=expr.contract,
                         field=field,
-                        ir_type=PrimitiveIRType.uint64,
+                        ir_type=types.uint64,
                         source_location=expr.source_location,
                         template_variables=template_variables,
                     )
@@ -257,11 +226,11 @@ class FunctionIRBuilder(
             prefix + k: self.visit_and_materialise_single(v)
             for k, v in expr.template_variables.items()
         }
-        return ValueTuple(
+        return ir.ValueTuple(
             values=[
-                CompiledLogicSigReference(
+                ir.CompiledLogicSigReference(
                     artifact=expr.logic_sig,
-                    ir_type=PrimitiveIRType.bytes,
+                    ir_type=types.bytes_,
                     source_location=expr.source_location,
                     template_variables=template_variables,
                 )
@@ -271,7 +240,7 @@ class FunctionIRBuilder(
 
     def visit_assignment_statement(self, stmt: awst_nodes.AssignmentStatement) -> TStatement:
         if not self._itxn.handle_inner_transaction_field_assignments(stmt):
-            targets = handle_assignment_expr(
+            targets = assignment.handle_assignment_expr(
                 self.context,
                 target=stmt.target,
                 value=stmt.value,
@@ -283,25 +252,28 @@ class FunctionIRBuilder(
         return None
 
     def visit_assignment_expression(self, expr: awst_nodes.AssignmentExpression) -> TExpression:
-        result = handle_assignment_expr(
+        result = assignment.handle_assignment_expr(
             self.context,
             target=expr.target,
             value=expr.value,
             assignment_location=expr.source_location,
         )
-        if not result:
-            # HOW DID YOU GET HERE
-            raise CodeError("Assignment expression did not return a result", expr.source_location)
-        if len(result) == 1:
-            return result[0]
+        ir_type = types.wtype_to_ir_type(expr, allow_tuple=True)
+        if isinstance(ir_type, types.TupleIRType):
+            return ir.ValueTuple(
+                values=list(result),
+                ir_type=ir_type,
+                source_location=expr.source_location,
+            )
         else:
-            return ValueTuple(expr.source_location, list(result))
+            (result_value,) = result
+            return result_value
 
     def visit_biguint_postfix_unary_operation(
         self, expr: awst_nodes.BigUIntPostfixUnaryOperation
     ) -> TExpression:
         target_value = self.visit_and_materialise_single(expr.target)
-        rhs = BigUIntConstant(value=1, source_location=expr.source_location)
+        rhs = ir.BigUIntConstant(value=1, source_location=expr.source_location)
         match expr.op:
             case awst_nodes.BigUIntPostfixUnaryOperator.increment:
                 binary_op = awst_nodes.BigUIntBinaryOperator.add
@@ -312,10 +284,10 @@ class FunctionIRBuilder(
 
         new_value = create_biguint_binary_op(binary_op, target_value, rhs, expr.source_location)
 
-        handle_assignment(
+        assignment.handle_assignment(
             self.context,
             target=expr.target,
-            value=new_value,
+            value=self.materialise_value_provider_as_value_or_tuple(new_value, "tmp"),
             is_nested_update=False,
             assignment_location=expr.source_location,
         )
@@ -325,7 +297,7 @@ class FunctionIRBuilder(
         self, expr: awst_nodes.UInt64PostfixUnaryOperation
     ) -> TExpression:
         target_value = self.visit_and_materialise_single(expr.target)
-        rhs = UInt64Constant(value=1, source_location=expr.source_location)
+        rhs = ir.UInt64Constant(value=1, source_location=expr.source_location)
         match expr.op:
             case awst_nodes.UInt64PostfixUnaryOperator.increment:
                 binary_op = awst_nodes.UInt64BinaryOperator.add
@@ -336,10 +308,10 @@ class FunctionIRBuilder(
 
         new_value = create_uint64_binary_op(binary_op, target_value, rhs, expr.source_location)
 
-        handle_assignment(
+        assignment.handle_assignment(
             self.context,
             target=expr.target,
-            value=new_value,
+            value=self.materialise_value_provider_as_value_or_tuple(new_value, "tmp"),
             is_nested_update=False,
             assignment_location=expr.source_location,
         )
@@ -358,14 +330,14 @@ class FunctionIRBuilder(
         return create_biguint_binary_op(expr.op, left, right, expr.source_location)
 
     def visit_uint64_unary_operation(self, expr: awst_nodes.UInt64UnaryOperation) -> TExpression:
-        return Intrinsic(
+        return ir.Intrinsic(
             op=AVMOp(expr.op),
             args=[self.visit_and_materialise_single(expr.expr)],
             source_location=expr.source_location,
         )
 
     def visit_bytes_unary_operation(self, expr: awst_nodes.BytesUnaryOperation) -> TExpression:
-        return Intrinsic(
+        return ir.Intrinsic(
             op=AVMOp(f"b{expr.op}"),
             args=[self.visit_and_materialise_single(expr.expr)],
             source_location=expr.source_location,
@@ -377,7 +349,7 @@ class FunctionIRBuilder(
                 if expr.value < 0 or expr.value.bit_length() > 64:
                     raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
 
-                return UInt64Constant(
+                return ir.UInt64Constant(
                     value=expr.value,
                     source_location=expr.source_location,
                     teal_alias=expr.teal_alias,
@@ -386,16 +358,16 @@ class FunctionIRBuilder(
                 if expr.value < 0 or expr.value.bit_length() > algo_constants.MAX_BIGUINT_BITS:
                     raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
 
-                return BigUIntConstant(value=expr.value, source_location=expr.source_location)
+                return ir.BigUIntConstant(value=expr.value, source_location=expr.source_location)
             case wtypes.ARC4UIntN(n=bit_size):
                 num_bytes = bit_size // 8
                 try:
                     arc4_result = expr.value.to_bytes(num_bytes, "big", signed=False)
                 except OverflowError:
                     raise CodeError(f"invalid {expr.wtype} value", expr.source_location) from None
-                return BytesConstant(
+                return ir.BytesConstant(
                     value=arc4_result,
-                    encoding=AVMBytesEncoding.base16,
+                    encoding=types.AVMBytesEncoding.base16,
                     source_location=expr.source_location,
                 )
             case _:
@@ -417,9 +389,9 @@ class FunctionIRBuilder(
                     or adjusted_int.bit_length() > bit_size  # too big
                 ):
                     raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
-                return BytesConstant(
+                return ir.BytesConstant(
                     source_location=expr.source_location,
-                    encoding=AVMBytesEncoding.base16,
+                    encoding=types.AVMBytesEncoding.base16,
                     value=adjusted_int.to_bytes(num_bytes, "big", signed=False),
                 )
             case _:
@@ -429,64 +401,69 @@ class FunctionIRBuilder(
                 )
 
     def visit_bool_constant(self, expr: awst_nodes.BoolConstant) -> TExpression:
+        loc = expr.source_location
+
+        bool_const = ir.UInt64Constant(
+            value=int(expr.value),
+            ir_type=types.bool_,
+            source_location=loc,
+        )
         match expr.wtype:
             case wtypes.bool_wtype:
-                return UInt64Constant(
-                    value=int(expr.value),
-                    ir_type=PrimitiveIRType.bool,
-                    source_location=expr.source_location,
-                )
+                return bool_const
             case wtypes.arc4_bool_wtype:
-                return BytesConstant(
-                    value=(ARC4_TRUE if expr.value else ARC4_FALSE),
-                    encoding=AVMBytesEncoding.base16,
-                    source_location=expr.source_location,
+                return ir.BytesEncode(
+                    values=[bool_const],
+                    values_type=bool_const.ir_type,
+                    encoding=wtype_to_encoding(expr.wtype, loc),
+                    source_location=loc,
                 )
             case _:
                 raise InternalError(
                     f"Unexpected wtype {expr.wtype} for BoolConstant", expr.source_location
                 )
 
-    def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> BytesConstant:
+    def visit_bytes_constant(self, expr: awst_nodes.BytesConstant) -> ir.BytesConstant:
         if len(expr.value) > algo_constants.MAX_BYTES_LENGTH:
-            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
-        ir_type = wtype_to_ir_type(expr)
-        if ir_type is PrimitiveIRType.bytes:
-            ir_type = SizedBytesType(num_bytes=len(expr.value))
-        return BytesConstant(
+            raise CodeError("bytes constant exceeds stack size limits", expr.source_location)
+        ir_type = types.wtype_to_ir_type(expr)
+        if ir_type is types.bytes_:
+            ir_type = types.SizedBytesType(num_bytes=len(expr.value))
+        return ir.BytesConstant(
             value=expr.value,
-            encoding=bytes_enc_to_avm_bytes_enc(expr.encoding),
+            encoding=types.bytes_enc_to_avm_bytes_enc(expr.encoding),
             ir_type=ir_type,
             source_location=expr.source_location,
         )
 
-    def visit_string_constant(self, expr: awst_nodes.StringConstant) -> BytesConstant:
+    def visit_string_constant(self, expr: awst_nodes.StringConstant) -> ir.ValueProvider:
+        loc = expr.source_location
+        ir_type = types.wtype_to_ir_type(expr)
+
         try:
             value = expr.value.encode("utf8")
         except UnicodeError:
-            value = None
-        if value is None:
-            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
-
-        match expr.wtype:
-            case wtypes.string_wtype:
-                encoding = AVMBytesEncoding.utf8
-            case wtypes.arc4_string_alias:
-                encoding = AVMBytesEncoding.base16
-                value = len(value).to_bytes(2) + value
-            case _:
-                raise InternalError(
-                    f"Unexpected wtype {expr.wtype} for StringConstant", expr.source_location
-                )
-
+            raise CodeError("invalid UTF-8 constant", loc) from None
         if len(value) > algo_constants.MAX_BYTES_LENGTH:
-            raise CodeError(f"invalid {expr.wtype} value", expr.source_location)
+            raise CodeError("bytes constant exceeds stack size limits", loc)
 
-        return BytesConstant(
+        const = ir.BytesConstant(
             value=value,
-            encoding=encoding,
-            source_location=expr.source_location,
+            encoding=types.AVMBytesEncoding.utf8,
+            ir_type=types.string,
+            source_location=loc,
         )
+        if ir_type == const.ir_type:
+            return const
+        elif isinstance(ir_type, types.EncodedType):
+            return ir.BytesEncode(
+                values=[const],
+                values_type=const.ir_type,
+                encoding=ir_type.encoding,
+                source_location=loc,
+            )
+        else:
+            raise InternalError(f"Unexpected {ir_type=} for StringConstant", loc)
 
     @typing.override
     def visit_void_constant(self, expr: awst_nodes.VoidConstant) -> TExpression:
@@ -496,7 +473,7 @@ class FunctionIRBuilder(
         if not utils.valid_address(expr.value):
             # TODO: should this be here, or on IR model? there's pros and cons to each
             raise CodeError("invalid Algorand address", expr.source_location)
-        return AddressConstant(
+        return ir.AddressConstant(
             value=expr.value,
             source_location=expr.source_location,
         )
@@ -521,7 +498,7 @@ class FunctionIRBuilder(
                 f"Unmapped numeric comparison operator {expr.operator}", expr.source_location
             ) from ex
 
-        return Intrinsic(
+        return ir.Intrinsic(
             op=avm_op,
             args=[left, right],
             source_location=expr.source_location,
@@ -537,49 +514,33 @@ class FunctionIRBuilder(
         )
         return value
 
-    def _expand_tuple_var(
-        self, name: str, wtype: wtypes.WTuple, *, default_source_location: SourceLocation
-    ) -> Iterator[Value]:
-        for idx, wt in enumerate(wtype.types):
-            item_name = format_tuple_index(wtype, name, idx)
-            if isinstance(wt, wtypes.WTuple):
-                yield from self._expand_tuple_var(
-                    item_name, wt, default_source_location=default_source_location
-                )
-            else:
-                yield self.context.ssa.read_variable(
-                    variable=item_name,
-                    ir_type=wtype_to_ir_type(wt, wtype.source_location or default_source_location),
-                    block=self.context.block_builder.active_block,
-                )
-
     def visit_var_expression(self, expr: awst_nodes.VarExpression) -> TExpression:
-        if isinstance(expr.wtype, wtypes.WTuple):
-            values = tuple(
-                self._expand_tuple_var(
-                    expr.name,
-                    expr.wtype,
-                    default_source_location=expr.source_location,
-                )
+        ir_type = types.wtype_to_ir_type(expr, allow_tuple=True)
+        active_block = self.context.block_builder.active_block
+        if not isinstance(ir_type, types.TupleIRType):
+            variable = self.context.ssa.read_variable(expr.name, ir_type, active_block)
+            return attrs.evolve(variable, source_location=expr.source_location)
+        else:
+            item_names = ir_type.build_item_names(expr.name)
+            item_ir_types = types.ir_type_to_ir_types(ir_type)
+            items = [
+                self.context.ssa.read_variable(item_name, item_ir_type, active_block)
+                for item_name, item_ir_type in zip(item_names, item_ir_types, strict=True)
+            ]
+            return ir.ValueTuple(
+                values=items, ir_type=ir_type, source_location=expr.source_location
             )
-            return ValueTuple(values=values, source_location=expr.source_location)
-        ir_type = wtype_to_ir_type(expr)
-        variable = self.context.ssa.read_variable(
-            expr.name, ir_type, self.context.block_builder.active_block
-        )
-        variable = attrs.evolve(variable, source_location=expr.source_location)
-        return variable
 
     def _add_assert(
         self,
         condition_expr: awst_nodes.Expression | None,
         error_message: str | None,
         loc: SourceLocation,
-    ) -> Intrinsic | None:
+    ) -> ir.Intrinsic | None:
         condition_value = (
             self.visit_and_materialise_single(condition_expr) if condition_expr else None
         )
-        if isinstance(condition_value, UInt64Constant):
+        if isinstance(condition_value, ir.UInt64Constant):
             if condition_value.value:
                 logger.warning("assertion is always true, ignoring", location=loc)
                 return None
@@ -587,11 +548,11 @@ class FunctionIRBuilder(
                 condition_value = None
         if condition_value is None:
             self.context.block_builder.terminate(
-                Fail(source_location=loc, error_message=error_message)
+                ir.Fail(source_location=loc, error_message=error_message)
             )
             return None
         else:
-            return Intrinsic(
+            return ir.Intrinsic(
                 op=AVMOp("assert"),
                 source_location=loc,
                 args=[condition_value],
@@ -609,7 +570,7 @@ class FunctionIRBuilder(
                 (arg_expr,) = call.stack_args
                 exit_value = self.visit_and_materialise_single(arg_expr)
                 self.context.block_builder.terminate(
-                    ProgramExit(source_location=call.source_location, result=exit_value)
+                    ir.ProgramExit(source_location=call.source_location, result=exit_value)
                 )
                 return None
             case "assert":
@@ -619,12 +580,12 @@ class FunctionIRBuilder(
                 )
             case _:
                 args = [self.visit_and_materialise_single(arg) for arg in call.stack_args]
-                return Intrinsic(
+                return ir.Intrinsic(
                     op=AVMOp(call.op_code),
                     source_location=call.source_location,
                     args=args,
                     immediates=list(call.immediates),
-                    types=wtype_to_ir_types(call.wtype, call.source_location),
+                    types=types.wtype_to_ir_types(call.wtype, call.source_location),
                 )
 
     def visit_group_transaction_reference(
@@ -640,7 +601,7 @@ class FunctionIRBuilder(
                 args=[index],
                 source_location=ref.source_location,
             )
-            type_constant = UInt64Constant(
+            type_constant = ir.UInt64Constant(
                 value=txn_type.value, teal_alias=txn_type.name, source_location=ref.source_location
             )
             type_matches = assign_intrinsic_op(
@@ -675,12 +636,15 @@ class FunctionIRBuilder(
         self, submit: awst_nodes.SubmitInnerTransaction
     ) -> TExpression:
         result = self._itxn.handle_submit_inner_transaction(submit)
-        if len(result) == 1:
-            return result[0]
-        return ValueTuple(
-            values=list(result),
-            source_location=submit.source_location,
-        )
+        result_ir_type = types.wtype_to_ir_type(submit, allow_tuple=True)
+        if isinstance(result_ir_type, types.TupleIRType):
+            return ir.ValueTuple(
+                values=list(result),
+                ir_type=result_ir_type,
+                source_location=submit.source_location,
+            )
+        (result_value,) = result
+        return result_value
 
     def visit_update_inner_transaction(self, call: awst_nodes.UpdateInnerTransaction) -> None:
         self._itxn.handle_update_inner_transaction(call)
@@ -691,98 +655,66 @@ class FunctionIRBuilder(
         return self._itxn.handle_inner_transaction_field(itxn_field)
 
     def visit_method_constant(self, expr: awst_nodes.MethodConstant) -> TExpression:
-        return MethodConstant(value=expr.value, source_location=expr.source_location)
+        return ir.MethodConstant(value=expr.value, source_location=expr.source_location)
 
     def visit_tuple_expression(self, expr: awst_nodes.TupleExpression) -> TExpression:
-        items = list[Value]()
+        items = list[ir.Value]()
         for item in expr.items:
             nested_values = self.visit_and_materialise(item)
             items.extend(nested_values)
-        return ValueTuple(
-            source_location=expr.source_location,
+        return ir.ValueTuple(
             values=items,
+            ir_type=types.wtype_to_ir_type(expr.wtype, expr.source_location, allow_tuple=True),
+            source_location=expr.source_location,
         )
 
     def visit_tuple_item_expression(self, expr: awst_nodes.TupleItemExpression) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.WTuple):
-            tup = self.visit_and_materialise(expr.base)
-            return get_tuple_item_values(
-                tuple_values=tup,
-                tuple_wtype=expr.base.wtype,
-                index=expr.index,
-                target_wtype=expr.wtype,
-                source_location=expr.source_location,
-            )
-        elif isinstance(expr.base.wtype, wtypes.ARC4Tuple):
-            base = self.visit_and_materialise_single(expr.base)
-            return arc4.arc4_tuple_index(
-                self.context,
-                base=base,
-                index=expr.index,
-                wtype=expr.base.wtype,
-                source_location=expr.source_location,
-            )
-        else:
-            raise InternalError(
-                f"Tuple indexing operation IR lowering"
-                f" not implemented for base type {expr.base.wtype.name}",
-                expr.source_location,
-            )
+        loc = expr.source_location
+
+        tuple_wtype = expr.base.wtype
+        assert isinstance(tuple_wtype, wtypes.WTuple | wtypes.ARC4Tuple), "expected tuple wtype"
+        base = self.visit_and_materialise(expr.base)
+
+        return sequence.read_aggregate_index_and_decode(
+            self.context, tuple_wtype, base, [expr.index], loc
+        )
 
     def visit_field_expression(self, expr: awst_nodes.FieldExpression) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.WStructType):
-            raise NotImplementedError
-        if isinstance(expr.base.wtype, wtypes.WTuple):
-            index = expr.base.wtype.name_to_index(expr.name, expr.source_location)
-            tup = self.visit_and_materialise(expr.base)
-            return get_tuple_item_values(
-                tuple_values=tup,
-                tuple_wtype=expr.base.wtype,
-                index=index,
-                target_wtype=expr.wtype,
-                source_location=expr.source_location,
-            )
-        if isinstance(expr.base.wtype, wtypes.ARC4Struct):
-            base = self.visit_and_materialise_single(expr.base)
-            index = expr.base.wtype.names.index(expr.name)
-            return arc4.arc4_tuple_index(
-                self.context,
-                base=base,
-                index=index,
-                wtype=expr.base.wtype,
-                source_location=expr.source_location,
-            )
-        else:
-            raise InternalError(
-                f"Field access IR lowering"
-                f" not implemented for base type {expr.base.wtype.name}",
-                expr.source_location,
-            )
+        loc = expr.source_location
+
+        tuple_wtype = expr.base.wtype
+        assert isinstance(tuple_wtype, wtypes.WTuple | wtypes.ARC4Struct), "expected struct wtype"
+        assert tuple_wtype.names is not None, "expected named tuple"
+        base = self.visit_and_materialise(expr.base)
+        index = tuple_wtype.names.index(expr.name)
+
+        return sequence.read_aggregate_index_and_decode(
+            self.context, tuple_wtype, base, [index], loc
+        )
 
     def visit_intersection_slice_expression(
         self, expr: awst_nodes.IntersectionSliceExpression
     ) -> TExpression:
+        loc = expr.source_location
         sliceable_type = expr.base.wtype
         if isinstance(sliceable_type, wtypes.WTuple):
             return self._visit_tuple_slice(expr, sliceable_type)
         elif isinstance(sliceable_type, wtypes.BytesWType):
-            return visit_bytes_intersection_slice_expression(self.context, expr)
-        elif isinstance(sliceable_type, wtypes.StackArray):
+            return bytes.visit_bytes_intersection_slice_expression(self.context, expr)
+        elif isinstance(sliceable_type, wtypes.ARC4DynamicArray):
             if expr.begin_index is not None or expr.end_index != -1:
                 raise InternalError(
                     f"IntersectionSlice for {expr.wtype.name} currently only supports [:-1]",
                     expr.source_location,
                 )
-            arc4_array_type = effective_array_encoding(sliceable_type, expr.base.source_location)
-            array = self.context.visitor.visit_and_materialise_single(expr.base)
-            _, data = arc4.invoke_arc4_array_pop(
-                self.context, arc4_array_type.element_type, array, expr.source_location
-            )
+            array = self.visit_and_materialise_single(expr.base)
+            builder = dynamic_array.get_builder(self.context, sliceable_type, loc)
+            data, _ = builder.pop(array)
             return data
         else:
             raise InternalError(
                 f"IntersectionSlice operation IR lowering not implemented for {expr.wtype.name}",
-                expr.source_location,
+                loc,
             )
 
     def visit_slice_expression(self, expr: awst_nodes.SliceExpression) -> TExpression:
@@ -790,7 +722,7 @@ class FunctionIRBuilder(
         if isinstance(expr.base.wtype, wtypes.WTuple):
             return self._visit_tuple_slice(expr, expr.base.wtype)
         elif isinstance(expr.base.wtype, wtypes.BytesWType):
-            return visit_bytes_slice_expression(self.context, expr)
+            return bytes.visit_bytes_slice_expression(self.context, expr)
         else:
             raise InternalError(
                 f"Slice operation IR lowering not implemented for {expr.wtype.name}",
@@ -802,75 +734,50 @@ class FunctionIRBuilder(
         expr: awst_nodes.SliceExpression | awst_nodes.IntersectionSliceExpression,
         base_wtype: wtypes.WTuple,
     ) -> TExpression:
-        tup = self.visit_and_materialise(expr.base)
+        loc = expr.source_location
+
+        tup_value = self.visit_and_materialise(expr.base)
         start_i = extract_const_int(expr.begin_index) or 0
         end_i = extract_const_int(expr.end_index)
-        return get_tuple_item_values(
-            tuple_values=tup,
-            tuple_wtype=base_wtype,
-            index=(start_i, end_i),
-            target_wtype=expr.wtype,
-            source_location=expr.source_location,
-        )
+        if end_i is None:
+            end_i = len(base_wtype.types)
+
+        values = [
+            v
+            for index in range(start_i, end_i)
+            for v in multi_value_to_values(
+                sequence.read_tuple_index(base_wtype, tup_value, index, loc)
+            )
+        ]
+        base_ir_type = types.wtype_to_ir_type(base_wtype, loc, allow_tuple=True)
+        slice_elements_ir_types = base_ir_type.elements[start_i:end_i]
+        if base_ir_type.fields is None:
+            slice_fields = None
+        else:
+            slice_fields = base_ir_type.fields[start_i:end_i]
+        ir_type = types.TupleIRType(elements=slice_elements_ir_types, fields=slice_fields)
+        return ir.ValueTuple(values=values, ir_type=ir_type, source_location=loc)
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
-        index = self.visit_and_materialise_single(expr.index)
+        loc = expr.source_location
+
         base = self.visit_and_materialise_single(expr.base)
+        index = self.visit_and_materialise_single(expr.index)
 
         indexable_wtype = expr.base.wtype
+        factory = OpFactory(self.context, loc)
         if isinstance(indexable_wtype, wtypes.BytesWType):
             # note: the below works because Bytes is immutable, so this index expression
             # can never appear as an assignment target
-            if isinstance(index, UInt64Constant) and index.value <= 255:
-                return Intrinsic(
-                    op=AVMOp.extract,
-                    args=[base],
-                    immediates=[index.value, 1],
-                    source_location=expr.source_location,
-                )
-            else:
-                return Intrinsic(
-                    op=AVMOp.extract3,
-                    args=[
-                        base,
-                        index,
-                        UInt64Constant(value=1, source_location=expr.source_location),
-                    ],
-                    source_location=expr.source_location,
-                )
-        elif isinstance(indexable_wtype, wtypes.ReferenceArray):
-            slot = mem.read_slot(self.context, base, expr.base.source_location)
-            return ArrayReadIndex(array=slot, index=index, source_location=expr.source_location)
-        elif isinstance(indexable_wtype, wtypes.StackArray):
-            arc4_array_type = effective_array_encoding(indexable_wtype, expr.base.source_location)
-            encoded_read_vp = arc4.arc4_array_index(
-                self.context,
-                array_wtype=arc4_array_type,
-                array=base,
-                index=index,
-                source_location=expr.source_location,
-            )
-            return arc4.maybe_decode_arc4_value_provider(
-                self.context,
-                encoded_read_vp,
-                arc4_array_type.element_type,
-                indexable_wtype.element_type,
-                expr.source_location,
-                temp_description="arc4_item",
-            )
-        elif isinstance(indexable_wtype, wtypes.ARC4Array):
-            return arc4.arc4_array_index(
-                self.context,
-                array_wtype=indexable_wtype,
-                array=base,
-                index=index,
-                source_location=expr.source_location,
-            )
-        else:
-            raise InternalError(
-                f"Indexing operation IR lowering not implemented for {expr.wtype.name}",
-                expr.source_location,
-            )
+            return factory.extract3(base, index, 1)
+
+        assert isinstance(
+            indexable_wtype, wtypes.ReferenceArray | wtypes.ARC4Array
+        ), "expected array type"
+
+        return sequence.read_aggregate_index_and_decode(
+            self.context, indexable_wtype, [base], [index], loc
+        )
 
     def visit_conditional_expression(self, expr: awst_nodes.ConditionalExpression) -> TExpression:
         return flow_control.handle_conditional_expression(self.context, expr)
@@ -885,10 +792,13 @@ class FunctionIRBuilder(
             result: TExpression = None
         else:
             values = self.materialise_value_provider(source, description="awst_tmp")
-            if len(values) == 1:
+            ir_type = types.wtype_to_ir_type(expr, allow_tuple=True)
+            if not isinstance(ir_type, types.TupleIRType):
                 (result,) = values
             else:
-                result = ValueTuple(values=values, source_location=expr.source_location)
+                result = ir.ValueTuple(
+                    values=values, ir_type=ir_type, source_location=expr.source_location
+                )
         self._single_eval_cache[expr] = result
         return result
 
@@ -904,12 +814,8 @@ class FunctionIRBuilder(
         self, expr: awst_nodes.BoxPrefixedKeyExpression
     ) -> TExpression:
         factory = OpFactory(self.context, expr.source_location)
-        prefix = self.context.visitor.visit_and_materialise_single(
-            expr.prefix, temp_description="box_key_prefix"
-        )
-        key_source = self.context.visitor.visit_and_materialise(
-            expr.key, temp_description="materialized_values"
-        )
+        prefix = self.visit_and_materialise_single(expr.prefix, temp_description="box_key_prefix")
+        key_source = self.visit_and_materialise(expr.key, temp_description="materialized_values")
         codec = storage.get_storage_codec(
             expr.key.wtype, awst_nodes.AppStorageKind.box, expr.key.source_location
         )
@@ -932,46 +838,29 @@ class FunctionIRBuilder(
         return storage.visit_state_exists(self.context, expr.field, expr.source_location)
 
     def visit_new_array(self, expr: awst_nodes.NewArray) -> TExpression:
-        # delegate for ARC-4 arrays
+        loc = expr.source_location
+
+        array_encoding = wtype_to_encoding(expr.wtype, loc)
+        # initialize array with a tuple of provided elements
+        tuple_expr = awst_nodes.TupleExpression.from_items(expr.values, loc)
+        tuple_ir_type = types.wtype_to_ir_type(tuple_expr.wtype, loc, allow_tuple=True)
+        tuple_values = self.visit_and_materialise(tuple_expr)
+        encoded_array_vp = ir.BytesEncode(
+            values=tuple_values,
+            values_type=tuple_ir_type,
+            encoding=array_encoding,
+            source_location=loc,
+        )
+        (encoded_array,) = self.materialise_value_provider(encoded_array_vp, "encoded_array")
         if isinstance(expr.wtype, wtypes.ARC4Array):
-            return arc4.encode_arc4_exprs_as_array(
-                self.context, expr.wtype, expr.values, expr.source_location
-            )
-        # handle native arrays
-        if isinstance(expr.wtype, wtypes.StackArray):
-            encoded_type = effective_array_encoding(expr.wtype, expr.source_location)
-            # stack arrays are effectively ARC-4 encoded, values might need converting
-            if not expr.values:
-                return arc4.encode_arc4_exprs_as_array(
-                    self.context, encoded_type, expr.values, expr.source_location
-                )
-            empty_array_expr = awst_nodes.NewArray(
-                values=(),
-                wtype=encoded_type,
-                source_location=expr.source_location,
-            )
-            items_tuple = TupleExpression.from_items(expr.values, expr.source_location)
-            return arc4.dynamic_array_concat_and_convert(
-                self.context,
-                array_wtype=encoded_type,
-                array_expr=empty_array_expr,
-                iter_expr=items_tuple,
-                source_location=expr.source_location,
-            )
-        else:
-            loc = expr.source_location
-            array_slot_type = wtype_to_ir_type(expr.wtype, expr.source_location)
-            assert isinstance(array_slot_type, SlotType)
-            array_type = array_slot_type.contents
-            assert isinstance(array_type, ArrayType)
-            array_contents = arrays.get_array_encoded_items(
-                self.context,
-                awst_nodes.TupleExpression.from_items(expr.values, expr.source_location),
-                array_type=array_type,
-            )
+            return encoded_array
+        elif isinstance(expr.wtype, wtypes.ReferenceArray):
+            array_slot_type = types.wtype_to_ir_type(expr.wtype, expr.source_location)
             slot = mem.new_slot(self.context, array_slot_type, loc)
-            mem.write_slot(self.context, slot, array_contents, loc)
+            mem.write_slot(self.context, slot, encoded_array, loc)
             return slot
+        else:
+            typing.assert_never(expr.wtype)
 
     def visit_bytes_comparison_expression(
         self, expr: awst_nodes.BytesComparisonExpression
@@ -986,7 +875,7 @@ class FunctionIRBuilder(
                 f"Unmapped bytes comparison operator {expr.operator}", expr.source_location
             ) from ex
 
-        return Intrinsic(
+        return ir.Intrinsic(
             op=avm_op,
             args=[left, right],
             source_location=expr.source_location,
@@ -995,10 +884,10 @@ class FunctionIRBuilder(
     def visit_subroutine_call_expression(
         self, expr: awst_nodes.SubroutineCallExpression
     ) -> TExpression:
-        return visit_subroutine_call_expression(self.context, expr)
+        return callsub.visit_subroutine_call_expression(self.context, expr)
 
     def visit_puya_lib_call(self, call: awst_nodes.PuyaLibCall) -> TExpression:
-        return visit_puya_lib_call_expression(self.context, call)
+        return callsub.visit_puya_lib_call_expression(self.context, call)
 
     def visit_bytes_binary_operation(self, expr: awst_nodes.BytesBinaryOperation) -> TExpression:
         left = self.visit_and_materialise_single(expr.left)
@@ -1020,7 +909,7 @@ class FunctionIRBuilder(
             self.context.block_builder.activate_block(true_block)
             assign(
                 self.context,
-                UInt64Constant(value=1, ir_type=PrimitiveIRType.bool, source_location=None),
+                ir.UInt64Constant(value=1, ir_type=types.bool_, source_location=None),
                 name=tmp_name,
                 assignment_location=None,
             )
@@ -1029,14 +918,14 @@ class FunctionIRBuilder(
             self.context.block_builder.activate_block(false_block)
             assign(
                 self.context,
-                UInt64Constant(value=0, ir_type=PrimitiveIRType.bool, source_location=None),
+                ir.UInt64Constant(value=0, ir_type=types.bool_, source_location=None),
                 name=tmp_name,
                 assignment_location=None,
             )
             self.context.block_builder.goto(merge_block)
             self.context.block_builder.activate_block(merge_block)
             return self.context.ssa.read_variable(
-                variable=tmp_name, ir_type=PrimitiveIRType.bool, block=merge_block
+                variable=tmp_name, ir_type=types.bool_, block=merge_block
             )
 
         left = self.visit_and_materialise_single(expr.left)
@@ -1051,7 +940,7 @@ class FunctionIRBuilder(
                     f"Unexpected/unimplemented boolean operator in IR builder: {expr.op}",
                     expr.source_location,
                 )
-        return Intrinsic(
+        return ir.Intrinsic(
             op=op,
             args=[left, right],
             source_location=expr.source_location,
@@ -1059,7 +948,7 @@ class FunctionIRBuilder(
 
     def visit_not_expression(self, expr: awst_nodes.Not) -> TExpression:
         negated = self.visit_and_materialise_single(expr.expr)
-        return Intrinsic(
+        return ir.Intrinsic(
             op=AVMOp("!"),
             args=[negated],
             source_location=expr.source_location,
@@ -1069,7 +958,7 @@ class FunctionIRBuilder(
         # should be a no-op for us, but we validate the cast here too
         source = self.visit_expr(expr.expr)
         (inner_ir_type,) = source.types
-        outer_ir_type = wtype_to_ir_type(expr)
+        outer_ir_type = types.wtype_to_ir_type(expr)
         # don't need to do anything further if outer type is a super type of inner type
         if outer_ir_type <= inner_ir_type:
             return source
@@ -1135,16 +1024,21 @@ class FunctionIRBuilder(
                         self.context.block_builder.active_block,
                     )
                 )
-        return_types = [r.ir_type for r in result]
-        if [t.avm_type for t in return_types] != [
-            t.avm_type for t in self.context.subroutine.returns
+        actual_return_types = [r.ir_type for r in result]
+        expected_return_types = self.context.subroutine.returns
+        if [t.avm_type for t in actual_return_types] != [
+            t.avm_type for t in expected_return_types
         ]:
-            raise CodeError(
-                f"invalid return type {return_types}, expected {self.context.subroutine.returns}",
-                statement.source_location,
+            logger.error(
+                f"invalid return type {actual_return_types}, expected {expected_return_types}",
+                location=statement.source_location,
             )
+            result = [
+                ir.Undefined(ir_type=ir_type, source_location=statement.source_location)
+                for ir_type in expected_return_types
+            ]
         self.context.block_builder.terminate(
-            SubroutineReturn(
+            ir.SubroutineReturn(
                 source_location=statement.source_location,
                 result=result,
             )
@@ -1160,9 +1054,9 @@ class FunctionIRBuilder(
             self.context.block_builder.add(op)
 
     def visit_template_var(self, expr: awst_nodes.TemplateVar) -> TExpression:
-        return TemplateVar(
+        return ir.TemplateVar(
             name=expr.name,
-            ir_type=wtype_to_ir_type(expr.wtype, expr.source_location),
+            ir_type=types.wtype_to_ir_type(expr.wtype, expr.source_location),
             source_location=expr.source_location,
         )
 
@@ -1186,11 +1080,15 @@ class FunctionIRBuilder(
                         f"generated no result",
                         statement.source_location,
                     )
-        elif isinstance(result, Op):
+        elif isinstance(result, ir.Op):
             self.context.block_builder.add(result)
-        # If we get a Value (e.g. a Register or some such) it's something that's being
-        # discarded effectively.
-        # The frontend should have already warned about this
+        else:
+            # If we get a Value (e.g. a Register or some such) it's something that's being
+            # discarded effectively.
+            # The frontend should have already warned about this
+            # if this value is unused and has no side effects it will get eliminated by the
+            # optimizer
+            self.materialise_value_provider(result, "tmp")
 
     def visit_uint64_augmented_assignment(
         self, statement: awst_nodes.UInt64AugmentedAssignment
@@ -1199,10 +1097,10 @@ class FunctionIRBuilder(
         rhs = self.visit_and_materialise_single(statement.value)
         expr = create_uint64_binary_op(statement.op, target_value, rhs, statement.source_location)
 
-        handle_assignment(
+        assignment.handle_assignment(
             self.context,
             target=statement.target,
-            value=expr,
+            value=self.materialise_value_provider_as_value_or_tuple(expr, "tmp"),
             is_nested_update=False,
             assignment_location=statement.source_location,
         )
@@ -1214,10 +1112,10 @@ class FunctionIRBuilder(
         rhs = self.visit_and_materialise_single(statement.value)
         expr = create_biguint_binary_op(statement.op, target_value, rhs, statement.source_location)
 
-        handle_assignment(
+        assignment.handle_assignment(
             self.context,
             target=statement.target,
-            value=expr,
+            value=self.materialise_value_provider_as_value_or_tuple(expr, "tmp"),
             is_nested_update=False,
             assignment_location=statement.source_location,
         )
@@ -1225,27 +1123,22 @@ class FunctionIRBuilder(
     def visit_bytes_augmented_assignment(
         self, statement: awst_nodes.BytesAugmentedAssignment
     ) -> TStatement:
-        if statement.target.wtype == wtypes.arc4_string_alias:
-            value: ValueProvider = arc4.dynamic_array_concat_and_convert(
-                self.context,
-                wtypes.arc4_string_alias,
-                statement.target,
-                statement.value,
-                statement.source_location,
-            )
-        else:
-            target_value = self.visit_and_materialise_single(statement.target)
-            rhs = self.visit_and_materialise_single(statement.value)
-            value = create_bytes_binary_op(
-                statement.op, target_value, rhs, statement.source_location
-            )
+        loc = statement.source_location
 
-        handle_assignment(
+        target_value = self.visit_and_materialise_single(statement.target)
+        rhs = self.visit_and_materialise_single(statement.value)
+        if statement.target.wtype == wtypes.arc4_string_alias:
+            builder = dynamic_array.get_builder(self.context, statement.target.wtype, loc)
+            value: ir.ValueProvider = builder.concat(target_value, rhs, rhs.ir_type)
+        else:
+            value = create_bytes_binary_op(statement.op, target_value, rhs, loc)
+
+        assignment.handle_assignment(
             self.context,
             target=statement.target,
-            value=value,
+            value=self.materialise_value_provider_as_value_or_tuple(value, "tmp"),
             is_nested_update=False,
-            assignment_location=statement.source_location,
+            assignment_location=loc,
         )
 
     def visit_enumeration(self, expr: awst_nodes.Enumeration) -> TStatement:
@@ -1255,124 +1148,152 @@ class FunctionIRBuilder(
         raise CodeError("Reversed is not valid outside of an enumeration", expr.source_location)
 
     def visit_for_in_loop(self, statement: awst_nodes.ForInLoop) -> TStatement:
-        handle_for_in_loop(self.context, statement)
+        iteration.handle_for_in_loop(self.context, statement)
 
     def visit_new_struct(self, expr: awst_nodes.NewStruct) -> TExpression:
-        match expr.wtype:
-            case wtypes.WStructType():
-                raise NotImplementedError
-            case wtypes.ARC4Struct() as arc4_struct_wtype:
-                return arc4.encode_arc4_struct(self.context, expr, arc4_struct_wtype)
-            case _:
-                typing.assert_never(expr.wtype)
+        loc = expr.source_location
+
+        # struct is constructed from its tuple equivalent, so get tuple type info
+        tuple_wtype = wtypes.WTuple(types=expr.wtype.types, source_location=None)
+        tuple_ir_type = types.wtype_to_ir_type(tuple_wtype, loc, allow_tuple=True)
+        tuple_encoding = wtype_to_encoding(tuple_wtype, loc)
+
+        # double check encodings match
+        struct_encoding = wtype_to_encoding(expr.wtype, loc)
+        assert (
+            tuple_encoding == struct_encoding
+        ), "expected struct encoding to match tuple encoding"
+
+        # evaluate struct in order of declaration
+        elements_by_name = {
+            name: self.visit_and_materialise(value) for name, value in expr.values.items()
+        }
+        # ensure elements are in correct order
+        elements = [
+            element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
+        ]
+
+        return ir.BytesEncode(
+            values=elements,
+            values_type=tuple_ir_type,
+            encoding=tuple_encoding,
+            source_location=loc,
+        )
 
     def visit_array_pop(self, expr: awst_nodes.ArrayPop) -> TExpression:
         loc = expr.source_location
-        if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
-            return arc4.pop_arc4_array(self.context, expr, expr.base.wtype)
-        elif isinstance(expr.base.wtype, wtypes.ReferenceArray):
-            slot = self.context.visitor.visit_and_materialise_single(expr.base)
-            contents = mem.read_slot(self.context, slot, expr.base.source_location)
-            contents, popped_item = arrays.pop_array(self.context, contents, expr.source_location)
-            self.context.add_op(
-                WriteSlot(
-                    slot=slot,
-                    value=contents,
-                    source_location=expr.source_location,
-                )
-            )
-            return popped_item
+
+        array_wtype = expr.base.wtype
+        builder = dynamic_array.get_builder(self.context, array_wtype, loc)
+
+        array_or_slot = self.visit_and_materialise_single(expr.base)
+        if isinstance(array_or_slot.ir_type, types.SlotType):
+            array = mem.read_slot(self.context, array_or_slot, loc)
         else:
-            raise InternalError(f"Unsupported target for array pop: {expr.base.wtype}", loc)
+            array = array_or_slot
+        updated_array, popped_item = builder.pop(array)
+
+        if isinstance(array_or_slot.ir_type, types.SlotType):
+            mem.write_slot(self.context, array_or_slot, updated_array, loc)
+        else:
+            assignment.handle_assignment(
+                self.context,
+                expr.base,
+                updated_array,
+                is_nested_update=True,
+                assignment_location=loc,
+            )
+        return popped_item
 
     def visit_array_replace(self, expr: awst_nodes.ArrayReplace) -> TExpression:
-        arc4_wtype = effective_array_encoding(expr.wtype, expr.source_location)
-        value = self.context.visitor.visit_expr(expr.value)
-        if arc4_wtype.element_type == expr.value.wtype:
-            arc4_value = value
-        else:
-            arc4_value = arc4.encode_value_provider(
-                self.context,
-                value,
-                expr.value.wtype,
-                arc4_wtype.element_type,
-                expr.source_location,
-            )
-        return arc4.arc4_replace_array_item(
-            self.context,
-            base_expr=expr.base,
-            index_value_expr=expr.index,
-            wtype=arc4_wtype,
-            value=arc4_value,
-            source_location=expr.source_location,
+        loc = expr.source_location
+
+        array_wtype = expr.base.wtype
+        assert isinstance(array_wtype, wtypes.ARC4Array), "expected ARC4Array"
+
+        array = self.visit_and_materialise_single(expr.base)
+        index = self.visit_and_materialise_single(expr.index)
+        values = self.visit_and_materialise(expr.value)
+
+        return sequence.encode_and_write_aggregate_index(
+            self.context, array_wtype, array, [index], values, loc
         )
 
     def visit_array_concat(self, expr: awst_nodes.ArrayConcat) -> TExpression:
         assert expr.left.wtype == expr.wtype, "AWST validation requires result type == left type"
-        match expr.wtype:
-            case wtypes.ARC4DynamicArray() as arc4_array_wtype:
-                pass
-            case wtypes.StackArray():
-                arc4_array_wtype = effective_array_encoding(expr.wtype, expr.source_location)
+        array, result = self._array_concat(expr.left, expr.right, expr.source_location)
+        return result
 
-        return arc4.dynamic_array_concat_and_convert(
-            self.context,
-            array_wtype=arc4_array_wtype,
-            array_expr=expr.left,
-            iter_expr=expr.right,
-            source_location=expr.source_location,
-        )
+    def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> None:
+        loc = expr.source_location
 
-    def visit_array_extend(self, expr: awst_nodes.ArrayExtend) -> TExpression:
-        if isinstance(expr.base.wtype, wtypes.ARC4DynamicArray):
-            concat_result = arc4.dynamic_array_concat_and_convert(
-                self.context,
-                array_wtype=expr.base.wtype,
-                array_expr=expr.base,
-                iter_expr=expr.other,
-                source_location=expr.source_location,
-            )
-            return arc4.handle_arc4_assign(
+        array, result = self._array_concat(expr.base, expr.other, loc)
+
+        # update array reference
+        if isinstance(array.ir_type, types.SlotType):
+            # note: the order things are evaluated is important to be semantically correct
+            #       for reference arrays
+            # 1. array expr
+            # 2. iterable expr
+            # 3. read slot to get contents
+            # 4. concat
+            # 5. write slot with updated contents
+            # _array_concat should do steps 1-4, now need to update slot
+            mem.write_slot(self.context, array, result, loc)
+        else:
+            assignment.handle_assignment(
                 self.context,
                 target=expr.base,
-                value=concat_result,
+                value=result,
                 is_nested_update=True,
-                source_location=expr.source_location,
+                assignment_location=loc,
             )
-        elif isinstance(expr.base.wtype, wtypes.ReferenceArray):
-            # note: the order things are evaluated is important to be semantically correct
-            # 1. base expr
-            # 2. other expr
-            # 3. read slot to get data
-            # 4. concat
-            # 5. write slot
-            array_slot = self.context.visitor.visit_and_materialise_single(expr.base)
-            array_slot_type = array_slot.ir_type
-            assert isinstance(array_slot_type, SlotType)
-            array_type = array_slot_type.contents
-            assert isinstance(array_type, ArrayType)
-            values = arrays.get_array_encoded_items(self.context, expr.other, array_type)
-            array_contents = mem.read_slot(self.context, array_slot, expr.source_location)
-            array_contents = arrays.concat_arrays(
-                self.context, array_contents, values, expr.source_location
-            )
-            mem.write_slot(self.context, array_slot, array_contents, expr.source_location)
-            return array_slot
+
+    def _array_concat(
+        self,
+        array_expr: awst_nodes.Expression,
+        iter_expr: awst_nodes.Expression,
+        loc: SourceLocation,
+    ) -> tuple[ir.Value, ir.Value]:
+        """
+        Concatenates an array and iterable expression
+
+        Returns the original array and the concatenation result
+        """
+
+        # materialise expressions
+        array_or_slot = self.visit_and_materialise_single(array_expr)
+        iterable = self.visit_and_materialise_as_value_or_tuple(iter_expr)
+
+        # read iterable
+        iterable_ir_type = types.wtype_to_ir_type(iter_expr.wtype, loc, allow_tuple=True)
+        if isinstance(iterable.ir_type, types.SlotType):
+            iterable_ir_type = iterable.ir_type.contents
+            assert isinstance(iterable, ir.Value), "expected Value for SlotType"
+            iterable = mem.read_slot(self.context, iterable, loc)
+
+        # read array
+        if isinstance(array_or_slot.ir_type, types.SlotType):
+            array = mem.read_slot(self.context, array_or_slot, loc)
         else:
-            raise InternalError("unsupported array type for ArrayExtend", expr.source_location)
+            array = array_or_slot
+
+        # do concat
+        builder = dynamic_array.get_builder(self.context, array_expr.wtype, loc)
+        return array_or_slot, builder.concat(array, iterable, iterable_ir_type)
 
     def visit_array_length(self, expr: awst_nodes.ArrayLength) -> TExpression:
-        array_or_slot = self.context.visitor.visit_and_materialise_single(expr.array)
+        loc = expr.source_location
+
         array_wtype = expr.array.wtype
-        match array_wtype:
-            case wtypes.ARC4Array():
-                return arc4.get_arc4_array_length(array_wtype, array_or_slot, expr.source_location)
-            case wtypes.StackArray() | wtypes.ReferenceArray():
-                return arrays.get_array_length(
-                    self.context, array_wtype, array_or_slot, expr.source_location
-                )
-            case _:
-                raise InternalError(f"Unexpected array type {array_wtype}", expr.source_location)
+        assert isinstance(
+            array_wtype, wtypes.ReferenceArray | wtypes.ARC4Array
+        ), "expected array wtype"
+
+        array = self.visit_and_materialise_single(expr.array)
+
+        array_encoding = wtype_to_encoding(array_wtype, loc)
+        return sequence.get_length(self.context, array_encoding, array, loc)
 
     def visit_arc4_router(self, expr: awst_nodes.ARC4Router) -> TExpression:
         root = self.context.root
@@ -1381,7 +1302,7 @@ class FunctionIRBuilder(
                 "cannot create ARC-4 router outside of a contract", expr.source_location
             )
 
-        return InvokeSubroutine(
+        return ir.InvokeSubroutine(
             target=self.context.routers[root.id],
             args=[],
             source_location=expr.source_location,
@@ -1389,12 +1310,12 @@ class FunctionIRBuilder(
 
     def visit_emit(self, expr: awst_nodes.Emit) -> TExpression:
         factory = OpFactory(self.context, expr.source_location)
-        value = self.context.visitor.visit_and_materialise_single(expr.value)
-        prefix = MethodConstant(value=expr.signature, source_location=expr.source_location)
+        value = self.visit_and_materialise_single(expr.value)
+        prefix = ir.MethodConstant(value=expr.signature, source_location=expr.source_location)
         event = factory.concat(prefix, value, "event")
 
         self.context.block_builder.add(
-            Intrinsic(
+            ir.Intrinsic(
                 op=AVMOp("log"),
                 args=[event],
                 source_location=expr.source_location,
@@ -1409,24 +1330,53 @@ class FunctionIRBuilder(
         results = [inner.accept(self) for inner in expr.expressions]
         return results[-1]
 
+    @typing.override
+    def visit_convert_array(self, expr: awst_nodes.ConvertArray) -> TExpression:
+        source = self.visit_and_materialise_single(expr.expr)
+        source_wtype = expr.expr.wtype
+        assert isinstance(
+            source_wtype, wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray
+        )
+        return sequence.convert_array(
+            self.context,
+            source,
+            source_wtype=source_wtype,
+            target_wtype=expr.wtype,
+            loc=expr.source_location,
+        )
+
     def visit_and_materialise_single(
         self, expr: awst_nodes.Expression, temp_description: str = "tmp"
-    ) -> Value:
+    ) -> ir.Value:
         """Translate an AWST Expression into a single Value"""
         values = self.visit_and_materialise(expr, temp_description=temp_description)
         try:
             (value,) = values
         except ValueError as ex:
+            expr_str = expr.accept(ToCodeVisitor())
             raise InternalError(
                 "visit_and_materialise_single should not be used when"
-                f" an expression could be multi-valued, expression was: {expr}",
+                f" an expression could be multi-valued, expression was: {expr_str}",
                 expr.source_location,
             ) from ex
         return value
 
+    def visit_and_materialise_as_value_or_tuple(
+        self, expr: awst_nodes.Expression, temp_description: str | Sequence[str] = "tmp"
+    ) -> ir.Value | ir.ValueTuple:
+        value_seq_or_provider = self._visit_and_check_for_double_eval(
+            expr, materialise_as=temp_description
+        )
+        if value_seq_or_provider is None:
+            raise InternalError(
+                "No value produced by expression IR conversion", expr.source_location
+            )
+        assert isinstance(value_seq_or_provider, ir.Value | ir.ValueTuple)
+        return value_seq_or_provider
+
     def visit_and_materialise(
         self, expr: awst_nodes.Expression, temp_description: str | Sequence[str] = "tmp"
-    ) -> Sequence[Value]:
+    ) -> Sequence[ir.Value]:
         value_seq_or_provider = self._visit_and_check_for_double_eval(
             expr, materialise_as=temp_description
         )
@@ -1436,7 +1386,7 @@ class FunctionIRBuilder(
             )
         return self.materialise_value_provider(value_seq_or_provider, description=temp_description)
 
-    def visit_expr(self, expr: awst_nodes.Expression) -> ValueProvider:
+    def visit_expr(self, expr: awst_nodes.Expression) -> ir.ValueProvider:
         """Visit the expression and ensure result is not None"""
         value_seq_or_provider = self._visit_and_check_for_double_eval(expr)
         if value_seq_or_provider is None:
@@ -1447,7 +1397,7 @@ class FunctionIRBuilder(
 
     def _visit_and_check_for_double_eval(
         self, expr: awst_nodes.Expression, *, materialise_as: str | Sequence[str] | None = None
-    ) -> ValueProvider | None:
+    ) -> ir.ValueProvider | None:
         # explicit SingleEvaluation nodes already handle this
         if isinstance(expr, awst_nodes.SingleEvaluation):
             return expr.accept(self)
@@ -1461,7 +1411,9 @@ class FunctionIRBuilder(
         except KeyError:
             pass
         else:
-            if isinstance(result, ValueProvider) and not isinstance(result, ValueTuple | Value):
+            if isinstance(result, ir.ValueProvider) and not isinstance(
+                result, ir.ValueTuple | ir.Value
+            ):
                 raise InternalError(
                     "double evaluation of expression without materialization", expr.source_location
                 )
@@ -1476,29 +1428,24 @@ class FunctionIRBuilder(
         if materialise_as is None or not (source and source.types):
             result = source
         else:
-            values = self.materialise_value_provider(source, description=materialise_as)
-            if len(values) == 1:
-                (result,) = values
-            else:
-                result = ValueTuple(values=values, source_location=expr.source_location)
+            result = self.materialise_value_provider_as_value_or_tuple(
+                source, description=materialise_as
+            )
         self._visited_exprs[expr_id] = result
         return result
 
-    def materialise_value_provider(
-        self, provider: ValueProvider, description: str | Sequence[str]
-    ) -> list[Value]:
+    def materialise_value_provider_as_value_or_tuple(
+        self, provider: ir.ValueProvider, description: str | Sequence[str]
+    ) -> ir.Value | ir.ValueTuple:
         """
-        Given a ValueProvider with arity of N, return a Value sequence of length N.
+        Given a ValueProvider with arity of N
+        return a Value if N = 1, else a ValueTuple of length N.
 
-        Anything which is already a Value is passed through without change.
-
+        Anything which is already a Value or ValueTuple is passed through without change.
         Otherwise, the result is assigned to a temporary register, which is returned
         """
-        if isinstance(provider, Value):
-            return [provider]
-
-        if isinstance(provider, ValueTuple):
-            return list(provider.values)
+        if isinstance(provider, ir.Value | ir.ValueTuple):
+            return provider
 
         ir_types = provider.types
         if not ir_types:
@@ -1521,12 +1468,29 @@ class FunctionIRBuilder(
             # TODO: should this be the source location of the site forcing materialisation?
             assignment_location=provider.source_location,
         )
-        return list[Value](targets)
+        try:
+            (value,) = targets
+        except ValueError:
+            return ir.ValueTuple(values=targets, source_location=provider.source_location)
+        else:
+            return value
+
+    def materialise_value_provider(
+        self, provider: ir.ValueProvider, description: str | Sequence[str]
+    ) -> list[ir.Value]:
+        """
+        Given a ValueProvider with arity of N, return a Value sequence of length N.
+        """
+        value_or_tuple = self.materialise_value_provider_as_value_or_tuple(provider, description)
+        return multi_value_to_values(value_or_tuple)
 
 
 def create_uint64_binary_op(
-    op: UInt64BinaryOperator, left: Value, right: Value, source_location: SourceLocation
-) -> Intrinsic:
+    op: UInt64BinaryOperator,
+    left: ir.Value,
+    right: ir.Value,
+    source_location: SourceLocation,
+) -> ir.Intrinsic:
     avm_op: AVMOp
     match op:
         case UInt64BinaryOperator.floor_div:
@@ -1544,12 +1508,15 @@ def create_uint64_binary_op(
                 raise InternalError(
                     f"Unhandled uint64 binary operator: {op}", source_location
                 ) from ex
-    return Intrinsic(op=avm_op, args=[left, right], source_location=source_location)
+    return ir.Intrinsic(op=avm_op, args=[left, right], source_location=source_location)
 
 
 def create_biguint_binary_op(
-    op: BigUIntBinaryOperator, left: Value, right: Value, source_location: SourceLocation
-) -> Intrinsic:
+    op: BigUIntBinaryOperator,
+    left: ir.Value,
+    right: ir.Value,
+    source_location: SourceLocation,
+) -> ir.Intrinsic:
     avm_op: AVMOp
     match op:
         case BigUIntBinaryOperator.floor_div:
@@ -1561,40 +1528,61 @@ def create_biguint_binary_op(
                 raise InternalError(
                     f"Unhandled uint64 binary operator: {op}", source_location
                 ) from ex
-    return Intrinsic(
+    return ir.Intrinsic(
         op=avm_op,
         args=[left, right],
-        types=(PrimitiveIRType.biguint,),
+        types=(types.biguint,),
         source_location=source_location,
     )
 
 
 def create_bytes_binary_op(
-    op: awst_nodes.BytesBinaryOperator, lhs: Value, rhs: Value, source_location: SourceLocation
-) -> ValueProvider:
+    op: awst_nodes.BytesBinaryOperator,
+    lhs: ir.Value,
+    rhs: ir.Value,
+    source_location: SourceLocation,
+) -> ir.ValueProvider:
     match op:
         case awst_nodes.BytesBinaryOperator.add:
-            return Intrinsic(
+            return ir.Intrinsic(
                 op=AVMOp.concat,
                 args=[lhs, rhs],
                 source_location=source_location,
             )
         case awst_nodes.BytesBinaryOperator.bit_and:
-            return Intrinsic(
+            return ir.Intrinsic(
                 op=AVMOp.bitwise_and_bytes,
                 args=[lhs, rhs],
                 source_location=source_location,
             )
         case awst_nodes.BytesBinaryOperator.bit_or:
-            return Intrinsic(
+            return ir.Intrinsic(
                 op=AVMOp.bitwise_or_bytes,
                 args=[lhs, rhs],
                 source_location=source_location,
             )
         case awst_nodes.BytesBinaryOperator.bit_xor:
-            return Intrinsic(
+            return ir.Intrinsic(
                 op=AVMOp.bitwise_xor_bytes,
                 args=[lhs, rhs],
                 source_location=source_location,
             )
     raise InternalError("Unsupported BytesBinaryOperator: " + op)
+
+
+def extract_const_int(expr: awst_nodes.Expression | int | None) -> int | None:
+    """
+    Check expr is an IntegerConstant, int literal, or None, and return constant value (or None)
+    """
+    match expr:
+        case None:
+            return None
+        case awst_nodes.IntegerConstant(value=value):
+            return value
+        case int(value):
+            return value
+        case _:
+            raise InternalError(
+                f"Expected either constant or None for index, got {type(expr).__name__}",
+                expr.source_location,
+            )

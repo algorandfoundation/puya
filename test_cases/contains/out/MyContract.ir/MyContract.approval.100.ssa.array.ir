@@ -3,19 +3,162 @@ main test_cases.contains.contract.MyContract.approval_program:
         let one_true#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_1(10u, 10u, 15u, 0x66697665)
         let one_false#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_1(5u, 10u, 15u, 0x66697665)
         (assert one_true#0) // Should be true
-        let tmp%0#0: bool = (! one_false#0)
-        (assert tmp%0#0) // Should be false
+        let tmp%2#0: bool = (! one_false#0)
+        (assert tmp%2#0) // Should be false
         let two_true#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_2(0x68656c6c6f, 0x68656c6c6f, 0u, 0x626f6e6a6f7572)
         let two_false#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_2(0x6369616f, 0x68656c6c6f, 0u, 0x626f6e6a6f7572)
         (assert two_true#0) // Should be true
-        let tmp%1#0: bool = (! two_false#0)
-        (assert tmp%1#0) // Should be false
+        let tmp%5#0: bool = (! two_false#0)
+        (assert tmp%5#0) // Should be false
         let three_true#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_3(32323423423423b, 32323423423423b, 8439439483934b)
         let three_false#0: bool = test_cases.contains.contract.MyContract.is_in_tuple_3(64646846846846b, 32323423423423b, 8439439483934b)
         (assert three_true#0) // Should be true
-        let tmp%3#0: bool = (! three_false#0)
-        (assert tmp%3#0) // Should be false
+        let tmp%9#0: bool = (! three_false#0)
+        (assert tmp%9#0) // Should be false
+        let tmp%9#1: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
+        let tmp%12#0: string = ((extract 2 0) tmp%9#1)
+        let tmp%13#0: bool = (== tmp%12#0 "foo")
+        goto tmp%13#0 ? block@12 : block@10
+    block@10: // or_contd_L58
+        let or_result%2#1: bool = 0u
+        goto block@14
+    block@12: // bool_true_L58
+        let or_result%2#0: bool = 1u
+        goto block@14
+    block@14: // bool_merge_L58
+        let or_result%2#2: bool = φ(or_result%2#0 <- block@12, or_result%2#1 <- block@10)
+        (assert or_result%2#2) // foo in (foo, baz, bar)
+        let awst_tmp%3#0: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
+        let tmp%16#0: string = ((extract 2 0) awst_tmp%3#0)
+        let tmp%20#0: bool = (== tmp%16#0 "foo")
+        goto tmp%20#0 ? block@17 : block@15
+    block@15: // or_contd_L59
+        let tmp%22#0: bool = (== tmp%16#0 "baz")
+        goto tmp%22#0 ? block@17 : block@16
+    block@16: // or_contd_L59
+        let tmp%24#0: bool = (== tmp%16#0 "bar")
+        goto tmp%24#0 ? block@17 : block@18
+    block@17: // bool_true_L59
+        let or_result%3#0: bool = 1u
+        goto block@19
+    block@18: // bool_false_L59
+        let or_result%3#1: bool = 0u
+        goto block@19
+    block@19: // bool_merge_L59
+        let or_result%3#2: bool = φ(or_result%3#0 <- block@17, or_result%3#1 <- block@18)
+        (assert or_result%3#2) // foo in (foo, baz, bar)
+        let tmp%25#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
+        let tmp%27#0: string = ((extract 2 0) tmp%25#0)
+        let tmp%28#0: bool = (== tmp%27#0 "foo")
+        goto tmp%28#0 ? block@21 : block@20
+    block@20: // or_contd_L60
+        let or_result%4#1: bool = 0u
+        goto block@23
+    block@21: // bool_true_L60
+        let or_result%4#0: bool = 1u
+        goto block@23
+    block@23: // bool_merge_L60
+        let or_result%4#2: bool = φ(or_result%4#0 <- block@21, or_result%4#1 <- block@20)
+        let tmp%30#0: bool = (! or_result%4#2)
+        (assert tmp%30#0) // foo not in (bar, baz)
+        let awst_tmp%5#0: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
+        let tmp%31#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
+        let tmp%33#0: bool = (== awst_tmp%5#0 tmp%31#0)
+        goto tmp%33#0 ? block@25 : block@24
+    block@24: // or_contd_L61
+        let tmp%34#0: string = ((extract 2 0) awst_tmp%5#0)
+        let tmp%35#0: bool = (== tmp%34#0 "baz")
+        goto tmp%35#0 ? block@25 : block@26
+    block@25: // bool_true_L61
+        let or_result%5#0: bool = 1u
+        goto block@27
+    block@26: // bool_false_L61
+        let or_result%5#1: bool = 0u
+        goto block@27
+    block@27: // bool_merge_L61
+        let or_result%5#2: bool = φ(or_result%5#0 <- block@25, or_result%5#1 <- block@26)
+        let tmp%36#0: bool = (! or_result%5#2)
+        (assert tmp%36#0) // foo not in (bar, baz)
+        let tmp%37#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
+        let tmp%41#0: string = ((extract 2 0) tmp%37#0)
+        let awst_tmp%7#0: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
+        let tmp%45#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
+        let tmp%49#0: bool = (== awst_tmp%7#0 tmp%45#0)
+        goto tmp%49#0 ? block@35 : block@33
+    block@33: // or_contd_L68
+        let tmp%50#0: string = ((extract 2 0) awst_tmp%7#0)
+        let tmp%51#0: bool = (== tmp%50#0 "baz")
+        goto tmp%51#0 ? block@35 : block@34
+    block@34: // or_contd_L68
+        let tmp%53#0: bool = (== tmp%50#0 "foo")
+        goto tmp%53#0 ? block@35 : block@36
+    block@35: // bool_true_L68
+        let or_result%7#0: bool = 1u
+        goto block@37
+    block@36: // bool_false_L68
+        let or_result%7#1: bool = 0u
+        goto block@37
+    block@37: // bool_merge_L68
+        let or_result%7#2: bool = φ(or_result%7#0 <- block@35, or_result%7#1 <- block@36)
+        (assert or_result%7#2) // foo in (bar, baz, foo, 1)
+        let tmp%54#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
+        let tmp%57#0: string = ((extract 2 0) tmp%54#0)
+        let tmp%58#0: bool = (== tmp%57#0 "foo")
+        goto tmp%58#0 ? block@39 : block@38
+    block@38: // or_contd_L74
+        let or_result%8#1: bool = 0u
+        goto block@41
+    block@39: // bool_true_L74
+        let or_result%8#0: bool = 1u
+        goto block@41
+    block@41: // bool_merge_L74
+        let or_result%8#2: bool = φ(or_result%8#0 <- block@39, or_result%8#1 <- block@38)
+        let tmp%60#0: bool = (! or_result%8#2)
+        (assert tmp%60#0) // foo not in (bar, baz, 1)
+        let awst_tmp%9#0: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
+        let tmp%61#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
+        let tmp%64#0: bool = (== awst_tmp%9#0 tmp%61#0)
+        goto tmp%64#0 ? block@43 : block@42
+    block@42: // or_contd_L79
+        let tmp%65#0: string = ((extract 2 0) awst_tmp%9#0)
+        let tmp%66#0: bool = (== tmp%65#0 "baz")
+        goto tmp%66#0 ? block@43 : block@44
+    block@43: // bool_true_L79
+        let or_result%9#0: bool = 1u
+        goto block@45
+    block@44: // bool_false_L79
+        let or_result%9#1: bool = 0u
+        goto block@45
+    block@45: // bool_merge_L79
+        let or_result%9#2: bool = φ(or_result%9#0 <- block@43, or_result%9#1 <- block@44)
+        let tmp%67#0: bool = (! or_result%9#2)
+        (assert tmp%67#0) // foo not in (bar, baz, 1)
+        let tmp%69#0: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
+        let tmp%102#0: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
+        let tmp%107#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
+        let tmp%133#0: Encoded(len+utf8[]) = test_cases.contains.contract.foo_arc4()
+        let tmp%136#0: Encoded(len+utf8[]) = test_cases.contains.contract.bar_arc4()
         return 1u
+
+subroutine test_cases.contains.contract.foo_arc4() -> Encoded(len+utf8[]):
+    block@0: // L172
+        let aggregate%length%0#0: uint64 = (len "foo")
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
+        let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 "foo")
+        let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
+        let tmp%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
+        return tmp%0#0
+
+subroutine test_cases.contains.contract.bar_arc4() -> Encoded(len+utf8[]):
+    block@0: // L182
+        let aggregate%length%0#0: uint64 = (len "bar")
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
+        let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 "bar")
+        let aggregate%as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = aggregate%encoded_value%0#0
+        let tmp%0#0: Encoded(len+utf8[]) = aggregate%as_Encoded(len+utf8[])%0#0
+        return tmp%0#0
 
 subroutine test_cases.contains.contract.MyContract.is_in_tuple_1(x: uint64, y.0: uint64, y.1: uint64, y.2: bytes) -> bool:
     block@0: // L42

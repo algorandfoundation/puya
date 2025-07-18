@@ -44,9 +44,11 @@ main:
     pushbytes 0x0008aa
     ==
     assert
+    // arc4_types/mutation.py:168
+    // dynamic_bool_array = DynamicArray[Bool](Bool(True), Bool(False))
+    bytec_1 // 0x80
     // arc4_types/mutation.py:187
     // dynamic_bool_array.append(Bool(True))
-    bytec_1 // 0x80
     intc_2 // 1
     intc_3 // 8
     callsub dynamic_array_concat_bits
@@ -69,15 +71,29 @@ main:
     // arc4_types/mutation.py:201
     // assert dynamic_bool_array.pop() == Bool(True)
     callsub dynamic_array_pop_bit
-    swap
+    bytec_0 // 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    // arc4_types/mutation.py:168
+    // dynamic_bool_array = DynamicArray[Bool](Bool(True), Bool(False))
     bytec_1 // 0x80
+    // arc4_types/mutation.py:201
+    // assert dynamic_bool_array.pop() == Bool(True)
     ==
     assert
     // arc4_types/mutation.py:202
     // assert dynamic_bool_array.pop() == Bool(False)
     callsub dynamic_array_pop_bit
-    swap
     bytec_0 // 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    // arc4_types/mutation.py:168
+    // dynamic_bool_array = DynamicArray[Bool](Bool(True), Bool(False))
+    bytec_0 // 0x00
+    // arc4_types/mutation.py:202
+    // assert dynamic_bool_array.pop() == Bool(False)
     ==
     assert
     // arc4_types/mutation.py:203-211
@@ -129,8 +145,6 @@ main:
     bytec_3 // 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     ==
     assert
-    // arc4_types/mutation.py:232
-    // dynamic_string_array = DynamicArray(hello, world, foo, bar, hello, world, foo, bar)
     bytec_3 // 0x000800100017001e00230028002f0036003b000548656c6c6f0005576f726c640003466f6f0003426172000548656c6c6f0005576f726c640003466f6f0003426172
     // arc4_types/mutation.py:215
     // hello = String("Hello")
@@ -139,6 +153,14 @@ main:
     // dynamic_string_array[3] = hello
     pushint 3 // 3
     callsub dynamic_array_replace_byte_length_head
+    // arc4_types/mutation.py:234
+    // dynamic_string_array[5] = hello
+    dup
+    intc_0 // 0
+    extract_uint16
+    pushint 5 // 5
+    >
+    assert // index access is out of bounds
     // arc4_types/mutation.py:215
     // hello = String("Hello")
     bytec 4 // 0x000548656c6c6f
@@ -212,7 +234,7 @@ main:
     dig 1
     intc_0 // 0
     extract_uint16
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
     dup
     intc_0 // 0
     extract_uint16
@@ -221,15 +243,17 @@ main:
     intc_1 // 2
     +
     extract3
-    extract 2 0
-    pushbytes 0xff
-    concat
     dup
-    len
+    pushbytes 0xff
+    concat // on error: max array length exceeded
+    swap
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 1
+    +
     itob
     extract 6 2
-    swap
-    concat
+    replace2 0
     intc_0 // 0
     callsub dynamic_array_replace_byte_length_head
     // arc4_types/mutation.py:80
@@ -245,7 +269,7 @@ main:
     dig 1
     intc_0 // 0
     extract_uint16
-    assert // Index access is out of bounds
+    assert // index access is out of bounds
     dup
     intc_0 // 0
     extract_uint16
@@ -254,12 +278,6 @@ main:
     intc_1 // 2
     +
     extract3
-    dup
-    intc_0 // 0
-    extract_uint16
-    intc_2 // 1
-    >
-    assert // Index access is out of bounds
     bytec_0 // 0x00
     replace2 3
     intc_0 // 0
@@ -274,8 +292,8 @@ main:
     pushbytess 0x00010002000548656c6c6f 0x0005576f726c64 // 0x00010002000548656c6c6f, 0x0005576f726c64
     intc_2 // 1
     callsub dynamic_array_concat_byte_length_head
-    // arc4_types/mutation.py:66
-    // hello_world = DynamicArray(String("Hello"), String("World"))
+    // arc4_types/mutation.py:219
+    // dynamic_string_array = DynamicArray(hello, world)
     bytec_2 // 0x00020004000b000548656c6c6f0005576f726c64
     // arc4_types/mutation.py:68
     // assert hello_world == hello_world_concat
@@ -287,7 +305,7 @@ main:
     return
 
 
-// _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> uint64, bytes:
 dynamic_array_pop_bit:
     proto 1 2
     frame_dig -1
@@ -306,10 +324,6 @@ dynamic_array_pop_bit:
     +
     dup2
     getbit
-    bytec_0 // 0x00
-    intc_0 // 0
-    uncover 2
-    setbit
     cover 2
     intc_0 // 0
     setbit

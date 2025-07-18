@@ -1,0 +1,281 @@
+main test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypoint_with_init:
+    block@0: // L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%len_u16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%head%0#0: bytes = (concat aggregate%len_u16%0#0 0x0000000000000000)
+        let aggregate%as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = aggregate%head%0#0
+        let encoded_array%0#0: Encoded(len+uint64[]) = aggregate%as_Encoded(len+uint64[])%0#0
+        let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
+        let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
+        let aggregate%head%1#0: bytes = (concat 0x aggregate%offset_as_uint16%0#0)
+        let aggregate%data_length%0#0: uint64 = (len encoded_array%0#0)
+        let aggregate%current_tail_offset%0#0: uint64 = (+ 10u aggregate%data_length%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 0u)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(uint64)%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 encoded_array%0#0)
+        let aggregate%as_Encoded((len+uint64[]),uint64)%0#0: Encoded((len+uint64[]),uint64) = aggregate%concat%0#0
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = aggregate%as_Encoded((len+uint64[]),uint64)%0#0
+        (app_global_put "tup" encoded_for_storage%0#0)
+        (app_global_put "glob" encoded_for_storage%0#0)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
+        (assert maybe_exists%1#0) // check self.tup exists
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%1#0 0u)
+        let aggregate%len%0#0: uint64 = (len maybe_value%1#0)
+        let aggregate%substring3%0#0: bytes = (substring3 maybe_value%1#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let aggregate%extract%0#0: bytes = (extract3 maybe_value%1#0 2u 8u)
+        let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = (aggregate%substring3%0#0, aggregate%item1%0#0)
+        let aggregate%as_bytes%2#0: bytes[8] = (itob 10u)
+        let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
+        let aggregate%head%3#0: bytes = (concat 0x aggregate%offset_as_uint16%1#0)
+        let aggregate%data_length%1#0: uint64 = (len encoded_array%0#0)
+        let aggregate%current_tail_offset%1#0: uint64 = (+ 10u aggregate%data_length%1#0)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob awst_tmp%3#0)
+        let aggregate%as_Encoded(uint64)%1#0: Encoded(uint64) = aggregate%val_as_bytes%1#0
+        let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 aggregate%as_Encoded(uint64)%1#0)
+        let aggregate%concat%1#0: bytes = (concat aggregate%head%4#0 encoded_array%0#0)
+        let aggregate%as_Encoded((len+uint64[]),uint64)%1#0: Encoded((len+uint64[]),uint64) = aggregate%concat%1#0
+        let encoded_for_storage%2#0: Encoded((len+uint64[]),uint64) = aggregate%as_Encoded((len+uint64[]),uint64)%1#0
+        (app_global_put "tup" encoded_for_storage%2#0)
+        goto block@2
+    block@2: // after_if_else_L1
+        let tmp%0#2: uint64 = (txn NumAppArgs)
+        goto tmp%0#2 ? block@4 : block@10
+    block@4: // abi_routing_L11
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "bootstrap()void" => block@5, method "mutate_tuple(uint64)void" => block@6, method "mutate_box(uint64)void" => block@7, method "mutate_global(uint64)void" => block@8, method "mutate_local(uint64)void" => block@9, * => block@12}
+    block@5: // bootstrap_route_L23
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 OptIn)
+        (assert tmp%4#0) // OnCompletion is not OptIn
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        (assert tmp%5#0) // can only call when not creating
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap()
+        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0: bool = 1u
+        goto block@13
+    block@6: // mutate_tuple_route_L28
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(reinterpret_Encoded(uint64)%0#0)
+        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#1: bool = 1u
+        goto block@13
+    block@7: // mutate_box_route_L32
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        let tmp%12#0: bool = (! tmp%11#0)
+        (assert tmp%12#0) // OnCompletion is not NoOp
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(reinterpret_Encoded(uint64)%1#0)
+        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#2: bool = 1u
+        goto block@13
+    block@8: // mutate_global_route_L36
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        let tmp%16#0: bool = (! tmp%15#0)
+        (assert tmp%16#0) // OnCompletion is not NoOp
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        (assert tmp%17#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(reinterpret_Encoded(uint64)%2#0)
+        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#3: bool = 1u
+        goto block@13
+    block@9: // mutate_local_route_L40
+        let tmp%19#0: uint64 = (txn OnCompletion)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // OnCompletion is not NoOp
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        (assert tmp%21#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(reinterpret_Encoded(uint64)%3#0)
+        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#4: bool = 1u
+        goto block@13
+    block@10: // bare_routing_L11
+        let tmp%23#0: uint64 = (txn OnCompletion)
+        goto tmp%23#0 ? block@12 : block@11
+    block@11: // __algopy_default_create_L1
+        let tmp%24#0: uint64 = (txn ApplicationID)
+        let tmp%25#0: bool = (! tmp%24#0)
+        (assert tmp%25#0) // can only call when creating
+        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#5: bool = 1u
+        goto block@13
+    block@12: // after_if_else_L11
+        let test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#6: bool = 0u
+        goto block@13
+    block@13: // after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router___L1
+        let tmp%0#1: bool = φ(test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0 <- block@5, test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#1 <- block@6, test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#2 <- block@7, test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#3 <- block@8, test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#4 <- block@9, test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#5 <- block@11, test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#6 <- block@12)
+        return tmp%0#1
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap() -> void:
+    block@0: // L23
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 1u)
+        let aggregate%len_u16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%head%0#0: bytes = (concat aggregate%len_u16%0#0 0x0000000000000000)
+        let aggregate%as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = aggregate%head%0#0
+        let encoded_array%0#0: Encoded(len+uint64[]) = aggregate%as_Encoded(len+uint64[])%0#0
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
+        (assert maybe_exists%0#0) // check self.tup exists
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let aggregate%len%0#0: uint64 = (len maybe_value%0#0)
+        let aggregate%substring3%0#0: bytes = (substring3 maybe_value%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let aggregate%extract%0#0: bytes = (extract3 maybe_value%0#0 2u 8u)
+        let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = (aggregate%substring3%0#0, aggregate%item1%0#0)
+        (box_del "box")
+        let aggregate%as_bytes%1#0: bytes[8] = (itob 10u)
+        let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
+        let aggregate%head%1#0: bytes = (concat 0x aggregate%offset_as_uint16%0#0)
+        let aggregate%data_length%0#0: uint64 = (len encoded_array%0#0)
+        let aggregate%current_tail_offset%0#0: uint64 = (+ 10u aggregate%data_length%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob awst_tmp%1#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(uint64)%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 encoded_array%0#0)
+        let aggregate%as_Encoded((len+uint64[]),uint64)%0#0: Encoded((len+uint64[]),uint64) = aggregate%concat%0#0
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = aggregate%as_Encoded((len+uint64[]),uint64)%0#0
+        (box_put "box" encoded_for_storage%0#0)
+        let tmp%0#0: account = (txn Sender)
+        (app_local_put tmp%0#0 "loc" encoded_for_storage%0#0)
+        return 
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(val: Encoded(uint64)) -> void:
+    block@0: // L28
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
+        (assert maybe_exists%0#0) // check self.tup exists
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let aggregate%len%0#0: uint64 = (len maybe_value%0#0)
+        let aggregate%substring3%0#0: bytes = (substring3 maybe_value%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let aggregate%extract%0#0: bytes = (extract3 maybe_value%0#0 2u 8u)
+        let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let (tmp%0#0: Encoded(len+uint64[]), tmp%1#0: uint64) = (aggregate%substring3%0#0, aggregate%item1%0#0)
+        let aggregate%head%0#0: bytes = (concat 0x val#0)
+        let aggregate%as_Encoded(uint64[])%0#0: Encoded(uint64[]) = aggregate%head%0#0
+        let tmp%2#0: Encoded(uint64[]) = aggregate%as_Encoded(uint64[])%0#0
+        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%0#0 tmp%2#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob add%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 10u)
+        let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%head%1#0: bytes = (concat 0x aggregate%offset_as_uint16%0#0)
+        let aggregate%data_length%0#0: uint64 = (len replace%0#0)
+        let aggregate%current_tail_offset%0#0: uint64 = (+ 10u aggregate%data_length%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(uint64)%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 replace%0#0)
+        let aggregate%as_Encoded((len+uint64[]),uint64)%0#0: Encoded((len+uint64[]),uint64) = aggregate%concat%0#0
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = aggregate%as_Encoded((len+uint64[]),uint64)%0#0
+        (app_global_put "tup" encoded_for_storage%0#0)
+        return 
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(val: Encoded(uint64)) -> void:
+    block@0: // L32
+        let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box")
+        (assert aggregate%box_get%1#0) // check self.box exists
+        let storage_value%0#0: bytes = aggregate%box_get%0#0
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 storage_value%0#0 0u)
+        let aggregate%len%0#0: uint64 = (len storage_value%0#0)
+        let aggregate%substring3%0#0: bytes = (substring3 storage_value%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let aggregate%extract%0#0: bytes = (extract3 storage_value%0#0 2u 8u)
+        let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let (tmp%0#0: Encoded(len+uint64[]), tmp%1#0: uint64) = (aggregate%substring3%0#0, aggregate%item1%0#0)
+        let aggregate%head%0#0: bytes = (concat 0x val#0)
+        let aggregate%as_Encoded(uint64[])%0#0: Encoded(uint64[]) = aggregate%head%0#0
+        let tmp%2#0: Encoded(uint64[]) = aggregate%as_Encoded(uint64[])%0#0
+        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%0#0 tmp%2#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob add%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        (box_del "box")
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 10u)
+        let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%head%1#0: bytes = (concat 0x aggregate%offset_as_uint16%0#0)
+        let aggregate%data_length%0#0: uint64 = (len replace%0#0)
+        let aggregate%current_tail_offset%0#0: uint64 = (+ 10u aggregate%data_length%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(uint64)%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 replace%0#0)
+        let aggregate%as_Encoded((len+uint64[]),uint64)%0#0: Encoded((len+uint64[]),uint64) = aggregate%concat%0#0
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = aggregate%as_Encoded((len+uint64[]),uint64)%0#0
+        (box_put "box" encoded_for_storage%0#0)
+        return 
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(val: Encoded(uint64)) -> void:
+    block@0: // L36
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
+        (assert maybe_exists%0#0) // check self.glob exists
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let aggregate%len%0#0: uint64 = (len maybe_value%0#0)
+        let aggregate%substring3%0#0: bytes = (substring3 maybe_value%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let aggregate%extract%0#0: bytes = (extract3 maybe_value%0#0 2u 8u)
+        let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let (tmp%0#0: Encoded(len+uint64[]), tmp%1#0: uint64) = (aggregate%substring3%0#0, aggregate%item1%0#0)
+        let aggregate%head%0#0: bytes = (concat 0x val#0)
+        let aggregate%as_Encoded(uint64[])%0#0: Encoded(uint64[]) = aggregate%head%0#0
+        let tmp%2#0: Encoded(uint64[]) = aggregate%as_Encoded(uint64[])%0#0
+        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%0#0 tmp%2#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob add%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 10u)
+        let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%head%1#0: bytes = (concat 0x aggregate%offset_as_uint16%0#0)
+        let aggregate%data_length%0#0: uint64 = (len replace%0#0)
+        let aggregate%current_tail_offset%0#0: uint64 = (+ 10u aggregate%data_length%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(uint64)%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 replace%0#0)
+        let aggregate%as_Encoded((len+uint64[]),uint64)%0#0: Encoded((len+uint64[]),uint64) = aggregate%concat%0#0
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = aggregate%as_Encoded((len+uint64[]),uint64)%0#0
+        (app_global_put "glob" encoded_for_storage%0#0)
+        return 
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(val: Encoded(uint64)) -> void:
+    block@0: // L40
+        let tmp%0#0: account = (txn Sender)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
+        (assert maybe_exists%0#0) // check self.loc exists for account
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
+        let aggregate%len%0#0: uint64 = (len maybe_value%0#0)
+        let aggregate%substring3%0#0: bytes = (substring3 maybe_value%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
+        let aggregate%extract%0#0: bytes = (extract3 maybe_value%0#0 2u 8u)
+        let aggregate%item1%0#0: uint64 = (btoi aggregate%extract%0#0)
+        let (tmp%1#0: Encoded(len+uint64[]), tmp%2#0: uint64) = (aggregate%substring3%0#0, aggregate%item1%0#0)
+        let aggregate%head%0#0: bytes = (concat 0x val#0)
+        let aggregate%as_Encoded(uint64[])%0#0: Encoded(uint64[]) = aggregate%head%0#0
+        let tmp%3#0: Encoded(uint64[]) = aggregate%as_Encoded(uint64[])%0#0
+        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%1#0 tmp%3#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob add%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob 10u)
+        let aggregate%offset_as_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%head%1#0: bytes = (concat 0x aggregate%offset_as_uint16%0#0)
+        let aggregate%data_length%0#0: uint64 = (len replace%0#0)
+        let aggregate%current_tail_offset%0#0: uint64 = (+ 10u aggregate%data_length%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
+        let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(uint64)%0#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%2#0 replace%0#0)
+        let aggregate%as_Encoded((len+uint64[]),uint64)%0#0: Encoded((len+uint64[]),uint64) = aggregate%concat%0#0
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = aggregate%as_Encoded((len+uint64[]),uint64)%0#0
+        (app_local_put tmp%0#0 "loc" encoded_for_storage%0#0)
+        return 

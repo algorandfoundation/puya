@@ -27,7 +27,7 @@ subroutine main:
         assert // can only call when not creating
         // struct_in_box/contract.py:10
         // class ExampleContract(ARC4Contract):
-        txna ApplicationArgs 1                                                                  tmp%7#0
+        txna ApplicationArgs 1                                                                  reinterpret_Encoded((len+utf8[]),uint64,uint64)%0#0
         // struct_in_box/contract.py:30
         // @arc4.abimethod()
         callsub add_user
@@ -38,21 +38,21 @@ subroutine main:
     main_attach_asset_to_user_route@4:
         // struct_in_box/contract.py:35
         // @arc4.abimethod()
-        txn OnCompletion                                                                        tmp%8#0
-        !                                                                                       tmp%9#0
+        txn OnCompletion                                                                        tmp%7#0
+        !                                                                                       tmp%8#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%10#0
+        txn ApplicationID                                                                       tmp%9#0
         assert // can only call when not creating
         // struct_in_box/contract.py:10
         // class ExampleContract(ARC4Contract):
-        txna ApplicationArgs 1                                                                  reinterpret_bytes[8]%0#0
-        txna ApplicationArgs 2                                                                  reinterpret_bytes[8]%0#0,reinterpret_bytes[1]%0#0
-        btoi                                                                                    reinterpret_bytes[8]%0#0,tmp%12#0
-        txnas Assets                                                                            reinterpret_bytes[8]%0#0,tmp%13#0
+        txna ApplicationArgs 1                                                                  reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 2                                                                  reinterpret_Encoded(uint64)%0#0,reinterpret_Encoded(uint8)%0#0
+        btoi                                                                                    reinterpret_Encoded(uint64)%0#0,tmp%11#0
+        txnas Assets                                                                            reinterpret_Encoded(uint64)%0#0,tmp%12#0
         // struct_in_box/contract.py:35
         // @arc4.abimethod()
-        l-load reinterpret_bytes[8]%0#0 1                                                       tmp%13#0,reinterpret_bytes[8]%0#0
-        l-load tmp%13#0 1                                                                       reinterpret_bytes[8]%0#0,tmp%13#0
+        l-load reinterpret_Encoded(uint64)%0#0 1                                                tmp%12#0,reinterpret_Encoded(uint64)%0#0
+        l-load tmp%12#0 1                                                                       reinterpret_Encoded(uint64)%0#0,tmp%12#0
         callsub attach_asset_to_user
         int 1                                                                                   examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                         (𝕏) tmp%0#0 |
@@ -61,20 +61,20 @@ subroutine main:
     main_get_user_route@5:
         // struct_in_box/contract.py:41
         // @arc4.abimethod()
-        txn OnCompletion                                                                        tmp%14#0
-        !                                                                                       tmp%15#0
+        txn OnCompletion                                                                        tmp%13#0
+        !                                                                                       tmp%14#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                       tmp%16#0
+        txn ApplicationID                                                                       tmp%15#0
         assert // can only call when not creating
         // struct_in_box/contract.py:10
         // class ExampleContract(ARC4Contract):
-        txna ApplicationArgs 1                                                                  reinterpret_bytes[8]%1#0
+        txna ApplicationArgs 1                                                                  reinterpret_Encoded(uint64)%1#0
         // struct_in_box/contract.py:41
         // @arc4.abimethod()
-        callsub get_user                                                                        tmp%18#0
-        byte 0x151f7c75                                                                         tmp%18#0,0x151f7c75
-        l-load tmp%18#0 1                                                                       0x151f7c75,tmp%18#0
-        concat                                                                                  tmp%19#0
+        callsub get_user                                                                        tmp%17#0
+        byte 0x151f7c75                                                                         tmp%17#0,0x151f7c75
+        l-load tmp%17#0 1                                                                       0x151f7c75,tmp%17#0
+        concat                                                                                  tmp%18#0
         log
         int 1                                                                                   examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                         (𝕏) tmp%0#0 |
@@ -83,12 +83,12 @@ subroutine main:
     main_bare_routing@8:
         // struct_in_box/contract.py:10
         // class ExampleContract(ARC4Contract):
-        txn OnCompletion                                                                        tmp%20#0
+        txn OnCompletion                                                                        tmp%19#0
         bz main___algopy_default_create@9 ; b main_after_if_else@12
 
     main___algopy_default_create@9:
-        txn ApplicationID                                                                       tmp%21#0
-        !                                                                                       tmp%22#0
+        txn ApplicationID                                                                       tmp%20#0
+        !                                                                                       tmp%21#0
         assert // can only call when creating
         int 1                                                                                   examples.struct_in_box.contract.ExampleContract.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                         (𝕏) tmp%0#0 |
@@ -112,17 +112,17 @@ subroutine add_user:
         // struct_in_box/contract.py:32
         // assert not self.box_exists(user.id), "User with id must not exist"
         p-load user#0                                                                           (𝕡) user#0 | user#0 (copy)
-        extract 2 8 // on error: Index access is out of bounds                                  (𝕡) user#0 | user_id#0
+        extract 2 8                                                                             (𝕡) user#0 | user_id#0
         // struct_in_box/contract.py:27
         // _data, exists = op.Box.get(user_id.bytes)
         l-load-copy user_id#0 0                                                                 (𝕡) user#0 | user_id#0,user_id#0 (copy)
-        box_get                                                                                 (𝕡) user#0 | user_id#0,_data#0,exists#0
+        box_len                                                                                 (𝕡) user#0 | user_id#0,_data#0,exists#0
         l-store exists#0 1                                                                      (𝕡) user#0 | user_id#0,exists#0,_data#0
         pop 1                                                                                   (𝕡) user#0 | user_id#0,exists#0
         // struct_in_box/contract.py:32
         // assert not self.box_exists(user.id), "User with id must not exist"
         l-load exists#0 0                                                                       (𝕡) user#0 | user_id#0,exists#0
-        !                                                                                       (𝕡) user#0 | user_id#0,tmp%2#0
+        !                                                                                       (𝕡) user#0 | user_id#0,tmp%1#0
         assert // User with id must not exist                                                   (𝕡) user#0 | user_id#0
         // struct_in_box/contract.py:21
         // op.Box.delete(box_key)
@@ -150,14 +150,14 @@ subroutine attach_asset_to_user:
         // struct_in_box/contract.py:38
         // user.asset = arc4.UInt64(asset.id)
         p-load asset#0                                                                          (𝕡) user_id#0,asset#0 | box_data#0,asset#0 (copy)
-        itob                                                                                    (𝕡) user_id#0,asset#0 | box_data#0,val_as_bytes%0#0
-        l-load box_data#0 1                                                                     (𝕡) user_id#0,asset#0 | val_as_bytes%0#0,box_data#0
-        l-load val_as_bytes%0#0 1                                                               (𝕡) user_id#0,asset#0 | box_data#0,val_as_bytes%0#0
+        itob                                                                                    (𝕡) user_id#0,asset#0 | box_data#0,aggregate%val_as_bytes%0#0
+        l-load box_data#0 1                                                                     (𝕡) user_id#0,asset#0 | aggregate%val_as_bytes%0#0,box_data#0
+        l-load aggregate%val_as_bytes%0#0 1                                                     (𝕡) user_id#0,asset#0 | box_data#0,aggregate%val_as_bytes%0#0
         replace2 10                                                                             (𝕡) user_id#0,asset#0 | user#1
         // struct_in_box/contract.py:19
         // box_key = user.id.bytes
         l-load-copy user#1 0                                                                    (𝕡) user_id#0,asset#0 | user#1,user#1 (copy)
-        extract 2 8 // on error: Index access is out of bounds                                  (𝕡) user_id#0,asset#0 | user#1,box_key#0
+        extract 2 8                                                                             (𝕡) user_id#0,asset#0 | user#1,box_key#0
         // struct_in_box/contract.py:21
         // op.Box.delete(box_key)
         l-load-copy box_key#0 0                                                                 (𝕡) user_id#0,asset#0 | user#1,box_key#0,box_key#0 (copy)

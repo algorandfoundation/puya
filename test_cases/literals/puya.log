@@ -1,4 +1,4 @@
-debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=True, output_arc56=True, output_ssa_ir=True, output_optimization_ir=True, output_destructured_ir=True, output_memory_ir=True, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=1, optimization_level=1, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, _disabled_optimizations=(), paths=['literals'], output_awst=True, output_awst_json=False, output_source_annotations_json=False, output_client=True, log_level=<LogLevel.debug: 10>)
+debug: PuyaPyOptions(output_teal=True, output_source_map=True, output_arc32=True, output_arc56=True, output_ssa_ir=True, output_optimization_ir=True, output_destructured_ir=True, output_memory_ir=True, output_bytecode=True, output_teal_intermediates=False, output_op_statistics=True, debug_level=1, optimization_level=1, target_avm_version=10, cli_template_definitions={}, template_vars_prefix='TMPL_', locals_coalescing_strategy=<LocalsCoalescingStrategy.root_operand: 'root_operand'>, _disabled_optimizations=(), expand_all_bytes=False, paths=['literals'], output_awst=True, output_awst_json=False, output_source_annotations_json=False, output_client=True, log_level=<LogLevel.debug: 10>)
 info: Found python prefix: <git root>/.venv
 literals/folding.py:7:12 warning: expression is always True
 literals/folding.py:8:17 warning: expression is always False
@@ -534,8 +534,12 @@ literals/folding.py:102:9 debug: inlining call to test_cases.literals.folding.tu
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_data%0#0, array_head_and_tail%0#0, array_head_and_tail%1#0, array_head_and_tail%2#0
-debug: selected array_data%0#0 from equivalence set
+debug: Found equivalence set: values%0#0, reinterpret_biguint%0#0
+debug: selected values%0#0 from equivalence set
+debug: Found equivalence set: values%1#0, reinterpret_biguint%2#0
+debug: selected values%1#0 from equivalence set
+debug: Found equivalence set: values%2#0, reinterpret_biguint%3#0
+debug: selected values%2#0 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -567,21 +571,6 @@ debug: Simplified (== 98u 98u) to 1u
 debug: Simplified (&& 1u 1u) to 1u
 debug: Simplified (&& 1u 1u) to 1u
 debug: Simplified (&& 1u 1u) to 1u
-debug: Simplified (&& 1u 1u) to 1u
-debug: Simplified (concat 0x 0x0000000000000061) to 0x0000000000000061
-debug: Simplified (concat 0x0000000000000061 0x0000000000000062) to 0x00000000000000610000000000000062
-debug: Simplified (concat 0x00000000000000610000000000000062 0x0000000000000063) to 0x000000000000006100000000000000620000000000000063
-debug: Simplified (concat 0x 0x000000000000006100000000000000620000000000000063) to 0x000000000000006100000000000000620000000000000063
-debug: Simplified (* 0u 8u) to 0u
-debug: Simplified (extract3 0x000000000000006100000000000000620000000000000063 0u 8u) // on error: Index access is out of bounds to 0x0000000000000061
-debug: Simplified (b== 0x0000000000000061 0x0000000000000061) to 1u
-debug: Simplified (* 1u 8u) to 8u
-debug: Simplified (extract3 0x000000000000006100000000000000620000000000000063 8u 8u) // on error: Index access is out of bounds to 0x0000000000000062
-debug: Simplified (b== 0x0000000000000062 tmp%6#2) to 1u
-debug: Simplified (&& 1u 1u) to 1u
-debug: Simplified (* 2u 8u) to 16u
-debug: Simplified (extract3 0x000000000000006100000000000000620000000000000063 16u 8u) // on error: Index access is out of bounds to 0x0000000000000063
-debug: Simplified (b== 0x0000000000000063 0x0000000000000063) to 1u
 debug: Simplified (&& 1u 1u) to 1u
 debug: Simplified (&& 1u 1u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
@@ -622,12 +611,19 @@ debug: Merged linear block@16 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine _puya_lib.bytes_.is_substring
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: tmp%8#0, start#2
+debug: selected start#2 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
@@ -646,6 +642,10 @@ debug: Replacing redundant declaration let tmp%5#0: uint64 = (+ start#1 tmp%0#0)
 debug: Found equivalence set: tmp%1#0, tmp%5#0
 debug: selected tmp%1#0 from equivalence set
 debug: Copy propagation made 1 modifications
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.literals.folding.unary_str
 debug: Optimizer: Perform Subroutine Inlining
@@ -662,6 +662,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.literals.folding.compare_str
 debug: Optimizer: Perform Subroutine Inlining
@@ -686,6 +690,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.literals.folding.binary_op_str
 debug: Optimizer: Perform Subroutine Inlining
@@ -702,6 +710,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.literals.folding.unary_bytes
 debug: Optimizer: Perform Subroutine Inlining
@@ -718,6 +730,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.literals.folding.unary_int
 debug: Optimizer: Perform Subroutine Inlining
@@ -734,6 +750,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.literals.folding.compare_int
 debug: Optimizer: Perform Subroutine Inlining
@@ -763,6 +783,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.literals.folding.unary_bool
 debug: Optimizer: Perform Subroutine Inlining
@@ -779,14 +803,22 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine test_cases.literals.folding.tuples
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: array_data%0#0, array_head_and_tail%0#0, array_head_and_tail%1#0, array_head_and_tail%2#0
-debug: selected array_data%0#0 from equivalence set
+debug: Found equivalence set: values%0#0, reinterpret_biguint%0#0
+debug: selected values%0#0 from equivalence set
+debug: Found equivalence set: values%1#0, reinterpret_biguint%2#0
+debug: selected values%1#0 from equivalence set
+debug: Found equivalence set: values%2#0, reinterpret_biguint%3#0
+debug: selected values%2#0 from equivalence set
 debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
@@ -798,21 +830,6 @@ debug: Simplified (&& 1u 1u) to 1u
 debug: Simplified (&& 1u 1u) to 1u
 debug: Simplified (&& 1u 1u) to 1u
 debug: Simplified (&& 1u 1u) to 1u
-debug: Simplified (concat 0x 0x0000000000000061) to 0x0000000000000061
-debug: Simplified (concat 0x0000000000000061 0x0000000000000062) to 0x00000000000000610000000000000062
-debug: Simplified (concat 0x00000000000000610000000000000062 0x0000000000000063) to 0x000000000000006100000000000000620000000000000063
-debug: Simplified (concat 0x 0x000000000000006100000000000000620000000000000063) to 0x000000000000006100000000000000620000000000000063
-debug: Simplified (* 0u 8u) to 0u
-debug: Simplified (extract3 0x000000000000006100000000000000620000000000000063 0u 8u) // on error: Index access is out of bounds to 0x0000000000000061
-debug: Simplified (b== 0x0000000000000061 0x0000000000000061) to 1u
-debug: Simplified (* 1u 8u) to 8u
-debug: Simplified (extract3 0x000000000000006100000000000000620000000000000063 8u 8u) // on error: Index access is out of bounds to 0x0000000000000062
-debug: Simplified (b== 0x0000000000000062 tmp%6#0) to 1u
-debug: Simplified (&& 1u 1u) to 1u
-debug: Simplified (* 2u 8u) to 16u
-debug: Simplified (extract3 0x000000000000006100000000000000620000000000000063 16u 8u) // on error: Index access is out of bounds to 0x0000000000000063
-debug: Simplified (b== 0x0000000000000063 0x0000000000000063) to 1u
-debug: Simplified (&& 1u 1u) to 1u
 debug: Simplified (&& 1u 1u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -821,6 +838,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: removing unused subroutine test_cases.literals.folding.unary_str
 debug: removing unused subroutine test_cases.literals.folding.compare_str
@@ -864,22 +885,6 @@ debug: Removing unused variable tmp%1#2
 debug: Removing unused variable tmp%2#2
 debug: Removing unused variable tmp%3#2
 debug: Removing unused variable tmp%4#2
-debug: Removing unused variable result%0#0
-debug: Removing unused variable result%1#0
-debug: Removing unused variable result%2#0
-debug: Removing unused variable array_data%0#0
-debug: Removing unused variable item_offset%0#0
-debug: Removing unused variable reinterpret_biguint%0#0
-debug: Removing unused variable tmp%5#2
-debug: Removing unused variable item_offset%1#0
-debug: Removing unused variable reinterpret_biguint%2#0
-debug: Removing unused variable tmp%6#2
-debug: Removing unused variable tmp%7#2
-debug: Removing unused variable tmp%8#2
-debug: Removing unused variable item_offset%2#0
-debug: Removing unused variable reinterpret_biguint%3#0
-debug: Removing unused variable tmp%9#2
-debug: Removing unused variable tmp%10#2
 debug: Removing unused variable tmp%11#2
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -889,6 +894,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine _puya_lib.bytes_.is_substring
 debug: Optimizer: Perform Subroutine Inlining
@@ -905,6 +914,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Output IR to literals/out/LiteralFolding.ir/LiteralFolding.approval.002.ssa.opt.ir
 debug: Begin optimization pass 3/100
@@ -923,6 +936,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine _puya_lib.bytes_.is_substring
 debug: Optimizer: Perform Subroutine Inlining
@@ -939,6 +956,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 3, ending loop
 debug: optimizing clear program of test_cases.literals.folding.LiteralFolding at level 1
@@ -958,6 +979,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: lowering array IR nodes in approval program of test_cases.literals.folding.LiteralFolding
@@ -971,9 +996,32 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
+debug: Found equivalence set: aggregate%head%2#0, aggregate%as_Encoded(uint64[3])%0#0, encoded_array%0#0
+debug: selected aggregate%head%2#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%0#0, array_item%0#0, values%0#0
+debug: selected aggregate%encoded_element%0#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%1#0, array_item%1#0, values%1#0
+debug: selected aggregate%encoded_element%1#0 from equivalence set
+debug: Found equivalence set: aggregate%encoded_element%2#0, array_item%2#0, values%2#0
+debug: selected aggregate%encoded_element%2#0 from equivalence set
+debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (concat 0x 0x0000000000000061) to 0x0000000000000061
+debug: Simplified (concat 0x0000000000000061 0x0000000000000062) to 0x00000000000000610000000000000062
+debug: Simplified (concat 0x00000000000000610000000000000062 0x0000000000000063) to 0x000000000000006100000000000000620000000000000063
+debug: Simplified (* 0u 8u) to 0u
+debug: Simplified (extract3 0x000000000000006100000000000000620000000000000063 0u 8u) // on error: index access is out of bounds to 0x0000000000000061
+debug: Simplified (b== 0x0000000000000061 0x0000000000000061) to 1u
+debug: Simplified (* 1u 8u) to 8u
+debug: Simplified (extract3 0x000000000000006100000000000000620000000000000063 8u 8u) // on error: index access is out of bounds to 0x0000000000000062
+debug: Simplified (b== 0x0000000000000062 tmp%6#2) to 1u
+debug: Simplified (&& 1u 1u) to 1u
+debug: Simplified (* 2u 8u) to 16u
+debug: Simplified (extract3 0x000000000000006100000000000000620000000000000063 16u 8u) // on error: index access is out of bounds to 0x0000000000000063
+debug: Simplified (b== 0x0000000000000063 0x0000000000000063) to 1u
+debug: Simplified (&& 1u 1u) to 1u
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -981,6 +1029,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Optimizing subroutine _puya_lib.bytes_.is_substring
 debug: Optimizer: Perform Subroutine Inlining
@@ -997,8 +1049,111 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 1, ending loop
+debug: Output IR to literals/out/LiteralFolding.ir/LiteralFolding.approval.200.ssa.array.opt.ir
+debug: Begin optimization pass 2/100
+debug: Optimizing subroutine test_cases.literals.folding.LiteralFolding.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%head%0#0
+debug: Removing unused variable aggregate%head%1#0
+debug: Removing unused variable aggregate%head%2#0
+debug: Removing unused variable aggregate%bytes_offset%0#0
+debug: Removing unused variable aggregate%encoded_element%0#0
+debug: Removing unused variable tmp%5#2
+debug: Removing unused variable aggregate%bytes_offset%1#0
+debug: Removing unused variable aggregate%encoded_element%1#0
+debug: Removing unused variable tmp%6#2
+debug: Removing unused variable tmp%7#2
+debug: Removing unused variable tmp%8#2
+debug: Removing unused variable aggregate%bytes_offset%2#0
+debug: Removing unused variable aggregate%encoded_element%2#0
+debug: Removing unused variable tmp%9#2
+debug: Removing unused variable tmp%10#2
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.bytes_.is_substring
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Output IR to literals/out/LiteralFolding.ir/LiteralFolding.approval.201.ssa.array.opt.ir
+debug: Begin optimization pass 3/100
+debug: Optimizing subroutine test_cases.literals.folding.LiteralFolding.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine _puya_lib.bytes_.is_substring
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: No optimizations performed in pass 3, ending loop
 debug: optimizing clear program of test_cases.literals.folding.LiteralFolding at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine test_cases.literals.folding.LiteralFolding.clear_state_program
@@ -1016,6 +1171,10 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: No optimizations performed in pass 1, ending loop
 debug: removing local static slots in approval program of test_cases.literals.folding.LiteralFolding
@@ -1030,14 +1189,14 @@ debug: Output IR to literals/out/LiteralFolding.ir/LiteralFolding.clear.300.ssa.
 debug: Performing SSA IR destructuring for test_cases.literals.folding.LiteralFolding.approval_program
 debug: Converting to CSSA
 debug: Removing Phi nodes
-debug: Coalescing local variables in test_cases.literals.folding.LiteralFolding.approval_program using strategy RootOperandGrouping
+debug: Coalescing local variables in test_cases.literals.folding.LiteralFolding.approval_program using strategy 'root_operand'
 debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in test_cases.literals.folding.LiteralFolding.approval_program
 debug: Performing post-SSA optimizations at level 1
 debug: Performing SSA IR destructuring for _puya_lib.bytes_.is_substring
 debug: Converting to CSSA
 debug: Removing Phi nodes
-debug: Coalescing local variables in _puya_lib.bytes_.is_substring using strategy RootOperandGrouping
+debug: Coalescing local variables in _puya_lib.bytes_.is_substring using strategy 'root_operand'
 debug: Coalescing start#0 with [start#5, start#1, start#2]
 debug: Coalescing resulted in 9 replacement/s
 debug: Sequentializing parallel copies in _puya_lib.bytes_.is_substring
@@ -1046,7 +1205,7 @@ debug: Output IR to literals/out/LiteralFolding.ir/LiteralFolding.approval.400.d
 debug: Performing SSA IR destructuring for test_cases.literals.folding.LiteralFolding.clear_state_program
 debug: Converting to CSSA
 debug: Removing Phi nodes
-debug: Coalescing local variables in test_cases.literals.folding.LiteralFolding.clear_state_program using strategy RootOperandGrouping
+debug: Coalescing local variables in test_cases.literals.folding.LiteralFolding.clear_state_program using strategy 'root_operand'
 debug: Coalescing resulted in 0 replacement/s
 debug: Sequentializing parallel copies in test_cases.literals.folding.LiteralFolding.clear_state_program
 debug: Performing post-SSA optimizations at level 1

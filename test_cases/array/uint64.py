@@ -1,10 +1,19 @@
-from algopy import Array, Txn, UInt64, arc4, op, subroutine, uenumerate, urange
+from algopy import (
+    ReferenceArray,
+    Txn,
+    UInt64,
+    arc4,
+    op,
+    subroutine,
+    uenumerate,
+    urange,
+)
 
 
 class Contract(arc4.ARC4Contract):
     @arc4.abimethod()
     def test_array(self) -> None:
-        arr = Array[UInt64]()
+        arr = ReferenceArray[UInt64]()
         assert arr.length == 0
 
         arr.append(UInt64(42))
@@ -40,9 +49,9 @@ class Contract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def test_array_extend(self) -> None:
-        arr = Array[UInt64]()
+        arr = ReferenceArray[UInt64]()
         add_x(arr, UInt64(1))
-        arr2 = Array[UInt64]()
+        arr2 = ReferenceArray[UInt64]()
         arr2.append(UInt64(1))
         arr2.append(UInt64(2))
         arr2.append(UInt64(3))
@@ -52,7 +61,7 @@ class Contract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def test_array_multiple_append(self) -> None:
-        arr = Array[UInt64]()
+        arr = ReferenceArray[UInt64]()
         add_x(arr, UInt64(1))
         arr.append(UInt64(1))
         arr.append(UInt64(2))
@@ -65,7 +74,7 @@ class Contract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def test_array_too_long(self) -> None:
-        array = Array[UInt64]()
+        array = ReferenceArray[UInt64]()
         for i in urange(512):
             array.append(i)
         assert array.length == 512, "array is expected length"
@@ -74,7 +83,7 @@ class Contract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def test_array_copy_and_extend(self) -> None:
-        array = Array[UInt64]()
+        array = ReferenceArray[UInt64]()
         for i in urange(5):
             array.append(i)
         array2 = array.copy()
@@ -96,7 +105,7 @@ class Contract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def test_array_evaluation_order(self) -> None:
-        arr = Array[UInt64]()
+        arr = ReferenceArray[UInt64]()
         arr.append(UInt64(3))
         append_length_and_return(arr).extend(append_length_and_return(arr))
         assert arr.length == 6
@@ -114,14 +123,23 @@ class Contract(arc4.ARC4Contract):
         assert arr[3] == 6
 
     @arc4.abimethod()
+    def test_array_assignment_maximum_cursage(self) -> None:
+        arr = ReferenceArray[UInt64]()
+        arr.append(UInt64(3))
+        append_length_and_return(arr)[0] = UInt64(42)
+        assert arr.length == 2
+        assert arr[0] == 42
+        assert arr[1] == 1
+
+    @arc4.abimethod()
     def test_allocations(self, num: UInt64) -> None:
         for _i in urange(num):
-            alloc_test = Array[UInt64]()
+            alloc_test = ReferenceArray[UInt64]()
             add_x(alloc_test, UInt64(1))
 
     @arc4.abimethod()
     def test_iteration(self) -> None:
-        arr = Array[UInt64]()
+        arr = ReferenceArray[UInt64]()
         for val in urange(5):
             arr.append(val)
         assert arr.length == 5, "expected array of length 5"
@@ -142,7 +160,7 @@ class Contract(arc4.ARC4Contract):
             last = value
 
         arc4_arr = arc4.DynamicArray[arc4.UInt64]()
-        native_arr = Array[arc4.UInt64]()
+        native_arr = ReferenceArray[arc4.UInt64]()
         for i in urange(5):
             arc4_arr.append(arc4.UInt64(i))
             native_arr.append(arc4.UInt64(i))
@@ -156,7 +174,7 @@ class Contract(arc4.ARC4Contract):
     @arc4.abimethod()
     def test_quicksort(self) -> None:
         # create pseudo random array from sender address
-        rnd = Array[UInt64]()
+        rnd = ReferenceArray[UInt64]()
         for b in Txn.sender.bytes:
             rnd.append(op.btoi(b))
         assert rnd.length == 32, "expected array of length 32"
@@ -181,7 +199,9 @@ class Contract(arc4.ARC4Contract):
 
 
 @subroutine
-def quicksort_window(arr: Array[UInt64], window_left: UInt64, window_right: UInt64) -> None:
+def quicksort_window(
+    arr: ReferenceArray[UInt64], window_left: UInt64, window_right: UInt64
+) -> None:
     left = window_left
     right = window_right
     pivot = arr[(window_left + window_right) // 2]
@@ -233,33 +253,35 @@ def quicksort_window(arr: Array[UInt64], window_left: UInt64, window_right: UInt
 
 
 @subroutine(inline=False)
-def create_array() -> Array[UInt64]:
-    arr = Array[UInt64]()
+def create_array() -> ReferenceArray[UInt64]:
+    arr = ReferenceArray[UInt64]()
     for i in urange(5):
         arr.append(i)
     return arr
 
 
 @subroutine(inline=False)
-def assert_last_is_zero(arr: Array[UInt64]) -> None:
+def assert_last_is_zero(arr: ReferenceArray[UInt64]) -> None:
     assert arr[arr.length - 1] == 0
 
 
 @subroutine
-def return_ref(arr: Array[UInt64], arr2: Array[UInt64]) -> Array[UInt64]:
+def return_ref(
+    arr: ReferenceArray[UInt64], arr2: ReferenceArray[UInt64]
+) -> ReferenceArray[UInt64]:
     arr.append(UInt64(99))
     arr2.append(UInt64(100))
     return arr
 
 
 @subroutine
-def add_x(arr: Array[UInt64], x: UInt64) -> None:
+def add_x(arr: ReferenceArray[UInt64], x: UInt64) -> None:
     for i in urange(x):
         arr.append(i)
 
 
 @subroutine
-def pop_x(arr: Array[UInt64], x: UInt64, expected: UInt64) -> None:
+def pop_x(arr: ReferenceArray[UInt64], x: UInt64, expected: UInt64) -> None:
     for _i in urange(x):
         popped = arr.pop()
         assert popped == expected
@@ -267,11 +289,11 @@ def pop_x(arr: Array[UInt64], x: UInt64, expected: UInt64) -> None:
 
 
 @subroutine
-def append_length_and_return(arr: Array[UInt64]) -> Array[UInt64]:
+def append_length_and_return(arr: ReferenceArray[UInt64]) -> ReferenceArray[UInt64]:
     arr.append(arr.length)
     return arr
 
 
 @subroutine
-def do_something_with_array(arr: Array[UInt64]) -> None:
+def do_something_with_array(arr: ReferenceArray[UInt64]) -> None:
     arr.append(UInt64(1))

@@ -2,7 +2,7 @@ import contextlib
 import itertools
 import typing
 from collections import defaultdict
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
 
 import attrs
@@ -24,6 +24,7 @@ from puya.ir.models import (
     Op,
     Register,
     Subroutine,
+    Value,
     ValueProvider,
 )
 from puya.ir.register_context import IRRegisterContext
@@ -134,6 +135,14 @@ class IRFunctionBuildContext(IRBuildContext, IRRegisterContext):
     @block_builder.default
     def _block_builder_factory(self) -> BlocksBuilder:
         return BlocksBuilder(self.subroutine.parameters, self.function.source_location)
+
+    def resolve_embedded_func(self, full_name: PuyaLibIR) -> Subroutine:
+        return self.embedded_funcs_lookup[full_name]
+
+    def materialise_value_provider(
+        self, provider: ValueProvider, description: str | Sequence[str]
+    ) -> list[Value]:
+        return self.visitor.materialise_value_provider(provider, description)
 
     def next_tmp_name(self, description: str) -> str:
         counter_value = next(self._tmp_counters[description])

@@ -18,7 +18,7 @@ subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayCont
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let tmp%7#0: bytes = test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz()
+        let tmp%7#0: Encoded(len+(len+utf8[])[]) = test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz()
         let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
         (log tmp%8#0)
         return 1u
@@ -29,7 +29,7 @@ subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayCont
         let tmp%11#0: uint64 = (txn ApplicationID)
         let tmp%12#0: bool = (!= tmp%11#0 0u)
         (assert tmp%12#0) // can only call when not creating
-        let tmp%13#0: bytes = test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw()
+        let tmp%13#0: Encoded(len+(len+utf8[])[]) = test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw()
         let tmp%14#0: bytes = (concat 0x151f7c75 tmp%13#0)
         (log tmp%14#0)
         return 1u
@@ -53,58 +53,23 @@ subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayCont
     block@10: // after_if_else_L4
         return 0u
 
-subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz() -> bytes:
+subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz() -> Encoded(len+(len+utf8[])[]):
     block@0: // L5
-        let as_bytes%0#0: bytes[8] = (itob 6u)
-        let next_item_head%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let result%0#0: bytes = (concat 0x next_item_head%0#0)
-        let next_item_len%0#0: uint64 = (len 0x000158)
-        let tail_offset%0#0: uint64 = (+ 6u next_item_len%0#0)
-        let as_bytes%1#0: bytes[8] = (itob tail_offset%0#0)
-        let next_item_head%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let result%1#0: bytes = (concat result%0#0 next_item_head%1#0)
-        let next_item_len%1#0: uint64 = (len 0x000159)
-        let tail_offset%1#0: uint64 = (+ tail_offset%0#0 next_item_len%1#0)
-        let as_bytes%2#0: bytes[8] = (itob tail_offset%1#0)
-        let next_item_head%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let result%2#0: bytes = (concat result%1#0 next_item_head%2#0)
-        let next_item_len%2#0: uint64 = (len 0x00015a)
-        let tail_offset%2#0: uint64 = (+ tail_offset%1#0 next_item_len%2#0)
-        let result%3#0: bytes = (concat result%2#0 0x000158)
-        let result%4#0: bytes = (concat result%3#0 0x000159)
-        let result%5#0: bytes = (concat result%4#0 0x00015a)
-        let array_data%0#0: bytes = (concat 0x0003 result%5#0)
-        return array_data%0#0
+        let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("X")
+        let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Y")
+        let tmp%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Z")
+        let encoded_array%0#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(tmp%0#0, tmp%1#0, tmp%2#0)
+        return encoded_array%0#0
 
-subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw() -> bytes:
+subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw() -> Encoded(len+(len+utf8[])[]):
     block@0: // L13
-        let result%0#0: bytes = (concat 0x 0x58)
-        let array_data%0#0: bytes = (concat 0x0001 result%0#0)
-        let result%1#0: bytes = (concat 0x 0x59)
-        let array_data%1#0: bytes = (concat 0x0001 result%1#0)
-        let result%2#0: bytes = (concat 0x 0x5a)
-        let array_data%2#0: bytes = (concat 0x0001 result%2#0)
-        let as_bytes%0#0: bytes[8] = (itob 6u)
-        let next_item_head%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let result%3#0: bytes = (concat 0x next_item_head%0#0)
-        let next_item_len%0#0: uint64 = (len array_data%0#0)
-        let tail_offset%0#0: uint64 = (+ 6u next_item_len%0#0)
-        let as_bytes%1#0: bytes[8] = (itob tail_offset%0#0)
-        let next_item_head%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let result%4#0: bytes = (concat result%3#0 next_item_head%1#0)
-        let next_item_len%1#0: uint64 = (len array_data%1#0)
-        let tail_offset%1#0: uint64 = (+ tail_offset%0#0 next_item_len%1#0)
-        let as_bytes%2#0: bytes[8] = (itob tail_offset%1#0)
-        let next_item_head%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let result%5#0: bytes = (concat result%4#0 next_item_head%2#0)
-        let next_item_len%2#0: uint64 = (len array_data%2#0)
-        let tail_offset%2#0: uint64 = (+ tail_offset%1#0 next_item_len%2#0)
-        let result%6#0: bytes = (concat result%5#0 array_data%0#0)
-        let result%7#0: bytes = (concat result%6#0 array_data%1#0)
-        let result%8#0: bytes = (concat result%7#0 array_data%2#0)
-        let array_data%3#0: bytes = (concat 0x0003 result%8#0)
-        let raw#0: bytes = array_data%3#0
-        return raw#0
+        let encoded_array%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x58)
+        let encoded_array%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x59)
+        let encoded_array%2#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x5a)
+        let encoded_array%3#0: Encoded(len+(len+uint8[])[]) = bytes_encode<(len+(len+uint8[])[])>(encoded_array%0#0, encoded_array%1#0, encoded_array%2#0)
+        let raw#0: Encoded(len+(len+uint8[])[]) = encoded_array%3#0
+        let reinterpret_Encoded(len+(len+utf8[])[])%0#0: Encoded(len+(len+utf8[])[]) = raw#0
+        return reinterpret_Encoded(len+(len+utf8[])[])%0#0
 
 subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__algopy_default_create() -> void:
     block@0: // L1

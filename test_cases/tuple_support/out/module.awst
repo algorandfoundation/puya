@@ -192,6 +192,83 @@ subroutine test_empty(): void
   assert(true)
 }
 
+contract NestedTuplesStorage
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  globals {
+    ['glob']: test_cases.tuple_support.tuple_storage.TupleWithMutable
+    ['tup']: test_cases.tuple_support.tuple_storage.TupleWithMutable
+  }
+  locals {
+    ['loc']: test_cases.tuple_support.tuple_storage.TupleWithMutable
+  }
+  boxes {
+    ['box']: test_cases.tuple_support.tuple_storage.TupleWithMutable
+  }
+  
+  subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypoint_with_init(): bool
+  {
+    if (!(txn<ApplicationID>())) {
+      this::__init__()
+    }
+    return this::approval_program()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__init__(): void
+  {
+    GlobalState['tup']: test_cases.tuple_support.tuple_storage.TupleWithMutable = (arr=new arc4.dynamic_array<arc4.uint64>(0_arc4u64), bar=0u)
+    GlobalState['glob']: test_cases.tuple_support.tuple_storage.TupleWithMutable = (arr=new arc4.dynamic_array<arc4.uint64>(0_arc4u64), bar=SINGLE_EVAL(id=8, source=GlobalState['tup'])[1])
+    GlobalState['tup']: test_cases.tuple_support.tuple_storage.TupleWithMutable = (arr=new arc4.dynamic_array<arc4.uint64>(0_arc4u64), bar=SINGLE_EVAL(id=9, source=GlobalState['tup'])[1])
+  }
+  
+  abimethod test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap(): void
+  {
+    Box['box']: test_cases.tuple_support.tuple_storage.TupleWithMutable = (arr=new arc4.dynamic_array<arc4.uint64>(0_arc4u64), bar=SINGLE_EVAL(id=10, source=GlobalState['tup'])[1])
+    LocalState['loc', txn<Sender>()]: test_cases.tuple_support.tuple_storage.TupleWithMutable = (arr=new arc4.dynamic_array<arc4.uint64>(0_arc4u64), bar=SINGLE_EVAL(id=11, source=GlobalState['tup'])[1])
+  }
+  
+  abimethod test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(val: arc4.uint64): void
+  {
+    GlobalState['tup'].arr.extend((val))
+  }
+  
+  abimethod test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(val: arc4.uint64): void
+  {
+    Box['box'].arr.extend((val))
+  }
+  
+  abimethod test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(val: arc4.uint64): void
+  {
+    GlobalState['glob'].arr.extend((val))
+  }
+  
+  abimethod test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(val: arc4.uint64): void
+  {
+    LocalState['loc', txn<Sender>()].arr.extend((val))
+  }
+  
+  baremethod test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 contract TupleComparisons
 {
   method_resolution_order: (
@@ -217,11 +294,11 @@ contract TupleComparisons
 
 subroutine test_tuple_cmp_eval(): void
 {
-  assert(||('abc' != 'abc', SINGLE_EVAL(id=8, source=test_cases.tuple_support.tuple_comparisons.log_and_return(42u)) == SINGLE_EVAL(id=8)))
-  tmp: bool = &&('abc' == 'abc', SINGLE_EVAL(id=9, source=test_cases.tuple_support.tuple_comparisons.log_and_return(43u)) != SINGLE_EVAL(id=9))
+  assert(||('abc' != 'abc', SINGLE_EVAL(id=12, source=test_cases.tuple_support.tuple_comparisons.log_and_return(42u)) == SINGLE_EVAL(id=12)))
+  tmp: bool = &&('abc' == 'abc', SINGLE_EVAL(id=13, source=test_cases.tuple_support.tuple_comparisons.log_and_return(43u)) != SINGLE_EVAL(id=13))
   assert(!(tmp))
-  assert(||('abc' != 'abc', SINGLE_EVAL(id=10, source=test_cases.tuple_support.tuple_comparisons.log_and_return(44u)) == SINGLE_EVAL(id=10)))
-  tmp: bool = &&('abc' == 'abc', SINGLE_EVAL(id=11, source=test_cases.tuple_support.tuple_comparisons.log_and_return(45u)) != SINGLE_EVAL(id=11))
+  assert(||('abc' != 'abc', SINGLE_EVAL(id=14, source=test_cases.tuple_support.tuple_comparisons.log_and_return(44u)) == SINGLE_EVAL(id=14)))
+  tmp: bool = &&('abc' == 'abc', SINGLE_EVAL(id=15, source=test_cases.tuple_support.tuple_comparisons.log_and_return(45u)) != SINGLE_EVAL(id=15))
   assert(!(tmp))
   assert(||(1u != 3u, 2u != test_cases.tuple_support.tuple_comparisons.log_and_return(46u)))
   tmp: bool = &&(1u == 3u, 2u == test_cases.tuple_support.tuple_comparisons.log_and_return(47u))
@@ -335,13 +412,13 @@ contract NestedTuples
   {
     arr2: arc4.dynamic_array<arc4.uint64> = GlobalState['twm'].arr.copy()
     arr2.extend((1_arc4u64))
-    GlobalState['twm']: test_cases.tuple_support.nested_tuples.TupleWithMutable = (arr=arr2.copy(), child=SINGLE_EVAL(id=12, source=GlobalState['twm'])[1])
+    GlobalState['twm']: test_cases.tuple_support.nested_tuples.TupleWithMutable = (arr=arr2.copy(), child=SINGLE_EVAL(id=16, source=GlobalState['twm'])[1])
   }
   
   abimethod test_cases.tuple_support.nested_tuples.NestedTuples.run_tests(): bool
   {
     x: tuple<string,string> = ('Hi', 'There')
-    assert(&&(SINGLE_EVAL(id=13, source=test_cases.tuple_support.nested_tuples.test_swap(x))[0] == 'There', SINGLE_EVAL(id=13)[1] == 'Hi'))
+    assert(&&(SINGLE_EVAL(id=17, source=test_cases.tuple_support.nested_tuples.test_swap(x))[0] == 'There', SINGLE_EVAL(id=17)[1] == 'Hi'))
     y: tuple<uint64,tuple<string,string>> = (1u, x)
     z: tuple<uint64,uint64,tuple<uint64,tuple<string,string>>> = (0u, 2u, y)
     z2: tuple<uint64,tuple<string,string>> = z[2]
@@ -357,7 +434,7 @@ contract NestedTuples
     test_cases.tuple_support.nested_tuples.test_nested_singles(1u, reassign=true)
     test_cases.tuple_support.nested_tuples.test_nested_singles(1u, reassign=false)
     test_cases.tuple_support.nested_tuples.test_nested_mutation()
-    assert(&&(SINGLE_EVAL(id=14, source=z[2])[0] == y[0], &&(SINGLE_EVAL(id=15, source=SINGLE_EVAL(id=14)[1])[0] == SINGLE_EVAL(id=16, source=y[1])[0], SINGLE_EVAL(id=15)[1] == SINGLE_EVAL(id=16)[1])))
+    assert(&&(SINGLE_EVAL(id=18, source=z[2])[0] == y[0], &&(SINGLE_EVAL(id=19, source=SINGLE_EVAL(id=18)[1])[0] == SINGLE_EVAL(id=20, source=y[1])[0], SINGLE_EVAL(id=19)[1] == SINGLE_EVAL(id=20)[1])))
     test_cases.tuple_support.nested_tuples.test_nested_iteration()
     this::test_single_evaluation_nested()
     return true
@@ -390,7 +467,7 @@ contract NestedTuples
   subroutine test_cases.tuple_support.nested_tuples.NestedTuples.test_single_evaluation_nested(): void
   {
     GlobalState['build_nested_call_count']: uint64 = 0u
-    result: tuple<tuple<string,uint64>,bytes> = (||(&&(SINGLE_EVAL(id=18, source=SINGLE_EVAL(id=17, source=this::build_nested())[0])[0] == SINGLE_EVAL(id=18)[0], SINGLE_EVAL(id=18)[1] == SINGLE_EVAL(id=18)[1]), SINGLE_EVAL(id=19, source=SINGLE_EVAL(id=17)[1]) == SINGLE_EVAL(id=19))) ? (SINGLE_EVAL(id=17)) : (this::build_nested())
+    result: tuple<tuple<string,uint64>,bytes> = (||(&&(SINGLE_EVAL(id=22, source=SINGLE_EVAL(id=21, source=this::build_nested())[0])[0] == SINGLE_EVAL(id=22)[0], SINGLE_EVAL(id=22)[1] == SINGLE_EVAL(id=22)[1]), SINGLE_EVAL(id=23, source=SINGLE_EVAL(id=21)[1]) == SINGLE_EVAL(id=23))) ? (SINGLE_EVAL(id=21)) : (this::build_nested())
     assert(result[0][0] == 'hi')
     assert(GlobalState['build_nested_call_count'] == 1u)
   }
@@ -444,9 +521,9 @@ subroutine test_intrinsics(num1: uint64, num2: uint64): void
   nt: tuple<uint64,tuple<uint64,uint64>,uint64> = (1u, addw(num1, num2), 42u)
   assert(nt[0] == 1u)
   assert(nt[-1] == 42u)
-  assert(&&(SINGLE_EVAL(id=20, source=nt[1])[0] == 0u, SINGLE_EVAL(id=20)[1] == num1 + num2))
-  assert(SINGLE_EVAL(id=21, source=nt[1][:1u])[0] == 0u)
-  assert(SINGLE_EVAL(id=22, source=nt[1][1u:])[0] == num1 + num2)
+  assert(&&(SINGLE_EVAL(id=24, source=nt[1])[0] == 0u, SINGLE_EVAL(id=24)[1] == num1 + num2))
+  assert(SINGLE_EVAL(id=25, source=nt[1][:1u])[0] == 0u)
+  assert(SINGLE_EVAL(id=26, source=nt[1][1u:])[0] == num1 + num2)
   ((x, y)): tuple<tuple<uint64,uint64>> = nt[1u:2u]
   assert(x == 0u)
   assert(y == num1 + num2)
@@ -458,18 +535,18 @@ subroutine test_nested_slicing(): void
   (a, b, c): tuple<uint64,tuple<uint64,tuple<string,string>,uint64>,uint64> = nt[1u:4u]
   assert(b[-1] == 4u)
   assert(&&(a == 2u, c == 5u))
-  assert(&&(SINGLE_EVAL(id=23, source=b[1][:])[0] == 'a', SINGLE_EVAL(id=23)[1] == 'b'))
+  assert(&&(SINGLE_EVAL(id=27, source=b[1][:])[0] == 'a', SINGLE_EVAL(id=27)[1] == 'b'))
 }
 
 subroutine test_nested_singles(one: uint64, reassign: bool): void
 {
   s: tuple<tuple<uint64>,tuple<uint64>,tuple<uint64>> = ((0u), (one), (2u))
   assert(s[0][0] == 0u)
-  assert(SINGLE_EVAL(id=24, source=s[0])[0] == 0u)
+  assert(SINGLE_EVAL(id=28, source=s[0])[0] == 0u)
   assert(s[1][0] == 1u)
-  assert(SINGLE_EVAL(id=25, source=s[1])[0] == one)
+  assert(SINGLE_EVAL(id=29, source=s[1])[0] == one)
   assert(s[2][0] == 2u)
-  assert(SINGLE_EVAL(id=26, source=s[2])[0] == 2u)
+  assert(SINGLE_EVAL(id=30, source=s[2])[0] == 2u)
   t: tuple<uint64> = s[1]
   if (reassign) {
     s: tuple<tuple<uint64>,tuple<uint64>,tuple<uint64>> = ((3u), (4u), (5u))

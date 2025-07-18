@@ -9,6 +9,140 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
         return tmp%1#0
 
+subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
+    block@0: // L221
+        let tmp%0#0: bytes = ((substring 0 2) array#0)
+        let size_b#0: bytes = tmp%0#0
+        let tmp%1#0: uint64 = (btoi size_b#0)
+        let array_length#0: uint64 = tmp%1#0
+        let tmp%2#0: bytes = ((extract 2 0) array#0)
+        let tmp%3#0: bytes = _puya_lib.arc4.static_array_replace_byte_length_head(tmp%2#0, new_item#0, index#0, array_length#0)
+        let tmp%4#0: bytes = (concat size_b#0 tmp%3#0)
+        return tmp%4#0
+
+subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
+    block@0: // L244
+        let tmp%0#0: bytes = ((substring 0 2) source#0)
+        let size_b#0: bytes = tmp%0#0
+        let tmp%1#0: uint64 = (btoi size_b#0)
+        let array_length#0: uint64 = tmp%1#0
+        let tmp%2#0: bytes = ((extract 2 0) source#0)
+        let tmp%3#0: bytes = _puya_lib.arc4.static_array_replace_dynamic_element(tmp%2#0, new_item#0, index#0, array_length#0)
+        let tmp%4#0: bytes = (concat size_b#0 tmp%3#0)
+        return tmp%4#0
+
+subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+    block@0: // L256
+        let tmp%0#0: uint64 = (* index#0 2u)
+        let tmp%1#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#0)
+        let original_offset#0: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = (+ index#0 1u)
+        let tmp%3#0: uint64 = (* tmp%2#0 2u)
+        let tmp%4#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%3#0)
+        let next_item_offset#0: uint64 = tmp%4#0
+        let tmp%5#0: uint64 = (len array_head_and_tail#0)
+        let end_of_tail#0: uint64 = tmp%5#0
+        let tmp%6#0: uint64 = (- array_length#0 index#0)
+        let tmp%7#0: uint64 = (- tmp%6#0 1u)
+        let is_before_end#0: uint64 = tmp%7#0
+        let tmp%8#0: uint64 = (select end_of_tail#0 next_item_offset#0 is_before_end#0)
+        let end_offset#0: uint64 = tmp%8#0
+        let tmp%9#0: uint64 = (- end_offset#0 original_offset#0)
+        let original_item_length#0: uint64 = tmp%9#0
+        let tmp%10#0: uint64 = (len new_item#0)
+        let new_item_length#0: uint64 = tmp%10#0
+        let tmp%11#0: bytes = (substring3 array_head_and_tail#0 0u original_offset#0)
+        let tmp%12#0: bytes = (concat tmp%11#0 new_item#0)
+        let tmp%13#0: bytes = (substring3 array_head_and_tail#0 end_offset#0 end_of_tail#0)
+        let tmp%14#0: bytes = (concat tmp%12#0 tmp%13#0)
+        let new_head_and_tail#0: bytes = tmp%14#0
+        let tmp%15#0: uint64 = (* array_length#0 2u)
+        let tmp%16#0: uint64 = (+ index#0 1u)
+        let tmp%17#0: uint64 = (* tmp%16#0 2u)
+        (assert 2u) // Step cannot be zero
+        let head_offset#0: uint64 = tmp%17#0
+        goto block@1
+    block@1: // for_header_L273
+        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
+        let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
+        let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L274
+        let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
+        let tail_offset#0: uint64 = tmp%18#0
+        let tmp%19#0: uint64 = (+ tail_offset#0 new_item_length#0)
+        let tail_offset#1: uint64 = tmp%19#0
+        let tmp%20#0: uint64 = (- tail_offset#1 original_item_length#0)
+        let tail_offset#2: uint64 = tmp%20#0
+        let tmp%21#0: bytes = (itob tail_offset#2)
+        let tmp%22#0: bytes = ((extract 6 2) tmp%21#0)
+        let tail_offset_bytes#0: bytes = tmp%22#0
+        let tmp%23#0: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
+        let new_head_and_tail#2: bytes = tmp%23#0
+        goto block@3
+    block@3: // for_footer_L273
+        let head_offset#2: uint64 = (+ head_offset#1 2u)
+        goto block@1
+    block@4: // after_for_L273
+        return new_head_and_tail#1
+
+subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
+    block@0: // L282
+        let tmp%0#0: bool = (< index#0 array_length#0)
+        (assert tmp%0#0) // Index out of bounds
+        let tmp%1#0: uint64 = (* index#0 2u)
+        let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
+        let offset_for_index#0: uint64 = tmp%2#0
+        let tmp%3#0: uint64 = (extract_uint16 array_head_and_tail#0 offset_for_index#0)
+        let old_item_length#0: uint64 = tmp%3#0
+        let tmp%4#0: uint64 = (+ offset_for_index#0 old_item_length#0)
+        let tmp%5#0: uint64 = (+ tmp%4#0 2u)
+        let old_item_end#0: uint64 = tmp%5#0
+        let tmp%6#0: bytes = (substring3 array_head_and_tail#0 0u offset_for_index#0)
+        let tmp%7#0: bytes = (concat tmp%6#0 new_item#0)
+        let tmp%8#0: uint64 = (len array_head_and_tail#0)
+        let tmp%9#0: bytes = (substring3 array_head_and_tail#0 old_item_end#0 tmp%8#0)
+        let tmp%10#0: bytes = (concat tmp%7#0 tmp%9#0)
+        let tmp%11#0: bytes = _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(tmp%10#0, array_length#0, index#0)
+        return tmp%11#0
+
+subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
+    block@0: // L310
+        let tmp%0#0: uint64 = (* length#0 2u)
+        let tmp%1#0: uint64 = (* start_at_index#0 2u)
+        let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
+        let tmp%3#0: uint64 = (select tmp%0#0 tmp%2#0 start_at_index#0)
+        let tail_offset#0: uint64 = tmp%3#0
+        let tmp%4#0: uint64 = (* length#0 2u)
+        let tmp%5#0: uint64 = (* start_at_index#0 2u)
+        (assert 2u) // Step cannot be zero
+        let head_offset#0: uint64 = tmp%5#0
+        goto block@1
+    block@1: // for_header_L331
+        let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@3)
+        let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
+        let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@3)
+        let continue_looping%0#0: bool = (< head_offset#1 tmp%4#0)
+        goto continue_looping%0#0 ? block@2 : block@4
+    block@2: // for_body_L332
+        let tmp%6#0: bytes = (itob tail_offset#1)
+        let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
+        let tail_offset_bytes#0: bytes = tmp%7#0
+        let tmp%8#0: bytes = (replace3 array_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
+        let array_head_and_tail#2: bytes = tmp%8#0
+        let tmp%9#0: uint64 = (extract_uint16 array_head_and_tail#2 tail_offset#1)
+        let tmp%10#0: uint64 = (+ tmp%9#0 2u)
+        let tmp%11#0: uint64 = (+ tail_offset#1 tmp%10#0)
+        let tail_offset#2: uint64 = tmp%11#0
+        let tmp%12#0: uint64 = (+ head_offset#1 2u)
+        let head_offset#2: uint64 = tmp%12#0
+        goto block@3
+    block@3: // for_footer_L331
+        let head_offset#3: uint64 = (+ head_offset#1 2u)
+        goto block@1
+    block@4: // after_for_L331
+        return array_head_and_tail#1
+
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__() -> bool:
     block@0: // L15
         let tmp%0#0: uint64 = (txn NumAppArgs)
@@ -21,51 +155,42 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__()
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (== tmp%3#0 NoOp)
         (assert tmp%4#0) // OnCompletion is not NoOp
-        let reinterpret_bytes[16]%0#0: bytes[16] = (txna ApplicationArgs 1)
-        let item0%0#0: bytes = (extract3 reinterpret_bytes[16]%0#0 0u 8u) // on error: Index access is out of bounds
-        let item0%1#0: uint64 = (btoi item0%0#0)
-        let item1%0#0: bytes = (extract3 reinterpret_bytes[16]%0#0 8u 8u) // on error: Index access is out of bounds
-        let item1%1#0: uint64 = (btoi item1%0#0)
-        examples.tictactoe.tictactoe.TicTacToeContract.new_game(item0%1#0, item1%1#0)
+        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
+        let (tmp%5#0: uint64, tmp%6#0: uint64) = decode_bytes<(uint64,uint64,)>(reinterpret_Encoded(uint64,uint64)%0#0)
+        examples.tictactoe.tictactoe.TicTacToeContract.new_game(tmp%5#0, tmp%6#0)
         return 1u
     block@3: // join_game_route_L37
-        let tmp%5#0: uint64 = (txn OnCompletion)
-        let tmp%6#0: bool = (== tmp%5#0 NoOp)
-        (assert tmp%6#0) // OnCompletion is not NoOp
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        let tmp%8#0: bool = (!= tmp%7#0 0u)
-        (assert tmp%8#0) // can only call when not creating
-        let reinterpret_bytes[16]%1#0: bytes[16] = (txna ApplicationArgs 1)
-        let item0%2#0: bytes = (extract3 reinterpret_bytes[16]%1#0 0u 8u) // on error: Index access is out of bounds
-        let item0%3#0: uint64 = (btoi item0%2#0)
-        let item1%2#0: bytes = (extract3 reinterpret_bytes[16]%1#0 8u 8u) // on error: Index access is out of bounds
-        let item1%3#0: uint64 = (btoi item1%2#0)
-        examples.tictactoe.tictactoe.TicTacToeContract.join_game(item0%3#0, item1%3#0)
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (== tmp%7#0 NoOp)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (!= tmp%9#0 0u)
+        (assert tmp%10#0) // can only call when not creating
+        let reinterpret_Encoded(uint64,uint64)%1#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
+        let (tmp%11#0: uint64, tmp%12#0: uint64) = decode_bytes<(uint64,uint64,)>(reinterpret_Encoded(uint64,uint64)%1#0)
+        examples.tictactoe.tictactoe.TicTacToeContract.join_game(tmp%11#0, tmp%12#0)
         return 1u
     block@4: // whose_turn_route_L43
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        let tmp%10#0: bool = (== tmp%9#0 NoOp)
-        (assert tmp%10#0) // OnCompletion is not NoOp
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        let tmp%12#0: bool = (!= tmp%11#0 0u)
-        (assert tmp%12#0) // can only call when not creating
-        let tmp%13#0: bytes[1] = examples.tictactoe.tictactoe.TicTacToeContract.whose_turn()
-        let tmp%14#0: bytes = (concat 0x151f7c75 tmp%13#0)
-        (log tmp%14#0)
+        let tmp%13#0: uint64 = (txn OnCompletion)
+        let tmp%14#0: bool = (== tmp%13#0 NoOp)
+        (assert tmp%14#0) // OnCompletion is not NoOp
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        let tmp%16#0: bool = (!= tmp%15#0 0u)
+        (assert tmp%16#0) // can only call when not creating
+        let tmp%17#0: Encoded(uint8) = examples.tictactoe.tictactoe.TicTacToeContract.whose_turn()
+        let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
+        (log tmp%18#0)
         return 1u
     block@5: // play_route_L47
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (== tmp%15#0 NoOp)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        let tmp%18#0: bool = (!= tmp%17#0 0u)
-        (assert tmp%18#0) // can only call when not creating
-        let reinterpret_bytes[16]%2#0: bytes[16] = (txna ApplicationArgs 1)
-        let item0%4#0: bytes = (extract3 reinterpret_bytes[16]%2#0 0u 8u) // on error: Index access is out of bounds
-        let item0%5#0: uint64 = (btoi item0%4#0)
-        let item1%4#0: bytes = (extract3 reinterpret_bytes[16]%2#0 8u 8u) // on error: Index access is out of bounds
-        let item1%5#0: uint64 = (btoi item1%4#0)
-        examples.tictactoe.tictactoe.TicTacToeContract.play(item0%5#0, item1%5#0)
+        let tmp%19#0: uint64 = (txn OnCompletion)
+        let tmp%20#0: bool = (== tmp%19#0 NoOp)
+        (assert tmp%20#0) // OnCompletion is not NoOp
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        let tmp%22#0: bool = (!= tmp%21#0 0u)
+        (assert tmp%22#0) // can only call when not creating
+        let reinterpret_Encoded(uint64,uint64)%2#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
+        let (tmp%23#0: uint64, tmp%24#0: uint64) = decode_bytes<(uint64,uint64,)>(reinterpret_Encoded(uint64,uint64)%2#0)
+        examples.tictactoe.tictactoe.TicTacToeContract.play(tmp%23#0, tmp%24#0)
         return 1u
     block@6: // switch_case_default_L15
         goto block@7
@@ -85,10 +210,10 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         let reinterpret_bool%0#0: bool = (txn ApplicationID)
         goto reinterpret_bool%0#0 ? block@1 : block@4
     block@1: // if_body_L25
-        let (_%0#0: bytes[32], maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+        let (_%0#0: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         goto maybe_exists%0#0 ? block@2 : block@3
     block@2: // if_body_L26
-        let (_%1#0: bytes[1], maybe_exists%1#0: bool) = (app_global_get_ex 0u "winner")
+        let (_%1#0: Encoded(uint8), maybe_exists%1#0: bool) = (app_global_get_ex 0u "winner")
         (assert maybe_exists%1#0) // Game isn't over
         goto block@3
     block@3: // after_if_else_L25
@@ -96,17 +221,17 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         (app_global_del "winner")
         goto block@4
     block@4: // after_if_else_L22
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        (app_global_put "host" materialized_values%0#0)
-        let reinterpret_bytes[9]%0#0: bytes[9] = (bzero 9u)
-        (app_global_put "game" reinterpret_bytes[9]%0#0)
+        let tmp%0#0: account = (txn Sender)
+        (app_global_put "host" tmp%0#0)
+        let reinterpret_Encoded(uint8[3][3])%0#0: Encoded(uint8[3][3]) = (bzero 9u)
+        (app_global_put "game" reinterpret_Encoded(uint8[3][3])%0#0)
         let column#0: uint64 = move.0#0
         let row#0: uint64 = move.1#0
-        let tmp%0#0: bool = (< column#0 3u)
-        goto tmp%0#0 ? block@5 : block@7
+        let tmp%1#0: bool = (< column#0 3u)
+        goto tmp%1#0 ? block@5 : block@7
     block@5: // and_contd_L33
-        let tmp%1#0: bool = (< row#0 3u)
-        goto tmp%1#0 ? block@6 : block@7
+        let tmp%2#0: bool = (< row#0 3u)
+        goto tmp%2#0 ? block@6 : block@7
     block@6: // bool_true_L33
         let and_result%0#0: bool = 1u
         goto block@8
@@ -118,47 +243,34 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         (assert and_result%0#2) // Move must be in range
         let (maybe_value%0#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%2#0) // check self.game exists
-        let array_head_and_tail%0#0: bytes = maybe_value%0#0
-        let item_offset%0#0: uint64 = (* row#0 3u)
-        let tmp%2#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 3u) // on error: Index access is out of bounds
-        let assigned_value%0#0: bytes[1] = 0x01
-        let array_length%0#0: uint64 = 3u
-        let index_is_in_bounds%0#0: bool = (< column#0 array_length%0#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let write_offset%0#0: uint64 = (* column#0 1u)
-        let updated_target%0#0: bytes = (replace3 tmp%2#0 write_offset%0#0 assigned_value%0#0)
-        let assigned_value%1#0: bytes = updated_target%0#0
-        let array_length%1#0: uint64 = 3u
-        let index_is_in_bounds%1#0: bool = (< row#0 array_length%1#0)
-        (assert index_is_in_bounds%1#0) // Index access is out of bounds
-        let write_offset%1#0: uint64 = (* row#0 3u)
-        let updated_target%1#0: bytes = (replace3 maybe_value%0#0 write_offset%1#0 assigned_value%1#0)
-        (app_global_put "game" updated_target%1#0)
+        let encoded_value%0#0: Encoded(uint8) = bytes_encode<uint8>(0x01)
+        let updated_array%0#0: Encoded(uint8[3][3]) = replace_value(maybe_value%0#0, row#0, column#0, encoded_value%0#0)
+        (app_global_put "game" updated_array%0#0)
         (app_global_put "turns" 0u)
         return 
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game(move.0: uint64, move.1: uint64) -> void:
     block@0: // L37
-        let (_%0#0: bytes[32], maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+        let (_%0#0: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         let tmp%0#0: bool = (! maybe_exists%0#0)
         (assert tmp%0#0) // Host already has a challenger
-        let materialized_values%0#0: bytes[32] = (txn Sender)
-        (app_global_put "challenger" materialized_values%0#0)
+        let tmp%1#0: account = (txn Sender)
+        (app_global_put "challenger" tmp%1#0)
         examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x02, move.0#0, move.1#0)
         return 
 
-subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> bytes[1]:
+subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> Encoded(uint8):
     block@0: // L43
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%0#0) // check self.turns exists
         let tmp%0#0: uint64 = (% maybe_value%0#0 2u)
         let tmp%1#0: bool = (!= tmp%0#0 0u)
-        let select%0#0: bytes[1] = (select 0x02 0x01 tmp%1#0)
+        let select%0#0: Encoded(uint8) = (select 0x02 0x01 tmp%1#0)
         return select%0#0
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
     block@0: // L47
-        let (_%0#0: bytes[1], maybe_exists%0#0: bool) = (app_global_get_ex 0u "winner")
+        let (_%0#0: Encoded(uint8), maybe_exists%0#0: bool) = (app_global_get_ex 0u "winner")
         let tmp%0#0: bool = (! maybe_exists%0#0)
         (assert tmp%0#0) // Game is already finished
         let (maybe_value%0#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "turns")
@@ -167,28 +279,28 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, m
         let tmp%2#0: bool = (!= tmp%1#0 0u)
         goto tmp%2#0 ? block@1 : block@2
     block@1: // if_body_L51
-        let tmp%3#0: bytes[32] = (txn Sender)
+        let tmp%3#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "host")
         (assert maybe_exists%2#0) // check self.host exists
         let tmp%4#0: bool = (== tmp%3#0 maybe_value%1#0)
         (assert tmp%4#0) // It is the host's turn
-        let player#0: bytes[1] = 0x01
+        let player#0: Encoded(uint8) = 0x01
         goto block@3
     block@2: // else_body_L54
-        let tmp%5#0: bytes[32] = (txn Sender)
-        let tmp%6#0: bytes[32] = (global ZeroAddress)
+        let tmp%5#0: account = (txn Sender)
+        let tmp%6#0: account = (global ZeroAddress)
         let (maybe_value%2#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "challenger")
         let state_get%0#0: bytes = (select tmp%6#0 maybe_value%2#0 maybe_exists%3#0)
         let tmp%7#0: bool = (== tmp%5#0 state_get%0#0)
         (assert tmp%7#0) // It is the challenger's turn
-        let player#1: bytes[1] = 0x02
+        let player#1: Encoded(uint8) = 0x02
         goto block@3
     block@3: // after_if_else_L50
-        let player#2: bytes[1] = φ(player#0 <- block@1, player#1 <- block@2)
+        let player#2: Encoded(uint8) = φ(player#0 <- block@1, player#1 <- block@2)
         examples.tictactoe.tictactoe.TicTacToeContract.make_move(player#2, move.0#0, move.1#0)
         return 
 
-subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: bytes[1], move.0: uint64, move.1: uint64) -> void:
+subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Encoded(uint8), move.0: uint64, move.1: uint64) -> void:
     block@0: // L60
         let column#0: uint64 = move.0#0
         let row#0: uint64 = move.1#0
@@ -208,47 +320,33 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: byte
         (assert and_result%0#2) // Move must be in range
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%0#0) // check self.game exists
-        let array_head_and_tail%0#0: bytes = maybe_value%0#0
-        let item_offset%0#0: uint64 = (* row#0 3u)
-        let tmp%2#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%1#0: bytes = tmp%2#0
-        let item_offset%1#0: uint64 = (* column#0 1u)
-        let reinterpret_biguint%0#0: biguint = (extract3 array_head_and_tail%1#0 item_offset%1#0 1u) // on error: Index access is out of bounds
+        let array_item%0#0: Encoded(uint8[3]) = extract_value(maybe_value%0#0, row#0)
+        let values%0#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%0#0)
+        let array_item%1#0: Encoded(uint8) = extract_value(values%0#0, column#0)
+        let values%1#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%1#0)
+        let reinterpret_biguint%0#0: biguint = values%1#0
         let reinterpret_biguint%1#0: biguint = 0x00
-        let tmp%3#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
-        (assert tmp%3#0) // Square is already taken
+        let tmp%2#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        (assert tmp%2#0) // Square is already taken
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%1#0) // check self.game exists
-        let array_head_and_tail%2#0: bytes = maybe_value%1#0
-        let item_offset%2#0: uint64 = (* row#0 3u)
-        let tmp%4#0: bytes = (extract3 array_head_and_tail%2#0 item_offset%2#0 3u) // on error: Index access is out of bounds
-        let assigned_value%0#0: bytes[1] = player#0
-        let array_length%0#0: uint64 = 3u
-        let index_is_in_bounds%0#0: bool = (< column#0 array_length%0#0)
-        (assert index_is_in_bounds%0#0) // Index access is out of bounds
-        let write_offset%0#0: uint64 = (* column#0 1u)
-        let updated_target%0#0: bytes = (replace3 tmp%4#0 write_offset%0#0 assigned_value%0#0)
-        let assigned_value%1#0: bytes = updated_target%0#0
-        let array_length%1#0: uint64 = 3u
-        let index_is_in_bounds%1#0: bool = (< row#0 array_length%1#0)
-        (assert index_is_in_bounds%1#0) // Index access is out of bounds
-        let write_offset%1#0: uint64 = (* row#0 3u)
-        let updated_target%1#0: bytes = (replace3 maybe_value%1#0 write_offset%1#0 assigned_value%1#0)
-        (app_global_put "game" updated_target%1#0)
+        let encoded_value%0#0: Encoded(uint8) = bytes_encode<uint8>(player#0)
+        let updated_array%0#0: Encoded(uint8[3][3]) = replace_value(maybe_value%1#0, row#0, column#0, encoded_value%0#0)
+        (app_global_put "game" updated_array%0#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%2#0) // check self.turns exists
-        let materialized_values%0#0: uint64 = (+ maybe_value%2#0 1u)
-        (app_global_put "turns" materialized_values%0#0)
-        let tmp%5#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win(player#0, column#0, row#0)
-        goto tmp%5#0 ? block@5 : block@6
+        let tmp%3#0: uint64 = (+ maybe_value%2#0 1u)
+        (app_global_put "turns" tmp%3#0)
+        let tmp%4#0: bool = examples.tictactoe.tictactoe.TicTacToeContract.did_win(player#0, column#0, row#0)
+        goto tmp%4#0 ? block@5 : block@6
     block@5: // if_body_L68
         (app_global_put "winner" player#0)
         goto block@9
     block@6: // else_body_L69
         let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%3#0) // check self.turns exists
-        let tmp%6#0: bool = (== maybe_value%3#0 9u)
-        goto tmp%6#0 ? block@7 : block@8
+        let tmp%5#0: bool = (== maybe_value%3#0 9u)
+        goto tmp%5#0 ? block@7 : block@8
     block@7: // if_body_L70
         (app_global_put "winner" 0x03)
         goto block@8
@@ -257,119 +355,105 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: byte
     block@9: // after_if_else_L67
         return 
 
-subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: bytes[1], column: uint64, row: uint64) -> bool:
+subroutine examples.tictactoe.tictactoe.TicTacToeContract.did_win(player: Encoded(uint8), column: uint64, row: uint64) -> bool:
     block@0: // L72
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
         (assert maybe_exists%0#0) // check self.game exists
-        let copy%0#0: bytes = maybe_value%0#0
-        let g#0: bytes[9] = copy%0#0
-        let array_head_and_tail%0#0: bytes[9] = g#0
-        let item_offset%0#0: uint64 = (* row#0 3u)
-        let tmp%0#0: bytes = (extract3 array_head_and_tail%0#0 item_offset%0#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%1#0: bytes = tmp%0#0
-        let item_offset%1#0: uint64 = (* 0u 1u)
-        let reinterpret_biguint%0#0: biguint = (extract3 array_head_and_tail%1#0 item_offset%1#0 1u) // on error: Index access is out of bounds
-        let array_head_and_tail%2#0: bytes[9] = g#0
-        let item_offset%2#0: uint64 = (* row#0 3u)
-        let tmp%1#0: bytes = (extract3 array_head_and_tail%2#0 item_offset%2#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%3#0: bytes = tmp%1#0
-        let item_offset%3#0: uint64 = (* 1u 1u)
-        let awst_tmp%0#0: bytes = (extract3 array_head_and_tail%3#0 item_offset%3#0 1u) // on error: Index access is out of bounds
-        let reinterpret_biguint%1#0: biguint = awst_tmp%0#0
-        let tmp%2#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
-        goto tmp%2#0 ? block@1 : block@3
+        let g#0: Encoded(uint8[3][3]) = maybe_value%0#0
+        let array_item%0#0: Encoded(uint8[3]) = extract_value(g#0, row#0)
+        let values%0#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%0#0)
+        let array_item%1#0: Encoded(uint8) = extract_value(values%0#0, 0u)
+        let values%1#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%1#0)
+        let reinterpret_biguint%0#0: biguint = values%1#0
+        let array_item%2#0: Encoded(uint8[3]) = extract_value(g#0, row#0)
+        let values%2#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%2#0)
+        let array_item%3#0: Encoded(uint8) = extract_value(values%2#0, 1u)
+        let values%3#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%3#0)
+        let reinterpret_biguint%1#0: biguint = values%3#0
+        let tmp%0#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
+        goto tmp%0#0 ? block@1 : block@3
     block@1: // and_contd_L76
-        let reinterpret_biguint%2#0: biguint = awst_tmp%0#0
-        let array_head_and_tail%4#0: bytes[9] = g#0
-        let item_offset%4#0: uint64 = (* row#0 3u)
-        let tmp%3#0: bytes = (extract3 array_head_and_tail%4#0 item_offset%4#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%5#0: bytes = tmp%3#0
-        let item_offset%5#0: uint64 = (* 2u 1u)
-        let reinterpret_biguint%3#0: biguint = (extract3 array_head_and_tail%5#0 item_offset%5#0 1u) // on error: Index access is out of bounds
-        let tmp%4#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
-        goto tmp%4#0 ? block@2 : block@3
+        let reinterpret_biguint%2#0: biguint = values%3#0
+        let array_item%4#0: Encoded(uint8[3]) = extract_value(g#0, row#0)
+        let values%4#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%4#0)
+        let array_item%5#0: Encoded(uint8) = extract_value(values%4#0, 2u)
+        let values%5#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%5#0)
+        let reinterpret_biguint%3#0: biguint = values%5#0
+        let tmp%1#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+        goto tmp%1#0 ? block@2 : block@3
     block@2: // if_body_L77
         return 1u
     block@3: // after_if_else_L76
-        let array_head_and_tail%6#0: bytes[9] = g#0
-        let item_offset%6#0: uint64 = (* 0u 3u)
-        let tmp%5#0: bytes = (extract3 array_head_and_tail%6#0 item_offset%6#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%7#0: bytes = tmp%5#0
-        let item_offset%7#0: uint64 = (* column#0 1u)
-        let reinterpret_biguint%4#0: biguint = (extract3 array_head_and_tail%7#0 item_offset%7#0 1u) // on error: Index access is out of bounds
-        let array_head_and_tail%8#0: bytes[9] = g#0
-        let item_offset%8#0: uint64 = (* 1u 3u)
-        let tmp%6#0: bytes = (extract3 array_head_and_tail%8#0 item_offset%8#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%9#0: bytes = tmp%6#0
-        let item_offset%9#0: uint64 = (* column#0 1u)
-        let awst_tmp%1#0: bytes = (extract3 array_head_and_tail%9#0 item_offset%9#0 1u) // on error: Index access is out of bounds
-        let reinterpret_biguint%5#0: biguint = awst_tmp%1#0
-        let tmp%7#0: bool = (b== reinterpret_biguint%4#0 reinterpret_biguint%5#0)
-        goto tmp%7#0 ? block@4 : block@6
+        let array_item%6#0: Encoded(uint8[3]) = extract_value(g#0, 0u)
+        let values%6#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%6#0)
+        let array_item%7#0: Encoded(uint8) = extract_value(values%6#0, column#0)
+        let values%7#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%7#0)
+        let reinterpret_biguint%4#0: biguint = values%7#0
+        let array_item%8#0: Encoded(uint8[3]) = extract_value(g#0, 1u)
+        let values%8#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%8#0)
+        let array_item%9#0: Encoded(uint8) = extract_value(values%8#0, column#0)
+        let values%9#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%9#0)
+        let reinterpret_biguint%5#0: biguint = values%9#0
+        let tmp%2#0: bool = (b== reinterpret_biguint%4#0 reinterpret_biguint%5#0)
+        goto tmp%2#0 ? block@4 : block@6
     block@4: // and_contd_L79
-        let reinterpret_biguint%6#0: biguint = awst_tmp%1#0
-        let array_head_and_tail%10#0: bytes[9] = g#0
-        let item_offset%10#0: uint64 = (* 2u 3u)
-        let tmp%8#0: bytes = (extract3 array_head_and_tail%10#0 item_offset%10#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%11#0: bytes = tmp%8#0
-        let item_offset%11#0: uint64 = (* column#0 1u)
-        let reinterpret_biguint%7#0: biguint = (extract3 array_head_and_tail%11#0 item_offset%11#0 1u) // on error: Index access is out of bounds
-        let tmp%9#0: bool = (b== reinterpret_biguint%6#0 reinterpret_biguint%7#0)
-        goto tmp%9#0 ? block@5 : block@6
+        let reinterpret_biguint%6#0: biguint = values%9#0
+        let array_item%10#0: Encoded(uint8[3]) = extract_value(g#0, 2u)
+        let values%10#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%10#0)
+        let array_item%11#0: Encoded(uint8) = extract_value(values%10#0, column#0)
+        let values%11#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%11#0)
+        let reinterpret_biguint%7#0: biguint = values%11#0
+        let tmp%3#0: bool = (b== reinterpret_biguint%6#0 reinterpret_biguint%7#0)
+        goto tmp%3#0 ? block@5 : block@6
     block@5: // if_body_L80
         return 1u
     block@6: // after_if_else_L79
         let reinterpret_biguint%8#0: biguint = player#0
-        let array_head_and_tail%12#0: bytes[9] = g#0
-        let item_offset%12#0: uint64 = (* 1u 3u)
-        let tmp%10#0: bytes = (extract3 array_head_and_tail%12#0 item_offset%12#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%13#0: bytes = tmp%10#0
-        let item_offset%13#0: uint64 = (* 1u 1u)
-        let reinterpret_biguint%9#0: biguint = (extract3 array_head_and_tail%13#0 item_offset%13#0 1u) // on error: Index access is out of bounds
-        let tmp%11#0: bool = (b== reinterpret_biguint%8#0 reinterpret_biguint%9#0)
-        goto tmp%11#0 ? block@7 : block@14
+        let array_item%12#0: Encoded(uint8[3]) = extract_value(g#0, 1u)
+        let values%12#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%12#0)
+        let array_item%13#0: Encoded(uint8) = extract_value(values%12#0, 1u)
+        let values%13#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%13#0)
+        let reinterpret_biguint%9#0: biguint = values%13#0
+        let tmp%4#0: bool = (b== reinterpret_biguint%8#0 reinterpret_biguint%9#0)
+        goto tmp%4#0 ? block@7 : block@14
     block@7: // if_body_L84
-        let array_head_and_tail%14#0: bytes[9] = g#0
-        let item_offset%14#0: uint64 = (* 0u 3u)
-        let tmp%12#0: bytes = (extract3 array_head_and_tail%14#0 item_offset%14#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%15#0: bytes = tmp%12#0
-        let item_offset%15#0: uint64 = (* 0u 1u)
-        let reinterpret_biguint%10#0: biguint = (extract3 array_head_and_tail%15#0 item_offset%15#0 1u) // on error: Index access is out of bounds
+        let array_item%14#0: Encoded(uint8[3]) = extract_value(g#0, 0u)
+        let values%14#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%14#0)
+        let array_item%15#0: Encoded(uint8) = extract_value(values%14#0, 0u)
+        let values%15#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%15#0)
+        let reinterpret_biguint%10#0: biguint = values%15#0
         let reinterpret_biguint%11#0: biguint = player#0
-        let tmp%13#0: bool = (b== reinterpret_biguint%10#0 reinterpret_biguint%11#0)
-        goto tmp%13#0 ? block@8 : block@10
+        let tmp%5#0: bool = (b== reinterpret_biguint%10#0 reinterpret_biguint%11#0)
+        goto tmp%5#0 ? block@8 : block@10
     block@8: // and_contd_L84
         let reinterpret_biguint%12#0: biguint = player#0
-        let array_head_and_tail%16#0: bytes[9] = g#0
-        let item_offset%16#0: uint64 = (* 2u 3u)
-        let tmp%14#0: bytes = (extract3 array_head_and_tail%16#0 item_offset%16#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%17#0: bytes = tmp%14#0
-        let item_offset%17#0: uint64 = (* 2u 1u)
-        let reinterpret_biguint%13#0: biguint = (extract3 array_head_and_tail%17#0 item_offset%17#0 1u) // on error: Index access is out of bounds
-        let tmp%15#0: bool = (b== reinterpret_biguint%12#0 reinterpret_biguint%13#0)
-        goto tmp%15#0 ? block@9 : block@10
+        let array_item%16#0: Encoded(uint8[3]) = extract_value(g#0, 2u)
+        let values%16#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%16#0)
+        let array_item%17#0: Encoded(uint8) = extract_value(values%16#0, 2u)
+        let values%17#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%17#0)
+        let reinterpret_biguint%13#0: biguint = values%17#0
+        let tmp%6#0: bool = (b== reinterpret_biguint%12#0 reinterpret_biguint%13#0)
+        goto tmp%6#0 ? block@9 : block@10
     block@9: // if_body_L85
         return 1u
     block@10: // after_if_else_L84
-        let array_head_and_tail%18#0: bytes[9] = g#0
-        let item_offset%18#0: uint64 = (* 0u 3u)
-        let tmp%16#0: bytes = (extract3 array_head_and_tail%18#0 item_offset%18#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%19#0: bytes = tmp%16#0
-        let item_offset%19#0: uint64 = (* 2u 1u)
-        let reinterpret_biguint%14#0: biguint = (extract3 array_head_and_tail%19#0 item_offset%19#0 1u) // on error: Index access is out of bounds
+        let array_item%18#0: Encoded(uint8[3]) = extract_value(g#0, 0u)
+        let values%18#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%18#0)
+        let array_item%19#0: Encoded(uint8) = extract_value(values%18#0, 2u)
+        let values%19#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%19#0)
+        let reinterpret_biguint%14#0: biguint = values%19#0
         let reinterpret_biguint%15#0: biguint = player#0
-        let tmp%17#0: bool = (b== reinterpret_biguint%14#0 reinterpret_biguint%15#0)
-        goto tmp%17#0 ? block@11 : block@13
+        let tmp%7#0: bool = (b== reinterpret_biguint%14#0 reinterpret_biguint%15#0)
+        goto tmp%7#0 ? block@11 : block@13
     block@11: // and_contd_L86
         let reinterpret_biguint%16#0: biguint = player#0
-        let array_head_and_tail%20#0: bytes[9] = g#0
-        let item_offset%20#0: uint64 = (* 2u 3u)
-        let tmp%18#0: bytes = (extract3 array_head_and_tail%20#0 item_offset%20#0 3u) // on error: Index access is out of bounds
-        let array_head_and_tail%21#0: bytes = tmp%18#0
-        let item_offset%21#0: uint64 = (* 0u 1u)
-        let reinterpret_biguint%17#0: biguint = (extract3 array_head_and_tail%21#0 item_offset%21#0 1u) // on error: Index access is out of bounds
-        let tmp%19#0: bool = (b== reinterpret_biguint%16#0 reinterpret_biguint%17#0)
-        goto tmp%19#0 ? block@12 : block@13
+        let array_item%20#0: Encoded(uint8[3]) = extract_value(g#0, 2u)
+        let values%20#0: Encoded(uint8[3]) = decode_bytes<Encoded(uint8[3])>(array_item%20#0)
+        let array_item%21#0: Encoded(uint8) = extract_value(values%20#0, 0u)
+        let values%21#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%21#0)
+        let reinterpret_biguint%17#0: biguint = values%21#0
+        let tmp%8#0: bool = (b== reinterpret_biguint%16#0 reinterpret_biguint%17#0)
+        goto tmp%8#0 ? block@12 : block@13
     block@12: // if_body_L87
         return 1u
     block@13: // after_if_else_L86

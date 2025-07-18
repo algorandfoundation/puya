@@ -221,7 +221,6 @@ class ModuleASTConverter(
             "typing._ProtocolMeta",
             "typing_extensions._ProtocolMeta",
             constants.CLS_ARC4_STRUCT_META,
-            constants.STRUCT_META,
         ):
             self._error(
                 f"Unsupported metaclass: {info.metaclass_type.type.fullname}",

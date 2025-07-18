@@ -97,40 +97,48 @@ class ToTextVisitor(IRVisitor[str]):
     @typing.override
     def visit_read_slot(self, read: models.ReadSlot) -> str:
         slot = read.slot.accept(self)
-        return f"read({slot})"
+        return f"load({slot})"
 
     @typing.override
     def visit_write_slot(self, write: models.WriteSlot) -> str:
         slot = write.slot.accept(self)
         value = write.value.accept(self)
-        return f"write({slot}, {value})"
+        return f"store({slot}, {value})"
 
     @typing.override
-    def visit_array_read_index(self, read: models.ArrayReadIndex) -> str:
-        return f"{read.array.accept(self)}[{read.index.accept(self)}]"
+    def visit_box_read(self, read: models.BoxRead) -> str:
+        box = read.key.accept(self)
+        return f"box_read({box})"
 
     @typing.override
-    def visit_array_write_index(self, write: models.ArrayWriteIndex) -> str:
-        return (
-            f"{write.array.accept(self)}[{write.index.accept(self)}] = {write.value.accept(self)}"
-        )
+    def visit_box_write(self, write: models.BoxWrite) -> str:
+        box = write.key.accept(self)
+        value = write.value.accept(self)
+        return f"box_write({box}, {value})"
 
     @typing.override
-    def visit_array_concat(self, concat: models.ArrayConcat) -> str:
-        return f"{concat.array.accept(self)}.concat({concat.other.accept(self)})"
+    def visit_extract_value(self, read: models.ExtractValue) -> str:
+        base = read.base.accept(self)
+        indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in read.indexes]
+        args = ", ".join((base, *indexes))
+        return f"extract_value({args})"
 
     @typing.override
-    def visit_array_encode(self, encode: models.ArrayEncode) -> str:
+    def visit_replace_value(self, write: models.ReplaceValue) -> str:
+        base = write.base.accept(self)
+        indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in write.indexes]
+        index = ", ".join(indexes)
+        value = write.value.accept(self)
+        return f"replace_value({base}, {index}, {value})"
+
+    @typing.override
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> str:
         values = ", ".join(val.accept(self) for val in encode.values)
-        return f"encode<{encode.array_type.element}>({values})"
+        return f"bytes_encode<{encode.encoding!s}>({values})"
 
     @typing.override
-    def visit_array_pop(self, pop: models.ArrayPop) -> str:
-        return f"{pop.array.accept(self)}.pop()"
-
-    @typing.override
-    def visit_array_length(self, pop: models.ArrayLength) -> str:
-        return f"{pop.array.accept(self)}.length"
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> str:
+        return f"decode_bytes<{decode.ir_type.name}>({decode.value.accept(self)})"
 
     @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> str:

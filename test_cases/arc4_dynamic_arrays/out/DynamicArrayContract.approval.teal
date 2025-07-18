@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 2 1 0 4
-    bytecblock 0x 0x000400070001610003626565 0x00020000000000000003040500000400000000002aff 0x00000000000000030405 0x00000400000000002aff 0x00040011000b48656c6c6f20576f726c64000161 0x00020000040000000000001200000000000000030003626565 0x000000000000000300120000040000000000000161 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
+    bytecblock 0x 0x000400070001610003626565 0x000000000000000300120000040000000000000161 0x00020000000000000003040500000400000000002aff 0x00000000000000030405 0x00000400000000002aff 0x00040011000b48656c6c6f20576f726c64000161 0x00020000040000000000001200000000000000030003626565 0x0000040000000000001200000000000000030003626565 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
     // arc4_dynamic_arrays/contract.py:38
     // class DynamicArrayContract(ARC4Contract):
     txn NumAppArgs
@@ -20,7 +20,7 @@ main_after_if_else@15:
     return
 
 main_test_nested_tuple_modification_route@8:
-    // arc4_dynamic_arrays/contract.py:133
+    // arc4_dynamic_arrays/contract.py:141
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -32,7 +32,7 @@ main_test_nested_tuple_modification_route@8:
     return
 
 main_test_nested_struct_replacement_route@7:
-    // arc4_dynamic_arrays/contract.py:106
+    // arc4_dynamic_arrays/contract.py:114
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -43,7 +43,7 @@ main_test_nested_struct_replacement_route@7:
     return
 
 main_test_mixed_multiple_dynamic_elements_route@6:
-    // arc4_dynamic_arrays/contract.py:89
+    // arc4_dynamic_arrays/contract.py:97
     // @arc4.abimethod()
     txn OnCompletion
     !
@@ -387,21 +387,21 @@ dynamic_array_replace_dynamic_element_after_for@5:
 test_static_elements:
     // arc4_dynamic_arrays/contract.py:47
     // array[1] = struct2.copy()
-    bytec_2 // 0x00020000000000000003040500000400000000002aff
+    bytec_3 // 0x00020000000000000003040500000400000000002aff
     // arc4_dynamic_arrays/contract.py:48
     // log(array)
     log
     // arc4_dynamic_arrays/contract.py:49
     // log(array[0])
-    bytec_3 // 0x00000000000000030405
+    bytec 4 // 0x00000000000000030405
     log
     // arc4_dynamic_arrays/contract.py:50
     // log(array[1])
-    bytec 4 // 0x00000400000000002aff
+    bytec 5 // 0x00000400000000002aff
     log
     // arc4_dynamic_arrays/contract.py:47
     // array[1] = struct2.copy()
-    bytec_2 // 0x00020000000000000003040500000400000000002aff
+    bytec_3 // 0x00020000000000000003040500000400000000002aff
     // arc4_dynamic_arrays/contract.py:52
     // assert array.pop() == struct2
     pushint 10 // 10
@@ -409,7 +409,7 @@ test_static_elements:
     swap
     // arc4_dynamic_arrays/contract.py:45
     // struct2 = StaticStruct(get_uint2(), byte_array2.copy())
-    bytec 4 // 0x00000400000000002aff
+    bytec 5 // 0x00000400000000002aff
     // arc4_dynamic_arrays/contract.py:52
     // assert array.pop() == struct2
     ==
@@ -421,7 +421,7 @@ test_static_elements:
     pop
     // arc4_dynamic_arrays/contract.py:44
     // struct1 = StaticStruct(get_uint1(), byte_array1.copy())
-    bytec_3 // 0x00000000000000030405
+    bytec 4 // 0x00000000000000030405
     // arc4_dynamic_arrays/contract.py:53
     // assert array.pop() == struct1
     ==
@@ -438,9 +438,17 @@ test_dynamic_elements:
     intc_1 // 1
     pushbytes 0x0002000400070001610003626565
     callsub dynamic_array_concat_dynamic_element
+    // arc4_dynamic_arrays/contract.py:61
+    // array[1] = struct2.copy()  # replace
+    dup
+    intc_2 // 0
+    extract_uint16
+    intc_1 // 1
+    >
+    assert // index access is out of bounds
     // arc4_dynamic_arrays/contract.py:58
     // struct2 = DynamicStruct(get_string3(), get_string1())
-    bytec 5 // 0x00040011000b48656c6c6f20576f726c64000161
+    bytec 6 // 0x00040011000b48656c6c6f20576f726c64000161
     // arc4_dynamic_arrays/contract.py:61
     // array[1] = struct2.copy()  # replace
     intc_1 // 1
@@ -453,15 +461,15 @@ test_dynamic_elements:
     // log(array[0])
     dup
     extract 2 0
-    dup
+    dig 1
     intc_2 // 0
     extract_uint16
-    dig 2
+    dig 1
     intc_2 // 0
     extract_uint16
-    dup
+    dig 1
     intc_1 // 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     dig 3
     len
     dig 4
@@ -471,7 +479,7 @@ test_dynamic_elements:
     uncover 4
     select
     dig 5
-    uncover 5
+    uncover 4
     uncover 2
     substring3
     log
@@ -479,7 +487,7 @@ test_dynamic_elements:
     // log(array[1])
     dig 2
     intc_0 // 2
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     dig 4
     intc_3 // 4
     extract_uint16
@@ -496,7 +504,7 @@ test_dynamic_elements:
     // log(array[2])
     uncover 2
     pushint 3 // 3
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     dig 3
     pushint 6 // 6
     extract_uint16
@@ -527,7 +535,7 @@ test_dynamic_elements:
     swap
     // arc4_dynamic_arrays/contract.py:58
     // struct2 = DynamicStruct(get_string3(), get_string1())
-    bytec 5 // 0x00040011000b48656c6c6f20576f726c64000161
+    bytec 6 // 0x00040011000b48656c6c6f20576f726c64000161
     // arc4_dynamic_arrays/contract.py:69
     // assert array.pop() == struct2
     ==
@@ -560,7 +568,7 @@ test_mixed_single_dynamic_elements:
     intc_2 // 0
     bytec_0 // 0x
     intc_1 // 1
-    bytec 6 // 0x00020000040000000000001200000000000000030003626565
+    bytec 7 // 0x00020000040000000000001200000000000000030003626565
     callsub dynamic_array_concat_dynamic_element
     // arc4_dynamic_arrays/contract.py:80
     // array.append(struct2.copy())
@@ -570,11 +578,21 @@ test_mixed_single_dynamic_elements:
     swap
     extract 2 0
     intc_1 // 1
-    bytec 6 // 0x00020000040000000000001200000000000000030003626565
+    // arc4_dynamic_arrays/contract.py:79
+    // array.append(struct2.copy())
+    bytec 7 // 0x00020000040000000000001200000000000000030003626565
+    // arc4_dynamic_arrays/contract.py:80
+    // array.append(struct2.copy())
     callsub dynamic_array_concat_dynamic_element
+    // arc4_dynamic_arrays/contract.py:81
+    // array[0] = struct1.copy()  # replace
+    dup
+    intc_2 // 0
+    extract_uint16
+    assert // index access is out of bounds
     // arc4_dynamic_arrays/contract.py:76
     // struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
-    bytec 7 // 0x000000000000000300120000040000000000000161
+    bytec_2 // 0x000000000000000300120000040000000000000161
     // arc4_dynamic_arrays/contract.py:81
     // array[0] = struct1.copy()  # replace
     intc_2 // 0
@@ -587,15 +605,15 @@ test_mixed_single_dynamic_elements:
     // log(array[0])
     dup
     extract 2 0
-    dup
+    dig 1
     intc_2 // 0
     extract_uint16
-    dig 2
+    dig 1
     intc_2 // 0
     extract_uint16
-    dup
+    dig 1
     intc_1 // 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     dig 3
     len
     dig 4
@@ -605,44 +623,146 @@ test_mixed_single_dynamic_elements:
     uncover 4
     select
     dig 5
-    uncover 5
+    uncover 4
     uncover 2
     substring3
     log
     // arc4_dynamic_arrays/contract.py:84
     // log(array[1])
-    uncover 2
+    dig 2
     intc_0 // 2
-    - // on error: Index access is out of bounds
-    dig 3
+    - // on error: index access is out of bounds
+    dig 4
     intc_3 // 4
     extract_uint16
     uncover 3
     swap
     uncover 2
     select
+    dig 3
+    cover 2
     substring3
     log
-    // arc4_dynamic_arrays/contract.py:86
+    // arc4_dynamic_arrays/contract.py:88
     // assert array.pop() == struct2
+    uncover 2
     callsub dynamic_array_pop_dynamic_element
     swap
     // arc4_dynamic_arrays/contract.py:77
     // struct2 = MixedSingleStruct(get_uint2(), get_string2(), get_uint1())
-    pushbytes 0x0000040000000000001200000000000000030003626565
-    // arc4_dynamic_arrays/contract.py:86
+    bytec 8 // 0x0000040000000000001200000000000000030003626565
+    // arc4_dynamic_arrays/contract.py:88
     // assert array.pop() == struct2
     ==
     assert
-    // arc4_dynamic_arrays/contract.py:87
+    // arc4_dynamic_arrays/contract.py:89
     // assert array.pop() == struct1
     callsub dynamic_array_pop_dynamic_element
     pop
     // arc4_dynamic_arrays/contract.py:76
     // struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
-    bytec 7 // 0x000000000000000300120000040000000000000161
-    // arc4_dynamic_arrays/contract.py:87
+    bytec_2 // 0x000000000000000300120000040000000000000161
+    // arc4_dynamic_arrays/contract.py:89
     // assert array.pop() == struct1
+    ==
+    assert
+    // arc4_dynamic_arrays/contract.py:91
+    // assert array2.length == 2
+    dup
+    intc_0 // 2
+    ==
+    assert
+    // arc4_dynamic_arrays/contract.py:92
+    // array2.extend(array2.copy())
+    dup
+    dig 2
+    uncover 2
+    uncover 3
+    callsub dynamic_array_concat_dynamic_element
+    // arc4_dynamic_arrays/contract.py:93
+    // assert array2.length == 4
+    dup
+    intc_2 // 0
+    extract_uint16
+    dup
+    intc_3 // 4
+    ==
+    assert
+    // arc4_dynamic_arrays/contract.py:94
+    // assert array2[-1] == struct2
+    dup
+    intc_1 // 1
+    -
+    uncover 2
+    extract 2 0
+    dig 1
+    intc_0 // 2
+    *
+    dig 1
+    swap
+    extract_uint16
+    uncover 2
+    intc_1 // 1
+    +
+    dig 3
+    dig 1
+    - // on error: index access is out of bounds
+    dig 3
+    len
+    uncover 2
+    intc_0 // 2
+    *
+    dig 4
+    swap
+    extract_uint16
+    dig 1
+    swap
+    uncover 3
+    select
+    dig 3
+    uncover 3
+    uncover 2
+    substring3
+    // arc4_dynamic_arrays/contract.py:77
+    // struct2 = MixedSingleStruct(get_uint2(), get_string2(), get_uint1())
+    bytec 8 // 0x0000040000000000001200000000000000030003626565
+    // arc4_dynamic_arrays/contract.py:94
+    // assert array2[-1] == struct2
+    ==
+    assert
+    // arc4_dynamic_arrays/contract.py:95
+    // assert array2[-2] == struct1
+    dig 2
+    intc_0 // 2
+    -
+    dup
+    intc_0 // 2
+    *
+    dig 3
+    swap
+    extract_uint16
+    swap
+    intc_1 // 1
+    +
+    uncover 4
+    dig 1
+    - // on error: index access is out of bounds
+    swap
+    intc_0 // 2
+    *
+    dig 4
+    swap
+    extract_uint16
+    uncover 3
+    swap
+    uncover 2
+    select
+    substring3
+    // arc4_dynamic_arrays/contract.py:76
+    // struct1 = MixedSingleStruct(get_uint1(), get_string1(), get_uint2())
+    bytec_2 // 0x000000000000000300120000040000000000000161
+    // arc4_dynamic_arrays/contract.py:95
+    // assert array2[-2] == struct1
     ==
     assert
     retsub
@@ -650,35 +770,35 @@ test_mixed_single_dynamic_elements:
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements() -> void:
 test_mixed_multiple_dynamic_elements:
-    // arc4_dynamic_arrays/contract.py:97
+    // arc4_dynamic_arrays/contract.py:105
     // array = arc4.DynamicArray(struct1.copy(), struct1.copy())
     pushbytes 0x00020004002b0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a
-    // arc4_dynamic_arrays/contract.py:94-96
+    // arc4_dynamic_arrays/contract.py:102-104
     // struct2 = MixedMultipleStruct(
     //     get_uint2(), get_string2(), get_uint1(), get_u16_arr2(), get_uint2()
     // )
-    bytec 8 // 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
-    // arc4_dynamic_arrays/contract.py:98
+    bytec 9 // 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
+    // arc4_dynamic_arrays/contract.py:106
     // array[1] = struct2.copy()
     intc_1 // 1
     callsub dynamic_array_replace_dynamic_element
-    // arc4_dynamic_arrays/contract.py:99
+    // arc4_dynamic_arrays/contract.py:107
     // log(array)
     dup
     log
-    // arc4_dynamic_arrays/contract.py:100
+    // arc4_dynamic_arrays/contract.py:108
     // log(array[0])
     dup
     extract 2 0
-    dup
+    dig 1
     intc_2 // 0
     extract_uint16
-    dig 2
+    dig 1
     intc_2 // 0
     extract_uint16
-    dup
+    dig 1
     intc_1 // 1
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     dig 3
     len
     dig 4
@@ -688,15 +808,15 @@ test_mixed_multiple_dynamic_elements:
     uncover 4
     select
     dig 5
-    uncover 5
+    uncover 4
     uncover 2
     substring3
     log
-    // arc4_dynamic_arrays/contract.py:101
+    // arc4_dynamic_arrays/contract.py:109
     // log(array[1])
     uncover 2
     intc_0 // 2
-    - // on error: Index access is out of bounds
+    - // on error: index access is out of bounds
     dig 3
     intc_3 // 4
     extract_uint16
@@ -706,29 +826,29 @@ test_mixed_multiple_dynamic_elements:
     select
     substring3
     log
-    // arc4_dynamic_arrays/contract.py:103
+    // arc4_dynamic_arrays/contract.py:111
     // assert array.pop() == struct2
     callsub dynamic_array_pop_dynamic_element
     swap
-    // arc4_dynamic_arrays/contract.py:94-96
+    // arc4_dynamic_arrays/contract.py:102-104
     // struct2 = MixedMultipleStruct(
     //     get_uint2(), get_string2(), get_uint1(), get_u16_arr2(), get_uint2()
     // )
-    bytec 8 // 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
-    // arc4_dynamic_arrays/contract.py:103
+    bytec 9 // 0x0000040000000000001c000000000000000300210000040000000000000362656500040001000200030004
+    // arc4_dynamic_arrays/contract.py:111
     // assert array.pop() == struct2
     ==
     assert
-    // arc4_dynamic_arrays/contract.py:104
+    // arc4_dynamic_arrays/contract.py:112
     // assert array.pop() == struct1
     callsub dynamic_array_pop_dynamic_element
     pop
-    // arc4_dynamic_arrays/contract.py:91-93
+    // arc4_dynamic_arrays/contract.py:99-101
     // struct1 = MixedMultipleStruct(
     //     get_uint1(), get_string1(), get_uint2(), get_u16_arr1(), get_uint1()
     // )
     pushbytes 0x0000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a
-    // arc4_dynamic_arrays/contract.py:104
+    // arc4_dynamic_arrays/contract.py:112
     // assert array.pop() == struct1
     ==
     assert
@@ -737,7 +857,7 @@ test_mixed_multiple_dynamic_elements:
 
 // test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification() -> void:
 test_nested_tuple_modification:
-    // arc4_dynamic_arrays/contract.py:168
+    // arc4_dynamic_arrays/contract.py:176
     // tup2[3].d.pop()
     pushbytes 0x0004ffff0000002a007b
     intc_0 // 2
@@ -753,16 +873,14 @@ test_nested_tuple_modification:
     concat
     swap
     len
-    dig 1
-    pushint 24 // 24
-    extract_uint16
+    pushint 79 // 79
     +
     pushint 41 // 41
     -
     itob
     extract 6 2
     replace2 24
-    // arc4_dynamic_arrays/contract.py:149-157
+    // arc4_dynamic_arrays/contract.py:157-165
     // tup1 = arc4.Tuple(
     //     (
     //         one.copy(),
@@ -773,7 +891,7 @@ test_nested_tuple_modification:
     //     )
     // )
     pushbytes 0x00000000000000030405001a000004000000000005040026004d0004000700016100036265650000000000000003001c0000040000000000001f00000000000000030001610003ffff0000002a000400070001610003626565
-    // arc4_dynamic_arrays/contract.py:169
+    // arc4_dynamic_arrays/contract.py:177
     // assert tup1.bytes == tup2.bytes, "tup1 does not match tup2"
     ==
     assert // tup1 does not match tup2

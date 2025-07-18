@@ -9,6 +9,7 @@ from functools import cached_property
 import attrs
 from immutabledict import immutabledict
 
+from puya import log
 from puya.algo_constants import SUPPORTED_AVM_VERSIONS
 from puya.avm import AVMType, OnCompletionAction
 from puya.awst import wtypes
@@ -26,6 +27,8 @@ from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import unique
 
 T = typing.TypeVar("T")
+
+logger = log.get_logger(__name__)
 
 
 @attrs.frozen
@@ -436,6 +439,8 @@ class AddressConstant(Expression):
 class ARC4Encode(Expression):
     value: Expression
     wtype: wtypes.ARC4Type = attrs.field()
+    error_message: str | None = None
+    """Custom error message for if encoding fails"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_encode(self)
@@ -444,9 +449,24 @@ class ARC4Encode(Expression):
 @attrs.frozen
 class ARC4Decode(Expression):
     value: Expression = attrs.field(validator=expression_has_wtype(wtypes.ARC4Type))
+    error_message: str | None = None
+    """Custom error message for if decoding fails"""
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_arc4_decode(self)
+
+
+@attrs.frozen
+class ConvertArray(Expression):
+    expr: Expression = attrs.field(
+        validator=expression_has_wtype(
+            wtypes.ARC4DynamicArray, wtypes.ARC4StaticArray, wtypes.ReferenceArray
+        )
+    )
+    wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray
+
+    def accept(self, visitor: ExpressionVisitor[T]) -> T:
+        return visitor.visit_convert_array(self)
 
 
 @attrs.frozen
@@ -455,16 +475,21 @@ class Copy(Expression):
     Create a new copy of 'value'
     """
 
-    value: Expression = attrs.field(
-        validator=expression_has_wtype(
-            wtypes.ARC4Type, wtypes.ReferenceArray, wtypes.WInnerTransactionFields
-        )
-    )
-    wtype: WType = attrs.field(init=False)
+    value: Expression = attrs.field()
+    wtype: WType = attrs.field()
 
     @wtype.default
     def _wtype(self) -> WType:
         return self.value.wtype
+
+    def __attrs_post_init__(self) -> None:
+        # this is a less restrictive check than what is required,
+        # but it serves a basic purpose.
+        # IR lowering will check that the IR types are equivalent when required
+        if type(self.wtype) is not type(self.value.wtype):
+            raise InternalError(
+                "copy node cannot change the structure of a value", self.source_location
+            )
 
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_copy(self)
@@ -480,19 +505,19 @@ class ArrayConcat(Expression):
     left: Expression  # note: validated through wtype default factory
     right: Expression = attrs.field(
         validator=expression_has_wtype(
-            wtypes.NativeArray,
+            wtypes.ReferenceArray,
             wtypes.ARC4Array,
             wtypes.WTuple,
             wtypes.ARC4Tuple,
         )
     )
     # note: StaticArray not supported yet
-    wtype: wtypes.ARC4DynamicArray | wtypes.StackArray = attrs.field(init=False)
+    wtype: wtypes.ARC4DynamicArray = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.ARC4DynamicArray | wtypes.StackArray:
+    def _wtype(self) -> wtypes.ARC4DynamicArray:
         wtype = self.left.wtype
-        if not isinstance(wtype, wtypes.ARC4DynamicArray | wtypes.StackArray):
+        if not isinstance(wtype, wtypes.ARC4DynamicArray):
             raise CodeError(
                 "unsupported type for concatenation left operand", self.source_location
             )
@@ -514,7 +539,7 @@ class ArrayExtend(Expression):
     )
     other: Expression = attrs.field(
         validator=expression_has_wtype(
-            wtypes.NativeArray,
+            wtypes.ReferenceArray,
             wtypes.ARC4Array,
             wtypes.WTuple,
             wtypes.ARC4Tuple,
@@ -559,7 +584,7 @@ class ArrayPop(Expression):
 
     @wtype.default
     def _wtype(self) -> WType:
-        if isinstance(self.base.wtype, wtypes.ARC4Array | wtypes.NativeArray):
+        if isinstance(self.base.wtype, wtypes.ARC4Array | wtypes.ReferenceArray):
             return self.base.wtype.element_type
         # default factories run before validation, so we need to return something here
         return wtypes.void_wtype
@@ -570,16 +595,16 @@ class ArrayPop(Expression):
 
 @attrs.frozen
 class ArrayReplace(Expression):
-    """For a StackArray, replaces the item at index with value and returns the updated array"""
+    """Replaces the item at index with value and returns the updated array"""
 
     base: Expression  # note: type validated by wtype factory
     index: Expression = attrs.field(validator=wtype_is_uint64)
     value: Expression = attrs.field()
-    wtype: wtypes.StackArray = attrs.field(init=False)
+    wtype: wtypes.ARC4Array = attrs.field(init=False)
 
     @wtype.default
-    def _wtype(self) -> wtypes.StackArray:
-        if not isinstance(self.base.wtype, wtypes.StackArray):
+    def _wtype(self) -> wtypes.ARC4Array:
+        if not isinstance(self.base.wtype, wtypes.ARC4Array):
             raise InternalError(
                 f"Unsupported base for ArrayReplace: {self.base.wtype}", self.source_location
             )
@@ -847,7 +872,7 @@ class SubmitInnerTransaction(Expression):
 @attrs.frozen
 class FieldExpression(Expression):
     base: Expression = attrs.field(
-        validator=expression_has_wtype(wtypes.WStructType, wtypes.ARC4Struct, wtypes.WTuple)
+        validator=expression_has_wtype(wtypes.ARC4Struct, wtypes.WTuple)
     )
     name: str
     wtype: WType = attrs.field(init=False)
@@ -855,7 +880,7 @@ class FieldExpression(Expression):
     @wtype.default
     def _wtype_factory(self) -> WType:
         dataclass_type = self.base.wtype
-        assert isinstance(dataclass_type, wtypes.WStructType | wtypes.ARC4Struct | wtypes.WTuple)
+        assert isinstance(dataclass_type, wtypes.ARC4Struct | wtypes.WTuple)
         try:
             return dataclass_type.fields[self.name]
         except KeyError:
@@ -871,7 +896,7 @@ class IndexExpression(Expression):
         validator=expression_has_wtype(
             wtypes.BytesWType,
             wtypes.ARC4Array,
-            wtypes.NativeArray,
+            wtypes.ReferenceArray,
             # NOTE: tuples (native or arc4) use TupleItemExpression instead
         )
     )
@@ -885,7 +910,7 @@ class IndexExpression(Expression):
                 return wtypes.BytesWType(length=1)
             case wtypes.ARC4Array(element_type=element_type):
                 return element_type
-            case wtypes.NativeArray(element_type=element_type):
+            case wtypes.ReferenceArray(element_type=element_type):
                 return element_type
             case _:
                 raise InternalError(
@@ -901,7 +926,7 @@ class IndexExpression(Expression):
                 element_type=array_element_type
             ), _ if array_element_type == wtype:
                 pass
-            case wtypes.NativeArray(
+            case wtypes.ReferenceArray(
                 element_type=array_element_type
             ), _ if array_element_type == wtype:
                 pass
@@ -960,7 +985,7 @@ class IntersectionSliceExpression(Expression):
         validator=expression_has_wtype(
             wtypes.BytesWType,
             wtypes.WTuple,
-            wtypes.StackArray,
+            wtypes.ARC4DynamicArray,
         )
     )
 
@@ -977,7 +1002,7 @@ class IntersectionSliceExpression(Expression):
                 pass
             case wtypes.WTuple(), wtypes.WTuple():
                 pass
-            case wtypes.StackArray(element_type=input_element_type), wtypes.StackArray(
+            case wtypes.ARC4DynamicArray(element_type=input_element_type), wtypes.ARC4DynamicArray(
                 element_type=output_element_type
             ) if input_element_type == output_element_type:
                 pass
@@ -1097,6 +1122,22 @@ class ReinterpretCast(Expression):
 
     expr: Expression
 
+    def __attrs_post_init__(self) -> None:
+        source_wtype = self.wtype
+        target_wtype = self.expr.wtype
+        if (
+            # can't cast from aggregate to aggregate
+            (source_wtype.is_aggregate and target_wtype.is_aggregate)
+            # can't cast if not backed by a scalar value
+            or None in (source_wtype.scalar_type, target_wtype.scalar_type)
+            # can't cast between differing scalar values
+            or source_wtype.scalar_type != target_wtype.scalar_type
+        ):
+            logger.error(
+                f"unsupported type cast (from: {source_wtype}, to: {target_wtype} ",
+                location=self.source_location,
+            )
+
     def accept(self, visitor: ExpressionVisitor[T]) -> T:
         return visitor.visit_reinterpret_cast(self)
 
@@ -1110,12 +1151,7 @@ Lvalue = VarExpression | FieldExpression | IndexExpression | TupleExpression | S
 
 @attrs.frozen
 class NewArray(Expression):
-    wtype: (
-        wtypes.ARC4DynamicArray
-        | wtypes.ARC4StaticArray
-        | wtypes.ReferenceArray
-        | wtypes.StackArray
-    )
+    wtype: wtypes.ARC4DynamicArray | wtypes.ARC4StaticArray | wtypes.ReferenceArray
     values: Sequence[Expression] = attrs.field(default=(), converter=tuple[Expression, ...])
 
     @values.validator
@@ -1132,7 +1168,7 @@ class NewArray(Expression):
 @attrs.frozen
 class ArrayLength(Expression):
     array: Expression = attrs.field(
-        validator=expression_has_wtype(wtypes.NativeArray, wtypes.ARC4Array)
+        validator=expression_has_wtype(wtypes.ReferenceArray, wtypes.ARC4Array)
     )
     wtype: WType = attrs.field(default=wtypes.uint64_wtype, init=False)
 
@@ -1836,8 +1872,9 @@ class StateDelete(Expression):
 
 @attrs.frozen
 class NewStruct(Expression):
-    wtype: wtypes.WStructType | wtypes.ARC4Struct
+    wtype: wtypes.ARC4Struct
     values: Mapping[str, Expression] = attrs.field(converter=immutabledict)
+    """Evaluated in mapping order"""
 
     @values.validator
     def _validate_values(self, _instance: object, values: Mapping[str, Expression]) -> None:

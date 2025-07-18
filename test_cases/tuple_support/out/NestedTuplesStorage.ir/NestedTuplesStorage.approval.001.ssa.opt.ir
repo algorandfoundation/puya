@@ -1,0 +1,172 @@
+main test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypoint_with_init:
+    block@0: // L1
+        let tmp%0#0: bool = (txn ApplicationID)
+        goto tmp%0#0 ? block@2 : block@1
+    block@1: // call __init___L1
+        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, 0u)
+        (app_global_put "tup" encoded_for_storage%0#0)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (encoded_for_storage%0#0, 1u)
+        (assert maybe_exists%0#0) // check self.tup exists
+        let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
+        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
+        (app_global_put "glob" encoded_for_storage%1#0)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
+        (assert maybe_exists%1#0) // check self.tup exists
+        let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
+        let encoded_for_storage%2#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%3#0)
+        (app_global_put "tup" encoded_for_storage%2#0)
+        goto block@2
+    block@2: // after_if_else_L1
+        let tmp%0#1: bool = test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__()
+        return tmp%0#1
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__() -> bool:
+    block@0: // L11
+        let tmp%0#0: uint64 = (txn NumAppArgs)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%0#0 ? block@1 : block@9
+    block@1: // abi_routing_L11
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "bootstrap()void" => block@2, method "mutate_tuple(uint64)void" => block@3, method "mutate_box(uint64)void" => block@4, method "mutate_global(uint64)void" => block@5, method "mutate_local(uint64)void" => block@6, * => block@13}
+    block@2: // bootstrap_route_L23
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (== tmp%3#0 OptIn)
+        (assert tmp%4#0) // OnCompletion is not OptIn
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        let tmp%6#0: bool = (!= tmp%5#0 0u)
+        (assert tmp%5#0) // can only call when not creating
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap()
+        return 1u
+    block@3: // mutate_tuple_route_L28
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        let tmp%10#0: bool = (!= tmp%9#0 0u)
+        (assert tmp%9#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(reinterpret_Encoded(uint64)%0#0)
+        return 1u
+    block@4: // mutate_box_route_L32
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        let tmp%12#0: bool = (! tmp%11#0)
+        (assert tmp%12#0) // OnCompletion is not NoOp
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        let tmp%14#0: bool = (!= tmp%13#0 0u)
+        (assert tmp%13#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(reinterpret_Encoded(uint64)%1#0)
+        return 1u
+    block@5: // mutate_global_route_L36
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        let tmp%16#0: bool = (! tmp%15#0)
+        (assert tmp%16#0) // OnCompletion is not NoOp
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        let tmp%18#0: bool = (!= tmp%17#0 0u)
+        (assert tmp%17#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%2#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(reinterpret_Encoded(uint64)%2#0)
+        return 1u
+    block@6: // mutate_local_route_L40
+        let tmp%19#0: uint64 = (txn OnCompletion)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // OnCompletion is not NoOp
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        let tmp%22#0: bool = (!= tmp%21#0 0u)
+        (assert tmp%21#0) // can only call when not creating
+        let reinterpret_Encoded(uint64)%3#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(reinterpret_Encoded(uint64)%3#0)
+        return 1u
+    block@9: // bare_routing_L11
+        let tmp%23#0: uint64 = (txn OnCompletion)
+        goto tmp%23#0 ? block@13 : block@10
+    block@10: // __algopy_default_create_L1
+        let tmp%24#0: uint64 = (txn ApplicationID)
+        let tmp%25#0: bool = (! tmp%24#0)
+        (assert tmp%25#0) // can only call when creating
+        return 1u
+    block@13: // after_if_else_L11
+        return 0u
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap() -> void:
+    block@0: // L23
+        let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
+        (assert maybe_exists%0#0) // check self.tup exists
+        let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
+        (box_del "box")
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
+        box_write("box", encoded_for_storage%0#0)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
+        (assert maybe_exists%1#0) // check self.tup exists
+        let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
+        let tmp%0#0: account = (txn Sender)
+        let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%3#0)
+        (app_local_put tmp%0#0 "loc" encoded_for_storage%1#0)
+        return 
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(val: Encoded(uint64)) -> void:
+    block@0: // L28
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
+        (assert maybe_exists%0#0) // check self.tup exists
+        let (tmp%0#0: Encoded(len+uint64[]), tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#0)
+        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%0#0 tmp%2#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob add%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(replace%0#0, tmp%1#0)
+        (app_global_put "tup" encoded_for_storage%0#0)
+        return 
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(val: Encoded(uint64)) -> void:
+    block@0: // L32
+        let storage_value%0#0: bytes = box_read("box")
+        let (tmp%0#0: Encoded(len+uint64[]), tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(storage_value%0#0)
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#0)
+        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%0#0 tmp%2#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob add%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        (box_del "box")
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(replace%0#0, tmp%1#0)
+        box_write("box", encoded_for_storage%0#0)
+        return 
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(val: Encoded(uint64)) -> void:
+    block@0: // L36
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
+        (assert maybe_exists%0#0) // check self.glob exists
+        let (tmp%0#0: Encoded(len+uint64[]), tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#0)
+        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%0#0 tmp%2#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%0#0 0u)
+        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob add%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(replace%0#0, tmp%1#0)
+        (app_global_put "glob" encoded_for_storage%0#0)
+        return 
+
+subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(val: Encoded(uint64)) -> void:
+    block@0: // L40
+        let tmp%0#0: account = (txn Sender)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#0 0u "loc")
+        (assert maybe_exists%0#0) // check self.loc exists for account
+        let (tmp%1#0: Encoded(len+uint64[]), tmp%2#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
+        let tmp%3#0: Encoded(uint64[]) = bytes_encode<uint64[]>(val#0)
+        let concat%0#0: Encoded(len+uint64[]) = (concat tmp%1#0 tmp%3#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%1#0 0u)
+        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
+        let as_bytes%0#0: bytes[8] = (itob add%0#0)
+        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
+        let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(replace%0#0, tmp%2#0)
+        (app_local_put tmp%0#0 "loc" encoded_for_storage%0#0)
+        return 

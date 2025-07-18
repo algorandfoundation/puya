@@ -1,0 +1,50 @@
+main test_cases.arc4_types.numeric.Arc4NumericTypesContract.approval_program:
+    block@0: // L30
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob 255u)
+        let aggregate%bitlen%0#0: uint64 = 8u
+        let aggregate%no_overflow%0#0: bool = 1u
+        let int8_encoded#0: Encoded(uint8) = 0xff
+        let int8_decoded#0: uint64 = 255u
+        let tmp%2#0: bool = 1u
+        let tmp%3#0: uint64 = 127u
+        let tmp%4#0: bool = 1u
+        let tmp%5#0: uint64 = 8388607u
+        let tmp%6#0: bool = 1u
+        let tmp%7#0: uint64 = 32767u
+        let tmp%8#0: bool = 1u
+        let tmp%9#0: uint64 = 2147483647u
+        let tmp%10#0: bool = 1u
+        let tmp%11#0: uint64 = 9223372036854775807u
+        let tmp%12#0: bool = 1u
+        let tmp%13#0: uint64 = (txn NumAppArgs)
+        let select%0#0: Encoded(uint8) = (select 0x02 0x01 tmp%13#0)
+        let tmp%15#0: bool = (b== select%0#0 0x02)
+        (assert tmp%15#0)
+        let tmp%16#0: uint64 = (txn NumAppArgs)
+        let select%1#0: Encoded(uint512) = (select 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 tmp%16#0)
+        let tmp%18#0: bool = (b== select%1#0 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002)
+        (assert tmp%18#0)
+        let tmp%19#0: uint64 = (txn NumAppArgs)
+        let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%19#0)
+        let aggregate%bzero%0#0: bytes = (bzero 64u)
+        let aggregate%arc4_encoded%0#0: bytes[64] = (b| aggregate%val_as_bytes%1#0 aggregate%bzero%0#0)
+        let tmp%20#0: bool = (b== aggregate%arc4_encoded%0#0 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+        (assert tmp%20#0)
+        let tmp%42#0: uint64 = (txn NumAppArgs)
+        let select%2#0: Encoded(uint64) = (select 0x0000000000000000 0xffffffffffffffff tmp%42#0)
+        let tmp%44#0: bool = (== select%2#0 0x0000000000000000)
+        (assert tmp%44#0)
+        let aggregate%value_len%0#0: uint64 = 1u
+        let aggregate%len_ok%0#0: bool = 1u
+        let aggregate%bzero%1#0: bytes = (bzero 16u)
+        let arc4_biguint_dynamic#0: Encoded(uint128) = 0x00000000000000000000000000000002
+        let tmp%48#0: bool = 1u
+        let tmp%49#0: uint64 = 16u
+        let tmp%50#0: bool = 1u
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob ClearState)
+        let tup#0: Encoded(uint64) = aggregate%val_as_bytes%2#0
+        let aggregate%extract%0#0: bytes = 0x0000000000000003
+        let tmp%55#0: uint64 = 3u
+        let tmp%56#0: bool = 1u
+        let tmp%58#0: bool = 1u
+        return 1u

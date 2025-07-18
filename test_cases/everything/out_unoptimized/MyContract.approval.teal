@@ -4,7 +4,7 @@
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1
-    bytecblock "counter" "name" 0x151f7c75
+    bytecblock "counter" "name" "Howdy stranger!" "Hello, " 0x151f7c75
 
 main_block@0:
     txn ApplicationID
@@ -154,34 +154,57 @@ say_hello_block@0:
 say_hello_if_body@1:
     // everything/contract.py:61
     // return String("Howdy stranger!")
-    pushbytes 0x000f486f77647920737472616e67657221
+    bytec_2 // "Howdy stranger!"
+    len
+    itob
+    extract 6 2
+    bytec_2 // "Howdy stranger!"
+    concat
     swap
     retsub
 
 say_hello_after_if_else@2:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
-    pushbytes 0x000748656c6c6f2c20
-    extract 2 0
+    bytec_3 // "Hello, "
+    len
+    itob
+    extract 6 2
+    bytec_3 // "Hello, "
+    concat
     frame_dig 0
     extract 2 0
-    concat
+    concat // on error: max array length exceeded
     dup
+    extract 2 0
     len
+    intc_1 // 1
+    /
     itob
     extract 6 2
     swap
-    concat
-    extract 2 0
-    pushbytes 0x000121
-    extract 2 0
-    concat
-    dup
+    intc_0 // 0
+    uncover 2
+    replace3
+    pushbytes "!"
     len
     itob
     extract 6 2
-    swap
+    pushbytes "!"
     concat
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_1 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_0 // 0
+    uncover 2
+    replace3
     swap
     retsub
 
@@ -320,7 +343,7 @@ approval_program_calculate_route@6:
     // everything/contract.py:64
     // @abimethod
     callsub calculate
-    bytec_2 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log
@@ -339,7 +362,7 @@ approval_program_say_hello_route@5:
     !=
     assert // can only call when not creating
     callsub say_hello
-    bytec_2 // 0x151f7c75
+    bytec 4 // 0x151f7c75
     swap
     concat
     log

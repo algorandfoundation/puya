@@ -1,0 +1,43 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
+## case: no_arg_ctor_requires_type_params
+from algopy import *
+
+@subroutine
+def bad() -> None:
+    foo = ReferenceArray() # type: ignore[var-annotated] ## E: empty arrays require a type annotation to be instantiated
+
+
+## case: no_contains
+from algopy import *
+
+@subroutine
+def bad(arg: ReferenceArray[bool]) -> None:
+    assert True in arg ## E: item containment with arrays is currently unsupported
+
+
+## case: no_slicing
+from algopy import *
+
+@subroutine
+def bad(arg: ReferenceArray[bool]) -> None:
+    sliced = arg[1:-1] # type: ignore[index] ## E: slicing arrays is currently unsupported
+
+
+## case: unrecognised_member
+from algopy import *
+
+@subroutine
+def bad(arg: ReferenceArray[bool]) -> None:
+    arg.foo() # type: ignore[attr-defined] ## E: unrecognised member of algopy.ReferenceArray[bool]: foo
+
+
+## case: invalid_extend_args
+from algopy import *
+
+@subroutine
+def bad(arg: ReferenceArray[bool]) -> None:
+    arg.extend() # type: ignore[call-arg] ## E: expected 1 argument, got 0
+    arg.extend((UInt64(1),)) # type: ignore[arg-type] ## E: expected an array or tuple of the same element type

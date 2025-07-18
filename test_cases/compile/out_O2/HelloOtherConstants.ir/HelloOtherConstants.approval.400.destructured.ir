@@ -3,9 +3,9 @@ main test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
     block@1: // call __init___L1
-        (app_global_put "greeting" TemplateVar[bytes](TMPL_GREETING))
+        (app_global_put "greeting" TemplateVar[string](TMPL_GREETING))
         (app_global_put "num" TemplateVar[biguint](TMPL_NUM))
-        (app_global_put "address" TemplateVar[bytes[32]](TMPL_ACCOUNT))
+        (app_global_put "address" TemplateVar[account](TMPL_ACCOUNT))
         (app_global_put "method" TemplateVar[bytes](TMPL_METHOD))
         goto block@2
     block@2: // after_if_else_L1
@@ -26,22 +26,22 @@ main test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init:
         let tmp%0#0: bool = test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__%0#0
         goto block@9
     block@6: // delete_route_L87
-        let tmp%8#0: uint64 = (txn OnCompletion)
-        let tmp%9#0: bool = (== tmp%8#0 DeleteApplication)
-        (assert tmp%9#0) // OnCompletion is not DeleteApplication
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        (assert tmp%10#0) // can only call when not creating
+        let tmp%10#0: uint64 = (txn OnCompletion)
+        let tmp%11#0: bool = (== tmp%10#0 DeleteApplication)
+        (assert tmp%11#0) // OnCompletion is not DeleteApplication
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        (assert tmp%12#0) // can only call when not creating
         let test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__%0#0
         goto block@9
     block@7: // greet_route_L91
-        let tmp%12#0: uint64 = (txn OnCompletion)
-        let tmp%13#0: bool = (! tmp%12#0)
-        (assert tmp%13#0) // OnCompletion is not NoOp
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        (assert tmp%14#0) // can only call when not creating
-        let tmp%16#0: bytes = (txna ApplicationArgs 1)
-        let name#0: bytes = ((extract 2 0) tmp%16#0)
+        let tmp%14#0: uint64 = (txn OnCompletion)
+        let tmp%15#0: bool = (! tmp%14#0)
+        (assert tmp%15#0) // OnCompletion is not NoOp
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        (assert tmp%16#0) // can only call when not creating
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let name#0: string = ((extract 2 0) reinterpret_Encoded(len+utf8[])%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "num")
         (assert maybe_exists%0#0) // check self.num exists
         let tmp%0#3: biguint = (b+ maybe_value%0#0 48b)
@@ -59,12 +59,12 @@ main test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init:
         let (maybe_value%3#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "method")
         (assert maybe_exists%3#0) // check self.method exists
         let tmp%7#1: bytes = (concat tmp%6#1 maybe_value%3#0)
-        let length%0#0: uint64 = (len tmp%7#1)
-        let as_bytes%0#0: bytes[8] = (itob length%0#0)
-        let length_uint16%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let encoded_value%0#0: bytes = (concat length_uint16%0#0 tmp%7#1)
-        let tmp%18#0: bytes = (concat 0x151f7c75 encoded_value%0#0)
-        (log tmp%18#0)
+        let aggregate%length%0#0: uint64 = (len tmp%7#1)
+        let aggregate%as_bytes%0#0: bytes[8] = (itob aggregate%length%0#0)
+        let aggregate%length_uint16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
+        let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 tmp%7#1)
+        let tmp%21#0: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
+        (log tmp%21#0)
         let test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.compile.apps.HelloOtherConstants.__puya_arc4_router__%0#0
         goto block@9

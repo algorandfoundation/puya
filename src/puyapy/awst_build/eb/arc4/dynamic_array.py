@@ -3,17 +3,9 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
-from puya.awst import wtypes
-from puya.awst.nodes import (
-    ArrayConcat,
-    ArrayExtend,
-    ArrayLength,
-    ArrayPop,
-    Expression,
-    ExpressionStatement,
-    NewArray,
-    Statement,
-    TupleExpression,
+from puya.awst import (
+    nodes as awst_nodes,
+    wtypes,
 )
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -22,10 +14,7 @@ from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
 from puyapy.awst_build.eb._bytes_backed import BytesBackedTypeBuilder
-from puyapy.awst_build.eb._utils import (
-    dummy_statement,
-    dummy_value,
-)
+from puyapy.awst_build.eb._utils import dummy_statement, dummy_value
 from puyapy.awst_build.eb.arc4._base import _ARC4ArrayExpressionBuilder, arc4_bool_bytes
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import BuilderBinaryOp, InstanceBuilder, NodeBuilder
@@ -58,7 +47,7 @@ class DynamicArrayGenericTypeBuilder(GenericTypeBuilder):
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return DynamicArrayExpressionBuilder(
-            NewArray(values=values, wtype=wtype, source_location=location), typ
+            awst_nodes.NewArray(values=values, wtype=wtype, source_location=location), typ
         )
 
 
@@ -82,19 +71,19 @@ class DynamicArrayTypeBuilder(BytesBackedTypeBuilder[pytypes.ArrayType]):
         wtype = typ.wtype
         assert isinstance(wtype, wtypes.ARC4DynamicArray)
         return DynamicArrayExpressionBuilder(
-            NewArray(values=values, wtype=wtype, source_location=location), self._pytype
+            awst_nodes.NewArray(values=values, wtype=wtype, source_location=location), self._pytype
         )
 
 
 class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
-    def __init__(self, expr: Expression, typ: pytypes.PyType):
+    def __init__(self, expr: awst_nodes.Expression, typ: pytypes.PyType):
         assert isinstance(typ, pytypes.ArrayType)
         super().__init__(typ, expr)
 
     @typing.override
     def length(self, location: SourceLocation) -> InstanceBuilder:
         return UInt64ExpressionBuilder(
-            ArrayLength(
+            awst_nodes.ArrayLength(
                 array=self.resolve(),
                 source_location=location,
             )
@@ -115,13 +104,15 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
     @typing.override
     def augmented_assignment(
         self, op: BuilderBinaryOp, rhs: InstanceBuilder, location: SourceLocation
-    ) -> Statement:
+    ) -> awst_nodes.Statement:
         if op != BuilderBinaryOp.add:
             logger.error(f"unsupported operator for type: {op.value!r}", location=location)
             return dummy_statement(location)
         rhs = _match_array_concat_arg(rhs, self.pytype)
-        extend = ArrayExtend(base=self.resolve(), other=rhs.resolve(), source_location=location)
-        return ExpressionStatement(expr=extend)
+        extend = awst_nodes.ArrayExtend(
+            base=self.resolve(), other=rhs.resolve(), source_location=location
+        )
+        return awst_nodes.ExpressionStatement(expr=extend)
 
     @typing.override
     def binary_op(
@@ -138,7 +129,7 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
 
         other = _match_array_concat_arg(other, self.pytype)
         return DynamicArrayExpressionBuilder(
-            ArrayConcat(
+            awst_nodes.ArrayConcat(
                 left=self.resolve(),
                 right=other.resolve(),
                 source_location=location,
@@ -148,16 +139,23 @@ class DynamicArrayExpressionBuilder(_ARC4ArrayExpressionBuilder):
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
+        false_builder = DynamicArrayTypeBuilder(self.pytype, location).call([], [], [], location)
         return arc4_bool_bytes(
             self,
-            false_bytes=b"\x00\x00",
+            false_builder=false_builder,
             negate=negate,
             location=location,
         )
 
+    @typing.override
+    def to_native_type(self, element_type: pytypes.PyType) -> pytypes.ArrayType:
+        return pytypes.GenericArrayType.parameterise([element_type], self.source_location)
+
 
 class _ArrayFunc(FunctionBuilder, abc.ABC):
-    def __init__(self, expr: Expression, typ: pytypes.ArrayType, location: SourceLocation):
+    def __init__(
+        self, expr: awst_nodes.Expression, typ: pytypes.ArrayType, location: SourceLocation
+    ):
         super().__init__(location)
         self.expr = expr
         self.typ = typ
@@ -174,9 +172,9 @@ class _Append(_ArrayFunc):
     ) -> InstanceBuilder:
         arg = expect.exactly_one_arg_of_type_else_dummy(args, self.typ.items, location)
         args_expr = arg.resolve()
-        args_tuple = TupleExpression.from_items([args_expr], arg.source_location)
+        args_tuple = awst_nodes.TupleExpression.from_items([args_expr], arg.source_location)
         return NoneExpressionBuilder(
-            ArrayExtend(base=self.expr, other=args_tuple, source_location=location)
+            awst_nodes.ArrayExtend(base=self.expr, other=args_tuple, source_location=location)
         )
 
 
@@ -190,7 +188,7 @@ class _Pop(_ArrayFunc):
         location: SourceLocation,
     ) -> InstanceBuilder:
         expect.no_args(args, location)
-        result_expr = ArrayPop(base=self.expr, source_location=location)
+        result_expr = awst_nodes.ArrayPop(base=self.expr, source_location=location)
         return builder_for_instance(self.typ.items, result_expr)
 
 
@@ -209,7 +207,7 @@ class _Extend(_ArrayFunc):
         else:
             other = _match_array_concat_arg(arg, self.typ)
         return NoneExpressionBuilder(
-            ArrayExtend(base=self.expr, other=other.resolve(), source_location=location)
+            awst_nodes.ArrayExtend(base=self.expr, other=other.resolve(), source_location=location)
         )
 
 

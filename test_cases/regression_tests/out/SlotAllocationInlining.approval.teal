@@ -28,18 +28,18 @@ main_while_top@2:
     b main_while_top@2
 
 main_after_while@8:
-    // regression_tests/slot_allocation_inlining.py:16-17
+    // regression_tests/slot_allocation_inlining.py:24-25
     // # create pseudo random array from sender address
-    // arr = Array[UInt64]()
+    // arr = ReferenceArray[UInt64]()
     callsub _puya_lib.mem.new_slot
     dup
     pushbytes 0x
     stores
-    // regression_tests/slot_allocation_inlining.py:18
+    // regression_tests/slot_allocation_inlining.py:26
     // append_to_array(arr)
     dup
     callsub append_to_array
-    // regression_tests/slot_allocation_inlining.py:19
+    // regression_tests/slot_allocation_inlining.py:27
     // assert arr.length == 32, "expected array of length 32"
     loads
     len
@@ -48,7 +48,7 @@ main_after_while@8:
     intc_1 // 32
     ==
     assert // expected array of length 32
-    // regression_tests/slot_allocation_inlining.py:8
+    // regression_tests/slot_allocation_inlining.py:16
     // return True
     intc_2 // 1
     return
@@ -56,33 +56,33 @@ main_after_while@8:
 
 // test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: uint64) -> void:
 append_to_array:
-    // regression_tests/slot_allocation_inlining.py:22-23
+    // regression_tests/slot_allocation_inlining.py:30-31
     // @subroutine(inline=False)
-    // def append_to_array(arr: Array[UInt64]) -> None:
+    // def append_to_array(arr: ReferenceArray[UInt64]) -> None:
     proto 1 0
-    // regression_tests/slot_allocation_inlining.py:24
+    // regression_tests/slot_allocation_inlining.py:32
     // for b in Txn.sender.bytes:
     txn Sender
     intc_0 // 0
 
 append_to_array_for_header@1:
-    // regression_tests/slot_allocation_inlining.py:24
+    // regression_tests/slot_allocation_inlining.py:32
     // for b in Txn.sender.bytes:
     frame_dig 1
     intc_1 // 32
     <
     bz append_to_array_after_for@4
-    // regression_tests/slot_allocation_inlining.py:25
+    // regression_tests/slot_allocation_inlining.py:33
     // arr.append(op.btoi(b))
     frame_dig 0
     frame_dig 1
     dup
     cover 2
     getbyte
-    itob
     frame_dig -1
     loads
     swap
+    itob
     concat // on error: max array length exceeded
     frame_dig -1
     swap

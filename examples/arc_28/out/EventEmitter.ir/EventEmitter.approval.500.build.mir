@@ -35,14 +35,14 @@ subroutine main:
         assert // can only call when not creating
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txna ApplicationArgs 1                                                        reinterpret_bytes[8]%0#0
-        v-store reinterpret_bytes[8]%0#0
-        txna ApplicationArgs 2                                                        reinterpret_bytes[8]%1#0
-        v-store reinterpret_bytes[8]%1#0
+        txna ApplicationArgs 1                                                        reinterpret_Encoded(uint64)%0#0
+        v-store reinterpret_Encoded(uint64)%0#0
+        txna ApplicationArgs 2                                                        reinterpret_Encoded(uint64)%1#0
+        v-store reinterpret_Encoded(uint64)%1#0
         // arc_28/contract.py:12
         // @arc4.abimethod
-        v-load reinterpret_bytes[8]%0#0                                               reinterpret_bytes[8]%0#0
-        v-load reinterpret_bytes[8]%1#0                                               reinterpret_bytes[8]%0#0,reinterpret_bytes[8]%1#0
+        v-load reinterpret_Encoded(uint64)%0#0                                        reinterpret_Encoded(uint64)%0#0
+        v-load reinterpret_Encoded(uint64)%1#0                                        reinterpret_Encoded(uint64)%0#0,reinterpret_Encoded(uint64)%1#0
         callsub emit_swapped
         int 1                                                                         1
         v-store examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
@@ -66,14 +66,14 @@ subroutine main:
         assert // can only call when not creating
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txna ApplicationArgs 1                                                        reinterpret_bytes[32]%0#0
-        v-store reinterpret_bytes[32]%0#0
-        txna ApplicationArgs 2                                                        reinterpret_bytes[8]%2#0
-        v-store reinterpret_bytes[8]%2#0
+        txna ApplicationArgs 1                                                        reinterpret_Encoded(uint256)%0#0
+        v-store reinterpret_Encoded(uint256)%0#0
+        txna ApplicationArgs 2                                                        reinterpret_Encoded(uint64)%2#0
+        v-store reinterpret_Encoded(uint64)%2#0
         // arc_28/contract.py:18
         // @arc4.abimethod()
-        v-load reinterpret_bytes[32]%0#0                                              reinterpret_bytes[32]%0#0
-        v-load reinterpret_bytes[8]%2#0                                               reinterpret_bytes[32]%0#0,reinterpret_bytes[8]%2#0
+        v-load reinterpret_Encoded(uint256)%0#0                                       reinterpret_Encoded(uint256)%0#0
+        v-load reinterpret_Encoded(uint64)%2#0                                        reinterpret_Encoded(uint256)%0#0,reinterpret_Encoded(uint64)%2#0
         callsub emit_ufixed
         int 1                                                                         1
         v-store examples.arc_28.contract.EventEmitter.__puya_arc4_router__%0#0
@@ -124,10 +124,10 @@ subroutine emit_swapped:
         // arc4.emit(Swapped(b, a))
         p-load b#0                                                                    (𝕡) a#0,b#0 | b#0 (copy)
         p-load a#0                                                                    (𝕡) a#0,b#0 | b#0 (copy),a#0 (copy)
-        concat                                                                        (𝕡) a#0,b#0 | encoded_tuple_buffer%2#0
-        v-store encoded_tuple_buffer%2#0                                              (𝕡) a#0,b#0 |
+        concat                                                                        (𝕡) a#0,b#0 | aggregate%head%1#0
+        v-store aggregate%head%1#0                                                    (𝕡) a#0,b#0 |
         method Swapped(uint64,uint64)                                                 (𝕡) a#0,b#0 | Method(Swapped(uint64,uint64))
-        v-load encoded_tuple_buffer%2#0                                               (𝕡) a#0,b#0 | Method(Swapped(uint64,uint64)),encoded_tuple_buffer%2#0
+        v-load aggregate%head%1#0                                                     (𝕡) a#0,b#0 | Method(Swapped(uint64,uint64)),aggregate%head%1#0
         concat                                                                        (𝕡) a#0,b#0 | event%0#0
         v-store event%0#0                                                             (𝕡) a#0,b#0 |
         v-load event%0#0                                                              (𝕡) a#0,b#0 | event%0#0
@@ -150,10 +150,10 @@ subroutine emit_ufixed:
         // arc4.emit("AnEvent(ufixed256x16,ufixed64x2)", a, b)
         p-load a#0                                                                    (𝕡) a#0,b#0 | a#0 (copy)
         p-load b#0                                                                    (𝕡) a#0,b#0 | a#0 (copy),b#0 (copy)
-        concat                                                                        (𝕡) a#0,b#0 | encoded_tuple_buffer%2#0
-        v-store encoded_tuple_buffer%2#0                                              (𝕡) a#0,b#0 |
+        concat                                                                        (𝕡) a#0,b#0 | aggregate%head%1#0
+        v-store aggregate%head%1#0                                                    (𝕡) a#0,b#0 |
         method AnEvent(ufixed256x16,ufixed64x2)                                       (𝕡) a#0,b#0 | Method(AnEvent(ufixed256x16,ufixed64x2))
-        v-load encoded_tuple_buffer%2#0                                               (𝕡) a#0,b#0 | Method(AnEvent(ufixed256x16,ufixed64x2)),encoded_tuple_buffer%2#0
+        v-load aggregate%head%1#0                                                     (𝕡) a#0,b#0 | Method(AnEvent(ufixed256x16,ufixed64x2)),aggregate%head%1#0
         concat                                                                        (𝕡) a#0,b#0 | event%0#0
         v-store event%0#0                                                             (𝕡) a#0,b#0 |
         v-load event%0#0                                                              (𝕡) a#0,b#0 | event%0#0

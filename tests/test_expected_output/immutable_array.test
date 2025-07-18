@@ -1,0 +1,70 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
+## case: no_arg_ctor_requires_type_params
+from algopy import *
+
+@subroutine
+def bad() -> None:
+    foo = ImmutableArray() # type: ignore[var-annotated] ## E: empty arrays require a type annotation to be instantiated
+
+
+## case: no_contains
+from algopy import *
+
+@subroutine
+def bad(arg: ImmutableArray[bool]) -> None:
+    assert True in arg ## E: item containment with arrays is currently unsupported
+
+
+## case: no_slicing
+from algopy import *
+
+@subroutine
+def bad(arg: ImmutableArray[bool]) -> None:
+    sliced = arg[1:-1] # type: ignore[index] ## E: slicing arrays is currently unsupported
+
+
+## case: unrecognised_member
+from algopy import *
+
+@subroutine
+def bad(arg: ImmutableArray[bool]) -> None:
+    arg.foo() # type: ignore[attr-defined] ## E: unrecognised member of algopy.ImmutableArray[bool]: foo
+
+
+## case: invalid_replace_args
+from algopy import *
+
+@subroutine
+def bad(arg: ImmutableArray[bool]) -> ImmutableArray[bool]:
+    return arg.replace(0) # type: ignore[call-arg] ## E: expected 2 arguments, got 1
+
+
+## case: invalid_concat_args
+from algopy import *
+
+@subroutine
+def bad(arg: ImmutableArray[bool]) -> ImmutableArray[bool]:
+    return arg + ImmutableArray[bool]()
+
+@subroutine
+def bad2(arg: ImmutableArray[bool]) -> ImmutableArray[bool]:
+    return arg + ((UInt64(1),)) # type: ignore[operator] ## E: expected an array or tuple of the same element type
+
+
+## case: unsupported_binary_op
+from algopy import *
+
+@subroutine
+def bad(arg: ImmutableArray[bool]) -> None:
+    arg - arg # type: ignore[operator] ## E: unsupported operation - between types
+
+
+## case: unsupported_aug_assign_op
+from algopy import *
+
+@subroutine
+def bad(arg: ImmutableArray[bool]) -> None:
+    arg -= True # type: ignore[assignment,operator] ## E: unsupported operator for type: '-'

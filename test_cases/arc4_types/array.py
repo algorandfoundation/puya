@@ -68,6 +68,12 @@ class Arc4ArraysContract(Contract):
 
         assert result == "Ping Pong"
 
+        static_string_array[1] = ARC4String("Ping")
+        result = String()
+        for string_item in static_string_array:
+            result += string_item.native + " "
+        assert result == "Ping Ping "
+
         self.hash_as_array(Bytes(b"Testing 123"))
 
         return True

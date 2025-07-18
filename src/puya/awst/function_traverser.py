@@ -421,3 +421,7 @@ class FunctionTraverser(
     def visit_comma_expression(self, expr: awst_nodes.CommaExpression) -> None:
         for inner in expr.expressions:
             inner.accept(self)
+
+    @typing.override
+    def visit_convert_array(self, expr: awst_nodes.ConvertArray) -> None:
+        expr.expr.accept(self)

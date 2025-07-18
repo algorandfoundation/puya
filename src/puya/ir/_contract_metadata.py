@@ -425,7 +425,7 @@ class _EventCollector(FunctionTraverser):
 def _get_arc56_type(
     wtype: wtypes.WType, loc: SourceLocation, *, avm_uint64_supported: bool
 ) -> str:
-    if isinstance(wtype, wtypes.StackArray | wtypes.WTuple):
+    if isinstance(wtype, wtypes.WTuple):
         wtype = wtype_to_arc4_wtype(wtype, loc)
     if wtype == wtypes.account_wtype:
         wtype = wtypes.arc4_address_alias

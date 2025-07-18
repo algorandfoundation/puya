@@ -1,0 +1,408 @@
+// Op                                                                                                      Stack (out)
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypoint_with_init() -> uint64:
+subroutine main:
+    main_block@0:
+        txn ApplicationID                                                                                  tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2
+
+    main_call___init__@1:
+        // tuple_support/tuple_storage.py:16
+        // self.tup = TupleWithMutable(
+        byte "tup"                                                                                         "tup"
+        byte 0x000a000000000000000000010000000000000000                                                    "tup",0x000a000000000000000000010000000000000000
+        // tuple_support/tuple_storage.py:16-19
+        // self.tup = TupleWithMutable(
+        //     arr=arc4.DynamicArray(arc4.UInt64(0)),
+        //     bar=UInt64(),
+        // )
+        app_global_put
+        // tuple_support/tuple_storage.py:20
+        // self.glob.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+        byte "glob"                                                                                        "glob"
+        // tuple_support/tuple_storage.py:16
+        // self.tup = TupleWithMutable(
+        byte 0x000a000000000000000000010000000000000000                                                    "glob",0x000a000000000000000000010000000000000000
+        // tuple_support/tuple_storage.py:20
+        // self.glob.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+        app_global_put
+        // tuple_support/tuple_storage.py:21
+        // self.tup = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+        int 0                                                                                              0
+        byte "tup"                                                                                         0,"tup"
+        app_global_get_ex                                                                                  maybe_value%1#0,maybe_exists%1#0
+        assert // check self.tup exists                                                                    maybe_value%1#0
+        l-load maybe_value%1#0 0                                                                           maybe_value%1#0
+        int 2                                                                                              maybe_value%1#0,2
+        extract_uint64                                                                                     aggregate%item1%0#0
+        itob                                                                                               aggregate%val_as_bytes%1#0
+        byte 0x000a                                                                                        aggregate%val_as_bytes%1#0,0x000a
+        l-load aggregate%val_as_bytes%1#0 1                                                                0x000a,aggregate%val_as_bytes%1#0
+        concat                                                                                             aggregate%head%4#0
+        // tuple_support/tuple_storage.py:17
+        // arr=arc4.DynamicArray(arc4.UInt64(0)),
+        byte 0x00010000000000000000                                                                        aggregate%head%4#0,0x00010000000000000000
+        // tuple_support/tuple_storage.py:21
+        // self.tup = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+        concat                                                                                             aggregate%concat%1#0
+        byte "tup"                                                                                         aggregate%concat%1#0,"tup"
+        l-load aggregate%concat%1#0 1                                                                      "tup",aggregate%concat%1#0
+        app_global_put
+        b main_after_if_else@2
+
+    main_after_if_else@2:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        txn NumAppArgs                                                                                     tmp%0#2
+        bz main_bare_routing@10 ; b main_abi_routing@4
+
+    main_abi_routing@4:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        txna ApplicationArgs 0                                                                             tmp%2#0
+        method bootstrap()void                                                                             tmp%2#0,Method(bootstrap()void)
+        method mutate_tuple(uint64)void                                                                    tmp%2#0,Method(bootstrap()void),Method(mutate_tuple(uint64)void)
+        method mutate_box(uint64)void                                                                      tmp%2#0,Method(bootstrap()void),Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void)
+        method mutate_global(uint64)void                                                                   tmp%2#0,Method(bootstrap()void),Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void)
+        method mutate_local(uint64)void                                                                    tmp%2#0,Method(bootstrap()void),Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void),Method(mutate_local(uint64)void)
+        l-load tmp%2#0 5                                                                                   Method(bootstrap()void),Method(mutate_tuple(uint64)void),Method(mutate_box(uint64)void),Method(mutate_global(uint64)void),Method(mutate_local(uint64)void),tmp%2#0
+        match main_bootstrap_route@5 main_mutate_tuple_route@6 main_mutate_box_route@7 main_mutate_global_route@8 main_mutate_local_route@9 ; b main_after_if_else@12 
+
+    main_bootstrap_route@5:
+        // tuple_support/tuple_storage.py:23
+        // @arc4.abimethod(allow_actions=["OptIn"])
+        txn OnCompletion                                                                                   tmp%3#0
+        int OptIn                                                                                          tmp%3#0,OptIn
+        ==                                                                                                 tmp%4#0
+        assert // OnCompletion is not OptIn
+        txn ApplicationID                                                                                  tmp%5#0
+        assert // can only call when not creating
+        callsub bootstrap
+        int 1                                                                                              test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@13 
+
+    main_mutate_tuple_route@6:
+        // tuple_support/tuple_storage.py:28
+        // @arc4.abimethod()
+        txn OnCompletion                                                                                   tmp%7#0
+        !                                                                                                  tmp%8#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                  tmp%9#0
+        assert // can only call when not creating
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                             reinterpret_Encoded(uint64)%0#0
+        // tuple_support/tuple_storage.py:28
+        // @arc4.abimethod()
+        callsub mutate_tuple
+        int 1                                                                                              test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@13 
+
+    main_mutate_box_route@7:
+        // tuple_support/tuple_storage.py:32
+        // @arc4.abimethod()
+        txn OnCompletion                                                                                   tmp%11#0
+        !                                                                                                  tmp%12#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                  tmp%13#0
+        assert // can only call when not creating
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                             reinterpret_Encoded(uint64)%1#0
+        // tuple_support/tuple_storage.py:32
+        // @arc4.abimethod()
+        callsub mutate_box
+        int 1                                                                                              test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@13 
+
+    main_mutate_global_route@8:
+        // tuple_support/tuple_storage.py:36
+        // @arc4.abimethod()
+        txn OnCompletion                                                                                   tmp%15#0
+        !                                                                                                  tmp%16#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                  tmp%17#0
+        assert // can only call when not creating
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                             reinterpret_Encoded(uint64)%2#0
+        // tuple_support/tuple_storage.py:36
+        // @arc4.abimethod()
+        callsub mutate_global
+        int 1                                                                                              test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@13 
+
+    main_mutate_local_route@9:
+        // tuple_support/tuple_storage.py:40
+        // @arc4.abimethod()
+        txn OnCompletion                                                                                   tmp%19#0
+        !                                                                                                  tmp%20#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                  tmp%21#0
+        assert // can only call when not creating
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                             reinterpret_Encoded(uint64)%3#0
+        // tuple_support/tuple_storage.py:40
+        // @arc4.abimethod()
+        callsub mutate_local
+        int 1                                                                                              test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@13 
+
+    main_bare_routing@10:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        txn OnCompletion                                                                                   tmp%23#0
+        bz main___algopy_default_create@11 ; b main_after_if_else@12
+
+    main___algopy_default_create@11:
+        txn ApplicationID                                                                                  tmp%24#0
+        !                                                                                                  tmp%25#0
+        assert // can only call when creating
+        int 1                                                                                              test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@13 
+
+    main_after_if_else@12:
+        // tuple_support/tuple_storage.py:11
+        // class NestedTuplesStorage(arc4.ARC4Contract):
+        int 0                                                                                              test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@13 
+
+    main_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__puya_arc4_router__@13:
+        v-load tmp%0#0                                                                                     tmp%0#0
+        return
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap() -> void:
+subroutine bootstrap:
+    bootstrap_block@0:
+        // tuple_support/tuple_storage.py:25
+        // self.box.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+        int 0                                                                                              0
+        byte "tup"                                                                                         0,"tup"
+        app_global_get_ex                                                                                  maybe_value%0#0,maybe_exists%0#0
+        assert // check self.tup exists                                                                    maybe_value%0#0
+        l-load maybe_value%0#0 0                                                                           maybe_value%0#0
+        int 2                                                                                              maybe_value%0#0,2
+        extract_uint64                                                                                     aggregate%item1%0#0
+        byte "box"                                                                                         aggregate%item1%0#0,"box"
+        box_del                                                                                            aggregate%item1%0#0,{box_del}
+        pop 1                                                                                              aggregate%item1%0#0
+        l-load aggregate%item1%0#0 0                                                                       aggregate%item1%0#0
+        itob                                                                                               aggregate%val_as_bytes%0#0
+        byte 0x000a                                                                                        aggregate%val_as_bytes%0#0,0x000a
+        l-load aggregate%val_as_bytes%0#0 1                                                                0x000a,aggregate%val_as_bytes%0#0
+        concat                                                                                             aggregate%head%2#0
+        byte 0x00010000000000000000                                                                        aggregate%head%2#0,0x00010000000000000000
+        concat                                                                                             aggregate%concat%0#0
+        byte "box"                                                                                         aggregate%concat%0#0,"box"
+        l-load-copy aggregate%concat%0#0 1                                                                 aggregate%concat%0#0,"box",aggregate%concat%0#0 (copy)
+        box_put                                                                                            aggregate%concat%0#0
+        // tuple_support/tuple_storage.py:26
+        // self.loc[Txn.sender] = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
+        txn Sender                                                                                         aggregate%concat%0#0,tmp%0#0
+        byte "loc"                                                                                         aggregate%concat%0#0,tmp%0#0,"loc"
+        l-load aggregate%concat%0#0 2                                                                      tmp%0#0,"loc",aggregate%concat%0#0
+        app_local_put
+        retsub
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_tuple(val: bytes) -> void:
+subroutine mutate_tuple:
+    mutate_tuple_block@0:                                                                                  (𝕡) val#0 |
+        // tuple_support/tuple_storage.py:30
+        // self.tup.arr.append(val)
+        int 0                                                                                              (𝕡) val#0 | 0
+        byte "tup"                                                                                         (𝕡) val#0 | 0,"tup"
+        app_global_get_ex                                                                                  (𝕡) val#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.tup exists                                                                    (𝕡) val#0 | maybe_value%0#0
+        l-load-copy maybe_value%0#0 0                                                                      (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy)
+        int 0                                                                                              (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),0
+        extract_uint16                                                                                     (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#0
+        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#0,maybe_value%0#0 (copy)
+        len                                                                                                (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,maybe_value%0#0 (copy)
+        l-load aggregate%extract_uint16%0#0 2                                                              (𝕡) val#0 | maybe_value%0#0,aggregate%len%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                                         (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                                         (𝕡) val#0 | maybe_value%0#0,aggregate%substring3%0#0
+        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | aggregate%substring3%0#0,maybe_value%0#0
+        int 2                                                                                              (𝕡) val#0 | aggregate%substring3%0#0,maybe_value%0#0,2
+        extract_uint64                                                                                     (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0
+        l-load-copy aggregate%substring3%0#0 1                                                             (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0,aggregate%substring3%0#0 (copy)
+        p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0,aggregate%substring3%0#0 (copy),val#0 (copy)
+        concat // on error: max array length exceeded                                                      (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0,concat%0#0
+        l-load aggregate%substring3%0#0 2                                                                  (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,aggregate%substring3%0#0
+        int 0                                                                                              (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,aggregate%substring3%0#0,0
+        extract_uint16                                                                                     (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,extract_uint16%0#0
+        int 1                                                                                              (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                  (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,add%0#0
+        itob                                                                                               (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                        (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                                (𝕡) val#0 | aggregate%item1%0#0,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                         (𝕡) val#0 | aggregate%item1%0#0,replace%0#0
+        l-load aggregate%item1%0#0 1                                                                       (𝕡) val#0 | replace%0#0,aggregate%item1%0#0
+        itob                                                                                               (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#0
+        byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#0,0x000a
+        l-load aggregate%val_as_bytes%0#0 1                                                                (𝕡) val#0 | replace%0#0,0x000a,aggregate%val_as_bytes%0#0
+        concat                                                                                             (𝕡) val#0 | replace%0#0,aggregate%head%2#0
+        l-load replace%0#0 1                                                                               (𝕡) val#0 | aggregate%head%2#0,replace%0#0
+        concat                                                                                             (𝕡) val#0 | aggregate%concat%0#0
+        byte "tup"                                                                                         (𝕡) val#0 | aggregate%concat%0#0,"tup"
+        l-load aggregate%concat%0#0 1                                                                      (𝕡) val#0 | "tup",aggregate%concat%0#0
+        app_global_put                                                                                     (𝕡) val#0 |
+        retsub
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box(val: bytes) -> void:
+subroutine mutate_box:
+    mutate_box_block@0:                                                                                    (𝕡) val#0 |
+        // tuple_support/tuple_storage.py:34
+        // self.box.value.arr.append(val)
+        byte "box"                                                                                         (𝕡) val#0 | "box"
+        box_get                                                                                            (𝕡) val#0 | aggregate%box_get%0#0,aggregate%box_get%1#0
+        assert // check self.box exists                                                                    (𝕡) val#0 | aggregate%box_get%0#0
+        l-load-copy aggregate%box_get%0#0 0                                                                (𝕡) val#0 | aggregate%box_get%0#0,aggregate%box_get%0#0 (copy)
+        int 0                                                                                              (𝕡) val#0 | aggregate%box_get%0#0,aggregate%box_get%0#0 (copy),0
+        extract_uint16                                                                                     (𝕡) val#0 | aggregate%box_get%0#0,aggregate%extract_uint16%0#0
+        l-load-copy aggregate%box_get%0#0 1                                                                (𝕡) val#0 | aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%box_get%0#0 (copy)
+        len                                                                                                (𝕡) val#0 | aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load-copy aggregate%box_get%0#0 2                                                                (𝕡) val#0 | aggregate%box_get%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,aggregate%box_get%0#0 (copy)
+        l-load aggregate%extract_uint16%0#0 2                                                              (𝕡) val#0 | aggregate%box_get%0#0,aggregate%len%0#0,aggregate%box_get%0#0 (copy),aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                                         (𝕡) val#0 | aggregate%box_get%0#0,aggregate%box_get%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                                         (𝕡) val#0 | aggregate%box_get%0#0,aggregate%substring3%0#0
+        l-load aggregate%box_get%0#0 1                                                                     (𝕡) val#0 | aggregate%substring3%0#0,aggregate%box_get%0#0
+        int 2                                                                                              (𝕡) val#0 | aggregate%substring3%0#0,aggregate%box_get%0#0,2
+        extract_uint64                                                                                     (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0
+        l-load-copy aggregate%substring3%0#0 1                                                             (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0,aggregate%substring3%0#0 (copy)
+        p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0,aggregate%substring3%0#0 (copy),val#0 (copy)
+        concat // on error: max array length exceeded                                                      (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0,concat%0#0
+        l-load aggregate%substring3%0#0 2                                                                  (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,aggregate%substring3%0#0
+        int 0                                                                                              (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,aggregate%substring3%0#0,0
+        extract_uint16                                                                                     (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,extract_uint16%0#0
+        int 1                                                                                              (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                  (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,add%0#0
+        itob                                                                                               (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                        (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                                (𝕡) val#0 | aggregate%item1%0#0,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                         (𝕡) val#0 | aggregate%item1%0#0,replace%0#0
+        byte "box"                                                                                         (𝕡) val#0 | aggregate%item1%0#0,replace%0#0,"box"
+        box_del                                                                                            (𝕡) val#0 | aggregate%item1%0#0,replace%0#0,{box_del}
+        pop 1                                                                                              (𝕡) val#0 | aggregate%item1%0#0,replace%0#0
+        l-load aggregate%item1%0#0 1                                                                       (𝕡) val#0 | replace%0#0,aggregate%item1%0#0
+        itob                                                                                               (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#0
+        byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#0,0x000a
+        l-load aggregate%val_as_bytes%0#0 1                                                                (𝕡) val#0 | replace%0#0,0x000a,aggregate%val_as_bytes%0#0
+        concat                                                                                             (𝕡) val#0 | replace%0#0,aggregate%head%2#0
+        l-load replace%0#0 1                                                                               (𝕡) val#0 | aggregate%head%2#0,replace%0#0
+        concat                                                                                             (𝕡) val#0 | aggregate%concat%0#0
+        byte "box"                                                                                         (𝕡) val#0 | aggregate%concat%0#0,"box"
+        l-load aggregate%concat%0#0 1                                                                      (𝕡) val#0 | "box",aggregate%concat%0#0
+        box_put                                                                                            (𝕡) val#0 |
+        retsub
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_global(val: bytes) -> void:
+subroutine mutate_global:
+    mutate_global_block@0:                                                                                 (𝕡) val#0 |
+        // tuple_support/tuple_storage.py:38
+        // self.glob.value.arr.append(val)
+        int 0                                                                                              (𝕡) val#0 | 0
+        byte "glob"                                                                                        (𝕡) val#0 | 0,"glob"
+        app_global_get_ex                                                                                  (𝕡) val#0 | maybe_value%0#0,maybe_exists%0#0
+        assert // check self.glob exists                                                                   (𝕡) val#0 | maybe_value%0#0
+        l-load-copy maybe_value%0#0 0                                                                      (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy)
+        int 0                                                                                              (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),0
+        extract_uint16                                                                                     (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#0
+        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#0,maybe_value%0#0 (copy)
+        len                                                                                                (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,maybe_value%0#0 (copy)
+        l-load aggregate%extract_uint16%0#0 2                                                              (𝕡) val#0 | maybe_value%0#0,aggregate%len%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                                         (𝕡) val#0 | maybe_value%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                                         (𝕡) val#0 | maybe_value%0#0,aggregate%substring3%0#0
+        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | aggregate%substring3%0#0,maybe_value%0#0
+        int 2                                                                                              (𝕡) val#0 | aggregate%substring3%0#0,maybe_value%0#0,2
+        extract_uint64                                                                                     (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0
+        l-load-copy aggregate%substring3%0#0 1                                                             (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0,aggregate%substring3%0#0 (copy)
+        p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0,aggregate%substring3%0#0 (copy),val#0 (copy)
+        concat // on error: max array length exceeded                                                      (𝕡) val#0 | aggregate%substring3%0#0,aggregate%item1%0#0,concat%0#0
+        l-load aggregate%substring3%0#0 2                                                                  (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,aggregate%substring3%0#0
+        int 0                                                                                              (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,aggregate%substring3%0#0,0
+        extract_uint16                                                                                     (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,extract_uint16%0#0
+        int 1                                                                                              (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                  (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,add%0#0
+        itob                                                                                               (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                        (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                                (𝕡) val#0 | aggregate%item1%0#0,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                         (𝕡) val#0 | aggregate%item1%0#0,replace%0#0
+        l-load aggregate%item1%0#0 1                                                                       (𝕡) val#0 | replace%0#0,aggregate%item1%0#0
+        itob                                                                                               (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#0
+        byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#0,0x000a
+        l-load aggregate%val_as_bytes%0#0 1                                                                (𝕡) val#0 | replace%0#0,0x000a,aggregate%val_as_bytes%0#0
+        concat                                                                                             (𝕡) val#0 | replace%0#0,aggregate%head%2#0
+        l-load replace%0#0 1                                                                               (𝕡) val#0 | aggregate%head%2#0,replace%0#0
+        concat                                                                                             (𝕡) val#0 | aggregate%concat%0#0
+        byte "glob"                                                                                        (𝕡) val#0 | aggregate%concat%0#0,"glob"
+        l-load aggregate%concat%0#0 1                                                                      (𝕡) val#0 | "glob",aggregate%concat%0#0
+        app_global_put                                                                                     (𝕡) val#0 |
+        retsub
+
+
+// test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_local(val: bytes) -> void:
+subroutine mutate_local:
+    mutate_local_block@0:                                                                                  (𝕡) val#0 |
+        // tuple_support/tuple_storage.py:42
+        // self.loc[Txn.sender].arr.append(val)
+        txn Sender                                                                                         (𝕡) val#0 | tmp%0#0
+        l-load-copy tmp%0#0 0                                                                              (𝕡) val#0 | tmp%0#0,tmp%0#0 (copy)
+        int 0                                                                                              (𝕡) val#0 | tmp%0#0,tmp%0#0 (copy),0
+        byte "loc"                                                                                         (𝕡) val#0 | tmp%0#0,tmp%0#0 (copy),0,"loc"
+        app_local_get_ex                                                                                   (𝕡) val#0 | tmp%0#0,maybe_value%0#0,maybe_exists%0#0
+        assert // check self.loc exists for account                                                        (𝕡) val#0 | tmp%0#0,maybe_value%0#0
+        l-load-copy maybe_value%0#0 0                                                                      (𝕡) val#0 | tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy)
+        int 0                                                                                              (𝕡) val#0 | tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy),0
+        extract_uint16                                                                                     (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#0
+        l-load-copy maybe_value%0#0 1                                                                      (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#0,maybe_value%0#0 (copy)
+        len                                                                                                (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0
+        l-load-copy maybe_value%0#0 2                                                                      (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%extract_uint16%0#0,aggregate%len%0#0,maybe_value%0#0 (copy)
+        l-load aggregate%extract_uint16%0#0 2                                                              (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%len%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0
+        l-load aggregate%len%0#0 2                                                                         (𝕡) val#0 | tmp%0#0,maybe_value%0#0,maybe_value%0#0 (copy),aggregate%extract_uint16%0#0,aggregate%len%0#0
+        substring3                                                                                         (𝕡) val#0 | tmp%0#0,maybe_value%0#0,aggregate%substring3%0#0
+        l-load maybe_value%0#0 1                                                                           (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#0,maybe_value%0#0
+        int 2                                                                                              (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#0,maybe_value%0#0,2
+        extract_uint64                                                                                     (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#0,aggregate%item1%0#0
+        l-load-copy aggregate%substring3%0#0 1                                                             (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#0,aggregate%item1%0#0,aggregate%substring3%0#0 (copy)
+        p-load val#0                                                                                       (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#0,aggregate%item1%0#0,aggregate%substring3%0#0 (copy),val#0 (copy)
+        concat // on error: max array length exceeded                                                      (𝕡) val#0 | tmp%0#0,aggregate%substring3%0#0,aggregate%item1%0#0,concat%0#0
+        l-load aggregate%substring3%0#0 2                                                                  (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,concat%0#0,aggregate%substring3%0#0
+        int 0                                                                                              (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,concat%0#0,aggregate%substring3%0#0,0
+        extract_uint16                                                                                     (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,concat%0#0,extract_uint16%0#0
+        int 1                                                                                              (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,concat%0#0,extract_uint16%0#0,1
+        +                                                                                                  (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,concat%0#0,add%0#0
+        itob                                                                                               (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,concat%0#0,as_bytes%0#0
+        extract 6 2                                                                                        (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,concat%0#0,as_u16_bytes%0#0
+        l-load concat%0#0 1                                                                                (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,as_u16_bytes%0#0,concat%0#0
+        l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,concat%0#0,as_u16_bytes%0#0
+        replace2 0                                                                                         (𝕡) val#0 | tmp%0#0,aggregate%item1%0#0,replace%0#0
+        l-load aggregate%item1%0#0 1                                                                       (𝕡) val#0 | tmp%0#0,replace%0#0,aggregate%item1%0#0
+        itob                                                                                               (𝕡) val#0 | tmp%0#0,replace%0#0,aggregate%val_as_bytes%0#0
+        byte 0x000a                                                                                        (𝕡) val#0 | tmp%0#0,replace%0#0,aggregate%val_as_bytes%0#0,0x000a
+        l-load aggregate%val_as_bytes%0#0 1                                                                (𝕡) val#0 | tmp%0#0,replace%0#0,0x000a,aggregate%val_as_bytes%0#0
+        concat                                                                                             (𝕡) val#0 | tmp%0#0,replace%0#0,aggregate%head%2#0
+        l-load replace%0#0 1                                                                               (𝕡) val#0 | tmp%0#0,aggregate%head%2#0,replace%0#0
+        concat                                                                                             (𝕡) val#0 | tmp%0#0,aggregate%concat%0#0
+        l-load tmp%0#0 1                                                                                   (𝕡) val#0 | aggregate%concat%0#0,tmp%0#0
+        byte "loc"                                                                                         (𝕡) val#0 | aggregate%concat%0#0,tmp%0#0,"loc"
+        l-load aggregate%concat%0#0 2                                                                      (𝕡) val#0 | tmp%0#0,"loc",aggregate%concat%0#0
+        app_local_put                                                                                      (𝕡) val#0 |
+        retsub
+
+

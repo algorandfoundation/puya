@@ -111,6 +111,12 @@ class Arc4MutableParamsContract(Contract):
         assert my_array_copy_2[1] == 207
         assert my_array_copy_3[1] == 208
 
+        foo = (my_array.copy(), my_array.copy(), my_array.copy())
+        self.mutate_tuple_items_and_reassign(foo, start=UInt64(222), reassign=False)
+        assert foo[0][1] == (306 - 78)
+        assert foo[1][1] == (307 - 78)
+        assert foo[2][1] == (308 - 78)
+
         # Nested array items should still require a copy
         nested = StructWithArray(test_array=my_array.copy())
         self.other_routine_2(nested.test_array.copy())

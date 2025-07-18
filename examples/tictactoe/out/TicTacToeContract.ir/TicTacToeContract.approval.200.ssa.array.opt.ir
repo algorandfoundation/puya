@@ -1,0 +1,277 @@
+main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init:
+    block@0: // L1
+        let tmp%0#2: uint64 = (txn NumAppArgs)
+        goto tmp%0#2 ? block@4 : block@9
+    block@4: // abi_routing_L15
+        let tmp%2#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%2#0 {method "new_game((uint64,uint64))void" => block@5, method "join_game((uint64,uint64))void" => block@6, method "whose_turn()uint8" => block@7, method "play((uint64,uint64))void" => block@8, * => block@9}
+    block@5: // new_game_route_L20
+        let tmp%3#0: uint64 = (txn OnCompletion)
+        let tmp%4#0: bool = (! tmp%3#0)
+        (assert tmp%4#0) // OnCompletion is not NoOp
+        let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
+        let aggregate%extract%0#0: bytes = ((extract 0 8) reinterpret_Encoded(uint64,uint64)%0#0)
+        let aggregate%item0%0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
+        let aggregate%extract%1#0: bytes = ((extract 8 8) reinterpret_Encoded(uint64,uint64)%0#0)
+        let aggregate%item1%0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
+        examples.tictactoe.tictactoe.TicTacToeContract.new_game(aggregate%item0%0#0, aggregate%item1%0#0)
+        let examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#0: bool = 1u
+        goto block@10
+    block@6: // join_game_route_L37
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let tmp%8#0: bool = (! tmp%7#0)
+        (assert tmp%8#0) // OnCompletion is not NoOp
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
+        let reinterpret_Encoded(uint64,uint64)%1#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
+        let aggregate%extract%2#0: bytes = ((extract 0 8) reinterpret_Encoded(uint64,uint64)%1#0)
+        let aggregate%item0%1#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%1#0 0u)
+        let aggregate%extract%3#0: bytes = ((extract 8 8) reinterpret_Encoded(uint64,uint64)%1#0)
+        let aggregate%item1%1#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%1#0 8u)
+        examples.tictactoe.tictactoe.TicTacToeContract.join_game(aggregate%item0%1#0, aggregate%item1%1#0)
+        let examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#1: bool = 1u
+        goto block@10
+    block@7: // whose_turn_route_L43
+        let tmp%13#0: uint64 = (txn OnCompletion)
+        let tmp%14#0: bool = (! tmp%13#0)
+        (assert tmp%14#0) // OnCompletion is not NoOp
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        (assert tmp%15#0) // can only call when not creating
+        let tmp%17#0: Encoded(uint8) = examples.tictactoe.tictactoe.TicTacToeContract.whose_turn()
+        let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
+        (log tmp%18#0)
+        let examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#2: bool = 1u
+        goto block@10
+    block@8: // play_route_L47
+        let tmp%19#0: uint64 = (txn OnCompletion)
+        let tmp%20#0: bool = (! tmp%19#0)
+        (assert tmp%20#0) // OnCompletion is not NoOp
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        (assert tmp%21#0) // can only call when not creating
+        let reinterpret_Encoded(uint64,uint64)%2#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
+        let aggregate%extract%4#0: bytes = ((extract 0 8) reinterpret_Encoded(uint64,uint64)%2#0)
+        let aggregate%item0%2#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%2#0 0u)
+        let aggregate%extract%5#0: bytes = ((extract 8 8) reinterpret_Encoded(uint64,uint64)%2#0)
+        let aggregate%item1%2#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%2#0 8u)
+        examples.tictactoe.tictactoe.TicTacToeContract.play(aggregate%item0%2#0, aggregate%item1%2#0)
+        let examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#3: bool = 1u
+        goto block@10
+    block@9: // after_if_else_L15
+        let examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#4: bool = 0u
+        goto block@10
+    block@10: // after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router___L1
+        let tmp%0#1: bool = φ(examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#0 <- block@5, examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#1 <- block@6, examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#2 <- block@7, examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#3 <- block@8, examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__%0#4 <- block@9)
+        return tmp%0#1
+
+subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint64, move.1: uint64) -> void:
+    block@0: // L20
+        let reinterpret_bool%0#0: bool = (txn ApplicationID)
+        goto reinterpret_bool%0#0 ? block@1 : block@4
+    block@1: // if_body_L25
+        let (_%0#0: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+        goto maybe_exists%0#0 ? block@2 : block@3
+    block@2: // if_body_L26
+        let (_%1#0: Encoded(uint8), maybe_exists%1#0: bool) = (app_global_get_ex 0u "winner")
+        (assert maybe_exists%1#0) // Game isn't over
+        goto block@3
+    block@3: // after_if_else_L25
+        (app_global_del "challenger")
+        (app_global_del "winner")
+        goto block@4
+    block@4: // after_if_else_L22
+        let tmp%0#0: account = (txn Sender)
+        (app_global_put "host" tmp%0#0)
+        let reinterpret_Encoded(uint8[3][3])%0#0: Encoded(uint8[3][3]) = (bzero 9u)
+        (app_global_put "game" reinterpret_Encoded(uint8[3][3])%0#0)
+        let tmp%1#0: bool = (< move.0#0 3u)
+        goto tmp%1#0 ? block@5 : block@7
+    block@5: // and_contd_L33
+        let tmp%2#0: bool = (< move.1#0 3u)
+        goto tmp%2#0 ? block@6 : block@7
+    block@6: // bool_true_L33
+        let and_result%0#0: bool = 1u
+        goto block@8
+    block@7: // bool_false_L33
+        let and_result%0#1: bool = 0u
+        goto block@8
+    block@8: // bool_merge_L33
+        let and_result%0#2: bool = φ(and_result%0#0 <- block@6, and_result%0#1 <- block@7)
+        (assert and_result%0#2) // Move must be in range
+        let (maybe_value%0#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "game")
+        (assert maybe_exists%2#0) // check self.game exists
+        let aggregate%bytes_offset%0#0: uint64 = (* move.1#0 3u)
+        let aggregate%encoded_element%0#0: bytes = (extract3 maybe_value%0#0 aggregate%bytes_offset%0#0 3u) // on error: index access is out of bounds
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%0#0 move.0#0 0x01)
+        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%0#0 aggregate%bytes_offset%0#0 aggregate%updated_array%0#0)
+        (app_global_put "game" aggregate%updated_array%1#0)
+        (app_global_put "turns" 0u)
+        return 
+
+subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game(move.0: uint64, move.1: uint64) -> void:
+    block@0: // L37
+        let (_%0#0: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
+        let tmp%0#0: bool = (! maybe_exists%0#0)
+        (assert tmp%0#0) // Host already has a challenger
+        let tmp%1#0: account = (txn Sender)
+        (app_global_put "challenger" tmp%1#0)
+        examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x02, move.0#0, move.1#0)
+        return 
+
+subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn() -> Encoded(uint8):
+    block@0: // L43
+        let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "turns")
+        (assert maybe_exists%0#0) // check self.turns exists
+        let tmp%0#0: uint64 = (% maybe_value%0#0 2u)
+        let select%0#0: Encoded(uint8) = (select 0x02 0x01 tmp%0#0)
+        return select%0#0
+
+subroutine examples.tictactoe.tictactoe.TicTacToeContract.play(move.0: uint64, move.1: uint64) -> void:
+    block@0: // L47
+        let (_%0#0: Encoded(uint8), maybe_exists%0#0: bool) = (app_global_get_ex 0u "winner")
+        let tmp%0#0: bool = (! maybe_exists%0#0)
+        (assert tmp%0#0) // Game is already finished
+        let (maybe_value%0#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "turns")
+        (assert maybe_exists%1#0) // check self.turns exists
+        let tmp%1#0: uint64 = (% maybe_value%0#0 2u)
+        goto tmp%1#0 ? block@1 : block@2
+    block@1: // if_body_L51
+        let tmp%3#0: account = (txn Sender)
+        let (maybe_value%1#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "host")
+        (assert maybe_exists%2#0) // check self.host exists
+        let tmp%4#0: bool = (== tmp%3#0 maybe_value%1#0)
+        (assert tmp%4#0) // It is the host's turn
+        let player#0: Encoded(uint8) = 0x01
+        goto block@3
+    block@2: // else_body_L54
+        let tmp%5#0: account = (txn Sender)
+        let tmp%6#0: account = (global ZeroAddress)
+        let (maybe_value%2#0: bytes, maybe_exists%3#0: bool) = (app_global_get_ex 0u "challenger")
+        let state_get%0#0: bytes = (select tmp%6#0 maybe_value%2#0 maybe_exists%3#0)
+        let tmp%7#0: bool = (== tmp%5#0 state_get%0#0)
+        (assert tmp%7#0) // It is the challenger's turn
+        let player#1: Encoded(uint8) = 0x02
+        goto block@3
+    block@3: // after_if_else_L50
+        let player#2: Encoded(uint8) = φ(player#0 <- block@1, player#1 <- block@2)
+        examples.tictactoe.tictactoe.TicTacToeContract.make_move(player#2, move.0#0, move.1#0)
+        return 
+
+subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Encoded(uint8), move.0: uint64, move.1: uint64) -> void:
+    block@0: // L60
+        let tmp%0#0: bool = (< move.0#0 3u)
+        goto tmp%0#0 ? block@1 : block@3
+    block@1: // and_contd_L63
+        let tmp%1#0: bool = (< move.1#0 3u)
+        goto tmp%1#0 ? block@2 : block@3
+    block@2: // bool_true_L63
+        let and_result%0#0: bool = 1u
+        goto block@4
+    block@3: // bool_false_L63
+        let and_result%0#1: bool = 0u
+        goto block@4
+    block@4: // bool_merge_L63
+        let and_result%0#2: bool = φ(and_result%0#0 <- block@2, and_result%0#1 <- block@3)
+        (assert and_result%0#2) // Move must be in range
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "game")
+        (assert maybe_exists%0#0) // check self.game exists
+        let aggregate%bytes_offset%0#0: uint64 = (* move.1#0 3u)
+        let aggregate%encoded_element%0#0: bytes = (extract3 maybe_value%0#0 aggregate%bytes_offset%0#0 3u) // on error: index access is out of bounds
+        let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%encoded_element%0#0 move.0#0 1u) // on error: index access is out of bounds
+        let tmp%2#0: bool = (b== aggregate%encoded_element%1#0 0x00)
+        (assert tmp%2#0) // Square is already taken
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%0#0 move.0#0 player#0)
+        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%0#0 aggregate%bytes_offset%0#0 aggregate%updated_array%0#0)
+        (app_global_put "game" aggregate%updated_array%1#0)
+        let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")
+        (assert maybe_exists%2#0) // check self.turns exists
+        let tmp%3#0: uint64 = (+ maybe_value%2#0 1u)
+        (app_global_put "turns" tmp%3#0)
+        let (g#0: Encoded(uint8[3][3]), maybe_exists%0#1: bool) = (app_global_get_ex 0u "game")
+        (assert maybe_exists%0#1) // check self.game exists
+        let aggregate%encoded_element%4#0: bytes = (extract3 g#0 aggregate%bytes_offset%0#0 3u) // on error: index access is out of bounds
+        let aggregate%bytes_offset%5#0: uint64 = 0u
+        let aggregate%encoded_element%5#0: bytes = ((extract 0 1) aggregate%encoded_element%4#0) // on error: index access is out of bounds
+        let aggregate%bytes_offset%6#0: uint64 = 1u
+        let aggregate%encoded_element%6#0: bytes = ((extract 1 1) aggregate%encoded_element%4#0) // on error: index access is out of bounds
+        let tmp%0#1: bool = (b== aggregate%encoded_element%5#0 aggregate%encoded_element%6#0)
+        goto tmp%0#1 ? block@11 : block@13
+    block@11: // and_contd_L76
+        let aggregate%bytes_offset%7#0: uint64 = 2u
+        let aggregate%encoded_element%7#0: bytes = ((extract 2 1) aggregate%encoded_element%4#0) // on error: index access is out of bounds
+        let tmp%1#1: bool = (b== aggregate%encoded_element%6#0 aggregate%encoded_element%7#0)
+        goto tmp%1#1 ? block@12 : block@13
+    block@12: // if_body_L77
+        let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0: bool = 1u
+        goto block@25
+    block@13: // after_if_else_L76
+        let aggregate%bytes_offset%8#0: uint64 = 0u
+        let aggregate%encoded_element%8#0: bytes = ((extract 0 3) g#0) // on error: index access is out of bounds
+        let aggregate%encoded_element%9#0: bytes = (extract3 aggregate%encoded_element%8#0 move.0#0 1u) // on error: index access is out of bounds
+        let aggregate%bytes_offset%10#0: uint64 = 3u
+        let aggregate%encoded_element%10#0: bytes = ((extract 3 3) g#0) // on error: index access is out of bounds
+        let aggregate%encoded_element%11#0: bytes = (extract3 aggregate%encoded_element%10#0 move.0#0 1u) // on error: index access is out of bounds
+        let tmp%2#1: bool = (b== aggregate%encoded_element%9#0 aggregate%encoded_element%11#0)
+        goto tmp%2#1 ? block@14 : block@16
+    block@14: // and_contd_L79
+        let aggregate%bytes_offset%12#0: uint64 = 6u
+        let aggregate%encoded_element%12#0: bytes = ((extract 6 3) g#0) // on error: index access is out of bounds
+        let aggregate%encoded_element%13#0: bytes = (extract3 aggregate%encoded_element%12#0 move.0#0 1u) // on error: index access is out of bounds
+        let tmp%3#1: bool = (b== aggregate%encoded_element%11#0 aggregate%encoded_element%13#0)
+        goto tmp%3#1 ? block@15 : block@16
+    block@15: // if_body_L80
+        let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#1: bool = 1u
+        goto block@25
+    block@16: // after_if_else_L79
+        let aggregate%bytes_offset%14#0: uint64 = 1u
+        let aggregate%encoded_element%14#0: bytes = ((extract 1 1) aggregate%encoded_element%10#0) // on error: index access is out of bounds
+        let tmp%4#1: bool = (b== player#0 aggregate%encoded_element%14#0)
+        goto tmp%4#1 ? block@17 : block@24
+    block@17: // if_body_L84
+        let aggregate%bytes_offset%15#0: uint64 = 0u
+        let aggregate%encoded_element%15#0: bytes = ((extract 0 1) aggregate%encoded_element%8#0) // on error: index access is out of bounds
+        let tmp%5#1: bool = (b== aggregate%encoded_element%15#0 player#0)
+        goto tmp%5#1 ? block@18 : block@20
+    block@18: // and_contd_L84
+        let aggregate%bytes_offset%16#0: uint64 = 6u
+        let aggregate%encoded_element%16#0: bytes = ((extract 6 3) g#0) // on error: index access is out of bounds
+        let aggregate%bytes_offset%17#0: uint64 = 2u
+        let aggregate%encoded_element%17#0: bytes = ((extract 2 1) aggregate%encoded_element%16#0) // on error: index access is out of bounds
+        let tmp%6#0: bool = (b== player#0 aggregate%encoded_element%17#0)
+        goto tmp%6#0 ? block@19 : block@20
+    block@19: // if_body_L85
+        let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#2: bool = 1u
+        goto block@25
+    block@20: // after_if_else_L84
+        let aggregate%bytes_offset%18#0: uint64 = 2u
+        let aggregate%encoded_element%18#0: bytes = ((extract 2 1) aggregate%encoded_element%8#0) // on error: index access is out of bounds
+        let tmp%7#0: bool = (b== aggregate%encoded_element%18#0 player#0)
+        goto tmp%7#0 ? block@21 : block@24
+    block@21: // and_contd_L86
+        let aggregate%bytes_offset%19#0: uint64 = 6u
+        let aggregate%encoded_element%19#0: bytes = ((extract 6 3) g#0) // on error: index access is out of bounds
+        let aggregate%bytes_offset%20#0: uint64 = 0u
+        let aggregate%encoded_element%20#0: bytes = ((extract 0 1) aggregate%encoded_element%19#0) // on error: index access is out of bounds
+        let tmp%8#0: bool = (b== player#0 aggregate%encoded_element%20#0)
+        goto tmp%8#0 ? block@22 : block@24
+    block@22: // if_body_L87
+        let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#3: bool = 1u
+        goto block@25
+    block@24: // after_if_else_L83
+        let examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#4: bool = 0u
+        goto block@25
+    block@25: // after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.did_win_L63
+        let tmp%4#0: bool = φ(examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#0 <- block@12, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#1 <- block@15, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#2 <- block@19, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#3 <- block@22, examples.tictactoe.tictactoe.TicTacToeContract.did_win%0#4 <- block@24)
+        goto tmp%4#0 ? block@5 : block@6
+    block@5: // if_body_L68
+        (app_global_put "winner" player#0)
+        goto block@9
+    block@6: // else_body_L69
+        let (maybe_value%3#0: uint64, maybe_exists%3#0: bool) = (app_global_get_ex 0u "turns")
+        (assert maybe_exists%3#0) // check self.turns exists
+        let tmp%5#0: bool = (== maybe_value%3#0 9u)
+        goto tmp%5#0 ? block@7 : block@9
+    block@7: // if_body_L70
+        (app_global_put "winner" 0x03)
+        goto block@9
+    block@9: // after_if_else_L67
+        return 

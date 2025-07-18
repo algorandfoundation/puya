@@ -63,12 +63,12 @@ def test_bytes_validation() -> None:
     expr = awst.BytesConstant(
         value=b"0" * 4097, encoding=BytesEncoding.base16, source_location=_location
     )
-    assert _build_ir_and_return_errors(expr) == ["invalid bytes value"]
+    assert _build_ir_and_return_errors(expr) == ["bytes constant exceeds stack size limits"]
 
 
 def test_string_validation() -> None:
     expr = awst.StringConstant(value="0" * 4097, source_location=_location)
-    assert _build_ir_and_return_errors(expr) == ["invalid string value"]
+    assert _build_ir_and_return_errors(expr) == ["bytes constant exceeds stack size limits"]
 
 
 def test_address_validation() -> None:
@@ -108,19 +108,3 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
     with logging_context() as log_ctx:
         FunctionIRBuilder.build_body(ctx, function, subroutine)
     return [log.message for log in log_ctx.logs if log.level == LogLevel.error]
-
-
-def test_expand_encoded_tuple() -> None:
-    import puya.ir.types_ as ir
-
-    encoded_tuple = ir.EncodedTupleType(
-        elements=(
-            ir.PrimitiveIRType.bool,
-            ir.EncodedTupleType(elements=(ir.PrimitiveIRType.bool, ir.PrimitiveIRType.bool)),
-            ir.EncodedTupleType(elements=(ir.PrimitiveIRType.bool, ir.PrimitiveIRType.bool)),
-            ir.PrimitiveIRType.bool,
-        )
-    )
-    types_and_group_id = ir.expand_encoded_type_and_group(encoded_tuple)
-    group_ids = [g for t, g in types_and_group_id]
-    assert group_ids == [1, 2, 2, 3, 3, 1]

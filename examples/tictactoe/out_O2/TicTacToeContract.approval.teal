@@ -6,7 +6,7 @@ main:
     intcblock 0 1 3 8
     bytecblock "turns" "game" "winner" "challenger" 0x01 0x02 "host"
     pushbytes ""
-    dupn 2
+    dup
     txn NumAppArgs
     bz main_after_if_else@20
     pushbytess 0x96a97181 0x17a079b3 0xbb9f1147 0x9eebf58e // method "new_game((uint64,uint64))void", method "join_game((uint64,uint64))void", method "whose_turn()uint8", method "play((uint64,uint64))void"
@@ -15,10 +15,6 @@ main:
 
 main_after_if_else@20:
     intc_0 // 0
-    bury 1
-
-main_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@21:
-    dup
     return
 
 main_play_route@16:
@@ -31,10 +27,10 @@ main_play_route@16:
     dup
     intc_0 // 0
     extract_uint64
-    bury 4
+    bury 3
     intc_3 // 8
     extract_uint64
-    bury 2
+    bury 1
     intc_0 // 0
     bytec_2 // "winner"
     app_global_get_ex
@@ -58,12 +54,11 @@ main_play_route@16:
     bytec 4 // 0x01
 
 main_after_if_else@19:
-    dig 3
-    dig 3
+    dig 2
+    dig 2
     callsub make_move
     intc_1 // 1
-    bury 1
-    b main_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@21
+    return
 
 main_else_body@18:
     txn Sender
@@ -98,8 +93,7 @@ main_whose_turn_route@15:
     concat
     log
     intc_1 // 1
-    bury 1
-    b main_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@21
+    return
 
 main_join_game_route@14:
     txn OnCompletion
@@ -127,8 +121,7 @@ main_join_game_route@14:
     cover 2
     callsub make_move
     intc_1 // 1
-    bury 1
-    b main_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@21
+    return
 
 main_new_game_route@5:
     txn OnCompletion
@@ -138,10 +131,10 @@ main_new_game_route@5:
     dup
     intc_0 // 0
     extract_uint64
-    bury 4
+    bury 3
     intc_3 // 8
     extract_uint64
-    bury 2
+    bury 1
     txn ApplicationID
     bz main_after_if_else@9
     intc_0 // 0
@@ -170,13 +163,11 @@ main_after_if_else@9:
     bytec_1 // "game"
     swap
     app_global_put
-    dig 2
+    dig 1
     intc_2 // 3
     <
-    dup
-    bury 2
     bz main_bool_false@12
-    dig 1
+    dup
     intc_2 // 3
     <
     bz main_bool_false@12
@@ -188,23 +179,15 @@ main_bool_merge@13:
     bytec_1 // "game"
     app_global_get_ex
     assert // check self.game exists
-    dig 2
-    dup
-    cover 2
+    dig 1
     intc_2 // 3
     *
     dup2
     intc_2 // 3
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dig 4
-    assert // Index access is out of bounds
-    dig 6
     bytec 4 // 0x01
     replace3
-    uncover 3
-    intc_2 // 3
-    <
-    assert // Index access is out of bounds
     replace3
     bytec_1 // "game"
     swap
@@ -213,8 +196,7 @@ main_bool_merge@13:
     intc_0 // 0
     app_global_put
     intc_1 // 1
-    bury 1
-    b main_after_inlined_examples.tictactoe.tictactoe.TicTacToeContract.__puya_arc4_router__@21
+    return
 
 main_bool_false@12:
     intc_0 // 0
@@ -229,7 +211,6 @@ make_move:
     frame_dig -2
     intc_2 // 3
     <
-    dup
     bz make_move_bool_false@3
     frame_dig -1
     intc_2 // 3
@@ -248,23 +229,17 @@ make_move_bool_merge@4:
     *
     dup2
     intc_2 // 3
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     frame_dig -2
     intc_1 // 1
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     pushbytes 0x00
     b==
     assert // Square is already taken
-    frame_dig 6
-    assert // Index access is out of bounds
     frame_dig -2
     frame_dig -3
     replace3
-    frame_dig -1
-    intc_2 // 3
-    <
-    assert // Index access is out of bounds
     uncover 2
     dig 2
     uncover 2
@@ -287,24 +262,24 @@ make_move_bool_merge@4:
     swap
     dup
     cover 2
-    frame_bury 2
+    frame_bury 5
     assert // check self.game exists
     swap
     intc_2 // 3
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
+    dup
+    frame_bury 2
+    dup
+    extract 0 1 // on error: index access is out of bounds
+    swap
+    extract 1 1 // on error: index access is out of bounds
     dup
     frame_bury 3
-    dup
-    extract 0 1 // on error: Index access is out of bounds
-    swap
-    extract 1 1 // on error: Index access is out of bounds
-    dup
-    frame_bury 0
     b==
     bz make_move_after_if_else@13
+    frame_dig 2
+    extract 2 1 // on error: index access is out of bounds
     frame_dig 3
-    extract 2 1 // on error: Index access is out of bounds
-    frame_dig 0
     b==
     bz make_move_after_if_else@13
 
@@ -334,61 +309,61 @@ make_move_else_body@6:
     retsub
 
 make_move_after_if_else@13:
-    frame_dig 2
+    frame_dig 5
     dup
-    extract 0 3 // on error: Index access is out of bounds
+    extract 0 3 // on error: index access is out of bounds
     dup
     frame_bury 4
     frame_dig -2
     intc_1 // 1
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     swap
-    extract 3 3 // on error: Index access is out of bounds
+    extract 3 3 // on error: index access is out of bounds
     dup
-    frame_bury 5
+    frame_bury 0
     frame_dig -2
     intc_1 // 1
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     dup
     frame_bury 1
     b==
     bz make_move_after_if_else@16
-    frame_dig 2
-    extract 6 3 // on error: Index access is out of bounds
+    frame_dig 5
+    extract 6 3 // on error: index access is out of bounds
     frame_dig -2
     intc_1 // 1
-    extract3 // on error: Index access is out of bounds
+    extract3 // on error: index access is out of bounds
     frame_dig 1
     b==
     bnz make_move_if_body@12
 
 make_move_after_if_else@16:
-    frame_dig 5
-    extract 1 1 // on error: Index access is out of bounds
+    frame_dig 0
+    extract 1 1 // on error: index access is out of bounds
     frame_dig -3
     b==
     bz make_move_after_if_else@24
     frame_dig 4
-    extract 0 1 // on error: Index access is out of bounds
+    extract 0 1 // on error: index access is out of bounds
     frame_dig -3
     b==
     bz make_move_after_if_else@20
-    frame_dig 2
-    extract 6 3 // on error: Index access is out of bounds
-    extract 2 1 // on error: Index access is out of bounds
+    frame_dig 5
+    extract 6 3 // on error: index access is out of bounds
+    extract 2 1 // on error: index access is out of bounds
     frame_dig -3
     b==
     bnz make_move_if_body@12
 
 make_move_after_if_else@20:
     frame_dig 4
-    extract 2 1 // on error: Index access is out of bounds
+    extract 2 1 // on error: index access is out of bounds
     frame_dig -3
     b==
     bz make_move_after_if_else@24
-    frame_dig 2
-    extract 6 3 // on error: Index access is out of bounds
-    extract 0 1 // on error: Index access is out of bounds
+    frame_dig 5
+    extract 6 3 // on error: index access is out of bounds
+    extract 0 1 // on error: index access is out of bounds
     frame_dig -3
     b==
     bnz make_move_if_body@12

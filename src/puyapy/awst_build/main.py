@@ -7,6 +7,7 @@ from puya.utils import make_path_relative_to_cwd
 from puyapy.awst_build.context import ASTConversionContext
 from puyapy.awst_build.module import ModuleASTConverter
 from puyapy.parse import ParseResult, SourceDiscoveryMechanism
+from puyapy.validation.main import validate_awst
 
 logger = log.get_logger(__name__)
 
@@ -43,4 +44,7 @@ def transform_ast(
             for root_node in root_nodes:
                 if isinstance(root_node, Contract | LogicSignature):
                     compilation_set.append(root_node.id)
+    # do front end specific AWST validation
+    validate_awst(awst)
+
     return awst, compilation_set

@@ -3,13 +3,13 @@
 # this order is intentional, so that when the stubs are processed for documentation the
 # types are in the correct dependency order
 from algopy._primitives import *
-from algopy._array import *
 from algopy._constants import *
 from algopy._reference import *
 from algopy._box import *
 from algopy._compiled import *
 from algopy._contract import *
 from algopy._hints import *
+from algopy._native import *
 from algopy._state import *
 from algopy._unsigned_builtins import *
 from algopy._util import *

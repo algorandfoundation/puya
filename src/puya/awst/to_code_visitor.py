@@ -692,11 +692,13 @@ class ToCodeVisitor(
 
     @typing.override
     def visit_comma_expression(self, expr: nodes.CommaExpression) -> str:
-        tuple_expr = nodes.TupleExpression.from_items(
-            expr.expressions,
-            expr.source_location,
-        )
-        return tuple_expr.accept(self) + "[-1]"
+        items = ", ".join([item.accept(self) for item in expr.expressions])
+        return f"({items})[-1]"
+
+    @typing.override
+    def visit_convert_array(self, expr: nodes.ConvertArray) -> str:
+        array_expr = expr.expr.accept(self)
+        return f"convert_array<{expr.wtype}>({array_expr})"
 
 
 def _indent(lines: Iterable[str], indent_size: str = "  ") -> Iterator[str]:

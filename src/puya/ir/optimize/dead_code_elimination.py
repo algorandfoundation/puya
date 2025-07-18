@@ -7,6 +7,7 @@ from puya import log
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models, visitor
+from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import bfs_block_order
 from puya.ir.ssa import TrivialPhiRemover
 from puya.utils import StableSet
@@ -182,17 +183,29 @@ SIDE_EFFECT_FREE_AVM_OPS = frozenset([*PURE_AVM_OPS, *IMPURE_SIDE_EFFECT_FREE_AV
 @attrs.define
 class SubroutineCollector(visitor.IRTraverser):
     subroutines: StableSet[models.Subroutine] = attrs.field(factory=StableSet)
+    referenced_libs: StableSet[PuyaLibIR] = attrs.field(factory=StableSet)
 
     @classmethod
     def collect(cls, program: models.Program) -> StableSet[models.Subroutine]:
         collector = cls()
         collector.visit_subroutine(program.main)
-        return collector.subroutines
+        return collector.subroutines | [
+            s for s in program.subroutines if s.id in collector.referenced_libs
+        ]
 
     def visit_subroutine(self, subroutine: models.Subroutine) -> None:
         if subroutine not in self.subroutines:
             self.subroutines.add(subroutine)
             self.visit_all_blocks(subroutine.body)
+
+    def visit_replace_value(self, _: models.ReplaceValue) -> None:
+        self.referenced_libs |= (
+            PuyaLibIR.dynamic_array_replace_byte_length_head,
+            PuyaLibIR.dynamic_array_replace_dynamic_element,
+            PuyaLibIR.static_array_replace_byte_length_head,
+            PuyaLibIR.static_array_replace_dynamic_element,
+            PuyaLibIR.recalculate_head_for_elements_with_byte_length_head,
+        )
 
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         self.visit_subroutine(callsub.target)
@@ -224,7 +237,14 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
     for (block, ass), registers in assignments.items():
         if registers.symmetric_difference(ass.targets):
             pass  # some registers still used
-        elif isinstance(ass.source, models.Value | models.InnerTransactionField) or (
+        elif isinstance(
+            ass.source,
+            models.Value
+            | models.InnerTransactionField
+            | models.BoxRead
+            | models.ExtractValue
+            | models.ReplaceValue,
+        ) or (
             isinstance(ass.source, models.Intrinsic)
             and ass.source.op.code in SIDE_EFFECT_FREE_AVM_OPS
         ):

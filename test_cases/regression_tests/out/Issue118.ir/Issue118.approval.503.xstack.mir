@@ -25,13 +25,13 @@ subroutine main:
         assert // can only call when not creating
         // regression_tests/issue_118.py:5
         // class Issue118(ARC4Contract):
-        txna ApplicationArgs 1                                                                 tmp%7#0
+        txna ApplicationArgs 1                                                                 reinterpret_Encoded(len+uint256[])%0#0
         // regression_tests/issue_118.py:7
         // @abimethod
-        callsub verify                                                                         tmp%8#0
-        byte 0x151f7c75                                                                        tmp%8#0,0x151f7c75
-        l-load tmp%8#0 1                                                                       0x151f7c75,tmp%8#0
-        concat                                                                                 tmp%9#0
+        callsub verify                                                                         tmp%7#0
+        byte 0x151f7c75                                                                        tmp%7#0,0x151f7c75
+        l-load tmp%7#0 1                                                                       0x151f7c75,tmp%7#0
+        concat                                                                                 tmp%8#0
         log
         int 1                                                                                  test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |
@@ -40,12 +40,12 @@ subroutine main:
     main_bare_routing@6:
         // regression_tests/issue_118.py:5
         // class Issue118(ARC4Contract):
-        txn OnCompletion                                                                       tmp%10#0
+        txn OnCompletion                                                                       tmp%9#0
         bz main___algopy_default_create@7 ; b main_after_if_else@10
 
     main___algopy_default_create@7:
-        txn ApplicationID                                                                      tmp%11#0
-        !                                                                                      tmp%12#0
+        txn ApplicationID                                                                      tmp%10#0
+        !                                                                                      tmp%11#0
         assert // can only call when creating
         int 1                                                                                  test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                        (𝕏) tmp%0#0 |
@@ -82,29 +82,25 @@ subroutine verify:
         // if values.length != 2:
         p-load values#0                                                                        (𝕡) values#0 | (𝕏) val1#0 | values#0 (copy)
         int 0                                                                                  (𝕡) values#0 | (𝕏) val1#0 | values#0 (copy),0
-        extract_uint16                                                                         (𝕡) values#0 | (𝕏) val1#0 | tmp%1#0
-        int 2                                                                                  (𝕡) values#0 | (𝕏) val1#0 | tmp%1#0,2
-        !=                                                                                     (𝕡) values#0 | (𝕏) val1#0 | tmp%2#0
+        extract_uint16                                                                         (𝕡) values#0 | (𝕏) val1#0 | array_length%0#0
+        int 2                                                                                  (𝕡) values#0 | (𝕏) val1#0 | array_length%0#0,2
+        !=                                                                                     (𝕡) values#0 | (𝕏) val1#0 | tmp%3#0
         bz verify_after_if_else@2 ; b verify_if_body@1                                         (𝕡) values#0 | (𝕏) val1#0 |
 
     verify_if_body@1:                                                                          (𝕡) values#0 | (𝕏) val1#0 |
         // regression_tests/issue_118.py:13
         // return Tuple((val1, String("")))
         x-load val1#0                                                                          (𝕡) values#0 | val1#0
-        byte 0x0003                                                                            (𝕡) values#0 | val1#0,0x0003
-        concat                                                                                 (𝕡) values#0 | encoded_tuple_buffer%2#0
-        byte 0x0000                                                                            (𝕡) values#0 | encoded_tuple_buffer%2#0,0x0000
-        concat                                                                                 (𝕡) values#0 | encoded_tuple_buffer%3#0
-        retsub                                                                                 encoded_tuple_buffer%3#0
+        byte 0x00030000                                                                        (𝕡) values#0 | val1#0,0x00030000
+        concat                                                                                 (𝕡) values#0 | aggregate%concat%0#0
+        retsub                                                                                 aggregate%concat%0#0
 
     verify_after_if_else@2:                                                                    (𝕡) values#0 | (𝕏) val1#0 |
         // regression_tests/issue_118.py:14
         // return Tuple((val1, String("")))
         x-load val1#0                                                                          (𝕡) values#0 | val1#0
-        byte 0x0003                                                                            (𝕡) values#0 | val1#0,0x0003
-        concat                                                                                 (𝕡) values#0 | encoded_tuple_buffer%6#0
-        byte 0x0000                                                                            (𝕡) values#0 | encoded_tuple_buffer%6#0,0x0000
-        concat                                                                                 (𝕡) values#0 | encoded_tuple_buffer%7#0
-        retsub                                                                                 encoded_tuple_buffer%7#0
+        byte 0x00030000                                                                        (𝕡) values#0 | val1#0,0x00030000
+        concat                                                                                 (𝕡) values#0 | aggregate%concat%1#0
+        retsub                                                                                 aggregate%concat%1#0
 
 

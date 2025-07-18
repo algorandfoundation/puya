@@ -11,35 +11,33 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        let values#0: bytes = (txna ApplicationArgs 1)
+        let values#0: Encoded(len+uint256[]) = (txna ApplicationArgs 1)
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        let val1#0: bytes[1] = (setbit 0x00 0u tmp%0#1)
-        let tmp%1#1: uint64 = (extract_uint16 values#0 0u)
-        let tmp%2#1: bool = (!= tmp%1#1 2u)
-        goto tmp%2#1 ? block@15 : block@16
+        let val1#0: Encoded(bool8) = (setbit 0x00 0u tmp%0#1)
+        let array_length%0#0: uint64 = (extract_uint16 values#0 0u)
+        let tmp%3#1: bool = (!= array_length%0#0 2u)
+        goto tmp%3#1 ? block@15 : block@16
     block@15: // if_body_L13
-        let encoded_tuple_buffer%2#0: bytes = (concat val1#0 0x0003)
-        let encoded_tuple_buffer%3#0: bytes = (concat encoded_tuple_buffer%2#0 0x0000)
-        let tmp%8#0: bytes = encoded_tuple_buffer%3#0
+        let aggregate%concat%0#0: bytes = (concat val1#0 0x00030000)
+        let tmp%7#0: Encoded(bool1,(len+utf8[])) = aggregate%concat%0#0
         goto block@17
     block@16: // after_if_else_L12
-        let encoded_tuple_buffer%6#0: bytes = (concat val1#0 0x0003)
-        let encoded_tuple_buffer%7#0: bytes = (concat encoded_tuple_buffer%6#0 0x0000)
-        let tmp%8#0: bytes = encoded_tuple_buffer%7#0
+        let aggregate%concat%1#0: bytes = (concat val1#0 0x00030000)
+        let tmp%7#0: Encoded(bool1,(len+utf8[])) = aggregate%concat%1#0
         goto block@17
     block@17: // after_inlined_test_cases.regression_tests.issue_118.Issue118.verify_L7
-        let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
-        (log tmp%9#0)
+        let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
+        (log tmp%8#0)
         let test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
         goto block@11
     block@6: // bare_routing_L5
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        goto tmp%10#0 ? block@10 : block@7
+        let tmp%9#0: uint64 = (txn OnCompletion)
+        goto tmp%9#0 ? block@10 : block@7
     block@7: // __algopy_default_create_L1
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // can only call when creating
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (! tmp%10#0)
+        (assert tmp%11#0) // can only call when creating
         let test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
         goto block@11

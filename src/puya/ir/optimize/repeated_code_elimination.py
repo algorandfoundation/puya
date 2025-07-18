@@ -8,28 +8,12 @@ import attrs
 from puya import log
 from puya.context import CompileContext
 from puya.ir import models
-from puya.ir.avm_ops import AVMOp
 from puya.ir.optimize.assignments import copy_propagation
 from puya.ir.optimize.dead_code_elimination import PURE_AVM_OPS
 from puya.ir.visitor import NoOpIRVisitor
 from puya.utils import not_none
 
 logger = log.get_logger(__name__)
-
-
-@attrs.frozen
-class IntrinsicData:
-    op: AVMOp
-    immediates: tuple[str | int, ...]
-    args: tuple[models.Value, ...]
-
-    @classmethod
-    def from_op(cls, op: models.Intrinsic) -> typing.Self:
-        return cls(
-            op=op.op,
-            immediates=tuple(op.immediates),
-            args=tuple(op.args),
-        )
 
 
 def repeated_expression_elimination(
@@ -41,9 +25,7 @@ def repeated_expression_elimination(
     while modified:
         modified = False
         block_asserted = dict[models.BasicBlock, set[models.Value]]()
-        block_const_intrinsics = dict[
-            models.BasicBlock, dict[IntrinsicData, Sequence[models.Register]]
-        ]()
+        block_const_intrinsics = dict[models.BasicBlock, dict[object, Sequence[models.Register]]]()
         for block in subroutine.body:
             visitor = RCEVisitor(block)
             for op in block.ops.copy():
@@ -120,44 +102,27 @@ def compute_dominators(
 @attrs.define
 class RCEVisitor(NoOpIRVisitor[bool]):
     block: models.BasicBlock
-    const_intrinsics: dict[IntrinsicData, Sequence[models.Register]] = attrs.field(factory=dict)
+    const_intrinsics: dict[object, Sequence[models.Register]] = attrs.field(factory=dict)
     asserted: set[models.Value] = attrs.field(factory=set)
 
     _assignment: models.Assignment | None = None
 
+    @typing.override
     def visit_assignment(self, ass: models.Assignment) -> bool | None:
         self._assignment = ass
         remove = ass.source.accept(self)
         self._assignment = None
         return remove
 
+    @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> bool:
         modified = False
-        if (ass := self._assignment) is not None:
+        if self._assignment is not None:
             # only consider ops with stack args because they're much more likely to
             # produce extra stack manipulations
             if intrinsic.args and intrinsic.op.code in PURE_AVM_OPS:
-                key = IntrinsicData.from_op(intrinsic)
-                try:
-                    existing = self.const_intrinsics[key]
-                except KeyError:
-                    self.const_intrinsics[key] = ass.targets
-                else:
-                    logger.debug(
-                        f"Replacing redundant declaration {ass}"
-                        f" with copy of existing registers {existing}"
-                    )
-                    modified = True
-                    if len(existing) == 1:
-                        ass.source = existing[0]
-                    else:
-                        current_idx = self.block.ops.index(ass)
-                        self.block.ops[current_idx : current_idx + 1] = [
-                            models.Assignment(
-                                targets=[dst], source=src, source_location=ass.source_location
-                            )
-                            for dst, src in zip(ass.targets, existing, strict=True)
-                        ]
+                key = attrs.evolve(intrinsic, error_message=None).freeze()
+                modified = self._cache_or_replace(self._assignment, key)
         elif intrinsic.op.code == "assert":
             (assert_arg,) = intrinsic.args
             if assert_arg in self.asserted:
@@ -167,3 +132,46 @@ class RCEVisitor(NoOpIRVisitor[bool]):
             else:
                 self.asserted.add(assert_arg)
         return modified
+
+    @typing.override
+    def visit_extract_value(self, read: models.ExtractValue) -> bool:
+        modified = False
+        if self._assignment is not None:
+            key = read.freeze()
+            modified = self._cache_or_replace(self._assignment, key)
+        return modified
+
+    @typing.override
+    def visit_bytes_encode(self, encode: models.BytesEncode) -> bool:
+        modified = False
+        if self._assignment is not None:
+            key = encode.freeze()
+            modified = self._cache_or_replace(self._assignment, key)
+        return modified
+
+    @typing.override
+    def visit_decode_bytes(self, decode: models.DecodeBytes) -> bool:
+        modified = False
+        if self._assignment is not None:
+            key = decode.freeze()
+            modified = self._cache_or_replace(self._assignment, key)
+        return modified
+
+    def _cache_or_replace(self, ass: models.Assignment, key: object) -> bool:
+        try:
+            existing = self.const_intrinsics[key]
+        except KeyError:
+            self.const_intrinsics[key] = ass.targets
+            return False
+        logger.debug(
+            f"Replacing redundant declaration {ass} with copy of existing registers {existing}"
+        )
+        if len(existing) == 1:
+            ass.source = existing[0]
+        else:
+            current_idx = self.block.ops.index(ass)
+            self.block.ops[current_idx : current_idx + 1] = [
+                models.Assignment(targets=[dst], source=src, source_location=ass.source_location)
+                for dst, src in zip(ass.targets, existing, strict=True)
+            ]
+        return True

@@ -25,20 +25,20 @@ subroutine main:
         assert // can only call when not creating
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
-        txna ApplicationArgs 1                                                                        tmp%7#0
-        extract 2 0                                                                                   tmp%8#0
+        txna ApplicationArgs 1                                                                        reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                                                                   tmp%7#0
         // hello_world_arc4/contract.py:10
         // @arc4.abimethod
-        callsub hello                                                                                 to_encode%0#0
-        l-load-copy to_encode%0#0 0                                                                   to_encode%0#0,to_encode%0#0 (copy)
-        len                                                                                           to_encode%0#0,length%0#0
-        itob                                                                                          to_encode%0#0,as_bytes%0#0
-        extract 6 2                                                                                   to_encode%0#0,length_uint16%0#0
-        l-load to_encode%0#0 1                                                                        length_uint16%0#0,to_encode%0#0
-        concat                                                                                        encoded_value%0#0
-        byte 0x151f7c75                                                                               encoded_value%0#0,0x151f7c75
-        l-load encoded_value%0#0 1                                                                    0x151f7c75,encoded_value%0#0
-        concat                                                                                        tmp%9#0
+        callsub hello                                                                                 tmp%8#0
+        l-load-copy tmp%8#0 0                                                                         tmp%8#0,tmp%8#0 (copy)
+        len                                                                                           tmp%8#0,aggregate%length%0#0
+        itob                                                                                          tmp%8#0,aggregate%as_bytes%0#0
+        extract 6 2                                                                                   tmp%8#0,aggregate%length_uint16%0#0
+        l-load tmp%8#0 1                                                                              aggregate%length_uint16%0#0,tmp%8#0
+        concat                                                                                        aggregate%encoded_value%0#0
+        byte 0x151f7c75                                                                               aggregate%encoded_value%0#0,0x151f7c75
+        l-load aggregate%encoded_value%0#0 1                                                          0x151f7c75,aggregate%encoded_value%0#0
+        concat                                                                                        tmp%10#0
         log
         int 1                                                                                         examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
         v-store tmp%0#0
@@ -47,12 +47,12 @@ subroutine main:
     main_bare_routing@6:
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
-        txn OnCompletion                                                                              tmp%10#0
+        txn OnCompletion                                                                              tmp%11#0
         bz main___algopy_default_create@7 ; b main_after_if_else@10
 
     main___algopy_default_create@7:
-        txn ApplicationID                                                                             tmp%11#0
-        !                                                                                             tmp%12#0
+        txn ApplicationID                                                                             tmp%12#0
+        !                                                                                             tmp%13#0
         assert // can only call when creating
         int 1                                                                                         examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__%0#0
         v-store tmp%0#0

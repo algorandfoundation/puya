@@ -4,7 +4,7 @@
 // test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 10 TMPL_AVM_UINT64
-    bytecblock 0x 0x2a 0x151f7c75 0x68656c6c6f31 "hello" 0x68656c6c6f32 0x68656c6c6f33 TMPL_STRUCT TMPL_AVM_STRING TMPL_ARC4_UINT8
+    bytecblock 0x 0x2a 0x151f7c75 0x68656c6c6f31 "hello" 0x68656c6c6f32 0x68656c6c6f33 "hi" TMPL_STRUCT TMPL_AVM_STRING TMPL_ARC4_UINT8
 
 main_block@0:
     txn ApplicationID
@@ -148,7 +148,7 @@ errors_block@0:
     frame_dig -1
     intc_0 // 0
     intc_2 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3
     pushbytes 0x00
     ==
     assert // this will error
@@ -306,16 +306,16 @@ template_value:
 template_value_block@0:
     // arc_56/contract.py:126
     // TemplateVar[SharedStruct]("STRUCT"),
-    bytec 7 // TMPL_STRUCT
+    bytec 8 // TMPL_STRUCT
     // arc_56/contract.py:127
     // TemplateVar[UInt64]("AVM_UINT64"),
     intc 4 // TMPL_AVM_UINT64
     // arc_56/contract.py:128
     // TemplateVar[String]("AVM_STRING"),
-    bytec 8 // TMPL_AVM_STRING
+    bytec 9 // TMPL_AVM_STRING
     // arc_56/contract.py:129
     // TemplateVar[arc4.UInt8]("ARC4_UINT8"),
-    bytec 9 // TMPL_ARC4_UINT8
+    bytec 10 // TMPL_ARC4_UINT8
     // arc_56/contract.py:125-130
     // return (
     //     TemplateVar[SharedStruct]("STRUCT"),
@@ -381,7 +381,7 @@ with_constant_defaults_block@0:
     frame_dig -7
     intc_0 // 0
     intc_2 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3
     bytec_0 // 0x
     b!=
     bnz with_constant_defaults_bool_true@2
@@ -392,7 +392,7 @@ with_constant_defaults_or_contd@1:
     frame_dig -7
     intc_2 // 8
     dup
-    extract3 // on error: Index access is out of bounds
+    extract3
     bytec_0 // 0x
     b!=
     bz with_constant_defaults_bool_false@3
@@ -429,24 +429,33 @@ with_constant_defaults_bool_merge@8:
     assert
     // arc_56/contract.py:162
     // assert f[0] == "hi"
-    frame_dig -4
+    intc_0 // 0
+    pushint 2 // 2
+    <
+    assert // index access is out of bounds
     intc_0 // 0
     pushint 2 // 2
     *
-    dig 1
+    frame_dig -4
     swap
     extract_uint16
-    dup2
+    frame_dig -4
+    dig 1
     extract_uint16
     intc_1 // 1
     *
     pushint 2 // 2
     +
-    uncover 2
+    frame_dig -4
     uncover 2
     uncover 2
     extract3
-    pushbytes 0x00026869
+    bytec 7 // "hi"
+    len
+    itob
+    extract 6 2
+    bytec 7 // "hi"
+    concat
     ==
     assert
     // arc_56/contract.py:163
@@ -555,7 +564,7 @@ approval_program_with_constant_defaults_route@10:
     dup
     intc_0 // 0
     intc_2 // 8
-    extract3 // on error: Index access is out of bounds
+    extract3
     btoi
     swap
     dup
@@ -618,36 +627,38 @@ approval_program_template_value_route@9:
     cover 3
     cover 2
     swap
-    cover 2
-    itob
-    cover 2
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    cover 2
     pushint 13 // 13
     itob
     extract 6 2
     bytec_0 // 0x
     swap
     concat
-    dig 1
+    swap
+    dup
     len
     pushint 13 // 13
     +
-    swap
+    cover 2
     uncover 3
-    concat
+    itob
+    uncover 2
     swap
+    concat
+    dig 3
+    len
     itob
     extract 6 2
+    uncover 4
+    concat
+    uncover 3
+    itob
+    extract 6 2
+    uncover 2
+    swap
     concat
     uncover 3
     concat
-    swap
+    uncover 2
     concat
     swap
     concat

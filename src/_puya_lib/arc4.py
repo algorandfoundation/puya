@@ -23,7 +23,7 @@ UINT16_OFFSET = UINT64_SIZE - UINT16_SIZE
 
 
 @subroutine
-def dynamic_array_pop_bit(array: Bytes) -> tuple[Bytes, Bytes]:
+def dynamic_array_pop_bit(array: Bytes) -> tuple[UInt64, Bytes]:
     """
     Pop the last item from an arc4 dynamic array of arc4 encoded boolean items
 
@@ -35,7 +35,7 @@ def dynamic_array_pop_bit(array: Bytes) -> tuple[Bytes, Bytes]:
     length_minus_1 = array_length - 1
     result = replace(array, 0, extract(itob(length_minus_1), UINT16_OFFSET, 0))
     popped_location = length_minus_1 + UINT16_SIZE * 8
-    popped = setbit_bytes(b"\x00", 0, getbit(result, popped_location))
+    popped = getbit(result, popped_location)
     result = setbit_bytes(result, popped_location, 0)
     result = substring(result, 0, UINT16_SIZE + ((length_minus_1 + 7) // 8))
     return popped, result

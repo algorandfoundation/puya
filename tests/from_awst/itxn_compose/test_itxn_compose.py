@@ -7,7 +7,7 @@ from algosdk.atomic_transaction_composer import TransactionWithSigner
 from algosdk.v2client.algod import AlgodClient
 
 from tests import FROM_AWST_DIR
-from tests.from_awst.util import compile_contract
+from tests.from_awst.util import compile_contract_and_clients
 
 
 @pytest.mark.localnet
@@ -18,7 +18,7 @@ def test_compile_and_run(
     test_dir = Path(__file__).parent
     out_dir = test_dir / "out"
 
-    clients = compile_contract(
+    clients = compile_contract_and_clients(
         algod_client=algod_client,
         account=account,
         awst_path=FROM_AWST_DIR / "itxn_compose" / "module.awst.json",

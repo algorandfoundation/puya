@@ -234,6 +234,7 @@ class Bool(_ABIEncoded):
         """Return the bool representation of the value after ARC-4 decoding"""
 
 _TArrayItem = typing.TypeVar("_TArrayItem")
+_TNativeArrayItem = typing.TypeVar("_TNativeArrayItem")
 _TArrayLength = typing.TypeVar("_TArrayLength", bound=int)
 
 class StaticArray(
@@ -356,7 +357,7 @@ class StaticArray(
 
     @property
     def length(self) -> algopy.UInt64:
-        """Returns the current length of the array"""
+        """Returns the length of the array"""
 
     def __getitem__(self, index: algopy.UInt64 | int) -> _TArrayItem:
         """Gets the item of the array at provided index"""
@@ -366,6 +367,16 @@ class StaticArray(
 
     def copy(self) -> typing.Self:
         """Create a copy of this array"""
+
+    def to_native(
+        self, element_type: type[_TNativeArrayItem], /
+    ) -> algopy.FixedArray[_TNativeArrayItem, _TArrayLength]:
+        """
+        Convert to an `algopy.FixedArray` with the specified element type.
+
+        Only allowed if the element type is compatible with this arrays element type e.g.
+        arc4.UInt64 -> UInt64
+        """
 
 class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayItem]):
     """A dynamically sized ARC-4 Array of the specified type"""
@@ -406,6 +417,16 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
 
     def __bool__(self) -> bool:
         """Returns `True` if not an empty array"""
+
+    def to_native(
+        self, element_type: type[_TNativeArrayItem], /
+    ) -> algopy.Array[_TNativeArrayItem]:
+        """
+        Convert to an `algopy.Array` with the specified element type.
+
+        Only allowed if the element type is compatible with this arrays element type e.g.
+        arc4.UInt64 -> UInt64
+        """
 
 class Address(StaticArray[Byte, typing.Literal[32]]):
     """An alias for an array containing 32 bytes representing an Algorand address"""

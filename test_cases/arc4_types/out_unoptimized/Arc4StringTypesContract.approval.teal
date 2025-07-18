@@ -3,7 +3,8 @@
 
 // test_cases.arc4_types.string.Arc4StringTypesContract.approval_program() -> uint64:
 main:
-    bytecblock 0x48656c6c6f20576f726c6421 0x00026869 0x0003626565
+    intcblock 1 0 2
+    bytecblock 0x48656c6c6f20576f726c6421 "bee" "" "hello" "Hello" "World!" "hi" "hihi" "cd" "abcdefg" "aye"
 
 main_block@0:
     // arc4_types/string.py:8
@@ -33,10 +34,10 @@ main_block@0:
     // some_bytes_as_string.bytes[2:] == HELLO_WORLD
     dup
     len
-    pushint 2 // 2
+    intc_2 // 2
     dig 1
     >=
-    pushint 2 // 2
+    intc_2 // 2
     dig 2
     uncover 2
     select
@@ -58,167 +59,286 @@ main_block@0:
     assert
     // arc4_types/string.py:22
     // hello = arc4.String("Hello")
-    pushbytes 0x000548656c6c6f
-    // arc4_types/string.py:26
-    // assert arc4.String("Hello World!") == (hello + space + world)
-    extract 2 0
+    bytec 4 // "Hello"
+    len
+    itob
+    extract 6 2
+    bytec 4 // "Hello"
+    concat
     // arc4_types/string.py:23
     // space = arc4.String(" ")
-    pushbytes 0x000120
-    // arc4_types/string.py:26
-    // assert arc4.String("Hello World!") == (hello + space + world)
-    extract 2 0
-    concat
-    dup
+    pushbytes " "
     len
     itob
     extract 6 2
-    swap
+    pushbytes " "
     concat
-    extract 2 0
     // arc4_types/string.py:24
     // world = arc4.String("World!")
-    pushbytes 0x0006576f726c6421
-    // arc4_types/string.py:26
-    // assert arc4.String("Hello World!") == (hello + space + world)
-    extract 2 0
-    concat
-    dup
+    bytec 5 // "World!"
     len
     itob
     extract 6 2
-    swap
+    bytec 5 // "World!"
     concat
-    pushbytes 0x000c48656c6c6f20576f726c6421
+    swap
+    // arc4_types/string.py:26
+    // assert arc4.String("Hello World!") == (hello + space + world)
+    bytec_0 // "Hello World!"
+    len
+    itob
+    extract 6 2
+    bytec_0 // "Hello World!"
+    concat
+    cover 3
+    extract 2 0
+    uncover 2
+    swap
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_0 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_1 // 0
+    uncover 2
+    replace3
+    swap
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_0 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_1 // 0
+    uncover 2
+    replace3
     ==
     assert
     // arc4_types/string.py:28
     // thing = arc4.String("hi")
-    bytec_1 // 0x00026869
-    // arc4_types/string.py:29
-    // thing += thing
-    extract 2 0
-    // arc4_types/string.py:28
-    // thing = arc4.String("hi")
-    bytec_1 // 0x00026869
-    // arc4_types/string.py:29
-    // thing += thing
-    extract 2 0
-    concat
-    dup
+    bytec 6 // "hi"
     len
     itob
     extract 6 2
-    swap
+    bytec 6 // "hi"
     concat
+    // arc4_types/string.py:29
+    // thing += thing
+    dup
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_0 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_1 // 0
+    uncover 2
+    replace3
     // arc4_types/string.py:30
     // assert thing == arc4.String("hihi")
-    pushbytes 0x000468696869
+    bytec 7 // "hihi"
+    len
+    itob
+    extract 6 2
+    bytec 7 // "hihi"
+    concat
     ==
     assert
     // arc4_types/string.py:32
     // value = arc4.String("a") + arc4.String("b") + "cd"
-    pushbytes 0x000161
-    extract 2 0
-    pushbytes 0x000162
-    extract 2 0
-    concat
-    dup
+    pushbytes "a"
     len
     itob
     extract 6 2
-    swap
+    pushbytes "a"
     concat
-    extract 2 0
-    pushbytes 0x00026364
-    extract 2 0
-    concat
-    dup
+    pushbytes "b"
     len
     itob
     extract 6 2
-    swap
+    pushbytes "b"
     concat
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_0 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_1 // 0
+    uncover 2
+    replace3
+    bytec 8 // "cd"
+    len
+    itob
+    extract 6 2
+    bytec 8 // "cd"
+    concat
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_0 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_1 // 0
+    uncover 2
+    replace3
     // arc4_types/string.py:33
     // value += "e"
-    extract 2 0
-    pushbytes 0x000165
-    extract 2 0
-    concat
-    dup
+    pushbytes "e"
     len
     itob
     extract 6 2
-    swap
+    pushbytes "e"
     concat
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_0 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_1 // 0
+    uncover 2
+    replace3
     // arc4_types/string.py:34
     // value += arc4.String("f")
-    extract 2 0
-    pushbytes 0x000166
-    extract 2 0
-    concat
-    dup
+    pushbytes "f"
     len
     itob
     extract 6 2
-    swap
+    pushbytes "f"
     concat
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_0 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_1 // 0
+    uncover 2
+    replace3
     // arc4_types/string.py:35
     // value += arc4.String("g")
-    extract 2 0
-    pushbytes 0x000167
-    extract 2 0
-    concat
-    dup
+    pushbytes "g"
     len
     itob
     extract 6 2
-    swap
+    pushbytes "g"
     concat
+    extract 2 0
+    concat // on error: max array length exceeded
+    dup
+    extract 2 0
+    len
+    intc_0 // 1
+    /
+    itob
+    extract 6 2
+    swap
+    intc_1 // 0
+    uncover 2
+    replace3
     // arc4_types/string.py:36
     // assert arc4.String("abcdefg") == value
-    pushbytes 0x000761626364656667
+    bytec 9 // "abcdefg"
+    len
+    itob
+    extract 6 2
+    bytec 9 // "abcdefg"
+    concat
     ==
     assert
     // arc4_types/string.py:38
     // assert arc4.String().native == ""
-    pushbytes 0x0000
+    bytec_2 // ""
+    len
+    itob
+    extract 6 2
+    bytec_2 // ""
+    concat
     extract 2 0
-    pushbytes ""
+    bytec_2 // ""
     ==
     assert
     // arc4_types/string.py:39
     // assert arc4.String("hello") == String("hello")
-    pushbytes 0x000568656c6c6f
+    bytec_3 // "hello"
+    len
+    itob
+    extract 6 2
+    bytec_3 // "hello"
+    concat
     extract 2 0
-    pushbytes "hello"
+    bytec_3 // "hello"
     ==
     assert
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
     txn NumAppArgs
-    pushint 0 // 0
+    intc_1 // 0
     !=
     bz main_ternary_false@2
 
 main_ternary_true@1:
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    pushbytes 0x0003617965
+    bytec 10 // "aye"
+    len
+    itob
+    extract 6 2
+    bytec 10 // "aye"
+    concat
 
 main_ternary_merge@3:
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    bytec_2 // 0x0003626565
+    bytec_1 // "bee"
+    len
+    itob
+    extract 6 2
+    bytec_1 // "bee"
+    concat
     ==
     assert
     // arc4_types/string.py:42
     // return True
-    pushint 1 // 1
+    intc_0 // 1
     return
 
 main_ternary_false@2:
     // arc4_types/string.py:41
     // assert arc4.String("aye" if Txn.num_app_args else "bee") == "bee"
-    bytec_2 // 0x0003626565
+    bytec_1 // "bee"
+    len
+    itob
+    extract 6 2
+    bytec_1 // "bee"
+    concat
     b main_ternary_merge@3
