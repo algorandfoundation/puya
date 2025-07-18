@@ -190,20 +190,32 @@ class Contract(arc4.ARC4Contract):
     @arc4.abimethod()
     def test_arr(self, arr: Array[FixedStruct]) -> Array[FixedStruct]:
         assert arr.length == 0, "expected empty array"
+
         arr2 = arr.copy()
-        arr3 = Array(arr2)
         assert arr == arr2, "expected arrays to be the same"
+
+        arr3 = Array(arr2)
         assert arr == arr3, "expected arrays to be the same"
+
         arr4 = ReferenceArray[FixedStruct]()
         arr4.extend(arr)
         assert arr.length == arr4.length, "expected arrays to be the same length"
+
         arr5 = Array(arr4)
         assert arr == arr5, "expected arrays to be the same"
+
+        imm_arr = arr.freeze()
+        arr6 = Array[FixedStruct](imm_arr)
+        assert arr == arr6, "expected arrays to be the same"
+
         fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
         arr2.append(fixed_struct)
         assert arr2.length == 1, "expected array to have 1 item"
         assert sum_frozen_arr(arr2.freeze()) == 7, "expected sum to be 7"
         assert arr != arr2, "expected arrays to be different"
+
+        arr7 = Array[FixedStruct]((arr2[0],))
+        assert arr2 == arr7, "expected arrays to be the same"
 
         arr2 = Array[FixedStruct]()
 

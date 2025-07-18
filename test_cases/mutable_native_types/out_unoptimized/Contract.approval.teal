@@ -52,16 +52,16 @@ dynamic_array_pop_fixed_size_block@0:
 
 // test_cases.mutable_native_types.contract.sum_frozen_arr(arr: bytes) -> uint64:
 sum_frozen_arr:
-    // mutable_native_types/contract.py:229-230
+    // mutable_native_types/contract.py:241-242
     // @subroutine()
     // def sum_frozen_arr(arr: ImmutableArray[FixedStruct]) -> UInt64:
     proto 1 1
 
 sum_frozen_arr_block@0:
-    // mutable_native_types/contract.py:231
+    // mutable_native_types/contract.py:243
     // total = UInt64(0)
     intc_0 // 0
-    // mutable_native_types/contract.py:232
+    // mutable_native_types/contract.py:244
     // for element in arr:
     frame_dig -1
     intc_0 // 0
@@ -69,7 +69,7 @@ sum_frozen_arr_block@0:
     intc_0 // 0
 
 sum_frozen_arr_for_header@1:
-    // mutable_native_types/contract.py:232
+    // mutable_native_types/contract.py:244
     // for element in arr:
     frame_dig 2
     frame_dig 1
@@ -77,7 +77,7 @@ sum_frozen_arr_for_header@1:
     bz sum_frozen_arr_after_for@4
 
 sum_frozen_arr_for_body@2:
-    // mutable_native_types/contract.py:232
+    // mutable_native_types/contract.py:244
     // for element in arr:
     frame_dig -1
     extract 2 0
@@ -86,7 +86,7 @@ sum_frozen_arr_for_body@2:
     *
     intc_3 // 16
     extract3 // on error: index access is out of bounds
-    // mutable_native_types/contract.py:233
+    // mutable_native_types/contract.py:245
     // total += element.a
     dup
     intc_0 // 0
@@ -95,7 +95,7 @@ sum_frozen_arr_for_body@2:
     btoi
     frame_dig 0
     +
-    // mutable_native_types/contract.py:234
+    // mutable_native_types/contract.py:246
     // total += element.b
     swap
     intc_2 // 8
@@ -113,20 +113,20 @@ sum_frozen_arr_for_footer@3:
     b sum_frozen_arr_for_header@1
 
 sum_frozen_arr_after_for@4:
-    // mutable_native_types/contract.py:235
+    // mutable_native_types/contract.py:247
     // return total
     retsub
 
 
 // test_cases.mutable_native_types.contract.add(val: bytes) -> uint64:
 add:
-    // mutable_native_types/contract.py:238-239
+    // mutable_native_types/contract.py:250-251
     // @subroutine()
     // def add(val: FixedStruct) -> UInt64:
     proto 1 1
 
 add_block@0:
-    // mutable_native_types/contract.py:240
+    // mutable_native_types/contract.py:252
     // return val.a + val.b
     frame_dig -1
     intc_0 // 0
@@ -144,7 +144,7 @@ add_block@0:
 
 // test_cases.mutable_native_types.contract.do_something(pay: bytes) -> bytes:
 do_something:
-    // mutable_native_types/contract.py:243-244
+    // mutable_native_types/contract.py:255-256
     // @subroutine(inline=False)
     // def do_something(pay: Payment) -> None:
     proto 1 1
@@ -1096,31 +1096,30 @@ test_arr_block@0:
     intc_0 // 0
     ==
     assert // expected empty array
-    // mutable_native_types/contract.py:193
+    // mutable_native_types/contract.py:194
     // arr2 = arr.copy()
     frame_dig -1
-    // mutable_native_types/contract.py:194
-    // arr3 = Array(arr2)
-    dup
     // mutable_native_types/contract.py:195
     // assert arr == arr2, "expected arrays to be the same"
-    frame_dig -1
+    dup
     dig 1
     ==
     assert // expected arrays to be the same
-    // mutable_native_types/contract.py:196
+    // mutable_native_types/contract.py:197
+    // arr3 = Array(arr2)
+    dup
+    // mutable_native_types/contract.py:198
     // assert arr == arr3, "expected arrays to be the same"
     frame_dig -1
-    uncover 2
     ==
     assert // expected arrays to be the same
-    // mutable_native_types/contract.py:197
+    // mutable_native_types/contract.py:200
     // arr4 = ReferenceArray[FixedStruct]()
     callsub _puya_lib.mem.new_slot
     dup
     bytec_0 // 0x
     stores
-    // mutable_native_types/contract.py:198
+    // mutable_native_types/contract.py:201
     // arr4.extend(arr)
     dup
     loads
@@ -1130,7 +1129,7 @@ test_arr_block@0:
     dig 1
     swap
     stores
-    // mutable_native_types/contract.py:199
+    // mutable_native_types/contract.py:202
     // assert arr.length == arr4.length, "expected arrays to be the same length"
     frame_dig -1
     intc_0 // 0
@@ -1144,7 +1143,7 @@ test_arr_block@0:
     uncover 2
     ==
     assert // expected arrays to be the same length
-    // mutable_native_types/contract.py:200
+    // mutable_native_types/contract.py:204
     // arr5 = Array(arr4)
     loads
     dup
@@ -1155,12 +1154,20 @@ test_arr_block@0:
     extract 6 2
     swap
     concat
-    // mutable_native_types/contract.py:201
+    // mutable_native_types/contract.py:205
     // assert arr == arr5, "expected arrays to be the same"
     frame_dig -1
     ==
     assert // expected arrays to be the same
-    // mutable_native_types/contract.py:202
+    // mutable_native_types/contract.py:207
+    // imm_arr = arr.freeze()
+    frame_dig -1
+    // mutable_native_types/contract.py:209
+    // assert arr == arr6, "expected arrays to be the same"
+    dup
+    ==
+    assert // expected arrays to be the same
+    // mutable_native_types/contract.py:211
     // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
     txn NumAppArgs
     intc_1 // 1
@@ -1178,7 +1185,7 @@ test_arr_block@0:
     concat
     dup
     cover 2
-    // mutable_native_types/contract.py:203
+    // mutable_native_types/contract.py:212
     // arr2.append(fixed_struct)
     bytec_0 // 0x
     swap
@@ -1197,7 +1204,7 @@ test_arr_block@0:
     intc_0 // 0
     uncover 2
     replace3
-    // mutable_native_types/contract.py:204
+    // mutable_native_types/contract.py:213
     // assert arr2.length == 1, "expected array to have 1 item"
     dup
     intc_0 // 0
@@ -1205,31 +1212,50 @@ test_arr_block@0:
     intc_1 // 1
     ==
     assert // expected array to have 1 item
-    // mutable_native_types/contract.py:205
+    // mutable_native_types/contract.py:214
     // assert sum_frozen_arr(arr2.freeze()) == 7, "expected sum to be 7"
     dup
     callsub sum_frozen_arr
     pushint 7 // 7
     ==
     assert // expected sum to be 7
-    // mutable_native_types/contract.py:206
+    // mutable_native_types/contract.py:215
     // assert arr != arr2, "expected arrays to be different"
     frame_dig -1
+    dig 1
     !=
     assert // expected arrays to be different
-    // mutable_native_types/contract.py:208
+    // mutable_native_types/contract.py:217
+    // arr7 = Array[FixedStruct]((arr2[0],))
+    dup
+    extract 2 0
+    intc_0 // 0
+    intc_3 // 16
+    *
+    intc_3 // 16
+    extract3 // on error: index access is out of bounds
+    intc_1 // 1
+    itob
+    extract 6 2
+    swap
+    concat
+    // mutable_native_types/contract.py:218
+    // assert arr2 == arr7, "expected arrays to be the same"
+    ==
+    assert // expected arrays to be the same
+    // mutable_native_types/contract.py:220
     // arr2 = Array[FixedStruct]()
     intc_0 // 0
     itob
     extract 6 2
-    // mutable_native_types/contract.py:210
+    // mutable_native_types/contract.py:222
     // for _i in urange(3):
     intc_1 // 1
     assert // Step cannot be zero
     intc_0 // 0
 
 test_arr_for_header@1:
-    // mutable_native_types/contract.py:210
+    // mutable_native_types/contract.py:222
     // for _i in urange(3):
     frame_dig 2
     pushint 3 // 3
@@ -1237,7 +1263,7 @@ test_arr_for_header@1:
     bz test_arr_after_for@4
 
 test_arr_for_body@2:
-    // mutable_native_types/contract.py:211
+    // mutable_native_types/contract.py:223
     // arr2.append(fixed_struct)
     bytec_0 // 0x
     frame_dig 0
@@ -1261,7 +1287,7 @@ test_arr_for_body@2:
     frame_bury 1
 
 test_arr_for_footer@3:
-    // mutable_native_types/contract.py:210
+    // mutable_native_types/contract.py:222
     // for _i in urange(3):
     frame_dig 2
     intc_1 // 1
@@ -1270,7 +1296,7 @@ test_arr_for_footer@3:
     b test_arr_for_header@1
 
 test_arr_after_for@4:
-    // mutable_native_types/contract.py:213
+    // mutable_native_types/contract.py:225
     // assert arr2.length == 3, "expected 3 elements"
     frame_dig 1
     dup
@@ -1279,43 +1305,43 @@ test_arr_after_for@4:
     pushint 3 // 3
     ==
     assert // expected 3 elements
-    // mutable_native_types/contract.py:215
+    // mutable_native_types/contract.py:227
     // frozen1 = arr2.freeze()
     dupn 2
-    // mutable_native_types/contract.py:216
+    // mutable_native_types/contract.py:228
     // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
     callsub sum_frozen_arr
     pushint 21 // 21
     ==
     assert // expected sum to be 21
-    // mutable_native_types/contract.py:218
+    // mutable_native_types/contract.py:230
     // arr2.pop()
     swap
     intc_3 // 16
     callsub dynamic_array_pop_fixed_size
     bury 1
-    // mutable_native_types/contract.py:219
+    // mutable_native_types/contract.py:231
     // frozen2 = arr2.freeze()
     dup
-    // mutable_native_types/contract.py:220
+    // mutable_native_types/contract.py:232
     // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
     uncover 2
     callsub sum_frozen_arr
     pushint 21 // 21
     ==
     assert // expected sum to be 21
-    // mutable_native_types/contract.py:221
+    // mutable_native_types/contract.py:233
     // assert sum_frozen_arr(frozen2) == 14, "expected sum to be 14"
     callsub sum_frozen_arr
     pushint 14 // 14
     ==
     assert // expected sum to be 14
-    // mutable_native_types/contract.py:223
+    // mutable_native_types/contract.py:235
     // self.arr = arr2.copy()
     bytec 9 // "arr"
     dig 1
     app_global_put
-    // mutable_native_types/contract.py:224
+    // mutable_native_types/contract.py:236
     // assert self.arr == arr2, "expected array in storage to be the same"
     intc_0 // 0
     bytec 9 // "arr"
@@ -1323,7 +1349,7 @@ test_arr_after_for@4:
     assert // check self.arr exists
     ==
     assert // expected array in storage to be the same
-    // mutable_native_types/contract.py:226
+    // mutable_native_types/contract.py:238
     // return self.arr
     intc_0 // 0
     bytec 9 // "arr"
