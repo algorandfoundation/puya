@@ -245,6 +245,8 @@ class Contract(arc4.ARC4Contract):
         frozen2 = arr2.freeze()
         assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
         assert sum_frozen_arr(frozen2) == 14, "expected sum to be 14"
+        frozen2 += frozen2
+        assert sum_frozen_arr(frozen2) == 28, "and the sum shall be 41"
 
         self.arr = arr2.copy()
         assert self.arr == arr2, "expected array in storage to be the same"
