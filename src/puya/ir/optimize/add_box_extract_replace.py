@@ -208,11 +208,7 @@ def _combine_aggregate_and_box_write(
                 source_location=loc,
             )
         )
-    return factory.box_replace(
-        box_key,
-        fixed_offset.offset,
-        value,
-    )
+    return factory.box_replace(box_key, fixed_offset.offset, value)
 
 
 @attrs.frozen
