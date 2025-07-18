@@ -10,6 +10,7 @@ from algopy import (
     FixedArray,
     GlobalState,
     ImmutableArray,
+    ImmutableFixedArray,
     LocalState,
     OnCompleteAction,
     ReferenceArray,
@@ -90,6 +91,12 @@ class Contract(arc4.ARC4Contract):
 
         self.num_payments = UInt64(0)
         self.payments = zero_bytes(FixedArray[Payment, typing.Literal[2]])
+
+    @arc4.abimethod()
+    def test_imm_fixed_array(self) -> None:
+        ok = FixedArray[UInt64, typing.Literal[2]].full(UInt64())
+        ok2: ImmutableFixedArray[UInt64, typing.Literal[2]] = ImmutableFixedArray(ok)
+        assert ok.freeze() == ok2
 
     @arc4.abimethod()
     def fixed_initialize(self) -> None:

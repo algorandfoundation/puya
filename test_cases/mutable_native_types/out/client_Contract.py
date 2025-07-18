@@ -20,6 +20,11 @@ class NamedTup(algopy.arc4.Struct):
 
 class Contract(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
+    def test_imm_fixed_array(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def fixed_initialize(
         self,
     ) -> None: ...

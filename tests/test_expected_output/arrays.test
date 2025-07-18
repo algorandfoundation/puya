@@ -305,3 +305,18 @@ def bad4() -> None:
 def bad5() -> None:
     arr = Array[UInt64]()
     arr.extend(UInt64()) # type: ignore[arg-type] ## E: expected an array or tuple of the same element type
+
+## case: fixed_array_bad
+import typing
+
+from algopy import *
+
+
+@subroutine
+def bad1() -> None:
+    no = FixedArray[UInt64, typing.Literal[2]].bad() # type: ignore[attr-defined, misc] ## E: unrecognised member 'bad' of type 'algopy.FixedArray[algopy.UInt64, typing.Literal[2]]'
+
+
+@subroutine
+def bad2() -> None:
+    bad = ImmutableFixedArray[Bytes, typing.Literal[2]](Bytes()) ## E: unsupported collection type

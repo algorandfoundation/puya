@@ -2394,14 +2394,8 @@ def test_mutable_native_types_contract(
     app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
     app_client.create()
 
-    sp = algod_client.suggested_params()
-    sp.flat_fee = True
-    sp.fee = 1_000 * 7
-    large_fee_txn_params = algokit_utils.OnCompleteCallParameters(
-        suggested_params=sp,
-    )
-
-    app_client.call("test_arr", arr=[], transaction_parameters=large_fee_txn_params)
+    app_client.call("test_arr", arr=[])
+    app_client.call("test_imm_fixed_array")
 
 
 # see https://github.com/algorandfoundation/puya-ts-demo/blob/main/contracts/marketplace/marketplace.test.ts
