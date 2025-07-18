@@ -43,21 +43,24 @@ class SubroutineOptimization:
     desc: str
     _optimize: SubroutineOptimizerCallable
     loop: bool
-    qualifiers: tuple[str, ...]
+    min_level: int
 
-    def can_optimize(self, options: PuyaOptions, qualifier: str) -> bool:
-        return self.id not in options.disabled_optimizations and (
-            not self.qualifiers or qualifier in self.qualifiers
+    def can_optimize(self, options: PuyaOptions) -> bool:
+        return (options.optimization_level >= self.min_level) and (
+            self.id not in options.disabled_optimizations
         )
 
     @classmethod
     def from_function(
-        cls, func: SubroutineOptimizerCallable, *qualifiers: str, loop: bool = False
+        cls,
+        func: SubroutineOptimizerCallable,
+        loop: bool = False,
+        min_level: int = 1,
     ) -> "SubroutineOptimization":
         func_name = func.__name__
         func_desc = func_name.replace("_", " ").title().strip()
         return SubroutineOptimization(
-            id=func_name, desc=func_desc, optimize=func, loop=loop, qualifiers=qualifiers
+            id=func_name, desc=func_desc, optimize=func, loop=loop, min_level=min_level
         )
 
     def optimize(self, context: IROptimizationContext, ir: models.Subroutine) -> bool:
@@ -68,39 +71,29 @@ class SubroutineOptimization:
         return did_modify
 
 
-def get_subroutine_optimizations(optimization_level: int) -> Iterable[SubroutineOptimization]:
-    if optimization_level:
-        return [
-            SubroutineOptimization.from_function(perform_subroutine_inlining),
-            SubroutineOptimization.from_function(_split_parallel_copies),
-            SubroutineOptimization.from_function(constant_replacer),
-            SubroutineOptimization.from_function(copy_propagation),
-            SubroutineOptimization.from_function(elide_itxn_field_calls),
-            # TODO: improve this algorithm instead of looping
-            SubroutineOptimization.from_function(remove_unused_variables, loop=True),
-            SubroutineOptimization.from_function(intrinsic_simplifier),
-            SubroutineOptimization.from_function(inner_txn_field_replacer),
-            SubroutineOptimization.from_function(replace_compiled_references),
-            SubroutineOptimization.from_function(simplify_control_ops, loop=True),
-            SubroutineOptimization.from_function(remove_linear_jump),
-            SubroutineOptimization.from_function(remove_empty_blocks),
-            SubroutineOptimization.from_function(remove_unreachable_blocks),
-            SubroutineOptimization.from_function(repeated_expression_elimination),
-            SubroutineOptimization.from_function(encode_decode_pair_elimination),
-            SubroutineOptimization.from_function(merge_chained_aggregate_reads),
-            SubroutineOptimization.from_function(replace_aggregate_box_ops),
-            SubroutineOptimization.from_function(minimize_box_exist_asserts),
-            SubroutineOptimization.from_function(constant_reads_and_unobserved_writes_elimination),
-        ]
-    else:
-        return [
-            SubroutineOptimization.from_function(perform_subroutine_inlining),
-            SubroutineOptimization.from_function(_split_parallel_copies),
-            SubroutineOptimization.from_function(constant_replacer),
-            SubroutineOptimization.from_function(remove_unused_variables),
-            SubroutineOptimization.from_function(inner_txn_field_replacer),
-            SubroutineOptimization.from_function(replace_compiled_references),
-        ]
+def get_subroutine_optimizations() -> Iterable[SubroutineOptimization]:
+    return [
+        SubroutineOptimization.from_function(perform_subroutine_inlining, min_level=0),
+        SubroutineOptimization.from_function(_split_parallel_copies, min_level=0),
+        SubroutineOptimization.from_function(constant_replacer, min_level=0),
+        SubroutineOptimization.from_function(copy_propagation),
+        SubroutineOptimization.from_function(elide_itxn_field_calls),
+        # TODO: improve this algorithm instead of looping
+        SubroutineOptimization.from_function(remove_unused_variables, loop=True, min_level=0),
+        SubroutineOptimization.from_function(intrinsic_simplifier),
+        SubroutineOptimization.from_function(inner_txn_field_replacer, min_level=0),
+        SubroutineOptimization.from_function(replace_compiled_references, min_level=0),
+        SubroutineOptimization.from_function(simplify_control_ops, loop=True),
+        SubroutineOptimization.from_function(remove_linear_jump),
+        SubroutineOptimization.from_function(remove_empty_blocks),
+        SubroutineOptimization.from_function(remove_unreachable_blocks),
+        SubroutineOptimization.from_function(repeated_expression_elimination),
+        SubroutineOptimization.from_function(encode_decode_pair_elimination),
+        SubroutineOptimization.from_function(merge_chained_aggregate_reads),
+        SubroutineOptimization.from_function(replace_aggregate_box_ops),
+        SubroutineOptimization.from_function(minimize_box_exist_asserts),
+        SubroutineOptimization.from_function(constant_reads_and_unobserved_writes_elimination),
+    ]
 
 
 def _split_parallel_copies(_ctx: ArtifactCompileContext, sub: models.Subroutine) -> bool:
@@ -136,11 +129,7 @@ def optimize_program_ir(
     routable_method_ids: Collection[str] | None,
     qualifier: str,
 ) -> None:
-    pipeline = [
-        o
-        for o in get_subroutine_optimizations(context.options.optimization_level)
-        if o.can_optimize(context.options, qualifier)
-    ]
+    pipeline = [o for o in get_subroutine_optimizations() if o.can_optimize(context.options)]
     opt_context = attrs_extend(
         IROptimizationContext,
         context,
