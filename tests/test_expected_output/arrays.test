@@ -274,7 +274,7 @@ def copy4() -> None:
     bites = Bytes()
     arr2 = Array[Bytes](bites) ## E: unsupported collection type
 
-## case: array_binary_ops
+## case: array_concat
 
 from algopy import *
 
@@ -289,3 +289,19 @@ def bad1() -> None:
 def bad2() -> None:
     arr = Array[UInt64]()
     arr = arr - () # type: ignore[operator] ## E: unsupported operation - between types
+
+@subroutine
+def bad3() -> None:
+    arr = Array[UInt64]()
+    arr += (UInt64(), True) # type: ignore[operator] ## E: expected an array or tuple of the same element type
+
+
+@subroutine
+def bad4() -> None:
+    arr = Array[UInt64]()
+    arr.extend() # type: ignore[call-arg] ## E: expected 1 argument, got 0
+
+@subroutine
+def bad5() -> None:
+    arr = Array[UInt64]()
+    arr.extend(UInt64()) # type: ignore[arg-type] ## E: expected an array or tuple of the same element type
