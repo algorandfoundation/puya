@@ -252,8 +252,7 @@ class _WTypeToEncoding(WTypeVisitor[Encoding]):
     def visit_reference_array(self, wtype: wtypes.ReferenceArray) -> Encoding:
         element = wtype.element_type.accept(self)
         if element.is_dynamic:
-            # TODO: is this actually a CodeError?
-            raise InternalError("reference arrays can't have dynamic elements")
+            raise CodeError("reference arrays can't have dynamic elements", wtype.source_location)
         return ArrayEncoding.dynamic(element=element, length_header=False)
 
     def visit_arc4_dynamic_array(self, wtype: wtypes.ARC4DynamicArray) -> Encoding:
