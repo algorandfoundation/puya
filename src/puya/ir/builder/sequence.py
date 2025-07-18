@@ -109,8 +109,7 @@ def encode_and_write_aggregate_index(
         new_values = context.materialise_value_provider(base, "new_values")
         new_values[skip_values : skip_values + target_arity] = values
         return ir.ValueTuple(values=new_values, ir_type=tuple_ir_type, source_location=loc)
-    (base,) = context.materialise_value_provider(base, "base")
-    aggregate_or_slot = base
+    (aggregate_or_slot,) = context.materialise_value_provider(base, "base")
     aggregate_encoding = encodings.wtype_to_encoding(aggregate_wtype, loc)
     assert isinstance(aggregate_encoding, encodings.TupleEncoding | encodings.ArrayEncoding)
     element_wtype = _get_nested_element_wtype(aggregate_wtype, indexes, loc)
@@ -131,27 +130,26 @@ def encode_and_write_aggregate_index(
         else "updated_array"
     )
     if isinstance(aggregate_or_slot.ir_type, types.SlotType):
-        base = mem.read_slot(context, aggregate_or_slot, loc)
         write_index = ir.ReplaceValue(
-            base=base,
+            base=mem.read_slot(context, aggregate_or_slot, loc),
             base_type=types.EncodedType(aggregate_encoding),
             indexes=indexes,
             value=encoded_value,
             source_location=loc,
         )
-        (result,) = context.materialise_value_provider(write_index, desc)
-        mem.write_slot(context, aggregate_or_slot, result, loc)
+        (updated_array,) = context.materialise_value_provider(write_index, desc)
+        mem.write_slot(context, aggregate_or_slot, updated_array, loc)
         return aggregate_or_slot
     else:
         write_index = ir.ReplaceValue(
-            base=base,
+            base=aggregate_or_slot,
             base_type=types.EncodedType(aggregate_encoding),
             indexes=indexes,
             value=encoded_value,
             source_location=loc,
         )
-        (result,) = context.materialise_value_provider(write_index, desc)
-        return result
+        (updated_array,) = context.materialise_value_provider(write_index, desc)
+        return updated_array
 
 
 def get_length(
@@ -170,9 +168,10 @@ def get_length(
         return factory.constant(array_encoding.size)
     elif array_encoding.length_header:
         return factory.extract_uint16(array, 0, "array_length")
-    assert array_encoding.size is None, "expected dynamic array"
-    bytes_len = factory.len(array, "bytes_len")
-    return factory.div_floor(bytes_len, array_encoding.element.checked_num_bytes, "array_len")
+    else:
+        bytes_len = factory.len(array, "bytes_len")
+        fixed_element_size = array_encoding.element.checked_num_bytes
+        return factory.div_floor(bytes_len, fixed_element_size, "array_len")
 
 
 def convert_array(
