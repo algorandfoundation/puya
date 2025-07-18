@@ -270,29 +270,19 @@ def convert_array(
 def _get_nested_element_wtype(
     aggregate: WAggregate, indexes: Sequence[int | ir.Value], loc: SourceLocation
 ) -> wtypes.WType:
-    last_i = len(indexes) - 1
-    element = None
-    for i, index in enumerate(indexes):
+    element: wtypes.WType = aggregate
+    reverse_indexes = list(reversed(indexes))
+    while reverse_indexes:
+        index = reverse_indexes.pop()
         if isinstance(
-            aggregate, wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct
+            element, wtypes.WTuple | wtypes.ARC4Tuple | wtypes.ARC4Struct
         ) and isinstance(index, int):
-            element = aggregate.types[index]
-        elif isinstance(aggregate, wtypes.ARC4Array | wtypes.ReferenceArray):
-            element = aggregate.element_type
+            element = element.types[index]
+        elif isinstance(element, wtypes.ARC4Array | wtypes.ReferenceArray):
+            element = element.element_type
         else:
             # invalid index sequence
-            raise InternalError(f"invalid index sequence: {aggregate=!s}, {index=!s}", loc)
-        # indexes must point to aggregates except for the final encoding
-        if i == last_i:
-            # last index can be any encoding
-            pass
-        elif isinstance(element, WAggregate):
-            aggregate = element
-        else:
-            # invalid index sequence
-            raise InternalError(f"invalid index sequence: {aggregate=!s}, {index=!s}", loc)
-    if element is None:
-        raise InternalError(f"invalid index sequence: {aggregate=!s}, {indexes=!s}", loc)
+            raise InternalError(f"invalid index sequence: {aggregate=!s}, {indexes=!s}", loc)
     return element
 
 
@@ -301,27 +291,16 @@ def _get_aggregate_element_encoding(
     indexes: Sequence[int | ir.Value],
     loc: SourceLocation | None,
 ) -> encodings.Encoding:
-    last_i = len(indexes) - 1
-    element_encoding = None
-    for i, index in enumerate(indexes):
-        if isinstance(aggregate_encoding, encodings.TupleEncoding) and isinstance(index, int):
-            element_encoding = aggregate_encoding.elements[index]
-        elif isinstance(aggregate_encoding, encodings.ArrayEncoding):
-            element_encoding = aggregate_encoding.element
+    element_encoding: encodings.Encoding = aggregate_encoding
+    reverse_indexes = list(reversed(indexes))
+    while reverse_indexes:
+        index = reverse_indexes.pop()
+        if isinstance(element_encoding, encodings.TupleEncoding) and isinstance(index, int):
+            element_encoding = element_encoding.elements[index]
+        elif isinstance(element_encoding, encodings.ArrayEncoding):
+            element_encoding = element_encoding.element
         else:
             raise InternalError(
-                f"invalid index sequence: {aggregate_encoding=!s}, {index=!s}", loc
+                f"invalid index sequence: {aggregate_encoding=!s}, {indexes=!s}", loc
             )
-        if i == last_i:
-            # last index is the only one that doesn't need to be an aggregate
-            pass
-        elif isinstance(element_encoding, encodings.TupleEncoding | encodings.ArrayEncoding):
-            aggregate_encoding = element_encoding
-        else:
-            # invalid index sequence
-            raise InternalError(
-                f"invalid index sequence: {aggregate_encoding=!s}, {index=!s}", loc
-            )
-    if element_encoding is None:
-        raise InternalError(f"invalid index sequence: {aggregate_encoding=!s}, {indexes=!s}", loc)
     return element_encoding
