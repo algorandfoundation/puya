@@ -6,9 +6,7 @@ from puya import log
 from puya.context import ArtifactCompileContext
 from puya.ir import models
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.optimize.add_box_extract_replace import (
-    replace_aggregate_box_ops,
-)
+from puya.ir.optimize.add_box_extract_replace import replace_aggregate_box_ops
 from puya.ir.optimize.assignments import copy_propagation, encode_decode_pair_elimination
 from puya.ir.optimize.collapse_blocks import remove_empty_blocks, remove_linear_jump
 from puya.ir.optimize.compiled_reference import replace_compiled_references
