@@ -31,7 +31,7 @@ def merge_chained_aggregate_reads(_: CompileContext, subroutine: models.Subrouti
                 source_location=merged_source_location,
             )
 
-        if merged_read != read:
+        if merged_read is not read:
             modified = True
             logger.debug(f"replacing {read!s} with {merged_read!s}", location=ass.source_location)
             ass.source = merged_read
