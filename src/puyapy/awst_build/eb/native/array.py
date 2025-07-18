@@ -124,7 +124,9 @@ class ArrayTypeBuilder(TypeBuilder[pytypes.ArrayType]):
                 new_array = NewArray(values=items, wtype=wtype, source_location=location)
             else:
                 logger.error("unsupported collection type", location=arg.source_location)
-                new_array = Copy(value=dummy_value(typ, location).resolve(), source_location=location)
+                new_array = Copy(
+                    value=dummy_value(typ, location).resolve(), source_location=location
+                )
 
         return ArrayExpressionBuilder(new_array, self._pytype)
 
