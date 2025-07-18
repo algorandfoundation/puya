@@ -242,6 +242,11 @@ class Contract(arc4.ARC4Contract):
         self.arr = arr2.copy()
         assert self.arr == arr2, "expected array in storage to be the same"
 
+        arr11 = ReferenceArray[FixedStruct]()
+        assert not arr11
+        arr11.append(fixed_struct)
+        assert arr11
+
         return self.arr
 
 
