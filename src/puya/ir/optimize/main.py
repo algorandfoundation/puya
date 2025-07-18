@@ -20,7 +20,7 @@ from puya.ir.optimize.dead_code_elimination import (
     remove_unused_subroutines,
     remove_unused_variables,
 )
-from puya.ir.optimize.eliminate_asserts import minimize_box_exist_asserts
+from puya.ir.optimize.eliminate_box_asserts import minimize_box_exist_asserts
 from puya.ir.optimize.inlining import analyse_subroutines_for_inlining, perform_subroutine_inlining
 from puya.ir.optimize.inner_txn import inner_txn_field_replacer
 from puya.ir.optimize.intrinsic_simplification import intrinsic_simplifier
