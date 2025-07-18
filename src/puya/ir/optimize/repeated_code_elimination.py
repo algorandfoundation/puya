@@ -1,5 +1,6 @@
 import functools
 import operator
+import typing
 from collections.abc import Sequence
 
 import attrs
@@ -106,12 +107,14 @@ class RCEVisitor(NoOpIRVisitor[bool]):
 
     _assignment: models.Assignment | None = None
 
+    @typing.override
     def visit_assignment(self, ass: models.Assignment) -> bool | None:
         self._assignment = ass
         remove = ass.source.accept(self)
         self._assignment = None
         return remove
 
+    @typing.override
     def visit_intrinsic_op(self, intrinsic: models.Intrinsic) -> bool:
         modified = False
         if self._assignment is not None:
@@ -130,6 +133,7 @@ class RCEVisitor(NoOpIRVisitor[bool]):
                 self.asserted.add(assert_arg)
         return modified
 
+    @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> bool:
         modified = False
         if self._assignment is not None:
@@ -137,6 +141,7 @@ class RCEVisitor(NoOpIRVisitor[bool]):
             modified = self._cache_or_replace(self._assignment, key)
         return modified
 
+    @typing.override
     def visit_bytes_encode(self, encode: models.BytesEncode) -> bool:
         modified = False
         if self._assignment is not None:
@@ -144,6 +149,7 @@ class RCEVisitor(NoOpIRVisitor[bool]):
             modified = self._cache_or_replace(self._assignment, key)
         return modified
 
+    @typing.override
     def visit_decode_bytes(self, decode: models.DecodeBytes) -> bool:
         modified = False
         if self._assignment is not None:
@@ -158,7 +164,7 @@ class RCEVisitor(NoOpIRVisitor[bool]):
             self.const_intrinsics[key] = ass.targets
             return False
         logger.debug(
-            f"Replacing redundant declaration {ass}" f" with copy of existing registers {existing}"
+            f"Replacing redundant declaration {ass} with copy of existing registers {existing}"
         )
         if len(existing) == 1:
             ass.source = existing[0]

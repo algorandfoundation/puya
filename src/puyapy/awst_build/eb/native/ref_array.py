@@ -118,7 +118,7 @@ class ReferenceArrayExpressionBuilder(InstanceExpressionBuilder[pytypes.ArrayTyp
     @typing.final
     def to_bytes(self, location: SourceLocation) -> Expression:
         raise CodeError(
-            f"cannot serialize {self.pytype}," f" try using .freeze() to get an immutable array",
+            f"cannot serialize {self.pytype}, try using .freeze() to get an immutable array",
             location,
         )
 
