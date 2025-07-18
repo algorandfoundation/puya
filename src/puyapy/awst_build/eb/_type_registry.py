@@ -277,4 +277,4 @@ def builder_for_type(pytyp: pytypes.PyType, expr_loc: SourceLocation) -> Callabl
             return tb_base(pytyp, expr_loc)
     if isinstance(pytyp, pytypes.UnionType):
         raise CodeError("type unions are unsupported at this location", expr_loc)
-    raise InternalError(f"no builder for type: {pytyp}", expr_loc)
+    raise CodeError("unsupported type reference", expr_loc)

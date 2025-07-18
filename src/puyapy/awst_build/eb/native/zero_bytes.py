@@ -2,6 +2,7 @@ import typing
 from collections.abc import Sequence
 
 from puya import log
+from puya.avm import AVMType
 from puya.awst.nodes import IntrinsicCall, SizeOf
 from puya.errors import CodeError
 from puya.parse import SourceLocation
@@ -26,7 +27,8 @@ class ZeroBytesBuilder(FunctionBuilder):
     ) -> InstanceBuilder:
         match args:
             case [NodeBuilder(pytype=pytypes.TypeType(typ=typ))]:
-                if not _is_bytes_encoded(typ):
+                wtype = typ.checked_wtype(location)
+                if (wtype.scalar_type is AVMType.uint64) or not wtype.persistable:
                     logger.error(
                         "argument must be a bytes encoded type reference", location=location
                     )
@@ -35,7 +37,7 @@ class ZeroBytesBuilder(FunctionBuilder):
                 raise CodeError(
                     "argument must be a bytes encoded type reference", location=location
                 )
-        wtype = typ.checked_wtype(location)
+
         return builder_for_instance(
             typ,
             IntrinsicCall(
@@ -50,12 +52,3 @@ class ZeroBytesBuilder(FunctionBuilder):
                 source_location=location,
             ),
         )
-
-
-def _is_bytes_encoded(typ: pytypes.PyType) -> bool:
-    if typ <= pytypes.UInt64Type:
-        return False
-    wtype = typ.wtype
-    if isinstance(wtype, str):
-        return False
-    return wtype.persistable

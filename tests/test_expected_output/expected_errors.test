@@ -479,6 +479,23 @@ def bad1() -> None:
 def bad2() -> None:
     assert zero_bytes(UInt64) ## E: argument must be a bytes encoded type reference
 
+@subroutine
+def bad3() -> None:
+    assert zero_bytes(bool) ## E: argument must be a bytes encoded type reference
+
+@subroutine
+def bad4() -> None:
+    payment = zero_bytes(itxn.Payment).copy() ## E: argument must be a bytes encoded type reference
+
+
+## case: zero_bytes_bad_arg_wut
+from algopy import *
+
+class C(ARC4Contract):
+    @arc4.abimethod
+    def foo(self) -> None:
+        assert zero_bytes(ARC4Contract) ## E: unsupported type reference
+
 
 ## case: tuple_with_non_persistable_elements_cannot_be_persisted
 from algopy import *
