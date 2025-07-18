@@ -54,6 +54,7 @@ class SubroutineOptimization:
     def from_function(
         cls,
         func: SubroutineOptimizerCallable,
+        *,
         loop: bool = False,
         min_level: int = 1,
     ) -> "SubroutineOptimization":
@@ -136,13 +137,10 @@ def optimize_program_ir(
         expand_all_bytes=context.options.expand_all_bytes,
         embedded_funcs={PuyaLibIR(s.id): s for s in program.subroutines if s.id in PuyaLibIR},
     )
-    is_after_lowering = qualifier == "ssa.array.opt"
     for pass_num in range(1, MAX_PASSES + 1):
         program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
-        analyse_subroutines_for_inlining(
-            opt_context, program, routable_method_ids, enable_op_counting=is_after_lowering
-        )
+        analyse_subroutines_for_inlining(opt_context, program, routable_method_ids)
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:
