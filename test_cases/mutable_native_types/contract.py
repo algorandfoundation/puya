@@ -12,6 +12,7 @@ from algopy import (
     ImmutableArray,
     LocalState,
     OnCompleteAction,
+    ReferenceArray,
     String,
     Struct,
     TransactionType,
@@ -88,7 +89,7 @@ class Contract(arc4.ARC4Contract):
         )
 
         self.num_payments = UInt64(0)
-        self.payments = zero_bytes(FixedArray[Payment, typing.Literal[8]])
+        self.payments = zero_bytes(FixedArray[Payment, typing.Literal[2]])
 
     @arc4.abimethod()
     def fixed_initialize(self) -> None:
@@ -188,10 +189,20 @@ class Contract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def test_arr(self, arr: Array[FixedStruct]) -> Array[FixedStruct]:
+        assert arr.length == 0, "expected empty array"
         arr2 = arr.copy()
+        arr3 = Array(arr2)
         assert arr == arr2, "expected arrays to be the same"
+        assert arr == arr3, "expected arrays to be the same"
+        arr4 = ReferenceArray[FixedStruct]()
+        arr4.extend(arr)
+        assert arr.length == arr4.length, "expected arrays to be the same length"
+        arr5 = Array(arr4)
+        assert arr == arr5, "expected arrays to be the same"
         fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
         arr2.append(fixed_struct)
+        assert arr2.length == 1, "expected array to have 1 item"
+        assert sum_frozen_arr(arr2.freeze()) == 7, "expected sum to be 7"
         assert arr != arr2, "expected arrays to be different"
 
         arr2 = Array[FixedStruct]()
@@ -202,12 +213,12 @@ class Contract(arc4.ARC4Contract):
         assert arr2.length == 3, "expected 3 elements"
 
         frozen1 = arr2.freeze()
-        assert sum_frozen_arr(frozen1) == 15, "expected sum to be 15"
+        assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
 
         arr2.pop()
         frozen2 = arr2.freeze()
-        assert sum_frozen_arr(frozen1) == 15, "expected sum to be 15"
-        assert sum_frozen_arr(frozen2) == 10, "expected sum to be 10"
+        assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
+        assert sum_frozen_arr(frozen2) == 14, "expected sum to be 14"
 
         self.arr = arr2.copy()
         assert self.arr == arr2, "expected array in storage to be the same"

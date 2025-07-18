@@ -3,7 +3,7 @@
 
 // test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 8 16
+    intcblock 0 1 16 8
     bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map"
     intc_0 // 0
     dup
@@ -60,7 +60,7 @@ main:
     bytec_1 // "num_payments"
     intc_0 // 0
     app_global_put
-    pushint 384 // 384
+    pushint 96 // 96
     bzero
     bytec_2 // "payments"
     swap
@@ -84,6 +84,29 @@ main_test_arr_route@17:
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    !
+    assert // expected empty array
+    dig 1
+    extract 2 0
+    dup
+    len
+    intc_2 // 16
+    /
+    dig 2
+    dig 1
+    ==
+    assert // expected arrays to be the same length
+    itob
+    extract 6 2
+    swap
+    concat
+    dig 2
+    ==
+    assert // expected arrays to be the same
     txn NumAppArgs
     intc_1 // 1
     +
@@ -96,18 +119,27 @@ main_test_arr_route@17:
     itob
     concat
     dup
-    bury 6
-    dig 1
+    bury 7
+    dig 2
     swap
     concat // on error: max array length exceeded
-    dig 1
-    intc_0 // 0
-    extract_uint16
+    swap
     intc_1 // 1
     +
     itob
     extract 6 2
     replace2 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    ==
+    assert // expected array to have 1 item
+    dup
+    callsub sum_frozen_arr
+    pushint 7 // 7
+    ==
+    assert // expected sum to be 7
     !=
     assert // expected arrays to be different
     pushbytes 0x0000
@@ -150,9 +182,9 @@ main_after_for@20:
     assert // expected 3 elements
     dig 1
     callsub sum_frozen_arr
-    pushint 15 // 15
+    pushint 21 // 21
     ==
-    assert // expected sum to be 15
+    assert // expected sum to be 21
     intc_1 // 1
     -
     itob
@@ -162,21 +194,21 @@ main_after_for@20:
     replace2 0
     dup
     len
-    intc_3 // 16
+    intc_2 // 16
     -
     intc_0 // 0
     swap
     substring3
     swap
     callsub sum_frozen_arr
-    pushint 15 // 15
+    pushint 21 // 21
     ==
-    assert // expected sum to be 15
+    assert // expected sum to be 21
     dup
     callsub sum_frozen_arr
-    pushint 10 // 10
+    pushint 14 // 14
     ==
-    assert // expected sum to be 10
+    assert // expected sum to be 14
     pushbytes "arr"
     dig 1
     app_global_put
@@ -205,14 +237,14 @@ main_calculate_sum_route@14:
     intc_0 // 0
     extract_uint64
     uncover 2
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     +
     dig 1
     intc_0 // 0
     extract_uint64
     uncover 2
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     +
     +
@@ -233,7 +265,7 @@ main_calculate_sum_route@14:
     intc_0 // 0
     extract_uint64
     swap
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     dig 3
     uncover 2
@@ -493,7 +525,7 @@ main_add_payment_route@6:
     app_global_get_ex
     assert // check self.num_payments exists
     dup
-    intc_2 // 8
+    pushint 2 // 2
     <
     assert // too many payments
     intc_0 // 0
@@ -558,9 +590,9 @@ sum_frozen_arr_for_header@1:
     frame_dig 2
     dup
     cover 2
-    intc_3 // 16
+    intc_2 // 16
     *
-    intc_3 // 16
+    intc_2 // 16
     extract3 // on error: index access is out of bounds
     dup
     intc_0 // 0
@@ -568,7 +600,7 @@ sum_frozen_arr_for_header@1:
     frame_dig 0
     +
     swap
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     +
     frame_bury 0

@@ -9,7 +9,7 @@ contract Contract
     [hex<"70">]: test_cases.mutable_native_types.contract.NestedStruct
     ['dyn']: test_cases.mutable_native_types.contract.DynamicStruct
     ['num_payments']: uint64
-    ['payments']: arc4.static_array<test_cases.mutable_native_types.contract.Payment, 8>
+    ['payments']: arc4.static_array<test_cases.mutable_native_types.contract.Payment, 2>
     ['arr']: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>
   }
   locals {
@@ -38,7 +38,7 @@ contract Contract
     GlobalState['nested']: test_cases.mutable_native_types.contract.NestedStruct = new test_cases.mutable_native_types.contract.NestedStruct(fixed_a=new test_cases.mutable_native_types.contract.FixedStruct(a=txn<NumAppArgs>(), b=txn<NumAppArgs>()), fixed_b=new test_cases.mutable_native_types.contract.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 1u), tup=(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 1u))
     GlobalState['dyn']: test_cases.mutable_native_types.contract.DynamicStruct = new test_cases.mutable_native_types.contract.DynamicStruct(a=txn<NumAppArgs>(), b=txn<NumAppArgs>(), c=hex<"">, d='', e=new arc4.dynamic_array<arc4.uint8>())
     GlobalState['num_payments']: uint64 = 0u
-    GlobalState['payments']: arc4.static_array<test_cases.mutable_native_types.contract.Payment, 8> = bzero(size_of(arc4.static_array<test_cases.mutable_native_types.contract.Payment, 8>))
+    GlobalState['payments']: arc4.static_array<test_cases.mutable_native_types.contract.Payment, 2> = bzero(size_of(arc4.static_array<test_cases.mutable_native_types.contract.Payment, 2>))
   }
   
   abimethod test_cases.mutable_native_types.contract.Contract.fixed_initialize(): void
@@ -64,7 +64,7 @@ contract Contract
   
   abimethod test_cases.mutable_native_types.contract.Contract.add_payment(pay: test_cases.mutable_native_types.contract.Payment): void
   {
-    assert(GlobalState['num_payments'] < 8u, comment="too many payments")
+    assert(GlobalState['num_payments'] < 2u, comment="too many payments")
     GlobalState['payments'][GlobalState['num_payments']]: test_cases.mutable_native_types.contract.Payment = pay.copy()
     GlobalState['num_payments'] += 1u
   }
@@ -136,10 +136,20 @@ contract Contract
   
   abimethod test_cases.mutable_native_types.contract.Contract.test_arr(arr: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>): arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>
   {
+    assert(arr.length == 0u, comment="expected empty array")
     arr2: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = arr.copy()
+    arr3: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = arr2.copy()
     assert(arr == arr2, comment="expected arrays to be the same")
+    assert(arr == arr3, comment="expected arrays to be the same")
+    arr4: ref_array<test_cases.mutable_native_types.contract.FixedStruct> = new ref_array<test_cases.mutable_native_types.contract.FixedStruct>()
+    arr4.extend(arr)
+    assert(arr.length == arr4.length, comment="expected arrays to be the same length")
+    arr5: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = convert_array<arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>>(arr4)
+    assert(arr == arr5, comment="expected arrays to be the same")
     fixed_struct: test_cases.mutable_native_types.contract.FixedStruct = new test_cases.mutable_native_types.contract.FixedStruct(a=txn<NumAppArgs>() + 1u, b=txn<NumAppArgs>() + 2u)
     arr2.extend((fixed_struct))
+    assert(arr2.length == 1u, comment="expected array to have 1 item")
+    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(convert_array<arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>>(arr2)) == 7u, comment="expected sum to be 7")
     assert(arr != arr2, comment="expected arrays to be different")
     arr2: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = new arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>()
     for _i in range(0u, 3u, 1u) {
@@ -147,11 +157,11 @@ contract Contract
     }
     assert(arr2.length == 3u, comment="expected 3 elements")
     frozen1: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = convert_array<arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>>(arr2)
-    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen1) == 15u, comment="expected sum to be 15")
+    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen1) == 21u, comment="expected sum to be 21")
     arr2.pop()
     frozen2: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = convert_array<arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct>>(arr2)
-    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen1) == 15u, comment="expected sum to be 15")
-    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2) == 10u, comment="expected sum to be 10")
+    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen1) == 21u, comment="expected sum to be 21")
+    assert(test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2) == 14u, comment="expected sum to be 14")
     GlobalState['arr']: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = arr2.copy()
     assert(GlobalState['arr'] == arr2, comment="expected array in storage to be the same")
     return GlobalState['arr']
