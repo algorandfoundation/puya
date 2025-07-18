@@ -320,3 +320,9 @@ def bad1() -> None:
 @subroutine
 def bad2() -> None:
     bad = ImmutableFixedArray[Bytes, typing.Literal[2]](Bytes()) ## E: unsupported collection type
+
+
+@subroutine
+def bad3() -> None:
+    ok = ImmutableFixedArray[UInt64, typing.Literal[2]].full(UInt64())
+    bad = ok.replace(1, UInt64(), True) # type: ignore[call-arg] ## E: expected 2 arguments, got 3
