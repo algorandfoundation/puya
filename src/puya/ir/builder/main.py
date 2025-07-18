@@ -750,11 +750,12 @@ class FunctionIRBuilder(
             )
         ]
         base_ir_type = types.wtype_to_ir_type(base_wtype, loc, allow_tuple=True)
-        ir_type = types.TupleIRType(
-            elements=base_ir_type.elements[start_i:end_i],
-            fields=base_ir_type.fields[start_i:end_i] if base_ir_type.fields is not None else None,
-        )
-
+        slice_elements_ir_types = base_ir_type.elements[start_i:end_i]
+        if base_ir_type.fields is None:
+            slice_fields = None
+        else:
+            slice_fields = base_ir_type.fields[start_i:end_i]
+        ir_type = types.TupleIRType(elements=slice_elements_ir_types, fields=slice_fields)
         return ir.ValueTuple(values=values, ir_type=ir_type, source_location=loc)
 
     def visit_index_expression(self, expr: awst_nodes.IndexExpression) -> TExpression:
