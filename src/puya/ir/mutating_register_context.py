@@ -8,7 +8,7 @@ import attrs
 from puya.ir import models as ir
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir._utils import multi_value_to_values
-from puya.ir.models import MultiValue, Register, Subroutine, Value, ValueProvider
+from puya.ir.models import MultiValue, Subroutine, Value, ValueProvider
 from puya.ir.op_utils import assign_targets
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import IRType
@@ -36,9 +36,11 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
             self.visit_block(block)
         self.subroutine.validate_with_ssa()
 
+    @typing.override
     def resolve_embedded_func(self, full_name: PuyaLibIR) -> Subroutine:
         return self._embedded_funcs[full_name]
 
+    @typing.override
     def materialise_value_provider(
         self, value_provider: ValueProvider, description: str | Sequence[str]
     ) -> list[Value]:
@@ -49,7 +51,7 @@ class MutatingRegisterContext(IRMutator, IRRegisterContext):
             if isinstance(description, str)
             else description
         )
-        targets: list[Register] = [
+        targets = [
             self.new_register(self.next_tmp_name(desc), ir_type, value_provider.source_location)
             for ir_type, desc in zip(value_provider.types, descriptions, strict=True)
         ]
