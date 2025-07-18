@@ -4,14 +4,16 @@ import attrs
 
 from puya import log
 from puya.errors import InternalError
-from puya.ir import models as ir
+from puya.ir import (
+    models as ir,
+    types_ as types,
+)
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
 from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
 from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
 from puya.ir.op_utils import assert_value
-from puya.ir.types_ import PrimitiveIRType
 
 logger = log.get_logger(__name__)
 
@@ -116,7 +118,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         box_get = ir.Intrinsic(
             op=AVMOp.box_get,
             args=[read.key],
-            types=[*read.types, PrimitiveIRType.bool],
+            types=[*read.types, types.bool_],
             source_location=loc,
         )
         box_value, box_exists = self.materialise_value_provider(box_get, "box_get")

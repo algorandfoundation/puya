@@ -6,14 +6,16 @@ import attrs
 from puya import log
 from puya.avm import AVMType
 from puya.errors import InternalError
-from puya.ir import models as ir
+from puya.ir import (
+    models as ir,
+    types_ as types,
+)
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.sequence import get_length
 from puya.ir.encodings import ArrayEncoding
 from puya.ir.op_utils import OpFactory, assert_value
 from puya.ir.register_context import IRRegisterContext
-from puya.ir.types_ import PrimitiveIRType
 from puya.parse import SourceLocation
 
 logger = log.get_logger(__name__)
@@ -294,7 +296,7 @@ class _DynamicElementArrayBuilder(_ArrayBuilderImpl):
             true=next_item_offset,
             condition=has_next,
             temp_desc="end_offset",
-            ir_type=PrimitiveIRType.uint64,
+            ir_type=types.uint64,
         )
         return factory.substring3(array_head_and_tail, item_start_offset, item_end_offset)
 
