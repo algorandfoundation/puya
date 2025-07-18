@@ -60,36 +60,37 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
     modified: bool = False
 
     def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider:
-        if not _box_extract_required(read):
-            return read
-
-        maybe_box_register = read.base
+        # find box read
         try:
-            box_read = self.aggregates.box_reads[maybe_box_register]
+            box_read = self.aggregates.box_reads[read.base]
         except KeyError:
             return read
+
+        aggregate_encoding = read.base_type.encoding
+        # dynamic encodings not supported with box_extract optimization currently
+        if aggregate_encoding.is_dynamic:
+            return read
+        # box_extract is required if the aggregate doesn't fit on the stack
+        if aggregate_encoding.checked_num_bytes <= MAX_BYTES_LENGTH:
+            return read
+        # TODO: there are more scenarios where it can be more efficient e.g.
+        #       a box_extract with constant offsets can be more efficient if it also eliminates
+        #       the exists assertion, however this requires knowledge of other consumers of the
+        #       box read
 
         merged_loc = sequential_source_locations_merge(
             (box_read.source_location, read.source_location)
         )
-        new_read = _combine_box_and_aggregate_read(
-            self,
-            box_read.key,
-            read,
-            merged_loc,
+        new_read = _combine_box_and_aggregate_read(self, box_read.key, read, merged_loc)
+        assert new_read.types == read.types, "expected replacement types to match"
+        self.modified = True
+        logger.debug(
+            f"combined BoxRead `{read.base !s} = {box_read!s}`\n"
+            f"and ExtractValue `{read!s}`\n"
+            f"into {new_read!s}",
+            location=merged_loc,
         )
-        if new_read is None:
-            return read
-        else:
-            assert new_read.types == read.types, "expected replacement types to match"
-            self.modified = True
-            logger.debug(
-                f"combined BoxRead `{maybe_box_register!s} = {box_read!s}`\n"
-                f"and ExtractValue `{read!s}`\n"
-                f"into {new_read!s}",
-                location=merged_loc,
-            )
-            return new_read
+        return new_read
 
     def visit_box_write(self, write: models.BoxWrite) -> models.BoxWrite | None:
         # find aggregate
@@ -116,12 +117,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         merged_loc = sequential_source_locations_merge(
             (agg_write.source_location, write.source_location)
         )
-        new_write = _combine_aggregate_and_box_write(
-            self,
-            agg_write,
-            write.key,
-            merged_loc,
-        )
+        new_write = _combine_aggregate_and_box_write(self, agg_write, write.key, merged_loc)
         self.add_op(new_write)
         logger.debug(
             f"combined BoxRead `{agg_write.base!s} = {read_src!s}`\n"
@@ -131,19 +127,6 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             location=merged_loc,
         )
         return None
-
-
-def _box_extract_required(read: models.ExtractValue) -> bool:
-    aggregate_encoding = read.base_type.encoding
-    # dynamic encodings not supported with box_extract optimization currently
-    if aggregate_encoding.is_dynamic:
-        return False
-    # box_extract is required if the aggregate doesn't fit on the stack
-    return aggregate_encoding.checked_num_bytes > MAX_BYTES_LENGTH
-    # TODO: there are more scenarios where it can be more efficient e.g.
-    #       a box_extract with constant offsets can be more efficient if it also eliminates
-    #       the exists assertion, however this requires knowledge of other consumers of the
-    #       box read
 
 
 def _combine_box_and_aggregate_read(
@@ -174,7 +157,6 @@ def _combine_box_and_aggregate_read(
     if not remaining_indexes:
         return box_extract
 
-    encoding_at_offset = fixed_offset.encoding
     assert isinstance(
         encoding_at_offset, TupleEncoding | ArrayEncoding
     ), "expected aggregate encoding"
@@ -289,7 +271,7 @@ def _get_fixed_byte_offset(
         next_index += 1
         # exit loop if the resulting value can fit on stack
         # generally more optimizations are possible the sooner a value is read
-        if encoding.checked_num_bytes < MAX_BYTES_LENGTH and stop_at_valid_stack_value:
+        if stop_at_valid_stack_value and encoding.checked_num_bytes < MAX_BYTES_LENGTH:
             break
         # bits can't be read or written directly and should have been handled already
         assert not encoding.is_bit, "can't read bits directly"
