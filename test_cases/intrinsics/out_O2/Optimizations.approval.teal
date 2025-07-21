@@ -4,14 +4,88 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1
+    bytecblock 0x0020
     txn NumAppArgs
-    bz main_bare_routing@9
-    pushbytess 0x86db3e46 0x5468f98b 0x3c539b61 0xe6b8cd41 // method "sha256()byte[]", method "sha3_256()byte[]", method "sha512_256()byte[]", method "keccak256()byte[]"
+    bz main_bare_routing@10
+    pushbytess 0x86db3e46 0x5468f98b 0x3c539b61 0xe6b8cd41 0xb15dc12a // method "sha256()byte[]", method "sha3_256()byte[]", method "sha512_256()byte[]", method "keccak256()byte[]", method "all(byte[])(byte[],byte[],byte[],byte[])"
     txna ApplicationArgs 0
-    match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6
+    match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 main_all_route@7
 
-main_after_if_else@13:
+main_after_if_else@14:
     pushint 0 // 0
+    return
+
+main_all_route@7:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    txna ApplicationArgs 1
+    extract 2 0
+    dup
+    sha256
+    dig 1
+    sha3_256
+    dig 2
+    sha512_256
+    uncover 3
+    keccak256
+    bytec_0 // 0x0020
+    uncover 4
+    concat
+    dup
+    len
+    pushint 8 // 8
+    +
+    bytec_0 // 0x0020
+    uncover 5
+    concat
+    dig 1
+    itob
+    extract 6 2
+    pushbytes 0x0008
+    swap
+    concat
+    dig 1
+    len
+    uncover 3
+    +
+    bytec_0 // 0x0020
+    uncover 6
+    concat
+    dig 1
+    itob
+    extract 6 2
+    uncover 3
+    swap
+    concat
+    dig 1
+    len
+    uncover 3
+    +
+    bytec_0 // 0x0020
+    uncover 6
+    concat
+    swap
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
     return
 
 main_keccak256_route@6:
@@ -58,9 +132,9 @@ main_sha256_route@3:
     intc_0 // 1
     return
 
-main_bare_routing@9:
+main_bare_routing@10:
     txn OnCompletion
-    bnz main_after_if_else@13
+    bnz main_after_if_else@14
     txn ApplicationID
     !
     assert // can only call when creating

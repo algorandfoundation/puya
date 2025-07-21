@@ -7,7 +7,7 @@ subroutine main:
         txn NumAppArgs                                                                            tmp%0#1
         v-store tmp%0#1
         v-load tmp%0#1                                                                            tmp%0#1
-        bz main_bare_routing@9 ; b main_abi_routing@2
+        bz main_bare_routing@10 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // intrinsics/optimizations.py:4
@@ -18,8 +18,9 @@ subroutine main:
         method sha3_256()byte[]                                                                   Method(sha256()byte[]),Method(sha3_256()byte[])
         method sha512_256()byte[]                                                                 Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[])
         method keccak256()byte[]                                                                  Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[]),Method(keccak256()byte[])
-        v-load tmp%2#0                                                                            Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[]),Method(keccak256()byte[]),tmp%2#0
-        match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 ; b main_after_if_else@13 
+        method all(byte[])(byte[],byte[],byte[],byte[])                                           Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[]),Method(keccak256()byte[]),Method(all(byte[])(byte[],byte[],byte[],byte[]))
+        v-load tmp%2#0                                                                            Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[]),Method(keccak256()byte[]),Method(all(byte[])(byte[],byte[],byte[],byte[])),tmp%2#0
+        match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 main_all_route@7 ; b main_after_if_else@14 
 
     main_sha256_route@3:
         // intrinsics/optimizations.py:5
@@ -41,7 +42,7 @@ subroutine main:
         v-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 
         v-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15 
 
     main_sha3_256_route@4:
         // intrinsics/optimizations.py:9
@@ -63,7 +64,7 @@ subroutine main:
         v-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 
         v-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15 
 
     main_sha512_256_route@5:
         // intrinsics/optimizations.py:13
@@ -85,7 +86,7 @@ subroutine main:
         v-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 
         v-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15 
 
     main_keccak256_route@6:
         // intrinsics/optimizations.py:17
@@ -107,41 +108,238 @@ subroutine main:
         v-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 
         v-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15 
 
-    main_bare_routing@9:
-        // intrinsics/optimizations.py:4
-        // class Optimizations(arc4.ARC4Contract):
+    main_all_route@7:
+        // intrinsics/optimizations.py:21
+        // @arc4.abimethod()
         txn OnCompletion                                                                          tmp%31#0
         v-store tmp%31#0
         v-load tmp%31#0                                                                           tmp%31#0
-        bz main___algopy_default_create@10 ; b main_after_if_else@13
-
-    main___algopy_default_create@10:
-        txn ApplicationID                                                                         tmp%32#0
+        !                                                                                         tmp%32#0
         v-store tmp%32#0
         v-load tmp%32#0                                                                           tmp%32#0
-        !                                                                                         tmp%33#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%33#0
         v-store tmp%33#0
         v-load tmp%33#0                                                                           tmp%33#0
+        assert // can only call when not creating
+        // intrinsics/optimizations.py:4
+        // class Optimizations(arc4.ARC4Contract):
+        txna ApplicationArgs 1                                                                    reinterpret_Encoded(len+uint8[])%0#0
+        v-store reinterpret_Encoded(len+uint8[])%0#0
+        v-load reinterpret_Encoded(len+uint8[])%0#0                                               reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                                               tmp%35#0
+        v-store tmp%35#0
+        // intrinsics/optimizations.py:21
+        // @arc4.abimethod()
+        v-load tmp%35#0                                                                           tmp%35#0
+        callsub all                                                                               tmp%36#0,tmp%37#0,tmp%38#0,tmp%39#0
+        v-store tmp%39#0                                                                          tmp%36#0,tmp%37#0,tmp%38#0
+        v-store tmp%38#0                                                                          tmp%36#0,tmp%37#0
+        v-store tmp%37#0                                                                          tmp%36#0
+        v-store tmp%36#0
+        v-load tmp%36#0                                                                           tmp%36#0
+        len                                                                                       aggregate%length%4#0
+        v-store aggregate%length%4#0
+        v-load aggregate%length%4#0                                                               aggregate%length%4#0
+        itob                                                                                      aggregate%as_bytes%4#0
+        v-store aggregate%as_bytes%4#0
+        v-load aggregate%as_bytes%4#0                                                             aggregate%as_bytes%4#0
+        extract 6 2                                                                               aggregate%length_uint16%4#0
+        v-store aggregate%length_uint16%4#0
+        v-load aggregate%length_uint16%4#0                                                        aggregate%length_uint16%4#0
+        v-load tmp%36#0                                                                           aggregate%length_uint16%4#0,tmp%36#0
+        concat                                                                                    aggregate%encoded_value%4#0
+        v-store aggregate%encoded_value%4#0
+        v-load aggregate%encoded_value%4#0                                                        aggregate%encoded_value%4#0
+        len                                                                                       aggregate%data_length%0#0
+        v-store aggregate%data_length%0#0
+        int 8                                                                                     8
+        v-load aggregate%data_length%0#0                                                          8,aggregate%data_length%0#0
+        +                                                                                         aggregate%current_tail_offset%0#0
+        v-store aggregate%current_tail_offset%0#0
+        v-load tmp%37#0                                                                           tmp%37#0
+        len                                                                                       aggregate%length%5#0
+        v-store aggregate%length%5#0
+        v-load aggregate%length%5#0                                                               aggregate%length%5#0
+        itob                                                                                      aggregate%as_bytes%6#0
+        v-store aggregate%as_bytes%6#0
+        v-load aggregate%as_bytes%6#0                                                             aggregate%as_bytes%6#0
+        extract 6 2                                                                               aggregate%length_uint16%5#0
+        v-store aggregate%length_uint16%5#0
+        v-load aggregate%length_uint16%5#0                                                        aggregate%length_uint16%5#0
+        v-load tmp%37#0                                                                           aggregate%length_uint16%5#0,tmp%37#0
+        concat                                                                                    aggregate%encoded_value%5#0
+        v-store aggregate%encoded_value%5#0
+        v-load aggregate%current_tail_offset%0#0                                                  aggregate%current_tail_offset%0#0
+        itob                                                                                      aggregate%as_bytes%7#0
+        v-store aggregate%as_bytes%7#0
+        v-load aggregate%as_bytes%7#0                                                             aggregate%as_bytes%7#0
+        extract 6 2                                                                               aggregate%offset_as_uint16%1#0
+        v-store aggregate%offset_as_uint16%1#0
+        byte 0x0008                                                                               0x0008
+        v-load aggregate%offset_as_uint16%1#0                                                     0x0008,aggregate%offset_as_uint16%1#0
+        concat                                                                                    aggregate%head%1#0
+        v-store aggregate%head%1#0
+        v-load aggregate%encoded_value%5#0                                                        aggregate%encoded_value%5#0
+        len                                                                                       aggregate%data_length%1#0
+        v-store aggregate%data_length%1#0
+        v-load aggregate%current_tail_offset%0#0                                                  aggregate%current_tail_offset%0#0
+        v-load aggregate%data_length%1#0                                                          aggregate%current_tail_offset%0#0,aggregate%data_length%1#0
+        +                                                                                         aggregate%current_tail_offset%1#0
+        v-store aggregate%current_tail_offset%1#0
+        v-load tmp%38#0                                                                           tmp%38#0
+        len                                                                                       aggregate%length%6#0
+        v-store aggregate%length%6#0
+        v-load aggregate%length%6#0                                                               aggregate%length%6#0
+        itob                                                                                      aggregate%as_bytes%8#0
+        v-store aggregate%as_bytes%8#0
+        v-load aggregate%as_bytes%8#0                                                             aggregate%as_bytes%8#0
+        extract 6 2                                                                               aggregate%length_uint16%6#0
+        v-store aggregate%length_uint16%6#0
+        v-load aggregate%length_uint16%6#0                                                        aggregate%length_uint16%6#0
+        v-load tmp%38#0                                                                           aggregate%length_uint16%6#0,tmp%38#0
+        concat                                                                                    aggregate%encoded_value%6#0
+        v-store aggregate%encoded_value%6#0
+        v-load aggregate%current_tail_offset%1#0                                                  aggregate%current_tail_offset%1#0
+        itob                                                                                      aggregate%as_bytes%9#0
+        v-store aggregate%as_bytes%9#0
+        v-load aggregate%as_bytes%9#0                                                             aggregate%as_bytes%9#0
+        extract 6 2                                                                               aggregate%offset_as_uint16%2#0
+        v-store aggregate%offset_as_uint16%2#0
+        v-load aggregate%head%1#0                                                                 aggregate%head%1#0
+        v-load aggregate%offset_as_uint16%2#0                                                     aggregate%head%1#0,aggregate%offset_as_uint16%2#0
+        concat                                                                                    aggregate%head%2#0
+        v-store aggregate%head%2#0
+        v-load aggregate%encoded_value%6#0                                                        aggregate%encoded_value%6#0
+        len                                                                                       aggregate%data_length%2#0
+        v-store aggregate%data_length%2#0
+        v-load aggregate%current_tail_offset%1#0                                                  aggregate%current_tail_offset%1#0
+        v-load aggregate%data_length%2#0                                                          aggregate%current_tail_offset%1#0,aggregate%data_length%2#0
+        +                                                                                         aggregate%current_tail_offset%2#0
+        v-store aggregate%current_tail_offset%2#0
+        v-load tmp%39#0                                                                           tmp%39#0
+        len                                                                                       aggregate%length%7#0
+        v-store aggregate%length%7#0
+        v-load aggregate%length%7#0                                                               aggregate%length%7#0
+        itob                                                                                      aggregate%as_bytes%10#0
+        v-store aggregate%as_bytes%10#0
+        v-load aggregate%as_bytes%10#0                                                            aggregate%as_bytes%10#0
+        extract 6 2                                                                               aggregate%length_uint16%7#0
+        v-store aggregate%length_uint16%7#0
+        v-load aggregate%length_uint16%7#0                                                        aggregate%length_uint16%7#0
+        v-load tmp%39#0                                                                           aggregate%length_uint16%7#0,tmp%39#0
+        concat                                                                                    aggregate%encoded_value%7#0
+        v-store aggregate%encoded_value%7#0
+        v-load aggregate%current_tail_offset%2#0                                                  aggregate%current_tail_offset%2#0
+        itob                                                                                      aggregate%as_bytes%11#0
+        v-store aggregate%as_bytes%11#0
+        v-load aggregate%as_bytes%11#0                                                            aggregate%as_bytes%11#0
+        extract 6 2                                                                               aggregate%offset_as_uint16%3#0
+        v-store aggregate%offset_as_uint16%3#0
+        v-load aggregate%head%2#0                                                                 aggregate%head%2#0
+        v-load aggregate%offset_as_uint16%3#0                                                     aggregate%head%2#0,aggregate%offset_as_uint16%3#0
+        concat                                                                                    aggregate%head%3#0
+        v-store aggregate%head%3#0
+        v-load aggregate%head%3#0                                                                 aggregate%head%3#0
+        v-load aggregate%encoded_value%4#0                                                        aggregate%head%3#0,aggregate%encoded_value%4#0
+        concat                                                                                    aggregate%concat%0#0
+        v-store aggregate%concat%0#0
+        v-load aggregate%concat%0#0                                                               aggregate%concat%0#0
+        v-load aggregate%encoded_value%5#0                                                        aggregate%concat%0#0,aggregate%encoded_value%5#0
+        concat                                                                                    aggregate%concat%1#0
+        v-store aggregate%concat%1#0
+        v-load aggregate%concat%1#0                                                               aggregate%concat%1#0
+        v-load aggregate%encoded_value%6#0                                                        aggregate%concat%1#0,aggregate%encoded_value%6#0
+        concat                                                                                    aggregate%concat%2#0
+        v-store aggregate%concat%2#0
+        v-load aggregate%concat%2#0                                                               aggregate%concat%2#0
+        v-load aggregate%encoded_value%7#0                                                        aggregate%concat%2#0,aggregate%encoded_value%7#0
+        concat                                                                                    aggregate%concat%3#0
+        v-store aggregate%concat%3#0
+        byte 0x151f7c75                                                                           0x151f7c75
+        v-load aggregate%concat%3#0                                                               0x151f7c75,aggregate%concat%3#0
+        concat                                                                                    tmp%41#0
+        v-store tmp%41#0
+        v-load tmp%41#0                                                                           tmp%41#0
+        log
+        int 1                                                                                     1
+        v-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 
+        v-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15 
+
+    main_bare_routing@10:
+        // intrinsics/optimizations.py:4
+        // class Optimizations(arc4.ARC4Contract):
+        txn OnCompletion                                                                          tmp%42#0
+        v-store tmp%42#0
+        v-load tmp%42#0                                                                           tmp%42#0
+        bz main___algopy_default_create@11 ; b main_after_if_else@14
+
+    main___algopy_default_create@11:
+        txn ApplicationID                                                                         tmp%43#0
+        v-store tmp%43#0
+        v-load tmp%43#0                                                                           tmp%43#0
+        !                                                                                         tmp%44#0
+        v-store tmp%44#0
+        v-load tmp%44#0                                                                           tmp%44#0
         assert // can only call when creating
         int 1                                                                                     1
         v-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 
         v-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15 
 
-    main_after_if_else@13:
+    main_after_if_else@14:
         // intrinsics/optimizations.py:4
         // class Optimizations(arc4.ARC4Contract):
         int 0                                                                                     0
         v-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 
         v-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15 
 
-    main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14:
+    main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15:
         v-load tmp%0#0                                                                            tmp%0#0
         return
+
+
+// test_cases.intrinsics.optimizations.Optimizations.all(value_to_hash: bytes) -> bytes, bytes, bytes, bytes:
+subroutine all:
+    all_block@0:                                                                                  (𝕡) value_to_hash#0 |
+        // intrinsics/optimizations.py:24
+        // op.sha256(value_to_hash),
+        p-load value_to_hash#0                                                                    (𝕡) value_to_hash#0 | value_to_hash#0 (copy)
+        sha256                                                                                    (𝕡) value_to_hash#0 | tmp%0#0
+        v-store tmp%0#0                                                                           (𝕡) value_to_hash#0 |
+        // intrinsics/optimizations.py:25
+        // op.sha3_256(value_to_hash),
+        p-load value_to_hash#0                                                                    (𝕡) value_to_hash#0 | value_to_hash#0 (copy)
+        sha3_256                                                                                  (𝕡) value_to_hash#0 | tmp%1#0
+        v-store tmp%1#0                                                                           (𝕡) value_to_hash#0 |
+        // intrinsics/optimizations.py:26
+        // op.sha512_256(value_to_hash),
+        p-load value_to_hash#0                                                                    (𝕡) value_to_hash#0 | value_to_hash#0 (copy)
+        sha512_256                                                                                (𝕡) value_to_hash#0 | tmp%2#0
+        v-store tmp%2#0                                                                           (𝕡) value_to_hash#0 |
+        // intrinsics/optimizations.py:27
+        // op.keccak256(value_to_hash),
+        p-load value_to_hash#0                                                                    (𝕡) value_to_hash#0 | value_to_hash#0 (copy)
+        keccak256                                                                                 (𝕡) value_to_hash#0 | tmp%3#0
+        v-store tmp%3#0                                                                           (𝕡) value_to_hash#0 |
+        // intrinsics/optimizations.py:23-28
+        // return (
+        //     op.sha256(value_to_hash),
+        //     op.sha3_256(value_to_hash),
+        //     op.sha512_256(value_to_hash),
+        //     op.keccak256(value_to_hash),
+        // )
+        v-load tmp%0#0                                                                            (𝕡) value_to_hash#0 | tmp%0#0
+        v-load tmp%1#0                                                                            (𝕡) value_to_hash#0 | tmp%0#0,tmp%1#0
+        v-load tmp%2#0                                                                            (𝕡) value_to_hash#0 | tmp%0#0,tmp%1#0,tmp%2#0
+        v-load tmp%3#0                                                                            (𝕡) value_to_hash#0 | tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0
+        retsub                                                                                    tmp%0#0,tmp%1#0,tmp%2#0,tmp%3#0
 
 

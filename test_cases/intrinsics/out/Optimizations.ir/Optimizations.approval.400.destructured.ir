@@ -1,10 +1,10 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@9
+        goto tmp%0#1 ? block@2 : block@10
     block@2: // abi_routing_L4
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "sha256()byte[]" => block@3, method "sha3_256()byte[]" => block@4, method "sha512_256()byte[]" => block@5, method "keccak256()byte[]" => block@6, * => block@13}
+        switch tmp%2#0 {method "sha256()byte[]" => block@3, method "sha3_256()byte[]" => block@4, method "sha512_256()byte[]" => block@5, method "keccak256()byte[]" => block@6, method "all(byte[])(byte[],byte[],byte[],byte[])" => block@7, * => block@14}
     block@3: // sha256_route_L5
         let tmp%3#0: uint64 = (txn OnCompletion)
         let tmp%4#0: bool = (! tmp%3#0)
@@ -14,7 +14,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log 0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e)
         let test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
-        goto block@14
+        goto block@15
     block@4: // sha3_256_route_L9
         let tmp%10#0: uint64 = (txn OnCompletion)
         let tmp%11#0: bool = (! tmp%10#0)
@@ -24,7 +24,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log 0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51)
         let test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
-        goto block@14
+        goto block@15
     block@5: // sha512_256_route_L13
         let tmp%17#0: uint64 = (txn OnCompletion)
         let tmp%18#0: bool = (! tmp%17#0)
@@ -34,7 +34,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log 0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442)
         let test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
-        goto block@14
+        goto block@15
     block@6: // keccak256_route_L17
         let tmp%24#0: uint64 = (txn OnCompletion)
         let tmp%25#0: bool = (! tmp%24#0)
@@ -44,20 +44,77 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log 0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba)
         let test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
-        goto block@14
-    block@9: // bare_routing_L4
+        goto block@15
+    block@7: // all_route_L21
         let tmp%31#0: uint64 = (txn OnCompletion)
-        goto tmp%31#0 ? block@13 : block@10
-    block@10: // __algopy_default_create_L1
-        let tmp%32#0: uint64 = (txn ApplicationID)
-        let tmp%33#0: bool = (! tmp%32#0)
-        (assert tmp%33#0) // can only call when creating
+        let tmp%32#0: bool = (! tmp%31#0)
+        (assert tmp%32#0) // OnCompletion is not NoOp
+        let tmp%33#0: uint64 = (txn ApplicationID)
+        (assert tmp%33#0) // can only call when not creating
+        let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
+        let tmp%35#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
+        let (tmp%36#0: bytes, tmp%37#0: bytes, tmp%38#0: bytes, tmp%39#0: bytes) = test_cases.intrinsics.optimizations.Optimizations.all(tmp%35#0)
+        let aggregate%length%4#0: uint64 = (len tmp%36#0)
+        let aggregate%as_bytes%4#0: bytes[8] = (itob aggregate%length%4#0)
+        let aggregate%length_uint16%4#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
+        let aggregate%encoded_value%4#0: bytes = (concat aggregate%length_uint16%4#0 tmp%36#0)
+        let aggregate%data_length%0#0: uint64 = (len aggregate%encoded_value%4#0)
+        let aggregate%current_tail_offset%0#0: uint64 = (+ 8u aggregate%data_length%0#0)
+        let aggregate%length%5#0: uint64 = (len tmp%37#0)
+        let aggregate%as_bytes%6#0: bytes[8] = (itob aggregate%length%5#0)
+        let aggregate%length_uint16%5#0: bytes = ((extract 6 2) aggregate%as_bytes%6#0)
+        let aggregate%encoded_value%5#0: bytes = (concat aggregate%length_uint16%5#0 tmp%37#0)
+        let aggregate%as_bytes%7#0: bytes[8] = (itob aggregate%current_tail_offset%0#0)
+        let aggregate%offset_as_uint16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%7#0)
+        let aggregate%head%1#0: bytes = (concat 0x0008 aggregate%offset_as_uint16%1#0)
+        let aggregate%data_length%1#0: uint64 = (len aggregate%encoded_value%5#0)
+        let aggregate%current_tail_offset%1#0: uint64 = (+ aggregate%current_tail_offset%0#0 aggregate%data_length%1#0)
+        let aggregate%length%6#0: uint64 = (len tmp%38#0)
+        let aggregate%as_bytes%8#0: bytes[8] = (itob aggregate%length%6#0)
+        let aggregate%length_uint16%6#0: bytes = ((extract 6 2) aggregate%as_bytes%8#0)
+        let aggregate%encoded_value%6#0: bytes = (concat aggregate%length_uint16%6#0 tmp%38#0)
+        let aggregate%as_bytes%9#0: bytes[8] = (itob aggregate%current_tail_offset%1#0)
+        let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%9#0)
+        let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%offset_as_uint16%2#0)
+        let aggregate%data_length%2#0: uint64 = (len aggregate%encoded_value%6#0)
+        let aggregate%current_tail_offset%2#0: uint64 = (+ aggregate%current_tail_offset%1#0 aggregate%data_length%2#0)
+        let aggregate%length%7#0: uint64 = (len tmp%39#0)
+        let aggregate%as_bytes%10#0: bytes[8] = (itob aggregate%length%7#0)
+        let aggregate%length_uint16%7#0: bytes = ((extract 6 2) aggregate%as_bytes%10#0)
+        let aggregate%encoded_value%7#0: bytes = (concat aggregate%length_uint16%7#0 tmp%39#0)
+        let aggregate%as_bytes%11#0: bytes[8] = (itob aggregate%current_tail_offset%2#0)
+        let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%11#0)
+        let aggregate%head%3#0: bytes = (concat aggregate%head%2#0 aggregate%offset_as_uint16%3#0)
+        let aggregate%concat%0#0: bytes = (concat aggregate%head%3#0 aggregate%encoded_value%4#0)
+        let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%encoded_value%5#0)
+        let aggregate%concat%2#0: bytes = (concat aggregate%concat%1#0 aggregate%encoded_value%6#0)
+        let aggregate%concat%3#0: bytes = (concat aggregate%concat%2#0 aggregate%encoded_value%7#0)
+        let tmp%41#0: bytes = (concat 0x151f7c75 aggregate%concat%3#0)
+        (log tmp%41#0)
         let test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
-        goto block@14
-    block@13: // after_if_else_L4
+        goto block@15
+    block@10: // bare_routing_L4
+        let tmp%42#0: uint64 = (txn OnCompletion)
+        goto tmp%42#0 ? block@14 : block@11
+    block@11: // __algopy_default_create_L1
+        let tmp%43#0: uint64 = (txn ApplicationID)
+        let tmp%44#0: bool = (! tmp%43#0)
+        (assert tmp%44#0) // can only call when creating
+        let test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0: bool = 1u
+        let tmp%0#0: bool = test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
+        goto block@15
+    block@14: // after_if_else_L4
         let test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0: bool = 0u
         let tmp%0#0: bool = test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
-        goto block@14
-    block@14: // after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router___L1
+        goto block@15
+    block@15: // after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router___L1
         return tmp%0#0
+
+subroutine test_cases.intrinsics.optimizations.Optimizations.all(value_to_hash: bytes) -> <bytes, bytes, bytes, bytes>:
+    block@0: // L21
+        let tmp%0#0: bytes = (sha256 value_to_hash#0)
+        let tmp%1#0: bytes = (sha3_256 value_to_hash#0)
+        let tmp%2#0: bytes = (sha512_256 value_to_hash#0)
+        let tmp%3#0: bytes = (keccak256 value_to_hash#0)
+        return tmp%0#0 tmp%1#0 tmp%2#0 tmp%3#0

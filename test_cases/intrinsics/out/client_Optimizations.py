@@ -26,3 +26,9 @@ class Optimizations(algopy.arc4.ARC4Client, typing.Protocol):
     def keccak256(
         self,
     ) -> algopy.arc4.DynamicBytes: ...
+
+    @algopy.arc4.abimethod
+    def all(
+        self,
+        value_to_hash: algopy.arc4.DynamicBytes,
+    ) -> algopy.arc4.Tuple[algopy.arc4.DynamicBytes, algopy.arc4.DynamicBytes, algopy.arc4.DynamicBytes, algopy.arc4.DynamicBytes]: ...
