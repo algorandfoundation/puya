@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 8
     bytecblock 0x151f7c75 0x48656c6c6f20576f726c64
 
 main_block@0:
@@ -14,7 +14,7 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@9
+    bz main_bare_routing@10
 
 main_abi_routing@2:
     // intrinsics/optimizations.py:4
@@ -24,20 +24,120 @@ main_abi_routing@2:
     pushbytes 0x5468f98b // method "sha3_256()byte[]"
     pushbytes 0x3c539b61 // method "sha512_256()byte[]"
     pushbytes 0xe6b8cd41 // method "keccak256()byte[]"
-    uncover 4
-    match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6
+    pushbytes 0xb15dc12a // method "all(byte[])(byte[],byte[],byte[],byte[])"
+    uncover 5
+    match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 main_all_route@7
 
-main_switch_case_default@7:
+main_switch_case_default@8:
 
-main_switch_case_next@8:
+main_switch_case_next@9:
 
-main_after_if_else@13:
+main_after_if_else@14:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     intc_0 // 0
 
-main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14:
+main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15:
     return
+
+main_all_route@7:
+    // intrinsics/optimizations.py:21
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // intrinsics/optimizations.py:21
+    // @arc4.abimethod()
+    callsub all
+    cover 3
+    cover 2
+    swap
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    intc_2 // 8
+    itob
+    extract 6 2
+    pushbytes 0x
+    swap
+    concat
+    swap
+    dup
+    len
+    intc_2 // 8
+    +
+    dig 3
+    len
+    itob
+    extract 6 2
+    uncover 4
+    concat
+    dig 1
+    itob
+    extract 6 2
+    uncover 4
+    swap
+    concat
+    cover 2
+    dup
+    len
+    uncover 2
+    +
+    dig 4
+    len
+    itob
+    extract 6 2
+    uncover 5
+    concat
+    dig 1
+    itob
+    extract 6 2
+    uncover 4
+    swap
+    concat
+    cover 2
+    dup
+    len
+    uncover 2
+    +
+    dig 5
+    len
+    itob
+    extract 6 2
+    uncover 6
+    concat
+    swap
+    itob
+    extract 6 2
+    uncover 3
+    swap
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_keccak256_route@6:
     // intrinsics/optimizations.py:17
@@ -62,7 +162,7 @@ main_keccak256_route@6:
     concat
     log
     intc_1 // 1
-    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14
+    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_sha512_256_route@5:
     // intrinsics/optimizations.py:13
@@ -87,7 +187,7 @@ main_sha512_256_route@5:
     concat
     log
     intc_1 // 1
-    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14
+    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_sha3_256_route@4:
     // intrinsics/optimizations.py:9
@@ -112,7 +212,7 @@ main_sha3_256_route@4:
     concat
     log
     intc_1 // 1
-    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14
+    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 main_sha256_route@3:
     // intrinsics/optimizations.py:5
@@ -137,32 +237,32 @@ main_sha256_route@3:
     concat
     log
     intc_1 // 1
-    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14
+    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
-main_bare_routing@9:
+main_bare_routing@10:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match main___algopy_default_create@10
+    match main___algopy_default_create@11
 
-main_switch_case_default@11:
+main_switch_case_default@12:
 
-main_switch_case_next@12:
-    b main_after_if_else@13
+main_switch_case_next@13:
+    b main_after_if_else@14
 
-main___algopy_default_create@10:
+main___algopy_default_create@11:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-main_block@15:
+main_block@16:
 
-main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@16:
+main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17:
     intc_1 // 1
-    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14
+    b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@15
 
 
 // test_cases.intrinsics.optimizations.Optimizations.sha256() -> bytes:
@@ -206,4 +306,42 @@ keccak256_block@0:
     // return op.keccak256(b"Hello World")
     bytec_1 // 0x48656c6c6f20576f726c64
     keccak256
+    retsub
+
+
+// test_cases.intrinsics.optimizations.Optimizations.all(value_to_hash: bytes) -> bytes, bytes, bytes, bytes:
+all:
+    // intrinsics/optimizations.py:21-22
+    // @arc4.abimethod()
+    // def all(self, value_to_hash: Bytes) -> tuple[Bytes, Bytes, Bytes, Bytes]:
+    proto 1 4
+
+all_block@0:
+    // intrinsics/optimizations.py:24
+    // op.sha256(value_to_hash),
+    frame_dig -1
+    sha256
+    // intrinsics/optimizations.py:25
+    // op.sha3_256(value_to_hash),
+    frame_dig -1
+    sha3_256
+    // intrinsics/optimizations.py:26
+    // op.sha512_256(value_to_hash),
+    frame_dig -1
+    sha512_256
+    // intrinsics/optimizations.py:27
+    // op.keccak256(value_to_hash),
+    frame_dig -1
+    keccak256
+    // intrinsics/optimizations.py:23-28
+    // return (
+    //     op.sha256(value_to_hash),
+    //     op.sha3_256(value_to_hash),
+    //     op.sha512_256(value_to_hash),
+    //     op.keccak256(value_to_hash),
+    // )
+    uncover 3
+    uncover 3
+    uncover 3
+    uncover 3
     retsub
