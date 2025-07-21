@@ -22,7 +22,7 @@ from puya.ir.register_read_collector import RegisterReadCollector
 from puya.ir.types_ import AVMBytesEncoding, PrimitiveIRType
 from puya.ir.visitor_mutator import IRMutator
 from puya.parse import SourceLocation, sequential_source_locations_merge
-from puya.utils import Address, biguint_bytes_eval, biguint_bytes_length, set_add
+from puya.utils import Address, biguint_bytes_eval, biguint_bytes_length, set_add, sha512_256_hash
 
 logger = log.get_logger(__name__)
 
@@ -1063,8 +1063,6 @@ def _get_byte_constant(
                 return _eval_itob(itob_arg, byte_arg_defn.source_location)
             case models.Intrinsic(op=AVMOp.bzero, args=[models.UInt64Constant(value=bzero_arg)]):
                 return _eval_bzero(bzero_arg, byte_arg_defn.source_location)
-            case models.Intrinsic(op=AVMOp.sha256, args=[models.BytesConstant(value=sha256_arg)]):
-                return _eval_sha256(sha256_arg, byte_arg_defn.source_location)
             case models.Intrinsic(op=AVMOp.global_, immediates=["ZeroAddress"]):
                 return models.BytesConstant(
                     value=Address.parse(algo_constants.ZERO_ADDRESS).public_key,
@@ -1146,6 +1144,32 @@ def _eval_sha256(arg: bytes, loc: SourceLocation | None) -> models.BytesConstant
     )
 
 
+def _eval_sha3_256(arg: bytes, loc: SourceLocation | None) -> models.BytesConstant:
+    return models.BytesConstant(
+        value=hashlib.sha3_256(arg).digest(),
+        encoding=AVMBytesEncoding.base16,
+        source_location=loc,
+    )
+
+
+def _eval_sha512_256(arg: bytes, loc: SourceLocation | None) -> models.BytesConstant:
+    return models.BytesConstant(
+        value=sha512_256_hash(arg),
+        encoding=AVMBytesEncoding.base16,
+        source_location=loc,
+    )
+
+
+def _eval_keccak256(arg: bytes, loc: SourceLocation | None) -> models.BytesConstant:
+    from Cryptodome.Hash import keccak
+
+    return models.BytesConstant(
+        value=keccak.new(data=arg, digest_bits=256).digest(),
+        encoding=AVMBytesEncoding.base16,
+        source_location=loc,
+    )
+
+
 def _try_simplify_uint64_unary_op(
     intrinsic: models.Intrinsic, arg: models.Value
 ) -> models.Value | None:
@@ -1210,6 +1234,12 @@ def _try_simplify_bytes_unary_op(
                 return models.UInt64Constant(value=converted, source_location=op_loc)
             elif intrinsic.op is AVMOp.sha256:
                 return _eval_sha256(byte_const.value, op_loc)
+            elif intrinsic.op is AVMOp.sha3_256:
+                return _eval_sha3_256(byte_const.value, op_loc)
+            elif intrinsic.op is AVMOp.sha512_256:
+                return _eval_sha512_256(byte_const.value, op_loc)
+            elif intrinsic.op is AVMOp.keccak256:
+                return _eval_keccak256(byte_const.value, op_loc)
             elif intrinsic.op is AVMOp.len_:
                 length = len(byte_const.value)
                 return models.UInt64Constant(value=length, source_location=op_loc)
