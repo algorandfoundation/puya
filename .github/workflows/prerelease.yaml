@@ -1,0 +1,108 @@
+name: Prerelease of Puya Binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry Run? If true, won't commit or create a release"
+        type: boolean
+        required: true
+        default: false
+
+concurrency: release
+
+permissions:
+  contents: write
+  packages: read
+env:
+  SEMANTIC_RELEASE_DRY_RUN: ${{ inputs.dry_run && '--noop' || '' }}
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version_number: ${{ steps.get_version_info.outputs.version_number }}
+      version_tag: ${{ steps.get_version_info.outputs.version_tag }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          # Fetch entire repository history so we can determine version number from it
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+        with:
+          poetry_install_args: "--with cicd"
+
+      - name: Set git user as GitHub Actions
+        run: |
+          git config --global user.email "actions@github.com" 
+          git config --global user.name "github-actions"
+
+      - name: Update version
+        run: semantic-release $SEMANTIC_RELEASE_DRY_RUN --strict version --no-changelog
+        env:
+            GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+
+      - name: Get version info
+        id: get_version_info
+        run: |
+          echo "version_tag=$(semantic-release version --print-last-released-tag)" >> $GITHUB_OUTPUT
+          echo "version_number=$(semantic-release version --print-last-released)" >> $GITHUB_OUTPUT
+
+      - name: Create puyapy wheel
+        run: poetry build --format wheel
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist
+
+  build-binaries:
+    needs: prepare-release
+    uses: ./.github/workflows/build-binaries.yaml
+    with:
+      python_version: "3.12"
+      package_prefix: "puya-${{ needs.prepare-release.outputs.version_number }}"
+      allow_signing: ${{ github.ref_name == 'main' }}
+      git_ref: ${{ needs.prepare-release.outputs.version_tag }}
+    secrets: inherit
+
+  publish-to-github:
+    name: Publish to GitHub
+    needs: [ prepare-release, build-binaries ]
+    if: github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    env:
+      VERSION_TAG: ${{ needs.prepare-release.outputs.version_tag }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+
+      - name: Download all binary artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: bdist
+          pattern: binary-artifacts-*
+          merge-multiple: true
+
+      - name: Setup Python venv
+        uses: ./.github/actions/setup-python-venv
+        with:
+          poetry_install_args: "--with cicd"
+
+      - name: Publish to GitHub
+        run: semantic-release $SEMANTIC_RELEASE_DRY_RUN publish --tag $VERSION_TAG
+        env:
+            GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
