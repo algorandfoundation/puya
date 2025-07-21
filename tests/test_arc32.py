@@ -2222,6 +2222,34 @@ def test_nested_immutable(
     ]
 
 
+@pytest.mark.parametrize(
+    "value_to_hash",
+    [
+        b"123456",
+        b"",
+        b"HASHME",
+        b"\x00" * 65,
+    ],
+)
+def test_intrinsic_optimizations_implementation_correct(
+    algod_client: AlgodClient, account: algokit_utils.Account, value_to_hash: bytes
+) -> None:
+    from Cryptodome.Hash import keccak
+
+    example = TEST_CASES_DIR / "intrinsics" / "optimizations.py"
+
+    app_spec = algokit_utils.ApplicationSpecification.from_json(compile_arc32(example))
+    app_client = algokit_utils.ApplicationClient(algod_client, app_spec, signer=account)
+    app_client.create()
+
+    response = app_client.call("all", value_to_hash=value_to_hash)
+    sha256, sha3_256, sha512_256, keccak256 = (bytes(v) for v in response.return_value)
+    assert sha256 == hashlib.sha256(value_to_hash).digest()
+    assert sha3_256 == hashlib.sha3_256(value_to_hash).digest()
+    assert sha512_256 == sha512_256_hash(value_to_hash)
+    assert keccak256 == keccak.new(data=value_to_hash, digest_bits=256).digest()
+
+
 @pytest.mark.parametrize("opt_level", [0, 1, 2])
 def test_intrinsic_optimizations(
     algod_client: AlgodClient, account: algokit_utils.Account, opt_level: int
