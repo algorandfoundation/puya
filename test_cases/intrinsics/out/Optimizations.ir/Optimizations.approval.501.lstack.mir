@@ -6,15 +6,18 @@ subroutine main:
         // class Optimizations(arc4.ARC4Contract):
         txn NumAppArgs                                                                            tmp%0#1
         l-load tmp%0#1 0                                                                          tmp%0#1
-        bz main_bare_routing@6 ; b main_abi_routing@2
+        bz main_bare_routing@9 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // intrinsics/optimizations.py:4
         // class Optimizations(arc4.ARC4Contract):
         txna ApplicationArgs 0                                                                    tmp%2#0
         method sha256()byte[]                                                                     tmp%2#0,Method(sha256()byte[])
-        l-load tmp%2#0 1                                                                          Method(sha256()byte[]),tmp%2#0
-        match main_sha256_route@3 ; b main_after_if_else@10
+        method sha3_256()byte[]                                                                   tmp%2#0,Method(sha256()byte[]),Method(sha3_256()byte[])
+        method sha512_256()byte[]                                                                 tmp%2#0,Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[])
+        method keccak256()byte[]                                                                  tmp%2#0,Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[]),Method(keccak256()byte[])
+        l-load tmp%2#0 4                                                                          Method(sha256()byte[]),Method(sha3_256()byte[]),Method(sha512_256()byte[]),Method(keccak256()byte[]),tmp%2#0
+        match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 ; b main_after_if_else@13 
 
     main_sha256_route@3:
         // intrinsics/optimizations.py:5
@@ -33,37 +36,94 @@ subroutine main:
         l-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         l-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@11 
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
 
-    main_bare_routing@6:
-        // intrinsics/optimizations.py:4
-        // class Optimizations(arc4.ARC4Contract):
+    main_sha3_256_route@4:
+        // intrinsics/optimizations.py:9
+        // @arc4.abimethod()
         txn OnCompletion                                                                          tmp%10#0
         l-load tmp%10#0 0                                                                         tmp%10#0
-        bz main___algopy_default_create@7 ; b main_after_if_else@10
-
-    main___algopy_default_create@7:
-        txn ApplicationID                                                                         tmp%11#0
+        !                                                                                         tmp%11#0
         l-load tmp%11#0 0                                                                         tmp%11#0
-        !                                                                                         tmp%12#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%12#0
         l-load tmp%12#0 0                                                                         tmp%12#0
+        assert // can only call when not creating
+        byte 0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51 0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51
+        log
+        int 1                                                                                     1
+        l-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
+        l-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
+
+    main_sha512_256_route@5:
+        // intrinsics/optimizations.py:13
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%17#0
+        l-load tmp%17#0 0                                                                         tmp%17#0
+        !                                                                                         tmp%18#0
+        l-load tmp%18#0 0                                                                         tmp%18#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%19#0
+        l-load tmp%19#0 0                                                                         tmp%19#0
+        assert // can only call when not creating
+        byte 0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442 0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442
+        log
+        int 1                                                                                     1
+        l-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
+        l-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
+
+    main_keccak256_route@6:
+        // intrinsics/optimizations.py:17
+        // @arc4.abimethod()
+        txn OnCompletion                                                                          tmp%24#0
+        l-load tmp%24#0 0                                                                         tmp%24#0
+        !                                                                                         tmp%25#0
+        l-load tmp%25#0 0                                                                         tmp%25#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%26#0
+        l-load tmp%26#0 0                                                                         tmp%26#0
+        assert // can only call when not creating
+        byte 0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba 0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba
+        log
+        int 1                                                                                     1
+        l-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
+        l-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
+        v-store tmp%0#0
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
+
+    main_bare_routing@9:
+        // intrinsics/optimizations.py:4
+        // class Optimizations(arc4.ARC4Contract):
+        txn OnCompletion                                                                          tmp%31#0
+        l-load tmp%31#0 0                                                                         tmp%31#0
+        bz main___algopy_default_create@10 ; b main_after_if_else@13
+
+    main___algopy_default_create@10:
+        txn ApplicationID                                                                         tmp%32#0
+        l-load tmp%32#0 0                                                                         tmp%32#0
+        !                                                                                         tmp%33#0
+        l-load tmp%33#0 0                                                                         tmp%33#0
         assert // can only call when creating
         int 1                                                                                     1
         l-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         l-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@11 
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
 
-    main_after_if_else@10:
+    main_after_if_else@13:
         // intrinsics/optimizations.py:4
         // class Optimizations(arc4.ARC4Contract):
         int 0                                                                                     0
         l-store test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         l-load test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0 0 test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__%0#0
         v-store tmp%0#0
-        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@11 
+        b main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14 
 
-    main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@11:
+    main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__puya_arc4_router__@14:
         v-load tmp%0#0                                                                            tmp%0#0
         return
 

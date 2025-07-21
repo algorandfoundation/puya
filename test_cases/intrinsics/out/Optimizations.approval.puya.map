@@ -3,7 +3,7 @@
   "sources": [
     "../optimizations.py"
   ],
-  "mappings": ";AAGA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;;;AACK;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;;AADL;;AAAA;;;;;;;;;",
+  "mappings": ";;;;AAGA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;AAAA;;;AAaK;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAJA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAJA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAJA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AADL;;AAAA;;;;;;;;",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -11,6 +11,9 @@
       "params": {},
       "block": "main",
       "stack_in": [],
+      "op": "intcblock 1"
+    },
+    "4": {
       "op": "txn NumAppArgs",
       "defined_out": [
         "tmp%0#1"
@@ -19,36 +22,48 @@
         "tmp%0#1"
       ]
     },
-    "3": {
-      "op": "bz main_bare_routing@6",
+    "6": {
+      "op": "bz main_bare_routing@9",
       "stack_out": []
     },
-    "6": {
-      "op": "pushbytes 0x86db3e46 // method \"sha256()byte[]\"",
+    "9": {
+      "op": "pushbytess 0x86db3e46 0x5468f98b 0x3c539b61 0xe6b8cd41 // method \"sha256()byte[]\", method \"sha3_256()byte[]\", method \"sha512_256()byte[]\", method \"keccak256()byte[]\"",
       "defined_out": [
-        "Method(sha256()byte[])"
+        "Method(keccak256()byte[])",
+        "Method(sha256()byte[])",
+        "Method(sha3_256()byte[])",
+        "Method(sha512_256()byte[])"
       ],
       "stack_out": [
-        "Method(sha256()byte[])"
+        "Method(sha256()byte[])",
+        "Method(sha3_256()byte[])",
+        "Method(sha512_256()byte[])",
+        "Method(keccak256()byte[])"
       ]
     },
-    "12": {
+    "31": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
+        "Method(keccak256()byte[])",
         "Method(sha256()byte[])",
+        "Method(sha3_256()byte[])",
+        "Method(sha512_256()byte[])",
         "tmp%2#0"
       ],
       "stack_out": [
         "Method(sha256()byte[])",
+        "Method(sha3_256()byte[])",
+        "Method(sha512_256()byte[])",
+        "Method(keccak256()byte[])",
         "tmp%2#0"
       ]
     },
-    "15": {
-      "op": "match main_sha256_route@3",
+    "34": {
+      "op": "match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6",
       "stack_out": []
     },
-    "19": {
-      "block": "main_after_if_else@10",
+    "44": {
+      "block": "main_after_if_else@13",
       "stack_in": [],
       "op": "pushint 0 // 0",
       "defined_out": [
@@ -58,11 +73,206 @@
         "tmp%0#0"
       ]
     },
-    "21": {
+    "46": {
       "op": "return",
       "stack_out": []
     },
-    "22": {
+    "47": {
+      "block": "main_keccak256_route@6",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%24#0"
+      ],
+      "stack_out": [
+        "tmp%24#0"
+      ]
+    },
+    "49": {
+      "op": "!",
+      "defined_out": [
+        "tmp%25#0"
+      ],
+      "stack_out": [
+        "tmp%25#0"
+      ]
+    },
+    "50": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "51": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%26#0"
+      ],
+      "stack_out": [
+        "tmp%26#0"
+      ]
+    },
+    "53": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "54": {
+      "op": "pushbytes 0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba",
+      "defined_out": [
+        "0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba"
+      ],
+      "stack_out": [
+        "0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba"
+      ]
+    },
+    "94": {
+      "op": "log",
+      "stack_out": []
+    },
+    "95": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "96": {
+      "op": "return",
+      "stack_out": []
+    },
+    "97": {
+      "block": "main_sha512_256_route@5",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%17#0"
+      ],
+      "stack_out": [
+        "tmp%17#0"
+      ]
+    },
+    "99": {
+      "op": "!",
+      "defined_out": [
+        "tmp%18#0"
+      ],
+      "stack_out": [
+        "tmp%18#0"
+      ]
+    },
+    "100": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "101": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%19#0"
+      ],
+      "stack_out": [
+        "tmp%19#0"
+      ]
+    },
+    "103": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "104": {
+      "op": "pushbytes 0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442",
+      "defined_out": [
+        "0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442"
+      ],
+      "stack_out": [
+        "0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442"
+      ]
+    },
+    "144": {
+      "op": "log",
+      "stack_out": []
+    },
+    "145": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "146": {
+      "op": "return",
+      "stack_out": []
+    },
+    "147": {
+      "block": "main_sha3_256_route@4",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0"
+      ]
+    },
+    "149": {
+      "op": "!",
+      "defined_out": [
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "tmp%11#0"
+      ]
+    },
+    "150": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "151": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%12#0"
+      ],
+      "stack_out": [
+        "tmp%12#0"
+      ]
+    },
+    "153": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "154": {
+      "op": "pushbytes 0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51",
+      "defined_out": [
+        "0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51"
+      ],
+      "stack_out": [
+        "0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51"
+      ]
+    },
+    "194": {
+      "op": "log",
+      "stack_out": []
+    },
+    "195": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "196": {
+      "op": "return",
+      "stack_out": []
+    },
+    "197": {
       "block": "main_sha256_route@3",
       "stack_in": [],
       "op": "txn OnCompletion",
@@ -73,7 +283,7 @@
         "tmp%3#0"
       ]
     },
-    "24": {
+    "199": {
       "op": "!",
       "defined_out": [
         "tmp%4#0"
@@ -82,12 +292,12 @@
         "tmp%4#0"
       ]
     },
-    "25": {
+    "200": {
       "error": "OnCompletion is not NoOp",
       "op": "assert // OnCompletion is not NoOp",
       "stack_out": []
     },
-    "26": {
+    "201": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%5#0"
@@ -96,12 +306,12 @@
         "tmp%5#0"
       ]
     },
-    "28": {
+    "203": {
       "error": "can only call when not creating",
       "op": "assert // can only call when not creating",
       "stack_out": []
     },
-    "29": {
+    "204": {
       "op": "pushbytes 0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e",
       "defined_out": [
         "0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
@@ -110,12 +320,12 @@
         "0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
       ]
     },
-    "69": {
+    "244": {
       "op": "log",
       "stack_out": []
     },
-    "70": {
-      "op": "pushint 1 // 1",
+    "245": {
+      "op": "intc_0 // 1",
       "defined_out": [
         "tmp%0#0"
       ],
@@ -123,50 +333,50 @@
         "tmp%0#0"
       ]
     },
-    "72": {
+    "246": {
       "op": "return",
       "stack_out": []
     },
-    "73": {
-      "block": "main_bare_routing@6",
+    "247": {
+      "block": "main_bare_routing@9",
       "stack_in": [],
       "op": "txn OnCompletion",
       "defined_out": [
-        "tmp%10#0"
+        "tmp%31#0"
       ],
       "stack_out": [
-        "tmp%10#0"
+        "tmp%31#0"
       ]
     },
-    "75": {
-      "op": "bnz main_after_if_else@10",
+    "249": {
+      "op": "bnz main_after_if_else@13",
       "stack_out": []
     },
-    "78": {
+    "252": {
       "op": "txn ApplicationID",
       "defined_out": [
-        "tmp%11#0"
+        "tmp%32#0"
       ],
       "stack_out": [
-        "tmp%11#0"
+        "tmp%32#0"
       ]
     },
-    "80": {
+    "254": {
       "op": "!",
       "defined_out": [
-        "tmp%12#0"
+        "tmp%33#0"
       ],
       "stack_out": [
-        "tmp%12#0"
+        "tmp%33#0"
       ]
     },
-    "81": {
+    "255": {
       "error": "can only call when creating",
       "op": "assert // can only call when creating",
       "stack_out": []
     },
-    "82": {
-      "op": "pushint 1 // 1",
+    "256": {
+      "op": "intc_0 // 1",
       "defined_out": [
         "tmp%0#0"
       ],
@@ -174,7 +384,7 @@
         "tmp%0#0"
       ]
     },
-    "84": {
+    "257": {
       "op": "return",
       "stack_out": []
     }
