@@ -28,6 +28,7 @@ from nacl.signing import SigningKey
 
 from puya.arc32 import create_arc32_json
 from puya.compilation_artifacts import CompiledContract
+from puya.utils import sha512_256_hash
 from puyapy.options import PuyaPyOptions
 from tests import EXAMPLES_DIR, TEST_CASES_DIR
 from tests.test_execution import decode_logs
@@ -973,7 +974,9 @@ def test_typed_abi_call(
     increased_fee = algod_client.suggested_params()
     increased_fee.flat_fee = True
     increased_fee.fee = constants.min_txn_fee * 6
-    txn_params = algokit_utils.OnCompleteCallParameters(suggested_params=increased_fee)
+    txn_params = algokit_utils.OnCompleteCallParameters(
+        suggested_params=increased_fee, foreign_apps=[logger.app_id], foreign_assets=[asset_a]
+    )
 
     app_client.call(
         "test_method_selector_kinds",
@@ -2223,6 +2226,8 @@ def test_nested_immutable(
 def test_intrinsic_optimizations(
     algod_client: AlgodClient, account: algokit_utils.Account, opt_level: int
 ) -> None:
+    from Cryptodome.Hash import keccak
+
     example = TEST_CASES_DIR / "intrinsics" / "optimizations.py"
 
     app_spec = algokit_utils.ApplicationSpecification.from_json(
@@ -2233,6 +2238,17 @@ def test_intrinsic_optimizations(
 
     response = app_client.call("sha256")
     assert bytes(response.return_value) == hashlib.sha256(b"Hello World").digest()
+
+    response = app_client.call("sha3_256")
+    assert bytes(response.return_value) == hashlib.sha3_256(b"Hello World").digest()
+
+    response = app_client.call("sha512_256")
+    assert bytes(response.return_value) == sha512_256_hash(b"Hello World")
+
+    response = app_client.call("keccak256")
+    assert (
+        bytes(response.return_value) == keccak.new(data=b"Hello World", digest_bits=256).digest()
+    )
 
 
 @pytest.fixture(scope="session")
@@ -2439,6 +2455,8 @@ def test_marketplace_with_tups(
         asset=asset_a,
         transaction_parameters=algokit_utils.OnCompleteCallParameters(
             suggested_params=suggested_params(algod_client=algod_client, fee=1_000),
+            # TODO: use populate resources feature after upgrading algokit_utils
+            foreign_assets=[asset_a],
         ),
     )
 
