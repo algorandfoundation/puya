@@ -118,6 +118,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
 
         return value
 
+    @typing.override
     def visit_box_read(self, read: ir.BoxRead) -> ir.ValueProvider:
         loc = read.source_location
 
@@ -133,6 +134,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         )
         return box_value
 
+    @typing.override
     def visit_box_write(self, write: ir.BoxWrite) -> None:
         if write.delete_first:
             self.add_op(
