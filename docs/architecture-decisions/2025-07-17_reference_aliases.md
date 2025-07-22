@@ -2,7 +2,7 @@
 
 JIRA: https://algorandfoundation.atlassian.net/browse/AK-72
 
-## Problem
+## Problem 1: How to represent different behaviour
 
 Currently the types `Asset`, `Application` and `Account` (also known as reference types due to corresponding aliases in the ARC-4 specification)
 are always used in ABI methods as their appropriate reference alias (`asset`, `application`, `account`).
@@ -96,3 +96,67 @@ class Contract(ARC4Contract):
         pass
 
 ```
+
+## Problem 2: How to communicate behaviour change
+
+## Solutions
+
+### 1: No change in default behaviour, but add the capability for desired behaviour
+
+#### Pros
+* Does not force a change on the user
+* Low friction
+* Allows a period to communicate and try the change before making it the default
+
+#### Cons
+* Reduces uptake of new behaviour
+    
+
+### 2: Change behaviour without requiring code or configuration change
+
+#### Pros
+* User does not need to do anything after updating
+* Low friction
+* Increases uptake of new behaviour
+
+#### Cons
+* Is a breaking change in compiler behaviour
+* May not be immediately clear there is a change if they aren't using approvals or reading release notes
+
+
+### 3: Change behaviour with a warning until the user explicitly chooses something
+
+#### Pros
+* User does not need to do anything after updating
+* Low friction
+* Increases uptake of new behaviour
+
+#### Cons
+* Is a breaking change in compiler behaviour
+* Warning may cause confusion
+
+### 4: Force a change in behaviour with an error, user must pick a path forward
+
+#### Pros
+* Forces user to make a decision
+
+#### Cons
+* High friction
+* Is a breaking change in compiler behaviour
+* Users who are unsure may opt for the old behaviour out of caution
+
+## Chosen solutions
+
+## Problem 1: How to represent different behaviour
+
+**Chosen solution:** 2: ABI routing configuration
+
+Making the behaviour controlled by configuration makes it easy to automatically migrate to the new behaviour, and easy for those
+who want the old behaviour to opt into it. Additionally, it keeps the cognitive load low by not introducing new types
+
+## Problem 2: How to communicate behaviour change
+
+**Chosen solution:** 2: Change behaviour without requiring code or configuration change
+
+For a large number of users the new behaviour should not be a huge problem, and it is easy to revert to the original behaviour if
+desired. Changelogs and a migration guide will outline the changes and what to do to revert to the original behaviour if desired
