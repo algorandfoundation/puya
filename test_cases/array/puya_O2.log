@@ -7000,6 +7000,8 @@ debug: Simplified (len aggregate%val_as_bytes%0#0) to 8u
 debug: Simplified (/ 8u 8u) to 1u
 debug: Simplified (- 1u 1u) to 0u
 debug: Simplified (* 0u 8u) to 0u
+debug: Simplified (extract_uint64 aggregate%val_as_bytes%0#0 0u) to 42u
+debug: Simplified (== 42u 42u) to 1u
 debug: Simplified (concat 0x aggregate%val_as_bytes%6#0) // on error: max array length exceeded to aggregate%val_as_bytes%6#0
 debug: Simplified (concat aggregate%val_as_bytes%6#0 aggregate%val_as_bytes%7#0) // on error: max array length exceeded to 0x00000000000000010000000000000002
 debug: Simplified (concat 0x00000000000000010000000000000002 aggregate%val_as_bytes%8#0) // on error: max array length exceeded to 0x000000000000000100000000000000020000000000000003
@@ -7239,6 +7241,8 @@ debug: Removing unused variable aggregate%bytes_len%2#0
 debug: Removing unused variable aggregate%array_len%2#0
 debug: Removing unused variable tmp%6#5
 debug: Removing unused variable aggregate%bytes_offset%0#0
+debug: Removing unused variable values%0#4
+debug: Removing unused variable tmp%7#5
 debug: Removing unused variable aggregate%val_as_bytes%6#0
 debug: Removing unused variable aggregate%val_as_bytes%7#0
 debug: Removing unused variable concat%1#5
@@ -7542,8 +7546,6 @@ debug: Coalescing local variables in algopy.arc4.ARC4Contract.approval_program u
 debug: Coalescing tmp%4#0 with [tmp%4#7, tmp%4#6, tmp%4#4, tmp%4#3, tmp%4#2, tmp%4#1]
 debug: Coalescing tmp%5#0 with [tmp%5#4]
 debug: Coalescing arr#0 with [arr#6, arr#5, arr#4, arr#3, arr#2]
-debug: Coalescing values%0#0 with [values%0#4, values%0#3, values%0#2, values%0#1]
-debug: Coalescing tmp%7#1 with [tmp%7#5, tmp%7#3]
 debug: Coalescing tmp%9#1 with [tmp%9#3]
 debug: Coalescing tmp%11#0 with [tmp%11#4]
 debug: Coalescing values%1#0 with [values%1#3, values%1#2, values%1#1]
@@ -7584,6 +7586,7 @@ debug: Coalescing tmp%2#2 with [tmp%2#6, tmp%2#3]
 debug: Coalescing slot_contents%1#0 with [slot_contents%1#5, slot_contents%1#4, slot_contents%1#3, slot_contents%1#2, slot_contents%1#1]
 debug: Coalescing slot_contents%2#1 with [slot_contents%2#4, slot_contents%2#3]
 debug: Coalescing tmp%3#1 with [tmp%3#6, tmp%3#4, tmp%3#3]
+debug: Coalescing values%0#0 with [values%0#3, values%0#2, values%0#1]
 debug: Coalescing tmp%6#3 with [tmp%6#4]
 debug: Coalescing tmp%11#1 with [tmp%11#3]
 debug: Coalescing tmp%13#1 with [tmp%13#3]
@@ -7591,6 +7594,7 @@ debug: Coalescing tmp%15#1 with [tmp%15#3]
 debug: Coalescing tmp%18#1 with [tmp%18#2]
 debug: Coalescing tmp%19#1 with [tmp%19#2]
 debug: Coalescing tmp%5#2 with [tmp%5#3]
+debug: Coalescing tmp%7#1 with [tmp%7#3]
 debug: Coalescing val#0 with [val#5, val#1, val#2]
 debug: Coalescing last#0 with [last#3, last#8, last#4, last#10, last#6, last#1, last#12, last#2]
 debug: Coalescing item_index_internal%0#0 with [item_index_internal%0#3, item_index_internal%0#8, item_index_internal%0#4, item_index_internal%0#5, item_index_internal%0#11, item_index_internal%0#1, item_index_internal%0#2]
@@ -7600,7 +7604,7 @@ debug: Coalescing item_index_internal%1#0 with [item_index_internal%1#3, item_in
 debug: Coalescing idx#0 with [idx#1]
 debug: Coalescing reverse_index_internal%2#1 with [reverse_index_internal%2#4, reverse_index_internal%2#2]
 debug: Coalescing arc4_arr#0 with [arc4_arr#5, arc4_arr#1, arc4_arr#2]
-debug: Coalescing resulted in 428 replacement/s
+debug: Coalescing resulted in 424 replacement/s
 debug: Sequentializing parallel copies in algopy.arc4.ARC4Contract.approval_program
 debug: loc: {_i#0=_i#0, expected#0=expected#0}
 debug: pred: {_i#0=_i#0, expected#0=expected#0}
@@ -7829,40 +7833,34 @@ debug: Inserted main_test_array_route@3.ops[5]: 'l-store-copy tmp%4#0 0'
 debug: Replaced main_test_array_route@3.ops[7]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
 debug: Inserted main_test_array_route@3.ops[10]: 'l-store-copy tmp%5#0 0'
 debug: Replaced main_test_array_route@3.ops[12]: 'v-load tmp%5#0' with 'l-load tmp%5#0'
-debug: Inserted main_test_array_route@3.ops[25]: 'l-store-copy values%0#0 0'
-debug: Replaced main_test_array_route@3.ops[27]: 'v-load values%0#0' with 'l-load values%0#0'
-debug: Inserted main_test_array_route@3.ops[30]: 'l-store-copy tmp%7#1 0'
-debug: Replaced main_test_array_route@3.ops[32]: 'v-load tmp%7#1' with 'l-load tmp%7#1'
-debug: Inserted main_test_array_route@3.ops[39]: 'l-store-copy aggregate%slot_contents%3#0 0'
-debug: Replaced main_test_array_route@3.ops[41]: 'v-load aggregate%slot_contents%3#0' with 'l-load aggregate%slot_contents%3#0'
-debug: Inserted main_test_array_route@3.ops[43]: 'l-store-copy aggregate%bytes_len%3#0 0'
-debug: Replaced main_test_array_route@3.ops[45]: 'v-load aggregate%bytes_len%3#0' with 'l-load aggregate%bytes_len%3#0'
-debug: Inserted main_test_array_route@3.ops[48]: 'l-store-copy aggregate%array_len%3#0 0'
-debug: Replaced main_test_array_route@3.ops[50]: 'v-load aggregate%array_len%3#0' with 'l-load aggregate%array_len%3#0'
-debug: Inserted main_test_array_route@3.ops[53]: 'l-store-copy tmp%9#1 0'
-debug: Replaced main_test_array_route@3.ops[55]: 'v-load tmp%9#1' with 'l-load tmp%9#1'
-debug: Inserted main_test_array_route@3.ops[60]: 'l-store-copy tmp%11#0 0'
-debug: Replaced main_test_array_route@3.ops[62]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
-debug: Inserted main_test_array_route@3.ops[69]: 'l-store-copy values%1#0 0'
-debug: Replaced main_test_array_route@3.ops[71]: 'v-load values%1#0' with 'l-load values%1#0'
-debug: Inserted main_test_array_route@3.ops[74]: 'l-store-copy tmp%12#0 0'
-debug: Replaced main_test_array_route@3.ops[76]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
+debug: Inserted main_test_array_route@3.ops[27]: 'l-store-copy aggregate%slot_contents%3#0 0'
+debug: Replaced main_test_array_route@3.ops[29]: 'v-load aggregate%slot_contents%3#0' with 'l-load aggregate%slot_contents%3#0'
+debug: Inserted main_test_array_route@3.ops[31]: 'l-store-copy aggregate%bytes_len%3#0 0'
+debug: Replaced main_test_array_route@3.ops[33]: 'v-load aggregate%bytes_len%3#0' with 'l-load aggregate%bytes_len%3#0'
+debug: Inserted main_test_array_route@3.ops[36]: 'l-store-copy aggregate%array_len%3#0 0'
+debug: Replaced main_test_array_route@3.ops[38]: 'v-load aggregate%array_len%3#0' with 'l-load aggregate%array_len%3#0'
+debug: Inserted main_test_array_route@3.ops[41]: 'l-store-copy tmp%9#1 0'
+debug: Replaced main_test_array_route@3.ops[43]: 'v-load tmp%9#1' with 'l-load tmp%9#1'
+debug: Inserted main_test_array_route@3.ops[48]: 'l-store-copy tmp%11#0 0'
+debug: Replaced main_test_array_route@3.ops[50]: 'v-load tmp%11#0' with 'l-load tmp%11#0'
+debug: Inserted main_test_array_route@3.ops[57]: 'l-store-copy values%1#0 0'
+debug: Replaced main_test_array_route@3.ops[59]: 'v-load values%1#0' with 'l-load values%1#0'
+debug: Inserted main_test_array_route@3.ops[62]: 'l-store-copy tmp%12#0 0'
+debug: Replaced main_test_array_route@3.ops[64]: 'v-load tmp%12#0' with 'l-load tmp%12#0'
 debug: Inserted main_test_array_route@3.ops[18]: 'l-store-copy aggregate%val_as_bytes%0#0 0'
 debug: Replaced main_test_array_route@3.ops[21]: 'v-load aggregate%val_as_bytes%0#0' with 'l-load aggregate%val_as_bytes%0#0'
-debug: Inserted main_test_array_route@3.ops[22]: 'l-store-copy aggregate%val_as_bytes%0#0 1'
-debug: Replaced main_test_array_route@3.ops[24]: 'v-load aggregate%val_as_bytes%0#0' with 'l-load aggregate%val_as_bytes%0#0'
-debug: Inserted main_test_array_route@3.ops[67]: 'l-store-copy aggregate%bytes_offset%1#0 0'
-debug: Replaced main_test_array_route@3.ops[70]: 'v-load aggregate%bytes_offset%1#0' with 'l-load aggregate%bytes_offset%1#0'
-debug: Inserted main_test_array_route@3.ops[37]: 'l-store-copy arr#0 0'
-debug: Replaced main_test_array_route@3.ops[40]: 'v-load arr#0' with 'l-load arr#0'
+debug: Inserted main_test_array_route@3.ops[54]: 'l-store-copy aggregate%bytes_offset%1#0 0'
+debug: Replaced main_test_array_route@3.ops[57]: 'v-load aggregate%bytes_offset%1#0' with 'l-load aggregate%bytes_offset%1#0'
+debug: Inserted main_test_array_route@3.ops[21]: 'l-store-copy arr#0 1'
+debug: Replaced main_test_array_route@3.ops[24]: 'v-load arr#0' with 'l-load arr#0'
+debug: Inserted main_test_array_route@3.ops[25]: 'l-store-copy arr#0 0'
+debug: Replaced main_test_array_route@3.ops[28]: 'v-load arr#0' with 'l-load arr#0'
 debug: Inserted main_test_array_route@3.ops[15]: 'l-store-copy arr#0 0'
 debug: Replaced main_test_array_route@3.ops[21]: 'v-load arr#0' with 'l-load arr#0'
-debug: Inserted main_test_array_route@3.ops[55]: 'l-store-copy aggregate%array_len%3#0 0'
-debug: Replaced main_test_array_route@3.ops[62]: 'v-load aggregate%array_len%3#0' with 'l-load aggregate%array_len%3#0'
-debug: Inserted main_test_array_route@3.ops[22]: 'l-store-copy arr#0 1'
-debug: Replaced main_test_array_route@3.ops[38]: 'v-load arr#0' with 'l-load arr#0'
-debug: Inserted main_test_array_route@3.ops[47]: 'l-store-copy aggregate%slot_contents%3#0 0'
-debug: Replaced main_test_array_route@3.ops[74]: 'v-load aggregate%slot_contents%3#0' with 'l-load aggregate%slot_contents%3#0'
+debug: Inserted main_test_array_route@3.ops[43]: 'l-store-copy aggregate%array_len%3#0 0'
+debug: Replaced main_test_array_route@3.ops[50]: 'v-load aggregate%array_len%3#0' with 'l-load aggregate%array_len%3#0'
+debug: Inserted main_test_array_route@3.ops[34]: 'l-store-copy aggregate%slot_contents%3#0 0'
+debug: Replaced main_test_array_route@3.ops[61]: 'v-load aggregate%slot_contents%3#0' with 'l-load aggregate%slot_contents%3#0'
 debug: Inserted main_for_header@78.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced main_for_header@78.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted main_for_body@79.ops[2]: 'l-store-copy slot_contents%0#1 0'
