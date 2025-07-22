@@ -179,8 +179,11 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Enco
         let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%encoded_element%0#0 move.0#0 1u) // on error: index access is out of bounds
         let tmp%2#0: bool = (b== aggregate%encoded_element%1#0 0x00)
         (assert tmp%2#0) // Square is already taken
-        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%0#0 move.0#0 player#0)
-        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%0#0 aggregate%bytes_offset%0#0 aggregate%updated_array%0#0)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
+        (assert maybe_exists%1#0) // check self.game exists
+        let aggregate%encoded_element%2#0: bytes = (extract3 maybe_value%1#0 aggregate%bytes_offset%0#0 3u) // on error: index access is out of bounds
+        let aggregate%updated_array%0#0: bytes = (replace3 aggregate%encoded_element%2#0 move.0#0 player#0)
+        let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%1#0 aggregate%bytes_offset%0#0 aggregate%updated_array%0#0)
         (app_global_put "game" aggregate%updated_array%1#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%2#0) // check self.turns exists

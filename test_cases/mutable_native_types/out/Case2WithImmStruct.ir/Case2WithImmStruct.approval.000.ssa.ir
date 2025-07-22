@@ -400,7 +400,7 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_many_tups(tups: Encoded(len+(uint64,uint64)[])) -> void:
     block@0: // L70
-        let array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
+        let array_length%0#0: uint64 = array_len(tups#0)
         let item_index_internal%0#0: uint64 = 0u
         let reverse_index_internal%0#0: uint64 = array_length%0#0
         goto block@1
@@ -422,12 +422,13 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
 
 subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStruct.add_fixed_tups(tups: Encoded((uint64,uint64)[3])) -> void:
     block@0: // L75
+        let array_length%0#0: uint64 = array_len(tups#0)
         let item_index_internal%0#0: uint64 = 0u
-        let reverse_index_internal%0#0: uint64 = 3u
+        let reverse_index_internal%0#0: uint64 = array_length%0#0
         goto block@1
     block@1: // for_header_L77
         let item_index_internal%0#1: uint64 = φ(item_index_internal%0#0 <- block@0, item_index_internal%0#2 <- block@3)
-        let continue_looping%0#0: bool = (< item_index_internal%0#1 3u)
+        let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L78
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(tups#0, item_index_internal%0#1)

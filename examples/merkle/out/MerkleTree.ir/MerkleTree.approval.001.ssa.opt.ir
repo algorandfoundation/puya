@@ -48,13 +48,13 @@ subroutine examples.merkle.contract.MerkleTree.verify(proof: Encoded(len+uint8[3
     block@0: // L14
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "root")
         (assert maybe_exists%0#0) // check self.root exists
-        let array_length%0#0: uint64 = (extract_uint16 proof#0 0u)
+        let tmp%0#1: uint64 = array_len(proof#0)
         let idx#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L22
         let idx#1: uint64 = φ(idx#0 <- block@0, idx#2 <- block@6)
         let computed#1: bytes = φ(leaf#0 <- block@0, computed#2 <- block@6)
-        let continue_looping%0#0: bool = (< idx#1 array_length%0#0)
+        let continue_looping%0#0: bool = (< idx#1 tmp%0#1)
         goto continue_looping%0#0 ? block@3 : block@7
     block@3: // for_body_L23
         let array_item%0#0: Encoded(uint8[32]) = extract_value(proof#0, idx#1)

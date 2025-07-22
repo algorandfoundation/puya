@@ -323,15 +323,16 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat() ->
         let aggregate%concat%3#0: bytes = (concat aggregate%head%17#0 tmp%7#0)
         let aggregate%as_Encoded(len+(len+utf8[])[])%2#0: Encoded(len+(len+utf8[])[]) = aggregate%concat%3#0
         let encoded_array%5#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%2#0
-        let array_length%0#0: uint64 = (extract_uint16 encoded_array%5#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) encoded_array%5#0)
-        let start_of_tail%0#0: uint64 = (* array_length%0#0 2u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 encoded_array%5#0 0u)
+        let tmp%8#0: uint64 = aggregate%array_length%0#0
+        let start_of_tail%0#0: uint64 = (* tmp%8#0 2u)
         let total_length%0#0: uint64 = (len extract_to_end%0#0)
         let data%0#0: bytes = (substring3 extract_to_end%0#0 start_of_tail%0#0 total_length%0#0)
-        let as_Encoded(len+(len+utf8[])[])%0#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(encoded_array%4#0, data%0#0, array_length%0#0)
+        let as_Encoded(len+(len+utf8[])[])%0#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(encoded_array%4#0, data%0#0, tmp%8#0)
         let hello_world_concat#0: Encoded(len+(len+utf8[])[]) = as_Encoded(len+(len+utf8[])[])%0#0
-        let tmp%8#0: bool = (== hello_world#0 hello_world_concat#0)
-        (assert tmp%8#0)
+        let tmp%9#0: bool = (== hello_world#0 hello_world_concat#0)
+        (assert tmp%9#0)
         return 
 
 subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dynamic() -> void:
@@ -850,170 +851,171 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_boo
         let encoded_array%1#0: Encoded(len+bool1[]) = aggregate%as_Encoded(len+bool1[])%1#0
         let tmp%11#0: bool = (== dynamic_bool_array#0 encoded_array%1#0)
         (assert tmp%11#0)
-        let array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) dynamic_bool_array#0)
-        let as_Encoded(len+bool1[])%1#0: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_bool_array#0, extract_to_end%0#0, array_length%0#0, 1u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
+        let tmp%12#0: uint64 = aggregate%array_length%0#0
+        let as_Encoded(len+bool1[])%1#0: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_bool_array#0, extract_to_end%0#0, tmp%12#0, 1u)
         let dynamic_bool_array#0: Encoded(len+bool1[]) = as_Encoded(len+bool1[])%1#0
         let aggregate%encoded_bool%8#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%8#0: Encoded(bool8) = aggregate%encoded_bool%8#0
-        let tmp%12#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%8#0
+        let tmp%13#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%8#0
         let aggregate%encoded_bool%9#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%9#0: Encoded(bool8) = aggregate%encoded_bool%9#0
-        let tmp%13#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%9#0
+        let tmp%14#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%9#0
         let aggregate%encoded_bool%10#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%10#0: Encoded(bool8) = aggregate%encoded_bool%10#0
-        let tmp%14#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%10#0
+        let tmp%15#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%10#0
         let aggregate%encoded_bool%11#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%11#0: Encoded(bool8) = aggregate%encoded_bool%11#0
-        let tmp%15#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%11#0
+        let tmp%16#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%11#0
         let aggregate%encoded_bool%12#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%12#0: Encoded(bool8) = aggregate%encoded_bool%12#0
-        let tmp%16#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%12#0
+        let tmp%17#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%12#0
         let aggregate%encoded_bool%13#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%13#0: Encoded(bool8) = aggregate%encoded_bool%13#0
-        let tmp%17#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%13#0
+        let tmp%18#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%13#0
         let aggregate%encoded_bool%14#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%14#0: Encoded(bool8) = aggregate%encoded_bool%14#0
-        let tmp%18#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%14#0
+        let tmp%19#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%14#0
         let aggregate%encoded_bool%15#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%15#0: Encoded(bool8) = aggregate%encoded_bool%15#0
-        let tmp%19#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%15#0
+        let tmp%20#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%15#0
         let aggregate%as_bytes%2#0: bytes[8] = (itob 8u)
         let aggregate%len_u16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
-        let aggregate%get_bit%4#0: uint64 = (getbit tmp%13#0 0u)
-        let aggregate%set_bit%4#0: Encoded(bool8) = (setbit tmp%12#0 1u aggregate%get_bit%4#0)
-        let aggregate%get_bit%5#0: uint64 = (getbit tmp%14#0 0u)
+        let aggregate%get_bit%4#0: uint64 = (getbit tmp%14#0 0u)
+        let aggregate%set_bit%4#0: Encoded(bool8) = (setbit tmp%13#0 1u aggregate%get_bit%4#0)
+        let aggregate%get_bit%5#0: uint64 = (getbit tmp%15#0 0u)
         let aggregate%set_bit%5#0: Encoded(bool8) = (setbit aggregate%set_bit%4#0 2u aggregate%get_bit%5#0)
-        let aggregate%get_bit%6#0: uint64 = (getbit tmp%15#0 0u)
+        let aggregate%get_bit%6#0: uint64 = (getbit tmp%16#0 0u)
         let aggregate%set_bit%6#0: Encoded(bool8) = (setbit aggregate%set_bit%5#0 3u aggregate%get_bit%6#0)
-        let aggregate%get_bit%7#0: uint64 = (getbit tmp%16#0 0u)
+        let aggregate%get_bit%7#0: uint64 = (getbit tmp%17#0 0u)
         let aggregate%set_bit%7#0: Encoded(bool8) = (setbit aggregate%set_bit%6#0 4u aggregate%get_bit%7#0)
-        let aggregate%get_bit%8#0: uint64 = (getbit tmp%17#0 0u)
+        let aggregate%get_bit%8#0: uint64 = (getbit tmp%18#0 0u)
         let aggregate%set_bit%8#0: Encoded(bool8) = (setbit aggregate%set_bit%7#0 5u aggregate%get_bit%8#0)
-        let aggregate%get_bit%9#0: uint64 = (getbit tmp%18#0 0u)
+        let aggregate%get_bit%9#0: uint64 = (getbit tmp%19#0 0u)
         let aggregate%set_bit%9#0: Encoded(bool8) = (setbit aggregate%set_bit%8#0 6u aggregate%get_bit%9#0)
-        let aggregate%get_bit%10#0: uint64 = (getbit tmp%19#0 0u)
+        let aggregate%get_bit%10#0: uint64 = (getbit tmp%20#0 0u)
         let aggregate%set_bit%10#0: Encoded(bool8) = (setbit aggregate%set_bit%9#0 7u aggregate%get_bit%10#0)
         let aggregate%head%4#0: bytes = (concat aggregate%len_u16%2#0 aggregate%set_bit%10#0)
         let aggregate%as_Encoded(len+bool1[])%2#0: Encoded(len+bool1[]) = aggregate%head%4#0
         let encoded_array%2#0: Encoded(len+bool1[]) = aggregate%as_Encoded(len+bool1[])%2#0
-        let tmp%20#0: bool = (== dynamic_bool_array#0 encoded_array%2#0)
-        (assert tmp%20#0)
+        let tmp%21#0: bool = (== dynamic_bool_array#0 encoded_array%2#0)
+        (assert tmp%21#0)
         let aggregate%encoded_bool%16#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%16#0: Encoded(bool8) = aggregate%encoded_bool%16#0
-        let tmp%21#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%16#0
-        let aggregate%head%5#0: bytes = (concat 0x tmp%21#0)
+        let tmp%22#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%16#0
+        let aggregate%head%5#0: bytes = (concat 0x tmp%22#0)
         let aggregate%as_Encoded(bool8[])%1#0: Encoded(bool8[]) = aggregate%head%5#0
-        let tmp%22#0: Encoded(bool8[]) = aggregate%as_Encoded(bool8[])%1#0
-        let as_Encoded(len+bool1[])%2#0: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_bool_array#0, tmp%22#0, 1u, 8u)
+        let tmp%23#0: Encoded(bool8[]) = aggregate%as_Encoded(bool8[])%1#0
+        let as_Encoded(len+bool1[])%2#0: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_bool_array#0, tmp%23#0, 1u, 8u)
         let dynamic_bool_array#0: Encoded(len+bool1[]) = as_Encoded(len+bool1[])%2#0
         let aggregate%encoded_bool%17#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%17#0: Encoded(bool8) = aggregate%encoded_bool%17#0
-        let tmp%23#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%17#0
+        let tmp%24#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%17#0
         let aggregate%encoded_bool%18#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%18#0: Encoded(bool8) = aggregate%encoded_bool%18#0
-        let tmp%24#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%18#0
+        let tmp%25#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%18#0
         let aggregate%encoded_bool%19#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%19#0: Encoded(bool8) = aggregate%encoded_bool%19#0
-        let tmp%25#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%19#0
+        let tmp%26#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%19#0
         let aggregate%encoded_bool%20#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%20#0: Encoded(bool8) = aggregate%encoded_bool%20#0
-        let tmp%26#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%20#0
+        let tmp%27#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%20#0
         let aggregate%encoded_bool%21#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%21#0: Encoded(bool8) = aggregate%encoded_bool%21#0
-        let tmp%27#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%21#0
+        let tmp%28#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%21#0
         let aggregate%encoded_bool%22#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%22#0: Encoded(bool8) = aggregate%encoded_bool%22#0
-        let tmp%28#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%22#0
+        let tmp%29#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%22#0
         let aggregate%encoded_bool%23#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%23#0: Encoded(bool8) = aggregate%encoded_bool%23#0
-        let tmp%29#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%23#0
+        let tmp%30#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%23#0
         let aggregate%encoded_bool%24#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%24#0: Encoded(bool8) = aggregate%encoded_bool%24#0
-        let tmp%30#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%24#0
+        let tmp%31#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%24#0
         let aggregate%encoded_bool%25#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%25#0: Encoded(bool8) = aggregate%encoded_bool%25#0
-        let tmp%31#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%25#0
+        let tmp%32#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%25#0
         let aggregate%as_bytes%3#0: bytes[8] = (itob 9u)
         let aggregate%len_u16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
-        let aggregate%get_bit%11#0: uint64 = (getbit tmp%24#0 0u)
-        let aggregate%set_bit%11#0: Encoded(bool8) = (setbit tmp%23#0 1u aggregate%get_bit%11#0)
-        let aggregate%get_bit%12#0: uint64 = (getbit tmp%25#0 0u)
+        let aggregate%get_bit%11#0: uint64 = (getbit tmp%25#0 0u)
+        let aggregate%set_bit%11#0: Encoded(bool8) = (setbit tmp%24#0 1u aggregate%get_bit%11#0)
+        let aggregate%get_bit%12#0: uint64 = (getbit tmp%26#0 0u)
         let aggregate%set_bit%12#0: Encoded(bool8) = (setbit aggregate%set_bit%11#0 2u aggregate%get_bit%12#0)
-        let aggregate%get_bit%13#0: uint64 = (getbit tmp%26#0 0u)
+        let aggregate%get_bit%13#0: uint64 = (getbit tmp%27#0 0u)
         let aggregate%set_bit%13#0: Encoded(bool8) = (setbit aggregate%set_bit%12#0 3u aggregate%get_bit%13#0)
-        let aggregate%get_bit%14#0: uint64 = (getbit tmp%27#0 0u)
+        let aggregate%get_bit%14#0: uint64 = (getbit tmp%28#0 0u)
         let aggregate%set_bit%14#0: Encoded(bool8) = (setbit aggregate%set_bit%13#0 4u aggregate%get_bit%14#0)
-        let aggregate%get_bit%15#0: uint64 = (getbit tmp%28#0 0u)
+        let aggregate%get_bit%15#0: uint64 = (getbit tmp%29#0 0u)
         let aggregate%set_bit%15#0: Encoded(bool8) = (setbit aggregate%set_bit%14#0 5u aggregate%get_bit%15#0)
-        let aggregate%get_bit%16#0: uint64 = (getbit tmp%29#0 0u)
+        let aggregate%get_bit%16#0: uint64 = (getbit tmp%30#0 0u)
         let aggregate%set_bit%16#0: Encoded(bool8) = (setbit aggregate%set_bit%15#0 6u aggregate%get_bit%16#0)
-        let aggregate%get_bit%17#0: uint64 = (getbit tmp%30#0 0u)
+        let aggregate%get_bit%17#0: uint64 = (getbit tmp%31#0 0u)
         let aggregate%set_bit%17#0: Encoded(bool8) = (setbit aggregate%set_bit%16#0 7u aggregate%get_bit%17#0)
         let aggregate%head%6#0: bytes = (concat aggregate%len_u16%3#0 aggregate%set_bit%17#0)
-        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 tmp%31#0)
+        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 tmp%32#0)
         let aggregate%as_Encoded(len+bool1[])%3#0: Encoded(len+bool1[]) = aggregate%head%7#0
         let encoded_array%3#0: Encoded(len+bool1[]) = aggregate%as_Encoded(len+bool1[])%3#0
-        let tmp%32#0: bool = (== dynamic_bool_array#0 encoded_array%3#0)
-        (assert tmp%32#0)
-        let (tmp%33#0: uint64, tmp%34#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(dynamic_bool_array#0)
-        let aggregate%encoded_bool%26#0: bytes[1] = (setbit 0x00 0u tmp%33#0)
-        let tmp%35#0: Encoded(bool8) = aggregate%encoded_bool%26#0
-        let dynamic_bool_array#0: Encoded(len+bool1[]) = tmp%34#0
+        let tmp%33#0: bool = (== dynamic_bool_array#0 encoded_array%3#0)
+        (assert tmp%33#0)
+        let (tmp%34#0: uint64, tmp%35#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(dynamic_bool_array#0)
+        let aggregate%encoded_bool%26#0: bytes[1] = (setbit 0x00 0u tmp%34#0)
+        let tmp%36#0: Encoded(bool8) = aggregate%encoded_bool%26#0
+        let dynamic_bool_array#0: Encoded(len+bool1[]) = tmp%35#0
         let aggregate%encoded_bool%27#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%26#0: Encoded(bool8) = aggregate%encoded_bool%27#0
-        let tmp%36#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%26#0
-        let tmp%37#0: bool = (== tmp%35#0 tmp%36#0)
-        (assert tmp%37#0)
-        let (tmp%38#0: uint64, tmp%39#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(dynamic_bool_array#0)
-        let aggregate%encoded_bool%28#0: bytes[1] = (setbit 0x00 0u tmp%38#0)
-        let tmp%40#0: Encoded(bool8) = aggregate%encoded_bool%28#0
-        let dynamic_bool_array#0: Encoded(len+bool1[]) = tmp%39#0
+        let tmp%37#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%26#0
+        let tmp%38#0: bool = (== tmp%36#0 tmp%37#0)
+        (assert tmp%38#0)
+        let (tmp%39#0: uint64, tmp%40#0: bytes) = _puya_lib.arc4.dynamic_array_pop_bit(dynamic_bool_array#0)
+        let aggregate%encoded_bool%28#0: bytes[1] = (setbit 0x00 0u tmp%39#0)
+        let tmp%41#0: Encoded(bool8) = aggregate%encoded_bool%28#0
+        let dynamic_bool_array#0: Encoded(len+bool1[]) = tmp%40#0
         let aggregate%encoded_bool%29#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%27#0: Encoded(bool8) = aggregate%encoded_bool%29#0
-        let tmp%41#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%27#0
-        let tmp%42#0: bool = (== tmp%40#0 tmp%41#0)
-        (assert tmp%42#0)
+        let tmp%42#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%27#0
+        let tmp%43#0: bool = (== tmp%41#0 tmp%42#0)
+        (assert tmp%43#0)
         let aggregate%encoded_bool%30#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%28#0: Encoded(bool8) = aggregate%encoded_bool%30#0
-        let tmp%43#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%28#0
+        let tmp%44#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%28#0
         let aggregate%encoded_bool%31#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%29#0: Encoded(bool8) = aggregate%encoded_bool%31#0
-        let tmp%44#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%29#0
+        let tmp%45#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%29#0
         let aggregate%encoded_bool%32#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%30#0: Encoded(bool8) = aggregate%encoded_bool%32#0
-        let tmp%45#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%30#0
+        let tmp%46#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%30#0
         let aggregate%encoded_bool%33#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%31#0: Encoded(bool8) = aggregate%encoded_bool%33#0
-        let tmp%46#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%31#0
+        let tmp%47#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%31#0
         let aggregate%encoded_bool%34#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%32#0: Encoded(bool8) = aggregate%encoded_bool%34#0
-        let tmp%47#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%32#0
+        let tmp%48#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%32#0
         let aggregate%encoded_bool%35#0: bytes[1] = (setbit 0x00 0u 0u)
         let aggregate%as_Encoded(bool8)%33#0: Encoded(bool8) = aggregate%encoded_bool%35#0
-        let tmp%48#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%33#0
+        let tmp%49#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%33#0
         let aggregate%encoded_bool%36#0: bytes[1] = (setbit 0x00 0u 1u)
         let aggregate%as_Encoded(bool8)%34#0: Encoded(bool8) = aggregate%encoded_bool%36#0
-        let tmp%49#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%34#0
+        let tmp%50#0: Encoded(bool8) = aggregate%as_Encoded(bool8)%34#0
         let aggregate%as_bytes%4#0: bytes[8] = (itob 7u)
         let aggregate%len_u16%4#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
-        let aggregate%get_bit%18#0: uint64 = (getbit tmp%44#0 0u)
-        let aggregate%set_bit%18#0: Encoded(bool8) = (setbit tmp%43#0 1u aggregate%get_bit%18#0)
-        let aggregate%get_bit%19#0: uint64 = (getbit tmp%45#0 0u)
+        let aggregate%get_bit%18#0: uint64 = (getbit tmp%45#0 0u)
+        let aggregate%set_bit%18#0: Encoded(bool8) = (setbit tmp%44#0 1u aggregate%get_bit%18#0)
+        let aggregate%get_bit%19#0: uint64 = (getbit tmp%46#0 0u)
         let aggregate%set_bit%19#0: Encoded(bool8) = (setbit aggregate%set_bit%18#0 2u aggregate%get_bit%19#0)
-        let aggregate%get_bit%20#0: uint64 = (getbit tmp%46#0 0u)
+        let aggregate%get_bit%20#0: uint64 = (getbit tmp%47#0 0u)
         let aggregate%set_bit%20#0: Encoded(bool8) = (setbit aggregate%set_bit%19#0 3u aggregate%get_bit%20#0)
-        let aggregate%get_bit%21#0: uint64 = (getbit tmp%47#0 0u)
+        let aggregate%get_bit%21#0: uint64 = (getbit tmp%48#0 0u)
         let aggregate%set_bit%21#0: Encoded(bool8) = (setbit aggregate%set_bit%20#0 4u aggregate%get_bit%21#0)
-        let aggregate%get_bit%22#0: uint64 = (getbit tmp%48#0 0u)
+        let aggregate%get_bit%22#0: uint64 = (getbit tmp%49#0 0u)
         let aggregate%set_bit%22#0: Encoded(bool8) = (setbit aggregate%set_bit%21#0 5u aggregate%get_bit%22#0)
-        let aggregate%get_bit%23#0: uint64 = (getbit tmp%49#0 0u)
+        let aggregate%get_bit%23#0: uint64 = (getbit tmp%50#0 0u)
         let aggregate%set_bit%23#0: Encoded(bool8) = (setbit aggregate%set_bit%22#0 6u aggregate%get_bit%23#0)
         let aggregate%head%8#0: bytes = (concat aggregate%len_u16%4#0 aggregate%set_bit%23#0)
         let aggregate%as_Encoded(len+bool1[])%4#0: Encoded(len+bool1[]) = aggregate%head%8#0
         let encoded_array%4#0: Encoded(len+bool1[]) = aggregate%as_Encoded(len+bool1[])%4#0
-        let tmp%50#0: bool = (== dynamic_bool_array#0 encoded_array%4#0)
-        (assert tmp%50#0)
+        let tmp%51#0: bool = (== dynamic_bool_array#0 encoded_array%4#0)
+        (assert tmp%51#0)
         return 
 
 subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_string() -> void:
@@ -1071,12 +1073,13 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = as_Encoded(len+(len+utf8[])[])%0#0
         let tmp%7#0: bool = (== dynamic_string_array#0 0x00040008000f0016001b000548656c6c6f0005576f726c640003466f6f0003426172)
         (assert tmp%7#0)
-        let array_length%0#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) dynamic_string_array#0)
-        let start_of_tail%0#0: uint64 = (* array_length%0#0 2u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let tmp%8#0: uint64 = aggregate%array_length%0#0
+        let start_of_tail%0#0: uint64 = (* tmp%8#0 2u)
         let total_length%0#0: uint64 = (len extract_to_end%0#0)
         let data%0#0: bytes = (substring3 extract_to_end%0#0 start_of_tail%0#0 total_length%0#0)
-        let as_Encoded(len+(len+utf8[])[])%1#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(dynamic_string_array#0, data%0#0, array_length%0#0)
+        let as_Encoded(len+(len+utf8[])[])%1#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(dynamic_string_array#0, data%0#0, tmp%8#0)
         let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = as_Encoded(len+(len+utf8[])[])%1#0
         let aggregate%as_bytes%7#0: bytes[8] = (itob 8u)
         let aggregate%len_u16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%7#0)
@@ -1128,8 +1131,8 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         let aggregate%concat%9#0: bytes = (concat aggregate%concat%8#0 bar#0)
         let aggregate%as_Encoded(len+(len+utf8[])[])%1#0: Encoded(len+(len+utf8[])[]) = aggregate%concat%9#0
         let encoded_array%1#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%1#0
-        let tmp%8#0: bool = (== dynamic_string_array#0 encoded_array%1#0)
-        (assert tmp%8#0)
+        let tmp%9#0: bool = (== dynamic_string_array#0 encoded_array%1#0)
+        (assert tmp%9#0)
         let aggregate%as_bytes%16#0: bytes[8] = (itob 8u)
         let aggregate%len_u16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%16#0)
         let aggregate%as_bytes%17#0: bytes[8] = (itob 16u)
@@ -1182,21 +1185,21 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         let encoded_array%2#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%2#0
         let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = encoded_array%2#0
         let encoded_value%0#0: Encoded(len+utf8[]) = hello#0
-        let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
-        let aggregate%lt%0#0: bool = (< 3u aggregate%array_length%0#0)
-        (assert aggregate%lt%0#0) // index access is out of bounds
         let aggregate%array_length%1#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
-        let aggregate%lt%1#0: bool = (< 3u aggregate%array_length%1#0)
+        let aggregate%lt%0#0: bool = (< 3u aggregate%array_length%1#0)
+        (assert aggregate%lt%0#0) // index access is out of bounds
+        let aggregate%array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%lt%1#0: bool = (< 3u aggregate%array_length%2#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%updated_array%0#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#0, encoded_value%0#0, 3u)
         let updated_array%0#0: Encoded(len+(len+utf8[])[]) = aggregate%updated_array%0#0
         let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = updated_array%0#0
         let encoded_value%1#0: Encoded(len+utf8[]) = hello#0
-        let aggregate%array_length%2#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
-        let aggregate%lt%2#0: bool = (< 5u aggregate%array_length%2#0)
-        (assert aggregate%lt%2#0) // index access is out of bounds
         let aggregate%array_length%3#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
-        let aggregate%lt%3#0: bool = (< 5u aggregate%array_length%3#0)
+        let aggregate%lt%2#0: bool = (< 5u aggregate%array_length%3#0)
+        (assert aggregate%lt%2#0) // index access is out of bounds
+        let aggregate%array_length%4#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
+        let aggregate%lt%3#0: bool = (< 5u aggregate%array_length%4#0)
         (assert aggregate%lt%3#0) // index access is out of bounds
         let aggregate%updated_array%1#0: bytes = _puya_lib.arc4.dynamic_array_replace_byte_length_head(dynamic_string_array#0, encoded_value%1#0, 5u)
         let updated_array%1#0: Encoded(len+(len+utf8[])[]) = aggregate%updated_array%1#0
@@ -1251,18 +1254,18 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         let aggregate%concat%25#0: bytes = (concat aggregate%concat%24#0 bar#0)
         let aggregate%as_Encoded(len+(len+utf8[])[])%3#0: Encoded(len+(len+utf8[])[]) = aggregate%concat%25#0
         let encoded_array%3#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%3#0
-        let tmp%9#0: bool = (== dynamic_string_array#0 encoded_array%3#0)
-        (assert tmp%9#0)
-        let (tmp%10#0: bytes, tmp%11#0: bytes) = _puya_lib.arc4.dynamic_array_pop_byte_length_head(dynamic_string_array#0)
-        let tmp%12#0: Encoded(len+utf8[]) = tmp%10#0
-        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = tmp%11#0
-        let tmp%13#0: bool = (== tmp%12#0 bar#0)
-        (assert tmp%13#0)
-        let (tmp%14#0: bytes, tmp%15#0: bytes) = _puya_lib.arc4.dynamic_array_pop_byte_length_head(dynamic_string_array#0)
-        let tmp%16#0: Encoded(len+utf8[]) = tmp%14#0
-        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = tmp%15#0
-        let tmp%17#0: bool = (== tmp%16#0 foo#0)
-        (assert tmp%17#0)
+        let tmp%10#0: bool = (== dynamic_string_array#0 encoded_array%3#0)
+        (assert tmp%10#0)
+        let (tmp%11#0: bytes, tmp%12#0: bytes) = _puya_lib.arc4.dynamic_array_pop_byte_length_head(dynamic_string_array#0)
+        let tmp%13#0: Encoded(len+utf8[]) = tmp%11#0
+        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = tmp%12#0
+        let tmp%14#0: bool = (== tmp%13#0 bar#0)
+        (assert tmp%14#0)
+        let (tmp%15#0: bytes, tmp%16#0: bytes) = _puya_lib.arc4.dynamic_array_pop_byte_length_head(dynamic_string_array#0)
+        let tmp%17#0: Encoded(len+utf8[]) = tmp%15#0
+        let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = tmp%16#0
+        let tmp%18#0: bool = (== tmp%17#0 foo#0)
+        (assert tmp%18#0)
         let aggregate%as_bytes%34#0: bytes[8] = (itob 6u)
         let aggregate%len_u16%4#0: bytes = ((extract 6 2) aggregate%as_bytes%34#0)
         let aggregate%as_bytes%35#0: bytes[8] = (itob 12u)
@@ -1301,6 +1304,6 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         let aggregate%concat%31#0: bytes = (concat aggregate%concat%30#0 hello#0)
         let aggregate%as_Encoded(len+(len+utf8[])[])%4#0: Encoded(len+(len+utf8[])[]) = aggregate%concat%31#0
         let encoded_array%4#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%4#0
-        let tmp%18#0: bool = (== dynamic_string_array#0 encoded_array%4#0)
-        (assert tmp%18#0)
+        let tmp%19#0: bool = (== dynamic_string_array#0 encoded_array%4#0)
+        (assert tmp%19#0)
         return 

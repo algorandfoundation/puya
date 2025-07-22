@@ -54,12 +54,13 @@ main algopy.arc4.ARC4Contract.approval_program:
 subroutine examples.merkle.contract.compute_root_hash(proof: Encoded(len+uint8[32][]), leaf: bytes) -> <bytes, Encoded(len+uint8[32][])>:
     block@0: // L19
         let computed#0: bytes = leaf#0
-        let array_length%0#0: uint64 = (extract_uint16 proof#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 proof#0 0u)
+        let tmp%0#0: uint64 = aggregate%array_length%0#0
         (assert 1u) // Step cannot be zero
         let idx#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L22
-        let continue_looping%0#0: bool = (< idx#0 array_length%0#0)
+        let continue_looping%0#0: bool = (< idx#0 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L23
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) proof#0)
@@ -67,8 +68,8 @@ subroutine examples.merkle.contract.compute_root_hash(proof: Encoded(len+uint8[3
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 32u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint8[32]) = aggregate%encoded_element%0#0
         let values%0#0: Encoded(uint8[32]) = array_item%0#0
-        let tmp%0#0: bytes = examples.merkle.contract.hash_pair(computed#0, values%0#0)
-        let computed#0: bytes = tmp%0#0
+        let tmp%1#0: bytes = examples.merkle.contract.hash_pair(computed#0, values%0#0)
+        let computed#0: bytes = tmp%1#0
         goto block@3
     block@3: // for_footer_L22
         let idx#0: uint64 = (+ idx#0 1u)

@@ -58,6 +58,33 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> algopy.arc4.Tuple[algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool, algopy.arc4.Bool]: ...
 
     @algopy.arc4.abimethod
+    def create_dynamic_box(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def delete_dynamic_box(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def append_dynamic_box(
+        self,
+        times: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
+    def pop_dynamic_box(
+        self,
+        times: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
+    def sum_dynamic_box(
+        self,
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
     def slice_box(
         self,
     ) -> None: ...

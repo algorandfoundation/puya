@@ -494,8 +494,8 @@ subroutine sum_frozen_arr:
         // for element in arr:
         p-load arr#0                                                                              (𝕡) arr#0 | arr#0 (copy)
         int 0                                                                                     (𝕡) arr#0 | arr#0 (copy),0
-        extract_uint16                                                                            (𝕡) arr#0 | array_length%0#0
-        v-store array_length%0#0                                                                  (𝕡) arr#0 |
+        extract_uint16                                                                            (𝕡) arr#0 | aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0                                                        (𝕡) arr#0 |
         int 0                                                                                     (𝕡) arr#0 | 0
         v-store item_index_internal%0#0                                                           (𝕡) arr#0 |
         b sum_frozen_arr_for_header@1                                                             (𝕡) arr#0 |
@@ -504,7 +504,7 @@ subroutine sum_frozen_arr:
         // mutable_native_types/contract.py:265
         // for element in arr:
         v-load item_index_internal%0#0                                                            (𝕡) arr#0 | item_index_internal%0#0
-        v-load array_length%0#0                                                                   (𝕡) arr#0 | item_index_internal%0#0,array_length%0#0
+        v-load aggregate%array_length%0#0                                                         (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_length%0#0
         <                                                                                         (𝕡) arr#0 | continue_looping%0#0
         l-load continue_looping%0#0 0                                                             (𝕡) arr#0 | continue_looping%0#0
         bz sum_frozen_arr_after_for@4 ; b sum_frozen_arr_for_body@2                               (𝕡) arr#0 |
@@ -991,71 +991,71 @@ subroutine test_arr:
         // assert arr.length == 0, "expected empty array"
         p-load arr#0                                                                              (𝕡) arr#0 | arr#0 (copy)
         int 0                                                                                     (𝕡) arr#0 | arr#0 (copy),0
-        extract_uint16                                                                            (𝕡) arr#0 | array_length%0#0
-        l-load-copy array_length%0#0 0                                                            (𝕡) arr#0 | array_length%0#0,array_length%0#0 (copy)
-        !                                                                                         (𝕡) arr#0 | array_length%0#0,tmp%0#0
-        l-load tmp%0#0 0                                                                          (𝕡) arr#0 | array_length%0#0,tmp%0#0
-        assert // expected empty array                                                            (𝕡) arr#0 | array_length%0#0
+        extract_uint16                                                                            (𝕡) arr#0 | aggregate%array_length%0#0
+        l-load-copy aggregate%array_length%0#0 0                                                  (𝕡) arr#0 | aggregate%array_length%0#0,aggregate%array_length%0#0 (copy)
+        !                                                                                         (𝕡) arr#0 | aggregate%array_length%0#0,tmp%1#0
+        l-load tmp%1#0 0                                                                          (𝕡) arr#0 | aggregate%array_length%0#0,tmp%1#0
+        assert // expected empty array                                                            (𝕡) arr#0 | aggregate%array_length%0#0
         // mutable_native_types/contract.py:208
         // arr4.extend(arr)
-        p-load arr#0                                                                              (𝕡) arr#0 | array_length%0#0,arr#0 (copy)
-        extract 2 0                                                                               (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0
-        l-load-copy extract_to_end%0#0 0                                                          (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,extract_to_end%0#0 (copy)
-        v-store slot%0                                                                            (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0
+        p-load arr#0                                                                              (𝕡) arr#0 | aggregate%array_length%0#0,arr#0 (copy)
+        extract 2 0                                                                               (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0
+        l-load-copy extract_to_end%0#0 0                                                          (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,extract_to_end%0#0 (copy)
+        v-store slot%0                                                                            (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0
         // mutable_native_types/contract.py:209
         // assert arr.length == arr4.length, "expected arrays to be the same length"
-        l-load-copy extract_to_end%0#0 0                                                          (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,extract_to_end%0#0 (copy)
-        len                                                                                       (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,bytes_len%0#0
-        l-load bytes_len%0#0 0                                                                    (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,bytes_len%0#0
-        int 16                                                                                    (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,bytes_len%0#0,16
-        /                                                                                         (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,array_len%0#0
-        l-load-copy array_length%0#0 2                                                            (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,array_len%0#0,array_length%0#0 (copy)
-        l-load-copy array_len%0#0 1                                                               (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,array_len%0#0,array_length%0#0 (copy),array_len%0#0 (copy)
-        ==                                                                                        (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,array_len%0#0,tmp%3#0
-        l-load tmp%3#0 0                                                                          (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,array_len%0#0,tmp%3#0
-        assert // expected arrays to be the same length                                           (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,array_len%0#0
+        l-load-copy extract_to_end%0#0 0                                                          (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,extract_to_end%0#0 (copy)
+        len                                                                                       (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%bytes_len%0#0
+        l-load aggregate%bytes_len%0#0 0                                                          (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%bytes_len%0#0
+        int 16                                                                                    (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%bytes_len%0#0,16
+        /                                                                                         (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%array_len%0#0
+        l-load-copy aggregate%array_length%0#0 2                                                  (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%array_len%0#0,aggregate%array_length%0#0 (copy)
+        l-load-copy aggregate%array_len%0#0 1                                                     (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%array_len%0#0,aggregate%array_length%0#0 (copy),aggregate%array_len%0#0 (copy)
+        ==                                                                                        (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%array_len%0#0,tmp%6#0
+        l-load tmp%6#0 0                                                                          (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%array_len%0#0,tmp%6#0
+        assert // expected arrays to be the same length                                           (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%array_len%0#0
         // mutable_native_types/contract.py:211
         // arr5 = Array(arr4)
-        l-load array_len%0#0 0                                                                    (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,array_len%0#0
-        itob                                                                                      (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,as_bytes%0#0
-        l-load as_bytes%0#0 0                                                                     (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,as_bytes%0#0
-        extract 6 2                                                                               (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,as_u16_bytes%0#0
-        l-load as_u16_bytes%0#0 0                                                                 (𝕡) arr#0 | array_length%0#0,extract_to_end%0#0,as_u16_bytes%0#0
-        l-load extract_to_end%0#0 1                                                               (𝕡) arr#0 | array_length%0#0,as_u16_bytes%0#0,extract_to_end%0#0
-        concat                                                                                    (𝕡) arr#0 | array_length%0#0,arr5#0
+        l-load aggregate%array_len%0#0 0                                                          (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,aggregate%array_len%0#0
+        itob                                                                                      (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,as_bytes%0#0
+        l-load as_bytes%0#0 0                                                                     (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,as_bytes%0#0
+        extract 6 2                                                                               (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,as_u16_bytes%0#0
+        l-load as_u16_bytes%0#0 0                                                                 (𝕡) arr#0 | aggregate%array_length%0#0,extract_to_end%0#0,as_u16_bytes%0#0
+        l-load extract_to_end%0#0 1                                                               (𝕡) arr#0 | aggregate%array_length%0#0,as_u16_bytes%0#0,extract_to_end%0#0
+        concat                                                                                    (𝕡) arr#0 | aggregate%array_length%0#0,arr5#0
         // mutable_native_types/contract.py:212
         // assert arr == arr5, "expected arrays to be the same"
-        p-load arr#0                                                                              (𝕡) arr#0 | array_length%0#0,arr5#0,arr#0 (copy)
-        l-load arr5#0 1                                                                           (𝕡) arr#0 | array_length%0#0,arr#0 (copy),arr5#0
-        ==                                                                                        (𝕡) arr#0 | array_length%0#0,tmp%4#0
-        l-load tmp%4#0 0                                                                          (𝕡) arr#0 | array_length%0#0,tmp%4#0
-        assert // expected arrays to be the same                                                  (𝕡) arr#0 | array_length%0#0
+        p-load arr#0                                                                              (𝕡) arr#0 | aggregate%array_length%0#0,arr5#0,arr#0 (copy)
+        l-load arr5#0 1                                                                           (𝕡) arr#0 | aggregate%array_length%0#0,arr#0 (copy),arr5#0
+        ==                                                                                        (𝕡) arr#0 | aggregate%array_length%0#0,tmp%8#0
+        l-load tmp%8#0 0                                                                          (𝕡) arr#0 | aggregate%array_length%0#0,tmp%8#0
+        assert // expected arrays to be the same                                                  (𝕡) arr#0 | aggregate%array_length%0#0
         // mutable_native_types/contract.py:218
         // fixed_struct = FixedStruct(a=Txn.num_app_args + 1, b=Txn.num_app_args + 2)
-        txn NumAppArgs                                                                            (𝕡) arr#0 | array_length%0#0,tmp%6#0
-        l-load tmp%6#0 0                                                                          (𝕡) arr#0 | array_length%0#0,tmp%6#0
-        int 1                                                                                     (𝕡) arr#0 | array_length%0#0,tmp%6#0,1
-        +                                                                                         (𝕡) arr#0 | array_length%0#0,tmp%7#0
-        txn NumAppArgs                                                                            (𝕡) arr#0 | array_length%0#0,tmp%7#0,tmp%8#0
-        l-load tmp%8#0 0                                                                          (𝕡) arr#0 | array_length%0#0,tmp%7#0,tmp%8#0
-        int 2                                                                                     (𝕡) arr#0 | array_length%0#0,tmp%7#0,tmp%8#0,2
-        +                                                                                         (𝕡) arr#0 | array_length%0#0,tmp%7#0,tmp%9#0
-        l-load tmp%7#0 1                                                                          (𝕡) arr#0 | array_length%0#0,tmp%9#0,tmp%7#0
-        itob                                                                                      (𝕡) arr#0 | array_length%0#0,tmp%9#0,aggregate%val_as_bytes%0#0
-        l-load tmp%9#0 1                                                                          (𝕡) arr#0 | array_length%0#0,aggregate%val_as_bytes%0#0,tmp%9#0
-        itob                                                                                      (𝕡) arr#0 | array_length%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%0#0 1                                                       (𝕡) arr#0 | array_length%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%1#0 1                                                       (𝕡) arr#0 | array_length%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        concat                                                                                    (𝕡) arr#0 | array_length%0#0,fixed_struct#0
-        l-store-copy fixed_struct#0 0                                                             (𝕡) arr#0 | array_length%0#0,fixed_struct#0,fixed_struct#0 (copy)
-        v-store fixed_struct#0                                                                    (𝕡) arr#0 | array_length%0#0,fixed_struct#0
+        txn NumAppArgs                                                                            (𝕡) arr#0 | aggregate%array_length%0#0,tmp%12#0
+        l-load tmp%12#0 0                                                                         (𝕡) arr#0 | aggregate%array_length%0#0,tmp%12#0
+        int 1                                                                                     (𝕡) arr#0 | aggregate%array_length%0#0,tmp%12#0,1
+        +                                                                                         (𝕡) arr#0 | aggregate%array_length%0#0,tmp%13#0
+        txn NumAppArgs                                                                            (𝕡) arr#0 | aggregate%array_length%0#0,tmp%13#0,tmp%14#0
+        l-load tmp%14#0 0                                                                         (𝕡) arr#0 | aggregate%array_length%0#0,tmp%13#0,tmp%14#0
+        int 2                                                                                     (𝕡) arr#0 | aggregate%array_length%0#0,tmp%13#0,tmp%14#0,2
+        +                                                                                         (𝕡) arr#0 | aggregate%array_length%0#0,tmp%13#0,tmp%15#0
+        l-load tmp%13#0 1                                                                         (𝕡) arr#0 | aggregate%array_length%0#0,tmp%15#0,tmp%13#0
+        itob                                                                                      (𝕡) arr#0 | aggregate%array_length%0#0,tmp%15#0,aggregate%val_as_bytes%0#0
+        l-load tmp%15#0 1                                                                         (𝕡) arr#0 | aggregate%array_length%0#0,aggregate%val_as_bytes%0#0,tmp%15#0
+        itob                                                                                      (𝕡) arr#0 | aggregate%array_length%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                       (𝕡) arr#0 | aggregate%array_length%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                       (𝕡) arr#0 | aggregate%array_length%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        concat                                                                                    (𝕡) arr#0 | aggregate%array_length%0#0,fixed_struct#0
+        l-store-copy fixed_struct#0 0                                                             (𝕡) arr#0 | aggregate%array_length%0#0,fixed_struct#0,fixed_struct#0 (copy)
+        v-store fixed_struct#0                                                                    (𝕡) arr#0 | aggregate%array_length%0#0,fixed_struct#0
         // mutable_native_types/contract.py:219
         // arr2.append(fixed_struct)
-        p-load arr#0                                                                              (𝕡) arr#0 | array_length%0#0,fixed_struct#0,arr#0 (copy)
-        l-load fixed_struct#0 1                                                                   (𝕡) arr#0 | array_length%0#0,arr#0 (copy),fixed_struct#0
-        concat // on error: max array length exceeded                                             (𝕡) arr#0 | array_length%0#0,concat%1#0
-        l-load array_length%0#0 1                                                                 (𝕡) arr#0 | concat%1#0,array_length%0#0
-        int 1                                                                                     (𝕡) arr#0 | concat%1#0,array_length%0#0,1
+        p-load arr#0                                                                              (𝕡) arr#0 | aggregate%array_length%0#0,fixed_struct#0,arr#0 (copy)
+        l-load fixed_struct#0 1                                                                   (𝕡) arr#0 | aggregate%array_length%0#0,arr#0 (copy),fixed_struct#0
+        concat // on error: max array length exceeded                                             (𝕡) arr#0 | aggregate%array_length%0#0,concat%1#0
+        l-load aggregate%array_length%0#0 1                                                       (𝕡) arr#0 | concat%1#0,aggregate%array_length%0#0
+        int 1                                                                                     (𝕡) arr#0 | concat%1#0,aggregate%array_length%0#0,1
         +                                                                                         (𝕡) arr#0 | concat%1#0,add%0#0
         l-load add%0#0 0                                                                          (𝕡) arr#0 | concat%1#0,add%0#0
         itob                                                                                      (𝕡) arr#0 | concat%1#0,as_bytes%1#0
@@ -1068,27 +1068,27 @@ subroutine test_arr:
         // assert arr2.length == 1, "expected array to have 1 item"
         l-load-copy arr2#1 0                                                                      (𝕡) arr#0 | arr2#1,arr2#1 (copy)
         int 0                                                                                     (𝕡) arr#0 | arr2#1,arr2#1 (copy),0
-        extract_uint16                                                                            (𝕡) arr#0 | arr2#1,array_length%5#0
-        l-load array_length%5#0 0                                                                 (𝕡) arr#0 | arr2#1,array_length%5#0
-        int 1                                                                                     (𝕡) arr#0 | arr2#1,array_length%5#0,1
-        ==                                                                                        (𝕡) arr#0 | arr2#1,tmp%12#0
-        l-load tmp%12#0 0                                                                         (𝕡) arr#0 | arr2#1,tmp%12#0
+        extract_uint16                                                                            (𝕡) arr#0 | arr2#1,aggregate%array_length%2#0
+        l-load aggregate%array_length%2#0 0                                                       (𝕡) arr#0 | arr2#1,aggregate%array_length%2#0
+        int 1                                                                                     (𝕡) arr#0 | arr2#1,aggregate%array_length%2#0,1
+        ==                                                                                        (𝕡) arr#0 | arr2#1,tmp%19#0
+        l-load tmp%19#0 0                                                                         (𝕡) arr#0 | arr2#1,tmp%19#0
         assert // expected array to have 1 item                                                   (𝕡) arr#0 | arr2#1
         // mutable_native_types/contract.py:221
         // assert sum_frozen_arr(arr2.freeze()) == 7, "expected sum to be 7"
         l-load-copy arr2#1 0                                                                      (𝕡) arr#0 | arr2#1,arr2#1 (copy)
-        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | arr2#1,tmp%13#0
-        l-load tmp%13#0 0                                                                         (𝕡) arr#0 | arr2#1,tmp%13#0
-        int 7                                                                                     (𝕡) arr#0 | arr2#1,tmp%13#0,7
-        ==                                                                                        (𝕡) arr#0 | arr2#1,tmp%14#0
-        l-load tmp%14#0 0                                                                         (𝕡) arr#0 | arr2#1,tmp%14#0
+        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | arr2#1,tmp%21#0
+        l-load tmp%21#0 0                                                                         (𝕡) arr#0 | arr2#1,tmp%21#0
+        int 7                                                                                     (𝕡) arr#0 | arr2#1,tmp%21#0,7
+        ==                                                                                        (𝕡) arr#0 | arr2#1,tmp%22#0
+        l-load tmp%22#0 0                                                                         (𝕡) arr#0 | arr2#1,tmp%22#0
         assert // expected sum to be 7                                                            (𝕡) arr#0 | arr2#1
         // mutable_native_types/contract.py:222
         // assert arr != arr2, "expected arrays to be different"
         p-load arr#0                                                                              (𝕡) arr#0 | arr2#1,arr#0 (copy)
         l-load-copy arr2#1 1                                                                      (𝕡) arr#0 | arr2#1,arr#0 (copy),arr2#1 (copy)
-        !=                                                                                        (𝕡) arr#0 | arr2#1,tmp%15#0
-        l-load tmp%15#0 0                                                                         (𝕡) arr#0 | arr2#1,tmp%15#0
+        !=                                                                                        (𝕡) arr#0 | arr2#1,tmp%23#0
+        l-load tmp%23#0 0                                                                         (𝕡) arr#0 | arr2#1,tmp%23#0
         assert // expected arrays to be different                                                 (𝕡) arr#0 | arr2#1
         // mutable_native_types/contract.py:224
         // arr7 = Array[FixedStruct]((arr2[0],))
@@ -1103,8 +1103,8 @@ subroutine test_arr:
         // assert arr2 == arr7, "expected arrays to be the same"
         l-load-copy arr2#1 2                                                                      (𝕡) arr#0 | arr2#1,aggregate%array_trimmed%0#0,arr7#0,arr2#1 (copy)
         l-load arr7#0 1                                                                           (𝕡) arr#0 | arr2#1,aggregate%array_trimmed%0#0,arr2#1 (copy),arr7#0
-        ==                                                                                        (𝕡) arr#0 | arr2#1,aggregate%array_trimmed%0#0,tmp%16#0
-        l-load tmp%16#0 0                                                                         (𝕡) arr#0 | arr2#1,aggregate%array_trimmed%0#0,tmp%16#0
+        ==                                                                                        (𝕡) arr#0 | arr2#1,aggregate%array_trimmed%0#0,tmp%24#0
+        l-load tmp%24#0 0                                                                         (𝕡) arr#0 | arr2#1,aggregate%array_trimmed%0#0,tmp%24#0
         assert // expected arrays to be the same                                                  (𝕡) arr#0 | arr2#1,aggregate%array_trimmed%0#0
         // mutable_native_types/contract.py:227
         // arr8 = Array[FixedStruct]()
@@ -1133,8 +1133,8 @@ subroutine test_arr:
         // assert arr2 == arr8, "expected arrays to be the same"
         l-load arr2#1 1                                                                           (𝕡) arr#0 | arr8#0,arr8#1,arr2#1
         l-load arr8#1 1                                                                           (𝕡) arr#0 | arr8#0,arr2#1,arr8#1
-        ==                                                                                        (𝕡) arr#0 | arr8#0,tmp%17#0
-        l-load tmp%17#0 0                                                                         (𝕡) arr#0 | arr8#0,tmp%17#0
+        ==                                                                                        (𝕡) arr#0 | arr8#0,tmp%25#0
+        l-load tmp%25#0 0                                                                         (𝕡) arr#0 | arr8#0,tmp%25#0
         assert // expected arrays to be the same                                                  (𝕡) arr#0 | arr8#0
         // mutable_native_types/contract.py:236
         // for _i in urange(3):
@@ -1191,17 +1191,17 @@ subroutine test_arr:
         extract_uint16                                                                            (𝕡) arr#0 | arr2#1,array_length#0
         l-load-copy array_length#0 0                                                              (𝕡) arr#0 | arr2#1,array_length#0,array_length#0 (copy)
         int 3                                                                                     (𝕡) arr#0 | arr2#1,array_length#0,array_length#0 (copy),3
-        ==                                                                                        (𝕡) arr#0 | arr2#1,array_length#0,tmp%21#0
-        l-load tmp%21#0 0                                                                         (𝕡) arr#0 | arr2#1,array_length#0,tmp%21#0
+        ==                                                                                        (𝕡) arr#0 | arr2#1,array_length#0,tmp%32#0
+        l-load tmp%32#0 0                                                                         (𝕡) arr#0 | arr2#1,array_length#0,tmp%32#0
         assert // expected 3 elements                                                             (𝕡) arr#0 | arr2#1,array_length#0
         // mutable_native_types/contract.py:242
         // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
         l-load-copy arr2#1 1                                                                      (𝕡) arr#0 | arr2#1,array_length#0,arr2#1 (copy)
-        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | arr2#1,array_length#0,tmp%22#0
-        l-load tmp%22#0 0                                                                         (𝕡) arr#0 | arr2#1,array_length#0,tmp%22#0
-        int 21                                                                                    (𝕡) arr#0 | arr2#1,array_length#0,tmp%22#0,21
-        ==                                                                                        (𝕡) arr#0 | arr2#1,array_length#0,tmp%23#0
-        l-load tmp%23#0 0                                                                         (𝕡) arr#0 | arr2#1,array_length#0,tmp%23#0
+        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | arr2#1,array_length#0,tmp%34#0
+        l-load tmp%34#0 0                                                                         (𝕡) arr#0 | arr2#1,array_length#0,tmp%34#0
+        int 21                                                                                    (𝕡) arr#0 | arr2#1,array_length#0,tmp%34#0,21
+        ==                                                                                        (𝕡) arr#0 | arr2#1,array_length#0,tmp%35#0
+        l-load tmp%35#0 0                                                                         (𝕡) arr#0 | arr2#1,array_length#0,tmp%35#0
         assert // expected sum to be 21                                                           (𝕡) arr#0 | arr2#1,array_length#0
         l-load array_length#0 0                                                                   (𝕡) arr#0 | arr2#1,array_length#0
         int 1                                                                                     (𝕡) arr#0 | arr2#1,array_length#0,1
@@ -1227,20 +1227,20 @@ subroutine test_arr:
         // mutable_native_types/contract.py:246
         // assert sum_frozen_arr(frozen1) == 21, "expected sum to be 21"
         l-load arr2#1 1                                                                           (𝕡) arr#0 | result#0,arr2#1
-        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%27#0
-        l-load tmp%27#0 0                                                                         (𝕡) arr#0 | result#0,tmp%27#0
-        int 21                                                                                    (𝕡) arr#0 | result#0,tmp%27#0,21
-        ==                                                                                        (𝕡) arr#0 | result#0,tmp%28#0
-        l-load tmp%28#0 0                                                                         (𝕡) arr#0 | result#0,tmp%28#0
+        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%40#0
+        l-load tmp%40#0 0                                                                         (𝕡) arr#0 | result#0,tmp%40#0
+        int 21                                                                                    (𝕡) arr#0 | result#0,tmp%40#0,21
+        ==                                                                                        (𝕡) arr#0 | result#0,tmp%41#0
+        l-load tmp%41#0 0                                                                         (𝕡) arr#0 | result#0,tmp%41#0
         assert // expected sum to be 21                                                           (𝕡) arr#0 | result#0
         // mutable_native_types/contract.py:247
         // assert sum_frozen_arr(frozen2) == 14, "expected sum to be 14"
         l-load-copy result#0 0                                                                    (𝕡) arr#0 | result#0,result#0 (copy)
-        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%29#0
-        l-load tmp%29#0 0                                                                         (𝕡) arr#0 | result#0,tmp%29#0
-        int 14                                                                                    (𝕡) arr#0 | result#0,tmp%29#0,14
-        ==                                                                                        (𝕡) arr#0 | result#0,tmp%30#0
-        l-load tmp%30#0 0                                                                         (𝕡) arr#0 | result#0,tmp%30#0
+        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%42#0
+        l-load tmp%42#0 0                                                                         (𝕡) arr#0 | result#0,tmp%42#0
+        int 14                                                                                    (𝕡) arr#0 | result#0,tmp%42#0,14
+        ==                                                                                        (𝕡) arr#0 | result#0,tmp%43#0
+        l-load tmp%43#0 0                                                                         (𝕡) arr#0 | result#0,tmp%43#0
         assert // expected sum to be 14                                                           (𝕡) arr#0 | result#0
         // mutable_native_types/contract.py:248
         // frozen2 += frozen2
@@ -1266,11 +1266,11 @@ subroutine test_arr:
         // mutable_native_types/contract.py:249
         // assert sum_frozen_arr(frozen2) == 28, "and the sum shall be 41"
         l-load frozen2#1 0                                                                        (𝕡) arr#0 | result#0,frozen2#1
-        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%31#0
-        l-load tmp%31#0 0                                                                         (𝕡) arr#0 | result#0,tmp%31#0
-        int 28                                                                                    (𝕡) arr#0 | result#0,tmp%31#0,28
-        ==                                                                                        (𝕡) arr#0 | result#0,tmp%32#0
-        l-load tmp%32#0 0                                                                         (𝕡) arr#0 | result#0,tmp%32#0
+        callsub sum_frozen_arr                                                                    (𝕡) arr#0 | result#0,tmp%44#0
+        l-load tmp%44#0 0                                                                         (𝕡) arr#0 | result#0,tmp%44#0
+        int 28                                                                                    (𝕡) arr#0 | result#0,tmp%44#0,28
+        ==                                                                                        (𝕡) arr#0 | result#0,tmp%45#0
+        l-load tmp%45#0 0                                                                         (𝕡) arr#0 | result#0,tmp%45#0
         assert // and the sum shall be 41                                                         (𝕡) arr#0 | result#0
         // mutable_native_types/contract.py:251
         // self.arr = arr2.copy()
@@ -1284,11 +1284,11 @@ subroutine test_arr:
         // mutable_native_types/contract.py:257
         // assert arr11
         l-load fixed_struct#0 0                                                                   (𝕡) arr#0 | result#0,fixed_struct#0
-        len                                                                                       (𝕡) arr#0 | result#0,bytes_len%3#0
-        l-load bytes_len%3#0 0                                                                    (𝕡) arr#0 | result#0,bytes_len%3#0
-        int 16                                                                                    (𝕡) arr#0 | result#0,bytes_len%3#0,16
-        /                                                                                         (𝕡) arr#0 | result#0,array_len%3#0
-        l-load array_len%3#0 0                                                                    (𝕡) arr#0 | result#0,array_len%3#0
+        len                                                                                       (𝕡) arr#0 | result#0,aggregate%bytes_len%3#0
+        l-load aggregate%bytes_len%3#0 0                                                          (𝕡) arr#0 | result#0,aggregate%bytes_len%3#0
+        int 16                                                                                    (𝕡) arr#0 | result#0,aggregate%bytes_len%3#0,16
+        /                                                                                         (𝕡) arr#0 | result#0,aggregate%array_len%3#0
+        l-load aggregate%array_len%3#0 0                                                          (𝕡) arr#0 | result#0,aggregate%array_len%3#0
         assert                                                                                    (𝕡) arr#0 | result#0
         // mutable_native_types/contract.py:259
         // return self.arr

@@ -286,13 +286,11 @@ subroutine test_cases.state_mutations.contract.Contract.opt_in() -> void:
     block@0: // L29
         let encoded_array%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = bytes_encode<(len+(uint64,(len+utf8[]))[])>()
         (app_global_put "glob" encoded_array%0#0)
-        (box_del "box")
         box_write("box", encoded_array%0#0)
         let tmp%0#0: account = (txn Sender)
         (app_local_put tmp%0#0 "loc" encoded_array%0#0)
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
-        (box_del box_prefixed_key%0#0)
         box_write(box_prefixed_key%0#0, encoded_array%0#0)
         return 
 
@@ -318,7 +316,6 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let extract_uint16%2#0: uint64 = (extract_uint16 storage_value%0#0 0u)
         let extract_to_end%2#0: bytes = ((extract 2 0) storage_value%0#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, 1u, tmp%1#0)
-        (box_del "box")
         box_write("box", as_Encoded(len+(uint64,(len+utf8[]))[])%2#0)
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
@@ -326,7 +323,6 @@ subroutine test_cases.state_mutations.contract.Contract.append() -> void:
         let extract_uint16%3#0: uint64 = (extract_uint16 storage_value%1#0 0u)
         let extract_to_end%3#0: bytes = ((extract 2 0) storage_value%1#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, tmp%1#0)
-        (box_del box_prefixed_key%0#0)
         box_write(box_prefixed_key%0#0, as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)
         return 
 
@@ -345,13 +341,11 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         (app_local_put tmp%2#0 "loc" updated_array%1#0)
         let storage_value%0#0: bytes = box_read("box")
         let updated_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%0#0, 0u, 1, encoded_value%0#0)
-        (box_del "box")
         box_write("box", updated_array%2#0)
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         let storage_value%1#0: bytes = box_read(box_prefixed_key%0#0)
         let updated_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%1#0, 0u, 1, encoded_value%0#0)
-        (box_del box_prefixed_key%0#0)
         box_write(box_prefixed_key%0#0, updated_array%3#0)
         return 
 

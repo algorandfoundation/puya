@@ -359,9 +359,9 @@ subroutine add_tup:
         assert // index out of bounds                                                                         (𝕡) tup.a#0,tup.b#0 | values%1#0,aggregate%head%1#0
         l-load values%1#0 1                                                                                   (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,values%1#0
         int 16                                                                                                (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,values%1#0,16
-        *                                                                                                     (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,box%element_offset%0#0
-        int 8                                                                                                 (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,box%element_offset%0#0,8
-        l-load box%element_offset%0#0 1                                                                       (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,8,box%element_offset%0#0
+        *                                                                                                     (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,box%index_bytes_offset%0#0
+        int 8                                                                                                 (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,box%index_bytes_offset%0#0,8
+        l-load box%index_bytes_offset%0#0 1                                                                   (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,8,box%index_bytes_offset%0#0
         +                                                                                                     (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,box%offset%3#0
         byte "tup_bag"                                                                                        (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,box%offset%3#0,"tup_bag"
         l-load box%offset%3#0 1                                                                               (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0,"tup_bag",box%offset%3#0
@@ -502,51 +502,51 @@ subroutine add_many_tups:
         // for tup in tups:
         p-load tups#0                                                                                         (𝕡) tups#0 | tups#0 (copy)
         int 0                                                                                                 (𝕡) tups#0 | tups#0 (copy),0
-        extract_uint16                                                                                        (𝕡) tups#0 | array_length%0#0
-        f-store array_length%0#0                                                                              (𝕡) tups#0 | (𝕗) array_length%0#0 |
-        int 0                                                                                                 (𝕡) tups#0 | (𝕗) array_length%0#0 | 0
-        f-store item_index_internal%0#0                                                                       (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 |
-        b add_many_tups_for_header@1                                                                          (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 |
+        extract_uint16                                                                                        (𝕡) tups#0 | aggregate%array_length%0#0
+        f-store aggregate%array_length%0#0                                                                    (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0 |
+        int 0                                                                                                 (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0 | 0
+        f-store item_index_internal%0#0                                                                       (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 |
+        b add_many_tups_for_header@1                                                                          (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 |
 
-    add_many_tups_for_header@1:                                                                               (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 |
+    add_many_tups_for_header@1:                                                                               (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 |
         // mutable_native_types/case1_with_tups.py:79
         // for tup in tups:
-        f-load item_index_internal%0#0                                                                        (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
-        f-load array_length%0#0                                                                               (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,array_length%0#0
-        <                                                                                                     (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | continue_looping%0#0
-        bz add_many_tups_after_for@4 ; b add_many_tups_for_body@2                                             (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 |
+        f-load item_index_internal%0#0                                                                        (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
+        f-load aggregate%array_length%0#0                                                                     (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_length%0#0
+        <                                                                                                     (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | continue_looping%0#0
+        bz add_many_tups_after_for@4 ; b add_many_tups_for_body@2                                             (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 |
 
-    add_many_tups_for_body@2:                                                                                 (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 |
+    add_many_tups_for_body@2:                                                                                 (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 |
         // mutable_native_types/case1_with_tups.py:79
         // for tup in tups:
-        p-load tups#0                                                                                         (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | tups#0 (copy)
-        extract 2 0                                                                                           (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | aggregate%array_trimmed%0#0
-        f-load item_index_internal%0#0                                                                        (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | aggregate%array_trimmed%0#0,item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 1                                                                (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy)
-        int 16                                                                                                (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy),16
-        *                                                                                                     (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        l-load aggregate%array_trimmed%0#0 1                                                                  (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
-        l-load aggregate%bytes_offset%0#0 1                                                                   (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        int 16                                                                                                (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,16
-        extract3 // on error: index access is out of bounds                                                   (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%encoded_element%0#0
-        l-load-copy aggregate%encoded_element%0#0 0                                                           (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy)
-        int 0                                                                                                 (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy),0
-        extract_uint64                                                                                        (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,tup.a#0
-        l-load aggregate%encoded_element%0#0 1                                                                (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.a#0,aggregate%encoded_element%0#0
-        int 8                                                                                                 (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.a#0,aggregate%encoded_element%0#0,8
-        extract_uint64                                                                                        (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.a#0,tup.b#0
+        p-load tups#0                                                                                         (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | tups#0 (copy)
+        extract 2 0                                                                                           (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | aggregate%array_trimmed%0#0
+        f-load item_index_internal%0#0                                                                        (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | aggregate%array_trimmed%0#0,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                                                                (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy)
+        int 16                                                                                                (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy),16
+        *                                                                                                     (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        l-load aggregate%array_trimmed%0#0 1                                                                  (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
+        l-load aggregate%bytes_offset%0#0 1                                                                   (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
+        int 16                                                                                                (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,16
+        extract3 // on error: index access is out of bounds                                                   (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%encoded_element%0#0
+        l-load-copy aggregate%encoded_element%0#0 0                                                           (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy)
+        int 0                                                                                                 (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy),0
+        extract_uint64                                                                                        (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,aggregate%encoded_element%0#0,tup.a#0
+        l-load aggregate%encoded_element%0#0 1                                                                (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.a#0,aggregate%encoded_element%0#0
+        int 8                                                                                                 (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.a#0,aggregate%encoded_element%0#0,8
+        extract_uint64                                                                                        (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.a#0,tup.b#0
         // mutable_native_types/case1_with_tups.py:80
         // self.add_tup(tup)
-        l-load tup.a#0 1                                                                                      (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.b#0,tup.a#0
-        l-load tup.b#0 1                                                                                      (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.a#0,tup.b#0
-        callsub add_tup                                                                                       (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
-        l-load item_index_internal%0#0 0                                                                      (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
-        int 1                                                                                                 (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,1
-        +                                                                                                     (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
-        f-store item_index_internal%0#0                                                                       (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 |
-        b add_many_tups_for_header@1                                                                          (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 |
+        l-load tup.a#0 1                                                                                      (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.b#0,tup.a#0
+        l-load tup.b#0 1                                                                                      (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,tup.a#0,tup.b#0
+        callsub add_tup                                                                                       (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
+        l-load item_index_internal%0#0 0                                                                      (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
+        int 1                                                                                                 (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0,1
+        +                                                                                                     (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 | item_index_internal%0#0
+        f-store item_index_internal%0#0                                                                       (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 |
+        b add_many_tups_for_header@1                                                                          (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 |
 
-    add_many_tups_after_for@4:                                                                                (𝕡) tups#0 | (𝕗) array_length%0#0,item_index_internal%0#0 |
+    add_many_tups_after_for@4:                                                                                (𝕡) tups#0 | (𝕗) aggregate%array_length%0#0,item_index_internal%0#0 |
         retsub
 
 

@@ -119,7 +119,8 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         let aggregate%len_u16%1#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
         let aggregate%as_Encoded(len+((len+uint64[]),uint64)[])%0#0: Encoded(len+((len+uint64[]),uint64)[]) = aggregate%len_u16%1#0
         let indirect_nested_arr#0: Encoded(len+((len+uint64[]),uint64)[]) = aggregate%as_Encoded(len+((len+uint64[]),uint64)[])%0#0
-        let array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
+        let tmp%3#0: uint64 = aggregate%array_length%0#0
         let extract_uint16%1#0: uint64 = (extract_uint16 indirect_nested_arr#0 0u)
         let extract_to_end%1#0: bytes = ((extract 2 0) indirect_nested_arr#0)
         let aggregate%as_bytes%3#0: bytes[8] = (itob 10u)
@@ -127,7 +128,7 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         let aggregate%head%1#0: bytes = (concat 0x aggregate%offset_as_uint16%1#0)
         let aggregate%data_length%1#0: uint64 = (len arr#0)
         let aggregate%current_tail_offset%1#0: uint64 = (+ 10u aggregate%data_length%1#0)
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob array_length%0#0)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%3#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 aggregate%as_Encoded(uint64)%0#0)
         let aggregate%concat%1#0: bytes = (concat aggregate%head%2#0 arr#0)
@@ -139,13 +140,13 @@ subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_con
         let aggregate%current_tail_offset%2#0: uint64 = (+ 2u aggregate%data_length%2#0)
         let aggregate%concat%2#0: bytes = (concat aggregate%head%3#0 aggregate%as_Encoded((len+uint64[]),uint64)%0#0)
         let aggregate%as_Encoded(((len+uint64[]),uint64)[])%0#0: Encoded(((len+uint64[]),uint64)[]) = aggregate%concat%2#0
-        let tmp%3#0: Encoded(((len+uint64[]),uint64)[]) = aggregate%as_Encoded(((len+uint64[]),uint64)[])%0#0
-        let as_Encoded(len+((len+uint64[]),uint64)[])%0#0: Encoded(len+((len+uint64[]),uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, tmp%3#0)
+        let tmp%4#0: Encoded(((len+uint64[]),uint64)[]) = aggregate%as_Encoded(((len+uint64[]),uint64)[])%0#0
+        let as_Encoded(len+((len+uint64[]),uint64)[])%0#0: Encoded(len+((len+uint64[]),uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, tmp%4#0)
         itxn_begin
-        let tmp%4#0: Encoded(len+((len+uint64[]),uint64)[]) = indirect_nested_arr#0
+        let tmp%5#0: Encoded(len+((len+uint64[]),uint64)[]) = indirect_nested_arr#0
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call((uint64[],uint64)[])uint64")
-        ((itxn_field ApplicationArgs) tmp%4#0)
+        ((itxn_field ApplicationArgs) tmp%5#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

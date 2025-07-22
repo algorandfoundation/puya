@@ -159,25 +159,25 @@ subroutine examples.voting.voting.VotingRoundApp.create(vote_id: string, snapsho
         (app_global_put "end_time" end_time#0)
         (app_global_put "quorum" quorum#0)
         (app_global_put "nft_image_url" nft_image_url#0)
-        let array_length%0#0: uint64 = (extract_uint16 option_counts#0 0u)
-        (assert array_length%0#0) // option_counts should be non-empty
-        let tmp%1#1: bool = (<= array_length%0#0 112u)
-        (assert tmp%1#1) // Can't have more than 112 questions
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 option_counts#0 0u)
+        (assert aggregate%array_length%0#0) // option_counts should be non-empty
+        let tmp%3#0: bool = (<= aggregate%array_length%0#0 112u)
+        (assert tmp%3#0) // Can't have more than 112 questions
         let total_options#0: uint64 = 0u
         let item_index_internal%0#0: uint64 = 0u
         goto block@2
     block@2: // for_header_L223
-        let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#0 aggregate%array_length%0#0)
         goto continue_looping%0#0 ? block@3 : block@5
     block@3: // for_body_L224
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) option_counts#0)
-        let tmp%2#1: uint64 = (getbyte aggregate%array_trimmed%0#0 item_index_internal%0#0)
-        let total_options#0: uint64 = (+ total_options#0 tmp%2#1)
+        let tmp%4#0: uint64 = (getbyte aggregate%array_trimmed%0#0 item_index_internal%0#0)
+        let total_options#0: uint64 = (+ total_options#0 tmp%4#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@2
     block@5: // after_for_L223
-        let tmp%4#0: bool = (<= total_options#0 128u)
-        (assert tmp%4#0) // Can't have more than 128 vote options
+        let tmp%6#0: bool = (<= total_options#0 128u)
+        (assert tmp%6#0) // Can't have more than 128 vote options
         (app_global_put "option_counts" option_counts#0)
         (app_global_put "total_options" total_options#0)
         return 
@@ -238,12 +238,12 @@ subroutine examples.voting.voting.VotingRoundApp.close() -> void:
         let current_index#0: uint64 = 0u
         let (maybe_value%5#0: bytes, maybe_exists%6#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%6#0) // check self.option_counts exists
-        let array_length%0#0: uint64 = (extract_uint16 maybe_value%5#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%5#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         let question_index#0: uint64 = item_index_internal%0#0
         goto block@1
     block@1: // for_header_L132
-        let continue_looping%0#0: bool = (< question_index#0 array_length%0#0)
+        let continue_looping%0#0: bool = (< question_index#0 aggregate%array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@14
     block@2: // for_body_L133
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) maybe_value%5#0)
@@ -348,21 +348,21 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "option_counts")
         (assert maybe_exists%0#0) // check self.option_counts exists
         let questions_count#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
-        let array_length%1#0: uint64 = (extract_uint16 answer_ids#0 0u)
-        let tmp%4#0: bool = (== array_length%1#0 questions_count#0)
-        (assert tmp%4#0) // Number of answers incorrect
-        let tmp%6#0: uint64 = (+ 34u array_length%1#0)
-        let tmp%7#0: uint64 = (* tmp%6#0 400u)
-        let min_bal_req#0: uint64 = (+ 2500u tmp%7#0)
-        let tmp%9#0: account = ((gtxns Receiver) fund_min_bal_req#0)
-        let tmp%10#0: account = (global CurrentApplicationAddress)
-        let tmp%11#0: bool = (== tmp%9#0 tmp%10#0)
-        (assert tmp%11#0) // Payment must be to app address
-        let tmp%12#0: bytes = (itob min_bal_req#0)
-        (log tmp%12#0)
-        let tmp%13#0: uint64 = ((gtxns Amount) fund_min_bal_req#0)
-        let tmp%14#0: bool = (== tmp%13#0 min_bal_req#0)
-        (assert tmp%14#0) // Payment must be the exact min balance
+        let aggregate%array_length%1#0: uint64 = (extract_uint16 answer_ids#0 0u)
+        let tmp%6#0: bool = (== aggregate%array_length%1#0 questions_count#0)
+        (assert tmp%6#0) // Number of answers incorrect
+        let tmp%9#0: uint64 = (+ 34u aggregate%array_length%1#0)
+        let tmp%10#0: uint64 = (* tmp%9#0 400u)
+        let min_bal_req#0: uint64 = (+ 2500u tmp%10#0)
+        let tmp%12#0: account = ((gtxns Receiver) fund_min_bal_req#0)
+        let tmp%13#0: account = (global CurrentApplicationAddress)
+        let tmp%14#0: bool = (== tmp%12#0 tmp%13#0)
+        (assert tmp%14#0) // Payment must be to app address
+        let tmp%15#0: bytes = (itob min_bal_req#0)
+        (log tmp%15#0)
+        let tmp%16#0: uint64 = ((gtxns Amount) fund_min_bal_req#0)
+        let tmp%17#0: bool = (== tmp%16#0 min_bal_req#0)
+        (assert tmp%17#0) // Payment must be the exact min balance
         let cumulative_offset#0: uint64 = 0u
         let question_index#0: uint64 = 0u
         goto block@1
@@ -376,8 +376,8 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         (assert maybe_exists%1#0) // check self.option_counts exists
         let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) maybe_value%1#0)
         let options_count#0: uint64 = (getbyte aggregate%array_trimmed%1#0 question_index#0)
-        let tmp%17#0: bool = (< answer_option_index#0 options_count#0)
-        (assert tmp%17#0) // Answer option index invalid
+        let tmp%20#0: bool = (< answer_option_index#0 options_count#0)
+        (assert tmp%20#0) // Answer option index invalid
         let index#0: uint64 = (+ cumulative_offset#0 answer_option_index#0)
         let tmp%0#1: bytes = (box_extract "V" index#0 8u)
         let current_vote#0: uint64 = (btoi tmp%0#1)
@@ -390,8 +390,8 @@ subroutine examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, 
         (box_put materialized_values%0#0 answer_ids#0)
         let (maybe_value%2#0: uint64, maybe_exists%2#0: bool) = (app_global_get_ex 0u "voter_count")
         (assert maybe_exists%2#0) // check self.voter_count exists
-        let tmp%20#0: uint64 = (+ maybe_value%2#0 1u)
-        (app_global_put "voter_count" tmp%20#0)
+        let tmp%23#0: uint64 = (+ maybe_value%2#0 1u)
+        (app_global_put "voter_count" tmp%23#0)
         let question_index#0: uint64 = (+ question_index#0 1u)
         goto block@1
     block@4: // after_for_L195

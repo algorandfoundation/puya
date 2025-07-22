@@ -13,6 +13,7 @@ contract BoxContract
     ['box_ref']: bytes
     ['box_large']: examples.box_storage.contract.LargeStruct
     ['many_ints']: arc4.static_array<uint64, 513>
+    ['dynamic_box']: arc4.dynamic_array<uint64>
   }
   
   subroutine examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init(): bool
@@ -118,6 +119,47 @@ contract BoxContract
   abimethod examples.box_storage.contract.BoxContract.boxes_exist(): tuple<bool,bool,bool,bool>
   {
     return (STATE_EXISTS(Box['box_a']), STATE_EXISTS(Box['b']), STATE_EXISTS(Box[hex<"424F585F43">]), STATE_EXISTS(Box['box_large']))
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.create_dynamic_box(): void
+  {
+    Box['dynamic_box']: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>()
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.delete_dynamic_box(): void
+  {
+    STATE_DELETE(Box['dynamic_box'])
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.append_dynamic_box(times: uint64): uint64
+  {
+    box: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('dynamic_box'))
+    arr_len: uint64 = arc4_decode(Box[box].length, uint64)
+    box_resize('dynamic_box', 2u + arr_len + times * 8u)
+    for i in range(0u, times, 1u) {
+      Box[box].arr[arr_len]: uint64 = i
+      arr_len += 1u
+    }
+    Box[box].length: arc4.uint16 = arc4_encode(arr_len, arc4.uint16)
+    return Box['dynamic_box'].length
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.pop_dynamic_box(times: uint64): uint64
+  {
+    box: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('dynamic_box'))
+    arr_len: uint64 = arc4_decode(Box[box].length, uint64) - times
+    Box[box].length: arc4.uint16 = arc4_encode(arr_len, arc4.uint16)
+    box_resize('dynamic_box', 2u + arr_len * 8u)
+    return Box['dynamic_box'].length
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.sum_dynamic_box(): uint64
+  {
+    total: uint64 = 0u
+    for val in Box['dynamic_box'] {
+      total += val
+    }
+    return total
   }
   
   abimethod examples.box_storage.contract.BoxContract.slice_box(): void

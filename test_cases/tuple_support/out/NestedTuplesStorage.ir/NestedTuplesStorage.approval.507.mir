@@ -19,11 +19,7 @@ subroutine main:
         // tuple_support/tuple_storage.py:20
         // self.glob.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
         byte "glob"                                                                                        "glob"
-        // tuple_support/tuple_storage.py:16
-        // self.tup = TupleWithMutable(
         byte 0x000a000000000000000000010000000000000000                                                    "glob",0x000a000000000000000000010000000000000000
-        // tuple_support/tuple_storage.py:20
-        // self.glob.value = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
         app_global_put
         // tuple_support/tuple_storage.py:21
         // self.tup = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
@@ -33,19 +29,19 @@ subroutine main:
         assert // check self.tup exists                                                                    maybe_value%1#0
         l-load maybe_value%1#0 0                                                                           maybe_value%1#0
         int 2                                                                                              maybe_value%1#0,2
-        extract_uint64                                                                                     aggregate%item1%0#0
-        itob                                                                                               aggregate%val_as_bytes%1#0
-        byte 0x000a                                                                                        aggregate%val_as_bytes%1#0,0x000a
-        l-load aggregate%val_as_bytes%1#0 1                                                                0x000a,aggregate%val_as_bytes%1#0
-        concat                                                                                             aggregate%head%4#0
+        extract_uint64                                                                                     aggregate%item1%1#0
+        itob                                                                                               aggregate%val_as_bytes%2#0
+        byte 0x000a                                                                                        aggregate%val_as_bytes%2#0,0x000a
+        l-load aggregate%val_as_bytes%2#0 1                                                                0x000a,aggregate%val_as_bytes%2#0
+        concat                                                                                             aggregate%head%6#0
         // tuple_support/tuple_storage.py:17
         // arr=arc4.DynamicArray(arc4.UInt64(0)),
-        byte 0x00010000000000000000                                                                        aggregate%head%4#0,0x00010000000000000000
+        byte 0x00010000000000000000                                                                        aggregate%head%6#0,0x00010000000000000000
         // tuple_support/tuple_storage.py:21
         // self.tup = self.tup._replace(arr=arc4.DynamicArray(arc4.UInt64(0)))
-        concat                                                                                             aggregate%concat%1#0
-        byte "tup"                                                                                         aggregate%concat%1#0,"tup"
-        l-load aggregate%concat%1#0 1                                                                      "tup",aggregate%concat%1#0
+        concat                                                                                             aggregate%concat%2#0
+        byte "tup"                                                                                         aggregate%concat%2#0,"tup"
+        l-load aggregate%concat%2#0 1                                                                      "tup",aggregate%concat%2#0
         app_global_put
         b main_after_if_else@2
 
@@ -191,16 +187,15 @@ subroutine bootstrap:
         l-load maybe_value%0#0 0                                                                           maybe_value%0#0
         int 2                                                                                              maybe_value%0#0,2
         extract_uint64                                                                                     aggregate%item1%0#0
-        byte "box"                                                                                         aggregate%item1%0#0,"box"
-        box_del                                                                                            aggregate%item1%0#0,{box_del}
-        pop 1                                                                                              aggregate%item1%0#0
-        l-load aggregate%item1%0#0 0                                                                       aggregate%item1%0#0
         itob                                                                                               aggregate%val_as_bytes%0#0
         byte 0x000a                                                                                        aggregate%val_as_bytes%0#0,0x000a
         l-load aggregate%val_as_bytes%0#0 1                                                                0x000a,aggregate%val_as_bytes%0#0
         concat                                                                                             aggregate%head%2#0
         byte 0x00010000000000000000                                                                        aggregate%head%2#0,0x00010000000000000000
         concat                                                                                             aggregate%concat%0#0
+        byte "box"                                                                                         aggregate%concat%0#0,"box"
+        box_del                                                                                            aggregate%concat%0#0,{box_del}
+        pop 1                                                                                              aggregate%concat%0#0
         byte "box"                                                                                         aggregate%concat%0#0,"box"
         l-load-copy aggregate%concat%0#0 1                                                                 aggregate%concat%0#0,"box",aggregate%concat%0#0 (copy)
         box_put                                                                                            aggregate%concat%0#0
@@ -293,9 +288,6 @@ subroutine mutate_box:
         l-load concat%0#0 1                                                                                (𝕡) val#0 | aggregate%item1%0#0,as_u16_bytes%0#0,concat%0#0
         l-load as_u16_bytes%0#0 1                                                                          (𝕡) val#0 | aggregate%item1%0#0,concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                                         (𝕡) val#0 | aggregate%item1%0#0,replace%0#0
-        byte "box"                                                                                         (𝕡) val#0 | aggregate%item1%0#0,replace%0#0,"box"
-        box_del                                                                                            (𝕡) val#0 | aggregate%item1%0#0,replace%0#0,{box_del}
-        pop 1                                                                                              (𝕡) val#0 | aggregate%item1%0#0,replace%0#0
         l-load aggregate%item1%0#0 1                                                                       (𝕡) val#0 | replace%0#0,aggregate%item1%0#0
         itob                                                                                               (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#0
         byte 0x000a                                                                                        (𝕡) val#0 | replace%0#0,aggregate%val_as_bytes%0#0,0x000a
@@ -303,6 +295,9 @@ subroutine mutate_box:
         concat                                                                                             (𝕡) val#0 | replace%0#0,aggregate%head%2#0
         l-load replace%0#0 1                                                                               (𝕡) val#0 | aggregate%head%2#0,replace%0#0
         concat                                                                                             (𝕡) val#0 | aggregate%concat%0#0
+        byte "box"                                                                                         (𝕡) val#0 | aggregate%concat%0#0,"box"
+        box_del                                                                                            (𝕡) val#0 | aggregate%concat%0#0,{box_del}
+        pop 1                                                                                              (𝕡) val#0 | aggregate%concat%0#0
         byte "box"                                                                                         (𝕡) val#0 | aggregate%concat%0#0,"box"
         l-load aggregate%concat%0#0 1                                                                      (𝕡) val#0 | "box",aggregate%concat%0#0
         box_put                                                                                            (𝕡) val#0 |

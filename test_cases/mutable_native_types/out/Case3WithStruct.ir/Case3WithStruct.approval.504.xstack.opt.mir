@@ -338,9 +338,9 @@ subroutine add_tup:
         assert // index out of bounds                                                                                     (𝕡) tup#0 | values%1#0
         l-load values%1#0 0                                                                                               (𝕡) tup#0 | values%1#0
         int 16                                                                                                            (𝕡) tup#0 | values%1#0,16
-        *                                                                                                                 (𝕡) tup#0 | box%element_offset%0#0
-        int 8                                                                                                             (𝕡) tup#0 | box%element_offset%0#0,8
-        l-load box%element_offset%0#0 1                                                                                   (𝕡) tup#0 | 8,box%element_offset%0#0
+        *                                                                                                                 (𝕡) tup#0 | box%index_bytes_offset%0#0
+        int 8                                                                                                             (𝕡) tup#0 | box%index_bytes_offset%0#0,8
+        l-load box%index_bytes_offset%0#0 1                                                                               (𝕡) tup#0 | 8,box%index_bytes_offset%0#0
         +                                                                                                                 (𝕡) tup#0 | box%offset%3#0
         byte "tup_bag"                                                                                                    (𝕡) tup#0 | box%offset%3#0,"tup_bag"
         l-load box%offset%3#0 1                                                                                           (𝕡) tup#0 | "tup_bag",box%offset%3#0
@@ -475,8 +475,8 @@ subroutine add_many_tups:
         // for i in urange(tups.length):
         p-load tups#0                                                                                                     (𝕡) tups#0 | tups#0 (copy)
         int 0                                                                                                             (𝕡) tups#0 | tups#0 (copy),0
-        extract_uint16                                                                                                    (𝕡) tups#0 | array_length%0#0
-        v-store array_length%0#0                                                                                          (𝕡) tups#0 |
+        extract_uint16                                                                                                    (𝕡) tups#0 | aggregate%array_length%0#0
+        v-store aggregate%array_length%0#0                                                                                (𝕡) tups#0 |
         int 0                                                                                                             (𝕡) tups#0 | 0
         v-store i#0                                                                                                       (𝕡) tups#0 |
         b add_many_tups_for_header@1                                                                                      (𝕡) tups#0 |
@@ -485,7 +485,7 @@ subroutine add_many_tups:
         // mutable_native_types/case3_with_mutable_struct.py:72
         // for i in urange(tups.length):
         v-load i#0                                                                                                        (𝕡) tups#0 | i#0
-        v-load array_length%0#0                                                                                           (𝕡) tups#0 | i#0,array_length%0#0
+        v-load aggregate%array_length%0#0                                                                                 (𝕡) tups#0 | i#0,aggregate%array_length%0#0
         <                                                                                                                 (𝕡) tups#0 | continue_looping%0#0
         bz add_many_tups_after_for@4 ; b add_many_tups_for_body@2                                                         (𝕡) tups#0 |
 
@@ -596,9 +596,9 @@ subroutine set_a:
         assert // index out of bounds                                                                                     (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0
         l-load-copy i#0 0                                                                                                 (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,i#0 (copy)
         int 16                                                                                                            (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,i#0 (copy),16
-        *                                                                                                                 (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,box%element_offset%0#0
-        int 8                                                                                                             (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,box%element_offset%0#0,8
-        l-load box%element_offset%0#0 1                                                                                   (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,8,box%element_offset%0#0
+        *                                                                                                                 (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,box%index_bytes_offset%0#0
+        int 8                                                                                                             (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,box%index_bytes_offset%0#0,8
+        l-load box%index_bytes_offset%0#0 1                                                                               (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,8,box%index_bytes_offset%0#0
         +                                                                                                                 (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,box%offset%2#0
         byte "tup_bag"                                                                                                    (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,box%offset%2#0,"tup_bag"
         l-load box%offset%2#0 1                                                                                           (𝕡) a#0 | aggregate%val_as_bytes%0#0,i#0,"tup_bag",box%offset%2#0
@@ -654,8 +654,8 @@ subroutine set_b:
         assert // index out of bounds                                                                                     (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0
         l-load-copy i#0 0                                                                                                 (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0,i#0 (copy)
         int 16                                                                                                            (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0,i#0 (copy),16
-        *                                                                                                                 (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0,box%element_offset%0#0
-        int 16                                                                                                            (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0,box%element_offset%0#0,16
+        *                                                                                                                 (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0,box%index_bytes_offset%0#0
+        int 16                                                                                                            (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0,box%index_bytes_offset%0#0,16
         +                                                                                                                 (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0,box%offset%3#0
         byte "tup_bag"                                                                                                    (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0,box%offset%3#0,"tup_bag"
         l-load box%offset%3#0 1                                                                                           (𝕡) b#0 | aggregate%val_as_bytes%0#0,i#0,"tup_bag",box%offset%3#0

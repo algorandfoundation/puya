@@ -105,11 +105,11 @@ main test_cases.mutable_native_types.case2_with_immutable_struct.Case2WithImmStr
         let tmp%34#0: uint64 = (txn ApplicationID)
         (assert tmp%34#0) // can only call when not creating
         let tups#0: bytes = (txna ApplicationArgs 1)
-        let array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
+        let aggregate%array_length%0#0: uint64 = (extract_uint16 tups#0 0u)
         let item_index_internal%0#0: uint64 = 0u
         goto block@14
     block@14: // for_header_L72
-        let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
+        let continue_looping%0#0: bool = (< item_index_internal%0#0 aggregate%array_length%0#0)
         goto continue_looping%0#0 ? block@15 : block@16
     block@15: // for_body_L73
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) tups#0)
@@ -289,8 +289,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let values%1#0: uint64 = (btoi box%box_extract%1#0)
         let box%index_ok%0#0: bool = (< values%1#0 8u)
         (assert box%index_ok%0#0) // index out of bounds
-        let box%element_offset%0#0: uint64 = (* values%1#0 16u)
-        let box%offset%3#0: uint64 = (+ 8u box%element_offset%0#0)
+        let box%index_bytes_offset%0#0: uint64 = (* values%1#0 16u)
+        let box%offset%3#0: uint64 = (+ 8u box%index_bytes_offset%0#0)
         (box_replace "tup_bag" box%offset%3#0 tup#0)
         let box%box_extract%2#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%2#0: uint64 = (btoi box%box_extract%2#0)

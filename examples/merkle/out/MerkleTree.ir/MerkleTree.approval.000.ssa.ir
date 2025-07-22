@@ -8,20 +8,20 @@ subroutine examples.merkle.contract.compute_root_hash(proof: Encoded(len+uint8[3
         let proof%is_original#0: bool = 1u
         let proof%out#0: Encoded(len+uint8[32][]) = proof#0
         let computed#0: bytes = leaf#0
-        let array_length%0#0: uint64 = (extract_uint16 proof#0 0u)
+        let tmp%0#0: uint64 = array_len(proof#0)
         (assert 1u) // Step cannot be zero
         let idx#0: uint64 = 0u
         goto block@1
     block@1: // for_header_L22
         let idx#1: uint64 = φ(idx#0 <- block@0, idx#2 <- block@3)
         let computed#1: bytes = φ(computed#0 <- block@0, computed#2 <- block@3)
-        let continue_looping%0#0: bool = (< idx#1 array_length%0#0)
+        let continue_looping%0#0: bool = (< idx#1 tmp%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L23
         let array_item%0#0: Encoded(uint8[32]) = extract_value(proof#0, idx#1)
         let values%0#0: Encoded(uint8[32]) = decode_bytes<Encoded(uint8[32])>(array_item%0#0)
-        let tmp%0#0: bytes = examples.merkle.contract.hash_pair(computed#1, values%0#0)
-        let computed#2: bytes = tmp%0#0
+        let tmp%1#0: bytes = examples.merkle.contract.hash_pair(computed#1, values%0#0)
+        let computed#2: bytes = tmp%1#0
         goto block@3
     block@3: // for_footer_L22
         let idx#2: uint64 = (+ idx#1 1u)
