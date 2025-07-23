@@ -39,7 +39,7 @@ class _StateType(enum.Enum):
     slot = enum.auto()
 
 
-_StateKey = tuple[models.Value | bytes, ...]
+_StateKey = tuple[models.Value | bytes | str, ...]
 
 
 @attrs.define(kw_only=True)
@@ -58,19 +58,16 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
             op.accept(visitor)
         return visitor.modified
 
-    def _handle_read(self, typ: _StateType) -> None:
-        # doing a read resets the unobserved-writes cache
-        self._last_write.pop(typ, None)
-
     def _cached_read(
         self,
         assignment: models.Assignment,
         typ: _StateType,
-        key: tuple[models.Value, ...],
+        key: tuple[models.Value | str, ...],
         *,
         allow_truncated_reads: bool = False,
     ) -> None:
-        self._handle_read(typ)
+        # doing a read resets the unobserved-writes cache
+        self._last_write.pop(typ, None)
 
         normalized_key = _normalize_key(key)
         typ_read_results = self._read_results[typ]
@@ -159,12 +156,12 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                     op, _StateType.app_local, key=(account, key), allow_truncated_reads=True
                 )
             # BOX
-            case models.Intrinsic(op=AVMOp.box_extract | AVMOp.box_len):
-                # TODO: optimize repeats
-                # these count as reads
-                self._handle_read(_StateType.box)
             case models.Intrinsic(op=AVMOp.box_get, args=[key]) | models.BoxRead(key=key):
                 self._cached_read(op, _StateType.box, key=(key,))
+            case models.Intrinsic(op=AVMOp.box_len, args=[key]):
+                self._cached_read(op, _StateType.box, key=(key, "box_len"))
+            case models.Intrinsic(op=AVMOp.box_extract, args=[key, offset, length]):
+                self._cached_read(op, _StateType.box, key=(key, offset, length))
             # OTHER
             case other_source:
                 # visit in case invalidations need to occur
@@ -217,8 +214,8 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
         self._invalidate("all")
 
 
-def _normalize_key(keys: tuple[models.Value, ...]) -> _StateKey:
-    state_key = list[models.Value | bytes]()
+def _normalize_key(keys: tuple[models.Value | str, ...]) -> _StateKey:
+    state_key = list[models.Value | bytes | str]()
     for key in keys:
         if (
             isinstance(key, models.Constant)
@@ -230,7 +227,7 @@ def _normalize_key(keys: tuple[models.Value, ...]) -> _StateKey:
     return tuple(state_key)
 
 
-def _key_str(key: tuple[models.Value, ...]) -> str:
+def _key_str(key: tuple[models.Value | str, ...]) -> str:
     try:
         (single_key,) = key
     except ValueError:
