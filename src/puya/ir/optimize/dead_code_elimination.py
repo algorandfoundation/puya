@@ -244,6 +244,8 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
             | models.BoxRead
             | models.ExtractValue
             | models.ReplaceValue
+            | models.DecodeBytes
+            | models.BytesEncode
             | models.ArrayLength,
         ) or (
             isinstance(ass.source, models.Intrinsic)
