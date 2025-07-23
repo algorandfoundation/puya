@@ -46,13 +46,17 @@ class DynamicArrayInAStruct(Struct):
     a: UInt64
     arr: Array[UInt64]
     b: UInt64
+    arr2: Array[UInt64]
 
 
 class FixedArrayInAStruct(Struct):
     a: UInt64
     arr_offset: arc4.UInt16
     b: UInt64
+    arr2_offset: arc4.UInt16
     arr: FixedArrayUInt64
+    # arr2 excluded as it is cannot be aligned correctly statically, without knowing
+    # arr2_offset
 
 
 class BoxContract(arc4.ARC4Contract):
@@ -166,6 +170,7 @@ class BoxContract(arc4.ARC4Contract):
             a=Txn.num_app_args,
             arr=Array[UInt64](),
             b=Txn.num_app_args * 2,
+            arr2=Array[UInt64](),
         )
 
     @arc4.abimethod
@@ -176,45 +181,47 @@ class BoxContract(arc4.ARC4Contract):
     def append_dynamic_arr_struct(self, times: UInt64) -> UInt64:
         # TODO: support append using high level array operations
         assert self.dynamic_arr_struct.value.b == 2, "expected 2"
-        box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
-        arr_len = box.value.arr.length.native
-        assert (
-            self.dynamic_arr_struct.value.arr.length == arr_len
-        ), "expected arr length to be correct"
+        arr_len = self.dynamic_arr_struct.value.arr.length
+        arr2_len = self.dynamic_arr_struct.value.arr2.length
 
         # expand box
-        self.dynamic_arr_struct.ref.resize(get_dynamic_arr_struct_byte_index(arr_len + times))
-        assert self.dynamic_arr_struct.value.b == 2, "expected 2"
+        self.dynamic_arr_struct.ref.resize(
+            get_dynamic_arr2_struct_byte_index(arr_len + times, arr2_len)
+        )
         # splice in new data
         self.dynamic_arr_struct.ref.splice(
             get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         )
-        assert self.dynamic_arr_struct.value.b == 2, "expected 2"
+        box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
         for i in urange(times):
             box.value.arr.arr[arr_len] = i
             arr_len += 1
-
+        arr2_offset = get_dynamic_arr2_struct_byte_index(arr_len, UInt64(0)) - 2
         box.value.arr.length = arc4.UInt16(arr_len)
-        assert self.dynamic_arr_struct.value.b == 2, "expected 2"
+        box.value.arr2_offset = arc4.UInt16(arr2_offset)
         assert (
             self.dynamic_arr_struct.value.arr.length == arr_len
         ), "expected arr length to be correct"
+        assert self.dynamic_arr_struct.value.arr2.length == 0, "expected arr2 length to be correct"
         return self.dynamic_arr_struct.value.arr.length
 
     @arc4.abimethod
     def pop_dynamic_arr_struct(self, times: UInt64) -> UInt64:
         # TODO: support pop using high level array operations
 
-        box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
-        arr_len = box.value.arr.length.native - times
+        arr_len = self.dynamic_arr_struct.value.arr.length - times
+        arr2_len = self.dynamic_arr_struct.value.arr2.length
         # resize array
+        box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
+        arr2_offset = get_dynamic_arr2_struct_byte_index(arr_len, UInt64(0)) - 2
         box.value.arr.length = arc4.UInt16(arr_len)
+        box.value.arr2_offset = arc4.UInt16(arr2_offset)
         index = get_dynamic_arr_struct_byte_index(arr_len)
         box.ref.splice(index, times * size_of(UInt64), b"")
         # truncate box
         # Note: this is currently the same as index, but could be different if there
         #       were multiple dynamic arrays
-        size = get_dynamic_arr_struct_byte_index(arr_len)
+        size = get_dynamic_arr2_struct_byte_index(arr_len, arr2_len)
         self.dynamic_arr_struct.ref.resize(size)
 
         return self.dynamic_arr_struct.value.arr.length
@@ -225,6 +232,8 @@ class BoxContract(arc4.ARC4Contract):
         assert self.dynamic_arr_struct.value.b == 2, "expected 2"
         total = self.dynamic_arr_struct.value.a + self.dynamic_arr_struct.value.b
         for val in self.dynamic_arr_struct.value.arr:
+            total += val
+        for val in self.dynamic_arr_struct.value.arr2:
             total += val
         return total
 
@@ -394,6 +403,13 @@ def get_box_map_value_from_key_plus_1(box_map: BoxMap[UInt64, String], key: UInt
 
 @subroutine(inline=True)
 def get_dynamic_arr_struct_byte_index(index: UInt64) -> UInt64:
-    head = size_of(UInt64) + size_of(arc4.UInt16) + size_of(UInt64)
+    head = size_of(UInt64) + size_of(arc4.UInt16) + size_of(UInt64) + size_of(arc4.UInt16)
     dyn_arr_index = size_of(arc4.UInt16) + index * size_of(UInt64)
     return head + dyn_arr_index
+
+
+@subroutine(inline=True)
+def get_dynamic_arr2_struct_byte_index(arr_size: UInt64, arr2_index: UInt64) -> UInt64:
+    head_and_dyn_arr = get_dynamic_arr_struct_byte_index(arr_size)
+    dyn_arr2_index = size_of(arc4.UInt16) + arr2_index * size_of(UInt64)
+    return head_and_dyn_arr + dyn_arr2_index

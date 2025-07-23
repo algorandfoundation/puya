@@ -1668,17 +1668,25 @@ def test_dynamic_arr_in_struct_box(box_client: algokit_utils.ApplicationClient) 
     expected_sum = 3 + 1 * sum(range(5))
     assert total.return_value == expected_sum, f"expected sum to be {expected_sum}"
 
+    length = box_client.call("pop_dynamic_arr_struct", times=5, transaction_parameters=txn_params)
+    assert length.return_value == 0, "expected 0 items"
+
+    total = box_client.call("sum_dynamic_arr_struct", transaction_parameters=txn_params)
+    expected_sum = 3
+    assert total.return_value == expected_sum, f"expected sum to be {expected_sum}"
+
     # append until exceeding max stack array size
-    for i in range(110):
+    num_appends = 111
+    for i in range(num_appends):
         length = box_client.call(
             "append_dynamic_arr_struct", times=5, transaction_parameters=txn_params
         )
-        expected_items = 5 * (i + 2)
+        expected_items = 5 * (i + 1)
         assert length.return_value == expected_items, f"expected {expected_items} items"
 
     # use simulate to ignore large op budget requirements
     total_sim = simulate_call(box_client, "sum_dynamic_arr_struct", txn_params=txn_params)
-    expected_sum = 3 + 111 * sum(range(5))
+    expected_sum = 3 + num_appends * sum(range(5))
     assert (
         total_sim.abi_results[0].return_value == expected_sum
     ), f"expected sum to be {expected_sum}"
@@ -1691,10 +1699,10 @@ def test_dynamic_arr_in_struct_box(box_client: algokit_utils.ApplicationClient) 
     assert isinstance(box_response, dict)
     dynamic_box_bytes = base64.b64decode(box_response["value"])
     assert len(dynamic_box_bytes) > 4096, "expected box contents to exceed max stack value size"
-    dynamic_box = algosdk.abi.ABIType.from_string("(uint64,uint64[],uint64)").decode(
+    dynamic_box = algosdk.abi.ABIType.from_string("(uint64,uint64[],uint64,uint64[])").decode(
         dynamic_box_bytes
     )
-    assert dynamic_box == [1, expected_array, 2], "expected box contents to be correct"
+    assert dynamic_box == [1, expected_array, 2, []], "expected box contents to be correct"
 
     box_client.call("delete_dynamic_arr_struct", transaction_parameters=txn_params)
 
