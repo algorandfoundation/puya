@@ -144,8 +144,8 @@ contract BoxContract
       Box[box].arr.arr[arr_len]: uint64 = i
       arr_len += 1u
     }
-    arr2_offset: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(arr_len, 0u) - 2u
     Box[box].arr.length: arc4.uint16 = arc4_encode(arr_len, arc4.uint16)
+    arr2_offset: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(arr_len, 0u) - 2u
     Box[box].arr2_offset: arc4.uint16 = arc4_encode(arr2_offset, arc4.uint16)
     assert(Box['dynamic_arr_struct'].arr.length == arr_len, comment="expected arr length to be correct")
     assert(Box['dynamic_arr_struct'].arr2.length == 0u, comment="expected arr2 length to be correct")
@@ -165,6 +165,18 @@ contract BoxContract
     size: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(arr_len, arr2_len)
     box_resize('dynamic_arr_struct', size)
     return Box['dynamic_arr_struct'].arr.length
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.nested_read(): uint64
+  {
+    box: box_key = 'box'
+    a: uint64 = Box[box].a
+    b: uint64 = Box[box].b
+    arr_0_0: uint64 = Box[box].inner.arr_arr[0u][0u]
+    c: uint64 = Box[box].inner.c
+    d: uint64 = Box[box].inner.d
+    woah_1_0_0: uint64 = Box[box].woah[1u].arr_arr[0u][0u]
+    return a + b + arr_0_0 + c + d + woah_1_0_0
   }
   
   abimethod examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct(): uint64

@@ -1409,20 +1409,20 @@ subroutine sum_imm_fixed:
         //     total += item.foo
         v-load item_index_internal%0#0                                                            (𝕡) arr#0 | item_index_internal%0#0
         int 16                                                                                    (𝕡) arr#0 | item_index_internal%0#0,16
-        *                                                                                         (𝕡) arr#0 | aggregate%bytes_offset%1#0
-        v-store aggregate%bytes_offset%1#0                                                        (𝕡) arr#0 |
+        *                                                                                         (𝕡) arr#0 | aggregate%bytes_offset%0#0
+        v-store aggregate%bytes_offset%0#0                                                        (𝕡) arr#0 |
         p-load arr#0                                                                              (𝕡) arr#0 | arr#0 (copy)
-        v-load aggregate%bytes_offset%1#0                                                         (𝕡) arr#0 | arr#0 (copy),aggregate%bytes_offset%1#0
-        int 16                                                                                    (𝕡) arr#0 | arr#0 (copy),aggregate%bytes_offset%1#0,16
-        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | aggregate%encoded_element%1#0
-        v-store aggregate%encoded_element%1#0                                                     (𝕡) arr#0 |
+        v-load aggregate%bytes_offset%0#0                                                         (𝕡) arr#0 | arr#0 (copy),aggregate%bytes_offset%0#0
+        int 16                                                                                    (𝕡) arr#0 | arr#0 (copy),aggregate%bytes_offset%0#0,16
+        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | aggregate%encoded_element%0#0
+        v-store aggregate%encoded_element%0#0                                                     (𝕡) arr#0 |
         // array/immutable.py:483
         // total += item.foo
-        v-load aggregate%encoded_element%1#0                                                      (𝕡) arr#0 | aggregate%encoded_element%1#0
+        v-load aggregate%encoded_element%0#0                                                      (𝕡) arr#0 | aggregate%encoded_element%0#0
         // array/immutable.py:482-483
         // for item in arr:
         //     total += item.foo
-        int 0                                                                                     (𝕡) arr#0 | aggregate%encoded_element%1#0,0
+        int 0                                                                                     (𝕡) arr#0 | aggregate%encoded_element%0#0,0
         // array/immutable.py:483
         // total += item.foo
         extract_uint64                                                                            (𝕡) arr#0 | values%1#0
@@ -1433,8 +1433,8 @@ subroutine sum_imm_fixed:
         v-store total#0                                                                           (𝕡) arr#0 |
         // array/immutable.py:484
         // total += item.bar
-        v-load aggregate%encoded_element%1#0                                                      (𝕡) arr#0 | aggregate%encoded_element%1#0
-        int 8                                                                                     (𝕡) arr#0 | aggregate%encoded_element%1#0,8
+        v-load aggregate%encoded_element%0#0                                                      (𝕡) arr#0 | aggregate%encoded_element%0#0
+        int 8                                                                                     (𝕡) arr#0 | aggregate%encoded_element%0#0,8
         extract_uint64                                                                            (𝕡) arr#0 | values%2#0
         v-store values%2#0                                                                        (𝕡) arr#0 |
         v-load total#0                                                                            (𝕡) arr#0 | total#0
@@ -2655,18 +2655,18 @@ subroutine test_fixed_size_tuple_array:
         v-store aggregate%encoded_element%2#0
         v-load aggregate%encoded_element%2#0                                                      aggregate%encoded_element%2#0
         int 0                                                                                     aggregate%encoded_element%2#0,0
-        extract_uint64                                                                            aggregate%item0%3#0
-        v-store aggregate%item0%3#0
+        extract_uint64                                                                            aggregate%item0%2#0
+        v-store aggregate%item0%2#0
         v-load aggregate%encoded_element%2#0                                                      aggregate%encoded_element%2#0
         int 8                                                                                     aggregate%encoded_element%2#0,8
-        extract_uint64                                                                            aggregate%item1%3#0
-        v-store aggregate%item1%3#0
-        v-load aggregate%item0%3#0                                                                aggregate%item0%3#0
-        int 1                                                                                     aggregate%item0%3#0,1
+        extract_uint64                                                                            aggregate%item1%2#0
+        v-store aggregate%item1%2#0
+        v-load aggregate%item0%2#0                                                                aggregate%item0%2#0
+        int 1                                                                                     aggregate%item0%2#0,1
         ==                                                                                        tmp%21#0
         v-store tmp%21#0
-        v-load aggregate%item1%3#0                                                                aggregate%item1%3#0
-        int 2                                                                                     aggregate%item1%3#0,2
+        v-load aggregate%item1%2#0                                                                aggregate%item1%2#0
+        int 2                                                                                     aggregate%item1%2#0,2
         ==                                                                                        tmp%22#0
         v-store tmp%22#0
         v-load tmp%21#0                                                                           tmp%21#0
@@ -2692,18 +2692,18 @@ subroutine test_fixed_size_tuple_array:
         v-store aggregate%encoded_element%3#0
         v-load aggregate%encoded_element%3#0                                                      aggregate%encoded_element%3#0
         int 0                                                                                     aggregate%encoded_element%3#0,0
-        extract_uint64                                                                            aggregate%item0%4#0
-        v-store aggregate%item0%4#0
+        extract_uint64                                                                            aggregate%item0%3#0
+        v-store aggregate%item0%3#0
         v-load aggregate%encoded_element%3#0                                                      aggregate%encoded_element%3#0
         int 8                                                                                     aggregate%encoded_element%3#0,8
-        extract_uint64                                                                            aggregate%item1%4#0
-        v-store aggregate%item1%4#0
-        v-load aggregate%item0%4#0                                                                aggregate%item0%4#0
-        int 4                                                                                     aggregate%item0%4#0,4
+        extract_uint64                                                                            aggregate%item1%3#0
+        v-store aggregate%item1%3#0
+        v-load aggregate%item0%3#0                                                                aggregate%item0%3#0
+        int 4                                                                                     aggregate%item0%3#0,4
         ==                                                                                        tmp%26#0
         v-store tmp%26#0
-        v-load aggregate%item1%4#0                                                                aggregate%item1%4#0
-        int 5                                                                                     aggregate%item1%4#0,5
+        v-load aggregate%item1%3#0                                                                aggregate%item1%3#0
+        int 5                                                                                     aggregate%item1%3#0,5
         ==                                                                                        tmp%27#0
         v-store tmp%27#0
         v-load tmp%26#0                                                                           tmp%26#0
@@ -3101,36 +3101,36 @@ subroutine test_dynamic_sized_tuple_array:
         v-load aggregate%array_head_and_tail%1#0                                                  aggregate%array_head_and_tail%1#0
         v-load aggregate%item_offset%1#0                                                          aggregate%array_head_and_tail%1#0,aggregate%item_offset%1#0
         v-load aggregate%end_offset%1#0                                                           aggregate%array_head_and_tail%1#0,aggregate%item_offset%1#0,aggregate%end_offset%1#0
+        substring3                                                                                aggregate%substring3%2#0
+        v-store aggregate%substring3%2#0
+        v-load aggregate%substring3%2#0                                                           aggregate%substring3%2#0
+        int 0                                                                                     aggregate%substring3%2#0,0
+        extract_uint64                                                                            aggregate%item0%1#0
+        v-store aggregate%item0%1#0
+        v-load aggregate%substring3%2#0                                                           aggregate%substring3%2#0
+        int 8                                                                                     aggregate%substring3%2#0,8
+        extract_uint16                                                                            aggregate%extract_uint16%1#0
+        v-store aggregate%extract_uint16%1#0
+        v-load aggregate%substring3%2#0                                                           aggregate%substring3%2#0
+        len                                                                                       aggregate%len%1#0
+        v-store aggregate%len%1#0
+        v-load aggregate%substring3%2#0                                                           aggregate%substring3%2#0
+        v-load aggregate%extract_uint16%1#0                                                       aggregate%substring3%2#0,aggregate%extract_uint16%1#0
+        v-load aggregate%len%1#0                                                                  aggregate%substring3%2#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
         substring3                                                                                aggregate%substring3%3#0
         v-store aggregate%substring3%3#0
         v-load aggregate%substring3%3#0                                                           aggregate%substring3%3#0
-        int 0                                                                                     aggregate%substring3%3#0,0
-        extract_uint64                                                                            aggregate%item0%2#0
-        v-store aggregate%item0%2#0
-        v-load aggregate%substring3%3#0                                                           aggregate%substring3%3#0
-        int 8                                                                                     aggregate%substring3%3#0,8
-        extract_uint16                                                                            aggregate%extract_uint16%2#0
-        v-store aggregate%extract_uint16%2#0
-        v-load aggregate%substring3%3#0                                                           aggregate%substring3%3#0
-        len                                                                                       aggregate%len%2#0
-        v-store aggregate%len%2#0
-        v-load aggregate%substring3%3#0                                                           aggregate%substring3%3#0
-        v-load aggregate%extract_uint16%2#0                                                       aggregate%substring3%3#0,aggregate%extract_uint16%2#0
-        v-load aggregate%len%2#0                                                                  aggregate%substring3%3#0,aggregate%extract_uint16%2#0,aggregate%len%2#0
-        substring3                                                                                aggregate%substring3%4#0
-        v-store aggregate%substring3%4#0
-        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
-        extract 2 0                                                                               aggregate%item1%2#0
-        v-store aggregate%item1%2#0
-        v-load aggregate%item0%2#0                                                                aggregate%item0%2#0
-        int 1                                                                                     aggregate%item0%2#0,1
+        extract 2 0                                                                               aggregate%item1%1#0
+        v-store aggregate%item1%1#0
+        v-load aggregate%item0%1#0                                                                aggregate%item0%1#0
+        int 1                                                                                     aggregate%item0%1#0,1
         ==                                                                                        tmp%17#0
         v-store tmp%17#0
         int 0                                                                                     0
         bzero                                                                                     tmp%18#0
         v-store tmp%18#0
-        v-load aggregate%item1%2#0                                                                aggregate%item1%2#0
-        v-load tmp%18#0                                                                           aggregate%item1%2#0,tmp%18#0
+        v-load aggregate%item1%1#0                                                                aggregate%item1%1#0
+        v-load tmp%18#0                                                                           aggregate%item1%1#0,tmp%18#0
         ==                                                                                        tmp%19#0
         v-store tmp%19#0
         v-load tmp%17#0                                                                           tmp%17#0
@@ -3173,36 +3173,36 @@ subroutine test_dynamic_sized_tuple_array:
         v-load aggregate%array_head_and_tail%1#0                                                  aggregate%array_head_and_tail%1#0
         v-load aggregate%item_offset%2#0                                                          aggregate%array_head_and_tail%1#0,aggregate%item_offset%2#0
         v-load aggregate%end_offset%2#0                                                           aggregate%array_head_and_tail%1#0,aggregate%item_offset%2#0,aggregate%end_offset%2#0
+        substring3                                                                                aggregate%substring3%4#0
+        v-store aggregate%substring3%4#0
+        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
+        int 0                                                                                     aggregate%substring3%4#0,0
+        extract_uint64                                                                            aggregate%item0%2#0
+        v-store aggregate%item0%2#0
+        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
+        int 8                                                                                     aggregate%substring3%4#0,8
+        extract_uint16                                                                            aggregate%extract_uint16%2#0
+        v-store aggregate%extract_uint16%2#0
+        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
+        len                                                                                       aggregate%len%2#0
+        v-store aggregate%len%2#0
+        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
+        v-load aggregate%extract_uint16%2#0                                                       aggregate%substring3%4#0,aggregate%extract_uint16%2#0
+        v-load aggregate%len%2#0                                                                  aggregate%substring3%4#0,aggregate%extract_uint16%2#0,aggregate%len%2#0
         substring3                                                                                aggregate%substring3%5#0
         v-store aggregate%substring3%5#0
         v-load aggregate%substring3%5#0                                                           aggregate%substring3%5#0
-        int 0                                                                                     aggregate%substring3%5#0,0
-        extract_uint64                                                                            aggregate%item0%3#0
-        v-store aggregate%item0%3#0
-        v-load aggregate%substring3%5#0                                                           aggregate%substring3%5#0
-        int 8                                                                                     aggregate%substring3%5#0,8
-        extract_uint16                                                                            aggregate%extract_uint16%3#0
-        v-store aggregate%extract_uint16%3#0
-        v-load aggregate%substring3%5#0                                                           aggregate%substring3%5#0
-        len                                                                                       aggregate%len%3#0
-        v-store aggregate%len%3#0
-        v-load aggregate%substring3%5#0                                                           aggregate%substring3%5#0
-        v-load aggregate%extract_uint16%3#0                                                       aggregate%substring3%5#0,aggregate%extract_uint16%3#0
-        v-load aggregate%len%3#0                                                                  aggregate%substring3%5#0,aggregate%extract_uint16%3#0,aggregate%len%3#0
-        substring3                                                                                aggregate%substring3%6#0
-        v-store aggregate%substring3%6#0
-        v-load aggregate%substring3%6#0                                                           aggregate%substring3%6#0
-        extract 2 0                                                                               aggregate%item1%3#0
-        v-store aggregate%item1%3#0
-        v-load aggregate%item0%3#0                                                                aggregate%item0%3#0
-        int 4                                                                                     aggregate%item0%3#0,4
+        extract 2 0                                                                               aggregate%item1%2#0
+        v-store aggregate%item1%2#0
+        v-load aggregate%item0%2#0                                                                aggregate%item0%2#0
+        int 4                                                                                     aggregate%item0%2#0,4
         ==                                                                                        tmp%23#0
         v-store tmp%23#0
         int 3                                                                                     3
         bzero                                                                                     tmp%24#0
         v-store tmp%24#0
-        v-load aggregate%item1%3#0                                                                aggregate%item1%3#0
-        v-load tmp%24#0                                                                           aggregate%item1%3#0,tmp%24#0
+        v-load aggregate%item1%2#0                                                                aggregate%item1%2#0
+        v-load tmp%24#0                                                                           aggregate%item1%2#0,tmp%24#0
         ==                                                                                        tmp%25#0
         v-store tmp%25#0
         v-load tmp%23#0                                                                           tmp%23#0
@@ -3456,33 +3456,33 @@ subroutine test_dynamic_sized_named_tuple_array:
         v-load aggregate%array_head_and_tail%1#0                                                  aggregate%array_head_and_tail%1#0
         v-load aggregate%item_offset%1#0                                                          aggregate%array_head_and_tail%1#0,aggregate%item_offset%1#0
         v-load aggregate%end_offset%1#0                                                           aggregate%array_head_and_tail%1#0,aggregate%item_offset%1#0,aggregate%end_offset%1#0
+        substring3                                                                                aggregate%substring3%2#0
+        v-store aggregate%substring3%2#0
+        v-load aggregate%substring3%2#0                                                           aggregate%substring3%2#0
+        int 0                                                                                     aggregate%substring3%2#0,0
+        extract_uint64                                                                            aggregate%item0%1#0
+        v-store aggregate%item0%1#0
+        v-load aggregate%substring3%2#0                                                           aggregate%substring3%2#0
+        int 8                                                                                     aggregate%substring3%2#0,8
+        extract_uint16                                                                            aggregate%extract_uint16%1#0
+        v-store aggregate%extract_uint16%1#0
+        v-load aggregate%substring3%2#0                                                           aggregate%substring3%2#0
+        len                                                                                       aggregate%len%1#0
+        v-store aggregate%len%1#0
+        v-load aggregate%substring3%2#0                                                           aggregate%substring3%2#0
+        v-load aggregate%extract_uint16%1#0                                                       aggregate%substring3%2#0,aggregate%extract_uint16%1#0
+        v-load aggregate%len%1#0                                                                  aggregate%substring3%2#0,aggregate%extract_uint16%1#0,aggregate%len%1#0
         substring3                                                                                aggregate%substring3%3#0
         v-store aggregate%substring3%3#0
         v-load aggregate%substring3%3#0                                                           aggregate%substring3%3#0
-        int 0                                                                                     aggregate%substring3%3#0,0
-        extract_uint64                                                                            aggregate%item0%2#0
-        v-store aggregate%item0%2#0
-        v-load aggregate%substring3%3#0                                                           aggregate%substring3%3#0
-        int 8                                                                                     aggregate%substring3%3#0,8
-        extract_uint16                                                                            aggregate%extract_uint16%2#0
-        v-store aggregate%extract_uint16%2#0
-        v-load aggregate%substring3%3#0                                                           aggregate%substring3%3#0
-        len                                                                                       aggregate%len%2#0
-        v-store aggregate%len%2#0
-        v-load aggregate%substring3%3#0                                                           aggregate%substring3%3#0
-        v-load aggregate%extract_uint16%2#0                                                       aggregate%substring3%3#0,aggregate%extract_uint16%2#0
-        v-load aggregate%len%2#0                                                                  aggregate%substring3%3#0,aggregate%extract_uint16%2#0,aggregate%len%2#0
-        substring3                                                                                aggregate%substring3%4#0
-        v-store aggregate%substring3%4#0
-        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
-        extract 2 0                                                                               aggregate%item1%2#0
-        v-store aggregate%item1%2#0
-        v-load aggregate%item0%2#0                                                                aggregate%item0%2#0
-        int 1                                                                                     aggregate%item0%2#0,1
+        extract 2 0                                                                               aggregate%item1%1#0
+        v-store aggregate%item1%1#0
+        v-load aggregate%item0%1#0                                                                aggregate%item0%1#0
+        int 1                                                                                     aggregate%item0%1#0,1
         ==                                                                                        tmp%17#0
         v-store tmp%17#0
-        v-load aggregate%item1%2#0                                                                aggregate%item1%2#0
-        byte ""                                                                                   aggregate%item1%2#0,""
+        v-load aggregate%item1%1#0                                                                aggregate%item1%1#0
+        byte ""                                                                                   aggregate%item1%1#0,""
         ==                                                                                        tmp%18#0
         v-store tmp%18#0
         v-load tmp%17#0                                                                           tmp%17#0
@@ -3525,33 +3525,33 @@ subroutine test_dynamic_sized_named_tuple_array:
         v-load aggregate%array_head_and_tail%1#0                                                  aggregate%array_head_and_tail%1#0
         v-load aggregate%item_offset%2#0                                                          aggregate%array_head_and_tail%1#0,aggregate%item_offset%2#0
         v-load aggregate%end_offset%2#0                                                           aggregate%array_head_and_tail%1#0,aggregate%item_offset%2#0,aggregate%end_offset%2#0
+        substring3                                                                                aggregate%substring3%4#0
+        v-store aggregate%substring3%4#0
+        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
+        int 0                                                                                     aggregate%substring3%4#0,0
+        extract_uint64                                                                            aggregate%item0%2#0
+        v-store aggregate%item0%2#0
+        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
+        int 8                                                                                     aggregate%substring3%4#0,8
+        extract_uint16                                                                            aggregate%extract_uint16%2#0
+        v-store aggregate%extract_uint16%2#0
+        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
+        len                                                                                       aggregate%len%2#0
+        v-store aggregate%len%2#0
+        v-load aggregate%substring3%4#0                                                           aggregate%substring3%4#0
+        v-load aggregate%extract_uint16%2#0                                                       aggregate%substring3%4#0,aggregate%extract_uint16%2#0
+        v-load aggregate%len%2#0                                                                  aggregate%substring3%4#0,aggregate%extract_uint16%2#0,aggregate%len%2#0
         substring3                                                                                aggregate%substring3%5#0
         v-store aggregate%substring3%5#0
         v-load aggregate%substring3%5#0                                                           aggregate%substring3%5#0
-        int 0                                                                                     aggregate%substring3%5#0,0
-        extract_uint64                                                                            aggregate%item0%3#0
-        v-store aggregate%item0%3#0
-        v-load aggregate%substring3%5#0                                                           aggregate%substring3%5#0
-        int 8                                                                                     aggregate%substring3%5#0,8
-        extract_uint16                                                                            aggregate%extract_uint16%3#0
-        v-store aggregate%extract_uint16%3#0
-        v-load aggregate%substring3%5#0                                                           aggregate%substring3%5#0
-        len                                                                                       aggregate%len%3#0
-        v-store aggregate%len%3#0
-        v-load aggregate%substring3%5#0                                                           aggregate%substring3%5#0
-        v-load aggregate%extract_uint16%3#0                                                       aggregate%substring3%5#0,aggregate%extract_uint16%3#0
-        v-load aggregate%len%3#0                                                                  aggregate%substring3%5#0,aggregate%extract_uint16%3#0,aggregate%len%3#0
-        substring3                                                                                aggregate%substring3%6#0
-        v-store aggregate%substring3%6#0
-        v-load aggregate%substring3%6#0                                                           aggregate%substring3%6#0
-        extract 2 0                                                                               aggregate%item1%3#0
-        v-store aggregate%item1%3#0
-        v-load aggregate%item0%3#0                                                                aggregate%item0%3#0
-        int 4                                                                                     aggregate%item0%3#0,4
+        extract 2 0                                                                               aggregate%item1%2#0
+        v-store aggregate%item1%2#0
+        v-load aggregate%item0%2#0                                                                aggregate%item0%2#0
+        int 4                                                                                     aggregate%item0%2#0,4
         ==                                                                                        tmp%22#0
         v-store tmp%22#0
-        v-load aggregate%item1%3#0                                                                aggregate%item1%3#0
-        byte "   "                                                                                aggregate%item1%3#0,"   "
+        v-load aggregate%item1%2#0                                                                aggregate%item1%2#0
+        byte "   "                                                                                aggregate%item1%2#0,"   "
         ==                                                                                        tmp%23#0
         v-store tmp%23#0
         v-load tmp%22#0                                                                           tmp%22#0

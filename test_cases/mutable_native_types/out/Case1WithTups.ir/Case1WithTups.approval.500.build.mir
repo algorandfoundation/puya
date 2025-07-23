@@ -507,14 +507,6 @@ subroutine add_tup:
         assert // too many tups                                                                               (𝕡) tup.a#0,tup.b#0 |
         // mutable_native_types/case1_with_tups.py:60
         // self.tup_bag.value.items[self.tup_bag.value.count] = tup
-        byte "tup_bag"                                                                                        (𝕡) tup.a#0,tup.b#0 | "tup_bag"
-        int 0                                                                                                 (𝕡) tup.a#0,tup.b#0 | "tup_bag",0
-        int 8                                                                                                 (𝕡) tup.a#0,tup.b#0 | "tup_bag",0,8
-        box_extract                                                                                           (𝕡) tup.a#0,tup.b#0 | box%box_extract%1#0
-        v-store box%box_extract%1#0                                                                           (𝕡) tup.a#0,tup.b#0 |
-        v-load box%box_extract%1#0                                                                            (𝕡) tup.a#0,tup.b#0 | box%box_extract%1#0
-        btoi                                                                                                  (𝕡) tup.a#0,tup.b#0 | values%1#0
-        v-store values%1#0                                                                                    (𝕡) tup.a#0,tup.b#0 |
         p-load tup.a#0                                                                                        (𝕡) tup.a#0,tup.b#0 | tup.a#0 (copy)
         itob                                                                                                  (𝕡) tup.a#0,tup.b#0 | aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0                                                                    (𝕡) tup.a#0,tup.b#0 |
@@ -525,14 +517,8 @@ subroutine add_tup:
         v-load aggregate%val_as_bytes%1#0                                                                     (𝕡) tup.a#0,tup.b#0 | aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
         concat                                                                                                (𝕡) tup.a#0,tup.b#0 | aggregate%head%1#0
         v-store aggregate%head%1#0                                                                            (𝕡) tup.a#0,tup.b#0 |
-        v-load values%1#0                                                                                     (𝕡) tup.a#0,tup.b#0 | values%1#0
-        int 8                                                                                                 (𝕡) tup.a#0,tup.b#0 | values%1#0,8
-        <                                                                                                     (𝕡) tup.a#0,tup.b#0 | box%index_ok%0#0
-        v-store box%index_ok%0#0                                                                              (𝕡) tup.a#0,tup.b#0 |
-        v-load box%index_ok%0#0                                                                               (𝕡) tup.a#0,tup.b#0 | box%index_ok%0#0
-        assert // index out of bounds                                                                         (𝕡) tup.a#0,tup.b#0 |
-        v-load values%1#0                                                                                     (𝕡) tup.a#0,tup.b#0 | values%1#0
-        int 16                                                                                                (𝕡) tup.a#0,tup.b#0 | values%1#0,16
+        v-load values%0#0                                                                                     (𝕡) tup.a#0,tup.b#0 | values%0#0
+        int 16                                                                                                (𝕡) tup.a#0,tup.b#0 | values%0#0,16
         *                                                                                                     (𝕡) tup.a#0,tup.b#0 | box%index_bytes_offset%0#0
         v-store box%index_bytes_offset%0#0                                                                    (𝕡) tup.a#0,tup.b#0 |
         int 8                                                                                                 (𝕡) tup.a#0,tup.b#0 | 8
@@ -1046,18 +1032,13 @@ subroutine get_3_tups:
         v-store tmp%2#0                                                                                       (𝕡) start#0 |
         // mutable_native_types/case1_with_tups.py:104
         // items = self.tup_bag.value.items.copy()
-        byte "tup_bag"                                                                                        (𝕡) start#0 | "tup_bag"
-        int 8                                                                                                 (𝕡) start#0 | "tup_bag",8
-        int 128                                                                                               (𝕡) start#0 | "tup_bag",8,128
-        box_extract                                                                                           (𝕡) start#0 | box%box_extract%3#0
-        v-store box%box_extract%3#0                                                                           (𝕡) start#0 |
         v-load tmp%2#0                                                                                        (𝕡) start#0 | tmp%2#0
         int 16                                                                                                (𝕡) start#0 | tmp%2#0,16
         *                                                                                                     (𝕡) start#0 | aggregate%bytes_offset%1#0
         v-store aggregate%bytes_offset%1#0                                                                    (𝕡) start#0 |
-        v-load box%box_extract%3#0                                                                            (𝕡) start#0 | box%box_extract%3#0
-        v-load aggregate%bytes_offset%1#0                                                                     (𝕡) start#0 | box%box_extract%3#0,aggregate%bytes_offset%1#0
-        int 16                                                                                                (𝕡) start#0 | box%box_extract%3#0,aggregate%bytes_offset%1#0,16
+        v-load box%box_extract%2#0                                                                            (𝕡) start#0 | box%box_extract%2#0
+        v-load aggregate%bytes_offset%1#0                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%bytes_offset%1#0
+        int 16                                                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%bytes_offset%1#0,16
         extract3 // on error: index access is out of bounds                                                   (𝕡) start#0 | aggregate%encoded_element%1#0
         v-store aggregate%encoded_element%1#0                                                                 (𝕡) start#0 |
         // mutable_native_types/case1_with_tups.py:109
@@ -1078,18 +1059,13 @@ subroutine get_3_tups:
         v-store tmp%3#0                                                                                       (𝕡) start#0 |
         // mutable_native_types/case1_with_tups.py:104
         // items = self.tup_bag.value.items.copy()
-        byte "tup_bag"                                                                                        (𝕡) start#0 | "tup_bag"
-        int 8                                                                                                 (𝕡) start#0 | "tup_bag",8
-        int 128                                                                                               (𝕡) start#0 | "tup_bag",8,128
-        box_extract                                                                                           (𝕡) start#0 | box%box_extract%4#0
-        v-store box%box_extract%4#0                                                                           (𝕡) start#0 |
         v-load tmp%3#0                                                                                        (𝕡) start#0 | tmp%3#0
         int 16                                                                                                (𝕡) start#0 | tmp%3#0,16
         *                                                                                                     (𝕡) start#0 | aggregate%bytes_offset%2#0
         v-store aggregate%bytes_offset%2#0                                                                    (𝕡) start#0 |
-        v-load box%box_extract%4#0                                                                            (𝕡) start#0 | box%box_extract%4#0
-        v-load aggregate%bytes_offset%2#0                                                                     (𝕡) start#0 | box%box_extract%4#0,aggregate%bytes_offset%2#0
-        int 16                                                                                                (𝕡) start#0 | box%box_extract%4#0,aggregate%bytes_offset%2#0,16
+        v-load box%box_extract%2#0                                                                            (𝕡) start#0 | box%box_extract%2#0
+        v-load aggregate%bytes_offset%2#0                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%bytes_offset%2#0
+        int 16                                                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%bytes_offset%2#0,16
         extract3 // on error: index access is out of bounds                                                   (𝕡) start#0 | aggregate%encoded_element%2#0
         v-store aggregate%encoded_element%2#0                                                                 (𝕡) start#0 |
         // mutable_native_types/case1_with_tups.py:110
