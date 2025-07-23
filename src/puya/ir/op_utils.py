@@ -520,6 +520,14 @@ class OpFactory:
         )
         return result
 
+    def box_extract_u16(
+        self,
+        box_key: Value | bytes,
+        offset: Value | int,
+    ) -> Register:
+        u16_bytes = self.box_extract(box_key, offset, 2, PrimitiveIRType.bytes)
+        return self.btoi(u16_bytes)
+
     def box_replace(
         self, box_key: Value | bytes, offset: Value | int, value: Value | bytes
     ) -> Intrinsic:
