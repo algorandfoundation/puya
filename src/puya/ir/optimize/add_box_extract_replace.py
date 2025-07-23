@@ -6,7 +6,7 @@ import attrs
 from puya import log
 from puya.algo_constants import MAX_BYTES_LENGTH
 from puya.errors import InternalError
-from puya.ir import encodings, models
+from puya.ir import models
 from puya.ir.encodings import ArrayEncoding, BoolEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
 from puya.ir.op_utils import OpFactory, assert_value
@@ -122,7 +122,8 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             return read
 
         aggregate_encoding = read.base_type.encoding
-        if not _can_box_extract(aggregate_encoding, list(read.indexes)):
+        # can only read fixed size elements
+        if read.ir_type.num_bytes is None:
             return read
         # box_extract is only required if the aggregate doesn't fit on the stack or aggregate
         # is dynamic
@@ -185,29 +186,6 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             location=merged_loc,
         )
         return None
-
-
-def _can_box_extract(
-    encoding: encodings.Encoding,
-    indexes: list[int | models.Value],
-    *,
-    allow_dynamic_array: bool = True,
-) -> bool:
-    if indexes:
-        index = indexes.pop(0)
-        if isinstance(encoding, encodings.TupleEncoding) and isinstance(index, int):
-            return _can_box_extract(
-                encoding.elements[index], allow_dynamic_array=allow_dynamic_array, indexes=indexes
-            )
-        else:
-            assert isinstance(encoding, encodings.ArrayEncoding), "expected array"
-            return _can_box_extract(
-                encoding.element,
-                indexes=indexes,
-                allow_dynamic_array=allow_dynamic_array and encoding.is_fixed,
-            )
-    else:
-        return encoding.is_fixed
 
 
 def _combine_box_and_aggregate_read(
@@ -353,7 +331,6 @@ def _get_fixed_byte_offset(
             # then any following array read will need a bounds check
             check_array_bounds = check_array_bounds or has_trailing_data
         elif isinstance(encoding, ArrayEncoding):
-            assert encoding.element.is_fixed, "expected fixed element"
             if check_array_bounds:
                 if encoding.length_header:
                     size: models.Value | int = factory.box_extract_u16(box_key, box_offset)
@@ -364,7 +341,6 @@ def _get_fixed_byte_offset(
                 assert_value(
                     context, index_ok, error_message="index out of bounds", source_location=loc
                 )
-            # top level arrays can have a length header as long as the element is fixed
             if encoding.length_header:
                 header_offset = 2
             else:
@@ -377,10 +353,17 @@ def _get_fixed_byte_offset(
                 index_offset = factory.add(index, header_offset * 8)
                 return _get_fixed_byte_offset_from_bit_offset(factory, box_offset, index_offset)
 
-            index_bytes_offset = factory.mul(
-                index, encoding.checked_num_bytes, "index_bytes_offset"
-            )
-            element_offset = factory.add(index_bytes_offset, header_offset, "element_offset")
+            if encoding.is_fixed:
+                index_bytes_offset = factory.mul(
+                    index, encoding.checked_num_bytes, "index_bytes_offset"
+                )
+                element_offset = factory.add(index_bytes_offset, header_offset, "element_offset")
+            else:
+                index_offset = factory.mul(2, index)
+                # the offset into head from the start of this element that contains the data offset
+                element_offset_offset = factory.add(header_offset, index_offset)
+                box_absolute_offset_offset = factory.add(box_offset, element_offset_offset)
+                element_offset = factory.box_extract_u16(box_key, box_absolute_offset_offset)
 
             # always need to check array bounds after the first array read
             check_array_bounds = True

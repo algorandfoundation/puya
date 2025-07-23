@@ -59,6 +59,19 @@ class FixedArrayInAStruct(Struct):
     # arr2_offset
 
 
+class InnerStruct(Struct):
+    c: UInt64
+    arr_arr: Array[Array[UInt64]]
+    d: UInt64
+
+
+class NestedStruct(Struct):
+    a: UInt64
+    inner: InnerStruct
+    woah: Array[InnerStruct]
+    b: UInt64
+
+
 class BoxContract(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.box_a = Box(UInt64)
@@ -179,7 +192,8 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def append_dynamic_arr_struct(self, times: UInt64) -> UInt64:
-        # TODO: support append using high level array operations
+        # TODO: support append using high level array operations, instead of
+        #       relying on struct layout tricks with FixedArrayInAStruct
         assert self.dynamic_arr_struct.value.b == 2, "expected 2"
         arr_len = self.dynamic_arr_struct.value.arr.length
         arr2_len = self.dynamic_arr_struct.value.arr2.length
@@ -188,17 +202,20 @@ class BoxContract(arc4.ARC4Contract):
         self.dynamic_arr_struct.ref.resize(
             get_dynamic_arr2_struct_byte_index(arr_len + times, arr2_len)
         )
-        # splice in new data
+        # splice in zero bytes so existing data is in correct location
         self.dynamic_arr_struct.ref.splice(
             get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
         )
+        # update using a box typed as a FixedArray
         box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
         for i in urange(times):
             box.value.arr.arr[arr_len] = i
             arr_len += 1
-        arr2_offset = get_dynamic_arr2_struct_byte_index(arr_len, UInt64(0)) - 2
         box.value.arr.length = arc4.UInt16(arr_len)
+        # when calculating arr2_offset need to sub 2 from 0th index to account for length bytes
+        arr2_offset = get_dynamic_arr2_struct_byte_index(arr_len, UInt64(0)) - 2
         box.value.arr2_offset = arc4.UInt16(arr2_offset)
+
         assert (
             self.dynamic_arr_struct.value.arr.length == arr_len
         ), "expected arr length to be correct"
@@ -207,7 +224,8 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod
     def pop_dynamic_arr_struct(self, times: UInt64) -> UInt64:
-        # TODO: support pop using high level array operations
+        # TODO: support pop using high level array operations, instead of
+        #       relying on struct layout tricks with FixedArrayInAStruct
 
         arr_len = self.dynamic_arr_struct.value.arr.length - times
         arr2_len = self.dynamic_arr_struct.value.arr2.length
@@ -225,6 +243,18 @@ class BoxContract(arc4.ARC4Contract):
         self.dynamic_arr_struct.ref.resize(size)
 
         return self.dynamic_arr_struct.value.arr.length
+
+    @arc4.abimethod()
+    def nested_read(self) -> UInt64:
+        box = Box(NestedStruct, key="box")
+        a = box.value.a
+        b = box.value.b
+        arr_0_0 = box.value.inner.arr_arr[0][0]
+        c = box.value.inner.c
+        d = box.value.inner.d
+        woah_1_0_0 = box.value.woah[1].arr_arr[0][0]
+
+        return a + b + arr_0_0 + c + d + woah_1_0_0
 
     @arc4.abimethod
     def sum_dynamic_arr_struct(self) -> UInt64:
