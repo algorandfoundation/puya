@@ -306,9 +306,6 @@ def _get_fixed_byte_offset(
         # bits can't be read or written directly and should have been handled already
         assert not encoding.is_bit, "can't read bits directly"
 
-    if encoding.checked_num_bytes > MAX_BYTES_LENGTH:
-        logger.warning(f"value exceeds {MAX_BYTES_LENGTH} bytes", location=loc)
-
     return _FixedOffset(offset=box_offset, encoding=encoding, remaining_indexes=indexes)
 
 
