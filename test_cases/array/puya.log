@@ -14074,6 +14074,8 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
+array/immutable.py:483:18 debug: replacing extract_value(item#0, 0) with extract_value(arr#0, item_index_internal%0#1, 0)
+array/immutable.py:484:18 debug: replacing extract_value(item#0, 1) with extract_value(arr#0, item_index_internal%0#1, 1)
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -14655,6 +14657,7 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
+array/immutable.py:520 debug: replacing extract_value(inner_arr#0, item_index_internal%0#4) with extract_value(arr#2, item_index_internal%0#1, item_index_internal%0#4)
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
@@ -15442,6 +15445,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let item#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -16244,6 +16248,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let item#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -17013,6 +17018,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Not removing unused assignment since source is not marked as pure: let item#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -17845,11 +17851,13 @@ debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable array_length%0#0
+debug: Removing unused variable item#0
+debug: Removing unused variable aggregate%bytes_offset%0#0
 debug: Optimizer: Intrinsic Simplifier
-debug: Simplified (btoi aggregate%extract%0#0) to (extract_uint64 item#0 0u)
-debug: Simplified (btoi aggregate%extract%1#0) to (extract_uint64 item#0 8u)
-debug: Simplified (extract3 item#0 0u 8u) to ((extract 0 8) item#0)
-debug: Simplified (extract3 item#0 8u 8u) to ((extract 8 8) item#0)
+debug: Simplified (btoi aggregate%extract%0#0) to (extract_uint64 aggregate%encoded_element%1#0 0u)
+debug: Simplified (btoi aggregate%extract%1#0) to (extract_uint64 aggregate%encoded_element%2#0 8u)
+debug: Simplified (extract3 aggregate%encoded_element%1#0 0u 8u) to ((extract 0 8) aggregate%encoded_element%1#0)
+debug: Simplified (extract3 aggregate%encoded_element%2#0 8u 8u) to ((extract 8 8) aggregate%encoded_element%2#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -17857,6 +17865,14 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let aggregate%bytes_offset%2#0: uint64 = (* item_index_internal%0#1 16u) with copy of existing registers (Register(source_location=array/immutable.py:482-483, ir_type=uint64, name='aggregate%bytes_offset%1', version=0),)
+debug: Found equivalence set: aggregate%bytes_offset%1#0, aggregate%bytes_offset%2#0
+debug: selected aggregate%bytes_offset%1#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Replacing redundant declaration let aggregate%encoded_element%2#0: bytes = (extract3 arr#0 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds with copy of existing registers (Register(source_location=array/immutable.py:482-483, ir_type=bytes, name='aggregate%encoded_element%1', version=0),)
+debug: Found equivalence set: aggregate%encoded_element%1#0, aggregate%encoded_element%2#0
+debug: selected aggregate%encoded_element%1#0 from equivalence set
+debug: Copy propagation made 2 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -18721,6 +18737,37 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let aggregate%array_head_and_tail%1#0: bytes = ((extract 2 0) arr#2) with copy of existing registers (Register(source_location=array/immutable.py:271, ir_type=bytes, name='aggregate%array_head_and_tail%0', version=0),)
+debug: Replacing redundant declaration let aggregate%item_offset_offset%1#0: uint64 = (* item_index_internal%0#1 2u) with copy of existing registers (Register(source_location=array/immutable.py:271, ir_type=uint64, name='aggregate%item_offset_offset%0', version=0),)
+debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%head%0#0
+debug: selected aggregate%val_as_bytes%0#0 from equivalence set
+debug: Found equivalence set: aggregate%array_head_and_tail%0#0, aggregate%array_head_and_tail%1#0
+debug: selected aggregate%array_head_and_tail%0#0 from equivalence set
+debug: Found equivalence set: aggregate%item_offset_offset%0#0, aggregate%item_offset_offset%1#0
+debug: selected aggregate%item_offset_offset%0#0 from equivalence set
+debug: Found equivalence set: aggregate%val_as_bytes%1#0, aggregate%head%2#0
+debug: selected aggregate%val_as_bytes%1#0 from equivalence set
+debug: Copy propagation made 4 modifications
+debug: Replacing redundant declaration let aggregate%item_offset%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 aggregate%item_offset_offset%0#0) with copy of existing registers (Register(source_location=array/immutable.py:271, ir_type=uint64, name='aggregate%item_offset%0', version=0),)
+debug: Found equivalence set: aggregate%item_offset%0#0, aggregate%item_offset%1#0
+debug: selected aggregate%item_offset%0#0 from equivalence set
+debug: Copy propagation made 2 modifications
+debug: Replacing redundant declaration let aggregate%item_length%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0) with copy of existing registers (Register(source_location=array/immutable.py:271, ir_type=uint64, name='aggregate%item_length%0', version=0),)
+debug: Found equivalence set: aggregate%item_length%0#0, aggregate%item_length%1#0
+debug: selected aggregate%item_length%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Replacing redundant declaration let aggregate%item_length_in_bytes%1#0: uint64 = (* aggregate%item_length%0#0 8u) with copy of existing registers (Register(source_location=array/immutable.py:271, ir_type=uint64, name='aggregate%item_length_in_bytes%0', version=0),)
+debug: Found equivalence set: aggregate%item_length_in_bytes%0#0, aggregate%item_length_in_bytes%1#0
+debug: selected aggregate%item_length_in_bytes%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Replacing redundant declaration let aggregate%item_head_tail_length%1#0: uint64 = (+ aggregate%item_length_in_bytes%0#0 2u) with copy of existing registers (Register(source_location=array/immutable.py:271, ir_type=uint64, name='aggregate%item_head_tail_length%0', version=0),)
+debug: Found equivalence set: aggregate%item_head_tail_length%0#0, aggregate%item_head_tail_length%1#0
+debug: selected aggregate%item_head_tail_length%0#0 from equivalence set
+debug: Copy propagation made 1 modifications
+debug: Replacing redundant declaration let aggregate%item%1#0: bytes = (extract3 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0 aggregate%item_head_tail_length%0#0) with copy of existing registers (Register(source_location=array/immutable.py:271:12-21, ir_type=Encoded(len+uint64[]), name='inner_arr', version=0),)
+debug: Found equivalence set: inner_arr#0, aggregate%item%1#0
+debug: selected inner_arr#0 from equivalence set
+debug: Copy propagation made 1 modifications
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
@@ -19968,10 +20015,6 @@ debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
 debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
-debug: Found equivalence set: aggregate%val_as_bytes%0#0, aggregate%head%0#0
-debug: selected aggregate%val_as_bytes%0#0 from equivalence set
-debug: Found equivalence set: aggregate%val_as_bytes%1#0, aggregate%head%2#0
-debug: selected aggregate%val_as_bytes%1#0 from equivalence set
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%as_bytes%0#0
@@ -23233,18 +23276,18 @@ debug: Inserted dynamic_array_concat_dynamic_element_after_for@8.ops[27]: 'l-sto
 debug: Replaced dynamic_array_concat_dynamic_element_after_for@8.ops[39]: 'v-load tmp%21#0' with 'l-load tmp%21#0'
 debug: Inserted sum_imm_fixed_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced sum_imm_fixed_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
-debug: Inserted sum_imm_fixed_for_body@2.ops[8]: 'l-store-copy item#0 0'
-debug: Replaced sum_imm_fixed_for_body@2.ops[10]: 'v-load item#0' with 'l-load item#0'
-debug: Inserted sum_imm_fixed_for_body@2.ops[3]: 'l-store-copy aggregate%bytes_offset%0#0 0'
-debug: Replaced sum_imm_fixed_for_body@2.ops[6]: 'v-load aggregate%bytes_offset%0#0' with 'l-load aggregate%bytes_offset%0#0'
+debug: Inserted sum_imm_fixed_for_body@2.ops[8]: 'l-store-copy aggregate%encoded_element%1#0 0'
+debug: Replaced sum_imm_fixed_for_body@2.ops[10]: 'v-load aggregate%encoded_element%1#0' with 'l-load aggregate%encoded_element%1#0'
+debug: Inserted sum_imm_fixed_for_body@2.ops[3]: 'l-store-copy aggregate%bytes_offset%1#0 0'
+debug: Replaced sum_imm_fixed_for_body@2.ops[6]: 'v-load aggregate%bytes_offset%1#0' with 'l-load aggregate%bytes_offset%1#0'
 debug: Inserted sum_imm_fixed_for_body@2.ops[14]: 'l-store-copy values%1#0 0'
 debug: Replaced sum_imm_fixed_for_body@2.ops[17]: 'v-load values%1#0' with 'l-load values%1#0'
 debug: Inserted sum_imm_fixed_for_body@2.ops[23]: 'l-store-copy values%2#0 0'
 debug: Replaced sum_imm_fixed_for_body@2.ops[26]: 'v-load values%2#0' with 'l-load values%2#0'
 debug: Inserted sum_imm_fixed_for_body@2.ops[19]: 'l-store-copy total#0 0'
 debug: Replaced sum_imm_fixed_for_body@2.ops[26]: 'v-load total#0' with 'l-load total#0'
-debug: Inserted sum_imm_fixed_for_body@2.ops[12]: 'l-store-copy item#0 0'
-debug: Replaced sum_imm_fixed_for_body@2.ops[22]: 'v-load item#0' with 'l-load item#0'
+debug: Inserted sum_imm_fixed_for_body@2.ops[12]: 'l-store-copy aggregate%encoded_element%1#0 0'
+debug: Replaced sum_imm_fixed_for_body@2.ops[22]: 'v-load aggregate%encoded_element%1#0' with 'l-load aggregate%encoded_element%1#0'
 debug: Inserted sum_imm_fixed_for_body@2.ops[1]: 'l-store-copy item_index_internal%0#0 0'
 debug: Replaced sum_imm_fixed_for_body@2.ops[32]: 'v-load item_index_internal%0#0' with 'l-load item_index_internal%0#0'
 debug: Inserted times_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'

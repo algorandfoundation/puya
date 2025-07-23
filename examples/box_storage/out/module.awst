@@ -14,6 +14,7 @@ contract BoxContract
     ['box_large']: examples.box_storage.contract.LargeStruct
     ['many_ints']: arc4.static_array<uint64, 513>
     ['dynamic_box']: arc4.dynamic_array<uint64>
+    ['dynamic_arr_struct']: examples.box_storage.contract.DynamicArrayInAStruct
   }
   
   subroutine examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init(): bool
@@ -119,6 +120,59 @@ contract BoxContract
   abimethod examples.box_storage.contract.BoxContract.boxes_exist(): tuple<bool,bool,bool,bool>
   {
     return (STATE_EXISTS(Box['box_a']), STATE_EXISTS(Box['b']), STATE_EXISTS(Box[hex<"424F585F43">]), STATE_EXISTS(Box['box_large']))
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.create_dynamic_arr_struct(): void
+  {
+    Box['dynamic_arr_struct']: examples.box_storage.contract.DynamicArrayInAStruct = new examples.box_storage.contract.DynamicArrayInAStruct(a=txn<NumAppArgs>(), arr=new arc4.dynamic_array<uint64>(), b=txn<NumAppArgs>() * 2u)
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.delete_dynamic_arr_struct(): void
+  {
+    STATE_DELETE(Box['dynamic_arr_struct'])
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(times: uint64): uint64
+  {
+    assert(Box['dynamic_arr_struct'].b == 2u, comment="expected 2")
+    box: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('dynamic_arr_struct'))
+    arr_len: uint64 = arc4_decode(Box[box].arr.length, uint64)
+    assert(Box['dynamic_arr_struct'].arr.length == arr_len, comment="expected arr length to be correct")
+    box_resize('dynamic_arr_struct', examples.box_storage.contract.get_dynamic_arr_struct_byte_index(arr_len + times))
+    assert(Box['dynamic_arr_struct'].b == 2u, comment="expected 2")
+    box_splice('dynamic_arr_struct', examples.box_storage.contract.get_dynamic_arr_struct_byte_index(arr_len), 0u, bzero(times * size_of(uint64)))
+    assert(Box['dynamic_arr_struct'].b == 2u, comment="expected 2")
+    for i in range(0u, times, 1u) {
+      Box[box].arr.arr[arr_len]: uint64 = i
+      arr_len += 1u
+    }
+    Box[box].arr.length: arc4.uint16 = arc4_encode(arr_len, arc4.uint16)
+    assert(Box['dynamic_arr_struct'].b == 2u, comment="expected 2")
+    assert(Box['dynamic_arr_struct'].arr.length == arr_len, comment="expected arr length to be correct")
+    return Box['dynamic_arr_struct'].arr.length
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct(times: uint64): uint64
+  {
+    box: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('dynamic_arr_struct'))
+    arr_len: uint64 = arc4_decode(Box[box].arr.length, uint64) - times
+    Box[box].arr.length: arc4.uint16 = arc4_encode(arr_len, arc4.uint16)
+    index: uint64 = examples.box_storage.contract.get_dynamic_arr_struct_byte_index(arr_len)
+    box_splice(box, index, times * size_of(uint64), hex<"">)
+    size: uint64 = examples.box_storage.contract.get_dynamic_arr_struct_byte_index(arr_len)
+    box_resize('dynamic_arr_struct', size)
+    return Box['dynamic_arr_struct'].arr.length
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct(): uint64
+  {
+    assert(Box['dynamic_arr_struct'].a == 1u, comment="expected 1")
+    assert(Box['dynamic_arr_struct'].b == 2u, comment="expected 2")
+    total: uint64 = Box['dynamic_arr_struct'].a + Box['dynamic_arr_struct'].b
+    for val in Box['dynamic_arr_struct'].arr {
+      total += val
+    }
+    return total
   }
   
   abimethod examples.box_storage.contract.BoxContract.create_dynamic_box(): void
@@ -285,4 +339,11 @@ subroutine get_box_ref_length(ref: box_key): uint64
 subroutine get_box_map_value_from_key_plus_1(box_map: box_key, key: uint64): string
 {
   return Box[BoxMapKey(prefix=box_map, key=key + 1u)]
+}
+
+subroutine get_dynamic_arr_struct_byte_index(index: uint64): uint64
+{
+  head: uint64 = size_of(uint64) + size_of(arc4.uint16) + size_of(uint64)
+  dyn_arr_index: uint64 = size_of(arc4.uint16) + index * size_of(uint64)
+  return head + dyn_arr_index
 }

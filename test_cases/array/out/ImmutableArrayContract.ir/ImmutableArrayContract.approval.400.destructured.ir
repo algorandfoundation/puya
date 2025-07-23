@@ -506,11 +506,11 @@ subroutine test_cases.array.immutable.sum_imm_fixed(arr: Encoded((uint64,uint64)
         let continue_looping%0#0: bool = (< item_index_internal%0#0 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L483
-        let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
-        let item#0: Encoded(uint64,uint64) = (extract3 arr#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let values%1#0: uint64 = (extract_uint64 item#0 0u)
+        let aggregate%bytes_offset%1#0: uint64 = (* item_index_internal%0#0 16u)
+        let aggregate%encoded_element%1#0: bytes = (extract3 arr#0 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
+        let values%1#0: uint64 = (extract_uint64 aggregate%encoded_element%1#0 0u)
         let total#0: uint64 = (+ total#0 values%1#0)
-        let values%2#0: uint64 = (extract_uint64 item#0 8u)
+        let values%2#0: uint64 = (extract_uint64 aggregate%encoded_element%1#0 8u)
         let total#0: uint64 = (+ total#0 values%2#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@1

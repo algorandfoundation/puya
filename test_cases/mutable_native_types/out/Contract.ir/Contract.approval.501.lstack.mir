@@ -510,30 +510,36 @@ subroutine sum_frozen_arr:
         bz sum_frozen_arr_after_for@4 ; b sum_frozen_arr_for_body@2                               (𝕡) arr#0 |
 
     sum_frozen_arr_for_body@2:                                                                    (𝕡) arr#0 |
-        // mutable_native_types/contract.py:265
+        // mutable_native_types/contract.py:265-266
         // for element in arr:
+        //     total += element.a
         p-load arr#0                                                                              (𝕡) arr#0 | arr#0 (copy)
-        extract 2 0                                                                               (𝕡) arr#0 | aggregate%array_trimmed%0#0
-        v-load item_index_internal%0#0                                                            (𝕡) arr#0 | aggregate%array_trimmed%0#0,item_index_internal%0#0
-        l-store-copy item_index_internal%0#0 1                                                    (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy)
-        int 16                                                                                    (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,item_index_internal%0#0 (copy),16
-        *                                                                                         (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        l-load aggregate%array_trimmed%0#0 1                                                      (𝕡) arr#0 | item_index_internal%0#0,aggregate%bytes_offset%0#0,aggregate%array_trimmed%0#0
-        l-load aggregate%bytes_offset%0#0 1                                                       (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        int 16                                                                                    (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,16
-        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | item_index_internal%0#0,element#0
+        extract 2 0                                                                               (𝕡) arr#0 | aggregate%array_trimmed%1#0
+        v-load item_index_internal%0#0                                                            (𝕡) arr#0 | aggregate%array_trimmed%1#0,item_index_internal%0#0
+        l-store-copy item_index_internal%0#0 1                                                    (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%1#0,item_index_internal%0#0 (copy)
+        int 16                                                                                    (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%1#0,item_index_internal%0#0 (copy),16
+        *                                                                                         (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%1#0,aggregate%bytes_offset%1#0
+        l-load aggregate%array_trimmed%1#0 1                                                      (𝕡) arr#0 | item_index_internal%0#0,aggregate%bytes_offset%1#0,aggregate%array_trimmed%1#0
+        l-load aggregate%bytes_offset%1#0 1                                                       (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%1#0,aggregate%bytes_offset%1#0
+        int 16                                                                                    (𝕡) arr#0 | item_index_internal%0#0,aggregate%array_trimmed%1#0,aggregate%bytes_offset%1#0,16
+        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%1#0
         // mutable_native_types/contract.py:266
         // total += element.a
-        l-load-copy element#0 0                                                                   (𝕡) arr#0 | item_index_internal%0#0,element#0,element#0 (copy)
-        int 0                                                                                     (𝕡) arr#0 | item_index_internal%0#0,element#0,element#0 (copy),0
-        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,element#0,values%1#0
-        v-load total#0                                                                            (𝕡) arr#0 | item_index_internal%0#0,element#0,values%1#0,total#0
-        l-load values%1#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,element#0,total#0,values%1#0
-        +                                                                                         (𝕡) arr#0 | item_index_internal%0#0,element#0,total#0
+        l-load-copy aggregate%encoded_element%1#0 0                                               (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%1#0,aggregate%encoded_element%1#0 (copy)
+        // mutable_native_types/contract.py:265-266
+        // for element in arr:
+        //     total += element.a
+        int 0                                                                                     (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%1#0,aggregate%encoded_element%1#0 (copy),0
+        // mutable_native_types/contract.py:266
+        // total += element.a
+        extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%1#0,values%1#0
+        v-load total#0                                                                            (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%1#0,values%1#0,total#0
+        l-load values%1#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%1#0,total#0,values%1#0
+        +                                                                                         (𝕡) arr#0 | item_index_internal%0#0,aggregate%encoded_element%1#0,total#0
         // mutable_native_types/contract.py:267
         // total += element.b
-        l-load element#0 1                                                                        (𝕡) arr#0 | item_index_internal%0#0,total#0,element#0
-        int 8                                                                                     (𝕡) arr#0 | item_index_internal%0#0,total#0,element#0,8
+        l-load aggregate%encoded_element%1#0 1                                                    (𝕡) arr#0 | item_index_internal%0#0,total#0,aggregate%encoded_element%1#0
+        int 8                                                                                     (𝕡) arr#0 | item_index_internal%0#0,total#0,aggregate%encoded_element%1#0,8
         extract_uint64                                                                            (𝕡) arr#0 | item_index_internal%0#0,total#0,values%2#0
         l-load total#0 1                                                                          (𝕡) arr#0 | item_index_internal%0#0,values%2#0,total#0
         l-load values%2#0 1                                                                       (𝕡) arr#0 | item_index_internal%0#0,total#0,values%2#0
@@ -631,25 +637,25 @@ subroutine increment_payment:
         assert // check self.payments exists                                                      (𝕡) index#0,amt#0 | maybe_value%1#0
         p-load index#0                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,index#0 (copy)
         int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,index#0 (copy),48
-        *                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0
-        l-load-copy maybe_value%1#0 1                                                             (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,maybe_value%1#0 (copy)
-        l-load-copy aggregate%bytes_offset%0#0 1                                                  (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,maybe_value%1#0 (copy),aggregate%bytes_offset%0#0 (copy)
-        int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,maybe_value%1#0 (copy),aggregate%bytes_offset%0#0 (copy),48
-        extract3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0
-        l-load-copy aggregate%encoded_element%0#0 0                                               (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy)
-        int 40                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy),40
-        extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,values%1#0
-        l-load values%1#0 0                                                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,values%1#0
-        p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,values%1#0,amt#0 (copy)
-        +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,tmp%1#0
-        l-load tmp%1#0 0                                                                          (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,tmp%1#0
-        itob                                                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%encoded_element%0#0 1                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%encoded_element%0#0
-        l-load aggregate%val_as_bytes%0#0 1                                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,aggregate%val_as_bytes%0#0
-        replace2 40                                                                               (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%updated_data%0#0
-        l-load maybe_value%1#0 2                                                                  (𝕡) index#0,amt#0 | aggregate%bytes_offset%0#0,aggregate%updated_data%0#0,maybe_value%1#0
-        l-load aggregate%bytes_offset%0#0 2                                                       (𝕡) index#0,amt#0 | aggregate%updated_data%0#0,maybe_value%1#0,aggregate%bytes_offset%0#0
-        l-load aggregate%updated_data%0#0 2                                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%updated_data%0#0
+        *                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0
+        l-load-copy maybe_value%1#0 1                                                             (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,maybe_value%1#0 (copy)
+        l-load-copy aggregate%bytes_offset%1#0 1                                                  (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,maybe_value%1#0 (copy),aggregate%bytes_offset%1#0 (copy)
+        int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,maybe_value%1#0 (copy),aggregate%bytes_offset%1#0 (copy),48
+        extract3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0
+        l-load-copy aggregate%encoded_element%1#0 0                                               (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0,aggregate%encoded_element%1#0 (copy)
+        int 40                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0,aggregate%encoded_element%1#0 (copy),40
+        extract_uint64                                                                            (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0,values%1#0
+        l-load values%1#0 0                                                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0,values%1#0
+        p-load amt#0                                                                              (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0,values%1#0,amt#0 (copy)
+        +                                                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0,tmp%1#0
+        l-load tmp%1#0 0                                                                          (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0,tmp%1#0
+        itob                                                                                      (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%encoded_element%1#0 1                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%val_as_bytes%0#0,aggregate%encoded_element%1#0
+        l-load aggregate%val_as_bytes%0#0 1                                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%encoded_element%1#0,aggregate%val_as_bytes%0#0
+        replace2 40                                                                               (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%updated_data%0#0
+        l-load maybe_value%1#0 2                                                                  (𝕡) index#0,amt#0 | aggregate%bytes_offset%1#0,aggregate%updated_data%0#0,maybe_value%1#0
+        l-load aggregate%bytes_offset%1#0 2                                                       (𝕡) index#0,amt#0 | aggregate%updated_data%0#0,maybe_value%1#0,aggregate%bytes_offset%1#0
+        l-load aggregate%updated_data%0#0 2                                                       (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%updated_data%0#0
         replace3                                                                                  (𝕡) index#0,amt#0 | aggregate%updated_array%0#0
         byte "payments"                                                                           (𝕡) index#0,amt#0 | aggregate%updated_array%0#0,"payments"
         l-load aggregate%updated_array%0#0 1                                                      (𝕡) index#0,amt#0 | "payments",aggregate%updated_array%0#0

@@ -884,16 +884,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%3#0: bool = (< idx#0 aggregate%array_length%64#0)
         goto continue_looping%3#0 ? block@99 : block@100
     block@99: // for_body_L362
-        let aggregate%array_head_and_tail%7#0: bytes = ((extract 2 0) arr4#0)
-        let aggregate%item_offset_offset%7#0: uint64 = (* idx#0 2u)
-        let aggregate%item_offset%7#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%7#0 aggregate%item_offset_offset%7#0)
+        let aggregate%array_head_and_tail%8#0: bytes = ((extract 2 0) arr4#0)
+        let aggregate%item_offset_offset%8#0: uint64 = (* idx#0 2u)
+        let aggregate%item_offset%8#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%8#0 aggregate%item_offset_offset%8#0)
         let aggregate%next_index%6#0: uint64 = (+ idx#0 1u)
         let aggregate%has_next%6#0: uint64 = (- aggregate%array_length%64#0 aggregate%next_index%6#0) // on error: index access is out of bounds
-        let aggregate%end_of_array%6#0: uint64 = (len aggregate%array_head_and_tail%7#0)
+        let aggregate%end_of_array%6#0: uint64 = (len aggregate%array_head_and_tail%8#0)
         let aggregate%next_item_offset_offset%6#0: uint64 = (* aggregate%next_index%6#0 2u)
-        let aggregate%next_item_offset%6#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%7#0 aggregate%next_item_offset_offset%6#0)
+        let aggregate%next_item_offset%6#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%8#0 aggregate%next_item_offset_offset%6#0)
         let aggregate%end_offset%6#0: uint64 = (select aggregate%end_of_array%6#0 aggregate%next_item_offset%6#0 aggregate%has_next%6#0)
-        let aggregate%substring3%14#0: bytes = (substring3 aggregate%array_head_and_tail%7#0 aggregate%item_offset%7#0 aggregate%end_offset%6#0)
+        let aggregate%substring3%14#0: bytes = (substring3 aggregate%array_head_and_tail%8#0 aggregate%item_offset%8#0 aggregate%end_offset%6#0)
         let dyn_tup.foo#0: uint64 = (extract_uint64 aggregate%substring3%14#0 0u)
         let aggregate%extract_uint16%8#0: uint64 = (extract_uint16 aggregate%substring3%14#0 8u)
         let aggregate%len%8#0: uint64 = (len aggregate%substring3%14#0)
@@ -1446,11 +1446,11 @@ subroutine test_cases.array.immutable.sum_imm_fixed(arr: Encoded((uint64,uint64)
         let continue_looping%0#0: bool = (< item_index_internal%0#0 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L483
-        let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
-        let item#0: Encoded(uint64,uint64) = (extract3 arr#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let values%1#0: uint64 = (extract_uint64 item#0 0u)
+        let aggregate%bytes_offset%1#0: uint64 = (* item_index_internal%0#0 16u)
+        let aggregate%encoded_element%1#0: bytes = (extract3 arr#0 aggregate%bytes_offset%1#0 16u) // on error: index access is out of bounds
+        let values%1#0: uint64 = (extract_uint64 aggregate%encoded_element%1#0 0u)
         let total#0: uint64 = (+ total#0 values%1#0)
-        let values%2#0: uint64 = (extract_uint64 item#0 8u)
+        let values%2#0: uint64 = (extract_uint64 aggregate%encoded_element%1#0 8u)
         let total#0: uint64 = (+ total#0 values%2#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@1

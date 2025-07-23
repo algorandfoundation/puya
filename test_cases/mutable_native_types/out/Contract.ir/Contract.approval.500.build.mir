@@ -609,24 +609,30 @@ subroutine sum_frozen_arr:
         bz sum_frozen_arr_after_for@4 ; b sum_frozen_arr_for_body@2                               (𝕡) arr#0 |
 
     sum_frozen_arr_for_body@2:                                                                    (𝕡) arr#0 |
-        // mutable_native_types/contract.py:265
+        // mutable_native_types/contract.py:265-266
         // for element in arr:
+        //     total += element.a
         p-load arr#0                                                                              (𝕡) arr#0 | arr#0 (copy)
-        extract 2 0                                                                               (𝕡) arr#0 | aggregate%array_trimmed%0#0
-        v-store aggregate%array_trimmed%0#0                                                       (𝕡) arr#0 |
+        extract 2 0                                                                               (𝕡) arr#0 | aggregate%array_trimmed%1#0
+        v-store aggregate%array_trimmed%1#0                                                       (𝕡) arr#0 |
         v-load item_index_internal%0#0                                                            (𝕡) arr#0 | item_index_internal%0#0
         int 16                                                                                    (𝕡) arr#0 | item_index_internal%0#0,16
-        *                                                                                         (𝕡) arr#0 | aggregate%bytes_offset%0#0
-        v-store aggregate%bytes_offset%0#0                                                        (𝕡) arr#0 |
-        v-load aggregate%array_trimmed%0#0                                                        (𝕡) arr#0 | aggregate%array_trimmed%0#0
-        v-load aggregate%bytes_offset%0#0                                                         (𝕡) arr#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0
-        int 16                                                                                    (𝕡) arr#0 | aggregate%array_trimmed%0#0,aggregate%bytes_offset%0#0,16
-        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | element#0
-        v-store element#0                                                                         (𝕡) arr#0 |
+        *                                                                                         (𝕡) arr#0 | aggregate%bytes_offset%1#0
+        v-store aggregate%bytes_offset%1#0                                                        (𝕡) arr#0 |
+        v-load aggregate%array_trimmed%1#0                                                        (𝕡) arr#0 | aggregate%array_trimmed%1#0
+        v-load aggregate%bytes_offset%1#0                                                         (𝕡) arr#0 | aggregate%array_trimmed%1#0,aggregate%bytes_offset%1#0
+        int 16                                                                                    (𝕡) arr#0 | aggregate%array_trimmed%1#0,aggregate%bytes_offset%1#0,16
+        extract3 // on error: index access is out of bounds                                       (𝕡) arr#0 | aggregate%encoded_element%1#0
+        v-store aggregate%encoded_element%1#0                                                     (𝕡) arr#0 |
         // mutable_native_types/contract.py:266
         // total += element.a
-        v-load element#0                                                                          (𝕡) arr#0 | element#0
-        int 0                                                                                     (𝕡) arr#0 | element#0,0
+        v-load aggregate%encoded_element%1#0                                                      (𝕡) arr#0 | aggregate%encoded_element%1#0
+        // mutable_native_types/contract.py:265-266
+        // for element in arr:
+        //     total += element.a
+        int 0                                                                                     (𝕡) arr#0 | aggregate%encoded_element%1#0,0
+        // mutable_native_types/contract.py:266
+        // total += element.a
         extract_uint64                                                                            (𝕡) arr#0 | values%1#0
         v-store values%1#0                                                                        (𝕡) arr#0 |
         v-load total#0                                                                            (𝕡) arr#0 | total#0
@@ -635,8 +641,8 @@ subroutine sum_frozen_arr:
         v-store total#0                                                                           (𝕡) arr#0 |
         // mutable_native_types/contract.py:267
         // total += element.b
-        v-load element#0                                                                          (𝕡) arr#0 | element#0
-        int 8                                                                                     (𝕡) arr#0 | element#0,8
+        v-load aggregate%encoded_element%1#0                                                      (𝕡) arr#0 | aggregate%encoded_element%1#0
+        int 8                                                                                     (𝕡) arr#0 | aggregate%encoded_element%1#0,8
         extract_uint64                                                                            (𝕡) arr#0 | values%2#0
         v-store values%2#0                                                                        (𝕡) arr#0 |
         v-load total#0                                                                            (𝕡) arr#0 | total#0
@@ -750,15 +756,15 @@ subroutine increment_payment:
         assert // check self.payments exists                                                      (𝕡) index#0,amt#0 |
         p-load index#0                                                                            (𝕡) index#0,amt#0 | index#0 (copy)
         int 48                                                                                    (𝕡) index#0,amt#0 | index#0 (copy),48
-        *                                                                                         (𝕡) index#0,amt#0 | aggregate%bytes_offset%0#0
-        v-store aggregate%bytes_offset%0#0                                                        (𝕡) index#0,amt#0 |
+        *                                                                                         (𝕡) index#0,amt#0 | aggregate%bytes_offset%1#0
+        v-store aggregate%bytes_offset%1#0                                                        (𝕡) index#0,amt#0 |
         v-load maybe_value%1#0                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0
-        v-load aggregate%bytes_offset%0#0                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0
-        int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,48
-        extract3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | aggregate%encoded_element%0#0
-        v-store aggregate%encoded_element%0#0                                                     (𝕡) index#0,amt#0 |
-        v-load aggregate%encoded_element%0#0                                                      (𝕡) index#0,amt#0 | aggregate%encoded_element%0#0
-        int 40                                                                                    (𝕡) index#0,amt#0 | aggregate%encoded_element%0#0,40
+        v-load aggregate%bytes_offset%1#0                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0
+        int 48                                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,48
+        extract3 // on error: index access is out of bounds                                       (𝕡) index#0,amt#0 | aggregate%encoded_element%1#0
+        v-store aggregate%encoded_element%1#0                                                     (𝕡) index#0,amt#0 |
+        v-load aggregate%encoded_element%1#0                                                      (𝕡) index#0,amt#0 | aggregate%encoded_element%1#0
+        int 40                                                                                    (𝕡) index#0,amt#0 | aggregate%encoded_element%1#0,40
         extract_uint64                                                                            (𝕡) index#0,amt#0 | values%1#0
         v-store values%1#0                                                                        (𝕡) index#0,amt#0 |
         v-load values%1#0                                                                         (𝕡) index#0,amt#0 | values%1#0
@@ -768,13 +774,13 @@ subroutine increment_payment:
         v-load tmp%1#0                                                                            (𝕡) index#0,amt#0 | tmp%1#0
         itob                                                                                      (𝕡) index#0,amt#0 | aggregate%val_as_bytes%0#0
         v-store aggregate%val_as_bytes%0#0                                                        (𝕡) index#0,amt#0 |
-        v-load aggregate%encoded_element%0#0                                                      (𝕡) index#0,amt#0 | aggregate%encoded_element%0#0
-        v-load aggregate%val_as_bytes%0#0                                                         (𝕡) index#0,amt#0 | aggregate%encoded_element%0#0,aggregate%val_as_bytes%0#0
+        v-load aggregate%encoded_element%1#0                                                      (𝕡) index#0,amt#0 | aggregate%encoded_element%1#0
+        v-load aggregate%val_as_bytes%0#0                                                         (𝕡) index#0,amt#0 | aggregate%encoded_element%1#0,aggregate%val_as_bytes%0#0
         replace2 40                                                                               (𝕡) index#0,amt#0 | aggregate%updated_data%0#0
         v-store aggregate%updated_data%0#0                                                        (𝕡) index#0,amt#0 |
         v-load maybe_value%1#0                                                                    (𝕡) index#0,amt#0 | maybe_value%1#0
-        v-load aggregate%bytes_offset%0#0                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0
-        v-load aggregate%updated_data%0#0                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%0#0,aggregate%updated_data%0#0
+        v-load aggregate%bytes_offset%1#0                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0
+        v-load aggregate%updated_data%0#0                                                         (𝕡) index#0,amt#0 | maybe_value%1#0,aggregate%bytes_offset%1#0,aggregate%updated_data%0#0
         replace3                                                                                  (𝕡) index#0,amt#0 | aggregate%updated_array%0#0
         v-store aggregate%updated_array%0#0                                                       (𝕡) index#0,amt#0 |
         byte "payments"                                                                           (𝕡) index#0,amt#0 | "payments"
