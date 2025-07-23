@@ -15,6 +15,7 @@ from algopy import (
     UInt64,
     arc4,
     ensure_budget,
+    op,
     size_of,
     subroutine,
     urange,
@@ -41,6 +42,19 @@ class FixedArrayUInt64(Struct):
     arr: FixedArray[UInt64, typing.Literal[4095]]
 
 
+class DynamicArrayInAStruct(Struct):
+    a: UInt64
+    arr: Array[UInt64]
+    b: UInt64
+
+
+class FixedArrayInAStruct(Struct):
+    a: UInt64
+    arr_offset: arc4.UInt16
+    b: UInt64
+    arr: FixedArrayUInt64
+
+
 class BoxContract(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.box_a = Box(UInt64)
@@ -53,6 +67,7 @@ class BoxContract(arc4.ARC4Contract):
         self.many_ints = Box(ManyInts)
         assert size_of(ManyInts) > 4096, "expected ManyInts to exceed max bytes size"
         self.dynamic_box = Box(Array[UInt64])
+        self.dynamic_arr_struct = Box(DynamicArrayInAStruct)
 
     @arc4.abimethod
     def set_boxes(self, a: UInt64, b: arc4.DynamicBytes, c: arc4.String) -> None:
@@ -144,6 +159,74 @@ class BoxContract(arc4.ARC4Contract):
     @arc4.abimethod
     def boxes_exist(self) -> tuple[bool, bool, bool, bool]:
         return bool(self.box_a), bool(self.box_b), bool(self.box_c), bool(self.box_large)
+
+    @arc4.abimethod
+    def create_dynamic_arr_struct(self) -> None:
+        self.dynamic_arr_struct.value = DynamicArrayInAStruct(
+            a=Txn.num_app_args,
+            arr=Array[UInt64](),
+            b=Txn.num_app_args * 2,
+        )
+
+    @arc4.abimethod
+    def delete_dynamic_arr_struct(self) -> None:
+        del self.dynamic_arr_struct.value
+
+    @arc4.abimethod
+    def append_dynamic_arr_struct(self, times: UInt64) -> UInt64:
+        # TODO: support append using high level array operations
+        assert self.dynamic_arr_struct.value.b == 2, "expected 2"
+        box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
+        arr_len = box.value.arr.length.native
+        assert (
+            self.dynamic_arr_struct.value.arr.length == arr_len
+        ), "expected arr length to be correct"
+
+        # expand box
+        self.dynamic_arr_struct.ref.resize(get_dynamic_arr_struct_byte_index(arr_len + times))
+        assert self.dynamic_arr_struct.value.b == 2, "expected 2"
+        # splice in new data
+        self.dynamic_arr_struct.ref.splice(
+            get_dynamic_arr_struct_byte_index(arr_len), 0, op.bzero(times * size_of(UInt64))
+        )
+        assert self.dynamic_arr_struct.value.b == 2, "expected 2"
+        for i in urange(times):
+            box.value.arr.arr[arr_len] = i
+            arr_len += 1
+
+        box.value.arr.length = arc4.UInt16(arr_len)
+        assert self.dynamic_arr_struct.value.b == 2, "expected 2"
+        assert (
+            self.dynamic_arr_struct.value.arr.length == arr_len
+        ), "expected arr length to be correct"
+        return self.dynamic_arr_struct.value.arr.length
+
+    @arc4.abimethod
+    def pop_dynamic_arr_struct(self, times: UInt64) -> UInt64:
+        # TODO: support pop using high level array operations
+
+        box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
+        arr_len = box.value.arr.length.native - times
+        # resize array
+        box.value.arr.length = arc4.UInt16(arr_len)
+        index = get_dynamic_arr_struct_byte_index(arr_len)
+        box.ref.splice(index, times * size_of(UInt64), b"")
+        # truncate box
+        # Note: this is currently the same as index, but could be different if there
+        #       were multiple dynamic arrays
+        size = get_dynamic_arr_struct_byte_index(arr_len)
+        self.dynamic_arr_struct.ref.resize(size)
+
+        return self.dynamic_arr_struct.value.arr.length
+
+    @arc4.abimethod
+    def sum_dynamic_arr_struct(self) -> UInt64:
+        assert self.dynamic_arr_struct.value.a == 1, "expected 1"
+        assert self.dynamic_arr_struct.value.b == 2, "expected 2"
+        total = self.dynamic_arr_struct.value.a + self.dynamic_arr_struct.value.b
+        for val in self.dynamic_arr_struct.value.arr:
+            total += val
+        return total
 
     @arc4.abimethod
     def create_dynamic_box(self) -> None:
@@ -307,3 +390,10 @@ def get_box_ref_length(ref: BoxRef) -> UInt64:
 @subroutine
 def get_box_map_value_from_key_plus_1(box_map: BoxMap[UInt64, String], key: UInt64) -> String:
     return box_map[key + 1]
+
+
+@subroutine(inline=True)
+def get_dynamic_arr_struct_byte_index(index: UInt64) -> UInt64:
+    head = size_of(UInt64) + size_of(arc4.UInt16) + size_of(UInt64)
+    dyn_arr_index = size_of(arc4.UInt16) + index * size_of(UInt64)
+    return head + dyn_arr_index
