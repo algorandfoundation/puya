@@ -279,18 +279,16 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_array(x1: Encode
         let array_item%1#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%1#0, i#1)
         let (values%7#0: Encoded(uint64), values%8#0: uint64, values%9#0: uint64, values%10#0: uint64, values%11#0: account, values%12#0: Encoded(uint64,uint64), values%13#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%1#0)
         let tuple_item%0#0: Encoded(uint64) = extract_value(values%12#0, 0)
-        let values%14#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%0#0)
-        let reinterpret_biguint%0#0: biguint = values%14#0
+        let reinterpret_biguint%0#0: biguint = tuple_item%0#0
         let tmp%17#0: uint64 = (+ i#1 2u)
         let tmp%18#0: biguint = (itob tmp%17#0)
         let tmp%19#0: bool = (b== reinterpret_biguint%0#0 tmp%18#0)
         (assert tmp%19#0)
         let slot_contents%2#0: Encoded((uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512))[]) = load(path#0)
         let array_item%2#0: Encoded(uint64,uint64,(uint64,uint64,uint8[32],(uint64,uint64),uint512)) = extract_value(slot_contents%2#0, i#1)
-        let (values%15#0: Encoded(uint64), values%16#0: uint64, values%17#0: uint64, values%18#0: uint64, values%19#0: account, values%20#0: Encoded(uint64,uint64), values%21#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%2#0)
-        let tuple_item%1#0: Encoded(uint64) = extract_value(values%20#0, 1)
-        let values%22#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(tuple_item%1#0)
-        let reinterpret_biguint%1#0: biguint = values%22#0
+        let (values%14#0: Encoded(uint64), values%15#0: uint64, values%16#0: uint64, values%17#0: uint64, values%18#0: account, values%19#0: Encoded(uint64,uint64), values%20#0: biguint) = decode_bytes<(Encoded(uint64),uint64,(uint64,uint64,account,Encoded(uint64,uint64),biguint,),)>(array_item%2#0)
+        let tuple_item%1#0: Encoded(uint64) = extract_value(values%19#0, 1)
+        let reinterpret_biguint%1#0: biguint = tuple_item%1#0
         let tmp%20#0: uint64 = (+ i#1 1u)
         let tmp%21#0: uint64 = (+ i#1 1u)
         let tmp%22#0: uint64 = (* tmp%20#0 tmp%21#0)
@@ -325,8 +323,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tupl
         let tmp%2#0: uint64 = (- tmp%1#0 1u)
         let slot_contents%1#0: Encoded((uint64,uint64)[]) = load(arr#0)
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(slot_contents%1#0, tmp%2#0)
-        let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%0#0)
-        let last#0: Encoded(uint64,uint64) = values%0#0
+        let last#0: Encoded(uint64,uint64) = array_item%0#0
         let tmp%3#0: bool = (== last#0 some_more.1#0)
         (assert tmp%3#0)
         let slot_contents%2#0: Encoded((uint64,uint64)[]) = load(arr#0)
@@ -338,8 +335,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_extend_from_tupl
         let tmp%5#0: uint64 = array_len(result#0)
         let tmp%6#0: uint64 = (- tmp%5#0 1u)
         let array_item%1#0: Encoded(uint64,uint64) = extract_value(result#0, tmp%6#0)
-        let values%1#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%1#0)
-        let tmp%7#0: bool = (== values%1#0 last#0)
+        let tmp%7#0: bool = (== array_item%1#0 last#0)
         (assert tmp%7#0)
         return result#0
 
@@ -476,8 +472,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
     block@6: // for_body_L104
         let slot_contents%1#0: Encoded(uint64[]) = load(arr#0)
         let array_item%0#0: Encoded(uint64) = extract_value(slot_contents%1#0, item_index_internal%0#1)
-        let values%0#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(array_item%0#0)
-        let val#0: Encoded(uint64) = values%0#0
+        let val#0: Encoded(uint64) = array_item%0#0
         let reinterpret_biguint%0#0: biguint = val#0
         let tmp%7#0: bool = (b!= reinterpret_biguint%0#0 0b)
         goto tmp%7#0 ? block@7 : block@8
@@ -529,8 +524,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: E
     block@2: // for_body_L119
         let slot_contents%1#0: Encoded(uint64[]) = load(arr#0)
         let array_item%0#0: Encoded(uint64) = extract_value(slot_contents%1#0, item_index_internal%0#1)
-        let values%0#0: Encoded(uint64) = decode_bytes<Encoded(uint64)>(array_item%0#0)
-        let item#0: Encoded(uint64) = values%0#0
+        let item#0: Encoded(uint64) = array_item%0#0
         let tmp%0#0: uint64 = decode_bytes<uint64>(item#0)
         let tmp%1#0: uint64 = (+ total#1 tmp%0#0)
         let total#2: uint64 = tmp%1#0
@@ -652,8 +646,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         (assert tmp%27#0) // expected correct length
         let slot_contents%5#0: Encoded(bool8[]) = load(arr2#0)
         let array_item%3#0: Encoded(bool8) = extract_value(slot_contents%5#0, 0u)
-        let values%3#0: Encoded(bool8) = decode_bytes<Encoded(bool8)>(array_item%3#0)
-        let tmp%28#0: bool = decode_bytes<bool>(values%3#0)
+        let tmp%28#0: bool = decode_bytes<bool>(array_item%3#0)
         let tmp%29#0: account = (txn Sender)
         let tmp%30#0: account = (txn Receiver)
         let tmp%31#0: bool = (== tmp%29#0 tmp%30#0)
@@ -661,8 +654,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         (assert tmp%32#0) // expected correct value at 0
         let slot_contents%6#0: Encoded(bool8[]) = load(arr2#0)
         let array_item%4#0: Encoded(bool8) = extract_value(slot_contents%6#0, 1u)
-        let values%4#0: Encoded(bool8) = decode_bytes<Encoded(bool8)>(array_item%4#0)
-        let tmp%33#0: bool = decode_bytes<bool>(values%4#0)
+        let tmp%33#0: bool = decode_bytes<bool>(array_item%4#0)
         let tmp%34#0: account = (txn Sender)
         let tmp%35#0: account = (txn Receiver)
         let tmp%36#0: bool = (!= tmp%34#0 tmp%35#0)
@@ -670,8 +662,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         (assert tmp%37#0) // expected correct value at 1
         let slot_contents%7#0: Encoded(bool8[]) = load(arr2#0)
         let array_item%5#0: Encoded(bool8) = extract_value(slot_contents%7#0, 2u)
-        let values%5#0: Encoded(bool8) = decode_bytes<Encoded(bool8)>(array_item%5#0)
-        let tmp%38#0: bool = decode_bytes<bool>(values%5#0)
+        let tmp%38#0: bool = decode_bytes<bool>(array_item%5#0)
         let tmp%39#0: account = (txn Sender)
         let tmp%40#0: account = (txn Receiver)
         let tmp%41#0: bool = (== tmp%39#0 tmp%40#0)
@@ -679,8 +670,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_bool() -> E
         (assert tmp%42#0) // expected correct value at 2
         let slot_contents%8#0: Encoded(bool8[]) = load(arr2#0)
         let array_item%6#0: Encoded(bool8) = extract_value(slot_contents%8#0, 3u)
-        let values%6#0: Encoded(bool8) = decode_bytes<Encoded(bool8)>(array_item%6#0)
-        let tmp%43#0: bool = decode_bytes<bool>(values%6#0)
+        let tmp%43#0: bool = decode_bytes<bool>(array_item%6#0)
         let tmp%44#0: account = (txn Sender)
         let tmp%45#0: account = (txn Receiver)
         let tmp%46#0: bool = (!= tmp%44#0 tmp%45#0)

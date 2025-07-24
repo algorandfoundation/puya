@@ -637,17 +637,15 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(t
         goto block@1
     block@4: // after_for_L211
         let tmp%9#0: Encoded(uint16) = bytes_encode<uint16>(arr_len#1)
-        let encoded_value%1#0: Encoded(uint16) = bytes_encode<uint16>(tmp%9#0)
         let box%offset%6#0: uint64 = 20u
         let box%offset%7#0: uint64 = 20u
-        (box_replace "dynamic_arr_struct" 20u encoded_value%1#0)
+        (box_replace "dynamic_arr_struct" 20u tmp%9#0)
         let tmp%3#2: uint64 = (* arr_len#1 8u)
         let tmp%3#1: uint64 = (+ tmp%3#2 24u)
         let arr2_offset#0: uint64 = (- tmp%3#1 2u)
         let tmp%12#0: Encoded(uint16) = bytes_encode<uint16>(arr2_offset#0)
-        let encoded_value%2#0: Encoded(uint16) = bytes_encode<uint16>(tmp%12#0)
         let box%offset%8#0: uint64 = 18u
-        (box_replace "dynamic_arr_struct" 18u encoded_value%2#0)
+        (box_replace "dynamic_arr_struct" 18u tmp%12#0)
         let box%offset%9#0: uint64 = 20u
         let box%box_extract%4#0: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
         let box%array_length%2#0: uint64 = (btoi box%box_extract%4#0)
@@ -683,14 +681,12 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct(time
         let tmp%3#1: uint64 = (+ tmp%3#2 24u)
         let arr2_offset#0: uint64 = (- tmp%3#1 2u)
         let tmp%5#0: Encoded(uint16) = bytes_encode<uint16>(arr_len#0)
-        let encoded_value%0#0: Encoded(uint16) = bytes_encode<uint16>(tmp%5#0)
         let box%offset%2#0: uint64 = 20u
         let box%offset%3#0: uint64 = 20u
-        (box_replace "dynamic_arr_struct" 20u encoded_value%0#0)
+        (box_replace "dynamic_arr_struct" 20u tmp%5#0)
         let tmp%6#0: Encoded(uint16) = bytes_encode<uint16>(arr2_offset#0)
-        let encoded_value%1#0: Encoded(uint16) = bytes_encode<uint16>(tmp%6#0)
         let box%offset%4#0: uint64 = 18u
-        (box_replace "dynamic_arr_struct" 18u encoded_value%1#0)
+        (box_replace "dynamic_arr_struct" 18u tmp%6#0)
         let tmp%8#0: uint64 = (* times#0 8u)
         (box_splice "dynamic_arr_struct" head_and_dyn_arr#0 tmp%8#0 0x)
         let tmp%1#3: uint64 = (* arr2_len#0 8u)
@@ -868,8 +864,7 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_box(times: u
     block@0: // L278
         let box%offset%0#0: uint64 = 0u
         let box%box_extract%0#0: Encoded(uint16) = (box_extract "dynamic_box" 0u 2u)
-        let values%0#0: Encoded(uint16) = decode_bytes<Encoded(uint16)>(box%box_extract%0#0)
-        let arr_len#0: uint64 = decode_bytes<uint64>(values%0#0)
+        let arr_len#0: uint64 = decode_bytes<uint64>(box%box_extract%0#0)
         let tmp%1#0: uint64 = (+ arr_len#0 times#0)
         let tmp%2#0: uint64 = (* tmp%1#0 8u)
         let tmp%3#0: uint64 = (+ 2u tmp%2#0)
@@ -893,9 +888,8 @@ subroutine examples.box_storage.contract.BoxContract.append_dynamic_box(times: u
         goto block@1
     block@4: // after_for_L286
         let tmp%5#0: Encoded(uint16) = bytes_encode<uint16>(arr_len#1)
-        let encoded_value%1#0: Encoded(uint16) = bytes_encode<uint16>(tmp%5#0)
         let box%offset%3#0: uint64 = 0u
-        (box_replace "dynamic_box" 0u encoded_value%1#0)
+        (box_replace "dynamic_box" 0u tmp%5#0)
         let box%box_extract%1#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let box%array_length%0#0: uint64 = (btoi box%box_extract%1#0)
         return box%array_length%0#0
@@ -904,13 +898,11 @@ subroutine examples.box_storage.contract.BoxContract.pop_dynamic_box(times: uint
     block@0: // L293
         let box%offset%0#0: uint64 = 0u
         let box%box_extract%0#0: Encoded(uint16) = (box_extract "dynamic_box" 0u 2u)
-        let values%0#0: Encoded(uint16) = decode_bytes<Encoded(uint16)>(box%box_extract%0#0)
-        let tmp%0#0: uint64 = decode_bytes<uint64>(values%0#0)
+        let tmp%0#0: uint64 = decode_bytes<uint64>(box%box_extract%0#0)
         let arr_len#0: uint64 = (- tmp%0#0 times#0)
         let tmp%2#0: Encoded(uint16) = bytes_encode<uint16>(arr_len#0)
-        let encoded_value%0#0: Encoded(uint16) = bytes_encode<uint16>(tmp%2#0)
         let box%offset%1#0: uint64 = 0u
-        (box_replace "dynamic_box" 0u encoded_value%0#0)
+        (box_replace "dynamic_box" 0u tmp%2#0)
         let tmp%3#0: uint64 = (* arr_len#0 8u)
         let tmp%4#0: uint64 = (+ 2u tmp%3#0)
         (box_resize "dynamic_box" tmp%4#0)
@@ -972,23 +964,19 @@ subroutine examples.box_storage.contract.BoxContract.arc4_box() -> void:
         box_write(0x64, encoded_array%0#0)
         let storage_value%0#0: bytes = box_read(0x64)
         let array_item%0#0: Encoded(uint8) = extract_value(storage_value%0#0, 0u)
-        let values%0#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%0#0)
-        let tmp%0#0: bool = (b== values%0#0 0x00)
+        let tmp%0#0: bool = (b== array_item%0#0 0x00)
         (assert tmp%0#0)
         let storage_value%1#0: bytes = box_read(0x64)
         let array_item%1#0: Encoded(uint8) = extract_value(storage_value%1#0, 1u)
-        let values%1#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%1#0)
-        let tmp%1#0: bool = (b== values%1#0 0x01)
+        let tmp%1#0: bool = (b== array_item%1#0 0x01)
         (assert tmp%1#0)
         let storage_value%2#0: bytes = box_read(0x64)
         let array_item%2#0: Encoded(uint8) = extract_value(storage_value%2#0, 2u)
-        let values%2#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%2#0)
-        let tmp%2#0: bool = (b== values%2#0 0x02)
+        let tmp%2#0: bool = (b== array_item%2#0 0x02)
         (assert tmp%2#0)
         let storage_value%3#0: bytes = box_read(0x64)
         let array_item%3#0: Encoded(uint8) = extract_value(storage_value%3#0, 3u)
-        let values%3#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(array_item%3#0)
-        let tmp%3#0: bool = (b== values%3#0 0x03)
+        let tmp%3#0: bool = (b== array_item%3#0 0x03)
         (assert tmp%3#0)
         return 
 

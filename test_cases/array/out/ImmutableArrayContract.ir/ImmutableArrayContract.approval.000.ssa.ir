@@ -380,15 +380,14 @@ subroutine test_cases.array.immutable.sum_imm_fixed(arr: Encoded((uint64,uint64)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L483
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(arr#0, item_index_internal%0#1)
-        let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%0#0)
-        let item#0: Encoded(uint64,uint64) = values%0#0
+        let item#0: Encoded(uint64,uint64) = array_item%0#0
         let tuple_item%0#0: Encoded(uint64) = extract_value(item#0, 0)
-        let values%1#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
-        let tmp%0#0: uint64 = (+ total#1 values%1#0)
+        let values%0#0: uint64 = decode_bytes<uint64>(tuple_item%0#0)
+        let tmp%0#0: uint64 = (+ total#1 values%0#0)
         let total#2: uint64 = tmp%0#0
         let tuple_item%1#0: Encoded(uint64) = extract_value(item#0, 1)
-        let values%2#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
-        let tmp%1#0: uint64 = (+ total#2 values%2#0)
+        let values%1#0: uint64 = decode_bytes<uint64>(tuple_item%1#0)
+        let tmp%1#0: uint64 = (+ total#2 values%1#0)
         let total#3: uint64 = tmp%1#0
         goto block@3
     block@3: // for_footer_L482
@@ -1452,8 +1451,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(a
         goto continue_looping%2#0 ? block@10 : block@12
     block@10: // for_body_L272
         let array_item%0#0: Encoded(len+uint64[]) = extract_value(arr#2, item_index_internal%0#1)
-        let values%0#0: Encoded(len+uint64[]) = decode_bytes<Encoded(len+uint64[])>(array_item%0#0)
-        let inner_arr#0: Encoded(len+uint64[]) = values%0#0
+        let inner_arr#0: Encoded(len+uint64[]) = array_item%0#0
         let tmp%2#0: uint64 = test_cases.array.immutable.sum_arr(inner_arr#0)
         let tmp%3#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%2#0)
         let concat%1#0: Encoded(len+uint64[]) = (concat totals#1 tmp%3#0) // on error: max array length exceeded
@@ -1907,10 +1905,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
         let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("b")
         let encoded_array%0#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(tmp%0#0, tmp%1#0)
         let prefix#0: Encoded(len+(len+utf8[])[]) = encoded_array%0#0
-        let tmp%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(arg.0#0)
-        let concat%0#0: bytes = (concat 0x tmp%2#0)
-        let tmp%3#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(arg.1#0)
-        let concat%1#0: bytes = (concat concat%0#0 tmp%3#0)
+        let concat%0#0: bytes = (concat 0x arg.0#0)
+        let concat%1#0: bytes = (concat concat%0#0 arg.1#0)
         let as_Encoded(len+(len+utf8[])[])%0#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(prefix#0, concat%1#0, 2u)
         let result#0: Encoded(len+(len+utf8[])[]) = as_Encoded(len+(len+utf8[])[])%0#0
         return result#0
@@ -1932,9 +1928,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_immutable_arc4
         let tmp%2#0: uint64 = array_len(imm#0)
         let tmp%3#0: uint64 = (- tmp%2#0 1u)
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(imm#0, 0u)
-        let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%0#0)
-        let encoded_value%0#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(values%0#0)
-        let updated_array%0#0: Encoded(len+(uint64,uint64)[]) = replace_value(imm#0, tmp%3#0, encoded_value%0#0)
+        let updated_array%0#0: Encoded(len+(uint64,uint64)[]) = replace_value(imm#0, tmp%3#0, array_item%0#0)
         let imm#1: Encoded(len+(uint64,uint64)[]) = updated_array%0#0
         return imm#1
 
@@ -1965,8 +1959,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr(
         let continue_looping%0#0: bool = (< i#1 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L460
-        let encoded_value%0#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(struct12#0)
-        let updated_array%0#0: Encoded((uint64,uint64)[3]) = replace_value(arr1#1, i#1, encoded_value%0#0)
+        let updated_array%0#0: Encoded((uint64,uint64)[3]) = replace_value(arr1#1, i#1, struct12#0)
         let arr1#2: Encoded((uint64,uint64)[3]) = updated_array%0#0
         goto block@3
     block@3: // for_footer_L459
@@ -1985,8 +1978,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr(
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L465
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(arr1#1, item_index_internal%0#1)
-        let values%0#0: Encoded(uint64,uint64) = decode_bytes<Encoded(uint64,uint64)>(array_item%0#0)
-        let struct_it#0: Encoded(uint64,uint64) = values%0#0
+        let struct_it#0: Encoded(uint64,uint64) = array_item%0#0
         let tmp%9#0: bool = (== struct_it#0 struct12#0)
         (assert tmp%9#0) // expected items on iteration to be the same
         goto block@7
@@ -2006,8 +1998,7 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_imm_fixed_arr(
         let tmp%14#0: bool = (== tmp%13#0 15u)
         (assert tmp%14#0) // expected sum to be 15
         let tmp%15#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(0u, 0u)
-        let encoded_value%1#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%15#0)
-        let updated_array%1#0: Encoded((uint64,uint64)[3]) = replace_value(mut_arr#0, 0u, encoded_value%1#0)
+        let updated_array%1#0: Encoded((uint64,uint64)[3]) = replace_value(mut_arr#0, 0u, tmp%15#0)
         let mut_arr#1: Encoded((uint64,uint64)[3]) = updated_array%1#0
         let tmp%16#0: uint64 = array_len(mut_arr#1)
         let tmp%17#0: uint64 = test_cases.array.immutable.sum_imm_fixed(mut_arr#1)

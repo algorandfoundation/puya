@@ -331,21 +331,20 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("modified")
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
-        let encoded_value%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%0#0)
-        let updated_array%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(maybe_value%0#0, 0u, 1, encoded_value%0#0)
+        let updated_array%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(maybe_value%0#0, 0u, 1, tmp%0#0)
         (app_global_put "glob" updated_array%0#0)
         let tmp%2#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%2#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
-        let updated_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(maybe_value%1#0, 0u, 1, encoded_value%0#0)
+        let updated_array%1#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(maybe_value%1#0, 0u, 1, tmp%0#0)
         (app_local_put tmp%2#0 "loc" updated_array%1#0)
         let storage_value%0#0: bytes = box_read("box")
-        let updated_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%0#0, 0u, 1, encoded_value%0#0)
+        let updated_array%2#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%0#0, 0u, 1, tmp%0#0)
         box_write("box", updated_array%2#0)
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         let storage_value%1#0: bytes = box_read(box_prefixed_key%0#0)
-        let updated_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%1#0, 0u, 1, encoded_value%0#0)
+        let updated_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%1#0, 0u, 1, tmp%0#0)
         box_write(box_prefixed_key%0#0, updated_array%3#0)
         return 
 

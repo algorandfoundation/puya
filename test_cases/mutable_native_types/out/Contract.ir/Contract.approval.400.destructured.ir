@@ -217,10 +217,10 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) arr#0)
         let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#0 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
-        let values%1#0: uint64 = (extract_uint64 aggregate%encoded_element%0#0 0u)
+        let values%0#0: uint64 = (extract_uint64 aggregate%encoded_element%0#0 0u)
+        let total#0: uint64 = (+ total#0 values%0#0)
+        let values%1#0: uint64 = (extract_uint64 aggregate%encoded_element%0#0 8u)
         let total#0: uint64 = (+ total#0 values%1#0)
-        let values%2#0: uint64 = (extract_uint64 aggregate%encoded_element%0#0 8u)
-        let total#0: uint64 = (+ total#0 values%2#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@1
     block@4: // after_for_L265
@@ -257,8 +257,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment(i
         (assert maybe_exists%1#0) // check self.payments exists
         let aggregate%bytes_offset%0#0: uint64 = (* index#0 48u)
         let aggregate%encoded_element%0#0: bytes = (extract3 maybe_value%1#0 aggregate%bytes_offset%0#0 48u) // on error: index access is out of bounds
-        let values%1#0: uint64 = (extract_uint64 aggregate%encoded_element%0#0 40u)
-        let tmp%1#0: uint64 = (+ values%1#0 amt#0)
+        let values%0#0: uint64 = (extract_uint64 aggregate%encoded_element%0#0 40u)
+        let tmp%1#0: uint64 = (+ values%0#0 amt#0)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
         let aggregate%updated_data%0#0: bytes = ((replace2 40) aggregate%encoded_element%0#0 aggregate%val_as_bytes%0#0)
         let aggregate%updated_array%0#0: bytes = (replace3 maybe_value%1#0 aggregate%bytes_offset%0#0 aggregate%updated_data%0#0)
@@ -327,8 +327,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg(box_key:
         let aggregate%updated_data%2#0: bytes = ((replace2 0) maybe_value%2#0 a#0)
         (app_local_put tmp%0#0 0x6c aggregate%updated_data%2#0)
         (box_replace "box" 0u a#0)
-        let encoded_value%4#0: bytes[8] = (itob box_key#0)
-        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%4#0)
+        let encoded_value%0#0: bytes[8] = (itob box_key#0)
+        let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_replace box_prefixed_key%0#0 0u a#0)
         return 
 
@@ -458,12 +458,12 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let tmp%5#1: uint64 = (len result#0)
         let item_location#0: uint64 = (- tmp%5#1 16u)
         let result#0: bytes = (substring3 result#0 0u item_location#0)
-        let tmp%40#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#1)
-        let tmp%41#0: bool = (== tmp%40#0 21u)
-        (assert tmp%41#0) // expected sum to be 21
-        let tmp%42#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(result#0)
-        let tmp%43#0: bool = (== tmp%42#0 14u)
-        (assert tmp%43#0) // expected sum to be 14
+        let tmp%39#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(arr2#1)
+        let tmp%40#0: bool = (== tmp%39#0 21u)
+        (assert tmp%40#0) // expected sum to be 21
+        let tmp%41#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(result#0)
+        let tmp%42#0: bool = (== tmp%41#0 14u)
+        (assert tmp%42#0) // expected sum to be 14
         let extract_to_end%3#0: bytes = ((extract 2 0) result#0)
         let concat%4#0: Encoded(len+(uint64,uint64)[]) = (concat result#0 extract_to_end%3#0) // on error: max array length exceeded
         let extract_to_end%4#0: bytes = ((extract 2 0) concat%4#0)
@@ -472,9 +472,9 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let as_bytes%4#0: bytes[8] = (itob div_floor%1#0)
         let as_u16_bytes%4#0: bytes = ((extract 6 2) as_bytes%4#0)
         let frozen2#1: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%4#0 as_u16_bytes%4#0)
-        let tmp%44#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2#1)
-        let tmp%45#0: bool = (== tmp%44#0 28u)
-        (assert tmp%45#0) // and the sum shall be 41
+        let tmp%43#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2#1)
+        let tmp%44#0: bool = (== tmp%43#0 28u)
+        (assert tmp%44#0) // and the sum shall be 41
         (app_global_put "arr" result#0)
         store(local.1, fixed_struct#0)
         let aggregate%bytes_len%3#0: uint64 = (len fixed_struct#0)

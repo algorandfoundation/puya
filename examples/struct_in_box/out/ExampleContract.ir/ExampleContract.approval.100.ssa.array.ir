@@ -235,8 +235,7 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
 subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: Encoded((len+utf8[]),uint64,uint64)) -> Encoded((len+utf8[]),uint64,uint64):
     block@0: // L17
         let aggregate%extract%0#0: bytes = (extract3 user#0 2u 8u)
-        let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#0
-        let box_key#0: bytes = tuple_item%0#0
+        let box_key#0: bytes = aggregate%extract%0#0
         (box_del box_key#0)
         (box_put box_key#0 user#0)
         return user#0
@@ -244,8 +243,7 @@ subroutine examples.struct_in_box.contract.ExampleContract.write_to_box(user: En
 subroutine examples.struct_in_box.contract.ExampleContract.add_user(user: Encoded((len+utf8[]),uint64,uint64)) -> void:
     block@0: // L30
         let aggregate%extract%0#0: bytes = (extract3 user#0 2u 8u)
-        let tuple_item%0#0: Encoded(uint64) = aggregate%extract%0#0
-        let user_id#0: Encoded(uint64) = tuple_item%0#0
+        let user_id#0: Encoded(uint64) = aggregate%extract%0#0
         let (_data#0: uint64, exists#0: bool) = (box_len user_id#0)
         let tmp%1#0: bool = (! exists#0)
         (assert tmp%1#0) // User with id must not exist
@@ -259,9 +257,8 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user(
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob asset#0)
         let aggregate%as_Encoded(uint64)%0#0: Encoded(uint64) = aggregate%val_as_bytes%0#0
         let tmp%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
-        let encoded_value%0#0: Encoded(uint64) = tmp%1#0
         let aggregate%extract%0#0: bytes = (extract3 box_data#0 10u 8u)
-        let aggregate%updated_data%0#0: bytes = (replace3 box_data#0 10u encoded_value%0#0)
+        let aggregate%updated_data%0#0: bytes = (replace3 box_data#0 10u tmp%1#0)
         let user#1: Encoded((len+utf8[]),uint64,uint64) = aggregate%updated_data%0#0
         let user#2: Encoded((len+utf8[]),uint64,uint64) = examples.struct_in_box.contract.ExampleContract.write_to_box(user#1)
         return 
