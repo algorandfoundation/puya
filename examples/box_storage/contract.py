@@ -245,16 +245,21 @@ class BoxContract(arc4.ARC4Contract):
         return self.dynamic_arr_struct.value.arr.length
 
     @arc4.abimethod()
-    def nested_read(self) -> UInt64:
+    def set_nested_struct(self, struct: NestedStruct) -> None:
+        box = Box(NestedStruct, key="box")
+        box.value = struct.copy()
+
+    @arc4.abimethod()
+    def nested_read(self, i1: UInt64, i2: UInt64, i3: UInt64) -> UInt64:
         box = Box(NestedStruct, key="box")
         a = box.value.a
         b = box.value.b
-        arr_0_0 = box.value.inner.arr_arr[0][0]
+        arr_arr = box.value.inner.arr_arr[i1][i2]
         c = box.value.inner.c
         d = box.value.inner.d
-        woah_1_0_0 = box.value.woah[1].arr_arr[0][0]
+        woah_arr_arr = box.value.woah[i1].arr_arr[i2][i3]
 
-        return a + b + arr_0_0 + c + d + woah_1_0_0
+        return a + b + arr_arr + c + d + woah_arr_arr
 
     @arc4.abimethod
     def sum_dynamic_arr_struct(self) -> UInt64:

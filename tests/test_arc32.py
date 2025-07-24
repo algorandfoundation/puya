@@ -1629,6 +1629,23 @@ def test_dynamic_box(box_client: algokit_utils.ApplicationClient) -> None:
     box_client.call("delete_dynamic_box", transaction_parameters=txn_params)
 
 
+def test_nested_struct_box(box_client: algokit_utils.ApplicationClient) -> None:
+    txn_params = _params_with_boxes("box", additional_refs=7)
+    r = iter(range(256))
+
+    def n() -> int:
+        return next(r)
+
+    def inner() -> object:
+        return n(), [[n()] * 4] * 3, n()
+
+    struct = (n(), inner(), [inner() for _ in range(3)], n())
+    assert n() < 100, "too many ints"
+    box_client.call("set_nested_struct", struct=struct, transaction_parameters=txn_params)
+    response = box_client.call("nested_read", i1=1, i2=2, i3=3, transaction_parameters=txn_params)
+    assert response.return_value == 27, "expected sum to be correct"
+
+
 def test_dynamic_arr_in_struct_box(box_client: algokit_utils.ApplicationClient) -> None:
     txn_params = _params_with_boxes("dynamic_arr_struct", additional_refs=7)
 
