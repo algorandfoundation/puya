@@ -167,16 +167,22 @@ contract BoxContract
     return Box['dynamic_arr_struct'].arr.length
   }
   
-  abimethod examples.box_storage.contract.BoxContract.nested_read(): uint64
+  abimethod examples.box_storage.contract.BoxContract.set_nested_struct(struct: examples.box_storage.contract.NestedStruct): void
+  {
+    box: box_key = 'box'
+    Box[box]: examples.box_storage.contract.NestedStruct = struct.copy()
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.nested_read(i1: uint64, i2: uint64, i3: uint64): uint64
   {
     box: box_key = 'box'
     a: uint64 = Box[box].a
     b: uint64 = Box[box].b
-    arr_0_0: uint64 = Box[box].inner.arr_arr[0u][0u]
+    arr_arr: uint64 = Box[box].inner.arr_arr[i1][i2]
     c: uint64 = Box[box].inner.c
     d: uint64 = Box[box].inner.d
-    woah_1_0_0: uint64 = Box[box].woah[1u].arr_arr[0u][0u]
-    return a + b + arr_0_0 + c + d + woah_1_0_0
+    woah_arr_arr: uint64 = Box[box].woah[i1].arr_arr[i2][i3]
+    return a + b + arr_arr + c + d + woah_arr_arr
   }
   
   abimethod examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct(): uint64

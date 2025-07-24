@@ -5,6 +5,16 @@ import typing
 
 import algopy
 
+class InnerStruct(algopy.arc4.Struct):
+    c: algopy.arc4.UIntN[typing.Literal[64]]
+    arr_arr: algopy.arc4.DynamicArray[algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[64]]]]
+    d: algopy.arc4.UIntN[typing.Literal[64]]
+
+class NestedStruct(algopy.arc4.Struct):
+    a: algopy.arc4.UIntN[typing.Literal[64]]
+    inner: InnerStruct
+    woah: algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.DynamicArray[algopy.arc4.DynamicArray[algopy.arc4.UIntN[typing.Literal[64]]]], algopy.arc4.UIntN[typing.Literal[64]]]]
+    b: algopy.arc4.UIntN[typing.Literal[64]]
 
 class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     @algopy.arc4.abimethod
@@ -80,8 +90,17 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
+    def set_nested_struct(
+        self,
+        struct: NestedStruct,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def nested_read(
         self,
+        i1: algopy.arc4.UIntN[typing.Literal[64]],
+        i2: algopy.arc4.UIntN[typing.Literal[64]],
+        i3: algopy.arc4.UIntN[typing.Literal[64]],
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
