@@ -39,7 +39,6 @@ def replace_aggregate_box_ops(
 
 @attrs.define(kw_only=True)
 class _AggregateCollector(NoOpIRVisitor[None]):
-    decode_bytes: dict[models.Value, models.Value] = attrs.field(factory=dict)
     replace_values: dict[models.Value, models.ReplaceValue] = attrs.field(factory=dict)
     extract_values: dict[models.Value, models.ExtractValue] = attrs.field(factory=dict)
     box_reads: dict[models.Value, models.BoxRead] = attrs.field(factory=dict)
@@ -54,11 +53,6 @@ class _AggregateCollector(NoOpIRVisitor[None]):
             case models.ExtractValue():
                 (target,) = ass.targets
                 self.extract_values[target] = source
-            case models.DecodeBytes(encoding=encoding, ir_type=ir_type) if ir_type == EncodedType(
-                encoding
-            ):
-                (target,) = ass.targets
-                self.decode_bytes[target] = source.value
             case models.BoxRead():
                 (value,) = ass.targets
                 self.box_reads[value] = source
@@ -75,11 +69,7 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
 
         loc = length.source_location
 
-        # look through redundant DecodeBytes
-        try:
-            base = self.aggregates.decode_bytes[length.base]
-        except KeyError:
-            base = length.base
+        base = length.base
 
         # look through extract values to find underlying box read
         maybe_extract_value = None
