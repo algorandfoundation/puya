@@ -314,8 +314,8 @@ def _get_fixed_byte_offset(
                 if index == dynamic_indexes[0]:
                     element_offset = tail_bit_offset // 8
                 else:
-                    element_offset_offset = factory.add(box_offset, element_offset)
-                    element_offset = factory.box_extract_u16(box_key, element_offset_offset)
+                    box_absolute_offset_offset = factory.add(box_offset, element_offset)
+                    element_offset = factory.box_extract_u16(box_key, box_absolute_offset_offset)
 
             # if we aren't reading the last item of a tuple
             # then any following array read will need a bounds check
@@ -343,17 +343,19 @@ def _get_fixed_byte_offset(
                 index_offset = factory.add(index, header_offset * 8)
                 return _get_fixed_byte_offset_from_bit_offset(factory, box_offset, index_offset)
 
+            # calculate element offset
             if encoding.is_fixed:
-                index_bytes_offset = factory.mul(
+                element_offset = factory.mul(
                     index, encoding.checked_num_bytes, "index_bytes_offset"
                 )
-                element_offset = factory.add(index_bytes_offset, header_offset, "element_offset")
             else:
                 index_offset = factory.mul(2, index)
                 # the offset into head from the start of this element that contains the data offset
                 element_offset_offset = factory.add(header_offset, index_offset)
                 box_absolute_offset_offset = factory.add(box_offset, element_offset_offset)
                 element_offset = factory.box_extract_u16(box_key, box_absolute_offset_offset)
+            # element_offset does not yet include length header
+            element_offset = factory.add(element_offset, header_offset, "element_offset")
 
             # always need to check array bounds after the first array read
             check_array_bounds = True
