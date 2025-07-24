@@ -131,7 +131,7 @@ class FunctionIRBuilder(
         encoding = wtype_to_encoding(expr.value.wtype, loc)
 
         value = self.visit_and_materialise_single(expr.value)
-        return ir.DecodeBytes(
+        return ir.DecodeBytes.maybe(
             value=value,
             encoding=encoding,
             ir_type=ir_type,
@@ -147,7 +147,7 @@ class FunctionIRBuilder(
 
         values = self.visit_and_materialise(expr.value)
 
-        return ir.BytesEncode(
+        return ir.BytesEncode.maybe(
             values=values,
             values_type=value_ir_type,
             encoding=encoding,
@@ -412,7 +412,7 @@ class FunctionIRBuilder(
             case wtypes.bool_wtype:
                 return bool_const
             case wtypes.arc4_bool_wtype:
-                return ir.BytesEncode(
+                return ir.BytesEncode.maybe(
                     values=[bool_const],
                     values_type=bool_const.ir_type,
                     encoding=wtype_to_encoding(expr.wtype, loc),
@@ -456,7 +456,7 @@ class FunctionIRBuilder(
         if ir_type == const.ir_type:
             return const
         elif isinstance(ir_type, types.EncodedType):
-            return ir.BytesEncode(
+            return ir.BytesEncode.maybe(
                 values=[const],
                 values_type=const.ir_type,
                 encoding=ir_type.encoding,
@@ -845,7 +845,7 @@ class FunctionIRBuilder(
         tuple_expr = awst_nodes.TupleExpression.from_items(expr.values, loc)
         tuple_ir_type = types.wtype_to_ir_type(tuple_expr.wtype, loc, allow_tuple=True)
         tuple_values = self.visit_and_materialise(tuple_expr)
-        encoded_array_vp = ir.BytesEncode(
+        encoded_array_vp = ir.BytesEncode.maybe(
             values=tuple_values,
             values_type=tuple_ir_type,
             encoding=array_encoding,
@@ -1173,7 +1173,7 @@ class FunctionIRBuilder(
             element for field_name in expr.wtype.fields for element in elements_by_name[field_name]
         ]
 
-        return ir.BytesEncode(
+        return ir.BytesEncode.maybe(
             values=elements,
             values_type=tuple_ir_type,
             encoding=tuple_encoding,

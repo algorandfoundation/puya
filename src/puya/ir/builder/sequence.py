@@ -77,7 +77,7 @@ def read_aggregate_index_and_decode(
     element_wtype = _get_nested_element_wtype(aggregate_wtype, indexes, loc)
     element_ir_type = types.wtype_to_ir_type(element_wtype, loc, allow_tuple=True)
     values = context.materialise_value_provider(
-        ir.DecodeBytes(
+        ir.DecodeBytes.maybe(
             value=tuple_item,
             encoding=element_encoding,
             ir_type=element_ir_type,
@@ -116,7 +116,7 @@ def encode_and_write_aggregate_index(
     element_ir_type = types.wtype_to_ir_type(element_wtype, loc, allow_tuple=True)
     element_encoding = _get_aggregate_element_encoding(aggregate_encoding, indexes, loc)
     (encoded_value,) = context.materialise_value_provider(
-        ir.BytesEncode(
+        ir.BytesEncode.maybe(
             values=values,
             encoding=element_encoding,
             values_type=element_ir_type,

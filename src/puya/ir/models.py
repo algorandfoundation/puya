@@ -534,6 +534,27 @@ class BytesEncode(ValueProvider):
     values_type: IRType | TupleIRType = attrs.field()
     error_message_override: str | None = attrs.field(default=None, eq=False)
 
+    @classmethod
+    def maybe(
+        cls,
+        *,
+        encoding: Encoding,
+        values: Sequence[Value],
+        values_type: IRType | TupleIRType,
+        source_location: SourceLocation,
+        error_message_override: str | None = None,
+    ) -> ValueProvider:
+        if isinstance(values_type, EncodedType) and values_type.encoding == encoding:
+            (value,) = values
+            return value
+        return cls(
+            source_location=source_location,
+            encoding=encoding,
+            values=values,
+            values_type=values_type,
+            error_message_override=error_message_override,
+        )
+
     @values_type.validator
     def _value_type_validator(self, _: object, values_type: IRType | TupleIRType) -> None:
         if values_type.arity != len(self.values):
@@ -561,6 +582,26 @@ class DecodeBytes(ValueProvider):
     value: Value
     ir_type: IRType | TupleIRType = attrs.field()
     error_message_override: str | None = attrs.field(default=None, eq=False)
+
+    @classmethod
+    def maybe(
+        cls,
+        *,
+        encoding: Encoding,
+        value: Value,
+        ir_type: IRType | TupleIRType,
+        source_location: SourceLocation,
+        error_message_override: str | None = None,
+    ) -> ValueProvider:
+        if isinstance(ir_type, EncodedType) and ir_type.encoding == encoding:
+            return value
+        return cls(
+            source_location=source_location,
+            encoding=encoding,
+            value=value,
+            ir_type=ir_type,
+            error_message_override=error_message_override,
+        )
 
     @ir_type.validator
     def _ir_type_type_validator(self, _: object, ir_type: IRType | TupleIRType) -> None:
