@@ -72,6 +72,11 @@ class NestedStruct(Struct):
     b: UInt64
 
 
+class LargeNestedStruct(Struct):
+    padding: FixedArray[arc4.Byte, typing.Literal[4096]]
+    nested: NestedStruct
+
+
 class BoxContract(arc4.ARC4Contract):
     def __init__(self) -> None:
         self.box_a = Box(UInt64)
@@ -246,18 +251,37 @@ class BoxContract(arc4.ARC4Contract):
 
     @arc4.abimethod()
     def set_nested_struct(self, struct: NestedStruct) -> None:
-        box = Box(NestedStruct, key="box")
-        box.value = struct.copy()
+        box = Box(LargeNestedStruct, key="box")
+        assert struct.a, "struct.a is truthy"
+        struct_bytes = Txn.application_args(1)
+        struct_size = struct_bytes.length
+        tail_offset = UInt64(4096 + 2)
+        # initialize box to zero
+        box.create(size=tail_offset + struct_size)
+        # set correct offset for dynamic portion
+        box.ref.replace(tail_offset - 2, arc4.UInt16(tail_offset).bytes)
+        # set dynamic data
+        box.ref.replace(tail_offset, struct_bytes)
+
+    @arc4.abimethod()
+    def nested_write(self, index: UInt64, value: UInt64) -> None:
+        box = Box(LargeNestedStruct, key="box")
+        box.value.nested.a = value
+        box.value.nested.b = value + 1
+        box.value.nested.inner.arr_arr[index][index] = value + 2
+        box.value.nested.inner.c = value + 3
+        box.value.nested.inner.d = value + 4
+        box.value.nested.woah[index].arr_arr[index][index] = value + 5
 
     @arc4.abimethod()
     def nested_read(self, i1: UInt64, i2: UInt64, i3: UInt64) -> UInt64:
-        box = Box(NestedStruct, key="box")
-        a = box.value.a
-        b = box.value.b
-        arr_arr = box.value.inner.arr_arr[i1][i2]
-        c = box.value.inner.c
-        d = box.value.inner.d
-        woah_arr_arr = box.value.woah[i1].arr_arr[i2][i3]
+        box = Box(LargeNestedStruct, key="box")
+        a = box.value.nested.a
+        b = box.value.nested.b
+        arr_arr = box.value.nested.inner.arr_arr[i1][i2]
+        c = box.value.nested.inner.c
+        d = box.value.nested.inner.d
+        woah_arr_arr = box.value.nested.woah[i1].arr_arr[i2][i3]
 
         return a + b + arr_arr + c + d + woah_arr_arr
 
@@ -312,6 +336,14 @@ class BoxContract(arc4.ARC4Contract):
         for val in self.dynamic_box.value:
             total += val
         return total
+
+    @arc4.abimethod
+    def write_dynamic_box(self, index: UInt64, value: UInt64) -> None:
+        self.dynamic_box.value[index] = value
+
+    @arc4.abimethod
+    def write_dynamic_arr_struct(self, index: UInt64, value: UInt64) -> None:
+        self.dynamic_arr_struct.value.arr[index] = value
 
     @arc4.abimethod
     def slice_box(self) -> None:

@@ -1626,24 +1626,58 @@ def test_dynamic_box(box_client: algokit_utils.ApplicationClient) -> None:
     dynamic_box = algosdk.abi.ABIType.from_string("uint64[]").decode(dynamic_box_bytes)
     assert dynamic_box == expected_array, "expected box contents to be correct"
 
+    box_client.call("write_dynamic_box", index=0, value=100, transaction_parameters=txn_params)
+    total_sim = simulate_call(box_client, "sum_dynamic_box", txn_params=txn_params)
+    expected_sum = 111 * sum(range(5)) + 100
+    assert (
+        total_sim.abi_results[0].return_value == expected_sum
+    ), f"expected sum to be {expected_sum}"
+
     box_client.call("delete_dynamic_box", transaction_parameters=txn_params)
 
 
 def test_nested_struct_box(box_client: algokit_utils.ApplicationClient) -> None:
     txn_params = _params_with_boxes("box", additional_refs=7)
-    r = iter(range(256))
+    r = iter(range(1, 256))
 
     def n() -> int:
         return next(r)
 
     def inner() -> object:
-        return n(), [[n()] * 4] * 3, n()
+        c, arr, d = (n() for _ in range(3))
+        return [c, [[arr] * 4 for _ in range(3)], d]
 
-    struct = (n(), inner(), [inner() for _ in range(3)], n())
+    struct = [n(), inner(), [inner() for _ in range(3)], n()]
     assert n() < 100, "too many ints"
     box_client.call("set_nested_struct", struct=struct, transaction_parameters=txn_params)
     response = box_client.call("nested_read", i1=1, i2=2, i3=3, transaction_parameters=txn_params)
-    assert response.return_value == 27, "expected sum to be correct"
+    assert response.return_value == 33, "expected sum to be correct"
+
+    box_client.call("nested_write", index=1, value=10, transaction_parameters=txn_params)
+    response = box_client.call("nested_read", i1=1, i2=2, i3=3, transaction_parameters=txn_params)
+    assert response.return_value == 60, "expected sum to be correct"
+
+    # modify local struct to match expected modifications performed by nested_write
+    struct[0] = 10  # a
+    struct[3] = 11  # b
+    inner_struct = struct[1]
+    assert isinstance(inner_struct, list)
+    inner_struct[1][1][1] = 12  # nested.arr_arr[1][1]
+    inner_struct[0] = 13  # c
+    inner_struct[2] = 14  # d
+    woah_1 = struct[2][1]  # type: ignore[index]
+    assert isinstance(woah_1, list)
+    woah_1[1][1][1] = 15  # woah[1].arr_arr[1][1]
+
+    # verify box contents
+    box_response = box_client.algod_client.application_box_by_name(box_client.app_id, b"box")
+    assert isinstance(box_response, dict)
+    dynamic_box_bytes = base64.b64decode(box_response["value"])
+    assert len(dynamic_box_bytes) > 4096, "expected box contents to exceed max stack value size"
+    dynamic_box = algosdk.abi.ABIType.from_string(
+        "(byte[4096],(uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))"
+    ).decode(dynamic_box_bytes)
+    assert dynamic_box == [[0] * 4096, struct], "expected box contents to be correct"
 
 
 def test_dynamic_arr_in_struct_box(box_client: algokit_utils.ApplicationClient) -> None:
@@ -1720,6 +1754,15 @@ def test_dynamic_arr_in_struct_box(box_client: algokit_utils.ApplicationClient) 
         dynamic_box_bytes
     )
     assert dynamic_box == [1, expected_array, 2, []], "expected box contents to be correct"
+
+    box_client.call(
+        "write_dynamic_arr_struct", index=0, value=100, transaction_parameters=txn_params
+    )
+    total_sim = simulate_call(box_client, "sum_dynamic_arr_struct", txn_params=txn_params)
+    expected_sum = 3 + num_appends * sum(range(5)) + 100
+    assert (
+        total_sim.abi_results[0].return_value == expected_sum
+    ), f"expected sum to be {expected_sum}"
 
     box_client.call("delete_dynamic_arr_struct", transaction_parameters=txn_params)
 
