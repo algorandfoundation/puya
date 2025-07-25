@@ -9,6 +9,7 @@ class PuyaLibIR(enum.StrEnum):
     ensure_budget = "_puya_lib.util.ensure_budget"
     is_substring = "_puya_lib.bytes_.is_substring"
     dynamic_array_pop_bit = "_puya_lib.arc4.dynamic_array_pop_bit"
+    r_trim = "_puya_lib.arc4.r_trim"
     dynamic_array_pop_fixed_size = "_puya_lib.arc4.dynamic_array_pop_fixed_size"
     dynamic_array_pop_byte_length_head = "_puya_lib.arc4.dynamic_array_pop_byte_length_head"
     dynamic_array_pop_dynamic_element = "_puya_lib.arc4.dynamic_array_pop_dynamic_element"
