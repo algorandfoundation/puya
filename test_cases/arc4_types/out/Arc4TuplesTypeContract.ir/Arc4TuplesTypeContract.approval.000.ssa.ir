@@ -33,8 +33,7 @@ main test_cases.arc4_types.tuples.Arc4TuplesTypeContract.approval_program:
         let j#0: Encoded(bool8) = tmp%24#0
         let k#0: Encoded(uint8) = tmp%25#0
         let tuple_item%0#0: Encoded(uint8) = extract_value(boolean_packing#0, 10)
-        let values%0#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(tuple_item%0#0)
-        let reinterpret_biguint%0#0: biguint = values%0#0
+        let reinterpret_biguint%0#0: biguint = tuple_item%0#0
         let reinterpret_biguint%1#0: biguint = k#0
         let tmp%26#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
         (assert tmp%26#0)
@@ -255,20 +254,17 @@ subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_stuff(test_t
         let d#0: Encoded(len+utf8[]) = tmp%3#0
         let e#0: Encoded(uint8) = tmp%4#0
         let tuple_item%0#0: Encoded(uint8) = extract_value(test_tuple#0, 0)
-        let values%0#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(tuple_item%0#0)
-        let reinterpret_biguint%0#0: biguint = values%0#0
+        let reinterpret_biguint%0#0: biguint = tuple_item%0#0
         let reinterpret_biguint%1#0: biguint = a#0
         let tmp%5#0: bool = (b== reinterpret_biguint%0#0 reinterpret_biguint%1#0)
         (assert tmp%5#0)
         let tuple_item%1#0: Encoded(uint8) = extract_value(test_tuple#0, -1)
-        let values%1#0: Encoded(uint8) = decode_bytes<Encoded(uint8)>(tuple_item%1#0)
-        let reinterpret_biguint%2#0: biguint = values%1#0
+        let reinterpret_biguint%2#0: biguint = tuple_item%1#0
         let reinterpret_biguint%3#0: biguint = e#0
         let tmp%6#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
         (assert tmp%6#0)
         let tuple_item%2#0: Encoded(len+utf8[]) = extract_value(test_tuple#0, -2)
-        let values%2#0: Encoded(len+utf8[]) = decode_bytes<Encoded(len+utf8[])>(tuple_item%2#0)
-        let tmp%7#0: bool = (== values%2#0 d#0)
+        let tmp%7#0: bool = (== tuple_item%2#0 d#0)
         (assert tmp%7#0)
         let tmp%8#0: uint64 = decode_bytes<uint64>(a#0)
         let tmp%9#0: uint64 = decode_bytes<uint64>(b#0)
@@ -290,31 +286,25 @@ subroutine test_cases.arc4_types.tuples.Arc4TuplesTypeContract.test_copy() -> vo
         let tmp%1#0: Encoded(uint8,(len+uint8[])) = bytes_encode<(uint8,(len+uint8[]))>(0x00, tmp%0#0)
         let tup#0: Encoded(uint8,(len+uint8[])) = tmp%1#0
         let tuple_item%0#0: Encoded(len+uint8[]) = extract_value(tup#0, 1)
-        let values%0#0: Encoded(len+uint8[]) = decode_bytes<Encoded(len+uint8[])>(tuple_item%0#0)
         let tmp%2#0: Encoded(uint8[]) = bytes_encode<uint8[]>(0x00)
-        let concat%0#0: Encoded(len+uint8[]) = (concat values%0#0 tmp%2#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 values%0#0 0u)
+        let concat%0#0: Encoded(len+uint8[]) = (concat tuple_item%0#0 tmp%2#0) // on error: max array length exceeded
+        let extract_uint16%0#0: uint64 = (extract_uint16 tuple_item%0#0 0u)
         let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
         let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = replace%0#0
-        let encoded_value%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(as_Encoded(len+uint8[])%0#0)
-        let updated_tuple%0#0: Encoded(uint8,(len+uint8[])) = replace_value(tup#0, 1, encoded_value%0#0)
+        let updated_tuple%0#0: Encoded(uint8,(len+uint8[])) = replace_value(tup#0, 1, as_Encoded(len+uint8[])%0#0)
         let tup#1: Encoded(uint8,(len+uint8[])) = updated_tuple%0#0
         let tuple_item%1#0: Encoded(len+uint8[]) = extract_value(tup#1, 1)
-        let values%1#0: Encoded(len+uint8[]) = decode_bytes<Encoded(len+uint8[])>(tuple_item%1#0)
         let encoded_array%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x00)
-        let tmp%3#0: bool = (== values%1#0 encoded_array%0#0)
+        let tmp%3#0: bool = (== tuple_item%1#0 encoded_array%0#0)
         (assert tmp%3#0)
         let tup2#0: Encoded(uint8,(len+uint8[])) = tup#1
-        let encoded_value%1#0: Encoded(uint8) = bytes_encode<uint8>(0x01)
-        let updated_tuple%1#0: Encoded(uint8,(len+uint8[])) = replace_value(tup#1, 1, 0u, encoded_value%1#0)
+        let updated_tuple%1#0: Encoded(uint8,(len+uint8[])) = replace_value(tup#1, 1, 0u, 0x01)
         let tup#2: Encoded(uint8,(len+uint8[])) = updated_tuple%1#0
         let tuple_item%2#0: Encoded(len+uint8[]) = extract_value(tup#2, 1)
-        let values%2#0: Encoded(len+uint8[]) = decode_bytes<Encoded(len+uint8[])>(tuple_item%2#0)
         let tuple_item%3#0: Encoded(len+uint8[]) = extract_value(tup2#0, 1)
-        let values%3#0: Encoded(len+uint8[]) = decode_bytes<Encoded(len+uint8[])>(tuple_item%3#0)
-        let tmp%4#0: bool = (!= values%2#0 values%3#0)
+        let tmp%4#0: bool = (!= tuple_item%2#0 tuple_item%3#0)
         (assert tmp%4#0)
         return 

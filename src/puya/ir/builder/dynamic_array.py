@@ -120,7 +120,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
             ):
                 materialised_iterable = self.factory.materialise_single(iterable)
                 iterable_length: ir.ValueProvider = get_length(
-                    self.context, iterable_encoding, materialised_iterable, self.loc
+                    iterable_encoding, materialised_iterable, self.loc
                 )
                 if iterable_encoding.length_header:
                     iterable = self.factory.extract_to_end(materialised_iterable, 2)
@@ -153,7 +153,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
                 value=len(iterable_ir_type.elements), source_location=self.loc
             )
 
-            encoded_iterable = ir.BytesEncode(
+            encoded_iterable = ir.BytesEncode.maybe(
                 values=self.factory.materialise_values(iterable),
                 values_type=iterable_ir_type,
                 encoding=encodings.ArrayEncoding.dynamic(
@@ -171,7 +171,7 @@ class _DynamicArrayBuilderImpl(DynamicArrayBuilder, abc.ABC):
         if self.pop_element_ir_type is None:
             raise CodeError("unsupported pop operation", self.loc)
         return self.factory.materialise_multi_value(
-            ir.DecodeBytes(
+            ir.DecodeBytes.maybe(
                 value=encoded_item,
                 encoding=self.array_encoding.element,
                 ir_type=self.pop_element_ir_type,
@@ -246,7 +246,7 @@ class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
             (element_ir_type,) = set(iterable_ir_type.elements)
             element_encoding = self.array_encoding.element
             for _ in range(tuple_size):
-                encoded_element_vp = ir.BytesEncode(
+                encoded_element_vp = ir.BytesEncode.maybe(
                     values=values[: element_ir_type.arity],
                     encoding=element_encoding,
                     values_type=element_ir_type,

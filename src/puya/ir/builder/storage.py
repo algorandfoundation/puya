@@ -473,7 +473,7 @@ class _ARC4StorageCodec(StorageCodec):
     def encode(
         self, context: IRFunctionBuildContext, values: Sequence[ir.Value], loc: SourceLocation
     ) -> ir.Value:
-        encoded_vp = ir.BytesEncode(
+        encoded_vp = ir.BytesEncode.maybe(
             values=values,
             values_type=self._declared_type,
             encoding=self._encoded_type.encoding,
@@ -489,7 +489,7 @@ class _ARC4StorageCodec(StorageCodec):
     def decode(
         self, context: IRFunctionBuildContext, value: ir.Value, loc: SourceLocation
     ) -> ir.ValueProvider:
-        return ir.DecodeBytes(
+        return ir.DecodeBytes.maybe(
             value=value,
             encoding=self._encoded_type.encoding,
             ir_type=self._declared_type,

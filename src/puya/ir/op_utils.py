@@ -110,7 +110,7 @@ class OpFactory:
     context: IRRegisterContext
     source_location: SourceLocation | None
 
-    def add(self, a: Value, b: Value | int, temp_desc: str = "add") -> Register:
+    def add(self, a: Value | int, b: Value | int, temp_desc: str = "add") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -519,6 +519,14 @@ class OpFactory:
             source_location=self.source_location,
         )
         return result
+
+    def box_extract_u16(
+        self,
+        box_key: Value | bytes,
+        offset: Value | int,
+    ) -> Register:
+        u16_bytes = self.box_extract(box_key, offset, 2, PrimitiveIRType.bytes)
+        return self.btoi(u16_bytes)
 
     def box_replace(
         self, box_key: Value | bytes, offset: Value | int, value: Value | bytes

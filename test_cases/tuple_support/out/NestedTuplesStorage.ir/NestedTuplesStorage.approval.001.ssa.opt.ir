@@ -6,7 +6,7 @@ main test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_entrypo
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, 0u)
         (app_global_put "tup" encoded_for_storage%0#0)
-        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (encoded_for_storage%0#0, 1u)
+        let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
         let encoded_for_storage%1#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
@@ -95,10 +95,9 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.bootstrap(
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%0#0) // check self.tup exists
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%0#0)
-        (box_del "box")
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(encoded_array%0#0, awst_tmp%1#0)
         box_write("box", encoded_for_storage%0#0)
-        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (maybe_value%0#0, maybe_exists%0#0)
+        let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "tup")
         (assert maybe_exists%1#0) // check self.tup exists
         let (awst_tmp%2#0: Encoded(len+uint64[]), awst_tmp%3#0: uint64) = decode_bytes<(Encoded(len+uint64[]),uint64,)>(maybe_value%1#0)
         let tmp%0#0: account = (txn Sender)
@@ -133,7 +132,6 @@ subroutine test_cases.tuple_support.tuple_storage.NestedTuplesStorage.mutate_box
         let as_bytes%0#0: bytes[8] = (itob add%0#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
-        (box_del "box")
         let encoded_for_storage%0#0: Encoded((len+uint64[]),uint64) = bytes_encode<((len+uint64[]),uint64)>(replace%0#0, tmp%1#0)
         box_write("box", encoded_for_storage%0#0)
         return 

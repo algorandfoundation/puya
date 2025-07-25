@@ -8,7 +8,7 @@ main:
     intc_0 // 0
     dupn 13
     bytec_2 // ""
-    dupn 24
+    dupn 27
     txn NumAppArgs
     bz main_bare_routing@29
     pushbytess 0x44d42f99 0xb7eaa60b 0x743d70ed 0x1c7e0494 0xa2d5860b 0xe05fc564 0x1e092b83 0x01310262 0xc8654a98 0x89d196f8 0x6cb7c991 0x9898bf02 0xf6b61ee8 0x60b86a7b 0x73ad283f 0x529dfae9 0x206d514f 0xe06465e2 0xec0300a2 0xecdf14af 0x511aca64 0x29852e4f 0x6d4aa358 0xb7cb96bd // method "test_uint64_array()void", method "test_biguint_array()void", method "test_bool_array(uint64)void", method "test_fixed_size_tuple_array()void", method "test_fixed_size_named_tuple_array()void", method "test_dynamic_sized_tuple_array()void", method "test_dynamic_sized_named_tuple_array()void", method "test_implicit_conversion_log(uint64[])void", method "test_implicit_conversion_emit(uint64[])void", method "test_nested_array(uint64,uint64[][])uint64[]", method "test_bit_packed_tuples()void", method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)", method "test_uint64_return(uint64)uint64[]", method "test_bool_return(uint64)bool[]", method "test_tuple_return(uint64)(uint64,bool,bool)[]", method "test_dynamic_tuple_return(uint64)(uint64,string)[]", method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]", method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]", method "test_concat_with_native_tuple((uint64,uint64))uint64[]", method "test_dynamic_concat_with_arc4_tuple((string,string))string[]", method "test_dynamic_concat_with_native_tuple((string,string))string[]", method "test_concat_immutable_dynamic((uint64,string)[],(uint64,string)[])(uint64,string)[]", method "test_immutable_arc4((uint64,uint64)[])(uint64,uint64)[]", method "test_imm_fixed_arr()(uint64,uint64)[3]"
@@ -28,7 +28,7 @@ main_test_imm_fixed_arr_route@26:
     pushint 48 // 48
     bzero
     dup
-    bury 38
+    bury 41
     txn NumAppArgs
     intc_1 // 1
     +
@@ -41,14 +41,14 @@ main_test_imm_fixed_arr_route@26:
     itob
     concat
     dup
-    bury 29
+    bury 32
     dup
     dig 1
     concat
     swap
     concat
     dup
-    bury 38
+    bury 41
     !=
     assert // expected arrays to be different
     intc_0 // 0
@@ -63,19 +63,19 @@ main_for_header@38:
     dup
     pushint 16 // 16
     *
-    dig 38
+    dig 41
     swap
-    dig 29
+    dig 32
     replace3
-    bury 38
+    bury 41
     intc_1 // 1
     +
     bury 16
     b main_for_header@38
 
 main_after_for@40:
-    dig 36
-    dig 36
+    dig 39
+    dig 39
     ==
     assert // expected arrays to be the same
     intc_0 // 0
@@ -90,11 +90,11 @@ main_for_header@41:
     dup
     pushint 16 // 16
     *
-    dig 38
+    dig 41
     swap
     pushint 16 // 16
     extract3 // on error: index access is out of bounds
-    dig 28
+    dig 31
     ==
     assert // expected items on iteration to be the same
     intc_1 // 1
@@ -104,7 +104,7 @@ main_for_header@41:
 
 main_after_for@43:
     bytec 7 // "imm_fixed_arr"
-    dig 37
+    dig 40
     dup
     cover 2
     app_global_put
@@ -174,10 +174,11 @@ main_test_concat_immutable_dynamic_route@24:
     uncover 2
     extract 2 0
     dig 2
+    extract 2 0
+    uncover 3
     intc_0 // 0
     extract_uint16
-    uncover 3
-    extract 2 0
+    swap
     callsub dynamic_array_concat_dynamic_element
     bytec_0 // 0x151f7c75
     swap
@@ -300,15 +301,15 @@ main_test_convert_to_array_and_back_route@19:
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
-    bury 25
+    bury 20
     extract 2 0
-    bury 28
+    bury 31
     intc_0 // 0
     bury 16
 
 main_for_header@58:
     dig 15
-    dig 24
+    dig 19
     <
     bz main_after_for@60
     dig 15
@@ -320,7 +321,7 @@ main_for_header@58:
     pushint 3 // 3
     %
     !
-    dig 30
+    dig 33
     cover 3
     dig 2
     itob
@@ -335,14 +336,14 @@ main_for_header@58:
     uncover 2
     swap
     concat // on error: max array length exceeded
-    bury 29
+    bury 32
     intc_1 // 1
     +
     bury 16
     b main_for_header@58
 
 main_after_for@60:
-    dig 27
+    dig 30
     dup
     len
     pushint 9 // 9
@@ -366,21 +367,21 @@ main_test_dynamic_tuple_return_route@18:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    bury 24
+    bury 19
     pushbytes 0x000100020000000000000000000a000548656c6c6f
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
 main_for_header@63:
     dig 15
-    dig 24
+    dig 19
     <
     bz main_after_for@65
     dig 15
     dup
     callsub times
-    dig 39
+    dig 42
     dup
     intc_0 // 0
     extract_uint16
@@ -406,7 +407,7 @@ main_for_header@63:
     intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    bury 39
+    bury 42
     intc_1 // 1
     +
     bury 16
@@ -414,7 +415,7 @@ main_for_header@63:
 
 main_after_for@65:
     bytec_0 // 0x151f7c75
-    dig 38
+    dig 41
     concat
     log
     intc_1 // 1
@@ -428,15 +429,15 @@ main_test_tuple_return_route@17:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    bury 24
+    bury 19
     pushbytes 0x0001000000000000000080
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
 main_for_header@68:
     dig 15
-    dig 24
+    dig 19
     <
     bz main_after_for@70
     dig 15
@@ -458,7 +459,7 @@ main_for_header@68:
     uncover 3
     setbit
     concat
-    dig 39
+    dig 42
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -470,7 +471,7 @@ main_for_header@68:
     itob
     extract 6 2
     replace2 0
-    bury 39
+    bury 42
     intc_1 // 1
     +
     bury 16
@@ -478,7 +479,7 @@ main_for_header@68:
 
 main_after_for@70:
     bytec_0 // 0x151f7c75
-    dig 38
+    dig 41
     concat
     log
     intc_1 // 1
@@ -492,15 +493,15 @@ main_test_bool_return_route@16:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    bury 24
+    bury 19
     pushbytes 0x0005a8
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
 main_for_header@73:
     dig 15
-    dig 24
+    dig 19
     <
     bz main_after_for@75
     dig 15
@@ -512,12 +513,12 @@ main_for_header@73:
     intc_0 // 0
     uncover 2
     setbit
-    dig 39
+    dig 42
     swap
     intc_1 // 1
     intc_3 // 8
     callsub dynamic_array_concat_bits
-    bury 39
+    bury 42
     intc_1 // 1
     +
     bury 16
@@ -525,7 +526,7 @@ main_for_header@73:
 
 main_after_for@75:
     bytec_0 // 0x151f7c75
-    dig 38
+    dig 41
     concat
     log
     intc_1 // 1
@@ -539,21 +540,21 @@ main_test_uint64_return_route@15:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    bury 24
+    bury 19
     pushbytes 0x0003000000000000000100000000000000020000000000000003
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
 main_for_header@78:
     dig 15
-    dig 24
+    dig 19
     <
     bz main_after_for@80
     dig 15
     dup
     itob
-    dig 39
+    dig 42
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -565,7 +566,7 @@ main_for_header@78:
     itob
     extract 6 2
     replace2 0
-    bury 39
+    bury 42
     intc_1 // 1
     +
     bury 16
@@ -573,7 +574,7 @@ main_for_header@78:
 
 main_after_for@80:
     bytec_0 // 0x151f7c75
-    dig 38
+    dig 41
     concat
     log
     intc_1 // 1
@@ -587,13 +588,13 @@ main_sum_uints_and_lengths_and_trues_route@14:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
-    bury 38
+    bury 41
     txna ApplicationArgs 2
-    bury 37
+    bury 40
     txna ApplicationArgs 3
-    bury 36
+    bury 39
     txna ApplicationArgs 4
-    bury 35
+    bury 38
     intc_0 // 0
     bury 4
     intc_0 // 0
@@ -604,16 +605,16 @@ main_sum_uints_and_lengths_and_trues_route@14:
     bury 9
     intc_0 // 0
     extract_uint16
-    bury 21
+    bury 23
     intc_0 // 0
     bury 14
 
 main_for_header@83:
     dig 13
-    dig 21
+    dig 23
     <
     bz main_after_for@85
-    dig 36
+    dig 39
     extract 2 0
     dig 14
     dup
@@ -630,22 +631,22 @@ main_for_header@83:
     b main_for_header@83
 
 main_after_for@85:
-    dig 35
+    dig 38
     intc_0 // 0
     extract_uint16
-    bury 19
+    bury 22
     intc_0 // 0
     bury 12
 
 main_for_header@86:
     dig 11
-    dig 19
+    dig 22
     <
     bz main_after_for@90
     dig 11
     pushint 16 // 16
     +
-    dig 36
+    dig 39
     swap
     getbit
     dig 7
@@ -666,19 +667,19 @@ main_after_if_else@89:
     b main_for_header@86
 
 main_after_for@90:
-    dig 34
+    dig 37
     intc_0 // 0
     extract_uint16
-    bury 18
+    bury 21
     intc_0 // 0
     bury 11
 
 main_for_header@91:
     dig 10
-    dig 18
+    dig 21
     <
     bz main_after_for@97
-    dig 34
+    dig 37
     extract 2 0
     dig 11
     pushint 9 // 9
@@ -729,19 +730,19 @@ main_after_if_else@96:
     b main_for_header@91
 
 main_after_for@97:
-    dig 33
+    dig 36
     intc_0 // 0
     extract_uint16
-    bury 17
+    bury 20
     intc_0 // 0
     bury 15
 
 main_for_header@98:
     dig 14
-    dig 17
+    dig 20
     <
     bz main_after_for@100
-    dig 33
+    dig 36
     extract 2 0
     dig 15
     dup
@@ -754,7 +755,7 @@ main_for_header@98:
     dig 2
     intc_1 // 1
     +
-    dig 20
+    dig 23
     dig 1
     - // on error: index access is out of bounds
     dig 3
@@ -823,13 +824,13 @@ main_test_bit_packed_tuples_route@13:
     txn ApplicationID
     assert // can only call when not creating
     bytec_1 // 0x0000
+    bury 39
+    bytec_1 // 0x0000
     bury 36
     bytec_1 // 0x0000
-    bury 33
+    bury 35
     bytec_1 // 0x0000
-    bury 32
-    bytec_1 // 0x0000
-    bury 31
+    bury 34
     intc_0 // 0
     bury 16
 
@@ -851,7 +852,7 @@ main_for_header@103:
     intc_1 // 1
     uncover 2
     setbit
-    dig 37
+    dig 40
     dup
     cover 2
     dig 1
@@ -864,7 +865,7 @@ main_for_header@103:
     itob
     extract 6 2
     replace2 0
-    bury 38
+    bury 41
     dig 1
     intc_2 // 2
     ==
@@ -908,7 +909,7 @@ main_for_header@103:
     swap
     dig 1
     concat
-    dig 38
+    dig 41
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -920,7 +921,7 @@ main_for_header@103:
     itob
     extract 6 2
     replace2 0
-    bury 38
+    bury 41
     dig 4
     pushint 7 // 7
     ==
@@ -934,7 +935,7 @@ main_for_header@103:
     dup
     dig 2
     concat
-    dig 36
+    dig 39
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -946,7 +947,7 @@ main_for_header@103:
     itob
     extract 6 2
     replace2 0
-    bury 36
+    bury 39
     uncover 3
     intc_3 // 8
     ==
@@ -957,7 +958,7 @@ main_for_header@103:
     concat
     swap
     concat
-    dig 32
+    dig 35
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -969,33 +970,33 @@ main_for_header@103:
     itob
     extract 6 2
     replace2 0
-    bury 32
+    bury 35
     bury 16
     b main_for_header@103
 
 main_after_for@105:
-    dig 35
+    dig 38
     dup
     intc_0 // 0
     extract_uint16
     pushint 5 // 5
     ==
     assert
-    dig 33
+    dig 36
     dup
     intc_0 // 0
     extract_uint16
     pushint 5 // 5
     ==
     assert
-    dig 33
+    dig 36
     dup
     intc_0 // 0
     extract_uint16
     pushint 5 // 5
     ==
     assert
-    dig 33
+    dig 36
     dup
     intc_0 // 0
     extract_uint16
@@ -1025,19 +1026,19 @@ main_test_nested_array_route@12:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    bury 23
+    bury 18
     txna ApplicationArgs 2
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
 main_for_header@108:
     dig 15
-    dig 23
+    dig 18
     <
     bz main_after_for@113
     bytec_1 // 0x0000
-    bury 30
+    bury 33
     intc_0 // 0
     bury 10
 
@@ -1049,7 +1050,7 @@ main_for_header@110:
     dig 9
     dup
     itob
-    dig 31
+    dig 34
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -1061,27 +1062,27 @@ main_for_header@110:
     itob
     extract 6 2
     replace2 0
-    bury 31
+    bury 34
     intc_1 // 1
     +
     bury 10
     b main_for_header@110
 
 main_after_for@112:
-    dig 37
+    dig 40
     dup
     intc_0 // 0
     extract_uint16
     swap
     extract 2 0
     bytec 4 // 0x0002
-    dig 32
+    dig 35
     concat
     cover 2
     intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    bury 38
+    bury 41
     dig 15
     intc_1 // 1
     +
@@ -1090,20 +1091,20 @@ main_after_for@112:
 
 main_after_for@113:
     bytec_1 // 0x0000
-    bury 26
-    dig 37
+    bury 29
+    dig 40
     intc_0 // 0
     extract_uint16
-    bury 21
+    bury 25
     intc_0 // 0
     bury 14
 
 main_for_header@114:
     dig 13
-    dig 21
+    dig 25
     <
     bz main_after_for@119
-    dig 37
+    dig 40
     extract 2 0
     dig 14
     intc_2 // 2
@@ -1119,21 +1120,21 @@ main_for_header@114:
     +
     extract3
     dup
-    bury 30
+    bury 33
     intc_0 // 0
     bury 3
     intc_0 // 0
     extract_uint16
-    bury 20
+    bury 24
     intc_0 // 0
     bury 13
 
 main_for_header@116:
     dig 12
-    dig 20
+    dig 24
     <
     bz main_after_for@118
-    dig 28
+    dig 31
     extract 2 0
     dig 13
     dup
@@ -1152,7 +1153,7 @@ main_for_header@116:
 main_after_for@118:
     dig 1
     itob
-    dig 26
+    dig 29
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -1164,7 +1165,7 @@ main_after_for@118:
     itob
     extract 6 2
     replace2 0
-    bury 26
+    bury 29
     dig 13
     intc_1 // 1
     +
@@ -1173,7 +1174,7 @@ main_after_for@118:
 
 main_after_for@119:
     bytec_0 // 0x151f7c75
-    dig 26
+    dig 29
     concat
     log
     intc_1 // 1
@@ -1210,7 +1211,7 @@ main_test_dynamic_sized_named_tuple_array_route@9:
     txn ApplicationID
     assert // can only call when not creating
     bytec_1 // 0x0000
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
@@ -1225,7 +1226,7 @@ main_for_header@126:
     +
     swap
     callsub times
-    dig 39
+    dig 42
     dup
     intc_0 // 0
     extract_uint16
@@ -1251,16 +1252,16 @@ main_for_header@126:
     intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    bury 39
+    bury 42
     bury 16
     b main_for_header@126
 
 main_after_for@128:
-    dig 37
+    dig 40
     intc_0 // 0
     extract_uint16
     dup
-    bury 20
+    bury 27
     pushint 5 // 5
     ==
     assert
@@ -1272,7 +1273,7 @@ main_for_header@129:
     pushint 5 // 5
     <
     bz main_after_for@131
-    dig 37
+    dig 40
     extract 2 0
     dig 16
     dup
@@ -1285,7 +1286,7 @@ main_for_header@129:
     dig 2
     intc_1 // 1
     +
-    dig 22
+    dig 29
     dig 1
     - // on error: index access is out of bounds
     dig 3
@@ -1325,7 +1326,7 @@ main_for_header@129:
     b main_for_header@129
 
 main_after_for@131:
-    dig 37
+    dig 40
     callsub dynamic_array_pop_dynamic_element
     bury 1
     dup
@@ -1432,7 +1433,7 @@ main_test_dynamic_sized_tuple_array_route@8:
     txn ApplicationID
     assert // can only call when not creating
     bytec_1 // 0x0000
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
@@ -1447,7 +1448,7 @@ main_for_header@134:
     +
     swap
     bzero
-    dig 39
+    dig 42
     dup
     intc_0 // 0
     extract_uint16
@@ -1473,16 +1474,16 @@ main_for_header@134:
     intc_1 // 1
     uncover 3
     callsub dynamic_array_concat_dynamic_element
-    bury 39
+    bury 42
     bury 16
     b main_for_header@134
 
 main_after_for@136:
-    dig 37
+    dig 40
     intc_0 // 0
     extract_uint16
     dup
-    bury 20
+    bury 28
     pushint 5 // 5
     ==
     assert
@@ -1494,7 +1495,7 @@ main_for_header@137:
     pushint 5 // 5
     <
     bz main_after_for@139
-    dig 37
+    dig 40
     extract 2 0
     dig 16
     dup
@@ -1507,7 +1508,7 @@ main_for_header@137:
     dig 2
     intc_1 // 1
     +
-    dig 22
+    dig 30
     dig 1
     - // on error: index access is out of bounds
     dig 3
@@ -1547,7 +1548,7 @@ main_for_header@137:
     b main_for_header@137
 
 main_after_for@139:
-    dig 37
+    dig 40
     callsub dynamic_array_pop_dynamic_element
     bury 1
     dup
@@ -1656,7 +1657,7 @@ main_test_fixed_size_named_tuple_array_route@7:
     txn ApplicationID
     assert // can only call when not creating
     bytec_1 // 0x0000
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
@@ -1686,7 +1687,7 @@ main_for_header@142:
     uncover 3
     setbit
     concat
-    dig 39
+    dig 42
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -1698,14 +1699,14 @@ main_for_header@142:
     itob
     extract 6 2
     replace2 0
-    bury 39
+    bury 42
     intc_1 // 1
     +
     bury 16
     b main_for_header@142
 
 main_after_for@144:
-    dig 37
+    dig 40
     dup
     intc_0 // 0
     extract_uint16
@@ -1742,7 +1743,7 @@ main_test_fixed_size_tuple_array_route@6:
     txn ApplicationID
     assert // can only call when not creating
     bytec_1 // 0x0000
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
@@ -1763,7 +1764,7 @@ main_for_header@147:
     swap
     itob
     concat
-    dig 39
+    dig 42
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -1775,12 +1776,12 @@ main_for_header@147:
     itob
     extract 6 2
     replace2 0
-    bury 39
+    bury 42
     bury 16
     b main_for_header@147
 
 main_after_for@149:
-    dig 37
+    dig 40
     dup
     intc_0 // 0
     extract_uint16
@@ -1892,7 +1893,7 @@ main_test_bool_array_route@5:
     btoi
     bury 9
     bytec_1 // 0x0000
-    bury 38
+    bury 41
     intc_0 // 0
     bury 16
 
@@ -1910,32 +1911,32 @@ main_for_header@152:
     intc_0 // 0
     uncover 2
     setbit
-    dig 39
+    dig 42
     swap
     intc_1 // 1
     intc_3 // 8
     callsub dynamic_array_concat_bits
-    bury 39
+    bury 42
     intc_1 // 1
     +
     bury 16
     b main_for_header@152
 
 main_after_for@154:
-    dig 37
+    dig 40
     intc_0 // 0
     extract_uint16
     dup
-    bury 23
+    bury 18
     dig 9
     dup
     cover 2
     ==
     assert
     bz main_after_if_else@156
-    dig 21
+    dig 16
     assert // index access is out of bounds
-    dig 37
+    dig 40
     pushint 16 // 16
     getbit
     !
@@ -1947,10 +1948,10 @@ main_after_if_else@156:
     >
     bz main_after_if_else@158
     intc_1 // 1
-    dig 22
+    dig 17
     <
     assert // index access is out of bounds
-    dig 37
+    dig 40
     pushint 17 // 17
     getbit
     !
@@ -1962,10 +1963,10 @@ main_after_if_else@158:
     >
     bz main_after_if_else@160
     intc_2 // 2
-    dig 22
+    dig 17
     <
     assert // index access is out of bounds
-    dig 37
+    dig 40
     pushint 18 // 18
     getbit
     assert // expected element 2 to be True
@@ -1979,12 +1980,12 @@ main_after_if_else@160:
     intc_1 // 1
     -
     dup
-    dig 23
+    dig 18
     <
     assert // index access is out of bounds
     pushint 16 // 16
     +
-    dig 38
+    dig 41
     swap
     getbit
     !
@@ -1992,17 +1993,17 @@ main_after_if_else@160:
 
 main_after_if_else@162:
     pushbytes "g"
-    dig 38
+    dig 41
     app_global_put
     dig 8
     bz main_after_if_else@164
-    dig 21
+    dig 16
     intc_1 // 1
     -
     dup
     itob
     extract 6 0
-    dig 39
+    dig 42
     swap
     replace2 0
     dig 1
@@ -2045,7 +2046,7 @@ main_test_biguint_array_route@4:
     pushint 64 // 64
     bzero
     dup
-    bury 41
+    bury 44
     b|
     bytec_1 // 0x0000
     swap
@@ -2053,7 +2054,7 @@ main_test_biguint_array_route@4:
     pushbytes 0x0001
     replace2 0
     dup
-    bury 39
+    bury 42
     dup
     intc_0 // 0
     extract_uint16
@@ -2084,9 +2085,9 @@ main_for_header@167:
     dig 15
     dup
     itob
-    dig 40
+    dig 43
     b|
-    dig 39
+    dig 42
     dup
     uncover 2
     concat // on error: max array length exceeded
@@ -2098,14 +2099,14 @@ main_for_header@167:
     itob
     extract 6 2
     replace2 0
-    bury 39
+    bury 42
     intc_1 // 1
     +
     bury 16
     b main_for_header@167
 
 main_after_for@169:
-    dig 37
+    dig 40
     dup
     intc_0 // 0
     extract_uint16
@@ -2136,7 +2137,7 @@ main_after_for@169:
     pushint 64 // 64
     <=
     assert // overflow
-    dig 41
+    dig 44
     b|
     uncover 2
     swap
@@ -2254,7 +2255,7 @@ main_test_uint64_array_route@3:
     extract 6 2
     replace2 0
     dup
-    bury 39
+    bury 42
     dup
     intc_0 // 0
     extract_uint16
@@ -2279,26 +2280,26 @@ main_test_uint64_array_route@3:
     ==
     assert
     intc_0 // 0
-    bury 25
+    bury 28
 
 main_for_header@172:
-    dig 24
+    dig 27
     pushint 3 // 3
     <
     bz main_after_for@174
-    dig 37
+    dig 40
     intc_3 // 8
     callsub dynamic_array_pop_fixed_size
-    bury 39
+    bury 42
     pop
-    dig 24
+    dig 27
     intc_1 // 1
     +
-    bury 25
+    bury 28
     b main_for_header@172
 
 main_after_for@174:
-    dig 37
+    dig 40
     dup
     intc_0 // 0
     extract_uint16

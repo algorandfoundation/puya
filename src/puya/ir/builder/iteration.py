@@ -192,7 +192,6 @@ def handle_for_in_loop(context: IRFunctionBuildContext, statement: awst_nodes.Fo
             array_encoding = wtype_to_encoding(iterable_wtype, loc)
             (indexable_size,) = context.visitor.materialise_value_provider(
                 sequence.get_length(
-                    context,
                     array_encoding,
                     array,
                     loc,

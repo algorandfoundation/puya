@@ -85,37 +85,34 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
 subroutine test_cases.array.unused_opt_allowed.AbiCallContract.test_implicit_conversion_abi_call(arr: Encoded(len+uint64[]), app: uint64) -> void:
     block@0: // L13
         itxn_begin
-        let tmp%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(arr#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[])uint64")
-        ((itxn_field ApplicationArgs) tmp%0#0)
+        ((itxn_field ApplicationArgs) arr#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let nested_arr#0: Encoded(len+(len+uint64[])[]) = bytes_encode<(len+(len+uint64[])[])>()
         let extract_uint16%0#0: uint64 = (extract_uint16 nested_arr#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) nested_arr#0)
-        let tmp%1#0: Encoded((len+uint64[])[]) = bytes_encode<(len+uint64[])[]>(arr#0)
-        let nested_arr#1: Encoded(len+(len+uint64[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%1#0)
+        let tmp%0#0: Encoded((len+uint64[])[]) = bytes_encode<(len+uint64[])[]>(arr#0)
+        let nested_arr#1: Encoded(len+(len+uint64[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%0#0)
         itxn_begin
-        let tmp%2#0: Encoded(len+(len+uint64[])[]) = bytes_encode<(len+(len+uint64[])[])>(nested_arr#1)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call(uint64[][])uint64")
-        ((itxn_field ApplicationArgs) tmp%2#0)
+        ((itxn_field ApplicationArgs) nested_arr#1)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
         let indirect_nested_arr#0: Encoded(len+((len+uint64[]),uint64)[]) = bytes_encode<(len+((len+uint64[]),uint64)[])>()
-        let array_length%0#0: uint64 = (extract_uint16 arr#0 0u)
+        let tmp%1#0: uint64 = array_len(arr#0)
         let extract_uint16%1#0: uint64 = (extract_uint16 indirect_nested_arr#0 0u)
         let extract_to_end%1#0: bytes = ((extract 2 0) indirect_nested_arr#0)
-        let tmp%3#0: Encoded(((len+uint64[]),uint64)[]) = bytes_encode<((len+uint64[]),uint64)[]>(arr#0, array_length%0#0)
-        let as_Encoded(len+((len+uint64[]),uint64)[])%0#0: Encoded(len+((len+uint64[]),uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, tmp%3#0)
+        let tmp%2#0: Encoded(((len+uint64[]),uint64)[]) = bytes_encode<((len+uint64[]),uint64)[]>(arr#0, tmp%1#0)
+        let as_Encoded(len+((len+uint64[]),uint64)[])%0#0: Encoded(len+((len+uint64[]),uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%1#0, 1u, tmp%2#0)
         itxn_begin
-        let tmp%4#0: Encoded(len+((len+uint64[]),uint64)[]) = bytes_encode<(len+((len+uint64[]),uint64)[])>(indirect_nested_arr#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "dont_call((uint64[],uint64)[])uint64")
-        ((itxn_field ApplicationArgs) tmp%4#0)
+        ((itxn_field ApplicationArgs) indirect_nested_arr#0)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

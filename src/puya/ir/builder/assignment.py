@@ -143,18 +143,12 @@ def handle_assignment(
         ):
             key_value = context.visitor.visit_and_materialise_single(awst_key)
             codec = storage.get_storage_codec(wtype, awst_nodes.AppStorageKind.box, field_location)
-            # del box first if size is dynamic
-            if codec.encoded_ir_type.num_bytes is None:
-                context.block_builder.add(
-                    ir.Intrinsic(
-                        op=AVMOp.box_del, args=[key_value], source_location=assignment_location
-                    )
-                )
             encode_result = codec.encode(context, source, field_location)
             context.block_builder.add(
                 ir.BoxWrite(
                     key=key_value,
                     value=encode_result,
+                    delete_first=codec.encoded_ir_type.num_bytes is None,
                     source_location=assignment_location,
                 )
             )

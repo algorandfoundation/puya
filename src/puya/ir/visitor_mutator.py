@@ -100,6 +100,10 @@ class IRMutator(IRVisitor[t.Any]):
         write.value = write.value.accept(self)
         return write
 
+    def visit_array_length(self, length: models.ArrayLength) -> models.ValueProvider:
+        length.base = length.base.accept(self)
+        return length
+
     def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider:
         read.base = read.base.accept(self)
         indexes = list[int | models.Value]()

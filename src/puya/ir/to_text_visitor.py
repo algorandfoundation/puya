@@ -117,6 +117,10 @@ class ToTextVisitor(IRVisitor[str]):
         return f"box_write({box}, {value})"
 
     @typing.override
+    def visit_array_length(self, read: models.ArrayLength) -> str:
+        return f"array_len({read.base.accept(self)})"
+
+    @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> str:
         base = read.base.accept(self)
         indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in read.indexes]

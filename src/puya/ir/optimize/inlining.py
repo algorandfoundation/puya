@@ -10,6 +10,7 @@ import networkx as nx  # type: ignore[import-untyped]
 from puya import log
 from puya.ir import models
 from puya.ir.optimize._call_graph import CallGraph
+from puya.ir.optimize._utils import HasHighLevelOps
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.optimize.intrinsic_simplification import COMPILE_TIME_CONSTANT_OPS
 from puya.ir.visitor import IRTraverser
@@ -89,9 +90,7 @@ def analyse_subroutines_for_inlining(
         return
     for sub in program.subroutines:
         if sub.inline is None and sub.id not in skip_routable_ids:
-            try:
-                _HasHighLevelOps().visit_all_blocks(sub.body)
-            except _HighLevelOpError:
+            if HasHighLevelOps.check(sub.body):
                 continue
             complexity = sum(
                 len(b.phis) + len(b.ops) + len(not_none(b.terminator).targets()) for b in sub.body
@@ -105,37 +104,6 @@ def analyse_subroutines_for_inlining(
                 for callee_id, _ in call_graph.callees(sub):
                     if not call_graph.has_path(sub.id, callee_id):
                         context.inlineable_calls.add((callee_id, sub.id))
-
-
-class _HighLevelOpError(Exception):
-    pass
-
-
-@attrs.define
-class _HasHighLevelOps(IRTraverser):
-    @typing.override
-    def visit_box_read(self, read: models.BoxRead) -> None:
-        raise _HighLevelOpError
-
-    @typing.override
-    def visit_box_write(self, write: models.BoxWrite) -> None:
-        raise _HighLevelOpError
-
-    @typing.override
-    def visit_extract_value(self, read: models.ExtractValue) -> None:
-        raise _HighLevelOpError
-
-    @typing.override
-    def visit_replace_value(self, write: models.ReplaceValue) -> None:
-        raise _HighLevelOpError
-
-    @typing.override
-    def visit_bytes_encode(self, encode: models.BytesEncode) -> None:
-        raise _HighLevelOpError
-
-    @typing.override
-    def visit_decode_bytes(self, decode: models.DecodeBytes) -> None:
-        raise _HighLevelOpError
 
 
 def _is_trivial(sub: models.Subroutine) -> bool:

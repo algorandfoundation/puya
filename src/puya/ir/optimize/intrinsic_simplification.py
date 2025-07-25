@@ -643,9 +643,10 @@ def _try_fold_intrinsic(
     elif intrinsic.op.code.startswith("extract_uint"):
         match intrinsic.args:
             case [
-                models.BytesConstant(value=bytes_value),
+                models.Value() as bytes_arg,
                 models.UInt64Constant(value=offset),
-            ]:
+            ] if (bytes_const := _get_byte_constant(register_assignments, bytes_arg)) is not None:
+                bytes_value = bytes_const.value
                 bit_size = int(intrinsic.op.code.removeprefix("extract_uint"))
                 byte_size = bit_size // 8
                 extracted = bytes_value[offset : offset + byte_size]
