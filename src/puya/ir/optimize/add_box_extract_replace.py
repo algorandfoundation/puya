@@ -6,7 +6,7 @@ import attrs
 from puya import log
 from puya.algo_constants import MAX_BYTES_LENGTH
 from puya.errors import InternalError
-from puya.ir import models
+from puya.ir import encodings, models
 from puya.ir.encodings import ArrayEncoding, BoolEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
 from puya.ir.op_utils import OpFactory, assert_value
@@ -148,8 +148,18 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         except KeyError:
             return write
 
-        # only support fixed size boxes
-        if agg_write.base_type.encoding.is_dynamic:
+        # only support fixed size writes
+        encoding = agg_write.base_type.encoding
+        indexes = list(reversed(agg_write.indexes))
+        while indexes:
+            index = indexes.pop()
+            if isinstance(encoding, encodings.TupleEncoding) and isinstance(index, int):
+                encoding = encoding.elements[index]
+            elif isinstance(encoding, encodings.ArrayEncoding):
+                encoding = encoding.element
+            else:
+                raise InternalError("invalid index sequence", agg_write.source_location)
+        if encoding.is_dynamic:
             return write
 
         # find corresponding read
