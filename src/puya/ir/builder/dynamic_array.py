@@ -212,21 +212,31 @@ class _FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
 
     @typing.override
     def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        element_encoding = self.array_encoding.element
-        if self.array_encoding.length_header:
-            invoke = invoke_puya_lib_subroutine(
-                self.context,
-                full_name=PuyaLibIR.dynamic_array_pop_fixed_size,
-                args=[array, element_encoding.checked_num_bytes],
-                source_location=self.loc,
-            )
-            popped, data = self.factory.materialise_values(invoke)
+        base_type = types.EncodedType(self.array_encoding)
+        length = self.factory.materialise_single(get_length(self.array_encoding, array, self.loc))
+        last_index = self.factory.sub(length, 1)
+        data = ir.ArrayPop(
+            base=array,
+            base_type=base_type,
+            array_encoding=self.array_encoding,
+            index=last_index,
+            source_location=self.loc,
+        )
+        if self.array_encoding.element.is_bit:
+            ir_type: types.IRType = types.bool_
         else:
-            array_bytes_len = self.factory.len(array)
-            start_offset = self.factory.sub(array_bytes_len, element_encoding.checked_num_bytes)
-            data = self.factory.extract3(array, 0, start_offset)
-            popped = self.factory.extract_to_end(array, start_offset)
-        return data, self._decode_popped_element(popped)
+            ir_type = types.EncodedType(self.array_encoding.element)
+        extract = ir.ExtractValue(
+            base=array,
+            base_type=base_type,
+            ir_type=ir_type,
+            check_bounds=False,
+            indexes=(last_index,),
+            source_location=self.loc,
+        )
+        encoded = self.factory.materialise_single(extract)
+        popped = self._decode_popped_element(encoded)
+        return self.factory.materialise_single(data), popped
 
 
 class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):

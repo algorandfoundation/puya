@@ -207,6 +207,12 @@ class SubroutineCollector(visitor.IRTraverser):
             PuyaLibIR.recalculate_head_for_elements_with_byte_length_head,
         )
 
+    def visit_array_pop(self, _: models.ArrayPop) -> None:
+        self.referenced_libs |= (
+            PuyaLibIR.r_trim,
+            PuyaLibIR.dynamic_array_pop_fixed_size,
+        )
+
     def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
         self.visit_subroutine(callsub.target)
 

@@ -79,6 +79,9 @@ class IRVisitor[T](ABC):
     def visit_array_length(self, read: puya.ir.models.ArrayLength) -> T: ...
 
     @abstractmethod
+    def visit_array_pop(self, pop: puya.ir.models.ArrayPop) -> T: ...
+
+    @abstractmethod
     def visit_extract_value(self, read: puya.ir.models.ExtractValue) -> T: ...
 
     @abstractmethod
@@ -192,6 +195,10 @@ class IRTraverser(IRVisitor[None]):
 
     def visit_array_length(self, length: puya.ir.models.ArrayLength) -> None:
         length.base.accept(self)
+
+    def visit_array_pop(self, pop: puya.ir.models.ArrayPop) -> None:
+        pop.base.accept(self)
+        pop.index.accept(self)
 
     def visit_extract_value(self, read: puya.ir.models.ExtractValue) -> None:
         read.base.accept(self)
@@ -325,6 +332,9 @@ class NoOpIRVisitor[T](IRVisitor[T | None]):
         return None
 
     def visit_array_length(self, read: puya.ir.models.ArrayLength) -> T | None:
+        return None
+
+    def visit_array_pop(self, pop: puya.ir.models.ArrayPop) -> T | None:
         return None
 
     def visit_extract_value(self, read: puya.ir.models.ExtractValue) -> T | None:

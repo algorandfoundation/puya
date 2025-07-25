@@ -10,6 +10,7 @@ from puya.ir import (
 )
 from puya.ir._puya_lib import PuyaLibIR
 from puya.ir.avm_ops import AVMOp
+from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
 from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
@@ -56,6 +57,22 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         return sequence.get_length(
             self, length.array_encoding, length.base, length.source_location
         )
+
+    @typing.override
+    def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueProvider:
+        array_encoding = pop.array_encoding
+        element_encoding = array_encoding.element
+        if array_encoding.length_header:
+            full_name = PuyaLibIR.dynamic_array_pop_fixed_size
+        else:
+            full_name = PuyaLibIR.r_trim
+        invoke = invoke_puya_lib_subroutine(
+            self,
+            full_name=full_name,
+            args=[pop.base, element_encoding.checked_num_bytes],
+            source_location=pop.source_location,
+        )
+        return invoke
 
     @typing.override
     def visit_extract_value(self, read: ir.ExtractValue) -> ir.Value:

@@ -442,6 +442,30 @@ class ArrayLength(ValueProvider):
 
 
 @attrs.define(eq=False, kw_only=True)
+class ArrayPop(ValueProvider):
+    base: Value = attrs.field()
+    """Array to splice"""
+    base_type: IRType = attrs.field(repr=lambda x: x.iname)
+    array_encoding: ArrayEncoding
+    index: Value
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.base_type,)
+
+    def _frozen_data(self) -> object:
+        return (
+            self.base,
+            self.base_type,
+            self.array_encoding,
+            self.index,
+        )
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_pop(self)
+
+
+@attrs.define(eq=False, kw_only=True)
 class _Aggregate(ValueProvider, abc.ABC):
     base: Value = attrs.field()
     # we retain the original type of the aggregate, in case this is lost during optimisations

@@ -41,22 +41,25 @@ def dynamic_array_pop_bit(array: Bytes) -> tuple[UInt64, Bytes]:
     return popped, result
 
 
+@subroutine(inline=True)
+def r_trim(b: Bytes, n: UInt64) -> Bytes:
+    """Remove the last n bytes from b"""
+    return substring(b, 0, b.length - n)
+
+
 @subroutine
-def dynamic_array_pop_fixed_size(array: Bytes, fixed_byte_size: UInt64) -> tuple[Bytes, Bytes]:
+def dynamic_array_pop_fixed_size(array: Bytes, fixed_byte_size: UInt64) -> Bytes:
     """
     Pop the last item from an arc4 dynamic array of fixed sized items
 
     array: The bytes for the source array
 
-    returns: tuple of (The popped item, The updated bytes for the source array)
+    returns: The updated bytes for the source array
     """
-    array_length = extract_uint16(array, 0)
+    result = r_trim(array, fixed_byte_size)
+    array_length = extract_uint16(result, 0)
     length_minus_1 = array_length - 1
-    result = replace(array, 0, extract(itob(length_minus_1), UINT16_OFFSET, 0))
-    item_location = result.length - fixed_byte_size
-    popped = extract(result, item_location, fixed_byte_size)
-    result = substring(result, 0, item_location)
-    return popped, result
+    return replace(result, 0, extract(itob(length_minus_1), UINT16_OFFSET, 0))
 
 
 @subroutine

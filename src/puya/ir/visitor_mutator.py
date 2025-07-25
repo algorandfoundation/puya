@@ -104,6 +104,11 @@ class IRMutator(IRVisitor[t.Any]):
         length.base = length.base.accept(self)
         return length
 
+    def visit_array_pop(self, pop: models.ArrayPop) -> models.ValueProvider:
+        pop.base = pop.base.accept(self)
+        pop.index = pop.index.accept(self)
+        return pop
+
     def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider:
         read.base = read.base.accept(self)
         indexes = list[int | models.Value]()

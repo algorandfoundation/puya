@@ -121,6 +121,12 @@ class ToTextVisitor(IRVisitor[str]):
         return f"array_len({read.base.accept(self)})"
 
     @typing.override
+    def visit_array_pop(self, pop: models.ArrayPop) -> str:
+        base = pop.base.accept(self)
+        index = pop.index.accept(self)
+        return f"array_pop({base}, {index})"
+
+    @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> str:
         base = read.base.accept(self)
         indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in read.indexes]
