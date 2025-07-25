@@ -170,18 +170,35 @@ contract BoxContract
   abimethod examples.box_storage.contract.BoxContract.set_nested_struct(struct: examples.box_storage.contract.NestedStruct): void
   {
     box: box_key = 'box'
-    Box[box]: examples.box_storage.contract.NestedStruct = struct.copy()
+    assert(struct.a != 0u, comment="struct.a is truthy")
+    struct_bytes: bytes = txna<ApplicationArgs, 1>()
+    struct_size: uint64 = len(struct_bytes)
+    tail_offset: uint64 = 4098u
+    box_create(box, tail_offset + struct_size)
+    box_replace(box, tail_offset - 2u, reinterpret_cast<bytes>(arc4_encode(tail_offset, arc4.uint16)))
+    box_replace(box, tail_offset, struct_bytes)
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.nested_write(index: uint64, value: uint64): void
+  {
+    box: box_key = 'box'
+    Box[box].nested.a: uint64 = value
+    Box[box].nested.b: uint64 = value + 1u
+    Box[box].nested.inner.arr_arr[index][index]: uint64 = value + 2u
+    Box[box].nested.inner.c: uint64 = value + 3u
+    Box[box].nested.inner.d: uint64 = value + 4u
+    Box[box].nested.woah[index].arr_arr[index][index]: uint64 = value + 5u
   }
   
   abimethod examples.box_storage.contract.BoxContract.nested_read(i1: uint64, i2: uint64, i3: uint64): uint64
   {
     box: box_key = 'box'
-    a: uint64 = Box[box].a
-    b: uint64 = Box[box].b
-    arr_arr: uint64 = Box[box].inner.arr_arr[i1][i2]
-    c: uint64 = Box[box].inner.c
-    d: uint64 = Box[box].inner.d
-    woah_arr_arr: uint64 = Box[box].woah[i1].arr_arr[i2][i3]
+    a: uint64 = Box[box].nested.a
+    b: uint64 = Box[box].nested.b
+    arr_arr: uint64 = Box[box].nested.inner.arr_arr[i1][i2]
+    c: uint64 = Box[box].nested.inner.c
+    d: uint64 = Box[box].nested.inner.d
+    woah_arr_arr: uint64 = Box[box].nested.woah[i1].arr_arr[i2][i3]
     return a + b + arr_arr + c + d + woah_arr_arr
   }
   
@@ -238,6 +255,16 @@ contract BoxContract
       total += val
     }
     return total
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.write_dynamic_box(index: uint64, value: uint64): void
+  {
+    Box['dynamic_box'][index]: uint64 = value
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.write_dynamic_arr_struct(index: uint64, value: uint64): void
+  {
+    Box['dynamic_arr_struct'].arr[index]: uint64 = value
   }
   
   abimethod examples.box_storage.contract.BoxContract.slice_box(): void

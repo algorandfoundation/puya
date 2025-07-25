@@ -96,6 +96,13 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> None: ...
 
     @algopy.arc4.abimethod
+    def nested_write(
+        self,
+        index: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
     def nested_read(
         self,
         i1: algopy.arc4.UIntN[typing.Literal[64]],
@@ -134,6 +141,20 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     def sum_dynamic_box(
         self,
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
+    def write_dynamic_box(
+        self,
+        index: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def write_dynamic_arr_struct(
+        self,
+        index: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> None: ...
 
     @algopy.arc4.abimethod
     def slice_box(
