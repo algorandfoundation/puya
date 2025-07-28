@@ -92,11 +92,10 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             offset: models.Value | int = 0
         else:
             fixed_offset = _get_fixed_byte_offset(
-                self,
+                factory,
                 box_key=box_read.key,
                 encoding=maybe_extract_value.base_type.encoding,
                 indexes=maybe_extract_value.indexes,
-                loc=maybe_extract_value.source_location,
                 stop_at_valid_stack_value=False,
             )
             offset = fixed_offset.offset
@@ -195,11 +194,10 @@ def _combine_box_and_aggregate_read(
 ) -> models.ValueProvider:
     factory = OpFactory(context, loc)
     fixed_offset = _get_fixed_byte_offset(
-        context,
+        factory,
         box_key=box_key,
         encoding=agg_read.base_type.encoding,
         indexes=agg_read.indexes,
-        loc=loc,
         stop_at_valid_stack_value=True,
     )
     encoding_at_offset = fixed_offset.encoding
@@ -237,11 +235,10 @@ def _combine_aggregate_and_box_write(
     # TODO: determine for writes if calculating the offset and asserting indexes
     #       is more efficient than doing N reads & writes
     fixed_offset = _get_fixed_byte_offset(
-        context,
+        factory,
         box_key=box_key,
         encoding=agg_write.base_type.encoding,
         indexes=agg_write.indexes,
-        loc=loc,
         stop_at_valid_stack_value=False,
     )
     if not fixed_offset.remaining_indexes:
@@ -277,15 +274,13 @@ class _FixedOffset:
 
 
 def _get_fixed_byte_offset(
-    context: IRRegisterContext,
+    factory: OpFactory,
     *,
     box_key: models.Value,
     encoding: Encoding,
     indexes: Sequence[int | models.Value],
-    loc: SourceLocation | None,
     stop_at_valid_stack_value: bool,
 ) -> _FixedOffset:
-    factory = OpFactory(context, loc)
     box_offset = factory.constant(0)
     return _get_nested_fixed_byte_offset(
         factory,
@@ -308,10 +303,7 @@ def _get_nested_fixed_byte_offset(
     stop_at_valid_stack_value: bool,
     check_array_bounds: bool,
 ) -> _FixedOffset:
-    try:
-        index, *remaining_indexes = indexes
-    except ValueError:
-        return _FixedOffset(offset=box_offset, encoding=encoding, remaining_indexes=[])
+    index, *remaining_indexes = indexes
 
     if isinstance(encoding, TupleEncoding) and isinstance(index, int):
         index_encoding = encoding.elements[index]
@@ -322,8 +314,8 @@ def _get_nested_fixed_byte_offset(
         element_offset = _get_tuple_element_byte_offset(
             factory, box_offset=box_offset, box_key=box_key, encoding=encoding, index=index
         )
-        if not check_array_bounds:
-            check_array_bounds = _has_trailing_data(encoding, index)
+        # if not already checking array bounds, only need to start if there is trailing data
+        check_array_bounds = check_array_bounds or _has_trailing_data(encoding, index)
     elif isinstance(encoding, ArrayEncoding):
         index_encoding = encoding.element
         if check_array_bounds:
@@ -334,8 +326,6 @@ def _get_nested_fixed_byte_offset(
                 size = encoding.size
             index_ok = factory.lt(index, size, "index_ok")
             factory.assert_value(index_ok, error_message="index out of bounds")
-        # always need to check array bounds after the first array read
-        check_array_bounds = True
         if encoding.length_header:
             box_offset = factory.add(box_offset, 2)
         # stop if element is a bit, as that can't be extracted directly
@@ -344,13 +334,15 @@ def _get_nested_fixed_byte_offset(
         element_offset = _get_array_element_byte_offset(
             factory, box_offset=box_offset, box_key=box_key, encoding=encoding, index=index
         )
+        # always need to check array bounds after the first array read
+        check_array_bounds = True
     else:
         raise InternalError("invalid aggregate encoding and index")
 
     offset = factory.add(box_offset, element_offset, "offset")
-    # exit loop if the resulting value can fit on stack
-    # generally more optimizations are possible the sooner a value is read
-    if (
+    if (not remaining_indexes) or (
+        # exit loop if the resulting value can fit on stack
+        # generally more optimizations are possible the sooner a value is read
         stop_at_valid_stack_value
         and index_encoding.is_fixed
         and index_encoding.checked_num_bytes < MAX_BYTES_LENGTH
