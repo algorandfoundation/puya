@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from puya import log
 from puya.awst import wtypes
 from puya.awst.nodes import (
+    ArrayLength,
     BytesComparisonExpression,
     Copy,
     EqualityComparison,
@@ -48,6 +49,23 @@ def dummy_statement(location: SourceLocation) -> Statement:
             source_location=location,
         )
     )
+
+
+def resolve_array_pop_index(
+    array: Expression, index: NodeBuilder | None, loc: SourceLocation
+) -> Expression | None:
+    """Resolves None if index is -1 or None, otherwise an uint64 expression"""
+    from puyapy.awst_build.eb.uint64 import UInt64ExpressionBuilder
+
+    match index:
+        case None | LiteralBuilder(value=-1):
+            return None
+        case _:
+            index_inst = expect.instance_builder(
+                index, default=expect.default_dummy_value(pytypes.UInt64Type)
+            )
+            length = UInt64ExpressionBuilder(ArrayLength(array=array, source_location=loc))
+            return resolve_negative_literal_index(index_inst, length, loc).resolve()
 
 
 def resolve_negative_literal_index(

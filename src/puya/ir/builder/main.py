@@ -709,7 +709,7 @@ class FunctionIRBuilder(
                 )
             array = self.visit_and_materialise_single(expr.base)
             builder = dynamic_array.get_builder(self.context, sliceable_type, loc)
-            data, _ = builder.pop(array)
+            data, _ = builder.pop(array, None)
             return data
         else:
             raise InternalError(
@@ -1187,11 +1187,14 @@ class FunctionIRBuilder(
         builder = dynamic_array.get_builder(self.context, array_wtype, loc)
 
         array_or_slot = self.visit_and_materialise_single(expr.base)
+        index = None
+        if expr.index:
+            index = self.visit_and_materialise_single(expr.index)
         if isinstance(array_or_slot.ir_type, types.SlotType):
             array = mem.read_slot(self.context, array_or_slot, loc)
         else:
             array = array_or_slot
-        updated_array, popped_item = builder.pop(array)
+        updated_array, popped_item = builder.pop(array, index)
 
         if isinstance(array_or_slot.ir_type, types.SlotType):
             mem.write_slot(self.context, array_or_slot, updated_array, loc)

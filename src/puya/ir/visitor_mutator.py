@@ -106,7 +106,8 @@ class IRMutator(IRVisitor[t.Any]):
 
     def visit_array_pop(self, pop: models.ArrayPop) -> models.ValueProvider:
         pop.base = pop.base.accept(self)
-        pop.index = pop.index.accept(self)
+        if pop.index:
+            pop.index = pop.index.accept(self)
         return pop
 
     def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider:

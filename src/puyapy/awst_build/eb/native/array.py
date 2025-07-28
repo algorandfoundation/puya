@@ -23,7 +23,11 @@ from puyapy import models
 from puyapy.awst_build import pytypes
 from puyapy.awst_build.eb import _expect as expect
 from puyapy.awst_build.eb._base import FunctionBuilder, GenericTypeBuilder
-from puyapy.awst_build.eb._utils import dummy_statement, dummy_value
+from puyapy.awst_build.eb._utils import (
+    dummy_statement,
+    dummy_value,
+    resolve_array_pop_index,
+)
 from puyapy.awst_build.eb.arc4._base import arc4_bool_bytes
 from puyapy.awst_build.eb.factories import builder_for_instance
 from puyapy.awst_build.eb.interface import (
@@ -237,8 +241,9 @@ class _Pop(_ArrayFunc):
         arg_names: list[str | None],
         location: SourceLocation,
     ) -> InstanceBuilder:
-        expect.no_args(args, location)
-        result_expr = ArrayPop(base=self.expr, source_location=location)
+        arg = expect.at_most_one_arg(args, location)
+        index = resolve_array_pop_index(self.expr, arg, location)
+        result_expr = ArrayPop(base=self.expr, index=index, source_location=location)
         return builder_for_instance(self.typ.items, result_expr)
 
 

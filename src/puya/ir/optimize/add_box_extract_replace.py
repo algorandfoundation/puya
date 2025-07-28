@@ -39,7 +39,9 @@ def replace_aggregate_box_ops(
 
 @attrs.define(kw_only=True)
 class _AggregateCollector(NoOpIRVisitor[None]):
-    replace_values: dict[models.Value, models.ReplaceValue] = attrs.field(factory=dict)
+    replace_values: dict[models.Value, models.ReplaceValue | models.ArrayPop] = attrs.field(
+        factory=dict
+    )
     extract_values: dict[models.Value, models.ExtractValue] = attrs.field(factory=dict)
     box_reads: dict[models.Value, models.BoxRead] = attrs.field(factory=dict)
 
@@ -56,6 +58,11 @@ class _AggregateCollector(NoOpIRVisitor[None]):
             case models.BoxRead():
                 (value,) = ass.targets
                 self.box_reads[value] = source
+            case models.ArrayPop(
+                base_type=EncodedType(encoding=ArrayEncoding(length_header=True))
+            ):
+                (target,) = ass.targets
+                self.replace_values[target] = source
 
 
 @attrs.define
@@ -132,37 +139,20 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         assert new_read.types == read.types, "expected replacement types to match"
         self.modified = True
         logger.debug(
-            f"combined BoxRead `{read.base !s} = {box_read!s}`\n"
-            f"and ExtractValue `{read!s}`\n"
-            f"into {new_read!s}",
+            f"combined `{read.base !s} = {box_read!s}; {read!s}` into `{new_read!s}`",
             location=merged_loc,
         )
         return new_read
 
     def visit_box_write(self, write: models.BoxWrite) -> models.BoxWrite | None:
-        # find aggregate
         try:
-            agg_write = self.aggregates.replace_values[write.value]
+            replace_value_or_pop = self.aggregates.replace_values[write.value]
         except KeyError:
-            return write
-
-        # only support fixed size writes
-        encoding = agg_write.base_type.encoding
-        indexes = list(reversed(agg_write.indexes))
-        while indexes:
-            index = indexes.pop()
-            if isinstance(encoding, encodings.TupleEncoding) and isinstance(index, int):
-                encoding = encoding.elements[index]
-            elif isinstance(encoding, encodings.ArrayEncoding):
-                encoding = encoding.element
-            else:
-                raise InternalError("invalid index sequence", agg_write.source_location)
-        if encoding.is_dynamic:
             return write
 
         # find corresponding read
         try:
-            read_src = self.aggregates.box_reads[agg_write.base]
+            read_src = self.aggregates.box_reads[replace_value_or_pop.base]
         except KeyError:
             return write
 
@@ -170,20 +160,175 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         if write.key != read_src.key:
             return write
 
+        # dynamic array
+        if isinstance(replace_value_or_pop, models.ArrayPop):
+            self._handle_array_pop(write, replace_value_or_pop)
+            self.modified = True
+            logger.debug(
+                f"combined `{replace_value_or_pop.base!s} = {read_src!s}"
+                f"; {write.value!s} = {replace_value_or_pop!s}"
+                f"; {write!s}`"
+                " into `box_splice; box_replace; box_resize`",
+                location=replace_value_or_pop.source_location,
+            )
+            return None
+
+        assert isinstance(replace_value_or_pop, models.ReplaceValue)
+        array_pop = self.aggregates.replace_values.get(replace_value_or_pop.value)
+
+        # dynamic array in an aggregate
+        if isinstance(array_pop, models.ArrayPop):
+            num_box_replaces = self._handle_replace_value_and_array_pop(
+                write, replace_value_or_pop, array_pop
+            )
+            if not num_box_replaces:
+                return write
+            self.modified = True
+            logger.debug(
+                f"combined `{replace_value_or_pop.base!s} = {read_src!s}"
+                f"; {write.value!s} = {replace_value_or_pop!s}"
+                f"; {replace_value_or_pop.value!s} = {array_pop!s}"
+                f"; {write!s}`"
+                f" into `box_splice; {num_box_replaces} x box_replace; box_resize`",
+                location=array_pop.source_location,
+            )
+            return None
+
+        # fixed size aggregate (tuple or array)
+        if not self._handle_replace_value(write, replace_value_or_pop):
+            return write
         self.modified = True
-        merged_loc = sequential_source_locations_merge(
-            (agg_write.source_location, write.source_location)
-        )
-        new_write = _combine_aggregate_and_box_write(self, agg_write, write.key, merged_loc)
-        self.add_op(new_write)
+        new_write = self.current_block_ops[-1]
         logger.debug(
-            f"combined BoxRead `{agg_write.base!s} = {read_src!s}`\n"
-            f"and ReplaceValue `{write.value!s} = {agg_write!s}`\n"
-            f"and BoxWrite `{write!s}`\n"
-            f"into {new_write!s}",
-            location=merged_loc,
+            f"combined `{replace_value_or_pop.base!s} = {read_src!s}"
+            f"; {write.value!s} = {replace_value_or_pop!s}"
+            f"; {write!s}`"
+            f" into `{new_write!s}`",
+            location=new_write.source_location,
         )
         return None
+
+    def _handle_array_pop(self, write: models.BoxWrite, array_pop: models.ArrayPop) -> None:
+        array_encoding = array_pop.base_type.encoding
+        assert isinstance(array_encoding, encodings.ArrayEncoding), "expected ArrayEncoding"
+        assert array_encoding.length_header, "expected length header"
+        factory = OpFactory(self, array_pop.source_location)
+        box_offset = factory.constant(0)
+        _pop_index_from_array(factory, array_encoding, write.key, box_offset, array_pop.index)
+        self.modified = True
+
+    def _handle_replace_value_and_array_pop(
+        self,
+        write: models.BoxWrite,
+        replace_value: models.ReplaceValue,
+        array_pop: models.ArrayPop,
+    ) -> int:
+        # can only perform dynamic offset updates for statically determinable offsets
+        dynamic_offsets = _get_dynamic_offsets_requiring_update(
+            replace_value.base_type.encoding, replace_value.indexes
+        )
+        if dynamic_offsets is None:
+            return 0
+        array_encoding = array_pop.base_type.encoding
+        assert isinstance(array_encoding, encodings.ArrayEncoding), "expected ArrayEncoding"
+        assert array_encoding.length_header, "expected length header"
+        box_key = write.key
+        factory = OpFactory(self, array_pop.source_location)
+        array_offset = _get_fixed_byte_offset(
+            factory,
+            box_key=box_key,
+            encoding=replace_value.base_type.encoding,
+            indexes=replace_value.indexes,
+            stop_at_valid_stack_value=False,
+        )
+        assert array_offset.encoding == array_encoding, "encodings should match"
+        _pop_index_from_array(
+            factory, array_encoding, box_key, array_offset.offset, array_pop.index
+        )
+        element_size = array_encoding.element.checked_num_bytes
+        for offset in dynamic_offsets:
+            offset_value = factory.box_extract_u16(box_key, offset)
+            new_offset_value = factory.sub(offset_value, element_size)
+            new_offset_value_u16 = factory.as_u16_bytes(new_offset_value)
+            factory.box_replace(box_key, offset, new_offset_value_u16)
+        return len(dynamic_offsets) + 1
+
+    def _handle_replace_value(
+        self, write: models.BoxWrite, replace_value: models.ReplaceValue
+    ) -> bool:
+        # only support fixed size writes
+        encoding = replace_value.base_type.encoding
+        indexes = list(reversed(replace_value.indexes))
+        while indexes:
+            index = indexes.pop()
+            if isinstance(encoding, encodings.TupleEncoding) and isinstance(index, int):
+                encoding = encoding.elements[index]
+            elif isinstance(encoding, encodings.ArrayEncoding):
+                encoding = encoding.element
+            else:
+                raise InternalError("invalid index sequence", replace_value.source_location)
+        if encoding.is_dynamic:
+            return False
+
+        merged_loc = sequential_source_locations_merge(
+            (replace_value.source_location, write.source_location)
+        )
+        _combine_aggregate_and_box_write(self, replace_value, write.key, merged_loc)
+        return True
+
+
+def _get_dynamic_offsets_requiring_update(
+    encoding: encodings.Encoding, indexes: Sequence[models.Value | int]
+) -> list[int] | None:
+    result = list[int]()
+    indexes = list(reversed(indexes))
+    box_offset = 0
+    while indexes:
+        index = indexes.pop()
+        if isinstance(encoding, encodings.TupleEncoding) and isinstance(index, int):
+            next_index = index + 1
+            # track any other dynamic offsets after the indexed element
+            result.extend(
+                box_offset + bits_to_bytes(encoding.get_head_bit_offset(el_idx))
+                for el_idx, el in enumerate(encoding.elements[next_index:], start=next_index)
+                if el.is_dynamic
+            )
+            box_offset += bits_to_bytes(encoding.get_head_bit_offset(index))
+            encoding = encoding.elements[index]
+        else:
+            # an array index means the offset is no longer statically determinable
+            return None
+    return result
+
+
+def _pop_index_from_array(
+    factory: OpFactory,
+    encoding: ArrayEncoding,
+    box_key: models.Value,
+    box_offset: models.Value,
+    index: models.Value | None,
+) -> None:
+    arr_len = factory.box_extract_u16(box_key, box_offset)
+    new_arr_len = factory.sub(arr_len, 1)
+    if index is None:
+        # don't assert array length if index is not specified
+        # as the new_arr_len op will fail if arr_len is 0
+        index = new_arr_len
+    else:
+        _check_array_length(factory, encoding, box_key, box_offset, index)
+    new_arr_len_u16 = factory.as_u16_bytes(new_arr_len)
+    factory.box_replace(box_key, box_offset, new_arr_len_u16)
+    box_offset = factory.add(box_offset, 2)
+    # assumes index has already been asserted, and box_offset points to head portion of array
+    element_size = encoding.element.checked_num_bytes
+    index_offset = factory.mul(index, element_size)
+    absolute_index_offset = factory.add(box_offset, index_offset)
+    factory.box_splice(
+        box_key=box_key, index=absolute_index_offset, length=element_size, value=b""
+    )
+    box_size, _ = factory.box_len(box_key)
+    new_size = factory.sub(box_size, element_size)
+    factory.box_resize(box_key, new_size)
 
 
 def _combine_box_and_aggregate_read(
@@ -227,24 +372,24 @@ def _combine_box_and_aggregate_read(
 
 def _combine_aggregate_and_box_write(
     context: IRRegisterContext,
-    agg_write: models.ReplaceValue,
+    replace_value: models.ReplaceValue,
     box_key: models.Value,
     loc: SourceLocation | None,
-) -> models.Op:
+) -> None:
     factory = OpFactory(context, loc)
     # TODO: determine for writes if calculating the offset and asserting indexes
     #       is more efficient than doing N reads & writes
     fixed_offset = _get_fixed_byte_offset(
         factory,
         box_key=box_key,
-        encoding=agg_write.base_type.encoding,
-        indexes=agg_write.indexes,
+        encoding=replace_value.base_type.encoding,
+        indexes=replace_value.indexes,
         stop_at_valid_stack_value=False,
     )
     if not fixed_offset.remaining_indexes:
-        value = agg_write.value
+        value = replace_value.value
     else:
-        # currently only occurs when agg_write.encoding.is_bit
+        # currently only occurs when replace_value.encoding.is_bit
         encoding = fixed_offset.encoding
         extract_ir_type = EncodedType(encoding)
         box_extract = factory.box_extract(
@@ -258,12 +403,12 @@ def _combine_aggregate_and_box_write(
             models.ReplaceValue(
                 base=box_extract,
                 base_type=extract_ir_type,
-                value=agg_write.value,
+                value=replace_value.value,
                 indexes=fixed_offset.remaining_indexes,
                 source_location=loc,
             )
         )
-    return factory.box_replace(box_key, fixed_offset.offset, value)
+    factory.box_replace(box_key, fixed_offset.offset, value)
 
 
 @attrs.frozen
@@ -319,13 +464,7 @@ def _get_nested_fixed_byte_offset(
     elif isinstance(encoding, ArrayEncoding):
         index_encoding = encoding.element
         if check_array_bounds:
-            if encoding.length_header:
-                size: models.Value | int = factory.box_extract_u16(box_key, box_offset)
-            else:
-                assert encoding.size is not None, "expected fixed size array"
-                size = encoding.size
-            index_ok = factory.lt(index, size, "index_ok")
-            factory.assert_value(index_ok, error_message="index out of bounds")
+            _check_array_length(factory, encoding, box_key, box_offset, index)
         if encoding.length_header:
             box_offset = factory.add(box_offset, 2)
         # stop if element is a bit, as that can't be extracted directly
@@ -441,3 +580,19 @@ def _get_fixed_byte_offset_from_bit_offset(
         # provide the calculated bit_index as the only remaining index
         remaining_indexes=[bit_index],
     )
+
+
+def _check_array_length(
+    factory: OpFactory,
+    encoding: ArrayEncoding,
+    box_key: models.Value,
+    box_offset: models.Value,
+    index: models.Value | int,
+) -> None:
+    if encoding.length_header:
+        size: models.Value | int = factory.box_extract_u16(box_key, box_offset)
+    else:
+        assert encoding.size is not None, "expected fixed size array"
+        size = encoding.size
+    index_ok = factory.lt(index, size, "index_ok")
+    factory.assert_value(index_ok, error_message="index out of bounds")

@@ -1,3 +1,4 @@
+import typing
 from collections.abc import Sequence
 
 from puya.ir._puya_lib import PuyaLibIR
@@ -87,6 +88,14 @@ def get_implicit_return_is_original(var_name: str) -> str:
 
 def get_implicit_return_out(var_name: str) -> str:
     return f"{var_name}{TMP_VAR_INDICATOR}out"
+
+
+@typing.overload
+def undefined_value(typ: TupleIRType, loc: SourceLocation) -> ValueTuple: ...
+
+
+@typing.overload
+def undefined_value(typ: IRType, loc: SourceLocation) -> Value: ...
 
 
 def undefined_value(typ: IRType | TupleIRType, loc: SourceLocation) -> Value | ValueTuple:

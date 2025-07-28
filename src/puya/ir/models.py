@@ -445,9 +445,18 @@ class ArrayLength(ValueProvider):
 class ArrayPop(ValueProvider):
     base: Value = attrs.field()
     """Array to splice"""
-    base_type: IRType = attrs.field(repr=lambda x: x.iname)
-    array_encoding: ArrayEncoding
-    index: Value
+    base_type: EncodedType = attrs.field(repr=lambda x: x.iname)
+    index: Value | None
+
+    @base_type.validator
+    def _base_type_validator(self, _: object, base_type: EncodedType) -> None:
+        if (
+            not isinstance(base_type.encoding, ArrayEncoding)
+            or base_type.encoding.element.is_dynamic
+        ):
+            raise CodeError(
+                "only arrays with fixed size elements support array pop", self.source_location
+            )
 
     @property
     def types(self) -> Sequence[IRType]:
@@ -457,7 +466,6 @@ class ArrayPop(ValueProvider):
         return (
             self.base,
             self.base_type,
-            self.array_encoding,
             self.index,
         )
 

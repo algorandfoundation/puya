@@ -123,8 +123,11 @@ class ToTextVisitor(IRVisitor[str]):
     @typing.override
     def visit_array_pop(self, pop: models.ArrayPop) -> str:
         base = pop.base.accept(self)
-        index = pop.index.accept(self)
-        return f"array_pop({base}, {index})"
+        if pop.index:
+            index = f", {pop.index.accept(self)}"
+        else:
+            index = ""
+        return f"array_pop({base}{index})"
 
     @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> str:

@@ -39,7 +39,10 @@ class ToCodeVisitor(
     @typing.override
     def visit_array_pop(self, expr: nodes.ArrayPop) -> str:
         base = expr.base.accept(self)
-        return f"{base}.pop()"
+        index = ""
+        if expr.index:
+            index = expr.index.accept(self)
+        return f"{base}.pop({index})"
 
     @typing.override
     def visit_array_length(self, expr: nodes.ArrayLength) -> str:
