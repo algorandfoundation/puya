@@ -1773,26 +1773,30 @@ def test_too_many_bools(box_client: algokit_utils.ApplicationClient) -> None:
     box_client.call("create_bools", transaction_parameters=txn_params)
 
     box_client.call("set_bool", index=0, value=True, transaction_parameters=txn_params)
-    box_client.call("set_bool", index=32_999, value=True, transaction_parameters=txn_params)
-    box_client.call("set_bool", index=500, value=True, transaction_parameters=txn_params)
     box_client.call("set_bool", index=42, value=True, transaction_parameters=txn_params)
+    box_client.call("set_bool", index=500, value=True, transaction_parameters=txn_params)
+    box_client.call("set_bool", index=32_999, value=True, transaction_parameters=txn_params)
 
     total = simulate_call(box_client, "sum_bools", stop_at_total=3, txn_params=txn_params)
     expected_sum = 3
     assert total.abi_results[0].return_value == expected_sum, f"expected sum to be {expected_sum}"
+
     box_response = box_client.algod_client.application_box_by_name(
         box_client.app_id, b"too_many_bools"
     )
     assert isinstance(box_response, dict)
     dynamic_box_bytes = base64.b64decode(box_response["value"])
     assert len(dynamic_box_bytes) > 4096, "expected box contents to exceed max stack value size"
-    dynamic_box = algosdk.abi.ABIType.from_string("bool[33000]").decode(dynamic_box_bytes)
     too_many_bools = [False] * 33_000
     too_many_bools[0] = True
-    too_many_bools[32_999] = True
-    too_many_bools[500] = True
     too_many_bools[42] = True
-    assert dynamic_box == too_many_bools, "expected box contents to be correct"
+    too_many_bools[500] = True
+    too_many_bools[32_999] = True
+    # encode bools into bytes (as SDK is too slow)
+    expected_bytes = sum(
+        val << shift for shift, val in enumerate(reversed(too_many_bools))
+    ).to_bytes(length=33_000 // 8)
+    assert dynamic_box_bytes == expected_bytes, "expected box contents to be correct"
 
 
 def test_box_ref(box_client: algokit_utils.ApplicationClient) -> None:
