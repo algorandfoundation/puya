@@ -1329,10 +1329,10 @@ subroutine set_many_ints:
         itob                                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0
         p-load index#0                                                                                 (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,index#0 (copy)
         int 8                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,index#0 (copy),8
-        *                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0
-        byte "many_ints"                                                                               (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0,"many_ints"
-        l-load box%index_bytes_offset%0#0 1                                                            (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,"many_ints",box%index_bytes_offset%0#0
-        l-load aggregate%val_as_bytes%0#0 2                                                            (𝕡) index#0,value#0 | "many_ints",box%index_bytes_offset%0#0,aggregate%val_as_bytes%0#0
+        *                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%element_offset%0#0
+        byte "many_ints"                                                                               (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%element_offset%0#0,"many_ints"
+        l-load box%element_offset%0#0 1                                                                (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,"many_ints",box%element_offset%0#0
+        l-load aggregate%val_as_bytes%0#0 2                                                            (𝕡) index#0,value#0 | "many_ints",box%element_offset%0#0,aggregate%val_as_bytes%0#0
         box_replace                                                                                    (𝕡) index#0,value#0 |
         retsub
 
@@ -1394,10 +1394,10 @@ subroutine sum_many_ints:
         v-load item_index_internal%0#0                                                                 item_index_internal%0#0
         l-store-copy item_index_internal%0#0 0                                                         item_index_internal%0#0,item_index_internal%0#0 (copy)
         int 8                                                                                          item_index_internal%0#0,item_index_internal%0#0 (copy),8
-        *                                                                                              item_index_internal%0#0,box%index_bytes_offset%0#0
-        byte "many_ints"                                                                               item_index_internal%0#0,box%index_bytes_offset%0#0,"many_ints"
-        l-load box%index_bytes_offset%0#0 1                                                            item_index_internal%0#0,"many_ints",box%index_bytes_offset%0#0
-        int 8                                                                                          item_index_internal%0#0,"many_ints",box%index_bytes_offset%0#0,8
+        *                                                                                              item_index_internal%0#0,box%element_offset%0#0
+        byte "many_ints"                                                                               item_index_internal%0#0,box%element_offset%0#0,"many_ints"
+        l-load box%element_offset%0#0 1                                                                item_index_internal%0#0,"many_ints",box%element_offset%0#0
+        int 8                                                                                          item_index_internal%0#0,"many_ints",box%element_offset%0#0,8
         box_extract                                                                                    item_index_internal%0#0,box%box_extract%0#0
         l-load box%box_extract%0#0 0                                                                   item_index_internal%0#0,box%box_extract%0#0
         btoi                                                                                           item_index_internal%0#0,val#0
@@ -1830,9 +1830,9 @@ subroutine append_dynamic_arr_struct:
         v-load arr_len#0                                                                               (𝕡) times#0 | i#0,aggregate%val_as_bytes%0#0,arr_len#0
         l-store-copy arr_len#0 1                                                                       (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,arr_len#0 (copy)
         int 8                                                                                          (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,arr_len#0 (copy),8
-        *                                                                                              (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0
-        int 22                                                                                         (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0,22
-        l-load box%index_bytes_offset%0#0 1                                                            (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,22,box%index_bytes_offset%0#0
+        *                                                                                              (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%element_offset%0#0
+        int 22                                                                                         (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%element_offset%0#0,22
+        l-load box%element_offset%0#0 1                                                                (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,22,box%element_offset%0#0
         +                                                                                              (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%offset%5#0
         // box_storage/contract.py:215
         // box = Box(FixedArrayInAStruct, key=self.dynamic_arr_struct.key)
@@ -2201,195 +2201,195 @@ subroutine nested_write:
         int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,2
         p-load index#0                                                                                 (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,2,index#0 (copy)
         *                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0
-        int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,2
-        l-load-copy box%mul%0#0 1                                                                      (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,2,box%mul%0#0 (copy)
-        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%add%0#0
-        l-load box%mul%0#0 1                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%mul%0#0
-        int 4138                                                                                       (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%mul%0#0,4138
-        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%add%1#0
+        int 4138                                                                                       (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,4138
+        l-load-copy box%mul%0#0 1                                                                      (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,4138,box%mul%0#0 (copy)
+        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%add%1#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%add%1#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%add%1#0,"box"
         // box_storage/contract.py:271
         // box.value.nested.inner.arr_arr[index][index] = value + 2
-        l-load box%add%1#0 1                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,"box",box%add%1#0
-        int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,"box",box%add%1#0,2
-        box_extract                                                                                    (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%box_extract%1#0
-        l-load box%box_extract%1#0 0                                                                   (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%box_extract%1#0
-        btoi                                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%btoi%1#0
-        l-load box%btoi%1#0 0                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%btoi%1#0
-        int 4138                                                                                       (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%btoi%1#0,4138
-        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0
+        l-load box%add%1#0 1                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,"box",box%add%1#0
+        int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,"box",box%add%1#0,2
+        box_extract                                                                                    (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%box_extract%1#0
+        l-load box%box_extract%1#0 0                                                                   (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%box_extract%1#0
+        btoi                                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%btoi%1#0
+        int 4138                                                                                       (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%btoi%1#0,4138
+        l-load box%btoi%1#0 1                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,4138,box%btoi%1#0
+        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,"box"
         // box_storage/contract.py:271
         // box.value.nested.inner.arr_arr[index][index] = value + 2
-        l-load-copy box%offset%7#0 1                                                                   (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,"box",box%offset%7#0 (copy)
-        int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,"box",box%offset%7#0 (copy),2
-        box_extract                                                                                    (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%box_extract%2#0
-        l-load box%box_extract%2#0 0                                                                   (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%box_extract%2#0
-        btoi                                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%btoi%2#0
-        p-load index#0                                                                                 (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%btoi%2#0,index#0 (copy)
-        l-load box%btoi%2#0 1                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,index#0 (copy),box%btoi%2#0
-        <                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%index_ok%1#0
-        l-load box%index_ok%1#0 0                                                                      (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%index_ok%1#0
-        assert // index out of bounds                                                                  (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0
-        p-load index#0                                                                                 (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,index#0 (copy)
-        int 8                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,index#0 (copy),8
-        *                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%index_bytes_offset%0#0
-        l-load box%index_bytes_offset%0#0 0                                                            (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%index_bytes_offset%0#0
-        int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%index_bytes_offset%0#0,2
-        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%offset%7#0,box%element_offset%1#0
-        l-load box%offset%7#0 1                                                                        (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%element_offset%1#0,box%offset%7#0
-        l-load-copy box%element_offset%1#0 1                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%element_offset%1#0,box%offset%7#0,box%element_offset%1#0 (copy)
-        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%element_offset%1#0,box%offset%8#0
+        l-load-copy box%offset%7#0 1                                                                   (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,"box",box%offset%7#0 (copy)
+        int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,"box",box%offset%7#0 (copy),2
+        box_extract                                                                                    (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,box%box_extract%2#0
+        l-load box%box_extract%2#0 0                                                                   (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,box%box_extract%2#0
+        btoi                                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,box%btoi%2#0
+        p-load index#0                                                                                 (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,box%btoi%2#0,index#0 (copy)
+        l-load box%btoi%2#0 1                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,index#0 (copy),box%btoi%2#0
+        <                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,box%index_ok%1#0
+        l-load box%index_ok%1#0 0                                                                      (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,box%index_ok%1#0
+        assert // index out of bounds                                                                  (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0
+        l-load box%offset%7#0 0                                                                        (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0
+        int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%offset%7#0,2
+        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%add%2#0
+        p-load index#0                                                                                 (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%add%2#0,index#0 (copy)
+        int 8                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%add%2#0,index#0 (copy),8
+        *                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%add%2#0,box%element_offset%0#0
+        l-load box%add%2#0 1                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%element_offset%0#0,box%add%2#0
+        l-load-copy box%element_offset%0#0 1                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%element_offset%0#0,box%add%2#0,box%element_offset%0#0 (copy)
+        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%element_offset%0#0,box%offset%8#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%element_offset%1#0,box%offset%8#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%element_offset%0#0,box%offset%8#0,"box"
         // box_storage/contract.py:271
         // box.value.nested.inner.arr_arr[index][index] = value + 2
-        l-load box%offset%8#0 1                                                                        (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%add%0#0,box%element_offset%1#0,"box",box%offset%8#0
-        l-load aggregate%val_as_bytes%2#0 4                                                            (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,"box",box%offset%8#0,aggregate%val_as_bytes%2#0
-        box_replace                                                                                    (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0
+        l-load box%offset%8#0 1                                                                        (𝕡) index#0,value#0 | aggregate%val_as_bytes%2#0,box%mul%0#0,box%element_offset%0#0,"box",box%offset%8#0
+        l-load aggregate%val_as_bytes%2#0 4                                                            (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,"box",box%offset%8#0,aggregate%val_as_bytes%2#0
+        box_replace                                                                                    (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0
         // box_storage/contract.py:272
         // box.value.nested.inner.c = value + 3
-        p-load value#0                                                                                 (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,value#0 (copy)
-        int 3                                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,value#0 (copy),3
-        +                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,tmp%2#0
-        l-load tmp%2#0 0                                                                               (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,tmp%2#0
-        itob                                                                                           (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%3#0
+        p-load value#0                                                                                 (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,value#0 (copy)
+        int 3                                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,value#0 (copy),3
+        +                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,tmp%2#0
+        l-load tmp%2#0 0                                                                               (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,tmp%2#0
+        itob                                                                                           (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%3#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%3#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%3#0,"box"
         // box_storage/contract.py:272
         // box.value.nested.inner.c = value + 3
-        int 4118                                                                                       (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%3#0,"box",4118
-        l-load aggregate%val_as_bytes%3#0 2                                                            (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,"box",4118,aggregate%val_as_bytes%3#0
-        box_replace                                                                                    (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0
+        int 4118                                                                                       (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%3#0,"box",4118
+        l-load aggregate%val_as_bytes%3#0 2                                                            (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,"box",4118,aggregate%val_as_bytes%3#0
+        box_replace                                                                                    (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0
         // box_storage/contract.py:273
         // box.value.nested.inner.d = value + 4
-        p-load value#0                                                                                 (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,value#0 (copy)
-        int 4                                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,value#0 (copy),4
-        +                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,tmp%3#0
-        l-load tmp%3#0 0                                                                               (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,tmp%3#0
-        itob                                                                                           (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%4#0
+        p-load value#0                                                                                 (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,value#0 (copy)
+        int 4                                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,value#0 (copy),4
+        +                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,tmp%3#0
+        l-load tmp%3#0 0                                                                               (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,tmp%3#0
+        itob                                                                                           (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%4#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%4#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%4#0,"box"
         // box_storage/contract.py:273
         // box.value.nested.inner.d = value + 4
-        int 4128                                                                                       (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%4#0,"box",4128
-        l-load aggregate%val_as_bytes%4#0 2                                                            (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,"box",4128,aggregate%val_as_bytes%4#0
-        box_replace                                                                                    (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0
+        int 4128                                                                                       (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%4#0,"box",4128
+        l-load aggregate%val_as_bytes%4#0 2                                                            (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,"box",4128,aggregate%val_as_bytes%4#0
+        box_replace                                                                                    (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0
         // box_storage/contract.py:274
         // box.value.nested.woah[index].arr_arr[index][index] = value + 5
-        p-load value#0                                                                                 (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,value#0 (copy)
-        int 5                                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,value#0 (copy),5
-        +                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,tmp%4#0
-        l-load tmp%4#0 0                                                                               (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,tmp%4#0
-        itob                                                                                           (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0
+        p-load value#0                                                                                 (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,value#0 (copy)
+        int 5                                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,value#0 (copy),5
+        +                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,tmp%4#0
+        l-load tmp%4#0 0                                                                               (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,tmp%4#0
+        itob                                                                                           (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,"box"
         // box_storage/contract.py:274
         // box.value.nested.woah[index].arr_arr[index][index] = value + 5
-        int 4108                                                                                       (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,"box",4108
-        int 2                                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,"box",4108,2
-        box_extract                                                                                    (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%box_extract%3#0
-        l-load box%box_extract%3#0 0                                                                   (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%box_extract%3#0
-        btoi                                                                                           (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%btoi%3#0
-        int 4098                                                                                       (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%btoi%3#0,4098
-        l-load box%btoi%3#0 1                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,4098,box%btoi%3#0
-        +                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0
+        int 4108                                                                                       (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,"box",4108
+        int 2                                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,"box",4108,2
+        box_extract                                                                                    (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%box_extract%3#0
+        l-load box%box_extract%3#0 0                                                                   (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%box_extract%3#0
+        btoi                                                                                           (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%btoi%3#0
+        int 4098                                                                                       (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%btoi%3#0,4098
+        l-load box%btoi%3#0 1                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,4098,box%btoi%3#0
+        +                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,"box"
         // box_storage/contract.py:274
         // box.value.nested.woah[index].arr_arr[index][index] = value + 5
-        l-load-copy box%offset%16#0 1                                                                  (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,"box",box%offset%16#0 (copy)
-        int 2                                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,"box",box%offset%16#0 (copy),2
-        box_extract                                                                                    (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%box_extract%4#0
-        l-load box%box_extract%4#0 0                                                                   (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%box_extract%4#0
-        btoi                                                                                           (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%btoi%4#0
-        p-load index#0                                                                                 (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%btoi%4#0,index#0 (copy)
-        l-load box%btoi%4#0 1                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,index#0 (copy),box%btoi%4#0
-        <                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%index_ok%2#0
-        l-load box%index_ok%2#0 0                                                                      (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%index_ok%2#0
-        assert // index out of bounds                                                                  (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0
-        l-load-copy box%offset%16#0 0                                                                  (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%offset%16#0 (copy)
-        l-load-copy box%add%0#0 4                                                                      (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%offset%16#0 (copy),box%add%0#0 (copy)
-        +                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%add%4#0
+        l-load-copy box%offset%16#0 1                                                                  (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,"box",box%offset%16#0 (copy)
+        int 2                                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,"box",box%offset%16#0 (copy),2
+        box_extract                                                                                    (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%box_extract%4#0
+        l-load box%box_extract%4#0 0                                                                   (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%box_extract%4#0
+        btoi                                                                                           (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%btoi%4#0
+        p-load index#0                                                                                 (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%btoi%4#0,index#0 (copy)
+        l-load box%btoi%4#0 1                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,index#0 (copy),box%btoi%4#0
+        <                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%index_ok%2#0
+        l-load box%index_ok%2#0 0                                                                      (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%index_ok%2#0
+        assert // index out of bounds                                                                  (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0
+        l-load box%offset%16#0 0                                                                       (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0
+        int 2                                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%16#0,2
+        +                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0
+        l-load-copy box%add%4#0 0                                                                      (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,box%add%4#0 (copy)
+        l-load-copy box%mul%0#0 4                                                                      (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,box%add%4#0 (copy),box%mul%0#0 (copy)
+        +                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,box%add%5#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%add%4#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,box%add%5#0,"box"
         // box_storage/contract.py:274
         // box.value.nested.woah[index].arr_arr[index][index] = value + 5
-        l-load box%add%4#0 1                                                                           (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,"box",box%add%4#0
-        int 2                                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,"box",box%add%4#0,2
-        box_extract                                                                                    (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%box_extract%5#0
-        l-load box%box_extract%5#0 0                                                                   (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%box_extract%5#0
-        btoi                                                                                           (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%btoi%5#0
-        l-load box%btoi%5#0 0                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%btoi%5#0
-        int 2                                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%btoi%5#0,2
-        +                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%element_offset%2#0
-        l-load box%offset%16#0 1                                                                       (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%element_offset%2#0,box%offset%16#0
-        l-load box%element_offset%2#0 1                                                                (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%16#0,box%element_offset%2#0
-        +                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%17#0
-        l-load box%offset%17#0 0                                                                       (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%17#0
-        int 18                                                                                         (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%17#0,18
-        +                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0
+        l-load box%add%5#0 1                                                                           (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,"box",box%add%5#0
+        int 2                                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,"box",box%add%5#0,2
+        box_extract                                                                                    (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,box%box_extract%5#0
+        l-load box%box_extract%5#0 0                                                                   (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,box%box_extract%5#0
+        btoi                                                                                           (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,box%btoi%5#0
+        l-load box%add%4#0 1                                                                           (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%btoi%5#0,box%add%4#0
+        l-load box%btoi%5#0 1                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%4#0,box%btoi%5#0
+        +                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%17#0
+        l-load box%offset%17#0 0                                                                       (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%17#0
+        int 18                                                                                         (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%17#0,18
+        +                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,"box"
         // box_storage/contract.py:274
         // box.value.nested.woah[index].arr_arr[index][index] = value + 5
-        l-load-copy box%offset%18#0 1                                                                  (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,"box",box%offset%18#0 (copy)
-        int 2                                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,"box",box%offset%18#0 (copy),2
-        box_extract                                                                                    (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%box_extract%6#0
-        l-load box%box_extract%6#0 0                                                                   (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%box_extract%6#0
-        btoi                                                                                           (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%btoi%6#0
-        p-load index#0                                                                                 (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%btoi%6#0,index#0 (copy)
-        l-load box%btoi%6#0 1                                                                          (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,index#0 (copy),box%btoi%6#0
-        <                                                                                              (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%index_ok%3#0
-        l-load box%index_ok%3#0 0                                                                      (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%index_ok%3#0
-        assert // index out of bounds                                                                  (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0
-        l-load-copy box%offset%18#0 0                                                                  (𝕡) index#0,value#0 | box%add%0#0,box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%offset%18#0 (copy)
-        l-load box%add%0#0 4                                                                           (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%offset%18#0 (copy),box%add%0#0
-        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%add%6#0
+        l-load-copy box%offset%18#0 1                                                                  (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,"box",box%offset%18#0 (copy)
+        int 2                                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,"box",box%offset%18#0 (copy),2
+        box_extract                                                                                    (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%box_extract%6#0
+        l-load box%box_extract%6#0 0                                                                   (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%box_extract%6#0
+        btoi                                                                                           (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%btoi%6#0
+        p-load index#0                                                                                 (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%btoi%6#0,index#0 (copy)
+        l-load box%btoi%6#0 1                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,index#0 (copy),box%btoi%6#0
+        <                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%index_ok%3#0
+        l-load box%index_ok%3#0 0                                                                      (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%index_ok%3#0
+        assert // index out of bounds                                                                  (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0
+        l-load box%offset%18#0 0                                                                       (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0
+        int 2                                                                                          (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%18#0,2
+        +                                                                                              (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0
+        l-load-copy box%add%6#0 0                                                                      (𝕡) index#0,value#0 | box%mul%0#0,box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,box%add%6#0 (copy)
+        l-load box%mul%0#0 4                                                                           (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,box%add%6#0 (copy),box%mul%0#0
+        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,box%add%7#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%add%6#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,box%add%7#0,"box"
         // box_storage/contract.py:274
         // box.value.nested.woah[index].arr_arr[index][index] = value + 5
-        l-load box%add%6#0 1                                                                           (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,"box",box%add%6#0
-        int 2                                                                                          (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,"box",box%add%6#0,2
-        box_extract                                                                                    (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%box_extract%7#0
-        l-load box%box_extract%7#0 0                                                                   (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%box_extract%7#0
-        btoi                                                                                           (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%btoi%7#0
-        l-load box%btoi%7#0 0                                                                          (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%btoi%7#0
-        int 2                                                                                          (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%btoi%7#0,2
-        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%element_offset%3#0
-        l-load box%offset%18#0 1                                                                       (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%element_offset%3#0,box%offset%18#0
-        l-load box%element_offset%3#0 1                                                                (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%18#0,box%element_offset%3#0
-        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0
+        l-load box%add%7#0 1                                                                           (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,"box",box%add%7#0
+        int 2                                                                                          (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,"box",box%add%7#0,2
+        box_extract                                                                                    (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,box%box_extract%7#0
+        l-load box%box_extract%7#0 0                                                                   (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,box%box_extract%7#0
+        btoi                                                                                           (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,box%btoi%7#0
+        l-load box%add%6#0 1                                                                           (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%btoi%7#0,box%add%6#0
+        l-load box%btoi%7#0 1                                                                          (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%6#0,box%btoi%7#0
+        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,"box"
+        byte "box"                                                                                     (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,"box"
         // box_storage/contract.py:274
         // box.value.nested.woah[index].arr_arr[index][index] = value + 5
-        l-load-copy box%offset%19#0 1                                                                  (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,"box",box%offset%19#0 (copy)
-        int 2                                                                                          (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,"box",box%offset%19#0 (copy),2
-        box_extract                                                                                    (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%box_extract%8#0
-        l-load box%box_extract%8#0 0                                                                   (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%box_extract%8#0
-        btoi                                                                                           (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%btoi%8#0
-        p-load index#0                                                                                 (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%btoi%8#0,index#0 (copy)
-        l-load box%btoi%8#0 1                                                                          (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,index#0 (copy),box%btoi%8#0
-        <                                                                                              (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%index_ok%4#0
-        l-load box%index_ok%4#0 0                                                                      (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%index_ok%4#0
-        assert // index out of bounds                                                                  (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0
-        l-load box%offset%19#0 0                                                                       (𝕡) index#0,value#0 | box%element_offset%1#0,aggregate%val_as_bytes%5#0,box%offset%19#0
-        l-load box%element_offset%1#0 2                                                                (𝕡) index#0,value#0 | aggregate%val_as_bytes%5#0,box%offset%19#0,box%element_offset%1#0
+        l-load-copy box%offset%19#0 1                                                                  (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,"box",box%offset%19#0 (copy)
+        int 2                                                                                          (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,"box",box%offset%19#0 (copy),2
+        box_extract                                                                                    (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%box_extract%8#0
+        l-load box%box_extract%8#0 0                                                                   (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%box_extract%8#0
+        btoi                                                                                           (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%btoi%8#0
+        p-load index#0                                                                                 (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%btoi%8#0,index#0 (copy)
+        l-load box%btoi%8#0 1                                                                          (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,index#0 (copy),box%btoi%8#0
+        <                                                                                              (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%index_ok%4#0
+        l-load box%index_ok%4#0 0                                                                      (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,box%index_ok%4#0
+        assert // index out of bounds                                                                  (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0
+        l-load box%offset%19#0 0                                                                       (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0
+        int 2                                                                                          (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%offset%19#0,2
+        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%8#0
+        l-load box%add%8#0 0                                                                           (𝕡) index#0,value#0 | box%element_offset%0#0,aggregate%val_as_bytes%5#0,box%add%8#0
+        l-load box%element_offset%0#0 2                                                                (𝕡) index#0,value#0 | aggregate%val_as_bytes%5#0,box%add%8#0,box%element_offset%0#0
         +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%5#0,box%offset%20#0
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
@@ -2443,125 +2443,122 @@ subroutine nested_read:
         int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,2
         p-load i1#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,2,i1#0 (copy)
         *                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,2
-        l-load-copy box%mul%0#0 1                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,2,box%mul%0#0 (copy)
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%add%0#0
-        l-load box%mul%0#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%mul%0#0
-        int 4138                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%mul%0#0,4138
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%add%1#0
+        int 4138                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,4138
+        l-load-copy box%mul%0#0 1                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,4138,box%mul%0#0 (copy)
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%add%1#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%add%1#0,"box"
+        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%add%1#0,"box"
         // box_storage/contract.py:281
         // arr_arr = box.value.nested.inner.arr_arr[i1][i2]
-        l-load box%add%1#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,"box",box%add%1#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,"box",box%add%1#0,2
-        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%box_extract%3#0
-        l-load box%box_extract%3#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%box_extract%3#0
-        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%btoi%1#0
-        l-load box%btoi%1#0 0                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%btoi%1#0
-        int 4138                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%btoi%1#0,4138
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0
+        l-load box%add%1#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,"box",box%add%1#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,"box",box%add%1#0,2
+        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%box_extract%3#0
+        l-load box%box_extract%3#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%box_extract%3#0
+        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%btoi%1#0
+        int 4138                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%btoi%1#0,4138
+        l-load box%btoi%1#0 1                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,4138,box%btoi%1#0
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,"box"
+        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,"box"
         // box_storage/contract.py:281
         // arr_arr = box.value.nested.inner.arr_arr[i1][i2]
-        l-load-copy box%offset%7#0 1                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,"box",box%offset%7#0 (copy)
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,"box",box%offset%7#0 (copy),2
-        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%box_extract%4#0
-        l-load box%box_extract%4#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%box_extract%4#0
-        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%btoi%2#0
-        p-load i2#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%btoi%2#0,i2#0 (copy)
-        l-load box%btoi%2#0 1                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,i2#0 (copy),box%btoi%2#0
-        <                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%index_ok%1#0
-        l-load box%index_ok%1#0 0                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%index_ok%1#0
-        assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0
-        p-load i2#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,i2#0 (copy)
-        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,i2#0 (copy),8
-        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%index_bytes_offset%0#0
-        l-load box%index_bytes_offset%0#0 0                                                            (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%index_bytes_offset%0#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%index_bytes_offset%0#0,2
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%element_offset%1#0
-        l-load box%offset%7#0 1                                                                        (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%element_offset%1#0,box%offset%7#0
-        l-load box%element_offset%1#0 1                                                                (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%7#0,box%element_offset%1#0
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%8#0
+        l-load-copy box%offset%7#0 1                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,"box",box%offset%7#0 (copy)
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,"box",box%offset%7#0 (copy),2
+        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,box%box_extract%4#0
+        l-load box%box_extract%4#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,box%box_extract%4#0
+        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,box%btoi%2#0
+        p-load i2#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,box%btoi%2#0,i2#0 (copy)
+        l-load box%btoi%2#0 1                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,i2#0 (copy),box%btoi%2#0
+        <                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,box%index_ok%1#0
+        l-load box%index_ok%1#0 0                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,box%index_ok%1#0
+        assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0
+        l-load box%offset%7#0 0                                                                        (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%7#0,2
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%add%2#0
+        p-load i2#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%add%2#0,i2#0 (copy)
+        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%add%2#0,i2#0 (copy),8
+        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%add%2#0,box%element_offset%0#0
+        l-load box%add%2#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%element_offset%0#0,box%add%2#0
+        l-load box%element_offset%0#0 1                                                                (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%add%2#0,box%element_offset%0#0
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%8#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%offset%8#0,"box"
+        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%offset%8#0,"box"
         // box_storage/contract.py:281
         // arr_arr = box.value.nested.inner.arr_arr[i1][i2]
-        l-load box%offset%8#0 1                                                                        (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,"box",box%offset%8#0
-        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,"box",box%offset%8#0,8
-        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%box_extract%5#0
-        l-load box%box_extract%5#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,box%box_extract%5#0
-        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0
+        l-load box%offset%8#0 1                                                                        (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,"box",box%offset%8#0
+        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,"box",box%offset%8#0,8
+        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%box_extract%5#0
+        l-load box%box_extract%5#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,box%box_extract%5#0
+        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,"box"
+        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,"box"
         // box_storage/contract.py:282
         // c = box.value.nested.inner.c
-        int 4118                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,"box",4118
-        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,"box",4118,8
-        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,box%box_extract%6#0
-        l-load box%box_extract%6#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,box%box_extract%6#0
-        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0
+        int 4118                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,"box",4118
+        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,"box",4118,8
+        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,box%box_extract%6#0
+        l-load box%box_extract%6#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,box%box_extract%6#0
+        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,"box"
+        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,"box"
         // box_storage/contract.py:283
         // d = box.value.nested.inner.d
-        int 4128                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,"box",4128
-        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,"box",4128,8
-        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,box%box_extract%7#0
-        l-load box%box_extract%7#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,box%box_extract%7#0
-        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0
+        int 4128                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,"box",4128
+        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,"box",4128,8
+        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,box%box_extract%7#0
+        l-load box%box_extract%7#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,box%box_extract%7#0
+        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,"box"
+        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,"box"
         // box_storage/contract.py:284
         // woah_arr_arr = box.value.nested.woah[i1].arr_arr[i2][i3]
-        int 4108                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,"box",4108
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,"box",4108,2
-        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%box_extract%8#0
-        l-load box%box_extract%8#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%box_extract%8#0
-        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%btoi%3#0
-        int 4098                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%btoi%3#0,4098
-        l-load box%btoi%3#0 1                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,4098,box%btoi%3#0
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0
+        int 4108                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,"box",4108
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,"box",4108,2
+        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%box_extract%8#0
+        l-load box%box_extract%8#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%box_extract%8#0
+        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%btoi%3#0
+        int 4098                                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%btoi%3#0,4098
+        l-load box%btoi%3#0 1                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,4098,box%btoi%3#0
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,"box"
+        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,"box"
         // box_storage/contract.py:284
         // woah_arr_arr = box.value.nested.woah[i1].arr_arr[i2][i3]
-        l-load-copy box%offset%16#0 1                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,"box",box%offset%16#0 (copy)
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,"box",box%offset%16#0 (copy),2
-        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%box_extract%9#0
-        l-load box%box_extract%9#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%box_extract%9#0
-        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%btoi%4#0
-        p-load i1#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%btoi%4#0,i1#0 (copy)
-        l-load box%btoi%4#0 1                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,i1#0 (copy),box%btoi%4#0
-        <                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%index_ok%2#0
-        l-load box%index_ok%2#0 0                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%index_ok%2#0
-        assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0
-        l-load-copy box%offset%16#0 0                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%add%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%offset%16#0 (copy)
-        l-load box%add%0#0 5                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%offset%16#0 (copy),box%add%0#0
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%add%4#0
+        l-load-copy box%offset%16#0 1                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,"box",box%offset%16#0 (copy)
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,"box",box%offset%16#0 (copy),2
+        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%box_extract%9#0
+        l-load box%box_extract%9#0 0                                                                   (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%box_extract%9#0
+        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%btoi%4#0
+        p-load i1#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%btoi%4#0,i1#0 (copy)
+        l-load box%btoi%4#0 1                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,i1#0 (copy),box%btoi%4#0
+        <                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%index_ok%2#0
+        l-load box%index_ok%2#0 0                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%index_ok%2#0
+        assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0
+        l-load box%offset%16#0 0                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%offset%16#0,2
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%add%4#0
+        l-load-copy box%add%4#0 0                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,box%mul%0#0,arr_arr#0,c#0,d#0,box%add%4#0,box%add%4#0 (copy)
+        l-load box%mul%0#0 5                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%4#0,box%add%4#0 (copy),box%mul%0#0
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%4#0,box%add%5#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%add%4#0,"box"
+        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%4#0,box%add%5#0,"box"
         // box_storage/contract.py:284
         // woah_arr_arr = box.value.nested.woah[i1].arr_arr[i2][i3]
-        l-load box%add%4#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,"box",box%add%4#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,"box",box%add%4#0,2
-        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%box_extract%10#0
-        l-load box%box_extract%10#0 0                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%box_extract%10#0
-        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%btoi%5#0
-        l-load box%btoi%5#0 0                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%btoi%5#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%btoi%5#0,2
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%element_offset%2#0
-        l-load box%offset%16#0 1                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%element_offset%2#0,box%offset%16#0
-        l-load box%element_offset%2#0 1                                                                (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%16#0,box%element_offset%2#0
+        l-load box%add%5#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%4#0,"box",box%add%5#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%4#0,"box",box%add%5#0,2
+        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%4#0,box%box_extract%10#0
+        l-load box%box_extract%10#0 0                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%4#0,box%box_extract%10#0
+        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%4#0,box%btoi%5#0
+        l-load box%add%4#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%btoi%5#0,box%add%4#0
+        l-load box%btoi%5#0 1                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%4#0,box%btoi%5#0
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%17#0
         l-load box%offset%17#0 0                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%17#0
         int 18                                                                                         (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%17#0,18
@@ -2581,30 +2578,27 @@ subroutine nested_read:
         <                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%index_ok%3#0
         l-load box%index_ok%3#0 0                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%index_ok%3#0
         assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0
+        l-load box%offset%18#0 0                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0
         int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,2
-        p-load i2#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,2,i2#0 (copy)
-        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%mul%2#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%mul%2#0,2
-        l-load box%mul%2#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,2,box%mul%2#0
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%add%5#0
-        l-load-copy box%offset%18#0 1                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%add%5#0,box%offset%18#0 (copy)
-        l-load box%add%5#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%offset%18#0 (copy),box%add%5#0
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%add%6#0
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,2
+        p-load i2#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,2,i2#0 (copy)
+        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,box%mul%2#0
+        l-load-copy box%add%6#0 1                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,box%mul%2#0,box%add%6#0 (copy)
+        l-load box%mul%2#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,box%add%6#0 (copy),box%mul%2#0
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,box%add%7#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
-        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%add%6#0,"box"
+        byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,box%add%7#0,"box"
         // box_storage/contract.py:284
         // woah_arr_arr = box.value.nested.woah[i1].arr_arr[i2][i3]
-        l-load box%add%6#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,"box",box%add%6#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,"box",box%add%6#0,2
-        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%box_extract%12#0
-        l-load box%box_extract%12#0 0                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%box_extract%12#0
-        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%btoi%7#0
-        l-load box%btoi%7#0 0                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%btoi%7#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%btoi%7#0,2
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%element_offset%3#0
-        l-load box%offset%18#0 1                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%element_offset%3#0,box%offset%18#0
-        l-load box%element_offset%3#0 1                                                                (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%18#0,box%element_offset%3#0
+        l-load box%add%7#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,"box",box%add%7#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,"box",box%add%7#0,2
+        box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,box%box_extract%12#0
+        l-load box%box_extract%12#0 0                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,box%box_extract%12#0
+        btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,box%btoi%7#0
+        l-load box%add%6#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%btoi%7#0,box%add%6#0
+        l-load box%btoi%7#0 1                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%6#0,box%btoi%7#0
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
@@ -2621,14 +2615,14 @@ subroutine nested_read:
         <                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,box%index_ok%4#0
         l-load box%index_ok%4#0 0                                                                      (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,box%index_ok%4#0
         assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0
-        p-load i3#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,i3#0 (copy)
-        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,i3#0 (copy),8
-        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,box%index_bytes_offset%1#0
-        l-load box%index_bytes_offset%1#0 0                                                            (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,box%index_bytes_offset%1#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,box%index_bytes_offset%1#0,2
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,box%element_offset%4#0
-        l-load box%offset%19#0 1                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%element_offset%4#0,box%offset%19#0
-        l-load box%element_offset%4#0 1                                                                (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,box%element_offset%4#0
+        l-load box%offset%19#0 0                                                                       (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%19#0,2
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%8#0
+        p-load i3#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%8#0,i3#0 (copy)
+        int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%8#0,i3#0 (copy),8
+        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%8#0,box%element_offset%1#0
+        l-load box%add%8#0 1                                                                           (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%element_offset%1#0,box%add%8#0
+        l-load box%element_offset%1#0 1                                                                (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%add%8#0,box%element_offset%1#0
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | a#0,b#0,arr_arr#0,c#0,d#0,box%offset%20#0
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
@@ -2735,9 +2729,9 @@ subroutine sum_dynamic_arr_struct:
         assert // index out of bounds                                                                  item_index_internal%0#0
         l-load-copy item_index_internal%0#0 0                                                          item_index_internal%0#0,item_index_internal%0#0 (copy)
         int 8                                                                                          item_index_internal%0#0,item_index_internal%0#0 (copy),8
-        *                                                                                              item_index_internal%0#0,box%index_bytes_offset%0#0
-        l-load box%index_bytes_offset%0#0 0                                                            item_index_internal%0#0,box%index_bytes_offset%0#0
-        int 22                                                                                         item_index_internal%0#0,box%index_bytes_offset%0#0,22
+        *                                                                                              item_index_internal%0#0,box%element_offset%0#0
+        int 22                                                                                         item_index_internal%0#0,box%element_offset%0#0,22
+        l-load box%element_offset%0#0 1                                                                item_index_internal%0#0,22,box%element_offset%0#0
         +                                                                                              item_index_internal%0#0,box%offset%6#0
         byte "dynamic_arr_struct"                                                                      item_index_internal%0#0,box%offset%6#0,"dynamic_arr_struct"
         l-load box%offset%6#0 1                                                                        item_index_internal%0#0,"dynamic_arr_struct",box%offset%6#0
@@ -2795,15 +2789,15 @@ subroutine sum_dynamic_arr_struct:
         box_extract                                                                                    box%box_extract%9#0
         l-load box%box_extract%9#0 0                                                                   box%box_extract%9#0
         btoi                                                                                           box%btoi%2#0
-        v-load item_index_internal%1#0                                                                 box%btoi%2#0,item_index_internal%1#0
-        l-store-copy item_index_internal%1#0 1                                                         item_index_internal%1#0,box%btoi%2#0,item_index_internal%1#0 (copy)
-        int 8                                                                                          item_index_internal%1#0,box%btoi%2#0,item_index_internal%1#0 (copy),8
-        *                                                                                              item_index_internal%1#0,box%btoi%2#0,box%index_bytes_offset%1#0
-        l-load box%index_bytes_offset%1#0 0                                                            item_index_internal%1#0,box%btoi%2#0,box%index_bytes_offset%1#0
-        int 2                                                                                          item_index_internal%1#0,box%btoi%2#0,box%index_bytes_offset%1#0,2
-        +                                                                                              item_index_internal%1#0,box%btoi%2#0,box%element_offset%1#0
-        l-load box%btoi%2#0 1                                                                          item_index_internal%1#0,box%element_offset%1#0,box%btoi%2#0
-        l-load box%element_offset%1#0 1                                                                item_index_internal%1#0,box%btoi%2#0,box%element_offset%1#0
+        l-load box%btoi%2#0 0                                                                          box%btoi%2#0
+        int 2                                                                                          box%btoi%2#0,2
+        +                                                                                              box%add%3#0
+        v-load item_index_internal%1#0                                                                 box%add%3#0,item_index_internal%1#0
+        l-store-copy item_index_internal%1#0 1                                                         item_index_internal%1#0,box%add%3#0,item_index_internal%1#0 (copy)
+        int 8                                                                                          item_index_internal%1#0,box%add%3#0,item_index_internal%1#0 (copy),8
+        *                                                                                              item_index_internal%1#0,box%add%3#0,box%element_offset%1#0
+        l-load box%add%3#0 1                                                                           item_index_internal%1#0,box%element_offset%1#0,box%add%3#0
+        l-load box%element_offset%1#0 1                                                                item_index_internal%1#0,box%add%3#0,box%element_offset%1#0
         +                                                                                              item_index_internal%1#0,box%offset%9#0
         byte "dynamic_arr_struct"                                                                      item_index_internal%1#0,box%offset%9#0,"dynamic_arr_struct"
         l-load box%offset%9#0 1                                                                        item_index_internal%1#0,"dynamic_arr_struct",box%offset%9#0
@@ -2908,9 +2902,9 @@ subroutine append_dynamic_box:
         v-load arr_len#0                                                                               (𝕡) times#0 | i#0,aggregate%val_as_bytes%0#0,arr_len#0
         l-store-copy arr_len#0 1                                                                       (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,arr_len#0 (copy)
         int 8                                                                                          (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,arr_len#0 (copy),8
-        *                                                                                              (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0
-        int 2                                                                                          (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0,2
-        l-load box%index_bytes_offset%0#0 1                                                            (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,2,box%index_bytes_offset%0#0
+        *                                                                                              (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%element_offset%0#0
+        int 2                                                                                          (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%element_offset%0#0,2
+        l-load box%element_offset%0#0 1                                                                (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,2,box%element_offset%0#0
         +                                                                                              (𝕡) times#0 | i#0,arr_len#0,aggregate%val_as_bytes%0#0,box%offset%2#0
         // box_storage/contract.py:311
         // box = Box(FixedArrayUInt64, key=self.dynamic_box.key)
@@ -3063,13 +3057,13 @@ subroutine sum_dynamic_box:
         v-load item_index_internal%0#0                                                                 item_index_internal%0#0
         l-store-copy item_index_internal%0#0 0                                                         item_index_internal%0#0,item_index_internal%0#0 (copy)
         int 8                                                                                          item_index_internal%0#0,item_index_internal%0#0 (copy),8
-        *                                                                                              item_index_internal%0#0,box%index_bytes_offset%0#0
-        l-load box%index_bytes_offset%0#0 0                                                            item_index_internal%0#0,box%index_bytes_offset%0#0
-        int 2                                                                                          item_index_internal%0#0,box%index_bytes_offset%0#0,2
-        +                                                                                              item_index_internal%0#0,box%element_offset%0#0
-        byte "dynamic_box"                                                                             item_index_internal%0#0,box%element_offset%0#0,"dynamic_box"
-        l-load box%element_offset%0#0 1                                                                item_index_internal%0#0,"dynamic_box",box%element_offset%0#0
-        int 8                                                                                          item_index_internal%0#0,"dynamic_box",box%element_offset%0#0,8
+        *                                                                                              item_index_internal%0#0,box%element_offset%0#0
+        int 2                                                                                          item_index_internal%0#0,box%element_offset%0#0,2
+        l-load box%element_offset%0#0 1                                                                item_index_internal%0#0,2,box%element_offset%0#0
+        +                                                                                              item_index_internal%0#0,box%offset%0#0
+        byte "dynamic_box"                                                                             item_index_internal%0#0,box%offset%0#0,"dynamic_box"
+        l-load box%offset%0#0 1                                                                        item_index_internal%0#0,"dynamic_box",box%offset%0#0
+        int 8                                                                                          item_index_internal%0#0,"dynamic_box",box%offset%0#0,8
         box_extract                                                                                    item_index_internal%0#0,box%box_extract%1#0
         l-load box%box_extract%1#0 0                                                                   item_index_internal%0#0,box%box_extract%1#0
         btoi                                                                                           item_index_internal%0#0,val#0
@@ -3101,13 +3095,13 @@ subroutine write_dynamic_box:
         itob                                                                                           (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0
         p-load index#0                                                                                 (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,index#0 (copy)
         int 8                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,index#0 (copy),8
-        *                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0
-        l-load box%index_bytes_offset%0#0 0                                                            (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0
-        int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0,2
-        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%element_offset%0#0
-        byte "dynamic_box"                                                                             (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%element_offset%0#0,"dynamic_box"
-        l-load box%element_offset%0#0 1                                                                (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,"dynamic_box",box%element_offset%0#0
-        l-load aggregate%val_as_bytes%0#0 2                                                            (𝕡) index#0,value#0 | "dynamic_box",box%element_offset%0#0,aggregate%val_as_bytes%0#0
+        *                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%element_offset%0#0
+        int 2                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%element_offset%0#0,2
+        l-load box%element_offset%0#0 1                                                                (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,2,box%element_offset%0#0
+        +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%offset%0#0
+        byte "dynamic_box"                                                                             (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%offset%0#0,"dynamic_box"
+        l-load box%offset%0#0 1                                                                        (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,"dynamic_box",box%offset%0#0
+        l-load aggregate%val_as_bytes%0#0 2                                                            (𝕡) index#0,value#0 | "dynamic_box",box%offset%0#0,aggregate%val_as_bytes%0#0
         box_replace                                                                                    (𝕡) index#0,value#0 |
         retsub
 
@@ -3132,9 +3126,9 @@ subroutine write_dynamic_arr_struct:
         assert // index out of bounds                                                                  (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0
         p-load index#0                                                                                 (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,index#0 (copy)
         int 8                                                                                          (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,index#0 (copy),8
-        *                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0
-        l-load box%index_bytes_offset%0#0 0                                                            (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0
-        int 22                                                                                         (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%index_bytes_offset%0#0,22
+        *                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%element_offset%0#0
+        int 22                                                                                         (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%element_offset%0#0,22
+        l-load box%element_offset%0#0 1                                                                (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,22,box%element_offset%0#0
         +                                                                                              (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%offset%1#0
         byte "dynamic_arr_struct"                                                                      (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,box%offset%1#0,"dynamic_arr_struct"
         l-load box%offset%1#0 1                                                                        (𝕡) index#0,value#0 | aggregate%val_as_bytes%0#0,"dynamic_arr_struct",box%offset%1#0

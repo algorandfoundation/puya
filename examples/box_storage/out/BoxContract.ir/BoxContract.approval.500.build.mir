@@ -1611,11 +1611,11 @@ subroutine set_many_ints:
         v-store aggregate%val_as_bytes%0#0                                                             (𝕡) index#0,value#0 |
         p-load index#0                                                                                 (𝕡) index#0,value#0 | index#0 (copy)
         int 8                                                                                          (𝕡) index#0,value#0 | index#0 (copy),8
-        *                                                                                              (𝕡) index#0,value#0 | box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0                                                             (𝕡) index#0,value#0 |
+        *                                                                                              (𝕡) index#0,value#0 | box%element_offset%0#0
+        v-store box%element_offset%0#0                                                                 (𝕡) index#0,value#0 |
         byte "many_ints"                                                                               (𝕡) index#0,value#0 | "many_ints"
-        v-load box%index_bytes_offset%0#0                                                              (𝕡) index#0,value#0 | "many_ints",box%index_bytes_offset%0#0
-        v-load aggregate%val_as_bytes%0#0                                                              (𝕡) index#0,value#0 | "many_ints",box%index_bytes_offset%0#0,aggregate%val_as_bytes%0#0
+        v-load box%element_offset%0#0                                                                  (𝕡) index#0,value#0 | "many_ints",box%element_offset%0#0
+        v-load aggregate%val_as_bytes%0#0                                                              (𝕡) index#0,value#0 | "many_ints",box%element_offset%0#0,aggregate%val_as_bytes%0#0
         box_replace                                                                                    (𝕡) index#0,value#0 |
         retsub
 
@@ -1679,11 +1679,11 @@ subroutine sum_many_ints:
         // for val in self.many_ints.value:
         v-load item_index_internal%0#0                                                                 item_index_internal%0#0
         int 8                                                                                          item_index_internal%0#0,8
-        *                                                                                              box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0
+        *                                                                                              box%element_offset%0#0
+        v-store box%element_offset%0#0
         byte "many_ints"                                                                               "many_ints"
-        v-load box%index_bytes_offset%0#0                                                              "many_ints",box%index_bytes_offset%0#0
-        int 8                                                                                          "many_ints",box%index_bytes_offset%0#0,8
+        v-load box%element_offset%0#0                                                                  "many_ints",box%element_offset%0#0
+        int 8                                                                                          "many_ints",box%element_offset%0#0,8
         box_extract                                                                                    box%box_extract%0#0
         v-store box%box_extract%0#0
         v-load box%box_extract%0#0                                                                     box%box_extract%0#0
@@ -2179,10 +2179,10 @@ subroutine append_dynamic_arr_struct:
         v-store aggregate%val_as_bytes%0#0                                                             (𝕡) times#0 |
         v-load arr_len#0                                                                               (𝕡) times#0 | arr_len#0
         int 8                                                                                          (𝕡) times#0 | arr_len#0,8
-        *                                                                                              (𝕡) times#0 | box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0                                                             (𝕡) times#0 |
+        *                                                                                              (𝕡) times#0 | box%element_offset%0#0
+        v-store box%element_offset%0#0                                                                 (𝕡) times#0 |
         int 22                                                                                         (𝕡) times#0 | 22
-        v-load box%index_bytes_offset%0#0                                                              (𝕡) times#0 | 22,box%index_bytes_offset%0#0
+        v-load box%element_offset%0#0                                                                  (𝕡) times#0 | 22,box%element_offset%0#0
         +                                                                                              (𝕡) times#0 | box%offset%5#0
         v-store box%offset%5#0                                                                         (𝕡) times#0 |
         // box_storage/contract.py:215
@@ -2610,12 +2610,8 @@ subroutine nested_write:
         p-load index#0                                                                                 (𝕡) index#0,value#0 | 2,index#0 (copy)
         *                                                                                              (𝕡) index#0,value#0 | box%mul%0#0
         v-store box%mul%0#0                                                                            (𝕡) index#0,value#0 |
-        int 2                                                                                          (𝕡) index#0,value#0 | 2
-        v-load box%mul%0#0                                                                             (𝕡) index#0,value#0 | 2,box%mul%0#0
-        +                                                                                              (𝕡) index#0,value#0 | box%add%0#0
-        v-store box%add%0#0                                                                            (𝕡) index#0,value#0 |
-        v-load box%mul%0#0                                                                             (𝕡) index#0,value#0 | box%mul%0#0
-        int 4138                                                                                       (𝕡) index#0,value#0 | box%mul%0#0,4138
+        int 4138                                                                                       (𝕡) index#0,value#0 | 4138
+        v-load box%mul%0#0                                                                             (𝕡) index#0,value#0 | 4138,box%mul%0#0
         +                                                                                              (𝕡) index#0,value#0 | box%add%1#0
         v-store box%add%1#0                                                                            (𝕡) index#0,value#0 |
         // box_storage/contract.py:268
@@ -2630,8 +2626,8 @@ subroutine nested_write:
         v-load box%box_extract%1#0                                                                     (𝕡) index#0,value#0 | box%box_extract%1#0
         btoi                                                                                           (𝕡) index#0,value#0 | box%btoi%1#0
         v-store box%btoi%1#0                                                                           (𝕡) index#0,value#0 |
-        v-load box%btoi%1#0                                                                            (𝕡) index#0,value#0 | box%btoi%1#0
-        int 4138                                                                                       (𝕡) index#0,value#0 | box%btoi%1#0,4138
+        int 4138                                                                                       (𝕡) index#0,value#0 | 4138
+        v-load box%btoi%1#0                                                                            (𝕡) index#0,value#0 | 4138,box%btoi%1#0
         +                                                                                              (𝕡) index#0,value#0 | box%offset%7#0
         v-store box%offset%7#0                                                                         (𝕡) index#0,value#0 |
         // box_storage/contract.py:268
@@ -2652,16 +2648,16 @@ subroutine nested_write:
         v-store box%index_ok%1#0                                                                       (𝕡) index#0,value#0 |
         v-load box%index_ok%1#0                                                                        (𝕡) index#0,value#0 | box%index_ok%1#0
         assert // index out of bounds                                                                  (𝕡) index#0,value#0 |
+        v-load box%offset%7#0                                                                          (𝕡) index#0,value#0 | box%offset%7#0
+        int 2                                                                                          (𝕡) index#0,value#0 | box%offset%7#0,2
+        +                                                                                              (𝕡) index#0,value#0 | box%add%2#0
+        v-store box%add%2#0                                                                            (𝕡) index#0,value#0 |
         p-load index#0                                                                                 (𝕡) index#0,value#0 | index#0 (copy)
         int 8                                                                                          (𝕡) index#0,value#0 | index#0 (copy),8
-        *                                                                                              (𝕡) index#0,value#0 | box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0                                                             (𝕡) index#0,value#0 |
-        v-load box%index_bytes_offset%0#0                                                              (𝕡) index#0,value#0 | box%index_bytes_offset%0#0
-        int 2                                                                                          (𝕡) index#0,value#0 | box%index_bytes_offset%0#0,2
-        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%1#0
-        v-store box%element_offset%1#0                                                                 (𝕡) index#0,value#0 |
-        v-load box%offset%7#0                                                                          (𝕡) index#0,value#0 | box%offset%7#0
-        v-load box%element_offset%1#0                                                                  (𝕡) index#0,value#0 | box%offset%7#0,box%element_offset%1#0
+        *                                                                                              (𝕡) index#0,value#0 | box%element_offset%0#0
+        v-store box%element_offset%0#0                                                                 (𝕡) index#0,value#0 |
+        v-load box%add%2#0                                                                             (𝕡) index#0,value#0 | box%add%2#0
+        v-load box%element_offset%0#0                                                                  (𝕡) index#0,value#0 | box%add%2#0,box%element_offset%0#0
         +                                                                                              (𝕡) index#0,value#0 | box%offset%8#0
         v-store box%offset%8#0                                                                         (𝕡) index#0,value#0 |
         // box_storage/contract.py:268
@@ -2750,27 +2746,27 @@ subroutine nested_write:
         v-load box%index_ok%2#0                                                                        (𝕡) index#0,value#0 | box%index_ok%2#0
         assert // index out of bounds                                                                  (𝕡) index#0,value#0 |
         v-load box%offset%16#0                                                                         (𝕡) index#0,value#0 | box%offset%16#0
-        v-load box%add%0#0                                                                             (𝕡) index#0,value#0 | box%offset%16#0,box%add%0#0
+        int 2                                                                                          (𝕡) index#0,value#0 | box%offset%16#0,2
         +                                                                                              (𝕡) index#0,value#0 | box%add%4#0
         v-store box%add%4#0                                                                            (𝕡) index#0,value#0 |
+        v-load box%add%4#0                                                                             (𝕡) index#0,value#0 | box%add%4#0
+        v-load box%mul%0#0                                                                             (𝕡) index#0,value#0 | box%add%4#0,box%mul%0#0
+        +                                                                                              (𝕡) index#0,value#0 | box%add%5#0
+        v-store box%add%5#0                                                                            (𝕡) index#0,value#0 |
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
         byte "box"                                                                                     (𝕡) index#0,value#0 | "box"
         // box_storage/contract.py:274
         // box.value.nested.woah[index].arr_arr[index][index] = value + 5
-        v-load box%add%4#0                                                                             (𝕡) index#0,value#0 | "box",box%add%4#0
-        int 2                                                                                          (𝕡) index#0,value#0 | "box",box%add%4#0,2
+        v-load box%add%5#0                                                                             (𝕡) index#0,value#0 | "box",box%add%5#0
+        int 2                                                                                          (𝕡) index#0,value#0 | "box",box%add%5#0,2
         box_extract                                                                                    (𝕡) index#0,value#0 | box%box_extract%5#0
         v-store box%box_extract%5#0                                                                    (𝕡) index#0,value#0 |
         v-load box%box_extract%5#0                                                                     (𝕡) index#0,value#0 | box%box_extract%5#0
         btoi                                                                                           (𝕡) index#0,value#0 | box%btoi%5#0
         v-store box%btoi%5#0                                                                           (𝕡) index#0,value#0 |
-        v-load box%btoi%5#0                                                                            (𝕡) index#0,value#0 | box%btoi%5#0
-        int 2                                                                                          (𝕡) index#0,value#0 | box%btoi%5#0,2
-        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%2#0
-        v-store box%element_offset%2#0                                                                 (𝕡) index#0,value#0 |
-        v-load box%offset%16#0                                                                         (𝕡) index#0,value#0 | box%offset%16#0
-        v-load box%element_offset%2#0                                                                  (𝕡) index#0,value#0 | box%offset%16#0,box%element_offset%2#0
+        v-load box%add%4#0                                                                             (𝕡) index#0,value#0 | box%add%4#0
+        v-load box%btoi%5#0                                                                            (𝕡) index#0,value#0 | box%add%4#0,box%btoi%5#0
         +                                                                                              (𝕡) index#0,value#0 | box%offset%17#0
         v-store box%offset%17#0                                                                        (𝕡) index#0,value#0 |
         v-load box%offset%17#0                                                                         (𝕡) index#0,value#0 | box%offset%17#0
@@ -2796,27 +2792,27 @@ subroutine nested_write:
         v-load box%index_ok%3#0                                                                        (𝕡) index#0,value#0 | box%index_ok%3#0
         assert // index out of bounds                                                                  (𝕡) index#0,value#0 |
         v-load box%offset%18#0                                                                         (𝕡) index#0,value#0 | box%offset%18#0
-        v-load box%add%0#0                                                                             (𝕡) index#0,value#0 | box%offset%18#0,box%add%0#0
+        int 2                                                                                          (𝕡) index#0,value#0 | box%offset%18#0,2
         +                                                                                              (𝕡) index#0,value#0 | box%add%6#0
         v-store box%add%6#0                                                                            (𝕡) index#0,value#0 |
+        v-load box%add%6#0                                                                             (𝕡) index#0,value#0 | box%add%6#0
+        v-load box%mul%0#0                                                                             (𝕡) index#0,value#0 | box%add%6#0,box%mul%0#0
+        +                                                                                              (𝕡) index#0,value#0 | box%add%7#0
+        v-store box%add%7#0                                                                            (𝕡) index#0,value#0 |
         // box_storage/contract.py:268
         // box = Box(LargeNestedStruct, key="box")
         byte "box"                                                                                     (𝕡) index#0,value#0 | "box"
         // box_storage/contract.py:274
         // box.value.nested.woah[index].arr_arr[index][index] = value + 5
-        v-load box%add%6#0                                                                             (𝕡) index#0,value#0 | "box",box%add%6#0
-        int 2                                                                                          (𝕡) index#0,value#0 | "box",box%add%6#0,2
+        v-load box%add%7#0                                                                             (𝕡) index#0,value#0 | "box",box%add%7#0
+        int 2                                                                                          (𝕡) index#0,value#0 | "box",box%add%7#0,2
         box_extract                                                                                    (𝕡) index#0,value#0 | box%box_extract%7#0
         v-store box%box_extract%7#0                                                                    (𝕡) index#0,value#0 |
         v-load box%box_extract%7#0                                                                     (𝕡) index#0,value#0 | box%box_extract%7#0
         btoi                                                                                           (𝕡) index#0,value#0 | box%btoi%7#0
         v-store box%btoi%7#0                                                                           (𝕡) index#0,value#0 |
-        v-load box%btoi%7#0                                                                            (𝕡) index#0,value#0 | box%btoi%7#0
-        int 2                                                                                          (𝕡) index#0,value#0 | box%btoi%7#0,2
-        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%3#0
-        v-store box%element_offset%3#0                                                                 (𝕡) index#0,value#0 |
-        v-load box%offset%18#0                                                                         (𝕡) index#0,value#0 | box%offset%18#0
-        v-load box%element_offset%3#0                                                                  (𝕡) index#0,value#0 | box%offset%18#0,box%element_offset%3#0
+        v-load box%add%6#0                                                                             (𝕡) index#0,value#0 | box%add%6#0
+        v-load box%btoi%7#0                                                                            (𝕡) index#0,value#0 | box%add%6#0,box%btoi%7#0
         +                                                                                              (𝕡) index#0,value#0 | box%offset%19#0
         v-store box%offset%19#0                                                                        (𝕡) index#0,value#0 |
         // box_storage/contract.py:268
@@ -2838,7 +2834,11 @@ subroutine nested_write:
         v-load box%index_ok%4#0                                                                        (𝕡) index#0,value#0 | box%index_ok%4#0
         assert // index out of bounds                                                                  (𝕡) index#0,value#0 |
         v-load box%offset%19#0                                                                         (𝕡) index#0,value#0 | box%offset%19#0
-        v-load box%element_offset%1#0                                                                  (𝕡) index#0,value#0 | box%offset%19#0,box%element_offset%1#0
+        int 2                                                                                          (𝕡) index#0,value#0 | box%offset%19#0,2
+        +                                                                                              (𝕡) index#0,value#0 | box%add%8#0
+        v-store box%add%8#0                                                                            (𝕡) index#0,value#0 |
+        v-load box%add%8#0                                                                             (𝕡) index#0,value#0 | box%add%8#0
+        v-load box%element_offset%0#0                                                                  (𝕡) index#0,value#0 | box%add%8#0,box%element_offset%0#0
         +                                                                                              (𝕡) index#0,value#0 | box%offset%20#0
         v-store box%offset%20#0                                                                        (𝕡) index#0,value#0 |
         // box_storage/contract.py:268
@@ -2901,12 +2901,8 @@ subroutine nested_read:
         p-load i1#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | 2,i1#0 (copy)
         *                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%mul%0#0
         v-store box%mul%0#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | 2
-        v-load box%mul%0#0                                                                             (𝕡) i1#0,i2#0,i3#0 | 2,box%mul%0#0
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%0#0
-        v-store box%add%0#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%mul%0#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%mul%0#0
-        int 4138                                                                                       (𝕡) i1#0,i2#0,i3#0 | box%mul%0#0,4138
+        int 4138                                                                                       (𝕡) i1#0,i2#0,i3#0 | 4138
+        v-load box%mul%0#0                                                                             (𝕡) i1#0,i2#0,i3#0 | 4138,box%mul%0#0
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%1#0
         v-store box%add%1#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
         // box_storage/contract.py:278
@@ -2921,8 +2917,8 @@ subroutine nested_read:
         v-load box%box_extract%3#0                                                                     (𝕡) i1#0,i2#0,i3#0 | box%box_extract%3#0
         btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | box%btoi%1#0
         v-store box%btoi%1#0                                                                           (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%btoi%1#0                                                                            (𝕡) i1#0,i2#0,i3#0 | box%btoi%1#0
-        int 4138                                                                                       (𝕡) i1#0,i2#0,i3#0 | box%btoi%1#0,4138
+        int 4138                                                                                       (𝕡) i1#0,i2#0,i3#0 | 4138
+        v-load box%btoi%1#0                                                                            (𝕡) i1#0,i2#0,i3#0 | 4138,box%btoi%1#0
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%offset%7#0
         v-store box%offset%7#0                                                                         (𝕡) i1#0,i2#0,i3#0 |
         // box_storage/contract.py:278
@@ -2943,16 +2939,16 @@ subroutine nested_read:
         v-store box%index_ok%1#0                                                                       (𝕡) i1#0,i2#0,i3#0 |
         v-load box%index_ok%1#0                                                                        (𝕡) i1#0,i2#0,i3#0 | box%index_ok%1#0
         assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 |
+        v-load box%offset%7#0                                                                          (𝕡) i1#0,i2#0,i3#0 | box%offset%7#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | box%offset%7#0,2
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%2#0
+        v-store box%add%2#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
         p-load i2#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | i2#0 (copy)
         int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | i2#0 (copy),8
-        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0                                                             (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%index_bytes_offset%0#0                                                              (𝕡) i1#0,i2#0,i3#0 | box%index_bytes_offset%0#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | box%index_bytes_offset%0#0,2
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%element_offset%1#0
-        v-store box%element_offset%1#0                                                                 (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%offset%7#0                                                                          (𝕡) i1#0,i2#0,i3#0 | box%offset%7#0
-        v-load box%element_offset%1#0                                                                  (𝕡) i1#0,i2#0,i3#0 | box%offset%7#0,box%element_offset%1#0
+        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%element_offset%0#0
+        v-store box%element_offset%0#0                                                                 (𝕡) i1#0,i2#0,i3#0 |
+        v-load box%add%2#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%add%2#0
+        v-load box%element_offset%0#0                                                                  (𝕡) i1#0,i2#0,i3#0 | box%add%2#0,box%element_offset%0#0
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%offset%8#0
         v-store box%offset%8#0                                                                         (𝕡) i1#0,i2#0,i3#0 |
         // box_storage/contract.py:278
@@ -3026,27 +3022,27 @@ subroutine nested_read:
         v-load box%index_ok%2#0                                                                        (𝕡) i1#0,i2#0,i3#0 | box%index_ok%2#0
         assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 |
         v-load box%offset%16#0                                                                         (𝕡) i1#0,i2#0,i3#0 | box%offset%16#0
-        v-load box%add%0#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%offset%16#0,box%add%0#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | box%offset%16#0,2
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%4#0
         v-store box%add%4#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
+        v-load box%add%4#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%add%4#0
+        v-load box%mul%0#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%add%4#0,box%mul%0#0
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%5#0
+        v-store box%add%5#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
         byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | "box"
         // box_storage/contract.py:284
         // woah_arr_arr = box.value.nested.woah[i1].arr_arr[i2][i3]
-        v-load box%add%4#0                                                                             (𝕡) i1#0,i2#0,i3#0 | "box",box%add%4#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | "box",box%add%4#0,2
+        v-load box%add%5#0                                                                             (𝕡) i1#0,i2#0,i3#0 | "box",box%add%5#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | "box",box%add%5#0,2
         box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | box%box_extract%10#0
         v-store box%box_extract%10#0                                                                   (𝕡) i1#0,i2#0,i3#0 |
         v-load box%box_extract%10#0                                                                    (𝕡) i1#0,i2#0,i3#0 | box%box_extract%10#0
         btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | box%btoi%5#0
         v-store box%btoi%5#0                                                                           (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%btoi%5#0                                                                            (𝕡) i1#0,i2#0,i3#0 | box%btoi%5#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | box%btoi%5#0,2
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%element_offset%2#0
-        v-store box%element_offset%2#0                                                                 (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%offset%16#0                                                                         (𝕡) i1#0,i2#0,i3#0 | box%offset%16#0
-        v-load box%element_offset%2#0                                                                  (𝕡) i1#0,i2#0,i3#0 | box%offset%16#0,box%element_offset%2#0
+        v-load box%add%4#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%add%4#0
+        v-load box%btoi%5#0                                                                            (𝕡) i1#0,i2#0,i3#0 | box%add%4#0,box%btoi%5#0
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%offset%17#0
         v-store box%offset%17#0                                                                        (𝕡) i1#0,i2#0,i3#0 |
         v-load box%offset%17#0                                                                         (𝕡) i1#0,i2#0,i3#0 | box%offset%17#0
@@ -3071,36 +3067,32 @@ subroutine nested_read:
         v-store box%index_ok%3#0                                                                       (𝕡) i1#0,i2#0,i3#0 |
         v-load box%index_ok%3#0                                                                        (𝕡) i1#0,i2#0,i3#0 | box%index_ok%3#0
         assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 |
+        v-load box%offset%18#0                                                                         (𝕡) i1#0,i2#0,i3#0 | box%offset%18#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | box%offset%18#0,2
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%6#0
+        v-store box%add%6#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
         int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | 2
         p-load i2#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | 2,i2#0 (copy)
         *                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%mul%2#0
         v-store box%mul%2#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | 2
-        v-load box%mul%2#0                                                                             (𝕡) i1#0,i2#0,i3#0 | 2,box%mul%2#0
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%5#0
-        v-store box%add%5#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%offset%18#0                                                                         (𝕡) i1#0,i2#0,i3#0 | box%offset%18#0
-        v-load box%add%5#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%offset%18#0,box%add%5#0
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%6#0
-        v-store box%add%6#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
+        v-load box%add%6#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%add%6#0
+        v-load box%mul%2#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%add%6#0,box%mul%2#0
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%7#0
+        v-store box%add%7#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
         // box_storage/contract.py:278
         // box = Box(LargeNestedStruct, key="box")
         byte "box"                                                                                     (𝕡) i1#0,i2#0,i3#0 | "box"
         // box_storage/contract.py:284
         // woah_arr_arr = box.value.nested.woah[i1].arr_arr[i2][i3]
-        v-load box%add%6#0                                                                             (𝕡) i1#0,i2#0,i3#0 | "box",box%add%6#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | "box",box%add%6#0,2
+        v-load box%add%7#0                                                                             (𝕡) i1#0,i2#0,i3#0 | "box",box%add%7#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | "box",box%add%7#0,2
         box_extract                                                                                    (𝕡) i1#0,i2#0,i3#0 | box%box_extract%12#0
         v-store box%box_extract%12#0                                                                   (𝕡) i1#0,i2#0,i3#0 |
         v-load box%box_extract%12#0                                                                    (𝕡) i1#0,i2#0,i3#0 | box%box_extract%12#0
         btoi                                                                                           (𝕡) i1#0,i2#0,i3#0 | box%btoi%7#0
         v-store box%btoi%7#0                                                                           (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%btoi%7#0                                                                            (𝕡) i1#0,i2#0,i3#0 | box%btoi%7#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | box%btoi%7#0,2
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%element_offset%3#0
-        v-store box%element_offset%3#0                                                                 (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%offset%18#0                                                                         (𝕡) i1#0,i2#0,i3#0 | box%offset%18#0
-        v-load box%element_offset%3#0                                                                  (𝕡) i1#0,i2#0,i3#0 | box%offset%18#0,box%element_offset%3#0
+        v-load box%add%6#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%add%6#0
+        v-load box%btoi%7#0                                                                            (𝕡) i1#0,i2#0,i3#0 | box%add%6#0,box%btoi%7#0
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%offset%19#0
         v-store box%offset%19#0                                                                        (𝕡) i1#0,i2#0,i3#0 |
         // box_storage/contract.py:278
@@ -3121,16 +3113,16 @@ subroutine nested_read:
         v-store box%index_ok%4#0                                                                       (𝕡) i1#0,i2#0,i3#0 |
         v-load box%index_ok%4#0                                                                        (𝕡) i1#0,i2#0,i3#0 | box%index_ok%4#0
         assert // index out of bounds                                                                  (𝕡) i1#0,i2#0,i3#0 |
+        v-load box%offset%19#0                                                                         (𝕡) i1#0,i2#0,i3#0 | box%offset%19#0
+        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | box%offset%19#0,2
+        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%add%8#0
+        v-store box%add%8#0                                                                            (𝕡) i1#0,i2#0,i3#0 |
         p-load i3#0                                                                                    (𝕡) i1#0,i2#0,i3#0 | i3#0 (copy)
         int 8                                                                                          (𝕡) i1#0,i2#0,i3#0 | i3#0 (copy),8
-        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%index_bytes_offset%1#0
-        v-store box%index_bytes_offset%1#0                                                             (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%index_bytes_offset%1#0                                                              (𝕡) i1#0,i2#0,i3#0 | box%index_bytes_offset%1#0
-        int 2                                                                                          (𝕡) i1#0,i2#0,i3#0 | box%index_bytes_offset%1#0,2
-        +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%element_offset%4#0
-        v-store box%element_offset%4#0                                                                 (𝕡) i1#0,i2#0,i3#0 |
-        v-load box%offset%19#0                                                                         (𝕡) i1#0,i2#0,i3#0 | box%offset%19#0
-        v-load box%element_offset%4#0                                                                  (𝕡) i1#0,i2#0,i3#0 | box%offset%19#0,box%element_offset%4#0
+        *                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%element_offset%1#0
+        v-store box%element_offset%1#0                                                                 (𝕡) i1#0,i2#0,i3#0 |
+        v-load box%add%8#0                                                                             (𝕡) i1#0,i2#0,i3#0 | box%add%8#0
+        v-load box%element_offset%1#0                                                                  (𝕡) i1#0,i2#0,i3#0 | box%add%8#0,box%element_offset%1#0
         +                                                                                              (𝕡) i1#0,i2#0,i3#0 | box%offset%20#0
         v-store box%offset%20#0                                                                        (𝕡) i1#0,i2#0,i3#0 |
         // box_storage/contract.py:278
@@ -3255,10 +3247,10 @@ subroutine sum_dynamic_arr_struct:
         assert // index out of bounds
         v-load item_index_internal%0#0                                                                 item_index_internal%0#0
         int 8                                                                                          item_index_internal%0#0,8
-        *                                                                                              box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0
-        v-load box%index_bytes_offset%0#0                                                              box%index_bytes_offset%0#0
-        int 22                                                                                         box%index_bytes_offset%0#0,22
+        *                                                                                              box%element_offset%0#0
+        v-store box%element_offset%0#0
+        int 22                                                                                         22
+        v-load box%element_offset%0#0                                                                  22,box%element_offset%0#0
         +                                                                                              box%offset%6#0
         v-store box%offset%6#0
         byte "dynamic_arr_struct"                                                                      "dynamic_arr_struct"
@@ -3325,16 +3317,16 @@ subroutine sum_dynamic_arr_struct:
         v-load box%box_extract%9#0                                                                     box%box_extract%9#0
         btoi                                                                                           box%btoi%2#0
         v-store box%btoi%2#0
+        v-load box%btoi%2#0                                                                            box%btoi%2#0
+        int 2                                                                                          box%btoi%2#0,2
+        +                                                                                              box%add%3#0
+        v-store box%add%3#0
         v-load item_index_internal%1#0                                                                 item_index_internal%1#0
         int 8                                                                                          item_index_internal%1#0,8
-        *                                                                                              box%index_bytes_offset%1#0
-        v-store box%index_bytes_offset%1#0
-        v-load box%index_bytes_offset%1#0                                                              box%index_bytes_offset%1#0
-        int 2                                                                                          box%index_bytes_offset%1#0,2
-        +                                                                                              box%element_offset%1#0
+        *                                                                                              box%element_offset%1#0
         v-store box%element_offset%1#0
-        v-load box%btoi%2#0                                                                            box%btoi%2#0
-        v-load box%element_offset%1#0                                                                  box%btoi%2#0,box%element_offset%1#0
+        v-load box%add%3#0                                                                             box%add%3#0
+        v-load box%element_offset%1#0                                                                  box%add%3#0,box%element_offset%1#0
         +                                                                                              box%offset%9#0
         v-store box%offset%9#0
         byte "dynamic_arr_struct"                                                                      "dynamic_arr_struct"
@@ -3445,10 +3437,10 @@ subroutine append_dynamic_box:
         v-store aggregate%val_as_bytes%0#0                                                             (𝕡) times#0 |
         v-load arr_len#0                                                                               (𝕡) times#0 | arr_len#0
         int 8                                                                                          (𝕡) times#0 | arr_len#0,8
-        *                                                                                              (𝕡) times#0 | box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0                                                             (𝕡) times#0 |
+        *                                                                                              (𝕡) times#0 | box%element_offset%0#0
+        v-store box%element_offset%0#0                                                                 (𝕡) times#0 |
         int 2                                                                                          (𝕡) times#0 | 2
-        v-load box%index_bytes_offset%0#0                                                              (𝕡) times#0 | 2,box%index_bytes_offset%0#0
+        v-load box%element_offset%0#0                                                                  (𝕡) times#0 | 2,box%element_offset%0#0
         +                                                                                              (𝕡) times#0 | box%offset%2#0
         v-store box%offset%2#0                                                                         (𝕡) times#0 |
         // box_storage/contract.py:311
@@ -3620,15 +3612,15 @@ subroutine sum_dynamic_box:
         // for val in self.dynamic_box.value:
         v-load item_index_internal%0#0                                                                 item_index_internal%0#0
         int 8                                                                                          item_index_internal%0#0,8
-        *                                                                                              box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0
-        v-load box%index_bytes_offset%0#0                                                              box%index_bytes_offset%0#0
-        int 2                                                                                          box%index_bytes_offset%0#0,2
-        +                                                                                              box%element_offset%0#0
+        *                                                                                              box%element_offset%0#0
         v-store box%element_offset%0#0
+        int 2                                                                                          2
+        v-load box%element_offset%0#0                                                                  2,box%element_offset%0#0
+        +                                                                                              box%offset%0#0
+        v-store box%offset%0#0
         byte "dynamic_box"                                                                             "dynamic_box"
-        v-load box%element_offset%0#0                                                                  "dynamic_box",box%element_offset%0#0
-        int 8                                                                                          "dynamic_box",box%element_offset%0#0,8
+        v-load box%offset%0#0                                                                          "dynamic_box",box%offset%0#0
+        int 8                                                                                          "dynamic_box",box%offset%0#0,8
         box_extract                                                                                    box%box_extract%1#0
         v-store box%box_extract%1#0
         v-load box%box_extract%1#0                                                                     box%box_extract%1#0
@@ -3663,15 +3655,15 @@ subroutine write_dynamic_box:
         v-store aggregate%val_as_bytes%0#0                                                             (𝕡) index#0,value#0 |
         p-load index#0                                                                                 (𝕡) index#0,value#0 | index#0 (copy)
         int 8                                                                                          (𝕡) index#0,value#0 | index#0 (copy),8
-        *                                                                                              (𝕡) index#0,value#0 | box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0                                                             (𝕡) index#0,value#0 |
-        v-load box%index_bytes_offset%0#0                                                              (𝕡) index#0,value#0 | box%index_bytes_offset%0#0
-        int 2                                                                                          (𝕡) index#0,value#0 | box%index_bytes_offset%0#0,2
-        +                                                                                              (𝕡) index#0,value#0 | box%element_offset%0#0
+        *                                                                                              (𝕡) index#0,value#0 | box%element_offset%0#0
         v-store box%element_offset%0#0                                                                 (𝕡) index#0,value#0 |
+        int 2                                                                                          (𝕡) index#0,value#0 | 2
+        v-load box%element_offset%0#0                                                                  (𝕡) index#0,value#0 | 2,box%element_offset%0#0
+        +                                                                                              (𝕡) index#0,value#0 | box%offset%0#0
+        v-store box%offset%0#0                                                                         (𝕡) index#0,value#0 |
         byte "dynamic_box"                                                                             (𝕡) index#0,value#0 | "dynamic_box"
-        v-load box%element_offset%0#0                                                                  (𝕡) index#0,value#0 | "dynamic_box",box%element_offset%0#0
-        v-load aggregate%val_as_bytes%0#0                                                              (𝕡) index#0,value#0 | "dynamic_box",box%element_offset%0#0,aggregate%val_as_bytes%0#0
+        v-load box%offset%0#0                                                                          (𝕡) index#0,value#0 | "dynamic_box",box%offset%0#0
+        v-load aggregate%val_as_bytes%0#0                                                              (𝕡) index#0,value#0 | "dynamic_box",box%offset%0#0,aggregate%val_as_bytes%0#0
         box_replace                                                                                    (𝕡) index#0,value#0 |
         retsub
 
@@ -3700,10 +3692,10 @@ subroutine write_dynamic_arr_struct:
         assert // index out of bounds                                                                  (𝕡) index#0,value#0 |
         p-load index#0                                                                                 (𝕡) index#0,value#0 | index#0 (copy)
         int 8                                                                                          (𝕡) index#0,value#0 | index#0 (copy),8
-        *                                                                                              (𝕡) index#0,value#0 | box%index_bytes_offset%0#0
-        v-store box%index_bytes_offset%0#0                                                             (𝕡) index#0,value#0 |
-        v-load box%index_bytes_offset%0#0                                                              (𝕡) index#0,value#0 | box%index_bytes_offset%0#0
-        int 22                                                                                         (𝕡) index#0,value#0 | box%index_bytes_offset%0#0,22
+        *                                                                                              (𝕡) index#0,value#0 | box%element_offset%0#0
+        v-store box%element_offset%0#0                                                                 (𝕡) index#0,value#0 |
+        int 22                                                                                         (𝕡) index#0,value#0 | 22
+        v-load box%element_offset%0#0                                                                  (𝕡) index#0,value#0 | 22,box%element_offset%0#0
         +                                                                                              (𝕡) index#0,value#0 | box%offset%1#0
         v-store box%offset%1#0                                                                         (𝕡) index#0,value#0 |
         byte "dynamic_arr_struct"                                                                      (𝕡) index#0,value#0 | "dynamic_arr_struct"
