@@ -9,7 +9,7 @@ from puya.errors import InternalError
 from puya.ir import encodings, models
 from puya.ir.encodings import ArrayEncoding, BoolEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
-from puya.ir.op_utils import OpFactory, assert_value
+from puya.ir.op_utils import OpFactory
 from puya.ir.optimize.context import IROptimizationContext
 from puya.ir.register_context import IRRegisterContext
 from puya.ir.types_ import EncodedType, PrimitiveIRType
@@ -68,7 +68,6 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             return length
 
         loc = length.source_location
-
         base = length.base
 
         # look through extract values to find underlying box read
@@ -287,103 +286,145 @@ def _get_fixed_byte_offset(
     stop_at_valid_stack_value: bool,
 ) -> _FixedOffset:
     factory = OpFactory(context, loc)
-    check_array_bounds = False
     box_offset = factory.constant(0)
-    indexes = list(indexes)
-    while indexes:
-        index = indexes.pop(0)
-        if isinstance(encoding, TupleEncoding) and isinstance(index, int):
-            bit_offset = encoding.get_head_bit_offset(index)
-            dynamic_indexes = [
-                idx for idx, element in enumerate(encoding.elements) if element.is_dynamic
-            ]
-            if encoding.is_dynamic:
-                # dynamic encodings have a tail portion
-                # an element would only have no trailing data if it was the last part of the tail
-                # and was made up o fixed size elements,
-                # therefore, if index_element is the last dynamic element and is a dynamic array
-                # with a fixed sized element, then it has no trailing data
-                index_element = encoding.elements[index]
-                has_trailing_data = not (
-                    isinstance(index_element, ArrayEncoding)
-                    and index_element.is_dynamic
-                    and index_element.element.is_fixed
-                    and index == dynamic_indexes[-1]
-                )
-            else:
-                # for fixed encodings only the last element has no trailing data
-                has_trailing_data = (index + 1) != len(encoding.elements)
-            tail_bit_offset = encoding.get_head_bit_offset(None)
-            encoding = encoding.elements[index]
-            # stop if element is a bit, as that can't be extracted directly
-            if encoding.is_bit:
-                return _get_fixed_byte_offset_from_bit_offset(factory, box_offset, bit_offset)
-            element_offset: int | models.Value = bits_to_bytes(bit_offset)
-            if encoding.is_dynamic:
-                # first dynamic index is always at the start of the tail:
-                if index == dynamic_indexes[0]:
-                    element_offset = tail_bit_offset // 8
-                else:
-                    box_absolute_offset_offset = factory.add(box_offset, element_offset)
-                    element_offset = factory.box_extract_u16(box_key, box_absolute_offset_offset)
+    return _get_nested_fixed_byte_offset(
+        factory,
+        box_offset=box_offset,
+        box_key=box_key,
+        encoding=encoding,
+        indexes=indexes,
+        stop_at_valid_stack_value=stop_at_valid_stack_value,
+        check_array_bounds=False,
+    )
 
-            # if we aren't reading the last item of a tuple
-            # then any following array read will need a bounds check
-            check_array_bounds = check_array_bounds or has_trailing_data
-        elif isinstance(encoding, ArrayEncoding):
-            if check_array_bounds:
-                if encoding.length_header:
-                    size: models.Value | int = factory.box_extract_u16(box_key, box_offset)
-                else:
-                    assert encoding.size is not None, "expected fixed size array"
-                    size = encoding.size
-                index_ok = factory.lt(index, size, "index_ok")
-                assert_value(
-                    context, index_ok, error_message="index out of bounds", source_location=loc
-                )
+
+def _get_nested_fixed_byte_offset(
+    factory: OpFactory,
+    *,
+    box_offset: models.Value,
+    box_key: models.Value,
+    encoding: Encoding,
+    indexes: Sequence[int | models.Value],
+    stop_at_valid_stack_value: bool,
+    check_array_bounds: bool,
+) -> _FixedOffset:
+    try:
+        index, *remaining_indexes = indexes
+    except ValueError:
+        return _FixedOffset(offset=box_offset, encoding=encoding, remaining_indexes=[])
+
+    if isinstance(encoding, TupleEncoding) and isinstance(index, int):
+        index_encoding = encoding.elements[index]
+        # stop if element is a bit, as that can't be extracted directly
+        if index_encoding.is_bit:
+            index_bits_offset = encoding.get_head_bit_offset(index)
+            return _get_fixed_byte_offset_from_bit_offset(factory, box_offset, index_bits_offset)
+        element_offset = _get_tuple_element_byte_offset(
+            factory, box_offset=box_offset, box_key=box_key, encoding=encoding, index=index
+        )
+        if not check_array_bounds:
+            check_array_bounds = _has_trailing_data(encoding, index)
+    elif isinstance(encoding, ArrayEncoding):
+        index_encoding = encoding.element
+        if check_array_bounds:
             if encoding.length_header:
-                header_offset = 2
+                size: models.Value | int = factory.box_extract_u16(box_key, box_offset)
             else:
-                header_offset = 0
+                assert encoding.size is not None, "expected fixed size array"
+                size = encoding.size
+            index_ok = factory.lt(index, size, "index_ok")
+            factory.assert_value(index_ok, error_message="index out of bounds")
+        # always need to check array bounds after the first array read
+        check_array_bounds = True
+        if encoding.length_header:
+            box_offset = factory.add(box_offset, 2)
+        # stop if element is a bit, as that can't be extracted directly
+        if index_encoding.is_bit:
+            return _get_fixed_byte_offset_from_bit_offset(factory, box_offset, index)
+        element_offset = _get_array_element_byte_offset(
+            factory, box_offset=box_offset, box_key=box_key, encoding=encoding, index=index
+        )
+    else:
+        raise InternalError("invalid aggregate encoding and index")
 
-            encoding = encoding.element
+    offset = factory.add(box_offset, element_offset, "offset")
+    # exit loop if the resulting value can fit on stack
+    # generally more optimizations are possible the sooner a value is read
+    if (
+        stop_at_valid_stack_value
+        and index_encoding.is_fixed
+        and index_encoding.checked_num_bytes < MAX_BYTES_LENGTH
+    ):
+        return _FixedOffset(
+            offset=offset, encoding=index_encoding, remaining_indexes=remaining_indexes
+        )
+    else:
+        return _get_nested_fixed_byte_offset(
+            factory,
+            box_offset=offset,
+            box_key=box_key,
+            encoding=index_encoding,
+            indexes=remaining_indexes,
+            stop_at_valid_stack_value=stop_at_valid_stack_value,
+            check_array_bounds=check_array_bounds,
+        )
 
-            # stop if element is a bit, as that can't be extracted directly
-            if encoding.is_bit:
-                index_offset = factory.add(index, header_offset * 8)
-                return _get_fixed_byte_offset_from_bit_offset(factory, box_offset, index_offset)
 
-            # calculate element offset
-            if encoding.is_fixed:
-                element_offset = factory.mul(
-                    index, encoding.checked_num_bytes, "index_bytes_offset"
-                )
-            else:
-                index_offset = factory.mul(2, index)
-                # the offset into head from the start of this element that contains the data offset
-                element_offset_offset = factory.add(header_offset, index_offset)
-                box_absolute_offset_offset = factory.add(box_offset, element_offset_offset)
-                element_offset = factory.box_extract_u16(box_key, box_absolute_offset_offset)
-            # element_offset does not yet include length header
-            element_offset = factory.add(element_offset, header_offset, "element_offset")
+def _has_trailing_data(encoding: TupleEncoding, index: int) -> bool:
+    # if we aren't reading the last item of a tuple
+    # then any following array read will need a bounds check
+    if encoding.is_fixed:
+        # for fixed encodings only the last element has no trailing data
+        return index < (len(encoding.elements) - 1)
+    # dynamic encodings have a tail portion
+    # an element would only have no trailing data if it was the last part of the tail
+    # and was made up of fixed size elements,
+    # therefore, if index_element is the last dynamic element and is a dynamic array
+    # with a fixed sized element, then it has no trailing data
+    index_encoding = encoding.elements[index]
+    if not (isinstance(index_encoding, ArrayEncoding) and index_encoding.size is None):
+        return True
+    if index_encoding.element.is_dynamic:
+        return True
+    return any(element.is_dynamic for element in encoding.elements[index + 1 :])
 
-            # always need to check array bounds after the first array read
-            check_array_bounds = True
-        else:
-            raise InternalError("invalid aggregate encoding and index", loc)
-        box_offset = factory.add(box_offset, element_offset, "offset")
-        # exit loop if the resulting value can fit on stack
-        # generally more optimizations are possible the sooner a value is read
-        if (
-            stop_at_valid_stack_value
-            and encoding.is_fixed
-            and encoding.checked_num_bytes < MAX_BYTES_LENGTH
-        ):
-            break
-        # bits can't be read or written directly and should have been handled already
-        assert not encoding.is_bit, "can't read bits directly"
 
-    return _FixedOffset(offset=box_offset, encoding=encoding, remaining_indexes=indexes)
+def _get_tuple_element_byte_offset(
+    factory: OpFactory,
+    *,
+    box_offset: models.Value,
+    box_key: models.Value,
+    encoding: TupleEncoding,
+    index: int,
+) -> int | models.Value:
+    index_head_offset = bits_to_bytes(encoding.get_head_bit_offset(index))
+    if encoding.elements[index].is_fixed:
+        return index_head_offset
+    elif all(element.is_fixed for element in encoding.elements[:index]):
+        # first dynamic index is always at the start of the tail
+        tail_bit_offset = encoding.get_head_bit_offset(None)
+        return bits_to_bytes(tail_bit_offset)
+    else:
+        element_offset_offset = factory.add(box_offset, index_head_offset)
+        return factory.box_extract_u16(box_key, element_offset_offset)
+
+
+def _get_array_element_byte_offset(
+    factory: OpFactory,
+    *,
+    box_offset: models.Value,
+    box_key: models.Value,
+    encoding: ArrayEncoding,
+    index: int | models.Value,
+) -> models.Value:
+    fixed_element_size = encoding.element.num_bytes
+    if fixed_element_size is not None:
+        return factory.mul(index, fixed_element_size, "element_offset")
+    else:
+        index_offset = factory.mul(2, index)
+        # the offset into head from the start of this element that contains the data offset
+        box_absolute_offset_offset = factory.add(box_offset, index_offset)
+        return factory.box_extract_u16(box_key, box_absolute_offset_offset)
 
 
 def _get_fixed_byte_offset_from_bit_offset(

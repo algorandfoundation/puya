@@ -538,6 +538,11 @@ class OpFactory:
             source_location=self.source_location,
         )
 
+    def assert_value(self, value: Value, *, error_message: str) -> None:
+        assert_value(
+            self.context, value, error_message=error_message, source_location=self.source_location
+        )
+
     def materialise_single(self, value_provider: ValueProvider, description: str = "tmp") -> Value:
         (single,) = self.materialise_values(value_provider, description)
         return single
