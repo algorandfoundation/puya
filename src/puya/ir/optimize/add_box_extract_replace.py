@@ -345,7 +345,7 @@ def _get_nested_fixed_byte_offset(
         # generally more optimizations are possible the sooner a value is read
         stop_at_valid_stack_value
         and index_encoding.is_fixed
-        and index_encoding.checked_num_bytes < MAX_BYTES_LENGTH
+        and index_encoding.checked_num_bytes <= MAX_BYTES_LENGTH
     ):
         return _FixedOffset(
             offset=offset, encoding=index_encoding, remaining_indexes=remaining_indexes
