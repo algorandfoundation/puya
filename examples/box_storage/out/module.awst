@@ -15,6 +15,7 @@ contract BoxContract
     ['many_ints']: arc4.static_array<uint64, 513>
     ['dynamic_box']: arc4.dynamic_array<uint64>
     ['dynamic_arr_struct']: examples.box_storage.contract.DynamicArrayInAStruct
+    ['too_many_bools']: arc4.static_array<bool, 33000>
   }
   
   subroutine examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init(): bool
@@ -212,6 +213,30 @@ contract BoxContract
     }
     for val in Box['dynamic_arr_struct'].arr2 {
       total += val
+    }
+    return total
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.create_bools(): void
+  {
+    box_create('too_many_bools', size_of(arc4.static_array<bool, 33000>))
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.set_bool(index: uint64, value: bool): void
+  {
+    Box['too_many_bools'][index]: bool = value
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.sum_bools(stop_at_total: uint64): uint64
+  {
+    total: uint64 = 0u
+    for value in Box['too_many_bools'] {
+      if (value) {
+        total += 1u
+      }
+      if (total == stop_at_total) {
+        break
+      }
     }
     return total
   }

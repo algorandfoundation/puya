@@ -116,6 +116,24 @@ class BoxContract(algopy.arc4.ARC4Client, typing.Protocol):
     ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
 
     @algopy.arc4.abimethod
+    def create_bools(
+        self,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def set_bool(
+        self,
+        index: algopy.arc4.UIntN[typing.Literal[64]],
+        value: algopy.arc4.Bool,
+    ) -> None: ...
+
+    @algopy.arc4.abimethod
+    def sum_bools(
+        self,
+        stop_at_total: algopy.arc4.UIntN[typing.Literal[64]],
+    ) -> algopy.arc4.UIntN[typing.Literal[64]]: ...
+
+    @algopy.arc4.abimethod
     def create_dynamic_box(
         self,
     ) -> None: ...
