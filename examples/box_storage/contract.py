@@ -90,6 +90,7 @@ class BoxContract(arc4.ARC4Contract):
         assert size_of(ManyInts) > 4096, "expected ManyInts to exceed max bytes size"
         self.dynamic_box = Box(Array[UInt64])
         self.dynamic_arr_struct = Box(DynamicArrayInAStruct)
+        self.too_many_bools = Box(FixedArray[bool, typing.Literal[33_000]])
 
     @arc4.abimethod
     def set_boxes(self, a: UInt64, b: arc4.DynamicBytes, c: arc4.String) -> None:
@@ -294,6 +295,24 @@ class BoxContract(arc4.ARC4Contract):
             total += val
         for val in self.dynamic_arr_struct.value.arr2:
             total += val
+        return total
+
+    @arc4.abimethod
+    def create_bools(self) -> None:
+        self.too_many_bools.create()
+
+    @arc4.abimethod
+    def set_bool(self, index: UInt64, value: bool) -> None:
+        self.too_many_bools.value[index] = value
+
+    @arc4.abimethod()
+    def sum_bools(self, stop_at_total: UInt64) -> UInt64:
+        total = UInt64()
+        for value in self.too_many_bools.value:
+            if value:
+                total += 1
+            if total == stop_at_total:
+                break
         return total
 
     @arc4.abimethod
