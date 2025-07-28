@@ -580,7 +580,13 @@ class ArrayPop(Expression):
     base: Expression = attrs.field(
         validator=expression_has_wtype(wtypes.ARC4DynamicArray, wtypes.ReferenceArray)
     )
+    index: Expression | None = attrs.field(default=None)
     wtype: WType = attrs.field(init=False)
+
+    @index.validator
+    def _index_validator(self, _: object, index: Expression | None) -> None:
+        if index is not None and index.wtype != wtypes.uint64_wtype:
+            logger.error("expected uint64 index", location=self.source_location)
 
     @wtype.default
     def _wtype(self) -> WType:

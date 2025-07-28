@@ -14,7 +14,7 @@ from puya.ir.builder._utils import invoke_puya_lib_subroutine
 from puya.ir.builder.aggregates import arc4_codecs, sequence, tup
 from puya.ir.encodings import ArrayEncoding, Encoding, TupleEncoding
 from puya.ir.mutating_register_context import MutatingRegisterContext
-from puya.ir.op_utils import assert_value
+from puya.ir.op_utils import OpFactory, assert_value
 
 logger = log.get_logger(__name__)
 
@@ -60,19 +60,37 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
 
     @typing.override
     def visit_array_pop(self, pop: ir.ArrayPop) -> ir.ValueProvider:
-        array_encoding = pop.array_encoding
+        array_encoding = pop.base_type.encoding
+        loc = pop.source_location
+        assert isinstance(array_encoding, ArrayEncoding), "expected array encoding"
         element_encoding = array_encoding.element
-        if array_encoding.length_header:
-            full_name = PuyaLibIR.dynamic_array_pop_fixed_size
+        if pop.index is None:
+            # popping from the end can be done more efficiently
+            if array_encoding.length_header:
+                full_name = PuyaLibIR.dynamic_array_pop_fixed_size
+            else:
+                full_name = PuyaLibIR.r_trim
+            return invoke_puya_lib_subroutine(
+                self,
+                full_name=full_name,
+                args=[pop.base, element_encoding.checked_num_bytes],
+                source_location=loc,
+            )
         else:
-            full_name = PuyaLibIR.r_trim
-        invoke = invoke_puya_lib_subroutine(
-            self,
-            full_name=full_name,
-            args=[pop.base, element_encoding.checked_num_bytes],
-            source_location=pop.source_location,
-        )
-        return invoke
+            factory = OpFactory(self, loc)
+            before_offset = factory.mul(array_encoding.element.checked_num_bytes, pop.index)
+            if array_encoding.length_header:
+                before_offset = factory.add(before_offset, 2)
+            before = factory.substring3(pop.base, 0, before_offset)
+            after_offset = factory.add(before_offset, array_encoding.element.checked_num_bytes)
+            after = factory.extract_to_end(pop.base, after_offset)
+            result = factory.concat(before, after)
+            if array_encoding.length_header:
+                arr_len = factory.extract_uint16(pop.base, 0)
+                arr_len_minus_1 = factory.sub(arr_len, 1)
+                arr_len_u16 = factory.as_u16_bytes(arr_len_minus_1)
+                result = factory.replace(result, 0, arr_len_u16)
+            return result
 
     @typing.override
     def visit_extract_value(self, read: ir.ExtractValue) -> ir.Value:

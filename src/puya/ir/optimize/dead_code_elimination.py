@@ -228,6 +228,19 @@ def remove_unused_subroutines(program: models.Program) -> bool:
     return modified
 
 
+_PureValueProviders = (
+    models.Value
+    | models.InnerTransactionField
+    | models.BoxRead
+    | models.ExtractValue
+    | models.ReplaceValue
+    | models.DecodeBytes
+    | models.BytesEncode
+    | models.ArrayLength
+    | models.ArrayPop
+)
+
+
 def remove_unused_variables(_context: CompileContext, subroutine: models.Subroutine) -> bool:
     modified = 0
     assignments = dict[tuple[models.BasicBlock, models.Assignment], set[models.Register]]()
@@ -243,17 +256,7 @@ def remove_unused_variables(_context: CompileContext, subroutine: models.Subrout
     for (block, ass), registers in assignments.items():
         if registers.symmetric_difference(ass.targets):
             pass  # some registers still used
-        elif isinstance(
-            ass.source,
-            models.Value
-            | models.InnerTransactionField
-            | models.BoxRead
-            | models.ExtractValue
-            | models.ReplaceValue
-            | models.DecodeBytes
-            | models.BytesEncode
-            | models.ArrayLength,
-        ) or (
+        elif isinstance(ass.source, _PureValueProviders) or (
             isinstance(ass.source, models.Intrinsic)
             and ass.source.op.code in SIDE_EFFECT_FREE_AVM_OPS
         ):

@@ -198,7 +198,8 @@ class IRTraverser(IRVisitor[None]):
 
     def visit_array_pop(self, pop: puya.ir.models.ArrayPop) -> None:
         pop.base.accept(self)
-        pop.index.accept(self)
+        if pop.index:
+            pop.index.accept(self)
 
     def visit_extract_value(self, read: puya.ir.models.ExtractValue) -> None:
         read.base.accept(self)

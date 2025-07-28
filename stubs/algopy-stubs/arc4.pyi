@@ -417,8 +417,11 @@ class DynamicArray(_ABIEncoded, typing.Generic[_TArrayItem], Reversible[_TArrayI
     def __add__(self, other: Iterable[_TArrayItem]) -> DynamicArray[_TArrayItem]:
         """Concat two arrays together, returning a new array"""
 
-    def pop(self) -> _TArrayItem:
-        """Remove and return the last item of this array"""
+    def pop(self, index: UInt64 | int = -1) -> _TArrayItem:
+        """Removes and returns the item at index
+
+        :param index: this parameter is only supported if element type of the array is fixed size
+        """
 
     def copy(self) -> typing.Self:
         """Create a copy of this array"""

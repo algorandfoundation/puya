@@ -12,7 +12,7 @@ from puya.ir import (
     types_ as types,
 )
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir.builder._utils import invoke_puya_lib_subroutine
+from puya.ir.builder._utils import invoke_puya_lib_subroutine, undefined_value
 from puya.ir.builder.sequence import get_length
 from puya.ir.op_utils import OpFactory
 from puya.ir.register_context import IRRegisterContext
@@ -33,9 +33,8 @@ class DynamicArrayBuilder(abc.ABC):
     ) -> ir.Value:
         """Returns the concatenation of an array and iterable"""
 
-    # TODO: allow pop by index?
     @abc.abstractmethod
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
+    def pop(self, array: ir.Value, index: ir.Value | None) -> tuple[ir.Value, ir.MultiValue]:
         """
         Removes the last item of an array
 
@@ -211,27 +210,33 @@ class _FixedElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return self._as_array_type(updated_array)
 
     @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
+    def pop(self, array: ir.Value, index: ir.Value | None) -> tuple[ir.Value, ir.MultiValue]:
         base_type = types.EncodedType(self.array_encoding)
-        length = self.factory.materialise_single(get_length(self.array_encoding, array, self.loc))
-        last_index = self.factory.sub(length, 1)
         data = ir.ArrayPop(
             base=array,
             base_type=base_type,
-            array_encoding=self.array_encoding,
-            index=last_index,
+            index=index,
             source_location=self.loc,
         )
         if self.array_encoding.element.is_bit:
             ir_type: types.IRType = types.bool_
         else:
             ir_type = types.EncodedType(self.array_encoding.element)
+        array_len = self.factory.materialise_single(
+            get_length(
+                self.array_encoding,
+                array,
+                self.loc,
+            )
+        )
+        if index is None:
+            index = self.factory.sub(array_len, 1)
         extract = ir.ExtractValue(
             base=array,
             base_type=base_type,
             ir_type=ir_type,
             check_bounds=False,
-            indexes=(last_index,),
+            indexes=(index,),
             source_location=self.loc,
         )
         encoded = self.factory.materialise_single(extract)
@@ -285,14 +290,19 @@ class _DynamicByteLengthElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return self._as_array_type(invoke)
 
     @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_pop_byte_length_head,
-            args=[array],
-            source_location=self.loc,
-        )
-        popped, data = self.factory.materialise_values(invoke)
+    def pop(self, array: ir.Value, index: ir.Value | None) -> tuple[ir.Value, ir.MultiValue]:
+        if index is not None:
+            logger.error("cannot pop with an index with dynamic elements", location=self.loc)
+            popped = undefined_value(types.bytes_, self.loc)
+            data = undefined_value(types.bytes_, self.loc)
+        else:
+            invoke = invoke_puya_lib_subroutine(
+                self.context,
+                full_name=PuyaLibIR.dynamic_array_pop_byte_length_head,
+                args=[array],
+                source_location=self.loc,
+            )
+            popped, data = self.factory.materialise_values(invoke)
         return data, self._decode_popped_element(popped)
 
 
@@ -321,14 +331,19 @@ class _DynamicElementDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return self._as_array_type(invoke)
 
     @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_pop_dynamic_element,
-            args=[array],
-            source_location=self.loc,
-        )
-        popped, data = self.factory.materialise_values(invoke)
+    def pop(self, array: ir.Value, index: ir.Value | None) -> tuple[ir.Value, ir.MultiValue]:
+        if index is not None:
+            logger.error("cannot pop with an index with dynamic elements", location=self.loc)
+            popped = undefined_value(types.bytes_, self.loc)
+            data = undefined_value(types.bytes_, self.loc)
+        else:
+            invoke = invoke_puya_lib_subroutine(
+                self.context,
+                full_name=PuyaLibIR.dynamic_array_pop_dynamic_element,
+                args=[array],
+                source_location=self.loc,
+            )
+            popped, data = self.factory.materialise_values(invoke)
         return data, self._decode_popped_element(popped)
 
 
@@ -372,12 +387,17 @@ class _BitPackedBoolDynamicArrayBuilder(_DynamicArrayBuilderImpl):
         return self._as_array_type(invoke)
 
     @typing.override
-    def pop(self, array: ir.Value) -> tuple[ir.Value, ir.MultiValue]:
-        invoke = invoke_puya_lib_subroutine(
-            self.context,
-            full_name=PuyaLibIR.dynamic_array_pop_bit,
-            args=[array],
-            source_location=self.loc,
-        )
-        popped, data = self.factory.materialise_values(invoke)
+    def pop(self, array: ir.Value, index: ir.Value | None) -> tuple[ir.Value, ir.MultiValue]:
+        if index is not None:
+            logger.error("cannot pop with an index with bool elements", location=self.loc)
+            popped = undefined_value(types.uint64, self.loc)
+            data = undefined_value(types.bytes_, self.loc)
+        else:
+            invoke = invoke_puya_lib_subroutine(
+                self.context,
+                full_name=PuyaLibIR.dynamic_array_pop_bit,
+                args=[array],
+                source_location=self.loc,
+            )
+            popped, data = self.factory.materialise_values(invoke)
         return data, self._decode_popped_element(popped)

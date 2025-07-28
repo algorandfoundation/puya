@@ -513,12 +513,13 @@ class OpFactory:
 
     def box_replace(
         self, box_key: Value | bytes, offset: Value | int, value: Value | bytes
-    ) -> Intrinsic:
-        args = [box_key, offset, value]
-        return Intrinsic(
-            op=AVMOp.box_replace,
-            args=[convert_constants(a, self.source_location) for a in args],
-            source_location=self.source_location,
+    ) -> None:
+        self.context.add_op(
+            Intrinsic(
+                op=AVMOp.box_replace,
+                args=self._convert_constants(box_key, offset, value),
+                source_location=self.source_location,
+            )
         )
 
     def assert_value(self, value: Value, *, error_message: str) -> None:
@@ -560,3 +561,42 @@ class OpFactory:
                 return values[0]
             else:
                 return ValueTuple(values=values, source_location=self.source_location)
+
+    def box_len(self, box_key: Value | bytes) -> tuple[Value, Value]:
+        box_len, exists = self.context.materialise_value_provider(
+            Intrinsic(
+                op=AVMOp.box_len,
+                args=self._convert_constants(box_key),
+                source_location=self.source_location,
+            ),
+            "box_len",
+        )
+        return box_len, exists
+
+    def box_splice(
+        self,
+        *,
+        box_key: Value | bytes,
+        index: Value | int,
+        length: Value | int,
+        value: Value | bytes,
+    ) -> None:
+        self.context.add_op(
+            Intrinsic(
+                op=AVMOp.box_splice,
+                args=self._convert_constants(box_key, index, length, value),
+                source_location=self.source_location,
+            )
+        )
+
+    def box_resize(self, box_key: Value | bytes, size: Value | int) -> None:
+        self.context.add_op(
+            Intrinsic(
+                op=AVMOp.box_resize,
+                args=self._convert_constants(box_key, size),
+                source_location=self.source_location,
+            )
+        )
+
+    def _convert_constants(self, *values: Value | int | bytes) -> list[Value]:
+        return [convert_constants(a, self.source_location) for a in values]
