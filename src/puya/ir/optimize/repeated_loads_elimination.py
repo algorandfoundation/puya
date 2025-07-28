@@ -10,6 +10,7 @@ from puya.context import CompileContext
 from puya.ir import models
 from puya.ir._utils import get_bytes_constant
 from puya.ir.avm_ops import AVMOp
+from puya.ir.optimize._utils import HasHighLevelOps
 from puya.ir.types_ import PrimitiveIRType
 from puya.ir.visitor import NoOpIRVisitor
 
@@ -19,6 +20,9 @@ logger = log.get_logger(__name__)
 def constant_reads_and_unobserved_writes_elimination(
     _: CompileContext, subroutine: models.Subroutine
 ) -> bool:
+    if HasHighLevelOps.check(subroutine.body):
+        return False
+
     any_modified = False
     # TODO: consider dominator blocks
     for block in subroutine.body:
@@ -35,7 +39,9 @@ class _StateType(enum.Enum):
     slot = enum.auto()
 
 
-_StateKey = tuple[models.Value | bytes, ...]
+_ReadType = typing.Literal["rw", "len", "extract"]
+
+_StateKey = tuple[models.Value | bytes | _ReadType, ...]
 
 
 @attrs.define(kw_only=True)
@@ -54,19 +60,16 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
             op.accept(visitor)
         return visitor.modified
 
-    def _handle_read(self, typ: _StateType) -> None:
-        # doing a read resets the unobserved-writes cache
-        self._last_write.pop(typ, None)
-
     def _cached_read(
         self,
         assignment: models.Assignment,
         typ: _StateType,
-        key: tuple[models.Value, ...],
+        key: tuple[models.Value | _ReadType, ...],
         *,
         allow_truncated_reads: bool = False,
     ) -> None:
-        self._handle_read(typ)
+        # doing a read resets the unobserved-writes cache
+        self._last_write.pop(typ, None)
 
         normalized_key = _normalize_key(key)
         typ_read_results = self._read_results[typ]
@@ -98,7 +101,7 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
         self,
         op: models.Op,
         typ: _StateType,
-        key: tuple[models.Value, ...],
+        key: tuple[models.Value | _ReadType, ...],
         values: tuple[models.Value, ...],
     ) -> None:
         # update cache with new value.
@@ -155,12 +158,12 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
                     op, _StateType.app_local, key=(account, key), allow_truncated_reads=True
                 )
             # BOX
-            case models.Intrinsic(op=AVMOp.box_extract | AVMOp.box_len):
-                # TODO: optimize repeats
-                # these count as reads
-                self._handle_read(_StateType.box)
             case models.Intrinsic(op=AVMOp.box_get, args=[key]) | models.BoxRead(key=key):
-                self._cached_read(op, _StateType.box, key=(key,))
+                self._cached_read(op, _StateType.box, key=("rw", key))
+            case models.Intrinsic(op=AVMOp.box_len, args=[key]):
+                self._cached_read(op, _StateType.box, key=("len", key))
+            case models.Intrinsic(op=AVMOp.box_extract, args=[key, offset, length]):
+                self._cached_read(op, _StateType.box, key=("extract", key, offset, length))
             # OTHER
             case other_source:
                 # visit in case invalidations need to occur
@@ -168,7 +171,7 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
 
     def visit_box_write(self, write: models.BoxWrite) -> None:
         self._handle_write(
-            write, _StateType.box, key=(write.key,), values=(write.value, _const_true())
+            write, _StateType.box, key=("rw", write.key), values=(write.value, _const_true())
         )
 
     @typing.override
@@ -197,14 +200,13 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
             # BOX
             case AVMOp.box_put:
                 key, value = op.args
-                self._handle_write(op, _StateType.box, key=(key,), values=(value, _const_true()))
-            case (
-                AVMOp.box_del
-                | AVMOp.box_splice
-                | AVMOp.box_resize
-                | AVMOp.box_replace
-                | AVMOp.box_create
-            ):
+                self._handle_write(
+                    op, _StateType.box, key=("rw", key), values=(value, _const_true())
+                )
+            case AVMOp.box_create:
+                # box_create never modifies existing boxes or their contents
+                pass
+            case AVMOp.box_del | AVMOp.box_splice | AVMOp.box_resize | AVMOp.box_replace:
                 self._invalidate(_StateType.box)
 
     @typing.override
@@ -213,8 +215,8 @@ class _StateTrackingVisitor(NoOpIRVisitor[None]):
         self._invalidate("all")
 
 
-def _normalize_key(keys: tuple[models.Value, ...]) -> _StateKey:
-    state_key = list[models.Value | bytes]()
+def _normalize_key(keys: tuple[models.Value | _ReadType, ...]) -> _StateKey:
+    state_key = list[models.Value | bytes | _ReadType]()
     for key in keys:
         if (
             isinstance(key, models.Constant)
@@ -226,7 +228,7 @@ def _normalize_key(keys: tuple[models.Value, ...]) -> _StateKey:
     return tuple(state_key)
 
 
-def _key_str(key: tuple[models.Value, ...]) -> str:
+def _key_str(key: tuple[models.Value | _ReadType, ...]) -> str:
     try:
         (single_key,) = key
     except ValueError:

@@ -52,6 +52,12 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         )
 
     @typing.override
+    def visit_array_length(self, length: ir.ArrayLength) -> ir.ValueProvider:
+        return sequence.get_length(
+            self, length.array_encoding, length.base, length.source_location
+        )
+
+    @typing.override
     def visit_extract_value(self, read: ir.ExtractValue) -> ir.Value:
         loc = read.source_location
 
@@ -112,6 +118,7 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
 
         return value
 
+    @typing.override
     def visit_box_read(self, read: ir.BoxRead) -> ir.ValueProvider:
         loc = read.source_location
 
@@ -127,7 +134,16 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
         )
         return box_value
 
+    @typing.override
     def visit_box_write(self, write: ir.BoxWrite) -> None:
+        if write.delete_first:
+            self.add_op(
+                ir.Intrinsic(
+                    op=AVMOp.box_del,
+                    args=[write.key],
+                    source_location=write.source_location,
+                )
+            )
         self.add_op(
             ir.Intrinsic(
                 op=AVMOp.box_put,

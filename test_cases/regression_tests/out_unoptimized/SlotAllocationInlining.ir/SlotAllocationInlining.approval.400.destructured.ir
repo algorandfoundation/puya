@@ -42,11 +42,12 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.do_something_wit
         store(slot%0#0, 0x)
         let arr#0: Encoded(uint64[])* = slot%0#0
         test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr#0)
-        let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
-        let bytes_len%0#0: uint64 = (len slot_contents%0#0)
-        let array_len%0#0: uint64 = (/ bytes_len%0#0 8u)
-        let tmp%0#0: bool = (== array_len%0#0 32u)
-        (assert tmp%0#0) // expected array of length 32
+        let aggregate%slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
+        let aggregate%bytes_len%0#0: uint64 = (len aggregate%slot_contents%0#0)
+        let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 8u)
+        let tmp%0#0: uint64 = aggregate%array_len%0#0
+        let tmp%1#0: bool = (== tmp%0#0 32u)
+        (assert tmp%1#0) // expected array of length 32
         return 
 
 subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: Encoded(uint64[])*) -> void:

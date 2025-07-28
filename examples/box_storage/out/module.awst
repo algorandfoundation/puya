@@ -12,6 +12,10 @@ contract BoxContract
     ['']: uint64 => string
     ['box_ref']: bytes
     ['box_large']: examples.box_storage.contract.LargeStruct
+    ['many_ints']: arc4.static_array<uint64, 513>
+    ['dynamic_box']: arc4.dynamic_array<uint64>
+    ['dynamic_arr_struct']: examples.box_storage.contract.DynamicArrayInAStruct
+    ['too_many_bools']: arc4.static_array<bool, 33000>
   }
   
   subroutine examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init(): bool
@@ -29,6 +33,7 @@ contract BoxContract
   
   subroutine examples.box_storage.contract.BoxContract.__init__(): void
   {
+    assert(size_of(arc4.static_array<uint64, 513>) > 4096u, comment="expected ManyInts to exceed max bytes size")
   }
   
   abimethod examples.box_storage.contract.BoxContract.set_boxes(a: uint64, b: arc4.dynamic_array<arc4.uint8>, c: arc4.dynamic_array<arc4.uint8>): void
@@ -67,6 +72,26 @@ contract BoxContract
     assert(reinterpret_cast<bytes>('box_large') == hex<"626F785F6C61726765">, comment="box large key ok")
   }
   
+  abimethod examples.box_storage.contract.BoxContract.create_many_ints(): void
+  {
+    box_create('many_ints', size_of(arc4.static_array<uint64, 513>))
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.set_many_ints(index: uint64, value: uint64): void
+  {
+    Box['many_ints'][index]: uint64 = value
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.sum_many_ints(): uint64
+  {
+    _puya_lib.util.ensure_budget(required_budget=10500u, fee_source=0u)
+    total: uint64 = 0u
+    for val in Box['many_ints'] {
+      total: uint64 = total + val
+    }
+    return total
+  }
+  
   abimethod examples.box_storage.contract.BoxContract.delete_boxes(): void
   {
     STATE_DELETE(Box['box_a'])
@@ -81,16 +106,190 @@ contract BoxContract
     STATE_DELETE(Box['box_large'])
   }
   
+  abimethod examples.box_storage.contract.BoxContract.indirect_extract_and_replace(): void
+  {
+    large: examples.box_storage.contract.LargeStruct = Box['box_large'].copy()
+    large.e += 1u
+    Box['box_large']: examples.box_storage.contract.LargeStruct = large.copy()
+  }
+  
   abimethod examples.box_storage.contract.BoxContract.read_boxes(): tuple<uint64,bytes,arc4.dynamic_array<arc4.uint8>,uint64>
   {
-    large_box_ref: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('box_large'))
-    large_e: arc4.uint64 = reinterpret_cast<arc4.uint64>(box_extract(large_box_ref, size_of(arc4.static_array<arc4.uint8, 1024>) * 4u, 8u))
-    return (examples.box_storage.contract.get_box_value_plus_1('box_a') - 1u, arc4_decode(Box['b'], bytes), Box[hex<"424F585F43">], arc4_decode(large_e, uint64))
+    return (examples.box_storage.contract.get_box_value_plus_1('box_a') - 1u, arc4_decode(Box['b'], bytes), Box[hex<"424F585F43">], Box['box_large'].e)
   }
   
   abimethod examples.box_storage.contract.BoxContract.boxes_exist(): tuple<bool,bool,bool,bool>
   {
     return (STATE_EXISTS(Box['box_a']), STATE_EXISTS(Box['b']), STATE_EXISTS(Box[hex<"424F585F43">]), STATE_EXISTS(Box['box_large']))
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.create_dynamic_arr_struct(): void
+  {
+    Box['dynamic_arr_struct']: examples.box_storage.contract.DynamicArrayInAStruct = new examples.box_storage.contract.DynamicArrayInAStruct(a=txn<NumAppArgs>(), arr=new arc4.dynamic_array<uint64>(), b=txn<NumAppArgs>() * 2u, arr2=new arc4.dynamic_array<uint64>())
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.delete_dynamic_arr_struct(): void
+  {
+    STATE_DELETE(Box['dynamic_arr_struct'])
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.append_dynamic_arr_struct(times: uint64): uint64
+  {
+    assert(Box['dynamic_arr_struct'].b == 2u, comment="expected 2")
+    arr_len: uint64 = Box['dynamic_arr_struct'].arr.length
+    arr2_len: uint64 = Box['dynamic_arr_struct'].arr2.length
+    box_resize('dynamic_arr_struct', examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(arr_len + times, arr2_len))
+    box_splice('dynamic_arr_struct', examples.box_storage.contract.get_dynamic_arr_struct_byte_index(arr_len), 0u, bzero(times * size_of(uint64)))
+    box: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('dynamic_arr_struct'))
+    for i in range(0u, times, 1u) {
+      Box[box].arr.arr[arr_len]: uint64 = i
+      arr_len += 1u
+    }
+    Box[box].arr.length: arc4.uint16 = arc4_encode(arr_len, arc4.uint16)
+    arr2_offset: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(arr_len, 0u) - 2u
+    Box[box].arr2_offset: arc4.uint16 = arc4_encode(arr2_offset, arc4.uint16)
+    assert(Box['dynamic_arr_struct'].arr.length == arr_len, comment="expected arr length to be correct")
+    assert(Box['dynamic_arr_struct'].arr2.length == 0u, comment="expected arr2 length to be correct")
+    return Box['dynamic_arr_struct'].arr.length
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.pop_dynamic_arr_struct(times: uint64): uint64
+  {
+    arr_len: uint64 = Box['dynamic_arr_struct'].arr.length - times
+    arr2_len: uint64 = Box['dynamic_arr_struct'].arr2.length
+    box: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('dynamic_arr_struct'))
+    arr2_offset: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(arr_len, 0u) - 2u
+    Box[box].arr.length: arc4.uint16 = arc4_encode(arr_len, arc4.uint16)
+    Box[box].arr2_offset: arc4.uint16 = arc4_encode(arr2_offset, arc4.uint16)
+    index: uint64 = examples.box_storage.contract.get_dynamic_arr_struct_byte_index(arr_len)
+    box_splice(box, index, times * size_of(uint64), hex<"">)
+    size: uint64 = examples.box_storage.contract.get_dynamic_arr2_struct_byte_index(arr_len, arr2_len)
+    box_resize('dynamic_arr_struct', size)
+    return Box['dynamic_arr_struct'].arr.length
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.set_nested_struct(struct: examples.box_storage.contract.NestedStruct): void
+  {
+    box: box_key = 'box'
+    assert(struct.a != 0u, comment="struct.a is truthy")
+    struct_bytes: bytes = txna<ApplicationArgs, 1>()
+    struct_size: uint64 = len(struct_bytes)
+    tail_offset: uint64 = 4098u
+    box_create(box, tail_offset + struct_size)
+    box_replace(box, tail_offset - 2u, reinterpret_cast<bytes>(arc4_encode(tail_offset, arc4.uint16)))
+    box_replace(box, tail_offset, struct_bytes)
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.nested_write(index: uint64, value: uint64): void
+  {
+    box: box_key = 'box'
+    Box[box].nested.a: uint64 = value
+    Box[box].nested.b: uint64 = value + 1u
+    Box[box].nested.inner.arr_arr[index][index]: uint64 = value + 2u
+    Box[box].nested.inner.c: uint64 = value + 3u
+    Box[box].nested.inner.d: uint64 = value + 4u
+    Box[box].nested.woah[index].arr_arr[index][index]: uint64 = value + 5u
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.nested_read(i1: uint64, i2: uint64, i3: uint64): uint64
+  {
+    box: box_key = 'box'
+    a: uint64 = Box[box].nested.a
+    b: uint64 = Box[box].nested.b
+    arr_arr: uint64 = Box[box].nested.inner.arr_arr[i1][i2]
+    c: uint64 = Box[box].nested.inner.c
+    d: uint64 = Box[box].nested.inner.d
+    woah_arr_arr: uint64 = Box[box].nested.woah[i1].arr_arr[i2][i3]
+    return a + b + arr_arr + c + d + woah_arr_arr
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct(): uint64
+  {
+    assert(Box['dynamic_arr_struct'].a == 1u, comment="expected 1")
+    assert(Box['dynamic_arr_struct'].b == 2u, comment="expected 2")
+    total: uint64 = Box['dynamic_arr_struct'].a + Box['dynamic_arr_struct'].b
+    for val in Box['dynamic_arr_struct'].arr {
+      total += val
+    }
+    for val in Box['dynamic_arr_struct'].arr2 {
+      total += val
+    }
+    return total
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.create_bools(): void
+  {
+    box_create('too_many_bools', size_of(arc4.static_array<bool, 33000>))
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.set_bool(index: uint64, value: bool): void
+  {
+    Box['too_many_bools'][index]: bool = value
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.sum_bools(stop_at_total: uint64): uint64
+  {
+    total: uint64 = 0u
+    for value in Box['too_many_bools'] {
+      if (value) {
+        total += 1u
+      }
+      if (total == stop_at_total) {
+        break
+      }
+    }
+    return total
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.create_dynamic_box(): void
+  {
+    Box['dynamic_box']: arc4.dynamic_array<uint64> = new arc4.dynamic_array<uint64>()
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.delete_dynamic_box(): void
+  {
+    STATE_DELETE(Box['dynamic_box'])
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.append_dynamic_box(times: uint64): uint64
+  {
+    box: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('dynamic_box'))
+    arr_len: uint64 = arc4_decode(Box[box].length, uint64)
+    box_resize('dynamic_box', 2u + arr_len + times * 8u)
+    for i in range(0u, times, 1u) {
+      Box[box].arr[arr_len]: uint64 = i
+      arr_len += 1u
+    }
+    Box[box].length: arc4.uint16 = arc4_encode(arr_len, arc4.uint16)
+    return Box['dynamic_box'].length
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.pop_dynamic_box(times: uint64): uint64
+  {
+    box: box_key = reinterpret_cast<box_key>(reinterpret_cast<bytes>('dynamic_box'))
+    arr_len: uint64 = arc4_decode(Box[box].length, uint64) - times
+    Box[box].length: arc4.uint16 = arc4_encode(arr_len, arc4.uint16)
+    box_resize('dynamic_box', 2u + arr_len * 8u)
+    return Box['dynamic_box'].length
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.sum_dynamic_box(): uint64
+  {
+    total: uint64 = 0u
+    for val in Box['dynamic_box'] {
+      total += val
+    }
+    return total
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.write_dynamic_box(index: uint64, value: uint64): void
+  {
+    Box['dynamic_box'][index]: uint64 = value
+  }
+  
+  abimethod examples.box_storage.contract.BoxContract.write_dynamic_arr_struct(index: uint64, value: uint64): void
+  {
+    Box['dynamic_arr_struct'].arr[index]: uint64 = value
   }
   
   abimethod examples.box_storage.contract.BoxContract.slice_box(): void
@@ -216,4 +415,18 @@ subroutine get_box_ref_length(ref: box_key): uint64
 subroutine get_box_map_value_from_key_plus_1(box_map: box_key, key: uint64): string
 {
   return Box[BoxMapKey(prefix=box_map, key=key + 1u)]
+}
+
+subroutine get_dynamic_arr_struct_byte_index(index: uint64): uint64
+{
+  head: uint64 = size_of(uint64) + size_of(arc4.uint16) + size_of(uint64) + size_of(arc4.uint16)
+  dyn_arr_index: uint64 = size_of(arc4.uint16) + index * size_of(uint64)
+  return head + dyn_arr_index
+}
+
+subroutine get_dynamic_arr2_struct_byte_index(arr_size: uint64, arr2_index: uint64): uint64
+{
+  head_and_dyn_arr: uint64 = examples.box_storage.contract.get_dynamic_arr_struct_byte_index(arr_size)
+  dyn_arr2_index: uint64 = size_of(arc4.uint16) + arr2_index * size_of(uint64)
+  return head_and_dyn_arr + dyn_arr2_index
 }

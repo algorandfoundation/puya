@@ -110,7 +110,7 @@ class OpFactory:
     context: IRRegisterContext
     source_location: SourceLocation | None
 
-    def add(self, a: Value, b: Value | int, temp_desc: str = "add") -> Register:
+    def add(self, a: Value | int, b: Value | int, temp_desc: str = "add") -> Register:
         result = assign_intrinsic_op(
             self.context,
             target=temp_desc,
@@ -520,6 +520,14 @@ class OpFactory:
         )
         return result
 
+    def box_extract_u16(
+        self,
+        box_key: Value | bytes,
+        offset: Value | int,
+    ) -> Register:
+        u16_bytes = self.box_extract(box_key, offset, 2, PrimitiveIRType.bytes)
+        return self.btoi(u16_bytes)
+
     def box_replace(
         self, box_key: Value | bytes, offset: Value | int, value: Value | bytes
     ) -> Intrinsic:
@@ -528,6 +536,11 @@ class OpFactory:
             op=AVMOp.box_replace,
             args=[convert_constants(a, self.source_location) for a in args],
             source_location=self.source_location,
+        )
+
+    def assert_value(self, value: Value, *, error_message: str) -> None:
+        assert_value(
+            self.context, value, error_message=error_message, source_location=self.source_location
         )
 
     def materialise_single(self, value_provider: ValueProvider, description: str = "tmp") -> Value:

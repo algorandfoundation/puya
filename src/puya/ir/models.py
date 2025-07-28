@@ -424,6 +424,24 @@ class InnerTransactionField(ValueProvider):
 
 
 @attrs.define(eq=False, kw_only=True)
+class ArrayLength(ValueProvider):
+    base: Value = attrs.field()
+    # we retain the original type of the aggregate, in case this is lost during optimisations
+    base_type: IRType = attrs.field(repr=lambda x: x.name)
+    array_encoding: ArrayEncoding
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (PrimitiveIRType.uint64,)
+
+    def _frozen_data(self) -> object:
+        return self.base_type, self.base, self.array_encoding
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_length(self)
+
+
+@attrs.define(eq=False, kw_only=True)
 class _Aggregate(ValueProvider, abc.ABC):
     base: Value = attrs.field()
     # we retain the original type of the aggregate, in case this is lost during optimisations
@@ -492,10 +510,11 @@ class BoxRead(ValueProvider):
 class BoxWrite(Op):
     key: Value
     value: Value
+    delete_first: bool
     source_location: SourceLocation | None
 
     def _frozen_data(self) -> object:
-        return self.key, self.value
+        return self.key, self.value, self.delete_first
 
     @property
     def types(self) -> Sequence[IRType]:
@@ -514,6 +533,27 @@ class BytesEncode(ValueProvider):
     values: Sequence[Value]
     values_type: IRType | TupleIRType = attrs.field()
     error_message_override: str | None = attrs.field(default=None, eq=False)
+
+    @classmethod
+    def maybe(
+        cls,
+        *,
+        encoding: Encoding,
+        values: Sequence[Value],
+        values_type: IRType | TupleIRType,
+        source_location: SourceLocation,
+        error_message_override: str | None = None,
+    ) -> ValueProvider:
+        if isinstance(values_type, EncodedType) and values_type.encoding == encoding:
+            (value,) = values
+            return value
+        return cls(
+            source_location=source_location,
+            encoding=encoding,
+            values=values,
+            values_type=values_type,
+            error_message_override=error_message_override,
+        )
 
     @values_type.validator
     def _value_type_validator(self, _: object, values_type: IRType | TupleIRType) -> None:
@@ -542,6 +582,26 @@ class DecodeBytes(ValueProvider):
     value: Value
     ir_type: IRType | TupleIRType = attrs.field()
     error_message_override: str | None = attrs.field(default=None, eq=False)
+
+    @classmethod
+    def maybe(
+        cls,
+        *,
+        encoding: Encoding,
+        value: Value,
+        ir_type: IRType | TupleIRType,
+        source_location: SourceLocation,
+        error_message_override: str | None = None,
+    ) -> ValueProvider:
+        if isinstance(ir_type, EncodedType) and ir_type.encoding == encoding:
+            return value
+        return cls(
+            source_location=source_location,
+            encoding=encoding,
+            value=value,
+            ir_type=ir_type,
+            error_message_override=error_message_override,
+        )
 
     @ir_type.validator
     def _ir_type_type_validator(self, _: object, ir_type: IRType | TupleIRType) -> None:
