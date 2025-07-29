@@ -414,6 +414,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.test_arc4_conversion(
         let arc4_arr#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>()
         let slot_contents%2#0: Encoded(uint64[]) = load(arr#0)
         let concat%1#0: Encoded(len+uint64[]) = (concat arc4_arr#0 slot_contents%2#0) // on error: max array length exceeded
+        let total_length%0#0: uint64 = (len concat%1#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) concat%1#0)
         let len%0#0: uint64 = (len extract_to_end%0#0)
         let div_floor%0#0: uint64 = (/ len%0#0 8u)
@@ -428,6 +429,7 @@ subroutine test_cases.array.static_size.StaticSizeContract.sum_array(arc4_arr: E
         let arr#0: Encoded(uint64[])* = new()
         store(arr#0, encoded_array%0#0)
         let slot_contents%0#0: Encoded(uint64[]) = load(arr#0)
+        let total_length%0#0: uint64 = (len arc4_arr#0)
         let extract_to_end%0#0: bytes = ((extract 2 0) arc4_arr#0)
         let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 extract_to_end%0#0) // on error: max array length exceeded
         store(arr#0, concat%0#0)

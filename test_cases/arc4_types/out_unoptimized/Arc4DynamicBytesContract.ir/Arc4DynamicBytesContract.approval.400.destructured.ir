@@ -22,7 +22,8 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let continue_looping%0#0: bool = (< item_index_internal%0#0 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L17
-        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) dynamic_bytes#0)
+        let aggregate%total_length%0#0: uint64 = (len dynamic_bytes#0)
+        let aggregate%array_trimmed%0#0: bytes = (substring3 dynamic_bytes#0 2u aggregate%total_length%0#0)
         let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#0 1u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 1u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint8) = aggregate%encoded_element%0#0
@@ -57,7 +58,8 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let continue_looping%1#0: bool = (< item_index_internal%1#0 array_length%1#0)
         goto continue_looping%1#0 ? block@6 : block@8
     block@6: // for_body_L26
-        let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) dynamic_bytes2#0)
+        let aggregate%total_length%1#0: uint64 = (len dynamic_bytes2#0)
+        let aggregate%array_trimmed%1#0: bytes = (substring3 dynamic_bytes2#0 2u aggregate%total_length%1#0)
         let aggregate%bytes_offset%1#0: uint64 = (* item_index_internal%1#0 1u)
         let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%array_trimmed%1#0 aggregate%bytes_offset%1#0 1u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint8) = aggregate%encoded_element%1#0
@@ -91,7 +93,8 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let continue_looping%2#0: bool = (< item_index_internal%2#0 array_length%2#0)
         goto continue_looping%2#0 ? block@10 : block@12
     block@10: // for_body_L33
-        let aggregate%array_trimmed%2#0: bytes = ((extract 2 0) dynamic_bytes3#0)
+        let aggregate%total_length%2#0: uint64 = (len dynamic_bytes3#0)
+        let aggregate%array_trimmed%2#0: bytes = (substring3 dynamic_bytes3#0 2u aggregate%total_length%2#0)
         let aggregate%bytes_offset%2#0: uint64 = (* item_index_internal%2#0 1u)
         let aggregate%encoded_element%2#0: bytes = (extract3 aggregate%array_trimmed%2#0 aggregate%bytes_offset%2#0 1u) // on error: index access is out of bounds
         let array_item%2#0: Encoded(uint8) = aggregate%encoded_element%2#0
@@ -112,9 +115,11 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let aggregate%encoded_value%2#0: bytes = (concat aggregate%length_uint16%2#0 0x616263)
         let aggregate%as_Encoded(len+uint8[])%3#0: Encoded(len+uint8[]) = aggregate%encoded_value%2#0
         let tmp%20#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%3#0
-        let extract_to_end%0#0: bytes = ((extract 2 0) tmp%20#0)
+        let total_length%0#0: uint64 = (len tmp%20#0)
+        let extract_to_end%0#0: bytes = (substring3 tmp%20#0 2u total_length%0#0)
         let concat%0#0: Encoded(len+uint8[]) = (concat dynamic_bytes3#0 extract_to_end%0#0) // on error: max array length exceeded
-        let extract_to_end%1#0: bytes = ((extract 2 0) concat%0#0)
+        let total_length%1#0: uint64 = (len concat%0#0)
+        let extract_to_end%1#0: bytes = (substring3 concat%0#0 2u total_length%1#0)
         let len%0#0: uint64 = (len extract_to_end%1#0)
         let div_floor%0#0: uint64 = (/ len%0#0 1u)
         let as_bytes%0#0: bytes[8] = (itob div_floor%0#0)

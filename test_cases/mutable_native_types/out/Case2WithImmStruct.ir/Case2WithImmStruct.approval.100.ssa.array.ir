@@ -434,7 +434,8 @@ subroutine test_cases.mutable_native_types.case2_with_immutable_struct.Case2With
         let continue_looping%0#0: bool = (< item_index_internal%0#1 array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L73
-        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) tups#0)
+        let aggregate%total_length%0#0: uint64 = (len tups#0)
+        let aggregate%array_trimmed%0#0: bytes = (substring3 tups#0 2u aggregate%total_length%0#0)
         let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#1 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let tup#0: Encoded(uint64,uint64) = aggregate%encoded_element%0#0

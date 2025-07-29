@@ -323,12 +323,13 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_concat() ->
         let aggregate%concat%3#0: bytes = (concat aggregate%head%17#0 tmp%7#0)
         let aggregate%as_Encoded(len+(len+utf8[])[])%2#0: Encoded(len+(len+utf8[])[]) = aggregate%concat%3#0
         let encoded_array%5#0: Encoded(len+(len+utf8[])[]) = aggregate%as_Encoded(len+(len+utf8[])[])%2#0
-        let extract_to_end%0#0: bytes = ((extract 2 0) encoded_array%5#0)
+        let total_length%0#0: uint64 = (len encoded_array%5#0)
+        let extract_to_end%0#0: bytes = (substring3 encoded_array%5#0 2u total_length%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 encoded_array%5#0 0u)
         let tmp%8#0: uint64 = aggregate%array_length%0#0
         let start_of_tail%0#0: uint64 = (* tmp%8#0 2u)
-        let total_length%0#0: uint64 = (len extract_to_end%0#0)
-        let data%0#0: bytes = (substring3 extract_to_end%0#0 start_of_tail%0#0 total_length%0#0)
+        let total_length%1#0: uint64 = (len extract_to_end%0#0)
+        let data%0#0: bytes = (substring3 extract_to_end%0#0 start_of_tail%0#0 total_length%1#0)
         let as_Encoded(len+(len+utf8[])[])%0#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(encoded_array%4#0, data%0#0, tmp%8#0)
         let hello_world_concat#0: Encoded(len+(len+utf8[])[]) = as_Encoded(len+(len+utf8[])[])%0#0
         let tmp%9#0: bool = (== hello_world#0 hello_world_concat#0)
@@ -364,7 +365,8 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let array_of_array#0: Encoded(len+(len+uint8[])[]) = as_Encoded(len+(len+uint8[])[])%1#0
         let tmp%2#0: bool = (== array_of_array#0 0x00020004000700010a000110)
         (assert tmp%2#0)
-        let aggregate%array_head_and_tail%0#0: bytes = ((extract 2 0) array_of_array#0)
+        let aggregate%total_length%0#0: uint64 = (len array_of_array#0)
+        let aggregate%array_head_and_tail%0#0: bytes = (substring3 array_of_array#0 2u aggregate%total_length%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 array_of_array#0 0u)
         let aggregate%lt%0#0: bool = (< 0u aggregate%array_length%0#0)
         (assert aggregate%lt%0#0) // index access is out of bounds
@@ -396,7 +398,8 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.array_of_array_dy
         let array_of_array#0: Encoded(len+(len+uint8[])[]) = updated_array%0#0
         let tmp%4#0: bool = (== array_of_array#0 0x00020004000800020aff000110)
         (assert tmp%4#0)
-        let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) array_of_array#0)
+        let aggregate%total_length%2#0: uint64 = (len array_of_array#0)
+        let aggregate%array_head_and_tail%2#0: bytes = (substring3 array_of_array#0 2u aggregate%total_length%2#0)
         let aggregate%array_length%3#0: uint64 = (extract_uint16 array_of_array#0 0u)
         let aggregate%lt%3#0: bool = (< 0u aggregate%array_length%3#0)
         (assert aggregate%lt%3#0) // index access is out of bounds
@@ -632,8 +635,8 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.struct_assign() -
         let aggregate%updated_data%2#0: bytes = (concat aggregate%data_up_to_item%0#0 tmp%10#0)
         let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 test_struct#0 4u)
         let aggregate%total_length%0#0: uint64 = (len test_struct#0)
-        let aggregate%data%0#0: bytes = (substring3 test_struct#0 aggregate%next_item_offset%0#0 aggregate%total_length%0#0)
-        let aggregate%updated_data%3#0: bytes = (concat aggregate%updated_data%2#0 aggregate%data%0#0)
+        let aggregate%data_beyond_item%0#0: bytes = (substring3 test_struct#0 aggregate%next_item_offset%0#0 aggregate%total_length%0#0)
+        let aggregate%updated_data%3#0: bytes = (concat aggregate%updated_data%2#0 aggregate%data_beyond_item%0#0)
         let aggregate%old_value_length%0#0: uint64 = (- aggregate%next_item_offset%0#0 aggregate%item_offset%0#0)
         let aggregate%new_value_length%0#0: uint64 = (len tmp%10#0)
         let aggregate%tail_offset%0#0: uint64 = (extract_uint16 test_struct#0 4u)
@@ -717,9 +720,11 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_fix
         let encoded_array%1#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%1#0
         let tmp%1#0: bool = (== dynamic_uint8_array#0 encoded_array%1#0)
         (assert tmp%1#0)
-        let extract_to_end%0#0: bytes = ((extract 2 0) dynamic_uint8_array#0)
+        let total_length%0#0: uint64 = (len dynamic_uint8_array#0)
+        let extract_to_end%0#0: bytes = (substring3 dynamic_uint8_array#0 2u total_length%0#0)
         let concat%1#0: Encoded(len+uint8[]) = (concat dynamic_uint8_array#0 extract_to_end%0#0) // on error: max array length exceeded
-        let extract_to_end%1#0: bytes = ((extract 2 0) concat%1#0)
+        let total_length%1#0: uint64 = (len concat%1#0)
+        let extract_to_end%1#0: bytes = (substring3 concat%1#0 2u total_length%1#0)
         let len%0#0: uint64 = (len extract_to_end%1#0)
         let div_floor%0#0: uint64 = (/ len%0#0 1u)
         let as_bytes%1#0: bytes[8] = (itob div_floor%0#0)
@@ -843,7 +848,8 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_boo
         let encoded_array%1#0: Encoded(len+bool1[]) = aggregate%as_Encoded(len+bool1[])%1#0
         let tmp%11#0: bool = (== dynamic_bool_array#0 encoded_array%1#0)
         (assert tmp%11#0)
-        let extract_to_end%0#0: bytes = ((extract 2 0) dynamic_bool_array#0)
+        let total_length%0#0: uint64 = (len dynamic_bool_array#0)
+        let extract_to_end%0#0: bytes = (substring3 dynamic_bool_array#0 2u total_length%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_bool_array#0 0u)
         let tmp%12#0: uint64 = aggregate%array_length%0#0
         let as_Encoded(len+bool1[])%1#0: Encoded(len+bool1[]) = _puya_lib.arc4.dynamic_array_concat_bits(dynamic_bool_array#0, extract_to_end%0#0, tmp%12#0, 1u)
@@ -1063,12 +1069,13 @@ subroutine test_cases.arc4_types.mutation.Arc4MutationContract.dynamic_array_str
         let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = as_Encoded(len+(len+utf8[])[])%0#0
         let tmp%5#0: bool = (== dynamic_string_array#0 0x00040008000f0016001b000548656c6c6f0005576f726c640003466f6f0003426172)
         (assert tmp%5#0)
-        let extract_to_end%0#0: bytes = ((extract 2 0) dynamic_string_array#0)
+        let total_length%0#0: uint64 = (len dynamic_string_array#0)
+        let extract_to_end%0#0: bytes = (substring3 dynamic_string_array#0 2u total_length%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 dynamic_string_array#0 0u)
         let tmp%6#0: uint64 = aggregate%array_length%0#0
         let start_of_tail%0#0: uint64 = (* tmp%6#0 2u)
-        let total_length%0#0: uint64 = (len extract_to_end%0#0)
-        let data%0#0: bytes = (substring3 extract_to_end%0#0 start_of_tail%0#0 total_length%0#0)
+        let total_length%1#0: uint64 = (len extract_to_end%0#0)
+        let data%0#0: bytes = (substring3 extract_to_end%0#0 start_of_tail%0#0 total_length%1#0)
         let as_Encoded(len+(len+utf8[])[])%1#0: Encoded(len+(len+utf8[])[]) = _puya_lib.arc4.dynamic_array_concat_byte_length_head(dynamic_string_array#0, data%0#0, tmp%6#0)
         let dynamic_string_array#0: Encoded(len+(len+utf8[])[]) = as_Encoded(len+(len+utf8[])[])%1#0
         let aggregate%as_bytes%7#0: bytes[8] = (itob 8u)

@@ -444,7 +444,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() 
         let tmp%6#0: uint64 = array_len(dynamic_arr#0)
         let eq%0#0: bool = (== tmp%6#0 3u)
         (assert eq%0#0) // invalid input length
-        let converted_array%0#0: Encoded(uint64[3]) = ((extract 2 0) dynamic_arr#0)
+        let total_length%0#0: uint64 = (len dynamic_arr#0)
+        let converted_array%0#0: bytes = (substring3 dynamic_arr#0 2u total_length%0#0)
         let tmp%7#0: bool = (== arr_3#3 converted_array%0#0)
         (assert tmp%7#0)
         let awst_tmp%0#0: Encoded(uint64,uint64,uint64) = bytes_encode<(uint64,uint64,uint64)>(0u, 1u, 2u)
@@ -644,7 +645,8 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         store(slot%0#0, encoded_array%0#0)
         let arr4#0: Encoded((uint64,uint64)[])* = slot%0#0
         let slot_contents%0#0: Encoded((uint64,uint64)[]) = load(arr4#0)
-        let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
+        let total_length%0#0: uint64 = (len arr#0)
+        let extract_to_end%0#0: bytes = (substring3 arr#0 2u total_length%0#0)
         let concat%0#0: Encoded((uint64,uint64)[]) = (concat slot_contents%0#0 extract_to_end%0#0) // on error: max array length exceeded
         store(arr4#0, concat%0#0)
         let tmp%4#0: uint64 = array_len(arr#0)
@@ -696,9 +698,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         (assert tmp%24#0) // expected arrays to be the same
         let encoded_array%2#0: Encoded(len+(uint64,uint64)[]) = bytes_encode<(len+(uint64,uint64)[])>()
         let arr8#0: Encoded(len+(uint64,uint64)[]) = encoded_array%2#0
-        let extract_to_end%1#0: bytes = ((extract 2 0) arr2#1)
+        let total_length%1#0: uint64 = (len arr2#1)
+        let extract_to_end%1#0: bytes = (substring3 arr2#1 2u total_length%1#0)
         let concat%2#0: Encoded(len+(uint64,uint64)[]) = (concat arr8#0 extract_to_end%1#0) // on error: max array length exceeded
-        let extract_to_end%2#0: bytes = ((extract 2 0) concat%2#0)
+        let total_length%2#0: uint64 = (len concat%2#0)
+        let extract_to_end%2#0: bytes = (substring3 concat%2#0 2u total_length%2#0)
         let len%0#0: uint64 = (len extract_to_end%2#0)
         let div_floor%0#0: uint64 = (/ len%0#0 16u)
         let as_bytes%2#0: bytes[8] = (itob div_floor%0#0)
@@ -761,9 +765,11 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         let tmp%41#0: uint64 = test_cases.mutable_native_types.contract.sum_frozen_arr(frozen2#0)
         let tmp%42#0: bool = (== tmp%41#0 14u)
         (assert tmp%42#0) // expected sum to be 14
-        let extract_to_end%3#0: bytes = ((extract 2 0) frozen2#0)
+        let total_length%3#0: uint64 = (len frozen2#0)
+        let extract_to_end%3#0: bytes = (substring3 frozen2#0 2u total_length%3#0)
         let concat%4#0: Encoded(len+(uint64,uint64)[]) = (concat frozen2#0 extract_to_end%3#0) // on error: max array length exceeded
-        let extract_to_end%4#0: bytes = ((extract 2 0) concat%4#0)
+        let total_length%4#0: uint64 = (len concat%4#0)
+        let extract_to_end%4#0: bytes = (substring3 concat%4#0 2u total_length%4#0)
         let len%1#0: uint64 = (len extract_to_end%4#0)
         let div_floor%1#0: uint64 = (/ len%1#0 16u)
         let as_bytes%4#0: bytes[8] = (itob div_floor%1#0)

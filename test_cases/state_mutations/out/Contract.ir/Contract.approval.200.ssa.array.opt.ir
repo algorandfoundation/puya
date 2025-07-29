@@ -214,6 +214,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let aggregate%encoded_value%0#0: bytes = 0x00086d6f646966696564
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "glob")
         (assert maybe_exists%0#0) // check self.glob exists
+        let aggregate%total_length%0#0: uint64 = (len maybe_value%0#0)
         let aggregate%array_head_and_tail%0#0: bytes = ((extract 2 0) maybe_value%0#0)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 maybe_value%0#0 0u)
         let aggregate%item_offset_offset%0#0: uint64 = 0u
@@ -235,6 +236,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let tmp%2#0: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_local_get_ex tmp%2#0 0u "loc")
         (assert maybe_exists%1#0) // check self.loc exists for account
+        let aggregate%total_length%1#0: uint64 = (len maybe_value%1#0)
         let aggregate%array_head_and_tail%1#0: bytes = ((extract 2 0) maybe_value%1#0)
         let aggregate%array_length%2#0: uint64 = (extract_uint16 maybe_value%1#0 0u)
         let aggregate%item_offset_offset%1#0: uint64 = 0u
@@ -255,6 +257,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         (app_local_put tmp%2#0 "loc" aggregate%updated_array%1#0)
         let (aggregate%box_get%0#0: bytes, aggregate%box_get%1#0: bool) = (box_get "box")
         (assert aggregate%box_get%1#0) // check self.box exists
+        let aggregate%total_length%2#0: uint64 = (len aggregate%box_get%0#0)
         let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) aggregate%box_get%0#0)
         let aggregate%array_length%4#0: uint64 = (extract_uint16 aggregate%box_get%0#0 0u)
         let aggregate%item_offset_offset%2#0: uint64 = 0u
@@ -278,6 +281,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify() -> void:
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         let (aggregate%box_get%2#0: bytes, aggregate%box_get%3#0: bool) = (box_get box_prefixed_key%0#0)
         (assert aggregate%box_get%3#0) // check self.map entry exists
+        let aggregate%total_length%3#0: uint64 = (len aggregate%box_get%2#0)
         let aggregate%array_head_and_tail%3#0: bytes = ((extract 2 0) aggregate%box_get%2#0)
         let aggregate%array_length%6#0: uint64 = (extract_uint16 aggregate%box_get%2#0 0u)
         let aggregate%item_offset_offset%3#0: uint64 = 0u
