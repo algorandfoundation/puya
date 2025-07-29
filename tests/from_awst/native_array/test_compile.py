@@ -1,14 +1,19 @@
+import shutil
+import subprocess
 from pathlib import Path
 
-from tests import FROM_AWST_DIR
-from tests.from_awst.util import compile_contract
+from tests import VCS_ROOT
+from tests.utils.git import check_for_diff
 
 
 def test_compile() -> None:
-    test_dir = Path(__file__).parent
-    out_dir = test_dir / "out"
-
-    compile_contract(
-        awst_path=FROM_AWST_DIR / "native_array" / "module.awst.json",
-        compilation_set={"tests/approvals/native-arrays.algo.ts::NativeArraysAlgo": out_dir},
+    this_dir = Path(__file__).parent
+    out_dir = this_dir / "out"
+    shutil.rmtree(out_dir, ignore_errors=True)
+    subprocess.run(
+        "puya --awst=module.awst.json.zip --options=options.json --log-level=debug".split(),
+        check=True,
+        cwd=this_dir,
     )
+    diff = check_for_diff(out_dir, VCS_ROOT)
+    assert not diff, f"Uncommitted changes were found:\n{diff}"
