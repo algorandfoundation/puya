@@ -431,26 +431,9 @@ class OpFactory:
         value: Value,
         start: int | Value,
         temp_desc: str = "extract_to_end",
-        *,
-        ir_type: IRType | None = None,
     ) -> Register:
-        if isinstance(start, int) and start <= 255:
-            pass
-        elif isinstance(start, UInt64Constant) and start.value <= 255:
-            start = start.value
-        else:
-            total_length = self.len(value, "total_length")
-            return self.substring3(value, start, total_length, "data")
-        result = assign_intrinsic_op(
-            self.context,
-            target=temp_desc,
-            op=AVMOp.extract,
-            immediates=[start, 0],
-            args=[value],
-            return_type=ir_type,
-            source_location=self.source_location,
-        )
-        return result
+        total_length = self.len(value, "total_length")
+        return self.substring3(value, start, total_length, temp_desc)
 
     def substring3(
         self,

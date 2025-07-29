@@ -240,9 +240,7 @@ def convert_array(
     else:
         target_value_type = target_ir_type
     if source_encoding.length_header and not target_encoding.length_header:
-        new_value: ir.Value = factory.extract_to_end(
-            source, 2, "converted_array", ir_type=target_value_type
-        )
+        new_value: ir.Value = factory.extract_to_end(source, 2, "converted_array")
     elif target_encoding.length_header and not source_encoding.length_header:
         len_value = factory.as_u16_bytes(source_length)
         new_value = factory.concat(
