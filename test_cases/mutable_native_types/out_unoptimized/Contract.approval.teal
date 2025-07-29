@@ -80,7 +80,11 @@ sum_frozen_arr_for_body@2:
     // mutable_native_types/contract.py:265
     // for element in arr:
     frame_dig -1
-    extract 2 0
+    len
+    frame_dig -1
+    pushint 2 // 2
+    uncover 2
+    substring3
     frame_dig 2
     intc_3 // 16
     *
@@ -549,7 +553,12 @@ fixed_initialize_block@0:
     pushint 3 // 3
     ==
     assert // invalid input length
-    extract 2 0
+    dup
+    len
+    swap
+    pushint 2 // 2
+    uncover 2
+    substring3
     dig 1
     ==
     assert
@@ -1133,7 +1142,11 @@ test_arr_block@0:
     dup
     loads
     frame_dig -1
-    extract 2 0
+    len
+    frame_dig -1
+    pushint 2 // 2
+    uncover 2
+    substring3
     concat // on error: max array length exceeded
     dig 1
     swap
@@ -1237,7 +1250,12 @@ test_arr_block@0:
     // mutable_native_types/contract.py:224
     // arr7 = Array[FixedStruct]((arr2[0],))
     dup
-    extract 2 0
+    len
+    swap
+    dup
+    pushint 2 // 2
+    uncover 3
+    substring3
     intc_0 // 0
     intc_3 // 16
     *
@@ -1261,10 +1279,20 @@ test_arr_block@0:
     // mutable_native_types/contract.py:228
     // arr8 += arr2
     dig 1
-    extract 2 0
+    len
+    swap
+    dig 2
+    pushint 2 // 2
+    uncover 3
+    substring3
     concat // on error: max array length exceeded
     dup
-    extract 2 0
+    len
+    swap
+    dup
+    pushint 2 // 2
+    uncover 3
+    substring3
     len
     intc_3 // 16
     /
@@ -1400,10 +1428,20 @@ test_arr_after_for@6:
     // mutable_native_types/contract.py:248
     // frozen2 += frozen2
     dup
-    extract 2 0
+    len
+    swap
+    dup
+    pushint 2 // 2
+    uncover 3
+    substring3
     concat // on error: max array length exceeded
     dup
-    extract 2 0
+    len
+    swap
+    dup
+    pushint 2 // 2
+    uncover 3
+    substring3
     len
     intc_3 // 16
     /

@@ -227,6 +227,7 @@ subroutine test_cases.mutable_native_types.contract.sum_frozen_arr(arr: Encoded(
         let continue_looping%0#0: bool = (< item_index_internal%0#1 aggregate%array_length%0#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L266
+        let aggregate%total_length%0#0: uint64 = (len arr#0)
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) arr#0)
         let aggregate%bytes_offset%0#0: uint64 = (* item_index_internal%0#1 16u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
@@ -290,7 +291,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.fixed_initialize() 
         let dynamic_arr#0: Encoded(len+uint64[]) = 0x0003000000000000000000000000000000010000000000000002
         let aggregate%array_length%0#0: uint64 = 3u
         let eq%0#0: bool = 1u
-        let converted_array%0#0: Encoded(uint64[3]) = 0x000000000000000000000000000000010000000000000002
+        let converted_array%0#0: bytes = 0x000000000000000000000000000000010000000000000002
         let tmp%7#0: bool = 1u
         let aggregate%head%10#0: bytes = 0x00000000000000000000000000000001
         let aggregate%head%11#0: bytes = 0x000000000000000000000000000000010000000000000002
@@ -508,6 +509,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr(arr: Encod
         (assert tmp%22#0) // expected sum to be 7
         let tmp%23#0: bool = (!= arr#0 arr2#1)
         (assert tmp%23#0) // expected arrays to be different
+        let aggregate%total_length%0#0: uint64 = (len arr2#1)
         let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) arr2#1)
         let aggregate%bytes_offset%0#0: uint64 = 0u
         let aggregate%encoded_element%0#0: bytes = ((extract 2 16) arr2#1)

@@ -3,7 +3,7 @@
 
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1
+    intcblock 0 1 2
     bytecblock "counter" "name" "Howdy stranger!" "Hello, " 0x151f7c75
 
 main_block@0:
@@ -173,10 +173,20 @@ say_hello_after_if_else@2:
     bytec_3 // "Hello, "
     concat
     frame_dig 0
-    extract 2 0
+    dup
+    len
+    swap
+    intc_2 // 2
+    uncover 2
+    substring3
     concat // on error: max array length exceeded
     dup
-    extract 2 0
+    len
+    swap
+    dup
+    intc_2 // 2
+    uncover 3
+    substring3
     len
     intc_1 // 1
     /
@@ -192,10 +202,20 @@ say_hello_after_if_else@2:
     extract 6 2
     pushbytes "!"
     concat
-    extract 2 0
+    dup
+    len
+    swap
+    intc_2 // 2
+    uncover 2
+    substring3
     concat // on error: max array length exceeded
     dup
-    extract 2 0
+    len
+    swap
+    dup
+    intc_2 // 2
+    uncover 3
+    substring3
     len
     intc_1 // 1
     /
@@ -314,7 +334,7 @@ approval_program_close_out_route@7:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
-    pushint 2 // CloseOut
+    intc_2 // CloseOut
     ==
     assert // OnCompletion is not CloseOut
     txn ApplicationID

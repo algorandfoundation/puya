@@ -2341,6 +2341,7 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%9#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== arr_3#3 arr_3#3) to 1u
+debug: Simplified (substring3 dynamic_arr#0 2u total_length%0#0) to ((extract 2 0) dynamic_arr#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -2608,7 +2609,7 @@ debug: Found equivalence set: replace%3#0, as_Encoded(len+(uint64,uint64)[])%3#0
 debug: selected frozen2#1 from equivalence set
 debug: Found equivalence set: slot%1#0, arr11#0
 debug: selected arr11#0 from equivalence set
-debug: Copy propagation made 29 modifications
+debug: Copy propagation made 30 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%9#0
@@ -2622,7 +2623,12 @@ debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (== tmp%0#0 0u) to (! tmp%0#0)
 debug: Simplified (== arr#0 arr#0) to 1u
 debug: Simplified (== arr#0 arr#0) to 1u
+debug: Simplified (substring3 arr#0 2u total_length%0#0) to ((extract 2 0) arr#0)
 debug: Simplified (== arr#0 arr#0) to 1u
+debug: Simplified (substring3 arr2#1 2u total_length%1#0) to ((extract 2 0) arr2#1)
+debug: Simplified (substring3 concat%2#0 2u total_length%2#0) to ((extract 2 0) concat%2#0)
+debug: Simplified (substring3 result#1 2u total_length%3#0) to ((extract 2 0) result#1)
+debug: Simplified (substring3 concat%4#0 2u total_length%4#0) to ((extract 2 0) concat%4#0)
 debug: Simplified (== tmp%46#0 0u) to (! tmp%46#0)
 debug: Simplified (replace3 concat%1#0 0u as_u16_bytes%1#0) to ((replace2 0) concat%1#0 as_u16_bytes%1#0)
 debug: Simplified (replace3 concat%2#0 0u as_u16_bytes%2#0) to ((replace2 0) concat%2#0 as_u16_bytes%2#0)
@@ -3000,6 +3006,7 @@ debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%5#0
+debug: Removing unused variable total_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -3213,7 +3220,12 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%2#0
 debug: Removing unused variable tmp%3#0
+debug: Removing unused variable total_length%0#0
 debug: Removing unused variable tmp%11#0
+debug: Removing unused variable total_length%1#0
+debug: Removing unused variable total_length%2#0
+debug: Removing unused variable total_length%3#0
+debug: Removing unused variable total_length%4#0
 debug: Removing unused variable tmp%50#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (!= arr8#0 arr8#0) to 0u
@@ -4322,7 +4334,9 @@ debug: Copy propagation made 3 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (substring3 arr#0 2u aggregate%total_length%0#0) to ((extract 2 0) arr#0)
 debug: Simplified (btoi aggregate%extract%0#0) to (extract_uint64 aggregate%encoded_element%0#0 0u)
+debug: Simplified (substring3 arr#0 2u aggregate%total_length%1#0) to ((extract 2 0) arr#0)
 debug: Simplified (btoi aggregate%extract%1#0) to (extract_uint64 aggregate%encoded_element%1#0 8u)
 debug: Simplified (extract3 aggregate%encoded_element%0#0 0u 8u) to ((extract 0 8) aggregate%encoded_element%0#0)
 debug: Simplified (extract3 aggregate%encoded_element%1#0 8u 8u) to ((extract 8 8) aggregate%encoded_element%1#0)
@@ -4333,8 +4347,11 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let aggregate%total_length%1#0: uint64 = (len arr#0) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:265-266, ir_type=uint64, name='aggregate%total_length%0', version=0),)
 debug: Replacing redundant declaration let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) arr#0) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:265-266, ir_type=bytes, name='aggregate%array_trimmed%0', version=0),)
 debug: Replacing redundant declaration let aggregate%bytes_offset%1#0: uint64 = (* item_index_internal%0#1 16u) with copy of existing registers (Register(source_location=mutable_native_types/contract.py:265-266, ir_type=uint64, name='aggregate%bytes_offset%0', version=0),)
+debug: Found equivalence set: aggregate%total_length%0#0, aggregate%total_length%1#0
+debug: selected aggregate%total_length%0#0 from equivalence set
 debug: Found equivalence set: aggregate%array_trimmed%0#0, aggregate%array_trimmed%1#0
 debug: selected aggregate%array_trimmed%0#0 from equivalence set
 debug: Found equivalence set: aggregate%bytes_offset%0#0, aggregate%bytes_offset%1#0
@@ -4887,6 +4904,7 @@ debug: Removing unused variable encoded_array%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x aggregate%val_as_bytes%0#0) to aggregate%val_as_bytes%0#0
 debug: Simplified (concat 0x fixed_struct#0) to fixed_struct#0
+debug: Simplified (substring3 arr2#1 2u aggregate%total_length%0#0) to ((extract 2 0) arr2#1)
 debug: Simplified (* 0u 16u) to 0u
 debug: Simplified (extract3 aggregate%array_trimmed%0#0 0u 16u) // on error: index access is out of bounds to ((extract 2 16) arr2#1)
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0001
@@ -4986,6 +5004,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%total_length%0#0
 debug: Removing unused variable aggregate%extract%0#0
 debug: Removing unused variable aggregate%extract%1#0
 debug: Optimizer: Intrinsic Simplifier
@@ -5336,6 +5355,7 @@ debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable slot_contents%0#0
+debug: Removing unused variable aggregate%total_length%0#0
 debug: Removing unused variable aggregate%bytes_offset%0#0
 debug: Removing unused variable aggregate%as_bytes%0#0
 debug: Removing unused variable aggregate%len_u16%0#0
@@ -9649,6 +9669,7 @@ debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(aggregate%encoded_element%0#0)
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (substring3 tups#0 2u aggregate%total_length%0#0) to ((extract 2 0) tups#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -9977,6 +9998,8 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%total_length%0#0
+debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(aggregate%encoded_element%0#0)
 debug: Not removing unused assignment since source is not marked as pure: let add_tup%0#0: Encoded(uint64,uint64) = test_cases.mutable_native_types.case3_with_mutable_struct.Case3WithStruct.add_tup(aggregate%encoded_element%0#0)
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
@@ -13513,6 +13536,7 @@ debug: Copy propagation made 2 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (substring3 tups#0 2u aggregate%total_length%0#0) to ((extract 2 0) tups#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -13870,6 +13894,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%total_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -17441,6 +17466,7 @@ debug: Copy propagation made 5 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (substring3 tups#0 2u aggregate%total_length%0#0) to ((extract 2 0) tups#0)
 debug: Simplified (btoi aggregate%extract%0#0) to (extract_uint64 aggregate%encoded_element%0#0 0u)
 debug: Simplified (btoi aggregate%extract%1#0) to (extract_uint64 aggregate%encoded_element%0#0 8u)
 debug: Simplified (extract3 aggregate%encoded_element%0#0 0u 8u) to ((extract 0 8) aggregate%encoded_element%0#0)
@@ -17883,6 +17909,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%total_length%0#0
 debug: Removing unused variable aggregate%extract%0#0
 debug: Removing unused variable aggregate%extract%1#0
 debug: Optimizer: Intrinsic Simplifier

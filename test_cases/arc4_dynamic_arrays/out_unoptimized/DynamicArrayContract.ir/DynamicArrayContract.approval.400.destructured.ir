@@ -411,12 +411,14 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_sta
         let updated_array%0#0: Encoded(len+(uint64,uint8[2])[]) = aggregate%updated_array%0#0
         let array#0: Encoded(len+(uint64,uint8[2])[]) = updated_array%0#0
         (log array#0)
-        let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) array#0)
+        let aggregate%total_length%1#0: uint64 = (len array#0)
+        let aggregate%array_trimmed%1#0: bytes = (substring3 array#0 2u aggregate%total_length%1#0)
         let aggregate%bytes_offset%1#0: uint64 = (* 0u 10u)
         let aggregate%encoded_element%1#0: bytes = (extract3 aggregate%array_trimmed%1#0 aggregate%bytes_offset%1#0 10u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%1#0
         (log array_item%0#0)
-        let aggregate%array_trimmed%2#0: bytes = ((extract 2 0) array#0)
+        let aggregate%total_length%2#0: uint64 = (len array#0)
+        let aggregate%array_trimmed%2#0: bytes = (substring3 array#0 2u aggregate%total_length%2#0)
         let aggregate%bytes_offset%2#0: uint64 = (* 1u 10u)
         let aggregate%encoded_element%2#0: bytes = (extract3 aggregate%array_trimmed%2#0 aggregate%bytes_offset%2#0 10u) // on error: index access is out of bounds
         let array_item%1#0: Encoded(uint64,uint8[2]) = aggregate%encoded_element%2#0
@@ -478,7 +480,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let encoded_array%0#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = aggregate%as_Encoded(len+((len+utf8[]),(len+utf8[]))[])%0#0
         let array#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = encoded_array%0#0
         let extract_uint16%0#0: uint64 = (extract_uint16 array#0 0u)
-        let extract_to_end%0#0: bytes = ((extract 2 0) array#0)
+        let total_length%0#0: uint64 = (len array#0)
+        let extract_to_end%0#0: bytes = (substring3 array#0 2u total_length%0#0)
         let aggregate%as_bytes%7#0: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%6#0: bytes = ((extract 6 2) aggregate%as_bytes%7#0)
         let aggregate%head%6#0: bytes = (concat 0x aggregate%offset_as_uint16%6#0)
@@ -494,7 +497,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let updated_array%0#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = aggregate%updated_array%0#0
         let array#0: Encoded(len+((len+utf8[]),(len+utf8[]))[]) = updated_array%0#0
         (log array#0)
-        let aggregate%array_head_and_tail%1#0: bytes = ((extract 2 0) array#0)
+        let aggregate%total_length%1#0: uint64 = (len array#0)
+        let aggregate%array_head_and_tail%1#0: bytes = (substring3 array#0 2u aggregate%total_length%1#0)
         let aggregate%array_length%2#0: uint64 = (extract_uint16 array#0 0u)
         let aggregate%item_offset_offset%1#0: uint64 = (* 0u 2u)
         let aggregate%item_offset%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%item_offset_offset%1#0)
@@ -507,7 +511,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let aggregate%substring3%1#0: bytes = (substring3 aggregate%array_head_and_tail%1#0 aggregate%item_offset%1#0 aggregate%end_offset%1#0)
         let array_item%0#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%substring3%1#0
         (log array_item%0#0)
-        let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) array#0)
+        let aggregate%total_length%2#0: uint64 = (len array#0)
+        let aggregate%array_head_and_tail%2#0: bytes = (substring3 array#0 2u aggregate%total_length%2#0)
         let aggregate%array_length%3#0: uint64 = (extract_uint16 array#0 0u)
         let aggregate%item_offset_offset%2#0: uint64 = (* 1u 2u)
         let aggregate%item_offset%2#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%2#0 aggregate%item_offset_offset%2#0)
@@ -520,7 +525,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let aggregate%substring3%2#0: bytes = (substring3 aggregate%array_head_and_tail%2#0 aggregate%item_offset%2#0 aggregate%end_offset%2#0)
         let array_item%1#0: Encoded((len+utf8[]),(len+utf8[])) = aggregate%substring3%2#0
         (log array_item%1#0)
-        let aggregate%array_head_and_tail%3#0: bytes = ((extract 2 0) array#0)
+        let aggregate%total_length%3#0: uint64 = (len array#0)
+        let aggregate%array_head_and_tail%3#0: bytes = (substring3 array#0 2u aggregate%total_length%3#0)
         let aggregate%array_length%4#0: uint64 = (extract_uint16 array#0 0u)
         let aggregate%item_offset_offset%3#0: uint64 = (* 2u 2u)
         let aggregate%item_offset%3#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%3#0 aggregate%item_offset_offset%3#0)
@@ -582,7 +588,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let encoded_array%0#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = aggregate%as_Encoded(len+(uint64,(len+utf8[]),uint64)[])%0#0
         let array#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = encoded_array%0#0
         let extract_uint16%0#0: uint64 = (extract_uint16 array#0 0u)
-        let extract_to_end%0#0: bytes = ((extract 2 0) array#0)
+        let total_length%0#0: uint64 = (len array#0)
+        let extract_to_end%0#0: bytes = (substring3 array#0 2u total_length%0#0)
         let aggregate%as_bytes%3#0: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%3#0)
         let aggregate%head%6#0: bytes = (concat 0x aggregate%offset_as_uint16%2#0)
@@ -592,7 +599,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let as_Encoded(len+(uint64,(len+utf8[]),uint64)[])%0#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%8#0)
         let array#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = as_Encoded(len+(uint64,(len+utf8[]),uint64)[])%0#0
         let extract_uint16%1#0: uint64 = (extract_uint16 array#0 0u)
-        let extract_to_end%1#0: bytes = ((extract 2 0) array#0)
+        let total_length%1#0: uint64 = (len array#0)
+        let extract_to_end%1#0: bytes = (substring3 array#0 2u total_length%1#0)
         let aggregate%as_bytes%4#0: bytes[8] = (itob 2u)
         let aggregate%offset_as_uint16%3#0: bytes = ((extract 6 2) aggregate%as_bytes%4#0)
         let aggregate%head%7#0: bytes = (concat 0x aggregate%offset_as_uint16%3#0)
@@ -608,7 +616,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let updated_array%0#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = aggregate%updated_array%0#0
         let array#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = updated_array%0#0
         (log array#0)
-        let aggregate%array_head_and_tail%1#0: bytes = ((extract 2 0) array#0)
+        let aggregate%total_length%1#0: uint64 = (len array#0)
+        let aggregate%array_head_and_tail%1#0: bytes = (substring3 array#0 2u aggregate%total_length%1#0)
         let aggregate%array_length%2#0: uint64 = (extract_uint16 array#0 0u)
         let aggregate%item_offset_offset%1#0: uint64 = (* 0u 2u)
         let aggregate%item_offset%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%item_offset_offset%1#0)
@@ -621,7 +630,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let aggregate%substring3%1#0: bytes = (substring3 aggregate%array_head_and_tail%1#0 aggregate%item_offset%1#0 aggregate%end_offset%1#0)
         let array_item%0#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%substring3%1#0
         (log array_item%0#0)
-        let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) array#0)
+        let aggregate%total_length%2#0: uint64 = (len array#0)
+        let aggregate%array_head_and_tail%2#0: bytes = (substring3 array#0 2u aggregate%total_length%2#0)
         let aggregate%array_length%3#0: uint64 = (extract_uint16 array#0 0u)
         let aggregate%item_offset_offset%2#0: uint64 = (* 1u 2u)
         let aggregate%item_offset%2#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%2#0 aggregate%item_offset_offset%2#0)
@@ -647,8 +657,10 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let tmp%17#0: bool = (== tmp%16#0 2u)
         (assert tmp%17#0)
         let extract_uint16%2#0: uint64 = (extract_uint16 array2#0 0u)
-        let extract_to_end%2#0: bytes = ((extract 2 0) array2#0)
-        let extract_to_end%3#0: bytes = ((extract 2 0) array2#0)
+        let total_length%2#0: uint64 = (len array2#0)
+        let extract_to_end%2#0: bytes = (substring3 array2#0 2u total_length%2#0)
+        let total_length%3#0: uint64 = (len array2#0)
+        let extract_to_end%3#0: bytes = (substring3 array2#0 2u total_length%3#0)
         let aggregate%array_length%5#0: uint64 = (extract_uint16 array2#0 0u)
         let tmp%18#0: uint64 = aggregate%array_length%5#0
         let as_Encoded(len+(uint64,(len+utf8[]),uint64)[])%2#0: Encoded(len+(uint64,(len+utf8[]),uint64)[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%2#0, extract_to_end%2#0, tmp%18#0, extract_to_end%3#0)
@@ -660,7 +672,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let aggregate%array_length%7#0: uint64 = (extract_uint16 array2#0 0u)
         let tmp%21#0: uint64 = aggregate%array_length%7#0
         let tmp%22#0: uint64 = (- tmp%21#0 1u)
-        let aggregate%array_head_and_tail%3#0: bytes = ((extract 2 0) array2#0)
+        let aggregate%total_length%3#0: uint64 = (len array2#0)
+        let aggregate%array_head_and_tail%3#0: bytes = (substring3 array2#0 2u aggregate%total_length%3#0)
         let aggregate%array_length%8#0: uint64 = (extract_uint16 array2#0 0u)
         let aggregate%item_offset_offset%3#0: uint64 = (* tmp%22#0 2u)
         let aggregate%item_offset%3#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%3#0 aggregate%item_offset_offset%3#0)
@@ -677,7 +690,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let aggregate%array_length%9#0: uint64 = (extract_uint16 array2#0 0u)
         let tmp%24#0: uint64 = aggregate%array_length%9#0
         let tmp%25#0: uint64 = (- tmp%24#0 2u)
-        let aggregate%array_head_and_tail%4#0: bytes = ((extract 2 0) array2#0)
+        let aggregate%total_length%4#0: uint64 = (len array2#0)
+        let aggregate%array_head_and_tail%4#0: bytes = (substring3 array2#0 2u aggregate%total_length%4#0)
         let aggregate%array_length%10#0: uint64 = (extract_uint16 array2#0 0u)
         let aggregate%item_offset_offset%4#0: uint64 = (* tmp%25#0 2u)
         let aggregate%item_offset%4#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%4#0 aggregate%item_offset_offset%4#0)
@@ -759,7 +773,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let updated_array%0#0: Encoded(len+(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)[]) = aggregate%updated_array%0#0
         let array#0: Encoded(len+(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)[]) = updated_array%0#0
         (log array#0)
-        let aggregate%array_head_and_tail%1#0: bytes = ((extract 2 0) array#0)
+        let aggregate%total_length%1#0: uint64 = (len array#0)
+        let aggregate%array_head_and_tail%1#0: bytes = (substring3 array#0 2u aggregate%total_length%1#0)
         let aggregate%array_length%2#0: uint64 = (extract_uint16 array#0 0u)
         let aggregate%item_offset_offset%1#0: uint64 = (* 0u 2u)
         let aggregate%item_offset%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%item_offset_offset%1#0)
@@ -772,7 +787,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let aggregate%substring3%1#0: bytes = (substring3 aggregate%array_head_and_tail%1#0 aggregate%item_offset%1#0 aggregate%end_offset%1#0)
         let array_item%0#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = aggregate%substring3%1#0
         (log array_item%0#0)
-        let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) array#0)
+        let aggregate%total_length%2#0: uint64 = (len array#0)
+        let aggregate%array_head_and_tail%2#0: bytes = (substring3 array#0 2u aggregate%total_length%2#0)
         let aggregate%array_length%3#0: uint64 = (extract_uint16 array#0 0u)
         let aggregate%item_offset_offset%2#0: uint64 = (* 1u 2u)
         let aggregate%item_offset%2#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%2#0 aggregate%item_offset_offset%2#0)
@@ -932,8 +948,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let aggregate%updated_data%0#0: bytes = (concat aggregate%data_up_to_item%0#0 two#0)
         let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 struct2#0 22u)
         let aggregate%total_length%0#0: uint64 = (len struct2#0)
-        let aggregate%data%0#0: bytes = (substring3 struct2#0 aggregate%next_item_offset%0#0 aggregate%total_length%0#0)
-        let aggregate%updated_data%1#0: bytes = (concat aggregate%updated_data%0#0 aggregate%data%0#0)
+        let aggregate%data_beyond_item%0#0: bytes = (substring3 struct2#0 aggregate%next_item_offset%0#0 aggregate%total_length%0#0)
+        let aggregate%updated_data%1#0: bytes = (concat aggregate%updated_data%0#0 aggregate%data_beyond_item%0#0)
         let aggregate%old_value_length%0#0: uint64 = (- aggregate%next_item_offset%0#0 aggregate%item_offset%0#0)
         let aggregate%new_value_length%0#0: uint64 = (len two#0)
         let aggregate%tail_offset%0#0: uint64 = (extract_uint16 struct2#0 22u)
@@ -1124,8 +1140,8 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let aggregate%updated_data%1#0: bytes = (concat aggregate%data_up_to_item%1#0 aggregate%updated_data%0#0)
         let aggregate%next_item_offset%0#0: uint64 = (extract_uint16 tup2#0 24u)
         let aggregate%total_length%0#0: uint64 = (len tup2#0)
-        let aggregate%data%0#0: bytes = (substring3 tup2#0 aggregate%next_item_offset%0#0 aggregate%total_length%0#0)
-        let aggregate%updated_data%2#0: bytes = (concat aggregate%updated_data%1#0 aggregate%data%0#0)
+        let aggregate%data_beyond_item%0#0: bytes = (substring3 tup2#0 aggregate%next_item_offset%0#0 aggregate%total_length%0#0)
+        let aggregate%updated_data%2#0: bytes = (concat aggregate%updated_data%1#0 aggregate%data_beyond_item%0#0)
         let aggregate%old_value_length%0#0: uint64 = (- aggregate%next_item_offset%0#0 aggregate%item_offset%1#0)
         let aggregate%new_value_length%0#0: uint64 = (len aggregate%updated_data%0#0)
         let aggregate%tail_offset%0#0: uint64 = (extract_uint16 tup2#0 24u)

@@ -1243,7 +1243,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let tmp%2#0: uint64 = (+ i#1 1u)
         let tmp%3#0: bytes = (bzero i#1)
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
-        let extract_to_end%0#0: bytes = ((extract 2 0) arr#1)
+        let total_length%0#0: uint64 = (len arr#1)
+        let extract_to_end%0#0: bytes = (substring3 arr#1 2u total_length%0#0)
         let tmp%4#0: Encoded((uint64,(len+uint8[]))[]) = bytes_encode<(uint64,(len+uint8[]))[]>(tmp%2#0, tmp%3#0)
         let as_Encoded(len+(uint64,(len+uint8[]))[])%0#0: Encoded(len+(uint64,(len+uint8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%4#0)
         let arr#2: Encoded(len+(uint64,(len+uint8[]))[]) = as_Encoded(len+(uint64,(len+uint8[]))[])%0#0
@@ -1322,7 +1323,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_sized_
         let tmp%2#0: uint64 = (+ i#1 1u)
         let tmp%3#0: string = test_cases.array.immutable.times(i#1)
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
-        let extract_to_end%0#0: bytes = ((extract 2 0) arr#1)
+        let total_length%0#0: uint64 = (len arr#1)
+        let extract_to_end%0#0: bytes = (substring3 arr#1 2u total_length%0#0)
         let tmp%4#0: Encoded((uint64,(len+utf8[]))[]) = bytes_encode<(uint64,(len+utf8[]))[]>(tmp%2#0, tmp%3#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%4#0)
         let arr#2: Encoded(len+(uint64,(len+utf8[]))[]) = as_Encoded(len+(uint64,(len+utf8[]))[])%0#0
@@ -1429,7 +1431,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(a
         goto block@3
     block@6: // after_for_L265
         let extract_uint16%1#0: uint64 = (extract_uint16 arr#2 0u)
-        let extract_to_end%0#0: bytes = ((extract 2 0) arr#2)
+        let total_length%0#0: uint64 = (len arr#2)
+        let extract_to_end%0#0: bytes = (substring3 arr#2 2u total_length%0#0)
         let tmp%1#0: Encoded((len+uint64[])[]) = bytes_encode<(len+uint64[])[]>(extra_arr#1)
         let as_Encoded(len+(len+uint64[])[])%0#0: Encoded(len+(len+uint64[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%0#0, 1u, tmp%1#0)
         let arr#3: Encoded(len+(len+uint64[])[]) = as_Encoded(len+(len+uint64[])[])%0#0
@@ -1807,7 +1810,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_tuple_
     block@2: // for_body_L393
         let tmp%0#0: string = test_cases.array.immutable.times(i#1)
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
-        let extract_to_end%0#0: bytes = ((extract 2 0) arr#1)
+        let total_length%0#0: uint64 = (len arr#1)
+        let extract_to_end%0#0: bytes = (substring3 arr#1 2u total_length%0#0)
         let tmp%1#0: Encoded((uint64,(len+utf8[]))[]) = bytes_encode<(uint64,(len+utf8[]))[]>(i#1, tmp%0#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%1#0)
         let arr#2: Encoded(len+(uint64,(len+utf8[]))[]) = as_Encoded(len+(uint64,(len+utf8[]))[])%0#0
@@ -1825,7 +1829,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_convert_to_arr
         store(slot%0#0, encoded_array%0#0)
         let mutable#0: Encoded((uint64,bool1,bool1)[])* = slot%0#0
         let slot_contents%0#0: Encoded((uint64,bool1,bool1)[]) = load(mutable#0)
-        let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
+        let total_length%0#0: uint64 = (len arr#0)
+        let extract_to_end%0#0: bytes = (substring3 arr#0 2u total_length%0#0)
         let concat%0#0: Encoded((uint64,bool1,bool1)[]) = (concat slot_contents%0#0 extract_to_end%0#0) // on error: max array length exceeded
         store(mutable#0, concat%0#0)
         (assert 1u) // Step cannot be zero
@@ -1861,7 +1866,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_ar
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000001, 0x0000000000000002)
         let prefix#0: Encoded(len+uint64[]) = encoded_array%0#0
         let concat%0#0: Encoded(len+uint64[]) = (concat prefix#0 arg#0) // on error: max array length exceeded
-        let extract_to_end%0#0: bytes = ((extract 2 0) concat%0#0)
+        let total_length%0#0: uint64 = (len concat%0#0)
+        let extract_to_end%0#0: bytes = (substring3 concat%0#0 2u total_length%0#0)
         let len%0#0: uint64 = (len extract_to_end%0#0)
         let div_floor%0#0: uint64 = (/ len%0#0 8u)
         let as_bytes%0#0: bytes[8] = (itob div_floor%0#0)
@@ -1914,8 +1920,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_immutable_dynamic(imm1: Encoded(len+(uint64,(len+utf8[]))[]), imm2: Encoded(len+(uint64,(len+utf8[]))[])) -> Encoded(len+(uint64,(len+utf8[]))[]):
     block@0: // L438
         let extract_uint16%0#0: uint64 = (extract_uint16 imm1#0 0u)
-        let extract_to_end%0#0: bytes = ((extract 2 0) imm1#0)
-        let extract_to_end%1#0: bytes = ((extract 2 0) imm2#0)
+        let total_length%0#0: uint64 = (len imm1#0)
+        let extract_to_end%0#0: bytes = (substring3 imm1#0 2u total_length%0#0)
+        let total_length%1#0: uint64 = (len imm2#0)
+        let extract_to_end%1#0: bytes = (substring3 imm2#0 2u total_length%1#0)
         let tmp%0#0: uint64 = array_len(imm2#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, tmp%0#0, extract_to_end%1#0)
         return as_Encoded(len+(uint64,(len+utf8[]))[])%0#0

@@ -3480,6 +3480,11 @@ debug: Copy propagation made 6 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (substring3 nested_list#0 2u aggregate%total_length%0#0) to ((extract 2 0) nested_list#0)
+debug: Simplified (substring3 nested_list#0 2u aggregate%total_length%1#0) to ((extract 2 0) nested_list#0)
+debug: Simplified (substring3 aggregate%item%1#0 2u aggregate%total_length%2#0) to ((extract 2 0) aggregate%item%1#0)
+debug: Simplified (substring3 nested_list#0 2u aggregate%total_length%3#0) to ((extract 2 0) nested_list#0)
+debug: Simplified (substring3 aggregate%item%2#0 2u aggregate%total_length%4#0) to ((extract 2 0) aggregate%item%2#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -3489,9 +3494,11 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let aggregate%array_length%3#0: uint64 = (extract_uint16 inner_list#0 0u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:40:36-53, ir_type=uint64, name='aggregate%array_length%2', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%1#0: uint64 = (extract_uint16 nested_list#0 0u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:38:24-42, ir_type=uint64, name='aggregate%array_length%0', version=0),)
+debug: Replacing redundant declaration let aggregate%total_length%1#0: uint64 = (len nested_list#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=uint64, name='aggregate%total_length%0', version=0),)
 debug: Replacing redundant declaration let aggregate%array_head_and_tail%1#0: bytes = ((extract 2 0) nested_list#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=bytes, name='aggregate%array_head_and_tail%0', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%4#0: uint64 = (extract_uint16 nested_list#0 0u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=uint64, name='aggregate%array_length%1', version=0),)
 debug: Replacing redundant declaration let aggregate%item_offset_offset%1#0: uint64 = (* i#1 2u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:39:25-39, ir_type=uint64, name='aggregate%item_offset_offset%0', version=0),)
+debug: Replacing redundant declaration let aggregate%total_length%3#0: uint64 = (len nested_list#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%total_length%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) nested_list#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=bytes, name='aggregate%array_head_and_tail%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%5#0: uint64 = (extract_uint16 nested_list#0 0u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%array_length%4', version=0),)
 debug: Replacing redundant declaration let aggregate%item_offset_offset%2#0: uint64 = (* i#1 2u) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%item_offset_offset%1', version=0),)
@@ -3499,6 +3506,8 @@ debug: Found equivalence set: aggregate%array_length%0#0, aggregate%array_length
 debug: selected aggregate%array_length%0#0 from equivalence set
 debug: Found equivalence set: aggregate%array_length%2#0, aggregate%array_length%3#0
 debug: selected aggregate%array_length%2#0 from equivalence set
+debug: Found equivalence set: aggregate%total_length%0#0, aggregate%total_length%1#0, aggregate%total_length%3#0
+debug: selected aggregate%total_length%0#0 from equivalence set
 debug: Found equivalence set: aggregate%array_head_and_tail%0#0, aggregate%array_head_and_tail%1#0, aggregate%array_head_and_tail%2#0
 debug: selected aggregate%array_head_and_tail%0#0 from equivalence set
 debug: Found equivalence set: aggregate%item_offset_offset%0#0, aggregate%item_offset_offset%1#0, aggregate%item_offset_offset%2#0
@@ -3535,8 +3544,11 @@ debug: Replacing redundant declaration let aggregate%item%1#0: bytes = (extract3
 debug: Replacing redundant declaration let aggregate%item%2#0: bytes = (extract3 aggregate%array_head_and_tail%0#0 aggregate%item_offset%0#0 aggregate%item_head_tail_length%0#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=bytes, name='aggregate%item%1', version=0),)
 debug: Found equivalence set: inner_list#0, aggregate%item%1#0, aggregate%item%2#0
 debug: selected inner_list#0 from equivalence set
-debug: Copy propagation made 2 modifications
+debug: Copy propagation made 4 modifications
+debug: Replacing redundant declaration let aggregate%total_length%4#0: uint64 = (len inner_list#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=uint64, name='aggregate%total_length%2', version=0),)
 debug: Replacing redundant declaration let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) inner_list#0) with copy of existing registers (Register(source_location=regression_tests/leftover_branch.py:42:24-37, ir_type=bytes, name='aggregate%array_trimmed%0', version=0),)
+debug: Found equivalence set: aggregate%total_length%2#0, aggregate%total_length%4#0
+debug: selected aggregate%total_length%2#0 from equivalence set
 debug: Found equivalence set: aggregate%array_trimmed%0#0, aggregate%array_trimmed%1#0
 debug: selected aggregate%array_trimmed%0#0 from equivalence set
 debug: Copy propagation made 1 modifications
@@ -3547,6 +3559,132 @@ debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
 debug: Output IR to regression_tests/out/BranchElimination.ir/BranchElimination.approval.200.ssa.array.opt.ir
 debug: Begin optimization pass 2/100
+debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.regression_tests.leftover_branch.hmm
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.regression_tests.leftover_branch.hmm_uint64
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Not removing empty block block@14 because it's used by phi nodes
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm2
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Not removing empty block block@10 because it's used by phi nodes
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Optimizing subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calculate
+debug: Optimizer: Perform Subroutine Inlining
+debug: Optimizer: Split Parallel Copies
+debug: Optimizer: Constant Replacer
+debug: Optimizer: Copy Propagation
+debug: Optimizer: Elide Itxn Field Calls
+debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%total_length%0#0
+debug: Removing unused variable aggregate%total_length%2#0
+debug: Optimizer: Intrinsic Simplifier
+debug: Optimizer: Inner Txn Field Replacer
+debug: Optimizer: Replace Compiled References
+debug: Optimizer: Simplify Control Ops
+debug: Optimizer: Remove Linear Jump
+debug: Optimizer: Remove Empty Blocks
+debug: Optimizer: Remove Unreachable Blocks
+debug: Optimizer: Repeated Expression Elimination
+debug: Optimizer: Encode Decode Pair Elimination
+debug: Optimizer: Merge Chained Aggregate Reads
+debug: Optimizer: Replace Aggregate Box Ops
+debug: Optimizer: Minimize Box Exist Asserts
+debug: Optimizer: Constant Reads And Unobserved Writes Elimination
+debug: Output IR to regression_tests/out/BranchElimination.ir/BranchElimination.approval.201.ssa.array.opt.ir
+debug: Begin optimization pass 3/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.approval_program
 debug: Optimizer: Perform Subroutine Inlining
 debug: Optimizer: Split Parallel Copies
@@ -3669,7 +3807,7 @@ debug: Optimizer: Merge Chained Aggregate Reads
 debug: Optimizer: Replace Aggregate Box Ops
 debug: Optimizer: Minimize Box Exist Asserts
 debug: Optimizer: Constant Reads And Unobserved Writes Elimination
-debug: No optimizations performed in pass 2, ending loop
+debug: No optimizations performed in pass 3, ending loop
 debug: optimizing clear program of test_cases.regression_tests.leftover_branch.BranchElimination at level 1
 debug: Begin optimization pass 1/100
 debug: Optimizing subroutine algopy.arc4.ARC4Contract.clear_state_program
@@ -4454,10 +4592,13 @@ debug: Copy propagation made 4 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (substring3 proof#0 2u aggregate%total_length%0#0) to ((extract 2 0) proof#0)
 debug: Simplified (* 8u 32u) to 256u
 debug: Simplified (extract3 aggregate%array_trimmed%0#0 256u 32u) // on error: index access is out of bounds to (extract3 proof#0 258u 32u)
+debug: Simplified (substring3 proof#0 2u aggregate%total_length%1#0) to ((extract 2 0) proof#0)
 debug: Simplified (* 6u 32u) to 192u
 debug: Simplified (extract3 aggregate%array_trimmed%1#0 192u 32u) // on error: index access is out of bounds to ((extract 194 32) proof#0)
+debug: Simplified (substring3 proof#0 2u aggregate%total_length%2#0) to ((extract 2 0) proof#0)
 debug: Simplified (* 7u 32u) to 224u
 debug: Simplified (extract3 aggregate%array_trimmed%2#0 224u 32u) // on error: index access is out of bounds to ((extract 226 32) proof#0)
 debug: Optimizer: Inner Txn Field Replacer
@@ -4467,8 +4608,12 @@ debug: Optimizer: Remove Linear Jump
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
+debug: Replacing redundant declaration let aggregate%total_length%1#0: uint64 = (len proof#0) with copy of existing registers (Register(source_location=regression_tests/jira_ak_752.py:18:12-20, ir_type=uint64, name='aggregate%total_length%0', version=0),)
 debug: Replacing redundant declaration let aggregate%array_trimmed%1#0: bytes = ((extract 2 0) proof#0) with copy of existing registers (Register(source_location=regression_tests/jira_ak_752.py:18:12-20, ir_type=bytes, name='aggregate%array_trimmed%0', version=0),)
+debug: Replacing redundant declaration let aggregate%total_length%2#0: uint64 = (len proof#0) with copy of existing registers (Register(source_location=regression_tests/jira_ak_752.py:18:12-20, ir_type=uint64, name='aggregate%total_length%0', version=0),)
 debug: Replacing redundant declaration let aggregate%array_trimmed%2#0: bytes = ((extract 2 0) proof#0) with copy of existing registers (Register(source_location=regression_tests/jira_ak_752.py:18:12-20, ir_type=bytes, name='aggregate%array_trimmed%0', version=0),)
+debug: Found equivalence set: aggregate%total_length%0#0, aggregate%total_length%1#0, aggregate%total_length%2#0
+debug: selected aggregate%total_length%0#0 from equivalence set
 debug: Found equivalence set: aggregate%array_trimmed%0#0, aggregate%array_trimmed%1#0, aggregate%array_trimmed%2#0
 debug: selected aggregate%array_trimmed%0#0 from equivalence set
 debug: Optimizer: Encode Decode Pair Elimination
@@ -4505,6 +4650,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable aggregate%total_length%0#0
 debug: Removing unused variable aggregate%array_trimmed%0#0
 debug: Removing unused variable aggregate%bytes_offset%0#0
 debug: Removing unused variable aggregate%bytes_offset%1#0

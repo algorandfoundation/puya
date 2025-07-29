@@ -757,7 +757,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let continue_looping%0#0: bool = (< i#1 3u)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L108
-        let aggregate%array_trimmed%0#0: bytes = ((extract 2 0) twm.arr#2)
+        let aggregate%total_length%0#0: uint64 = (len twm.arr#2)
+        let aggregate%array_trimmed%0#0: bytes = (substring3 twm.arr#2 2u aggregate%total_length%0#0)
         let aggregate%bytes_offset%0#0: uint64 = (* i#1 8u)
         let aggregate%encoded_element%0#0: bytes = (extract3 aggregate%array_trimmed%0#0 aggregate%bytes_offset%0#0 8u) // on error: index access is out of bounds
         let array_item%0#0: Encoded(uint64) = aggregate%encoded_element%0#0

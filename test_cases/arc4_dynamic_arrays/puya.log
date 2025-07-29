@@ -1352,6 +1352,7 @@ debug: Copy propagation made 9 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (substring3 array#0 2u total_length%0#0) to ((extract 2 0) array#0)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1394,7 +1395,7 @@ debug: Found equivalence set: tmp%14#0, array#5
 debug: selected array#5 from equivalence set
 debug: Found equivalence set: as_Encoded(len+(uint64,(len+utf8[]),uint64)[])%2#0, array2#1
 debug: selected array2#1 from equivalence set
-debug: Copy propagation made 14 modifications
+debug: Copy propagation made 16 modifications
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable tmp%0#0
@@ -1402,6 +1403,10 @@ debug: Removing unused variable tmp%2#0
 debug: Removing unused variable tmp%4#0
 debug: Removing unused variable tmp%6#0
 debug: Optimizer: Intrinsic Simplifier
+debug: Simplified (substring3 array#0 2u total_length%0#0) to ((extract 2 0) array#0)
+debug: Simplified (substring3 array#1 2u total_length%1#0) to ((extract 2 0) array#1)
+debug: Simplified (substring3 array#3 2u total_length%2#0) to ((extract 2 0) array#3)
+debug: Simplified (substring3 array#3 2u total_length%3#0) to ((extract 2 0) array#3)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -1425,9 +1430,12 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let tmp%9#0: Encoded((uint64,(len+utf8[]),uint64)[]) = bytes_encode<(uint64,(len+utf8[]),uint64)[]>(struct2#0) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:79:8-36, ir_type=Encoded((uint64,(len+utf8[]),uint64)[]), name='tmp%8', version=0),)
+debug: Replacing redundant declaration let total_length%3#0: uint64 = (len array#3) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:92:8-36, ir_type=uint64, name='total_length%2', version=0),)
 debug: Replacing redundant declaration let extract_to_end%3#0: bytes = ((extract 2 0) array#3) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:92:8-36, ir_type=bytes, name='extract_to_end%2', version=0),)
 debug: Found equivalence set: tmp%8#0, tmp%9#0
 debug: selected tmp%8#0 from equivalence set
+debug: Found equivalence set: total_length%2#0, total_length%3#0
+debug: selected total_length%2#0 from equivalence set
 debug: Found equivalence set: extract_to_end%2#0, extract_to_end%3#0
 debug: selected extract_to_end%2#0 from equivalence set
 debug: Copy propagation made 2 modifications
@@ -2044,6 +2052,7 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable total_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -2064,6 +2073,9 @@ debug: Optimizer: Constant Replacer
 debug: Optimizer: Copy Propagation
 debug: Optimizer: Elide Itxn Field Calls
 debug: Optimizer: Remove Unused Variables
+debug: Removing unused variable total_length%0#0
+debug: Removing unused variable total_length%1#0
+debug: Removing unused variable total_length%2#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -2838,6 +2850,7 @@ debug: Optimizer: Remove Unused Variables
 debug: Removing unused variable aggregate%encoded_element%0#0
 debug: Removing unused variable aggregate%array_trimmed%0#0
 debug: Removing unused variable aggregate%bytes_offset%0#0
+debug: Removing unused variable aggregate%total_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x 0x04) to 0x04
 debug: Simplified (concat 0x04 0x05) to 0x0405
@@ -2853,10 +2866,12 @@ debug: Simplified (concat 0x000200000000000000030405 0x00000000000000030405) to 
 debug: Simplified (* 1u 10u) to 10u
 debug: Simplified (+ 10u 2u) to 12u
 debug: Simplified (replace3 0x00020000000000000003040500000000000000030405 12u 0x00000400000000002aff) to 0x00020000000000000003040500000400000000002aff
-debug: Simplified ((extract 2 0) 0x00020000000000000003040500000400000000002aff) to 0x0000000000000003040500000400000000002aff
+debug: Simplified (len 0x00020000000000000003040500000400000000002aff) to 22u
+debug: Simplified (substring3 0x00020000000000000003040500000400000000002aff 2u 22u) to 0x0000000000000003040500000400000000002aff
 debug: Simplified (* 0u 10u) to 0u
 debug: Simplified (extract3 0x0000000000000003040500000400000000002aff 0u 10u) // on error: index access is out of bounds to 0x00000000000000030405
-debug: Simplified ((extract 2 0) 0x00020000000000000003040500000400000000002aff) to 0x0000000000000003040500000400000000002aff
+debug: Simplified (len 0x00020000000000000003040500000400000000002aff) to 22u
+debug: Simplified (substring3 0x00020000000000000003040500000400000000002aff 2u 22u) to 0x0000000000000003040500000400000000002aff
 debug: Simplified (* 1u 10u) to 10u
 debug: Simplified (extract3 0x0000000000000003040500000400000000002aff 10u 10u) // on error: index access is out of bounds to 0x00000400000000002aff
 debug: Optimizer: Inner Txn Field Replacer
@@ -2915,6 +2930,7 @@ debug: Removing unused variable aggregate%next_item_offset%0#0
 debug: Removing unused variable aggregate%array_head_and_tail%0#0
 debug: Removing unused variable aggregate%array_length%0#0
 debug: Removing unused variable aggregate%next_item_offset_offset%0#0
+debug: Removing unused variable aggregate%total_length%0#0
 debug: Removing unused variable aggregate%next_index%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified ((extract 6 2) aggregate%as_bytes%0#0) to 0x0004
@@ -2934,12 +2950,15 @@ debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x0004
 debug: Simplified (concat 0x0002 0x0004) to 0x00020004
 debug: Simplified ((extract 6 2) aggregate%as_bytes%8#0) to 0x0002
 debug: Simplified (concat 0x 0x0002) to 0x0002
+debug: Simplified (substring3 array#2 2u aggregate%total_length%1#0) to ((extract 2 0) array#2)
 debug: Simplified (* 0u 2u) to 0u
 debug: Simplified (+ 0u 1u) to 1u
 debug: Simplified (* 1u 2u) to 2u
+debug: Simplified (substring3 array#2 2u aggregate%total_length%2#0) to ((extract 2 0) array#2)
 debug: Simplified (* 1u 2u) to 2u
 debug: Simplified (+ 1u 1u) to 2u
 debug: Simplified (* 2u 2u) to 4u
+debug: Simplified (substring3 array#2 2u aggregate%total_length%3#0) to ((extract 2 0) array#2)
 debug: Simplified (* 2u 2u) to 4u
 debug: Simplified (+ 2u 1u) to 3u
 debug: Simplified (* 3u 2u) to 6u
@@ -2953,14 +2972,18 @@ debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let aggregate%as_bytes%3#0: bytes[8] = (itob 4u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:57:18-61, ir_type=bytes[8], name='aggregate%as_bytes%0', version=0),)
 debug: Replacing redundant declaration let aggregate%as_bytes%6#0: bytes[8] = (itob 4u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:57:18-61, ir_type=bytes[8], name='aggregate%as_bytes%0', version=0),)
 debug: Replacing redundant declaration let aggregate%as_bytes%8#0: bytes[8] = (itob 2u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:59:16-65, ir_type=bytes[8], name='aggregate%as_bytes%5', version=0),)
+debug: Replacing redundant declaration let aggregate%total_length%2#0: uint64 = (len array#2) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:63:12-20, ir_type=uint64, name='aggregate%total_length%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) array#2) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:63:12-20, ir_type=bytes, name='aggregate%array_head_and_tail%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%3#0: uint64 = (extract_uint16 array#2 0u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:63:12-20, ir_type=uint64, name='aggregate%array_length%2', version=0),)
+debug: Replacing redundant declaration let aggregate%total_length%3#0: uint64 = (len array#2) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:63:12-20, ir_type=uint64, name='aggregate%total_length%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_head_and_tail%3#0: bytes = ((extract 2 0) array#2) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:63:12-20, ir_type=bytes, name='aggregate%array_head_and_tail%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%4#0: uint64 = (extract_uint16 array#2 0u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:63:12-20, ir_type=uint64, name='aggregate%array_length%2', version=0),)
 debug: Found equivalence set: aggregate%as_bytes%0#0, aggregate%as_bytes%3#0, aggregate%as_bytes%6#0
 debug: selected aggregate%as_bytes%0#0 from equivalence set
 debug: Found equivalence set: aggregate%as_bytes%5#0, aggregate%as_bytes%8#0
 debug: selected aggregate%as_bytes%5#0 from equivalence set
+debug: Found equivalence set: aggregate%total_length%1#0, aggregate%total_length%2#0, aggregate%total_length%3#0
+debug: selected aggregate%total_length%1#0 from equivalence set
 debug: Found equivalence set: aggregate%array_head_and_tail%1#0, aggregate%array_head_and_tail%2#0, aggregate%array_head_and_tail%3#0
 debug: selected aggregate%array_head_and_tail%1#0 from equivalence set
 debug: Found equivalence set: aggregate%array_length%2#0, aggregate%array_length%3#0, aggregate%array_length%4#0
@@ -3034,6 +3057,7 @@ debug: Removing unused variable aggregate%next_item_offset%0#0
 debug: Removing unused variable aggregate%array_head_and_tail%0#0
 debug: Removing unused variable aggregate%array_length%0#0
 debug: Removing unused variable aggregate%next_item_offset_offset%0#0
+debug: Removing unused variable aggregate%total_length%0#0
 debug: Removing unused variable aggregate%next_index%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x 0x0000000000000003) to 0x0000000000000003
@@ -3049,12 +3073,16 @@ debug: Simplified (extract_uint16 0x0000 0u) to 0u
 debug: Simplified ((extract 2 0) 0x0000) to 0x
 debug: Simplified ((extract 6 2) aggregate%as_bytes%3#0) to 0x0002
 debug: Simplified (concat 0x 0x0002) to 0x0002
+debug: Simplified (substring3 array#3 2u aggregate%total_length%1#0) to ((extract 2 0) array#3)
 debug: Simplified (* 0u 2u) to 0u
 debug: Simplified (+ 0u 1u) to 1u
 debug: Simplified (* 1u 2u) to 2u
+debug: Simplified (substring3 array#3 2u aggregate%total_length%2#0) to ((extract 2 0) array#3)
 debug: Simplified (* 1u 2u) to 2u
 debug: Simplified (+ 1u 1u) to 2u
 debug: Simplified (* 2u 2u) to 4u
+debug: Simplified (substring3 array2#1 2u aggregate%total_length%3#0) to ((extract 2 0) array2#1)
+debug: Simplified (substring3 array2#1 2u aggregate%total_length%4#0) to ((extract 2 0) array2#1)
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
@@ -3063,6 +3091,7 @@ debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let aggregate%as_bytes%1#0: bytes[8] = (itob 18u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:76:18-76, ir_type=bytes[8], name='aggregate%as_bytes%0', version=0),)
+debug: Replacing redundant declaration let aggregate%total_length%2#0: uint64 = (len array#3) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:83:12-20, ir_type=uint64, name='aggregate%total_length%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) array#3) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:83:12-20, ir_type=bytes, name='aggregate%array_head_and_tail%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%3#0: uint64 = (extract_uint16 array#3 0u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:83:12-20, ir_type=uint64, name='aggregate%array_length%2', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%4#0: uint64 = (extract_uint16 array#3 0u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:83:12-20, ir_type=uint64, name='aggregate%array_length%2', version=0),)
@@ -3072,16 +3101,21 @@ debug: Replacing redundant declaration let aggregate%array_length%5#0: uint64 = 
 debug: Replacing redundant declaration let aggregate%array_length%7#0: uint64 = (extract_uint16 array2#1 0u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:93:15-28, ir_type=uint64, name='aggregate%array_length%6', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%8#0: uint64 = (extract_uint16 array2#1 0u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:93:15-28, ir_type=uint64, name='aggregate%array_length%6', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%9#0: uint64 = (extract_uint16 array2#1 0u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:93:15-28, ir_type=uint64, name='aggregate%array_length%6', version=0),)
+debug: Replacing redundant declaration let aggregate%total_length%4#0: uint64 = (len array2#1) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:94:15-25, ir_type=uint64, name='aggregate%total_length%3', version=0),)
 debug: Replacing redundant declaration let aggregate%array_head_and_tail%4#0: bytes = ((extract 2 0) array2#1) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:94:15-25, ir_type=bytes, name='aggregate%array_head_and_tail%3', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%10#0: uint64 = (extract_uint16 array2#1 0u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:93:15-28, ir_type=uint64, name='aggregate%array_length%6', version=0),)
 debug: Found equivalence set: aggregate%as_bytes%0#0, aggregate%as_bytes%1#0
 debug: selected aggregate%as_bytes%0#0 from equivalence set
+debug: Found equivalence set: aggregate%total_length%1#0, aggregate%total_length%2#0
+debug: selected aggregate%total_length%1#0 from equivalence set
 debug: Found equivalence set: aggregate%array_head_and_tail%1#0, aggregate%array_head_and_tail%2#0, extract_to_end%2#0
 debug: selected aggregate%array_head_and_tail%1#0 from equivalence set
 debug: Found equivalence set: aggregate%array_length%2#0, aggregate%array_length%3#0, aggregate%array_length%4#0, extract_uint16%2#0, aggregate%array_length%5#0
 debug: selected aggregate%array_length%2#0 from equivalence set
 debug: Found equivalence set: aggregate%array_length%6#0, aggregate%array_length%7#0, aggregate%array_length%8#0, aggregate%array_length%9#0, aggregate%array_length%10#0
 debug: selected aggregate%array_length%6#0 from equivalence set
+debug: Found equivalence set: aggregate%total_length%3#0, aggregate%total_length%4#0
+debug: selected aggregate%total_length%3#0 from equivalence set
 debug: Found equivalence set: aggregate%array_head_and_tail%3#0, aggregate%array_head_and_tail%4#0
 debug: selected aggregate%array_head_and_tail%3#0 from equivalence set
 debug: Copy propagation made 18 modifications
@@ -3138,6 +3172,7 @@ debug: Removing unused variable aggregate%next_item_offset%0#0
 debug: Removing unused variable aggregate%array_head_and_tail%0#0
 debug: Removing unused variable aggregate%array_length%0#0
 debug: Removing unused variable aggregate%next_item_offset_offset%0#0
+debug: Removing unused variable aggregate%total_length%0#0
 debug: Removing unused variable aggregate%next_index%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Simplified (concat 0x 0x0000000000000003) to 0x0000000000000003
@@ -3156,9 +3191,11 @@ debug: Simplified (concat 0x0000040000000000001c 0x0000000000000003) to 0x000004
 debug: Simplified ((extract 6 2) aggregate%as_bytes%5#0) to 0x0002
 debug: Simplified ((extract 6 2) aggregate%as_bytes%6#0) to 0x0004
 debug: Simplified (concat 0x0002 0x0004) to 0x00020004
+debug: Simplified (substring3 array#1 2u aggregate%total_length%1#0) to ((extract 2 0) array#1)
 debug: Simplified (* 0u 2u) to 0u
 debug: Simplified (+ 0u 1u) to 1u
 debug: Simplified (* 1u 2u) to 2u
+debug: Simplified (substring3 array#1 2u aggregate%total_length%2#0) to ((extract 2 0) array#1)
 debug: Simplified (* 1u 2u) to 2u
 debug: Simplified (+ 1u 1u) to 2u
 debug: Simplified (* 2u 2u) to 4u
@@ -3171,12 +3208,15 @@ debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
 debug: Replacing redundant declaration let aggregate%as_bytes%3#0: bytes[8] = (itob 28u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:99-101:18-9, ir_type=bytes[8], name='aggregate%as_bytes%0', version=0),)
 debug: Replacing redundant declaration let aggregate%as_bytes%6#0: bytes[8] = (itob 4u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:232:11-92, ir_type=bytes[8], name='aggregate%as_bytes%2', version=0),)
+debug: Replacing redundant declaration let aggregate%total_length%2#0: uint64 = (len array#1) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:108:12-20, ir_type=uint64, name='aggregate%total_length%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_head_and_tail%2#0: bytes = ((extract 2 0) array#1) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:108:12-20, ir_type=bytes, name='aggregate%array_head_and_tail%1', version=0),)
 debug: Replacing redundant declaration let aggregate%array_length%3#0: uint64 = (extract_uint16 array#1 0u) with copy of existing registers (Register(source_location=arc4_dynamic_arrays/contract.py:108:12-20, ir_type=uint64, name='aggregate%array_length%2', version=0),)
 debug: Found equivalence set: aggregate%as_bytes%0#0, aggregate%as_bytes%3#0
 debug: selected aggregate%as_bytes%0#0 from equivalence set
 debug: Found equivalence set: aggregate%as_bytes%2#0, aggregate%as_bytes%6#0
 debug: selected aggregate%as_bytes%2#0 from equivalence set
+debug: Found equivalence set: aggregate%total_length%1#0, aggregate%total_length%2#0
+debug: selected aggregate%total_length%1#0 from equivalence set
 debug: Found equivalence set: aggregate%array_head_and_tail%1#0, aggregate%array_head_and_tail%2#0
 debug: selected aggregate%array_head_and_tail%1#0 from equivalence set
 debug: Found equivalence set: aggregate%array_length%2#0, aggregate%array_length%3#0
@@ -3635,9 +3675,11 @@ debug: Removing unused variable array#0
 debug: Removing unused variable aggregate%write_offset%0#0
 debug: Removing unused variable aggregate%write_offset_with_length_header%0#0
 debug: Removing unused variable array#1
+debug: Removing unused variable aggregate%total_length%1#0
 debug: Removing unused variable aggregate%array_trimmed%1#0
 debug: Removing unused variable aggregate%bytes_offset%1#0
 debug: Removing unused variable aggregate%encoded_element%1#0
+debug: Removing unused variable aggregate%total_length%2#0
 debug: Removing unused variable aggregate%array_trimmed%2#0
 debug: Removing unused variable aggregate%bytes_offset%2#0
 debug: Removing unused variable aggregate%encoded_element%2#0
@@ -3682,6 +3724,7 @@ debug: Removing unused variable aggregate%offset_as_uint16%4#0
 debug: Removing unused variable aggregate%head%4#0
 debug: Removing unused variable aggregate%offset_as_uint16%6#0
 debug: Removing unused variable aggregate%head%6#0
+debug: Removing unused variable aggregate%total_length%1#0
 debug: Removing unused variable aggregate%item_offset_offset%1#0
 debug: Removing unused variable aggregate%next_index%1#0
 debug: Removing unused variable aggregate%next_item_offset_offset%1#0
@@ -3728,12 +3771,14 @@ debug: Removing unused variable aggregate%as_bytes%3#0
 debug: Removing unused variable aggregate%offset_as_uint16%2#0
 debug: Removing unused variable aggregate%head%6#0
 debug: Removing unused variable aggregate%lt%0#0
+debug: Removing unused variable aggregate%total_length%1#0
 debug: Removing unused variable aggregate%item_offset_offset%1#0
 debug: Removing unused variable aggregate%next_index%1#0
 debug: Removing unused variable aggregate%next_item_offset_offset%1#0
 debug: Removing unused variable aggregate%item_offset_offset%2#0
 debug: Removing unused variable aggregate%next_index%2#0
 debug: Removing unused variable aggregate%next_item_offset_offset%2#0
+debug: Removing unused variable aggregate%total_length%3#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
@@ -3773,6 +3818,7 @@ debug: Removing unused variable aggregate%as_bytes%5#0
 debug: Removing unused variable aggregate%len_u16%1#0
 debug: Removing unused variable aggregate%offset_as_uint16%4#0
 debug: Removing unused variable aggregate%head%14#0
+debug: Removing unused variable aggregate%total_length%1#0
 debug: Removing unused variable aggregate%item_offset_offset%1#0
 debug: Removing unused variable aggregate%next_index%1#0
 debug: Removing unused variable aggregate%next_item_offset_offset%1#0
@@ -4794,7 +4840,7 @@ debug: Removing unused variable aggregate%data_up_to_item%0#0
 debug: Removing unused variable aggregate%updated_data%0#0
 debug: Removing unused variable aggregate%next_item_offset%0#0
 debug: Removing unused variable aggregate%total_length%0#0
-debug: Removing unused variable aggregate%data%0#0
+debug: Removing unused variable aggregate%data_beyond_item%0#0
 debug: Removing unused variable aggregate%updated_data%1#0
 debug: Removing unused variable aggregate%old_value_length%0#0
 debug: Removing unused variable aggregate%tail_offset%1#0
@@ -4891,7 +4937,7 @@ debug: Removing unused variable aggregate%substring3%1#0
 debug: Removing unused variable aggregate%data_up_to_item%0#0
 debug: Removing unused variable aggregate%data_up_to_item%1#0
 debug: Removing unused variable aggregate%total_length%0#0
-debug: Removing unused variable aggregate%data%0#0
+debug: Removing unused variable aggregate%data_beyond_item%0#0
 debug: Removing unused variable aggregate%old_value_length%0#0
 debug: Optimizer: Intrinsic Simplifier
 debug: Optimizer: Inner Txn Field Replacer
