@@ -761,6 +761,19 @@ def _try_fold_intrinsic(
                 return models.BytesConstant(
                     source_location=op_loc, encoding=byte_const.encoding, value=extracted
                 )
+            case models.Intrinsic(
+                args=[byte_arg, models.UInt64Constant(value=S), maybe_len_arg]
+            ) if (
+                (len_op := _get_len_op(register_assignments, maybe_len_arg))
+                and len_op.args[0] == byte_arg
+                and S <= 255
+            ):
+                return models.Intrinsic(
+                    op=AVMOp.extract,
+                    immediates=[S, 0],
+                    args=[byte_arg],
+                    source_location=intrinsic.source_location,
+                )
     elif not intrinsic.immediates:
         match intrinsic.args:
             case [models.Value(atype=AVMType.uint64) as x]:
@@ -778,6 +791,18 @@ def _try_fold_intrinsic(
             ]:
                 return _try_simplify_bytes_binary_op(register_assignments, intrinsic, a, b)
 
+    return None
+
+
+def _get_len_op(
+    register_assignments: Mapping[models.Register, models.Assignment], maybe_len_reg: models.Value
+) -> Intrinsic | None:
+    try:
+        ass = register_assignments[maybe_len_reg]  # type: ignore[index]
+    except KeyError:
+        return None
+    if isinstance(ass.source, models.Intrinsic) and ass.source.op == AVMOp.len_:
+        return ass.source
     return None
 
 
