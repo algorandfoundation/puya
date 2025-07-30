@@ -5,6 +5,7 @@ import attrs
 from puya import log
 from puya.errors import InternalError
 from puya.ir import (
+    models,
     models as ir,
     types_ as types,
 )
@@ -91,6 +92,24 @@ class _AggregateNodeReplacer(MutatingRegisterContext):
                 arr_len_u16 = factory.as_u16_bytes(arr_len_minus_1)
                 result = factory.replace(result, 0, arr_len_u16)
             return result
+
+    @typing.override
+    def visit_array_concat(self, concat: models.ArrayConcat) -> models.ValueProvider:
+        array_encoding = concat.base_type.encoding
+        assert isinstance(array_encoding, ArrayEncoding), "expected ArrayEncoding"
+        factory = OpFactory(self, concat.source_location)
+        updated_array = factory.concat(
+            concat.base,
+            concat.items,
+            ir_type=concat.base_type,
+            error_message="max array length exceeded",
+        )
+        if array_encoding.length_header:
+            existing_len = factory.extract_uint16(updated_array, 0)
+            array_len = factory.add(existing_len, concat.num_items)
+            array_len_u16 = factory.as_u16_bytes(array_len)
+            updated_array = factory.replace(updated_array, 0, array_len_u16)
+        return factory.as_ir_type(updated_array, concat.base_type)
 
     @typing.override
     def visit_extract_value(self, read: ir.ExtractValue) -> ir.Value:

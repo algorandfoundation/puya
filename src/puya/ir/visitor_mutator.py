@@ -110,6 +110,12 @@ class IRMutator(IRVisitor[t.Any]):
             pop.index = pop.index.accept(self)
         return pop
 
+    def visit_array_concat(self, concat: models.ArrayConcat) -> models.ValueProvider:
+        concat.base = concat.base.accept(self)
+        concat.items = concat.items.accept(self)
+        concat.num_items = concat.num_items.accept(self)
+        return concat
+
     def visit_extract_value(self, read: models.ExtractValue) -> models.ValueProvider:
         read.base = read.base.accept(self)
         indexes = list[int | models.Value]()

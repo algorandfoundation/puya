@@ -52,6 +52,14 @@ class HasHighLevelOps(IRTraverser):
         raise _HighLevelOpError
 
     @typing.override
+    def visit_array_pop(self, pop: models.ArrayPop) -> None:
+        raise _HighLevelOpError
+
+    @typing.override
+    def visit_array_concat(self, concat: models.ArrayConcat) -> None:
+        raise _HighLevelOpError
+
+    @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> None:
         raise _HighLevelOpError
 
