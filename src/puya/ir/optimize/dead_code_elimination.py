@@ -238,6 +238,7 @@ _PureValueProviders = (
     | models.BytesEncode
     | models.ArrayLength
     | models.ArrayPop
+    | models.ArrayConcat
 )
 
 

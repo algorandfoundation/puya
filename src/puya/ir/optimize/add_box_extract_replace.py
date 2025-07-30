@@ -39,9 +39,9 @@ def replace_aggregate_box_ops(
 
 @attrs.define(kw_only=True)
 class _AggregateCollector(NoOpIRVisitor[None]):
-    replace_values: dict[models.Value, models.ReplaceValue | models.ArrayPop] = attrs.field(
-        factory=dict
-    )
+    replace_values: dict[
+        models.Value, models.ReplaceValue | models.ArrayPop | models.ArrayConcat
+    ] = attrs.field(factory=dict)
     extract_values: dict[models.Value, models.ExtractValue] = attrs.field(factory=dict)
     box_reads: dict[models.Value, models.BoxRead] = attrs.field(factory=dict)
 
@@ -59,6 +59,11 @@ class _AggregateCollector(NoOpIRVisitor[None]):
                 (value,) = ass.targets
                 self.box_reads[value] = source
             case models.ArrayPop(
+                base_type=EncodedType(encoding=ArrayEncoding(length_header=True))
+            ):
+                (target,) = ass.targets
+                self.replace_values[target] = source
+            case models.ArrayConcat(
                 base_type=EncodedType(encoding=ArrayEncoding(length_header=True))
             ):
                 (target,) = ass.targets
@@ -161,8 +166,8 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             return write
 
         # dynamic array
-        if isinstance(replace_value_or_pop, models.ArrayPop):
-            self._handle_array_pop(write, replace_value_or_pop)
+        if isinstance(replace_value_or_pop, models.ArrayPop | models.ArrayConcat):
+            self._handle_array_splice(write, replace_value_or_pop)
             self.modified = True
             logger.debug(
                 f"combined `{replace_value_or_pop.base!s} = {read_src!s}"
@@ -177,8 +182,8 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         array_pop = self.aggregates.replace_values.get(replace_value_or_pop.value)
 
         # dynamic array in an aggregate
-        if isinstance(array_pop, models.ArrayPop):
-            num_box_replaces = self._handle_replace_value_and_array_pop(
+        if isinstance(array_pop, models.ArrayPop | models.ArrayConcat):
+            num_box_replaces = self._handle_replace_value_and_array_splice(
                 write, replace_value_or_pop, array_pop
             )
             if not num_box_replaces:
@@ -208,20 +213,34 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         )
         return None
 
-    def _handle_array_pop(self, write: models.BoxWrite, array_pop: models.ArrayPop) -> None:
-        array_encoding = array_pop.base_type.encoding
+    def _handle_array_splice(
+        self, write: models.BoxWrite, array_splice: models.ArrayPop | models.ArrayConcat
+    ) -> None:
+        array_encoding = array_splice.base_type.encoding
         assert isinstance(array_encoding, encodings.ArrayEncoding), "expected ArrayEncoding"
         assert array_encoding.length_header, "expected length header"
-        factory = OpFactory(self, array_pop.source_location)
+        factory = OpFactory(self, array_splice.source_location)
         box_offset = factory.constant(0)
-        _pop_index_from_array(factory, array_encoding, write.key, box_offset, array_pop.index)
+        if isinstance(array_splice, models.ArrayPop):
+            _pop_index_from_array(
+                factory, array_encoding, write.key, box_offset, array_splice.index
+            )
+        else:
+            _concat_array(
+                factory,
+                array_encoding,
+                write.key,
+                box_offset,
+                array_splice.items,
+                array_splice.num_items,
+            )
         self.modified = True
 
-    def _handle_replace_value_and_array_pop(
+    def _handle_replace_value_and_array_splice(
         self,
         write: models.BoxWrite,
         replace_value: models.ReplaceValue,
-        array_pop: models.ArrayPop,
+        array_splice: models.ArrayPop | models.ArrayConcat,
     ) -> int:
         # can only perform dynamic offset updates for statically determinable offsets
         dynamic_offsets = _get_dynamic_offsets_requiring_update(
@@ -229,11 +248,11 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
         )
         if dynamic_offsets is None:
             return 0
-        array_encoding = array_pop.base_type.encoding
+        array_encoding = array_splice.base_type.encoding
         assert isinstance(array_encoding, encodings.ArrayEncoding), "expected ArrayEncoding"
         assert array_encoding.length_header, "expected length header"
         box_key = write.key
-        factory = OpFactory(self, array_pop.source_location)
+        factory = OpFactory(self, array_splice.source_location)
         array_offset = _get_fixed_byte_offset(
             factory,
             box_key=box_key,
@@ -242,13 +261,27 @@ class _AddDirectBoxOpsVisitor(MutatingRegisterContext):
             stop_at_valid_stack_value=False,
         )
         assert array_offset.encoding == array_encoding, "encodings should match"
-        _pop_index_from_array(
-            factory, array_encoding, box_key, array_offset.offset, array_pop.index
-        )
+        if isinstance(array_splice, models.ArrayPop):
+            _pop_index_from_array(
+                factory, array_encoding, box_key, array_offset.offset, array_splice.index
+            )
+        else:
+            _concat_array(
+                factory,
+                array_encoding,
+                box_key,
+                array_offset.offset,
+                array_splice.items,
+                array_splice.num_items,
+            )
         element_size = array_encoding.element.checked_num_bytes
         for offset in dynamic_offsets:
             offset_value = factory.box_extract_u16(box_key, offset)
-            new_offset_value = factory.sub(offset_value, element_size)
+            if isinstance(array_splice, models.ArrayPop):
+                new_offset_value = factory.sub(offset_value, element_size)
+            else:
+                items_size = factory.mul(array_splice.num_items, element_size)
+                new_offset_value = factory.add(offset_value, items_size)
             new_offset_value_u16 = factory.as_u16_bytes(new_offset_value)
             factory.box_replace(box_key, offset, new_offset_value_u16)
         return len(dynamic_offsets) + 1
@@ -308,6 +341,7 @@ def _pop_index_from_array(
     box_offset: models.Value,
     index: models.Value | None,
 ) -> None:
+    element_size = encoding.element.checked_num_bytes
     arr_len = factory.box_extract_u16(box_key, box_offset)
     new_arr_len = factory.sub(arr_len, 1)
     if index is None:
@@ -319,8 +353,6 @@ def _pop_index_from_array(
     new_arr_len_u16 = factory.as_u16_bytes(new_arr_len)
     factory.box_replace(box_key, box_offset, new_arr_len_u16)
     box_offset = factory.add(box_offset, 2)
-    # assumes index has already been asserted, and box_offset points to head portion of array
-    element_size = encoding.element.checked_num_bytes
     index_offset = factory.mul(index, element_size)
     absolute_index_offset = factory.add(box_offset, index_offset)
     factory.box_splice(
@@ -329,6 +361,29 @@ def _pop_index_from_array(
     box_size, _ = factory.box_len(box_key)
     new_size = factory.sub(box_size, element_size)
     factory.box_resize(box_key, new_size)
+
+
+def _concat_array(
+    factory: OpFactory,
+    encoding: ArrayEncoding,
+    box_key: models.Value,
+    box_offset: models.Value,
+    items: models.Value,
+    num_items: models.Value,
+) -> None:
+    element_size = encoding.element.checked_num_bytes
+    arr_len = factory.box_extract_u16(box_key, box_offset)
+    box_size, _ = factory.box_len(box_key)
+    new_arr_len = factory.add(arr_len, num_items)
+    items_size = factory.mul(num_items, element_size)
+    new_size = factory.add(box_size, items_size)
+    factory.box_resize(box_key, new_size)
+    new_arr_len_u16 = factory.as_u16_bytes(new_arr_len)
+    factory.box_replace(box_key, box_offset, new_arr_len_u16)
+    box_offset = factory.add(box_offset, 2)
+    index_offset = factory.mul(arr_len, element_size)
+    absolute_index_offset = factory.add(box_offset, index_offset)
+    factory.box_splice(box_key=box_key, index=absolute_index_offset, length=0, value=items)
 
 
 def _combine_box_and_aggregate_read(

@@ -130,6 +130,13 @@ class ToTextVisitor(IRVisitor[str]):
         return f"array_pop({base}{index})"
 
     @typing.override
+    def visit_array_concat(self, concat: models.ArrayConcat) -> str:
+        base = concat.base.accept(self)
+        items = concat.items.accept(self)
+        num_items = concat.num_items.accept(self)
+        return f"array_concat({base}, {items}, {num_items})"
+
+    @typing.override
     def visit_extract_value(self, read: models.ExtractValue) -> str:
         base = read.base.accept(self)
         indexes = [str(i) if isinstance(i, int) else i.accept(self) for i in read.indexes]

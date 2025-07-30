@@ -442,9 +442,41 @@ class ArrayLength(ValueProvider):
 
 
 @attrs.define(eq=False, kw_only=True)
+class ArrayConcat(ValueProvider):
+    base: Value = attrs.field()
+    base_type: EncodedType = attrs.field(repr=lambda x: x.name)
+    items: Value
+    num_items: Value = attrs.field(validator=_is_uint64_type)
+
+    @base_type.validator
+    def _base_type_validator(self, _: object, base_type: EncodedType) -> None:
+        if (
+            not isinstance(base_type.encoding, ArrayEncoding)
+            or base_type.encoding.element.is_dynamic
+        ):
+            raise CodeError(
+                "only arrays with fixed size elements support array concat", self.source_location
+            )
+
+    @property
+    def types(self) -> Sequence[IRType]:
+        return (self.base_type,)
+
+    def _frozen_data(self) -> object:
+        return (
+            self.base,
+            self.base_type,
+            self.items,
+            self.num_items,
+        )
+
+    def accept(self, visitor: IRVisitor[T]) -> T:
+        return visitor.visit_array_concat(self)
+
+
+@attrs.define(eq=False, kw_only=True)
 class ArrayPop(ValueProvider):
     base: Value = attrs.field()
-    """Array to splice"""
     base_type: EncodedType = attrs.field(repr=lambda x: x.iname)
     index: Value | None
 
