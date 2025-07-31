@@ -290,37 +290,45 @@ subroutine say_hello:
         // everything/contract.py:62
         // return "Hello, " + name + "!"
         v-load name#0                                                                     name#0
-        extract 2 0                                                                       extract_to_end%0#0
-        byte 0x000748656c6c6f2c20                                                         extract_to_end%0#0,0x000748656c6c6f2c20
-        l-load extract_to_end%0#0 1                                                       0x000748656c6c6f2c20,extract_to_end%0#0
-        concat // on error: max array length exceeded                                     concat%0#0
-        l-load-copy concat%0#0 0                                                          concat%0#0,concat%0#0 (copy)
-        extract 2 0                                                                       concat%0#0,extract_to_end%1#0
-        l-load extract_to_end%1#0 0                                                       concat%0#0,extract_to_end%1#0
-        len                                                                               concat%0#0,len%0#0
-        l-load len%0#0 0                                                                  concat%0#0,len%0#0
-        itob                                                                              concat%0#0,as_bytes%0#0
-        l-load as_bytes%0#0 0                                                             concat%0#0,as_bytes%0#0
-        extract 6 2                                                                       concat%0#0,as_u16_bytes%0#0
-        l-load concat%0#0 1                                                               as_u16_bytes%0#0,concat%0#0
-        l-load as_u16_bytes%0#0 1                                                         concat%0#0,as_u16_bytes%0#0
-        replace2 0                                                                        replace%0#0
-        l-load replace%0#0 0                                                              replace%0#0
-        byte 0x21                                                                         replace%0#0,0x21
-        concat // on error: max array length exceeded                                     concat%1#0
-        l-load-copy concat%1#0 0                                                          concat%1#0,concat%1#0 (copy)
-        extract 2 0                                                                       concat%1#0,extract_to_end%3#0
-        l-load extract_to_end%3#0 0                                                       concat%1#0,extract_to_end%3#0
-        len                                                                               concat%1#0,len%1#0
-        l-load len%1#0 0                                                                  concat%1#0,len%1#0
-        itob                                                                              concat%1#0,as_bytes%1#0
-        l-load as_bytes%1#0 0                                                             concat%1#0,as_bytes%1#0
-        extract 6 2                                                                       concat%1#0,as_u16_bytes%1#0
-        l-load concat%1#0 1                                                               as_u16_bytes%1#0,concat%1#0
-        l-load as_u16_bytes%1#0 1                                                         concat%1#0,as_u16_bytes%1#0
-        replace2 0                                                                        replace%1#0
-        l-load replace%1#0 0                                                              replace%1#0
-        retsub                                                                            replace%1#0
+        l-store-copy name#0 0                                                             name#0,name#0 (copy)
+        extract 2 0                                                                       name#0,extract_to_end%0#0
+        l-load name#0 1                                                                   extract_to_end%0#0,name#0
+        int 0                                                                             extract_to_end%0#0,name#0,0
+        extract_uint16                                                                    extract_to_end%0#0,aggregate%array_length%0#0
+        byte 0x000748656c6c6f2c20                                                         extract_to_end%0#0,aggregate%array_length%0#0,0x000748656c6c6f2c20
+        l-load extract_to_end%0#0 2                                                       aggregate%array_length%0#0,0x000748656c6c6f2c20,extract_to_end%0#0
+        concat // on error: max array length exceeded                                     aggregate%array_length%0#0,aggregate%concat%0#0
+        l-load-copy aggregate%concat%0#0 0                                                aggregate%array_length%0#0,aggregate%concat%0#0,aggregate%concat%0#0 (copy)
+        int 0                                                                             aggregate%array_length%0#0,aggregate%concat%0#0,aggregate%concat%0#0 (copy),0
+        extract_uint16                                                                    aggregate%array_length%0#0,aggregate%concat%0#0,aggregate%extract_uint16%0#0
+        l-load aggregate%extract_uint16%0#0 0                                             aggregate%array_length%0#0,aggregate%concat%0#0,aggregate%extract_uint16%0#0
+        l-load aggregate%array_length%0#0 2                                               aggregate%concat%0#0,aggregate%extract_uint16%0#0,aggregate%array_length%0#0
+        +                                                                                 aggregate%concat%0#0,aggregate%add%0#0
+        l-load aggregate%add%0#0 0                                                        aggregate%concat%0#0,aggregate%add%0#0
+        itob                                                                              aggregate%concat%0#0,aggregate%as_bytes%2#0
+        l-load aggregate%as_bytes%2#0 0                                                   aggregate%concat%0#0,aggregate%as_bytes%2#0
+        extract 6 2                                                                       aggregate%concat%0#0,aggregate%as_u16_bytes%0#0
+        l-load aggregate%concat%0#0 1                                                     aggregate%as_u16_bytes%0#0,aggregate%concat%0#0
+        l-load aggregate%as_u16_bytes%0#0 1                                               aggregate%concat%0#0,aggregate%as_u16_bytes%0#0
+        replace2 0                                                                        aggregate%replace%0#0
+        l-load aggregate%replace%0#0 0                                                    aggregate%replace%0#0
+        byte 0x21                                                                         aggregate%replace%0#0,0x21
+        concat // on error: max array length exceeded                                     aggregate%concat%1#0
+        l-load-copy aggregate%concat%1#0 0                                                aggregate%concat%1#0,aggregate%concat%1#0 (copy)
+        int 0                                                                             aggregate%concat%1#0,aggregate%concat%1#0 (copy),0
+        extract_uint16                                                                    aggregate%concat%1#0,aggregate%extract_uint16%1#0
+        l-load aggregate%extract_uint16%1#0 0                                             aggregate%concat%1#0,aggregate%extract_uint16%1#0
+        int 1                                                                             aggregate%concat%1#0,aggregate%extract_uint16%1#0,1
+        +                                                                                 aggregate%concat%1#0,aggregate%add%1#0
+        l-load aggregate%add%1#0 0                                                        aggregate%concat%1#0,aggregate%add%1#0
+        itob                                                                              aggregate%concat%1#0,aggregate%as_bytes%4#0
+        l-load aggregate%as_bytes%4#0 0                                                   aggregate%concat%1#0,aggregate%as_bytes%4#0
+        extract 6 2                                                                       aggregate%concat%1#0,aggregate%as_u16_bytes%1#0
+        l-load aggregate%concat%1#0 1                                                     aggregate%as_u16_bytes%1#0,aggregate%concat%1#0
+        l-load aggregate%as_u16_bytes%1#0 1                                               aggregate%concat%1#0,aggregate%as_u16_bytes%1#0
+        replace2 0                                                                        aggregate%replace%1#0
+        l-load aggregate%replace%1#0 0                                                    aggregate%replace%1#0
+        retsub                                                                            aggregate%replace%1#0
 
 
 // test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:

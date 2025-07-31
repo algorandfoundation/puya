@@ -191,6 +191,16 @@ contract Contract
     return GlobalState['arr']
   }
   
+  abimethod test_cases.mutable_native_types.contract.Contract.test_arr2(): void
+  {
+    copied: arc4.dynamic_array<test_cases.mutable_native_types.contract.FixedStruct> = GlobalState['arr'].copy()
+    first: test_cases.mutable_native_types.contract.FixedStruct = copied.pop(0u)
+    assert(copied.length == GlobalState['arr'].length - 1u)
+    assert(first == GlobalState['arr'][0u], comment="expected elements to match")
+    last: test_cases.mutable_native_types.contract.FixedStruct = copied.pop()
+    assert(last == GlobalState['arr'][GlobalState['arr'].length - 1u], comment="expected elements to match")
+  }
+  
   baremethod test_cases.mutable_native_types.contract.Contract.__algopy_default_create(): void
   {
   }

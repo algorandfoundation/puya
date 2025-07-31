@@ -499,30 +499,25 @@ main_bare_routing@29:
     return
 
 
-// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
 dynamic_array_pop_fixed_size:
-    proto 2 2
+    proto 2 1
     frame_dig -2
+    len
+    frame_dig -1
+    -
+    frame_dig -2
+    intc_0 // 0
+    uncover 2
+    substring3
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     -
     itob
     extract 6 0
-    frame_dig -2
-    swap
     replace2 0
-    dup
-    len
-    frame_dig -1
-    -
-    dup2
-    frame_dig -1
-    extract3
-    uncover 2
-    intc_0 // 0
-    uncover 3
-    substring3
     retsub
 
 
@@ -980,7 +975,7 @@ add_x_for_header@1:
     frame_dig -2
     swap
     concat // on error: max array length exceeded
-    frame_dig -2
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1028,10 +1023,9 @@ test_uint64_array:
     assert
     // array/immutable.py:105
     // assert arr[-1] == 4
-    dup
     intc_1 // 1
     -
-    dig 2
+    dig 1
     extract 2 0
     swap
     intc_3 // 8
@@ -1044,10 +1038,10 @@ test_uint64_array:
     // arr = arr.append(UInt64(43))
     pushint 43 // 43
     itob
-    uncover 2
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16
     intc_1 // 1
     +
     itob
@@ -1103,7 +1097,6 @@ test_uint64_array_for_header@2:
     intc_3 // 8
     callsub dynamic_array_pop_fixed_size
     frame_bury 0
-    pop
     // array/immutable.py:505
     // for _i in urange(x):
     frame_dig 1
@@ -1151,10 +1144,9 @@ test_uint64_array_after_for@4:
     assert
     // array/immutable.py:118
     // assert arr[-1] == 9
-    dup
     intc_1 // 1
     -
-    dig 2
+    dig 1
     extract 2 0
     swap
     intc_3 // 8
@@ -1167,10 +1159,10 @@ test_uint64_array_after_for@4:
     // arr = arr.append(UInt64(44))
     pushint 44 // 44
     itob
-    uncover 2
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16
     intc_1 // 1
     +
     itob
@@ -1251,7 +1243,13 @@ test_biguint_array:
     // arr = arr.append(BigUInt(Txn.num_app_args - 1))
     swap
     concat // on error: max array length exceeded
-    pushbytes 0x0001
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
+    itob
+    extract 6 2
     replace2 0
     dupn 2
     // array/immutable.py:136
@@ -1299,10 +1297,9 @@ test_biguint_array_for_header@2:
     frame_dig 0
     b|
     frame_dig 1
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1331,10 +1328,9 @@ test_biguint_array_after_for@4:
     assert
     // array/immutable.py:141
     // assert arr[-1] == 4
-    dup
     intc_1 // 1
     -
-    dig 2
+    dig 1
     extract 2 0
     swap
     pushint 64 // 64
@@ -1358,10 +1354,10 @@ test_biguint_array_after_for@4:
     assert // overflow
     frame_dig 0
     b|
-    uncover 2
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16
     intc_1 // 1
     +
     itob
@@ -1378,10 +1374,9 @@ test_biguint_array_after_for@4:
     assert
     // array/immutable.py:145
     // assert arr[-1] == 2**512 - 2
-    dup
     intc_1 // 1
     -
-    dig 2
+    dig 1
     extract 2 0
     swap
     pushint 64 // 64
@@ -1393,17 +1388,18 @@ test_biguint_array_after_for@4:
     assert
     // array/immutable.py:146
     // assert arr[0] == 0
-    dig 1
+    dup
     extract 2 64
     bytec_1 // 0x
     b==
     assert
     // array/immutable.py:148
     // arr = arr.append(BigUInt(2**512 - 1))
-    swap
     bytec 5 // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     concat // on error: max array length exceeded
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16
     intc_1 // 1
     +
     itob
@@ -1664,10 +1660,9 @@ test_fixed_size_tuple_array_for_header@1:
     itob
     concat
     frame_dig 0
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1737,7 +1732,6 @@ test_fixed_size_tuple_array_after_for@4:
     // arr = arr.pop()
     pushint 16 // 16
     callsub dynamic_array_pop_fixed_size
-    bury 1
     // array/immutable.py:192
     // assert arr.length == 4
     dup
@@ -1842,10 +1836,9 @@ test_fixed_size_named_tuple_array_for_header@1:
     setbit
     concat
     frame_dig 0
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2481,10 +2474,9 @@ test_nested_array_for_header@3:
     dup
     itob
     frame_dig 0
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2607,10 +2599,9 @@ test_nested_array_after_for@16:
     frame_dig 8
     itob
     frame_dig 2
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2674,11 +2665,9 @@ test_bit_packed_tuples_for_header@1:
     uncover 2
     setbit
     frame_dig 0
-    dup
-    cover 2
     dig 1
     concat // on error: max array length exceeded
-    uncover 2
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2757,10 +2746,9 @@ test_bit_packed_tuples_for_header@1:
     dig 1
     concat
     frame_dig 1
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2800,10 +2788,9 @@ test_bit_packed_tuples_for_header@1:
     dig 2
     concat
     frame_dig 2
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2841,10 +2828,9 @@ test_bit_packed_tuples_for_header@1:
     swap
     concat
     frame_dig 3
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -3207,10 +3193,9 @@ test_uint64_return_for_header@1:
     dup
     itob
     frame_dig 0
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -3324,10 +3309,9 @@ test_tuple_return_for_header@1:
     setbit
     concat
     frame_dig 0
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -3503,10 +3487,10 @@ test_concat_with_arc4_tuple:
     frame_dig -1
     concat // on error: max array length exceeded
     dup
-    extract 2 0
-    len
-    intc_3 // 8
-    /
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
     itob
     extract 6 2
     replace2 0
@@ -3535,7 +3519,13 @@ test_concat_with_native_tuple:
     // result = prefix + arg
     swap
     concat // on error: max array length exceeded
-    pushbytes 0x0004
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    itob
+    extract 6 2
     replace2 0
     // array/immutable.py:420
     // return result

@@ -90,32 +90,25 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let tmp%20#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x616263)
         let total_length%0#0: uint64 = (len tmp%20#0)
         let extract_to_end%0#0: bytes = (substring3 tmp%20#0 2u total_length%0#0)
-        let concat%0#0: Encoded(len+uint8[]) = (concat dynamic_bytes3#0 extract_to_end%0#0) // on error: max array length exceeded
-        let total_length%1#0: uint64 = (len concat%0#0)
-        let extract_to_end%1#0: bytes = (substring3 concat%0#0 2u total_length%1#0)
-        let len%0#0: uint64 = (len extract_to_end%1#0)
-        let div_floor%0#0: uint64 = (/ len%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob div_floor%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = replace%0#0
-        let dynamic_bytes3#2: Encoded(len+uint8[]) = as_Encoded(len+uint8[])%0#0
-        let tmp%21#0: bool = (== dynamic_bytes3#2 0x00050304616263)
-        (assert tmp%21#0)
-        let tmp%22#0: bytes = decode_bytes<bytes>(dynamic_bytes3#2)
-        let tmp%23#0: bool = (== tmp%22#0 0x0304616263)
+        let tmp%21#0: uint64 = array_len(tmp%20#0)
+        let tmp%22#0: Encoded(len+uint8[]) = array_concat(dynamic_bytes3#0, extract_to_end%0#0, tmp%21#0)
+        let dynamic_bytes3#2: Encoded(len+uint8[]) = tmp%22#0
+        let tmp%23#0: bool = (== dynamic_bytes3#2 0x00050304616263)
         (assert tmp%23#0)
-        let tmp%24#0: uint64 = (txn NumAppArgs)
-        let tmp%25#0: bool = (!= tmp%24#0 0u)
-        let select%0#0: Encoded(uint8) = (select 0x03 0x02 tmp%25#0)
+        let tmp%24#0: bytes = decode_bytes<bytes>(dynamic_bytes3#2)
+        let tmp%25#0: bool = (== tmp%24#0 0x0304616263)
+        (assert tmp%25#0)
+        let tmp%26#0: uint64 = (txn NumAppArgs)
+        let tmp%27#0: bool = (!= tmp%26#0 0u)
+        let select%0#0: Encoded(uint8) = (select 0x03 0x02 tmp%27#0)
         let encoded_array%1#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(select%0#0, 0x03, 0x01)
         let dynamic_bytes#1: Encoded(len+uint8[]) = encoded_array%1#0
-        let tmp%26#0: bytes = decode_bytes<bytes>(dynamic_bytes#1)
-        let tmp%27#0: bool = (== tmp%26#0 0x030301)
-        (assert tmp%27#0)
-        let tmp%28#0: uint64 = (txn NumAppArgs)
-        let tmp%29#0: bool = (!= tmp%28#0 0u)
-        goto tmp%29#0 ? block@13 : block@14
+        let tmp%28#0: bytes = decode_bytes<bytes>(dynamic_bytes#1)
+        let tmp%29#0: bool = (== tmp%28#0 0x030301)
+        (assert tmp%29#0)
+        let tmp%30#0: uint64 = (txn NumAppArgs)
+        let tmp%31#0: bool = (!= tmp%30#0 0u)
+        goto tmp%31#0 ? block@13 : block@14
     block@13: // ternary_true_L44
         let ternary_result%0#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(0x32)
         goto block@15
@@ -125,7 +118,7 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
     block@15: // ternary_merge_L44
         let ternary_result%0#2: Encoded(len+uint8[]) = φ(ternary_result%0#0 <- block@13, ternary_result%0#1 <- block@14)
         let dynamic_bytes#2: Encoded(len+uint8[]) = ternary_result%0#2
-        let tmp%30#0: bytes = decode_bytes<bytes>(dynamic_bytes#2)
-        let tmp%31#0: bool = (== tmp%30#0 0x33)
-        (assert tmp%31#0)
+        let tmp%32#0: bytes = decode_bytes<bytes>(dynamic_bytes#2)
+        let tmp%33#0: bool = (== tmp%32#0 0x33)
+        (assert tmp%33#0)
         return 1u

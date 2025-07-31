@@ -43,8 +43,9 @@ subroutine test_cases.regression_tests.slot_allocation_inlining.append_to_array(
         let aggregate%head%0#0: bytes = (concat 0x aggregate%as_Encoded(uint64)%0#0)
         let aggregate%as_Encoded(uint64[])%0#0: Encoded(uint64[]) = aggregate%head%0#0
         let tmp%2#0: Encoded(uint64[]) = aggregate%as_Encoded(uint64[])%0#0
-        let concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%2#0) // on error: max array length exceeded
-        store(arr#0, concat%0#0)
+        let aggregate%concat%0#0: Encoded(uint64[]) = (concat slot_contents%0#0 tmp%2#0) // on error: max array length exceeded
+        let tmp%3#0: Encoded(uint64[]) = aggregate%concat%0#0
+        store(arr#0, tmp%3#0)
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
         goto block@1
     block@4: // after_for_L32

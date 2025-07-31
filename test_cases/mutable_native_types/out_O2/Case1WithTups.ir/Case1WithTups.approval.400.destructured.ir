@@ -13,8 +13,8 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         (assert tmp%5#0) // can only call when not creating
         let tmp%0#1: bool = (box_create "tup_bag" 4273u)
         (assert tmp%0#1) // box already exists
-        let tmp%1#3: account = (txn Sender)
-        (box_replace "tup_bag" 136u tmp%1#3)
+        let tmp%1#4: account = (txn Sender)
+        (box_replace "tup_bag" 136u tmp%1#4)
         let tmp%2#1: uint64 = (global CurrentApplicationID)
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#1)
         (box_replace "tup_bag" 168u aggregate%val_as_bytes%0#0)
@@ -215,8 +215,8 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let box%box_extract%14#0: Encoded(uint64) = (box_extract "tup_bag" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%14#0)
         let tmp%0#2: uint64 = (+ start#0 3u)
-        let tmp%1#1: bool = (>= values%0#0 tmp%0#2)
-        (assert tmp%1#1) // not enough items
+        let tmp%1#2: bool = (>= values%0#0 tmp%0#2)
+        (assert tmp%1#2) // not enough items
         let box%box_extract%16#0: Encoded((uint64,uint64)[8]) = (box_extract "tup_bag" 8u 128u)
         let aggregate%bytes_offset%6#0: uint64 = (* start#0 16u)
         let aggregate%encoded_element%6#0: bytes = (extract3 box%box_extract%16#0 aggregate%bytes_offset%6#0 16u) // on error: index access is out of bounds
@@ -263,12 +263,12 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let aggregate%extract%18#0: bytes = ((extract 0 8) aggregate%encoded_element%9#0)
         let aggregate%extract%19#0: bytes = ((extract 8 8) aggregate%encoded_element%9#0)
         let aggregate%head%14#0: bytes = (concat aggregate%extract%18#0 aggregate%extract%19#0)
-        let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#0 aggregate%head%14#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 result#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let result#0: Encoded(len+(uint64,uint64)[]) = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
+        let aggregate%concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat result#0 aggregate%head%14#0) // on error: max array length exceeded
+        let aggregate%extract_uint16%0#0: uint64 = (extract_uint16 aggregate%concat%0#0 0u)
+        let aggregate%add%0#0: uint64 = (+ aggregate%extract_uint16%0#0 1u)
+        let aggregate%as_bytes%1#0: bytes[8] = (itob aggregate%add%0#0)
+        let aggregate%as_u16_bytes%0#0: bytes = ((extract 6 2) aggregate%as_bytes%1#0)
+        let result#0: Encoded(len+(uint64,uint64)[]) = ((replace2 0) aggregate%concat%0#0 aggregate%as_u16_bytes%0#0)
         let i#0: uint64 = (+ i#0 1u)
         goto block@31
     block@33: // after_for_L119

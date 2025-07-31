@@ -73,41 +73,42 @@ main test_cases.arc4_types.dynamic_bytes.Arc4DynamicBytesContract.approval_progr
         let aggregate%length_uint16%1#0: bytes = 0x0003
         let aggregate%encoded_value%1#0: bytes = 0x0003616263
         let extract_to_end%0#0: bytes = 0x616263
-        let concat%0#0: Encoded(len+uint8[]) = 0x00020304616263
-        let extract_to_end%1#0: bytes = 0x0304616263
-        let len%0#0: uint64 = 5u
-        let as_bytes%0#0: bytes[8] = (itob 5u)
-        let as_u16_bytes%0#0: bytes = 0x0005
+        let aggregate%array_length%3#0: uint64 = 3u
+        let aggregate%concat%0#0: Encoded(len+uint8[]) = 0x00020304616263
+        let aggregate%extract_uint16%0#0: uint64 = 2u
+        let aggregate%add%0#0: uint64 = 5u
+        let aggregate%as_bytes%3#0: bytes[8] = (itob 5u)
+        let aggregate%as_u16_bytes%0#0: bytes = 0x0005
         let dynamic_bytes3#2: Encoded(len+uint8[]) = 0x00050304616263
-        let tmp%21#0: bool = 1u
-        let tmp%22#0: bytes = 0x0304616263
         let tmp%23#0: bool = 1u
-        let tmp%24#0: uint64 = (txn NumAppArgs)
-        let select%0#0: Encoded(uint8) = (select 0x03 0x02 tmp%24#0)
+        let tmp%24#0: bytes = 0x0304616263
+        let tmp%25#0: bool = 1u
+        let tmp%26#0: uint64 = (txn NumAppArgs)
+        let select%0#0: Encoded(uint8) = (select 0x03 0x02 tmp%26#0)
         let aggregate%len_u16%1#0: bytes = 0x0003
         let aggregate%head%3#0: bytes = (concat 0x0003 select%0#0)
         let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 0x03)
         let dynamic_bytes#1: Encoded(len+uint8[]) = (concat aggregate%head%3#0 0x0301)
-        let tmp%26#0: bytes = ((extract 2 0) dynamic_bytes#1)
-        let tmp%27#0: bool = (== tmp%26#0 0x030301)
-        (assert tmp%27#0)
-        let tmp%28#0: uint64 = (txn NumAppArgs)
-        goto tmp%28#0 ? block@13 : block@14
+        let tmp%28#0: bytes = ((extract 2 0) dynamic_bytes#1)
+        let tmp%29#0: bool = (== tmp%28#0 0x030301)
+        (assert tmp%29#0)
+        let tmp%30#0: uint64 = (txn NumAppArgs)
+        goto tmp%30#0 ? block@13 : block@14
     block@13: // ternary_true_L44
         let aggregate%length%2#0: uint64 = 1u
-        let aggregate%as_bytes%4#0: bytes[8] = (itob 1u)
+        let aggregate%as_bytes%5#0: bytes[8] = (itob 1u)
         let aggregate%length_uint16%2#0: bytes = 0x0001
         let aggregate%encoded_value%2#0: bytes = 0x000132
         goto block@15
     block@14: // ternary_false_L44
         let aggregate%length%3#0: uint64 = 1u
-        let aggregate%as_bytes%5#0: bytes[8] = (itob 1u)
+        let aggregate%as_bytes%6#0: bytes[8] = (itob 1u)
         let aggregate%length_uint16%3#0: bytes = 0x0001
         let aggregate%encoded_value%3#0: bytes = 0x000133
         goto block@15
     block@15: // ternary_merge_L44
         let dynamic_bytes#2: Encoded(len+uint8[]) = φ(aggregate%encoded_value%2#0 <- block@13, aggregate%encoded_value%3#0 <- block@14)
-        let tmp%30#0: bytes = ((extract 2 0) dynamic_bytes#2)
-        let tmp%31#0: bool = (== tmp%30#0 0x33)
-        (assert tmp%31#0)
+        let tmp%32#0: bytes = ((extract 2 0) dynamic_bytes#2)
+        let tmp%33#0: bool = (== tmp%32#0 0x33)
+        (assert tmp%33#0)
         return 1u

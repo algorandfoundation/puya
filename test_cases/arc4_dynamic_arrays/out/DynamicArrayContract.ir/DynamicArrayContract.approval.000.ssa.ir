@@ -3,27 +3,28 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#0: bool = test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_arc4_router__()
         return tmp%0#0
 
-subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
+subroutine _puya_lib.arc4.r_trim(b: bytes, n: uint64) -> bytes:
     block@0: // L44
-        let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
-        let array_length#0: uint64 = tmp%0#0
-        let tmp%1#0: uint64 = (- array_length#0 1u)
-        let length_minus_1#0: uint64 = tmp%1#0
-        let tmp%2#0: bytes = (itob length_minus_1#0)
-        let tmp%3#0: bytes = ((extract 6 0) tmp%2#0)
-        let tmp%4#0: bytes = ((replace2 0) array#0 tmp%3#0)
-        let result#0: bytes = tmp%4#0
-        let tmp%5#0: uint64 = (len result#0)
-        let tmp%6#0: uint64 = (- tmp%5#0 fixed_byte_size#0)
-        let item_location#0: uint64 = tmp%6#0
-        let tmp%7#0: bytes = (extract3 result#0 item_location#0 fixed_byte_size#0)
-        let popped#0: bytes = tmp%7#0
-        let tmp%8#0: bytes = (substring3 result#0 0u item_location#0)
-        let result#1: bytes = tmp%8#0
-        return popped#0 result#1
+        let tmp%0#0: uint64 = (len b#0)
+        let tmp%1#0: uint64 = (- tmp%0#0 n#0)
+        let tmp%2#0: bytes = (substring3 b#0 0u tmp%1#0)
+        return tmp%2#0
+
+subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
+    block@0: // L50
+        let tmp%0#0: bytes = _puya_lib.arc4.r_trim(array#0, fixed_byte_size#0)
+        let result#0: bytes = tmp%0#0
+        let tmp%1#0: uint64 = (extract_uint16 result#0 0u)
+        let array_length#0: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = (- array_length#0 1u)
+        let length_minus_1#0: uint64 = tmp%2#0
+        let tmp%3#0: bytes = (itob length_minus_1#0)
+        let tmp%4#0: bytes = ((extract 6 0) tmp%3#0)
+        let tmp%5#0: bytes = ((replace2 0) result#0 tmp%4#0)
+        return tmp%5#0
 
 subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <bytes, bytes>:
-    block@0: // L92
+    block@0: // L95
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
         let tmp%1#0: uint64 = (- array_length#0 1u)
@@ -42,12 +43,12 @@ subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <by
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L110
+    block@1: // for_header_L113
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
         let new_head#1: bytes = φ(new_head#0 <- block@0, new_head#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%7#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L111
+    block@2: // for_body_L114
         let tmp%8#0: uint64 = (extract_uint16 head_and_tail#0 head_offset#1)
         let item_offset#0: uint64 = tmp%8#0
         let tmp%9#0: uint64 = (- item_offset#0 2u)
@@ -57,10 +58,10 @@ subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <by
         let tmp%12#0: bytes = (concat new_head#1 tmp%11#0)
         let new_head#2: bytes = tmp%12#0
         goto block@3
-    block@3: // for_footer_L110
+    block@3: // for_footer_L113
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@1
-    block@4: // after_for_L110
+    block@4: // after_for_L113
         let tmp%13#0: bytes = (itob length_minus_1#0)
         let tmp%14#0: bytes = ((extract 6 2) tmp%13#0)
         let tmp%15#0: bytes = (concat tmp%14#0 new_head#1)
@@ -71,7 +72,7 @@ subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <by
         return popped#0 updated#0
 
 subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
-    block@0: // L193
+    block@0: // L196
         let new_head#0: bytes = 0x
         let tmp%0#0: uint64 = (* new_items_count#0 2u)
         let item_offset_adjustment#0: uint64 = tmp%0#0
@@ -79,12 +80,12 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L203
+    block@1: // for_header_L206
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
         let new_head#1: bytes = φ(new_head#0 <- block@0, new_head#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L204
+    block@2: // for_body_L207
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#1)
         let item_offset#0: uint64 = tmp%2#0
         let tmp%3#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
@@ -93,22 +94,22 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let tmp%6#0: bytes = (concat new_head#1 tmp%5#0)
         let new_head#2: bytes = tmp%6#0
         goto block@3
-    block@3: // for_footer_L203
+    block@3: // for_footer_L206
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@1
-    block@4: // after_for_L203
+    block@4: // after_for_L206
         let tmp%7#0: uint64 = (len array_head_and_tail#0)
         let item_offset_adjustment#2: uint64 = tmp%7#0
         let tmp%8#0: uint64 = (* new_items_count#0 2u)
         (assert 2u) // Step cannot be zero
         let head_offset#3: uint64 = 0u
         goto block@5
-    block@5: // for_header_L208
+    block@5: // for_header_L211
         let head_offset#4: uint64 = φ(head_offset#3 <- block@4, head_offset#5 <- block@7)
         let new_head#3: bytes = φ(new_head#1 <- block@4, new_head#4 <- block@7)
         let continue_looping%1#0: bool = (< head_offset#4 tmp%8#0)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L209
+    block@6: // for_body_L212
         let tmp%9#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#4)
         let item_offset#1: uint64 = tmp%9#0
         let tmp%10#0: uint64 = (+ item_offset_adjustment#2 item_offset#1)
@@ -117,10 +118,10 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let tmp%13#0: bytes = (concat new_head#3 tmp%12#0)
         let new_head#4: bytes = tmp%13#0
         goto block@7
-    block@7: // for_footer_L208
+    block@7: // for_footer_L211
         let head_offset#5: uint64 = (+ head_offset#4 2u)
         goto block@5
-    block@8: // after_for_L208
+    block@8: // after_for_L211
         let tmp%14#0: uint64 = (+ array_items_count#0 new_items_count#0)
         let tmp%15#0: bytes = (itob tmp%14#0)
         let tmp%16#0: bytes = ((extract 6 2) tmp%15#0)
@@ -136,7 +137,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         return tmp%25#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L221
+    block@0: // L224
         let tmp%0#0: bytes = ((substring 0 2) array#0)
         let size_b#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (btoi size_b#0)
@@ -147,7 +148,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, n
         return tmp%4#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L244
+    block@0: // L247
         let tmp%0#0: bytes = ((substring 0 2) source#0)
         let size_b#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (btoi size_b#0)
@@ -158,7 +159,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         return tmp%4#0
 
 subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-    block@0: // L256
+    block@0: // L259
         let tmp%0#0: uint64 = (* index#0 2u)
         let tmp%1#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#0)
         let original_offset#0: uint64 = tmp%1#0
@@ -188,12 +189,12 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = tmp%17#0
         goto block@1
-    block@1: // for_header_L273
+    block@1: // for_header_L276
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L274
+    block@2: // for_body_L277
         let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
         let tail_offset#0: uint64 = tmp%18#0
         let tmp%19#0: uint64 = (+ tail_offset#0 new_item_length#0)
@@ -206,14 +207,14 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%23#0: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
         let new_head_and_tail#2: bytes = tmp%23#0
         goto block@3
-    block@3: // for_footer_L273
+    block@3: // for_footer_L276
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@1
-    block@4: // after_for_L273
+    block@4: // after_for_L276
         return new_head_and_tail#1
 
 subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-    block@0: // L282
+    block@0: // L285
         let tmp%0#0: bool = (< index#0 array_length#0)
         (assert tmp%0#0) // Index out of bounds
         let tmp%1#0: uint64 = (* index#0 2u)
@@ -233,7 +234,7 @@ subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_t
         return tmp%11#0
 
 subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
-    block@0: // L310
+    block@0: // L313
         let tmp%0#0: uint64 = (* length#0 2u)
         let tmp%1#0: uint64 = (* start_at_index#0 2u)
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
@@ -244,13 +245,13 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = tmp%5#0
         goto block@1
-    block@1: // for_header_L331
+    block@1: // for_header_L334
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@3)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%4#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L332
+    block@2: // for_body_L335
         let tmp%6#0: bytes = (itob tail_offset#1)
         let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
         let tail_offset_bytes#0: bytes = tmp%7#0
@@ -263,58 +264,58 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         let tmp%12#0: uint64 = (+ head_offset#1 2u)
         let head_offset#2: uint64 = tmp%12#0
         goto block@3
-    block@3: // for_footer_L331
+    block@3: // for_footer_L334
         let head_offset#3: uint64 = (+ head_offset#1 2u)
         goto block@1
-    block@4: // after_for_L331
+    block@4: // after_for_L334
         return array_head_and_tail#1
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_string1() -> Encoded(len+utf8[]):
-    block@0: // L180
+    block@0: // L183
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("a")
         return tmp%0#0
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_string2() -> Encoded(len+utf8[]):
-    block@0: // L185
+    block@0: // L188
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("bee")
         return tmp%0#0
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_string3() -> Encoded(len+utf8[]):
-    block@0: // L190
+    block@0: // L193
         let tmp%0#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Hello World")
         return tmp%0#0
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_uint1() -> Encoded(uint64):
-    block@0: // L195
+    block@0: // L198
         return 0x0000000000000003
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_uint2() -> Encoded(uint64):
-    block@0: // L200
+    block@0: // L203
         return 0x0000040000000000
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_byte1() -> Encoded(uint8):
-    block@0: // L205
+    block@0: // L208
         return 0x04
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_byte2() -> Encoded(uint8):
-    block@0: // L210
+    block@0: // L213
         return 0x05
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_byte3() -> Encoded(uint8):
-    block@0: // L215
+    block@0: // L218
         return 0x2a
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_byte4() -> Encoded(uint8):
-    block@0: // L220
+    block@0: // L223
         return 0xff
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_u16_arr1() -> Encoded(len+uint16[]):
-    block@0: // L225
+    block@0: // L228
         let encoded_array%0#0: Encoded(len+uint16[]) = bytes_encode<(len+uint16[])>(0xffff, 0x0000, 0x002a)
         return encoded_array%0#0
 
 subroutine test_cases.arc4_dynamic_arrays.contract.get_u16_arr2() -> Encoded(len+uint16[]):
-    block@0: // L230
+    block@0: // L233
         let encoded_array%0#0: Encoded(len+uint16[]) = bytes_encode<(len+uint16[])>(0x0001, 0x0002, 0x0003, 0x0004)
         return encoded_array%0#0
 
@@ -335,7 +336,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_a
         (assert tmp%6#0) // can only call when not creating
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements()
         return 1u
-    block@3: // test_dynamic_elements_route_L55
+    block@3: // test_dynamic_elements_route_L58
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (== tmp%7#0 NoOp)
         (assert tmp%8#0) // OnCompletion is not NoOp
@@ -344,7 +345,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_a
         (assert tmp%10#0) // can only call when not creating
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements()
         return 1u
-    block@4: // test_mixed_single_dynamic_elements_route_L74
+    block@4: // test_mixed_single_dynamic_elements_route_L77
         let tmp%11#0: uint64 = (txn OnCompletion)
         let tmp%12#0: bool = (== tmp%11#0 NoOp)
         (assert tmp%12#0) // OnCompletion is not NoOp
@@ -353,7 +354,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_a
         (assert tmp%14#0) // can only call when not creating
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements()
         return 1u
-    block@5: // test_mixed_multiple_dynamic_elements_route_L97
+    block@5: // test_mixed_multiple_dynamic_elements_route_L100
         let tmp%15#0: uint64 = (txn OnCompletion)
         let tmp%16#0: bool = (== tmp%15#0 NoOp)
         (assert tmp%16#0) // OnCompletion is not NoOp
@@ -362,7 +363,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_a
         (assert tmp%18#0) // can only call when not creating
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements()
         return 1u
-    block@6: // test_nested_struct_replacement_route_L114
+    block@6: // test_nested_struct_replacement_route_L117
         let tmp%19#0: uint64 = (txn OnCompletion)
         let tmp%20#0: bool = (== tmp%19#0 NoOp)
         (assert tmp%20#0) // OnCompletion is not NoOp
@@ -371,7 +372,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__puya_a
         (assert tmp%22#0) // can only call when not creating
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement()
         return 1u
-    block@7: // test_nested_tuple_modification_route_L141
+    block@7: // test_nested_tuple_modification_route_L144
         let tmp%23#0: uint64 = (txn OnCompletion)
         let tmp%24#0: bool = (== tmp%23#0 NoOp)
         (assert tmp%24#0) // OnCompletion is not NoOp
@@ -425,18 +426,32 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_sta
         (log array_item%0#0)
         let array_item%1#0: Encoded(uint64,uint8[2]) = extract_value(array#1, 1u)
         (log array_item%1#0)
-        let (tmp%8#0: bytes, tmp%9#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(array#1, 10u)
-        let array#2: Encoded(len+(uint64,uint8[2])[]) = tmp%9#0
-        let tmp%10#0: bool = (== tmp%8#0 struct2#0)
-        (assert tmp%10#0)
-        let (tmp%11#0: bytes, tmp%12#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(array#2, 10u)
-        let array#3: Encoded(len+(uint64,uint8[2])[]) = tmp%12#0
-        let tmp%13#0: bool = (== tmp%11#0 struct1#0)
-        (assert tmp%13#0)
+        let tmp%8#0: uint64 = array_len(array#1)
+        let sub%0#0: uint64 = (- tmp%8#0 1u)
+        let tmp%9#0: Encoded(uint64,uint8[2]) = extract_value(array#1, sub%0#0)
+        let tmp%10#0: Encoded(len+(uint64,uint8[2])[]) = array_pop(array#1)
+        let array#2: Encoded(len+(uint64,uint8[2])[]) = tmp%10#0
+        let tmp%11#0: bool = (== tmp%9#0 struct2#0)
+        (assert tmp%11#0)
+        let tmp%12#0: uint64 = array_len(array#2)
+        let sub%1#0: uint64 = (- tmp%12#0 1u)
+        let tmp%13#0: Encoded(uint64,uint8[2]) = extract_value(array#2, sub%1#0)
+        let tmp%14#0: Encoded(len+(uint64,uint8[2])[]) = array_pop(array#2)
+        let array#3: Encoded(len+(uint64,uint8[2])[]) = tmp%14#0
+        let tmp%15#0: bool = (== tmp%13#0 struct1#0)
+        (assert tmp%15#0)
+        let encoded_array%3#0: Encoded(len+(uint64,uint8[2])[]) = bytes_encode<(len+(uint64,uint8[2])[])>(struct1#0, struct2#0, struct2#0)
+        let array#4: Encoded(len+(uint64,uint8[2])[]) = encoded_array%3#0
+        let tmp%16#0: uint64 = array_len(array#4)
+        let tmp%17#0: Encoded(uint64,uint8[2]) = extract_value(array#4, 0u)
+        let tmp%18#0: Encoded(len+(uint64,uint8[2])[]) = array_pop(array#4, 0u)
+        let array#5: Encoded(len+(uint64,uint8[2])[]) = tmp%18#0
+        let tmp%19#0: bool = (== tmp%17#0 struct1#0)
+        (assert tmp%19#0)
         return 
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements() -> void:
-    block@0: // L55
+    block@0: // L58
         let tmp%0#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string1()
         let tmp%1#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string2()
         let tmp%2#0: Encoded((len+utf8[]),(len+utf8[])) = bytes_encode<((len+utf8[]),(len+utf8[]))>(tmp%0#0, tmp%1#0)
@@ -480,7 +495,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         return 
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements() -> void:
-    block@0: // L74
+    block@0: // L77
         let tmp%0#0: Encoded(uint64) = test_cases.arc4_dynamic_arrays.contract.get_uint1()
         let tmp%1#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string1()
         let tmp%2#0: Encoded(uint64) = test_cases.arc4_dynamic_arrays.contract.get_uint2()
@@ -548,7 +563,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         return 
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements() -> void:
-    block@0: // L97
+    block@0: // L100
         let tmp%0#0: Encoded(uint64) = test_cases.arc4_dynamic_arrays.contract.get_uint1()
         let tmp%1#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string1()
         let tmp%2#0: Encoded(uint64) = test_cases.arc4_dynamic_arrays.contract.get_uint2()
@@ -583,7 +598,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         return 
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement() -> void:
-    block@0: // L114
+    block@0: // L117
         let tmp%0#0: Encoded(uint64) = test_cases.arc4_dynamic_arrays.contract.get_uint1()
         let tmp%1#0: Encoded(uint8) = test_cases.arc4_dynamic_arrays.contract.get_byte1()
         let tmp%2#0: Encoded(uint8) = test_cases.arc4_dynamic_arrays.contract.get_byte2()
@@ -625,7 +640,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         return 
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification() -> void:
-    block@0: // L141
+    block@0: // L144
         let tmp%0#0: Encoded(uint64) = test_cases.arc4_dynamic_arrays.contract.get_uint1()
         let tmp%1#0: Encoded(uint8) = test_cases.arc4_dynamic_arrays.contract.get_byte1()
         let tmp%2#0: Encoded(uint8) = test_cases.arc4_dynamic_arrays.contract.get_byte2()
@@ -654,31 +669,28 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let tmp%19#0: Encoded(uint64) = test_cases.arc4_dynamic_arrays.contract.get_uint2()
         let tmp%20#0: Encoded(len+uint16[]) = test_cases.arc4_dynamic_arrays.contract.get_u16_arr1()
         let tmp%21#0: Encoded(uint16[]) = bytes_encode<uint16[]>(0x007b)
-        let concat%0#0: Encoded(len+uint16[]) = (concat tmp%20#0 tmp%21#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 tmp%20#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint16[])%0#0: Encoded(len+uint16[]) = replace%0#0
-        let tmp%22#0: Encoded(uint64) = test_cases.arc4_dynamic_arrays.contract.get_uint1()
-        let tmp%23#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = bytes_encode<(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)>(tmp%17#0, tmp%18#0, tmp%19#0, as_Encoded(len+uint16[])%0#0, tmp%22#0)
-        let four2#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = tmp%23#0
-        let tmp%24#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string1()
-        let tmp%25#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string2()
-        let tmp%26#0: Encoded((len+utf8[]),(len+utf8[])) = bytes_encode<((len+utf8[]),(len+utf8[]))>(tmp%24#0, tmp%25#0)
-        let five#0: Encoded((len+utf8[]),(len+utf8[])) = tmp%26#0
-        let tmp%27#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = bytes_encode<((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[])))>(one#0, two#0, three#0, four1#0, five#0)
-        let tup1#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = tmp%27#0
-        let tmp%28#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = bytes_encode<((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[])))>(one#0, two#0, three#0, four2#0, five#0)
-        let tup2#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = tmp%28#0
+        let tmp%22#0: Encoded(len+uint16[]) = array_concat(tmp%20#0, tmp%21#0, 1u)
+        let tmp%23#0: Encoded(uint64) = test_cases.arc4_dynamic_arrays.contract.get_uint1()
+        let tmp%24#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = bytes_encode<(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)>(tmp%17#0, tmp%18#0, tmp%19#0, tmp%22#0, tmp%23#0)
+        let four2#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = tmp%24#0
+        let tmp%25#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string1()
+        let tmp%26#0: Encoded(len+utf8[]) = test_cases.arc4_dynamic_arrays.contract.get_string2()
+        let tmp%27#0: Encoded((len+utf8[]),(len+utf8[])) = bytes_encode<((len+utf8[]),(len+utf8[]))>(tmp%25#0, tmp%26#0)
+        let five#0: Encoded((len+utf8[]),(len+utf8[])) = tmp%27#0
+        let tmp%28#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = bytes_encode<((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[])))>(one#0, two#0, three#0, four1#0, five#0)
+        let tup1#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = tmp%28#0
+        let tmp%29#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = bytes_encode<((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[])))>(one#0, two#0, three#0, four2#0, five#0)
+        let tup2#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = tmp%29#0
         let tuple_item%0#0: Encoded(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64) = extract_value(tup2#0, 3)
         let tuple_item%1#0: Encoded(len+uint16[]) = extract_value(tuple_item%0#0, 3)
-        let (tmp%29#0: bytes, tmp%30#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(tuple_item%1#0, 2u)
-        let updated_tuple%0#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = replace_value(tup2#0, 3, 3, tmp%30#0)
+        let tmp%30#0: uint64 = array_len(tuple_item%1#0)
+        let sub%0#0: uint64 = (- tmp%30#0 1u)
+        let tmp%31#0: Encoded(uint16) = extract_value(tuple_item%1#0, sub%0#0)
+        let tmp%32#0: Encoded(len+uint16[]) = array_pop(tuple_item%1#0)
+        let updated_tuple%0#0: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = replace_value(tup2#0, 3, 3, tmp%32#0)
         let tup2#1: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = updated_tuple%0#0
-        let tmp%31#0: bool = (== tup1#0 tup2#1)
-        (assert tmp%31#0) // tup1 does not match tup2
+        let tmp%33#0: bool = (== tup1#0 tup2#1)
+        (assert tmp%33#0) // tup1 does not match tup2
         return 
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.__algopy_default_create() -> void:

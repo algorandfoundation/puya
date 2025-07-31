@@ -684,33 +684,35 @@ dynamic_array_pop_bit_block@0:
     retsub
 
 
-// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
 dynamic_array_pop_fixed_size:
-    proto 2 2
+    proto 2 1
 
 dynamic_array_pop_fixed_size_block@0:
     frame_dig -2
+    frame_dig -1
+
+dynamic_array_pop_fixed_size_block@1:
+    frame_dig 0
+    dup
+    len
+    uncover 2
+    -
+    swap
+    intc_0 // 0
+    uncover 2
+    substring3
+
+dynamic_array_pop_fixed_size_after_inlined__puya_lib.arc4.r_trim@2:
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     -
     itob
     extract 6 0
-    frame_dig -2
-    swap
     replace2 0
-    dup
-    len
-    frame_dig -1
-    -
-    dup2
-    frame_dig -1
-    extract3
-    cover 2
     swap
-    intc_0 // 0
-    uncover 2
-    substring3
     retsub
 
 
@@ -1262,7 +1264,7 @@ add_x_for_body@2:
     frame_dig -2
     swap
     concat // on error: max array length exceeded
-    frame_dig -2
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1320,7 +1322,6 @@ pop_x_for_body@2:
     frame_dig -2
     intc_3 // 8
     callsub dynamic_array_pop_fixed_size
-    bury 1
     frame_bury -2
 
 pop_x_for_footer@3:
@@ -1381,7 +1382,7 @@ add_xb_for_body@2:
     frame_dig -2
     swap
     concat // on error: max array length exceeded
-    frame_dig -2
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1495,10 +1496,8 @@ test_uint64_array_block@0:
     bytec_0 // 0x
     swap
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1582,10 +1581,8 @@ test_uint64_array_block@0:
     bytec_0 // 0x
     swap
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1722,10 +1719,8 @@ test_uint64_array_block@0:
     bytec_0 // 0x
     swap
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1848,10 +1843,8 @@ test_biguint_array_block@0:
     bytec_0 // 0x
     swap
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1944,10 +1937,8 @@ test_biguint_array_block@0:
     bytec_0 // 0x
     swap
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2019,10 +2010,8 @@ test_biguint_array_block@0:
     bytec_0 // 0x
     swap
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2355,11 +2344,9 @@ test_fixed_size_tuple_array_for_body@2:
     swap
     concat
     frame_dig 0
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2464,7 +2451,6 @@ test_fixed_size_tuple_array_after_for@4:
     // arr = arr.pop()
     pushint 16 // 16
     callsub dynamic_array_pop_fixed_size
-    bury 1
     // array/immutable.py:192
     // assert arr.length == 4
     dup
@@ -2619,11 +2605,9 @@ test_fixed_size_named_tuple_array_for_body@2:
     swap
     concat
     frame_dig 0
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -3638,11 +3622,9 @@ test_nested_array_for_body@4:
     swap
     concat
     frame_dig 0
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -3759,11 +3741,9 @@ test_nested_array_for_body@10:
     swap
     concat
     frame_dig 1
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -3897,11 +3877,9 @@ test_bit_packed_tuples_for_body@2:
     swap
     concat
     frame_dig 0
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -4010,11 +3988,9 @@ test_bit_packed_tuples_for_body@2:
     swap
     concat
     frame_dig 1
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -4133,11 +4109,9 @@ test_bit_packed_tuples_for_body@2:
     swap
     concat
     frame_dig 2
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -4267,11 +4241,9 @@ test_bit_packed_tuples_for_body@2:
     swap
     concat
     frame_dig 3
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -4728,11 +4700,9 @@ test_uint64_return_for_body@2:
     swap
     concat
     frame_dig 0
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -4914,11 +4884,9 @@ test_tuple_return_for_body@2:
     swap
     concat
     frame_dig 0
-    dup
-    cover 2
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -5199,15 +5167,10 @@ test_concat_with_arc4_tuple_block@0:
     frame_dig -1
     concat // on error: max array length exceeded
     dup
-    len
-    swap
-    dup
+    intc_0 // 0
+    extract_uint16
     intc_2 // 2
-    uncover 3
-    substring3
-    len
-    intc_3 // 8
-    /
+    +
     itob
     extract 6 2
     swap
@@ -5245,10 +5208,8 @@ test_concat_with_native_tuple_block@0:
     concat
     frame_dig -1
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_2 // 2

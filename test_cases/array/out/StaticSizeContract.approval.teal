@@ -902,18 +902,25 @@ test_arc4_conversion_after_if_else@8:
     b test_arc4_conversion_for_header@5
 
 test_arc4_conversion_after_for@10:
-    // array/static_size.py:107
-    // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
-    bytec 4 // 0x0000
     frame_dig 4
     // array/static_size.py:108
     // arc4_arr.extend(arr)
-    concat // on error: max array length exceeded
     dup
-    extract 2 0
     len
     intc_2 // 8
     /
+    // array/static_size.py:107
+    // arc4_arr = arc4.DynamicArray[arc4.UInt64]()
+    bytec 4 // 0x0000
+    // array/static_size.py:108
+    // arc4_arr.extend(arr)
+    uncover 2
+    concat // on error: max array length exceeded
+    dup
+    intc_0 // 0
+    extract_uint16
+    uncover 2
+    +
     itob
     extract 6 2
     replace2 0

@@ -301,11 +301,9 @@ main_for_header@48:
     dup
     itob
     dig 22
-    dup
-    cover 2
     dig 1
     concat // on error: max array length exceeded
-    uncover 2
+    dup
     intc_2 // 0
     extract_uint16
     intc_0 // 1
@@ -324,14 +322,19 @@ main_for_header@48:
     b main_for_header@48
 
 main_after_for@50:
-    dig 20
-    dig 17
-    concat // on error: max array length exceeded
+    dig 16
     dup
-    extract 2 0
     len
     intc_1 // 8
     /
+    dig 22
+    uncover 2
+    concat // on error: max array length exceeded
+    dup
+    intc_2 // 0
+    extract_uint16
+    uncover 2
+    +
     itob
     extract 6 2
     replace2 0
@@ -843,16 +846,23 @@ main_for_header@78:
     len
     dup
     intc_1 // 8
+    /
+    intc_0 // 1
     -
+    intc_1 // 8
+    *
     dig 2
-    intc_2 // 0
-    dig 2
-    extract3
-    cover 3
     swap
+    extract_uint64
+    swap
+    intc_1 // 8
+    -
+    uncover 2
+    intc_2 // 0
+    uncover 2
     substring3
-    btoi
-    cover 2
+    uncover 2
+    swap
     stores
     dig 10
     dup
@@ -975,9 +985,6 @@ main_after_for@80:
     +
     itob
     replace2 0
-    swap
-    dig 1
-    stores
     dup
     len
     intc_1 // 8
@@ -1007,10 +1014,14 @@ main_after_for@80:
     -
     intc_1 // 8
     *
+    dig 1
+    swap
     extract_uint64
     pushint 100 // 100
     ==
     assert
+    extract 8 0
+    stores
     intc_0 // 1
     return
 

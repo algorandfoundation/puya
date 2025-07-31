@@ -86,3 +86,8 @@ class Contract(algopy.arc4.ARC4Client, typing.Protocol):
         self,
         arr: algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]],
     ) -> algopy.arc4.DynamicArray[algopy.arc4.Tuple[algopy.arc4.UIntN[typing.Literal[64]], algopy.arc4.UIntN[typing.Literal[64]]]]: ...
+
+    @algopy.arc4.abimethod
+    def test_arr2(
+        self,
+    ) -> None: ...
