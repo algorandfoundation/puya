@@ -52,6 +52,9 @@ class DynamicArrayContract(ARC4Contract):
         assert array.pop() == struct2
         assert array.pop() == struct1
 
+        array = arc4.DynamicArray(struct1.copy(), struct2.copy(), struct2.copy())
+        assert array.pop(0) == struct1
+
     @arc4.abimethod()
     def test_dynamic_elements(self) -> None:
         struct1 = DynamicStruct(get_string1(), get_string2())
