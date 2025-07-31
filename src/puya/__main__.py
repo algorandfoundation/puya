@@ -1,5 +1,5 @@
 import argparse
-import zipfile
+import gzip
 from importlib.metadata import version
 from multiprocessing import freeze_support
 from pathlib import Path
@@ -47,7 +47,7 @@ def cli() -> None:
     assert parsed_args.options
     options_json = parsed_args.options.read_text("utf8")
     assert parsed_args.awst
-    awst_json = _read_text_from_maybe_zipped_file(parsed_args.awst)
+    awst_json = _read_text_from_maybe_compressed_file(parsed_args.awst)
     source_annotations_json = None
     if parsed_args.source_annotations:
         source_annotations_json = parsed_args.source_annotations.read_text("utf8")
@@ -58,12 +58,12 @@ def cli() -> None:
     )
 
 
-def _read_text_from_maybe_zipped_file(path: Path) -> str:
-    if not zipfile.is_zipfile(path):
+def _read_text_from_maybe_compressed_file(path: Path) -> str:
+    if path.suffix in (".gz", ".gzip"):
+        with gzip.open(path, mode="rt", encoding="utf8") as fp:
+            return fp.read()
+    else:
         return path.read_text("utf8")
-    zip_dir = zipfile.Path(path)
-    (zip_file,) = zip_dir.iterdir()
-    return zip_file.read_text("utf8")
 
 
 if __name__ == "__main__":
