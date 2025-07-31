@@ -124,15 +124,31 @@ def test_run_directory() -> None:
     run_puyapy([TEST_CASES_DIR / "simple"])
 
 
-def test_puyapy_clientgen_arc32(tmpdir: Path) -> None:
+@pytest.fixture(scope="session")
+def arc_56_out(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    # isolate output from other tests
+    out_dir = tmp_path_factory.mktemp("arc_56")
+    run_puyapy(
+        [
+            TEST_CASES_DIR / "arc_56" / "contract.py",
+            "--out-dir",
+            str(out_dir),
+            "--output-arc32",
+            "--output-arc56",
+        ]
+    )
+    return out_dir
+
+
+def test_puyapy_clientgen_arc32(tmpdir: Path, arc_56_out: Path) -> None:
     # ARC-32 output differs slightly from ARC-56, so we are just checking it doesn't error
     # and ignore the generated artifact
-    path = TEST_CASES_DIR / "arc_56" / "out" / "Contract.arc32.json"
+    path = arc_56_out / "Contract.arc32.json"
     run_puyapy_clientgen(path, "--out-dir", str(tmpdir))
 
 
-def test_puyapy_clientgen_arc56() -> None:
-    path = TEST_CASES_DIR / "arc_56" / "out" / "Contract.arc56.json"
+def test_puyapy_clientgen_arc56(arc_56_out: Path) -> None:
+    path = arc_56_out / "Contract.arc56.json"
     run_puyapy_clientgen(path)
 
 
