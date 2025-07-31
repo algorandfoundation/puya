@@ -258,6 +258,15 @@ class Contract(arc4.ARC4Contract):
 
         return self.arr
 
+    @arc4.abimethod()
+    def test_arr2(self) -> None:
+        copied = self.arr.copy()
+        first = copied.pop(UInt64())
+        assert copied.length == (self.arr.length - 1)
+        assert first == self.arr[0], "expected elements to match"
+        last = copied.pop(-1)
+        assert last == self.arr[-1], "expected elements to match"
+
 
 @subroutine()
 def sum_frozen_arr(arr: ImmutableArray[FixedStruct]) -> UInt64:

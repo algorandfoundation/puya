@@ -47,6 +47,8 @@ class Contract(arc4.ARC4Contract):
         assert arr[-2] == 99
         assert arr[-1] == 100
 
+        assert arr.pop(0) == 44
+
     @arc4.abimethod()
     def test_array_extend(self) -> None:
         arr = ReferenceArray[UInt64]()

@@ -2698,6 +2698,7 @@ def test_mutable_native_types_contract(
     app_client.create()
 
     app_client.call("test_arr", arr=[])
+    app_client.call("test_arr2")
     app_client.call("test_imm_fixed_array")
 
 

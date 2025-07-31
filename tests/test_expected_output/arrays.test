@@ -359,3 +359,21 @@ def bad3() -> None:
 def bad4() -> None:
     arr = Array[Foo]()
     no = arr[1:-1] # type: ignore[index] ## E: slicing arrays is currently unsupported
+
+## case: array_pop_dynamic_element
+
+from algopy import *
+
+@subroutine
+def bad() -> None:
+    arr = Array[String]()
+    value = arr.pop(0) ## E: cannot pop with an index with dynamic elements
+
+    arr2 = arc4.DynamicArray[arc4.String]()
+    value2 = arr2.pop(0) ## E: cannot pop with an index with dynamic elements
+
+    arr3 = Array[bool]()
+    value3 = arr3.pop(0) ## E: cannot pop with an index with bool elements
+
+    arr4 = arc4.DynamicArray[arc4.Bool]()
+    value4 = arr4.pop(0) ## E: cannot pop with an index with bool elements
