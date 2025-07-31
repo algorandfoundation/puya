@@ -11,7 +11,7 @@ def test_compile() -> None:
     out_dir = this_dir / "out"
     shutil.rmtree(out_dir, ignore_errors=True)
     subprocess.run(
-        "puya --awst=module.awst.json.zip --options=options.json --log-level=debug".split(),
+        "puya --awst=module.awst.json.gz --options=options.json --log-level=debug".split(),
         check=True,
         cwd=this_dir,
     )
