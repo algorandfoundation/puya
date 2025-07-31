@@ -1,0 +1,24 @@
+# ruff: noqa
+# fmt: off
+# type: ignore
+
+## case: test_contract_use_logic_sig_only
+
+from algopy import Contract, UInt64, op
+
+
+class ContractWithUnreachableCode(Contract):
+    def approval_program(self) -> UInt64:
+        return op.btoi(op.arg(0)) ## E: The operation (arg 0) is only allowed in logic signatures
+
+    def clear_state_program(self) -> bool:
+        return True
+
+## case: test_logic_sig_use_contract_only
+
+from algopy import logicsig, log
+
+@logicsig()
+def some_sig() -> bool:
+    log(b"hello") ## E: The operation (log 0x68656c6c6f) is only allowed in smart contracts
+    return True
