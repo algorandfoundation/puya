@@ -732,6 +732,10 @@ def _try_fold_intrinsic(
                             # else we cant safely optimize this
     elif intrinsic.op.code.startswith("substring"):
         match intrinsic:
+            case models.Intrinsic(immediates=[0, 0]):
+                return models.BytesConstant(
+                    source_location=op_loc, encoding=AVMBytesEncoding.base16, value=b""
+                )
             case (
                 models.Intrinsic(
                     immediates=[int(S), int(E)],
