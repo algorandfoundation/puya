@@ -81,53 +81,54 @@ main test_cases.arc4_types.structs.Arc4StructsTypeContract.approval_program:
         let aggregate%head%8#0: bytes = (concat 0x 0x2a)
         let aggregate%as_Encoded(uint8[])%0#0: Encoded(uint8[]) = aggregate%head%8#0
         let tmp%11#0: Encoded(uint8[]) = aggregate%as_Encoded(uint8[])%0#0
-        let concat%0#0: Encoded(len+uint8[]) = (concat tuple_item%2#0 tmp%11#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 tuple_item%2#0 0u)
-        let add%3#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%3#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = replace%0#0
+        let aggregate%concat%1#0: Encoded(len+uint8[]) = (concat tuple_item%2#0 tmp%11#0) // on error: max array length exceeded
+        let aggregate%extract_uint16%1#0: uint64 = (extract_uint16 aggregate%concat%1#0 0u)
+        let aggregate%add%0#0: uint64 = (+ aggregate%extract_uint16%1#0 1u)
+        let aggregate%as_bytes%2#0: bytes[8] = (itob aggregate%add%0#0)
+        let aggregate%as_u16_bytes%0#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
+        let aggregate%replace%0#0: bytes = (replace3 aggregate%concat%1#0 0u aggregate%as_u16_bytes%0#0)
+        let aggregate%as_Encoded(len+uint8[])%1#0: Encoded(len+uint8[]) = aggregate%replace%0#0
+        let tmp%12#0: Encoded(len+uint8[]) = aggregate%as_Encoded(len+uint8[])%1#0
         let aggregate%item_offset%0#0: uint64 = (extract_uint16 copy#0 0u)
         let aggregate%data_up_to_item%0#0: bytes = (extract3 copy#0 0u aggregate%item_offset%0#0)
-        let aggregate%updated_data%0#0: bytes = (concat aggregate%data_up_to_item%0#0 as_Encoded(len+uint8[])%0#0)
+        let aggregate%updated_data%0#0: bytes = (concat aggregate%data_up_to_item%0#0 tmp%12#0)
         let updated_tuple%0#0: Encoded((len+uint8[])) = aggregate%updated_data%0#0
         let copy#0: Encoded((len+uint8[])) = updated_tuple%0#0
-        let tmp%12#0: bool = (!= mutable#0 copy#0)
-        (assert tmp%12#0) // expected copy is different
+        let tmp%13#0: bool = (!= mutable#0 copy#0)
+        (assert tmp%13#0) // expected copy is different
         let aggregate%head%9#0: bytes = (concat 0x 0x000000000000000c)
         let aggregate%head%10#0: bytes = (concat aggregate%head%9#0 0x0000000000000022)
         let aggregate%as_Encoded(uint64,uint64)%2#0: Encoded(uint64,uint64) = aggregate%head%10#0
-        let tmp%13#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%2#0
-        let immutable#0: Encoded(uint64,uint64) = tmp%13#0
+        let tmp%14#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%2#0
+        let immutable#0: Encoded(uint64,uint64) = tmp%14#0
         let no_copy#0: Encoded(uint64,uint64) = immutable#0
         let immutable_copy#0: Encoded(uint64,uint64) = immutable#0
-        let tmp%14#0: bool = (== no_copy#0 immutable#0)
-        (assert tmp%14#0)
-        let tmp%15#0: bool = (== immutable_copy#0 immutable#0)
+        let tmp%15#0: bool = (== no_copy#0 immutable#0)
         (assert tmp%15#0)
+        let tmp%16#0: bool = (== immutable_copy#0 immutable#0)
+        (assert tmp%16#0)
         let aggregate%extract%2#0: bytes = (extract3 immutable#0 0u 8u)
         let tuple_item%3#0: Encoded(uint64) = aggregate%extract%2#0
         let aggregate%head%11#0: bytes = (concat 0x tuple_item%3#0)
         let aggregate%head%12#0: bytes = (concat aggregate%head%11#0 0x000000000000007b)
         let aggregate%as_Encoded(uint64,uint64)%3#0: Encoded(uint64,uint64) = aggregate%head%12#0
-        let tmp%16#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%3#0
-        let immutable2#0: Encoded(uint64,uint64) = tmp%16#0
+        let tmp%17#0: Encoded(uint64,uint64) = aggregate%as_Encoded(uint64,uint64)%3#0
+        let immutable2#0: Encoded(uint64,uint64) = tmp%17#0
         let aggregate%extract%3#0: bytes = (extract3 immutable2#0 8u 8u)
         let tuple_item%4#0: Encoded(uint64) = aggregate%extract%3#0
         let reinterpret_biguint%0#0: biguint = tuple_item%4#0
-        let tmp%17#0: bool = (b== reinterpret_biguint%0#0 0x000000000000007b)
-        (assert tmp%17#0)
+        let tmp%18#0: bool = (b== reinterpret_biguint%0#0 0x000000000000007b)
+        (assert tmp%18#0)
         let aggregate%extract%4#0: bytes = (extract3 immutable2#0 0u 8u)
         let tuple_item%5#0: Encoded(uint64) = aggregate%extract%4#0
         let reinterpret_biguint%2#0: biguint = tuple_item%5#0
         let aggregate%extract%5#0: bytes = (extract3 immutable#0 0u 8u)
         let tuple_item%6#0: Encoded(uint64) = aggregate%extract%5#0
         let reinterpret_biguint%3#0: biguint = tuple_item%6#0
-        let tmp%18#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
-        (assert tmp%18#0)
-        let tmp%21#0: bool = (== 0x 0x)
-        (assert tmp%21#0)
+        let tmp%19#0: bool = (b== reinterpret_biguint%2#0 reinterpret_biguint%3#0)
+        (assert tmp%19#0)
+        let tmp%22#0: bool = (== 0x 0x)
+        (assert tmp%22#0)
         return 1u
 
 subroutine test_cases.arc4_types.structs.add(v1: Encoded(uint64,uint64), v2: Encoded(uint64,uint64)) -> <Encoded(uint64,uint64), Encoded(uint64,uint64), Encoded(uint64,uint64)>:

@@ -136,17 +136,11 @@ subroutine test_cases.tuple_support.nested_tuples.test_nested_mutation() -> void
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
         let x.0.0#0: Encoded(len+uint64[]) = (encoded_array%0#0)
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000001)
-        let concat%0#0: Encoded(len+uint64[]) = (concat x.0.0#0 tmp%0#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 x.0.0#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let x.0.0#1: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
-        let tmp%1#0: uint64 = array_len(x.0.0#1)
-        let tmp%2#0: bool = (== tmp%1#0 2u)
-        (assert tmp%2#0)
+        let tmp%1#0: Encoded(len+uint64[]) = array_concat(x.0.0#0, tmp%0#0, 1u)
+        let x.0.0#1: Encoded(len+uint64[]) = tmp%1#0
+        let tmp%2#0: uint64 = array_len(x.0.0#1)
+        let tmp%3#0: bool = (== tmp%2#0 2u)
+        (assert tmp%3#0)
         return 
 
 subroutine test_cases.tuple_support.nested_tuples.test_nested_iteration() -> void:
@@ -528,23 +522,11 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000000)
         let (twm.arr#0: Encoded(len+uint64[]), twm.child.a#0: uint64, twm.child.b#0: bytes, twm.child.c#0: string) = (encoded_array%0#0, 0u, 0x, "")
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000001)
-        let concat%0#0: Encoded(len+uint64[]) = (concat twm.arr#0 tmp%0#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 twm.arr#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let twm.arr#1: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
-        let tmp%1#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000002)
-        let concat%1#0: Encoded(len+uint64[]) = (concat twm.arr#1 tmp%1#0) // on error: max array length exceeded
-        let extract_uint16%1#0: uint64 = (extract_uint16 twm.arr#1 0u)
-        let add%1#0: uint64 = (+ extract_uint16%1#0 1u)
-        let as_bytes%1#0: bytes[8] = (itob add%1#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
-        let as_Encoded(len+uint64[])%1#0: Encoded(len+uint64[]) = replace%1#0
-        let twm.arr#2: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%1#0
+        let tmp%1#0: Encoded(len+uint64[]) = array_concat(twm.arr#0, tmp%0#0, 1u)
+        let twm.arr#1: Encoded(len+uint64[]) = tmp%1#0
+        let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000002)
+        let tmp%3#0: Encoded(len+uint64[]) = array_concat(twm.arr#1, tmp%2#0, 1u)
+        let twm.arr#2: Encoded(len+uint64[]) = tmp%3#0
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
@@ -555,9 +537,9 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
     block@2: // for_body_L108
         let array_item%0#0: Encoded(uint64) = extract_value(twm.arr#2, i#1)
         let reinterpret_biguint%0#0: biguint = array_item%0#0
-        let tmp%2#0: biguint = (itob i#1)
-        let tmp%3#0: bool = (b== reinterpret_biguint%0#0 tmp%2#0)
-        (assert tmp%3#0)
+        let tmp%4#0: biguint = (itob i#1)
+        let tmp%5#0: bool = (b== reinterpret_biguint%0#0 tmp%4#0)
+        (assert tmp%5#0)
         goto block@3
     block@3: // for_footer_L107
         let i#2: uint64 = (+ i#1 1u)
@@ -572,14 +554,8 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         let (tmp%0#0: Encoded(len+uint64[]), tmp%1#0: uint64, tmp%2#0: bytes, tmp%3#0: string) = decode_bytes<(Encoded(len+uint64[]),(uint64,bytes,string,),)>(maybe_value%0#0)
         let arr2#0: Encoded(len+uint64[]) = tmp%0#0
         let tmp%4#0: Encoded(uint64[]) = bytes_encode<uint64[]>(0x0000000000000001)
-        let concat%0#0: Encoded(len+uint64[]) = (concat arr2#0 tmp%4#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr2#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let arr2#1: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
+        let tmp%5#0: Encoded(len+uint64[]) = array_concat(arr2#0, tmp%4#0, 1u)
+        let arr2#1: Encoded(len+uint64[]) = tmp%5#0
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (app_global_get_ex 0u "twm")
         (assert maybe_exists%1#0) // check self.twm exists
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64, awst_tmp%2#0: bytes, awst_tmp%3#0: string) = decode_bytes<(Encoded(len+uint64[]),(uint64,bytes,string,),)>(maybe_value%1#0)

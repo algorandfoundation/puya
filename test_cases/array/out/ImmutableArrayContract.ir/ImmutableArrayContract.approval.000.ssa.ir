@@ -26,27 +26,28 @@ subroutine _puya_lib.arc4.dynamic_array_pop_bit(array: bytes) -> <uint64, bytes>
         let result#2: bytes = tmp%11#0
         return popped#0 result#2
 
-subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
+subroutine _puya_lib.arc4.r_trim(b: bytes, n: uint64) -> bytes:
     block@0: // L44
-        let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
-        let array_length#0: uint64 = tmp%0#0
-        let tmp%1#0: uint64 = (- array_length#0 1u)
-        let length_minus_1#0: uint64 = tmp%1#0
-        let tmp%2#0: bytes = (itob length_minus_1#0)
-        let tmp%3#0: bytes = ((extract 6 0) tmp%2#0)
-        let tmp%4#0: bytes = ((replace2 0) array#0 tmp%3#0)
-        let result#0: bytes = tmp%4#0
-        let tmp%5#0: uint64 = (len result#0)
-        let tmp%6#0: uint64 = (- tmp%5#0 fixed_byte_size#0)
-        let item_location#0: uint64 = tmp%6#0
-        let tmp%7#0: bytes = (extract3 result#0 item_location#0 fixed_byte_size#0)
-        let popped#0: bytes = tmp%7#0
-        let tmp%8#0: bytes = (substring3 result#0 0u item_location#0)
-        let result#1: bytes = tmp%8#0
-        return popped#0 result#1
+        let tmp%0#0: uint64 = (len b#0)
+        let tmp%1#0: uint64 = (- tmp%0#0 n#0)
+        let tmp%2#0: bytes = (substring3 b#0 0u tmp%1#0)
+        return tmp%2#0
+
+subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
+    block@0: // L50
+        let tmp%0#0: bytes = _puya_lib.arc4.r_trim(array#0, fixed_byte_size#0)
+        let result#0: bytes = tmp%0#0
+        let tmp%1#0: uint64 = (extract_uint16 result#0 0u)
+        let array_length#0: uint64 = tmp%1#0
+        let tmp%2#0: uint64 = (- array_length#0 1u)
+        let length_minus_1#0: uint64 = tmp%2#0
+        let tmp%3#0: bytes = (itob length_minus_1#0)
+        let tmp%4#0: bytes = ((extract 6 0) tmp%3#0)
+        let tmp%5#0: bytes = ((replace2 0) result#0 tmp%4#0)
+        return tmp%5#0
 
 subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <bytes, bytes>:
-    block@0: // L92
+    block@0: // L95
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
         let tmp%1#0: uint64 = (- array_length#0 1u)
@@ -65,12 +66,12 @@ subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <by
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L110
+    block@1: // for_header_L113
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
         let new_head#1: bytes = φ(new_head#0 <- block@0, new_head#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%7#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L111
+    block@2: // for_body_L114
         let tmp%8#0: uint64 = (extract_uint16 head_and_tail#0 head_offset#1)
         let item_offset#0: uint64 = tmp%8#0
         let tmp%9#0: uint64 = (- item_offset#0 2u)
@@ -80,10 +81,10 @@ subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <by
         let tmp%12#0: bytes = (concat new_head#1 tmp%11#0)
         let new_head#2: bytes = tmp%12#0
         goto block@3
-    block@3: // for_footer_L110
+    block@3: // for_footer_L113
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@1
-    block@4: // after_for_L110
+    block@4: // after_for_L113
         let tmp%13#0: bytes = (itob length_minus_1#0)
         let tmp%14#0: bytes = ((extract 6 2) tmp%13#0)
         let tmp%15#0: bytes = (concat tmp%14#0 new_head#1)
@@ -94,7 +95,7 @@ subroutine _puya_lib.arc4.dynamic_array_pop_dynamic_element(array: bytes) -> <by
         return popped#0 updated#0
 
 subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_bytes: bytes, new_items_count: uint64, read_step: uint64) -> bytes:
-    block@0: // L124
+    block@0: // L127
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
         let tmp%1#0: uint64 = (+ array_length#0 new_items_count#0)
@@ -112,13 +113,13 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let required_bytes#0: uint64 = tmp%8#0
         let tmp%9#0: bool = (< current_bytes#0 required_bytes#0)
         goto tmp%9#0 ? block@1 : block@2
-    block@1: // if_body_L148
+    block@1: // if_body_L151
         let tmp%10#0: uint64 = (- required_bytes#0 current_bytes#0)
         let tmp%11#0: bytes = (bzero tmp%10#0)
         let tmp%12#0: bytes = (concat result#0 tmp%11#0)
         let result#1: bytes = tmp%12#0
         goto block@2
-    block@2: // after_if_else_L147
+    block@2: // after_if_else_L150
         let result#4: bytes = φ(result#0 <- block@0, result#1 <- block@1)
         let read_offset#0: uint64 = 0u
         let tmp%13#0: uint64 = (+ array_length#0 16u)
@@ -126,13 +127,13 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let tmp%14#0: uint64 = (+ write_offset#0 new_items_count#0)
         let write_end#0: uint64 = tmp%14#0
         goto block@3
-    block@3: // while_top_L153
+    block@3: // while_top_L156
         let write_offset#1: uint64 = φ(write_offset#0 <- block@2, write_offset#2 <- block@4)
         let result#2: bytes = φ(result#4 <- block@2, result#3 <- block@4)
         let read_offset#1: uint64 = φ(read_offset#0 <- block@2, read_offset#2 <- block@4)
         let tmp%15#0: bool = (< write_offset#1 write_end#0)
         goto tmp%15#0 ? block@4 : block@5
-    block@4: // while_body_L154
+    block@4: // while_body_L157
         let tmp%16#0: uint64 = (getbit new_items_bytes#0 read_offset#1)
         let tmp%17#0: bytes = (setbit result#2 write_offset#1 tmp%16#0)
         let result#3: bytes = tmp%17#0
@@ -141,11 +142,11 @@ subroutine _puya_lib.arc4.dynamic_array_concat_bits(array: bytes, new_items_byte
         let tmp%19#0: uint64 = (+ read_offset#1 read_step#0)
         let read_offset#2: uint64 = tmp%19#0
         goto block@3
-    block@5: // after_while_L153
+    block@5: // after_while_L156
         return result#2
 
 subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, new_items_bytes: bytes, new_items_count: uint64) -> bytes:
-    block@0: // L161
+    block@0: // L164
         let tmp%0#0: uint64 = (extract_uint16 array#0 0u)
         let array_length#0: uint64 = tmp%0#0
         let tmp%1#0: uint64 = (+ array_length#0 new_items_count#0)
@@ -168,7 +169,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_byte_length_head(array: bytes, ne
         return tmp%15#0
 
 subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
-    block@0: // L193
+    block@0: // L196
         let new_head#0: bytes = 0x
         let tmp%0#0: uint64 = (* new_items_count#0 2u)
         let item_offset_adjustment#0: uint64 = tmp%0#0
@@ -176,12 +177,12 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = 0u
         goto block@1
-    block@1: // for_header_L203
+    block@1: // for_header_L206
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
         let new_head#1: bytes = φ(new_head#0 <- block@0, new_head#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%1#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L204
+    block@2: // for_body_L207
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 head_offset#1)
         let item_offset#0: uint64 = tmp%2#0
         let tmp%3#0: uint64 = (+ item_offset_adjustment#0 item_offset#0)
@@ -190,22 +191,22 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let tmp%6#0: bytes = (concat new_head#1 tmp%5#0)
         let new_head#2: bytes = tmp%6#0
         goto block@3
-    block@3: // for_footer_L203
+    block@3: // for_footer_L206
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@1
-    block@4: // after_for_L203
+    block@4: // after_for_L206
         let tmp%7#0: uint64 = (len array_head_and_tail#0)
         let item_offset_adjustment#2: uint64 = tmp%7#0
         let tmp%8#0: uint64 = (* new_items_count#0 2u)
         (assert 2u) // Step cannot be zero
         let head_offset#3: uint64 = 0u
         goto block@5
-    block@5: // for_header_L208
+    block@5: // for_header_L211
         let head_offset#4: uint64 = φ(head_offset#3 <- block@4, head_offset#5 <- block@7)
         let new_head#3: bytes = φ(new_head#1 <- block@4, new_head#4 <- block@7)
         let continue_looping%1#0: bool = (< head_offset#4 tmp%8#0)
         goto continue_looping%1#0 ? block@6 : block@8
-    block@6: // for_body_L209
+    block@6: // for_body_L212
         let tmp%9#0: uint64 = (extract_uint16 new_head_and_tail#0 head_offset#4)
         let item_offset#1: uint64 = tmp%9#0
         let tmp%10#0: uint64 = (+ item_offset_adjustment#2 item_offset#1)
@@ -214,10 +215,10 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         let tmp%13#0: bytes = (concat new_head#3 tmp%12#0)
         let new_head#4: bytes = tmp%13#0
         goto block@7
-    block@7: // for_footer_L208
+    block@7: // for_footer_L211
         let head_offset#5: uint64 = (+ head_offset#4 2u)
         goto block@5
-    block@8: // after_for_L208
+    block@8: // after_for_L211
         let tmp%14#0: uint64 = (+ array_items_count#0 new_items_count#0)
         let tmp%15#0: bytes = (itob tmp%14#0)
         let tmp%16#0: bytes = ((extract 6 2) tmp%15#0)
@@ -233,7 +234,7 @@ subroutine _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count
         return tmp%25#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L221
+    block@0: // L224
         let tmp%0#0: bytes = ((substring 0 2) array#0)
         let size_b#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (btoi size_b#0)
@@ -244,7 +245,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_byte_length_head(array: bytes, n
         return tmp%4#0
 
 subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
-    block@0: // L244
+    block@0: // L247
         let tmp%0#0: bytes = ((substring 0 2) source#0)
         let size_b#0: bytes = tmp%0#0
         let tmp%1#0: uint64 = (btoi size_b#0)
@@ -255,7 +256,7 @@ subroutine _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, n
         return tmp%4#0
 
 subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-    block@0: // L256
+    block@0: // L259
         let tmp%0#0: uint64 = (* index#0 2u)
         let tmp%1#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%0#0)
         let original_offset#0: uint64 = tmp%1#0
@@ -285,12 +286,12 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = tmp%17#0
         goto block@1
-    block@1: // for_header_L273
+    block@1: // for_header_L276
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#2 <- block@3)
         let new_head_and_tail#1: bytes = φ(new_head_and_tail#0 <- block@0, new_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%15#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L274
+    block@2: // for_body_L277
         let tmp%18#0: uint64 = (extract_uint16 new_head_and_tail#1 head_offset#1)
         let tail_offset#0: uint64 = tmp%18#0
         let tmp%19#0: uint64 = (+ tail_offset#0 new_item_length#0)
@@ -303,14 +304,14 @@ subroutine _puya_lib.arc4.static_array_replace_dynamic_element(array_head_and_ta
         let tmp%23#0: bytes = (replace3 new_head_and_tail#1 head_offset#1 tail_offset_bytes#0)
         let new_head_and_tail#2: bytes = tmp%23#0
         goto block@3
-    block@3: // for_footer_L273
+    block@3: // for_footer_L276
         let head_offset#2: uint64 = (+ head_offset#1 2u)
         goto block@1
-    block@4: // after_for_L273
+    block@4: // after_for_L276
         return new_head_and_tail#1
 
 subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_tail: bytes, new_item: bytes, index: uint64, array_length: uint64) -> bytes:
-    block@0: // L282
+    block@0: // L285
         let tmp%0#0: bool = (< index#0 array_length#0)
         (assert tmp%0#0) // Index out of bounds
         let tmp%1#0: uint64 = (* index#0 2u)
@@ -330,7 +331,7 @@ subroutine _puya_lib.arc4.static_array_replace_byte_length_head(array_head_and_t
         return tmp%11#0
 
 subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(array_head_and_tail: bytes, length: uint64, start_at_index: uint64) -> bytes:
-    block@0: // L310
+    block@0: // L313
         let tmp%0#0: uint64 = (* length#0 2u)
         let tmp%1#0: uint64 = (* start_at_index#0 2u)
         let tmp%2#0: uint64 = (extract_uint16 array_head_and_tail#0 tmp%1#0)
@@ -341,13 +342,13 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         (assert 2u) // Step cannot be zero
         let head_offset#0: uint64 = tmp%5#0
         goto block@1
-    block@1: // for_header_L331
+    block@1: // for_header_L334
         let head_offset#1: uint64 = φ(head_offset#0 <- block@0, head_offset#3 <- block@3)
         let tail_offset#1: uint64 = φ(tail_offset#0 <- block@0, tail_offset#2 <- block@3)
         let array_head_and_tail#1: bytes = φ(array_head_and_tail#0 <- block@0, array_head_and_tail#2 <- block@3)
         let continue_looping%0#0: bool = (< head_offset#1 tmp%4#0)
         goto continue_looping%0#0 ? block@2 : block@4
-    block@2: // for_body_L332
+    block@2: // for_body_L335
         let tmp%6#0: bytes = (itob tail_offset#1)
         let tmp%7#0: bytes = ((extract 6 2) tmp%6#0)
         let tail_offset_bytes#0: bytes = tmp%7#0
@@ -360,10 +361,10 @@ subroutine _puya_lib.arc4.recalculate_head_for_elements_with_byte_length_head(ar
         let tmp%12#0: uint64 = (+ head_offset#1 2u)
         let head_offset#2: uint64 = tmp%12#0
         goto block@3
-    block@3: // for_footer_L331
+    block@3: // for_footer_L334
         let head_offset#3: uint64 = (+ head_offset#1 2u)
         goto block@1
-    block@4: // after_for_L331
+    block@4: // after_for_L334
         return array_head_and_tail#1
 
 subroutine test_cases.array.immutable.sum_imm_fixed(arr: Encoded((uint64,uint64)[3])) -> uint64:
@@ -429,14 +430,8 @@ subroutine test_cases.array.immutable.add_x(arr: Encoded(len+uint64[]), x: uint6
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L499
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
-        let concat%0#0: Encoded(len+uint64[]) = (concat arr#1 tmp%0#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let arr#2: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
+        let tmp%1#0: Encoded(len+uint64[]) = array_concat(arr#1, tmp%0#0, 1u)
+        let arr#2: Encoded(len+uint64[]) = tmp%1#0
         goto block@3
     block@3: // for_footer_L498
         let i#2: uint64 = (+ i#1 1u)
@@ -455,9 +450,12 @@ subroutine test_cases.array.immutable.pop_x(arr: Encoded(len+uint64[]), x: uint6
         let continue_looping%0#0: bool = (< _i#1 x#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L506
-        let (tmp%0#0: bytes, tmp%1#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#1, 8u)
-        let tmp%2#0: uint64 = decode_bytes<uint64>(tmp%0#0)
-        let arr#2: Encoded(len+uint64[]) = tmp%1#0
+        let tmp%0#0: uint64 = array_len(arr#1)
+        let sub%0#0: uint64 = (- tmp%0#0 1u)
+        let tmp%1#0: Encoded(uint64) = extract_value(arr#1, sub%0#0)
+        let tmp%2#0: uint64 = decode_bytes<uint64>(tmp%1#0)
+        let tmp%3#0: Encoded(len+uint64[]) = array_pop(arr#1)
+        let arr#2: Encoded(len+uint64[]) = tmp%3#0
         goto block@3
     block@3: // for_footer_L505
         let _i#2: uint64 = (+ _i#1 1u)
@@ -478,14 +476,8 @@ subroutine test_cases.array.immutable.add_xb(arr: Encoded(len+uint512[]), x: uin
     block@2: // for_body_L513
         let tmp%0#0: biguint = (itob i#1)
         let tmp%1#0: Encoded(uint512[]) = bytes_encode<uint512[]>(tmp%0#0)
-        let concat%0#0: Encoded(len+uint512[]) = (concat arr#1 tmp%1#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint512[])%0#0: Encoded(len+uint512[]) = replace%0#0
-        let arr#2: Encoded(len+uint512[]) = as_Encoded(len+uint512[])%0#0
+        let tmp%2#0: Encoded(len+uint512[]) = array_concat(arr#1, tmp%1#0, 1u)
+        let arr#2: Encoded(len+uint512[]) = tmp%2#0
         goto block@3
     block@3: // for_footer_L512
         let i#2: uint64 = (+ i#1 1u)
@@ -830,106 +822,88 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_array()
         let tmp%1#0: bool = (== tmp%0#0 0u)
         (assert tmp%1#0)
         let tmp%2#0: Encoded(uint64[]) = bytes_encode<uint64[]>(42u)
-        let concat%0#0: Encoded(len+uint64[]) = (concat arr#0 tmp%2#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let arr#1: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
-        let tmp%3#0: uint64 = array_len(arr#1)
-        let tmp%4#0: bool = (== tmp%3#0 1u)
-        (assert tmp%4#0)
-        let tmp%5#0: uint64 = array_len(arr#1)
-        let tmp%6#0: uint64 = (- tmp%5#0 1u)
-        let array_item%0#0: Encoded(uint64) = extract_value(arr#1, tmp%6#0)
+        let tmp%3#0: Encoded(len+uint64[]) = array_concat(arr#0, tmp%2#0, 1u)
+        let arr#1: Encoded(len+uint64[]) = tmp%3#0
+        let tmp%4#0: uint64 = array_len(arr#1)
+        let tmp%5#0: bool = (== tmp%4#0 1u)
+        (assert tmp%5#0)
+        let tmp%6#0: uint64 = array_len(arr#1)
+        let tmp%7#0: uint64 = (- tmp%6#0 1u)
+        let array_item%0#0: Encoded(uint64) = extract_value(arr#1, tmp%7#0)
         let values%0#0: uint64 = decode_bytes<uint64>(array_item%0#0)
-        let tmp%7#0: bool = (== values%0#0 42u)
-        (assert tmp%7#0)
-        let tmp%8#0: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#1, 5u)
-        let arr#2: Encoded(len+uint64[]) = tmp%8#0
-        let tmp%9#0: uint64 = array_len(arr#2)
-        let tmp%10#0: bool = (== tmp%9#0 6u)
-        (assert tmp%10#0)
-        let tmp%11#0: uint64 = array_len(arr#2)
-        let tmp%12#0: uint64 = (- tmp%11#0 1u)
-        let array_item%1#0: Encoded(uint64) = extract_value(arr#2, tmp%12#0)
+        let tmp%8#0: bool = (== values%0#0 42u)
+        (assert tmp%8#0)
+        let tmp%9#0: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#1, 5u)
+        let arr#2: Encoded(len+uint64[]) = tmp%9#0
+        let tmp%10#0: uint64 = array_len(arr#2)
+        let tmp%11#0: bool = (== tmp%10#0 6u)
+        (assert tmp%11#0)
+        let tmp%12#0: uint64 = array_len(arr#2)
+        let tmp%13#0: uint64 = (- tmp%12#0 1u)
+        let array_item%1#0: Encoded(uint64) = extract_value(arr#2, tmp%13#0)
         let values%1#0: uint64 = decode_bytes<uint64>(array_item%1#0)
-        let tmp%13#0: bool = (== values%1#0 4u)
-        (assert tmp%13#0)
-        let tmp%14#0: Encoded(uint64[]) = bytes_encode<uint64[]>(43u)
-        let concat%1#0: Encoded(len+uint64[]) = (concat arr#2 tmp%14#0) // on error: max array length exceeded
-        let extract_uint16%1#0: uint64 = (extract_uint16 arr#2 0u)
-        let add%1#0: uint64 = (+ extract_uint16%1#0 1u)
-        let as_bytes%1#0: bytes[8] = (itob add%1#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
-        let as_Encoded(len+uint64[])%1#0: Encoded(len+uint64[]) = replace%1#0
-        let arr#3: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%1#0
-        let tmp%15#0: uint64 = array_len(arr#3)
-        let tmp%16#0: bool = (== tmp%15#0 7u)
-        (assert tmp%16#0)
+        let tmp%14#0: bool = (== values%1#0 4u)
+        (assert tmp%14#0)
+        let tmp%15#0: Encoded(uint64[]) = bytes_encode<uint64[]>(43u)
+        let tmp%16#0: Encoded(len+uint64[]) = array_concat(arr#2, tmp%15#0, 1u)
+        let arr#3: Encoded(len+uint64[]) = tmp%16#0
         let tmp%17#0: uint64 = array_len(arr#3)
-        let tmp%18#0: uint64 = (- tmp%17#0 1u)
-        let array_item%2#0: Encoded(uint64) = extract_value(arr#3, tmp%18#0)
+        let tmp%18#0: bool = (== tmp%17#0 7u)
+        (assert tmp%18#0)
+        let tmp%19#0: uint64 = array_len(arr#3)
+        let tmp%20#0: uint64 = (- tmp%19#0 1u)
+        let array_item%2#0: Encoded(uint64) = extract_value(arr#3, tmp%20#0)
         let values%2#0: uint64 = decode_bytes<uint64>(array_item%2#0)
-        let tmp%19#0: bool = (== values%2#0 43u)
-        (assert tmp%19#0)
+        let tmp%21#0: bool = (== values%2#0 43u)
+        (assert tmp%21#0)
         let array_item%3#0: Encoded(uint64) = extract_value(arr#3, 0u)
         let values%3#0: uint64 = decode_bytes<uint64>(array_item%3#0)
-        let tmp%20#0: bool = (== values%3#0 42u)
-        (assert tmp%20#0)
-        let tmp%21#0: Encoded(len+uint64[]) = test_cases.array.immutable.pop_x(arr#3, 3u)
-        let arr#4: Encoded(len+uint64[]) = tmp%21#0
-        let tmp%22#0: uint64 = array_len(arr#4)
-        let tmp%23#0: bool = (== tmp%22#0 4u)
-        (assert tmp%23#0)
+        let tmp%22#0: bool = (== values%3#0 42u)
+        (assert tmp%22#0)
+        let tmp%23#0: Encoded(len+uint64[]) = test_cases.array.immutable.pop_x(arr#3, 3u)
+        let arr#4: Encoded(len+uint64[]) = tmp%23#0
         let tmp%24#0: uint64 = array_len(arr#4)
-        let tmp%25#0: uint64 = (- tmp%24#0 1u)
-        let array_item%4#0: Encoded(uint64) = extract_value(arr#4, tmp%25#0)
+        let tmp%25#0: bool = (== tmp%24#0 4u)
+        (assert tmp%25#0)
+        let tmp%26#0: uint64 = array_len(arr#4)
+        let tmp%27#0: uint64 = (- tmp%26#0 1u)
+        let array_item%4#0: Encoded(uint64) = extract_value(arr#4, tmp%27#0)
         let values%4#0: uint64 = decode_bytes<uint64>(array_item%4#0)
-        let tmp%26#0: bool = (== values%4#0 2u)
-        (assert tmp%26#0)
-        let tmp%27#0: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#4, 10u)
-        let arr#5: Encoded(len+uint64[]) = tmp%27#0
-        let tmp%28#0: uint64 = array_len(arr#5)
-        let tmp%29#0: bool = (== tmp%28#0 14u)
-        (assert tmp%29#0)
+        let tmp%28#0: bool = (== values%4#0 2u)
+        (assert tmp%28#0)
+        let tmp%29#0: Encoded(len+uint64[]) = test_cases.array.immutable.add_x(arr#4, 10u)
+        let arr#5: Encoded(len+uint64[]) = tmp%29#0
         let tmp%30#0: uint64 = array_len(arr#5)
-        let tmp%31#0: uint64 = (- tmp%30#0 1u)
-        let array_item%5#0: Encoded(uint64) = extract_value(arr#5, tmp%31#0)
+        let tmp%31#0: bool = (== tmp%30#0 14u)
+        (assert tmp%31#0)
+        let tmp%32#0: uint64 = array_len(arr#5)
+        let tmp%33#0: uint64 = (- tmp%32#0 1u)
+        let array_item%5#0: Encoded(uint64) = extract_value(arr#5, tmp%33#0)
         let values%5#0: uint64 = decode_bytes<uint64>(array_item%5#0)
-        let tmp%32#0: bool = (== values%5#0 9u)
-        (assert tmp%32#0)
-        let tmp%33#0: Encoded(uint64[]) = bytes_encode<uint64[]>(44u)
-        let concat%2#0: Encoded(len+uint64[]) = (concat arr#5 tmp%33#0) // on error: max array length exceeded
-        let extract_uint16%2#0: uint64 = (extract_uint16 arr#5 0u)
-        let add%2#0: uint64 = (+ extract_uint16%2#0 1u)
-        let as_bytes%2#0: bytes[8] = (itob add%2#0)
-        let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let replace%2#0: bytes = (replace3 concat%2#0 0u as_u16_bytes%2#0)
-        let as_Encoded(len+uint64[])%2#0: Encoded(len+uint64[]) = replace%2#0
-        let arr#6: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%2#0
-        let tmp%34#0: uint64 = array_len(arr#6)
-        let tmp%35#0: bool = (== tmp%34#0 15u)
-        (assert tmp%35#0)
-        let tmp%36#0: uint64 = array_len(arr#6)
-        let tmp%37#0: uint64 = (- tmp%36#0 1u)
-        let array_item%6#0: Encoded(uint64) = extract_value(arr#6, tmp%37#0)
-        let values%6#0: uint64 = decode_bytes<uint64>(array_item%6#0)
-        let tmp%38#0: bool = (== values%6#0 44u)
+        let tmp%34#0: bool = (== values%5#0 9u)
+        (assert tmp%34#0)
+        let tmp%35#0: Encoded(uint64[]) = bytes_encode<uint64[]>(44u)
+        let tmp%36#0: Encoded(len+uint64[]) = array_concat(arr#5, tmp%35#0, 1u)
+        let arr#6: Encoded(len+uint64[]) = tmp%36#0
+        let tmp%37#0: uint64 = array_len(arr#6)
+        let tmp%38#0: bool = (== tmp%37#0 15u)
         (assert tmp%38#0)
+        let tmp%39#0: uint64 = array_len(arr#6)
+        let tmp%40#0: uint64 = (- tmp%39#0 1u)
+        let array_item%6#0: Encoded(uint64) = extract_value(arr#6, tmp%40#0)
+        let values%6#0: uint64 = decode_bytes<uint64>(array_item%6#0)
+        let tmp%41#0: bool = (== values%6#0 44u)
+        (assert tmp%41#0)
         let encoded_value%0#0: Encoded(uint64) = bytes_encode<uint64>(23u)
         let updated_array%0#0: Encoded(len+uint64[]) = replace_value(arr#6, 2u, encoded_value%0#0)
         let arr#7: Encoded(len+uint64[]) = updated_array%0#0
-        let tmp%39#0: uint64 = array_len(arr#7)
-        let tmp%40#0: bool = (== tmp%39#0 15u)
-        (assert tmp%40#0)
+        let tmp%42#0: uint64 = array_len(arr#7)
+        let tmp%43#0: bool = (== tmp%42#0 15u)
+        (assert tmp%43#0)
         let array_item%7#0: Encoded(uint64) = extract_value(arr#7, 2u)
         let values%7#0: uint64 = decode_bytes<uint64>(array_item%7#0)
-        let tmp%41#0: bool = (== values%7#0 23u)
-        (assert tmp%41#0)
+        let tmp%44#0: bool = (== values%7#0 23u)
+        (assert tmp%44#0)
         (app_global_put "a" arr#7)
         return 
 
@@ -944,81 +918,63 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_biguint_array(
         let tmp%3#0: uint64 = (- tmp%2#0 1u)
         let tmp%4#0: biguint = (itob tmp%3#0)
         let tmp%5#0: Encoded(uint512[]) = bytes_encode<uint512[]>(tmp%4#0)
-        let concat%0#0: Encoded(len+uint512[]) = (concat arr#0 tmp%5#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint512[])%0#0: Encoded(len+uint512[]) = replace%0#0
-        let arr#1: Encoded(len+uint512[]) = as_Encoded(len+uint512[])%0#0
-        let tmp%6#0: uint64 = array_len(arr#1)
-        let tmp%7#0: bool = (== tmp%6#0 1u)
-        (assert tmp%7#0)
-        let tmp%8#0: uint64 = array_len(arr#1)
-        let tmp%9#0: uint64 = (- tmp%8#0 1u)
-        let array_item%0#0: Encoded(uint512) = extract_value(arr#1, tmp%9#0)
+        let tmp%6#0: Encoded(len+uint512[]) = array_concat(arr#0, tmp%5#0, 1u)
+        let arr#1: Encoded(len+uint512[]) = tmp%6#0
+        let tmp%7#0: uint64 = array_len(arr#1)
+        let tmp%8#0: bool = (== tmp%7#0 1u)
+        (assert tmp%8#0)
+        let tmp%9#0: uint64 = array_len(arr#1)
+        let tmp%10#0: uint64 = (- tmp%9#0 1u)
+        let array_item%0#0: Encoded(uint512) = extract_value(arr#1, tmp%10#0)
         let values%0#0: biguint = decode_bytes<biguint>(array_item%0#0)
-        let tmp%10#0: bool = (b== values%0#0 0b)
-        (assert tmp%10#0)
-        let tmp%11#0: Encoded(len+uint512[]) = test_cases.array.immutable.add_xb(arr#1, 5u)
-        let arr#2: Encoded(len+uint512[]) = tmp%11#0
-        let tmp%12#0: uint64 = array_len(arr#2)
-        let tmp%13#0: bool = (== tmp%12#0 6u)
-        (assert tmp%13#0)
-        let tmp%14#0: uint64 = array_len(arr#2)
-        let tmp%15#0: uint64 = (- tmp%14#0 1u)
-        let array_item%1#0: Encoded(uint512) = extract_value(arr#2, tmp%15#0)
+        let tmp%11#0: bool = (b== values%0#0 0b)
+        (assert tmp%11#0)
+        let tmp%12#0: Encoded(len+uint512[]) = test_cases.array.immutable.add_xb(arr#1, 5u)
+        let arr#2: Encoded(len+uint512[]) = tmp%12#0
+        let tmp%13#0: uint64 = array_len(arr#2)
+        let tmp%14#0: bool = (== tmp%13#0 6u)
+        (assert tmp%14#0)
+        let tmp%15#0: uint64 = array_len(arr#2)
+        let tmp%16#0: uint64 = (- tmp%15#0 1u)
+        let array_item%1#0: Encoded(uint512) = extract_value(arr#2, tmp%16#0)
         let values%1#0: biguint = decode_bytes<biguint>(array_item%1#0)
-        let tmp%16#0: bool = (b== values%1#0 4b)
-        (assert tmp%16#0)
-        let tmp%17#0: uint64 = (txn NumAppArgs)
-        let tmp%18#0: biguint = (itob tmp%17#0)
-        let tmp%19#0: biguint = (b- 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b tmp%18#0)
-        let tmp%20#0: Encoded(uint512[]) = bytes_encode<uint512[]>(tmp%19#0)
-        let concat%1#0: Encoded(len+uint512[]) = (concat arr#2 tmp%20#0) // on error: max array length exceeded
-        let extract_uint16%1#0: uint64 = (extract_uint16 arr#2 0u)
-        let add%1#0: uint64 = (+ extract_uint16%1#0 1u)
-        let as_bytes%1#0: bytes[8] = (itob add%1#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
-        let as_Encoded(len+uint512[])%1#0: Encoded(len+uint512[]) = replace%1#0
-        let arr#3: Encoded(len+uint512[]) = as_Encoded(len+uint512[])%1#0
-        let tmp%21#0: uint64 = array_len(arr#3)
-        let tmp%22#0: bool = (== tmp%21#0 7u)
-        (assert tmp%22#0)
+        let tmp%17#0: bool = (b== values%1#0 4b)
+        (assert tmp%17#0)
+        let tmp%18#0: uint64 = (txn NumAppArgs)
+        let tmp%19#0: biguint = (itob tmp%18#0)
+        let tmp%20#0: biguint = (b- 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b tmp%19#0)
+        let tmp%21#0: Encoded(uint512[]) = bytes_encode<uint512[]>(tmp%20#0)
+        let tmp%22#0: Encoded(len+uint512[]) = array_concat(arr#2, tmp%21#0, 1u)
+        let arr#3: Encoded(len+uint512[]) = tmp%22#0
         let tmp%23#0: uint64 = array_len(arr#3)
-        let tmp%24#0: uint64 = (- tmp%23#0 1u)
-        let array_item%2#0: Encoded(uint512) = extract_value(arr#3, tmp%24#0)
+        let tmp%24#0: bool = (== tmp%23#0 7u)
+        (assert tmp%24#0)
+        let tmp%25#0: uint64 = array_len(arr#3)
+        let tmp%26#0: uint64 = (- tmp%25#0 1u)
+        let array_item%2#0: Encoded(uint512) = extract_value(arr#3, tmp%26#0)
         let values%2#0: biguint = decode_bytes<biguint>(array_item%2#0)
-        let tmp%25#0: bool = (b== values%2#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084094b)
-        (assert tmp%25#0)
+        let tmp%27#0: bool = (b== values%2#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084094b)
+        (assert tmp%27#0)
         let array_item%3#0: Encoded(uint512) = extract_value(arr#3, 0u)
         let values%3#0: biguint = decode_bytes<biguint>(array_item%3#0)
-        let tmp%26#0: bool = (b== values%3#0 0b)
-        (assert tmp%26#0)
-        let tmp%27#0: Encoded(uint512[]) = bytes_encode<uint512[]>(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
-        let concat%2#0: Encoded(len+uint512[]) = (concat arr#3 tmp%27#0) // on error: max array length exceeded
-        let extract_uint16%2#0: uint64 = (extract_uint16 arr#3 0u)
-        let add%2#0: uint64 = (+ extract_uint16%2#0 1u)
-        let as_bytes%2#0: bytes[8] = (itob add%2#0)
-        let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let replace%2#0: bytes = (replace3 concat%2#0 0u as_u16_bytes%2#0)
-        let as_Encoded(len+uint512[])%2#0: Encoded(len+uint512[]) = replace%2#0
-        let arr#4: Encoded(len+uint512[]) = as_Encoded(len+uint512[])%2#0
-        let tmp%28#0: uint64 = array_len(arr#4)
-        let tmp%29#0: bool = (== tmp%28#0 8u)
-        (assert tmp%29#0)
-        let tmp%30#0: uint64 = array_len(arr#4)
-        let tmp%31#0: uint64 = (- tmp%30#0 1u)
-        let array_item%4#0: Encoded(uint512) = extract_value(arr#4, tmp%31#0)
-        let values%4#0: biguint = decode_bytes<biguint>(array_item%4#0)
-        let tmp%32#0: bool = (b== values%4#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
+        let tmp%28#0: bool = (b== values%3#0 0b)
+        (assert tmp%28#0)
+        let tmp%29#0: Encoded(uint512[]) = bytes_encode<uint512[]>(13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
+        let tmp%30#0: Encoded(len+uint512[]) = array_concat(arr#3, tmp%29#0, 1u)
+        let arr#4: Encoded(len+uint512[]) = tmp%30#0
+        let tmp%31#0: uint64 = array_len(arr#4)
+        let tmp%32#0: bool = (== tmp%31#0 8u)
         (assert tmp%32#0)
+        let tmp%33#0: uint64 = array_len(arr#4)
+        let tmp%34#0: uint64 = (- tmp%33#0 1u)
+        let array_item%4#0: Encoded(uint512) = extract_value(arr#4, tmp%34#0)
+        let values%4#0: biguint = decode_bytes<biguint>(array_item%4#0)
+        let tmp%35#0: bool = (b== values%4#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
+        (assert tmp%35#0)
         let array_item%5#0: Encoded(uint512) = extract_value(arr#4, 0u)
         let values%5#0: biguint = decode_bytes<biguint>(array_item%5#0)
-        let tmp%33#0: bool = (b== values%5#0 0b)
-        (assert tmp%33#0)
+        let tmp%36#0: bool = (b== values%5#0 0b)
+        (assert tmp%36#0)
         box_write(0x62696775696e74, arr#4)
         return 
 
@@ -1121,56 +1077,53 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_tup
         let tmp%2#0: uint64 = (+ i#1 1u)
         let tmp%3#0: uint64 = (+ i#1 2u)
         let tmp%4#0: Encoded((uint64,uint64)[]) = bytes_encode<(uint64,uint64)[]>(tmp%2#0, tmp%3#0)
-        let concat%0#0: Encoded(len+(uint64,uint64)[]) = (concat arr#1 tmp%4#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+(uint64,uint64)[])%0#0: Encoded(len+(uint64,uint64)[]) = replace%0#0
-        let arr#2: Encoded(len+(uint64,uint64)[]) = as_Encoded(len+(uint64,uint64)[])%0#0
+        let tmp%5#0: Encoded(len+(uint64,uint64)[]) = array_concat(arr#1, tmp%4#0, 1u)
+        let arr#2: Encoded(len+(uint64,uint64)[]) = tmp%5#0
         goto block@3
     block@3: // for_footer_L184
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L184
-        let tmp%5#0: uint64 = array_len(arr#1)
-        let tmp%6#0: bool = (== tmp%5#0 5u)
-        (assert tmp%6#0)
+        let tmp%6#0: uint64 = array_len(arr#1)
+        let tmp%7#0: bool = (== tmp%6#0 5u)
+        (assert tmp%7#0)
         let array_item%0#0: Encoded(uint64,uint64) = extract_value(arr#1, 0u)
         let (values%0#0: uint64, values%1#0: uint64) = decode_bytes<(uint64,uint64,)>(array_item%0#0)
-        let tmp%7#0: bool = (== values%0#0 1u)
-        let tmp%8#0: bool = (== values%1#0 2u)
-        let tmp%9#0: bool = (&& tmp%7#0 tmp%8#0)
-        (assert tmp%9#0)
-        let tmp%10#0: uint64 = array_len(arr#1)
-        let tmp%11#0: uint64 = (- tmp%10#0 1u)
-        let array_item%1#0: Encoded(uint64,uint64) = extract_value(arr#1, tmp%11#0)
+        let tmp%8#0: bool = (== values%0#0 1u)
+        let tmp%9#0: bool = (== values%1#0 2u)
+        let tmp%10#0: bool = (&& tmp%8#0 tmp%9#0)
+        (assert tmp%10#0)
+        let tmp%11#0: uint64 = array_len(arr#1)
+        let tmp%12#0: uint64 = (- tmp%11#0 1u)
+        let array_item%1#0: Encoded(uint64,uint64) = extract_value(arr#1, tmp%12#0)
         let (values%2#0: uint64, values%3#0: uint64) = decode_bytes<(uint64,uint64,)>(array_item%1#0)
-        let tmp%12#0: bool = (== values%2#0 5u)
-        let tmp%13#0: bool = (== values%3#0 6u)
-        let tmp%14#0: bool = (&& tmp%12#0 tmp%13#0)
-        (assert tmp%14#0)
-        let (tmp%15#0: bytes, tmp%16#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#1, 16u)
-        let (tmp%17#0: uint64, tmp%18#0: uint64) = decode_bytes<(uint64,uint64,)>(tmp%15#0)
-        let arr#3: Encoded(len+(uint64,uint64)[]) = tmp%16#0
-        let tmp%19#0: uint64 = array_len(arr#3)
-        let tmp%20#0: bool = (== tmp%19#0 4u)
-        (assert tmp%20#0)
+        let tmp%13#0: bool = (== values%2#0 5u)
+        let tmp%14#0: bool = (== values%3#0 6u)
+        let tmp%15#0: bool = (&& tmp%13#0 tmp%14#0)
+        (assert tmp%15#0)
+        let tmp%16#0: uint64 = array_len(arr#1)
+        let sub%0#0: uint64 = (- tmp%16#0 1u)
+        let tmp%17#0: Encoded(uint64,uint64) = extract_value(arr#1, sub%0#0)
+        let (tmp%18#0: uint64, tmp%19#0: uint64) = decode_bytes<(uint64,uint64,)>(tmp%17#0)
+        let tmp%20#0: Encoded(len+(uint64,uint64)[]) = array_pop(arr#1)
+        let arr#3: Encoded(len+(uint64,uint64)[]) = tmp%20#0
+        let tmp%21#0: uint64 = array_len(arr#3)
+        let tmp%22#0: bool = (== tmp%21#0 4u)
+        (assert tmp%22#0)
         let array_item%2#0: Encoded(uint64,uint64) = extract_value(arr#3, 0u)
         let (values%4#0: uint64, values%5#0: uint64) = decode_bytes<(uint64,uint64,)>(array_item%2#0)
-        let tmp%21#0: bool = (== values%4#0 1u)
-        let tmp%22#0: bool = (== values%5#0 2u)
-        let tmp%23#0: bool = (&& tmp%21#0 tmp%22#0)
-        (assert tmp%23#0)
-        let tmp%24#0: uint64 = array_len(arr#3)
-        let tmp%25#0: uint64 = (- tmp%24#0 1u)
-        let array_item%3#0: Encoded(uint64,uint64) = extract_value(arr#3, tmp%25#0)
+        let tmp%23#0: bool = (== values%4#0 1u)
+        let tmp%24#0: bool = (== values%5#0 2u)
+        let tmp%25#0: bool = (&& tmp%23#0 tmp%24#0)
+        (assert tmp%25#0)
+        let tmp%26#0: uint64 = array_len(arr#3)
+        let tmp%27#0: uint64 = (- tmp%26#0 1u)
+        let array_item%3#0: Encoded(uint64,uint64) = extract_value(arr#3, tmp%27#0)
         let (values%6#0: uint64, values%7#0: uint64) = decode_bytes<(uint64,uint64,)>(array_item%3#0)
-        let tmp%26#0: bool = (== values%6#0 4u)
-        let tmp%27#0: bool = (== values%7#0 5u)
-        let tmp%28#0: bool = (&& tmp%26#0 tmp%27#0)
-        (assert tmp%28#0)
+        let tmp%28#0: bool = (== values%6#0 4u)
+        let tmp%29#0: bool = (== values%7#0 5u)
+        let tmp%30#0: bool = (&& tmp%28#0 tmp%29#0)
+        (assert tmp%30#0)
         (app_global_put "c" arr#3)
         return 
 
@@ -1196,29 +1149,23 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_fixed_size_nam
         let tmp%5#0: uint64 = (% tmp%4#0 2u)
         let tmp%6#0: bool = (== tmp%5#0 0u)
         let tmp%7#0: Encoded((uint64,bool1,bool1)[]) = bytes_encode<(uint64,bool1,bool1)[]>(i#1, tmp%3#0, tmp%6#0)
-        let concat%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (concat arr#1 tmp%7#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+(uint64,bool1,bool1)[])%0#0: Encoded(len+(uint64,bool1,bool1)[]) = replace%0#0
-        let arr#2: Encoded(len+(uint64,bool1,bool1)[]) = as_Encoded(len+(uint64,bool1,bool1)[])%0#0
+        let tmp%8#0: Encoded(len+(uint64,bool1,bool1)[]) = array_concat(arr#1, tmp%7#0, 1u)
+        let arr#2: Encoded(len+(uint64,bool1,bool1)[]) = tmp%8#0
         goto block@3
     block@3: // for_footer_L202
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L202
-        let tmp%8#0: uint64 = array_len(arr#1)
-        let tmp%9#0: bool = (== tmp%8#0 5u)
-        (assert tmp%9#0)
+        let tmp%9#0: uint64 = array_len(arr#1)
+        let tmp%10#0: bool = (== tmp%9#0 5u)
+        (assert tmp%10#0)
         let array_item%0#0: Encoded(uint64,bool1,bool1) = extract_value(arr#1, 0u)
         let (values%0#0: uint64, values%1#0: bool, values%2#0: bool) = decode_bytes<(uint64,bool,bool,)>(array_item%0#0)
         let foo#0: uint64 = values%0#0
         let bar#0: bool = values%1#0
         let baz#0: bool = values%2#0
-        let tmp%10#0: bool = (== foo#0 0u)
-        (assert tmp%10#0)
+        let tmp%11#0: bool = (== foo#0 0u)
+        (assert tmp%11#0)
         (assert bar#0)
         (assert baz#0)
         (app_global_put "d" arr#1)
@@ -1417,24 +1364,18 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(a
         goto continue_looping%1#0 ? block@4 : block@6
     block@4: // for_body_L266
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(j#1)
-        let concat%0#0: Encoded(len+uint64[]) = (concat extra_arr#1 tmp%0#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 extra_arr#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let extra_arr#2: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
+        let tmp%1#0: Encoded(len+uint64[]) = array_concat(extra_arr#1, tmp%0#0, 1u)
+        let extra_arr#2: Encoded(len+uint64[]) = tmp%1#0
         goto block@5
     block@5: // for_footer_L265
         let j#2: uint64 = (+ j#1 1u)
         goto block@3
     block@6: // after_for_L265
-        let extract_uint16%1#0: uint64 = (extract_uint16 arr#2 0u)
+        let extract_uint16%0#0: uint64 = (extract_uint16 arr#2 0u)
         let total_length%0#0: uint64 = (len arr#2)
         let extract_to_end%0#0: bytes = (substring3 arr#2 2u total_length%0#0)
-        let tmp%1#0: Encoded((len+uint64[])[]) = bytes_encode<(len+uint64[])[]>(extra_arr#1)
-        let as_Encoded(len+(len+uint64[])[])%0#0: Encoded(len+(len+uint64[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%0#0, 1u, tmp%1#0)
+        let tmp%2#0: Encoded((len+uint64[])[]) = bytes_encode<(len+uint64[])[]>(extra_arr#1)
+        let as_Encoded(len+(len+uint64[])[])%0#0: Encoded(len+(len+uint64[])[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, tmp%2#0)
         let arr#3: Encoded(len+(len+uint64[])[]) = as_Encoded(len+(len+uint64[])[])%0#0
         goto block@7
     block@7: // for_footer_L263
@@ -1455,16 +1396,10 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_nested_array(a
     block@10: // for_body_L272
         let array_item%0#0: Encoded(len+uint64[]) = extract_value(arr#2, item_index_internal%0#1)
         let inner_arr#0: Encoded(len+uint64[]) = array_item%0#0
-        let tmp%2#0: uint64 = test_cases.array.immutable.sum_arr(inner_arr#0)
-        let tmp%3#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%2#0)
-        let concat%1#0: Encoded(len+uint64[]) = (concat totals#1 tmp%3#0) // on error: max array length exceeded
-        let extract_uint16%2#0: uint64 = (extract_uint16 totals#1 0u)
-        let add%1#0: uint64 = (+ extract_uint16%2#0 1u)
-        let as_bytes%1#0: bytes[8] = (itob add%1#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
-        let as_Encoded(len+uint64[])%1#0: Encoded(len+uint64[]) = replace%1#0
-        let totals#2: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%1#0
+        let tmp%3#0: uint64 = test_cases.array.immutable.sum_arr(inner_arr#0)
+        let tmp%4#0: Encoded(uint64[]) = bytes_encode<uint64[]>(tmp%3#0)
+        let tmp%5#0: Encoded(len+uint64[]) = array_concat(totals#1, tmp%4#0, 1u)
+        let totals#2: Encoded(len+uint64[]) = tmp%5#0
         goto block@11
     block@11: // for_footer_L271
         let item_index_internal%0#2: uint64 = (+ item_index_internal%0#1 1u)
@@ -1509,85 +1444,61 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_bit_packed_tup
         let tmp%8#0: bool = (== i#1 0u)
         let tmp%9#0: bool = (== i#1 1u)
         let tmp%10#0: Encoded((bool1,bool1)[]) = bytes_encode<(bool1,bool1)[]>(tmp%8#0, tmp%9#0)
-        let concat%0#0: Encoded(len+(bool1,bool1)[]) = (concat arr2#1 tmp%10#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr2#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+(bool1,bool1)[])%0#0: Encoded(len+(bool1,bool1)[]) = replace%0#0
-        let arr2#2: Encoded(len+(bool1,bool1)[]) = as_Encoded(len+(bool1,bool1)[])%0#0
-        let tmp%11#0: bool = (== i#1 0u)
-        let tmp%12#0: bool = (== i#1 1u)
-        let tmp%13#0: bool = (== i#1 2u)
-        let tmp%14#0: bool = (== i#1 3u)
-        let tmp%15#0: bool = (== i#1 4u)
-        let tmp%16#0: bool = (== i#1 5u)
-        let tmp%17#0: bool = (== i#1 6u)
-        let tmp%18#0: uint64 = (+ i#1 1u)
-        let tmp%19#0: Encoded((uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = bytes_encode<(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]>(i#1, tmp%11#0, tmp%12#0, tmp%13#0, tmp%14#0, tmp%15#0, tmp%16#0, tmp%17#0, tmp%18#0)
-        let concat%1#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = (concat arr7#1 tmp%19#0) // on error: max array length exceeded
-        let extract_uint16%1#0: uint64 = (extract_uint16 arr7#1 0u)
-        let add%1#0: uint64 = (+ extract_uint16%1#0 1u)
-        let as_bytes%1#0: bytes[8] = (itob add%1#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
-        let as_Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[])%0#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = replace%1#0
-        let arr7#2: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = as_Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[])%0#0
-        let tmp%20#0: bool = (== i#1 0u)
-        let tmp%21#0: bool = (== i#1 1u)
-        let tmp%22#0: bool = (== i#1 2u)
-        let tmp%23#0: bool = (== i#1 3u)
-        let tmp%24#0: bool = (== i#1 4u)
-        let tmp%25#0: bool = (== i#1 5u)
-        let tmp%26#0: bool = (== i#1 6u)
-        let tmp%27#0: bool = (== i#1 7u)
-        let tmp%28#0: uint64 = (+ i#1 1u)
-        let tmp%29#0: Encoded((uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = bytes_encode<(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]>(i#1, tmp%20#0, tmp%21#0, tmp%22#0, tmp%23#0, tmp%24#0, tmp%25#0, tmp%26#0, tmp%27#0, tmp%28#0)
-        let concat%2#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = (concat arr8#1 tmp%29#0) // on error: max array length exceeded
-        let extract_uint16%2#0: uint64 = (extract_uint16 arr8#1 0u)
-        let add%2#0: uint64 = (+ extract_uint16%2#0 1u)
-        let as_bytes%2#0: bytes[8] = (itob add%2#0)
-        let as_u16_bytes%2#0: bytes = ((extract 6 2) as_bytes%2#0)
-        let replace%2#0: bytes = (replace3 concat%2#0 0u as_u16_bytes%2#0)
-        let as_Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[])%0#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = replace%2#0
-        let arr8#2: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = as_Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[])%0#0
-        let tmp%30#0: bool = (== i#1 0u)
-        let tmp%31#0: bool = (== i#1 1u)
-        let tmp%32#0: bool = (== i#1 2u)
-        let tmp%33#0: bool = (== i#1 3u)
-        let tmp%34#0: bool = (== i#1 4u)
-        let tmp%35#0: bool = (== i#1 5u)
-        let tmp%36#0: bool = (== i#1 6u)
-        let tmp%37#0: bool = (== i#1 7u)
-        let tmp%38#0: bool = (== i#1 8u)
-        let tmp%39#0: uint64 = (+ i#1 1u)
-        let tmp%40#0: Encoded((uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = bytes_encode<(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]>(i#1, tmp%30#0, tmp%31#0, tmp%32#0, tmp%33#0, tmp%34#0, tmp%35#0, tmp%36#0, tmp%37#0, tmp%38#0, tmp%39#0)
-        let concat%3#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = (concat arr9#1 tmp%40#0) // on error: max array length exceeded
-        let extract_uint16%3#0: uint64 = (extract_uint16 arr9#1 0u)
-        let add%3#0: uint64 = (+ extract_uint16%3#0 1u)
-        let as_bytes%3#0: bytes[8] = (itob add%3#0)
-        let as_u16_bytes%3#0: bytes = ((extract 6 2) as_bytes%3#0)
-        let replace%3#0: bytes = (replace3 concat%3#0 0u as_u16_bytes%3#0)
-        let as_Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[])%0#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = replace%3#0
-        let arr9#2: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = as_Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[])%0#0
+        let tmp%11#0: Encoded(len+(bool1,bool1)[]) = array_concat(arr2#1, tmp%10#0, 1u)
+        let arr2#2: Encoded(len+(bool1,bool1)[]) = tmp%11#0
+        let tmp%12#0: bool = (== i#1 0u)
+        let tmp%13#0: bool = (== i#1 1u)
+        let tmp%14#0: bool = (== i#1 2u)
+        let tmp%15#0: bool = (== i#1 3u)
+        let tmp%16#0: bool = (== i#1 4u)
+        let tmp%17#0: bool = (== i#1 5u)
+        let tmp%18#0: bool = (== i#1 6u)
+        let tmp%19#0: uint64 = (+ i#1 1u)
+        let tmp%20#0: Encoded((uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = bytes_encode<(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]>(i#1, tmp%12#0, tmp%13#0, tmp%14#0, tmp%15#0, tmp%16#0, tmp%17#0, tmp%18#0, tmp%19#0)
+        let tmp%21#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = array_concat(arr7#1, tmp%20#0, 1u)
+        let arr7#2: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = tmp%21#0
+        let tmp%22#0: bool = (== i#1 0u)
+        let tmp%23#0: bool = (== i#1 1u)
+        let tmp%24#0: bool = (== i#1 2u)
+        let tmp%25#0: bool = (== i#1 3u)
+        let tmp%26#0: bool = (== i#1 4u)
+        let tmp%27#0: bool = (== i#1 5u)
+        let tmp%28#0: bool = (== i#1 6u)
+        let tmp%29#0: bool = (== i#1 7u)
+        let tmp%30#0: uint64 = (+ i#1 1u)
+        let tmp%31#0: Encoded((uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = bytes_encode<(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]>(i#1, tmp%22#0, tmp%23#0, tmp%24#0, tmp%25#0, tmp%26#0, tmp%27#0, tmp%28#0, tmp%29#0, tmp%30#0)
+        let tmp%32#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = array_concat(arr8#1, tmp%31#0, 1u)
+        let arr8#2: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = tmp%32#0
+        let tmp%33#0: bool = (== i#1 0u)
+        let tmp%34#0: bool = (== i#1 1u)
+        let tmp%35#0: bool = (== i#1 2u)
+        let tmp%36#0: bool = (== i#1 3u)
+        let tmp%37#0: bool = (== i#1 4u)
+        let tmp%38#0: bool = (== i#1 5u)
+        let tmp%39#0: bool = (== i#1 6u)
+        let tmp%40#0: bool = (== i#1 7u)
+        let tmp%41#0: bool = (== i#1 8u)
+        let tmp%42#0: uint64 = (+ i#1 1u)
+        let tmp%43#0: Encoded((uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = bytes_encode<(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]>(i#1, tmp%33#0, tmp%34#0, tmp%35#0, tmp%36#0, tmp%37#0, tmp%38#0, tmp%39#0, tmp%40#0, tmp%41#0, tmp%42#0)
+        let tmp%44#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = array_concat(arr9#1, tmp%43#0, 1u)
+        let arr9#2: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = tmp%44#0
         goto block@3
     block@3: // for_footer_L287
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L287
-        let tmp%41#0: uint64 = array_len(arr2#1)
-        let tmp%42#0: bool = (== tmp%41#0 5u)
-        (assert tmp%42#0)
-        let tmp%43#0: uint64 = array_len(arr7#1)
-        let tmp%44#0: bool = (== tmp%43#0 5u)
-        (assert tmp%44#0)
-        let tmp%45#0: uint64 = array_len(arr8#1)
+        let tmp%45#0: uint64 = array_len(arr2#1)
         let tmp%46#0: bool = (== tmp%45#0 5u)
         (assert tmp%46#0)
-        let tmp%47#0: uint64 = array_len(arr9#1)
+        let tmp%47#0: uint64 = array_len(arr7#1)
         let tmp%48#0: bool = (== tmp%47#0 5u)
         (assert tmp%48#0)
+        let tmp%49#0: uint64 = array_len(arr8#1)
+        let tmp%50#0: bool = (== tmp%49#0 5u)
+        (assert tmp%50#0)
+        let tmp%51#0: uint64 = array_len(arr9#1)
+        let tmp%52#0: bool = (== tmp%51#0 5u)
+        (assert tmp%52#0)
         (app_global_put "bool2" arr2#1)
         (app_global_put "bool7" arr7#1)
         (app_global_put "bool8" arr8#1)
@@ -1722,14 +1633,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_uint64_return(
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L372
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(i#1)
-        let concat%0#0: Encoded(len+uint64[]) = (concat arr#1 tmp%0#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let arr#2: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
+        let tmp%1#0: Encoded(len+uint64[]) = array_concat(arr#1, tmp%0#0, 1u)
+        let arr#2: Encoded(len+uint64[]) = tmp%1#0
         goto block@3
     block@3: // for_footer_L371
         let i#2: uint64 = (+ i#1 1u)
@@ -1780,14 +1685,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_tuple_return(a
         let tmp%2#0: uint64 = (% i#1 3u)
         let tmp%3#0: bool = (== tmp%2#0 0u)
         let tmp%4#0: Encoded((uint64,bool1,bool1)[]) = bytes_encode<(uint64,bool1,bool1)[]>(i#1, tmp%1#0, tmp%3#0)
-        let concat%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (concat arr#1 tmp%4#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 arr#1 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+(uint64,bool1,bool1)[])%0#0: Encoded(len+(uint64,bool1,bool1)[]) = replace%0#0
-        let arr#2: Encoded(len+(uint64,bool1,bool1)[]) = as_Encoded(len+(uint64,bool1,bool1)[])%0#0
+        let tmp%5#0: Encoded(len+(uint64,bool1,bool1)[]) = array_concat(arr#1, tmp%4#0, 1u)
+        let arr#2: Encoded(len+(uint64,bool1,bool1)[]) = tmp%5#0
         goto block@3
     block@3: // for_footer_L385
         let i#2: uint64 = (+ i#1 1u)
@@ -1831,8 +1730,9 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_convert_to_arr
         let slot_contents%0#0: Encoded((uint64,bool1,bool1)[]) = load(mutable#0)
         let total_length%0#0: uint64 = (len arr#0)
         let extract_to_end%0#0: bytes = (substring3 arr#0 2u total_length%0#0)
-        let concat%0#0: Encoded((uint64,bool1,bool1)[]) = (concat slot_contents%0#0 extract_to_end%0#0) // on error: max array length exceeded
-        store(mutable#0, concat%0#0)
+        let tmp%0#0: uint64 = array_len(arr#0)
+        let tmp%1#0: Encoded((uint64,bool1,bool1)[]) = array_concat(slot_contents%0#0, extract_to_end%0#0, tmp%0#0)
+        store(mutable#0, tmp%1#0)
         (assert 1u) // Step cannot be zero
         let i#0: uint64 = 0u
         goto block@1
@@ -1841,22 +1741,22 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_convert_to_arr
         let continue_looping%0#0: bool = (< i#1 append#0)
         goto continue_looping%0#0 ? block@2 : block@4
     block@2: // for_body_L403
-        let tmp%0#0: uint64 = (% i#1 2u)
-        let tmp%1#0: bool = (== tmp%0#0 0u)
-        let tmp%2#0: uint64 = (% i#1 3u)
+        let tmp%2#0: uint64 = (% i#1 2u)
         let tmp%3#0: bool = (== tmp%2#0 0u)
+        let tmp%4#0: uint64 = (% i#1 3u)
+        let tmp%5#0: bool = (== tmp%4#0 0u)
         let slot_contents%1#0: Encoded((uint64,bool1,bool1)[]) = load(mutable#0)
-        let tmp%4#0: Encoded((uint64,bool1,bool1)[]) = bytes_encode<(uint64,bool1,bool1)[]>(i#1, tmp%1#0, tmp%3#0)
-        let concat%1#0: Encoded((uint64,bool1,bool1)[]) = (concat slot_contents%1#0 tmp%4#0) // on error: max array length exceeded
-        store(mutable#0, concat%1#0)
+        let tmp%6#0: Encoded((uint64,bool1,bool1)[]) = bytes_encode<(uint64,bool1,bool1)[]>(i#1, tmp%3#0, tmp%5#0)
+        let tmp%7#0: Encoded((uint64,bool1,bool1)[]) = array_concat(slot_contents%1#0, tmp%6#0, 1u)
+        store(mutable#0, tmp%7#0)
         goto block@3
     block@3: // for_footer_L402
         let i#2: uint64 = (+ i#1 1u)
         goto block@1
     block@4: // after_for_L402
         let slot_contents%2#0: Encoded((uint64,bool1,bool1)[]) = load(mutable#0)
-        let tmp%5#0: uint64 = array_len(slot_contents%2#0)
-        let as_bytes%0#0: bytes[8] = (itob tmp%5#0)
+        let tmp%8#0: uint64 = array_len(slot_contents%2#0)
+        let as_bytes%0#0: bytes[8] = (itob tmp%8#0)
         let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
         let converted_array%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (concat as_u16_bytes%0#0 slot_contents%2#0)
         return converted_array%0#0
@@ -1865,16 +1765,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_ar
     block@0: // L406
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000001, 0x0000000000000002)
         let prefix#0: Encoded(len+uint64[]) = encoded_array%0#0
-        let concat%0#0: Encoded(len+uint64[]) = (concat prefix#0 arg#0) // on error: max array length exceeded
-        let total_length%0#0: uint64 = (len concat%0#0)
-        let extract_to_end%0#0: bytes = (substring3 concat%0#0 2u total_length%0#0)
-        let len%0#0: uint64 = (len extract_to_end%0#0)
-        let div_floor%0#0: uint64 = (/ len%0#0 8u)
-        let as_bytes%0#0: bytes[8] = (itob div_floor%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let result#0: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
+        let tmp%0#0: Encoded(len+uint64[]) = array_concat(prefix#0, arg#0, 2u)
+        let result#0: Encoded(len+uint64[]) = tmp%0#0
         return result#0
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_native_tuple(arg.0: Encoded(uint64), arg.1: Encoded(uint64)) -> Encoded(len+uint64[]):
@@ -1882,14 +1774,8 @@ subroutine test_cases.array.immutable.ImmutableArrayContract.test_concat_with_na
         let encoded_array%0#0: Encoded(len+uint64[]) = bytes_encode<(len+uint64[])>(0x0000000000000001, 0x0000000000000002)
         let prefix#0: Encoded(len+uint64[]) = encoded_array%0#0
         let tmp%0#0: Encoded(uint64[]) = bytes_encode<uint64[]>(arg.0#0, arg.1#0)
-        let concat%0#0: Encoded(len+uint64[]) = (concat prefix#0 tmp%0#0) // on error: max array length exceeded
-        let extract_uint16%0#0: uint64 = (extract_uint16 prefix#0 0u)
-        let add%0#0: uint64 = (+ extract_uint16%0#0 2u)
-        let as_bytes%0#0: bytes[8] = (itob add%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+uint64[])%0#0: Encoded(len+uint64[]) = replace%0#0
-        let result#0: Encoded(len+uint64[]) = as_Encoded(len+uint64[])%0#0
+        let tmp%1#0: Encoded(len+uint64[]) = array_concat(prefix#0, tmp%0#0, 2u)
+        let result#0: Encoded(len+uint64[]) = tmp%1#0
         return result#0
 
 subroutine test_cases.array.immutable.ImmutableArrayContract.test_dynamic_concat_with_arc4_tuple(arg: Encoded((len+utf8[]),(len+utf8[]))) -> Encoded(len+(len+utf8[])[]):

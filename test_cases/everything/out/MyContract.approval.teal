@@ -3,7 +3,7 @@
 
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 0 1
     bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
@@ -16,7 +16,7 @@ main:
 main_after_if_else@10:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    intc_1 // 0
+    intc_0 // 0
     return
 
 main_close_out_route@9:
@@ -29,7 +29,7 @@ main_close_out_route@9:
     txn ApplicationID
     assert // can only call when not creating
     callsub close_out
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_calculate_route@8:
@@ -51,7 +51,7 @@ main_calculate_route@8:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_say_hello_route@7:
@@ -67,13 +67,13 @@ main_say_hello_route@7:
     swap
     concat
     log
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_register_route@6:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
-    intc_0 // 1
+    intc_1 // 1
     txn OnCompletion
     shl
     pushint 3 // 3
@@ -87,7 +87,7 @@ main_register_route@6:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     callsub register
-    intc_0 // 1
+    intc_1 // 1
     return
 
 main_create_route@5:
@@ -100,7 +100,7 @@ main_create_route@5:
     !
     assert // can only call when creating
     callsub create
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -124,7 +124,7 @@ create:
     // everything/contract.py:45
     // self.counter = UInt64(ZERO)
     bytec_0 // "counter"
-    intc_1 // 0
+    intc_0 // 0
     app_global_put
     retsub
 
@@ -148,12 +148,12 @@ register:
     // everything/contract.py:50
     // if op.Txn.on_completion == OnCompleteAction.OptIn:
     txn OnCompletion
-    intc_0 // OptIn
+    intc_1 // OptIn
     ==
     bz register_after_if_else@4
     // everything/contract.py:51
     // sender_name, sender_name_existed = self.name.maybe(account=0)
-    intc_1 // 0
+    intc_0 // 0
     dup
     bytec_2 // "name"
     app_local_get_ex
@@ -163,13 +163,13 @@ register:
     bnz register_after_if_else@4
     // everything/contract.py:53
     // self.counter += multiplicative_identity()  # has full FuncDef
-    intc_1 // 0
+    intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
     // everything/my_base.py:20
     // return UInt64(1)
-    intc_0 // 1
+    intc_1 // 1
     // everything/contract.py:53
     // self.counter += multiplicative_identity()  # has full FuncDef
     +
@@ -180,7 +180,7 @@ register:
 register_after_if_else@4:
     // everything/contract.py:54
     // self.name[0] = name
-    intc_1 // 0
+    intc_0 // 0
     bytec_2 // "name"
     frame_dig -1
     app_local_put
@@ -205,7 +205,7 @@ say_hello:
     assert // You are banned, goodbye
     // everything/contract.py:59
     // name, exists = self.name.maybe(account=0)
-    intc_1 // 0
+    intc_0 // 0
     dup
     bytec_2 // "name"
     app_local_get_ex
@@ -222,21 +222,29 @@ say_hello_after_if_else@2:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
     frame_dig 0
-    extract 2 0
-    pushbytes 0x000748656c6c6f2c20
-    swap
-    concat // on error: max array length exceeded
     dup
     extract 2 0
-    len
+    swap
+    intc_0 // 0
+    extract_uint16
+    pushbytes 0x000748656c6c6f2c20
+    uncover 2
+    concat // on error: max array length exceeded
+    dup
+    intc_0 // 0
+    extract_uint16
+    uncover 2
+    +
     itob
     extract 6 2
     replace2 0
     pushbytes 0x21
     concat // on error: max array length exceeded
     dup
-    extract 2 0
-    len
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
     itob
     extract 6 2
     replace2 0
@@ -270,13 +278,13 @@ calculate:
 close_out:
     // everything/contract.py:83
     // self.counter -= positive_one()
-    intc_1 // 0
+    intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
     assert // check self.counter exists
     // everything/contract.py:88
     // return UInt64(1)
-    intc_0 // 1
+    intc_1 // 1
     // everything/contract.py:83
     // self.counter -= positive_one()
     -

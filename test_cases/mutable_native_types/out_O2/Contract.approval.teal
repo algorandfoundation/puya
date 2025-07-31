@@ -4,7 +4,7 @@
 // test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 16 8
-    bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map" 0x0000
+    bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map" "arr" 0x0000
     intc_0 // 0
     dup
     pushbytes ""
@@ -68,13 +68,67 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@24
-    pushbytess 0x67a5a02d 0xd1276f81 0x0d2ab4c0 0xe8b5d56c 0x875901e5 0x4abb70f1 0xaf05f48f 0xe8d71c8c 0x01aaa39c 0x8313dee7 0x2ca849c1 0x3d8e707d // method "test_imm_fixed_array()void", method "fixed_initialize()void", method "add_payment((address,uint64,uint64))void", method "increment_payment(uint64,uint64)void", method "create_storage(uint64)void", method "local_struct()(address,uint64,uint64)", method "delete_storage(uint64)void", method "struct_arg(uint64,(uint64,uint64))void", method "struct_return()(uint64,uint64)", method "tup_return()(uint64,uint64)", method "calculate_sum()uint64", method "test_arr((uint64,uint64)[])(uint64,uint64)[]"
+    bz main_bare_routing@25
+    pushbytess 0x67a5a02d 0xd1276f81 0x0d2ab4c0 0xe8b5d56c 0x875901e5 0x4abb70f1 0xaf05f48f 0xe8d71c8c 0x01aaa39c 0x8313dee7 0x2ca849c1 0x3d8e707d 0x0649402d // method "test_imm_fixed_array()void", method "fixed_initialize()void", method "add_payment((address,uint64,uint64))void", method "increment_payment(uint64,uint64)void", method "create_storage(uint64)void", method "local_struct()(address,uint64,uint64)", method "delete_storage(uint64)void", method "struct_arg(uint64,(uint64,uint64))void", method "struct_return()(uint64,uint64)", method "tup_return()(uint64,uint64)", method "calculate_sum()uint64", method "test_arr((uint64,uint64)[])(uint64,uint64)[]", method "test_arr2()void"
     txna ApplicationArgs 0
-    match main_test_imm_fixed_array_route@5 main_fixed_initialize_route@6 main_add_payment_route@7 main_increment_payment_route@8 main_create_storage_route@9 main_local_struct_route@10 main_delete_storage_route@11 main_struct_arg_route@12 main_struct_return_route@13 main_tup_return_route@14 main_calculate_sum_route@15 main_test_arr_route@18
+    match main_test_imm_fixed_array_route@5 main_fixed_initialize_route@6 main_add_payment_route@7 main_increment_payment_route@8 main_create_storage_route@9 main_local_struct_route@10 main_delete_storage_route@11 main_struct_arg_route@12 main_struct_return_route@13 main_tup_return_route@14 main_calculate_sum_route@15 main_test_arr_route@18 main_test_arr2_route@24
 
-main_after_if_else@26:
+main_after_if_else@27:
     intc_0 // 0
+    return
+
+main_test_arr2_route@24:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_0 // 0
+    bytec 8 // "arr"
+    app_global_get_ex
+    assert // check self.arr exists
+    dup
+    substring 0 2
+    dig 1
+    extract 18 0
+    concat
+    dig 1
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    -
+    dup
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    replace2 0
+    dup
+    intc_0 // 0
+    extract_uint16
+    dup
+    dig 3
+    ==
+    assert
+    intc_1 // 1
+    -
+    swap
+    extract 2 0
+    swap
+    intc_2 // 16
+    *
+    intc_2 // 16
+    extract3 // on error: index access is out of bounds
+    uncover 2
+    extract 2 0
+    uncover 2
+    intc_2 // 16
+    *
+    intc_2 // 16
+    extract3 // on error: index access is out of bounds
+    ==
+    assert // expected elements to match
+    intc_1 // 1
     return
 
 main_test_arr_route@18:
@@ -96,7 +150,7 @@ main_test_arr_route@18:
     len
     intc_2 // 16
     /
-    dig 2
+    uncover 2
     dig 1
     ==
     assert // expected arrays to be the same length
@@ -104,7 +158,7 @@ main_test_arr_route@18:
     extract 6 2
     swap
     concat
-    dig 2
+    dig 1
     ==
     assert // expected arrays to be the same
     txn NumAppArgs
@@ -119,11 +173,13 @@ main_test_arr_route@18:
     itob
     concat
     dup
-    bury 7
-    dig 2
+    bury 6
+    dig 1
     swap
     concat // on error: max array length exceeded
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16
     intc_1 // 1
     +
     itob
@@ -132,41 +188,43 @@ main_test_arr_route@18:
     dup
     intc_0 // 0
     extract_uint16
+    dup
     intc_1 // 1
     ==
     assert // expected array to have 1 item
-    dup
+    dig 1
     callsub sum_frozen_arr
     pushint 7 // 7
     ==
     assert // expected sum to be 7
-    swap
-    dig 1
+    uncover 2
+    dig 2
     !=
     assert // expected arrays to be different
-    dup
-    extract 2 0
     dig 1
+    extract 2 0
+    dig 2
     extract 2 16
     pushbytes 0x0001
     swap
     concat
-    dig 2
+    dig 3
     ==
     assert // expected arrays to be the same
-    bytec 8 // 0x0000
+    bytec 9 // 0x0000
     cover 2
-    bytec 8 // 0x0000
+    bytec 9 // 0x0000
     swap
     concat // on error: max array length exceeded
     dup
-    extract 2 0
-    len
-    intc_2 // 16
-    /
+    intc_0 // 0
+    extract_uint16
+    uncover 2
+    +
     itob
     extract 6 2
     replace2 0
+    uncover 2
     ==
     assert // expected arrays to be the same
     intc_0 // 0
@@ -179,10 +237,9 @@ main_for_header@21:
     <
     bz main_after_for@23
     dig 4
-    dup
-    dig 5
+    dig 4
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -202,29 +259,30 @@ main_after_for@23:
     dup
     intc_0 // 0
     extract_uint16
-    dup
     pushint 3 // 3
     ==
     assert // expected 3 elements
-    dig 1
+    dup
     callsub sum_frozen_arr
     pushint 21 // 21
     ==
     assert // expected sum to be 21
-    intc_1 // 1
-    -
-    itob
-    extract 6 0
-    dig 1
-    swap
-    replace2 0
     dup
     len
     intc_2 // 16
     -
+    dig 1
     intc_0 // 0
-    swap
+    uncover 2
     substring3
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    -
+    itob
+    extract 6 0
+    replace2 0
     swap
     callsub sum_frozen_arr
     pushint 21 // 21
@@ -238,13 +296,16 @@ main_after_for@23:
     dup
     extract 2 0
     dig 1
-    swap
+    intc_0 // 0
+    extract_uint16
+    dig 2
+    uncover 2
     concat // on error: max array length exceeded
     dup
-    extract 2 0
-    len
-    intc_2 // 16
-    /
+    intc_0 // 0
+    extract_uint16
+    uncover 2
+    +
     itob
     extract 6 2
     replace2 0
@@ -252,7 +313,7 @@ main_after_for@23:
     pushint 28 // 28
     ==
     assert // and the sum shall be 41
-    pushbytes "arr"
+    bytec 8 // "arr"
     dig 1
     app_global_put
     dig 4
@@ -618,9 +679,9 @@ main_test_imm_fixed_array_route@5:
     intc_1 // 1
     return
 
-main_bare_routing@24:
+main_bare_routing@25:
     txn OnCompletion
-    bnz main_after_if_else@26
+    bnz main_after_if_else@27
     txn ApplicationID
     !
     assert // can only call when creating

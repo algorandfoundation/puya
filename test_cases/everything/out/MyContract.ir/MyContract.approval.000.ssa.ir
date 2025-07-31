@@ -141,28 +141,14 @@ subroutine test_cases.everything.contract.Everything.say_hello() -> Encoded(len+
         let tmp%1#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("Hello, ")
         let total_length%0#0: uint64 = (len name#0)
         let extract_to_end%0#0: bytes = (substring3 name#0 2u total_length%0#0)
-        let concat%0#0: Encoded(len+utf8[]) = (concat tmp%1#0 extract_to_end%0#0) // on error: max array length exceeded
-        let total_length%1#0: uint64 = (len concat%0#0)
-        let extract_to_end%1#0: bytes = (substring3 concat%0#0 2u total_length%1#0)
-        let len%0#0: uint64 = (len extract_to_end%1#0)
-        let div_floor%0#0: uint64 = (/ len%0#0 1u)
-        let as_bytes%0#0: bytes[8] = (itob div_floor%0#0)
-        let as_u16_bytes%0#0: bytes = ((extract 6 2) as_bytes%0#0)
-        let replace%0#0: bytes = (replace3 concat%0#0 0u as_u16_bytes%0#0)
-        let as_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = replace%0#0
-        let tmp%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("!")
-        let total_length%2#0: uint64 = (len tmp%2#0)
-        let extract_to_end%2#0: bytes = (substring3 tmp%2#0 2u total_length%2#0)
-        let concat%1#0: Encoded(len+utf8[]) = (concat as_Encoded(len+utf8[])%0#0 extract_to_end%2#0) // on error: max array length exceeded
-        let total_length%3#0: uint64 = (len concat%1#0)
-        let extract_to_end%3#0: bytes = (substring3 concat%1#0 2u total_length%3#0)
-        let len%1#0: uint64 = (len extract_to_end%3#0)
-        let div_floor%1#0: uint64 = (/ len%1#0 1u)
-        let as_bytes%1#0: bytes[8] = (itob div_floor%1#0)
-        let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
-        let replace%1#0: bytes = (replace3 concat%1#0 0u as_u16_bytes%1#0)
-        let as_Encoded(len+utf8[])%1#0: Encoded(len+utf8[]) = replace%1#0
-        return as_Encoded(len+utf8[])%1#0
+        let tmp%2#0: uint64 = array_len(name#0)
+        let tmp%3#0: Encoded(len+utf8[]) = array_concat(tmp%1#0, extract_to_end%0#0, tmp%2#0)
+        let tmp%4#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>("!")
+        let total_length%1#0: uint64 = (len tmp%4#0)
+        let extract_to_end%1#0: bytes = (substring3 tmp%4#0 2u total_length%1#0)
+        let tmp%5#0: uint64 = array_len(tmp%4#0)
+        let tmp%6#0: Encoded(len+utf8[]) = array_concat(tmp%3#0, extract_to_end%1#0, tmp%5#0)
+        return tmp%6#0
 
 subroutine test_cases.everything.contract.Everything.calculate(a: Encoded(uint64), b: Encoded(uint64)) -> Encoded(uint64):
     block@0: // L64

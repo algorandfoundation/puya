@@ -255,7 +255,13 @@ main_test_concat_with_native_tuple_route@21:
     bytec 9 // 0x000200000000000000010000000000000002
     swap
     concat // on error: max array length exceeded
-    pushbytes 0x0004
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
+    itob
+    extract 6 2
     replace2 0
     bytec_0 // 0x151f7c75
     swap
@@ -274,10 +280,10 @@ main_test_concat_with_arc4_tuple_route@20:
     txna ApplicationArgs 1
     concat // on error: max array length exceeded
     dup
-    extract 2 0
-    len
-    intc_3 // 8
-    /
+    intc_0 // 0
+    extract_uint16
+    intc_2 // 2
+    +
     itob
     extract 6 2
     replace2 0
@@ -456,10 +462,9 @@ main_for_header@68:
     setbit
     concat
     dig 42
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -551,10 +556,9 @@ main_for_header@78:
     dup
     itob
     dig 42
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -849,11 +853,9 @@ main_for_header@103:
     uncover 2
     setbit
     dig 40
-    dup
-    cover 2
     dig 1
     concat // on error: max array length exceeded
-    uncover 2
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -906,10 +908,9 @@ main_for_header@103:
     dig 1
     concat
     dig 41
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -932,10 +933,9 @@ main_for_header@103:
     dig 2
     concat
     dig 39
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -955,10 +955,9 @@ main_for_header@103:
     swap
     concat
     dig 35
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1047,10 +1046,9 @@ main_for_header@110:
     dup
     itob
     dig 34
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1150,10 +1148,9 @@ main_after_for@118:
     dig 1
     itob
     dig 29
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1684,10 +1681,9 @@ main_for_header@142:
     setbit
     concat
     dig 42
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1761,10 +1757,9 @@ main_for_header@147:
     itob
     concat
     dig 42
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1826,7 +1821,6 @@ main_after_for@149:
     assert
     pushint 16 // 16
     callsub dynamic_array_pop_fixed_size
-    bury 1
     dup
     intc_0 // 0
     extract_uint16
@@ -2047,7 +2041,13 @@ main_test_biguint_array_route@4:
     bytec_1 // 0x0000
     swap
     concat // on error: max array length exceeded
-    pushbytes 0x0001
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    +
+    itob
+    extract 6 2
     replace2 0
     dup
     bury 42
@@ -2084,10 +2084,9 @@ main_for_header@167:
     dig 43
     b|
     dig 42
-    dup
-    uncover 2
-    concat // on error: max array length exceeded
     swap
+    concat // on error: max array length exceeded
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -2110,10 +2109,9 @@ main_after_for@169:
     pushint 6 // 6
     ==
     assert
-    dup
     intc_1 // 1
     -
-    dig 2
+    dig 1
     extract 2 0
     swap
     pushint 64 // 64
@@ -2133,12 +2131,12 @@ main_after_for@169:
     pushint 64 // 64
     <=
     assert // overflow
-    dig 44
+    dig 43
     b|
-    uncover 2
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16
     intc_1 // 1
     +
     itob
@@ -2151,10 +2149,9 @@ main_after_for@169:
     pushint 7 // 7
     ==
     assert
-    dup
     intc_1 // 1
     -
-    dig 2
+    dig 1
     extract 2 0
     swap
     pushint 64 // 64
@@ -2164,15 +2161,16 @@ main_after_for@169:
     pushbytes 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe
     b==
     assert
-    dig 1
+    dup
     extract 2 64
     bytec_2 // 0x
     b==
     assert
-    swap
     bytec 6 // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     concat // on error: max array length exceeded
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16
     intc_1 // 1
     +
     itob
@@ -2227,10 +2225,9 @@ main_test_uint64_array_route@3:
     pushint 6 // 6
     ==
     assert
-    dup
     intc_1 // 1
     -
-    dig 2
+    dig 1
     extract 2 0
     swap
     intc_3 // 8
@@ -2241,10 +2238,10 @@ main_test_uint64_array_route@3:
     assert
     pushint 43 // 43
     itob
-    uncover 2
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16
     intc_1 // 1
     +
     itob
@@ -2286,8 +2283,7 @@ main_for_header@172:
     dig 40
     intc_3 // 8
     callsub dynamic_array_pop_fixed_size
-    bury 42
-    pop
+    bury 41
     dig 27
     intc_1 // 1
     +
@@ -2323,10 +2319,9 @@ main_after_for@174:
     pushint 14 // 14
     ==
     assert
-    dup
     intc_1 // 1
     -
-    dig 2
+    dig 1
     extract 2 0
     swap
     intc_3 // 8
@@ -2337,10 +2332,10 @@ main_after_for@174:
     assert
     pushint 44 // 44
     itob
-    uncover 2
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
+    intc_0 // 0
+    extract_uint16
     intc_1 // 1
     +
     itob
@@ -2395,30 +2390,25 @@ main_bare_routing@29:
     return
 
 
-// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
 dynamic_array_pop_fixed_size:
-    proto 2 2
+    proto 2 1
     frame_dig -2
+    len
+    frame_dig -1
+    -
+    frame_dig -2
+    intc_0 // 0
+    uncover 2
+    substring3
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     -
     itob
     extract 6 0
-    frame_dig -2
-    swap
     replace2 0
-    dup
-    len
-    frame_dig -1
-    -
-    dup2
-    frame_dig -1
-    extract3
-    uncover 2
-    intc_0 // 0
-    uncover 3
-    substring3
     retsub
 
 
@@ -2831,7 +2821,7 @@ add_x_for_header@1:
     frame_dig -2
     swap
     concat // on error: max array length exceeded
-    frame_dig -2
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1

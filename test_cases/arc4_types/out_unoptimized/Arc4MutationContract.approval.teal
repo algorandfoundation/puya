@@ -75,33 +75,35 @@ dynamic_array_pop_bit_block@0:
     retsub
 
 
-// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes, bytes:
+// _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> bytes:
 dynamic_array_pop_fixed_size:
-    proto 2 2
+    proto 2 1
 
 dynamic_array_pop_fixed_size_block@0:
     frame_dig -2
+    frame_dig -1
+
+dynamic_array_pop_fixed_size_block@1:
+    frame_dig 0
+    dup
+    len
+    uncover 2
+    -
+    swap
+    intc_0 // 0
+    uncover 2
+    substring3
+
+dynamic_array_pop_fixed_size_after_inlined__puya_lib.arc4.r_trim@2:
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
     -
     itob
     extract 6 0
-    frame_dig -2
-    swap
     replace2 0
-    dup
-    len
-    frame_dig -1
-    -
-    dup2
-    frame_dig -1
-    extract3
-    cover 2
     swap
-    intc_0 // 0
-    uncover 2
-    substring3
     retsub
 
 
@@ -439,10 +441,8 @@ array_concat_block@0:
     concat
     bytec 5 // 0x04
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_2 // 2
@@ -474,10 +474,8 @@ array_concat_block@0:
     bytec_1 // 0x
     pushbytes 0x05
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -688,10 +686,8 @@ array_of_array_dynamic_block@0:
     bytec_1 // 0x
     bytec 8 // 0xff
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1298,10 +1294,8 @@ dynamic_array_fixed_size_block@0:
     bytec_1 // 0x
     bytec 4 // 0x32
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_1 // 1
@@ -1335,17 +1329,18 @@ dynamic_array_fixed_size_block@0:
     intc_2 // 2
     uncover 3
     substring3
-    concat // on error: max array length exceeded
-    dup
-    len
     swap
     dup
-    intc_2 // 2
-    uncover 3
-    substring3
-    len
-    intc_1 // 1
-    /
+    intc_0 // 0
+    extract_uint16
+    cover 2
+    swap
+    concat // on error: max array length exceeded
+    dup
+    intc_0 // 0
+    extract_uint16
+    uncover 2
+    +
     itob
     extract 6 2
     swap
@@ -1417,10 +1412,8 @@ dynamic_array_fixed_size_block@0:
     concat
     bytec 15 // 0x5a
     concat
-    dig 1
-    swap
     concat // on error: max array length exceeded
-    swap
+    dup
     intc_0 // 0
     extract_uint16
     intc_2 // 2
@@ -1507,6 +1500,24 @@ dynamic_array_fixed_size_block@0:
     assert
     // arc4_types/mutation.py:159
     // popped = dynamic_uint8_array.pop()
+    dup
+    intc_0 // 0
+    extract_uint16
+    intc_1 // 1
+    -
+    dig 1
+    len
+    swap
+    dig 2
+    intc_2 // 2
+    uncover 3
+    substring3
+    swap
+    intc_1 // 1
+    *
+    intc_1 // 1
+    extract3 // on error: index access is out of bounds
+    swap
     intc_1 // 1
     callsub dynamic_array_pop_fixed_size
     swap
