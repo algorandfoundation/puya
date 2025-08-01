@@ -16,13 +16,13 @@ class OpRunModeValidator(DestructuredIRValidator):
                 pass
             case RunMode.app:
                 if self.current_run_mode != RunMode.app:
-                    logger.warning(
+                    logger.error(
                         f"The operation {intrinsic} is only allowed in smart contracts",
                         location=intrinsic.source_location,
                     )
             case RunMode.lsig:
                 if self.current_run_mode != RunMode.lsig:
-                    logger.warning(
+                    logger.error(
                         f"The operation {intrinsic} is only allowed in logic signatures",
                         location=intrinsic.source_location,
                     )
