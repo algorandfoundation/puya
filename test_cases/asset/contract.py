@@ -18,6 +18,7 @@ class Reference(Contract):
         self.asa = Asset()
 
     def approval_program(self) -> bool:
+        assert bool(Asset(1)) == bool(Asset(2))
         if Txn.num_app_args == 1:
             if Txn.application_args(0) == b"opt_in":
                 asset = Txn.assets(0)
