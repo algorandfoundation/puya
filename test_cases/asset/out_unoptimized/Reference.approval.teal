@@ -35,6 +35,12 @@ approval_program:
 
 approval_program_block@0:
     // asset/contract.py:21
+    // assert bool(Asset(1)) == bool(Asset(2))
+    intc_1 // 1
+    pushint 2 // 2
+    ==
+    assert
+    // asset/contract.py:22
     // if Txn.num_app_args == 1:
     txn NumAppArgs
     intc_1 // 1
@@ -42,7 +48,7 @@ approval_program_block@0:
     bz approval_program_after_if_else@8
 
 approval_program_if_body@1:
-    // asset/contract.py:22
+    // asset/contract.py:23
     // if Txn.application_args(0) == b"opt_in":
     txna ApplicationArgs 0
     pushbytes 0x6f70745f696e
@@ -50,23 +56,23 @@ approval_program_if_body@1:
     bz approval_program_else_body@3
 
 approval_program_if_body@2:
-    // asset/contract.py:23
+    // asset/contract.py:24
     // asset = Txn.assets(0)
     txna Assets 0
-    // asset/contract.py:24
+    // asset/contract.py:25
     // self.opt_into_asset(asset)
     callsub opt_into_asset
 
 approval_program_after_if_else@7:
 
 approval_program_after_if_else@8:
-    // asset/contract.py:30
+    // asset/contract.py:31
     // return True
     intc_1 // 1
     retsub
 
 approval_program_else_body@3:
-    // asset/contract.py:25
+    // asset/contract.py:26
     // elif Txn.application_args(0) == b"is_opted_in":
     txna ApplicationArgs 0
     pushbytes 0x69735f6f707465645f696e
@@ -74,10 +80,10 @@ approval_program_else_body@3:
     bz approval_program_else_body@5
 
 approval_program_if_body@4:
-    // asset/contract.py:26
+    // asset/contract.py:27
     // asset = Txn.assets(0)
     txna Assets 0
-    // asset/contract.py:27
+    // asset/contract.py:28
     // self.is_opted_asset(asset)
     callsub is_opted_asset
 
@@ -85,27 +91,27 @@ approval_program_after_if_else@6:
     b approval_program_after_if_else@7
 
 approval_program_else_body@5:
-    // asset/contract.py:29
+    // asset/contract.py:30
     // assert False, "Expected opt_in or is_opted_in"
     err // Expected opt_in or is_opted_in
 
 
 // test_cases.asset.contract.Reference.opt_into_asset(asset: uint64) -> void:
 opt_into_asset:
-    // asset/contract.py:35-36
+    // asset/contract.py:36-37
     // @subroutine
     // def opt_into_asset(self, asset: Asset) -> None:
     proto 1 0
 
 opt_into_asset_block@0:
-    // asset/contract.py:37-38
+    // asset/contract.py:38-39
     // # Only allow app creator to opt the app account into a ASA
     // assert Txn.sender == Global.creator_address, "Only creator can opt in to ASA"
     txn Sender
     global CreatorAddress
     ==
     assert // Only creator can opt in to ASA
-    // asset/contract.py:39-40
+    // asset/contract.py:40-41
     // # Verify a ASA hasn't already been opted into
     // assert not self.asa, "ASA already opted in"
     intc_0 // 0
@@ -114,33 +120,33 @@ opt_into_asset_block@0:
     assert // check self.asa exists
     !
     assert // ASA already opted in
-    // asset/contract.py:41-42
+    // asset/contract.py:42-43
     // # Save ASA ID in global state
     // self.asa = asset
     bytec_0 // "asa"
     frame_dig -1
     app_global_put
-    // asset/contract.py:44-45
+    // asset/contract.py:45-46
     // # Submit opt-in transaction: 0 asset transfer to self
     // ITxnCreate.begin()
     itxn_begin
-    // asset/contract.py:46
+    // asset/contract.py:47
     // ITxnCreate.set_type_enum(TransactionType.AssetTransfer)
     pushint 4 // axfer
     itxn_field TypeEnum
-    // asset/contract.py:47
+    // asset/contract.py:48
     // ITxnCreate.set_fee(UInt64(0))  # cover fee with outer txn
     intc_0 // 0
     itxn_field Fee
-    // asset/contract.py:48
+    // asset/contract.py:49
     // ITxnCreate.set_asset_receiver(Global.current_application_address)
     global CurrentApplicationAddress
     itxn_field AssetReceiver
-    // asset/contract.py:49
+    // asset/contract.py:50
     // ITxnCreate.set_xfer_asset(asset)
     frame_dig -1
     itxn_field XferAsset
-    // asset/contract.py:50
+    // asset/contract.py:51
     // ITxnCreate.submit()
     itxn_submit
     retsub
@@ -148,13 +154,13 @@ opt_into_asset_block@0:
 
 // test_cases.asset.contract.Reference.is_opted_asset(asset: uint64) -> void:
 is_opted_asset:
-    // asset/contract.py:52-53
+    // asset/contract.py:53-54
     // @subroutine
     // def is_opted_asset(self, asset: Asset) -> None:
     proto 1 0
 
 is_opted_asset_block@0:
-    // asset/contract.py:54
+    // asset/contract.py:55
     // assert self.asa == asset, "asset self.asa == asset"
     intc_0 // 0
     bytec_0 // "asa"
@@ -163,7 +169,7 @@ is_opted_asset_block@0:
     frame_dig -1
     ==
     assert // asset self.asa == asset
-    // asset/contract.py:55
+    // asset/contract.py:56
     // assert asset.total == 10000000, "total"
     frame_dig -1
     asset_params_get AssetTotal
@@ -171,7 +177,7 @@ is_opted_asset_block@0:
     pushint 10000000 // 10000000
     ==
     assert // total
-    // asset/contract.py:56
+    // asset/contract.py:57
     // assert asset.decimals == 0, "decimals"
     frame_dig -1
     asset_params_get AssetDecimals
@@ -179,14 +185,14 @@ is_opted_asset_block@0:
     intc_0 // 0
     ==
     assert // decimals
-    // asset/contract.py:57
+    // asset/contract.py:58
     // assert not asset.default_frozen, "default frozen"
     frame_dig -1
     asset_params_get AssetDefaultFrozen
     assert // asset exists
     !
     assert // default frozen
-    // asset/contract.py:58
+    // asset/contract.py:59
     // assert asset.unit_name == b"a", "unit_name"
     frame_dig -1
     asset_params_get AssetUnitName
@@ -194,7 +200,7 @@ is_opted_asset_block@0:
     pushbytes 0x61
     ==
     assert // unit_name
-    // asset/contract.py:59
+    // asset/contract.py:60
     // assert asset.name == b"asset a", "name"
     frame_dig -1
     asset_params_get AssetName
@@ -202,7 +208,7 @@ is_opted_asset_block@0:
     pushbytes 0x61737365742061
     ==
     assert // name
-    // asset/contract.py:60
+    // asset/contract.py:61
     // assert asset.url == b"", "URL"
     frame_dig -1
     asset_params_get AssetURL
@@ -210,7 +216,7 @@ is_opted_asset_block@0:
     pushbytes 0x
     ==
     assert // URL
-    // asset/contract.py:61
+    // asset/contract.py:62
     // assert asset.metadata_hash == bzero(32), "hash"
     frame_dig -1
     asset_params_get AssetMetadataHash
@@ -219,7 +225,7 @@ is_opted_asset_block@0:
     bzero
     ==
     assert // hash
-    // asset/contract.py:62
+    // asset/contract.py:63
     // assert asset.manager == Global.zero_address, "manager"
     frame_dig -1
     asset_params_get AssetManager
@@ -227,7 +233,7 @@ is_opted_asset_block@0:
     global ZeroAddress
     ==
     assert // manager
-    // asset/contract.py:63
+    // asset/contract.py:64
     // assert asset.reserve == Global.zero_address, "reserve"
     frame_dig -1
     asset_params_get AssetReserve
@@ -235,7 +241,7 @@ is_opted_asset_block@0:
     global ZeroAddress
     ==
     assert // reserve
-    // asset/contract.py:64
+    // asset/contract.py:65
     // assert asset.freeze == Global.zero_address, "freeze"
     frame_dig -1
     asset_params_get AssetFreeze
@@ -243,7 +249,7 @@ is_opted_asset_block@0:
     global ZeroAddress
     ==
     assert // freeze
-    // asset/contract.py:65
+    // asset/contract.py:66
     // assert asset.clawback == Global.zero_address, "clawback"
     frame_dig -1
     asset_params_get AssetClawback
@@ -251,7 +257,7 @@ is_opted_asset_block@0:
     global ZeroAddress
     ==
     assert // clawback
-    // asset/contract.py:66
+    // asset/contract.py:67
     // assert asset.creator == Global.creator_address, "creator"
     frame_dig -1
     asset_params_get AssetCreator
@@ -259,7 +265,7 @@ is_opted_asset_block@0:
     global CreatorAddress
     ==
     assert // creator
-    // asset/contract.py:67
+    // asset/contract.py:68
     // assert Global.current_application_address.is_opted_in(asset), "asset opted in"
     global CurrentApplicationAddress
     frame_dig -1

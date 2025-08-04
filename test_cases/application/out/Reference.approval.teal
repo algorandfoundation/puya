@@ -3,12 +3,13 @@
 
 // test_cases.application.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
+    intcblock 1 0
     txn ApplicationID
     bnz main_after_if_else@2
     // application/contract.py:15
     // self.int_1 = UInt64(0)
     pushbytes "int_1"
-    pushint 0 // 0
+    intc_1 // 0
     app_global_put
     // application/contract.py:16
     // self.bytes_1 = Bytes(b"")
@@ -21,28 +22,32 @@ main:
 
 main_after_if_else@2:
     // application/contract.py:27
+    // assert bool(Application(1)) == bool(Application(2))
+    intc_1 // 0
+    assert
+    // application/contract.py:28
     // if op.Txn.num_app_args == 1:
     txn NumAppArgs
-    pushint 1 // 1
+    intc_0 // 1
     ==
     bz main_after_if_else@8
-    // application/contract.py:28
+    // application/contract.py:29
     // if op.Txn.application_args(0) == b"validate":
     txna ApplicationArgs 0
     pushbytes 0x76616c6964617465
     ==
     assert // Expected validate
-    // application/contract.py:29
+    // application/contract.py:30
     // self.validate_asset(op.Global.current_application_id)
     global CurrentApplicationID
-    // application/contract.py:39
+    // application/contract.py:40
     // assert not Txn.sender.is_opted_in(app), "app opted in"
     txn Sender
     dig 1
     app_opted_in
     !
     assert // app opted in
-    // application/contract.py:40
+    // application/contract.py:41
     // assert app.creator == op.Global.creator_address, "expected creator"
     dup
     app_params_get AppCreator
@@ -50,15 +55,15 @@ main_after_if_else@2:
     global CreatorAddress
     ==
     assert // expected creator
-    // application/contract.py:41
+    // application/contract.py:42
     // assert app.global_num_uint == 1, "expected global_num_uint"
     dup
     app_params_get AppGlobalNumUint
     assert // application exists
-    pushint 1 // 1
+    intc_0 // 1
     ==
     assert // expected global_num_uint
-    // application/contract.py:42
+    // application/contract.py:43
     // assert app.global_num_bytes == 2, "expected global_num_bytes"
     dup
     app_params_get AppGlobalNumByteSlice
@@ -66,7 +71,7 @@ main_after_if_else@2:
     pushint 2 // 2
     ==
     assert // expected global_num_bytes
-    // application/contract.py:43
+    // application/contract.py:44
     // assert app.local_num_uint == 3, "expected local_num_uint"
     dup
     app_params_get AppLocalNumUint
@@ -74,7 +79,7 @@ main_after_if_else@2:
     pushint 3 // 3
     ==
     assert // expected local_num_uint
-    // application/contract.py:44
+    // application/contract.py:45
     // assert app.local_num_bytes == 4, "expected local_num_bytes"
     dup
     app_params_get AppLocalNumByteSlice
@@ -82,40 +87,40 @@ main_after_if_else@2:
     pushint 4 // 4
     ==
     assert // expected local_num_bytes
-    // application/contract.py:45
+    // application/contract.py:46
     // assert app.approval_program, "expected approval_program"
     dup
     app_params_get AppApprovalProgram
     assert // application exists
     len
     assert // expected approval_program
-    // application/contract.py:46
+    // application/contract.py:47
     // assert app.clear_state_program, "expected clear_state_program"
     dup
     app_params_get AppClearStateProgram
     assert // application exists
     len
     assert // expected clear_state_program
-    // application/contract.py:47
+    // application/contract.py:48
     // assert app == op.Global.current_application_id, "expected current_application_id"
     dup
     global CurrentApplicationID
     ==
     assert // expected current_application_id
-    // application/contract.py:49
+    // application/contract.py:50
     // app.address == op.Global.current_application_address
     app_params_get AppAddress
     assert // application exists
     global CurrentApplicationAddress
     ==
-    // application/contract.py:48-50
+    // application/contract.py:49-51
     // assert (
     //     app.address == op.Global.current_application_address
     // ), "expected current_application_address"
     assert // expected current_application_address
 
 main_after_if_else@8:
-    // application/contract.py:32
+    // application/contract.py:33
     // return True
-    pushint 1 // 1
+    intc_0 // 1
     return

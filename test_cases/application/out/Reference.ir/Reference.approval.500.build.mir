@@ -27,45 +27,49 @@ subroutine main:
 
     main_after_if_else@2:
         // application/contract.py:27
+        // assert bool(Application(1)) == bool(Application(2))
+        int 0                                                                                0
+        assert
+        // application/contract.py:28
         // if op.Txn.num_app_args == 1:
-        txn NumAppArgs                                                                       tmp%0#1
-        v-store tmp%0#1
-        v-load tmp%0#1                                                                       tmp%0#1
-        int 1                                                                                tmp%0#1,1
-        ==                                                                                   tmp%1#1
+        txn NumAppArgs                                                                       tmp%1#1
         v-store tmp%1#1
         v-load tmp%1#1                                                                       tmp%1#1
+        int 1                                                                                tmp%1#1,1
+        ==                                                                                   tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                       tmp%2#0
         bz main_after_if_else@8 ; b main_if_body@4
 
     main_if_body@4:
-        // application/contract.py:28
+        // application/contract.py:29
         // if op.Txn.application_args(0) == b"validate":
-        txna ApplicationArgs 0                                                               tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                       tmp%2#0
-        byte 0x76616c6964617465                                                              tmp%2#0,0x76616c6964617465
-        ==                                                                                   tmp%3#0
+        txna ApplicationArgs 0                                                               tmp%3#0
         v-store tmp%3#0
         v-load tmp%3#0                                                                       tmp%3#0
+        byte 0x76616c6964617465                                                              tmp%3#0,0x76616c6964617465
+        ==                                                                                   tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                       tmp%4#0
         assert // Expected validate
-        // application/contract.py:29
+        // application/contract.py:30
         // self.validate_asset(op.Global.current_application_id)
         global CurrentApplicationID                                                          app#0
         v-store app#0
-        // application/contract.py:39
+        // application/contract.py:40
         // assert not Txn.sender.is_opted_in(app), "app opted in"
         txn Sender                                                                           tmp%0#2
         v-store tmp%0#2
         v-load tmp%0#2                                                                       tmp%0#2
         v-load app#0                                                                         tmp%0#2,app#0
-        app_opted_in                                                                         tmp%1#1
-        v-store tmp%1#1
-        v-load tmp%1#1                                                                       tmp%1#1
-        !                                                                                    tmp%2#1
-        v-store tmp%2#1
-        v-load tmp%2#1                                                                       tmp%2#1
+        app_opted_in                                                                         tmp%1#2
+        v-store tmp%1#2
+        v-load tmp%1#2                                                                       tmp%1#2
+        !                                                                                    tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                       tmp%2#0
         assert // app opted in
-        // application/contract.py:40
+        // application/contract.py:41
         // assert app.creator == op.Global.creator_address, "expected creator"
         v-load app#0                                                                         app#0
         app_params_get AppCreator                                                            value%0#0,check%0#0
@@ -77,11 +81,11 @@ subroutine main:
         v-store tmp%3#1
         v-load value%0#0                                                                     value%0#0
         v-load tmp%3#1                                                                       value%0#0,tmp%3#1
-        ==                                                                                   tmp%4#1
-        v-store tmp%4#1
-        v-load tmp%4#1                                                                       tmp%4#1
+        ==                                                                                   tmp%4#0
+        v-store tmp%4#0
+        v-load tmp%4#0                                                                       tmp%4#0
         assert // expected creator
-        // application/contract.py:41
+        // application/contract.py:42
         // assert app.global_num_uint == 1, "expected global_num_uint"
         v-load app#0                                                                         app#0
         app_params_get AppGlobalNumUint                                                      value%1#0,check%1#0
@@ -91,11 +95,11 @@ subroutine main:
         assert // application exists
         v-load value%1#0                                                                     value%1#0
         int 1                                                                                value%1#0,1
-        ==                                                                                   tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                       tmp%5#0
+        ==                                                                                   tmp%5#1
+        v-store tmp%5#1
+        v-load tmp%5#1                                                                       tmp%5#1
         assert // expected global_num_uint
-        // application/contract.py:42
+        // application/contract.py:43
         // assert app.global_num_bytes == 2, "expected global_num_bytes"
         v-load app#0                                                                         app#0
         app_params_get AppGlobalNumByteSlice                                                 value%2#0,check%2#0
@@ -109,7 +113,7 @@ subroutine main:
         v-store tmp%6#0
         v-load tmp%6#0                                                                       tmp%6#0
         assert // expected global_num_bytes
-        // application/contract.py:43
+        // application/contract.py:44
         // assert app.local_num_uint == 3, "expected local_num_uint"
         v-load app#0                                                                         app#0
         app_params_get AppLocalNumUint                                                       value%3#0,check%3#0
@@ -123,7 +127,7 @@ subroutine main:
         v-store tmp%7#0
         v-load tmp%7#0                                                                       tmp%7#0
         assert // expected local_num_uint
-        // application/contract.py:44
+        // application/contract.py:45
         // assert app.local_num_bytes == 4, "expected local_num_bytes"
         v-load app#0                                                                         app#0
         app_params_get AppLocalNumByteSlice                                                  value%4#0,check%4#0
@@ -137,7 +141,7 @@ subroutine main:
         v-store tmp%8#0
         v-load tmp%8#0                                                                       tmp%8#0
         assert // expected local_num_bytes
-        // application/contract.py:45
+        // application/contract.py:46
         // assert app.approval_program, "expected approval_program"
         v-load app#0                                                                         app#0
         app_params_get AppApprovalProgram                                                    value%5#0,check%5#0
@@ -150,7 +154,7 @@ subroutine main:
         v-store tmp%9#0
         v-load tmp%9#0                                                                       tmp%9#0
         assert // expected approval_program
-        // application/contract.py:46
+        // application/contract.py:47
         // assert app.clear_state_program, "expected clear_state_program"
         v-load app#0                                                                         app#0
         app_params_get AppClearStateProgram                                                  value%6#0,check%6#0
@@ -163,7 +167,7 @@ subroutine main:
         v-store tmp%11#0
         v-load tmp%11#0                                                                      tmp%11#0
         assert // expected clear_state_program
-        // application/contract.py:47
+        // application/contract.py:48
         // assert app == op.Global.current_application_id, "expected current_application_id"
         global CurrentApplicationID                                                          tmp%13#0
         v-store tmp%13#0
@@ -173,7 +177,7 @@ subroutine main:
         v-store tmp%14#0
         v-load tmp%14#0                                                                      tmp%14#0
         assert // expected current_application_id
-        // application/contract.py:49
+        // application/contract.py:50
         // app.address == op.Global.current_application_address
         v-load app#0                                                                         app#0
         app_params_get AppAddress                                                            value%7#0,check%7#0
@@ -187,7 +191,7 @@ subroutine main:
         v-load tmp%15#0                                                                      value%7#0,tmp%15#0
         ==                                                                                   tmp%16#0
         v-store tmp%16#0
-        // application/contract.py:48-50
+        // application/contract.py:49-51
         // assert (
         //     app.address == op.Global.current_application_address
         // ), "expected current_application_address"
@@ -196,7 +200,7 @@ subroutine main:
         b main_after_if_else@8
 
     main_after_if_else@8:
-        // application/contract.py:32
+        // application/contract.py:33
         // return True
         int 1                                                                                1
         return
