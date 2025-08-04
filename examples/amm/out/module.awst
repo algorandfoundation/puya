@@ -42,7 +42,7 @@ contract ConstantProductAMM
   
   abimethod examples.amm.contract.ConstantProductAMM.bootstrap(seed: group_transaction_pay, a_asset: asset, b_asset: asset): uint64
   {
-    assert(!(reinterpret_cast<bool>(GlobalState['pool_token'])), comment="application has already been bootstrapped")
+    assert(reinterpret_cast<uint64>(GlobalState['pool_token']) == 0u, comment="application has already been bootstrapped")
     this::_check_is_governor()
     assert(global<GroupSize>() == 2u, comment="group size not 2")
     assert(gtxns<Receiver>(seed) == global<CurrentApplicationAddress>(), comment="receiver not app address")
@@ -124,7 +124,7 @@ contract ConstantProductAMM
   
   subroutine examples.amm.contract.ConstantProductAMM._check_bootstrapped(): void
   {
-    assert(reinterpret_cast<bool>(GlobalState['pool_token']), comment="bootstrap method needs to be called first")
+    assert(reinterpret_cast<uint64>(GlobalState['pool_token']) != 0u, comment="bootstrap method needs to be called first")
   }
   
   subroutine examples.amm.contract.ConstantProductAMM._update_ratio(): void

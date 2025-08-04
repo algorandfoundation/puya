@@ -59,9 +59,9 @@ subroutine main:
     main_after_if_else@5:
         // augmented_assignment/contract.py:28
         // if op.Txn.application_id:
-        txn ApplicationID                                        reinterpret_bool%0#0
-        v-store reinterpret_bool%0#0
-        v-load reinterpret_bool%0#0                              reinterpret_bool%0#0
+        txn ApplicationID                                        tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                           tmp%3#0
         bz main_after_if_else@7 ; b main_if_body@6
 
     main_if_body@6:
@@ -86,11 +86,11 @@ subroutine main:
         assert // check self.my_uint exists for account
         v-load maybe_value%0#0                                   maybe_value%0#0
         v-load n#0                                               maybe_value%0#0,n#0
-        +                                                        tmp%5#0
-        v-store tmp%5#0
+        +                                                        tmp%7#0
+        v-store tmp%7#0
         v-load me#0                                              me#0
         byte "my_uint"                                           me#0,"my_uint"
-        v-load tmp%5#0                                           me#0,"my_uint",tmp%5#0
+        v-load tmp%7#0                                           me#0,"my_uint",tmp%7#0
         app_local_put
         // augmented_assignment/contract.py:35
         // self.my_bytes[me] += bytes_to_add
@@ -104,11 +104,11 @@ subroutine main:
         assert // check self.my_bytes exists for account
         v-load maybe_value%1#0                                   maybe_value%1#0
         v-load bytes_to_add#0                                    maybe_value%1#0,bytes_to_add#0
-        concat                                                   tmp%6#0
-        v-store tmp%6#0
+        concat                                                   tmp%8#0
+        v-store tmp%8#0
         v-load me#0                                              me#0
         byte "my_bytes"                                          me#0,"my_bytes"
-        v-load tmp%6#0                                           me#0,"my_bytes",tmp%6#0
+        v-load tmp%8#0                                           me#0,"my_bytes",tmp%8#0
         app_local_put
         // augmented_assignment/contract.py:38
         // self.global_uint += n
@@ -121,10 +121,10 @@ subroutine main:
         assert // check self.global_uint exists
         v-load maybe_value%2#0                                   maybe_value%2#0
         v-load n#0                                               maybe_value%2#0,n#0
-        +                                                        tmp%7#0
-        v-store tmp%7#0
+        +                                                        tmp%9#0
+        v-store tmp%9#0
         byte "global_uint"                                       "global_uint"
-        v-load tmp%7#0                                           "global_uint",tmp%7#0
+        v-load tmp%9#0                                           "global_uint",tmp%9#0
         app_global_put
         // augmented_assignment/contract.py:39
         // self.global_bytes += bytes_to_add
@@ -137,10 +137,10 @@ subroutine main:
         assert // check self.global_bytes exists
         v-load maybe_value%3#0                                   maybe_value%3#0
         v-load bytes_to_add#0                                    maybe_value%3#0,bytes_to_add#0
-        concat                                                   tmp%8#0
-        v-store tmp%8#0
+        concat                                                   tmp%10#0
+        v-store tmp%10#0
         byte "global_bytes"                                      "global_bytes"
-        v-load tmp%8#0                                           "global_bytes",tmp%8#0
+        v-load tmp%10#0                                          "global_bytes",tmp%10#0
         app_global_put
         // augmented_assignment/contract.py:41
         // self.counter = UInt64()
@@ -149,11 +149,11 @@ subroutine main:
         app_global_put
         // augmented_assignment/contract.py:43
         // self.my_uint[self.get_sender_with_side_effect()] += 1
-        callsub get_sender_with_side_effect                      tmp%10#0
-        v-store tmp%10#0
-        v-load tmp%10#0                                          tmp%10#0
-        int 0                                                    tmp%10#0,0
-        byte "my_uint"                                           tmp%10#0,0,"my_uint"
+        callsub get_sender_with_side_effect                      tmp%12#0
+        v-store tmp%12#0
+        v-load tmp%12#0                                          tmp%12#0
+        int 0                                                    tmp%12#0,0
+        byte "my_uint"                                           tmp%12#0,0,"my_uint"
         app_local_get_ex                                         maybe_value%5#0,maybe_exists%5#0
         v-store maybe_exists%5#0                                 maybe_value%5#0
         v-store maybe_value%5#0
@@ -161,11 +161,11 @@ subroutine main:
         assert // check self.my_uint exists for account
         v-load maybe_value%5#0                                   maybe_value%5#0
         int 1                                                    maybe_value%5#0,1
-        +                                                        tmp%11#0
-        v-store tmp%11#0
-        v-load tmp%10#0                                          tmp%10#0
-        byte "my_uint"                                           tmp%10#0,"my_uint"
-        v-load tmp%11#0                                          tmp%10#0,"my_uint",tmp%11#0
+        +                                                        tmp%13#0
+        v-store tmp%13#0
+        v-load tmp%12#0                                          tmp%12#0
+        byte "my_uint"                                           tmp%12#0,"my_uint"
+        v-load tmp%13#0                                          tmp%12#0,"my_uint",tmp%13#0
         app_local_put
         // augmented_assignment/contract.py:44
         // assert self.counter == 1, "this should not error"
@@ -178,17 +178,17 @@ subroutine main:
         assert // check self.counter exists
         v-load maybe_value%6#0                                   maybe_value%6#0
         int 1                                                    maybe_value%6#0,1
-        ==                                                       tmp%12#0
-        v-store tmp%12#0
-        v-load tmp%12#0                                          tmp%12#0
+        ==                                                       tmp%14#0
+        v-store tmp%14#0
+        v-load tmp%14#0                                          tmp%14#0
         assert // this should not error
         // augmented_assignment/contract.py:45
         // self.my_uint[self.get_sender_with_side_effect()] -= 1
-        callsub get_sender_with_side_effect                      tmp%13#0
-        v-store tmp%13#0
-        v-load tmp%13#0                                          tmp%13#0
-        int 0                                                    tmp%13#0,0
-        byte "my_uint"                                           tmp%13#0,0,"my_uint"
+        callsub get_sender_with_side_effect                      tmp%15#0
+        v-store tmp%15#0
+        v-load tmp%15#0                                          tmp%15#0
+        int 0                                                    tmp%15#0,0
+        byte "my_uint"                                           tmp%15#0,0,"my_uint"
         app_local_get_ex                                         maybe_value%7#0,maybe_exists%7#0
         v-store maybe_exists%7#0                                 maybe_value%7#0
         v-store maybe_value%7#0
@@ -196,11 +196,11 @@ subroutine main:
         assert // check self.my_uint exists for account
         v-load maybe_value%7#0                                   maybe_value%7#0
         int 1                                                    maybe_value%7#0,1
-        -                                                        tmp%14#0
-        v-store tmp%14#0
-        v-load tmp%13#0                                          tmp%13#0
-        byte "my_uint"                                           tmp%13#0,"my_uint"
-        v-load tmp%14#0                                          tmp%13#0,"my_uint",tmp%14#0
+        -                                                        tmp%16#0
+        v-store tmp%16#0
+        v-load tmp%15#0                                          tmp%15#0
+        byte "my_uint"                                           tmp%15#0,"my_uint"
+        v-load tmp%16#0                                          tmp%15#0,"my_uint",tmp%16#0
         app_local_put
         // augmented_assignment/contract.py:46
         // assert self.counter == 2, "this should not error"
@@ -213,9 +213,9 @@ subroutine main:
         assert // check self.counter exists
         v-load maybe_value%8#0                                   maybe_value%8#0
         int 2                                                    maybe_value%8#0,2
-        ==                                                       tmp%15#0
-        v-store tmp%15#0
-        v-load tmp%15#0                                          tmp%15#0
+        ==                                                       tmp%17#0
+        v-store tmp%17#0
+        v-load tmp%17#0                                          tmp%17#0
         assert // this should not error
         b main_after_if_else@7
 

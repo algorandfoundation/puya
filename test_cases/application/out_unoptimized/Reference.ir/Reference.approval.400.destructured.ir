@@ -18,18 +18,20 @@ subroutine test_cases.application.contract.Reference.__init__() -> void:
 
 subroutine test_cases.application.contract.Reference.approval_program() -> bool:
     block@0: // L26
-        let tmp%0#0: bool = (== 1u 2u)
-        (assert tmp%0#0)
-        let tmp%1#0: uint64 = (txn NumAppArgs)
-        let tmp%2#0: bool = (== tmp%1#0 1u)
-        goto tmp%2#0 ? block@1 : block@5
+        let tmp%0#0: bool = (!= 1u 0u)
+        let tmp%1#0: bool = (!= 2u 0u)
+        let tmp%2#0: bool = (== tmp%0#0 tmp%1#0)
+        (assert tmp%2#0)
+        let tmp%3#0: uint64 = (txn NumAppArgs)
+        let tmp%4#0: bool = (== tmp%3#0 1u)
+        goto tmp%4#0 ? block@1 : block@5
     block@1: // if_body_L29
-        let tmp%3#0: bytes = (txna ApplicationArgs 0)
-        let tmp%4#0: bool = (== tmp%3#0 0x76616c6964617465)
-        goto tmp%4#0 ? block@2 : block@3
+        let tmp%5#0: bytes = (txna ApplicationArgs 0)
+        let tmp%6#0: bool = (== tmp%5#0 0x76616c6964617465)
+        goto tmp%6#0 ? block@2 : block@3
     block@2: // if_body_L30
-        let tmp%5#0: uint64 = (global CurrentApplicationID)
-        test_cases.application.contract.Reference.validate_asset(tmp%5#0)
+        let tmp%7#0: uint64 = (global CurrentApplicationID)
+        test_cases.application.contract.Reference.validate_asset(tmp%7#0)
         goto block@4
     block@3: // else_body_L32
         fail // Expected validate
