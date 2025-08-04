@@ -24,6 +24,7 @@ class Reference(Contract):
         self.bytes_l4 = LocalState(Bytes)
 
     def approval_program(self) -> bool:
+        assert bool(Application(1)) == bool(Application(2))
         if op.Txn.num_app_args == 1:
             if op.Txn.application_args(0) == b"validate":
                 self.validate_asset(op.Global.current_application_id)
