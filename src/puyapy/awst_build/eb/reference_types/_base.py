@@ -9,7 +9,6 @@ from puya.awst.nodes import (
     CheckedMaybe,
     Expression,
     IntrinsicCall,
-    Not,
     NumericComparison,
     NumericComparisonExpression,
     ReinterpretCast,
@@ -49,10 +48,7 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
     @typing.override
     def member_access(self, name: str, location: SourceLocation) -> NodeBuilder:
         if name == self.native_access_member:
-            native_cast = ReinterpretCast(
-                expr=self.resolve(), wtype=self.native_type.wtype, source_location=location
-            )
-            return builder_for_instance(self.native_type, native_cast)
+            return self.to_native(location)
         if name in self.field_mapping:
             immediate, typ = self.field_mapping[name]
             acct_params_get = IntrinsicCall(
@@ -67,6 +63,14 @@ class ReferenceValueExpressionBuilder(NotIterableInstanceExpressionBuilder, abc.
             checked_maybe = CheckedMaybe(acct_params_get, comment=self.field_bool_comment)
             return builder_for_instance(typ, checked_maybe)
         return super().member_access(name, location)
+
+    def to_native(self, location: SourceLocation) -> InstanceBuilder:
+        native_cast = ReinterpretCast(
+            expr=self.resolve(),
+            wtype=self.native_type.wtype,
+            source_location=location,
+        )
+        return builder_for_instance(self.native_type, native_cast)
 
 
 class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilder):
@@ -98,16 +102,7 @@ class UInt64BackedReferenceValueExpressionBuilder(ReferenceValueExpressionBuilde
 
     @typing.override
     def bool_eval(self, location: SourceLocation, *, negate: bool = False) -> InstanceBuilder:
-        as_bool = ReinterpretCast(
-            expr=self.resolve(),
-            wtype=wtypes.bool_wtype,
-            source_location=self.resolve().source_location,
-        )
-        if negate:
-            expr: Expression = Not(location, as_bool)
-        else:
-            expr = as_bool
-        return BoolExpressionBuilder(expr)
+        return self.to_native(location=self.source_location).bool_eval(location, negate=negate)
 
     @typing.override
     def compare(
