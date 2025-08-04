@@ -5,9 +5,9 @@ import typing
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
-import cattrs
 from cattrs import ClassValidationError, IterableValidationError, transform_error
-from cattrs.preconf.json import make_converter
+from cattrs.literals import is_literal_containing_enums
+from cattrs.preconf.json import JsonConverter, make_converter
 from cattrs.strategies import configure_tagged_union, include_subclasses
 from immutabledict import immutabledict
 
@@ -27,12 +27,12 @@ def _unstructure_optional_enum_literal(value: object) -> object:
 
 
 @functools.cache
-def get_converter() -> cattrs.preconf.json.JsonConverter:
+def get_converter() -> JsonConverter:
     converter = make_converter()
 
     # literals with optional enum
     converter.register_unstructure_hook_factory(
-        cattrs.converters.is_literal_containing_enums, lambda _: _unstructure_optional_enum_literal
+        is_literal_containing_enums, lambda _: _unstructure_optional_enum_literal
     )
 
     # TxnField and PuyaLibFunction as name
@@ -43,6 +43,14 @@ def get_converter() -> cattrs.preconf.json.JsonConverter:
     # decimals as str
     converter.register_unstructure_hook(decimal.Decimal, str)
     converter.register_structure_hook(decimal.Decimal, lambda v, _: decimal.Decimal(v))
+
+    @functools.cache
+    def cached_path(value: str | None, _: object) -> Path | None:
+        if value is None:
+            return None
+        return Path(value)
+
+    converter.register_structure_hook(Path, cached_path)
 
     # nodes.Switch has a mapping of Expression -> Block
     # which can't be serialized with that structure as a JSON object
