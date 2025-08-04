@@ -57,7 +57,7 @@ contract TransactionContract
   abimethod test_cases.transaction.contract.TransactionContract.asset_config(txn: group_transaction_acfg): void
   {
     this::_common_checks(txn)
-    assert(reinterpret_cast<bool>(gtxns<ConfigAsset>(txn)), comment="config_asset")
+    assert(reinterpret_cast<uint64>(gtxns<ConfigAsset>(txn)) != 0u, comment="config_asset")
     assert(gtxns<ConfigAssetTotal>(txn) != 0u, comment="total")
     assert(gtxns<ConfigAssetDecimals>(txn) != 0u, comment="decimals")
     assert(gtxns<ConfigAssetDefaultFrozen>(txn), comment="default_frozen")
@@ -74,7 +74,7 @@ contract TransactionContract
   abimethod test_cases.transaction.contract.TransactionContract.asset_transfer(txn: group_transaction_axfer): void
   {
     this::_common_checks(txn)
-    assert(reinterpret_cast<bool>(gtxns<XferAsset>(txn)), comment="xfer_asset")
+    assert(reinterpret_cast<uint64>(gtxns<XferAsset>(txn)) != 0u, comment="xfer_asset")
     assert(gtxns<AssetAmount>(txn) != 0u, comment="asset_amount")
     assert(gtxns<AssetSender>(txn) != global<ZeroAddress>(), comment="asset_sender")
     assert(gtxns<AssetReceiver>(txn) != global<ZeroAddress>(), comment="asset_receiver")
@@ -84,7 +84,7 @@ contract TransactionContract
   abimethod test_cases.transaction.contract.TransactionContract.asset_freeze(txn: group_transaction_afrz): void
   {
     this::_common_checks(txn)
-    assert(reinterpret_cast<bool>(gtxns<FreezeAsset>(txn)), comment="freeze_asset")
+    assert(reinterpret_cast<uint64>(gtxns<FreezeAsset>(txn)) != 0u, comment="freeze_asset")
     assert(gtxns<FreezeAssetAccount>(txn) != global<ZeroAddress>(), comment="freeze_account")
     assert(gtxns<FreezeAssetFrozen>(txn), comment="frozen")
   }
@@ -92,7 +92,7 @@ contract TransactionContract
   abimethod test_cases.transaction.contract.TransactionContract.application_call(txn: group_transaction_appl): void
   {
     this::_common_checks(txn)
-    assert(reinterpret_cast<bool>(gtxns<ApplicationID>(txn)), comment="app_id")
+    assert(reinterpret_cast<uint64>(gtxns<ApplicationID>(txn)) != 0u, comment="app_id")
     assert(gtxns<OnCompletion>(txn) != 0u, comment="on_completion")
     assert(gtxns<NumAppArgs>(txn) != 0u, comment="num_app_args")
     assert(gtxns<NumAccounts>(txn) != 0u, comment="num_accounts")
@@ -110,8 +110,8 @@ contract TransactionContract
     assert(gtxns<NumClearStateProgramPages>(txn) != 0u, comment="num_clear_state_program_pages")
     assert(len(gtxnsas<ApplicationArgs>(txn, 0u)) != 0u, comment="app_args(0)")
     assert(gtxnsas<Accounts>(txn, 0u) != global<ZeroAddress>(), comment="accounts(0)")
-    assert(reinterpret_cast<bool>(gtxnsas<Assets>(txn, 0u)), comment="assets(0)")
-    assert(reinterpret_cast<bool>(gtxnsas<Applications>(txn, 0u)), comment="apps(0)")
+    assert(reinterpret_cast<uint64>(gtxnsas<Assets>(txn, 0u)) != 0u, comment="assets(0)")
+    assert(reinterpret_cast<uint64>(gtxnsas<Applications>(txn, 0u)) != 0u, comment="apps(0)")
     assert(len(gtxnsas<ApprovalProgramPages>(txn, 0u)) != 0u, comment="approval_program_pages(0)")
     assert(len(gtxnsas<ClearStateProgramPages>(txn, 0u)) != 0u, comment="clear_state_program_pages(0)")
   }

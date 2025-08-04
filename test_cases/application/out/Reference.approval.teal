@@ -3,13 +3,12 @@
 
 // test_cases.application.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0
     txn ApplicationID
     bnz main_after_if_else@2
     // application/contract.py:15
     // self.int_1 = UInt64(0)
     pushbytes "int_1"
-    intc_1 // 0
+    pushint 0 // 0
     app_global_put
     // application/contract.py:16
     // self.bytes_1 = Bytes(b"")
@@ -21,14 +20,10 @@ main:
     app_global_put
 
 main_after_if_else@2:
-    // application/contract.py:27
-    // assert bool(Application(1)) == bool(Application(2))
-    intc_1 // 0
-    assert
     // application/contract.py:28
     // if op.Txn.num_app_args == 1:
     txn NumAppArgs
-    intc_0 // 1
+    pushint 1 // 1
     ==
     bz main_after_if_else@8
     // application/contract.py:29
@@ -60,7 +55,7 @@ main_after_if_else@2:
     dup
     app_params_get AppGlobalNumUint
     assert // application exists
-    intc_0 // 1
+    pushint 1 // 1
     ==
     assert // expected global_num_uint
     // application/contract.py:43
@@ -122,5 +117,5 @@ main_after_if_else@2:
 main_after_if_else@8:
     // application/contract.py:33
     // return True
-    intc_0 // 1
+    pushint 1 // 1
     return

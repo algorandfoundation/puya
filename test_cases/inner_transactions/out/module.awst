@@ -213,7 +213,7 @@ contract MyContract
     app_create_params: inner_transaction_fields_appl = create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"098101">), ClearStateProgramPages=(hex<"098101">))
     update_inner_transaction(asset_params,ConfigAssetName=hex<"41535433">)
     (app_create_txn, asset3_txn): tuple<inner_transaction_appl,inner_transaction_acfg> = submit_txn(app_create_params, asset_params)
-    assert(reinterpret_cast<bool>(app_create_txn.CreatedApplicationID), comment="created app")
+    assert(reinterpret_cast<uint64>(app_create_txn.CreatedApplicationID) != 0u, comment="created app")
     assert(asset3_txn.ConfigAssetName == hex<"41535433">, comment="asset3_txn is correct")
     update_inner_transaction(app_create_params,Note=hex<"337264">)
     update_inner_transaction(asset_params,Note=hex<"337264">)
@@ -348,7 +348,7 @@ contract Greeter
   
   abimethod test_cases.inner_transactions.c2c.Greeter.bootstrap(): uint64
   {
-    assert(!(reinterpret_cast<bool>(GlobalState['hello_app'])), comment="already bootstrapped")
+    assert(reinterpret_cast<uint64>(GlobalState['hello_app']) == 0u, comment="already bootstrapped")
     GlobalState['hello_app']: application = submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApprovalProgramPages=(hex<"0A200101311B410026800402BECE11361A008E0100010031191444311844361A018800158004151F7C754C50B02243311914443118144422438A01018BFF570200800748656C6C6F2C204C504915165706004C5089">), ClearStateProgramPages=(hex<"0A8101">))).CreatedApplicationID
     return reinterpret_cast<uint64>(GlobalState['hello_app'])
   }

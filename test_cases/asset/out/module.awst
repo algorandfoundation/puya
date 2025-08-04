@@ -27,7 +27,7 @@ contract Reference
   
   subroutine test_cases.asset.contract.Reference.approval_program(): bool
   {
-    assert(reinterpret_cast<bool>(reinterpret_cast<asset>(1u)) == reinterpret_cast<bool>(reinterpret_cast<asset>(2u)))
+    assert(reinterpret_cast<uint64>(reinterpret_cast<asset>(1u)) != 0u == reinterpret_cast<uint64>(reinterpret_cast<asset>(2u)) != 0u)
     if (txn<NumAppArgs>() == 1u) {
       if (txna<ApplicationArgs, 0>() == hex<"6F70745F696E">) {
         asset: asset = txna<Assets, 0>()
@@ -47,7 +47,7 @@ contract Reference
   subroutine test_cases.asset.contract.Reference.opt_into_asset(asset: asset): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
-    assert(!(reinterpret_cast<bool>(GlobalState['asa'])), comment="ASA already opted in")
+    assert(reinterpret_cast<uint64>(GlobalState['asa']) == 0u, comment="ASA already opted in")
     GlobalState['asa']: asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)

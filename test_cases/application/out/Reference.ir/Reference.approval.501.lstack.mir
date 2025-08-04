@@ -25,27 +25,23 @@ subroutine main:
         b main_after_if_else@2
 
     main_after_if_else@2:
-        // application/contract.py:27
-        // assert bool(Application(1)) == bool(Application(2))
-        int 0                                                                                0
-        assert
         // application/contract.py:28
         // if op.Txn.num_app_args == 1:
-        txn NumAppArgs                                                                       tmp%1#1
-        l-load tmp%1#1 0                                                                     tmp%1#1
-        int 1                                                                                tmp%1#1,1
-        ==                                                                                   tmp%2#0
-        l-load tmp%2#0 0                                                                     tmp%2#0
+        txn NumAppArgs                                                                       tmp%3#0
+        l-load tmp%3#0 0                                                                     tmp%3#0
+        int 1                                                                                tmp%3#0,1
+        ==                                                                                   tmp%4#0
+        l-load tmp%4#0 0                                                                     tmp%4#0
         bz main_after_if_else@8 ; b main_if_body@4
 
     main_if_body@4:
         // application/contract.py:29
         // if op.Txn.application_args(0) == b"validate":
-        txna ApplicationArgs 0                                                               tmp%3#0
-        l-load tmp%3#0 0                                                                     tmp%3#0
-        byte 0x76616c6964617465                                                              tmp%3#0,0x76616c6964617465
-        ==                                                                                   tmp%4#0
-        l-load tmp%4#0 0                                                                     tmp%4#0
+        txna ApplicationArgs 0                                                               tmp%5#0
+        l-load tmp%5#0 0                                                                     tmp%5#0
+        byte 0x76616c6964617465                                                              tmp%5#0,0x76616c6964617465
+        ==                                                                                   tmp%6#0
+        l-load tmp%6#0 0                                                                     tmp%6#0
         assert // Expected validate
         // application/contract.py:30
         // self.validate_asset(op.Global.current_application_id)
@@ -57,8 +53,8 @@ subroutine main:
         l-load-copy app#0 1                                                                  app#0,tmp%0#2,app#0 (copy)
         app_opted_in                                                                         app#0,tmp%1#2
         l-load tmp%1#2 0                                                                     app#0,tmp%1#2
-        !                                                                                    app#0,tmp%2#0
-        l-load tmp%2#0 0                                                                     app#0,tmp%2#0
+        !                                                                                    app#0,tmp%2#1
+        l-load tmp%2#1 0                                                                     app#0,tmp%2#1
         assert // app opted in                                                               app#0
         // application/contract.py:41
         // assert app.creator == op.Global.creator_address, "expected creator"
@@ -102,8 +98,8 @@ subroutine main:
         assert // application exists                                                         app#0,value%3#0
         l-load value%3#0 0                                                                   app#0,value%3#0
         int 3                                                                                app#0,value%3#0,3
-        ==                                                                                   app#0,tmp%7#0
-        l-load tmp%7#0 0                                                                     app#0,tmp%7#0
+        ==                                                                                   app#0,tmp%7#1
+        l-load tmp%7#1 0                                                                     app#0,tmp%7#1
         assert // expected local_num_uint                                                    app#0
         // application/contract.py:45
         // assert app.local_num_bytes == 4, "expected local_num_bytes"

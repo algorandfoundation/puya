@@ -207,8 +207,9 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.__init__() -> void:
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint64, move.1: uint64) -> void:
     block@0: // L20
-        let reinterpret_bool%0#0: bool = (txn ApplicationID)
-        goto reinterpret_bool%0#0 ? block@1 : block@4
+        let tmp%0#0: uint64 = (txn ApplicationID)
+        let tmp%1#0: bool = (!= tmp%0#0 0u)
+        goto tmp%1#0 ? block@1 : block@4
     block@1: // if_body_L25
         let (_%0#0: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         goto maybe_exists%0#0 ? block@2 : block@3
@@ -221,17 +222,17 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game(move.0: uint6
         (app_global_del "winner")
         goto block@4
     block@4: // after_if_else_L22
-        let tmp%0#0: account = (txn Sender)
-        (app_global_put "host" tmp%0#0)
+        let tmp%2#0: account = (txn Sender)
+        (app_global_put "host" tmp%2#0)
         let reinterpret_Encoded(uint8[3][3])%0#0: Encoded(uint8[3][3]) = (bzero 9u)
         (app_global_put "game" reinterpret_Encoded(uint8[3][3])%0#0)
         let column#0: uint64 = move.0#0
         let row#0: uint64 = move.1#0
-        let tmp%1#0: bool = (< column#0 3u)
-        goto tmp%1#0 ? block@5 : block@7
+        let tmp%3#0: bool = (< column#0 3u)
+        goto tmp%3#0 ? block@5 : block@7
     block@5: // and_contd_L33
-        let tmp%2#0: bool = (< row#0 3u)
-        goto tmp%2#0 ? block@6 : block@7
+        let tmp%4#0: bool = (< row#0 3u)
+        goto tmp%4#0 ? block@6 : block@7
     block@6: // bool_true_L33
         let and_result%0#0: bool = 1u
         goto block@8

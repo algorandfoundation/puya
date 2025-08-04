@@ -128,7 +128,7 @@ subroutine new_game:
     new_game_block@0:                                                                                                                                                               (𝕡) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:22
         // if Txn.application_id:
-        txn ApplicationID                                                                                                                                                           (𝕡) move.0#0,move.1#0 | reinterpret_bool%0#0
+        txn ApplicationID                                                                                                                                                           (𝕡) move.0#0,move.1#0 | tmp%0#0
         bz new_game_after_if_else@4 ; b new_game_if_body@1                                                                                                                          (𝕡) move.0#0,move.1#0 |
 
     new_game_if_body@1:                                                                                                                                                             (𝕡) move.0#0,move.1#0 |
@@ -168,9 +168,9 @@ subroutine new_game:
     new_game_after_if_else@4:                                                                                                                                                       (𝕡) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:30
         // self.host = Txn.sender
-        txn Sender                                                                                                                                                                  (𝕡) move.0#0,move.1#0 | tmp%0#0
-        byte "host"                                                                                                                                                                 (𝕡) move.0#0,move.1#0 | tmp%0#0,"host"
-        l-load tmp%0#0 1                                                                                                                                                            (𝕡) move.0#0,move.1#0 | "host",tmp%0#0
+        txn Sender                                                                                                                                                                  (𝕡) move.0#0,move.1#0 | tmp%2#0
+        byte "host"                                                                                                                                                                 (𝕡) move.0#0,move.1#0 | tmp%2#0,"host"
+        l-load tmp%2#0 1                                                                                                                                                            (𝕡) move.0#0,move.1#0 | "host",tmp%2#0
         app_global_put                                                                                                                                                              (𝕡) move.0#0,move.1#0 |
         // tictactoe/tictactoe.py:31
         // self.game = Game.from_bytes(op.bzero(9))
@@ -183,7 +183,7 @@ subroutine new_game:
         // assert column < 3 and row < 3, "Move must be in range"
         p-load move.0#0                                                                                                                                                             (𝕡) move.0#0,move.1#0 | move.0#0 (copy)
         int 3                                                                                                                                                                       (𝕡) move.0#0,move.1#0 | move.0#0 (copy),3
-        <                                                                                                                                                                           (𝕡) move.0#0,move.1#0 | tmp%1#0
+        <                                                                                                                                                                           (𝕡) move.0#0,move.1#0 | tmp%3#0
         bz new_game_bool_false@7 ; b new_game_and_contd@5                                                                                                                           (𝕡) move.0#0,move.1#0 |
 
     new_game_and_contd@5:                                                                                                                                                           (𝕡) move.0#0,move.1#0 |
@@ -191,7 +191,7 @@ subroutine new_game:
         // assert column < 3 and row < 3, "Move must be in range"
         p-load move.1#0                                                                                                                                                             (𝕡) move.0#0,move.1#0 | move.1#0 (copy)
         int 3                                                                                                                                                                       (𝕡) move.0#0,move.1#0 | move.1#0 (copy),3
-        <                                                                                                                                                                           (𝕡) move.0#0,move.1#0 | tmp%2#0
+        <                                                                                                                                                                           (𝕡) move.0#0,move.1#0 | tmp%4#0
         bz new_game_bool_false@7 ; b new_game_bool_true@6                                                                                                                           (𝕡) move.0#0,move.1#0 |
 
     new_game_bool_true@6:                                                                                                                                                           (𝕡) move.0#0,move.1#0 |

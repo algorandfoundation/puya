@@ -68,8 +68,7 @@ subroutine test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
     block@0: // L10
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "hello_app")
         (assert maybe_exists%0#0) // check self.hello_app exists
-        let reinterpret_bool%0#0: bool = maybe_value%0#0
-        let tmp%0#0: bool = (! reinterpret_bool%0#0)
+        let tmp%0#0: bool = (== maybe_value%0#0 0u)
         (assert tmp%0#0) // already bootstrapped
         itxn_begin
         let inner_txn_params%0#0: itxn_field_set = itxn_field_set(0)

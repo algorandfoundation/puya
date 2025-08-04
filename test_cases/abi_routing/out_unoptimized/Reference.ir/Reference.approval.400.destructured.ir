@@ -92,8 +92,7 @@ subroutine test_cases.abi_routing.contract.Reference.opt_into_asset(asset: uint6
         (assert tmp%2#0) // Only creator can opt in to ASA
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "asa")
         (assert maybe_exists%0#0) // check self.asa exists
-        let reinterpret_bool%0#0: bool = maybe_value%0#0
-        let tmp%3#0: bool = (! reinterpret_bool%0#0)
+        let tmp%3#0: bool = (== maybe_value%0#0 0u)
         (assert tmp%3#0) // ASA already opted in
         (app_global_put "asa" asset#0)
         itxn_begin

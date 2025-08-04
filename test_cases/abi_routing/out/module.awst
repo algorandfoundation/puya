@@ -270,7 +270,7 @@ contract Reference
   abimethod test_cases.abi_routing.contract.Reference.opt_into_asset(asset: asset): void
   {
     assert(txn<Sender>() == global<CreatorAddress>(), comment="Only creator can opt in to ASA")
-    assert(!(reinterpret_cast<bool>(GlobalState['asa'])), comment="ASA already opted in")
+    assert(reinterpret_cast<uint64>(GlobalState['asa']) == 0u, comment="ASA already opted in")
     GlobalState['asa']: asset = asset
     itxn_begin()
     itxn_field<TypeEnum>(axfer)
