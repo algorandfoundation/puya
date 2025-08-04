@@ -8,27 +8,28 @@ main test_cases.application.contract.Reference.__algopy_entrypoint_with_init:
         (app_global_put "bytes_2" 0x)
         goto block@2
     block@2: // after_if_else_L1
-        let tmp%0#1: uint64 = (txn NumAppArgs)
-        let tmp%1#1: bool = (== tmp%0#1 1u)
-        goto tmp%1#1 ? block@4 : block@8
-    block@4: // if_body_L28
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        let tmp%3#0: bool = (== tmp%2#0 0x76616c6964617465)
-        (assert tmp%3#0) // Expected validate
+        (assert 0u)
+        let tmp%1#1: uint64 = (txn NumAppArgs)
+        let tmp%2#0: bool = (== tmp%1#1 1u)
+        goto tmp%2#0 ? block@4 : block@8
+    block@4: // if_body_L29
+        let tmp%3#0: bytes = (txna ApplicationArgs 0)
+        let tmp%4#0: bool = (== tmp%3#0 0x76616c6964617465)
+        (assert tmp%4#0) // Expected validate
         let app#0: uint64 = (global CurrentApplicationID)
         let tmp%0#2: account = (txn Sender)
-        let tmp%1#1: bool = (app_opted_in tmp%0#2 app#0)
-        let tmp%2#1: bool = (! tmp%1#1)
-        (assert tmp%2#1) // app opted in
+        let tmp%1#2: bool = (app_opted_in tmp%0#2 app#0)
+        let tmp%2#0: bool = (! tmp%1#2)
+        (assert tmp%2#0) // app opted in
         let (value%0#0: account, check%0#0: bool) = ((app_params_get AppCreator) app#0)
         (assert check%0#0) // application exists
         let tmp%3#1: account = (global CreatorAddress)
-        let tmp%4#1: bool = (== value%0#0 tmp%3#1)
-        (assert tmp%4#1) // expected creator
+        let tmp%4#0: bool = (== value%0#0 tmp%3#1)
+        (assert tmp%4#0) // expected creator
         let (value%1#0: uint64, check%1#0: bool) = ((app_params_get AppGlobalNumUint) app#0)
         (assert check%1#0) // application exists
-        let tmp%5#0: bool = (== value%1#0 1u)
-        (assert tmp%5#0) // expected global_num_uint
+        let tmp%5#1: bool = (== value%1#0 1u)
+        (assert tmp%5#1) // expected global_num_uint
         let (value%2#0: uint64, check%2#0: bool) = ((app_params_get AppGlobalNumByteSlice) app#0)
         (assert check%2#0) // application exists
         let tmp%6#0: bool = (== value%2#0 2u)
@@ -58,5 +59,5 @@ main test_cases.application.contract.Reference.__algopy_entrypoint_with_init:
         let tmp%16#0: bool = (== value%7#0 tmp%15#0)
         (assert tmp%16#0) // expected current_application_address
         goto block@8
-    block@8: // after_if_else_L27
+    block@8: // after_if_else_L28
         return 1u
