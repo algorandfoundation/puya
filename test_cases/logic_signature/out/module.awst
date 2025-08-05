@@ -19,6 +19,43 @@ subroutine assert_correct_asset(txn: group_transaction_axfer): void
   assert(gtxns<AssetAmount>(txn) == 1u and gtxns<Sender>(txn) == TemplateVar[account](TMPL_SELLER) and gtxns<XferAsset>(txn) == TemplateVar[asset](TMPL_ASSET_ID) and gtxns<AssetCloseTo>(txn) == global<ZeroAddress>() and gtxns<RekeyTo>(txn) == global<ZeroAddress>())
 }
 
+logicsig test_cases.logic_signature.compiled_logic_sig.dont_use_this
+{
+  assert(arg<1>() == hex<"74686973206973206E6F7420736563757265">, comment="arg is not correct")
+  return true
+}
+
+contract CheckCompiledSig
+{
+  method_resolution_order: (
+    algopy.arc4.ARC4Contract,
+    algopy._contract.Contract,
+  )
+  
+  subroutine algopy.arc4.ARC4Contract.approval_program(): bool
+  {
+    return arc4_router()
+  }
+  
+  subroutine algopy.arc4.ARC4Contract.clear_state_program(): bool
+  {
+    return true
+  }
+  
+  abimethod test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.check_sig_with_logic_sig_only_op_compiles(): void
+  {
+    assert(txn<Sender>() == compiled_logicsig('test_cases.logic_signature.compiled_logic_sig.dont_use_this', prefix=None, variables={}).account, comment="expected to be signed by logic sig")
+  }
+  
+  baremethod test_cases.logic_signature.compiled_logic_sig.CheckCompiledSig.__algopy_default_create(): void
+  {
+  }
+  
+  subroutine algopy._contract.Contract.__init__(): void
+  {
+  }
+}
+
 logicsig test_cases.logic_signature.always_allow.some_sig
 {
   return true
