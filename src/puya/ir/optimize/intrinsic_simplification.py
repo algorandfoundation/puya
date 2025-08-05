@@ -29,7 +29,7 @@ logger = log.get_logger(__name__)
 
 _AnyOp = models.Op | models.ControlOp | models.Phi
 
-_RegisterAssignments = Mapping[models.Register, models.Assignment]
+_RegisterAssignments = Mapping[models.Value, models.Assignment]
 
 COMPILE_TIME_CONSTANT_OPS = frozenset(
     [
@@ -131,23 +131,13 @@ COMPILE_TIME_CONSTANT_OPS = frozenset(
         "sumhash512",  # AVM 11
     ]
 )
-_CONSTANT_TOO_BIG_TO_EXPAND = {
-    AVMOp.itob.code,
-    AVMOp.bzero.code,
-}
-_CONSTANT_EVALUABLE: typing.Final[frozenset[str]] = (
-    COMPILE_TIME_CONSTANT_OPS - _CONSTANT_TOO_BIG_TO_EXPAND
-)
 
 
 def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subroutine) -> bool:
-    if context.expand_all_bytes:
-        work_list = _AssignmentWorkQueue(COMPILE_TIME_CONSTANT_OPS)
-    else:
-        work_list = _AssignmentWorkQueue(_CONSTANT_EVALUABLE)
+    work_list = _AssignmentWorkQueue(COMPILE_TIME_CONSTANT_OPS)
     ssa_reads = _SSAReadTracker()
 
-    register_assignments = dict[models.Register, models.Assignment]()
+    register_assignments = dict[models.Value, models.Assignment]()
     for block in subroutine.body:
         for op in block.all_ops:
             ssa_reads.add(op)
@@ -160,7 +150,7 @@ def intrinsic_simplifier(context: IROptimizationContext, subroutine: models.Subr
     modified = 0
     while work_list:
         ass, source = work_list.dequeue()
-        simplified = _try_fold_intrinsic(register_assignments, source)
+        simplified = _try_fold_intrinsic(context, ssa_reads, register_assignments, source)
         if simplified is None:
             simplified = _try_simplify_repeated_binary_op(
                 register_assignments, ass, source, ssa_reads
@@ -339,7 +329,7 @@ class _RegisterValueReplacer(IRMutator):
 
 
 def _simplify_conditional_branches(
-    subroutine: models.Subroutine, register_intrinsics: Mapping[models.Register, models.Intrinsic]
+    subroutine: models.Subroutine, register_intrinsics: Mapping[models.Value, models.Intrinsic]
 ) -> int:
     modified = 0
     branch_registers = dict[
@@ -362,7 +352,7 @@ def _simplify_conditional_branches(
 
 
 def _simplify_non_returning_intrinsics(
-    subroutine: models.Subroutine, register_intrinsics: Mapping[models.Register, models.Intrinsic]
+    subroutine: models.Subroutine, register_intrinsics: Mapping[models.Value, models.Intrinsic]
 ) -> int:
     modified = 0
     for block in subroutine.body:
@@ -381,7 +371,7 @@ def _simplify_non_returning_intrinsics(
 
 
 def _visit_intrinsic_op(
-    intrinsic: Intrinsic, register_intrinsics: Mapping[models.Register, models.Intrinsic]
+    intrinsic: Intrinsic, register_intrinsics: Mapping[models.Value, models.Intrinsic]
 ) -> Intrinsic | None:
     # if we get here, it means either the intrinsic doesn't have a return or it's ignored,
     # in either case, the result has to be either an Op or None (ie delete),
@@ -397,8 +387,7 @@ def _visit_intrinsic_op(
                 # this would make it a ControlOp, so the block would
                 # need to be restructured
                 pass
-        elif cond in register_intrinsics:
-            cond_op = register_intrinsics[cond]  # type: ignore[index]
+        elif cond_op := register_intrinsics.get(cond):
             assert_cond_maybe_simplified = _try_simplify_bool_intrinsic(cond_op)
             if assert_cond_maybe_simplified is not None:
                 return attrs.evolve(intrinsic, args=[assert_cond_maybe_simplified])
@@ -426,8 +415,7 @@ def _visit_intrinsic_op(
 def _try_simplify_bool_condition(
     register_assignments: _RegisterAssignments, cond: models.Value
 ) -> models.Value | None:
-    if cond in register_assignments:
-        cond_defn = register_assignments[cond]  # type: ignore[index]
+    if cond_defn := register_assignments.get(cond):
         return _try_simplify_bool_intrinsic(cond_defn.source)
     return None
 
@@ -522,7 +510,10 @@ def _try_convert_stack_args_to_immediates(intrinsic: Intrinsic) -> Intrinsic | N
 
 
 def _try_fold_intrinsic(
-    register_assignments: _RegisterAssignments, intrinsic: models.Intrinsic
+    context: IROptimizationContext,
+    ssa_reads: _SSAReadTracker,
+    register_assignments: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
 ) -> models.Value | models.Intrinsic | None:
     op_loc = intrinsic.source_location
     if intrinsic.op is AVMOp.select:
@@ -706,12 +697,12 @@ def _try_fold_intrinsic(
                         source_location=op_loc, encoding=byte_const.encoding, value=extracted
                     )
                 elif (
-                    byte_arg in register_assignments
+                    (byte_arg_defn := register_assignments.get(byte_arg))
                     # don't do this optimisation for extract3 when the final argument is a constant
                     # zero, because of behaviour differences
                     and (intrinsic.immediates or L > 0)
                 ):
-                    match register_assignments[byte_arg].source:  # type: ignore[index]
+                    match byte_arg_defn.source:
                         case models.Intrinsic(
                             op=AVMOp.extract, args=[src_bytes_arg], immediates=[int(src_start), 0]
                         ):
@@ -777,7 +768,9 @@ def _try_fold_intrinsic(
     elif not intrinsic.immediates:
         match intrinsic.args:
             case [models.Value(atype=AVMType.uint64) as x]:
-                return _try_simplify_uint64_unary_op(intrinsic, x)
+                return _try_simplify_uint64_unary_op(
+                    context, ssa_reads, register_assignments, intrinsic, x
+                )
             case [
                 models.Value(atype=AVMType.uint64) as a,
                 models.Value(atype=AVMType.uint64) as b,
@@ -795,13 +788,10 @@ def _try_fold_intrinsic(
 
 
 def _get_len_op(
-    register_assignments: Mapping[models.Register, models.Assignment], maybe_len_reg: models.Value
+    register_assignments: _RegisterAssignments, maybe_len_reg: models.Value
 ) -> Intrinsic | None:
-    try:
-        ass = register_assignments[maybe_len_reg]  # type: ignore[index]
-    except KeyError:
-        return None
-    if isinstance(ass.source, models.Intrinsic) and ass.source.op == AVMOp.len_:
+    ass = register_assignments.get(maybe_len_reg)
+    if ass and isinstance(ass.source, models.Intrinsic) and ass.source.op == AVMOp.len_:
         return ass.source
     return None
 
@@ -1082,8 +1072,7 @@ def _choose_encoding(a: AVMBytesEncoding, b: AVMBytesEncoding) -> AVMBytesEncodi
 def _get_byte_constant(
     register_assignments: _RegisterAssignments, byte_arg: models.Value
 ) -> models.BytesConstant | None:
-    if byte_arg in register_assignments:
-        byte_arg_defn = register_assignments[byte_arg]  # type: ignore[index]
+    if byte_arg_defn := register_assignments.get(byte_arg):
         match byte_arg_defn.source:
             case models.Intrinsic(op=AVMOp.itob, args=[models.UInt64Constant(value=itob_arg)]):
                 return _eval_itob(itob_arg, byte_arg_defn.source_location)
@@ -1122,8 +1111,7 @@ def _get_bytes_length_safe(
     register_assignments: _RegisterAssignments, byte_arg: models.Value
 ) -> int | None:
     assert byte_arg.atype is AVMType.bytes
-    if byte_arg in register_assignments:
-        byte_arg_defn = register_assignments[byte_arg]  # type: ignore[index]
+    if byte_arg_defn := register_assignments.get(byte_arg):
         if isinstance(byte_arg_defn.source, models.Intrinsic):
             (return_ir_type,) = byte_arg_defn.source.op_signature.returns
             return return_ir_type.num_bytes
@@ -1197,9 +1185,35 @@ def _eval_keccak256(arg: bytes, loc: SourceLocation | None) -> models.BytesConst
 
 
 def _try_simplify_uint64_unary_op(
-    intrinsic: models.Intrinsic, arg: models.Value
-) -> models.Value | None:
+    context: IROptimizationContext,
+    ssa_reads: _SSAReadTracker,
+    register_assignments: _RegisterAssignments,
+    intrinsic: models.Intrinsic,
+    arg: models.Value,
+) -> models.Value | models.Intrinsic | None:
     op_loc = intrinsic.source_location
+
+    if intrinsic.op is AVMOp.itob:
+        # TODO: expand to other extract sizes, but will need to pad result
+        # extract_uint64 BYTES, START; itob -> extract3 BYTES, START, 8
+        match register_assignments.get(arg):
+            case models.Assignment(
+                targets=[arg_reg],
+                source=models.Intrinsic(
+                    op=AVMOp.extract_uint64, args=[byte_arg, start_idx], immediates=[]
+                ),
+            ) if ssa_reads.count(arg_reg) == 1:
+                assert arg_reg == arg
+                return attrs.evolve(
+                    intrinsic,
+                    op=AVMOp.extract3,
+                    args=[
+                        byte_arg,
+                        start_idx,
+                        models.UInt64Constant(value=8, source_location=None),
+                    ],
+                )
+
     x = _get_int_constant(arg)
     if x is not None:
         if intrinsic.op is AVMOp.not_:
@@ -1214,11 +1228,14 @@ def _try_simplify_uint64_unary_op(
         elif intrinsic.op is AVMOp.bitlen:
             return UInt64Constant(value=x.bit_length(), source_location=op_loc)
         elif intrinsic.op is AVMOp.itob:
-            return _eval_itob(x, op_loc)
+            if context.expand_all_bytes:
+                return _eval_itob(x, op_loc)
         elif intrinsic.op is AVMOp.bzero:
-            return _eval_bzero(x, op_loc)
+            if context.expand_all_bytes:
+                return _eval_bzero(x, op_loc)
         else:
             logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {x}")
+
     return None
 
 
@@ -1274,9 +1291,9 @@ def _try_simplify_bytes_unary_op(
                 return UInt64Constant(value=converted.bit_length(), source_location=op_loc)
             else:
                 logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
-        elif arg in register_assignments and intrinsic.op is AVMOp.btoi:
+        elif intrinsic.op is AVMOp.btoi and (arg_defn := register_assignments.get(arg)):
             # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
-            match register_assignments[arg].source:  # type: ignore[index]
+            match arg_defn.source:
                 case models.Intrinsic(
                     op=AVMOp.extract, args=[bites], immediates=[int(start), int(length)]
                 ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
