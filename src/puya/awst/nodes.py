@@ -2266,7 +2266,7 @@ class ARC4ABIMethodConfig:
     )
     create: ARC4CreateOption = ARC4CreateOption.disallow
     name: str
-    resource_encoding: typing.Literal["foreign_index", "value"] = "value"
+    resource_encoding: typing.Literal["index", "value"] = "value"
     readonly: bool = False
     default_args: immutabledict[str, ABIMethodArgDefault] = immutabledict()
     """Mapping is from parameter -> source"""

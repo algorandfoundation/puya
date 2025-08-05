@@ -11,7 +11,7 @@ from puya.options import PuyaOptions
 @attrs.frozen(kw_only=True)
 class PuyaPyOptions(PuyaOptions):
     paths: Sequence[Path] = attrs.field(default=(), repr=lambda p: str(list(map(str, p))))
-    resource_encoding: typing.Literal["foreign_index", "value"] = "value"
+    resource_encoding: typing.Literal["index", "value"] = "value"
     output_awst: bool = False
     output_awst_json: bool = False
     output_source_annotations_json: bool = False

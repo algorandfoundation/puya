@@ -346,7 +346,7 @@ def _abi_method_metadata(
 ) -> models.ARC4ABIMethod:
     assert config is m.arc4_method_config
     default_args = convert_default_args(ctx, contract, m, config)
-    use_reference_alias = config.resource_encoding == "foreign_index"
+    use_reference_alias = config.resource_encoding == "index"
     args = [
         models.ARC4MethodArg(
             name=a.name,

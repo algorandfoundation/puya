@@ -400,7 +400,7 @@ def route_abi_methods(
     seen_signatures = set[str]()
     for method, sig in methods.items():
         abi_loc = method.config_location
-        use_reference_alias = method.resource_encoding == "foreign_index"
+        use_reference_alias = method.resource_encoding == "index"
         abi_args = list(
             _map_abi_args(sig.parameter_types, location, use_reference_alias=use_reference_alias)
         )
