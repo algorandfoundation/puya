@@ -101,9 +101,9 @@ def get_arc4_abimethod_data(
 
     # map "resource_encoding" param
     default_resource_encoding = context.options.resource_encoding
-    resource_encoding: typing.Literal["foreign_index", "value"]
+    resource_encoding: typing.Literal["index", "value"]
     match evaluated_args.pop(_RESOURCE_ENCODING, default_resource_encoding):
-        case str("foreign_index" | "value") as resource_encoding:
+        case str("index" | "value") as resource_encoding:
             pass
         case invalid_option:
             context.error(f"invalid resource_encoding option: {invalid_option}", dec_loc)

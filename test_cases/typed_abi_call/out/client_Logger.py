@@ -100,8 +100,8 @@ class Logger(algopy.arc4.ARC4Client, typing.Protocol):
         value: algopy.arc4.BigUIntN[typing.Literal[512]],
     ) -> algopy.arc4.BigUIntN[typing.Literal[512]]: ...
 
-    @algopy.arc4.abimethod(resource_encoding='foreign_index')
-    def echo_resource_by_foreign_index(
+    @algopy.arc4.abimethod(resource_encoding='index')
+    def echo_resource_by_index(
         self,
         asset: algopy.Asset,
         app: algopy.Application,

@@ -87,19 +87,17 @@ class Logger(ARC4Contract):
         return value + 1
 
     @arc4.abimethod(
-        resource_encoding="foreign_index",
+        resource_encoding="index",
     )
-    def echo_resource_by_foreign_index(
+    def echo_resource_by_index(
         self, asset: Asset, app: Application, acc: Account
     ) -> tuple[Asset, Application, Account]:
         asset_idx = op.btoi(Txn.application_args(1))
-        assert asset == Txn.assets(asset_idx), "expected asset to be passed by foreign_index"
+        assert asset == Txn.assets(asset_idx), "expected asset to be passed by index"
         app_idx = op.btoi(Txn.application_args(2))
-        assert app == Txn.applications(
-            app_idx
-        ), "expected application to be passed by foreign_index"
+        assert app == Txn.applications(app_idx), "expected application to be passed by index"
         acc_idx = op.btoi(Txn.application_args(3))
-        assert acc == Txn.accounts(acc_idx), "expected account to be passed by foreign_index"
+        assert acc == Txn.accounts(acc_idx), "expected account to be passed by index"
         return asset, app, acc
 
     @arc4.abimethod(
@@ -174,8 +172,8 @@ class LoggerClient(arc4.ARC4Client, typing.Protocol):
     @arc4.abimethod
     def echo(self, value: arc4.String) -> arc4.String: ...
 
-    @arc4.abimethod(resource_encoding="foreign_index")
-    def echo_resource_by_foreign_index(
+    @arc4.abimethod(resource_encoding="index")
+    def echo_resource_by_index(
         self, asset: Asset, app: Application, acc: Account
     ) -> tuple[Asset, Application, Account]: ...
 

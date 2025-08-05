@@ -177,10 +177,10 @@ def main() -> None:
     parser.add_argument(
         "--resource-encoding",
         type=str,
-        choices=["foreign_index", "value"],
+        choices=["index", "value"],
         default="value",
         help="""
-             If "foreign_index", then resource types (Application, Asset, Account) in ABI methods
+             If "index", then resource types (Application, Asset, Account) in ABI methods
              should be passed as an index into their appropriate foreign array.
              The default option "value", as of PuyaPy 5.0, means these values will be
              passed directly.

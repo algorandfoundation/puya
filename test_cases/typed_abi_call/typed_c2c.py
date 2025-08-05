@@ -387,7 +387,7 @@ class Greeter(ARC4Contract):
         acc = Global.current_application_address
 
         result, txn = arc4.abi_call(
-            Logger.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+            Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call
         )
         assert result == (asset, app, acc), "expected echo to return same resources"
 
@@ -397,7 +397,7 @@ class Greeter(ARC4Contract):
         assert result == (asset, app, acc), "expected echo to return same resources"
 
         result, txn = arc4.abi_call(
-            LoggerClient.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+            LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call
         )
         assert result == (asset, app, acc), "expected echo to return same resources"
 
@@ -407,7 +407,7 @@ class Greeter(ARC4Contract):
         assert result == (asset, app, acc), "expected echo to return same resources"
 
         result, txn = arc4.abi_call[tuple[Asset, Application, Account]](
-            "echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)",
+            "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
             asset,
             app,
             acc,

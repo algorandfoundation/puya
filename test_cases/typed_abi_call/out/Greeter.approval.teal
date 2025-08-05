@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 6 1 2
-    bytecblock 0x151f7c75 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x9bf81913 0x0000000000000001 0x16e03919 0x00027331 0x00026231 0x0000000000000001000a00056c6f672031 0x01 0xb4b4334e "echo: s1" 0x0000000000000003 0x4a444c77 0x000173 0x2659e818 0x000162 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0x43bef4fe 0x00 0x48142d5e 0x000b6563686f3a207475706c65 0x0000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x0f101112deadbeef14 0x6563686f3a206231 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00086563686f3a207332 0x6563686f3a2033 0x000000000000002a 0xddd07185
+    bytecblock 0x151f7c75 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002 0x9bf81913 0x0000000000000001 0x16e03919 0x00027331 0x00026231 0x0000000000000001000a00056c6f672031 0x01 0xb4b4334e "echo: s1" 0x0000000000000003 0x4a444c77 0x000173 0x2659e818 0x000162 0xa9fb6cf1 0xd8cc363b 0x03 0xab271ce4 0xb862ee19 0xd6c2ac7f 0x00 0x48142d5e 0x000b6563686f3a207475706c65 0x0000000000000002 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003 0x0f101112deadbeef14 0x6563686f3a206231 0x00040010000400080002733100027332000000000000000100000000000000020012000133 0x00086563686f3a207332 0x6563686f3a2033 0x000000000000002a 0xddd07185
     // typed_abi_call/typed_c2c.py:24
     // class Greeter(ARC4Contract):
     txn NumAppArgs
@@ -2953,7 +2953,7 @@ test_resource_encoding:
     global CurrentApplicationAddress
     // typed_abi_call/typed_c2c.py:389-391
     // result, txn = arc4.abi_call(
-    //     Logger.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+    //     Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call
     // )
     itxn_begin
     frame_dig -2
@@ -2964,10 +2964,10 @@ test_resource_encoding:
     itxn_field Applications
     dup
     itxn_field Accounts
-    bytec 21 // method "echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)"
+    bytec 21 // method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)"
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:390
-    // Logger.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+    // Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call
     bytec 22 // 0x00
     itxn_field ApplicationArgs
     bytec 8 // 0x01
@@ -2976,7 +2976,7 @@ test_resource_encoding:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:389-391
     // result, txn = arc4.abi_call(
-    //     Logger.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+    //     Logger.echo_resource_by_index, asset, app, acc, app_id=app_to_call
     // )
     intc_1 // appl
     itxn_field TypeEnum
@@ -3071,7 +3071,7 @@ test_resource_encoding:
     assert // expected echo to return same resources
     // typed_abi_call/typed_c2c.py:399-401
     // result, txn = arc4.abi_call(
-    //     LoggerClient.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+    //     LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call
     // )
     itxn_begin
     frame_dig -2
@@ -3082,10 +3082,10 @@ test_resource_encoding:
     itxn_field Applications
     dig 2
     itxn_field Accounts
-    bytec 21 // method "echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)"
+    bytec 21 // method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)"
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:400
-    // LoggerClient.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+    // LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call
     bytec 22 // 0x00
     itxn_field ApplicationArgs
     bytec 8 // 0x01
@@ -3094,7 +3094,7 @@ test_resource_encoding:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:399-401
     // result, txn = arc4.abi_call(
-    //     LoggerClient.echo_resource_by_foreign_index, asset, app, acc, app_id=app_to_call
+    //     LoggerClient.echo_resource_by_index, asset, app, acc, app_id=app_to_call
     // )
     intc_1 // appl
     itxn_field TypeEnum
@@ -3179,7 +3179,7 @@ test_resource_encoding:
     assert // expected echo to return same resources
     // typed_abi_call/typed_c2c.py:409-415
     // result, txn = arc4.abi_call[tuple[Asset, Application, Account]](
-    //     "echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)",
+    //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
     //     asset,
     //     app,
     //     acc,
@@ -3194,7 +3194,7 @@ test_resource_encoding:
     itxn_field Applications
     dig 2
     itxn_field Accounts
-    bytec 21 // method "echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)"
+    bytec 21 // method "echo_resource_by_index(asset,application,account)(uint64,uint64,address)"
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:411
     // asset,
@@ -3210,7 +3210,7 @@ test_resource_encoding:
     itxn_field ApplicationArgs
     // typed_abi_call/typed_c2c.py:409-415
     // result, txn = arc4.abi_call[tuple[Asset, Application, Account]](
-    //     "echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)",
+    //     "echo_resource_by_index(asset,application,account)(uint64,uint64,address)",
     //     asset,
     //     app,
     //     acc,

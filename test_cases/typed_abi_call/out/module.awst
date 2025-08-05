@@ -86,14 +86,14 @@ contract Logger
     return value b+ 1n
   }
   
-  abimethod test_cases.typed_abi_call.logger.Logger.echo_resource_by_foreign_index(asset: asset, app: application, acc: account): tuple<asset,application,account>
+  abimethod test_cases.typed_abi_call.logger.Logger.echo_resource_by_index(asset: asset, app: application, acc: account): tuple<asset,application,account>
   {
     asset_idx: uint64 = btoi(txna<ApplicationArgs, 1>())
-    assert(asset == txnas<Assets>(asset_idx), comment="expected asset to be passed by foreign_index")
+    assert(asset == txnas<Assets>(asset_idx), comment="expected asset to be passed by index")
     app_idx: uint64 = btoi(txna<ApplicationArgs, 2>())
-    assert(app == txnas<Applications>(app_idx), comment="expected application to be passed by foreign_index")
+    assert(app == txnas<Applications>(app_idx), comment="expected application to be passed by index")
     acc_idx: uint64 = btoi(txna<ApplicationArgs, 3>())
-    assert(acc == txnas<Accounts>(acc_idx), comment="expected account to be passed by foreign_index")
+    assert(acc == txnas<Accounts>(acc_idx), comment="expected account to be passed by index")
     return (asset, app, acc)
   }
   
@@ -369,15 +369,15 @@ contract Greeter
   {
     app: application = global<CurrentApplicationID>()
     acc: account = global<CurrentApplicationAddress>()
-    (result, txn): tuple<tuple<asset,application,account>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=81, source=SINGLE_EVAL(id=80, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)"), hex<"00">, hex<"01">, hex<"01">), Accounts=(acc), Applications=(app), Assets=(asset), ApplicationID=app_to_call))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=81)) == hex<"151F7C75">)), tuple<asset,application,account>), SINGLE_EVAL(id=80))
+    (result, txn): tuple<tuple<asset,application,account>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=81, source=SINGLE_EVAL(id=80, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_resource_by_index(asset,application,account)(uint64,uint64,address)"), hex<"00">, hex<"01">, hex<"01">), Accounts=(acc), Applications=(app), Assets=(asset), ApplicationID=app_to_call))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=81)) == hex<"151F7C75">)), tuple<asset,application,account>), SINGLE_EVAL(id=80))
     assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
     (result, txn): tuple<tuple<asset,application,account>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=83, source=SINGLE_EVAL(id=82, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"), arc4_encode(asset, arc4.uint64), arc4_encode(app, arc4.uint64), arc4_encode(acc, arc4.static_array<arc4.uint8, 32>)), ApplicationID=app_to_call))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=83)) == hex<"151F7C75">)), tuple<asset,application,account>), SINGLE_EVAL(id=82))
     assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
-    (result, txn): tuple<tuple<asset,application,account>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=85, source=SINGLE_EVAL(id=84, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)"), hex<"00">, hex<"01">, hex<"01">), Accounts=(acc), Applications=(app), Assets=(asset), ApplicationID=app_to_call))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=85)) == hex<"151F7C75">)), tuple<asset,application,account>), SINGLE_EVAL(id=84))
+    (result, txn): tuple<tuple<asset,application,account>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=85, source=SINGLE_EVAL(id=84, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_resource_by_index(asset,application,account)(uint64,uint64,address)"), hex<"00">, hex<"01">, hex<"01">), Accounts=(acc), Applications=(app), Assets=(asset), ApplicationID=app_to_call))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=85)) == hex<"151F7C75">)), tuple<asset,application,account>), SINGLE_EVAL(id=84))
     assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
     (result, txn): tuple<tuple<asset,application,account>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=87, source=SINGLE_EVAL(id=86, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"), arc4_encode(asset, arc4.uint64), arc4_encode(app, arc4.uint64), arc4_encode(acc, arc4.static_array<arc4.uint8, 32>)), ApplicationID=app_to_call))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=87)) == hex<"151F7C75">)), tuple<asset,application,account>), SINGLE_EVAL(id=86))
     assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
-    (result, txn): tuple<tuple<asset,application,account>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=89, source=SINGLE_EVAL(id=88, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_resource_by_foreign_index(asset,application,account)(uint64,uint64,address)"), hex<"00">, hex<"01">, hex<"01">), Accounts=(acc), Applications=(app), Assets=(asset), ApplicationID=app_to_call))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=89)) == hex<"151F7C75">)), tuple<asset,application,account>), SINGLE_EVAL(id=88))
+    (result, txn): tuple<tuple<asset,application,account>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=89, source=SINGLE_EVAL(id=88, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_resource_by_index(asset,application,account)(uint64,uint64,address)"), hex<"00">, hex<"01">, hex<"01">), Accounts=(acc), Applications=(app), Assets=(asset), ApplicationID=app_to_call))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=89)) == hex<"151F7C75">)), tuple<asset,application,account>), SINGLE_EVAL(id=88))
     assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
     (result, txn): tuple<tuple<asset,application,account>,inner_transaction_appl> = (arc4_decode(checked_maybe((extract<4, 0>(SINGLE_EVAL(id=91, source=SINGLE_EVAL(id=90, source=submit_txn(create_inner_transaction(Fee=0u, TypeEnum=appl, ApplicationArgs=(Method("echo_resource_by_value(uint64,uint64,address)(uint64,uint64,address)"), arc4_encode(asset, arc4.uint64), arc4_encode(app, arc4.uint64), arc4_encode(acc, arc4.static_array<arc4.uint8, 32>)), ApplicationID=app_to_call))).LastLog)), extract<0, 4>(SINGLE_EVAL(id=91)) == hex<"151F7C75">)), tuple<asset,application,account>), SINGLE_EVAL(id=90))
     assert(&&(&&(result[0] == asset, result[1] == app), result[2] == acc), comment="expected echo to return same resources")
