@@ -33,14 +33,10 @@ subroutine main:
         v-load maybe_exists%1#0                                                                            maybe_exists%1#0
         assert // check self.tup exists
         v-load maybe_value%1#0                                                                             maybe_value%1#0
-        int 2                                                                                              maybe_value%1#0,2
-        extract_uint64                                                                                     aggregate%item1%1#0
-        v-store aggregate%item1%1#0
-        v-load aggregate%item1%1#0                                                                         aggregate%item1%1#0
-        itob                                                                                               aggregate%val_as_bytes%2#0
-        v-store aggregate%val_as_bytes%2#0
+        extract 2 8                                                                                        aggregate%extract%1#0
+        v-store aggregate%extract%1#0
         byte 0x000a                                                                                        0x000a
-        v-load aggregate%val_as_bytes%2#0                                                                  0x000a,aggregate%val_as_bytes%2#0
+        v-load aggregate%extract%1#0                                                                       0x000a,aggregate%extract%1#0
         concat                                                                                             aggregate%head%6#0
         v-store aggregate%head%6#0
         v-load aggregate%head%6#0                                                                          aggregate%head%6#0
@@ -260,14 +256,10 @@ subroutine bootstrap:
         v-load maybe_exists%0#0                                                                            maybe_exists%0#0
         assert // check self.tup exists
         v-load maybe_value%0#0                                                                             maybe_value%0#0
-        int 2                                                                                              maybe_value%0#0,2
-        extract_uint64                                                                                     aggregate%item1%0#0
-        v-store aggregate%item1%0#0
-        v-load aggregate%item1%0#0                                                                         aggregate%item1%0#0
-        itob                                                                                               aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0
+        extract 2 8                                                                                        aggregate%extract%0#0
+        v-store aggregate%extract%0#0
         byte 0x000a                                                                                        0x000a
-        v-load aggregate%val_as_bytes%0#0                                                                  0x000a,aggregate%val_as_bytes%0#0
+        v-load aggregate%extract%0#0                                                                       0x000a,aggregate%extract%0#0
         concat                                                                                             aggregate%head%2#0
         v-store aggregate%head%2#0
         v-load aggregate%head%2#0                                                                          aggregate%head%2#0
@@ -316,9 +308,8 @@ subroutine mutate_tuple:
         substring3                                                                                         (𝕡) val#0 | aggregate%substring3%0#0
         v-store aggregate%substring3%0#0                                                                   (𝕡) val#0 |
         v-load maybe_value%0#0                                                                             (𝕡) val#0 | maybe_value%0#0
-        int 2                                                                                              (𝕡) val#0 | maybe_value%0#0,2
-        extract_uint64                                                                                     (𝕡) val#0 | aggregate%item1%0#0
-        v-store aggregate%item1%0#0                                                                        (𝕡) val#0 |
+        extract 2 8                                                                                        (𝕡) val#0 | aggregate%extract%0#0
+        v-store aggregate%extract%0#0                                                                      (𝕡) val#0 |
         v-load aggregate%substring3%0#0                                                                    (𝕡) val#0 | aggregate%substring3%0#0
         p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#0,val#0 (copy)
         concat // on error: max array length exceeded                                                      (𝕡) val#0 | concat%0#0
@@ -341,11 +332,8 @@ subroutine mutate_tuple:
         v-load as_u16_bytes%0#0                                                                            (𝕡) val#0 | concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                                         (𝕡) val#0 | replace%0#0
         v-store replace%0#0                                                                                (𝕡) val#0 |
-        v-load aggregate%item1%0#0                                                                         (𝕡) val#0 | aggregate%item1%0#0
-        itob                                                                                               (𝕡) val#0 | aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0                                                                 (𝕡) val#0 |
         byte 0x000a                                                                                        (𝕡) val#0 | 0x000a
-        v-load aggregate%val_as_bytes%0#0                                                                  (𝕡) val#0 | 0x000a,aggregate%val_as_bytes%0#0
+        v-load aggregate%extract%0#0                                                                       (𝕡) val#0 | 0x000a,aggregate%extract%0#0
         concat                                                                                             (𝕡) val#0 | aggregate%head%2#0
         v-store aggregate%head%2#0                                                                         (𝕡) val#0 |
         v-load aggregate%head%2#0                                                                          (𝕡) val#0 | aggregate%head%2#0
@@ -382,9 +370,8 @@ subroutine mutate_box:
         substring3                                                                                         (𝕡) val#0 | aggregate%substring3%0#0
         v-store aggregate%substring3%0#0                                                                   (𝕡) val#0 |
         v-load aggregate%box_get%0#0                                                                       (𝕡) val#0 | aggregate%box_get%0#0
-        int 2                                                                                              (𝕡) val#0 | aggregate%box_get%0#0,2
-        extract_uint64                                                                                     (𝕡) val#0 | aggregate%item1%0#0
-        v-store aggregate%item1%0#0                                                                        (𝕡) val#0 |
+        extract 2 8                                                                                        (𝕡) val#0 | aggregate%extract%0#0
+        v-store aggregate%extract%0#0                                                                      (𝕡) val#0 |
         v-load aggregate%substring3%0#0                                                                    (𝕡) val#0 | aggregate%substring3%0#0
         p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#0,val#0 (copy)
         concat // on error: max array length exceeded                                                      (𝕡) val#0 | concat%0#0
@@ -407,11 +394,8 @@ subroutine mutate_box:
         v-load as_u16_bytes%0#0                                                                            (𝕡) val#0 | concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                                         (𝕡) val#0 | replace%0#0
         v-store replace%0#0                                                                                (𝕡) val#0 |
-        v-load aggregate%item1%0#0                                                                         (𝕡) val#0 | aggregate%item1%0#0
-        itob                                                                                               (𝕡) val#0 | aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0                                                                 (𝕡) val#0 |
         byte 0x000a                                                                                        (𝕡) val#0 | 0x000a
-        v-load aggregate%val_as_bytes%0#0                                                                  (𝕡) val#0 | 0x000a,aggregate%val_as_bytes%0#0
+        v-load aggregate%extract%0#0                                                                       (𝕡) val#0 | 0x000a,aggregate%extract%0#0
         concat                                                                                             (𝕡) val#0 | aggregate%head%2#0
         v-store aggregate%head%2#0                                                                         (𝕡) val#0 |
         v-load aggregate%head%2#0                                                                          (𝕡) val#0 | aggregate%head%2#0
@@ -452,9 +436,8 @@ subroutine mutate_global:
         substring3                                                                                         (𝕡) val#0 | aggregate%substring3%0#0
         v-store aggregate%substring3%0#0                                                                   (𝕡) val#0 |
         v-load maybe_value%0#0                                                                             (𝕡) val#0 | maybe_value%0#0
-        int 2                                                                                              (𝕡) val#0 | maybe_value%0#0,2
-        extract_uint64                                                                                     (𝕡) val#0 | aggregate%item1%0#0
-        v-store aggregate%item1%0#0                                                                        (𝕡) val#0 |
+        extract 2 8                                                                                        (𝕡) val#0 | aggregate%extract%0#0
+        v-store aggregate%extract%0#0                                                                      (𝕡) val#0 |
         v-load aggregate%substring3%0#0                                                                    (𝕡) val#0 | aggregate%substring3%0#0
         p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#0,val#0 (copy)
         concat // on error: max array length exceeded                                                      (𝕡) val#0 | concat%0#0
@@ -477,11 +460,8 @@ subroutine mutate_global:
         v-load as_u16_bytes%0#0                                                                            (𝕡) val#0 | concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                                         (𝕡) val#0 | replace%0#0
         v-store replace%0#0                                                                                (𝕡) val#0 |
-        v-load aggregate%item1%0#0                                                                         (𝕡) val#0 | aggregate%item1%0#0
-        itob                                                                                               (𝕡) val#0 | aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0                                                                 (𝕡) val#0 |
         byte 0x000a                                                                                        (𝕡) val#0 | 0x000a
-        v-load aggregate%val_as_bytes%0#0                                                                  (𝕡) val#0 | 0x000a,aggregate%val_as_bytes%0#0
+        v-load aggregate%extract%0#0                                                                       (𝕡) val#0 | 0x000a,aggregate%extract%0#0
         concat                                                                                             (𝕡) val#0 | aggregate%head%2#0
         v-store aggregate%head%2#0                                                                         (𝕡) val#0 |
         v-load aggregate%head%2#0                                                                          (𝕡) val#0 | aggregate%head%2#0
@@ -522,9 +502,8 @@ subroutine mutate_local:
         substring3                                                                                         (𝕡) val#0 | aggregate%substring3%0#0
         v-store aggregate%substring3%0#0                                                                   (𝕡) val#0 |
         v-load maybe_value%0#0                                                                             (𝕡) val#0 | maybe_value%0#0
-        int 2                                                                                              (𝕡) val#0 | maybe_value%0#0,2
-        extract_uint64                                                                                     (𝕡) val#0 | aggregate%item1%0#0
-        v-store aggregate%item1%0#0                                                                        (𝕡) val#0 |
+        extract 2 8                                                                                        (𝕡) val#0 | aggregate%extract%0#0
+        v-store aggregate%extract%0#0                                                                      (𝕡) val#0 |
         v-load aggregate%substring3%0#0                                                                    (𝕡) val#0 | aggregate%substring3%0#0
         p-load val#0                                                                                       (𝕡) val#0 | aggregate%substring3%0#0,val#0 (copy)
         concat // on error: max array length exceeded                                                      (𝕡) val#0 | concat%0#0
@@ -547,11 +526,8 @@ subroutine mutate_local:
         v-load as_u16_bytes%0#0                                                                            (𝕡) val#0 | concat%0#0,as_u16_bytes%0#0
         replace2 0                                                                                         (𝕡) val#0 | replace%0#0
         v-store replace%0#0                                                                                (𝕡) val#0 |
-        v-load aggregate%item1%0#0                                                                         (𝕡) val#0 | aggregate%item1%0#0
-        itob                                                                                               (𝕡) val#0 | aggregate%val_as_bytes%0#0
-        v-store aggregate%val_as_bytes%0#0                                                                 (𝕡) val#0 |
         byte 0x000a                                                                                        (𝕡) val#0 | 0x000a
-        v-load aggregate%val_as_bytes%0#0                                                                  (𝕡) val#0 | 0x000a,aggregate%val_as_bytes%0#0
+        v-load aggregate%extract%0#0                                                                       (𝕡) val#0 | 0x000a,aggregate%extract%0#0
         concat                                                                                             (𝕡) val#0 | aggregate%head%2#0
         v-store aggregate%head%2#0                                                                         (𝕡) val#0 |
         v-load aggregate%head%2#0                                                                          (𝕡) val#0 | aggregate%head%2#0

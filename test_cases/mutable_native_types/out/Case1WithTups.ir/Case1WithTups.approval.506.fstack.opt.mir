@@ -630,16 +630,12 @@ subroutine set_a:
         l-load-copy aggregate%bytes_offset%0#0 1                                                              (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,box%box_extract%2#0,aggregate%bytes_offset%0#0 (copy)
         int 16                                                                                                (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,box%box_extract%2#0,aggregate%bytes_offset%0#0 (copy),16
         extract3 // on error: index access is out of bounds                                                   (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0
-        int 8                                                                                                 (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,8
-        extract_uint64                                                                                        (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,tup.b#0
+        extract 8 8                                                                                           (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%extract%1#0
         // mutable_native_types/case1_with_tups.py:92
         // self.tup_bag.value.items[i] = tup._replace(a=a)
-        p-load a#0                                                                                            (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,tup.b#0,a#0 (copy)
-        itob                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,tup.b#0,aggregate%val_as_bytes%0#0
-        l-load tup.b#0 1                                                                                      (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,tup.b#0
-        itob                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%0#0 1                                                                   (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%1#0 1                                                                   (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        p-load a#0                                                                                            (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%extract%1#0,a#0 (copy)
+        itob                                                                                                  (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%extract%1#0,aggregate%val_as_bytes%0#0
+        l-load aggregate%extract%1#0 1                                                                        (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%extract%1#0
         concat                                                                                                (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0
         l-load-copy i#0 2                                                                                     (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0,i#0 (copy)
         int 8                                                                                                 (𝕡) a#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0,i#0 (copy),8
@@ -705,15 +701,13 @@ subroutine set_b:
         l-load-copy aggregate%bytes_offset%0#0 1                                                              (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,box%box_extract%2#0,aggregate%bytes_offset%0#0 (copy)
         int 16                                                                                                (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,box%box_extract%2#0,aggregate%bytes_offset%0#0 (copy),16
         extract3 // on error: index access is out of bounds                                                   (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0
-        int 0                                                                                                 (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%encoded_element%0#0,0
-        extract_uint64                                                                                        (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,tup.a#0
+        extract 0 8                                                                                           (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0
         // mutable_native_types/case1_with_tups.py:99
         // self.tup_bag.value.items[i] = tup._replace(b=b)
-        itob                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0
-        p-load b#0                                                                                            (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,b#0 (copy)
-        itob                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%0#0 1                                                                   (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%1#0 1                                                                   (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        p-load b#0                                                                                            (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0,b#0 (copy)
+        itob                                                                                                  (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0,aggregate%val_as_bytes%1#0
+        l-load aggregate%extract%0#0 1                                                                        (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%val_as_bytes%1#0,aggregate%extract%0#0
+        l-load aggregate%val_as_bytes%1#0 1                                                                   (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%extract%0#0,aggregate%val_as_bytes%1#0
         concat                                                                                                (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0
         l-load-copy i#0 2                                                                                     (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0,i#0 (copy)
         int 8                                                                                                 (𝕡) b#0 | (𝕗) values%0#0,i#0 | i#0,aggregate%bytes_offset%0#0,aggregate%head%1#0,i#0 (copy),8
@@ -771,53 +765,47 @@ subroutine get_3_tups:
         // mutable_native_types/case1_with_tups.py:108
         // items[start],
         l-load-copy aggregate%encoded_element%0#0 0                                                           (𝕡) start#0 | box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy)
-        int 0                                                                                                 (𝕡) start#0 | box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy),0
-        extract_uint64                                                                                        (𝕡) start#0 | box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%item0%0#0
-        l-load aggregate%encoded_element%0#0 1                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%encoded_element%0#0
-        int 8                                                                                                 (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%encoded_element%0#0,8
-        extract_uint64                                                                                        (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0
+        extract 0 8                                                                                           (𝕡) start#0 | box%box_extract%2#0,aggregate%encoded_element%0#0,aggregate%extract%0#0
+        l-load aggregate%encoded_element%0#0 1                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%encoded_element%0#0
+        extract 8 8                                                                                           (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0
         // mutable_native_types/case1_with_tups.py:109
         // items[start + 1],
-        p-load start#0                                                                                        (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,start#0 (copy)
-        int 1                                                                                                 (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,start#0 (copy),1
-        +                                                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,tmp%2#0
+        p-load start#0                                                                                        (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,start#0 (copy)
+        int 1                                                                                                 (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,start#0 (copy),1
+        +                                                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,tmp%2#0
         // mutable_native_types/case1_with_tups.py:104
         // items = self.tup_bag.value.items.copy()
-        int 16                                                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,tmp%2#0,16
-        *                                                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%bytes_offset%1#0
-        l-load-copy box%box_extract%2#0 3                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%bytes_offset%1#0,box%box_extract%2#0 (copy)
-        l-load aggregate%bytes_offset%1#0 1                                                                   (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,box%box_extract%2#0 (copy),aggregate%bytes_offset%1#0
-        int 16                                                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,box%box_extract%2#0 (copy),aggregate%bytes_offset%1#0,16
-        extract3 // on error: index access is out of bounds                                                   (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%encoded_element%1#0
+        int 16                                                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,tmp%2#0,16
+        *                                                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%bytes_offset%1#0
+        l-load-copy box%box_extract%2#0 3                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%bytes_offset%1#0,box%box_extract%2#0 (copy)
+        l-load aggregate%bytes_offset%1#0 1                                                                   (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,box%box_extract%2#0 (copy),aggregate%bytes_offset%1#0
+        int 16                                                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,box%box_extract%2#0 (copy),aggregate%bytes_offset%1#0,16
+        extract3 // on error: index access is out of bounds                                                   (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%encoded_element%1#0
         // mutable_native_types/case1_with_tups.py:109
         // items[start + 1],
-        l-load-copy aggregate%encoded_element%1#0 0                                                           (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%encoded_element%1#0,aggregate%encoded_element%1#0 (copy)
-        int 0                                                                                                 (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%encoded_element%1#0,aggregate%encoded_element%1#0 (copy),0
-        extract_uint64                                                                                        (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%encoded_element%1#0,aggregate%item0%1#0
-        l-load aggregate%encoded_element%1#0 1                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%encoded_element%1#0
-        int 8                                                                                                 (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%encoded_element%1#0,8
-        extract_uint64                                                                                        (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0
+        l-load-copy aggregate%encoded_element%1#0 0                                                           (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%encoded_element%1#0,aggregate%encoded_element%1#0 (copy)
+        extract 0 8                                                                                           (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%encoded_element%1#0,aggregate%extract%2#0
+        l-load aggregate%encoded_element%1#0 1                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%encoded_element%1#0
+        extract 8 8                                                                                           (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0
         // mutable_native_types/case1_with_tups.py:110
         // items[start + 2],
-        p-load start#0                                                                                        (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,start#0 (copy)
-        int 2                                                                                                 (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,start#0 (copy),2
-        +                                                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,tmp%3#0
+        p-load start#0                                                                                        (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,start#0 (copy)
+        int 2                                                                                                 (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,start#0 (copy),2
+        +                                                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%3#0
         // mutable_native_types/case1_with_tups.py:104
         // items = self.tup_bag.value.items.copy()
-        int 16                                                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,tmp%3#0,16
-        *                                                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%bytes_offset%2#0
-        l-load box%box_extract%2#0 5                                                                          (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%bytes_offset%2#0,box%box_extract%2#0
-        l-load aggregate%bytes_offset%2#0 1                                                                   (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,box%box_extract%2#0,aggregate%bytes_offset%2#0
-        int 16                                                                                                (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,box%box_extract%2#0,aggregate%bytes_offset%2#0,16
-        extract3 // on error: index access is out of bounds                                                   (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%encoded_element%2#0
+        int 16                                                                                                (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,tmp%3#0,16
+        *                                                                                                     (𝕡) start#0 | box%box_extract%2#0,aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%bytes_offset%2#0
+        l-load box%box_extract%2#0 5                                                                          (𝕡) start#0 | aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%bytes_offset%2#0,box%box_extract%2#0
+        l-load aggregate%bytes_offset%2#0 1                                                                   (𝕡) start#0 | aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,box%box_extract%2#0,aggregate%bytes_offset%2#0
+        int 16                                                                                                (𝕡) start#0 | aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,box%box_extract%2#0,aggregate%bytes_offset%2#0,16
+        extract3 // on error: index access is out of bounds                                                   (𝕡) start#0 | aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%encoded_element%2#0
         // mutable_native_types/case1_with_tups.py:110
         // items[start + 2],
-        l-load-copy aggregate%encoded_element%2#0 0                                                           (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%encoded_element%2#0,aggregate%encoded_element%2#0 (copy)
-        int 0                                                                                                 (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%encoded_element%2#0,aggregate%encoded_element%2#0 (copy),0
-        extract_uint64                                                                                        (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%encoded_element%2#0,aggregate%item0%2#0
-        l-load aggregate%encoded_element%2#0 1                                                                (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%encoded_element%2#0
-        int 8                                                                                                 (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%encoded_element%2#0,8
-        extract_uint64                                                                                        (𝕡) start#0 | aggregate%item0%0#0,aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0
+        l-load-copy aggregate%encoded_element%2#0 0                                                           (𝕡) start#0 | aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%encoded_element%2#0,aggregate%encoded_element%2#0 (copy)
+        extract 0 8                                                                                           (𝕡) start#0 | aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%encoded_element%2#0,aggregate%extract%4#0
+        l-load aggregate%encoded_element%2#0 1                                                                (𝕡) start#0 | aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%encoded_element%2#0
+        extract 8 8                                                                                           (𝕡) start#0 | aggregate%extract%0#0,aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%extract%5#0
         // mutable_native_types/case1_with_tups.py:106-112
         // return FixedArray[NamedTup, typing.Literal[3]](
         //     (
@@ -826,29 +814,17 @@ subroutine get_3_tups:
         //         items[start + 2],
         //     )
         // )
-        l-load aggregate%item0%0#0 5                                                                          (𝕡) start#0 | aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0,aggregate%item0%0#0
-        itob                                                                                                  (𝕡) start#0 | aggregate%item1%0#0,aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%item1%0#0 5                                                                          (𝕡) start#0 | aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0,aggregate%val_as_bytes%0#0,aggregate%item1%0#0
-        itob                                                                                                  (𝕡) start#0 | aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%0#0 1                                                                   (𝕡) start#0 | aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%1#0 1                                                                   (𝕡) start#0 | aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        concat                                                                                                (𝕡) start#0 | aggregate%item0%1#0,aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%1#0
-        l-load aggregate%item0%1#0 4                                                                          (𝕡) start#0 | aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%1#0,aggregate%item0%1#0
-        itob                                                                                                  (𝕡) start#0 | aggregate%item1%1#0,aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%1#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%item1%1#0 4                                                                          (𝕡) start#0 | aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%1#0,aggregate%val_as_bytes%2#0,aggregate%item1%1#0
-        itob                                                                                                  (𝕡) start#0 | aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%1#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
-        l-load aggregate%val_as_bytes%2#0 1                                                                   (𝕡) start#0 | aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%1#0,aggregate%val_as_bytes%3#0,aggregate%val_as_bytes%2#0
-        l-load aggregate%val_as_bytes%3#0 1                                                                   (𝕡) start#0 | aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%1#0,aggregate%val_as_bytes%2#0,aggregate%val_as_bytes%3#0
-        concat                                                                                                (𝕡) start#0 | aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%1#0,aggregate%head%4#0
-        l-load aggregate%head%1#0 1                                                                           (𝕡) start#0 | aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%4#0,aggregate%head%1#0
-        l-load aggregate%head%4#0 1                                                                           (𝕡) start#0 | aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%1#0,aggregate%head%4#0
-        concat                                                                                                (𝕡) start#0 | aggregate%item0%2#0,aggregate%item1%2#0,aggregate%head%5#0
-        l-load aggregate%item0%2#0 2                                                                          (𝕡) start#0 | aggregate%item1%2#0,aggregate%head%5#0,aggregate%item0%2#0
-        itob                                                                                                  (𝕡) start#0 | aggregate%item1%2#0,aggregate%head%5#0,aggregate%val_as_bytes%4#0
-        l-load aggregate%item1%2#0 2                                                                          (𝕡) start#0 | aggregate%head%5#0,aggregate%val_as_bytes%4#0,aggregate%item1%2#0
-        itob                                                                                                  (𝕡) start#0 | aggregate%head%5#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
-        l-load aggregate%val_as_bytes%4#0 1                                                                   (𝕡) start#0 | aggregate%head%5#0,aggregate%val_as_bytes%5#0,aggregate%val_as_bytes%4#0
-        l-load aggregate%val_as_bytes%5#0 1                                                                   (𝕡) start#0 | aggregate%head%5#0,aggregate%val_as_bytes%4#0,aggregate%val_as_bytes%5#0
+        l-load aggregate%extract%0#0 5                                                                        (𝕡) start#0 | aggregate%extract%1#0,aggregate%extract%2#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%extract%5#0,aggregate%extract%0#0
+        l-load aggregate%extract%1#0 5                                                                        (𝕡) start#0 | aggregate%extract%2#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%extract%5#0,aggregate%extract%0#0,aggregate%extract%1#0
+        concat                                                                                                (𝕡) start#0 | aggregate%extract%2#0,aggregate%extract%3#0,aggregate%extract%4#0,aggregate%extract%5#0,aggregate%head%1#0
+        l-load aggregate%extract%2#0 4                                                                        (𝕡) start#0 | aggregate%extract%3#0,aggregate%extract%4#0,aggregate%extract%5#0,aggregate%head%1#0,aggregate%extract%2#0
+        l-load aggregate%extract%3#0 4                                                                        (𝕡) start#0 | aggregate%extract%4#0,aggregate%extract%5#0,aggregate%head%1#0,aggregate%extract%2#0,aggregate%extract%3#0
+        concat                                                                                                (𝕡) start#0 | aggregate%extract%4#0,aggregate%extract%5#0,aggregate%head%1#0,aggregate%head%4#0
+        l-load aggregate%head%1#0 1                                                                           (𝕡) start#0 | aggregate%extract%4#0,aggregate%extract%5#0,aggregate%head%4#0,aggregate%head%1#0
+        l-load aggregate%head%4#0 1                                                                           (𝕡) start#0 | aggregate%extract%4#0,aggregate%extract%5#0,aggregate%head%1#0,aggregate%head%4#0
+        concat                                                                                                (𝕡) start#0 | aggregate%extract%4#0,aggregate%extract%5#0,aggregate%head%5#0
+        l-load aggregate%extract%4#0 2                                                                        (𝕡) start#0 | aggregate%extract%5#0,aggregate%head%5#0,aggregate%extract%4#0
+        l-load aggregate%extract%5#0 2                                                                        (𝕡) start#0 | aggregate%head%5#0,aggregate%extract%4#0,aggregate%extract%5#0
         concat                                                                                                (𝕡) start#0 | aggregate%head%5#0,aggregate%head%7#0
         l-load aggregate%head%5#0 1                                                                           (𝕡) start#0 | aggregate%head%7#0,aggregate%head%5#0
         l-load aggregate%head%7#0 1                                                                           (𝕡) start#0 | aggregate%head%5#0,aggregate%head%7#0
@@ -901,17 +877,11 @@ subroutine get_all_tups:
         // mutable_native_types/case1_with_tups.py:120
         // result.append(items[i])
         l-load-copy aggregate%encoded_element%0#0 0                                                           (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy)
-        int 0                                                                                                 (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%encoded_element%0#0,aggregate%encoded_element%0#0 (copy),0
-        extract_uint64                                                                                        (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%encoded_element%0#0,aggregate%item0%0#0
-        l-load aggregate%encoded_element%0#0 1                                                                (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%item0%0#0,aggregate%encoded_element%0#0
-        int 8                                                                                                 (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%item0%0#0,aggregate%encoded_element%0#0,8
-        extract_uint64                                                                                        (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%item0%0#0,aggregate%item1%0#0
-        l-load aggregate%item0%0#0 1                                                                          (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%item1%0#0,aggregate%item0%0#0
-        itob                                                                                                  (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%item1%0#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%item1%0#0 1                                                                          (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%val_as_bytes%0#0,aggregate%item1%0#0
-        itob                                                                                                  (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
-        l-load aggregate%val_as_bytes%0#0 1                                                                   (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%val_as_bytes%1#0,aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%1#0 1                                                                   (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%val_as_bytes%0#0,aggregate%val_as_bytes%1#0
+        extract 0 8                                                                                           (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%encoded_element%0#0,aggregate%extract%0#0
+        l-load aggregate%encoded_element%0#0 1                                                                (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%extract%0#0,aggregate%encoded_element%0#0
+        extract 8 8                                                                                           (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%extract%0#0,aggregate%extract%1#0
+        l-load aggregate%extract%0#0 1                                                                        (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%extract%1#0,aggregate%extract%0#0
+        l-load aggregate%extract%1#0 1                                                                        (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%extract%0#0,aggregate%extract%1#0
         concat                                                                                                (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%head%1#0
         f-load result#0                                                                                       (𝕗) result#0,values%0#0,i#0 | i#0,aggregate%head%1#0,result#0
         l-store-copy result#0 1                                                                               (𝕗) result#0,values%0#0,i#0 | i#0,result#0,aggregate%head%1#0,result#0 (copy)
