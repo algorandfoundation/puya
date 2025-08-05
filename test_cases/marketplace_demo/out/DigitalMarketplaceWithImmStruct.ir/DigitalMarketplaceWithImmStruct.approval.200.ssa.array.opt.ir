@@ -250,7 +250,6 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
     block@0: // L120
         let tmp%0#0: account = (txn Sender)
         let tmp%1#0: uint64 = ((gtxns XferAsset) xfer#0)
-        let aggregate%head%0#0: bytes = tmp%0#0
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%1#0)
         let aggregate%head%1#0: bytes = (concat tmp%0#0 aggregate%val_as_bytes%0#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob nonce#0)
@@ -279,21 +278,16 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let values%4#0: uint64 = (extract_uint64 existing#0 0u)
         let tmp%12#0: uint64 = (+ values%4#0 tmp%9#0)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%12#0)
-        let aggregate%head%3#0: bytes = aggregate%val_as_bytes%2#0
-        let aggregate%val_as_bytes%3#0: bytes[8] = (itob values%3#0)
-        let aggregate%head%4#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
+        let aggregate%head%4#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%extract%3#0)
         let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%extract%2#0)
-        let aggregate%val_as_bytes%4#0: bytes[8] = (itob values%0#0)
-        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%val_as_bytes%4#0)
-        let aggregate%val_as_bytes%5#0: bytes[8] = (itob values%1#0)
-        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%val_as_bytes%5#0)
+        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%extract%0#0)
+        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%extract%1#0)
         (box_put box_prefixed_key%0#0 aggregate%head%7#0)
         return 
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.set_price(asset: uint64, nonce: uint64, unitary_price: uint64) -> void:
     block@0: // L137
         let tmp%0#0: account = (txn Sender)
-        let aggregate%head%0#0: bytes = tmp%0#0
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob asset#0)
         let aggregate%head%1#0: bytes = (concat tmp%0#0 aggregate%val_as_bytes%0#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob nonce#0)
@@ -308,21 +302,16 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let aggregate%extract%2#0: bytes = ((extract 16 32) existing#0)
         let aggregate%extract%3#0: bytes = ((extract 0 8) existing#0)
         let values%3#0: uint64 = (extract_uint64 existing#0 0u)
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob values%3#0)
-        let aggregate%head%3#0: bytes = aggregate%val_as_bytes%2#0
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob unitary_price#0)
-        let aggregate%head%4#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
+        let aggregate%head%4#0: bytes = (concat aggregate%extract%3#0 aggregate%val_as_bytes%3#0)
         let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%extract%2#0)
-        let aggregate%val_as_bytes%4#0: bytes[8] = (itob values%0#0)
-        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%val_as_bytes%4#0)
-        let aggregate%val_as_bytes%5#0: bytes[8] = (itob values%1#0)
-        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%val_as_bytes%5#0)
+        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%extract%0#0)
+        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%extract%1#0)
         (box_put box_prefixed_key%0#0 aggregate%head%7#0)
         return 
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.buy(owner: account, asset: uint64, nonce: uint64, buy_pay: uint64, quantity: uint64) -> void:
     block@0: // L150
-        let aggregate%head%0#0: bytes = owner#0
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob asset#0)
         let aggregate%head%1#0: bytes = (concat owner#0 aggregate%val_as_bytes%0#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob nonce#0)
@@ -358,14 +347,11 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let values%5#0: uint64 = (extract_uint64 listing#0 0u)
         let tmp%9#0: uint64 = (- values%5#0 quantity#0)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%9#0)
-        let aggregate%head%3#0: bytes = aggregate%val_as_bytes%2#0
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob price#0)
         let aggregate%head%4#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
         let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%extract%3#0)
-        let aggregate%val_as_bytes%4#0: bytes[8] = (itob values%1#0)
-        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%val_as_bytes%4#0)
-        let aggregate%val_as_bytes%5#0: bytes[8] = (itob values%2#0)
-        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%val_as_bytes%5#0)
+        let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%extract%1#0)
+        let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%extract%2#0)
         (box_put box_prefixed_key%0#0 aggregate%head%7#0)
         itxn_begin
         let inner_txn_params%0%%param_AssetReceiver_idx_0#0: account = (txn Sender)
@@ -434,7 +420,6 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.bid(owner: account, asset: uint64, nonce: uint64, bid_pay: uint64, quantity: uint64, unitary_price: uint64) -> void:
     block@0: // L200
-        let aggregate%head%0#0: bytes = owner#0
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob asset#0)
         let aggregate%head%1#0: bytes = (concat owner#0 aggregate%val_as_bytes%0#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob nonce#0)
@@ -491,10 +476,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let aggregate%extract%4#0: bytes = ((extract 8 8) listing#0)
         let values%6#0: uint64 = (extract_uint64 listing#0 8u)
         let tmp%14#0: account = (txn Sender)
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob values%5#0)
-        let aggregate%head%3#0: bytes = aggregate%val_as_bytes%2#0
-        let aggregate%val_as_bytes%3#0: bytes[8] = (itob values%6#0)
-        let aggregate%head%4#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
+        let aggregate%head%4#0: bytes = (concat aggregate%extract%3#0 aggregate%extract%4#0)
         let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 tmp%14#0)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob quantity#0)
         let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%val_as_bytes%4#0)
@@ -506,7 +488,6 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
 subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.DigitalMarketplaceWithImmStruct.accept_bid(asset: uint64, nonce: uint64) -> void:
     block@0: // L236
         let tmp%0#0: account = (txn Sender)
-        let aggregate%head%0#0: bytes = tmp%0#0
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob asset#0)
         let aggregate%head%1#0: bytes = (concat tmp%0#0 aggregate%val_as_bytes%0#0)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob nonce#0)
@@ -558,9 +539,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_immutable_struct.Digital
         let tmp%6#0: uint64 = (- values%1#0 min_quantity#0)
         let tmp%7#0: uint64 = (- values%2#0 min_quantity#0)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%6#0)
-        let aggregate%head%3#0: bytes = aggregate%val_as_bytes%2#0
-        let aggregate%val_as_bytes%3#0: bytes[8] = (itob values%9#0)
-        let aggregate%head%4#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%val_as_bytes%3#0)
+        let aggregate%head%4#0: bytes = (concat aggregate%val_as_bytes%2#0 aggregate%extract%4#0)
         let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%extract%0#0)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%7#0)
         let aggregate%head%6#0: bytes = (concat aggregate%head%5#0 aggregate%val_as_bytes%4#0)
