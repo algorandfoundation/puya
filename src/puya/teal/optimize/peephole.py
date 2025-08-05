@@ -58,6 +58,18 @@ def is_stack_swap(op: models.TealOp) -> bool:
 
 
 def optimize_single(a: models.TealOp) -> tuple[list[models.TealOp], bool]:
+    if a.op_code == "arg" and isinstance((idx := a.immediates[0]), int) and idx <= 3:
+        return [
+            models.Intrinsic(
+                op_code=f"arg_{idx}",
+                immediates=[],
+                consumes=0,
+                produces=1,
+                stack_manipulations=a.stack_manipulations,
+                source_location=a.source_location,
+            )
+        ], True
+
     if a.op_code in ("cover", "uncover") and a.immediates == (0,):
         return [], True
     if a.op_code == "dig" and a.immediates == (0,):
