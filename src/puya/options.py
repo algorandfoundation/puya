@@ -1,8 +1,9 @@
 import enum
-from collections.abc import Mapping, Sequence, Set
+from collections.abc import Mapping
 from functools import cached_property
 
 import attrs
+from immutabledict import immutabledict
 
 from puya.algo_constants import MAINNET_AVM_VERSION
 
@@ -34,12 +35,8 @@ class PuyaOptions:
     # TODO: the below is probably not scalable as a set of optimisation on/off flags,
     #       but it'll do for now
     locals_coalescing_strategy: LocalsCoalescingStrategy = LocalsCoalescingStrategy.root_operand
-    _disabled_optimizations: Sequence[str] = ()
+    optimizations_override: Mapping[str, bool] = attrs.field(default=immutabledict())
     expand_all_bytes: bool = False
-
-    @cached_property
-    def disabled_optimizations(self) -> Set[str]:
-        return set(self._disabled_optimizations)
 
     @cached_property
     def template_variables(self) -> Mapping[str, int | bytes]:
