@@ -1,5 +1,4 @@
 import contextlib
-import copy
 import functools
 import typing
 from collections import defaultdict
@@ -19,7 +18,7 @@ from puya.context import ArtifactCompileContext, CompileContext
 from puya.ir import arc4_router
 from puya.ir._contract_metadata import build_contract_metadata
 from puya.ir._puya_lib import PuyaLibIR
-from puya.ir._utils import make_subroutine
+from puya.ir._utils import deep_copy, make_subroutine
 from puya.ir.arc4_router import AWSTContractMethodSignature
 from puya.ir.builder.aggregates.main import lower_aggregate_nodes
 from puya.ir.builder.main import FunctionIRBuilder
@@ -354,7 +353,8 @@ def _make_program(
         source_location=ctx.root.source_location if ctx.root else None,
     )
     remove_unused_subroutines(program)
-    program = copy.deepcopy(program)
+    # copy to ensure program has unique copies of subroutines
+    program = deep_copy(program)
     return program
 
 
