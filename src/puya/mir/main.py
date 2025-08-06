@@ -83,7 +83,7 @@ def _lower_subroutine_to_mir(
         returns=[r.avm_type for r in subroutine.returns],
     )
     return models.MemorySubroutine(
-        id=context.subroutine_names[subroutine],
+        id=context.subroutine_names[subroutine.id],
         signature=signature,
         is_main=is_main,
         body=body,

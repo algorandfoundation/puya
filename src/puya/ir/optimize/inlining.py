@@ -1,4 +1,3 @@
-import copy
 import itertools
 import typing
 from collections import defaultdict
@@ -9,6 +8,7 @@ import networkx as nx  # type: ignore[import-untyped]
 
 from puya import log
 from puya.ir import models
+from puya.ir._utils import deep_copy
 from puya.ir.optimize._call_graph import CallGraph
 from puya.ir.optimize._utils import HasHighLevelOps
 from puya.ir.optimize.context import IROptimizationContext
@@ -58,6 +58,10 @@ def analyse_subroutines_for_inlining(
                     )
         else:
             typing.assert_type(sub.inline, None)
+
+    context.maybe_inlineable_subs_by_id = {
+        s.id: s for s in program.subroutines if s.inline is not False
+    }
     if context.options.optimization_level == 0:
         return
 
@@ -136,6 +140,8 @@ def perform_subroutine_inlining(
     blocks_to_visit = subroutine.body.copy()
     max_block_id = max(not_none(block.id) for block in blocks_to_visit)
     next_id = itertools.count(max_block_id + 1)
+    subs_by_id = context.maybe_inlineable_subs_by_id
+    assert subs_by_id is not None, "expected context.maybe_inlineable_subs_by_id to be populated"
     while blocks_to_visit:
         block = blocks_to_visit.pop()
         for op_index, op in enumerate(block.ops):
@@ -148,25 +154,29 @@ def perform_subroutine_inlining(
                     return_targets = []
                 case _:
                     continue
-            if call.target.id in inline_calls_to:
+            try:
+                call_target = subs_by_id[call.target]
+            except KeyError:
+                continue
+            if call.target in inline_calls_to:
                 logger.debug(
-                    f"inlining call to {call.target.id} in {subroutine.id}",
+                    f"inlining call to {call.target} in {subroutine.id}",
                     location=op.source_location,
                 )
             elif (
                 context.options.optimization_level >= 2
-                and call.target.inline is None
+                and call_target.inline is None
                 and all(isinstance(arg, models.Constant) for arg in call.args)
                 and lazy_setdefault(
                     context.constant_with_constant_args,
-                    call.target.id,
+                    call.target,
                     lambda _: _ConstantFunctionDetector.is_constant_with_constant_args(
-                        call.target
+                        call_target  # noqa: B023
                     ),
                 )
             ):
                 logger.debug(
-                    f"constant function call to {call.target.id} in {subroutine.id}",
+                    f"constant function call to {call.target} in {subroutine.id}",
                     location=op.source_location,
                 )
             else:
@@ -175,6 +185,7 @@ def perform_subroutine_inlining(
             remainder, created_blocks = _inline_call(
                 block,
                 call,
+                call_target,
                 next_id,
                 op_index,
                 return_targets,
@@ -195,6 +206,7 @@ def perform_subroutine_inlining(
 def _inline_call(
     block: models.BasicBlock,
     call: models.InvokeSubroutine,
+    call_target: models.Subroutine,
     next_id: Iterator[int],
     op_index: int,
     return_targets: Sequence[models.Register],
@@ -207,7 +219,7 @@ def _inline_call(
         register_offsets[host_reg.name] = max(
             register_offsets[host_reg.name], host_reg.version + 1
         )
-    new_blocks = _inlined_blocks(call.target, register_offsets)
+    new_blocks = _inlined_blocks(call_target, register_offsets)
     for new_block in new_blocks:
         new_block.id = next(next_id)
     # split the block after the callsub instruction
@@ -235,7 +247,7 @@ def _inline_call(
         )
     inlined_entry.phis.clear()
     # assign parameters before call
-    for arg, param in zip(call.args, call.target.parameters, strict=True):
+    for arg, param in zip(call.args, call_target.parameters, strict=True):
         updated_param = models.Register(
             name=param.name,
             ir_type=param.ir_type,
@@ -260,7 +272,7 @@ def _inline_call(
         ops=ops_after,
         terminator=terminator_after,
         predecessors=[],
-        comment=f"after_inlined_{call.target.id}",
+        comment=f"after_inlined_{call.target}",
         source_location=block.source_location,
     )
     for succ in remainder.successors:
@@ -309,7 +321,7 @@ def _inline_call(
                 ret_value = return_values[ret_idx]
                 if not isinstance(ret_value, models.Register):
                     tmp_value = ret_value
-                    tmp_reg_name = f"{call.target.id}{models.TMP_VAR_INDICATOR}{ret_idx}"
+                    tmp_reg_name = f"{call.target}{models.TMP_VAR_INDICATOR}{ret_idx}"
                     ret_value = models.Register(
                         ir_type=ret_value.ir_type,
                         source_location=ret_value.source_location,
@@ -332,18 +344,9 @@ def _inline_call(
 def _inlined_blocks(
     sub: models.Subroutine, register_offsets: Mapping[str, int]
 ) -> list[models.BasicBlock]:
-    ref_collector = _SubroutineReferenceCollector()
-    ref_collector.visit_all_blocks(sub.body)
-    assert (
-        sub not in ref_collector.subroutines
-    ), "auto recursive blocks should already be filtered out"
-    memo = {id(s): s for s in ref_collector.subroutines}
-    assert sub not in ref_collector.subroutines
-    # cloning entire sub even though only the blocks are needed,
-    # because Subroutine has special logic to prevent hitting recursion limits on deep copy
-    sub_copy = copy.deepcopy(sub, memo=memo)
-    _OffsetRegisterVersions.apply(sub_copy.body, register_offsets=register_offsets)
-    return sub_copy.body
+    body_copy = deep_copy(sub.body)
+    _OffsetRegisterVersions.apply(body_copy, register_offsets=register_offsets)
+    return body_copy
 
 
 @attrs.define
@@ -365,16 +368,6 @@ class _OffsetRegisterVersions(IRMutator):
             version=reg.version + self.register_offsets[reg.name],
             source_location=reg.source_location,
         )
-
-
-@attrs.define
-class _SubroutineReferenceCollector(IRTraverser):
-    subroutines: set[models.Subroutine] = attrs.field(factory=set)
-
-    @typing.override
-    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
-        self.subroutines.add(callsub.target)
-        super().visit_invoke_subroutine(callsub)
 
 
 class _NonConstantFunctionError(Exception):

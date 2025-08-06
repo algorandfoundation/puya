@@ -166,7 +166,7 @@ class ToTextVisitor(IRVisitor[str]):
     @typing.override
     def visit_invoke_subroutine(self, op: models.InvokeSubroutine) -> str:
         args = ", ".join(a.accept(self) for a in op.args)
-        return f"{op.target.id}({args})"
+        return f"{op.target}({args})"
 
     @typing.override
     def visit_conditional_branch(self, op: models.ConditionalBranch) -> str:

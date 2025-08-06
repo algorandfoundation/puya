@@ -90,7 +90,10 @@ def _call_subroutine(
             )
 
     invoke_expr = ir.InvokeSubroutine(
-        target=target, args=ordered_args, source_location=call_location
+        target=target.id,
+        args=ordered_args,
+        returns=target.returns,
+        source_location=call_location,
     )
     if not implicit_return_args:
         return invoke_expr

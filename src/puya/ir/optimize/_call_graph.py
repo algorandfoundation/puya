@@ -23,17 +23,17 @@ class CallGraph:
                             models.InvokeSubroutine(target=target)
                             | models.Assignment(source=models.InvokeSubroutine(target=target))
                         ):
-                            graph.add_edge(sub.id, target.id)
+                            graph.add_edge(sub.id, target)
         return graph
 
     @cached_property
-    def _paths(self) -> dict[str, dict[str, object]]:
+    def _paths(self) -> dict[models.SubroutineID, dict[models.SubroutineID, object]]:
         return dict(nx.all_pairs_shortest_path(self._graph))
 
-    def callees(self, sub: models.Subroutine) -> list[tuple[str, int]]:
+    def callees(self, sub: models.Subroutine) -> list[tuple[models.SubroutineID, int]]:
         return list(Counter(callee_id for callee_id, _ in self._graph.in_edges(sub.id)).items())
 
-    def has_path(self, from_: str, to: str) -> bool:
+    def has_path(self, from_: models.SubroutineID, to: models.SubroutineID) -> bool:
         try:
             self._paths[from_][to]
         except KeyError:

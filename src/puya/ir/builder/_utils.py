@@ -107,7 +107,8 @@ def invoke_puya_lib_subroutine(
 ) -> InvokeSubroutine:
     sub = context.resolve_embedded_func(full_name)
     return InvokeSubroutine(
-        target=sub,
+        target=sub.id,
         args=[convert_constants(arg, source_location) for arg in args],
+        returns=sub.returns,
         source_location=source_location,
     )

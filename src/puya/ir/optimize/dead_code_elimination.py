@@ -7,10 +7,8 @@ from puya import log
 from puya.context import CompileContext
 from puya.errors import InternalError
 from puya.ir import models, visitor
-from puya.ir._puya_lib import PuyaLibIR
-from puya.ir._utils import bfs_block_order
+from puya.ir._utils import IRSubroutineCollector, bfs_block_order
 from puya.ir.ssa import TrivialPhiRemover
-from puya.utils import StableSet
 
 logger = log.get_logger(__name__)
 
@@ -180,40 +178,9 @@ assert not _should_be_empty, _should_be_empty
 SIDE_EFFECT_FREE_AVM_OPS = frozenset([*PURE_AVM_OPS, *IMPURE_SIDE_EFFECT_FREE_AVM_OPS])
 
 
-@attrs.define
-class SubroutineCollector(visitor.IRTraverser):
-    subroutines: StableSet[models.Subroutine] = attrs.field(factory=StableSet)
-    referenced_libs: StableSet[PuyaLibIR] = attrs.field(factory=StableSet)
-
-    @classmethod
-    def collect(cls, program: models.Program) -> StableSet[models.Subroutine]:
-        collector = cls()
-        collector.visit_subroutine(program.main)
-        return collector.subroutines | [
-            s for s in program.subroutines if s.id in collector.referenced_libs
-        ]
-
-    def visit_subroutine(self, subroutine: models.Subroutine) -> None:
-        if subroutine not in self.subroutines:
-            self.subroutines.add(subroutine)
-            self.visit_all_blocks(subroutine.body)
-
-    def visit_replace_value(self, _: models.ReplaceValue) -> None:
-        self.referenced_libs |= (
-            PuyaLibIR.dynamic_array_replace_byte_length_head,
-            PuyaLibIR.dynamic_array_replace_dynamic_element,
-            PuyaLibIR.static_array_replace_byte_length_head,
-            PuyaLibIR.static_array_replace_dynamic_element,
-            PuyaLibIR.recalculate_head_for_elements_with_byte_length_head,
-        )
-
-    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
-        self.visit_subroutine(callsub.target)
-
-
 def remove_unused_subroutines(program: models.Program) -> bool:
-    subroutines = SubroutineCollector.collect(program)
-    if modified := (len(subroutines) != (1 + len(program.subroutines))):
+    subroutines = IRSubroutineCollector.collect(program.subroutines, start=program.main)
+    if modified := (len(subroutines) != len(program.subroutines)):
         to_keep = [p for p in program.subroutines if p in subroutines]
         for p in program.subroutines:
             if p not in subroutines:

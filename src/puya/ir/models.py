@@ -1,5 +1,4 @@
 import abc
-import copy
 import enum
 import typing
 from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
@@ -781,25 +780,30 @@ class Intrinsic(Op, ValueProvider):
             )
 
 
+class SubroutineID(str):
+    __slots__ = ()
+
+
 @attrs.define(eq=False)
 class InvokeSubroutine(Op, ValueProvider):
     """Subroutine invocation
 
     opcode: callsub"""
 
-    target: "Subroutine"
+    target: SubroutineID
     # TODO: validation for args
     args: list[Value]
+    _returns: Sequence[IRType]
 
     def _frozen_data(self) -> object:
-        return self.target.id, tuple(self.args)
+        return self.target, tuple(self.args)
 
     def accept(self, visitor: IRVisitor[T]) -> T:
         return visitor.visit_invoke_subroutine(self)
 
     @property
     def types(self) -> Sequence[IRType]:
-        return self.target.returns
+        return self._returns
 
 
 @attrs.define(eq=False)
@@ -1116,7 +1120,7 @@ class Parameter(Register):
 
 @attrs.define(eq=False, kw_only=True)
 class Subroutine(Context):
-    id: str
+    id: SubroutineID
     short_name: str
     # source_location might be None if it was synthesized e.g. ARC-4 approval method
     source_location: SourceLocation | None
@@ -1211,28 +1215,6 @@ class Subroutine(Context):
                     )
                 all_assigned.add(register)
         attrs.validate(self)
-
-    def __deepcopy__(self, memo: dict[int, object]) -> object:
-        # custom deep copy implementation to ensure stack limits are not hit with long
-        # basic block call graphs
-        memo[id(self)] = sub = attrs.evolve(self, body=[])
-
-        for block in self.body:
-            memo[id(block)] = block_copy = BasicBlock(
-                id=block.id,
-                label=block.label,
-                comment=block.comment,
-                source_location=block.source_location,
-            )
-            sub.body.append(block_copy)
-
-        for block, block_copy in zip(self.body, sub.body, strict=True):
-            block_copy.terminator = copy.deepcopy(block.terminator, memo)
-            block_copy.phis = copy.deepcopy(block.phis, memo)
-            block_copy.ops = copy.deepcopy(block.ops, memo)
-            block_copy.predecessors = copy.deepcopy(block.predecessors, memo)
-        attrs.validate(sub)
-        return sub
 
 
 def _get_assigned_registers(blocks: Sequence[BasicBlock]) -> Iterator[Register]:
