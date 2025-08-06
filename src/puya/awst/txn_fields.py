@@ -35,6 +35,8 @@ class TxnField(enum.Enum):
         self.num_values: typing.Final = data.num_values
         self.is_inner_param: typing.Final = data.is_inner_param
 
+    __reduce_ex__ = enum.pickle_by_enum_name  # type: ignore[assignment]
+
     @property
     def is_array(self) -> bool:
         return self.num_values > 1
