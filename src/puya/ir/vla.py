@@ -1,4 +1,3 @@
-import itertools
 import typing
 from collections.abc import Sequence, Set
 
@@ -7,39 +6,41 @@ import attrs
 from puya.errors import InternalError
 from puya.ir import models as ops
 from puya.ir.visitor import IRTraverser
-from puya.utils import StableSet
 
 IrOp: typing.TypeAlias = ops.Op | ops.ControlOp | ops.Phi
+
+_empty_set = frozenset[ops.Register]()
 
 
 @attrs.define(kw_only=True)
 class _OpLifetime:
     block: ops.BasicBlock
-    used: StableSet[ops.Register] = attrs.field(on_setattr=attrs.setters.frozen)
-    defined: StableSet[ops.Register] = attrs.field(on_setattr=attrs.setters.frozen)
-    successors: Sequence[IrOp] = attrs.field(on_setattr=attrs.setters.frozen)
+    used: Sequence[ops.Register] = attrs.field(on_setattr=attrs.setters.frozen)
+    defined: Sequence[ops.Register] = attrs.field(on_setattr=attrs.setters.frozen)
+    successors: Sequence[typing.Self] = attrs.field(default=())
+    predecessors: Sequence[typing.Self] = attrs.field(default=())
 
-    live_in: StableSet[ops.Register] = attrs.field(factory=StableSet)
-    live_out: StableSet[ops.Register] = attrs.field(factory=StableSet)
+    live_in: Set[ops.Register] = attrs.field(default=_empty_set)
+    live_out: Set[ops.Register] = attrs.field(default=_empty_set)
 
 
 @attrs.define
 class _VlaTraverser(IRTraverser):
-    used: StableSet[ops.Register] = attrs.field(factory=StableSet)
-    defined: StableSet[ops.Register] = attrs.field(factory=StableSet)
+    used: Sequence[ops.Register] = attrs.field(default=())
+    defined: Sequence[ops.Register] = attrs.field(default=())
 
     @classmethod
-    def apply(cls, op: IrOp) -> tuple[StableSet[ops.Register], StableSet[ops.Register]]:
+    def apply(cls, op: IrOp) -> tuple[Sequence[ops.Register], Sequence[ops.Register]]:
         traverser = cls()
         op.accept(traverser)
         return traverser.used, traverser.defined
 
     def visit_register(self, reg: ops.Register) -> None:
-        self.used.add(reg)
+        self.used = (*self.used, reg)
 
     def visit_assignment(self, ass: ops.Assignment) -> None:
         ass.source.accept(self)
-        self.defined = StableSet.from_iter(ass.targets)
+        self.defined = ass.targets
 
     def visit_phi(self, _phi: ops.Phi) -> None:
         # WARNING: this is slightly trickier than it might seem for SSA,
@@ -61,23 +62,34 @@ class VariableLifetimeAnalysis:
     @_op_lifetimes.default
     def _op_lifetimes_factory(self) -> dict[IrOp, _OpLifetime]:
         result = dict[IrOp, _OpLifetime]()
-        block_map = {b.id: next(b.all_ops) for b in self.subroutine.body}
         for block in self.subroutine.body:
             assert not block.phis
             all_ops = list(block.all_ops)
-            for op, next_op in itertools.zip_longest(all_ops, all_ops[1:]):
+            for op in all_ops:
                 used, defined = _VlaTraverser.apply(op)
-                if next_op is None:
-                    # for last op, add first op of each successor block
-                    successors = [block_map[s.id] for s in block.successors]
-                else:
-                    successors = [next_op]
                 result[op] = _OpLifetime(
                     block=block,
                     used=used,
                     defined=defined,
-                    successors=successors,
                 )
+        # provide lookup for the first and last lifetimes of a block
+        block_map = {
+            b.id: (result[next(b.all_ops)], result[typing.cast(ops.ControlOp, b.terminator)])
+            for b in self.subroutine.body
+        }
+        for block in self.subroutine.body:
+            lifetimes = [result[op] for op in block.all_ops]
+            # for the first op add control op of each predecessor block
+            lifetimes[0].predecessors = tuple(block_map[p.id][1] for p in block.predecessors)
+            # iterate all ops until the last
+            for op_idx in range(len(lifetimes) - 1):
+                op_lifetime = lifetimes[op_idx]
+                next_op_lifetime = lifetimes[op_idx + 1]
+                op_lifetime.successors = (next_op_lifetime,)
+                next_op_lifetime.predecessors = (op_lifetime,)
+
+            # for the last op set successors to the first op of each successor block
+            lifetimes[-1].successors = tuple(block_map[s.id][0] for s in block.successors)
         return result
 
     def get_live_out_variables(self, op: IrOp) -> Set[ops.Register]:
@@ -90,22 +102,26 @@ class VariableLifetimeAnalysis:
         return analysis
 
     def _analyze(self) -> None:
-        changes = True
-        while changes:
-            changes = False
-            for n in self._op_lifetimes.values():
+        op_lifetimes = self._op_lifetimes
+        changed = list(reversed(op_lifetimes.values()))
+        while changed:
+            orig_changed = changed
+            changed = []
+            for n in orig_changed:
                 # For OUT, find out the union of previous variables
                 # in the IN set for each succeeding node of n.
 
                 # out[n] = U s ∈ succ[n] in[s]
-                live_out = StableSet[ops.Register]()
-                for s in n.successors:
-                    live_out |= self._op_lifetimes[s].live_in
+                live_out = {r: None for s in n.successors for r in s.live_in}
 
                 # in[n] = use[n] U (out[n] - def [n])
-                live_in = n.used | (live_out - n.defined)
+                live_in = live_out.copy()
+                for r in n.defined:
+                    live_in.pop(r, None)
+                for r in n.used:
+                    live_in[r] = None
 
-                if not (live_in == n.live_in and live_out == n.live_out):
-                    n.live_in = live_in
-                    n.live_out = live_out
-                    changes = True
+                if not (live_in.keys() == n.live_in and live_out.keys() == n.live_out):
+                    n.live_in = live_in.keys()
+                    n.live_out = live_out.keys()
+                    changed.extend(n.predecessors)
