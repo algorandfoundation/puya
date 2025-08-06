@@ -1,8 +1,6 @@
 import typing
 from collections.abc import Sequence
 
-import attrs
-
 from puya.errors import InternalError
 from puya.ir import models
 from puya.ir.visitor import IRTraverser
@@ -29,7 +27,6 @@ class _HighLevelOpError(Exception):
     pass
 
 
-@attrs.define
 class HasHighLevelOps(IRTraverser):
     @classmethod
     def check(cls, body: Sequence[models.BasicBlock]) -> bool:
