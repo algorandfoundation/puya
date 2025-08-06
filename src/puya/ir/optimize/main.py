@@ -46,9 +46,10 @@ class SubroutineOptimization:
     min_level: int
 
     def can_optimize(self, options: PuyaOptions) -> bool:
-        return (options.optimization_level >= self.min_level) and (
-            self.id not in options.disabled_optimizations
-        )
+        try:
+            return options.optimizations_override[self.id]
+        except KeyError:
+            return options.optimization_level >= self.min_level
 
     @classmethod
     def from_function(

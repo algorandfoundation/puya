@@ -52,7 +52,7 @@ def compile_arc32(
             paths=(src_path,),
             optimization_level=optimization_level,
             debug_level=debug_level,
-            disabled_optimizations=disabled_optimizations,
+            optimizations_override={o: False for o in disabled_optimizations},
         )
     )
     if contract_name is None:
