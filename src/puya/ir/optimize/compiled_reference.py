@@ -6,7 +6,7 @@ The compiled reference replacement is part of the optimizer pipeline for two rea
 """
 
 import typing
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 import attrs
 from immutabledict import immutabledict
@@ -19,6 +19,7 @@ from puya.context import ArtifactCompileContext
 from puya.errors import CodeError, InternalError
 from puya.ir import models as ir
 from puya.ir.types_ import AVMBytesEncoding
+from puya.ir.visitor import IRTraverser
 from puya.ir.visitor_mutator import IRMutator
 from puya.program_refs import ProgramKind
 from puya.utils import (
@@ -35,6 +36,8 @@ logger = log.get_logger(__name__)
 def replace_compiled_references(
     context: ArtifactCompileContext, subroutine: ir.Subroutine
 ) -> bool:
+    if not _HasCompiledReference.check(subroutine.body):
+        return False
     replacer = CompiledReferenceReplacer(context)
     for block in subroutine.body:
         replacer.visit_block(block)
@@ -174,3 +177,25 @@ def _extract_constant_value(value: ir.Constant) -> int | bytes:
                 f"unhandled constant type: {type(value).__name__}",
                 location=value.source_location,
             )
+
+
+class _HasCompiledReferenceError(Exception):
+    pass
+
+
+class _HasCompiledReference(IRTraverser):
+    @classmethod
+    def check(cls, body: Sequence[ir.BasicBlock]) -> bool:
+        try:
+            cls().visit_all_blocks(body)
+        except _HasCompiledReferenceError:
+            return True
+        return False
+
+    @typing.override
+    def visit_compiled_contract_reference(self, const: ir.CompiledContractReference) -> None:
+        raise _HasCompiledReferenceError
+
+    @typing.override
+    def visit_compiled_logicsig_reference(self, const: ir.CompiledLogicSigReference) -> None:
+        raise _HasCompiledReferenceError

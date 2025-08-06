@@ -3,7 +3,7 @@ import attrs
 from puya.context import CompileContext
 from puya.ir import models
 from puya.ir.avm_ops import AVMOp
-from puya.ir.visitor_mutator import IRMutator
+from puya.ir.visitor import NoOpIRVisitor
 
 
 def inner_txn_field_replacer(_context: CompileContext, subroutine: models.Subroutine) -> bool:
@@ -11,16 +11,29 @@ def inner_txn_field_replacer(_context: CompileContext, subroutine: models.Subrou
     return modified > 0
 
 
+assert not issubclass(
+    models.InnerTransactionField, models.Value
+), "invalid assumption about InnerTransactionField"
+
+
 @attrs.define
-class IntrinsicFieldReplacer(IRMutator):
+class IntrinsicFieldReplacer(
+    NoOpIRVisitor[models.InnerTransactionField | models.Intrinsic | None]
+):
     modified: int = 0
 
     @classmethod
     def apply(cls, to: models.Subroutine) -> int:
         replacer = cls()
         for block in to.body:
-            replacer.visit_block(block)
+            for op in block.ops:
+                op.accept(replacer)
         return replacer.modified
+
+    def visit_assignment(self, ass: models.Assignment) -> None:
+        new_src = ass.source.accept(self)
+        if new_src is not None and new_src is not ass.source:
+            ass.source = new_src
 
     def visit_inner_transaction_field(
         self, field: models.InnerTransactionField
