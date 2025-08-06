@@ -1,3 +1,4 @@
+import pickle
 import typing
 from collections import deque
 from collections.abc import Iterator
@@ -99,3 +100,9 @@ def multi_value_to_values(arg: models.MultiValue) -> list[models.Value]:
         return list(arg.values)
     else:
         return [arg]
+
+
+def deep_copy[T](obj: T) -> T:
+    """provides a deep copy of obj, should only be used with trusted objects"""
+    # pickle is faster than deepcopy
+    return typing.cast(T, pickle.loads(pickle.dumps(obj)))  # noqa: S301
