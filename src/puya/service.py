@@ -34,6 +34,7 @@ class AnalyseParams:
 @attrs.frozen
 class AnalyseResult:
     logs: list[Log]
+    timings: dict[str, tuple[float, int]]
 
 
 @attrs.frozen
@@ -138,8 +139,8 @@ def create_server(max_workers: int | None) -> JsonRPCServer:
                 {},
                 awst,
             )
-
         result = AnalyseResult(
+            timings=log_ctx.stopwatch.stop(),
             logs=[log for log in log_ctx.logs if log.level >= LogLevel.info],
         )
         return result

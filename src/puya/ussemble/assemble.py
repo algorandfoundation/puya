@@ -120,7 +120,7 @@ def assemble_bytecode_and_debug_info(
 
         op_kind = _get_op_kind(avm_op)
         op_stats[op_kind].append(len(op_bytes))
-
+    logger.stopwatch.lap("Bytecode assemble")
     return models.AssembledProgram(
         bytecode=b"".join(bytecode),
         debug_info=build_debug_info(ctx, pc_ops, pc_events),

@@ -1,14 +1,18 @@
+import time
 import typing
 from collections.abc import Callable, Sequence, Set
 from functools import cached_property
 
 import attrs
 
+from puya import log
 from puya.mir import models
 
 _StableStr = Set[str]
 _empty_set = frozenset[str]()
 _LiveInFactory = Callable[[dict[str, None]], _StableStr]
+
+logger = log.get_logger(__name__)
 
 
 @attrs.define(kw_only=True)
@@ -124,6 +128,7 @@ class VariableLifetimeAnalysis:
 
     @cached_property
     def _op_lifetimes(self) -> dict[models.BaseOp, _OpLifetime]:
+        start = time.time()
         data = self._op_lifetimes_factory()
         changed = list(reversed(data.values()))
         while changed:
@@ -144,4 +149,5 @@ class VariableLifetimeAnalysis:
                     n.live_in = live_in
                     n.live_out = live_out_keys
                     changed.extend(n.predecessors)
+        logger.stopwatch.add_lap("MIR VLA calculation", time.time() - start)
         return data

@@ -6,9 +6,11 @@ import logging
 import os.path
 import platform
 import sys
+import time
 import types
 import typing
-from collections.abc import Iterator, Mapping, Sequence
+from collections import Counter, defaultdict
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextvars import ContextVar
 from enum import IntEnum, StrEnum, auto
 from io import StringIO
@@ -18,7 +20,7 @@ import attrs
 import structlog
 
 from puya.parse import SourceLocation
-from puya.utils import get_cwd
+from puya.utils import get_cwd, set_add
 
 
 class LogFormat(StrEnum):
@@ -54,9 +56,55 @@ class Log:
 
 
 @attrs.define
+class Stopwatch:
+    _started: float = attrs.field(factory=time.time, init=False)
+    _last: float = attrs.field(init=False)
+    _laps: defaultdict[str, float] = attrs.field(factory=lambda: defaultdict(float), init=False)
+    _counts: Counter[str] = attrs.field(factory=Counter)
+    _current_times: set[str] = attrs.field(factory=set)
+
+    @_last.default
+    def _last_factory(self) -> float:
+        return self._started
+
+    def stop(self) -> dict[str, tuple[float, int]]:
+        result = {k: (v, self._counts[k]) for k, v in self._laps.items()}
+        result["Start"] = (self._started, 0)
+        result["End"] = (time.time(), 0)
+        return result
+
+    def reset(self) -> None:
+        self._laps.clear()
+        self._counts.clear()
+        self._last = self._started = time.time()
+
+    def lap(self, name: str) -> float:
+        last = self._last
+        self._last = time.time()
+        self._add_lap(name, self._last - last)
+        return self._last
+
+    def add_lap(self, name: str, duration: float) -> None:
+        self._add_lap(f"*{name}", duration)
+
+    def _add_lap(self, name: str, duration: float) -> None:
+        self._laps[name] += duration
+        self._counts[name] += 1
+
+    @contextlib.contextmanager
+    def time(self, desc: str) -> Iterator[None]:
+        first_time = set_add(self._current_times, desc)
+        start = time.time()
+        yield
+        if first_time:
+            self._add_lap(f"*{desc}", time.time() - start)
+            self._current_times.remove(desc)
+
+
+@attrs.define
 class LoggingContext:
     _logs: list[Log] = attrs.field(factory=list)
-    sources_by_path: Mapping[Path, Sequence[str] | None] | None = None
+    stopwatch: Stopwatch = attrs.field(factory=Stopwatch)
     _errors: int = 0
     _criticals: int = 0
 
@@ -341,6 +389,24 @@ def configure_logging(
 class _Logger:
     def __init__(self, name: str, initial_values: dict[str, typing.Any]):
         self._logger = structlog.get_logger(name, **initial_values)
+
+    @property
+    def stopwatch(self) -> Stopwatch:
+        return _current_ctx.get().stopwatch
+
+    def wrap_time[F: Callable[..., typing.Any]](self, prefix: str) -> Callable[[F], F]:
+        def wrapper(func: F) -> F:
+            def timer(*args: typing.Any, **kwargs: typing.Any) -> object:
+                try:
+                    context = self.stopwatch.time(f"{prefix} {func.__name__}")
+                except LookupError:
+                    context = contextlib.nullcontext()  # type: ignore[assignment]
+                with context:
+                    return func(*args, **kwargs)
+
+            return typing.cast(F, timer)
+
+        return wrapper
 
     def debug(
         self,

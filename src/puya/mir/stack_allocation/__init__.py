@@ -1,3 +1,4 @@
+from puya import log
 from puya.mir import models
 from puya.mir.context import ProgramMIRContext
 from puya.mir.output import output_memory_ir
@@ -6,6 +7,7 @@ from puya.mir.stack_allocation.l_stack import l_stack_allocation
 from puya.mir.stack_allocation.peephole import peephole_optimization_single_pass
 from puya.mir.stack_allocation.x_stack import x_stack_allocation
 
+logger = log.get_logger(__name__)
 # Note: implementation of http://www.euroforth.org/ef06/shannon-bailey06.pdf
 
 
@@ -24,5 +26,6 @@ def global_stack_allocation(ctx: ProgramMIRContext, program: models.Program) -> 
             method(ctx, mir_sub)
         if ctx.options.output_memory_ir:
             output_memory_ir(ctx, program, qualifier=desc)
+        logger.stopwatch.lap(f"MIR {desc}")
     if ctx.options.output_memory_ir:
         output_memory_ir(ctx, program, qualifier="")

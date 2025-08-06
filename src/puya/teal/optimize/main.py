@@ -28,6 +28,7 @@ def optimize_teal_program(
     for teal_sub in teal_program.all_subroutines:
         _optimize_subroutine_ops(context, teal_sub)
     maybe_output_intermediate_teal(context, teal_program, qualifier="peephole")
+    logger.stopwatch.lap("TEAL optimize ops")
 
     if context.options.optimization_level > 0:
         branchable_subroutine_entry_blocks = {
@@ -39,10 +40,12 @@ def optimize_teal_program(
         for teal_sub in teal_program.all_subroutines:
             _optimize_subroutine_blocks(context, teal_sub, branchable_subroutine_entry_blocks)
         maybe_output_intermediate_teal(context, teal_program, qualifier="block")
+        logger.stopwatch.lap("TEAL optimize blocks")
 
     gather_program_constants(teal_program)
     if context.options.optimization_level > 0:
         combine_pushes(teal_program)
+    logger.stopwatch.lap("TEAL optimize constants")
 
 
 def _optimize_subroutine_ops(context: CompileContext, teal_sub: models.TealSubroutine) -> None:

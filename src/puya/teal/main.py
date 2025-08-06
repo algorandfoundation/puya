@@ -15,6 +15,13 @@ logger = log.get_logger(__name__)
 def mir_to_teal(
     context: ArtifactCompileContext, program_mir: mir.Program
 ) -> teal_models.TealProgram:
+    with logger.stopwatch.time("MIR to TEAL"):
+        return _mir_to_teal(context, program_mir)
+
+
+def _mir_to_teal(
+    context: ArtifactCompileContext, program_mir: mir.Program
+) -> teal_models.TealProgram:
     main = TealBuilder.build_subroutine(
         program_mir.main, slot_allocation=program_mir.slot_allocation
     )
@@ -25,6 +32,7 @@ def mir_to_teal(
         main=main,
         subroutines=subroutines,
     )
+    logger.stopwatch.lap("TEAL build")
     maybe_output_intermediate_teal(context, teal, qualifier="lowered")
     initial_check_set = _collect_explicit_checks(teal)
     optimize_teal_program(context, teal)

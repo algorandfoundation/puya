@@ -72,6 +72,7 @@ def slot_elimination(
 
     if ctx.options.output_ssa_ir:
         render_program(ctx, program, qualifier="ssa.slot")
+    logger.stopwatch.lap("IR slot elimination")
 
 
 class _SlotGatherer(IRTraverser):

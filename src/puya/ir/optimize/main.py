@@ -141,18 +141,23 @@ def optimize_program_ir(
         program_modified = False
         logger.debug(f"Begin optimization pass {pass_num}/{MAX_PASSES}")
         analyse_subroutines_for_inlining(opt_context, program)
+        logger.stopwatch.lap("IR optimize analyse inlining")
         for subroutine in program.all_subroutines:
             logger.debug(f"Optimizing subroutine {subroutine.id}")
             for optimizer in pipeline:
                 logger.debug(f"Optimizer: {optimizer.desc}")
                 if optimizer.optimize(opt_context, subroutine):
                     program_modified = True
+                logger.stopwatch.lap(f"IR optimize {optimizer.id}")
             subroutine.validate_with_ssa()
+            logger.stopwatch.lap("IR optimize validate SSA")
         if remove_unused_subroutines(program):
             logger.debug("Unused subroutines removed")
             program_modified = True
+        logger.stopwatch.lap("IR optimize remove unused subroutines")
         if not program_modified:
             logger.debug(f"No optimizations performed in pass {pass_num}, ending loop")
             break
         if context.options.output_optimization_ir:
             render_program(context, program, qualifier=qualifier)
+    logger.stopwatch.lap("IR optimize")

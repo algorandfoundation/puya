@@ -21,6 +21,10 @@ class CompileContext:
     compilation_set: Mapping[ContractReference | LogicSigReference, Path]
     sources_by_path: Mapping[Path, Sequence[str] | None]
 
+    @property
+    def stopwatch(self) -> log.Stopwatch:
+        return logger.stopwatch
+
     def try_get_source(self, location: SourceLocation | None) -> Sequence[str] | None:
         return try_get_source(self.sources_by_path, location)
 

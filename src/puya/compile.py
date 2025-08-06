@@ -58,19 +58,22 @@ def awst_to_teal(
     write: bool = True,
 ) -> list[CompilationArtifact]:
     validate_awst(awst)
+    logger.stopwatch.lap("AWST validate")
     log_ctx.exit_if_errors()
     context = CompileContext(
         options=options,
         compilation_set=compilation_set,
         sources_by_path=sources_by_path,
     )
+    with logger.stopwatch.time("AWST to IR"):
+        ir = list(awst_to_ir(context, awst))
     log_ctx.exit_if_errors()
-    ir = list(awst_to_ir(context, awst))
-    log_ctx.exit_if_errors()
-    teal = list(_ir_to_teal(log_ctx, context, ir))
+    with logger.stopwatch.time("IR --> IR (opt) -> MIR -> TEAL -> Bytecode"):
+        teal = list(_ir_to_teal(log_ctx, context, ir))
     log_ctx.exit_if_errors()
     if write:
         _write_artifacts(context, teal)
+        logger.stopwatch.lap("Write artifacts")
     return teal
 
 
@@ -118,7 +121,8 @@ def _ir_to_teal(
         if artifact_context.options.output_ssa_ir:
             for program in artifact_ir.all_programs():
                 render_program(artifact_context, program, qualifier="ssa")
-        artifact_ir = transform_ir(artifact_context, artifact_ir)
+        with logger.stopwatch.time("IR transform"):
+            artifact_ir = transform_ir(artifact_context, artifact_ir)
 
         # IR validation that occurs at the end of optimize_and_destructure_ir may have revealed
         # further errors, add dummy artifacts and continue so other artifacts can still be lowered
@@ -285,16 +289,19 @@ def _compile_program(
     ref: ContractReference | LogicSigReference,
     program: TealProgram,
 ) -> _CompiledProgram:
-    teal_src = emit_teal(context, program)
-    assembled = assemble_program(context, ref, program)
-    return _CompiledProgram(
-        teal=program,
-        teal_src=teal_src,
-        bytecode=assembled.bytecode,
-        debug_info=assembled.debug_info,
-        template_variables=assembled.template_variables,
-        stats=assembled.stats,
-    )
+    with logger.stopwatch.time("TEAL to Bytecode"):
+        teal_src = emit_teal(context, program)
+        logger.stopwatch.lap("TEAL emit")
+        assembled = assemble_program(context, ref, program)
+        logger.stopwatch.lap("Bytecode build")
+        return _CompiledProgram(
+            teal=program,
+            teal_src=teal_src,
+            bytecode=assembled.bytecode,
+            debug_info=assembled.debug_info,
+            template_variables=assembled.template_variables,
+            stats=assembled.stats,
+        )
 
 
 def _write_artifacts(

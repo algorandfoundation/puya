@@ -28,12 +28,16 @@ def l_stack_allocation(ctx: ProgramMIRContext, sub: mir.MemorySubroutine) -> Non
     # see also https://users.ece.cmu.edu/~koopman/stack_compiler/stack_co.html#appendix
     for block in sub.body:
         usage_pairs = _find_usage_pairs(block)
+        logger.stopwatch.lap("MIR lstack find usage pairs")
         _copy_usage_pairs(block, usage_pairs)
+        logger.stopwatch.lap("MIR lstack copy usage pairs")
     _dead_store_removal(sub)
+    logger.stopwatch.lap("MIR lstack dead store")
     if ctx.options.optimization_level:
         _implicit_store_removal(sub)
     # calculate load depths now that l-stack allocations are done
     _calculate_load_depths(sub)
+    logger.stopwatch.lap("MIR lstack load depth")
 
 
 def _find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:

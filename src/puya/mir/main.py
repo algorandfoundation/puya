@@ -22,12 +22,18 @@ logger = get_logger(__name__)
 
 
 def program_ir_to_mir(context: ArtifactCompileContext, program_ir: ir.Program) -> models.Program:
+    with logger.stopwatch.time("IR to MIR"):
+        return _program_ir_to_mir(context, program_ir)
+
+
+def _program_ir_to_mir(context: ArtifactCompileContext, program_ir: ir.Program) -> models.Program:
     ctx = attrs_extend(ProgramMIRContext, context, program=program_ir)
 
     mir_main = _lower_subroutine_to_mir(ctx, program_ir.main, is_main=True)
     mir_subroutines = [
         _lower_subroutine_to_mir(ctx, ir_sub, is_main=False) for ir_sub in program_ir.subroutines
     ]
+    logger.stopwatch.lap("MIR build")
     match program_ir.slot_allocation.strategy:
         case SlotAllocationStrategy.none:
             mir_allocation = None

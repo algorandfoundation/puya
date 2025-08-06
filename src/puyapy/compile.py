@@ -12,6 +12,7 @@ from puya.awst.to_code_visitor import ToCodeVisitor
 from puya.compilation_artifacts import CompilationArtifact, CompiledContract
 from puya.compile import awst_to_teal
 from puya.errors import log_exceptions
+from puya.log import LoggingContext
 from puya.program_refs import ContractReference, LogicSigReference
 from puya.utils import get_cwd, make_path_relative_to_cwd
 from puyapy.awst_build.arc4_client_gen import write_arc4_client
@@ -23,16 +24,18 @@ from puyapy.parse import ParseResult, SourceDiscoveryMechanism, parse_python
 logger = log.get_logger(__name__)
 
 
-def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
+def compile_to_teal(puyapy_options: PuyaPyOptions) -> LoggingContext:
     """Drive the actual core compilation step."""
     with log.logging_context() as log_ctx, log_exceptions():
         logger.info(f"using puyapy version {version('puyapy')}")
         logger.debug(puyapy_options)
         try:
             parse_result = parse_python(puyapy_options.paths, package_search_paths="infer")
+            log_ctx.stopwatch.lap("Python parse")
             log_ctx.sources_by_path = parse_result.sources_by_path
             log_ctx.exit_if_errors()
             awst, compilation_targets = transform_ast(parse_result, puyapy_options)
+            log_ctx.stopwatch.lap("AST build")
         except mypy.errors.CompileError as err:
             # the placement of this catch is probably overly conservative,
             # but in parse_with_mypy there is a piece copied from mypyc, around setting
@@ -49,6 +52,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             )
             if loc.file
         }
+        log_ctx.stopwatch.lap("AWST output")
         teal = awst_to_teal(
             log_ctx, puyapy_options, compilation_set, parse_result.sources_by_path, awst
         )
@@ -57,6 +61,7 @@ def compile_to_teal(puyapy_options: PuyaPyOptions) -> None:
             write_arc4_clients(puyapy_options.template_vars_prefix, compilation_set, teal)
     # needs to be outside the with block
     log_ctx.exit_if_errors()
+    return log_ctx
 
 
 def output_inputs(

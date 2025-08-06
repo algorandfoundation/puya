@@ -53,6 +53,7 @@ def awst_to_ir(context: CompileContext, awst: awst_nodes.AWST) -> Iterator[Modul
     compilation_set = _CompilationSetCollector.collect(context, awst)
 
     ir_ctx = _build_subroutines(context, awst)
+    logger.stopwatch.lap("IR build global subroutines")
 
     for node in compilation_set:
         artifact_ctx = ir_ctx.for_root(node)
@@ -249,10 +250,12 @@ def _lower_aggregate_ir(
     lower_aggregate_nodes(program)
     if context.options.output_ssa_ir:
         render_program(context, program, qualifier="ssa.array")
+    logger.stopwatch.lap("IR aggregate lowering")
 
 
 def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Contract:
     metadata, arc4_methods = build_contract_metadata(ctx, contract)
+    logger.stopwatch.lap("IR contract metadata")
     if arc4_methods:
         routing_data = {
             md: AWSTContractMethodSignature(
@@ -302,6 +305,7 @@ def _build_contract_ir(ctx: IRBuildContext, contract: awst_nodes.Contract) -> Co
         if not sub.body:  # in case something is pre-built (ie from embedded lib)
             FunctionIRBuilder.build_body(ctx, function=func, subroutine=sub)
 
+    logger.stopwatch.lap("IR contract build subroutines")
     avm_version = coalesce(contract.avm_version, ctx.options.target_avm_version)
     approval_ir = _make_program(
         ctx,
@@ -404,8 +408,10 @@ def _make_program(
         source_location=ctx.root.source_location if ctx.root else None,
     )
     remove_unused_subroutines(program)
+    logger.stopwatch.lap("IR contract build program")
     # copy to ensure program has unique copies of subroutines
     program = deep_copy(program)
+    logger.stopwatch.lap("IR contract copy program")
     return program
 
 
