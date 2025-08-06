@@ -31,11 +31,11 @@ def main() -> None:
         "# fmt: off",
         "",
         "import enum",
-        "",
+        "from puya.ir.models import SubroutineID" "",
         "",
         "@enum.unique",
-        "class PuyaLibIR(enum.StrEnum):",
-        *(f'    {name} = "{full_name}"' for name, full_name in lib_name_ids.items()),
+        "class PuyaLibIR(SubroutineID, enum.Enum):",
+        *(f'    {name} = SubroutineID("{full_name}")' for name, full_name in lib_name_ids.items()),
         "",
     ]
     enum_output_path.write_text("\n".join(lib_enum), encoding="utf8")

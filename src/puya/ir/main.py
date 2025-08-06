@@ -32,6 +32,7 @@ from puya.ir.models import (
     SlotAllocation,
     SlotAllocationStrategy,
     Subroutine,
+    SubroutineID,
 )
 from puya.ir.optimize.dead_code_elimination import remove_unused_subroutines
 from puya.ir.optimize.main import optimize_program_ir
@@ -332,7 +333,7 @@ def _make_program(
     return_type = wtype_to_ir_type(main.return_type, main.source_location)
     assert return_type.avm_type == AVMType.uint64, "main method should return uint64 backed type"
     main_sub = Subroutine(
-        id=main.full_name,
+        id=SubroutineID(main.full_name),
         short_name=main.short_name,
         parameters=[],
         returns=[return_type],

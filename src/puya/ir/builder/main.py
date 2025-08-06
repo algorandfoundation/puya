@@ -1322,9 +1322,11 @@ class FunctionIRBuilder(
                 "cannot create ARC-4 router outside of a contract", expr.source_location
             )
 
+        target = self.context.routers[root.id]
         return ir.InvokeSubroutine(
-            target=self.context.routers[root.id],
+            target=target.id,
             args=[],
+            returns=target.returns,
             source_location=expr.source_location,
         )
 

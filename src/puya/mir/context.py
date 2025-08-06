@@ -9,10 +9,10 @@ from puya.ir import models as ir
 @attrs.define(kw_only=True)
 class ProgramMIRContext(ArtifactCompileContext):
     program: ir.Program
-    subroutine_names: Mapping[ir.Subroutine, str] = attrs.field(init=False)
+    subroutine_names: Mapping[ir.SubroutineID, str] = attrs.field(init=False)
 
     @subroutine_names.default
-    def _get_short_subroutine_names(self) -> dict[ir.Subroutine, str]:
+    def _get_short_subroutine_names(self) -> dict[ir.SubroutineID, str]:
         """Return a mapping of unique TEAL names for all subroutines in program, while attempting
         to use the shortest name possible"""
         names = {"main": self.program.main}
@@ -24,4 +24,4 @@ class ProgramMIRContext(ArtifactCompileContext):
                 name = subroutine.id
             names[name] = subroutine
 
-        return {v: k for k, v in names.items()}
+        return {v.id: k for k, v in names.items()}

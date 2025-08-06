@@ -1,19 +1,22 @@
 import pickle
 import typing
 from collections import deque
-from collections.abc import Iterator
+from collections.abc import Collection, Iterator
+
+import attrs
 
 from puya.awst import (
     nodes as awst_nodes,
     wtypes,
 )
-from puya.ir import models
-from puya.ir.models import Parameter, Subroutine
+from puya.ir import models, visitor
+from puya.ir._puya_lib import PuyaLibIR
+from puya.ir.models import Parameter, Subroutine, SubroutineID
 from puya.ir.types_ import wtype_to_ir_type, wtype_to_ir_types
 from puya.ir.utils import format_tuple_index
 from puya.ir.visitor import NoOpIRVisitor
 from puya.parse import SourceLocation
-from puya.utils import Address, biguint_bytes_eval, method_selector_hash, set_add
+from puya.utils import Address, StableSet, biguint_bytes_eval, method_selector_hash, set_add
 
 
 def bfs_block_order(start: models.BasicBlock) -> Iterator[models.BasicBlock]:
@@ -39,7 +42,7 @@ def make_subroutine(func: awst_nodes.Function, *, allow_implicits: bool) -> Subr
     ]
     returns = wtype_to_ir_types(func.return_type, func.source_location)
     return Subroutine(
-        id=func.full_name,
+        id=SubroutineID(func.full_name),
         short_name=func.short_name,
         parameters=parameters,
         returns=returns,
@@ -106,3 +109,38 @@ def deep_copy[T](obj: T) -> T:
     """provides a deep copy of obj, should only be used with trusted objects"""
     # pickle is faster than deepcopy
     return typing.cast(T, pickle.loads(pickle.dumps(obj)))  # noqa: S301
+
+
+@attrs.define
+class IRSubroutineCollector(visitor.IRTraverser):
+    subs_by_id: dict[models.SubroutineID, models.Subroutine]
+    subroutines: StableSet[models.Subroutine] = attrs.field(factory=StableSet)
+    referenced_libs: StableSet[PuyaLibIR] = attrs.field(factory=StableSet)
+
+    @classmethod
+    def collect(
+        cls, subroutines: Collection[models.Subroutine], *, start: models.Subroutine
+    ) -> StableSet[models.Subroutine]:
+        collector = cls(subs_by_id={s.id: s for s in subroutines})
+        collector.visit_all_blocks(start.body)
+        return collector.subroutines | [
+            s for s in subroutines if str(s.id) in collector.referenced_libs
+        ]
+
+    def visit_subroutine(self, subroutine: models.Subroutine) -> None:
+        if subroutine not in self.subroutines:
+            self.subroutines.add(subroutine)
+            self.visit_all_blocks(subroutine.body)
+
+    def visit_replace_value(self, _: models.ReplaceValue) -> None:
+        self.referenced_libs |= (
+            PuyaLibIR.dynamic_array_replace_byte_length_head,
+            PuyaLibIR.dynamic_array_replace_dynamic_element,
+            PuyaLibIR.static_array_replace_byte_length_head,
+            PuyaLibIR.static_array_replace_dynamic_element,
+            PuyaLibIR.recalculate_head_for_elements_with_byte_length_head,
+        )
+
+    def visit_invoke_subroutine(self, callsub: models.InvokeSubroutine) -> None:
+        target = self.subs_by_id[callsub.target]
+        self.visit_subroutine(target)

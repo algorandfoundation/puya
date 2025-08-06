@@ -98,7 +98,7 @@ def _build_ir_and_return_errors(expr: awst.Expression) -> list[str]:
     )
     subroutine = ir.Subroutine(
         source_location=_location,
-        id=function.id,
+        id=ir.SubroutineID(function.id),
         short_name=function.short_name,
         parameters=(),
         returns=(),

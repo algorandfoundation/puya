@@ -44,7 +44,7 @@ class MemoryIRBuilder(IRVisitor[None]):
         result = {}
         for block in self.subroutine.body:
             comment = (block.comment or "block").replace(" ", "_")
-            subroutine_name = self.context.subroutine_names[self.subroutine]
+            subroutine_name = self.context.subroutine_names[self.subroutine.id]
             result[block] = f"{subroutine_name}_{comment}@{block.id}"
         return result
 
@@ -278,10 +278,10 @@ class MemoryIRBuilder(IRVisitor[None]):
 
         callsub_op = models.CallSub(
             target=self.context.subroutine_names[target],
-            parameters=len(target.parameters),
-            returns=len(target.returns),
+            parameters=len(callsub.args),
+            returns=len(callsub.types),
             produces=_produces_from_op(
-                self.context.subroutine_names[target], len(target.returns), self.active_op
+                self.context.subroutine_names[target], len(callsub.types), self.active_op
             ),
             source_location=callsub.source_location,
         )

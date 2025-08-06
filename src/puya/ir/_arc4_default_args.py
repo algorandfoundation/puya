@@ -16,7 +16,7 @@ from puya.awst import (
 )
 from puya.context import ArtifactCompileContext, CompiledProgramProvider
 from puya.errors import CodeError
-from puya.ir._utils import make_subroutine
+from puya.ir._utils import IRSubroutineCollector, make_subroutine
 from puya.ir.arc4_types import get_arc4_name, maybe_wtype_to_arc4_wtype, wtype_to_arc4
 from puya.ir.builder.main import FunctionIRBuilder
 from puya.ir.context import IRBuildContext
@@ -191,11 +191,12 @@ def _optimize_subroutine(
         compiled_program_provider=dummy_program_provider,
         output_path_provider=None,
     )
+    subroutines = IRSubroutineCollector.collect(ctx.subroutines.values(), start=subroutine)
     artifact_ir = ir.LogicSignature(
         program=ir.Program(
             kind=ProgramKind.logic_signature,
             main=subroutine,
-            subroutines=[],
+            subroutines=list(subroutines),
             avm_version=ctx.options.target_avm_version,
             slot_allocation=ir.SlotAllocation(
                 reserved=set(), strategy=ir.SlotAllocationStrategy.none
