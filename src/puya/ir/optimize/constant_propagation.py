@@ -15,20 +15,10 @@ _AnyOp = models.Op | models.ControlOp
 
 
 def constant_replacer(_context: CompileContext, subroutine: models.Subroutine) -> bool:
-    constants = dict[models.Register, models.Constant]()
-    ssa_reads = defaultdict[models.Register, list[_AnyOp]](list)
-    for block in subroutine.body:
-        assert block.terminator is not None
-        ops: tuple[_AnyOp, ...] = (*block.ops, block.terminator)
-        for op in ops:
-            match op:
-                case models.Assignment(targets=[register], source=models.Constant() as constant):
-                    constants[register] = constant
-                case _:
-                    collector = RegisterReadCollector()
-                    op.accept(collector)
-                    for read_reg in collector.used_registers:
-                        ssa_reads[read_reg].append(op)
+    collector = _ConstantCollector()
+    collector.visit_all_blocks(subroutine.body)
+    constants = collector.constants
+    ssa_reads = collector.ssa_reads
 
     modified = 0
     work_list = constants.copy()
@@ -62,6 +52,35 @@ def _get_singular_phi_constant(
         return None
     else:
         return constant
+
+
+@attrs.frozen
+class _ConstantCollector(RegisterReadCollector):
+    constants: dict[models.Register, models.Constant] = attrs.field(factory=dict)
+    ssa_reads: defaultdict[models.Register, list[_AnyOp]] = attrs.field(
+        factory=lambda: defaultdict(list)
+    )
+
+    def visit_block(self, block: models.BasicBlock) -> None:
+        for op in block.ops:
+            op.accept(self)
+            for read_reg in self.used_registers:
+                self.ssa_reads[read_reg].append(op)
+            self._used_registers.clear()
+
+        terminator = block.terminator
+        assert terminator is not None
+        terminator.accept(self)
+        for read_reg in self.used_registers:
+            self.ssa_reads[read_reg].append(terminator)
+
+    def visit_assignment(self, ass: models.Assignment) -> None:
+        src = ass.source
+        if isinstance(src, models.Constant):
+            (target,) = ass.targets
+            self.constants[target] = src
+        else:
+            super().visit_assignment(ass)
 
 
 @attrs.define
