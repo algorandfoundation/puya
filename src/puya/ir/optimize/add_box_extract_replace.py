@@ -27,6 +27,12 @@ def replace_aggregate_box_ops(
     for block in subroutine.body:
         for op in block.all_ops:
             op.accept(aggregates)
+    # all optimizations involve a box read, so exit if none were found
+    if not aggregates.box_reads:
+        return False
+    # also exit early if none of the nodes we visit were found
+    if not (aggregates.has_box_write or aggregates.extract_values or aggregates.has_array_length):
+        return False
     replacer = _AddDirectBoxOpsVisitor(
         temp_prefix="box",
         aggregates=aggregates,
@@ -42,20 +48,41 @@ class _AggregateCollector(NoOpIRVisitor[None]):
     replace_values: dict[models.Value, models.ReplaceValue] = attrs.field(factory=dict)
     extract_values: dict[models.Value, models.ExtractValue] = attrs.field(factory=dict)
     box_reads: dict[models.Value, models.BoxRead] = attrs.field(factory=dict)
+    _target: models.Register | None = None
+    has_array_length: bool = False
+    has_box_write: bool = False
 
     @typing.override
     def visit_assignment(self, ass: models.Assignment) -> None:
-        source = ass.source
-        match source:
-            case models.ReplaceValue():
-                (target,) = ass.targets
-                self.replace_values[target] = source
-            case models.ExtractValue():
-                (target,) = ass.targets
-                self.extract_values[target] = source
-            case models.BoxRead():
-                (value,) = ass.targets
-                self.box_reads[value] = source
+        try:
+            (self._target,) = ass.targets
+        except ValueError:
+            return
+        ass.source.accept(self)
+        self._target = None
+
+    @typing.override
+    def visit_array_length(self, read: models.ArrayLength) -> None:
+        self.has_array_length = True
+
+    @typing.override
+    def visit_box_write(self, write: models.BoxWrite) -> None:
+        self.has_box_write = True
+
+    @typing.override
+    def visit_replace_value(self, write: models.ReplaceValue) -> None:
+        if self._target:
+            self.replace_values[self._target] = write
+
+    @typing.override
+    def visit_extract_value(self, read: models.ExtractValue) -> None:
+        if self._target:
+            self.extract_values[self._target] = read
+
+    @typing.override
+    def visit_box_read(self, read: models.BoxRead) -> None:
+        if self._target:
+            self.box_reads[self._target] = read
 
 
 @attrs.define
