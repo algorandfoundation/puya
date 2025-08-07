@@ -1288,8 +1288,8 @@ def _try_simplify_bytes_unary_op(
             else:
                 logger.debug(f"Don't know how to simplify {intrinsic.op.code} of {byte_const}")
         elif intrinsic.op is AVMOp.btoi and (arg_defn := register_assignments.get(arg)):
-            # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
             match arg_defn.source:
+                # extract* BYTES, START, LEN; btoi -> extract_uint* BYTES, START
                 case models.Intrinsic(
                     op=AVMOp.extract, args=[bites], immediates=[int(start), int(length)]
                 ) if length in _EXTRACT_UINT_OPS_BY_LENGTH:
@@ -1307,6 +1307,9 @@ def _try_simplify_bytes_unary_op(
                         op=_EXTRACT_UINT_OPS_BY_LENGTH[length],
                         args=[bites, start_arg],
                     )
+                # btoi(itob(x)) = x
+                case models.Intrinsic(op=AVMOp.itob, args=[source_uint64], immediates=[]):
+                    return source_uint64
     return None
 
 
