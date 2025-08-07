@@ -307,7 +307,8 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
                 log_exceptions(),
             ):
                 case_awst, case_compilation_set = transform_ast(case_parse_result, puyapy_options)
-                case_log_ctx.logs.extend(filter_logs(awst_log_ctx.logs, case))
+                for log in filter_logs(awst_log_ctx.logs, case):
+                    case_log_ctx.append_log(log)
                 awst_to_teal(
                     case_log_ctx,
                     case_options,
@@ -319,7 +320,7 @@ def compile_and_update_cases(cases: list[TestCase]) -> None:
             process_test_case(case, case_log_ctx.logs, case_awst)
 
 
-def filter_logs(captured_logs: list[Log], case: TestCase) -> Iterator[Log]:
+def filter_logs(captured_logs: Sequence[Log], case: TestCase) -> Iterator[Log]:
     for file in case.files:
         path = file.src_path
         assert path is not None
