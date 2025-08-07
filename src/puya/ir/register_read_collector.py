@@ -8,14 +8,14 @@ from puya.ir.visitor import IRTraverser
 
 @attrs.frozen
 class RegisterReadCollector(IRTraverser):
-    _used_registers: list[models.Register] = attrs.field(factory=list, init=False)
+    _used_registers: dict[models.Register, None] = attrs.field(factory=dict, init=False)
 
     @property
     def used_registers(self) -> Set[models.Register]:
-        return dict.fromkeys(self._used_registers).keys()
+        return self._used_registers.keys()
 
     def visit_register(self, reg: models.Register) -> None:
-        self._used_registers.append(reg)
+        self._used_registers[reg] = None
 
     def visit_assignment(self, ass: models.Assignment) -> None:
         ass.source.accept(self)
