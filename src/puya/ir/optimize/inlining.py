@@ -107,9 +107,20 @@ def analyse_subroutines_for_inlining(
 
 
 def _is_trivial(sub: models.Subroutine) -> bool:
-    match sub.body:
-        case [models.BasicBlock(phis=[], ops=[])]:
-            return True
+    """
+    Any subroutine with a single block, which has no phis,
+    and at most one op (an intrinsic) is considered trivial.
+    """
+    try:
+        (single_block,) = sub.body
+    except ValueError:
+        return False
+    if not single_block.phis:
+        match single_block.ops:
+            case []:
+                return True
+            case [models.Intrinsic()]:
+                return True
     return False
 
 
