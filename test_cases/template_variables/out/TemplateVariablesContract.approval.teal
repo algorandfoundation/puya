@@ -3,20 +3,15 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64 TMPL_DELETABLE TMPL_UPDATABLE
+    intcblock 64 TMPL_DELETABLE TMPL_UPDATABLE
     bytecblock 0x151f7c75 TMPL_SOME_BYTES TMPL_SOME_BIG_UINT
-    pushbytes ""
-    dup
+    // template_variables/contract.py:6
+    // @arc4.abimethod()
+    pushint 1 // 1
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@7
-    // template_variables/contract.py:6
-    // @arc4.abimethod()
-    intc_0 // 1
-    bury 2
-    // template_variables/contract.py:5
-    // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -39,7 +34,7 @@ main_get_big_uint_route@4:
     callsub get_big_uint
     // template_variables/contract.py:10
     // @arc4.abimethod()
-    dig 1
+    dup
     return
 
 main_get_bytes_route@3:
@@ -52,12 +47,10 @@ main_get_bytes_route@3:
     callsub get_bytes
     // template_variables/contract.py:6
     // @arc4.abimethod()
-    dig 1
+    dup
     return
 
 main_bare_routing@7:
-    intc_0 // 1
-    bury 1
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
@@ -71,7 +64,7 @@ main_on_delete@9:
     assert // can only call when not creating
     // template_variables/contract.py:21
     // assert TemplateVar[UInt64]("DELETABLE")
-    intc_2 // TMPL_DELETABLE
+    intc_1 // TMPL_DELETABLE
     assert
     // template_variables/contract.py:19
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
@@ -85,7 +78,7 @@ main_on_update@8:
     assert // can only call when not creating
     // template_variables/contract.py:17
     // assert TemplateVar[bool]("UPDATABLE")
-    intc_3 // TMPL_UPDATABLE
+    intc_2 // TMPL_UPDATABLE
     assert
     // template_variables/contract.py:15
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
@@ -129,10 +122,10 @@ get_big_uint:
     // return UInt512(x)
     dup
     len
-    intc_1 // 64
+    intc_0 // 64
     <=
     assert // overflow
-    intc_1 // 64
+    intc_0 // 64
     bzero
     b|
     // template_variables/contract.py:10

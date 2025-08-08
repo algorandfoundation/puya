@@ -3,9 +3,11 @@
 
 // test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 1 6
+    intcblock 0 6
     bytecblock "hello_app" 0x151f7c75
-    pushbytes ""
+    // inner_transactions/c2c.py:10
+    // @arc4.abimethod()
+    pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // inner_transactions/c2c.py:8
@@ -19,12 +21,6 @@ main_after_if_else@2:
     // class Greeter(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@7
-    // inner_transactions/c2c.py:10
-    // @arc4.abimethod()
-    intc_1 // 1
-    bury 1
-    // inner_transactions/c2c.py:6
-    // class Greeter(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -68,7 +64,7 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return
 
 
@@ -99,7 +95,7 @@ bootstrap:
     itxn_field ApprovalProgramPages
     // inner_transactions/c2c.py:14
     // itxn.ApplicationCall(
-    intc_2 // appl
+    intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -167,7 +163,7 @@ log_greetings:
     itxn_field ApplicationArgs
     // inner_transactions/c2c.py:25
     // hello_call = itxn.ApplicationCall(
-    intc_2 // appl
+    intc_1 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee

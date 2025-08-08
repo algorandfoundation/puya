@@ -3,9 +3,10 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 6 0 1
+    intcblock 6 0
     bytecblock 0x098101 0x31 0x32 0x33
     pushbytes ""
+    pushint 1 // 1
     txn NumAppArgs
     bz main_bare_routing@6
     txn OnCompletion
@@ -23,7 +24,7 @@ main_test_branching_array_call_route@3:
     pushbytes 0x00
     !=
     dup
-    bury 2
+    bury 3
     bz main_else_body@15
     itxn_begin
     bytec_1 // 0x31
@@ -41,7 +42,7 @@ main_test_branching_array_call_route@3:
     itxn_submit
 
 main_after_if_else@16:
-    dup
+    dig 1
     bz main_else_body@18
     itxna ApplicationArgs 0
     bytec_1 // 0x31
@@ -53,7 +54,7 @@ main_after_if_else@16:
     assert // correct args used 2
 
 main_after_if_else@19:
-    intc_2 // 1
+    dup
     return
 
 main_else_body@18:
@@ -99,5 +100,5 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_2 // 1
+    dup
     return

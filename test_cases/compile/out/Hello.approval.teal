@@ -3,15 +3,16 @@
 
 // test_cases.compile.apps.Hello.__algopy_entrypoint_with_init() -> uint64:
 main:
-    bytecblock "greeting" ""
-    bytec_1 // ""
-    dup
+    bytecblock "greeting"
+    // compile/apps.py:53
+    // @arc4.abimethod(create="require")
+    pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // compile/apps.py:22
     // self.greeting = String()
     bytec_0 // "greeting"
-    bytec_1 // ""
+    pushbytes ""
     app_global_put
 
 main_after_if_else@2:
@@ -19,12 +20,6 @@ main_after_if_else@2:
     // class Hello(HelloBase):
     txn NumAppArgs
     bz main_bare_routing@8
-    // compile/apps.py:53
-    // @arc4.abimethod(create="require")
-    pushint 1 // 1
-    bury 2
-    // compile/apps.py:52
-    // class Hello(HelloBase):
     pushbytess 0x20df3a54 0x24378d3c 0xd0a28200 // method "create(string)void", method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
     match main_create_route@5 main_delete_route@6 main_greet_route@7
@@ -43,7 +38,7 @@ main_greet_route@7:
     callsub greet
     // compile/apps.py:32
     // @arc4.abimethod()
-    dig 1
+    dup
     return
 
 main_delete_route@6:
@@ -55,7 +50,7 @@ main_delete_route@6:
     assert // OnCompletion is not DeleteApplication
     txn ApplicationID
     assert // can only call when not creating
-    dig 1
+    dup
     return
 
 main_create_route@5:
@@ -72,14 +67,10 @@ main_create_route@5:
     callsub create
     // compile/apps.py:53
     // @arc4.abimethod(create="require")
-    dig 1
+    dup
     return
 
 main_bare_routing@8:
-    // compile/apps.py:28
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    pushint 1 // 1
-    bury 1
     // compile/apps.py:52
     // class Hello(HelloBase):
     pushint 4 // 4

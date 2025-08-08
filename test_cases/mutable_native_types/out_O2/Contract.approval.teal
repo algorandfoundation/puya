@@ -9,6 +9,7 @@ main:
     dup
     pushbytes ""
     dupn 2
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     txn NumAppArgs
@@ -116,7 +117,7 @@ main_test_arr_route@16:
     itob
     concat
     dup
-    bury 7
+    bury 8
     dig 2
     swap
     concat // on error: max array length exceeded
@@ -167,17 +168,17 @@ main_test_arr_route@16:
     ==
     assert // expected arrays to be the same
     intc_0 // 0
-    bury 4
     bury 5
+    bury 6
 
 main_for_header@22:
-    dig 2
+    dig 3
     pushint 3 // 3
     <
     bz main_after_for@24
-    dig 4
-    dup
     dig 5
+    dup
+    dig 6
     concat // on error: max array length exceeded
     swap
     intc_0 // 0
@@ -187,15 +188,15 @@ main_for_header@22:
     itob
     extract 6 2
     replace2 0
-    bury 5
-    dig 2
+    bury 6
+    dig 3
     intc_1 // 1
     +
-    bury 3
+    bury 4
     b main_for_header@22
 
 main_after_for@24:
-    dig 4
+    dig 5
     dup
     intc_0 // 0
     extract_uint16
@@ -252,7 +253,7 @@ main_after_for@24:
     pushbytes "arr"
     dig 1
     app_global_put
-    dig 4
+    dig 5
     len
     intc_2 // 16
     /
@@ -261,7 +262,7 @@ main_after_for@24:
     swap
     concat
     log
-    intc_1 // 1
+    dup
     return
 
 main_calculate_sum_route@15:
@@ -291,12 +292,12 @@ main_calculate_sum_route@15:
     +
     +
     dup
-    bury 3
+    bury 4
     dup
     pushint 100 // 100
     <
     swap
-    bury 2
+    bury 3
     bz main_after_if_else@28
     intc_0 // 0
     bytec_0 // "nested"
@@ -309,20 +310,20 @@ main_calculate_sum_route@15:
     swap
     intc_3 // 8
     extract_uint64
-    dig 3
+    dig 4
     uncover 2
     +
     +
-    bury 1
+    bury 2
 
 main_after_if_else@28:
-    dup
+    dig 1
     itob
     bytec_3 // 0x151f7c75
     swap
     concat
     log
-    intc_1 // 1
+    dup
     return
 
 main_tup_return_route@14:
@@ -337,7 +338,7 @@ main_tup_return_route@14:
     swap
     concat
     log
-    intc_1 // 1
+    dup
     return
 
 main_struct_return_route@13:
@@ -352,7 +353,7 @@ main_struct_return_route@13:
     swap
     concat
     log
-    intc_1 // 1
+    dup
     return
 
 main_struct_arg_route@12:
@@ -402,7 +403,7 @@ main_struct_arg_route@12:
     intc_0 // 0
     uncover 2
     box_replace
-    intc_1 // 1
+    dup
     return
 
 main_delete_storage_route@11:
@@ -424,7 +425,7 @@ main_delete_storage_route@11:
     concat
     box_del
     pop
-    intc_1 // 1
+    dup
     return
 
 main_local_struct_route@10:
@@ -457,7 +458,7 @@ main_local_struct_route@10:
     swap
     concat
     log
-    intc_1 // 1
+    dup
     return
 
 main_create_storage_route@9:
@@ -493,7 +494,7 @@ main_create_storage_route@9:
     intc_0 // 0
     uncover 2
     box_replace
-    intc_1 // 1
+    dup
     return
 
 main_increment_payment_route@8:
@@ -531,7 +532,7 @@ main_increment_payment_route@8:
     bytec_2 // "payments"
     swap
     app_global_put
-    intc_1 // 1
+    dup
     return
 
 main_add_payment_route@7:
@@ -567,19 +568,19 @@ main_add_payment_route@7:
     bytec_1 // "num_payments"
     swap
     app_global_put
-    intc_1 // 1
+    dup
     return
 
 main_fixed_initialize_route@6:
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 1
+    dup
     return
 
 main_test_imm_fixed_array_route@5:
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 1
+    dup
     return
 
 main_bare_routing@17:
@@ -589,7 +590,7 @@ main_bare_routing@17:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return
 
 

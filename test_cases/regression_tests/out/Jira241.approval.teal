@@ -3,17 +3,13 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    pushbytes ""
+    // regression_tests/jira_241.py:5
+    // @arc4.abimethod(default_args={"wrong_size": False})
+    pushint 1 // 1
     // regression_tests/jira_241.py:4
     // class Jira241(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@7
-    // regression_tests/jira_241.py:5
-    // @arc4.abimethod(default_args={"wrong_size": False})
-    pushint 1 // 1
-    bury 1
-    // regression_tests/jira_241.py:4
-    // class Jira241(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -47,5 +43,5 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
-    pushint 1 // 1
+    dup
     return

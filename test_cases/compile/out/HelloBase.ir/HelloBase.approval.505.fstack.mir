@@ -1,98 +1,93 @@
 // Op                                                                                Stack (out)
 // test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    declare uint64 lifted%0#0, lifted%1#0
-    main_block@0:                                                                    (𝕗) lifted%0#0,lifted%1#0 |
-        txn ApplicationID                                                            (𝕗) lifted%0#0,lifted%1#0 | tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2                             (𝕗) lifted%0#0,lifted%1#0 |
+    main_block@0:
+        // compile/apps.py:24
+        // @arc4.abimethod(allow_actions=["DeleteApplication"])
+        int 1                                                                        1
+        f-store lifted%return#0                                                      (𝕗) lifted%return#0 |
+        txn ApplicationID                                                            (𝕗) lifted%return#0 | tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2                             (𝕗) lifted%return#0 |
 
-    main_call___init__@1:                                                            (𝕗) lifted%0#0,lifted%1#0 |
+    main_call___init__@1:                                                            (𝕗) lifted%return#0 |
         // compile/apps.py:22
         // self.greeting = String()
-        byte "greeting"                                                              (𝕗) lifted%0#0,lifted%1#0 | "greeting"
-        byte ""                                                                      (𝕗) lifted%0#0,lifted%1#0 | "greeting",""
-        app_global_put                                                               (𝕗) lifted%0#0,lifted%1#0 |
-        b main_after_if_else@2                                                       (𝕗) lifted%0#0,lifted%1#0 |
+        byte "greeting"                                                              (𝕗) lifted%return#0 | "greeting"
+        byte ""                                                                      (𝕗) lifted%return#0 | "greeting",""
+        app_global_put                                                               (𝕗) lifted%return#0 |
+        b main_after_if_else@2                                                       (𝕗) lifted%return#0 |
 
-    main_after_if_else@2:                                                            (𝕗) lifted%0#0,lifted%1#0 |
+    main_after_if_else@2:                                                            (𝕗) lifted%return#0 |
         // compile/apps.py:20
         // class HelloBase(ARC4Contract):
-        txn NumAppArgs                                                               (𝕗) lifted%0#0,lifted%1#0 | tmp%0#2
-        bz main_bare_routing@7 ; b main_abi_routing@4                                (𝕗) lifted%0#0,lifted%1#0 |
+        txn NumAppArgs                                                               (𝕗) lifted%return#0 | tmp%0#2
+        bz main_bare_routing@7 ; b main_abi_routing@4                                (𝕗) lifted%return#0 |
 
-    main_abi_routing@4:                                                              (𝕗) lifted%0#0,lifted%1#0 |
+    main_abi_routing@4:                                                              (𝕗) lifted%return#0 |
+        // compile/apps.py:20
+        // class HelloBase(ARC4Contract):
+        txna ApplicationArgs 0                                                       (𝕗) lifted%return#0 | tmp%2#0
+        method delete()void                                                          (𝕗) lifted%return#0 | tmp%2#0,Method(delete()void)
+        method greet(string)string                                                   (𝕗) lifted%return#0 | tmp%2#0,Method(delete()void),Method(greet(string)string)
+        l-load tmp%2#0 2                                                             (𝕗) lifted%return#0 | Method(delete()void),Method(greet(string)string),tmp%2#0
+        match main_delete_route@5 main_greet_route@6 ; b main_after_if_else@10       (𝕗) lifted%return#0 |
+
+    main_delete_route@5:                                                             (𝕗) lifted%return#0 |
         // compile/apps.py:24
         // @arc4.abimethod(allow_actions=["DeleteApplication"])
-        int 1                                                                        (𝕗) lifted%0#0,lifted%1#0 | 1
-        f-store lifted%0#0                                                           (𝕗) lifted%0#0,lifted%1#0 |
-        // compile/apps.py:20
-        // class HelloBase(ARC4Contract):
-        txna ApplicationArgs 0                                                       (𝕗) lifted%0#0,lifted%1#0 | tmp%2#0
-        method delete()void                                                          (𝕗) lifted%0#0,lifted%1#0 | tmp%2#0,Method(delete()void)
-        method greet(string)string                                                   (𝕗) lifted%0#0,lifted%1#0 | tmp%2#0,Method(delete()void),Method(greet(string)string)
-        l-load tmp%2#0 2                                                             (𝕗) lifted%0#0,lifted%1#0 | Method(delete()void),Method(greet(string)string),tmp%2#0
-        match main_delete_route@5 main_greet_route@6 ; b main_after_if_else@10       (𝕗) lifted%0#0,lifted%1#0 |
+        txn OnCompletion                                                             (𝕗) lifted%return#0 | tmp%3#0
+        int DeleteApplication                                                        (𝕗) lifted%return#0 | tmp%3#0,DeleteApplication
+        ==                                                                           (𝕗) lifted%return#0 | tmp%4#0
+        assert // OnCompletion is not DeleteApplication                              (𝕗) lifted%return#0 |
+        txn ApplicationID                                                            (𝕗) lifted%return#0 | tmp%5#0
+        assert // can only call when not creating                                    (𝕗) lifted%return#0 |
+        f-load lifted%return#0                                                       (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                       (𝕗) lifted%return#0 |
 
-    main_delete_route@5:                                                             (𝕗) lifted%0#0,lifted%1#0 |
-        // compile/apps.py:24
-        // @arc4.abimethod(allow_actions=["DeleteApplication"])
-        txn OnCompletion                                                             (𝕗) lifted%0#0,lifted%1#0 | tmp%3#0
-        int DeleteApplication                                                        (𝕗) lifted%0#0,lifted%1#0 | tmp%3#0,DeleteApplication
-        ==                                                                           (𝕗) lifted%0#0,lifted%1#0 | tmp%4#0
-        assert // OnCompletion is not DeleteApplication                              (𝕗) lifted%0#0,lifted%1#0 |
-        txn ApplicationID                                                            (𝕗) lifted%0#0,lifted%1#0 | tmp%5#0
-        assert // can only call when not creating                                    (𝕗) lifted%0#0,lifted%1#0 |
-        f-load lifted%0#0                                                            (𝕗) lifted%0#0,lifted%1#0 | lifted%0#0
-        return                                                                       (𝕗) lifted%0#0,lifted%1#0 |
-
-    main_greet_route@6:                                                              (𝕗) lifted%0#0,lifted%1#0 |
+    main_greet_route@6:                                                              (𝕗) lifted%return#0 |
         // compile/apps.py:32
         // @arc4.abimethod()
-        txn OnCompletion                                                             (𝕗) lifted%0#0,lifted%1#0 | tmp%7#0
-        !                                                                            (𝕗) lifted%0#0,lifted%1#0 | tmp%8#0
-        assert // OnCompletion is not NoOp                                           (𝕗) lifted%0#0,lifted%1#0 |
-        txn ApplicationID                                                            (𝕗) lifted%0#0,lifted%1#0 | tmp%9#0
-        assert // can only call when not creating                                    (𝕗) lifted%0#0,lifted%1#0 |
+        txn OnCompletion                                                             (𝕗) lifted%return#0 | tmp%7#0
+        !                                                                            (𝕗) lifted%return#0 | tmp%8#0
+        assert // OnCompletion is not NoOp                                           (𝕗) lifted%return#0 |
+        txn ApplicationID                                                            (𝕗) lifted%return#0 | tmp%9#0
+        assert // can only call when not creating                                    (𝕗) lifted%return#0 |
         // compile/apps.py:20
         // class HelloBase(ARC4Contract):
-        callsub greet                                                                (𝕗) lifted%0#0,lifted%1#0 |
+        callsub greet                                                                (𝕗) lifted%return#0 |
         // compile/apps.py:32
         // @arc4.abimethod()
-        f-load lifted%0#0                                                            (𝕗) lifted%0#0,lifted%1#0 | lifted%0#0
-        return                                                                       (𝕗) lifted%0#0,lifted%1#0 |
+        f-load lifted%return#0                                                       (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                       (𝕗) lifted%return#0 |
 
-    main_bare_routing@7:                                                             (𝕗) lifted%0#0,lifted%1#0 |
-        // compile/apps.py:28
-        // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        int 1                                                                        (𝕗) lifted%0#0,lifted%1#0 | 1
-        f-store lifted%1#0                                                           (𝕗) lifted%0#0,lifted%1#0 |
+    main_bare_routing@7:                                                             (𝕗) lifted%return#0 |
         // compile/apps.py:20
         // class HelloBase(ARC4Contract):
-        txn OnCompletion                                                             (𝕗) lifted%0#0,lifted%1#0 | tmp%11#0
-        int 4                                                                        (𝕗) lifted%0#0,lifted%1#0 | tmp%11#0,4
-        int 0                                                                        (𝕗) lifted%0#0,lifted%1#0 | tmp%11#0,4,0
-        l-load tmp%11#0 2                                                            (𝕗) lifted%0#0,lifted%1#0 | 4,0,tmp%11#0
-        match main_update@8 main___algopy_default_create@9 ; b main_after_if_else@10 (𝕗) lifted%0#0,lifted%1#0 |
+        txn OnCompletion                                                             (𝕗) lifted%return#0 | tmp%11#0
+        int 4                                                                        (𝕗) lifted%return#0 | tmp%11#0,4
+        int 0                                                                        (𝕗) lifted%return#0 | tmp%11#0,4,0
+        l-load tmp%11#0 2                                                            (𝕗) lifted%return#0 | 4,0,tmp%11#0
+        match main_update@8 main___algopy_default_create@9 ; b main_after_if_else@10 (𝕗) lifted%return#0 |
 
-    main_update@8:                                                                   (𝕗) lifted%0#0,lifted%1#0 |
+    main_update@8:                                                                   (𝕗) lifted%return#0 |
         // compile/apps.py:28
         // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        txn ApplicationID                                                            (𝕗) lifted%0#0,lifted%1#0 | tmp%12#0
-        assert // can only call when not creating                                    (𝕗) lifted%0#0,lifted%1#0 |
-        f-load lifted%1#0                                                            (𝕗) lifted%0#0,lifted%1#0 | lifted%1#0
-        return                                                                       (𝕗) lifted%0#0,lifted%1#0 |
+        txn ApplicationID                                                            (𝕗) lifted%return#0 | tmp%12#0
+        assert // can only call when not creating                                    (𝕗) lifted%return#0 |
+        f-load lifted%return#0                                                       (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                       (𝕗) lifted%return#0 |
 
-    main___algopy_default_create@9:                                                  (𝕗) lifted%0#0,lifted%1#0 |
-        txn ApplicationID                                                            (𝕗) lifted%0#0,lifted%1#0 | tmp%14#0
-        !                                                                            (𝕗) lifted%0#0,lifted%1#0 | tmp%15#0
-        assert // can only call when creating                                        (𝕗) lifted%0#0,lifted%1#0 |
-        f-load lifted%1#0                                                            (𝕗) lifted%0#0,lifted%1#0 | lifted%1#0
-        return                                                                       (𝕗) lifted%0#0,lifted%1#0 |
+    main___algopy_default_create@9:                                                  (𝕗) lifted%return#0 |
+        txn ApplicationID                                                            (𝕗) lifted%return#0 | tmp%14#0
+        !                                                                            (𝕗) lifted%return#0 | tmp%15#0
+        assert // can only call when creating                                        (𝕗) lifted%return#0 |
+        f-load lifted%return#0                                                       (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                       (𝕗) lifted%return#0 |
 
-    main_after_if_else@10:                                                           (𝕗) lifted%0#0,lifted%1#0 |
+    main_after_if_else@10:                                                           (𝕗) lifted%return#0 |
         // compile/apps.py:20
         // class HelloBase(ARC4Contract):
-        err                                                                          (𝕗) lifted%0#0,lifted%1#0 |
+        err                                                                          (𝕗) lifted%return#0 |
 
 
 // test_cases.compile.apps.HelloBase.greet[routing]() -> void:

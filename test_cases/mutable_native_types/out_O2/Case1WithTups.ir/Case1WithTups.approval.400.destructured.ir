@@ -1,5 +1,6 @@
 main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entrypoint_with_init:
     block@0: // L1
+        let lifted%return#0: bool = 1u
         let tmp%0#2: uint64 = (txn NumAppArgs)
         goto tmp%0#2 ? block@4 : block@16
     block@4: // abi_routing_L41
@@ -21,14 +22,14 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let box%box_extract%0#0: bytes = (box_extract "tup_bag" 4272u 1u)
         let aggregate%updated_target%0#0: Encoded(bool1[8]) = (setbit box%box_extract%0#0 0u 1u)
         (box_replace "tup_bag" 4272u aggregate%updated_target%0#0)
-        exit 1u
+        exit lifted%return#0
     block@6: // num_tups_route_L52
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
         let box%box_extract%0#0: bytes = (box_extract "tup_bag" 0u 8u)
         let tmp%2#1: bytes = (concat 0x151f7c75 box%box_extract%0#0)
         (log tmp%2#1)
-        exit 1u
+        exit lifted%return#0
     block@7: // add_tup_route_L56
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
@@ -36,7 +37,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let aggregate%item0%0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
         let aggregate%item1%0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
         test_cases.mutable_native_types.case1_with_tups.Case1WithTups.add_tup(aggregate%item0%0#0, aggregate%item1%0#0)
-        exit 1u
+        exit lifted%return#0
     block@8: // get_tup_route_L63
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
@@ -51,7 +52,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let aggregate%encoded_element%0#0: bytes = (extract3 box%box_extract%2#0 aggregate%bytes_offset%0#0 16u) // on error: index access is out of bounds
         let tmp%4#0: bytes = (concat 0x151f7c75 aggregate%encoded_element%0#0)
         (log tmp%4#0)
-        exit 1u
+        exit lifted%return#0
     block@9: // sum_route_L68
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
@@ -77,7 +78,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob total#0)
         let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%1#0)
         (log tmp%2#1)
-        exit 1u
+        exit lifted%return#0
     block@10: // add_many_tups_route_L77
         let tmp%15#0: uint64 = (txn ApplicationID)
         (assert tmp%15#0) // can only call when not creating
@@ -98,7 +99,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@42
     block@44: // after_for_L79
-        exit 1u
+        exit lifted%return#0
     block@11: // add_fixed_tups_route_L82
         let tmp%17#0: uint64 = (txn ApplicationID)
         (assert tmp%17#0) // can only call when not creating
@@ -200,7 +201,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let aggregate%head%12#0: bytes = (concat aggregate%head%9#0 aggregate%head%11#0)
         let tmp%2#1: bytes = (concat 0x151f7c75 aggregate%head%12#0)
         (log tmp%2#1)
-        exit 1u
+        exit lifted%return#0
     block@15: // get_all_tups_route_L114
         let tmp%25#0: uint64 = (txn ApplicationID)
         (assert tmp%25#0) // can only call when not creating
@@ -230,7 +231,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
     block@22: // after_for_L119
         let tmp%1#1: bytes = (concat 0x151f7c75 result#0)
         (log tmp%1#1)
-        exit 1u
+        exit lifted%return#0
     block@16: // bare_routing_L41
         let tmp%27#0: uint64 = (txn OnCompletion)
         let not%tmp%27#0: bool = (! tmp%27#0)
@@ -238,7 +239,7 @@ main test_cases.mutable_native_types.case1_with_tups.Case1WithTups.__algopy_entr
         let tmp%28#0: uint64 = (txn ApplicationID)
         let tmp%29#0: bool = (! tmp%28#0)
         (assert tmp%29#0) // can only call when creating
-        exit 1u
+        exit lifted%return#0
     block@18: // after_if_else_L41
         fail
 

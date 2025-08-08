@@ -7,6 +7,7 @@ main:
     bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
     pushbytes ""
     dupn 9
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "asset_a"
@@ -77,7 +78,7 @@ main_swap_route@9:
     dig 2
     gtxns AssetAmount
     dup
-    bury 8
+    bury 9
     assert // amount minimum not met
     dig 2
     gtxns Sender
@@ -91,18 +92,18 @@ main_swap_route@9:
 
 main_switch_case_1@15:
     callsub _current_a_balance
-    bury 3
+    bury 4
     callsub _current_b_balance
     intc_0 // 0
     bytec_1 // "asset_b"
     app_global_get_ex
     swap
-    bury 4
+    bury 5
     assert // check self.asset_b exists
 
 main_switch_case_next@17:
-    dig 3
-    dig 5
+    dig 4
+    dig 6
     dup
     cover 2
     -
@@ -122,22 +123,22 @@ main_switch_case_next@17:
     dup
     assert // send amount too low
     txn Sender
-    dig 3
+    dig 4
     uncover 2
     callsub do_asset_transfer
     callsub _update_ratio
-    intc_1 // 1
+    dup
     return
 
 main_switch_case_0@14:
     callsub _current_b_balance
-    bury 3
+    bury 4
     callsub _current_a_balance
     intc_0 // 0
     bytec_0 // "asset_a"
     app_global_get_ex
     swap
-    bury 4
+    bury 5
     assert // check self.asset_a exists
     b main_switch_case_next@17
 
@@ -236,7 +237,7 @@ main_burn_route@8:
     uncover 2
     callsub do_asset_transfer
     callsub _update_ratio
-    intc_1 // 1
+    dup
     return
 
 main_mint_route@7:
@@ -315,7 +316,7 @@ main_mint_route@7:
     uncover 2
     gtxns AssetAmount
     dup
-    bury 13
+    bury 14
     dup
     assert // amount minimum not met
     dig 2
@@ -331,27 +332,27 @@ main_mint_route@7:
     swap
     gtxns AssetAmount
     dup
-    bury 9
+    bury 10
     assert // amount minimum not met
     callsub _current_pool_balance
-    bury 2
+    bury 3
     callsub _current_a_balance
     dup
-    bury 11
+    bury 12
     callsub _current_b_balance
-    bury 8
+    bury 9
     ==
     bz main_bool_false@24
-    dig 5
-    dig 7
+    dig 6
+    dig 8
     ==
     bz main_bool_false@24
     intc_1 // 1
 
 main_bool_merge@25:
     bz main_after_if_else@27
-    dig 9
-    dig 7
+    dig 10
+    dig 8
     *
     sqrt
     intc_2 // 1000
@@ -368,45 +369,45 @@ main_after_inlined_examples.amm.contract.tokens_to_mint@30:
     uncover 2
     callsub do_asset_transfer
     callsub _update_ratio
-    intc_1 // 1
+    dup
     return
 
 main_after_if_else@27:
     intc 4 // 10000000000
-    dig 1
+    dig 2
     -
     intc_2 // 1000
-    dig 11
+    dig 12
     dup
     cover 2
     *
-    dig 11
+    dig 12
     uncover 2
     -
     /
     dup
-    bury 10
+    bury 11
     intc_2 // 1000
-    dig 9
+    dig 10
     dup
     cover 2
     *
-    dig 9
+    dig 10
     uncover 2
     -
     /
     dup
-    bury 8
+    bury 9
     <
     bz main_else_body@29
-    dig 8
+    dig 9
     *
     intc_2 // 1000
     /
     b main_after_inlined_examples.amm.contract.tokens_to_mint@30
 
 main_else_body@29:
-    dig 5
+    dig 6
     *
     intc_2 // 1000
     /
@@ -523,7 +524,7 @@ main_bootstrap_route@6:
     swap
     concat
     log
-    intc_1 // 1
+    dup
     return
 
 main_set_governor_route@5:
@@ -534,7 +535,7 @@ main_set_governor_route@5:
     bytec_3 // "governor"
     swap
     app_global_put
-    intc_1 // 1
+    dup
     return
 
 main_bare_routing@10:
@@ -544,7 +545,7 @@ main_bare_routing@10:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return
 
 

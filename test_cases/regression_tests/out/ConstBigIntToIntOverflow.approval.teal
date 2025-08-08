@@ -4,17 +4,13 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     bytecblock 0x010000000000000000 0x151f7c75
-    pushbytes ""
+    // regression_tests/biguint_opt.py:5
+    // @arc4.abimethod()
+    pushint 1 // 1
     // regression_tests/biguint_opt.py:4
     // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@7
-    // regression_tests/biguint_opt.py:5
-    // @arc4.abimethod()
-    pushint 1 // 1
-    bury 1
-    // regression_tests/biguint_opt.py:4
-    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -58,7 +54,7 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
-    pushint 1 // 1
+    dup
     return
 
 

@@ -9,6 +9,7 @@ main:
     dupn 2
     pushbytes ""
     dup
+    intc_1 // 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -22,59 +23,59 @@ main_verify_route@3:
     assert // can only call when not creating
     txna ApplicationArgs 1
     dup
-    bury 4
+    bury 5
     txna ApplicationArgs 2
     intc_0 // 0
     bytec_0 // "root"
     app_global_get_ex
     swap
-    bury 7
+    bury 8
     assert // check self.root exists
     swap
     intc_0 // 0
     extract_uint16
-    bury 3
+    bury 4
     intc_0 // 0
-    bury 2
-    bury 5
+    bury 3
+    bury 6
 
 main_for_header@6:
-    dup
-    dig 2
+    dig 1
+    dig 3
     <
     bz main_after_for@11
-    dig 2
+    dig 3
     extract 2 0
-    dig 1
+    dig 2
     intc_2 // 32
     *
     intc_2 // 32
     extract3 // on error: index access is out of bounds
     dup
-    dig 6
+    dig 7
     b>
     bz main_ternary_false@9
-    dig 5
+    dig 6
     swap
     concat
 
 main_ternary_merge@10:
     sha256
-    bury 5
-    dup
+    bury 6
+    dig 1
     intc_1 // 1
     +
-    bury 1
+    bury 2
     b main_for_header@6
 
 main_ternary_false@9:
-    dig 5
+    dig 6
     concat
     b main_ternary_merge@10
 
 main_after_for@11:
-    dig 3
-    dig 5
+    dig 4
+    dig 6
     ==
     pushbytes 0x00
     intc_0 // 0
@@ -84,7 +85,7 @@ main_after_for@11:
     swap
     concat
     log
-    intc_1 // 1
+    dup
     return
 
 main_create_route@2:
@@ -94,5 +95,5 @@ main_create_route@2:
     bytec_0 // "root"
     txna ApplicationArgs 1
     app_global_put
-    intc_1 // 1
+    dup
     return

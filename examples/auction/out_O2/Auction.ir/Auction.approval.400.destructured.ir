@@ -1,5 +1,6 @@
 main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
     block@0: // L1
+        let lifted%return#0: bool = 1u
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
     block@1: // call __init___L1
@@ -40,7 +41,7 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
-        exit 1u
+        exit lifted%return#0
     block@6: // start_auction_route_L40
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
@@ -71,11 +72,11 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%9#0: uint64 = (+ tmp%8#0 length#0)
         (app_global_put "auction_end" tmp%9#0)
         (app_global_put "previous_bid" starting_price#0)
-        exit 1u
+        exit lifted%return#0
     block@7: // opt_in_route_L62
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
-        exit 1u
+        exit lifted%return#0
     block@8: // bid_route_L66
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
@@ -102,7 +103,7 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         (app_global_put "previous_bidder" tmp%2#3)
         let tmp%10#0: account = (txn Sender)
         (app_local_put tmp%10#0 "claim" tmp%5#0)
-        exit 1u
+        exit lifted%return#0
     block@9: // claim_bids_route_L82
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
@@ -131,7 +132,7 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%4#1: uint64 = (- original_amount#0 amount#1)
         let tmp%5#1: account = (txn Sender)
         (app_local_put tmp%5#1 "claim" tmp%4#1)
-        exit 1u
+        exit lifted%return#0
     block@10: // claim_asset_route_L97
         let tmp%15#0: uint64 = (txn ApplicationID)
         (assert tmp%15#0) // can only call when not creating
@@ -154,7 +155,7 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
-        exit 1u
+        exit lifted%return#0
     block@11: // bare_routing_L16
         let tmp%17#0: uint64 = (txn OnCompletion)
         let not%tmp%17#0: bool = (! tmp%17#0)
@@ -162,6 +163,6 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%18#0: uint64 = (txn ApplicationID)
         let tmp%19#0: bool = (! tmp%18#0)
         (assert tmp%19#0) // can only call when creating
-        exit 1u
+        exit lifted%return#0
     block@13: // after_if_else_L16
         fail

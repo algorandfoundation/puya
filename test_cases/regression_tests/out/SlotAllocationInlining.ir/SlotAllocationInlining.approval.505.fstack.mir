@@ -1,53 +1,58 @@
 // Op                                                                 Stack (out)
 // test_cases.regression_tests.slot_allocation_inlining.SlotAllocationInlining.approval_program() -> uint64:
 subroutine main:
-    main_while_top@2:
-        global OpcodeBudget                                           tmp%1#0
-        int 810                                                       tmp%1#0,810
-        l-load tmp%1#0 1                                              810,tmp%1#0
-        >                                                             tmp%2#0
-        bz main_after_while@8 ; b main_while_body@3
-
-    main_while_body@3:
-        itxn_begin
-        int appl                                                      appl
-        itxn_field TypeEnum
-        int DeleteApplication                                         DeleteApplication
-        itxn_field OnCompletion
-        byte 0x068101                                                 0x068101
-        itxn_field ApprovalProgram
-        byte 0x068101                                                 0x068101
-        itxn_field ClearStateProgram
-        int 0                                                         0
-        itxn_field Fee
-        itxn_submit
-        b main_while_top@2
-
-    main_after_while@8:
-        // regression_tests/slot_allocation_inlining.py:25
-        // arr = ReferenceArray[UInt64]()
-        callsub _puya_lib.mem.new_slot                                arr#0
-        l-load-copy arr#0 0                                           arr#0,arr#0 (copy)
-        byte 0x                                                       arr#0,arr#0 (copy),0x
-        stores                                                        arr#0
-        // regression_tests/slot_allocation_inlining.py:26
-        // append_to_array(arr)
-        l-load-copy arr#0 0                                           arr#0,arr#0 (copy)
-        callsub append_to_array                                       arr#0
-        // regression_tests/slot_allocation_inlining.py:27
-        // assert arr.length == 32, "expected array of length 32"
-        l-load arr#0 0                                                arr#0
-        loads                                                         aggregate%slot_contents%0#0
-        len                                                           aggregate%bytes_len%0#0
-        int 8                                                         aggregate%bytes_len%0#0,8
-        /                                                             aggregate%array_len%0#0
-        int 32                                                        aggregate%array_len%0#0,32
-        ==                                                            tmp%1#1
-        assert // expected array of length 32
+    declare uint64 lifted%return#0
+    main_while_top@2:                                                 (𝕗) lifted%return#0 |
         // regression_tests/slot_allocation_inlining.py:16
         // return True
-        int 1                                                         1
-        return
+        int 1                                                         (𝕗) lifted%return#0 | 1
+        f-store lifted%return#0                                       (𝕗) lifted%return#0 |
+        global OpcodeBudget                                           (𝕗) lifted%return#0 | tmp%1#0
+        int 810                                                       (𝕗) lifted%return#0 | tmp%1#0,810
+        l-load tmp%1#0 1                                              (𝕗) lifted%return#0 | 810,tmp%1#0
+        >                                                             (𝕗) lifted%return#0 | tmp%2#0
+        bz main_after_while@8 ; b main_while_body@3                   (𝕗) lifted%return#0 |
+
+    main_while_body@3:                                                (𝕗) lifted%return#0 |
+        itxn_begin                                                    (𝕗) lifted%return#0 |
+        int appl                                                      (𝕗) lifted%return#0 | appl
+        itxn_field TypeEnum                                           (𝕗) lifted%return#0 |
+        int DeleteApplication                                         (𝕗) lifted%return#0 | DeleteApplication
+        itxn_field OnCompletion                                       (𝕗) lifted%return#0 |
+        byte 0x068101                                                 (𝕗) lifted%return#0 | 0x068101
+        itxn_field ApprovalProgram                                    (𝕗) lifted%return#0 |
+        byte 0x068101                                                 (𝕗) lifted%return#0 | 0x068101
+        itxn_field ClearStateProgram                                  (𝕗) lifted%return#0 |
+        int 0                                                         (𝕗) lifted%return#0 | 0
+        itxn_field Fee                                                (𝕗) lifted%return#0 |
+        itxn_submit                                                   (𝕗) lifted%return#0 |
+        b main_while_top@2                                            (𝕗) lifted%return#0 |
+
+    main_after_while@8:                                               (𝕗) lifted%return#0 |
+        // regression_tests/slot_allocation_inlining.py:25
+        // arr = ReferenceArray[UInt64]()
+        callsub _puya_lib.mem.new_slot                                (𝕗) lifted%return#0 | arr#0
+        l-load-copy arr#0 0                                           (𝕗) lifted%return#0 | arr#0,arr#0 (copy)
+        byte 0x                                                       (𝕗) lifted%return#0 | arr#0,arr#0 (copy),0x
+        stores                                                        (𝕗) lifted%return#0 | arr#0
+        // regression_tests/slot_allocation_inlining.py:26
+        // append_to_array(arr)
+        l-load-copy arr#0 0                                           (𝕗) lifted%return#0 | arr#0,arr#0 (copy)
+        callsub append_to_array                                       (𝕗) lifted%return#0 | arr#0
+        // regression_tests/slot_allocation_inlining.py:27
+        // assert arr.length == 32, "expected array of length 32"
+        l-load arr#0 0                                                (𝕗) lifted%return#0 | arr#0
+        loads                                                         (𝕗) lifted%return#0 | aggregate%slot_contents%0#0
+        len                                                           (𝕗) lifted%return#0 | aggregate%bytes_len%0#0
+        int 8                                                         (𝕗) lifted%return#0 | aggregate%bytes_len%0#0,8
+        /                                                             (𝕗) lifted%return#0 | aggregate%array_len%0#0
+        int 32                                                        (𝕗) lifted%return#0 | aggregate%array_len%0#0,32
+        ==                                                            (𝕗) lifted%return#0 | tmp%1#1
+        assert // expected array of length 32                         (𝕗) lifted%return#0 |
+        // regression_tests/slot_allocation_inlining.py:16
+        // return True
+        f-load lifted%return#0                                        (𝕗) lifted%return#0 | lifted%return#0
+        return                                                        (𝕗) lifted%return#0 |
 
 
 // test_cases.regression_tests.slot_allocation_inlining.append_to_array(arr: uint64) -> void:

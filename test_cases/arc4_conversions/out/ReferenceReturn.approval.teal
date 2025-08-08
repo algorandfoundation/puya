@@ -3,19 +3,14 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1
     bytecblock 0x151f7c75 0x151f7c7500000000000004d2 "apps" "assets" "accounts"
-    pushbytes ""
+    // arc4_conversions/reference.py:5
+    // @arc4.abimethod
+    pushint 1 // 1
     // arc4_conversions/reference.py:4
     // class ReferenceReturn(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@15
-    // arc4_conversions/reference.py:5
-    // @arc4.abimethod
-    intc_1 // 1
-    bury 1
-    // arc4_conversions/reference.py:4
-    // class ReferenceReturn(arc4.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -157,7 +152,7 @@ main_bare_routing@15:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return
 
 
@@ -249,7 +244,7 @@ store_accounts:
 return_apps:
     // arc4_conversions/reference.py:37
     // return self.apps
-    intc_0 // 0
+    pushint 0 // 0
     bytec_2 // "apps"
     app_global_get_ex
     assert // check self.apps exists
@@ -266,7 +261,7 @@ return_apps:
 return_assets:
     // arc4_conversions/reference.py:41
     // return self.assets
-    intc_0 // 0
+    pushint 0 // 0
     bytec_3 // "assets"
     app_global_get_ex
     assert // check self.assets exists
@@ -283,7 +278,7 @@ return_assets:
 return_accounts:
     // arc4_conversions/reference.py:45
     // return self.accounts
-    intc_0 // 0
+    pushint 0 // 0
     bytec 4 // "accounts"
     app_global_get_ex
     assert // check self.accounts exists

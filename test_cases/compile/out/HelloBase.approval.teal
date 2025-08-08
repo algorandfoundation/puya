@@ -3,16 +3,16 @@
 
 // test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0
-    bytecblock "" "greeting"
-    bytec_0 // ""
-    dup
+    bytecblock "greeting"
+    // compile/apps.py:24
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // compile/apps.py:22
     // self.greeting = String()
-    bytec_1 // "greeting"
-    bytec_0 // ""
+    bytec_0 // "greeting"
+    pushbytes ""
     app_global_put
 
 main_after_if_else@2:
@@ -20,12 +20,6 @@ main_after_if_else@2:
     // class HelloBase(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@7
-    // compile/apps.py:24
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
-    intc_0 // 1
-    bury 2
-    // compile/apps.py:20
-    // class HelloBase(ARC4Contract):
     pushbytess 0x24378d3c 0xd0a28200 // method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
     match main_delete_route@5 main_greet_route@6
@@ -44,7 +38,7 @@ main_greet_route@6:
     callsub greet
     // compile/apps.py:32
     // @arc4.abimethod()
-    dig 1
+    dup
     return
 
 main_delete_route@5:
@@ -56,18 +50,13 @@ main_delete_route@5:
     assert // OnCompletion is not DeleteApplication
     txn ApplicationID
     assert // can only call when not creating
-    dig 1
+    dup
     return
 
 main_bare_routing@7:
-    // compile/apps.py:28
-    // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    intc_0 // 1
-    bury 1
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    pushint 4 // 4
-    intc_1 // 0
+    pushints 4 0 // 4, 0
     txn OnCompletion
     match main_update@8 main___algopy_default_create@9
     err
@@ -96,8 +85,8 @@ greet:
     extract 2 0
     // compile/apps.py:34
     // return self.greeting + " " + name
-    intc_1 // 0
-    bytec_1 // "greeting"
+    pushint 0 // 0
+    bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
     pushbytes " "

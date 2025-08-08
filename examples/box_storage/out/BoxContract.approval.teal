@@ -5,17 +5,13 @@
 main:
     intcblock 2 8 0 1 4096 4098 4138
     bytecblock "dynamic_arr_struct" "box" "dynamic_box" 0x424f585f43 0x151f7c75 "blob" "box_large" "box_a" "box_d" "b" "too_many_bools" "many_ints" "0" 0x00023432 0x68656c6c6f 0x068101 0x0014 "box_ref" "default"
-    pushbytes ""
+    // box_storage/contract.py:95
+    // @arc4.abimethod
+    intc_3 // 1
     // box_storage/contract.py:80
     // class BoxContract(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@40
-    // box_storage/contract.py:95
-    // @arc4.abimethod
-    intc_3 // 1
-    bury 1
-    // box_storage/contract.py:80
-    // class BoxContract(arc4.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -497,7 +493,7 @@ main_bare_routing@40:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_3 // 1
+    dup
     return
 
 

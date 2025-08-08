@@ -1,6 +1,7 @@
 slot_allocation(dynamic, reserved=[])
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
+        let lifted%return#0: bool = 1u
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@17
     block@2: // abi_routing_L13
@@ -119,7 +120,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let values%10#0: uint64 = (extract_uint64 aggregate%updated_array%0#0 aggregate%bytes_offset%11#0)
         let tmp%46#0: bool = (== values%10#0 100u)
         (assert tmp%46#0)
-        exit 1u
+        exit lifted%return#0
     block@4: // test_array_extend_route_L50
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
@@ -134,7 +135,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%array_len%16#0: uint64 = (/ aggregate%bytes_len%16#0 8u)
         let tmp%4#1: bool = (== aggregate%array_len%16#0 4u)
         (assert tmp%4#1)
-        exit 1u
+        exit lifted%return#0
     block@5: // test_array_multiple_append_route_L62
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
@@ -153,11 +154,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%array_len%17#0: uint64 = (/ aggregate%bytes_len%17#0 8u)
         let tmp%4#1: bool = (== aggregate%array_len%17#0 4u)
         (assert tmp%4#1)
-        exit 1u
+        exit lifted%return#0
     block@6: // overhead_route_L71
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
-        exit 1u
+        exit lifted%return#0
     block@7: // test_array_too_long_route_L75
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
@@ -183,7 +184,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%val_as_bytes%13#0: bytes[8] = (itob 512u)
         let concat%1#0: bytes = (concat aggregate%slot_contents%18#0 aggregate%val_as_bytes%13#0) // on error: max array length exceeded
         store(local.1, concat%1#0)
-        exit 1u
+        exit lifted%return#0
     block@8: // test_array_copy_and_extend_route_L84
         let tmp%15#0: uint64 = (txn ApplicationID)
         (assert tmp%15#0) // can only call when not creating
@@ -251,7 +252,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let values%5#0: uint64 = (extract_uint64 concat%2#0 48u)
         let tmp%21#1: bool = (! values%5#0)
         (assert tmp%21#1) // expected 4
-        exit 1u
+        exit lifted%return#0
     block@9: // test_array_evaluation_order_route_L106
         let tmp%17#0: uint64 = (txn ApplicationID)
         (assert tmp%17#0) // can only call when not creating
@@ -314,7 +315,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let values%10#0: uint64 = (extract_uint64 aggregate%updated_array%1#0 24u)
         let tmp%19#1: bool = (== values%10#0 6u)
         (assert tmp%19#1)
-        exit 1u
+        exit lifted%return#0
     block@10: // test_array_assignment_maximum_cursage_route_L125
         let tmp%19#0: uint64 = (txn ApplicationID)
         (assert tmp%19#0) // can only call when not creating
@@ -337,7 +338,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let values%1#0: uint64 = (extract_uint64 aggregate%slot_contents%29#0 8u)
         let tmp%4#1: bool = (== values%1#0 1u)
         (assert tmp%4#1)
-        exit 1u
+        exit lifted%return#0
     block@11: // test_allocations_route_L134
         let tmp%21#0: uint64 = (txn ApplicationID)
         (assert tmp%21#0) // can only call when not creating
@@ -355,7 +356,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let _i#0: uint64 = (+ _i#0 1u)
         goto block@52
     block@54: // after_for_L136
-        exit 1u
+        exit lifted%return#0
     block@12: // test_iteration_route_L140
         let tmp%23#0: uint64 = (txn ApplicationID)
         (assert tmp%23#0) // can only call when not creating
@@ -474,7 +475,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%encoded_element%39#0: bytes = ((extract 74 8) combined_arr#0)
         let tmp%15#1: bool = (b== aggregate%encoded_element%39#0 0x0000000000000004)
         (assert tmp%15#1)
-        exit 1u
+        exit lifted%return#0
     block@13: // test_quicksort_route_L174
         let tmp%25#0: uint64 = (txn ApplicationID)
         (assert tmp%25#0) // can only call when not creating
@@ -540,7 +541,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let values%0#0: uint64 = (extract_uint64 aggregate%updated_array%4#0 aggregate%write_offset%3#0)
         let tmp%3#0: bool = (== values%0#0 1u)
         (assert tmp%3#0)
-        exit 1u
+        exit lifted%return#0
     block@17: // bare_routing_L13
         let tmp%29#0: uint64 = (txn OnCompletion)
         let not%tmp%29#0: bool = (! tmp%29#0)
@@ -548,7 +549,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%30#0: uint64 = (txn ApplicationID)
         let tmp%31#0: bool = (! tmp%30#0)
         (assert tmp%31#0) // can only call when creating
-        exit 1u
+        exit lifted%return#0
     block@21: // after_if_else_L13
         fail
 

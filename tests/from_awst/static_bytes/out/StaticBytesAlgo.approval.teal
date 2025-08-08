@@ -3,13 +3,10 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 32
     bytecblock 0x151f7c75
-    pushbytes ""
+    pushint 1 // 1
     txn NumAppArgs
     bz main_bare_routing@11
-    intc_0 // 1
-    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -67,7 +64,7 @@ main_bare_routing@11:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    dup
     return
 
 
@@ -90,7 +87,7 @@ receiveB32:
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     dup
     len
-    intc_1 // 32
+    pushint 32 // 32
     ==
     assert // invalid size
     bytec_0 // 0x151f7c75
@@ -157,7 +154,7 @@ tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32:
     proto 1 1
     frame_dig -1
     len
-    intc_1 // 32
+    pushint 32 // 32
     ==
     assert
     frame_dig -1

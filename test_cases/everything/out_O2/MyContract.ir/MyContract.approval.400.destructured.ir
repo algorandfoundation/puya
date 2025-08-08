@@ -1,5 +1,6 @@
 main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
     block@0: // L1
+        let lifted%return#0: bool = 1u
         let tmp%0#2: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
         switch tmp%0#2 {method "create()void" => block@4, method "register(string)void" => block@5, method "say_hello()string" => block@6, method "calculate(uint64,uint64)uint64" => block@7, method "close_out()void" => block@8, * => block@9}
     block@4: // create_route_L41
@@ -15,7 +16,7 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let tmp%0#9: account = (txn Sender)
         (app_global_put "creator" tmp%0#9)
         (app_global_put "counter" 0u)
-        exit 1u
+        exit lifted%return#0
     block@5: // register_route_L47
         let tmp%5#0: uint64 = (txn OnCompletion)
         let tmp%6#0: uint64 = (shl 1u tmp%5#0)
@@ -41,7 +42,7 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         goto block@21
     block@21: // after_if_else_L50
         (app_local_put 0u "name" name#0)
-        exit 1u
+        exit lifted%return#0
     block@6: // say_hello_route_L56
         let tmp%10#0: uint64 = (txn OnCompletion)
         let tmp%11#0: bool = (! tmp%10#0)
@@ -76,7 +77,7 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
     block@17: // after_inlined_test_cases.everything.contract.Everything.say_hello_L56
         let tmp%1#1: bytes = (concat 0x151f7c75 tmp%0#2)
         (log tmp%1#1)
-        exit 1u
+        exit lifted%return#0
     block@7: // calculate_route_L64
         let tmp%14#0: uint64 = (txn OnCompletion)
         let tmp%15#0: bool = (! tmp%14#0)
@@ -92,7 +93,7 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%3#0)
         let tmp%1#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%1#1)
-        exit 1u
+        exit lifted%return#0
     block@8: // close_out_route_L69
         let tmp%18#0: uint64 = (txn OnCompletion)
         let tmp%19#0: bool = (== tmp%18#0 CloseOut)
@@ -103,6 +104,6 @@ main test_cases.everything.contract.Everything.__algopy_entrypoint_with_init:
         (assert maybe_exists%0#0) // check self.counter exists
         let tmp%1#0: uint64 = (- maybe_value%0#0 1u)
         (app_global_put "counter" tmp%1#0)
-        exit 1u
+        exit lifted%return#0
     block@9: // switch_case_default_L37
         fail

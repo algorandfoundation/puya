@@ -4,8 +4,7 @@
 // test_cases.compile.apps.HelloTmpl.__algopy_entrypoint_with_init() -> uint64:
 main:
     bytecblock "greeting" TMPL_GREETING
-    pushbytes ""
-    dup
+    pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "greeting"
@@ -15,8 +14,6 @@ main:
 main_after_if_else@2:
     txn NumAppArgs
     bz main_bare_routing@8
-    pushint 1 // 1
-    bury 2
     pushbytess 0x4c5c61ba 0x24378d3c 0xd0a28200 // method "create()void", method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
     match main_create_route@5 main_delete_route@6 main_greet_route@7
@@ -48,7 +45,7 @@ main_greet_route@7:
     swap
     concat
     log
-    dig 1
+    dup
     return
 
 main_delete_route@6:
@@ -58,7 +55,7 @@ main_delete_route@6:
     assert // OnCompletion is not DeleteApplication
     txn ApplicationID
     assert // can only call when not creating
-    dig 1
+    dup
     return
 
 main_create_route@5:
@@ -68,12 +65,10 @@ main_create_route@5:
     txn ApplicationID
     !
     assert // can only call when creating
-    dig 1
+    dup
     return
 
 main_bare_routing@8:
-    pushint 1 // 1
-    bury 1
     pushint 4 // 4
     txn OnCompletion
     match main_update@9

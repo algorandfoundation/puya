@@ -2,6 +2,10 @@
 // test_cases.diamond_mro.derived.Derived.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
+        // diamond_mro/derived.py:12
+        // @arc4.abimethod
+        int 1                                                                         1
+        v-store lifted%return#0
         txn ApplicationID                                                             tmp%0#0
         l-load tmp%0#0 0                                                              tmp%0#0
         bz main_call___init__@1 ; b main_after_if_else@2
@@ -26,10 +30,6 @@ subroutine main:
         b main_after_if_else@2
 
     main_after_if_else@2:
-        // diamond_mro/derived.py:12
-        // @arc4.abimethod
-        int 1                                                                         1
-        v-store lifted%0#0
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
         txn OnCompletion                                                              tmp%0#2
@@ -54,7 +54,7 @@ subroutine main:
         callsub method
         // diamond_mro/derived.py:12
         // @arc4.abimethod
-        v-load lifted%0#0                                                             lifted%0#0
+        v-load lifted%return#0                                                        lifted%return#0
         return
 
     main_create_route@5:
@@ -65,7 +65,7 @@ subroutine main:
         !                                                                             tmp%6#0
         l-load tmp%6#0 0                                                              tmp%6#0
         assert // can only call when creating
-        v-load lifted%0#0                                                             lifted%0#0
+        v-load lifted%return#0                                                        lifted%return#0
         return
 
     main_switch_case_default@6:

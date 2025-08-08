@@ -2,6 +2,10 @@
 // examples.auction.contract.Auction.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
+        // auction/contract.py:25
+        // @arc4.abimethod
+        int 1                                                                                1
+        v-store lifted%return#0
         txn ApplicationID                                                                    tmp%0#0
         bz main_call___init__@1 ; b main_after_if_else@2
 
@@ -41,10 +45,6 @@ subroutine main:
         bz main_bare_routing@11 ; b main_abi_routing@4
 
     main_abi_routing@4:
-        // auction/contract.py:25
-        // @arc4.abimethod
-        int 1                                                                                1
-        v-store lifted%0#0
         // auction/contract.py:16
         // class Auction(ARC4Contract):
         txn OnCompletion                                                                     tmp%2#0
@@ -70,7 +70,7 @@ subroutine main:
         callsub opt_into_asset
         // auction/contract.py:25
         // @arc4.abimethod
-        v-load lifted%0#0                                                                    lifted%0#0
+        v-load lifted%return#0                                                               lifted%return#0
         return
 
     main_start_auction_route@6:
@@ -83,7 +83,7 @@ subroutine main:
         callsub start_auction
         // auction/contract.py:40
         // @arc4.abimethod
-        v-load lifted%0#0                                                                    lifted%0#0
+        v-load lifted%return#0                                                               lifted%return#0
         return
 
     main_opt_in_route@7:
@@ -91,7 +91,7 @@ subroutine main:
         // @arc4.abimethod
         txn ApplicationID                                                                    tmp%9#0
         assert // can only call when not creating
-        v-load lifted%0#0                                                                    lifted%0#0
+        v-load lifted%return#0                                                               lifted%return#0
         return
 
     main_bid_route@8:
@@ -104,7 +104,7 @@ subroutine main:
         callsub bid
         // auction/contract.py:66
         // @arc4.abimethod
-        v-load lifted%0#0                                                                    lifted%0#0
+        v-load lifted%return#0                                                               lifted%return#0
         return
 
     main_claim_bids_route@9:
@@ -117,7 +117,7 @@ subroutine main:
         callsub claim_bids
         // auction/contract.py:82
         // @arc4.abimethod
-        v-load lifted%0#0                                                                    lifted%0#0
+        v-load lifted%return#0                                                               lifted%return#0
         return
 
     main_claim_asset_route@10:
@@ -130,7 +130,7 @@ subroutine main:
         callsub claim_asset
         // auction/contract.py:97
         // @arc4.abimethod
-        v-load lifted%0#0                                                                    lifted%0#0
+        v-load lifted%return#0                                                               lifted%return#0
         return
 
     main_bare_routing@11:
@@ -142,7 +142,7 @@ subroutine main:
         txn ApplicationID                                                                    tmp%18#0
         !                                                                                    tmp%19#0
         assert // can only call when creating
-        int 1                                                                                1
+        v-load lifted%return#0                                                               lifted%return#0
         return
 
     main_after_if_else@13:

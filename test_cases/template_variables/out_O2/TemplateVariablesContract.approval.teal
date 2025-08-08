@@ -3,14 +3,11 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 64 TMPL_DELETABLE TMPL_UPDATABLE
+    intcblock 64 TMPL_DELETABLE TMPL_UPDATABLE
     bytecblock 0x151f7c75 TMPL_SOME_BIG_UINT TMPL_SOME_BYTES
-    pushbytes ""
-    dup
+    pushint 1 // 1
     txn NumAppArgs
     bz main_bare_routing@7
-    intc_0 // 1
-    bury 2
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -27,17 +24,17 @@ main_get_big_uint_route@4:
     bytec_1 // TMPL_SOME_BIG_UINT
     dup
     len
-    intc_1 // 64
+    intc_0 // 64
     <=
     assert // overflow
-    intc_1 // 64
+    intc_0 // 64
     bzero
     b|
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    dig 1
+    dup
     return
 
 main_get_bytes_route@3:
@@ -54,12 +51,10 @@ main_get_bytes_route@3:
     swap
     concat
     log
-    dig 1
+    dup
     return
 
 main_bare_routing@7:
-    intc_0 // 1
-    bury 1
     txn OnCompletion
     switch main___algopy_default_create@10 main_after_if_else@13 main_after_if_else@13 main_after_if_else@13 main_on_update@8 main_on_delete@9
     err
@@ -67,7 +62,7 @@ main_bare_routing@7:
 main_on_delete@9:
     txn ApplicationID
     assert // can only call when not creating
-    intc_2 // TMPL_DELETABLE
+    intc_1 // TMPL_DELETABLE
     assert
     dup
     return
@@ -75,7 +70,7 @@ main_on_delete@9:
 main_on_update@8:
     txn ApplicationID
     assert // can only call when not creating
-    intc_3 // TMPL_UPDATABLE
+    intc_2 // TMPL_UPDATABLE
     assert
     dup
     return

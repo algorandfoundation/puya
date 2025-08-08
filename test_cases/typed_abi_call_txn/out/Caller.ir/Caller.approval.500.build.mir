@@ -2,6 +2,10 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
+        // typed_abi_call_txn/caller.py:15
+        // @arc4.abimethod
+        int 1                                                                          1
+        v-store lifted%return#0
         // typed_abi_call_txn/caller.py:14
         // class Caller(ARC4Contract):
         txn NumAppArgs                                                                 tmp%0#1
@@ -10,10 +14,6 @@ subroutine main:
         bz main_bare_routing@9 ; b main_abi_routing@2
 
     main_abi_routing@2:
-        // typed_abi_call_txn/caller.py:15
-        // @arc4.abimethod
-        int 1                                                                          1
-        v-store lifted%0#0
         // typed_abi_call_txn/caller.py:14
         // class Caller(ARC4Contract):
         txn OnCompletion                                                               tmp%2#0
@@ -44,7 +44,7 @@ subroutine main:
         callsub test_call_with_txn
         // typed_abi_call_txn/caller.py:15
         // @arc4.abimethod
-        v-load lifted%0#0                                                              lifted%0#0
+        v-load lifted%return#0                                                         lifted%return#0
         return
 
     main_test_call_with_acfg_route@4:
@@ -59,7 +59,7 @@ subroutine main:
         callsub test_call_with_acfg
         // typed_abi_call_txn/caller.py:31
         // @arc4.abimethod
-        v-load lifted%0#0                                                              lifted%0#0
+        v-load lifted%return#0                                                         lifted%return#0
         return
 
     main_test_call_with_infer_route@5:
@@ -74,7 +74,7 @@ subroutine main:
         callsub test_call_with_infer
         // typed_abi_call_txn/caller.py:46
         // @arc4.abimethod
-        v-load lifted%0#0                                                              lifted%0#0
+        v-load lifted%return#0                                                         lifted%return#0
         return
 
     main_test_call_with_acfg_no_return_route@6:
@@ -89,7 +89,7 @@ subroutine main:
         callsub test_call_with_acfg_no_return
         // typed_abi_call_txn/caller.py:61
         // @arc4.abimethod
-        v-load lifted%0#0                                                              lifted%0#0
+        v-load lifted%return#0                                                         lifted%return#0
         return
 
     main_bare_routing@9:
@@ -109,7 +109,7 @@ subroutine main:
         v-store tmp%15#0
         v-load tmp%15#0                                                                tmp%15#0
         assert // can only call when creating
-        int 1                                                                          1
+        v-load lifted%return#0                                                         lifted%return#0
         return
 
     main_after_if_else@13:

@@ -7,6 +7,7 @@ main:
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
     pushbytes ""
     dup
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "auction_end"
@@ -67,7 +68,7 @@ main_claim_asset_route@10:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_1 // 1
+    dup
     return
 
 main_claim_bids_route@9:
@@ -80,7 +81,7 @@ main_claim_bids_route@9:
     swap
     dup
     cover 2
-    bury 3
+    bury 4
     assert // check self.claimable_amount exists for account
     txn Sender
     intc_0 // 0
@@ -89,22 +90,22 @@ main_claim_bids_route@9:
     assert // check self.previous_bidder exists
     ==
     swap
-    bury 3
+    bury 4
     bz main_after_if_else@18
     intc_0 // 0
     bytec_1 // "previous_bid"
     app_global_get_ex
     assert // check self.previous_bid exists
-    dig 1
+    dig 2
     swap
     -
-    bury 2
+    bury 3
 
 main_after_if_else@18:
     itxn_begin
     txn Sender
     itxn_field Receiver
-    dig 1
+    dig 2
     dup
     itxn_field Amount
     intc_1 // pay
@@ -112,14 +113,14 @@ main_after_if_else@18:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    dig 1
+    dig 2
     swap
     -
     txn Sender
     bytec 5 // "claim"
     uncover 2
     app_local_put
-    intc_1 // 1
+    dup
     return
 
 main_bid_route@8:
@@ -165,13 +166,13 @@ main_bid_route@8:
     bytec 5 // "claim"
     uncover 2
     app_local_put
-    intc_1 // 1
+    dup
     return
 
 main_opt_in_route@7:
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 1
+    dup
     return
 
 main_start_auction_route@6:
@@ -216,7 +217,7 @@ main_start_auction_route@6:
     bytec_1 // "previous_bid"
     swap
     app_global_put
-    intc_1 // 1
+    dup
     return
 
 main_opt_into_asset_route@5:
@@ -246,7 +247,7 @@ main_opt_into_asset_route@5:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    intc_1 // 1
+    dup
     return
 
 main_bare_routing@11:
@@ -256,5 +257,5 @@ main_bare_routing@11:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return

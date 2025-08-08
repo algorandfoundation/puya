@@ -6,6 +6,7 @@ main:
     intcblock 1 0 2 3
     pushbytes ""
     dupn 2
+    intc_0 // 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -21,15 +22,15 @@ main_group_init_route@11:
     intc_3 // 3
     -
     dup
-    bury 4
+    bury 5
     txn GroupIndex
     intc_2 // 2
     -
-    bury 3
+    bury 4
     txn GroupIndex
     intc_0 // 1
     -
-    bury 2
+    bury 3
     intc_1 // 0
 
 main_for_body@14:
@@ -43,22 +44,22 @@ main_for_body@14:
     ==
     assert
     switch main_for_header_1@15 main_for_header_2@16
-    dig 2
+    dig 3
     gtxns TxID
     intc_1 // 0
     gtxns TxID
     ==
     assert
-    intc_0 // 1
+    dup
     return
 
 main_for_header_2@16:
-    dup
+    dig 1
     intc_2 // 2
     b main_for_body@14
 
 main_for_header_1@15:
-    dig 1
+    dig 2
     intc_0 // 1
     b main_for_body@14
 
@@ -71,11 +72,11 @@ main_any_txn_route@10:
     txn GroupIndex
     intc_2 // 2
     -
-    bury 3
+    bury 4
     txn GroupIndex
     intc_0 // 1
     -
-    bury 2
+    bury 3
     intc_1 // 0
 
 main_for_body@20:
@@ -87,16 +88,16 @@ main_for_body@20:
     switch main_for_header_1@21 main_for_header_2@22
 
 main_after_for@29:
-    intc_0 // 1
+    dup
     return
 
 main_for_header_2@22:
-    dup
+    dig 1
     intc_2 // 2
     b main_for_body@20
 
 main_for_header_1@21:
-    dig 1
+    dig 2
     intc_0 // 1
     b main_for_body@20
 
@@ -115,7 +116,7 @@ main_multiple_txns_route@9:
     intc_2 // 2
     -
     dup
-    bury 4
+    bury 5
     gtxns TypeEnum
     pushint 6 // appl
     ==
@@ -124,7 +125,7 @@ main_multiple_txns_route@9:
     intc_0 // 1
     -
     dup
-    bury 3
+    bury 4
     gtxns TypeEnum
     pushint 6 // appl
     ==
@@ -141,12 +142,12 @@ main_for_body@26:
     b main_after_for@29
 
 main_for_header_2@28:
-    dup
+    dig 1
     intc_2 // 2
     b main_for_body@26
 
 main_for_header_1@27:
-    dig 1
+    dig 2
     intc_0 // 1
     b main_for_body@26
 
@@ -242,7 +243,7 @@ main_application_call_route@8:
     gtxnsas ClearStateProgramPages
     len
     assert // clear_state_program_pages(0)
-    intc_0 // 1
+    dup
     return
 
 main_asset_freeze_route@7:
@@ -268,7 +269,7 @@ main_asset_freeze_route@7:
     assert // freeze_account
     gtxns FreezeAssetFrozen
     assert // frozen
-    intc_0 // 1
+    dup
     return
 
 main_asset_transfer_route@6:
@@ -304,7 +305,7 @@ main_asset_transfer_route@6:
     global ZeroAddress
     !=
     assert // asset_close_to
-    intc_0 // 1
+    dup
     return
 
 main_asset_config_route@5:
@@ -363,7 +364,7 @@ main_asset_config_route@5:
     global ZeroAddress
     !=
     assert // clawback
-    intc_0 // 1
+    dup
     return
 
 main_key_route@4:
@@ -394,7 +395,7 @@ main_key_route@4:
     gtxns StateProofPK
     len
     assert // state_proof_key
-    intc_0 // 1
+    dup
     return
 
 main_pay_route@3:
@@ -424,14 +425,14 @@ main_pay_route@3:
     global ZeroAddress
     ==
     assert // close_remainder_to
-    intc_0 // 1
+    dup
     return
 
 main_create_route@2:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    dup
     return
 
 

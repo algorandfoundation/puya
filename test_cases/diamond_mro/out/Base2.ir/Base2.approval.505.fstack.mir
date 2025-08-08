@@ -1,64 +1,63 @@
 // Op                                                                                 Stack (out)
 // test_cases.diamond_mro.base2.Base2.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    declare uint64 lifted%0#0
-    main_block@0:                                                                     (𝕗) lifted%0#0 |
-        txn ApplicationID                                                             (𝕗) lifted%0#0 | tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2                              (𝕗) lifted%0#0 |
+    main_block@0:
+        // diamond_mro/base2.py:11
+        // @arc4.abimethod
+        int 1                                                                         1
+        f-store lifted%return#0                                                       (𝕗) lifted%return#0 |
+        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2                              (𝕗) lifted%return#0 |
 
-    main_call___init__@1:                                                             (𝕗) lifted%0#0 |
+    main_call___init__@1:                                                             (𝕗) lifted%return#0 |
         // diamond_mro/base2.py:8
         // log("base2.__init__")
-        byte "base2.__init__"                                                         (𝕗) lifted%0#0 | "base2.__init__"
-        log                                                                           (𝕗) lifted%0#0 |
+        byte "base2.__init__"                                                         (𝕗) lifted%return#0 | "base2.__init__"
+        log                                                                           (𝕗) lifted%return#0 |
         // diamond_mro/gp.py:8
         // log("gp.__init__")
-        byte "gp.__init__"                                                            (𝕗) lifted%0#0 | "gp.__init__"
-        log                                                                           (𝕗) lifted%0#0 |
-        b main_after_if_else@2                                                        (𝕗) lifted%0#0 |
+        byte "gp.__init__"                                                            (𝕗) lifted%return#0 | "gp.__init__"
+        log                                                                           (𝕗) lifted%return#0 |
+        b main_after_if_else@2                                                        (𝕗) lifted%return#0 |
 
-    main_after_if_else@2:                                                             (𝕗) lifted%0#0 |
-        // diamond_mro/base2.py:11
-        // @arc4.abimethod
-        int 1                                                                         (𝕗) lifted%0#0 | 1
-        f-store lifted%0#0                                                            (𝕗) lifted%0#0 |
+    main_after_if_else@2:                                                             (𝕗) lifted%return#0 |
         // diamond_mro/base2.py:6
         // class Base2(GP):
-        txn OnCompletion                                                              (𝕗) lifted%0#0 | tmp%0#2
-        !                                                                             (𝕗) lifted%0#0 | tmp%1#0
-        assert // OnCompletion is not NoOp                                            (𝕗) lifted%0#0 |
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls (𝕗) lifted%0#0 | tmp%2#0
-        method method()void                                                           (𝕗) lifted%0#0 | tmp%2#0,Method(method()void)
-        method create()void                                                           (𝕗) lifted%0#0 | tmp%2#0,Method(method()void),Method(create()void)
-        l-load tmp%2#0 2                                                              (𝕗) lifted%0#0 | Method(method()void),Method(create()void),tmp%2#0
-        match main_method_route@4 main_create_route@5 ; b main_switch_case_default@6  (𝕗) lifted%0#0 |
+        txn OnCompletion                                                              (𝕗) lifted%return#0 | tmp%0#2
+        !                                                                             (𝕗) lifted%return#0 | tmp%1#0
+        assert // OnCompletion is not NoOp                                            (𝕗) lifted%return#0 |
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls (𝕗) lifted%return#0 | tmp%2#0
+        method method()void                                                           (𝕗) lifted%return#0 | tmp%2#0,Method(method()void)
+        method create()void                                                           (𝕗) lifted%return#0 | tmp%2#0,Method(method()void),Method(create()void)
+        l-load tmp%2#0 2                                                              (𝕗) lifted%return#0 | Method(method()void),Method(create()void),tmp%2#0
+        match main_method_route@4 main_create_route@5 ; b main_switch_case_default@6  (𝕗) lifted%return#0 |
 
-    main_method_route@4:                                                              (𝕗) lifted%0#0 |
+    main_method_route@4:                                                              (𝕗) lifted%return#0 |
         // diamond_mro/base2.py:11
         // @arc4.abimethod
-        txn ApplicationID                                                             (𝕗) lifted%0#0 | tmp%3#0
-        assert // can only call when not creating                                     (𝕗) lifted%0#0 |
+        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%3#0
+        assert // can only call when not creating                                     (𝕗) lifted%return#0 |
         // diamond_mro/base2.py:6
         // class Base2(GP):
-        callsub method                                                                (𝕗) lifted%0#0 |
+        callsub method                                                                (𝕗) lifted%return#0 |
         // diamond_mro/base2.py:11
         // @arc4.abimethod
-        f-load lifted%0#0                                                             (𝕗) lifted%0#0 | lifted%0#0
-        return                                                                        (𝕗) lifted%0#0 |
+        f-load lifted%return#0                                                        (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                        (𝕗) lifted%return#0 |
 
-    main_create_route@5:                                                              (𝕗) lifted%0#0 |
+    main_create_route@5:                                                              (𝕗) lifted%return#0 |
         // diamond_mro/gp.py:11
         // @arc4.abimethod(create="require")
-        txn ApplicationID                                                             (𝕗) lifted%0#0 | tmp%5#0
-        !                                                                             (𝕗) lifted%0#0 | tmp%6#0
-        assert // can only call when creating                                         (𝕗) lifted%0#0 |
-        f-load lifted%0#0                                                             (𝕗) lifted%0#0 | lifted%0#0
-        return                                                                        (𝕗) lifted%0#0 |
+        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%5#0
+        !                                                                             (𝕗) lifted%return#0 | tmp%6#0
+        assert // can only call when creating                                         (𝕗) lifted%return#0 |
+        f-load lifted%return#0                                                        (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                        (𝕗) lifted%return#0 |
 
-    main_switch_case_default@6:                                                       (𝕗) lifted%0#0 |
+    main_switch_case_default@6:                                                       (𝕗) lifted%return#0 |
         // diamond_mro/base2.py:6
         // class Base2(GP):
-        err                                                                           (𝕗) lifted%0#0 |
+        err                                                                           (𝕗) lifted%return#0 |
 
 
 // test_cases.diamond_mro.base2.Base2.method[routing]() -> void:

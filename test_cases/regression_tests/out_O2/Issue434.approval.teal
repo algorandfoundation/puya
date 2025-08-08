@@ -3,8 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 2 1
     pushbytes ""
+    pushint 1 // 1
     txn NumAppArgs
     bz main_bare_routing@6
     txn OnCompletion
@@ -20,7 +20,7 @@ main_method_route@3:
     assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
-    bury 1
+    bury 2
 
 main_while_top@14:
     global OpcodeBudget
@@ -35,15 +35,15 @@ main_while_top@14:
     b main_while_top@14
 
 main_if_body@17:
-    dup
-    intc_0 // 2
-    +
-    intc_0 // 2
-    -
     dig 1
+    pushint 2 // 2
+    +
+    pushint 2 // 2
+    -
+    dig 2
     ==
     assert
-    intc_1 // 1
+    dup
     return
 
 main_bare_routing@6:
@@ -53,5 +53,5 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return

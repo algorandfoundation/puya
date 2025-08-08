@@ -1,5 +1,6 @@
 main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
     block@0: // L1
+        let lifted%return#0: bool = 1u
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
     block@1: // call __init___L1
@@ -25,7 +26,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let new_governor#0: account = (txna ApplicationArgs 1)
         examples.amm.contract.ConstantProductAMM._check_is_governor()
         (app_global_put "governor" new_governor#0)
-        exit 1u
+        exit lifted%return#0
     block@6: // bootstrap_route_L49
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
@@ -95,7 +96,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob maybe_value%3#0)
         let tmp%7#2: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%7#2)
-        exit 1u
+        exit lifted%return#0
     block@7: // mint_route_L81
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
@@ -208,7 +209,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         (assert maybe_exists%5#0) // check self.pool_token exists
         examples.amm.contract.do_asset_transfer(tmp%30#0, maybe_value%5#0, to_mint#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
-        exit 1u
+        exit lifted%return#0
     block@8: // burn_route_L148
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
@@ -270,7 +271,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         (assert maybe_exists%5#0) // check self.asset_b exists
         examples.amm.contract.do_asset_transfer(tmp%21#0, maybe_value%5#0, b_amt#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
-        exit 1u
+        exit lifted%return#0
     block@9: // swap_route_L206
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
@@ -329,7 +330,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%15#1: account = (txn Sender)
         examples.amm.contract.do_asset_transfer(tmp%15#1, out_asset#0, to_swap#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
-        exit 1u
+        exit lifted%return#0
     block@10: // bare_routing_L27
         let tmp%15#0: uint64 = (txn OnCompletion)
         let not%tmp%15#0: bool = (! tmp%15#0)
@@ -337,7 +338,7 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%16#0: uint64 = (txn ApplicationID)
         let tmp%17#0: bool = (! tmp%16#0)
         (assert tmp%17#0) // can only call when creating
-        exit 1u
+        exit lifted%return#0
     block@12: // after_if_else_L27
         fail
 

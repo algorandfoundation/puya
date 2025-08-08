@@ -5,7 +5,9 @@
 main:
     intcblock 0 1
     bytecblock "greeting" "num" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
-    pushbytes ""
+    // compile/apps.py:83
+    // @arc4.abimethod(create="require")
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // compile/apps.py:78
@@ -30,10 +32,6 @@ main:
     app_global_put
 
 main_after_if_else@2:
-    // compile/apps.py:83
-    // @arc4.abimethod(create="require")
-    intc_1 // 1
-    bury 1
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     pushbytess 0xd9285a74 0x24378d3c 0x5b0c2375 // method "create()uint64", method "delete()void", method "greet(string)byte[]"

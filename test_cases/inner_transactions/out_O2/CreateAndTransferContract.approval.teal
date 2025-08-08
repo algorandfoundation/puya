@@ -3,12 +3,10 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 1000
-    pushbytes ""
+    intcblock 0 1000
+    pushint 1 // 1
     txn NumAppArgs
     bz main_bare_routing@6
-    intc_1 // 1
-    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -31,7 +29,7 @@ main_create_and_transfer_route@3:
     itxn_field ConfigAssetUnitName
     pushbytes "test"
     itxn_field ConfigAssetName
-    intc_2 // 1000
+    intc_1 // 1000
     itxn_field ConfigAssetTotal
     pushint 3 // acfg
     itxn_field TypeEnum
@@ -46,7 +44,7 @@ main_create_and_transfer_route@3:
     global CurrentApplicationAddress
     uncover 2
     itxn_field XferAsset
-    intc_2 // 1000
+    intc_1 // 1000
     itxn_field AssetAmount
     itxn_field AssetReceiver
     itxn_field AssetSender
@@ -65,5 +63,5 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return

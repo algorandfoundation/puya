@@ -5,7 +5,9 @@
 main:
     intcblock 0 1 16 8
     bytecblock "nested" "num_payments" "payments" 0x151f7c75 0x70 0x6c "box" "box_map" 0x0000
-    pushbytes ""
+    // mutable_native_types/contract.py:95
+    // @arc4.abimethod()
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // mutable_native_types/contract.py:75
@@ -117,12 +119,6 @@ main_after_if_else@2:
     // class Contract(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@17
-    // mutable_native_types/contract.py:95
-    // @arc4.abimethod()
-    intc_1 // 1
-    bury 1
-    // mutable_native_types/contract.py:71
-    // class Contract(arc4.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -286,7 +282,7 @@ main_bare_routing@17:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return
 
 

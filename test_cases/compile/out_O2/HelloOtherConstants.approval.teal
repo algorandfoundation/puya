@@ -5,7 +5,7 @@
 main:
     intcblock 0 1
     bytecblock "greeting" "num" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
-    pushbytes ""
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     bytec_0 // "greeting"
@@ -22,8 +22,6 @@ main:
     app_global_put
 
 main_after_if_else@2:
-    intc_1 // 1
-    bury 1
     pushbytess 0xd9285a74 0x24378d3c 0x5b0c2375 // method "create()uint64", method "delete()void", method "greet(string)byte[]"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
     match main_create_route@4 main_delete_route@5 main_greet_route@6

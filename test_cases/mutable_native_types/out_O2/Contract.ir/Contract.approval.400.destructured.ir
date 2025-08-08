@@ -1,5 +1,6 @@
 main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_init:
     block@0: // L1
+        let lifted%return#0: bool = 1u
         let tmp%0#0: bool = (txn ApplicationID)
         goto tmp%0#0 ? block@2 : block@1
     block@1: // call __init___L1
@@ -48,11 +49,11 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
     block@5: // test_imm_fixed_array_route_L95
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
-        exit 1u
+        exit lifted%return#0
     block@6: // fixed_initialize_route_L101
         let tmp%7#1: uint64 = (txn ApplicationID)
         (assert tmp%7#1) // can only call when not creating
-        exit 1u
+        exit lifted%return#0
     block@7: // add_payment_route_L131
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
@@ -70,7 +71,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert maybe_exists%3#0) // check self.num_payments exists
         let tmp%1#1: uint64 = (+ maybe_value%3#0 1u)
         (app_global_put "num_payments" tmp%1#1)
-        exit 1u
+        exit lifted%return#0
     block@8: // increment_payment_route_L137
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
@@ -92,7 +93,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let aggregate%updated_data%0#0: bytes = ((replace2 40) aggregate%encoded_element%7#0 aggregate%val_as_bytes%26#0)
         let aggregate%updated_array%4#0: bytes = (replace3 maybe_value%1#2 aggregate%bytes_offset%7#0 aggregate%updated_data%0#0)
         (app_global_put "payments" aggregate%updated_array%4#0)
-        exit 1u
+        exit lifted%return#0
     block@9: // create_storage_route_L142
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
@@ -111,7 +112,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_replace box_prefixed_key%0#0 0u aggregate%extract%5#0)
-        exit 1u
+        exit lifted%return#0
     block@10: // local_struct_route_L149
         let tmp%15#1: uint64 = (txn ApplicationID)
         (assert tmp%15#1) // can only call when not creating
@@ -131,7 +132,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let a#0: bytes = test_cases.mutable_native_types.contract.do_something(a#0)
         let tmp%1#3: bytes = (concat 0x151f7c75 a#0)
         (log tmp%1#3)
-        exit 1u
+        exit lifted%return#0
     block@11: // delete_storage_route_L161
         let tmp%17#0: uint64 = (txn ApplicationID)
         (assert tmp%17#0) // can only call when not creating
@@ -144,7 +145,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_del box_prefixed_key%0#0)
-        exit 1u
+        exit lifted%return#0
     block@12: // struct_arg_route_L168
         let tmp%19#0: uint64 = (txn ApplicationID)
         (assert tmp%19#0) // can only call when not creating
@@ -168,7 +169,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_replace box_prefixed_key%0#0 0u a#0)
-        exit 1u
+        exit lifted%return#0
     block@13: // struct_return_route_L178
         let tmp%21#0: uint64 = (txn ApplicationID)
         (assert tmp%21#0) // can only call when not creating
@@ -177,7 +178,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let aggregate%extract%12#0: bytes = ((extract 0 16) maybe_value%0#1)
         let tmp%1#3: bytes = (concat 0x151f7c75 aggregate%extract%12#0)
         (log tmp%1#3)
-        exit 1u
+        exit lifted%return#0
     block@14: // tup_return_route_L182
         let tmp%23#0: uint64 = (txn ApplicationID)
         (assert tmp%23#0) // can only call when not creating
@@ -186,7 +187,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let aggregate%extract%13#0: bytes = ((extract 32 16) maybe_value%0#1)
         let tmp%3#2: bytes = (concat 0x151f7c75 aggregate%extract%13#0)
         (log tmp%3#2)
-        exit 1u
+        exit lifted%return#0
     block@15: // calculate_sum_route_L186
         let tmp%25#0: uint64 = (txn ApplicationID)
         (assert tmp%25#0) // can only call when not creating
@@ -219,7 +220,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let aggregate%val_as_bytes%29#0: bytes[8] = (itob result#2)
         let tmp%2#2: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%29#0)
         (log tmp%2#2)
-        exit 1u
+        exit lifted%return#0
     block@16: // test_arr_route_L197
         let tmp%27#0: uint64 = (txn ApplicationID)
         (assert tmp%27#0) // can only call when not creating
@@ -326,7 +327,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         (assert aggregate%array_len%3#0)
         let tmp%1#3: bytes = (concat 0x151f7c75 result#0)
         (log tmp%1#3)
-        exit 1u
+        exit lifted%return#0
     block@17: // bare_routing_L71
         let tmp%29#0: uint64 = (txn OnCompletion)
         let not%tmp%29#0: bool = (! tmp%29#0)
@@ -334,7 +335,7 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         let tmp%30#0: uint64 = (txn ApplicationID)
         let tmp%31#0: bool = (! tmp%30#0)
         (assert tmp%31#0) // can only call when creating
-        exit 1u
+        exit lifted%return#0
     block@19: // after_if_else_L71
         fail
 

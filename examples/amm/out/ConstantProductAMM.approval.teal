@@ -4,8 +4,10 @@
 // examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 1000 4 10000000000
-    bytecblock "asset_a" "asset_b" "pool_token" "" "governor" "ratio"
-    bytec_3 // ""
+    bytecblock "asset_a" "asset_b" "pool_token" "governor" "ratio"
+    // amm/contract.py:43
+    // @arc4.abimethod()
+    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // amm/contract.py:32-33
@@ -23,7 +25,7 @@ main:
     // amm/contract.py:36-37
     // # The current governor of this contract, allowed to do admin type actions
     // self.governor = Txn.sender
-    bytec 4 // "governor"
+    bytec_3 // "governor"
     txn Sender
     app_global_put
     // amm/contract.py:38-39
@@ -35,7 +37,7 @@ main:
     // amm/contract.py:40-41
     // # The ratio between assets (A*Scale/B)
     // self.ratio = UInt64(0)
-    bytec 5 // "ratio"
+    bytec 4 // "ratio"
     intc_0 // 0
     app_global_put
 
@@ -44,12 +46,6 @@ main_after_if_else@2:
     // class ConstantProductAMM(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@10
-    // amm/contract.py:43
-    // @arc4.abimethod()
-    intc_1 // 1
-    bury 1
-    // amm/contract.py:27
-    // class ConstantProductAMM(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -172,7 +168,7 @@ main_bare_routing@10:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return
 
 
@@ -221,7 +217,7 @@ set_governor:
     callsub _check_is_governor
     // amm/contract.py:47
     // self.governor = new_governor
-    bytec 4 // "governor"
+    bytec_3 // "governor"
     swap
     app_global_put
     retsub
@@ -448,7 +444,7 @@ mint:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     proto 0 0
-    bytec_3 // ""
+    pushbytes ""
     dup
     txn GroupIndex
     pushint 2 // 2
@@ -852,7 +848,7 @@ swap:
     // amm/contract.py:27
     // class ConstantProductAMM(ARC4Contract):
     proto 0 0
-    bytec_3 // ""
+    pushbytes ""
     dup
     txn GroupIndex
     intc_1 // 1
@@ -1021,7 +1017,7 @@ _update_ratio:
     *
     swap
     /
-    bytec 5 // "ratio"
+    bytec 4 // "ratio"
     swap
     app_global_put
     retsub
@@ -1033,7 +1029,7 @@ _check_is_governor:
     // Txn.sender == self.governor
     txn Sender
     intc_0 // 0
-    bytec 4 // "governor"
+    bytec_3 // "governor"
     app_global_get_ex
     assert // check self.governor exists
     ==
