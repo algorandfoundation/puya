@@ -521,9 +521,9 @@ class ARC4Array(_ARC4WTypeInstance, abc.ABC):
     def _element_type_validator(self, _attribute: object, value: WType) -> None:
         loc = self.source_location
         if not value.persistable:
-            raise CodeError("arrays can only contain persistable elements", loc)
-        if self.immutable and not value.immutable:
-            raise CodeError("immutable arrays must have immutable elements", loc)
+            logger.error("arrays can only contain persistable elements", location=loc)
+        elif self.immutable and not value.immutable:
+            logger.error("immutable arrays must have immutable elements", location=loc)
 
 
 @attrs.frozen(kw_only=True)
