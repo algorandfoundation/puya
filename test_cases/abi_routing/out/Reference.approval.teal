@@ -4,7 +4,7 @@
 // test_cases.abi_routing.contract.Reference.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 123 2
-    bytecblock 0x151f7c75 "asa" "local_uint" "local_bytes" 0x151f7c7500000000000001c8
+    bytecblock 0x151f7c75 "asa" 0x151f7c7500000000000001c8 "local_uint" "local_bytes"
     txn ApplicationID
     bnz main_after_if_else@2
     // abi_routing/contract.py:26
@@ -150,11 +150,8 @@ main_get_an_int_route@15:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub get_a_int
-    // abi_routing/contract.py:138
-    // @arc4.abimethod(readonly=True, name="get_an_int")
+    pushbytes 0x151f7c750000000000000003
+    log
     intc_0 // 1
     return
 
@@ -166,11 +163,8 @@ main_get_application_route@14:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub get_app
-    // abi_routing/contract.py:134
-    // @arc4.abimethod(readonly=True, name="get_application")
+    bytec_2 // 0x151f7c7500000000000001c8
+    log
     intc_0 // 1
     return
 
@@ -182,11 +176,8 @@ main_get_asset_route@13:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub get_asset
-    // abi_routing/contract.py:130
-    // @arc4.abimethod(readonly=True)
+    bytec_2 // 0x151f7c7500000000000001c8
+    log
     intc_0 // 1
     return
 
@@ -198,11 +189,8 @@ main_get_address_route@12:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub get_address
-    // abi_routing/contract.py:126
-    // @arc4.abimethod(readonly=True)
+    pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
+    log
     intc_0 // 1
     return
 
@@ -422,13 +410,13 @@ opt_in:
     // abi_routing/contract.py:47
     // self.local_uint[Txn.sender] = uint
     txn Sender
-    bytec_2 // "local_uint"
+    bytec_3 // "local_uint"
     uncover 3
     app_local_put
     // abi_routing/contract.py:48
     // self.local_bytes[Txn.sender] = bites
     txn Sender
-    bytec_3 // "local_bytes"
+    bytec 4 // "local_bytes"
     uncover 2
     app_local_put
     retsub
@@ -625,42 +613,6 @@ compare_assets:
     retsub
 
 
-// test_cases.abi_routing.contract.Reference.get_address[routing]() -> void:
-get_address:
-    // abi_routing/contract.py:126
-    // @arc4.abimethod(readonly=True)
-    pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
-    log
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_asset[routing]() -> void:
-get_asset:
-    // abi_routing/contract.py:130
-    // @arc4.abimethod(readonly=True)
-    bytec 4 // 0x151f7c7500000000000001c8
-    log
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_app[routing]() -> void:
-get_app:
-    // abi_routing/contract.py:134
-    // @arc4.abimethod(readonly=True, name="get_application")
-    bytec 4 // 0x151f7c7500000000000001c8
-    log
-    retsub
-
-
-// test_cases.abi_routing.contract.Reference.get_a_int[routing]() -> void:
-get_a_int:
-    // abi_routing/contract.py:138
-    // @arc4.abimethod(readonly=True, name="get_an_int")
-    pushbytes 0x151f7c750000000000000003
-    log
-    retsub
-
-
 // test_cases.abi_routing.contract.Reference.method_with_default_args[routing]() -> void:
 method_with_default_args:
     // abi_routing/contract.py:24
@@ -771,7 +723,7 @@ method_with_default_args:
     // assert int_from_local == self.local_uint[Txn.sender]
     txn Sender
     intc_1 // 0
-    bytec_2 // "local_uint"
+    bytec_3 // "local_uint"
     app_local_get_ex
     assert // check self.local_uint exists for account
     uncover 2
@@ -781,7 +733,7 @@ method_with_default_args:
     // assert bytes_from_local == self.local_bytes[Txn.sender]
     txn Sender
     intc_1 // 0
-    bytec_3 // "local_bytes"
+    bytec 4 // "local_bytes"
     app_local_get_ex
     assert // check self.local_bytes exists for account
     ==

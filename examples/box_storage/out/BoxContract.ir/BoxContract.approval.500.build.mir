@@ -105,9 +105,12 @@ subroutine main:
         v-store tmp%13#0
         v-load tmp%13#0                                                                                tmp%13#0
         assert // can only call when not creating
-        // box_storage/contract.py:80
-        // class BoxContract(arc4.ARC4Contract):
-        callsub create_many_ints
+        // box_storage/contract.py:140
+        // self.many_ints.create()
+        byte "many_ints"                                                                               "many_ints"
+        int 4104                                                                                       "many_ints",4104
+        box_create                                                                                     {box_create}
+        pop 1
         // box_storage/contract.py:138
         // @arc4.abimethod()
         int 1                                                                                          1
@@ -281,9 +284,11 @@ subroutine main:
         v-store tmp%45#0
         v-load tmp%45#0                                                                                tmp%45#0
         assert // can only call when not creating
-        // box_storage/contract.py:80
-        // class BoxContract(arc4.ARC4Contract):
-        callsub delete_dynamic_arr_struct
+        // box_storage/contract.py:197
+        // del self.dynamic_arr_struct.value
+        byte "dynamic_arr_struct"                                                                      "dynamic_arr_struct"
+        box_del                                                                                        {box_del}
+        pop 1
         // box_storage/contract.py:195
         // @arc4.abimethod
         int 1                                                                                          1
@@ -435,9 +440,12 @@ subroutine main:
         v-store tmp%73#0
         v-load tmp%73#0                                                                                tmp%73#0
         assert // can only call when not creating
-        // box_storage/contract.py:80
-        // class BoxContract(arc4.ARC4Contract):
-        callsub create_bools
+        // box_storage/contract.py:302
+        // self.too_many_bools.create()
+        byte "too_many_bools"                                                                          "too_many_bools"
+        int 4125                                                                                       "too_many_bools",4125
+        box_create                                                                                     {box_create}
+        pop 1
         // box_storage/contract.py:300
         // @arc4.abimethod
         int 1                                                                                          1
@@ -523,9 +531,11 @@ subroutine main:
         v-store tmp%89#0
         v-load tmp%89#0                                                                                tmp%89#0
         assert // can only call when not creating
-        // box_storage/contract.py:80
-        // class BoxContract(arc4.ARC4Contract):
-        callsub delete_dynamic_box
+        // box_storage/contract.py:324
+        // del self.dynamic_box.value
+        byte "dynamic_box"                                                                             "dynamic_box"
+        box_del                                                                                        {box_del}
+        pop 1
         // box_storage/contract.py:322
         // @arc4.abimethod
         int 1                                                                                          1
@@ -677,9 +687,13 @@ subroutine main:
         v-store tmp%117#0
         v-load tmp%117#0                                                                               tmp%117#0
         assert // can only call when not creating
-        // box_storage/contract.py:80
-        // class BoxContract(arc4.ARC4Contract):
-        callsub arc4_box
+        // box_storage/contract.py:378
+        // box_d = Box(StaticInts, key=Bytes(b"d"))
+        byte 0x64                                                                                      0x64
+        // box_storage/contract.py:379
+        // box_d.value = StaticInts(arc4.UInt8(0), arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3))
+        byte 0x00010203                                                                                0x64,0x00010203
+        box_put
         // box_storage/contract.py:376
         // @arc4.abimethod
         int 1                                                                                          1
@@ -1288,18 +1302,6 @@ subroutine set_boxes:
         retsub
 
 
-// examples.box_storage.contract.BoxContract.create_many_ints[routing]() -> void:
-subroutine create_many_ints:
-    create_many_ints_block@0:
-        // box_storage/contract.py:140
-        // self.many_ints.create()
-        byte "many_ints"                                                                               "many_ints"
-        int 4104                                                                                       "many_ints",4104
-        box_create                                                                                     {box_create}
-        pop 1
-        retsub
-
-
 // examples.box_storage.contract.BoxContract.set_many_ints[routing]() -> void:
 subroutine set_many_ints:
     set_many_ints_block@0:
@@ -1789,17 +1791,6 @@ subroutine create_dynamic_arr_struct:
         // )
         v-load aggregate%concat%1#0                                                                    "dynamic_arr_struct",aggregate%concat%1#0
         box_put
-        retsub
-
-
-// examples.box_storage.contract.BoxContract.delete_dynamic_arr_struct[routing]() -> void:
-subroutine delete_dynamic_arr_struct:
-    delete_dynamic_arr_struct_block@0:
-        // box_storage/contract.py:197
-        // del self.dynamic_arr_struct.value
-        byte "dynamic_arr_struct"                                                                      "dynamic_arr_struct"
-        box_del                                                                                        {box_del}
-        pop 1
         retsub
 
 
@@ -3220,18 +3211,6 @@ subroutine sum_dynamic_arr_struct:
         retsub
 
 
-// examples.box_storage.contract.BoxContract.create_bools[routing]() -> void:
-subroutine create_bools:
-    create_bools_block@0:
-        // box_storage/contract.py:302
-        // self.too_many_bools.create()
-        byte "too_many_bools"                                                                          "too_many_bools"
-        int 4125                                                                                       "too_many_bools",4125
-        box_create                                                                                     {box_create}
-        pop 1
-        retsub
-
-
 // examples.box_storage.contract.BoxContract.set_bool[routing]() -> void:
 subroutine set_bool:
     set_bool_block@0:
@@ -3411,17 +3390,6 @@ subroutine create_dynamic_box:
         byte "dynamic_box"                                                                             "dynamic_box"
         byte 0x0000                                                                                    "dynamic_box",0x0000
         box_put
-        retsub
-
-
-// examples.box_storage.contract.BoxContract.delete_dynamic_box[routing]() -> void:
-subroutine delete_dynamic_box:
-    delete_dynamic_box_block@0:
-        // box_storage/contract.py:324
-        // del self.dynamic_box.value
-        byte "dynamic_box"                                                                             "dynamic_box"
-        box_del                                                                                        {box_del}
-        pop 1
         retsub
 
 
@@ -3908,19 +3876,6 @@ subroutine slice_box:
         v-store tmp%18#0
         v-load tmp%18#0                                                                                tmp%18#0
         assert
-        retsub
-
-
-// examples.box_storage.contract.BoxContract.arc4_box[routing]() -> void:
-subroutine arc4_box:
-    arc4_box_block@0:
-        // box_storage/contract.py:378
-        // box_d = Box(StaticInts, key=Bytes(b"d"))
-        byte 0x64                                                                                      0x64
-        // box_storage/contract.py:379
-        // box_d.value = StaticInts(arc4.UInt8(0), arc4.UInt8(1), arc4.UInt8(2), arc4.UInt8(3))
-        byte 0x00010203                                                                                0x64,0x00010203
-        box_put
         retsub
 
 

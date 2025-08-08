@@ -26,7 +26,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%12#0) // OnCompletion is not NoOp
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.create_many_ints[routing]()
+        (box_create "many_ints" 4104u)
         exit 1u
     block@8: // set_many_ints_route_L142
         let tmp%15#0: uint64 = (txn OnCompletion)
@@ -90,7 +90,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%44#0) // OnCompletion is not NoOp
         let tmp%45#0: uint64 = (txn ApplicationID)
         (assert tmp%45#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.delete_dynamic_arr_struct[routing]()
+        (box_del "dynamic_arr_struct")
         exit 1u
     block@16: // append_dynamic_arr_struct_route_L199
         let tmp%47#0: uint64 = (txn OnCompletion)
@@ -146,7 +146,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%72#0) // OnCompletion is not NoOp
         let tmp%73#0: uint64 = (txn ApplicationID)
         (assert tmp%73#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.create_bools[routing]()
+        (box_create "too_many_bools" 4125u)
         exit 1u
     block@23: // set_bool_route_L304
         let tmp%75#0: uint64 = (txn OnCompletion)
@@ -178,7 +178,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%88#0) // OnCompletion is not NoOp
         let tmp%89#0: uint64 = (txn ApplicationID)
         (assert tmp%89#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.delete_dynamic_box[routing]()
+        (box_del "dynamic_box")
         exit 1u
     block@27: // append_dynamic_box_route_L326
         let tmp%91#0: uint64 = (txn OnCompletion)
@@ -234,7 +234,7 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%116#0) // OnCompletion is not NoOp
         let tmp%117#0: uint64 = (txn ApplicationID)
         (assert tmp%117#0) // can only call when not creating
-        examples.box_storage.contract.BoxContract.arc4_box[routing]()
+        (box_put 0x64 0x00010203)
         exit 1u
     block@34: // test_box_ref_route_L386
         let tmp%119#0: uint64 = (txn OnCompletion)
@@ -405,11 +405,6 @@ subroutine examples.box_storage.contract.BoxContract.set_boxes[routing]() -> voi
         (assert tmp%79#0)
         return 
 
-subroutine examples.box_storage.contract.BoxContract.create_many_ints[routing]() -> void:
-    block@0: // L80
-        (box_create "many_ints" 4104u)
-        return 
-
 subroutine examples.box_storage.contract.BoxContract.set_many_ints[routing]() -> void:
     block@0: // L80
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
@@ -551,11 +546,6 @@ subroutine examples.box_storage.contract.BoxContract.create_dynamic_arr_struct[r
         let aggregate%concat%1#0: bytes = (concat aggregate%head%2#0 0x001600000000)
         (box_del "dynamic_arr_struct")
         (box_put "dynamic_arr_struct" aggregate%concat%1#0)
-        return 
-
-subroutine examples.box_storage.contract.BoxContract.delete_dynamic_arr_struct[routing]() -> void:
-    block@0: // L80
-        (box_del "dynamic_arr_struct")
         return 
 
 subroutine examples.box_storage.contract.BoxContract.append_dynamic_arr_struct[routing]() -> void:
@@ -888,11 +878,6 @@ subroutine examples.box_storage.contract.BoxContract.sum_dynamic_arr_struct[rout
         (log tmp%2#0)
         return 
 
-subroutine examples.box_storage.contract.BoxContract.create_bools[routing]() -> void:
-    block@0: // L80
-        (box_create "too_many_bools" 4125u)
-        return 
-
 subroutine examples.box_storage.contract.BoxContract.set_bool[routing]() -> void:
     block@0: // L80
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
@@ -951,11 +936,6 @@ subroutine examples.box_storage.contract.BoxContract.create_dynamic_box[routing]
     block@0: // L80
         (box_del "dynamic_box")
         (box_put "dynamic_box" 0x0000)
-        return 
-
-subroutine examples.box_storage.contract.BoxContract.delete_dynamic_box[routing]() -> void:
-    block@0: // L80
-        (box_del "dynamic_box")
         return 
 
 subroutine examples.box_storage.contract.BoxContract.append_dynamic_box[routing]() -> void:
@@ -1093,11 +1073,6 @@ subroutine examples.box_storage.contract.BoxContract.slice_box[routing]() -> voi
         let tmp%17#0: bytes = (box_extract 0x424f585f43 tmp%13#0 tmp%16#0)
         let tmp%18#0: bool = (== tmp%17#0 0x48656c6c6f)
         (assert tmp%18#0)
-        return 
-
-subroutine examples.box_storage.contract.BoxContract.arc4_box[routing]() -> void:
-    block@0: // L80
-        (box_put 0x64 0x00010203)
         return 
 
 subroutine examples.box_storage.contract.BoxContract.test_box_ref[routing]() -> void:
