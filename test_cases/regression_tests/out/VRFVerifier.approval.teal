@@ -8,6 +8,9 @@ main:
     // class VRFVerifier(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@6
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytes 0x6e50bd99 // method "verify(byte[],byte[],byte[])(byte[],bool)"
     txna ApplicationArgs 0
     match main_verify_route@3
@@ -16,9 +19,6 @@ main:
 main_verify_route@3:
     // regression_tests/branch_to_proto.py:5
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // regression_tests/branch_to_proto.py:4

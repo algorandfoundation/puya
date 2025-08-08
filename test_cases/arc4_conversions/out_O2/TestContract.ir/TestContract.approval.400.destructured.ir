@@ -3,12 +3,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@12
     block@2: // abi_routing_L22
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_literal_encoding()void" => block@3, method "test_native_encoding()void" => block@4, method "test_arc4_encoding()void" => block@5, method "test_array_uint64_encoding()void" => block@6, method "test_array_static_encoding()void" => block@7, method "test_array_dynamic_encoding()void" => block@8, method "test_bytes_to_fixed(bool)void" => block@9, * => block@16}
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion is not NoOp
+        let tmp%4#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%4#0 {method "test_literal_encoding()void" => block@3, method "test_native_encoding()void" => block@4, method "test_arc4_encoding()void" => block@5, method "test_array_uint64_encoding()void" => block@6, method "test_array_static_encoding()void" => block@7, method "test_array_dynamic_encoding()void" => block@8, method "test_bytes_to_fixed(bool)void" => block@9, * => block@16}
     block@3: // test_literal_encoding_route_L23
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         itxn_begin
@@ -67,11 +67,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         exit 1u
     block@4: // test_native_encoding_route_L46
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
+        let tmp%7#0: uint64 = (txn ApplicationID)
+        (assert tmp%7#0) // can only call when not creating
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiABATEbQQFagg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAO0A2QDFALEAnQCJAHUAYQBNADkAJQARAAEAMRkURDEYRDYaATEAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGYEFEkQxGEQiQzEZFEQxGBREIkM=)
@@ -81,8 +78,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let app#0: uint64 = (itxn CreatedApplicationID)
         itxn_begin
         let tmp%1#3: uint64 = (txn NumAppArgs)
-        let tmp%2#3: uint64 = (- tmp%1#3 1u)
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#3)
+        let tmp%2#0: uint64 = (- tmp%1#3 1u)
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%2#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "check_uint64(uint64,byte[])void")
         ((itxn_field ApplicationArgs) aggregate%val_as_bytes%0#0)
@@ -145,11 +142,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         exit 1u
     block@5: // test_arc4_encoding_route_L74
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiABATEbQQFagg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAO0A2QDFALEAnQCJAHUAYQBNADkAJQARAAEAMRkURDEYRDYaATEAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGYEFEkQxGEQiQzEZFEQxGBREIkM=)
@@ -220,11 +214,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         exit 1u
     block@6: // test_array_uint64_encoding_route_L102
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (! tmp%15#0)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        (assert tmp%17#0) // can only call when not creating
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        (assert tmp%11#0) // can only call when not creating
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiABATEbQQFagg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAO0A2QDFALEAnQCJAHUAYQBNADkAJQARAAEAMRkURDEYRDYaATEAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGYEFEkQxGEQiQzEZFEQxGBREIkM=)
@@ -233,13 +224,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         let app#0: uint64 = (itxn CreatedApplicationID)
         let tmp%1#3: uint64 = (txn NumAppArgs)
-        let tmp%2#3: uint64 = (txn NumAppArgs)
-        let tmp%3#0: uint64 = (+ tmp%2#3 1u)
+        let tmp%2#0: uint64 = (txn NumAppArgs)
+        let tmp%3#4: uint64 = (+ tmp%2#0 1u)
         let tmp%4#3: uint64 = (txn NumAppArgs)
         let tmp%5#0: uint64 = (+ tmp%4#3 2u)
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%1#3)
         let aggregate%head%0#0: bytes = (concat 0x0003 aggregate%val_as_bytes%1#0)
-        let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%3#0)
+        let aggregate%val_as_bytes%2#0: bytes[8] = (itob tmp%3#4)
         let aggregate%head%1#0: bytes = (concat aggregate%head%0#0 aggregate%val_as_bytes%2#0)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%5#0)
         let arr#0: bytes = (concat aggregate%head%1#0 aggregate%val_as_bytes%3#0)
@@ -256,12 +247,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%17#0: uint64 = (txn NumAppArgs)
         let tmp%18#3: uint64 = (+ tmp%17#0 1u)
         let tmp%19#0: uint64 = (txn NumAppArgs)
-        let tmp%20#3: uint64 = (+ tmp%19#0 2u)
+        let tmp%20#0: uint64 = (+ tmp%19#0 2u)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob tmp%16#3)
         let aggregate%head%3#0: bytes = (concat 0x0003 aggregate%val_as_bytes%4#0)
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%18#3)
         let aggregate%head%4#0: bytes = (concat aggregate%head%3#0 aggregate%val_as_bytes%5#0)
-        let aggregate%val_as_bytes%6#0: bytes[8] = (itob tmp%20#3)
+        let aggregate%val_as_bytes%6#0: bytes[8] = (itob tmp%20#0)
         let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 aggregate%val_as_bytes%6#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "check_dyn_array_uin64(uint64[],byte[])void")
@@ -271,15 +262,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         ((itxn_field Fee) 0u)
         itxn_submit
         itxn_begin
-        let tmp%23#0: uint64 = (txn NumAppArgs)
-        let tmp%24#3: uint64 = (txn NumAppArgs)
-        let tmp%25#0: uint64 = (+ tmp%24#3 1u)
-        let tmp%26#3: uint64 = (txn NumAppArgs)
-        let tmp%27#0: uint64 = (+ tmp%26#3 2u)
-        let aggregate%val_as_bytes%7#0: bytes[8] = (itob tmp%23#0)
-        let aggregate%val_as_bytes%8#0: bytes[8] = (itob tmp%25#0)
+        let tmp%23#2: uint64 = (txn NumAppArgs)
+        let tmp%24#2: uint64 = (txn NumAppArgs)
+        let tmp%25#2: uint64 = (+ tmp%24#2 1u)
+        let tmp%26#2: uint64 = (txn NumAppArgs)
+        let tmp%27#2: uint64 = (+ tmp%26#2 2u)
+        let aggregate%val_as_bytes%7#0: bytes[8] = (itob tmp%23#2)
+        let aggregate%val_as_bytes%8#0: bytes[8] = (itob tmp%25#2)
         let aggregate%head%7#0: bytes = (concat aggregate%val_as_bytes%7#0 aggregate%val_as_bytes%8#0)
-        let aggregate%val_as_bytes%9#0: bytes[8] = (itob tmp%27#0)
+        let aggregate%val_as_bytes%9#0: bytes[8] = (itob tmp%27#2)
         let aggregate%head%8#0: bytes = (concat aggregate%head%7#0 aggregate%val_as_bytes%9#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "check_static_array_uin64_3(uint64[3],byte[])void")
@@ -297,11 +288,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         exit 1u
     block@7: // test_array_static_encoding_route_L126
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiABATEbQQFagg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAO0A2QDFALEAnQCJAHUAYQBNADkAJQARAAEAMRkURDEYRDYaATEAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGYEFEkQxGEQiQzEZFEQxGBREIkM=)
@@ -352,11 +340,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%head%26#0: bytes = (concat aggregate%head%23#0 aggregate%head%25#0)
         let is_out_of_bounds%0#0: bool = (>= 2u aggregate%length%22#0)
         let bounded_index%0#0: uint64 = (select 2u aggregate%length%22#0 is_out_of_bounds%0#0)
-        let tmp%30#1: bytes = (substring3 expected_bytes#0 bounded_index%0#0 aggregate%length%22#0)
-        let aggregate%length%23#0: uint64 = (len tmp%30#1)
+        let tmp%30#0: bytes = (substring3 expected_bytes#0 bounded_index%0#0 aggregate%length%22#0)
+        let aggregate%length%23#0: uint64 = (len tmp%30#0)
         let aggregate%as_bytes%26#0: bytes[8] = (itob aggregate%length%23#0)
         let aggregate%length_uint16%23#0: bytes = ((extract 6 2) aggregate%as_bytes%26#0)
-        let aggregate%encoded_value%23#0: bytes = (concat aggregate%length_uint16%23#0 tmp%30#1)
+        let aggregate%encoded_value%23#0: bytes = (concat aggregate%length_uint16%23#0 tmp%30#0)
         ((itxn_field ApplicationID) app#0)
         ((itxn_field ApplicationArgs) method "check_static_array_struct((uint64,address)[3],byte[])void")
         ((itxn_field ApplicationArgs) aggregate%head%26#0)
@@ -373,11 +361,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         exit 1u
     block@8: // test_array_dynamic_encoding_route_L150
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (! tmp%23#0)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        (assert tmp%25#0) // can only call when not creating
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        (assert tmp%15#0) // can only call when not creating
         itxn_begin
         ((itxn_field ClearStateProgramPages) CoEBQw==)
         ((itxn_field ApprovalProgramPages) CiABATEbQQFagg0EM7NJngSNdi/fBC0ynuEEak3fcwTW4Le8BOXKzQYEia9VewRG4Za9BPM4htoEJZW5WgQ/VSZrBH0kCUUEA1Gp3jYaAI4NAO0A2QDFALEAnQCJAHUAYQBNADkAJQARAAEAMRkURDEYRDYaATEAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGRREMRhENhoBNhoCVwIAEkQiQzEZFEQxGEQ2GgE2GgJXAgASRCJDMRkURDEYRDYaATYaAlcCABJEIkMxGYEFEkQxGEQiQzEZFEQxGBREIkM=)
@@ -515,11 +500,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         exit 1u
     block@9: // test_bytes_to_fixed_route_L178
-        let tmp%27#0: uint64 = (txn OnCompletion)
-        let tmp%28#0: bool = (! tmp%27#0)
-        (assert tmp%28#0) // OnCompletion is not NoOp
-        let tmp%29#0: uint64 = (txn ApplicationID)
-        (assert tmp%29#0) // can only call when not creating
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        (assert tmp%17#0) // can only call when not creating
         let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 1)
         let wrong_size#0: bool = (getbit reinterpret_Encoded(bool8)%0#0 0u)
         itxn_begin
@@ -557,12 +539,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         itxn_submit
         exit 1u
     block@12: // bare_routing_L22
-        let tmp%31#0: uint64 = (txn OnCompletion)
-        let not%tmp%31#0: bool = (! tmp%31#0)
-        (assert not%tmp%31#0)
-        let tmp%32#0: uint64 = (txn ApplicationID)
-        let tmp%33#0: bool = (! tmp%32#0)
-        (assert tmp%33#0) // can only call when creating
+        let tmp%19#0: uint64 = (txn OnCompletion)
+        let not%tmp%19#0: bool = (! tmp%19#0)
+        (assert not%tmp%19#0)
+        let tmp%20#0: uint64 = (txn ApplicationID)
+        let tmp%21#0: bool = (! tmp%20#0)
+        (assert tmp%21#0) // can only call when creating
         exit 1u
     block@16: // after_if_else_L22
         fail

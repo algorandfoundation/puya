@@ -9,15 +9,15 @@ main:
     dupn 2
     pushbytes ""
     dup
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0x8424203b 0xc0290ad5 // method "create(byte[32])void", method "verify(byte[32][],byte[32])bool"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
     match main_create_route@2 main_verify_route@3
     err
 
 main_verify_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
@@ -88,9 +88,6 @@ main_after_for@11:
     return
 
 main_create_route@2:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     !
     assert // can only call when creating

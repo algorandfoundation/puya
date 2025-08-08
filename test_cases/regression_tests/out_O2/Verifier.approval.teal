@@ -5,15 +5,15 @@
 main:
     txn NumAppArgs
     bz main_bare_routing@6
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
     txna ApplicationArgs 0
     match main_verify_route@3
     err
 
 main_verify_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1

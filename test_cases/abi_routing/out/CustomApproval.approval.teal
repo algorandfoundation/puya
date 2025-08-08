@@ -33,6 +33,9 @@ main_after_if_else@6:
     // class CustomApproval(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@12
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytes 0x03b5c0af // method "add_one(uint64)uint64"
     txna ApplicationArgs 0
     match main_add_one_route@11
@@ -41,9 +44,6 @@ main_after_if_else@6:
 main_add_one_route@11:
     // abi_routing/custom_approval.py:23
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // abi_routing/custom_approval.py:6

@@ -7,6 +7,9 @@ main:
     bytecblock 0x151f7c75
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0xfb716652 0x7ea64078 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)", method "tuple_of_arc4((uint8,address))(uint8,address)"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
     match main_create_route@2 main_tuple_of_arc4_route@3
@@ -15,9 +18,6 @@ main:
 main_tuple_of_arc4_route@3:
     // avm_types_in_abi/contract.py:19
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // avm_types_in_abi/contract.py:4
@@ -31,9 +31,6 @@ main_tuple_of_arc4_route@3:
 main_create_route@2:
     // avm_types_in_abi/contract.py:5
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     !
     assert // can only call when creating

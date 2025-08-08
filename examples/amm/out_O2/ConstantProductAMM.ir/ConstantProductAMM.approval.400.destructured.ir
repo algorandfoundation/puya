@@ -14,12 +14,12 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%0#3: uint64 = (txn NumAppArgs)
         goto tmp%0#3 ? block@4 : block@10
     block@4: // abi_routing_L27
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "set_governor(address)void" => block@5, method "bootstrap(pay,asset,asset)uint64" => block@6, method "mint(axfer,axfer,asset,asset,asset)void" => block@7, method "burn(axfer,asset,asset,asset)void" => block@8, method "swap(axfer,asset,asset)void" => block@9, * => block@12}
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion is not NoOp
+        let tmp%4#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%4#0 {method "set_governor(address)void" => block@5, method "bootstrap(pay,asset,asset)uint64" => block@6, method "mint(axfer,axfer,asset,asset,asset)void" => block@7, method "burn(axfer,asset,asset,asset)void" => block@8, method "swap(axfer,asset,asset)void" => block@9, * => block@12}
     block@5: // set_governor_route_L43
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let new_governor#0: account = (txna ApplicationArgs 1)
@@ -27,11 +27,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         (app_global_put "governor" new_governor#0)
         exit 1u
     block@6: // bootstrap_route_L49
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
+        let tmp%7#0: uint64 = (txn ApplicationID)
+        (assert tmp%7#0) // can only call when not creating
         let tmp%0#3: uint64 = (txn GroupIndex)
         let seed#0: uint64 = (- tmp%0#3 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) seed#0)
@@ -41,8 +38,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%1#1: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
         let a_asset#0: uint64 = ((txnas Assets) tmp%1#1)
         let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let b_asset#0: uint64 = ((txnas Assets) tmp%3#0)
+        let tmp%3#1: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
+        let b_asset#0: uint64 = ((txnas Assets) tmp%3#1)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%0#0) // check self.pool_token exists
         let tmp%0#0: bool = (! maybe_value%0#0)
@@ -58,8 +55,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%6#2: uint64 = ((gtxns Amount) seed#0)
         let tmp%7#6: bool = (>= tmp%6#2 300000u)
         (assert tmp%7#6) // amount minimum not met
-        let tmp%8#0: bool = (< a_asset#0 b_asset#0)
-        (assert tmp%8#0) // asset a must be less than asset b
+        let tmp%8#1: bool = (< a_asset#0 b_asset#0)
+        (assert tmp%8#1) // asset a must be less than asset b
         (app_global_put "asset_a" a_asset#0)
         (app_global_put "asset_b" b_asset#0)
         itxn_begin
@@ -83,8 +80,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         ((itxn_field TypeEnum) acfg)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%2#3: uint64 = (itxn CreatedAssetID)
-        (app_global_put "pool_token" tmp%2#3)
+        let tmp%2#0: uint64 = (itxn CreatedAssetID)
+        (app_global_put "pool_token" tmp%2#0)
         let (asset#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%1#0) // check self.asset_a exists
         let tmp%0#2: account = (global CurrentApplicationAddress)
@@ -100,11 +97,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         (log tmp%7#2)
         exit 1u
     block@7: // mint_route_L81
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
         let tmp%0#3: uint64 = (txn GroupIndex)
         let a_xfer#0: uint64 = (- tmp%0#3 2u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) a_xfer#0)
@@ -116,8 +110,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let gtxn_type_matches%1#0: bool = (== gtxn_type%1#0 axfer)
         (assert gtxn_type_matches%1#0) // transaction type is axfer
         let reinterpret_Encoded(uint8)%0#0: Encoded(uint8) = (txna ApplicationArgs 1)
-        let tmp%2#3: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
-        let pool_asset#0: uint64 = ((txnas Assets) tmp%2#3)
+        let tmp%2#0: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
+        let pool_asset#0: uint64 = ((txnas Assets) tmp%2#0)
         let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
         let tmp%4#3: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
         let a_asset#0: uint64 = ((txnas Assets) tmp%4#3)
@@ -143,14 +137,14 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         (assert tmp%5#5) // sender invalid
         let tmp%6#6: account = ((gtxns Sender) b_xfer#0)
         let tmp%7#4: account = (txn Sender)
-        let tmp%8#0: bool = (== tmp%6#6 tmp%7#4)
-        (assert tmp%8#0) // sender invalid
+        let tmp%8#1: bool = (== tmp%6#6 tmp%7#4)
+        (assert tmp%8#1) // sender invalid
         let tmp%9#2: account = ((gtxns AssetReceiver) a_xfer#0)
         let tmp%10#0: account = (global CurrentApplicationAddress)
         let tmp%11#2: bool = (== tmp%9#2 tmp%10#0)
         (assert tmp%11#2) // receiver not app address
-        let tmp%12#2: uint64 = ((gtxns XferAsset) a_xfer#0)
-        let tmp%13#1: bool = (== tmp%12#2 maybe_value%1#0)
+        let tmp%12#1: uint64 = ((gtxns XferAsset) a_xfer#0)
+        let tmp%13#1: bool = (== tmp%12#1 maybe_value%1#0)
         (assert tmp%13#1) // asset a incorrect
         let a_amount#0: uint64 = ((gtxns AssetAmount) a_xfer#0)
         (assert a_amount#0) // amount minimum not met
@@ -159,8 +153,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%18#0: bool = (== tmp%16#1 tmp%17#2)
         (assert tmp%18#0) // receiver not app address
         let tmp%19#0: uint64 = ((gtxns XferAsset) b_xfer#0)
-        let tmp%20#0: bool = (== tmp%19#0 maybe_value%2#0)
-        (assert tmp%20#0) // asset b incorrect
+        let tmp%20#1: bool = (== tmp%19#0 maybe_value%2#0)
+        (assert tmp%20#1) // asset b incorrect
         let b_amount#0: uint64 = ((gtxns AssetAmount) b_xfer#0)
         (assert b_amount#0) // amount minimum not met
         let pool_balance#0: uint64 = examples.amm.contract.ConstantProductAMM._current_pool_balance()
@@ -182,9 +176,9 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
     block@25: // bool_merge_L334
         goto is_initial_mint#0 ? block@26 : block@27
     block@26: // if_body_L336
-        let tmp%2#3: uint64 = (* a_amount#0 b_amount#0)
-        let tmp%3#0: uint64 = (sqrt tmp%2#3)
-        let tmp%4#3: uint64 = (- tmp%3#0 1000u)
+        let tmp%2#0: uint64 = (* a_amount#0 b_amount#0)
+        let tmp%3#1: uint64 = (sqrt tmp%2#0)
+        let tmp%4#3: uint64 = (- tmp%3#1 1000u)
         let to_mint#0: uint64 = tmp%4#3
         goto block@30
     block@27: // after_if_else_L335
@@ -204,8 +198,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         goto block@30
     block@29: // else_body_L343
         let tmp%15#0: uint64 = (* b_ratio#0 issued#0)
-        let tmp%16#2: uint64 = (/ tmp%15#0 1000u)
-        let to_mint#0: uint64 = tmp%16#2
+        let tmp%16#0: uint64 = (/ tmp%15#0 1000u)
+        let to_mint#0: uint64 = tmp%16#0
         goto block@30
     block@30: // after_inlined_examples.amm.contract.tokens_to_mint_L81
         (assert to_mint#0) // send amount too low
@@ -216,11 +210,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         examples.amm.contract.ConstantProductAMM._update_ratio()
         exit 1u
     block@8: // burn_route_L148
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (! tmp%15#0)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        (assert tmp%17#0) // can only call when not creating
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        (assert tmp%11#0) // can only call when not creating
         let tmp%0#3: uint64 = (txn GroupIndex)
         let pool_xfer#0: uint64 = (- tmp%0#3 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) pool_xfer#0)
@@ -230,8 +221,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%1#1: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
         let pool_asset#0: uint64 = ((txnas Assets) tmp%1#1)
         let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let a_asset#0: uint64 = ((txnas Assets) tmp%3#0)
+        let tmp%3#1: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
+        let a_asset#0: uint64 = ((txnas Assets) tmp%3#1)
         let reinterpret_Encoded(uint8)%2#0: Encoded(uint8) = (txna ApplicationArgs 3)
         let tmp%5#0: uint64 = (btoi reinterpret_Encoded(uint8)%2#0)
         let b_asset#0: uint64 = ((txnas Assets) tmp%5#0)
@@ -254,8 +245,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         (assert tmp%5#5) // receiver not app address
         let amount#0: uint64 = ((gtxns AssetAmount) pool_xfer#0)
         (assert amount#0) // amount minimum not met
-        let tmp%8#1: uint64 = ((gtxns XferAsset) pool_xfer#0)
-        let tmp%9#1: bool = (== tmp%8#1 maybe_value%0#0)
+        let tmp%8#0: uint64 = ((gtxns XferAsset) pool_xfer#0)
+        let tmp%9#1: bool = (== tmp%8#0 maybe_value%0#0)
         (assert tmp%9#1) // asset pool incorrect
         let tmp%10#0: account = ((gtxns Sender) pool_xfer#0)
         let tmp%11#1: account = (txn Sender)
@@ -265,27 +256,24 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_a_balance()
         let tmp%0#3: uint64 = (- 10000000000u pool_balance#0)
         let issued#0: uint64 = (- tmp%0#3 amount#0)
-        let tmp%2#3: uint64 = (* supply#0 amount#0)
-        let a_amt#0: uint64 = (/ tmp%2#3 issued#0)
+        let tmp%2#0: uint64 = (* supply#0 amount#0)
+        let a_amt#0: uint64 = (/ tmp%2#0 issued#0)
         let supply#0: uint64 = examples.amm.contract.ConstantProductAMM._current_b_balance()
-        let tmp%2#3: uint64 = (* supply#0 amount#0)
-        let b_amt#0: uint64 = (/ tmp%2#3 issued#0)
-        let tmp%20#1: account = (txn Sender)
+        let tmp%2#0: uint64 = (* supply#0 amount#0)
+        let b_amt#0: uint64 = (/ tmp%2#0 issued#0)
+        let tmp%20#0: account = (txn Sender)
         let (maybe_value%4#0: uint64, maybe_exists%4#0: bool) = (app_global_get_ex 0u "asset_a")
         (assert maybe_exists%4#0) // check self.asset_a exists
-        examples.amm.contract.do_asset_transfer(tmp%20#1, maybe_value%4#0, a_amt#0)
-        let tmp%21#1: account = (txn Sender)
+        examples.amm.contract.do_asset_transfer(tmp%20#0, maybe_value%4#0, a_amt#0)
+        let tmp%21#0: account = (txn Sender)
         let (maybe_value%5#0: uint64, maybe_exists%5#0: bool) = (app_global_get_ex 0u "asset_b")
         (assert maybe_exists%5#0) // check self.asset_b exists
-        examples.amm.contract.do_asset_transfer(tmp%21#1, maybe_value%5#0, b_amt#0)
+        examples.amm.contract.do_asset_transfer(tmp%21#0, maybe_value%5#0, b_amt#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
         exit 1u
     block@9: // swap_route_L206
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
         let tmp%0#3: uint64 = (txn GroupIndex)
         let swap_xfer#0: uint64 = (- tmp%0#3 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) swap_xfer#0)
@@ -295,8 +283,8 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%1#1: uint64 = (btoi reinterpret_Encoded(uint8)%0#0)
         let a_asset#0: uint64 = ((txnas Assets) tmp%1#1)
         let reinterpret_Encoded(uint8)%1#0: Encoded(uint8) = (txna ApplicationArgs 2)
-        let tmp%3#0: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
-        let b_asset#0: uint64 = ((txnas Assets) tmp%3#0)
+        let tmp%3#1: uint64 = (btoi reinterpret_Encoded(uint8)%1#0)
+        let b_asset#0: uint64 = ((txnas Assets) tmp%3#1)
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "pool_token")
         (assert maybe_exists%0#0) // check self.pool_token exists
         (assert maybe_value%0#0) // bootstrap method needs to be called first
@@ -333,9 +321,9 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
     block@17: // switch_case_next_L234
         let tmp%0#3: uint64 = (- in_supply#0 in_amount#0)
         let tmp%1#1: uint64 = (* 1000u tmp%0#3)
-        let tmp%2#3: uint64 = (* in_amount#0 995u)
-        let in_total#0: uint64 = (+ tmp%1#1 tmp%2#3)
-        let out_total#0: uint64 = (* tmp%2#3 out_supply#0)
+        let tmp%2#0: uint64 = (* in_amount#0 995u)
+        let in_total#0: uint64 = (+ tmp%1#1 tmp%2#0)
+        let out_total#0: uint64 = (* tmp%2#0 out_supply#0)
         let to_swap#0: uint64 = (/ out_total#0 in_total#0)
         (assert to_swap#0) // send amount too low
         let tmp%15#1: account = (txn Sender)
@@ -343,12 +331,12 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         examples.amm.contract.ConstantProductAMM._update_ratio()
         exit 1u
     block@10: // bare_routing_L27
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let not%tmp%23#0: bool = (! tmp%23#0)
-        (assert not%tmp%23#0)
-        let tmp%24#0: uint64 = (txn ApplicationID)
-        let tmp%25#0: bool = (! tmp%24#0)
-        (assert tmp%25#0) // can only call when creating
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        let not%tmp%15#0: bool = (! tmp%15#0)
+        (assert not%tmp%15#0)
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        let tmp%17#0: bool = (! tmp%16#0)
+        (assert tmp%17#0) // can only call when creating
         exit 1u
     block@12: // after_if_else_L27
         fail

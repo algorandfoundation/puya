@@ -1,16 +1,16 @@
 main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init:
     block@0: // L1
-        let tmp%0#2: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
-        switch tmp%0#2 {method "new_game((uint64,uint64))void" => block@4, method "join_game((uint64,uint64))void" => block@5, method "whose_turn()uint8" => block@6, method "play((uint64,uint64))void" => block@7, * => block@8}
+        let tmp%0#2: uint64 = (txn OnCompletion)
+        let tmp%1#0: bool = (! tmp%0#2)
+        (assert tmp%1#0) // OnCompletion is not NoOp
+        let tmp%2#0: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
+        switch tmp%2#0 {method "new_game((uint64,uint64))void" => block@4, method "join_game((uint64,uint64))void" => block@5, method "whose_turn()uint8" => block@6, method "play((uint64,uint64))void" => block@7, * => block@8}
     block@4: // new_game_route_L20
-        let tmp%1#0: uint64 = (txn OnCompletion)
-        let tmp%2#0: bool = (! tmp%1#0)
-        (assert tmp%2#0) // OnCompletion is not NoOp
         let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
         let move.0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
         let move.1#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
-        let tmp%0#8: uint64 = (txn ApplicationID)
-        goto tmp%0#8 ? block@19 : block@22
+        let tmp%0#2: uint64 = (txn ApplicationID)
+        goto tmp%0#2 ? block@19 : block@22
     block@19: // if_body_L25
         let (_%0#1: account, maybe_exists%0#0: bool) = (app_global_get_ex 0u "challenger")
         goto maybe_exists%0#0 ? block@20 : block@21
@@ -50,11 +50,8 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         (app_global_put "turns" 0u)
         exit 1u
     block@5: // join_game_route_L37
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
+        let tmp%3#0: uint64 = (txn ApplicationID)
+        (assert tmp%3#0) // can only call when not creating
         let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
         let move.0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
         let move.1#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
@@ -66,24 +63,18 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x02, move.0#0, move.1#0)
         exit 1u
     block@6: // whose_turn_route_L43
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        (assert tmp%5#0) // can only call when not creating
         let (maybe_value%0#0: uint64, maybe_exists%0#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%0#0) // check self.turns exists
-        let tmp%0#8: uint64 = (% maybe_value%0#0 2u)
-        let select%0#0: Encoded(uint8) = (select 0x02 0x01 tmp%0#8)
+        let tmp%0#2: uint64 = (% maybe_value%0#0 2u)
+        let select%0#0: Encoded(uint8) = (select 0x02 0x01 tmp%0#2)
         let tmp%1#2: bytes = (concat 0x151f7c75 select%0#0)
         (log tmp%1#2)
         exit 1u
     block@7: // play_route_L47
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
+        let tmp%7#0: uint64 = (txn ApplicationID)
+        (assert tmp%7#0) // can only call when not creating
         let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
         let move.0#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 0u)
         let move.1#0: uint64 = (extract_uint64 reinterpret_Encoded(uint64,uint64)%0#0 8u)
@@ -92,8 +83,8 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         (assert tmp%0#7) // Game is already finished
         let (maybe_value%0#0: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "turns")
         (assert maybe_exists%1#0) // check self.turns exists
-        let tmp%1#0: uint64 = (% maybe_value%0#0 2u)
-        goto tmp%1#0 ? block@10 : block@11
+        let tmp%1#5: uint64 = (% maybe_value%0#0 2u)
+        goto tmp%1#5 ? block@10 : block@11
     block@10: // if_body_L51
         let tmp%3#1: account = (txn Sender)
         let (maybe_value%1#0: bytes, maybe_exists%2#0: bool) = (app_global_get_ex 0u "host")

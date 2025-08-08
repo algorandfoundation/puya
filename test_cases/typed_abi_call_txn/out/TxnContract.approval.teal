@@ -9,6 +9,9 @@ main:
     // class TxnContract(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@8
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0xa1f5040d 0x6d4700ad 0xc840077d // method "call_with_txn(byte[],txn,byte[])uint64", method "call_with_acfg(byte[],acfg,byte[])uint64", method "call_with_acfg_no_return(byte[],acfg,byte[])void"
     txna ApplicationArgs 0
     match main_call_with_txn_route@3 main_call_with_acfg_route@4 main_call_with_acfg_no_return_route@5
@@ -17,9 +20,6 @@ main:
 main_call_with_acfg_no_return_route@5:
     // typed_abi_call_txn/txn_contract.py:27
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // typed_abi_call_txn/txn_contract.py:11
@@ -33,9 +33,6 @@ main_call_with_acfg_no_return_route@5:
 main_call_with_acfg_route@4:
     // typed_abi_call_txn/txn_contract.py:20
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // typed_abi_call_txn/txn_contract.py:11
@@ -49,9 +46,6 @@ main_call_with_acfg_route@4:
 main_call_with_txn_route@3:
     // typed_abi_call_txn/txn_contract.py:12
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // typed_abi_call_txn/txn_contract.py:11

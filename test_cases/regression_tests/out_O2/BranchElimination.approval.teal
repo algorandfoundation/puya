@@ -10,15 +10,15 @@ main:
     dupn 13
     txn NumAppArgs
     bz main_bare_routing@8
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0xaec250ef 0xbd4b223f 0x847f775f // method "umm()uint64", method "umm2()void", method "calculate(uint64[][],uint64)void"
     txna ApplicationArgs 0
     match main_umm_route@3 main_umm2_route@4 main_calculate_route@5
     err
 
 main_calculate_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
@@ -168,9 +168,6 @@ main_if_body@37:
     return
 
 main_umm2_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     intc_0 // 0
@@ -202,9 +199,6 @@ main_after_if_else@36:
     b main_if_body@37
 
 main_umm_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     intc_0 // 0

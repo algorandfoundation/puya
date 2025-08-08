@@ -5,15 +5,15 @@
 main:
     txn NumAppArgs
     bz main_bare_routing@6
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytes 0xd3479e65 // method "some_value()uint64"
     txna ApplicationArgs 0
     match main_some_value_route@3
     err
 
 main_some_value_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     global GroupSize

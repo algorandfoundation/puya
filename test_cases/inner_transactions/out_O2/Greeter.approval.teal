@@ -14,15 +14,15 @@ main:
 main_after_if_else@2:
     txn NumAppArgs
     bz main_bare_routing@7
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0x786b6291 0x33fb5d48 // method "bootstrap()uint64", method "log_greetings(string)void"
     txna ApplicationArgs 0
     match main_bootstrap_route@5 main_log_greetings_route@6
     err
 
 main_log_greetings_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
@@ -55,9 +55,6 @@ main_log_greetings_route@6:
     return
 
 main_bootstrap_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     intc_0 // 0

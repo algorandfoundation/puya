@@ -12,22 +12,22 @@ subroutine main:
     main_abi_routing@2:
         // debug/contract.py:4
         // class DebugContract(arc4.ARC4Contract):
-        txna ApplicationArgs 0                            tmp%2#0
+        txn OnCompletion                                  tmp%2#0
         v-store tmp%2#0
+        v-load tmp%2#0                                    tmp%2#0
+        !                                                 tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                    tmp%3#0
+        assert // OnCompletion is not NoOp
+        txna ApplicationArgs 0                            tmp%4#0
+        v-store tmp%4#0
         method test(uint64,uint64,uint64)uint64           Method(test(uint64,uint64,uint64)uint64)
-        v-load tmp%2#0                                    Method(test(uint64,uint64,uint64)uint64),tmp%2#0
+        v-load tmp%4#0                                    Method(test(uint64,uint64,uint64)uint64),tmp%4#0
         match main_test_route@3 ; b main_after_if_else@10
 
     main_test_route@3:
         // debug/contract.py:5
         // @arc4.abimethod
-        txn OnCompletion                                  tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                    tmp%3#0
-        !                                                 tmp%4#0
-        v-store tmp%4#0
-        v-load tmp%4#0                                    tmp%4#0
-        assert // OnCompletion is not NoOp
         txn ApplicationID                                 tmp%5#0
         v-store tmp%5#0
         v-load tmp%5#0                                    tmp%5#0

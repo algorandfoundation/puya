@@ -11,22 +11,22 @@ subroutine main:
     main_abi_routing@2:
         // typed_abi_call_txn/caller.py:14
         // class Caller(ARC4Contract):
-        txna ApplicationArgs 0                                                         tmp%2#0
-        method test_call_with_txn(byte[],byte[],uint64)void                            tmp%2#0,Method(test_call_with_txn(byte[],byte[],uint64)void)
-        method test_call_with_acfg(byte[],byte[],uint64)void                           tmp%2#0,Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void)
-        method test_call_with_infer(byte[],byte[],uint64)void                          tmp%2#0,Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void),Method(test_call_with_infer(byte[],byte[],uint64)void)
-        method test_call_with_acfg_no_return(byte[],byte[],uint64)void                 tmp%2#0,Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void),Method(test_call_with_infer(byte[],byte[],uint64)void),Method(test_call_with_acfg_no_return(byte[],byte[],uint64)void)
-        l-load tmp%2#0 4                                                               Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void),Method(test_call_with_infer(byte[],byte[],uint64)void),Method(test_call_with_acfg_no_return(byte[],byte[],uint64)void),tmp%2#0
+        txn OnCompletion                                                               tmp%2#0
+        l-load tmp%2#0 0                                                               tmp%2#0
+        !                                                                              tmp%3#0
+        l-load tmp%3#0 0                                                               tmp%3#0
+        assert // OnCompletion is not NoOp
+        txna ApplicationArgs 0                                                         tmp%4#0
+        method test_call_with_txn(byte[],byte[],uint64)void                            tmp%4#0,Method(test_call_with_txn(byte[],byte[],uint64)void)
+        method test_call_with_acfg(byte[],byte[],uint64)void                           tmp%4#0,Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void)
+        method test_call_with_infer(byte[],byte[],uint64)void                          tmp%4#0,Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void),Method(test_call_with_infer(byte[],byte[],uint64)void)
+        method test_call_with_acfg_no_return(byte[],byte[],uint64)void                 tmp%4#0,Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void),Method(test_call_with_infer(byte[],byte[],uint64)void),Method(test_call_with_acfg_no_return(byte[],byte[],uint64)void)
+        l-load tmp%4#0 4                                                               Method(test_call_with_txn(byte[],byte[],uint64)void),Method(test_call_with_acfg(byte[],byte[],uint64)void),Method(test_call_with_infer(byte[],byte[],uint64)void),Method(test_call_with_acfg_no_return(byte[],byte[],uint64)void),tmp%4#0
         match main_test_call_with_txn_route@3 main_test_call_with_acfg_route@4 main_test_call_with_infer_route@5 main_test_call_with_acfg_no_return_route@6 ; b main_after_if_else@13 
 
     main_test_call_with_txn_route@3:
         // typed_abi_call_txn/caller.py:15
         // @arc4.abimethod
-        txn OnCompletion                                                               tmp%3#0
-        l-load tmp%3#0 0                                                               tmp%3#0
-        !                                                                              tmp%4#0
-        l-load tmp%4#0 0                                                               tmp%4#0
-        assert // OnCompletion is not NoOp
         txn ApplicationID                                                              tmp%5#0
         l-load tmp%5#0 0                                                               tmp%5#0
         assert // can only call when not creating
@@ -41,13 +41,8 @@ subroutine main:
     main_test_call_with_acfg_route@4:
         // typed_abi_call_txn/caller.py:31
         // @arc4.abimethod
-        txn OnCompletion                                                               tmp%7#0
+        txn ApplicationID                                                              tmp%7#0
         l-load tmp%7#0 0                                                               tmp%7#0
-        !                                                                              tmp%8#0
-        l-load tmp%8#0 0                                                               tmp%8#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                              tmp%9#0
-        l-load tmp%9#0 0                                                               tmp%9#0
         assert // can only call when not creating
         // typed_abi_call_txn/caller.py:14
         // class Caller(ARC4Contract):
@@ -60,13 +55,8 @@ subroutine main:
     main_test_call_with_infer_route@5:
         // typed_abi_call_txn/caller.py:46
         // @arc4.abimethod
-        txn OnCompletion                                                               tmp%11#0
-        l-load tmp%11#0 0                                                              tmp%11#0
-        !                                                                              tmp%12#0
-        l-load tmp%12#0 0                                                              tmp%12#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                              tmp%13#0
-        l-load tmp%13#0 0                                                              tmp%13#0
+        txn ApplicationID                                                              tmp%9#0
+        l-load tmp%9#0 0                                                               tmp%9#0
         assert // can only call when not creating
         // typed_abi_call_txn/caller.py:14
         // class Caller(ARC4Contract):
@@ -79,13 +69,8 @@ subroutine main:
     main_test_call_with_acfg_no_return_route@6:
         // typed_abi_call_txn/caller.py:61
         // @arc4.abimethod
-        txn OnCompletion                                                               tmp%15#0
-        l-load tmp%15#0 0                                                              tmp%15#0
-        !                                                                              tmp%16#0
-        l-load tmp%16#0 0                                                              tmp%16#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                              tmp%17#0
-        l-load tmp%17#0 0                                                              tmp%17#0
+        txn ApplicationID                                                              tmp%11#0
+        l-load tmp%11#0 0                                                              tmp%11#0
         assert // can only call when not creating
         // typed_abi_call_txn/caller.py:14
         // class Caller(ARC4Contract):
@@ -98,15 +83,15 @@ subroutine main:
     main_bare_routing@9:
         // typed_abi_call_txn/caller.py:14
         // class Caller(ARC4Contract):
-        txn OnCompletion                                                               tmp%19#0
-        l-load tmp%19#0 0                                                              tmp%19#0
-        !                                                                              not%tmp%19#0
-        l-load not%tmp%19#0 0                                                          not%tmp%19#0
+        txn OnCompletion                                                               tmp%13#0
+        l-load tmp%13#0 0                                                              tmp%13#0
+        !                                                                              not%tmp%13#0
+        l-load not%tmp%13#0 0                                                          not%tmp%13#0
         assert
-        txn ApplicationID                                                              tmp%20#0
-        l-load tmp%20#0 0                                                              tmp%20#0
-        !                                                                              tmp%21#0
-        l-load tmp%21#0 0                                                              tmp%21#0
+        txn ApplicationID                                                              tmp%14#0
+        l-load tmp%14#0 0                                                              tmp%14#0
+        !                                                                              tmp%15#0
+        l-load tmp%15#0 0                                                              tmp%15#0
         assert // can only call when creating
         int 1                                                                          1
         return

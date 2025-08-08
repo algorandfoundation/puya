@@ -45,24 +45,24 @@ subroutine main:
     main_abi_routing@4:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txna ApplicationArgs 0                                                               tmp%2#0
-        method opt_into_asset(uint64)void                                                    tmp%2#0,Method(opt_into_asset(uint64)void)
-        method start_auction(uint64,uint64,axfer)void                                        tmp%2#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void)
-        method opt_in()void                                                                  tmp%2#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void)
-        method bid(pay)void                                                                  tmp%2#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void)
-        method claim_bids()void                                                              tmp%2#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void)
-        method claim_asset(uint64)void                                                       tmp%2#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void)
-        l-load tmp%2#0 6                                                                     Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void),tmp%2#0
+        txn OnCompletion                                                                     tmp%2#0
+        l-load tmp%2#0 0                                                                     tmp%2#0
+        !                                                                                    tmp%3#0
+        l-load tmp%3#0 0                                                                     tmp%3#0
+        assert // OnCompletion is not NoOp
+        txna ApplicationArgs 0                                                               tmp%4#0
+        method opt_into_asset(uint64)void                                                    tmp%4#0,Method(opt_into_asset(uint64)void)
+        method start_auction(uint64,uint64,axfer)void                                        tmp%4#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void)
+        method opt_in()void                                                                  tmp%4#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void)
+        method bid(pay)void                                                                  tmp%4#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void)
+        method claim_bids()void                                                              tmp%4#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void)
+        method claim_asset(uint64)void                                                       tmp%4#0,Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void)
+        l-load tmp%4#0 6                                                                     Method(opt_into_asset(uint64)void),Method(start_auction(uint64,uint64,axfer)void),Method(opt_in()void),Method(bid(pay)void),Method(claim_bids()void),Method(claim_asset(uint64)void),tmp%4#0
         match main_opt_into_asset_route@5 main_start_auction_route@6 main_opt_in_route@7 main_bid_route@8 main_claim_bids_route@9 main_claim_asset_route@10 ; b main_after_if_else@13 
 
     main_opt_into_asset_route@5:
         // auction/contract.py:25
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%3#0
-        l-load tmp%3#0 0                                                                     tmp%3#0
-        !                                                                                    tmp%4#0
-        l-load tmp%4#0 0                                                                     tmp%4#0
-        assert // OnCompletion is not NoOp
         txn ApplicationID                                                                    tmp%5#0
         l-load tmp%5#0 0                                                                     tmp%5#0
         assert // can only call when not creating
@@ -77,13 +77,8 @@ subroutine main:
     main_start_auction_route@6:
         // auction/contract.py:40
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%7#0
+        txn ApplicationID                                                                    tmp%7#0
         l-load tmp%7#0 0                                                                     tmp%7#0
-        !                                                                                    tmp%8#0
-        l-load tmp%8#0 0                                                                     tmp%8#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%9#0
-        l-load tmp%9#0 0                                                                     tmp%9#0
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
@@ -96,13 +91,8 @@ subroutine main:
     main_opt_in_route@7:
         // auction/contract.py:62
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%11#0
-        l-load tmp%11#0 0                                                                    tmp%11#0
-        !                                                                                    tmp%12#0
-        l-load tmp%12#0 0                                                                    tmp%12#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%13#0
-        l-load tmp%13#0 0                                                                    tmp%13#0
+        txn ApplicationID                                                                    tmp%9#0
+        l-load tmp%9#0 0                                                                     tmp%9#0
         assert // can only call when not creating
         int 1                                                                                1
         return
@@ -110,13 +100,8 @@ subroutine main:
     main_bid_route@8:
         // auction/contract.py:66
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%15#0
-        l-load tmp%15#0 0                                                                    tmp%15#0
-        !                                                                                    tmp%16#0
-        l-load tmp%16#0 0                                                                    tmp%16#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%17#0
-        l-load tmp%17#0 0                                                                    tmp%17#0
+        txn ApplicationID                                                                    tmp%11#0
+        l-load tmp%11#0 0                                                                    tmp%11#0
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
@@ -129,13 +114,8 @@ subroutine main:
     main_claim_bids_route@9:
         // auction/contract.py:82
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%19#0
-        l-load tmp%19#0 0                                                                    tmp%19#0
-        !                                                                                    tmp%20#0
-        l-load tmp%20#0 0                                                                    tmp%20#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%21#0
-        l-load tmp%21#0 0                                                                    tmp%21#0
+        txn ApplicationID                                                                    tmp%13#0
+        l-load tmp%13#0 0                                                                    tmp%13#0
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
@@ -148,13 +128,8 @@ subroutine main:
     main_claim_asset_route@10:
         // auction/contract.py:97
         // @arc4.abimethod
-        txn OnCompletion                                                                     tmp%23#0
-        l-load tmp%23#0 0                                                                    tmp%23#0
-        !                                                                                    tmp%24#0
-        l-load tmp%24#0 0                                                                    tmp%24#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%25#0
-        l-load tmp%25#0 0                                                                    tmp%25#0
+        txn ApplicationID                                                                    tmp%15#0
+        l-load tmp%15#0 0                                                                    tmp%15#0
         assert // can only call when not creating
         // auction/contract.py:16
         // class Auction(ARC4Contract):
@@ -167,15 +142,15 @@ subroutine main:
     main_bare_routing@11:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
-        txn OnCompletion                                                                     tmp%27#0
-        l-load tmp%27#0 0                                                                    tmp%27#0
-        !                                                                                    not%tmp%27#0
-        l-load not%tmp%27#0 0                                                                not%tmp%27#0
+        txn OnCompletion                                                                     tmp%17#0
+        l-load tmp%17#0 0                                                                    tmp%17#0
+        !                                                                                    not%tmp%17#0
+        l-load not%tmp%17#0 0                                                                not%tmp%17#0
         assert
-        txn ApplicationID                                                                    tmp%28#0
-        l-load tmp%28#0 0                                                                    tmp%28#0
-        !                                                                                    tmp%29#0
-        l-load tmp%29#0 0                                                                    tmp%29#0
+        txn ApplicationID                                                                    tmp%18#0
+        l-load tmp%18#0 0                                                                    tmp%18#0
+        !                                                                                    tmp%19#0
+        l-load tmp%19#0 0                                                                    tmp%19#0
         assert // can only call when creating
         int 1                                                                                1
         return

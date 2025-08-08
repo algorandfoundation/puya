@@ -5,15 +5,15 @@
 main:
     txn NumAppArgs
     bz main_bare_routing@7
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0x0a9542cd 0x71a3151f // method "emit_swapped(uint64,uint64)void", method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     txna ApplicationArgs 0
     match main_emit_swapped_route@3 main_emit_ufixed_route@4
     err
 
 main_emit_ufixed_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
@@ -27,9 +27,6 @@ main_emit_ufixed_route@4:
     return
 
 main_emit_swapped_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 2

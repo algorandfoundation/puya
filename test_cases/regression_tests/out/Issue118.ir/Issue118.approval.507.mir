@@ -10,17 +10,17 @@ subroutine main:
     main_abi_routing@2:
         // regression_tests/issue_118.py:5
         // class Issue118(ARC4Contract):
-        txna ApplicationArgs 0                                                         tmp%2#0
-        method verify(uint256[])(bool,string)                                          tmp%2#0,Method(verify(uint256[])(bool,string))
-        l-load tmp%2#0 1                                                               Method(verify(uint256[])(bool,string)),tmp%2#0
+        txn OnCompletion                                                               tmp%2#0
+        !                                                                              tmp%3#0
+        assert // OnCompletion is not NoOp
+        txna ApplicationArgs 0                                                         tmp%4#0
+        method verify(uint256[])(bool,string)                                          tmp%4#0,Method(verify(uint256[])(bool,string))
+        l-load tmp%4#0 1                                                               Method(verify(uint256[])(bool,string)),tmp%4#0
         match main_verify_route@3 ; b main_after_if_else@10
 
     main_verify_route@3:
         // regression_tests/issue_118.py:7
         // @abimethod
-        txn OnCompletion                                                               tmp%3#0
-        !                                                                              tmp%4#0
-        assert // OnCompletion is not NoOp
         txn ApplicationID                                                              tmp%5#0
         assert // can only call when not creating
         // regression_tests/issue_118.py:5

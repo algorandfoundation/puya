@@ -7,6 +7,9 @@ main:
     bytecblock "root"
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0x8424203b 0xc0290ad5 // method "create(byte[32])void", method "verify(byte[32][],byte[32])bool"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
     match main_create_route@2 main_verify_route@3
@@ -15,9 +18,6 @@ main:
 main_verify_route@3:
     // merkle/contract.py:14
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // merkle/contract.py:9
@@ -31,9 +31,6 @@ main_verify_route@3:
 main_create_route@2:
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     !
     assert // can only call when creating

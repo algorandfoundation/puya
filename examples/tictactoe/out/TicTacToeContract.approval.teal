@@ -7,6 +7,9 @@ main:
     bytecblock "game" "turns" "challenger" "winner" 0x01 0x02 "host"
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0x96a97181 0x17a079b3 0xbb9f1147 0x9eebf58e // method "new_game((uint64,uint64))void", method "join_game((uint64,uint64))void", method "whose_turn()uint8", method "play((uint64,uint64))void"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
     match main_new_game_route@4 main_join_game_route@5 main_whose_turn_route@6 main_play_route@7
@@ -15,9 +18,6 @@ main:
 main_play_route@7:
     // tictactoe/tictactoe.py:47
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // tictactoe/tictactoe.py:15
@@ -31,9 +31,6 @@ main_play_route@7:
 main_whose_turn_route@6:
     // tictactoe/tictactoe.py:43
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // tictactoe/tictactoe.py:15
@@ -47,9 +44,6 @@ main_whose_turn_route@6:
 main_join_game_route@5:
     // tictactoe/tictactoe.py:37
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // tictactoe/tictactoe.py:15
@@ -61,11 +55,6 @@ main_join_game_route@5:
     return
 
 main_new_game_route@4:
-    // tictactoe/tictactoe.py:20
-    // @arc4.abimethod(create="allow")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     callsub new_game

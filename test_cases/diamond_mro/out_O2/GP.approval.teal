@@ -9,15 +9,15 @@ main:
     log
 
 main_after_if_else@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0x4c5c61ba 0x4f045d84 // method "create()void", method "method()void"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
     match main_create_route@4 main_method_route@5
     err
 
 main_method_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     pushbytes "gp.method"
@@ -26,9 +26,6 @@ main_method_route@5:
     return
 
 main_create_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     !
     assert // can only call when creating

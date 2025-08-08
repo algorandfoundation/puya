@@ -1,85 +1,58 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let tmp%0#1: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
-        switch tmp%0#1 {method "create()void" => block@2, method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@12}
+        let tmp%0#1: uint64 = (txn OnCompletion)
+        let tmp%1#0: bool = (! tmp%0#1)
+        (assert tmp%1#0) // OnCompletion is not NoOp
+        let tmp%2#0: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
+        switch tmp%2#0 {method "create()void" => block@2, method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@12}
     block@2: // create_route_L12
-        let tmp%1#0: uint64 = (txn OnCompletion)
-        let tmp%2#0: bool = (! tmp%1#0)
-        (assert tmp%2#0) // OnCompletion is not NoOp
         let tmp%3#0: uint64 = (txn ApplicationID)
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // can only call when creating
         exit 1u
     block@3: // pay_route_L31
-        let tmp%5#0: uint64 = (txn OnCompletion)
-        let tmp%6#0: bool = (! tmp%5#0)
-        (assert tmp%6#0) // OnCompletion is not NoOp
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        (assert tmp%7#0) // can only call when not creating
+        let tmp%5#0: uint64 = (txn ApplicationID)
+        (assert tmp%5#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.pay[routing]()
         exit 1u
     block@4: // key_route_L40
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        let tmp%10#0: bool = (! tmp%9#0)
-        (assert tmp%10#0) // OnCompletion is not NoOp
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        (assert tmp%11#0) // can only call when not creating
+        let tmp%7#0: uint64 = (txn ApplicationID)
+        (assert tmp%7#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.key[routing]()
         exit 1u
     block@5: // asset_config_route_L51
-        let tmp%13#0: uint64 = (txn OnCompletion)
-        let tmp%14#0: bool = (! tmp%13#0)
-        (assert tmp%14#0) // OnCompletion is not NoOp
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        (assert tmp%15#0) // can only call when not creating
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.asset_config[routing]()
         exit 1u
     block@6: // asset_transfer_route_L68
-        let tmp%17#0: uint64 = (txn OnCompletion)
-        let tmp%18#0: bool = (! tmp%17#0)
-        (assert tmp%18#0) // OnCompletion is not NoOp
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        (assert tmp%19#0) // can only call when not creating
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        (assert tmp%11#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.asset_transfer[routing]()
         exit 1u
     block@7: // asset_freeze_route_L77
-        let tmp%21#0: uint64 = (txn OnCompletion)
-        let tmp%22#0: bool = (! tmp%21#0)
-        (assert tmp%22#0) // OnCompletion is not NoOp
-        let tmp%23#0: uint64 = (txn ApplicationID)
-        (assert tmp%23#0) // can only call when not creating
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.asset_freeze[routing]()
         exit 1u
     block@8: // application_call_route_L85
-        let tmp%25#0: uint64 = (txn OnCompletion)
-        let tmp%26#0: bool = (! tmp%25#0)
-        (assert tmp%26#0) // OnCompletion is not NoOp
-        let tmp%27#0: uint64 = (txn ApplicationID)
-        (assert tmp%27#0) // can only call when not creating
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        (assert tmp%15#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.application_call[routing]()
         exit 1u
     block@9: // multiple_txns_route_L111
-        let tmp%29#0: uint64 = (txn OnCompletion)
-        let tmp%30#0: bool = (! tmp%29#0)
-        (assert tmp%30#0) // OnCompletion is not NoOp
-        let tmp%31#0: uint64 = (txn ApplicationID)
-        (assert tmp%31#0) // can only call when not creating
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        (assert tmp%17#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.multiple_txns[routing]()
         exit 1u
     block@10: // any_txn_route_L121
-        let tmp%33#0: uint64 = (txn OnCompletion)
-        let tmp%34#0: bool = (! tmp%33#0)
-        (assert tmp%34#0) // OnCompletion is not NoOp
-        let tmp%35#0: uint64 = (txn ApplicationID)
-        (assert tmp%35#0) // can only call when not creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        (assert tmp%19#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.any_txn[routing]()
         exit 1u
     block@11: // group_init_route_L131
-        let tmp%37#0: uint64 = (txn OnCompletion)
-        let tmp%38#0: bool = (! tmp%37#0)
-        (assert tmp%38#0) // OnCompletion is not NoOp
-        let tmp%39#0: uint64 = (txn ApplicationID)
-        (assert tmp%39#0) // can only call when not creating
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        (assert tmp%21#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.group_init[routing]()
         exit 1u
     block@12: // switch_case_default_L11

@@ -6,15 +6,15 @@ main:
     intcblock 1
     txn NumAppArgs
     bz main_bare_routing@8
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0xda8534bd 0xb4633ddd 0x16545880 // method "add_user((string,uint64,uint64))void", method "attach_asset_to_user(uint64,uint64)void", method "get_user(uint64)(string,uint64,uint64)"
     txna ApplicationArgs 0
     match main_add_user_route@3 main_attach_asset_to_user_route@4 main_get_user_route@5
     err
 
 main_get_user_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
@@ -28,9 +28,6 @@ main_get_user_route@5:
     return
 
 main_attach_asset_to_user_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 2
@@ -50,9 +47,6 @@ main_attach_asset_to_user_route@4:
     return
 
 main_add_user_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1

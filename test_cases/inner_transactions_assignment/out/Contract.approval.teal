@@ -9,6 +9,9 @@ main:
     // class Contract(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@7
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0xe46d9019 0xf883853e // method "test_itxn_slice()void", method "test_itxn_nested()void"
     txna ApplicationArgs 0
     match main_test_itxn_slice_route@3 main_test_itxn_nested_route@4
@@ -17,9 +20,6 @@ main:
 main_test_itxn_nested_route@4:
     // inner_transactions_assignment/contract.py:29
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // inner_transactions_assignment/contract.py:11
@@ -33,9 +33,6 @@ main_test_itxn_nested_route@4:
 main_test_itxn_slice_route@3:
     // inner_transactions_assignment/contract.py:12
     // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     // inner_transactions_assignment/contract.py:11

@@ -3,12 +3,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@29
     block@2: // abi_routing_L93
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "test_uint64_array()void" => block@3, method "test_biguint_array()void" => block@4, method "test_bool_array(uint64)void" => block@5, method "test_fixed_size_tuple_array()void" => block@6, method "test_fixed_size_named_tuple_array()void" => block@7, method "test_dynamic_sized_tuple_array()void" => block@8, method "test_dynamic_sized_named_tuple_array()void" => block@9, method "test_implicit_conversion_log(uint64[])void" => block@10, method "test_implicit_conversion_emit(uint64[])void" => block@11, method "test_nested_array(uint64,uint64[][])uint64[]" => block@12, method "test_bit_packed_tuples()void" => block@13, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@14, method "test_uint64_return(uint64)uint64[]" => block@15, method "test_bool_return(uint64)bool[]" => block@16, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@17, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@18, method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]" => block@19, method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]" => block@20, method "test_concat_with_native_tuple((uint64,uint64))uint64[]" => block@21, method "test_dynamic_concat_with_arc4_tuple((string,string))string[]" => block@22, method "test_dynamic_concat_with_native_tuple((string,string))string[]" => block@23, method "test_concat_immutable_dynamic((uint64,string)[],(uint64,string)[])(uint64,string)[]" => block@24, method "test_immutable_arc4((uint64,uint64)[])(uint64,uint64)[]" => block@25, method "test_imm_fixed_arr()(uint64,uint64)[3]" => block@26, * => block@33}
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion is not NoOp
+        let tmp%4#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%4#0 {method "test_uint64_array()void" => block@3, method "test_biguint_array()void" => block@4, method "test_bool_array(uint64)void" => block@5, method "test_fixed_size_tuple_array()void" => block@6, method "test_fixed_size_named_tuple_array()void" => block@7, method "test_dynamic_sized_tuple_array()void" => block@8, method "test_dynamic_sized_named_tuple_array()void" => block@9, method "test_implicit_conversion_log(uint64[])void" => block@10, method "test_implicit_conversion_emit(uint64[])void" => block@11, method "test_nested_array(uint64,uint64[][])uint64[]" => block@12, method "test_bit_packed_tuples()void" => block@13, method "sum_uints_and_lengths_and_trues(uint64[],bool[],(uint64,bool,bool)[],(uint64,string)[])(uint64,uint64,uint64,uint64)" => block@14, method "test_uint64_return(uint64)uint64[]" => block@15, method "test_bool_return(uint64)bool[]" => block@16, method "test_tuple_return(uint64)(uint64,bool,bool)[]" => block@17, method "test_dynamic_tuple_return(uint64)(uint64,string)[]" => block@18, method "test_convert_to_array_and_back((uint64,bool,bool)[],uint64)(uint64,bool,bool)[]" => block@19, method "test_concat_with_arc4_tuple((uint64,uint64))uint64[]" => block@20, method "test_concat_with_native_tuple((uint64,uint64))uint64[]" => block@21, method "test_dynamic_concat_with_arc4_tuple((string,string))string[]" => block@22, method "test_dynamic_concat_with_native_tuple((string,string))string[]" => block@23, method "test_concat_immutable_dynamic((uint64,string)[],(uint64,string)[])(uint64,string)[]" => block@24, method "test_immutable_arc4((uint64,uint64)[])(uint64,uint64)[]" => block@25, method "test_imm_fixed_arr()(uint64,uint64)[3]" => block@26, * => block@33}
     block@3: // test_uint64_array_route_L94
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let arr#0: bytes = test_cases.array.immutable.add_x(0x0001000000000000002a, 5u)
@@ -28,8 +28,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let arr#0: bytes = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
         let aggregate%array_length%5#0: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%16#0: bool = (== aggregate%array_length%5#0 7u)
-        (assert tmp%16#0)
+        let tmp%16#1: bool = (== aggregate%array_length%5#0 7u)
+        (assert tmp%16#1)
         let tmp%18#5: uint64 = (- aggregate%array_length%5#0 1u)
         let aggregate%array_trimmed%2#0: bytes = ((extract 2 0) arr#0)
         let aggregate%bytes_offset%2#0: uint64 = (* tmp%18#5 8u)
@@ -37,8 +37,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%19#2: bool = (== values%2#3 43u)
         (assert tmp%19#2)
         let values%3#3: uint64 = (extract_uint64 arr#0 2u)
-        let tmp%20#0: bool = (== values%3#3 42u)
-        (assert tmp%20#0)
+        let tmp%20#2: bool = (== values%3#3 42u)
+        (assert tmp%20#2)
         let _i#0: uint64 = 0u
         goto block@174
     block@174: // for_header_L505
@@ -66,8 +66,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%array_trimmed%5#0: bytes = ((extract 2 0) arr#0)
         let aggregate%bytes_offset%5#0: uint64 = (* tmp%31#0 8u)
         let values%5#4: uint64 = (extract_uint64 aggregate%array_trimmed%5#0 aggregate%bytes_offset%5#0)
-        let tmp%32#0: bool = (== values%5#4 9u)
-        (assert tmp%32#0)
+        let tmp%32#1: bool = (== values%5#4 9u)
+        (assert tmp%32#1)
         let aggregate%val_as_bytes%2#0: bytes[8] = (itob 44u)
         let concat%2#0: bytes = (concat arr#0 aggregate%val_as_bytes%2#0) // on error: max array length exceeded
         let add%2#0: uint64 = (+ aggregate%array_length%9#0 1u)
@@ -86,22 +86,19 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob 23u)
         let arr#0: bytes = ((replace2 18) arr#0 aggregate%val_as_bytes%3#0)
         let aggregate%array_length%13#0: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%40#0: bool = (== aggregate%array_length%13#0 15u)
-        (assert tmp%40#0)
+        let tmp%40#2: bool = (== aggregate%array_length%13#0 15u)
+        (assert tmp%40#2)
         let values%7#3: uint64 = (extract_uint64 arr#0 18u)
         let tmp%41#2: bool = (== values%7#3 23u)
         (assert tmp%41#2)
         (app_global_put "a" arr#0)
         exit 1u
     block@4: // test_biguint_array_route_L130
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
-        let tmp%2#1: uint64 = (txn NumAppArgs)
-        let tmp%3#0: uint64 = (- tmp%2#1 1u)
-        let tmp%4#11: biguint = (itob tmp%3#0)
+        let tmp%7#0: uint64 = (txn ApplicationID)
+        (assert tmp%7#0) // can only call when not creating
+        let tmp%2#0: uint64 = (txn NumAppArgs)
+        let tmp%3#1: uint64 = (- tmp%2#0 1u)
+        let tmp%4#11: biguint = (itob tmp%3#1)
         let aggregate%bzero%0#0: bytes = (bzero 64u)
         let aggregate%arc4_encoded%0#0: bytes[64] = (b| tmp%4#11 aggregate%bzero%0#0)
         let concat%0#1: bytes = (concat 0x0000 aggregate%arc4_encoded%0#0) // on error: max array length exceeded
@@ -139,8 +136,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%array_trimmed%10#0: bytes = ((extract 2 0) arr#0)
         let aggregate%bytes_offset%10#0: uint64 = (* tmp%15#0 64u)
         let aggregate%encoded_element%10#0: bytes = (extract3 aggregate%array_trimmed%10#0 aggregate%bytes_offset%10#0 64u) // on error: index access is out of bounds
-        let tmp%16#0: bool = (b== aggregate%encoded_element%10#0 4b)
-        (assert tmp%16#0)
+        let tmp%16#1: bool = (b== aggregate%encoded_element%10#0 4b)
+        (assert tmp%16#1)
         let tmp%17#0: uint64 = (txn NumAppArgs)
         let tmp%18#4: biguint = (itob tmp%17#0)
         let tmp%19#6: biguint = (b- 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b tmp%18#4)
@@ -177,8 +174,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%array_trimmed%13#0: bytes = ((extract 2 0) arr#0)
         let aggregate%bytes_offset%13#0: uint64 = (* tmp%31#0 64u)
         let aggregate%encoded_element%13#0: bytes = (extract3 aggregate%array_trimmed%13#0 aggregate%bytes_offset%13#0 64u) // on error: index access is out of bounds
-        let tmp%32#0: bool = (b== aggregate%encoded_element%13#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
-        (assert tmp%32#0)
+        let tmp%32#1: bool = (b== aggregate%encoded_element%13#0 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095b)
+        (assert tmp%32#1)
         let aggregate%encoded_element%14#0: bytes = ((extract 2 64) arr#0)
         let tmp%33#1: bool = (b== aggregate%encoded_element%14#0 0b)
         (assert tmp%33#1)
@@ -186,11 +183,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (box_put 0x62696775696e74 arr#0)
         exit 1u
     block@5: // test_bool_array_route_L155
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let length#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x0000
@@ -200,9 +194,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< i#0 length#0)
         goto continue_looping%0#0 ? block@149 : block@150
     block@149: // for_body_L161
-        let tmp%2#1: uint64 = (txn NumAppArgs)
-        let tmp%3#5: bool = (== i#0 tmp%2#1)
-        let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%3#5)
+        let tmp%2#0: uint64 = (txn NumAppArgs)
+        let tmp%3#0: bool = (== i#0 tmp%2#0)
+        let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%3#0)
         let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(arr#0, aggregate%encoded_bool%0#0, 1u, 8u)
         let i#0: uint64 = (+ i#0 1u)
         goto block@148
@@ -214,8 +208,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@151: // if_body_L166
         (assert array_length#0) // index access is out of bounds
         let aggregate%get_bit%0#0: uint64 = (getbit arr#0 16u)
-        let tmp%8#0: bool = (! aggregate%get_bit%0#0)
-        (assert tmp%8#0) // expected element 0 to be False
+        let tmp%8#1: bool = (! aggregate%get_bit%0#0)
+        (assert tmp%8#1) // expected element 0 to be False
         goto block@152
     block@152: // after_if_else_L165
         let tmp%9#1: bool = (> length#0 1u)
@@ -237,8 +231,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert aggregate%get_bit%2#0) // expected element 2 to be True
         goto block@156
     block@156: // after_if_else_L169
-        let tmp%12#0: bool = (> length#0 3u)
-        goto tmp%12#0 ? block@157 : block@158
+        let tmp%12#1: bool = (> length#0 3u)
+        goto tmp%12#1 ? block@157 : block@158
     block@157: // if_body_L172
         let tmp%13#0: uint64 = (- length#0 1u)
         let aggregate%lt%3#0: bool = (< tmp%13#0 array_length#0)
@@ -253,8 +247,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto length#0 ? block@159 : block@160
     block@159: // if_body_L176
         let length_minus_1#0: uint64 = (- array_length#0 1u)
-        let tmp%2#0: bytes = (itob length_minus_1#0)
-        let tmp%3#3: bytes = ((extract 6 0) tmp%2#0)
+        let tmp%2#3: bytes = (itob length_minus_1#0)
+        let tmp%3#3: bytes = ((extract 6 0) tmp%2#3)
         let result#0: bytes = ((replace2 0) arr#0 tmp%3#3)
         let popped_location#0: uint64 = (+ length_minus_1#0 16u)
         let result#0: bytes = (setbit result#0 popped_location#0 0u)
@@ -270,11 +264,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@160: // after_if_else_L175
         exit 1u
     block@6: // test_fixed_size_tuple_array_route_L179
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (! tmp%15#0)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        (assert tmp%17#0) // can only call when not creating
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        (assert tmp%11#0) // can only call when not creating
         let arr#0: bytes = 0x0000
         let i#0: uint64 = 0u
         goto block@143
@@ -283,9 +274,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto continue_looping%0#0 ? block@144 : block@145
     block@144: // for_body_L185
         let i#21: uint64 = (+ i#0 1u)
-        let tmp%3#0: uint64 = (+ i#0 2u)
+        let tmp%3#1: uint64 = (+ i#0 2u)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob i#21)
-        let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%3#0)
+        let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%3#1)
         let aggregate%head%9#0: bytes = (concat aggregate%val_as_bytes%4#0 aggregate%val_as_bytes%5#0)
         let concat%0#1: bytes = (concat arr#0 aggregate%head%9#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -304,22 +295,22 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%item0%0#0: uint64 = (extract_uint64 aggregate%encoded_element%15#0 0u)
         let aggregate%item1%0#0: uint64 = (extract_uint64 aggregate%encoded_element%15#0 8u)
         let tmp%7#4: bool = (== aggregate%item0%0#0 1u)
-        let tmp%8#0: bool = (== aggregate%item1%0#0 2u)
-        let tmp%9#1: bool = (&& tmp%7#4 tmp%8#0)
+        let tmp%8#1: bool = (== aggregate%item1%0#0 2u)
+        let tmp%9#1: bool = (&& tmp%7#4 tmp%8#1)
         (assert tmp%9#1)
         let tmp%11#0: uint64 = (- aggregate%array_length%31#0 1u)
         let aggregate%bytes_offset%16#0: uint64 = (* tmp%11#0 16u)
         let aggregate%encoded_element%16#0: bytes = (extract3 aggregate%array_trimmed%15#0 aggregate%bytes_offset%16#0 16u) // on error: index access is out of bounds
         let aggregate%item0%1#0: uint64 = (extract_uint64 aggregate%encoded_element%16#0 0u)
         let aggregate%item1%1#0: uint64 = (extract_uint64 aggregate%encoded_element%16#0 8u)
-        let tmp%12#0: bool = (== aggregate%item0%1#0 5u)
+        let tmp%12#1: bool = (== aggregate%item0%1#0 5u)
         let tmp%13#2: bool = (== aggregate%item1%1#0 6u)
-        let tmp%14#1: bool = (&& tmp%12#0 tmp%13#2)
+        let tmp%14#1: bool = (&& tmp%12#1 tmp%13#2)
         (assert tmp%14#1)
         let (tmp%15#5: bytes, arr#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#0, 16u)
         let aggregate%array_length%33#0: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%20#0: bool = (== aggregate%array_length%33#0 4u)
-        (assert tmp%20#0)
+        let tmp%20#2: bool = (== aggregate%array_length%33#0 4u)
+        (assert tmp%20#2)
         let aggregate%array_trimmed%17#0: bytes = ((extract 2 0) arr#0)
         let aggregate%encoded_element%17#0: bytes = ((extract 2 16) arr#0)
         let aggregate%item0%2#0: uint64 = (extract_uint64 aggregate%encoded_element%17#0 0u)
@@ -335,16 +326,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%item1%3#0: uint64 = (extract_uint64 aggregate%encoded_element%18#0 8u)
         let tmp%26#1: bool = (== aggregate%item0%3#0 4u)
         let tmp%27#1: bool = (== aggregate%item1%3#0 5u)
-        let tmp%28#0: bool = (&& tmp%26#1 tmp%27#1)
-        (assert tmp%28#0)
+        let tmp%28#1: bool = (&& tmp%26#1 tmp%27#1)
+        (assert tmp%28#1)
         (app_global_put "c" arr#0)
         exit 1u
     block@7: // test_fixed_size_named_tuple_array_route_L197
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
         let arr#0: bytes = 0x0000
         let i#0: uint64 = 0u
         goto block@138
@@ -352,13 +340,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< i#0 5u)
         goto continue_looping%0#0 ? block@139 : block@140
     block@139: // for_body_L203
-        let tmp%2#1: uint64 = (% i#0 2u)
-        let tmp%3#5: bool = (! tmp%2#1)
+        let tmp%2#0: uint64 = (% i#0 2u)
+        let tmp%3#0: bool = (! tmp%2#0)
         let tmp%4#1: uint64 = (* i#0 3u)
         let tmp%5#0: uint64 = (% tmp%4#1 2u)
         let tmp%6#1: bool = (! tmp%5#0)
         let aggregate%val_as_bytes%6#0: bytes[8] = (itob i#0)
-        let aggregate%encoded_bool%1#0: bytes[1] = (setbit 0x00 0u tmp%3#5)
+        let aggregate%encoded_bool%1#0: bytes[1] = (setbit 0x00 0u tmp%3#0)
         let aggregate%set_bit%0#0: bytes[1] = (setbit aggregate%encoded_bool%1#0 1u tmp%6#1)
         let aggregate%head%12#0: bytes = (concat aggregate%val_as_bytes%6#0 aggregate%set_bit%0#0)
         let concat%0#1: bytes = (concat arr#0 aggregate%head%12#0) // on error: max array length exceeded
@@ -384,11 +372,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "d" arr#0)
         exit 1u
     block@8: // test_dynamic_sized_tuple_array_route_L212
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (! tmp%23#0)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        (assert tmp%25#0) // can only call when not creating
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        (assert tmp%15#0) // can only call when not creating
         let arr#0: bytes = 0x0000
         let i#0: uint64 = 0u
         goto block@130
@@ -436,8 +421,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%len%0#0: uint64 = (len aggregate%substring3%0#0)
         let aggregate%substring3%1#0: bytes = (substring3 aggregate%substring3%0#0 aggregate%extract_uint16%0#0 aggregate%len%0#0)
         let aggregate%item1%4#0: bytes = ((extract 2 0) aggregate%substring3%1#0)
-        let tmp%8#0: bool = (== aggregate%item0%5#0 i#21)
-        (assert tmp%8#0) // expected 1st element to be correct
+        let tmp%8#1: bool = (== aggregate%item0%5#0 i#21)
+        (assert tmp%8#1) // expected 1st element to be correct
         let tmp%9#0: uint64 = (len aggregate%item1%4#0)
         let tmp%10#3: bool = (== tmp%9#0 i#0)
         (assert tmp%10#3) // expected 2nd element to be correct
@@ -446,8 +431,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@135: // after_for_L221
         let (tmp%11#1: bytes, arr#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
         let aggregate%array_length%40#0: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%16#0: bool = (== aggregate%array_length%40#0 4u)
-        (assert tmp%16#0)
+        let tmp%16#1: bool = (== aggregate%array_length%40#0 4u)
+        (assert tmp%16#1)
         let aggregate%array_head_and_tail%1#0: bytes = ((extract 2 0) arr#0)
         let aggregate%item_offset%1#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 0u)
         let aggregate%has_next%1#0: uint64 = (- aggregate%array_length%40#0 1u) // on error: index access is out of bounds
@@ -463,8 +448,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%17#2: bool = (== aggregate%item0%6#0 1u)
         let tmp%18#3: bytes = (bzero 0u)
         let tmp%19#2: bool = (== aggregate%item1%5#0 tmp%18#3)
-        let tmp%20#0: bool = (&& tmp%17#2 tmp%19#2)
-        (assert tmp%20#0) // expected 1, 0
+        let tmp%20#2: bool = (&& tmp%17#2 tmp%19#2)
+        (assert tmp%20#2) // expected 1, 0
         let aggregate%item_offset_offset%2#0: uint64 = (* aggregate%has_next%1#0 2u)
         let aggregate%item_offset%2#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%1#0 aggregate%item_offset_offset%2#0)
         let aggregate%next_index%2#0: uint64 = (+ aggregate%has_next%1#0 1u)
@@ -486,11 +471,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "e" arr#0)
         exit 1u
     block@9: // test_dynamic_sized_named_tuple_array_route_L231
-        let tmp%27#0: uint64 = (txn OnCompletion)
-        let tmp%28#0: bool = (! tmp%27#0)
-        (assert tmp%28#0) // OnCompletion is not NoOp
-        let tmp%29#0: uint64 = (txn ApplicationID)
-        (assert tmp%29#0) // can only call when not creating
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        (assert tmp%17#0) // can only call when not creating
         let arr#0: bytes = 0x0000
         let i#0: uint64 = 0u
         goto block@122
@@ -538,8 +520,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%len%3#0: uint64 = (len aggregate%substring3%6#0)
         let aggregate%substring3%7#0: bytes = (substring3 aggregate%substring3%6#0 aggregate%extract_uint16%3#0 aggregate%len%3#0)
         let aggregate%item1%7#0: bytes = ((extract 2 0) aggregate%substring3%7#0)
-        let tmp%8#0: bool = (== aggregate%item0%8#0 i#21)
-        (assert tmp%8#0) // expected 1st element to be correct
+        let tmp%8#1: bool = (== aggregate%item0%8#0 i#21)
+        (assert tmp%8#1) // expected 1st element to be correct
         let tmp%9#4: string = test_cases.array.immutable.times(i#0)
         let tmp%10#3: bool = (== aggregate%item1%7#0 tmp%9#4)
         (assert tmp%10#3) // expected 2nd element to be correct
@@ -548,8 +530,8 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@127: // after_for_L240
         let (tmp%11#1: bytes, arr#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
         let aggregate%array_length%47#0: uint64 = (extract_uint16 arr#0 0u)
-        let tmp%16#0: bool = (== aggregate%array_length%47#0 4u)
-        (assert tmp%16#0)
+        let tmp%16#1: bool = (== aggregate%array_length%47#0 4u)
+        (assert tmp%16#1)
         let aggregate%array_head_and_tail%4#0: bytes = ((extract 2 0) arr#0)
         let aggregate%item_offset%4#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%4#0 0u)
         let aggregate%has_next%4#0: uint64 = (- aggregate%array_length%47#0 1u) // on error: index access is out of bounds
@@ -581,35 +563,26 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%item1%9#0: bytes = ((extract 2 0) aggregate%substring3%11#0)
         let tmp%22#1: bool = (== aggregate%item0%10#0 4u)
         let tmp%23#1: bool = (== aggregate%item1%9#0 "   ")
-        let tmp%24#0: bool = (&& tmp%22#1 tmp%23#1)
-        (assert tmp%24#0) // expected 4, 3
+        let tmp%24#1: bool = (&& tmp%22#1 tmp%23#1)
+        (assert tmp%24#1) // expected 4, 3
         (app_global_put "f" arr#0)
         exit 1u
     block@10: // test_implicit_conversion_log_route_L250
-        let tmp%31#0: uint64 = (txn OnCompletion)
-        let tmp%32#0: bool = (! tmp%31#0)
-        (assert tmp%32#0) // OnCompletion is not NoOp
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        (assert tmp%33#0) // can only call when not creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        (assert tmp%19#0) // can only call when not creating
         let arr#0: bytes = (txna ApplicationArgs 1)
         (log arr#0)
         exit 1u
     block@11: // test_implicit_conversion_emit_route_L254
-        let tmp%35#0: uint64 = (txn OnCompletion)
-        let tmp%36#0: bool = (! tmp%35#0)
-        (assert tmp%36#0) // OnCompletion is not NoOp
-        let tmp%37#0: uint64 = (txn ApplicationID)
-        (assert tmp%37#0) // can only call when not creating
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        (assert tmp%21#0) // can only call when not creating
         let arr#0: bytes = (txna ApplicationArgs 1)
         let event%0#0: bytes = (concat 0xfa40c0530002 arr#0)
         (log event%0#0)
         exit 1u
     block@12: // test_nested_array_route_L258
-        let tmp%39#0: uint64 = (txn OnCompletion)
-        let tmp%40#0: bool = (! tmp%39#0)
-        (assert tmp%40#0) // OnCompletion is not NoOp
-        let tmp%41#0: uint64 = (txn ApplicationID)
-        (assert tmp%41#0) // can only call when not creating
+        let tmp%23#0: uint64 = (txn ApplicationID)
+        (assert tmp%23#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let arr_to_add#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = (txna ApplicationArgs 2)
@@ -683,15 +656,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
         goto block@113
     block@115: // after_for_L271
-        let tmp%2#0: bytes = (concat 0x151f7c75 totals#0)
-        (log tmp%2#0)
+        let tmp%2#3: bytes = (concat 0x151f7c75 totals#0)
+        (log tmp%2#3)
         exit 1u
     block@13: // test_bit_packed_tuples_route_L276
-        let tmp%43#0: uint64 = (txn OnCompletion)
-        let tmp%44#0: bool = (! tmp%43#0)
-        (assert tmp%44#0) // OnCompletion is not NoOp
-        let tmp%45#0: uint64 = (txn ApplicationID)
-        (assert tmp%45#0) // can only call when not creating
+        let tmp%25#0: uint64 = (txn ApplicationID)
+        (assert tmp%25#0) // can only call when not creating
         let arr2#0: bytes = 0x0000
         let arr7#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = 0x0000
         let arr8#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = 0x0000
@@ -702,9 +672,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let continue_looping%0#0: bool = (< i#0 5u)
         goto continue_looping%0#0 ? block@103 : block@104
     block@103: // for_body_L288
-        let tmp%8#0: bool = (! i#0)
+        let tmp%8#1: bool = (! i#0)
         let tmp%9#1: bool = (== i#0 1u)
-        let aggregate%encoded_bool%2#0: bytes[1] = (setbit 0x00 0u tmp%8#0)
+        let aggregate%encoded_bool%2#0: bytes[1] = (setbit 0x00 0u tmp%8#1)
         let aggregate%set_bit%1#0: bytes[1] = (setbit aggregate%encoded_bool%2#0 1u tmp%9#1)
         let concat%0#1: bytes = (concat arr2#0 aggregate%set_bit%1#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr2#0 0u)
@@ -715,14 +685,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%13#2: bool = (== i#0 2u)
         let tmp%14#1: bool = (== i#0 3u)
         let tmp%15#2: bool = (== i#0 4u)
-        let tmp%16#0: bool = (== i#0 5u)
+        let tmp%16#1: bool = (== i#0 5u)
         let tmp%17#2: bool = (== i#0 6u)
         let i#21: uint64 = (+ i#0 1u)
         let aggregate%val_as_bytes%11#0: bytes[8] = (itob i#0)
         let aggregate%set_bit%3#0: bytes[1] = (setbit aggregate%set_bit%1#0 2u tmp%13#2)
         let aggregate%set_bit%4#0: bytes[1] = (setbit aggregate%set_bit%3#0 3u tmp%14#1)
         let aggregate%set_bit%5#0: bytes[1] = (setbit aggregate%set_bit%4#0 4u tmp%15#2)
-        let aggregate%set_bit%6#0: bytes[1] = (setbit aggregate%set_bit%5#0 5u tmp%16#0)
+        let aggregate%set_bit%6#0: bytes[1] = (setbit aggregate%set_bit%5#0 5u tmp%16#1)
         let aggregate%set_bit%7#0: bytes[1] = (setbit aggregate%set_bit%6#0 6u tmp%17#2)
         let aggregate%head%27#0: bytes = (concat aggregate%val_as_bytes%11#0 aggregate%set_bit%7#0)
         let aggregate%val_as_bytes%12#0: bytes[8] = (itob i#21)
@@ -760,25 +730,22 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%42#1: bool = (== aggregate%array_length%57#0 5u)
         (assert tmp%42#1)
         let aggregate%array_length%58#0: uint64 = (extract_uint16 arr7#0 0u)
-        let tmp%44#0: bool = (== aggregate%array_length%58#0 5u)
-        (assert tmp%44#0)
+        let tmp%44#1: bool = (== aggregate%array_length%58#0 5u)
+        (assert tmp%44#1)
         let aggregate%array_length%59#0: uint64 = (extract_uint16 arr8#0 0u)
         let tmp%46#1: bool = (== aggregate%array_length%59#0 5u)
         (assert tmp%46#1)
         let aggregate%array_length%60#0: uint64 = (extract_uint16 arr9#0 0u)
-        let tmp%48#0: bool = (== aggregate%array_length%60#0 5u)
-        (assert tmp%48#0)
+        let tmp%48#1: bool = (== aggregate%array_length%60#0 5u)
+        (assert tmp%48#1)
         (app_global_put "bool2" arr2#0)
         (app_global_put "bool7" arr7#0)
         (app_global_put "bool8" arr8#0)
         (app_global_put "bool9" arr9#0)
         exit 1u
     block@14: // sum_uints_and_lengths_and_trues_route_L341
-        let tmp%47#0: uint64 = (txn OnCompletion)
-        let tmp%48#0: bool = (! tmp%47#0)
-        (assert tmp%48#0) // OnCompletion is not NoOp
-        let tmp%49#0: uint64 = (txn ApplicationID)
-        (assert tmp%49#0) // can only call when not creating
+        let tmp%27#0: uint64 = (txn ApplicationID)
+        (assert tmp%27#0) // can only call when not creating
         let arr1#0: bytes = (txna ApplicationArgs 1)
         let arr2#0: bytes = (txna ApplicationArgs 2)
         let arr3#0: Encoded(len+(uint64,bool1,bool1)[]) = (txna ApplicationArgs 3)
@@ -896,11 +863,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%5#2)
         exit 1u
     block@15: // test_uint64_return_route_L368
-        let tmp%51#0: uint64 = (txn OnCompletion)
-        let tmp%52#0: bool = (! tmp%51#0)
-        (assert tmp%52#0) // OnCompletion is not NoOp
-        let tmp%53#0: uint64 = (txn ApplicationID)
-        (assert tmp%53#0) // can only call when not creating
+        let tmp%29#0: uint64 = (txn ApplicationID)
+        (assert tmp%29#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let append#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x0003000000000000000100000000000000020000000000000003
@@ -920,15 +884,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let i#0: uint64 = (+ i#0 1u)
         goto block@77
     block@79: // after_for_L371
-        let tmp%2#0: bytes = (concat 0x151f7c75 arr#0)
-        (log tmp%2#0)
+        let tmp%2#3: bytes = (concat 0x151f7c75 arr#0)
+        (log tmp%2#3)
         exit 1u
     block@16: // test_bool_return_route_L375
-        let tmp%55#0: uint64 = (txn OnCompletion)
-        let tmp%56#0: bool = (! tmp%55#0)
-        (assert tmp%56#0) // OnCompletion is not NoOp
-        let tmp%57#0: uint64 = (txn ApplicationID)
-        (assert tmp%57#0) // can only call when not creating
+        let tmp%31#0: uint64 = (txn ApplicationID)
+        (assert tmp%31#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let append#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x0005a8
@@ -945,11 +906,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let i#0: uint64 = (+ i#0 1u)
         goto block@72
     block@17: // test_tuple_return_route_L382
-        let tmp%59#0: uint64 = (txn OnCompletion)
-        let tmp%60#0: bool = (! tmp%59#0)
-        (assert tmp%60#0) // OnCompletion is not NoOp
-        let tmp%61#0: uint64 = (txn ApplicationID)
-        (assert tmp%61#0) // can only call when not creating
+        let tmp%33#0: uint64 = (txn ApplicationID)
+        (assert tmp%33#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let append#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x0001000000000000000080
@@ -961,11 +919,11 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@68: // for_body_L386
         let tmp%0#1: uint64 = (% i#0 2u)
         let tmp%1#12: bool = (! tmp%0#1)
-        let tmp%2#1: uint64 = (% i#0 3u)
-        let tmp%3#5: bool = (! tmp%2#1)
+        let tmp%2#0: uint64 = (% i#0 3u)
+        let tmp%3#0: bool = (! tmp%2#0)
         let aggregate%val_as_bytes%26#0: bytes[8] = (itob i#0)
         let aggregate%encoded_bool%10#0: bytes[1] = (setbit 0x00 0u tmp%1#12)
-        let aggregate%set_bit%27#0: bytes[1] = (setbit aggregate%encoded_bool%10#0 1u tmp%3#5)
+        let aggregate%set_bit%27#0: bytes[1] = (setbit aggregate%encoded_bool%10#0 1u tmp%3#0)
         let aggregate%head%53#0: bytes = (concat aggregate%val_as_bytes%26#0 aggregate%set_bit%27#0)
         let concat%0#1: bytes = (concat arr#0 aggregate%head%53#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -976,11 +934,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let i#0: uint64 = (+ i#0 1u)
         goto block@67
     block@18: // test_dynamic_tuple_return_route_L389
-        let tmp%63#0: uint64 = (txn OnCompletion)
-        let tmp%64#0: bool = (! tmp%63#0)
-        (assert tmp%64#0) // OnCompletion is not NoOp
-        let tmp%65#0: uint64 = (txn ApplicationID)
-        (assert tmp%65#0) // can only call when not creating
+        let tmp%35#0: uint64 = (txn ApplicationID)
+        (assert tmp%35#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let append#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x000100020000000000000000000a000548656c6c6f
@@ -1005,11 +960,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let i#0: uint64 = (+ i#0 1u)
         goto block@62
     block@19: // test_convert_to_array_and_back_route_L396
-        let tmp%67#0: uint64 = (txn OnCompletion)
-        let tmp%68#0: bool = (! tmp%67#0)
-        (assert tmp%68#0) // OnCompletion is not NoOp
-        let tmp%69#0: uint64 = (txn ApplicationID)
-        (assert tmp%69#0) // can only call when not creating
+        let tmp%37#0: uint64 = (txn ApplicationID)
+        (assert tmp%37#0) // can only call when not creating
         let arr#0: bytes = (txna ApplicationArgs 1)
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 2)
         let append#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
@@ -1023,12 +975,12 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@58: // for_body_L403
         let tmp%0#1: uint64 = (% i#0 2u)
         let tmp%1#12: bool = (! tmp%0#1)
-        let tmp%2#1: uint64 = (% i#0 3u)
-        let tmp%3#5: bool = (! tmp%2#1)
+        let tmp%2#0: uint64 = (% i#0 3u)
+        let tmp%3#0: bool = (! tmp%2#0)
         let slot_contents%1#0: Encoded((uint64,bool1,bool1)[]) = load(local.0)
         let aggregate%val_as_bytes%29#0: bytes[8] = (itob i#0)
         let aggregate%encoded_bool%11#0: bytes[1] = (setbit 0x00 0u tmp%1#12)
-        let aggregate%set_bit%28#0: bytes[1] = (setbit aggregate%encoded_bool%11#0 1u tmp%3#5)
+        let aggregate%set_bit%28#0: bytes[1] = (setbit aggregate%encoded_bool%11#0 1u tmp%3#0)
         let aggregate%head%62#0: bytes = (concat aggregate%val_as_bytes%29#0 aggregate%set_bit%28#0)
         let concat%1#0: bytes = (concat slot_contents%1#0 aggregate%head%62#0) // on error: max array length exceeded
         store(local.0, concat%1#0)
@@ -1041,15 +993,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_bytes%0#1: bytes[8] = (itob aggregate%array_len%0#0)
         let as_u16_bytes%0#1: bytes = ((extract 6 2) as_bytes%0#1)
         let converted_array%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (concat as_u16_bytes%0#1 slot_contents%2#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 converted_array%0#0)
-        (log tmp%2#0)
+        let tmp%2#3: bytes = (concat 0x151f7c75 converted_array%0#0)
+        (log tmp%2#3)
         exit 1u
     block@20: // test_concat_with_arc4_tuple_route_L406
-        let tmp%71#0: uint64 = (txn OnCompletion)
-        let tmp%72#0: bool = (! tmp%71#0)
-        (assert tmp%72#0) // OnCompletion is not NoOp
-        let tmp%73#0: uint64 = (txn ApplicationID)
-        (assert tmp%73#0) // can only call when not creating
+        let tmp%39#0: uint64 = (txn ApplicationID)
+        (assert tmp%39#0) // can only call when not creating
         let arg#0: bytes = (txna ApplicationArgs 1)
         let concat%0#1: bytes = (concat 0x000200000000000000010000000000000002 arg#0) // on error: max array length exceeded
         let extract_to_end%0#0: bytes = ((extract 2 0) concat%0#1)
@@ -1062,11 +1011,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%1#1)
         exit 1u
     block@21: // test_concat_with_native_tuple_route_L414
-        let tmp%75#0: uint64 = (txn OnCompletion)
-        let tmp%76#0: bool = (! tmp%75#0)
-        (assert tmp%76#0) // OnCompletion is not NoOp
-        let tmp%77#0: uint64 = (txn ApplicationID)
-        (assert tmp%77#0) // can only call when not creating
+        let tmp%41#0: uint64 = (txn ApplicationID)
+        (assert tmp%41#0) // can only call when not creating
         let reinterpret_Encoded(uint64,uint64)%0#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
         let arg.0#0: bytes = ((extract 0 8) reinterpret_Encoded(uint64,uint64)%0#0)
         let arg.1#0: bytes = ((extract 8 8) reinterpret_Encoded(uint64,uint64)%0#0)
@@ -1077,11 +1023,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%3#3)
         exit 1u
     block@22: // test_dynamic_concat_with_arc4_tuple_route_L422
-        let tmp%79#0: uint64 = (txn OnCompletion)
-        let tmp%80#0: bool = (! tmp%79#0)
-        (assert tmp%80#0) // OnCompletion is not NoOp
-        let tmp%81#0: uint64 = (txn ApplicationID)
-        (assert tmp%81#0) // can only call when not creating
+        let tmp%43#0: uint64 = (txn ApplicationID)
+        (assert tmp%43#0) // can only call when not creating
         let arg#0: bytes = (txna ApplicationArgs 1)
         let data%0#0: bytes = ((extract 4 0) arg#0)
         let result#0: bytes = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x000200040007000161000162, data%0#0, 2u)
@@ -1089,11 +1032,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%1#1)
         exit 1u
     block@23: // test_dynamic_concat_with_native_tuple_route_L430
-        let tmp%83#0: uint64 = (txn OnCompletion)
-        let tmp%84#0: bool = (! tmp%83#0)
-        (assert tmp%84#0) // OnCompletion is not NoOp
-        let tmp%85#0: uint64 = (txn ApplicationID)
-        (assert tmp%85#0) // can only call when not creating
+        let tmp%45#0: uint64 = (txn ApplicationID)
+        (assert tmp%45#0) // can only call when not creating
         let reinterpret_Encoded((len+utf8[]),(len+utf8[]))%0#0: Encoded((len+utf8[]),(len+utf8[])) = (txna ApplicationArgs 1)
         let aggregate%extract_uint16%7#0: uint64 = (extract_uint16 reinterpret_Encoded((len+utf8[]),(len+utf8[]))%0#0 0u)
         let aggregate%extract_uint16%8#0: uint64 = (extract_uint16 reinterpret_Encoded((len+utf8[]),(len+utf8[]))%0#0 2u)
@@ -1106,11 +1046,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%3#3)
         exit 1u
     block@24: // test_concat_immutable_dynamic_route_L438
-        let tmp%87#0: uint64 = (txn OnCompletion)
-        let tmp%88#0: bool = (! tmp%87#0)
-        (assert tmp%88#0) // OnCompletion is not NoOp
-        let tmp%89#0: uint64 = (txn ApplicationID)
-        (assert tmp%89#0) // can only call when not creating
+        let tmp%47#0: uint64 = (txn ApplicationID)
+        (assert tmp%47#0) // can only call when not creating
         let imm1#0: Encoded(len+(uint64,(len+utf8[]))[]) = (txna ApplicationArgs 1)
         let imm2#0: Encoded(len+(uint64,(len+utf8[]))[]) = (txna ApplicationArgs 2)
         let extract_uint16%0#0: uint64 = (extract_uint16 imm1#0 0u)
@@ -1122,34 +1059,28 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%1#1)
         exit 1u
     block@25: // test_immutable_arc4_route_L444
-        let tmp%91#0: uint64 = (txn OnCompletion)
-        let tmp%92#0: bool = (! tmp%91#0)
-        (assert tmp%92#0) // OnCompletion is not NoOp
-        let tmp%93#0: uint64 = (txn ApplicationID)
-        (assert tmp%93#0) // can only call when not creating
+        let tmp%49#0: uint64 = (txn ApplicationID)
+        (assert tmp%49#0) // can only call when not creating
         let imm#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
         let aggregate%array_length%67#0: uint64 = (extract_uint16 imm#0 0u)
         (assert aggregate%array_length%67#0) // expected non empty array
-        let tmp%3#0: uint64 = (- aggregate%array_length%67#0 1u)
+        let tmp%3#1: uint64 = (- aggregate%array_length%67#0 1u)
         let aggregate%encoded_element%23#0: bytes = ((extract 2 16) imm#0)
-        let aggregate%write_offset%1#0: uint64 = (* tmp%3#0 16u)
+        let aggregate%write_offset%1#0: uint64 = (* tmp%3#1 16u)
         let aggregate%write_offset_with_length_header%1#0: uint64 = (+ aggregate%write_offset%1#0 2u)
         let imm#0: Encoded(len+(uint64,uint64)[]) = (replace3 imm#0 aggregate%write_offset_with_length_header%1#0 aggregate%encoded_element%23#0)
         let tmp%1#1: bytes = (concat 0x151f7c75 imm#0)
         (log tmp%1#1)
         exit 1u
     block@26: // test_imm_fixed_arr_route_L450
-        let tmp%95#0: uint64 = (txn OnCompletion)
-        let tmp%96#0: bool = (! tmp%95#0)
-        (assert tmp%96#0) // OnCompletion is not NoOp
-        let tmp%97#0: uint64 = (txn ApplicationID)
-        (assert tmp%97#0) // can only call when not creating
+        let tmp%51#0: uint64 = (txn ApplicationID)
+        (assert tmp%51#0) // can only call when not creating
         let arr1#0: bytes = (bzero 48u)
         let tmp%1#2: uint64 = (txn NumAppArgs)
-        let tmp%2#1: uint64 = (+ tmp%1#2 1u)
-        let tmp%3#0: uint64 = (txn NumAppArgs)
-        let tmp%4#1: uint64 = (+ tmp%3#0 2u)
-        let aggregate%val_as_bytes%30#0: bytes[8] = (itob tmp%2#1)
+        let tmp%2#0: uint64 = (+ tmp%1#2 1u)
+        let tmp%3#1: uint64 = (txn NumAppArgs)
+        let tmp%4#1: uint64 = (+ tmp%3#1 2u)
+        let aggregate%val_as_bytes%30#0: bytes[8] = (itob tmp%2#0)
         let aggregate%val_as_bytes%31#0: bytes[8] = (itob tmp%4#1)
         let struct12#0: Encoded(uint64,uint64) = (concat aggregate%val_as_bytes%30#0 aggregate%val_as_bytes%31#0)
         let aggregate%head%77#0: bytes = (concat struct12#0 struct12#0)
@@ -1167,8 +1098,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let i#0: uint64 = (+ i#0 1u)
         goto block@37
     block@39: // after_for_L459
-        let tmp%8#0: bool = (== arr1#0 arr2#0)
-        (assert tmp%8#0) // expected arrays to be the same
+        let tmp%8#1: bool = (== arr1#0 arr2#0)
+        (assert tmp%8#1) // expected arrays to be the same
         let item_index_internal%0#0: uint64 = 0u
         goto block@40
     block@40: // for_header_L464
@@ -1196,12 +1127,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%1#1)
         exit 1u
     block@29: // bare_routing_L93
-        let tmp%99#0: uint64 = (txn OnCompletion)
-        let not%tmp%99#0: bool = (! tmp%99#0)
-        (assert not%tmp%99#0)
-        let tmp%100#0: uint64 = (txn ApplicationID)
-        let tmp%101#0: bool = (! tmp%100#0)
-        (assert tmp%101#0) // can only call when creating
+        let tmp%53#0: uint64 = (txn OnCompletion)
+        let not%tmp%53#0: bool = (! tmp%53#0)
+        (assert not%tmp%53#0)
+        let tmp%54#0: uint64 = (txn ApplicationID)
+        let tmp%55#0: bool = (! tmp%54#0)
+        (assert tmp%55#0) // can only call when creating
         exit 1u
     block@33: // after_if_else_L93
         fail

@@ -3,12 +3,12 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%0#3: uint64 = (txn NumAppArgs)
         goto tmp%0#3 ? block@4 : block@40
     block@4: // abi_routing_L80
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "set_boxes(uint64,byte[],string)void" => block@5, method "check_keys()void" => block@6, method "create_many_ints()void" => block@7, method "set_many_ints(uint64,uint64)void" => block@8, method "sum_many_ints()uint64" => block@9, method "delete_boxes()void" => block@10, method "indirect_extract_and_replace()void" => block@11, method "read_boxes()(uint64,byte[],string,uint64)" => block@12, method "boxes_exist()(bool,bool,bool,bool)" => block@13, method "create_dynamic_arr_struct()void" => block@14, method "delete_dynamic_arr_struct()void" => block@15, method "append_dynamic_arr_struct(uint64)uint64" => block@16, method "pop_dynamic_arr_struct(uint64)uint64" => block@17, method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void" => block@18, method "nested_write(uint64,uint64)void" => block@19, method "nested_read(uint64,uint64,uint64)uint64" => block@20, method "sum_dynamic_arr_struct()uint64" => block@21, method "create_bools()void" => block@22, method "set_bool(uint64,bool)void" => block@23, method "sum_bools(uint64)uint64" => block@24, method "create_dynamic_box()void" => block@25, method "delete_dynamic_box()void" => block@26, method "append_dynamic_box(uint64)uint64" => block@27, method "pop_dynamic_box(uint64)uint64" => block@28, method "sum_dynamic_box()uint64" => block@29, method "write_dynamic_box(uint64,uint64)void" => block@30, method "write_dynamic_arr_struct(uint64,uint64)void" => block@31, method "slice_box()void" => block@32, method "arc4_box()void" => block@33, method "test_box_ref()void" => block@34, method "box_map_test()void" => block@35, method "box_map_set(uint64,string)void" => block@36, method "box_map_get(uint64)string" => block@37, method "box_map_del(uint64)void" => block@38, method "box_map_exists(uint64)bool" => block@39, * => block@42}
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (! tmp%2#0)
+        (assert tmp%3#0) // OnCompletion is not NoOp
+        let tmp%4#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%4#0 {method "set_boxes(uint64,byte[],string)void" => block@5, method "check_keys()void" => block@6, method "create_many_ints()void" => block@7, method "set_many_ints(uint64,uint64)void" => block@8, method "sum_many_ints()uint64" => block@9, method "delete_boxes()void" => block@10, method "indirect_extract_and_replace()void" => block@11, method "read_boxes()(uint64,byte[],string,uint64)" => block@12, method "boxes_exist()(bool,bool,bool,bool)" => block@13, method "create_dynamic_arr_struct()void" => block@14, method "delete_dynamic_arr_struct()void" => block@15, method "append_dynamic_arr_struct(uint64)uint64" => block@16, method "pop_dynamic_arr_struct(uint64)uint64" => block@17, method "set_nested_struct((uint64,(uint64,uint64[][],uint64),(uint64,uint64[][],uint64)[],uint64))void" => block@18, method "nested_write(uint64,uint64)void" => block@19, method "nested_read(uint64,uint64,uint64)uint64" => block@20, method "sum_dynamic_arr_struct()uint64" => block@21, method "create_bools()void" => block@22, method "set_bool(uint64,bool)void" => block@23, method "sum_bools(uint64)uint64" => block@24, method "create_dynamic_box()void" => block@25, method "delete_dynamic_box()void" => block@26, method "append_dynamic_box(uint64)uint64" => block@27, method "pop_dynamic_box(uint64)uint64" => block@28, method "sum_dynamic_box()uint64" => block@29, method "write_dynamic_box(uint64,uint64)void" => block@30, method "write_dynamic_arr_struct(uint64,uint64)void" => block@31, method "slice_box()void" => block@32, method "arc4_box()void" => block@33, method "test_box_ref()void" => block@34, method "box_map_test()void" => block@35, method "box_map_set(uint64,string)void" => block@36, method "box_map_get(uint64)string" => block@37, method "box_map_del(uint64)void" => block@38, method "box_map_exists(uint64)bool" => block@39, * => block@42}
     block@5: // set_boxes_route_L95
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // OnCompletion is not NoOp
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
@@ -47,8 +47,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%10#2: bool = (== value%2#1 tmp%9#0)
         (assert tmp%10#2)
         let (value%3#1: uint64, check%3#1: bool) = (box_len "box_d")
-        let tmp%12#4: uint64 = (len tmp%0#38)
-        let tmp%13#1: bool = (== value%3#1 tmp%12#4)
+        let tmp%12#3: uint64 = (len tmp%0#38)
+        let tmp%13#1: bool = (== value%3#1 tmp%12#3)
         (assert tmp%13#1)
         let tmp%14#2: bytes = (box_extract 0x424f585f43 0u 1u)
         let extract%0#0: bytes = ((extract 0 1) c#1)
@@ -78,13 +78,13 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%38#0: bytes = (substring3 c#1 0u bounded_index%1#0)
         let tmp%39#1: bool = (== tmp%37#1 tmp%38#0)
         (assert tmp%39#1)
-        let tmp%40#1: bytes = (box_extract "box_d" 0u 1u)
+        let tmp%40#0: bytes = (box_extract "box_d" 0u 1u)
         let extract%2#0: bytes = ((extract 2 1) b#1)
-        let tmp%42#0: bool = (== tmp%40#1 extract%2#0)
+        let tmp%42#0: bool = (== tmp%40#0 extract%2#0)
         (assert tmp%42#0)
         let tmp%45#0: uint64 = (- value%3#1 1u)
         let tmp%46#0: bytes = (box_extract "box_d" tmp%45#0 1u)
-        let tmp%49#0: uint64 = (- tmp%12#4 1u)
+        let tmp%49#0: uint64 = (- tmp%12#3 1u)
         let extract%3#0: bytes = (extract3 tmp%0#38 tmp%49#0 1u)
         let tmp%50#0: bool = (== tmp%46#0 extract%3#0)
         (assert tmp%50#0)
@@ -92,53 +92,44 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%54#0: uint64 = (select value%3#1 1u tmp%53#1)
         let tmp%55#0: uint64 = (- value%3#1 tmp%54#0)
         let tmp%57#1: bytes = (box_extract "box_d" 0u tmp%55#0)
-        let is_out_of_bounds%2#0: bool = (>= 1u tmp%12#4)
-        let bounded_offset%1#0: uint64 = (select 1u tmp%12#4 is_out_of_bounds%2#0)
-        let bounded_index%2#0: uint64 = (- tmp%12#4 bounded_offset%1#0)
+        let is_out_of_bounds%2#0: bool = (>= 1u tmp%12#3)
+        let bounded_offset%1#0: uint64 = (select 1u tmp%12#3 is_out_of_bounds%2#0)
+        let bounded_index%2#0: uint64 = (- tmp%12#3 bounded_offset%1#0)
         let tmp%59#1: bytes = (substring3 tmp%0#38 0u bounded_index%2#0)
         let tmp%60#0: bool = (== tmp%57#1 tmp%59#1)
         (assert tmp%60#0)
         let tmp%63#1: bool = (< 5u value%3#1)
-        let tmp%64#1: uint64 = (select value%3#1 5u tmp%63#1)
-        let tmp%66#0: bytes = (box_extract "box_d" 0u tmp%64#1)
-        let is_out_of_bounds%3#0: bool = (>= 5u tmp%12#4)
-        let bounded_index%3#0: uint64 = (select 5u tmp%12#4 is_out_of_bounds%3#0)
-        let tmp%68#1: bytes = (substring3 tmp%0#38 0u bounded_index%3#0)
-        let tmp%69#1: bool = (== tmp%66#0 tmp%68#1)
+        let tmp%64#0: uint64 = (select value%3#1 5u tmp%63#1)
+        let tmp%66#0: bytes = (box_extract "box_d" 0u tmp%64#0)
+        let is_out_of_bounds%3#0: bool = (>= 5u tmp%12#3)
+        let bounded_index%3#0: uint64 = (select 5u tmp%12#3 is_out_of_bounds%3#0)
+        let tmp%68#0: bytes = (substring3 tmp%0#38 0u bounded_index%3#0)
+        let tmp%69#1: bool = (== tmp%66#0 tmp%68#0)
         (assert tmp%69#1)
         let tmp%72#0: bool = (< 2u value%3#1)
         let tmp%73#0: uint64 = (select value%3#1 2u tmp%72#0)
         let tmp%75#1: bytes = (box_extract "box_d" 0u tmp%73#0)
-        let is_out_of_bounds%4#0: bool = (>= 2u tmp%12#4)
-        let bounded_index%4#0: uint64 = (select 2u tmp%12#4 is_out_of_bounds%4#0)
+        let is_out_of_bounds%4#0: bool = (>= 2u tmp%12#3)
+        let bounded_index%4#0: uint64 = (select 2u tmp%12#3 is_out_of_bounds%4#0)
         let tmp%77#1: bytes = (substring3 tmp%0#38 0u bounded_index%4#0)
         let tmp%78#0: bool = (== tmp%75#1 tmp%77#1)
         (assert tmp%78#0)
         let (value%4#0: uint64, check%4#0: bool) = (box_len "box_large")
-        let tmp%79#1: bool = (== value%4#0 6160u)
-        (assert tmp%79#1)
+        let tmp%79#0: bool = (== value%4#0 6160u)
+        (assert tmp%79#0)
         exit 1u
     block@6: // check_keys_route_L131
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (! tmp%7#0)
-        (assert tmp%8#0) // OnCompletion is not NoOp
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
+        let tmp%7#0: uint64 = (txn ApplicationID)
+        (assert tmp%7#0) // can only call when not creating
         exit 1u
     block@7: // create_many_ints_route_L138
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: bool = (! tmp%11#0)
-        (assert tmp%12#0) // OnCompletion is not NoOp
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
+        let tmp%9#0: uint64 = (txn ApplicationID)
+        (assert tmp%9#0) // can only call when not creating
         (box_create "many_ints" 4104u)
         exit 1u
     block@8: // set_many_ints_route_L142
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let tmp%16#0: bool = (! tmp%15#0)
-        (assert tmp%16#0) // OnCompletion is not NoOp
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        (assert tmp%17#0) // can only call when not creating
+        let tmp%11#0: uint64 = (txn ApplicationID)
+        (assert tmp%11#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -146,11 +137,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_replace "many_ints" box%element_offset%0#0 reinterpret_Encoded(uint64)%1#0)
         exit 1u
     block@9: // sum_many_ints_route_L146
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        let tmp%20#0: bool = (! tmp%19#0)
-        (assert tmp%20#0) // OnCompletion is not NoOp
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
+        let tmp%13#0: uint64 = (txn ApplicationID)
+        (assert tmp%13#0) // can only call when not creating
         goto block@125
     block@125: // while_top_L20
         let tmp%1#23: uint64 = (global OpcodeBudget)
@@ -183,15 +171,12 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         goto block@128
     block@130: // after_for_L150
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob total#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%1#0)
-        (log tmp%2#0)
+        let tmp%2#3: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%1#0)
+        (log tmp%2#3)
         exit 1u
     block@10: // delete_boxes_route_L154
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        let tmp%24#0: bool = (! tmp%23#0)
-        (assert tmp%24#0) // OnCompletion is not NoOp
-        let tmp%25#0: uint64 = (txn ApplicationID)
-        (assert tmp%25#0) // can only call when not creating
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        (assert tmp%15#0) // can only call when not creating
         (box_del "box_a")
         (box_del "b")
         (box_del 0x424f585f43)
@@ -202,9 +187,9 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert tmp%0#25)
         let (maybe_value%1#0: bytes, maybe_exists%1#0: bool) = (box_get "b")
         let state_get%1#0: bytes = (select 0x00023432 maybe_value%1#0 maybe_exists%1#0)
-        let tmp%2#0: bytes = ((extract 2 0) state_get%1#0)
-        let tmp%3#28: bool = (== tmp%2#0 0x3432)
-        (assert tmp%3#28)
+        let tmp%2#3: bytes = ((extract 2 0) state_get%1#0)
+        let tmp%3#0: bool = (== tmp%2#3 0x3432)
+        (assert tmp%3#0)
         let (maybe_value%2#0: bytes, maybe_exists%2#0: bool) = (box_get 0x424f585f43)
         let state_get%2#0: bytes = (select 0x00023432 maybe_value%2#0 maybe_exists%2#0)
         let tmp%6#0: bool = (== state_get%2#0 0x00023432)
@@ -216,11 +201,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_del "box_large")
         exit 1u
     block@11: // indirect_extract_and_replace_route_L167
-        let tmp%27#0: uint64 = (txn OnCompletion)
-        let tmp%28#0: bool = (! tmp%27#0)
-        (assert tmp%28#0) // OnCompletion is not NoOp
-        let tmp%29#0: uint64 = (txn ApplicationID)
-        (assert tmp%29#0) // can only call when not creating
+        let tmp%17#0: uint64 = (txn ApplicationID)
+        (assert tmp%17#0) // can only call when not creating
         let box%box_extract%0#0: bytes = (box_extract "box_large" 4096u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%0#3: uint64 = (+ values%0#0 1u)
@@ -228,11 +210,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_replace "box_large" 4096u aggregate%val_as_bytes%2#0)
         exit 1u
     block@12: // read_boxes_route_L173
-        let tmp%31#0: uint64 = (txn OnCompletion)
-        let tmp%32#0: bool = (! tmp%31#0)
-        (assert tmp%32#0) // OnCompletion is not NoOp
-        let tmp%33#0: uint64 = (txn ApplicationID)
-        (assert tmp%33#0) // can only call when not creating
+        let tmp%19#0: uint64 = (txn ApplicationID)
+        (assert tmp%19#0) // can only call when not creating
         let (aggregate%box_get%4#0: bytes, aggregate%box_get%5#0: bool) = (box_get "box_a")
         (assert aggregate%box_get%5#0) // check Box exists
         let maybe_value_converted%0#0: uint64 = (btoi aggregate%box_get%4#0)
@@ -240,16 +219,16 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%1#23: uint64 = (- tmp%0#3 1u)
         let (aggregate%box_get%6#0: bytes, aggregate%box_get%7#0: bool) = (box_get "b")
         (assert aggregate%box_get%7#0) // check self.box_b exists
-        let tmp%2#0: bytes = ((extract 2 0) aggregate%box_get%6#0)
+        let tmp%2#3: bytes = ((extract 2 0) aggregate%box_get%6#0)
         let (aggregate%box_get%8#0: bytes, aggregate%box_get%9#0: bool) = (box_get 0x424f585f43)
         (assert aggregate%box_get%9#0) // check self.box_c exists
         let box%box_extract%0#0: bytes = (box_extract "box_large" 4096u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let aggregate%val_as_bytes%3#0: bytes[8] = (itob tmp%1#23)
-        let aggregate%length%2#0: uint64 = (len tmp%2#0)
+        let aggregate%length%2#0: uint64 = (len tmp%2#3)
         let aggregate%as_bytes%2#0: bytes[8] = (itob aggregate%length%2#0)
         let aggregate%length_uint16%2#0: bytes = ((extract 6 2) aggregate%as_bytes%2#0)
-        let aggregate%encoded_value%2#0: bytes = (concat aggregate%length_uint16%2#0 tmp%2#0)
+        let aggregate%encoded_value%2#0: bytes = (concat aggregate%length_uint16%2#0 tmp%2#3)
         let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%3#0 0x0014)
         let aggregate%data_length%0#0: uint64 = (len aggregate%encoded_value%2#0)
         let aggregate%current_tail_offset%0#0: uint64 = (+ 20u aggregate%data_length%0#0)
@@ -264,11 +243,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (log tmp%5#1)
         exit 1u
     block@13: // boxes_exist_route_L182
-        let tmp%35#0: uint64 = (txn OnCompletion)
-        let tmp%36#0: bool = (! tmp%35#0)
-        (assert tmp%36#0) // OnCompletion is not NoOp
-        let tmp%37#0: uint64 = (txn ApplicationID)
-        (assert tmp%37#0) // can only call when not creating
+        let tmp%21#0: uint64 = (txn ApplicationID)
+        (assert tmp%21#0) // can only call when not creating
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "box_a")
         let (_%1#0: uint64, maybe_exists%1#0: bool) = (box_len "b")
         let (_%2#0: uint64, maybe_exists%2#0: bool) = (box_len 0x424f585f43)
@@ -281,36 +257,27 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (log tmp%5#1)
         exit 1u
     block@14: // create_dynamic_arr_struct_route_L186
-        let tmp%39#0: uint64 = (txn OnCompletion)
-        let tmp%40#0: bool = (! tmp%39#0)
-        (assert tmp%40#0) // OnCompletion is not NoOp
-        let tmp%41#0: uint64 = (txn ApplicationID)
-        (assert tmp%41#0) // can only call when not creating
+        let tmp%23#0: uint64 = (txn ApplicationID)
+        (assert tmp%23#0) // can only call when not creating
         let tmp%0#3: uint64 = (txn NumAppArgs)
         let tmp%1#23: uint64 = (txn NumAppArgs)
-        let tmp%2#17: uint64 = (* tmp%1#23 2u)
+        let tmp%2#0: uint64 = (* tmp%1#23 2u)
         let aggregate%val_as_bytes%5#0: bytes[8] = (itob tmp%0#3)
         let aggregate%head%6#0: bytes = (concat aggregate%val_as_bytes%5#0 0x0014)
-        let aggregate%val_as_bytes%6#0: bytes[8] = (itob tmp%2#17)
+        let aggregate%val_as_bytes%6#0: bytes[8] = (itob tmp%2#0)
         let aggregate%head%7#0: bytes = (concat aggregate%head%6#0 aggregate%val_as_bytes%6#0)
         let aggregate%concat%3#0: bytes = (concat aggregate%head%7#0 0x001600000000)
         (box_del "dynamic_arr_struct")
         (box_put "dynamic_arr_struct" aggregate%concat%3#0)
         exit 1u
     block@15: // delete_dynamic_arr_struct_route_L195
-        let tmp%43#0: uint64 = (txn OnCompletion)
-        let tmp%44#0: bool = (! tmp%43#0)
-        (assert tmp%44#0) // OnCompletion is not NoOp
-        let tmp%45#0: uint64 = (txn ApplicationID)
-        (assert tmp%45#0) // can only call when not creating
+        let tmp%25#0: uint64 = (txn ApplicationID)
+        (assert tmp%25#0) // can only call when not creating
         (box_del "dynamic_arr_struct")
         exit 1u
     block@16: // append_dynamic_arr_struct_route_L199
-        let tmp%47#0: uint64 = (txn OnCompletion)
-        let tmp%48#0: bool = (! tmp%47#0)
-        (assert tmp%48#0) // OnCompletion is not NoOp
-        let tmp%49#0: uint64 = (txn ApplicationID)
-        (assert tmp%49#0) // can only call when not creating
+        let tmp%27#0: uint64 = (txn ApplicationID)
+        (assert tmp%27#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 10u 8u)
@@ -324,14 +291,14 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let box%box_extract%3#1: bytes = (box_extract "dynamic_arr_struct" box%btoi%0#0 2u)
         let arr2_len#0: uint64 = (btoi box%box_extract%3#1)
         let arr_size#1: uint64 = (+ arr_len#0 times#0)
-        let tmp%3#0: uint64 = (* arr_size#1 8u)
-        let head_and_dyn_arr#0: uint64 = (+ tmp%3#0 22u)
+        let tmp%3#12: uint64 = (* arr_size#1 8u)
+        let head_and_dyn_arr#0: uint64 = (+ tmp%3#12 22u)
         let tmp%1#23: uint64 = (* arr2_len#0 8u)
         let dyn_arr2_index#1: uint64 = (+ 2u tmp%1#23)
-        let tmp%3#0: uint64 = (+ head_and_dyn_arr#0 dyn_arr2_index#1)
-        (box_resize "dynamic_arr_struct" tmp%3#0)
-        let tmp%3#0: uint64 = (* arr_len#0 8u)
-        let tmp%5#0: uint64 = (+ tmp%3#0 22u)
+        let tmp%3#12: uint64 = (+ head_and_dyn_arr#0 dyn_arr2_index#1)
+        (box_resize "dynamic_arr_struct" tmp%3#12)
+        let tmp%3#12: uint64 = (* arr_len#0 8u)
+        let tmp%5#0: uint64 = (+ tmp%3#12 22u)
         let tmp%6#1: uint64 = (* times#0 8u)
         let tmp%7#1: bytes = (bzero tmp%6#1)
         (box_splice "dynamic_arr_struct" tmp%5#0 0u tmp%7#1)
@@ -355,9 +322,9 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert aggregate%no_overflow%0#0) // overflow
         let aggregate%uint16%0#0: bytes = ((extract 6 2) aggregate%val_as_bytes%8#0)
         (box_replace "dynamic_arr_struct" 20u aggregate%uint16%0#0)
-        let tmp%3#0: uint64 = (* arr_len#0 8u)
-        let tmp%3#0: uint64 = (+ tmp%3#0 24u)
-        let arr2_offset#0: uint64 = (- tmp%3#0 2u)
+        let tmp%3#12: uint64 = (* arr_len#0 8u)
+        let tmp%3#12: uint64 = (+ tmp%3#12 24u)
+        let arr2_offset#0: uint64 = (- tmp%3#12 2u)
         let aggregate%val_as_bytes%9#0: bytes[8] = (itob arr2_offset#0)
         let aggregate%bitlen%1#0: uint64 = (bitlen aggregate%val_as_bytes%9#0)
         let aggregate%no_overflow%1#0: bool = (<= aggregate%bitlen%1#0 16u)
@@ -379,11 +346,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (log tmp%3#1)
         exit 1u
     block@17: // pop_dynamic_arr_struct_route_L231
-        let tmp%51#0: uint64 = (txn OnCompletion)
-        let tmp%52#0: bool = (! tmp%51#0)
-        (assert tmp%52#0) // OnCompletion is not NoOp
-        let tmp%53#0: uint64 = (txn ApplicationID)
-        (assert tmp%53#0) // can only call when not creating
+        let tmp%29#0: uint64 = (txn ApplicationID)
+        (assert tmp%29#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 20u 2u)
@@ -393,10 +357,10 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let box%btoi%0#0: uint64 = (btoi box%box_extract%1#0)
         let box%box_extract%2#1: bytes = (box_extract "dynamic_arr_struct" box%btoi%0#0 2u)
         let arr2_len#0: uint64 = (btoi box%box_extract%2#1)
-        let tmp%3#0: uint64 = (* arr_len#0 8u)
-        let head_and_dyn_arr#0: uint64 = (+ tmp%3#0 22u)
-        let tmp%3#0: uint64 = (+ tmp%3#0 24u)
-        let arr2_offset#0: uint64 = (- tmp%3#0 2u)
+        let tmp%3#12: uint64 = (* arr_len#0 8u)
+        let head_and_dyn_arr#0: uint64 = (+ tmp%3#12 22u)
+        let tmp%3#12: uint64 = (+ tmp%3#12 24u)
+        let arr2_offset#0: uint64 = (- tmp%3#12 2u)
         let aggregate%val_as_bytes%11#0: bytes[8] = (itob arr_len#0)
         let aggregate%bitlen%2#0: uint64 = (bitlen aggregate%val_as_bytes%11#0)
         let aggregate%no_overflow%2#0: bool = (<= aggregate%bitlen%2#0 16u)
@@ -409,8 +373,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert aggregate%no_overflow%3#0) // overflow
         let aggregate%uint16%3#0: bytes = ((extract 6 2) aggregate%val_as_bytes%12#0)
         (box_replace "dynamic_arr_struct" 18u aggregate%uint16%3#0)
-        let tmp%8#2: uint64 = (* times#0 8u)
-        (box_splice "dynamic_arr_struct" head_and_dyn_arr#0 tmp%8#2 0x)
+        let tmp%8#1: uint64 = (* times#0 8u)
+        (box_splice "dynamic_arr_struct" head_and_dyn_arr#0 tmp%8#1 0x)
         let tmp%1#23: uint64 = (* arr2_len#0 8u)
         let dyn_arr2_index#1: uint64 = (+ 2u tmp%1#23)
         let size#0: uint64 = (+ head_and_dyn_arr#0 dyn_arr2_index#1)
@@ -422,27 +386,21 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (log tmp%3#1)
         exit 1u
     block@18: // set_nested_struct_route_L253
-        let tmp%55#0: uint64 = (txn OnCompletion)
-        let tmp%56#0: bool = (! tmp%55#0)
-        (assert tmp%56#0) // OnCompletion is not NoOp
-        let tmp%57#0: uint64 = (txn ApplicationID)
-        (assert tmp%57#0) // can only call when not creating
+        let tmp%31#0: uint64 = (txn ApplicationID)
+        (assert tmp%31#0) // can only call when not creating
         let struct#0: Encoded(uint64,(uint64,(len+(len+uint64[])[]),uint64),(len+(uint64,(len+(len+uint64[])[]),uint64)[]),uint64) = (txna ApplicationArgs 1)
         let values%0#0: uint64 = (extract_uint64 struct#0 0u)
         (assert values%0#0) // struct.a is truthy
         let struct_bytes#0: bytes = (txna ApplicationArgs 1)
         let struct_size#0: uint64 = (len struct_bytes#0)
-        let tmp%3#0: uint64 = (+ 4098u struct_size#0)
-        (box_create "box" tmp%3#0)
+        let tmp%3#12: uint64 = (+ 4098u struct_size#0)
+        (box_create "box" tmp%3#12)
         (box_replace "box" 4096u 0x1002)
         (box_replace "box" 4098u struct_bytes#0)
         exit 1u
     block@19: // nested_write_route_L267
-        let tmp%59#0: uint64 = (txn OnCompletion)
-        let tmp%60#0: bool = (! tmp%59#0)
-        (assert tmp%60#0) // OnCompletion is not NoOp
-        let tmp%61#0: uint64 = (txn ApplicationID)
-        (assert tmp%61#0) // can only call when not creating
+        let tmp%33#0: uint64 = (txn ApplicationID)
+        (assert tmp%33#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -470,11 +428,11 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let box%element_offset%0#0: uint64 = (* index#0 8u)
         let box%offset%8#1: uint64 = (+ box%add%2#1 box%element_offset%0#0)
         (box_replace "box" box%offset%8#1 aggregate%val_as_bytes%16#0)
-        let tmp%2#17: uint64 = (+ value#2 3u)
-        let aggregate%val_as_bytes%17#0: bytes[8] = (itob tmp%2#17)
+        let tmp%2#0: uint64 = (+ value#2 3u)
+        let aggregate%val_as_bytes%17#0: bytes[8] = (itob tmp%2#0)
         (box_replace "box" 4118u aggregate%val_as_bytes%17#0)
-        let tmp%3#0: uint64 = (+ value#2 4u)
-        let aggregate%val_as_bytes%18#0: bytes[8] = (itob tmp%3#0)
+        let tmp%3#12: uint64 = (+ value#2 4u)
+        let aggregate%val_as_bytes%18#0: bytes[8] = (itob tmp%3#12)
         (box_replace "box" 4128u aggregate%val_as_bytes%18#0)
         let tmp%4#7: uint64 = (+ value#2 5u)
         let aggregate%val_as_bytes%19#0: bytes[8] = (itob tmp%4#7)
@@ -509,11 +467,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_replace "box" box%offset%20#0 aggregate%val_as_bytes%19#0)
         exit 1u
     block@20: // nested_read_route_L277
-        let tmp%63#0: uint64 = (txn OnCompletion)
-        let tmp%64#0: bool = (! tmp%63#0)
-        (assert tmp%64#0) // OnCompletion is not NoOp
-        let tmp%65#0: uint64 = (txn ApplicationID)
-        (assert tmp%65#0) // can only call when not creating
+        let tmp%35#0: uint64 = (txn ApplicationID)
+        (assert tmp%35#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let i1#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -580,19 +535,16 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let woah_arr_arr#0: uint64 = (btoi box%box_extract%14#0)
         let tmp%0#3: uint64 = (+ a#0 b#0)
         let tmp%1#23: uint64 = (+ tmp%0#3 arr_arr#0)
-        let tmp%2#17: uint64 = (+ tmp%1#23 c#0)
-        let tmp%3#0: uint64 = (+ tmp%2#17 d#0)
-        let tmp%4#7: uint64 = (+ tmp%3#0 woah_arr_arr#0)
+        let tmp%2#0: uint64 = (+ tmp%1#23 c#0)
+        let tmp%3#12: uint64 = (+ tmp%2#0 d#0)
+        let tmp%4#7: uint64 = (+ tmp%3#12 woah_arr_arr#0)
         let aggregate%val_as_bytes%20#0: bytes[8] = (itob tmp%4#7)
         let tmp%5#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%20#0)
         (log tmp%5#1)
         exit 1u
     block@21: // sum_dynamic_arr_struct_route_L289
-        let tmp%67#0: uint64 = (txn OnCompletion)
-        let tmp%68#0: bool = (! tmp%67#0)
-        (assert tmp%68#0) // OnCompletion is not NoOp
-        let tmp%69#0: uint64 = (txn ApplicationID)
-        (assert tmp%69#0) // can only call when not creating
+        let tmp%37#0: uint64 = (txn ApplicationID)
+        (assert tmp%37#0) // can only call when not creating
         let box%box_extract%0#0: bytes = (box_extract "dynamic_arr_struct" 0u 8u)
         let values%0#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%0#25: bool = (== values%0#0 1u)
@@ -644,23 +596,17 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         goto block@96
     block@98: // after_for_L296
         let aggregate%val_as_bytes%21#0: bytes[8] = (itob total#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%21#0)
-        (log tmp%2#0)
+        let tmp%2#3: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%21#0)
+        (log tmp%2#3)
         exit 1u
     block@22: // create_bools_route_L300
-        let tmp%71#0: uint64 = (txn OnCompletion)
-        let tmp%72#0: bool = (! tmp%71#0)
-        (assert tmp%72#0) // OnCompletion is not NoOp
-        let tmp%73#0: uint64 = (txn ApplicationID)
-        (assert tmp%73#0) // can only call when not creating
+        let tmp%39#0: uint64 = (txn ApplicationID)
+        (assert tmp%39#0) // can only call when not creating
         (box_create "too_many_bools" 4125u)
         exit 1u
     block@23: // set_bool_route_L304
-        let tmp%75#0: uint64 = (txn OnCompletion)
-        let tmp%76#0: bool = (! tmp%75#0)
-        (assert tmp%76#0) // OnCompletion is not NoOp
-        let tmp%77#0: uint64 = (txn ApplicationID)
-        (assert tmp%77#0) // can only call when not creating
+        let tmp%41#0: uint64 = (txn ApplicationID)
+        (assert tmp%41#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(bool8)%0#0: Encoded(bool8) = (txna ApplicationArgs 2)
@@ -674,11 +620,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_replace "too_many_bools" box%element_byte_offset%0#0 aggregate%updated_target%0#0)
         exit 1u
     block@24: // sum_bools_route_L308
-        let tmp%79#0: uint64 = (txn OnCompletion)
-        let tmp%80#0: bool = (! tmp%79#0)
-        (assert tmp%80#0) // OnCompletion is not NoOp
-        let tmp%81#0: uint64 = (txn ApplicationID)
-        (assert tmp%81#0) // can only call when not creating
+        let tmp%43#0: uint64 = (txn ApplicationID)
+        (assert tmp%43#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let stop_at_total#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let total#0: uint64 = 0u
@@ -718,36 +661,27 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (log tmp%3#1)
         exit 1u
     block@25: // create_dynamic_box_route_L318
-        let tmp%83#0: uint64 = (txn OnCompletion)
-        let tmp%84#0: bool = (! tmp%83#0)
-        (assert tmp%84#0) // OnCompletion is not NoOp
-        let tmp%85#0: uint64 = (txn ApplicationID)
-        (assert tmp%85#0) // can only call when not creating
+        let tmp%45#0: uint64 = (txn ApplicationID)
+        (assert tmp%45#0) // can only call when not creating
         (box_del "dynamic_box")
         (box_put "dynamic_box" 0x0000)
         exit 1u
     block@26: // delete_dynamic_box_route_L322
-        let tmp%87#0: uint64 = (txn OnCompletion)
-        let tmp%88#0: bool = (! tmp%87#0)
-        (assert tmp%88#0) // OnCompletion is not NoOp
-        let tmp%89#0: uint64 = (txn ApplicationID)
-        (assert tmp%89#0) // can only call when not creating
+        let tmp%47#0: uint64 = (txn ApplicationID)
+        (assert tmp%47#0) // can only call when not creating
         (box_del "dynamic_box")
         exit 1u
     block@27: // append_dynamic_box_route_L326
-        let tmp%91#0: uint64 = (txn OnCompletion)
-        let tmp%92#0: bool = (! tmp%91#0)
-        (assert tmp%92#0) // OnCompletion is not NoOp
-        let tmp%93#0: uint64 = (txn ApplicationID)
-        (assert tmp%93#0) // can only call when not creating
+        let tmp%49#0: uint64 = (txn ApplicationID)
+        (assert tmp%49#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let arr_len#0: uint64 = (btoi box%box_extract%0#0)
         let tmp%1#23: uint64 = (+ arr_len#0 times#0)
-        let tmp%2#17: uint64 = (* tmp%1#23 8u)
-        let tmp%3#0: uint64 = (+ 2u tmp%2#17)
-        (box_resize "dynamic_box" tmp%3#0)
+        let tmp%2#0: uint64 = (* tmp%1#23 8u)
+        let tmp%3#12: uint64 = (+ 2u tmp%2#0)
+        (box_resize "dynamic_box" tmp%3#12)
         let i#0: uint64 = 0u
         goto block@71
     block@71: // for_header_L334
@@ -775,11 +709,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (log tmp%3#1)
         exit 1u
     block@28: // pop_dynamic_box_route_L341
-        let tmp%95#0: uint64 = (txn OnCompletion)
-        let tmp%96#0: bool = (! tmp%95#0)
-        (assert tmp%96#0) // OnCompletion is not NoOp
-        let tmp%97#0: uint64 = (txn ApplicationID)
-        (assert tmp%97#0) // can only call when not creating
+        let tmp%51#0: uint64 = (txn ApplicationID)
+        (assert tmp%51#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let times#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let box%box_extract%0#0: bytes = (box_extract "dynamic_box" 0u 2u)
@@ -791,8 +722,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (assert aggregate%no_overflow%6#0) // overflow
         let aggregate%uint16%6#0: bytes = ((extract 6 2) aggregate%val_as_bytes%26#0)
         (box_replace "dynamic_box" 0u aggregate%uint16%6#0)
-        let tmp%3#0: uint64 = (* arr_len#0 8u)
-        let tmp%4#7: uint64 = (+ 2u tmp%3#0)
+        let tmp%3#12: uint64 = (* arr_len#0 8u)
+        let tmp%4#7: uint64 = (+ 2u tmp%3#12)
         (box_resize "dynamic_box" tmp%4#7)
         let box%box_extract%1#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let box%array_length%0#0: uint64 = (btoi box%box_extract%1#0)
@@ -801,11 +732,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (log tmp%3#1)
         exit 1u
     block@29: // sum_dynamic_box_route_L352
-        let tmp%99#0: uint64 = (txn OnCompletion)
-        let tmp%100#0: bool = (! tmp%99#0)
-        (assert tmp%100#0) // OnCompletion is not NoOp
-        let tmp%101#0: uint64 = (txn ApplicationID)
-        (assert tmp%101#0) // can only call when not creating
+        let tmp%53#0: uint64 = (txn ApplicationID)
+        (assert tmp%53#0) // can only call when not creating
         let total#0: uint64 = 0u
         let box%box_extract%0#0: bytes = (box_extract "dynamic_box" 0u 2u)
         let box%array_length%0#0: uint64 = (btoi box%box_extract%0#0)
@@ -824,15 +752,12 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         goto block@64
     block@66: // after_for_L355
         let aggregate%val_as_bytes%28#0: bytes[8] = (itob total#0)
-        let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%28#0)
-        (log tmp%2#0)
+        let tmp%2#3: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%28#0)
+        (log tmp%2#3)
         exit 1u
     block@30: // write_dynamic_box_route_L359
-        let tmp%103#0: uint64 = (txn OnCompletion)
-        let tmp%104#0: bool = (! tmp%103#0)
-        (assert tmp%104#0) // OnCompletion is not NoOp
-        let tmp%105#0: uint64 = (txn ApplicationID)
-        (assert tmp%105#0) // can only call when not creating
+        let tmp%55#0: uint64 = (txn ApplicationID)
+        (assert tmp%55#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -841,11 +766,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_replace "dynamic_box" box%offset%0#1 reinterpret_Encoded(uint64)%1#0)
         exit 1u
     block@31: // write_dynamic_arr_struct_route_L363
-        let tmp%107#0: uint64 = (txn OnCompletion)
-        let tmp%108#0: bool = (! tmp%107#0)
-        (assert tmp%108#0) // OnCompletion is not NoOp
-        let tmp%109#0: uint64 = (txn ApplicationID)
-        (assert tmp%109#0) // can only call when not creating
+        let tmp%57#0: uint64 = (txn ApplicationID)
+        (assert tmp%57#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let index#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -858,19 +780,16 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_replace "dynamic_arr_struct" box%offset%1#0 reinterpret_Encoded(uint64)%1#0)
         exit 1u
     block@32: // slice_box_route_L367
-        let tmp%111#0: uint64 = (txn OnCompletion)
-        let tmp%112#0: bool = (! tmp%111#0)
-        (assert tmp%112#0) // OnCompletion is not NoOp
-        let tmp%113#0: uint64 = (txn ApplicationID)
-        (assert tmp%113#0) // can only call when not creating
+        let tmp%59#0: uint64 = (txn ApplicationID)
+        (assert tmp%59#0) // can only call when not creating
         (box_del "0")
         (box_put "0" 0x54657374696e672074657374696e6720313233)
         let (tmp%0#3: uint64, tmp%1#20: bool) = (box_len "0")
-        let tmp%3#0: uint64 = (select tmp%0#3 0u tmp%0#3)
-        let tmp%4#0: bool = (< 7u tmp%0#3)
-        let tmp%5#0: uint64 = (select tmp%0#3 7u tmp%4#0)
-        let tmp%6#1: uint64 = (- tmp%5#0 tmp%3#0)
-        let tmp%7#1: bytes = (box_extract "0" tmp%3#0 tmp%6#1)
+        let tmp%3#12: uint64 = (select tmp%0#3 0u tmp%0#3)
+        let tmp%4#5: bool = (< 7u tmp%0#3)
+        let tmp%5#0: uint64 = (select tmp%0#3 7u tmp%4#5)
+        let tmp%6#1: uint64 = (- tmp%5#0 tmp%3#12)
+        let tmp%7#1: bytes = (box_extract "0" tmp%3#12 tmp%6#1)
         let tmp%8#0: bool = (== tmp%7#1 0x54657374696e67)
         (assert tmp%8#0)
         (box_del 0x424f585f43)
@@ -880,30 +799,24 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         let tmp%13#0: uint64 = (select tmp%10#1 2u tmp%12#0)
         let tmp%14#0: bool = (< 10u tmp%10#1)
         let tmp%15#0: uint64 = (select tmp%10#1 10u tmp%14#0)
-        let tmp%16#2: uint64 = (- tmp%15#0 tmp%13#0)
-        let tmp%17#2: bytes = (box_extract 0x424f585f43 tmp%13#0 tmp%16#2)
+        let tmp%16#1: uint64 = (- tmp%15#0 tmp%13#0)
+        let tmp%17#2: bytes = (box_extract 0x424f585f43 tmp%13#0 tmp%16#1)
         let tmp%18#1: bool = (== tmp%17#2 0x48656c6c6f)
         (assert tmp%18#1)
         exit 1u
     block@33: // arc4_box_route_L376
-        let tmp%115#0: uint64 = (txn OnCompletion)
-        let tmp%116#0: bool = (! tmp%115#0)
-        (assert tmp%116#0) // OnCompletion is not NoOp
-        let tmp%117#0: uint64 = (txn ApplicationID)
-        (assert tmp%117#0) // can only call when not creating
+        let tmp%61#0: uint64 = (txn ApplicationID)
+        (assert tmp%61#0) // can only call when not creating
         (box_put 0x64 0x00010203)
         exit 1u
     block@34: // test_box_ref_route_L386
-        let tmp%119#0: uint64 = (txn OnCompletion)
-        let tmp%120#0: bool = (! tmp%119#0)
-        (assert tmp%120#0) // OnCompletion is not NoOp
-        let tmp%121#0: uint64 = (txn ApplicationID)
-        (assert tmp%121#0) // can only call when not creating
+        let tmp%63#0: uint64 = (txn ApplicationID)
+        (assert tmp%63#0) // can only call when not creating
         let (_%0#0: uint64, maybe_exists%0#0: bool) = (box_len "blob")
         let tmp%0#25: bool = (! maybe_exists%0#0)
         (assert tmp%0#25) // no data
-        let tmp%4#0: bool = (box_create "blob" 32u)
-        (assert tmp%4#0)
+        let tmp%4#5: bool = (box_create "blob" 32u)
+        (assert tmp%4#5)
         let sender_bytes#0: bytes = (txn Sender)
         let app_address#0: bytes = (global CurrentApplicationAddress)
         (box_replace "blob" 0u sender_bytes#0)
@@ -934,11 +847,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_del "box_ref")
         exit 1u
     block@35: // box_map_test_route_L434
-        let tmp%123#0: uint64 = (txn OnCompletion)
-        let tmp%124#0: bool = (! tmp%123#0)
-        (assert tmp%124#0) // OnCompletion is not NoOp
-        let tmp%125#0: uint64 = (txn ApplicationID)
-        (assert tmp%125#0) // can only call when not creating
+        let tmp%65#0: uint64 = (txn ApplicationID)
+        (assert tmp%65#0) // can only call when not creating
         let box_0#0: bytes = (itob 0u)
         (box_del box_0#0)
         (box_put box_0#0 "Hmmmmm")
@@ -958,11 +868,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_del encoded_value%5#0)
         exit 1u
     block@36: // box_map_set_route_L458
-        let tmp%127#0: uint64 = (txn OnCompletion)
-        let tmp%128#0: bool = (! tmp%127#0)
-        (assert tmp%128#0) // OnCompletion is not NoOp
-        let tmp%129#0: uint64 = (txn ApplicationID)
-        (assert tmp%129#0) // can only call when not creating
+        let tmp%67#0: uint64 = (txn ApplicationID)
+        (assert tmp%67#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 2)
@@ -972,11 +879,8 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (box_put encoded_value%0#0 value#0)
         exit 1u
     block@37: // box_map_get_route_L462
-        let tmp%131#0: uint64 = (txn OnCompletion)
-        let tmp%132#0: bool = (! tmp%131#0)
-        (assert tmp%132#0) // OnCompletion is not NoOp
-        let tmp%133#0: uint64 = (txn ApplicationID)
-        (assert tmp%133#0) // can only call when not creating
+        let tmp%69#0: uint64 = (txn ApplicationID)
+        (assert tmp%69#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
@@ -990,22 +894,16 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (log tmp%3#1)
         exit 1u
     block@38: // box_map_del_route_L466
-        let tmp%135#0: uint64 = (txn OnCompletion)
-        let tmp%136#0: bool = (! tmp%135#0)
-        (assert tmp%136#0) // OnCompletion is not NoOp
-        let tmp%137#0: uint64 = (txn ApplicationID)
-        (assert tmp%137#0) // can only call when not creating
+        let tmp%71#0: uint64 = (txn ApplicationID)
+        (assert tmp%71#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
         (box_del encoded_value%0#0)
         exit 1u
     block@39: // box_map_exists_route_L470
-        let tmp%139#0: uint64 = (txn OnCompletion)
-        let tmp%140#0: bool = (! tmp%139#0)
-        (assert tmp%140#0) // OnCompletion is not NoOp
-        let tmp%141#0: uint64 = (txn ApplicationID)
-        (assert tmp%141#0) // can only call when not creating
+        let tmp%73#0: uint64 = (txn ApplicationID)
+        (assert tmp%73#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let key#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let encoded_value%0#0: bytes[8] = (itob key#0)
@@ -1015,12 +913,12 @@ main examples.box_storage.contract.BoxContract.__algopy_entrypoint_with_init:
         (log tmp%3#1)
         exit 1u
     block@40: // bare_routing_L80
-        let tmp%143#0: uint64 = (txn OnCompletion)
-        let not%tmp%143#0: bool = (! tmp%143#0)
-        (assert not%tmp%143#0)
-        let tmp%144#0: uint64 = (txn ApplicationID)
-        let tmp%145#0: bool = (! tmp%144#0)
-        (assert tmp%145#0) // can only call when creating
+        let tmp%75#0: uint64 = (txn OnCompletion)
+        let not%tmp%75#0: bool = (! tmp%75#0)
+        (assert not%tmp%75#0)
+        let tmp%76#0: uint64 = (txn ApplicationID)
+        let tmp%77#0: bool = (! tmp%76#0)
+        (assert tmp%77#0) // can only call when creating
         exit 1u
     block@42: // after_if_else_L80
         fail

@@ -19,15 +19,15 @@ main:
     app_global_put
 
 main_after_if_else@2:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytess 0xae897f6b 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void", method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
     match main_create_route@4 main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8
     err
 
 main_vote_route@8:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txn GroupIndex
@@ -159,9 +159,6 @@ main_after_for@13:
     return
 
 main_get_preconditions_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
@@ -192,9 +189,6 @@ main_get_preconditions_route@7:
     return
 
 main_close_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     pushint 20000 // 20000
@@ -402,9 +396,6 @@ main_after_for@29:
     return
 
 main_bootstrap_route@5:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txn GroupIndex
@@ -455,9 +446,6 @@ main_bootstrap_route@5:
     return
 
 main_create_route@4:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     !
     assert // can only call when creating

@@ -4,23 +4,23 @@ subroutine main:
     main_block@0:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls          tmp%0#1
+        txn OnCompletion                                                                       tmp%0#1
         v-store tmp%0#1
+        v-load tmp%0#1                                                                         tmp%0#1
+        !                                                                                      tmp%1#0
+        v-store tmp%1#0
+        v-load tmp%1#0                                                                         tmp%1#0
+        assert // OnCompletion is not NoOp
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls          tmp%2#0
+        v-store tmp%2#0
         method create(byte[32])void                                                            Method(create(byte[32])void)
         method verify(byte[32][],byte[32])bool                                                 Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool)
-        v-load tmp%0#1                                                                         Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool),tmp%0#1
+        v-load tmp%2#0                                                                         Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool),tmp%2#0
         match main_create_route@2 main_verify_route@3 ; b main_switch_case_default@4
 
     main_create_route@2:
         // merkle/contract.py:10
         // @arc4.abimethod(create="require")
-        txn OnCompletion                                                                       tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                         tmp%1#0
-        !                                                                                      tmp%2#0
-        v-store tmp%2#0
-        v-load tmp%2#0                                                                         tmp%2#0
-        assert // OnCompletion is not NoOp
         txn ApplicationID                                                                      tmp%3#0
         v-store tmp%3#0
         v-load tmp%3#0                                                                         tmp%3#0
@@ -39,16 +39,9 @@ subroutine main:
     main_verify_route@3:
         // merkle/contract.py:14
         // @arc4.abimethod
-        txn OnCompletion                                                                       tmp%5#0
+        txn ApplicationID                                                                      tmp%5#0
         v-store tmp%5#0
         v-load tmp%5#0                                                                         tmp%5#0
-        !                                                                                      tmp%6#0
-        v-store tmp%6#0
-        v-load tmp%6#0                                                                         tmp%6#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                      tmp%7#0
-        v-store tmp%7#0
-        v-load tmp%7#0                                                                         tmp%7#0
         assert // can only call when not creating
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):

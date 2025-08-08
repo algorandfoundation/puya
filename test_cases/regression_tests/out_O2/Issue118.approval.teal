@@ -7,15 +7,15 @@ main:
     bytecblock 0x00030000
     txn NumAppArgs
     bz main_bare_routing@6
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     pushbytes 0xbc66eb62 // method "verify(uint256[])(bool,string)"
     txna ApplicationArgs 0
     match main_verify_route@3
     err
 
 main_verify_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
