@@ -264,7 +264,20 @@ def _inline_call(
         remainder.predecessors.append(new_block)
 
     num_returns = len(returning_blocks)
-    if num_returns == 1:
+    if num_returns == 0:
+        # if there are no retsubs, but the caller is expecting a result, assign undefined
+        if return_targets:
+            undefined_values = [
+                models.Undefined(ir_type=target.ir_type, source_location=None)
+                for target in return_targets
+            ]
+            undefined_assignment = models.Assignment(
+                targets=return_targets,
+                source=models.ValueTuple(values=undefined_values, source_location=None),
+                source_location=None,
+            )
+            remainder.ops.insert(0, undefined_assignment)
+    elif num_returns == 1:
         # if there is a single retsub, we can assign to the return variables in that block
         # directly without violating SSA
         ((new_block, return_values),) = returning_blocks
