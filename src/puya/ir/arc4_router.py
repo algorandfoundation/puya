@@ -124,18 +124,21 @@ def _is_zero(value: awst_nodes.Expression) -> awst_nodes.Expression:
     )
 
 
-def return_(value: bool, location: SourceLocation) -> awst_nodes.ReturnStatement:  # noqa: FBT001
-    return awst_nodes.ReturnStatement(
-        value=awst_nodes.BoolConstant(value=value, source_location=location),
+def return_(value: bool, location: SourceLocation) -> awst_nodes.Expression:  # noqa: FBT001
+    return awst_nodes.IntrinsicCall(
+        op_code="return",
+        immediates=[],
+        stack_args=[awst_nodes.BoolConstant(value=value, source_location=location)],
+        wtype=wtypes.void_wtype,
         source_location=location,
     )
 
 
-def reject(location: SourceLocation) -> awst_nodes.ReturnStatement:
+def reject(location: SourceLocation) -> awst_nodes.Expression:
     return return_(False, location)  # noqa: FBT003
 
 
-def approve(location: SourceLocation) -> awst_nodes.ReturnStatement:
+def approve(location: SourceLocation) -> awst_nodes.Expression:
     return return_(True, location)  # noqa: FBT003
 
 
