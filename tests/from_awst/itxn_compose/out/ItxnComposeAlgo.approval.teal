@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 6 32
+    intcblock 1 0 6 32
     bytecblock 0xd0a28200 0x0002686f
     txn NumAppArgs
     bz main_bare_routing@7
@@ -12,8 +12,7 @@ main:
     match main_distribute_route@3 main_conditionalBegin_route@4
 
 main_after_if_else@11:
-    intc_0 // 0
-    return
+    err
 
 main_conditionalBegin_route@4:
     txn OnCompletion
@@ -22,7 +21,7 @@ main_conditionalBegin_route@4:
     txn ApplicationID
     assert // can only call when not creating
     callsub conditionalBegin
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_distribute_route@3:
@@ -32,7 +31,7 @@ main_distribute_route@3:
     txn ApplicationID
     assert // can only call when not creating
     callsub distribute
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_bare_routing@7:
@@ -41,7 +40,7 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    intc_0 // 1
     return
 
 
@@ -50,11 +49,11 @@ distribute:
     proto 0 0
     txna ApplicationArgs 1
     txn GroupIndex
-    intc_1 // 1
+    intc_0 // 1
     -
     dup
     gtxns TypeEnum
-    intc_1 // pay
+    intc_0 // pay
     ==
     assert // transaction type is pay
     txna ApplicationArgs 2
@@ -66,7 +65,7 @@ distribute:
     ==
     assert // assert target is match for conditions
     dig 1
-    intc_0 // 0
+    intc_1 // 0
     extract_uint16
     dup
     cover 3
@@ -86,11 +85,11 @@ distribute:
     itxn_begin
     itxn_field Receiver
     itxn_field Amount
-    intc_1 // 1
+    intc_0 // 1
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
-    intc_1 // 1
+    intc_0 // 1
 
 distribute_for_header@2:
     frame_dig 4
@@ -108,12 +107,12 @@ distribute_for_header@2:
     itxn_next
     frame_dig 2
     itxn_field Amount
-    intc_1 // 1
+    intc_0 // 1
     itxn_field TypeEnum
     itxn_field Receiver
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
-    intc_1 // 1
+    intc_0 // 1
     +
     frame_bury 4
     b distribute_for_header@2
@@ -126,14 +125,14 @@ distribute_after_for@5:
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_next
     pushbytes "abc"
     itxn_field ConfigAssetName
     pushint 3 // 3
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_submit
     retsub
@@ -149,21 +148,21 @@ conditionalBegin:
     itxn_field ApplicationArgs
     pushbytes 0x00024869
     itxn_field ApplicationArgs
-    intc_1 // 1
+    intc_0 // 1
     itxn_field GlobalNumByteSlice
     pushbytes base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiACAQAmAQhncmVldGluZzEYQAAEKIAAZzEbQQAjggQEAJIlrgQkN408BKDoGHIE0KKCADYaAI4EACQAGQAOAAIjQzEZFEQxGESIAC8iQzEZgQQSRDEYRCJDMRmBBRJEMRhEIkMxGRREMRgURIgAAiJDNhoBVwIAKExniTYaAVcCACMoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIk=)
+    pushbytes base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBACOCBAQAkiWuBCQ3jTwEoOgYcgTQooIANhoAjgQAIwAYAA0AAQAxGRREMRhEiAAvIkMxGYEEEkQxGEQiQzEZgQUSRDEYRCJDMRkURDEYFESIAAIiQzYaAVcCAChMZ4k2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwiQ==)
     itxn_field ApprovalProgramPages
-    intc_0 // 0
+    intc_1 // 0
     itxn_field OnCompletion
     intc_2 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_submit
     gitxn 0 CreatedApplicationID
-    intc_0 // 0
+    intc_1 // 0
 
 conditionalBegin_for_header@3:
     frame_dig 2
@@ -181,12 +180,12 @@ conditionalBegin_for_header@3:
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
 
 conditionalBegin_after_if_else@7:
     frame_dig 2
-    intc_1 // 1
+    intc_0 // 1
     +
     frame_bury 2
     b conditionalBegin_for_header@3
@@ -201,7 +200,7 @@ conditionalBegin_else_body@6:
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     b conditionalBegin_after_if_else@7
 

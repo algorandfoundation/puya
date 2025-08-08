@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 3 6
+    intcblock 1 0 3 6
     bytecblock "TEST" "TST" 0x151f7c75 0x31 0x6d4700ad
     txn NumAppArgs
     bz main_bare_routing@9
@@ -12,8 +12,7 @@ main:
     match main_test_call_with_txn_route@3 main_test_call_with_acfg_route@4 main_test_call_with_infer_route@5 main_test_call_with_acfg_no_return_route@6
 
 main_after_if_else@13:
-    intc_0 // 0
-    return
+    err
 
 main_test_call_with_acfg_no_return_route@6:
     txn OnCompletion
@@ -26,7 +25,7 @@ main_test_call_with_acfg_no_return_route@6:
     txna ApplicationArgs 3
     btoi
     itxn_begin
-    intc_1 // 1
+    intc_0 // 1
     itxn_field ConfigAssetTotal
     bytec_0 // "TEST"
     itxn_field ConfigAssetName
@@ -34,7 +33,7 @@ main_test_call_with_acfg_no_return_route@6:
     itxn_field ConfigAssetUnitName
     intc_2 // acfg
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_next
     bytec_3 // 0x31
@@ -47,7 +46,7 @@ main_test_call_with_acfg_no_return_route@6:
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_submit
     itxn Note
@@ -56,7 +55,7 @@ main_test_call_with_acfg_no_return_route@6:
     assert
     gitxn 0 CreatedAssetID
     assert // expected asset to be created
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_test_call_with_infer_route@5:
@@ -70,7 +69,7 @@ main_test_call_with_infer_route@5:
     txna ApplicationArgs 3
     btoi
     itxn_begin
-    intc_1 // 1
+    intc_0 // 1
     itxn_field ConfigAssetTotal
     bytec_0 // "TEST"
     itxn_field ConfigAssetName
@@ -78,7 +77,7 @@ main_test_call_with_infer_route@5:
     itxn_field ConfigAssetUnitName
     intc_2 // acfg
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_next
     itxn_field ApplicationID
@@ -89,7 +88,7 @@ main_test_call_with_infer_route@5:
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_submit
     gitxn 1 LastLog
@@ -97,7 +96,7 @@ main_test_call_with_infer_route@5:
     bytec_2 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_test_call_with_acfg_route@4:
@@ -111,7 +110,7 @@ main_test_call_with_acfg_route@4:
     txna ApplicationArgs 3
     btoi
     itxn_begin
-    intc_1 // 1
+    intc_0 // 1
     itxn_field ConfigAssetTotal
     bytec_0 // "TEST"
     itxn_field ConfigAssetName
@@ -119,7 +118,7 @@ main_test_call_with_acfg_route@4:
     itxn_field ConfigAssetUnitName
     intc_2 // acfg
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_next
     itxn_field ApplicationID
@@ -130,7 +129,7 @@ main_test_call_with_acfg_route@4:
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_submit
     gitxn 1 LastLog
@@ -138,7 +137,7 @@ main_test_call_with_acfg_route@4:
     bytec_2 // 0x151f7c75
     ==
     assert // application log value is not the result of an ABI return
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_test_call_with_txn_route@3:
@@ -152,7 +151,7 @@ main_test_call_with_txn_route@3:
     txna ApplicationArgs 3
     btoi
     itxn_begin
-    intc_1 // 1
+    intc_0 // 1
     itxn_field ConfigAssetTotal
     bytec_0 // "TEST"
     itxn_field ConfigAssetName
@@ -160,7 +159,7 @@ main_test_call_with_txn_route@3:
     itxn_field ConfigAssetUnitName
     intc_2 // acfg
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_next
     itxn_field ApplicationID
@@ -171,7 +170,7 @@ main_test_call_with_txn_route@3:
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
-    intc_0 // 0
+    intc_1 // 0
     itxn_field Fee
     itxn_submit
     gitxn 1 LastLog
@@ -184,7 +183,7 @@ main_test_call_with_txn_route@3:
     assert // application log value is not the result of an ABI return
     btoi
     assert // expected asset id
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_bare_routing@9:
@@ -193,5 +192,5 @@ main_bare_routing@9:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    intc_0 // 1
     return
