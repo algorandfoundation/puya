@@ -1389,33 +1389,23 @@ approval_program_block@0:
 approval_program_block@1:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program_bare_routing@10
-
-approval_program_abi_routing@2:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    txna ApplicationArgs 0
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
     pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
     pushbytes 0xa4e8d164 // method "bootstrap(pay)void"
     pushbytes 0x9656047a // method "close()void"
     pushbytes 0xbcb15896 // method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)"
     pushbytes 0x84a53c6e // method "vote(pay,byte[],uint8[])void"
     uncover 5
-    match approval_program_create_route@3 approval_program_bootstrap_route@4 approval_program_close_route@5 approval_program_get_preconditions_route@6 approval_program_vote_route@7
+    match approval_program_create_route@2 approval_program_bootstrap_route@3 approval_program_close_route@4 approval_program_get_preconditions_route@5 approval_program_vote_route@6
 
-approval_program_switch_case_default@8:
+approval_program_switch_case_default@7:
 
-approval_program_switch_case_next@9:
-
-approval_program_after_if_else@11:
+approval_program_switch_case_next@8:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     err
 
-approval_program_vote_route@7:
+approval_program_vote_route@6:
     // voting/voting.py:169
     // @arc4.abimethod
     txn OnCompletion
@@ -1434,7 +1424,7 @@ approval_program_vote_route@7:
     intc_1 // 1
     return
 
-approval_program_get_preconditions_route@6:
+approval_program_get_preconditions_route@5:
     // voting/voting.py:160
     // @arc4.abimethod(readonly=True)
     txn OnCompletion
@@ -1453,7 +1443,7 @@ approval_program_get_preconditions_route@6:
     intc_1 // 1
     return
 
-approval_program_close_route@5:
+approval_program_close_route@4:
     // voting/voting.py:110
     // @arc4.abimethod
     txn OnCompletion
@@ -1472,7 +1462,7 @@ approval_program_close_route@5:
     intc_1 // 1
     return
 
-approval_program_bootstrap_route@4:
+approval_program_bootstrap_route@3:
     // voting/voting.py:82
     // @arc4.abimethod
     txn OnCompletion
@@ -1491,7 +1481,7 @@ approval_program_bootstrap_route@4:
     intc_1 // 1
     return
 
-approval_program_create_route@3:
+approval_program_create_route@2:
     // voting/voting.py:58
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -1509,6 +1499,3 @@ approval_program_create_route@3:
     // @arc4.abimethod(create="require")
     intc_1 // 1
     return
-
-approval_program_bare_routing@10:
-    b approval_program_after_if_else@11

@@ -366,33 +366,23 @@ approval_program_block@0:
 approval_program_block@1:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txn NumAppArgs
-    intc_0 // 0
-    !=
-    bz approval_program_bare_routing@10
-
-approval_program_abi_routing@2:
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 0
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
     pushbytes 0x4c5c61ba // method "create()void"
     pushbytes 0xbd6099e5 // method "register(string)void"
     pushbytes 0x5d5c84c7 // method "say_hello()string"
     pushbytes 0xfd07264e // method "calculate(uint64,uint64)uint64"
     pushbytes 0x1658aa2f // method "close_out()void"
     uncover 5
-    match approval_program_create_route@3 approval_program_register_route@4 approval_program_say_hello_route@5 approval_program_calculate_route@6 approval_program_close_out_route@7
+    match approval_program_create_route@2 approval_program_register_route@3 approval_program_say_hello_route@4 approval_program_calculate_route@5 approval_program_close_out_route@6
 
-approval_program_switch_case_default@8:
+approval_program_switch_case_default@7:
 
-approval_program_switch_case_next@9:
-
-approval_program_after_if_else@11:
+approval_program_switch_case_next@8:
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     err
 
-approval_program_close_out_route@7:
+approval_program_close_out_route@6:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
@@ -411,7 +401,7 @@ approval_program_close_out_route@7:
     intc_1 // 1
     return
 
-approval_program_calculate_route@6:
+approval_program_calculate_route@5:
     // everything/contract.py:64
     // @abimethod
     txn OnCompletion
@@ -430,7 +420,7 @@ approval_program_calculate_route@6:
     intc_1 // 1
     return
 
-approval_program_say_hello_route@5:
+approval_program_say_hello_route@4:
     // everything/contract.py:56
     // @abimethod
     txn OnCompletion
@@ -449,7 +439,7 @@ approval_program_say_hello_route@5:
     intc_1 // 1
     return
 
-approval_program_register_route@4:
+approval_program_register_route@3:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     txn OnCompletion
@@ -471,7 +461,7 @@ approval_program_register_route@4:
     intc_1 // 1
     return
 
-approval_program_create_route@3:
+approval_program_create_route@2:
     // everything/contract.py:41
     // @abimethod(create="require")
     txn OnCompletion
@@ -489,9 +479,6 @@ approval_program_create_route@3:
     // @abimethod(create="require")
     intc_1 // 1
     return
-
-approval_program_bare_routing@10:
-    b approval_program_after_if_else@11
 
 
 // test_cases.everything.my_base.MyMiddleBase.calculate(a: bytes, b: bytes) -> bytes:

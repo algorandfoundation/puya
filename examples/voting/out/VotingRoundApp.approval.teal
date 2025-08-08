@@ -22,14 +22,12 @@ main:
 main_after_if_else@2:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    txn NumAppArgs
-    assert
     pushbytess 0xae897f6b 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void", method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
-    txna ApplicationArgs 0
-    match main_create_route@5 main_bootstrap_route@6 main_close_route@7 main_get_preconditions_route@8 main_vote_route@9
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@4 main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8
     err
 
-main_vote_route@9:
+main_vote_route@8:
     // voting/voting.py:169
     // @arc4.abimethod
     txn OnCompletion
@@ -45,7 +43,7 @@ main_vote_route@9:
     intc_1 // 1
     return
 
-main_get_preconditions_route@8:
+main_get_preconditions_route@7:
     // voting/voting.py:160
     // @arc4.abimethod(readonly=True)
     txn OnCompletion
@@ -61,7 +59,7 @@ main_get_preconditions_route@8:
     intc_1 // 1
     return
 
-main_close_route@7:
+main_close_route@6:
     // voting/voting.py:110
     // @arc4.abimethod
     txn OnCompletion
@@ -77,7 +75,7 @@ main_close_route@7:
     intc_1 // 1
     return
 
-main_bootstrap_route@6:
+main_bootstrap_route@5:
     // voting/voting.py:82
     // @arc4.abimethod
     txn OnCompletion
@@ -93,7 +91,7 @@ main_bootstrap_route@6:
     intc_1 // 1
     return
 
-main_create_route@5:
+main_create_route@4:
     // voting/voting.py:58
     // @arc4.abimethod(create="require")
     txn OnCompletion

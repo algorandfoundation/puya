@@ -9,14 +9,12 @@ main:
     log
 
 main_after_if_else@2:
-    txn NumAppArgs
-    assert
     pushbytess 0x4c5c61ba 0x4f045d84 // method "create()void", method "method()void"
-    txna ApplicationArgs 0
-    match main_create_route@5 main_method_route@6
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@4 main_method_route@5
     err
 
-main_method_route@6:
+main_method_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -27,7 +25,7 @@ main_method_route@6:
     pushint 1 // 1
     return
 
-main_create_route@5:
+main_create_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp

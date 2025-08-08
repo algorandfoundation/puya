@@ -1,46 +1,46 @@
-// Op                                                                         Stack (out)
+// Op                                                                                 Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // regression_tests/branch_to_proto.py:4
         // class VRFVerifier(ARC4Contract):
-        txn NumAppArgs                                                        tmp%0#1
+        txn NumAppArgs                                                                tmp%0#1
         bz main_bare_routing@6 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // regression_tests/branch_to_proto.py:4
         // class VRFVerifier(ARC4Contract):
-        txna ApplicationArgs 0                                                tmp%2#0
-        method verify(byte[],byte[],byte[])(byte[],bool)                      tmp%2#0,Method(verify(byte[],byte[],byte[])(byte[],bool))
-        l-load tmp%2#0 1                                                      Method(verify(byte[],byte[],byte[])(byte[],bool)),tmp%2#0
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls tmp%2#0
+        method verify(byte[],byte[],byte[])(byte[],bool)                              tmp%2#0,Method(verify(byte[],byte[],byte[])(byte[],bool))
+        l-load tmp%2#0 1                                                              Method(verify(byte[],byte[],byte[])(byte[],bool)),tmp%2#0
         match main_verify_route@3 ; b main_after_if_else@10
 
     main_verify_route@3:
         // regression_tests/branch_to_proto.py:5
         // @arc4.abimethod
-        txn OnCompletion                                                      tmp%3#0
-        !                                                                     tmp%4#0
+        txn OnCompletion                                                              tmp%3#0
+        !                                                                             tmp%4#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                     tmp%5#0
+        txn ApplicationID                                                             tmp%5#0
         assert // can only call when not creating
         // regression_tests/branch_to_proto.py:4
         // class VRFVerifier(ARC4Contract):
         callsub verify
         // regression_tests/branch_to_proto.py:5
         // @arc4.abimethod
-        int 1                                                                 1
+        int 1                                                                         1
         return
 
     main_bare_routing@6:
         // regression_tests/branch_to_proto.py:4
         // class VRFVerifier(ARC4Contract):
-        txn OnCompletion                                                      tmp%7#0
-        !                                                                     not%tmp%7#0
+        txn OnCompletion                                                              tmp%7#0
+        !                                                                             not%tmp%7#0
         assert
-        txn ApplicationID                                                     tmp%8#0
-        !                                                                     tmp%9#0
+        txn ApplicationID                                                             tmp%8#0
+        !                                                                             tmp%9#0
         assert // can only call when creating
-        int 1                                                                 1
+        int 1                                                                         1
         return
 
     main_after_if_else@10:
@@ -54,67 +54,67 @@ subroutine verify:
     verify_block@0:
         // regression_tests/branch_to_proto.py:4
         // class VRFVerifier(ARC4Contract):
-        txna ApplicationArgs 1                                                reinterpret_Encoded(len+uint8[])%0#0
-        extract 2 0                                                           message#0
-        f-store message#0                                                     (𝕗) message#0 |
-        txna ApplicationArgs 2                                                (𝕗) message#0 | reinterpret_Encoded(len+uint8[])%1#0
-        extract 2 0                                                           (𝕗) message#0 | proof#0
-        f-store proof#0                                                       (𝕗) message#0,proof#0 |
-        txna ApplicationArgs 3                                                (𝕗) message#0,proof#0 | reinterpret_Encoded(len+uint8[])%2#0
-        extract 2 0                                                           (𝕗) message#0,proof#0 | pk#0
-        f-store pk#0                                                          (𝕗) message#0,proof#0,pk#0 |
-        b verify_while_top@2                                                  (𝕗) message#0,proof#0,pk#0 |
+        txna ApplicationArgs 1                                                        reinterpret_Encoded(len+uint8[])%0#0
+        extract 2 0                                                                   message#0
+        f-store message#0                                                             (𝕗) message#0 |
+        txna ApplicationArgs 2                                                        (𝕗) message#0 | reinterpret_Encoded(len+uint8[])%1#0
+        extract 2 0                                                                   (𝕗) message#0 | proof#0
+        f-store proof#0                                                               (𝕗) message#0,proof#0 |
+        txna ApplicationArgs 3                                                        (𝕗) message#0,proof#0 | reinterpret_Encoded(len+uint8[])%2#0
+        extract 2 0                                                                   (𝕗) message#0,proof#0 | pk#0
+        f-store pk#0                                                                  (𝕗) message#0,proof#0,pk#0 |
+        b verify_while_top@2                                                          (𝕗) message#0,proof#0,pk#0 |
 
-    verify_while_top@2:                                                       (𝕗) message#0,proof#0,pk#0 |
-        global OpcodeBudget                                                   (𝕗) message#0,proof#0,pk#0 | tmp%1#2
-        int 10010                                                             (𝕗) message#0,proof#0,pk#0 | tmp%1#2,10010
-        l-load tmp%1#2 1                                                      (𝕗) message#0,proof#0,pk#0 | 10010,tmp%1#2
-        >                                                                     (𝕗) message#0,proof#0,pk#0 | tmp%2#0
-        bz verify_after_while@7 ; b verify_while_body@3                       (𝕗) message#0,proof#0,pk#0 |
+    verify_while_top@2:                                                               (𝕗) message#0,proof#0,pk#0 |
+        global OpcodeBudget                                                           (𝕗) message#0,proof#0,pk#0 | tmp%1#2
+        int 10010                                                                     (𝕗) message#0,proof#0,pk#0 | tmp%1#2,10010
+        l-load tmp%1#2 1                                                              (𝕗) message#0,proof#0,pk#0 | 10010,tmp%1#2
+        >                                                                             (𝕗) message#0,proof#0,pk#0 | tmp%2#0
+        bz verify_after_while@7 ; b verify_while_body@3                               (𝕗) message#0,proof#0,pk#0 |
 
-    verify_while_body@3:                                                      (𝕗) message#0,proof#0,pk#0 |
-        itxn_begin                                                            (𝕗) message#0,proof#0,pk#0 |
-        int appl                                                              (𝕗) message#0,proof#0,pk#0 | appl
-        itxn_field TypeEnum                                                   (𝕗) message#0,proof#0,pk#0 |
-        int DeleteApplication                                                 (𝕗) message#0,proof#0,pk#0 | DeleteApplication
-        itxn_field OnCompletion                                               (𝕗) message#0,proof#0,pk#0 |
-        byte 0x068101                                                         (𝕗) message#0,proof#0,pk#0 | 0x068101
-        itxn_field ApprovalProgram                                            (𝕗) message#0,proof#0,pk#0 |
-        byte 0x068101                                                         (𝕗) message#0,proof#0,pk#0 | 0x068101
-        itxn_field ClearStateProgram                                          (𝕗) message#0,proof#0,pk#0 |
-        global MinTxnFee                                                      (𝕗) message#0,proof#0,pk#0 | tmp%3#0
-        itxn_field Fee                                                        (𝕗) message#0,proof#0,pk#0 |
-        itxn_submit                                                           (𝕗) message#0,proof#0,pk#0 |
-        b verify_while_top@2                                                  (𝕗) message#0,proof#0,pk#0 |
+    verify_while_body@3:                                                              (𝕗) message#0,proof#0,pk#0 |
+        itxn_begin                                                                    (𝕗) message#0,proof#0,pk#0 |
+        int appl                                                                      (𝕗) message#0,proof#0,pk#0 | appl
+        itxn_field TypeEnum                                                           (𝕗) message#0,proof#0,pk#0 |
+        int DeleteApplication                                                         (𝕗) message#0,proof#0,pk#0 | DeleteApplication
+        itxn_field OnCompletion                                                       (𝕗) message#0,proof#0,pk#0 |
+        byte 0x068101                                                                 (𝕗) message#0,proof#0,pk#0 | 0x068101
+        itxn_field ApprovalProgram                                                    (𝕗) message#0,proof#0,pk#0 |
+        byte 0x068101                                                                 (𝕗) message#0,proof#0,pk#0 | 0x068101
+        itxn_field ClearStateProgram                                                  (𝕗) message#0,proof#0,pk#0 |
+        global MinTxnFee                                                              (𝕗) message#0,proof#0,pk#0 | tmp%3#0
+        itxn_field Fee                                                                (𝕗) message#0,proof#0,pk#0 |
+        itxn_submit                                                                   (𝕗) message#0,proof#0,pk#0 |
+        b verify_while_top@2                                                          (𝕗) message#0,proof#0,pk#0 |
 
-    verify_after_while@7:                                                     (𝕗) message#0,proof#0,pk#0 |
+    verify_after_while@7:                                                             (𝕗) message#0,proof#0,pk#0 |
         // regression_tests/branch_to_proto.py:8
         // return op.vrf_verify(op.VrfVerify.VrfAlgorand, message, proof, pk)
-        f-load message#0                                                      (𝕗) message#0,proof#0,pk#0 | message#0
-        f-load proof#0                                                        (𝕗) message#0,proof#0,pk#0 | message#0,proof#0
-        f-load pk#0                                                           (𝕗) message#0,proof#0,pk#0 | message#0,proof#0,pk#0
-        vrf_verify VrfAlgorand                                                (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1
+        f-load message#0                                                              (𝕗) message#0,proof#0,pk#0 | message#0
+        f-load proof#0                                                                (𝕗) message#0,proof#0,pk#0 | message#0,proof#0
+        f-load pk#0                                                                   (𝕗) message#0,proof#0,pk#0 | message#0,proof#0,pk#0
+        vrf_verify VrfAlgorand                                                        (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1
         // regression_tests/branch_to_proto.py:5
         // @arc4.abimethod
-        l-load-copy tmp%0#1 1                                                 (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1,tmp%0#1 (copy)
-        len                                                                   (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1,aggregate%length%0#0
-        itob                                                                  (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1,aggregate%as_bytes%0#0
-        extract 6 2                                                           (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1,aggregate%length_uint16%0#0
-        l-load tmp%0#1 2                                                      (𝕗) message#0,proof#0,pk#0 | tmp%1#1,aggregate%length_uint16%0#0,tmp%0#1
-        concat                                                                (𝕗) message#0,proof#0,pk#0 | tmp%1#1,aggregate%encoded_value%0#0
-        byte 0x00                                                             (𝕗) message#0,proof#0,pk#0 | tmp%1#1,aggregate%encoded_value%0#0,0x00
-        int 0                                                                 (𝕗) message#0,proof#0,pk#0 | tmp%1#1,aggregate%encoded_value%0#0,0x00,0
-        l-load tmp%1#1 3                                                      (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,0x00,0,tmp%1#1
-        setbit                                                                (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,aggregate%encoded_bool%0#0
-        byte 0x0003                                                           (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,aggregate%encoded_bool%0#0,0x0003
-        l-load aggregate%encoded_bool%0#0 1                                   (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,0x0003,aggregate%encoded_bool%0#0
-        concat                                                                (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,aggregate%head%1#0
-        l-load aggregate%encoded_value%0#0 1                                  (𝕗) message#0,proof#0,pk#0 | aggregate%head%1#0,aggregate%encoded_value%0#0
-        concat                                                                (𝕗) message#0,proof#0,pk#0 | aggregate%concat%0#0
-        byte 0x151f7c75                                                       (𝕗) message#0,proof#0,pk#0 | aggregate%concat%0#0,0x151f7c75
-        l-load aggregate%concat%0#0 1                                         (𝕗) message#0,proof#0,pk#0 | 0x151f7c75,aggregate%concat%0#0
-        concat                                                                (𝕗) message#0,proof#0,pk#0 | tmp%6#0
-        log                                                                   (𝕗) message#0,proof#0,pk#0 |
+        l-load-copy tmp%0#1 1                                                         (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1,tmp%0#1 (copy)
+        len                                                                           (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1,aggregate%length%0#0
+        itob                                                                          (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1,aggregate%as_bytes%0#0
+        extract 6 2                                                                   (𝕗) message#0,proof#0,pk#0 | tmp%0#1,tmp%1#1,aggregate%length_uint16%0#0
+        l-load tmp%0#1 2                                                              (𝕗) message#0,proof#0,pk#0 | tmp%1#1,aggregate%length_uint16%0#0,tmp%0#1
+        concat                                                                        (𝕗) message#0,proof#0,pk#0 | tmp%1#1,aggregate%encoded_value%0#0
+        byte 0x00                                                                     (𝕗) message#0,proof#0,pk#0 | tmp%1#1,aggregate%encoded_value%0#0,0x00
+        int 0                                                                         (𝕗) message#0,proof#0,pk#0 | tmp%1#1,aggregate%encoded_value%0#0,0x00,0
+        l-load tmp%1#1 3                                                              (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,0x00,0,tmp%1#1
+        setbit                                                                        (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,aggregate%encoded_bool%0#0
+        byte 0x0003                                                                   (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,aggregate%encoded_bool%0#0,0x0003
+        l-load aggregate%encoded_bool%0#0 1                                           (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,0x0003,aggregate%encoded_bool%0#0
+        concat                                                                        (𝕗) message#0,proof#0,pk#0 | aggregate%encoded_value%0#0,aggregate%head%1#0
+        l-load aggregate%encoded_value%0#0 1                                          (𝕗) message#0,proof#0,pk#0 | aggregate%head%1#0,aggregate%encoded_value%0#0
+        concat                                                                        (𝕗) message#0,proof#0,pk#0 | aggregate%concat%0#0
+        byte 0x151f7c75                                                               (𝕗) message#0,proof#0,pk#0 | aggregate%concat%0#0,0x151f7c75
+        l-load aggregate%concat%0#0 1                                                 (𝕗) message#0,proof#0,pk#0 | 0x151f7c75,aggregate%concat%0#0
+        concat                                                                        (𝕗) message#0,proof#0,pk#0 | tmp%6#0
+        log                                                                           (𝕗) message#0,proof#0,pk#0 |
         retsub
 
 

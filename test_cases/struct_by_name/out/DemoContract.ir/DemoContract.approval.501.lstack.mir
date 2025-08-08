@@ -1,114 +1,114 @@
-// Op                                                 Stack (out)
+// Op                                                                                 Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // struct_by_name/contract.py:18
         // class DemoContract(ARC4Contract):
-        txn NumAppArgs                                tmp%0#1
-        l-load tmp%0#1 0                              tmp%0#1
+        txn NumAppArgs                                                                tmp%0#1
+        l-load tmp%0#1 0                                                              tmp%0#1
         bz main_bare_routing@9 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // struct_by_name/contract.py:18
         // class DemoContract(ARC4Contract):
-        txna ApplicationArgs 0                        tmp%2#0
-        method get_one()(uint8,uint8)                 tmp%2#0,Method(get_one()(uint8,uint8))
-        method get_two()(uint8,uint8)                 tmp%2#0,Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8))
-        method get_three()(uint8,uint8)               tmp%2#0,Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8)),Method(get_three()(uint8,uint8))
-        method compare()bool                          tmp%2#0,Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8)),Method(get_three()(uint8,uint8)),Method(compare()bool)
-        l-load tmp%2#0 4                              Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8)),Method(get_three()(uint8,uint8)),Method(compare()bool),tmp%2#0
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls tmp%2#0
+        method get_one()(uint8,uint8)                                                 tmp%2#0,Method(get_one()(uint8,uint8))
+        method get_two()(uint8,uint8)                                                 tmp%2#0,Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8))
+        method get_three()(uint8,uint8)                                               tmp%2#0,Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8)),Method(get_three()(uint8,uint8))
+        method compare()bool                                                          tmp%2#0,Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8)),Method(get_three()(uint8,uint8)),Method(compare()bool)
+        l-load tmp%2#0 4                                                              Method(get_one()(uint8,uint8)),Method(get_two()(uint8,uint8)),Method(get_three()(uint8,uint8)),Method(compare()bool),tmp%2#0
         match main_get_one_route@3 main_get_two_route@4 main_get_three_route@5 main_compare_route@6 ; b main_after_if_else@13 
 
     main_get_one_route@3:
         // struct_by_name/contract.py:25
         // @arc4.abimethod()
-        txn OnCompletion                              tmp%3#0
-        l-load tmp%3#0 0                              tmp%3#0
-        !                                             tmp%4#0
-        l-load tmp%4#0 0                              tmp%4#0
+        txn OnCompletion                                                              tmp%3#0
+        l-load tmp%3#0 0                                                              tmp%3#0
+        !                                                                             tmp%4#0
+        l-load tmp%4#0 0                                                              tmp%4#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                             tmp%5#0
-        l-load tmp%5#0 0                              tmp%5#0
+        txn ApplicationID                                                             tmp%5#0
+        l-load tmp%5#0 0                                                              tmp%5#0
         assert // can only call when not creating
         // struct_by_name/contract.py:18
         // class DemoContract(ARC4Contract):
         callsub get_one
         // struct_by_name/contract.py:25
         // @arc4.abimethod()
-        int 1                                         1
+        int 1                                                                         1
         return
 
     main_get_two_route@4:
         // struct_by_name/contract.py:32
         // @arc4.abimethod()
-        txn OnCompletion                              tmp%7#0
-        l-load tmp%7#0 0                              tmp%7#0
-        !                                             tmp%8#0
-        l-load tmp%8#0 0                              tmp%8#0
+        txn OnCompletion                                                              tmp%7#0
+        l-load tmp%7#0 0                                                              tmp%7#0
+        !                                                                             tmp%8#0
+        l-load tmp%8#0 0                                                              tmp%8#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                             tmp%9#0
-        l-load tmp%9#0 0                              tmp%9#0
+        txn ApplicationID                                                             tmp%9#0
+        l-load tmp%9#0 0                                                              tmp%9#0
         assert // can only call when not creating
         // struct_by_name/contract.py:18
         // class DemoContract(ARC4Contract):
         callsub get_two
         // struct_by_name/contract.py:32
         // @arc4.abimethod()
-        int 1                                         1
+        int 1                                                                         1
         return
 
     main_get_three_route@5:
         // struct_by_name/contract.py:39
         // @arc4.abimethod()
-        txn OnCompletion                              tmp%11#0
-        l-load tmp%11#0 0                             tmp%11#0
-        !                                             tmp%12#0
-        l-load tmp%12#0 0                             tmp%12#0
+        txn OnCompletion                                                              tmp%11#0
+        l-load tmp%11#0 0                                                             tmp%11#0
+        !                                                                             tmp%12#0
+        l-load tmp%12#0 0                                                             tmp%12#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                             tmp%13#0
-        l-load tmp%13#0 0                             tmp%13#0
+        txn ApplicationID                                                             tmp%13#0
+        l-load tmp%13#0 0                                                             tmp%13#0
         assert // can only call when not creating
         // struct_by_name/contract.py:18
         // class DemoContract(ARC4Contract):
         callsub get_three
         // struct_by_name/contract.py:39
         // @arc4.abimethod()
-        int 1                                         1
+        int 1                                                                         1
         return
 
     main_compare_route@6:
         // struct_by_name/contract.py:46
         // @arc4.abimethod()
-        txn OnCompletion                              tmp%15#0
-        l-load tmp%15#0 0                             tmp%15#0
-        !                                             tmp%16#0
-        l-load tmp%16#0 0                             tmp%16#0
+        txn OnCompletion                                                              tmp%15#0
+        l-load tmp%15#0 0                                                             tmp%15#0
+        !                                                                             tmp%16#0
+        l-load tmp%16#0 0                                                             tmp%16#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                             tmp%17#0
-        l-load tmp%17#0 0                             tmp%17#0
+        txn ApplicationID                                                             tmp%17#0
+        l-load tmp%17#0 0                                                             tmp%17#0
         assert // can only call when not creating
         // struct_by_name/contract.py:18
         // class DemoContract(ARC4Contract):
         callsub compare
         // struct_by_name/contract.py:46
         // @arc4.abimethod()
-        int 1                                         1
+        int 1                                                                         1
         return
 
     main_bare_routing@9:
         // struct_by_name/contract.py:18
         // class DemoContract(ARC4Contract):
-        txn OnCompletion                              tmp%19#0
-        l-load tmp%19#0 0                             tmp%19#0
-        !                                             not%tmp%19#0
-        l-load not%tmp%19#0 0                         not%tmp%19#0
+        txn OnCompletion                                                              tmp%19#0
+        l-load tmp%19#0 0                                                             tmp%19#0
+        !                                                                             not%tmp%19#0
+        l-load not%tmp%19#0 0                                                         not%tmp%19#0
         assert
-        txn ApplicationID                             tmp%20#0
-        l-load tmp%20#0 0                             tmp%20#0
-        !                                             tmp%21#0
-        l-load tmp%21#0 0                             tmp%21#0
+        txn ApplicationID                                                             tmp%20#0
+        l-load tmp%20#0 0                                                             tmp%20#0
+        !                                                                             tmp%21#0
+        l-load tmp%21#0 0                                                             tmp%21#0
         assert // can only call when creating
-        int 1                                         1
+        int 1                                                                         1
         return
 
     main_after_if_else@13:
@@ -122,7 +122,7 @@ subroutine get_one:
     get_one_block@0:
         // struct_by_name/contract.py:25
         // @arc4.abimethod()
-        byte 0x151f7c750101                           0x151f7c750101
+        byte 0x151f7c750101                                                           0x151f7c750101
         log
         retsub
 
@@ -132,7 +132,7 @@ subroutine get_two:
     get_two_block@0:
         // struct_by_name/contract.py:32
         // @arc4.abimethod()
-        byte 0x151f7c750101                           0x151f7c750101
+        byte 0x151f7c750101                                                           0x151f7c750101
         log
         retsub
 
@@ -142,7 +142,7 @@ subroutine get_three:
     get_three_block@0:
         // struct_by_name/contract.py:39
         // @arc4.abimethod()
-        byte 0x151f7c750101                           0x151f7c750101
+        byte 0x151f7c750101                                                           0x151f7c750101
         log
         retsub
 
@@ -152,7 +152,7 @@ subroutine compare:
     compare_block@0:
         // struct_by_name/contract.py:46
         // @arc4.abimethod()
-        byte 0x151f7c7580                             0x151f7c7580
+        byte 0x151f7c7580                                                             0x151f7c7580
         log
         retsub
 

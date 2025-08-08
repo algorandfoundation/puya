@@ -6,14 +6,12 @@ main:
     intcblock 1 0 2 3
     pushbytes ""
     dupn 2
-    txn NumAppArgs
-    assert
     pushbytess 0x4c5c61ba 0x6b680318 0x16c4a32d 0x639872d6 0x50f8f1c3 0x5b3a00cf 0xcd62293d 0x02ea72e5 0x3056840b 0x96ef9a95 // method "create()void", method "pay(pay)void", method "key(keyreg)void", method "asset_config(acfg)void", method "asset_transfer(axfer)void", method "asset_freeze(afrz)void", method "application_call(appl)void", method "multiple_txns(appl,appl,appl)void", method "any_txn(txn,txn,txn)void", method "group_init(txn,txn,txn)void"
-    txna ApplicationArgs 0
-    match main_create_route@3 main_pay_route@4 main_key_route@5 main_asset_config_route@6 main_asset_transfer_route@7 main_asset_freeze_route@8 main_application_call_route@9 main_multiple_txns_route@10 main_any_txn_route@11 main_group_init_route@12
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@2 main_pay_route@3 main_key_route@4 main_asset_config_route@5 main_asset_transfer_route@6 main_asset_freeze_route@7 main_application_call_route@8 main_multiple_txns_route@9 main_any_txn_route@10 main_group_init_route@11
     err
 
-main_group_init_route@12:
+main_group_init_route@11:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -34,7 +32,7 @@ main_group_init_route@12:
     bury 2
     intc_1 // 0
 
-main_for_body@18:
+main_for_body@14:
     swap
     dup
     gtxns GroupIndex
@@ -44,7 +42,7 @@ main_for_body@18:
     gtxns TxID
     ==
     assert
-    switch main_for_header_1@19 main_for_header_2@20
+    switch main_for_header_1@15 main_for_header_2@16
     dig 2
     gtxns TxID
     intc_1 // 0
@@ -54,17 +52,17 @@ main_for_body@18:
     intc_0 // 1
     return
 
-main_for_header_2@20:
+main_for_header_2@16:
     dup
     intc_2 // 2
-    b main_for_body@18
+    b main_for_body@14
 
-main_for_header_1@19:
+main_for_header_1@15:
     dig 1
     intc_0 // 1
-    b main_for_body@18
+    b main_for_body@14
 
-main_any_txn_route@11:
+main_any_txn_route@10:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -83,29 +81,29 @@ main_any_txn_route@11:
     bury 2
     intc_1 // 0
 
-main_for_body@24:
+main_for_body@20:
     swap
     gtxns GroupIndex
     dig 1
     ==
     assert
-    switch main_for_header_1@25 main_for_header_2@26
+    switch main_for_header_1@21 main_for_header_2@22
 
-main_after_for@33:
+main_after_for@29:
     intc_0 // 1
     return
 
-main_for_header_2@26:
+main_for_header_2@22:
     dup
     intc_2 // 2
-    b main_for_body@24
+    b main_for_body@20
 
-main_for_header_1@25:
+main_for_header_1@21:
     dig 1
     intc_0 // 1
-    b main_for_body@24
+    b main_for_body@20
 
-main_multiple_txns_route@10:
+main_multiple_txns_route@9:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -139,26 +137,26 @@ main_multiple_txns_route@10:
     assert // transaction type is appl
     intc_1 // 0
 
-main_for_body@30:
+main_for_body@26:
     swap
     gtxns GroupIndex
     dig 1
     ==
     assert
-    switch main_for_header_1@31 main_for_header_2@32
-    b main_after_for@33
+    switch main_for_header_1@27 main_for_header_2@28
+    b main_after_for@29
 
-main_for_header_2@32:
+main_for_header_2@28:
     dup
     intc_2 // 2
-    b main_for_body@30
+    b main_for_body@26
 
-main_for_header_1@31:
+main_for_header_1@27:
     dig 1
     intc_0 // 1
-    b main_for_body@30
+    b main_for_body@26
 
-main_application_call_route@9:
+main_application_call_route@8:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -256,7 +254,7 @@ main_application_call_route@9:
     intc_0 // 1
     return
 
-main_asset_freeze_route@8:
+main_asset_freeze_route@7:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -285,7 +283,7 @@ main_asset_freeze_route@8:
     intc_0 // 1
     return
 
-main_asset_transfer_route@7:
+main_asset_transfer_route@6:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -324,7 +322,7 @@ main_asset_transfer_route@7:
     intc_0 // 1
     return
 
-main_asset_config_route@6:
+main_asset_config_route@5:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -386,7 +384,7 @@ main_asset_config_route@6:
     intc_0 // 1
     return
 
-main_key_route@5:
+main_key_route@4:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -420,7 +418,7 @@ main_key_route@5:
     intc_0 // 1
     return
 
-main_pay_route@4:
+main_pay_route@3:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -453,7 +451,7 @@ main_pay_route@4:
     intc_0 // 1
     return
 
-main_create_route@3:
+main_create_route@2:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
