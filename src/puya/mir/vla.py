@@ -1,24 +1,48 @@
-import itertools
 import typing
-from collections.abc import Sequence, Set
+from collections.abc import Callable, Sequence, Set
 from functools import cached_property
 
 import attrs
 
 from puya.mir import models
-from puya.utils import StableSet
+
+_StableStr = Set[str]
+_empty_set = frozenset[str]()
+_LiveInFactory = Callable[[dict[str, None]], _StableStr]
 
 
 @attrs.define(kw_only=True)
 class _OpLifetime:
     block: models.MemoryBasicBlock
-    used: StableSet[str] = attrs.field(on_setattr=attrs.setters.frozen)
-    defined: StableSet[str] = attrs.field(on_setattr=attrs.setters.frozen)
-    successors: list[typing.Self] = attrs.field(factory=list)
-    predecessors: list[typing.Self] = attrs.field(factory=list)
+    used: Sequence[str] = attrs.field(on_setattr=attrs.setters.frozen)
+    defined: Sequence[str] = attrs.field(on_setattr=attrs.setters.frozen)
+    live_in_factory: _LiveInFactory = attrs.field(on_setattr=attrs.setters.frozen)
+    successors: Sequence[typing.Self] = attrs.field(default=())
+    predecessors: Sequence[typing.Self] = attrs.field(default=())
 
-    live_in: StableSet[str] = attrs.field(factory=StableSet)
-    live_out: StableSet[str] = attrs.field(factory=StableSet)
+    live_in: _StableStr = attrs.field(default=_empty_set)
+    live_out: _StableStr = attrs.field(default=_empty_set)
+
+
+_live_in_identity: _LiveInFactory = dict[str, None].keys
+
+
+def _live_in_defined_factory(local_id: str) -> _LiveInFactory:
+    def factory(live_out: dict[str, None]) -> _StableStr:
+        live_in = live_out.copy()
+        live_in.pop(local_id, None)
+        return live_in.keys()
+
+    return factory
+
+
+def _live_in_used_factory(local_id: str) -> _LiveInFactory:
+    def factory(live_out: dict[str, None]) -> _StableStr:
+        live_in = live_out.copy()
+        live_in[local_id] = None
+        return live_in.keys()
+
+    return factory
 
 
 @attrs.frozen
@@ -41,34 +65,47 @@ class VariableLifetimeAnalysis:
 
     def _op_lifetimes_factory(self) -> dict[models.BaseOp, _OpLifetime]:
         result = dict[models.BaseOp, _OpLifetime]()
-        block_map = {b.block_name: b.ops[0] for b in self.subroutine.body}
+        used: Sequence[str]
+        defined: Sequence[str]
         for block in self.subroutine.body:
             for op in block.ops:
-                used = StableSet[str]()
-                defined = StableSet[str]()
+                live_in_factory = _live_in_identity
+                used = defined = ()
+                # the only nodes that change live_in are AbstractStore/Load
+                # so to improve the performance of calculating live_in
+                # use factories to create specific functions for transforming live_out -> Live_in
+                # in[n] = use[n] U (out[n] - def [n])
                 if isinstance(op, models.AbstractStore):
-                    defined.add(op.local_id)
+                    defined = (op.local_id,)
+                    live_in_factory = _live_in_defined_factory(op.local_id)
                 elif isinstance(op, models.AbstractLoad):
-                    used.add(op.local_id)
+                    used = (op.local_id,)
+                    live_in_factory = _live_in_used_factory(op.local_id)
+
                 result[op] = _OpLifetime(
                     block=block,
                     used=used,
                     defined=defined,
+                    live_in_factory=live_in_factory,
                 )
+        # maps the entry and terminating op for a block
+        block_map = {
+            b.block_name: (result[b.ops[0]], result[b.terminator]) for b in self.subroutine.body
+        }
         for block in self.subroutine.body:
-            for op, next_op in itertools.zip_longest(block.ops, block.ops[1:]):
-                if isinstance(op, models.ControlOp):
-                    assert next_op is None
-                    # note: control ops that end the current subroutine don't have any logical
-                    # successors
-                    successors = [result[block_map[s]] for s in op.targets()]
-                else:
-                    assert next_op is not None
-                    successors = [result[next_op]]
-                op_lifetime = result[op]
-                op_lifetime.successors = successors
-                for s in successors:
-                    s.predecessors.append(op_lifetime)
+            # map life times for all ops once to save multiple lookups
+            lifetimes = [result[op] for op in block.ops]
+            # first op in block can have multiple predecessors
+            lifetimes[0].predecessors = tuple(block_map[p][1] for p in block.predecessors)
+            # ops can each only have one successor
+            for op_idx in range(len(block.mem_ops)):
+                op_lifetime = lifetimes[op_idx]
+                next_op_lifetime = lifetimes[op_idx + 1]
+                op_lifetime.successors = (next_op_lifetime,)
+                next_op_lifetime.predecessors = (op_lifetime,)
+            # terminator op can have multiple successors
+            lifetimes[-1].successors = tuple(block_map[s][0] for s in block.successors)
+
         return result
 
     def get_live_out_variables(self, op: models.BaseOp) -> Set[str]:
@@ -86,7 +123,7 @@ class VariableLifetimeAnalysis:
     @cached_property
     def _op_lifetimes(self) -> dict[models.BaseOp, _OpLifetime]:
         data = self._op_lifetimes_factory()
-        changed = list(data.values())
+        changed = list(reversed(data.values()))
         while changed:
             orig_changed = changed
             changed = []
@@ -95,15 +132,14 @@ class VariableLifetimeAnalysis:
                 # in the IN set for each succeeding node of n.
 
                 # out[n] = U s ∈ succ[n] in[s]
-                live_out = StableSet[str]()
-                for s in n.successors:
-                    live_out |= s.live_in
+                live_out = {v: None for s in n.successors for v in s.live_in}
 
                 # in[n] = use[n] U (out[n] - def [n])
-                live_in = n.used | (live_out - n.defined)
+                live_in = n.live_in_factory(live_out)
 
-                if live_out != n.live_out or live_in != n.live_in:
+                live_out_keys = live_out.keys()
+                if live_out_keys != n.live_out or live_in != n.live_in:
                     n.live_in = live_in
-                    n.live_out = live_out
+                    n.live_out = live_out_keys
                     changed.extend(n.predecessors)
         return data
