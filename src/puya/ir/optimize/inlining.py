@@ -264,7 +264,22 @@ def _inline_call(
         remainder.predecessors.append(new_block)
 
     num_returns = len(returning_blocks)
-    if num_returns == 1:
+    if num_returns == 0:
+        if return_targets:
+            remainder.ops.append(
+                models.Assignment(
+                    targets=return_targets,
+                    source=models.ValueTuple(
+                        values=[
+                            models.Undefined(ir_type=target.ir_type, source_location=None)
+                            for target in return_targets
+                        ],
+                        source_location=None,
+                    ),
+                    source_location=None,
+                )
+            )
+    elif num_returns == 1:
         # if there is a single retsub, we can assign to the return variables in that block
         # directly without violating SSA
         ((new_block, return_values),) = returning_blocks
