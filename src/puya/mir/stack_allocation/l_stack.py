@@ -160,7 +160,7 @@ def _dead_store_removal(sub: mir.MemorySubroutine) -> None:
             if isinstance(a, mir.StoreLStack):
                 if a.copy and vla.is_dead_store(b):
                     a = attrs.evolve(a, copy=False, produces=())
-                    ops[window] = [a]
+                    ops[window] = (a,)
             elif (
                 (isinstance(a, mir.LoadLStack) and not a.copy)
                 and (isinstance(b, mir.StoreLStack) and b.copy)
@@ -171,7 +171,7 @@ def _dead_store_removal(sub: mir.MemorySubroutine) -> None:
                     copy=True,
                     produces=(f"{a.local_id} (copy)",),
                 )
-                ops[window] = [a]
+                ops[window] = (a,)
             op_idx += 1
 
 
@@ -190,20 +190,19 @@ def _implicit_store_removal(sub: mir.MemorySubroutine) -> None:
             next_op_idx = op_idx + 1
             if op.produces:
                 produces_window = slice(next_op_idx, next_op_idx + len(op.produces))
-                store_ids = [
+                store_ids = tuple(
                     (
                         maybe_store.local_id
                         if isinstance(maybe_store, mir.StoreLStack) and not maybe_store.copy
                         else None
                     )
-                    for maybe_store in ops[produces_window]
-                ]
-                store_ids.reverse()
+                    for maybe_store in reversed(ops[produces_window])
+                )
                 # If they all match then this means all values are implicitly on the l-stack
                 # and we can safely remove the store ops.
                 # We don't need to check the depths since the load depths are not calculated yet.
                 if store_ids == op.produces:
-                    ops[produces_window] = []
+                    ops[produces_window] = ()
             op_idx = next_op_idx
 
 
