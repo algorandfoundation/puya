@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import typing
 import typing as t
+from functools import cached_property
 
 import attrs
 
@@ -28,7 +29,7 @@ class BaseOp(abc.ABC):
     consumes: int
     """How many values are removed from the top of l-stack
     Does not take into account any manipulations lower in the stack e.g. from Load*Stack"""
-    produces: Sequence[str]
+    produces: tuple[str, ...]
     """The local ids that are appended to the l-stack
     Does not take into account any manipulations lower in the stack e.g. from Store*Stack"""
 
@@ -50,7 +51,7 @@ class Op(BaseOp, abc.ABC):
 class Int(Op):
     value: int | str
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -68,7 +69,7 @@ class Byte(Op):
     value: bytes
     encoding: AVMBytesEncoding
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -85,7 +86,7 @@ class Byte(Op):
 class Undefined(Op):
     atype: typing.Literal[AVMType.bytes, AVMType.uint64]
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -104,7 +105,7 @@ class TemplateVar(Op):
     atype: AVMType
     op_code: typing.Literal["int", "byte"] = attrs.field(init=False)
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -133,7 +134,7 @@ class TemplateVar(Op):
 class Address(Op):
     value: str
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -150,7 +151,7 @@ class Address(Op):
 class Method(Op):
     value: str
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -167,7 +168,7 @@ class Method(Op):
 class Comment(Op):
     comment: str
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_comment(self)
@@ -205,7 +206,7 @@ class LoadOp(Op, abc.ABC):
 @attrs.frozen(eq=False)
 class AbstractStore(StoreOp):
     consumes: int = attrs.field(default=1, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_abstract_store(self)
@@ -217,7 +218,7 @@ class AbstractStore(StoreOp):
 @attrs.frozen(eq=False)
 class AbstractLoad(LoadOp):
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -235,7 +236,7 @@ class StoreLStack(StoreOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
     copy: bool
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field()
+    produces: tuple[str, ...] = attrs.field()
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -257,7 +258,7 @@ class StoreLStack(StoreOp):
 class LoadLStack(LoadOp):
     copy: bool
     consumes: int = attrs.field(init=False, default=0)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
     # depth can only be defined after koopmans pass and dead store removal
     depth: int | None = None
 
@@ -281,7 +282,7 @@ class LoadLStack(LoadOp):
 class StoreXStack(StoreOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
     consumes: int = attrs.field(default=1, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_x_stack(self)
@@ -294,7 +295,7 @@ class StoreXStack(StoreOp):
 class LoadXStack(LoadOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -313,7 +314,7 @@ class StoreFStack(StoreOp):
     frame_index: int = attrs.field(validator=attrs.validators.ge(0))
     insert: bool = False
     consumes: int = attrs.field(default=1, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_f_stack(self)
@@ -327,7 +328,7 @@ class LoadFStack(LoadOp):
     depth: int = attrs.field(validator=attrs.validators.ge(0))
     frame_index: int = attrs.field(validator=attrs.validators.ge(0))
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -344,7 +345,7 @@ class LoadFStack(LoadOp):
 class LoadParam(LoadOp):
     index: int
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(validator=_is_single_item)
+    produces: tuple[str, ...] = attrs.field(validator=_is_single_item)
 
     @produces.default
     def _produces(self) -> Sequence[str]:
@@ -361,7 +362,7 @@ class LoadParam(LoadOp):
 class StoreParam(StoreOp):
     index: int
     consumes: int = attrs.field(default=1, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
         return visitor.visit_store_param(self)
@@ -374,7 +375,7 @@ class StoreParam(StoreOp):
 class Pop(Op):
     n: int
     consumes: int = attrs.field(init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
     @consumes.default
     def _consumes(self) -> int:
@@ -393,7 +394,7 @@ class CallSub(Op):
     parameters: int
     returns: int
     consumes: int = attrs.field(init=False)
-    produces: Sequence[str] = attrs.field()
+    produces: tuple[str, ...] = attrs.field()
 
     @consumes.default
     def _consumes(self) -> int:
@@ -458,7 +459,7 @@ class RetSub(ControlOp):
     fx_height: int = 0
     # l-stack is discarded after this op
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
     @typing.override
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
@@ -476,7 +477,7 @@ class RetSub(ControlOp):
 @attrs.frozen(eq=False)
 class ProgramExit(ControlOp):
     consumes: int = attrs.field(default=1, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
     @typing.override
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
@@ -494,7 +495,7 @@ class ProgramExit(ControlOp):
 @attrs.frozen(eq=False)
 class Err(ControlOp):
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
 
     @typing.override
     def accept(self, visitor: MIRVisitor[_T]) -> _T:
@@ -512,7 +513,7 @@ class Err(ControlOp):
 @attrs.frozen(eq=False)
 class Goto(ControlOp):
     consumes: int = attrs.field(default=0, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
     target: str
 
     @typing.override
@@ -531,7 +532,7 @@ class Goto(ControlOp):
 @attrs.frozen(eq=False)
 class ConditionalBranch(ControlOp):
     consumes: int = attrs.field(default=1, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
     zero_target: str
     nonzero_target: str
 
@@ -551,7 +552,7 @@ class ConditionalBranch(ControlOp):
 @attrs.frozen(eq=False)
 class Switch(ControlOp):
     consumes: int = attrs.field(default=1, init=False)
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
     switch_targets: Sequence[str] = attrs.field(converter=tuple[str, ...])
     default_target: str
 
@@ -570,7 +571,7 @@ class Switch(ControlOp):
 
 @attrs.frozen(eq=False)
 class Match(ControlOp):
-    produces: Sequence[str] = attrs.field(default=(), init=False)
+    produces: tuple[str, ...] = attrs.field(default=(), init=False)
     match_targets: Sequence[str] = attrs.field(converter=tuple[str, ...])
     consumes: int = attrs.field(init=False)
     default_target: str
@@ -646,6 +647,10 @@ class Signature:
     parameters: Sequence[Parameter]
     returns: Sequence[AVMType]
 
+    @cached_property
+    def local_ids(self) -> tuple[str, ...]:
+        return tuple(p.local_id for p in self.parameters)
+
     def __str__(self) -> str:
         params = ", ".join(f"{p.name}: {p.atype.name}" for p in self.parameters)
         returns = ", ".join(str(r.name) for r in self.returns)
@@ -701,12 +706,12 @@ class Program:
         yield from self.subroutines
 
 
-def produces_from_desc(desc: str, size: int) -> Sequence[str]:
+def produces_from_desc(desc: str, size: int) -> tuple[str, ...]:
     desc = f"{{{desc}}}"
     if size > 1:
-        produces = [f"{desc}.{n}" for n in range(size)]
+        produces = tuple(f"{desc}.{n}" for n in range(size))
     elif size == 1:
-        produces = [desc]
+        produces = (desc,)
     else:
-        produces = []
+        produces = ()
     return produces
