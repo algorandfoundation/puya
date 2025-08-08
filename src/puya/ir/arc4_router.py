@@ -440,6 +440,7 @@ def _build_abi_wrapper(
 
 
 def route_abi_methods(
+    method_arg: awst_nodes.Expression,
     location: SourceLocation,
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
@@ -475,10 +476,7 @@ def route_abi_methods(
     return create_block(
         location,
         "abi_routing",
-        *_maybe_switch(
-            _txn_app_args(0, location, error_message="contract does not allow bare method calls"),
-            method_routing_cases,
-        ),
+        *_maybe_switch(method_arg, method_routing_cases),
     ), arc4_wrapper_methods
 
 
@@ -510,7 +508,12 @@ def create_abi_router(
         else:
             abi_methods[method] = sig
 
-    abi_routing, abi_wrapper_methods = route_abi_methods(router_location, abi_methods)
+    if bare_methods:
+        method_arg_error_message = None
+    else:
+        method_arg_error_message = "contract does not allow bare method calls"
+    method_arg = _txn_app_args(0, router_location, error_message=method_arg_error_message)
+    abi_routing, abi_wrapper_methods = route_abi_methods(method_arg, router_location, abi_methods)
     router: list[awst_nodes.Statement]
     if not bare_methods:
         router = [
