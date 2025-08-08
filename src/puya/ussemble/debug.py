@@ -1,4 +1,5 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
+from pathlib import Path
 
 from puya.compilation_artifacts import DebugEvent, DebugInfo
 from puya.parse import SourceLocation
@@ -24,7 +25,9 @@ def build_debug_info(
                     op_pc_offset = idx
                     pc_offset = pc
                 break
-    events = {pc - pc_offset: event for pc, event in pc_events.items() if pc >= pc_offset}
+    events = {
+        pc - pc_offset: event for pc, event in pc_events.items() if pc >= pc_offset and event
+    }
     source_map = {
         pc - pc_offset: node.source_location for pc, node in pc_ops.items() if pc >= pc_offset
     }
@@ -44,21 +47,24 @@ def build_debug_info(
 def _get_src_mappings(
     source_map: Mapping[int, SourceLocation | None],
     files: Sequence[str],
-) -> list[str]:
-    mappings = []
+) -> Iterator[str]:
     previous_source_index = 0
     previous_line = 0
     previous_column = 0
+    source_indexes = dict[Path, int]()
     for pc in range(max(source_map) + 1):
         loc = source_map.get(pc)
         if not loc or not loc.file:
-            mappings.append("")
+            yield ""
             continue
-        source_index = files.index(normalize_path(loc.file))
+        try:
+            source_index = source_indexes[loc.file]
+        except KeyError:
+            source_indexes[loc.file] = source_index = files.index(normalize_path(loc.file))
         line = loc.line - 1  # make 0-indexed
         column = loc.column or 0
 
-        mappings.append(
+        yield "".join(
             _base64vlq_encode(
                 0,  # generated col offset, always 0 for AVM byte code
                 source_index - previous_source_index,
@@ -69,15 +75,12 @@ def _get_src_mappings(
         previous_source_index = source_index
         previous_line = line
         previous_column = column
-    return mappings
 
 
-def _base64vlq_encode(*values: int) -> str:
+def _base64vlq_encode(*values: int) -> Iterator[str]:
     """Encode integers to a VLQ value"""
-    results = []
 
-    b64_chars = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-    b64_encode = b64_chars.decode().__getitem__
+    b64_encode = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".__getitem__
     shift = 5
     flag = 1 << shift
     mask = flag - 1
@@ -88,7 +91,6 @@ def _base64vlq_encode(*values: int) -> str:
         while True:
             to_encode = v & mask
             v >>= shift
-            results.append(b64_encode(to_encode | (v and flag)))
+            yield b64_encode(to_encode | (v and flag))
             if not v:
                 break
-    return "".join(results)

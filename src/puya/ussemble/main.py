@@ -36,11 +36,11 @@ def _gather_template_variables(
     program: teal.TealProgram,
 ) -> Mapping[str, typing.Literal[AVMType.uint64, AVMType.bytes]]:
     return {
-        t: AVMType.uint64 if isinstance(op, teal.IntBlock) else AVMType.bytes
+        t: AVMType.uint64 if op.op_code == "intcblock" else AVMType.bytes
         for sub in program.all_subroutines
         for block in sub.blocks
         for op in block.ops
-        if isinstance(op, teal.IntBlock | teal.BytesBlock)
-        for t in op.constants
+        if op.op_code in ("intcblock", "bytecblock")
+        for t in typing.cast(teal.IntBlock | teal.BytesBlock, op).constants
         if isinstance(t, str)
     }
