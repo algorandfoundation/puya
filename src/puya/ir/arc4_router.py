@@ -447,6 +447,15 @@ def route_abi_methods(
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
     arc4_wrapper_methods = list[awst_nodes.Subroutine]()
+    allowed_oca_set = {m.allowed_completion_types for m in methods}
+    pre_checks = list[awst_nodes.Statement]()
+    try:
+        (single_allowed_oca,) = allowed_oca_set
+    except ValueError:
+        check_oca = True
+    else:
+        check_oca = False
+        pre_checks.extend(check_allowed_oca(single_allowed_oca, location))
     for method, sig in methods.items():
         abi_loc = method.config_location
         arc4_signature = method.signature
@@ -461,7 +470,7 @@ def route_abi_methods(
         ] = create_block(
             abi_loc,
             f"{method.name}_route",
-            *check_allowed_oca(method.allowed_completion_types, abi_loc),
+            *(check_allowed_oca(method.allowed_completion_types, abi_loc) if check_oca else ()),
             *assert_create_state(method),
             awst_nodes.ExpressionStatement(
                 awst_nodes.SubroutineCallExpression(
@@ -476,6 +485,7 @@ def route_abi_methods(
     return create_block(
         location,
         "abi_routing",
+        *pre_checks,
         *_maybe_switch(method_arg, method_routing_cases),
     ), arc4_wrapper_methods
 
