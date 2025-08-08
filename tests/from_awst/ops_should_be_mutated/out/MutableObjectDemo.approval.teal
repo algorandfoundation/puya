@@ -19,8 +19,6 @@ main_setPlugin_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    txna ApplicationArgs 1
-    extract 2 0
     callsub setPlugin
     pushint 1 // 1
     return
@@ -35,11 +33,12 @@ main_bare_routing@6:
     return
 
 
-// tests/approvals/mutable-object.algo.ts::MutableObjectDemo.setPlugin(key: bytes) -> void:
+// tests/approvals/mutable-object.algo.ts::MutableObjectDemo.setPlugin[routing]() -> void:
 setPlugin:
-    proto 1 0
+    txna ApplicationArgs 1
+    extract 2 0
     pushbytes "plugins"
-    frame_dig -1
+    swap
     concat
     pushbytes 0x0000000000000001
     box_put

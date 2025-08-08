@@ -27,12 +27,12 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@14
+    bz main_bare_routing@10
     pushbytess 0xddc4cb4a 0x6b59d965 0x5cbf1e2d 0x1436c2ac 0x4a88e055 // method "set_governor(address)void", method "bootstrap(pay,asset,asset)uint64", method "mint(axfer,axfer,asset,asset,asset)void", method "burn(axfer,asset,asset,asset)void", method "swap(axfer,asset,asset)void"
     txna ApplicationArgs 0
     match main_set_governor_route@5 main_bootstrap_route@6 main_mint_route@7 main_burn_route@8 main_swap_route@9
 
-main_after_if_else@16:
+main_after_if_else@12:
     intc_0 // 0
     return
 
@@ -89,10 +89,10 @@ main_swap_route@9:
     assert // sender invalid
     uncover 2
     gtxns XferAsset
-    match main_switch_case_0@10 main_switch_case_1@11
+    match main_switch_case_0@15 main_switch_case_1@16
     err // asset id incorrect
 
-main_switch_case_1@11:
+main_switch_case_1@16:
     callsub _current_a_balance
     bury 3
     callsub _current_b_balance
@@ -103,7 +103,7 @@ main_switch_case_1@11:
     bury 4
     assert // check self.asset_b exists
 
-main_switch_case_next@13:
+main_switch_case_next@18:
     dig 3
     dig 5
     dup
@@ -132,7 +132,7 @@ main_switch_case_next@13:
     intc_1 // 1
     return
 
-main_switch_case_0@10:
+main_switch_case_0@15:
     callsub _current_b_balance
     bury 3
     callsub _current_a_balance
@@ -142,7 +142,7 @@ main_switch_case_0@10:
     swap
     bury 4
     assert // check self.asset_a exists
-    b main_switch_case_next@13
+    b main_switch_case_next@18
 
 main_burn_route@8:
     txn OnCompletion
@@ -350,15 +350,15 @@ main_mint_route@7:
     callsub _current_b_balance
     bury 8
     ==
-    bz main_bool_false@23
+    bz main_bool_false@25
     dig 5
     dig 7
     ==
-    bz main_bool_false@23
+    bz main_bool_false@25
     intc_1 // 1
 
-main_bool_merge@24:
-    bz main_after_if_else@26
+main_bool_merge@26:
+    bz main_after_if_else@28
     dig 9
     dig 7
     *
@@ -366,7 +366,7 @@ main_bool_merge@24:
     intc_2 // 1000
     -
 
-main_after_inlined_examples.amm.contract.tokens_to_mint@29:
+main_after_inlined_examples.amm.contract.tokens_to_mint@31:
     dup
     assert // send amount too low
     txn Sender
@@ -380,7 +380,7 @@ main_after_inlined_examples.amm.contract.tokens_to_mint@29:
     intc_1 // 1
     return
 
-main_after_if_else@26:
+main_after_if_else@28:
     intc 4 // 10000000000
     dig 1
     -
@@ -407,23 +407,23 @@ main_after_if_else@26:
     dup
     bury 8
     <
-    bz main_else_body@28
+    bz main_else_body@30
     dig 8
     *
     intc_2 // 1000
     /
-    b main_after_inlined_examples.amm.contract.tokens_to_mint@29
+    b main_after_inlined_examples.amm.contract.tokens_to_mint@31
 
-main_else_body@28:
+main_else_body@30:
     dig 5
     *
     intc_2 // 1000
     /
-    b main_after_inlined_examples.amm.contract.tokens_to_mint@29
+    b main_after_inlined_examples.amm.contract.tokens_to_mint@31
 
-main_bool_false@23:
+main_bool_false@25:
     intc_0 // 0
-    b main_bool_merge@24
+    b main_bool_merge@26
 
 main_bootstrap_route@6:
     txn OnCompletion
@@ -552,9 +552,9 @@ main_set_governor_route@5:
     intc_1 // 1
     return
 
-main_bare_routing@14:
+main_bare_routing@10:
     txn OnCompletion
-    bnz main_after_if_else@16
+    bnz main_after_if_else@12
     txn ApplicationID
     !
     assert // can only call when creating

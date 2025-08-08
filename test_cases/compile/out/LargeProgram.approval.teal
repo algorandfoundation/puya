@@ -37,8 +37,11 @@ main_get_big_bytes_length_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    pushbytes 0x151f7c750000000000001000
-    log
+    // compile/apps.py:37
+    // class LargeProgram(ARC4Contract):
+    callsub get_big_bytes_length
+    // compile/apps.py:38
+    // @arc4.abimethod()
     pushint 1 // 1
     return
 
@@ -52,3 +55,12 @@ main_bare_routing@7:
     assert // can only call when creating
     pushint 1 // 1
     return
+
+
+// test_cases.compile.apps.LargeProgram.get_big_bytes_length[routing]() -> void:
+get_big_bytes_length:
+    // compile/apps.py:38
+    // @arc4.abimethod()
+    pushbytes 0x151f7c750000000000001000
+    log
+    retsub

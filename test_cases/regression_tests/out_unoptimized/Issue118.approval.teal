@@ -50,15 +50,10 @@ main_verify_route@3:
     assert // can only call when not creating
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
-    txna ApplicationArgs 1
+    callsub verify
     // regression_tests/issue_118.py:6-7
     // # ref: https://github.com/algorandfoundation/puya/issues/118
     // @abimethod
-    callsub verify
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__@11
 
@@ -88,15 +83,33 @@ main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__algopy_defau
     b main_after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__@11
 
 
-// test_cases.regression_tests.issue_118.Issue118.verify(values: bytes) -> bytes:
+// test_cases.regression_tests.issue_118.Issue118.verify[routing]() -> void:
 verify:
+
+verify_block@0:
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
+    txna ApplicationArgs 1
+    // regression_tests/issue_118.py:6-7
+    // # ref: https://github.com/algorandfoundation/puya/issues/118
+    // @abimethod
+    callsub test_cases.regression_tests.issue_118.Issue118.verify
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    retsub
+
+
+// test_cases.regression_tests.issue_118.Issue118.verify(values: bytes) -> bytes:
+test_cases.regression_tests.issue_118.Issue118.verify:
     // regression_tests/issue_118.py:6-8
     // # ref: https://github.com/algorandfoundation/puya/issues/118
     // @abimethod
     // def verify(self, values: DynamicArray[UInt256]) -> Tuple[Bool, String]:
     proto 1 1
 
-verify_block@0:
+test_cases.regression_tests.issue_118.Issue118.verify_block@0:
     // regression_tests/issue_118.py:10
     // bool(Txn.num_app_args)
     txn NumAppArgs
@@ -117,9 +130,9 @@ verify_block@0:
     extract_uint16
     pushint 2 // 2
     !=
-    bz verify_after_if_else@2
+    bz test_cases.regression_tests.issue_118.Issue118.verify_after_if_else@2
 
-verify_if_body@1:
+test_cases.regression_tests.issue_118.Issue118.verify_if_body@1:
     // regression_tests/issue_118.py:13
     // return Tuple((val1, String("")))
     bytec_0 // ""
@@ -139,7 +152,7 @@ verify_if_body@1:
     concat
     retsub
 
-verify_after_if_else@2:
+test_cases.regression_tests.issue_118.Issue118.verify_after_if_else@2:
     // regression_tests/issue_118.py:14
     // return Tuple((val1, String("")))
     bytec_0 // ""

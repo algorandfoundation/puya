@@ -33,7 +33,11 @@ subroutine main:
         !                                                                                 tmp%6#0
         l-load tmp%6#0 0                                                                  tmp%6#0
         assert // can only call when creating
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         callsub create
+        // everything/contract.py:41
+        // @abimethod(create="require")
         int 1                                                                             1
         l-store test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0      test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         l-load test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0       test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
@@ -57,11 +61,9 @@ subroutine main:
         assert // can only call when not creating
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txna ApplicationArgs 1                                                            reinterpret_Encoded(len+utf8[])%0#0
+        callsub register
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
-        l-load reinterpret_Encoded(len+utf8[])%0#0 0                                      reinterpret_Encoded(len+utf8[])%0#0
-        callsub register
         int 1                                                                             1
         l-store test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0      test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         l-load test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0       test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
@@ -79,12 +81,11 @@ subroutine main:
         txn ApplicationID                                                                 tmp%14#0
         l-load tmp%14#0 0                                                                 tmp%14#0
         assert // can only call when not creating
-        callsub say_hello                                                                 tmp%16#0
-        byte 0x151f7c75                                                                   tmp%16#0,0x151f7c75
-        l-load tmp%16#0 1                                                                 0x151f7c75,tmp%16#0
-        concat                                                                            tmp%17#0
-        l-load tmp%17#0 0                                                                 tmp%17#0
-        log
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        callsub say_hello
+        // everything/contract.py:56
+        // @abimethod
         int 1                                                                             1
         l-store test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0      test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         l-load test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0       test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
@@ -94,28 +95,19 @@ subroutine main:
     main_calculate_route@8:
         // everything/contract.py:64
         // @abimethod
-        txn OnCompletion                                                                  tmp%18#0
-        l-load tmp%18#0 0                                                                 tmp%18#0
-        !                                                                                 tmp%19#0
-        l-load tmp%19#0 0                                                                 tmp%19#0
+        txn OnCompletion                                                                  tmp%16#0
+        l-load tmp%16#0 0                                                                 tmp%16#0
+        !                                                                                 tmp%17#0
+        l-load tmp%17#0 0                                                                 tmp%17#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                 tmp%20#0
-        l-load tmp%20#0 0                                                                 tmp%20#0
+        txn ApplicationID                                                                 tmp%18#0
+        l-load tmp%18#0 0                                                                 tmp%18#0
         assert // can only call when not creating
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txna ApplicationArgs 1                                                            reinterpret_Encoded(uint64)%0#0
-        txna ApplicationArgs 2                                                            reinterpret_Encoded(uint64)%0#0,reinterpret_Encoded(uint64)%1#0
+        callsub calculate
         // everything/contract.py:64
         // @abimethod
-        l-load reinterpret_Encoded(uint64)%0#0 1                                          reinterpret_Encoded(uint64)%1#0,reinterpret_Encoded(uint64)%0#0
-        l-load reinterpret_Encoded(uint64)%1#0 1                                          reinterpret_Encoded(uint64)%0#0,reinterpret_Encoded(uint64)%1#0
-        callsub calculate                                                                 tmp%22#0
-        byte 0x151f7c75                                                                   tmp%22#0,0x151f7c75
-        l-load tmp%22#0 1                                                                 0x151f7c75,tmp%22#0
-        concat                                                                            tmp%23#0
-        l-load tmp%23#0 0                                                                 tmp%23#0
-        log
         int 1                                                                             1
         l-store test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0      test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         l-load test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0       test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
@@ -125,16 +117,20 @@ subroutine main:
     main_close_out_route@9:
         // everything/contract.py:69
         // @abimethod(allow_actions=["CloseOut"])
-        txn OnCompletion                                                                  tmp%24#0
-        l-load tmp%24#0 0                                                                 tmp%24#0
-        int CloseOut                                                                      tmp%24#0,CloseOut
-        ==                                                                                tmp%25#0
-        l-load tmp%25#0 0                                                                 tmp%25#0
+        txn OnCompletion                                                                  tmp%20#0
+        l-load tmp%20#0 0                                                                 tmp%20#0
+        int CloseOut                                                                      tmp%20#0,CloseOut
+        ==                                                                                tmp%21#0
+        l-load tmp%21#0 0                                                                 tmp%21#0
         assert // OnCompletion is not CloseOut
-        txn ApplicationID                                                                 tmp%26#0
-        l-load tmp%26#0 0                                                                 tmp%26#0
+        txn ApplicationID                                                                 tmp%22#0
+        l-load tmp%22#0 0                                                                 tmp%22#0
         assert // can only call when not creating
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         callsub close_out
+        // everything/contract.py:69
+        // @abimethod(allow_actions=["CloseOut"])
         int 1                                                                             1
         l-store test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0      test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         l-load test_cases.everything.contract.Everything.__puya_arc4_router__%0#0 0       test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
@@ -155,7 +151,7 @@ subroutine main:
         return
 
 
-// test_cases.everything.contract.Everything.create() -> void:
+// test_cases.everything.contract.Everything.create[routing]() -> void:
 subroutine create:
     create_block@0:
         // everything/contract.py:79
@@ -184,77 +180,13 @@ subroutine create:
         retsub
 
 
-// test_cases.everything.contract.Everything.register(name: bytes) -> void:
+// test_cases.everything.contract.Everything.register[routing]() -> void:
 subroutine register:
-    register_block@0:                                                                     (𝕡) name#0 |
-        // everything/contract.py:79
-        // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
-        txn Sender                                                                        (𝕡) name#0 | tmp%0#1
-        l-load tmp%0#1 0                                                                  (𝕡) name#0 | tmp%0#1
-        // everything/contract.py:25
-        // addr = Account(BANNED)
-        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"                 (𝕡) name#0 | tmp%0#1,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
-        // everything/contract.py:79
-        // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
-        !=                                                                                (𝕡) name#0 | tmp%2#0
-        l-load tmp%2#0 0                                                                  (𝕡) name#0 | tmp%2#0
-        assert // You are banned, goodbye                                                 (𝕡) name#0 |
-        // everything/contract.py:50
-        // if op.Txn.on_completion == OnCompleteAction.OptIn:
-        txn OnCompletion                                                                  (𝕡) name#0 | tmp%0#0
-        l-load tmp%0#0 0                                                                  (𝕡) name#0 | tmp%0#0
-        int OptIn                                                                         (𝕡) name#0 | tmp%0#0,OptIn
-        ==                                                                                (𝕡) name#0 | tmp%1#0
-        l-load tmp%1#0 0                                                                  (𝕡) name#0 | tmp%1#0
-        bz register_after_if_else@4 ; b register_if_body@1                                (𝕡) name#0 |
-
-    register_if_body@1:                                                                   (𝕡) name#0 |
-        // everything/contract.py:51
-        // sender_name, sender_name_existed = self.name.maybe(account=0)
-        int 0                                                                             (𝕡) name#0 | 0
-        int 0                                                                             (𝕡) name#0 | 0,0
-        byte "name"                                                                       (𝕡) name#0 | 0,0,"name"
-        app_local_get_ex                                                                  (𝕡) name#0 | sender_name#0,sender_name_existed#0
-        l-store sender_name_existed#0 1                                                   (𝕡) name#0 | sender_name_existed#0,sender_name#0
-        v-store sender_name#0                                                             (𝕡) name#0 | sender_name_existed#0
-        // everything/contract.py:52
-        // if not sender_name_existed:
-        l-load sender_name_existed#0 0                                                    (𝕡) name#0 | sender_name_existed#0
-        bz register_if_body@2 ; b register_after_if_else@4                                (𝕡) name#0 |
-
-    register_if_body@2:                                                                   (𝕡) name#0 |
-        // everything/contract.py:53
-        // self.counter += multiplicative_identity()  # has full FuncDef
-        int 0                                                                             (𝕡) name#0 | 0
-        byte "counter"                                                                    (𝕡) name#0 | 0,"counter"
-        app_global_get_ex                                                                 (𝕡) name#0 | maybe_value%1#0,maybe_exists%1#0
-        l-load maybe_exists%1#0 0                                                         (𝕡) name#0 | maybe_value%1#0,maybe_exists%1#0
-        assert // check self.counter exists                                               (𝕡) name#0 | maybe_value%1#0
-        l-load maybe_value%1#0 0                                                          (𝕡) name#0 | maybe_value%1#0
-        // everything/my_base.py:20
-        // return UInt64(1)
-        int 1                                                                             (𝕡) name#0 | maybe_value%1#0,1
-        // everything/contract.py:53
-        // self.counter += multiplicative_identity()  # has full FuncDef
-        +                                                                                 (𝕡) name#0 | tmp%3#0
-        byte "counter"                                                                    (𝕡) name#0 | tmp%3#0,"counter"
-        l-load tmp%3#0 1                                                                  (𝕡) name#0 | "counter",tmp%3#0
-        app_global_put                                                                    (𝕡) name#0 |
-        b register_after_if_else@4                                                        (𝕡) name#0 |
-
-    register_after_if_else@4:                                                             (𝕡) name#0 |
-        // everything/contract.py:54
-        // self.name[0] = name
-        int 0                                                                             (𝕡) name#0 | 0
-        byte "name"                                                                       (𝕡) name#0 | 0,"name"
-        p-load name#0                                                                     (𝕡) name#0 | 0,"name",name#0 (copy)
-        app_local_put                                                                     (𝕡) name#0 |
-        retsub
-
-
-// test_cases.everything.contract.Everything.say_hello() -> bytes:
-subroutine say_hello:
-    say_hello_block@0:
+    register_block@0:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        txna ApplicationArgs 1                                                            name#0
+        v-store name#0
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
         txn Sender                                                                        tmp%0#1
@@ -262,6 +194,74 @@ subroutine say_hello:
         // everything/contract.py:25
         // addr = Account(BANNED)
         addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"                 tmp%0#1,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
+        // everything/contract.py:79
+        // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
+        !=                                                                                tmp%2#0
+        l-load tmp%2#0 0                                                                  tmp%2#0
+        assert // You are banned, goodbye
+        // everything/contract.py:50
+        // if op.Txn.on_completion == OnCompleteAction.OptIn:
+        txn OnCompletion                                                                  tmp%0#0
+        l-load tmp%0#0 0                                                                  tmp%0#0
+        int OptIn                                                                         tmp%0#0,OptIn
+        ==                                                                                tmp%1#0
+        l-load tmp%1#0 0                                                                  tmp%1#0
+        bz register_after_if_else@5 ; b register_if_body@2
+
+    register_if_body@2:
+        // everything/contract.py:51
+        // sender_name, sender_name_existed = self.name.maybe(account=0)
+        int 0                                                                             0
+        int 0                                                                             0,0
+        byte "name"                                                                       0,0,"name"
+        app_local_get_ex                                                                  sender_name#0,sender_name_existed#0
+        l-store sender_name_existed#0 1                                                   sender_name_existed#0,sender_name#0
+        v-store sender_name#0                                                             sender_name_existed#0
+        // everything/contract.py:52
+        // if not sender_name_existed:
+        l-load sender_name_existed#0 0                                                    sender_name_existed#0
+        bz register_if_body@3 ; b register_after_if_else@5
+
+    register_if_body@3:
+        // everything/contract.py:53
+        // self.counter += multiplicative_identity()  # has full FuncDef
+        int 0                                                                             0
+        byte "counter"                                                                    0,"counter"
+        app_global_get_ex                                                                 maybe_value%1#0,maybe_exists%1#0
+        l-load maybe_exists%1#0 0                                                         maybe_value%1#0,maybe_exists%1#0
+        assert // check self.counter exists                                               maybe_value%1#0
+        l-load maybe_value%1#0 0                                                          maybe_value%1#0
+        // everything/my_base.py:20
+        // return UInt64(1)
+        int 1                                                                             maybe_value%1#0,1
+        // everything/contract.py:53
+        // self.counter += multiplicative_identity()  # has full FuncDef
+        +                                                                                 tmp%3#0
+        byte "counter"                                                                    tmp%3#0,"counter"
+        l-load tmp%3#0 1                                                                  "counter",tmp%3#0
+        app_global_put
+        b register_after_if_else@5
+
+    register_after_if_else@5:
+        // everything/contract.py:54
+        // self.name[0] = name
+        int 0                                                                             0
+        byte "name"                                                                       0,"name"
+        v-load name#0                                                                     0,"name",name#0
+        app_local_put
+        retsub
+
+
+// test_cases.everything.contract.Everything.say_hello[routing]() -> void:
+subroutine say_hello:
+    say_hello_block@0:
+        // everything/contract.py:79
+        // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
+        txn Sender                                                                        tmp%0#2
+        l-load tmp%0#2 0                                                                  tmp%0#2
+        // everything/contract.py:25
+        // addr = Account(BANNED)
+        addr "VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA"                 tmp%0#2,Address(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA)
         // everything/contract.py:79
         // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
         !=                                                                                tmp%2#1
@@ -278,15 +278,20 @@ subroutine say_hello:
         // everything/contract.py:60
         // if not exists:
         l-load exists#0 0                                                                 exists#0
-        bz say_hello_if_body@1 ; b say_hello_after_if_else@2
+        bz say_hello_if_body@2 ; b say_hello_after_if_else@3
 
-    say_hello_if_body@1:
+    say_hello_if_body@2:
         // everything/contract.py:61
         // return String("Howdy stranger!")
         byte 0x000f486f77647920737472616e67657221                                         0x000f486f77647920737472616e67657221
-        retsub                                                                            0x000f486f77647920737472616e67657221
+        l-store aggregate%encoded_value%0#0 0                                             aggregate%encoded_value%0#0
+        l-load aggregate%encoded_value%0#0 0                                              aggregate%encoded_value%0#0
+        v-store tmp%0#0
+        // everything/contract.py:56
+        // @abimethod
+        b say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4
 
-    say_hello_after_if_else@2:
+    say_hello_after_if_else@3:
         // everything/contract.py:62
         // return "Hello, " + name + "!"
         v-load name#0                                                                     name#0
@@ -320,33 +325,56 @@ subroutine say_hello:
         l-load as_u16_bytes%1#0 1                                                         concat%1#0,as_u16_bytes%1#0
         replace2 0                                                                        replace%1#0
         l-load replace%1#0 0                                                              replace%1#0
-        retsub                                                                            replace%1#0
+        v-store tmp%0#0
+        // everything/contract.py:56
+        // @abimethod
+        b say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4
+
+    say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4:
+        // everything/contract.py:56
+        // @abimethod
+        byte 0x151f7c75                                                                   0x151f7c75
+        v-load tmp%0#0                                                                    0x151f7c75,tmp%0#0
+        concat                                                                            tmp%1#0
+        l-load tmp%1#0 0                                                                  tmp%1#0
+        log
+        retsub
 
 
-// test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
+// test_cases.everything.contract.Everything.calculate[routing]() -> void:
 subroutine calculate:
-    calculate_block@0:                                                                    (𝕡) a#0,b#0 |
+    calculate_block@0:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        txna ApplicationArgs 1                                                            a#0
+        txna ApplicationArgs 2                                                            a#0,b#0
         // everything/my_base.py:15
         // return arc4.UInt64(a.native + b.native)
-        p-load a#0                                                                        (𝕡) a#0,b#0 | a#0 (copy)
-        btoi                                                                              (𝕡) a#0,b#0 | tmp%0#1
-        p-load b#0                                                                        (𝕡) a#0,b#0 | tmp%0#1,b#0 (copy)
-        btoi                                                                              (𝕡) a#0,b#0 | tmp%0#1,tmp%1#1
-        l-load tmp%0#1 1                                                                  (𝕡) a#0,b#0 | tmp%1#1,tmp%0#1
-        l-load-copy tmp%1#1 1                                                             (𝕡) a#0,b#0 | tmp%1#1,tmp%0#1,tmp%1#1 (copy)
-        +                                                                                 (𝕡) a#0,b#0 | tmp%1#1,tmp%2#1
+        l-load a#0 1                                                                      b#0,a#0
+        btoi                                                                              b#0,tmp%0#0
+        l-load b#0 1                                                                      tmp%0#0,b#0
+        btoi                                                                              tmp%0#0,tmp%1#2
+        l-load tmp%0#0 1                                                                  tmp%1#2,tmp%0#0
+        l-load-copy tmp%1#2 1                                                             tmp%1#2,tmp%0#0,tmp%1#2 (copy)
+        +                                                                                 tmp%1#2,tmp%2#1
         // everything/contract.py:67
         // return arc4_UInt64(c.native * b.native)
-        l-load tmp%2#1 0                                                                  (𝕡) a#0,b#0 | tmp%1#1,tmp%2#1
-        l-load tmp%1#1 1                                                                  (𝕡) a#0,b#0 | tmp%2#1,tmp%1#1
-        *                                                                                 (𝕡) a#0,b#0 | tmp%3#0
-        l-load tmp%3#0 0                                                                  (𝕡) a#0,b#0 | tmp%3#0
-        itob                                                                              (𝕡) a#0,b#0 | aggregate%val_as_bytes%0#0
-        l-load aggregate%val_as_bytes%0#0 0                                               (𝕡) a#0,b#0 | aggregate%val_as_bytes%0#0
-        retsub                                                                            aggregate%val_as_bytes%0#0
+        l-load tmp%2#1 0                                                                  tmp%1#2,tmp%2#1
+        l-load tmp%1#2 1                                                                  tmp%2#1,tmp%1#2
+        *                                                                                 tmp%3#0
+        l-load tmp%3#0 0                                                                  tmp%3#0
+        itob                                                                              aggregate%val_as_bytes%0#0
+        // everything/contract.py:64
+        // @abimethod
+        byte 0x151f7c75                                                                   aggregate%val_as_bytes%0#0,0x151f7c75
+        l-load aggregate%val_as_bytes%0#0 1                                               0x151f7c75,aggregate%val_as_bytes%0#0
+        concat                                                                            tmp%1#0
+        l-load tmp%1#0 0                                                                  tmp%1#0
+        log
+        retsub
 
 
-// test_cases.everything.contract.Everything.close_out() -> void:
+// test_cases.everything.contract.Everything.close_out[routing]() -> void:
 subroutine close_out:
     close_out_block@0:
         // everything/contract.py:83

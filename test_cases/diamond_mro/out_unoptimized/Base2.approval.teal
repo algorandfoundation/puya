@@ -17,6 +17,26 @@ main_after_if_else@2:
     return
 
 
+// test_cases.diamond_mro.base2.Base2.method[routing]() -> void:
+method:
+
+method_block@0:
+    // diamond_mro/base2.py:11
+    // @arc4.abimethod
+    callsub test_cases.diamond_mro.base2.Base2.method
+    retsub
+
+
+// test_cases.diamond_mro.gp.GP.create[routing]() -> void:
+create:
+
+create_block@0:
+    // diamond_mro/gp.py:11
+    // @arc4.abimethod(create="require")
+    callsub test_cases.diamond_mro.gp.GP.create
+    retsub
+
+
 // test_cases.diamond_mro.base2.Base2.__init__() -> void:
 __init__:
 
@@ -32,9 +52,9 @@ __init___block@0:
 
 
 // test_cases.diamond_mro.base2.Base2.method() -> void:
-method:
+test_cases.diamond_mro.base2.Base2.method:
 
-method_block@0:
+test_cases.diamond_mro.base2.Base2.method_block@0:
     // diamond_mro/base2.py:13
     // log("base2.method")
     pushbytes "base2.method"
@@ -60,9 +80,9 @@ test_cases.diamond_mro.gp.GP.__init___block@0:
 
 
 // test_cases.diamond_mro.gp.GP.create() -> void:
-create:
+test_cases.diamond_mro.gp.GP.create:
 
-create_block@0:
+test_cases.diamond_mro.gp.GP.create_block@0:
     retsub
 
 
@@ -122,7 +142,11 @@ approval_program_create_route@4:
     intc_0 // 0
     ==
     assert // can only call when creating
+    // diamond_mro/base2.py:6
+    // class Base2(GP):
     callsub create
+    // diamond_mro/gp.py:11
+    // @arc4.abimethod(create="require")
     intc_1 // 1
     b approval_program_after_inlined_test_cases.diamond_mro.base2.Base2.__puya_arc4_router__@9
 
@@ -137,7 +161,11 @@ approval_program_method_route@3:
     intc_0 // 0
     !=
     assert // can only call when not creating
+    // diamond_mro/base2.py:6
+    // class Base2(GP):
     callsub method
+    // diamond_mro/base2.py:11
+    // @arc4.abimethod
     intc_1 // 1
     b approval_program_after_inlined_test_cases.diamond_mro.base2.Base2.__puya_arc4_router__@9
 

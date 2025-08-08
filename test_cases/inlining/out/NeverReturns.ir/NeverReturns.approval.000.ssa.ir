@@ -18,7 +18,7 @@ subroutine test_cases.inlining.contract.NeverReturns.__puya_arc4_router__() -> b
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        test_cases.inlining.contract.NeverReturns.err()
+        test_cases.inlining.contract.NeverReturns.err[routing]()
         return 1u
     block@3: // switch_case_default_L34
         goto block@4
@@ -39,6 +39,11 @@ subroutine test_cases.inlining.contract.NeverReturns.__puya_arc4_router__() -> b
         goto block@9
     block@9: // after_if_else_L34
         return 0u
+
+subroutine test_cases.inlining.contract.NeverReturns.err[routing]() -> void:
+    block@0: // L34
+        test_cases.inlining.contract.NeverReturns.err()
+        return 
 
 subroutine test_cases.inlining.contract.NeverReturns.err() -> void:
     block@0: // L35

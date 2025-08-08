@@ -25,12 +25,11 @@ main_some_value_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
+    // group_side_effects/other.py:4
+    // class AppCall(ARC4Contract):
     callsub some_value
-    itob
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
+    // group_side_effects/other.py:5
+    // @arc4.abimethod()
     pushint 1 // 1
     return
 
@@ -46,7 +45,7 @@ main_bare_routing@6:
     return
 
 
-// test_cases.group_side_effects.other.AppCall.some_value() -> uint64:
+// test_cases.group_side_effects.other.AppCall.some_value[routing]() -> void:
 some_value:
     // group_side_effects/other.py:7
     // return Global.group_size * (Txn.group_index + 1)
@@ -55,4 +54,11 @@ some_value:
     pushint 1 // 1
     +
     *
+    // group_side_effects/other.py:5
+    // @arc4.abimethod()
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
     retsub

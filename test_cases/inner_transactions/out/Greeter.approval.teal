@@ -38,10 +38,9 @@ main_log_greetings_route@6:
     assert // can only call when not creating
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
-    txna ApplicationArgs 1
+    callsub log_greetings
     // inner_transactions/c2c.py:23
     // @arc4.abimethod()
-    callsub log_greetings
     intc_1 // 1
     return
 
@@ -53,12 +52,11 @@ main_bootstrap_route@5:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
     callsub bootstrap
-    itob
-    bytec_1 // 0x151f7c75
-    swap
-    concat
-    log
+    // inner_transactions/c2c.py:10
+    // @arc4.abimethod()
     intc_1 // 1
     return
 
@@ -74,7 +72,7 @@ main_bare_routing@7:
     return
 
 
-// test_cases.inner_transactions.c2c.Greeter.bootstrap() -> uint64:
+// test_cases.inner_transactions.c2c.Greeter.bootstrap[routing]() -> void:
 bootstrap:
     // inner_transactions/c2c.py:12
     // assert not self.hello_app, "already bootstrapped"
@@ -134,17 +132,21 @@ bootstrap:
     // )
     dig 1
     app_global_put
-    // inner_transactions/c2c.py:21
-    // return self.hello_app.id
+    // inner_transactions/c2c.py:10
+    // @arc4.abimethod()
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
     retsub
 
 
-// test_cases.inner_transactions.c2c.Greeter.log_greetings(name: bytes) -> void:
+// test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]() -> void:
 log_greetings:
-    // inner_transactions/c2c.py:23-24
-    // @arc4.abimethod()
-    // def log_greetings(self, name: arc4.String) -> None:
-    proto 1 0
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
+    txna ApplicationArgs 1
     // inner_transactions/c2c.py:25-28
     // hello_call = itxn.ApplicationCall(
     //     app_id=self.hello_app,
@@ -161,9 +163,8 @@ log_greetings:
     // app_args=(arc4.arc4_signature("hello(string)string"), name),
     pushbytes 0x02bece11 // method "hello(string)string"
     itxn_field ApplicationArgs
-    frame_dig -1
-    itxn_field ApplicationArgs
     itxn_field ApplicationID
+    itxn_field ApplicationArgs
     // inner_transactions/c2c.py:25
     // hello_call = itxn.ApplicationCall(
     intc_2 // appl

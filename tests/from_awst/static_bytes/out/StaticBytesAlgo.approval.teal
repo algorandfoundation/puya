@@ -41,13 +41,7 @@ main_returnLength_route@6:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    txna ApplicationArgs 1
     callsub returnLength
-    itob
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
     intc_0 // 1
     return
 
@@ -57,10 +51,6 @@ main_receiveBytes_route@5:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
-    btoi
     callsub receiveBytes
     intc_0 // 1
     return
@@ -71,17 +61,7 @@ main_receiveB32_route@4:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    txna ApplicationArgs 1
     callsub receiveB32
-    dup
-    len
-    intc_1 // 32
-    ==
-    assert // invalid size
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
     intc_0 // 1
     return
 
@@ -91,18 +71,7 @@ main_hashAddresses_route@3:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
     callsub hashAddresses
-    dup
-    len
-    intc_1 // 32
-    ==
-    assert // invalid size
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
     intc_0 // 1
     return
 
@@ -116,63 +85,72 @@ main_bare_routing@11:
     return
 
 
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses(a1: bytes, a2: bytes) -> bytes:
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.hashAddresses[routing]() -> void:
 hashAddresses:
-    proto 2 1
-    frame_dig -2
-    frame_dig -1
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
     concat
     sha512_256
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
     retsub
 
 
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(b: bytes) -> bytes:
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32[routing]() -> void:
 receiveB32:
-    proto 1 1
-    frame_dig -1
+    txna ApplicationArgs 1
+    callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
+    dup
     len
     intc_1 // 32
     ==
-    assert
-    frame_dig -1
-    sha512_256
+    assert // invalid size
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
     retsub
 
 
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes(b: bytes, length: uint64) -> void:
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[routing]() -> void:
 receiveBytes:
-    proto 2 0
-    frame_dig -2
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    btoi
+    swap
     len
-    frame_dig -1
     ==
     assert
     retsub
 
 
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength(b: bytes) -> uint64:
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength[routing]() -> void:
 returnLength:
-    proto 1 1
-    frame_dig -1
+    txna ApplicationArgs 1
     len
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
     retsub
 
 
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test() -> void:
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test[routing]() -> void:
 test:
     txn Sender
-    callsub receiveB32
+    callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     pop
-    txn Sender
-    intc_1 // 32
-    callsub receiveBytes
     pushbytes "abcdefghabcdefghabcdefghabcdefgh"
-    callsub receiveB32
+    callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     pop
     retsub
 
 
-// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray() -> void:
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray[routing]() -> void:
 testArray:
     txn Sender
     dupn 2
@@ -185,4 +163,17 @@ testArray:
     txn Sender
     ==
     assert
+    retsub
+
+
+// tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(b: bytes) -> bytes:
+tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32:
+    proto 1 1
+    frame_dig -1
+    len
+    intc_1 // 32
+    ==
+    assert
+    frame_dig -1
+    sha512_256
     retsub

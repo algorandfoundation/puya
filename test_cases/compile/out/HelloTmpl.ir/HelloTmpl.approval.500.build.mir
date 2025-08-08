@@ -94,35 +94,9 @@ subroutine main:
         assert // can only call when not creating
         // compile/apps.py:58
         // class HelloTmpl(HelloBase):
-        txna ApplicationArgs 1                                                         reinterpret_Encoded(len+utf8[])%0#0
-        v-store reinterpret_Encoded(len+utf8[])%0#0
-        v-load reinterpret_Encoded(len+utf8[])%0#0                                     reinterpret_Encoded(len+utf8[])%0#0
-        extract 2 0                                                                    tmp%15#0
-        v-store tmp%15#0
+        callsub greet
         // compile/apps.py:32
         // @arc4.abimethod()
-        v-load tmp%15#0                                                                tmp%15#0
-        callsub greet                                                                  tmp%16#0
-        v-store tmp%16#0
-        v-load tmp%16#0                                                                tmp%16#0
-        len                                                                            aggregate%length%0#0
-        v-store aggregate%length%0#0
-        v-load aggregate%length%0#0                                                    aggregate%length%0#0
-        itob                                                                           aggregate%as_bytes%0#0
-        v-store aggregate%as_bytes%0#0
-        v-load aggregate%as_bytes%0#0                                                  aggregate%as_bytes%0#0
-        extract 6 2                                                                    aggregate%length_uint16%0#0
-        v-store aggregate%length_uint16%0#0
-        v-load aggregate%length_uint16%0#0                                             aggregate%length_uint16%0#0
-        v-load tmp%16#0                                                                aggregate%length_uint16%0#0,tmp%16#0
-        concat                                                                         aggregate%encoded_value%0#0
-        v-store aggregate%encoded_value%0#0
-        byte 0x151f7c75                                                                0x151f7c75
-        v-load aggregate%encoded_value%0#0                                             0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                         tmp%18#0
-        v-store tmp%18#0
-        v-load tmp%18#0                                                                tmp%18#0
-        log
         int 1                                                                          1
         v-store test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#0
         v-load test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#0              test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#0
@@ -132,18 +106,18 @@ subroutine main:
     main_bare_routing@8:
         // compile/apps.py:58
         // class HelloTmpl(HelloBase):
-        txn OnCompletion                                                               tmp%19#0
-        v-store tmp%19#0
+        txn OnCompletion                                                               tmp%15#0
+        v-store tmp%15#0
         int 4                                                                          4
-        v-load tmp%19#0                                                                4,tmp%19#0
+        v-load tmp%15#0                                                                4,tmp%15#0
         match main_update@9 ; b main_after_if_else@10
 
     main_update@9:
         // compile/apps.py:28
         // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        txn ApplicationID                                                              tmp%20#0
-        v-store tmp%20#0
-        v-load tmp%20#0                                                                tmp%20#0
+        txn ApplicationID                                                              tmp%16#0
+        v-store tmp%16#0
+        v-load tmp%16#0                                                                tmp%16#0
         assert // can only call when not creating
         int 1                                                                          1
         v-store test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#0
@@ -165,27 +139,54 @@ subroutine main:
         return
 
 
-// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
+// test_cases.compile.apps.HelloBase.greet[routing]() -> void:
 subroutine greet:
-    greet_block@0:                                                                     (𝕡) name#0 |
+    greet_block@0:
+        // compile/apps.py:58
+        // class HelloTmpl(HelloBase):
+        txna ApplicationArgs 1                                                         reinterpret_Encoded(len+utf8[])%0#0
+        v-store reinterpret_Encoded(len+utf8[])%0#0
+        v-load reinterpret_Encoded(len+utf8[])%0#0                                     reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                                                    name#0
+        v-store name#0
         // compile/apps.py:34
         // return self.greeting + " " + name
-        int 0                                                                          (𝕡) name#0 | 0
-        byte "greeting"                                                                (𝕡) name#0 | 0,"greeting"
-        app_global_get_ex                                                              (𝕡) name#0 | maybe_value%0#0,maybe_exists%0#0
-        v-store maybe_exists%0#0                                                       (𝕡) name#0 | maybe_value%0#0
-        v-store maybe_value%0#0                                                        (𝕡) name#0 |
-        v-load maybe_exists%0#0                                                        (𝕡) name#0 | maybe_exists%0#0
-        assert // check self.greeting exists                                           (𝕡) name#0 |
-        v-load maybe_value%0#0                                                         (𝕡) name#0 | maybe_value%0#0
-        byte " "                                                                       (𝕡) name#0 | maybe_value%0#0," "
-        concat                                                                         (𝕡) name#0 | tmp%0#0
-        v-store tmp%0#0                                                                (𝕡) name#0 |
-        v-load tmp%0#0                                                                 (𝕡) name#0 | tmp%0#0
-        p-load name#0                                                                  (𝕡) name#0 | tmp%0#0,name#0 (copy)
-        concat                                                                         (𝕡) name#0 | tmp%1#0
-        v-store tmp%1#0                                                                (𝕡) name#0 |
-        v-load tmp%1#0                                                                 (𝕡) name#0 | tmp%1#0
-        retsub                                                                         tmp%1#0
+        int 0                                                                          0
+        byte "greeting"                                                                0,"greeting"
+        app_global_get_ex                                                              maybe_value%0#0,maybe_exists%0#0
+        v-store maybe_exists%0#0                                                       maybe_value%0#0
+        v-store maybe_value%0#0
+        v-load maybe_exists%0#0                                                        maybe_exists%0#0
+        assert // check self.greeting exists
+        v-load maybe_value%0#0                                                         maybe_value%0#0
+        byte " "                                                                       maybe_value%0#0," "
+        concat                                                                         tmp%0#1
+        v-store tmp%0#1
+        v-load tmp%0#1                                                                 tmp%0#1
+        v-load name#0                                                                  tmp%0#1,name#0
+        concat                                                                         tmp%1#1
+        v-store tmp%1#1
+        // compile/apps.py:32
+        // @arc4.abimethod()
+        v-load tmp%1#1                                                                 tmp%1#1
+        len                                                                            aggregate%length%0#0
+        v-store aggregate%length%0#0
+        v-load aggregate%length%0#0                                                    aggregate%length%0#0
+        itob                                                                           aggregate%as_bytes%0#0
+        v-store aggregate%as_bytes%0#0
+        v-load aggregate%as_bytes%0#0                                                  aggregate%as_bytes%0#0
+        extract 6 2                                                                    aggregate%length_uint16%0#0
+        v-store aggregate%length_uint16%0#0
+        v-load aggregate%length_uint16%0#0                                             aggregate%length_uint16%0#0
+        v-load tmp%1#1                                                                 aggregate%length_uint16%0#0,tmp%1#1
+        concat                                                                         aggregate%encoded_value%0#0
+        v-store aggregate%encoded_value%0#0
+        byte 0x151f7c75                                                                0x151f7c75
+        v-load aggregate%encoded_value%0#0                                             0x151f7c75,aggregate%encoded_value%0#0
+        concat                                                                         tmp%3#0
+        v-store tmp%3#0
+        v-load tmp%3#0                                                                 tmp%3#0
+        log
+        retsub
 
 

@@ -24,7 +24,7 @@ subroutine test_cases.diamond_mro.base2.Base2.__puya_arc4_router__() -> bool:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        test_cases.diamond_mro.base2.Base2.method()
+        test_cases.diamond_mro.base2.Base2.method[routing]()
         return 1u
     block@3: // create_route_L11
         let tmp%7#0: uint64 = (txn OnCompletion)
@@ -33,7 +33,7 @@ subroutine test_cases.diamond_mro.base2.Base2.__puya_arc4_router__() -> bool:
         let tmp%9#0: uint64 = (txn ApplicationID)
         let tmp%10#0: bool = (== tmp%9#0 0u)
         (assert tmp%10#0) // can only call when creating
-        test_cases.diamond_mro.gp.GP.create()
+        test_cases.diamond_mro.gp.GP.create[routing]()
         return 1u
     block@4: // switch_case_default_L6
         goto block@5
@@ -43,6 +43,16 @@ subroutine test_cases.diamond_mro.base2.Base2.__puya_arc4_router__() -> bool:
         goto block@7
     block@7: // after_if_else_L6
         return 0u
+
+subroutine test_cases.diamond_mro.base2.Base2.method[routing]() -> void:
+    block@0: // L6
+        test_cases.diamond_mro.base2.Base2.method()
+        return 
+
+subroutine test_cases.diamond_mro.gp.GP.create[routing]() -> void:
+    block@0: // L6
+        test_cases.diamond_mro.gp.GP.create()
+        return 
 
 subroutine test_cases.diamond_mro.base2.Base2.__init__() -> void:
     block@0: // L7

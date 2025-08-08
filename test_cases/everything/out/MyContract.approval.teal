@@ -28,7 +28,11 @@ main_close_out_route@9:
     assert // OnCompletion is not CloseOut
     txn ApplicationID
     assert // can only call when not creating
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     callsub close_out
+    // everything/contract.py:69
+    // @abimethod(allow_actions=["CloseOut"])
     intc_0 // 1
     return
 
@@ -42,15 +46,9 @@ main_calculate_route@8:
     assert // can only call when not creating
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
+    callsub calculate
     // everything/contract.py:64
     // @abimethod
-    callsub calculate
-    bytec_3 // 0x151f7c75
-    swap
-    concat
-    log
     intc_0 // 1
     return
 
@@ -62,11 +60,11 @@ main_say_hello_route@7:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     callsub say_hello
-    bytec_3 // 0x151f7c75
-    swap
-    concat
-    log
+    // everything/contract.py:56
+    // @abimethod
     intc_0 // 1
     return
 
@@ -83,10 +81,9 @@ main_register_route@6:
     assert // can only call when not creating
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    txna ApplicationArgs 1
+    callsub register
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
-    callsub register
     intc_0 // 1
     return
 
@@ -99,12 +96,16 @@ main_create_route@5:
     txn ApplicationID
     !
     assert // can only call when creating
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
     callsub create
+    // everything/contract.py:41
+    // @abimethod(create="require")
     intc_0 // 1
     return
 
 
-// test_cases.everything.contract.Everything.create() -> void:
+// test_cases.everything.contract.Everything.create[routing]() -> void:
 create:
     // everything/contract.py:79
     // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
@@ -129,12 +130,12 @@ create:
     retsub
 
 
-// test_cases.everything.contract.Everything.register(name: bytes) -> void:
+// test_cases.everything.contract.Everything.register[routing]() -> void:
 register:
-    // everything/contract.py:47-48
-    // @abimethod(allow_actions=["NoOp", "OptIn"])
-    // def register(self, name: String) -> None:
-    proto 1 0
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    proto 0 0
+    txna ApplicationArgs 1
     // everything/contract.py:79
     // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
     txn Sender
@@ -150,7 +151,7 @@ register:
     txn OnCompletion
     intc_0 // OptIn
     ==
-    bz register_after_if_else@4
+    bz register_after_if_else@5
     // everything/contract.py:51
     // sender_name, sender_name_existed = self.name.maybe(account=0)
     intc_1 // 0
@@ -160,7 +161,7 @@ register:
     bury 1
     // everything/contract.py:52
     // if not sender_name_existed:
-    bnz register_after_if_else@4
+    bnz register_after_if_else@5
     // everything/contract.py:53
     // self.counter += multiplicative_identity()  # has full FuncDef
     intc_1 // 0
@@ -177,22 +178,21 @@ register:
     swap
     app_global_put
 
-register_after_if_else@4:
+register_after_if_else@5:
     // everything/contract.py:54
     // self.name[0] = name
     intc_1 // 0
     bytec_2 // "name"
-    frame_dig -1
+    frame_dig 0
     app_local_put
     retsub
 
 
-// test_cases.everything.contract.Everything.say_hello() -> bytes:
+// test_cases.everything.contract.Everything.say_hello[routing]() -> void:
 say_hello:
-    // everything/contract.py:56-57
-    // @abimethod
-    // def say_hello(self) -> String:
-    proto 0 1
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    proto 0 0
     // everything/contract.py:79
     // assert op.Txn.sender != get_banned(), "You are banned, goodbye"
     txn Sender
@@ -211,14 +211,21 @@ say_hello:
     app_local_get_ex
     // everything/contract.py:60
     // if not exists:
-    bnz say_hello_after_if_else@2
+    bnz say_hello_after_if_else@3
     // everything/contract.py:61
     // return String("Howdy stranger!")
     pushbytes 0x000f486f77647920737472616e67657221
+
+say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4:
+    // everything/contract.py:56
+    // @abimethod
+    bytec_3 // 0x151f7c75
     swap
+    concat
+    log
     retsub
 
-say_hello_after_if_else@2:
+say_hello_after_if_else@3:
     // everything/contract.py:62
     // return "Hello, " + name + "!"
     frame_dig 0
@@ -240,21 +247,21 @@ say_hello_after_if_else@2:
     itob
     extract 6 2
     replace2 0
-    swap
-    retsub
-
-
-// test_cases.everything.contract.Everything.calculate(a: bytes, b: bytes) -> bytes:
-calculate:
-    // everything/contract.py:64-65
+    // everything/contract.py:56
     // @abimethod
-    // def calculate(self, a: arc4_UInt64, b: arc4_UInt64) -> arc4_UInt64:
-    proto 2 1
+    b say_hello_after_inlined_test_cases.everything.contract.Everything.say_hello@4
+
+
+// test_cases.everything.contract.Everything.calculate[routing]() -> void:
+calculate:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    txna ApplicationArgs 2
+    txna ApplicationArgs 1
     // everything/my_base.py:15
     // return arc4.UInt64(a.native + b.native)
-    frame_dig -2
     btoi
-    frame_dig -1
+    swap
     btoi
     swap
     dig 1
@@ -263,10 +270,16 @@ calculate:
     // return arc4_UInt64(c.native * b.native)
     *
     itob
+    // everything/contract.py:64
+    // @abimethod
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
     retsub
 
 
-// test_cases.everything.contract.Everything.close_out() -> void:
+// test_cases.everything.contract.Everything.close_out[routing]() -> void:
 close_out:
     // everything/contract.py:83
     // self.counter -= positive_one()

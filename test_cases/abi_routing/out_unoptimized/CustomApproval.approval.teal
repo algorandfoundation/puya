@@ -17,6 +17,25 @@ main_after_if_else@2:
     return
 
 
+// test_cases.abi_routing.custom_approval.CustomApproval.add_one[routing]() -> void:
+add_one:
+
+add_one_block@0:
+    // abi_routing/custom_approval.py:6
+    // class CustomApproval(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // abi_routing/custom_approval.py:23
+    // @arc4.abimethod
+    callsub test_cases.abi_routing.custom_approval.CustomApproval.add_one
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    retsub
+
+
 // test_cases.abi_routing.custom_approval.CustomApproval.__init__() -> void:
 __init__:
 
@@ -95,13 +114,13 @@ approval_program_after_if_else@5:
 
 
 // test_cases.abi_routing.custom_approval.CustomApproval.add_one(x: uint64) -> uint64:
-add_one:
+test_cases.abi_routing.custom_approval.CustomApproval.add_one:
     // abi_routing/custom_approval.py:23-24
     // @arc4.abimethod
     // def add_one(self, x: UInt64) -> UInt64:
     proto 1 1
 
-add_one_block@0:
+test_cases.abi_routing.custom_approval.CustomApproval.add_one_block@0:
     // abi_routing/custom_approval.py:25
     // return x + 1
     frame_dig -1
@@ -156,16 +175,9 @@ algopy.arc4.ARC4Contract.approval_program_add_one_route@3:
     assert // can only call when not creating
     // abi_routing/custom_approval.py:6
     // class CustomApproval(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+    callsub add_one
     // abi_routing/custom_approval.py:23
     // @arc4.abimethod
-    callsub add_one
-    itob
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     b algopy.arc4.ARC4Contract.approval_program_after_inlined_test_cases.abi_routing.custom_approval.CustomApproval.__puya_arc4_router__@13
 

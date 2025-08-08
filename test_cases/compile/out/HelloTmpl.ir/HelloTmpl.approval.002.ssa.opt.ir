@@ -18,6 +18,7 @@ main test_cases.compile.apps.HelloTmpl.__algopy_entrypoint_with_init:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // can only call when creating
+        test_cases.compile.apps.HelloTmpl.create[routing]()
         let test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#0: bool = 1u
         goto block@11
     block@6: // delete_route_L24
@@ -26,6 +27,7 @@ main test_cases.compile.apps.HelloTmpl.__algopy_entrypoint_with_init:
         (assert tmp%8#0) // OnCompletion is not DeleteApplication
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
+        test_cases.compile.apps.HelloBase.delete[routing]()
         let test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#1: bool = 1u
         goto block@11
     block@7: // greet_route_L32
@@ -34,20 +36,15 @@ main test_cases.compile.apps.HelloTmpl.__algopy_entrypoint_with_init:
         (assert tmp%12#0) // OnCompletion is not NoOp
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        let tmp%15#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
-        let tmp%16#0: string = test_cases.compile.apps.HelloBase.greet(tmp%15#0)
-        let tmp%17#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%16#0)
-        let tmp%18#0: bytes = (concat 0x151f7c75 tmp%17#0)
-        (log tmp%18#0)
+        test_cases.compile.apps.HelloBase.greet[routing]()
         let test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#2: bool = 1u
         goto block@11
     block@8: // bare_routing_L58
-        let tmp%19#0: uint64 = (txn OnCompletion)
-        switch tmp%19#0 {4u => block@9, * => block@10}
+        let tmp%15#0: uint64 = (txn OnCompletion)
+        switch tmp%15#0 {4u => block@9, * => block@10}
     block@9: // update_L28
-        let tmp%20#0: uint64 = (txn ApplicationID)
-        (assert tmp%20#0) // can only call when not creating
+        let tmp%16#0: uint64 = (txn ApplicationID)
+        (assert tmp%16#0) // can only call when not creating
         let test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#3: bool = 1u
         goto block@11
     block@10: // after_if_else_L58
@@ -57,10 +54,23 @@ main test_cases.compile.apps.HelloTmpl.__algopy_entrypoint_with_init:
         let tmp%0#1: bool = φ(test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#0 <- block@5, test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#1 <- block@6, test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#2 <- block@7, test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#3 <- block@9, test_cases.compile.apps.HelloTmpl.__puya_arc4_router__%0#4 <- block@10)
         return tmp%0#1
 
-subroutine test_cases.compile.apps.HelloBase.greet(name: string) -> string:
-    block@0: // L32
+subroutine test_cases.compile.apps.HelloTmpl.create[routing]() -> void:
+    block@0: // L58
+        return 
+
+subroutine test_cases.compile.apps.HelloBase.delete[routing]() -> void:
+    block@0: // L58
+        return 
+
+subroutine test_cases.compile.apps.HelloBase.greet[routing]() -> void:
+    block@0: // L58
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        let name#0: string = decode_bytes<string>(reinterpret_Encoded(len+utf8[])%0#0)
         let (maybe_value%0#0: bytes, maybe_exists%0#0: bool) = (app_global_get_ex 0u "greeting")
         (assert maybe_exists%0#0) // check self.greeting exists
-        let tmp%0#0: bytes = (concat maybe_value%0#0 " ")
-        let tmp%1#0: bytes = (concat tmp%0#0 name#0)
-        return tmp%1#0
+        let tmp%0#1: bytes = (concat maybe_value%0#0 " ")
+        let tmp%1#1: bytes = (concat tmp%0#1 name#0)
+        let tmp%2#0: Encoded(len+utf8[]) = bytes_encode<(len+utf8[])>(tmp%1#1)
+        let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
+        (log tmp%3#0)
+        return 

@@ -18,6 +18,40 @@ main_after_if_else@2:
     return
 
 
+// test_cases.compile.apps.HelloBase.delete[routing]() -> void:
+delete:
+
+delete_block@0:
+    // compile/apps.py:24
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    callsub test_cases.compile.apps.HelloBase.delete
+    retsub
+
+
+// test_cases.compile.apps.HelloBase.greet[routing]() -> void:
+greet:
+
+greet_block@0:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // compile/apps.py:32
+    // @arc4.abimethod()
+    callsub test_cases.compile.apps.HelloBase.greet
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    retsub
+
+
 // test_cases.compile.apps.HelloBase.__init__() -> void:
 __init__:
 
@@ -31,9 +65,9 @@ __init___block@0:
 
 
 // test_cases.compile.apps.HelloBase.delete() -> void:
-delete:
+test_cases.compile.apps.HelloBase.delete:
 
-delete_block@0:
+test_cases.compile.apps.HelloBase.delete_block@0:
     retsub
 
 
@@ -45,13 +79,13 @@ update_block@0:
 
 
 // test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
-greet:
+test_cases.compile.apps.HelloBase.greet:
     // compile/apps.py:32-33
     // @arc4.abimethod()
     // def greet(self, name: String) -> String:
     proto 1 1
 
-greet_block@0:
+test_cases.compile.apps.HelloBase.greet_block@0:
     // compile/apps.py:34
     // return self.greeting + " " + name
     intc_0 // 0
@@ -112,21 +146,9 @@ approval_program_greet_route@4:
     assert // can only call when not creating
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
+    callsub greet
     // compile/apps.py:32
     // @arc4.abimethod()
-    callsub greet
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15
 
@@ -141,7 +163,11 @@ approval_program_delete_route@3:
     intc_0 // 0
     !=
     assert // can only call when not creating
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
     callsub delete
+    // compile/apps.py:24
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
     intc_1 // 1
     b approval_program_after_inlined_test_cases.compile.apps.HelloBase.__puya_arc4_router__@15
 

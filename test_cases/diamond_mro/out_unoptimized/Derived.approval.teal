@@ -17,6 +17,26 @@ main_after_if_else@2:
     return
 
 
+// test_cases.diamond_mro.derived.Derived.method[routing]() -> void:
+method:
+
+method_block@0:
+    // diamond_mro/derived.py:12
+    // @arc4.abimethod
+    callsub test_cases.diamond_mro.derived.Derived.method
+    retsub
+
+
+// test_cases.diamond_mro.gp.GP.create[routing]() -> void:
+create:
+
+create_block@0:
+    // diamond_mro/gp.py:11
+    // @arc4.abimethod(create="require")
+    callsub test_cases.diamond_mro.gp.GP.create
+    retsub
+
+
 // test_cases.diamond_mro.derived.Derived.__init__() -> void:
 __init__:
 
@@ -32,9 +52,9 @@ __init___block@0:
 
 
 // test_cases.diamond_mro.derived.Derived.method() -> void:
-method:
+test_cases.diamond_mro.derived.Derived.method:
 
-method_block@0:
+test_cases.diamond_mro.derived.Derived.method_block@0:
     // diamond_mro/derived.py:14
     // log("derived.method")
     pushbytes "derived.method"
@@ -116,9 +136,9 @@ test_cases.diamond_mro.gp.GP.__init___block@0:
 
 
 // test_cases.diamond_mro.gp.GP.create() -> void:
-create:
+test_cases.diamond_mro.gp.GP.create:
 
-create_block@0:
+test_cases.diamond_mro.gp.GP.create_block@0:
     retsub
 
 
@@ -178,7 +198,11 @@ approval_program_create_route@4:
     intc_0 // 0
     ==
     assert // can only call when creating
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
     callsub create
+    // diamond_mro/gp.py:11
+    // @arc4.abimethod(create="require")
     intc_1 // 1
     b approval_program_after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router__@9
 
@@ -193,7 +217,11 @@ approval_program_method_route@3:
     intc_0 // 0
     !=
     assert // can only call when not creating
+    // diamond_mro/derived.py:7
+    // class Derived(Base1, Base2):
     callsub method
+    // diamond_mro/derived.py:12
+    // @arc4.abimethod
     intc_1 // 1
     b approval_program_after_inlined_test_cases.diamond_mro.derived.Derived.__puya_arc4_router__@9
 

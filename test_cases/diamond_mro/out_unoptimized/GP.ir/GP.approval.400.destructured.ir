@@ -9,6 +9,16 @@ main test_cases.diamond_mro.gp.GP.__algopy_entrypoint_with_init:
         let tmp%1#0: bool = algopy.arc4.ARC4Contract.approval_program()
         return tmp%1#0
 
+subroutine test_cases.diamond_mro.gp.GP.create[routing]() -> void:
+    block@0: // L6
+        test_cases.diamond_mro.gp.GP.create()
+        return 
+
+subroutine test_cases.diamond_mro.gp.GP.method[routing]() -> void:
+    block@0: // L6
+        test_cases.diamond_mro.gp.GP.method()
+        return 
+
 subroutine test_cases.diamond_mro.gp.GP.__init__() -> void:
     block@0: // L7
         (log "gp.__init__")
@@ -41,7 +51,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (== tmp%5#0 0u)
         (assert tmp%6#0) // can only call when creating
-        test_cases.diamond_mro.gp.GP.create()
+        test_cases.diamond_mro.gp.GP.create[routing]()
         let test_cases.diamond_mro.gp.GP.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.diamond_mro.gp.GP.__puya_arc4_router__%0#0
         goto block@9
@@ -52,7 +62,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%9#0: uint64 = (txn ApplicationID)
         let tmp%10#0: bool = (!= tmp%9#0 0u)
         (assert tmp%10#0) // can only call when not creating
-        test_cases.diamond_mro.gp.GP.method()
+        test_cases.diamond_mro.gp.GP.method[routing]()
         let test_cases.diamond_mro.gp.GP.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.diamond_mro.gp.GP.__puya_arc4_router__%0#0
         goto block@9

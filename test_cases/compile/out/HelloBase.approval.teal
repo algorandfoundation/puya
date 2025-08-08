@@ -38,21 +38,9 @@ main_greet_route@6:
     assert // can only call when not creating
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
+    callsub greet
     // compile/apps.py:32
     // @arc4.abimethod()
-    callsub greet
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
     intc_0 // 1
     return
 
@@ -93,12 +81,12 @@ main_update@8:
     return
 
 
-// test_cases.compile.apps.HelloBase.greet(name: bytes) -> bytes:
+// test_cases.compile.apps.HelloBase.greet[routing]() -> void:
 greet:
-    // compile/apps.py:32-33
-    // @arc4.abimethod()
-    // def greet(self, name: String) -> String:
-    proto 1 1
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
     // compile/apps.py:34
     // return self.greeting + " " + name
     intc_1 // 0
@@ -107,6 +95,18 @@ greet:
     assert // check self.greeting exists
     pushbytes " "
     concat
-    frame_dig -1
+    swap
     concat
+    // compile/apps.py:32
+    // @arc4.abimethod()
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
     retsub

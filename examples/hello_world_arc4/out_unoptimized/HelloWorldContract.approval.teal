@@ -48,21 +48,9 @@ main_hello_route@3:
     assert // can only call when not creating
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
+    callsub hello
     // hello_world_arc4/contract.py:10
     // @arc4.abimethod
-    callsub hello
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11
 
@@ -92,14 +80,38 @@ main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__algop
     b main_after_inlined_examples.hello_world_arc4.contract.HelloWorldContract.__puya_arc4_router__@11
 
 
-// examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
+// examples.hello_world_arc4.contract.HelloWorldContract.hello[routing]() -> void:
 hello:
+
+hello_block@0:
+    // hello_world_arc4/contract.py:9
+    // class HelloWorldContract(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // hello_world_arc4/contract.py:10
+    // @arc4.abimethod
+    callsub examples.hello_world_arc4.contract.HelloWorldContract.hello
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    retsub
+
+
+// examples.hello_world_arc4.contract.HelloWorldContract.hello(name: bytes) -> bytes:
+examples.hello_world_arc4.contract.HelloWorldContract.hello:
     // hello_world_arc4/contract.py:10-11
     // @arc4.abimethod
     // def hello(self, name: String) -> String:
     proto 1 1
 
-hello_block@0:
+examples.hello_world_arc4.contract.HelloWorldContract.hello_block@0:
     // hello_world_arc4/contract.py:12
     // return "Hello, " + name
     pushbytes "Hello, "

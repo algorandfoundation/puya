@@ -4,7 +4,7 @@
 // test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1 8 10 TMPL_AVM_UINT64
-    bytecblock 0x 0x2a 0x151f7c75 0x68656c6c6f31 "hello" 0x68656c6c6f32 0x68656c6c6f33 "hi" TMPL_STRUCT TMPL_AVM_STRING TMPL_ARC4_UINT8
+    bytecblock 0x 0x151f7c75 0x2a 0x68656c6c6f31 "hello" 0x68656c6c6f32 0x68656c6c6f33 "hi" TMPL_STRUCT TMPL_AVM_STRING TMPL_ARC4_UINT8
 
 main_block@0:
     txn ApplicationID
@@ -33,6 +33,206 @@ echo_block@0:
     retsub
 
 
+// test_cases.arc_56.contract.Contract.create[routing]() -> void:
+create:
+
+create_block@0:
+    // arc_56/contract.py:81
+    // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
+    callsub test_cases.arc_56.contract.Contract.create
+    retsub
+
+
+// test_cases.arc_56.contract.Contract.struct_arg[routing]() -> void:
+struct_arg:
+
+struct_arg_block@0:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    // arc_56/contract.py:89
+    // @arc4.abimethod()
+    callsub test_cases.arc_56.contract.Contract.struct_arg
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    retsub
+
+
+// test_cases.arc_56.contract.Contract.struct_return[routing]() -> void:
+struct_return:
+
+struct_return_block@0:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txna ApplicationArgs 1
+    // arc_56/contract.py:95
+    // @arc4.abimethod(readonly=True)
+    callsub test_cases.arc_56.contract.Contract.struct_return
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    retsub
+
+
+// test_cases.arc_56.contract.Contract.errors[routing]() -> void:
+errors:
+
+errors_block@0:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txna ApplicationArgs 1
+    // arc_56/contract.py:100
+    // @arc4.abimethod(name="emits_error", readonly=True)
+    callsub test_cases.arc_56.contract.Contract.errors
+    retsub
+
+
+// test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
+emitter:
+
+emitter_block@0:
+    // arc_56/contract.py:104
+    // @arc4.abimethod()
+    callsub test_cases.arc_56.contract.Contract.emitter
+    retsub
+
+
+// test_cases.arc_56.contract.Contract.conditional_emit[routing]() -> void:
+conditional_emit:
+
+conditional_emit_block@0:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txna ApplicationArgs 1
+    intc_0 // 0
+    getbit
+    // arc_56/contract.py:114
+    // @arc4.abimethod()
+    callsub test_cases.arc_56.contract.Contract.conditional_emit
+    retsub
+
+
+// test_cases.arc_56.contract.Contract.template_value[routing]() -> void:
+template_value:
+
+template_value_block@0:
+    // arc_56/contract.py:123
+    // @arc4.abimethod()
+    callsub test_cases.arc_56.contract.Contract.template_value
+    cover 3
+    cover 2
+    swap
+    pushint 13 // 13
+    itob
+    extract 6 2
+    bytec_0 // 0x
+    swap
+    concat
+    swap
+    dup
+    len
+    pushint 13 // 13
+    +
+    cover 2
+    uncover 3
+    itob
+    uncover 2
+    swap
+    concat
+    dig 3
+    len
+    itob
+    extract 6 2
+    uncover 4
+    concat
+    uncover 3
+    itob
+    extract 6 2
+    uncover 2
+    swap
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    retsub
+
+
+// test_cases.arc_56.contract.Contract.with_constant_defaults[routing]() -> void:
+with_constant_defaults:
+
+with_constant_defaults_block@0:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    extract 2 0
+    txna ApplicationArgs 4
+    txna ApplicationArgs 5
+    dup
+    intc_0 // 0
+    intc_2 // 8
+    extract3
+    btoi
+    swap
+    dup
+    intc_2 // 8
+    extract_uint16
+    swap
+    dup
+    len
+    swap
+    uncover 2
+    uncover 2
+    substring3
+    extract 2 0
+    txna ApplicationArgs 6
+    txna ApplicationArgs 7
+    txna ApplicationArgs 8
+    btoi
+    txna ApplicationArgs 9
+    btoi
+    // arc_56/contract.py:132-144
+    // @arc4.abimethod(
+    //     default_args={
+    //         "a": arc4.UInt64(123),
+    //         "c": Bytes(b"123"),
+    //         "b": UInt64(234),
+    //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+    //         "e": (UInt64(42), String("on the edge")),
+    //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+    //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+    //         "h": constant_method(),
+    //         "i": echo_number(UInt64(1234)),
+    //     }
+    // )
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    uncover 9
+    callsub test_cases.arc_56.contract.Contract.with_constant_defaults
+    retsub
+
+
 // test_cases.arc_56.contract.Contract.__init__() -> void:
 __init__:
 
@@ -48,9 +248,9 @@ bare_create_block@0:
 
 
 // test_cases.arc_56.contract.Contract.create() -> void:
-create:
+test_cases.arc_56.contract.Contract.create:
 
-create_block@0:
+test_cases.arc_56.contract.Contract.create_block@0:
     retsub
 
 
@@ -62,13 +262,13 @@ transient_block@0:
 
 
 // test_cases.arc_56.contract.Contract.struct_arg(arg: bytes, shared: bytes) -> uint64:
-struct_arg:
+test_cases.arc_56.contract.Contract.struct_arg:
     // arc_56/contract.py:89-90
     // @arc4.abimethod()
     // def struct_arg(self, arg: TopLevelStruct, shared: SharedStruct) -> UInt64:
     proto 2 1
 
-struct_arg_block@0:
+test_cases.arc_56.contract.Contract.struct_arg_block@0:
     // arc_56/contract.py:92
     // assert arg.shared == shared, "this might error"
     frame_dig -2
@@ -90,13 +290,13 @@ struct_arg_block@0:
 
 
 // test_cases.arc_56.contract.Contract.struct_return(arg: bytes) -> bytes:
-struct_return:
+test_cases.arc_56.contract.Contract.struct_return:
     // arc_56/contract.py:95-96
     // @arc4.abimethod(readonly=True)
     // def struct_return(self, arg: TopLevelStruct) -> SharedStruct:
     proto 1 1
 
-struct_return_block@0:
+test_cases.arc_56.contract.Contract.struct_return_block@0:
     // arc_56/contract.py:97
     // assert arg.shared == echo(arg.shared), "this won't error"
     frame_dig -1
@@ -136,13 +336,13 @@ struct_return_block@0:
 
 
 // test_cases.arc_56.contract.Contract.errors(arg: bytes) -> void:
-errors:
+test_cases.arc_56.contract.Contract.errors:
     // arc_56/contract.py:100-101
     // @arc4.abimethod(name="emits_error", readonly=True)
     // def errors(self, arg: TopLevelStruct) -> None:
     proto 1 0
 
-errors_block@0:
+test_cases.arc_56.contract.Contract.errors_block@0:
     // arc_56/contract.py:102
     // assert arg.a.bytes == arc4.UInt8(0).bytes, "this will error"
     frame_dig -1
@@ -156,9 +356,9 @@ errors_block@0:
 
 
 // test_cases.arc_56.contract.Contract.emitter() -> void:
-emitter:
+test_cases.arc_56.contract.Contract.emitter:
 
-emitter_block@0:
+test_cases.arc_56.contract.Contract.emitter_block@0:
     // arc_56/contract.py:106
     // arc4.emit(SharedStruct(foo=arc4.DynamicBytes(b"hello1"), bar=arc4.UInt8(42)))
     bytec_3 // 0x68656c6c6f31
@@ -173,7 +373,7 @@ emitter_block@0:
     bytec_0 // 0x
     swap
     concat
-    bytec_1 // 0x2a
+    bytec_2 // 0x2a
     concat
     swap
     concat
@@ -203,7 +403,7 @@ emitter_block@0:
     bytec_0 // 0x
     swap
     concat
-    bytec_1 // 0x2a
+    bytec_2 // 0x2a
     concat
     swap
     concat
@@ -238,19 +438,19 @@ emitter_block@0:
 
 
 // test_cases.arc_56.contract.Contract.conditional_emit(should_emit: uint64) -> void:
-conditional_emit:
+test_cases.arc_56.contract.Contract.conditional_emit:
     // arc_56/contract.py:114-115
     // @arc4.abimethod()
     // def conditional_emit(self, should_emit: bool) -> None:
     proto 1 0
 
-conditional_emit_block@0:
+test_cases.arc_56.contract.Contract.conditional_emit_block@0:
     // arc_56/contract.py:116
     // if should_emit:
     frame_dig -1
-    bz conditional_emit_after_if_else@2
+    bz test_cases.arc_56.contract.Contract.conditional_emit_after_if_else@2
 
-conditional_emit_if_body@1:
+test_cases.arc_56.contract.Contract.conditional_emit_if_body@1:
     // arc_56/contract.py:119
     // EventOnly(arc4.UInt64(42), arc4.UInt64(43)),
     bytec_0 // 0x
@@ -272,7 +472,7 @@ conditional_emit_if_body@1:
     bytec_0 // 0x
     swap
     concat
-    bytec_1 // 0x2a
+    bytec_2 // 0x2a
     concat
     swap
     concat
@@ -296,14 +496,14 @@ conditional_emit_if_body@1:
     concat
     log
 
-conditional_emit_after_if_else@2:
+test_cases.arc_56.contract.Contract.conditional_emit_after_if_else@2:
     retsub
 
 
 // test_cases.arc_56.contract.Contract.template_value() -> bytes, uint64, bytes, bytes:
-template_value:
+test_cases.arc_56.contract.Contract.template_value:
 
-template_value_block@0:
+test_cases.arc_56.contract.Contract.template_value_block@0:
     // arc_56/contract.py:126
     // TemplateVar[SharedStruct]("STRUCT"),
     bytec 8 // TMPL_STRUCT
@@ -327,7 +527,7 @@ template_value_block@0:
 
 
 // test_cases.arc_56.contract.Contract.with_constant_defaults(a: bytes, b: uint64, c: bytes, d: bytes, e.0: uint64, e.1: bytes, f: bytes, g: bytes, h: uint64, i: uint64) -> void:
-with_constant_defaults:
+test_cases.arc_56.contract.Contract.with_constant_defaults:
     // arc_56/contract.py:132-156
     // @arc4.abimethod(
     //     default_args={
@@ -356,7 +556,7 @@ with_constant_defaults:
     // ) -> None:
     proto 10 0
 
-with_constant_defaults_block@0:
+test_cases.arc_56.contract.Contract.with_constant_defaults_block@0:
     // arc_56/contract.py:157
     // assert a
     frame_dig -10
@@ -384,9 +584,9 @@ with_constant_defaults_block@0:
     extract3
     bytec_0 // 0x
     b!=
-    bnz with_constant_defaults_bool_true@2
+    bnz test_cases.arc_56.contract.Contract.with_constant_defaults_bool_true@2
 
-with_constant_defaults_or_contd@1:
+test_cases.arc_56.contract.Contract.with_constant_defaults_or_contd@1:
     // arc_56/contract.py:160
     // assert d.x or d.y
     frame_dig -7
@@ -395,12 +595,12 @@ with_constant_defaults_or_contd@1:
     extract3
     bytec_0 // 0x
     b!=
-    bz with_constant_defaults_bool_false@3
+    bz test_cases.arc_56.contract.Contract.with_constant_defaults_bool_false@3
 
-with_constant_defaults_bool_true@2:
+test_cases.arc_56.contract.Contract.with_constant_defaults_bool_true@2:
     intc_1 // 1
 
-with_constant_defaults_bool_merge@4:
+test_cases.arc_56.contract.Contract.with_constant_defaults_bool_merge@4:
     // arc_56/contract.py:160
     // assert d.x or d.y
     assert
@@ -409,21 +609,21 @@ with_constant_defaults_bool_merge@4:
     frame_dig -6
     intc_0 // 0
     !=
-    bnz with_constant_defaults_bool_true@6
+    bnz test_cases.arc_56.contract.Contract.with_constant_defaults_bool_true@6
 
-with_constant_defaults_or_contd@5:
+test_cases.arc_56.contract.Contract.with_constant_defaults_or_contd@5:
     // arc_56/contract.py:161
     // assert e[0] or e[1]
     frame_dig -5
     len
     intc_0 // 0
     !=
-    bz with_constant_defaults_bool_false@7
+    bz test_cases.arc_56.contract.Contract.with_constant_defaults_bool_false@7
 
-with_constant_defaults_bool_true@6:
+test_cases.arc_56.contract.Contract.with_constant_defaults_bool_true@6:
     intc_1 // 1
 
-with_constant_defaults_bool_merge@8:
+test_cases.arc_56.contract.Contract.with_constant_defaults_bool_merge@8:
     // arc_56/contract.py:161
     // assert e[0] or e[1]
     assert
@@ -480,13 +680,13 @@ with_constant_defaults_bool_merge@8:
     assert
     retsub
 
-with_constant_defaults_bool_false@7:
+test_cases.arc_56.contract.Contract.with_constant_defaults_bool_false@7:
     intc_0 // 0
-    b with_constant_defaults_bool_merge@8
+    b test_cases.arc_56.contract.Contract.with_constant_defaults_bool_merge@8
 
-with_constant_defaults_bool_false@3:
+test_cases.arc_56.contract.Contract.with_constant_defaults_bool_false@3:
     intc_0 // 0
-    b with_constant_defaults_bool_merge@4
+    b test_cases.arc_56.contract.Contract.with_constant_defaults_bool_merge@4
 
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
@@ -554,36 +754,7 @@ approval_program_with_constant_defaults_route@10:
     assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
-    btoi
-    txna ApplicationArgs 3
-    extract 2 0
-    txna ApplicationArgs 4
-    txna ApplicationArgs 5
-    dup
-    intc_0 // 0
-    intc_2 // 8
-    extract3
-    btoi
-    swap
-    dup
-    intc_2 // 8
-    extract_uint16
-    swap
-    dup
-    len
-    swap
-    uncover 2
-    uncover 2
-    substring3
-    extract 2 0
-    txna ApplicationArgs 6
-    txna ApplicationArgs 7
-    txna ApplicationArgs 8
-    btoi
-    txna ApplicationArgs 9
-    btoi
+    callsub with_constant_defaults
     // arc_56/contract.py:132-144
     // @arc4.abimethod(
     //     default_args={
@@ -598,17 +769,6 @@ approval_program_with_constant_defaults_route@10:
     //         "i": echo_number(UInt64(1234)),
     //     }
     // )
-    uncover 9
-    uncover 9
-    uncover 9
-    uncover 9
-    uncover 9
-    uncover 9
-    uncover 9
-    uncover 9
-    uncover 9
-    uncover 9
-    callsub with_constant_defaults
     intc_1 // 1
     b approval_program_after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router__@19
 
@@ -623,49 +783,11 @@ approval_program_template_value_route@9:
     intc_0 // 0
     !=
     assert // can only call when not creating
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
     callsub template_value
-    cover 3
-    cover 2
-    swap
-    pushint 13 // 13
-    itob
-    extract 6 2
-    bytec_0 // 0x
-    swap
-    concat
-    swap
-    dup
-    len
-    pushint 13 // 13
-    +
-    cover 2
-    uncover 3
-    itob
-    uncover 2
-    swap
-    concat
-    dig 3
-    len
-    itob
-    extract 6 2
-    uncover 4
-    concat
-    uncover 3
-    itob
-    extract 6 2
-    uncover 2
-    swap
-    concat
-    uncover 3
-    concat
-    uncover 2
-    concat
-    swap
-    concat
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
+    // arc_56/contract.py:123
+    // @arc4.abimethod()
     intc_1 // 1
     b approval_program_after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router__@19
 
@@ -682,12 +804,9 @@ approval_program_conditional_emit_route@8:
     assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
-    txna ApplicationArgs 1
-    intc_0 // 0
-    getbit
+    callsub conditional_emit
     // arc_56/contract.py:114
     // @arc4.abimethod()
-    callsub conditional_emit
     intc_1 // 1
     b approval_program_after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router__@19
 
@@ -702,7 +821,11 @@ approval_program_emitter_route@7:
     intc_0 // 0
     !=
     assert // can only call when not creating
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
     callsub emitter
+    // arc_56/contract.py:104
+    // @arc4.abimethod()
     intc_1 // 1
     b approval_program_after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router__@19
 
@@ -719,10 +842,9 @@ approval_program_emits_error_route@6:
     assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
-    txna ApplicationArgs 1
+    callsub errors
     // arc_56/contract.py:100
     // @arc4.abimethod(name="emits_error", readonly=True)
-    callsub errors
     intc_1 // 1
     b approval_program_after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router__@19
 
@@ -739,14 +861,9 @@ approval_program_struct_return_route@5:
     assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
-    txna ApplicationArgs 1
+    callsub struct_return
     // arc_56/contract.py:95
     // @arc4.abimethod(readonly=True)
-    callsub struct_return
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     b approval_program_after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router__@19
 
@@ -763,16 +880,9 @@ approval_program_struct_arg_route@4:
     assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
+    callsub struct_arg
     // arc_56/contract.py:89
     // @arc4.abimethod()
-    callsub struct_arg
-    itob
-    bytec_2 // 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     b approval_program_after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router__@19
 
@@ -786,7 +896,11 @@ approval_program_create_route@3:
     pushint 3 // 3
     &
     assert // OnCompletion is not one of NoOp, OptIn
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
     callsub create
+    // arc_56/contract.py:81
+    // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
     intc_1 // 1
     b approval_program_after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router__@19
 

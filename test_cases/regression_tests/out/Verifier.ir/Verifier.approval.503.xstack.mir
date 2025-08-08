@@ -25,20 +25,9 @@ subroutine main:
         assert // can only call when not creating
         // regression_tests/jira_ak_752.py:12
         // class Verifier(algopy.ARC4Contract):
-        txna ApplicationArgs 1                                                                        reinterpret_Encoded(len+uint8[32][])%0#0
+        callsub verify
         // regression_tests/jira_ak_752.py:13
         // @abimethod
-        callsub verify                                                                                tmp%7#0
-        l-load-copy tmp%7#0 0                                                                         tmp%7#0,tmp%7#0 (copy)
-        len                                                                                           tmp%7#0,aggregate%length%0#0
-        itob                                                                                          tmp%7#0,aggregate%as_bytes%0#0
-        extract 6 2                                                                                   tmp%7#0,aggregate%length_uint16%0#0
-        l-load tmp%7#0 1                                                                              aggregate%length_uint16%0#0,tmp%7#0
-        concat                                                                                        aggregate%encoded_value%0#0
-        byte 0x151f7c75                                                                               aggregate%encoded_value%0#0,0x151f7c75
-        l-load aggregate%encoded_value%0#0 1                                                          0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                                        tmp%9#0
-        log
         int 1                                                                                         test_cases.regression_tests.jira_ak_752.Verifier.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                               (𝕏) tmp%0#0 |
         b main_after_inlined_test_cases.regression_tests.jira_ak_752.Verifier.__puya_arc4_router__@11 (𝕏) tmp%0#0 | 
@@ -46,12 +35,12 @@ subroutine main:
     main_bare_routing@6:
         // regression_tests/jira_ak_752.py:12
         // class Verifier(algopy.ARC4Contract):
-        txn OnCompletion                                                                              tmp%10#0
+        txn OnCompletion                                                                              tmp%7#0
         bz main___algopy_default_create@7 ; b main_after_if_else@10
 
     main___algopy_default_create@7:
-        txn ApplicationID                                                                             tmp%11#0
-        !                                                                                             tmp%12#0
+        txn ApplicationID                                                                             tmp%8#0
+        !                                                                                             tmp%9#0
         assert // can only call when creating
         int 1                                                                                         test_cases.regression_tests.jira_ak_752.Verifier.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                                               (𝕏) tmp%0#0 |
@@ -69,36 +58,51 @@ subroutine main:
         return
 
 
-// test_cases.regression_tests.jira_ak_752.Verifier.verify(proof: bytes) -> bytes:
+// test_cases.regression_tests.jira_ak_752.Verifier.verify[routing]() -> void:
 subroutine verify:
-    verify_block@0:                                                                                   (𝕡) proof#0 |
+    verify_block@0:
+        // regression_tests/jira_ak_752.py:12
+        // class Verifier(algopy.ARC4Contract):
+        txna ApplicationArgs 1                                                                        proof#0
         // regression_tests/jira_ak_752.py:18
         // x = proof[8].bytes  # ok
-        p-load proof#0                                                                                (𝕡) proof#0 | proof#0 (copy)
-        int 258                                                                                       (𝕡) proof#0 | proof#0 (copy),258
-        int 32                                                                                        (𝕡) proof#0 | proof#0 (copy),258,32
-        extract3                                                                                      (𝕡) proof#0 | x#0
+        l-load-copy proof#0 0                                                                         proof#0,proof#0 (copy)
+        int 258                                                                                       proof#0,proof#0 (copy),258
+        int 32                                                                                        proof#0,proof#0 (copy),258,32
+        extract3                                                                                      proof#0,x#0
         // regression_tests/jira_ak_752.py:19
         // y = proof[6].bytes + proof[7].bytes  # ok
-        p-load proof#0                                                                                (𝕡) proof#0 | x#0,proof#0 (copy)
-        extract 194 32                                                                                (𝕡) proof#0 | x#0,aggregate%encoded_element%1#0
-        p-load proof#0                                                                                (𝕡) proof#0 | x#0,aggregate%encoded_element%1#0,proof#0 (copy)
-        extract 226 32                                                                                (𝕡) proof#0 | x#0,aggregate%encoded_element%1#0,aggregate%encoded_element%2#0
-        l-load aggregate%encoded_element%1#0 1                                                        (𝕡) proof#0 | x#0,aggregate%encoded_element%2#0,aggregate%encoded_element%1#0
-        l-load-copy aggregate%encoded_element%2#0 1                                                   (𝕡) proof#0 | x#0,aggregate%encoded_element%2#0,aggregate%encoded_element%1#0,aggregate%encoded_element%2#0 (copy)
-        concat                                                                                        (𝕡) proof#0 | x#0,aggregate%encoded_element%2#0,y#0
+        l-load-copy proof#0 1                                                                         proof#0,x#0,proof#0 (copy)
+        extract 194 32                                                                                proof#0,x#0,aggregate%encoded_element%1#0
+        l-load proof#0 2                                                                              x#0,aggregate%encoded_element%1#0,proof#0
+        extract 226 32                                                                                x#0,aggregate%encoded_element%1#0,aggregate%encoded_element%2#0
+        l-load aggregate%encoded_element%1#0 1                                                        x#0,aggregate%encoded_element%2#0,aggregate%encoded_element%1#0
+        l-load-copy aggregate%encoded_element%2#0 1                                                   x#0,aggregate%encoded_element%2#0,aggregate%encoded_element%1#0,aggregate%encoded_element%2#0 (copy)
+        concat                                                                                        x#0,aggregate%encoded_element%2#0,y#0
         // regression_tests/jira_ak_752.py:20
         // z = proof[7].bytes + proof[8].bytes  # Invalid immediate, expected value between 0 and 255
-        l-load aggregate%encoded_element%2#0 1                                                        (𝕡) proof#0 | x#0,y#0,aggregate%encoded_element%2#0
-        l-load-copy x#0 2                                                                             (𝕡) proof#0 | x#0,y#0,aggregate%encoded_element%2#0,x#0 (copy)
-        concat                                                                                        (𝕡) proof#0 | x#0,y#0,z#0
+        l-load aggregate%encoded_element%2#0 1                                                        x#0,y#0,aggregate%encoded_element%2#0
+        l-load-copy x#0 2                                                                             x#0,y#0,aggregate%encoded_element%2#0,x#0 (copy)
+        concat                                                                                        x#0,y#0,z#0
         // regression_tests/jira_ak_752.py:22
         // return x + y + z
-        l-load x#0 2                                                                                  (𝕡) proof#0 | y#0,z#0,x#0
-        l-load y#0 2                                                                                  (𝕡) proof#0 | z#0,x#0,y#0
-        concat                                                                                        (𝕡) proof#0 | z#0,tmp%2#0
-        l-load z#0 1                                                                                  (𝕡) proof#0 | tmp%2#0,z#0
-        concat                                                                                        (𝕡) proof#0 | tmp%3#0
-        retsub                                                                                        tmp%3#0
+        l-load x#0 2                                                                                  y#0,z#0,x#0
+        l-load y#0 2                                                                                  z#0,x#0,y#0
+        concat                                                                                        z#0,tmp%2#0
+        l-load z#0 1                                                                                  tmp%2#0,z#0
+        concat                                                                                        tmp%3#0
+        // regression_tests/jira_ak_752.py:13
+        // @abimethod
+        l-load-copy tmp%3#0 0                                                                         tmp%3#0,tmp%3#0 (copy)
+        len                                                                                           tmp%3#0,aggregate%length%0#0
+        itob                                                                                          tmp%3#0,aggregate%as_bytes%0#0
+        extract 6 2                                                                                   tmp%3#0,aggregate%length_uint16%0#0
+        l-load tmp%3#0 1                                                                              aggregate%length_uint16%0#0,tmp%3#0
+        concat                                                                                        aggregate%encoded_value%0#0
+        byte 0x151f7c75                                                                               aggregate%encoded_value%0#0,0x151f7c75
+        l-load aggregate%encoded_value%0#0 1                                                          0x151f7c75,aggregate%encoded_value%0#0
+        concat                                                                                        tmp%2#0
+        log
+        retsub
 
 

@@ -44,20 +44,9 @@ main_vote_route@9:
     assert // can only call when not creating
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_1 // pay
-    ==
-    assert // transaction type is pay
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
+    callsub vote
     // voting/voting.py:169
     // @arc4.abimethod
-    callsub vote
     intc_1 // 1
     return
 
@@ -71,15 +60,9 @@ main_get_preconditions_route@8:
     assert // can only call when not creating
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
+    callsub get_preconditions
     // voting/voting.py:160
     // @arc4.abimethod(readonly=True)
-    callsub get_preconditions
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     return
 
@@ -91,7 +74,11 @@ main_close_route@7:
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
     callsub close
+    // voting/voting.py:110
+    // @arc4.abimethod
     intc_1 // 1
     return
 
@@ -105,17 +92,9 @@ main_bootstrap_route@6:
     assert // can only call when not creating
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_1 // pay
-    ==
-    assert // transaction type is pay
+    callsub bootstrap
     // voting/voting.py:82
     // @arc4.abimethod
-    callsub bootstrap
     intc_1 // 1
     return
 
@@ -130,24 +109,9 @@ main_create_route@5:
     assert // can only call when creating
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    txna ApplicationArgs 1
-    extract 2 0
-    txna ApplicationArgs 2
-    extract 2 0
-    txna ApplicationArgs 3
-    extract 2 0
-    txna ApplicationArgs 4
-    btoi
-    txna ApplicationArgs 5
-    btoi
-    txna ApplicationArgs 6
-    txna ApplicationArgs 7
-    btoi
-    txna ApplicationArgs 8
-    extract 2 0
+    callsub create
     // voting/voting.py:58
     // @arc4.abimethod(create="require")
-    callsub create
     intc_1 // 1
     return
 
@@ -250,72 +214,78 @@ itoa_after_if_else@2:
     retsub
 
 
-// examples.voting.voting.VotingRoundApp.create(vote_id: bytes, snapshot_public_key: bytes, metadata_ipfs_cid: bytes, start_time: uint64, end_time: uint64, option_counts: bytes, quorum: uint64, nft_image_url: bytes) -> void:
+// examples.voting.voting.VotingRoundApp.create[routing]() -> void:
 create:
-    // voting/voting.py:58-69
-    // @arc4.abimethod(create="require")
-    // def create(
-    //     self,
-    //     vote_id: String,
-    //     snapshot_public_key: Bytes,
-    //     metadata_ipfs_cid: String,
-    //     start_time: UInt64,
-    //     end_time: UInt64,
-    //     option_counts: VoteIndexArray,
-    //     quorum: UInt64,
-    //     nft_image_url: String,
-    // ) -> None:
-    proto 8 0
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    proto 0 0
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    extract 2 0
+    txna ApplicationArgs 4
+    btoi
+    txna ApplicationArgs 5
+    btoi
+    txna ApplicationArgs 6
+    dup
+    cover 5
+    cover 6
+    txna ApplicationArgs 7
+    btoi
+    txna ApplicationArgs 8
+    extract 2 0
     // voting/voting.py:70
     // assert start_time < end_time, "End time should be after start time"
-    frame_dig -5
-    frame_dig -4
+    dig 3
+    dig 3
     <
     assert // End time should be after start time
     // voting/voting.py:71
     // assert end_time >= Global.latest_timestamp, "End time should be in the future"
-    frame_dig -4
+    dig 2
     global LatestTimestamp
     >=
     assert // End time should be in the future
     // voting/voting.py:73
     // self.vote_id = vote_id
     bytec 4 // "vote_id"
-    frame_dig -8
+    uncover 8
     app_global_put
     // voting/voting.py:74
     // self.snapshot_public_key = snapshot_public_key
     bytec 8 // "snapshot_public_key"
-    frame_dig -7
+    uncover 6
     app_global_put
     // voting/voting.py:75
     // self.metadata_ipfs_cid = metadata_ipfs_cid
     bytec 9 // "metadata_ipfs_cid"
-    frame_dig -6
+    uncover 5
     app_global_put
     // voting/voting.py:76
     // self.start_time = start_time
     bytec 10 // "start_time"
-    frame_dig -5
+    uncover 4
     app_global_put
     // voting/voting.py:77
     // self.end_time = end_time
     bytec 11 // "end_time"
-    frame_dig -4
+    uncover 3
     app_global_put
     // voting/voting.py:78
     // self.quorum = quorum
     bytec 12 // "quorum"
-    frame_dig -2
+    uncover 2
     app_global_put
     // voting/voting.py:79
     // self.nft_image_url = nft_image_url
     bytec 13 // "nft_image_url"
-    frame_dig -1
+    swap
     app_global_put
     // voting/voting.py:219
     // assert option_counts.length, "option_counts should be non-empty"
-    frame_dig -3
     intc_0 // 0
     extract_uint16
     dupn 2
@@ -333,30 +303,30 @@ create:
 create_for_header@2:
     // voting/voting.py:223
     // for item in option_counts:
-    frame_dig 2
-    frame_dig 0
+    frame_dig 3
+    frame_dig 1
     <
-    bz create_after_for@5
-    frame_dig -3
+    bz create_after_for@4
+    frame_dig 0
     extract 2 0
     // voting/voting.py:224
     // total_options += item.native
-    frame_dig 2
+    frame_dig 3
     dup
     cover 2
     getbyte
-    frame_dig 1
-    +
-    frame_bury 1
-    intc_1 // 1
+    frame_dig 2
     +
     frame_bury 2
+    intc_1 // 1
+    +
+    frame_bury 3
     b create_for_header@2
 
-create_after_for@5:
+create_after_for@4:
     // voting/voting.py:225
     // assert total_options <= 128, "Can't have more than 128 vote options"
-    frame_dig 1
+    frame_dig 2
     dup
     pushint 128 // 128
     <=
@@ -364,7 +334,7 @@ create_after_for@5:
     // voting/voting.py:227
     // self.option_counts = option_counts.copy()
     bytec_2 // "option_counts"
-    frame_dig -3
+    frame_dig 0
     app_global_put
     // voting/voting.py:228
     // self.total_options = total_options
@@ -374,12 +344,18 @@ create_after_for@5:
     retsub
 
 
-// examples.voting.voting.VotingRoundApp.bootstrap(fund_min_bal_req: uint64) -> void:
+// examples.voting.voting.VotingRoundApp.bootstrap[routing]() -> void:
 bootstrap:
-    // voting/voting.py:82-83
-    // @arc4.abimethod
-    // def bootstrap(self, fund_min_bal_req: gtxn.PaymentTransaction) -> None:
-    proto 1 0
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
     // voting/voting.py:84
     // assert not self.is_bootstrapped, "Must not be already bootstrapped"
     intc_0 // 0
@@ -395,7 +371,7 @@ bootstrap:
     app_global_put
     // voting/voting.py:88
     // fund_min_bal_req.receiver == Global.current_application_address
-    frame_dig -1
+    dup
     gtxns Receiver
     global CurrentApplicationAddress
     ==
@@ -447,7 +423,7 @@ bootstrap:
     log
     // voting/voting.py:106
     // fund_min_bal_req.amount == min_balance_req
-    frame_dig -1
+    uncover 2
     gtxns Amount
     ==
     // voting/voting.py:105-107
@@ -464,11 +440,10 @@ bootstrap:
     retsub
 
 
-// examples.voting.voting.VotingRoundApp.close() -> void:
+// examples.voting.voting.VotingRoundApp.close[routing]() -> void:
 close:
-    // voting/voting.py:110-111
-    // @arc4.abimethod
-    // def close(self) -> None:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
     proto 0 0
     intc_0 // 0
     dupn 2
@@ -650,13 +625,13 @@ close:
     extract_uint16
     intc_0 // 0
 
-close_for_header@1:
+close_for_header@2:
     // voting/voting.py:132
     // for question_index, question_options in uenumerate(self.option_counts):
     frame_dig 10
     frame_dig 9
     <
-    bz close_after_for@14
+    bz close_after_for@15
     frame_dig 8
     extract 2 0
     dup
@@ -671,7 +646,7 @@ close_for_header@1:
     frame_bury 1
     // voting/voting.py:133
     // if question_index > 0:
-    bz close_after_if_else@4
+    bz close_after_if_else@5
     // voting/voting.py:134
     // note += ","
     frame_dig 6
@@ -679,7 +654,7 @@ close_for_header@1:
     concat
     frame_bury 1
 
-close_after_if_else@4:
+close_after_if_else@5:
     frame_dig 1
     dup
     frame_bury 6
@@ -692,7 +667,7 @@ close_after_if_else@4:
     frame_bury 3
     swap
     frame_bury 1
-    bz close_after_if_else@12
+    bz close_after_if_else@13
     // voting/voting.py:136
     // note += "["
     frame_dig 6
@@ -708,19 +683,19 @@ close_after_if_else@4:
     intc_0 // 0
     frame_bury 4
 
-close_for_header@6:
+close_for_header@7:
     // voting/voting.py:137
     // for option_index in urange(question_options.native):
     frame_dig 4
     frame_dig 5
     <
-    bz close_after_for@11
+    bz close_after_for@12
     frame_dig 6
     frame_bury 1
     // voting/voting.py:138
     // if option_index > 0:
     frame_dig 4
-    bz close_after_if_else@9
+    bz close_after_if_else@10
     // voting/voting.py:139
     // note += ","
     frame_dig 6
@@ -728,7 +703,7 @@ close_for_header@6:
     concat
     frame_bury 1
 
-close_after_if_else@9:
+close_after_if_else@10:
     frame_dig 1
     // voting/voting.py:241
     // return op.btoi(self.tally_box.extract(index, VOTE_COUNT_BYTES))
@@ -755,9 +730,9 @@ close_after_if_else@9:
     intc_1 // 1
     +
     frame_bury 4
-    b close_for_header@6
+    b close_for_header@7
 
-close_after_for@11:
+close_after_for@12:
     // voting/voting.py:143
     // note += "]"
     frame_dig 6
@@ -767,7 +742,7 @@ close_after_for@11:
     frame_bury 3
     frame_bury 1
 
-close_after_if_else@12:
+close_after_if_else@13:
     frame_dig 3
     frame_bury 7
     frame_dig 1
@@ -776,9 +751,9 @@ close_after_if_else@12:
     intc_1 // 1
     +
     frame_bury 10
-    b close_for_header@1
+    b close_for_header@2
 
-close_after_for@14:
+close_after_for@15:
     // voting/voting.py:144
     // note += "]}}"
     frame_dig 6
@@ -889,19 +864,19 @@ close_after_for@14:
     retsub
 
 
-// examples.voting.voting.VotingRoundApp.get_preconditions(signature: bytes) -> bytes:
+// examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
 get_preconditions:
-    // voting/voting.py:160-161
-    // @arc4.abimethod(readonly=True)
-    // def get_preconditions(self, signature: Bytes) -> VotingPreconditions:
-    proto 1 1
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
     // voting/voting.py:163
     // is_voting_open=arc4.UInt64(self.voting_open()),
     callsub voting_open
     itob
     // voting/voting.py:164
     // is_allowed_to_vote=arc4.UInt64(self.allowed_to_vote(signature)),
-    frame_dig -1
+    swap
     callsub allowed_to_vote
     itob
     // voting/voting.py:215
@@ -930,20 +905,34 @@ get_preconditions:
     concat
     swap
     concat
+    // voting/voting.py:160
+    // @arc4.abimethod(readonly=True)
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
     retsub
 
 
-// examples.voting.voting.VotingRoundApp.vote(fund_min_bal_req: uint64, signature: bytes, answer_ids: bytes) -> void:
+// examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
 vote:
-    // voting/voting.py:169-175
-    // @arc4.abimethod
-    // def vote(
-    //     self,
-    //     fund_min_bal_req: gtxn.PaymentTransaction,
-    //     signature: Bytes,
-    //     answer_ids: VoteIndexArray,
-    // ) -> None:
-    proto 3 0
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    proto 0 0
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    cover 3
     // voting/voting.py:176
     // ensure_budget(7700, fee_source=OpUpFeeSource.GroupCredit)
     pushint 7700 // 7700
@@ -952,7 +941,6 @@ vote:
     // voting/voting.py:177-178
     // # Check voting preconditions
     // assert self.allowed_to_vote(signature), "Not allowed to vote"
-    frame_dig -2
     callsub allowed_to_vote
     assert // Not allowed to vote
     // voting/voting.py:179
@@ -977,9 +965,10 @@ vote:
     intc_0 // 0
     extract_uint16
     dup
+    cover 3
     // voting/voting.py:182
     // assert answer_ids.length == questions_count, "Number of answers incorrect"
-    frame_dig -1
+    swap
     intc_0 // 0
     extract_uint16
     dup
@@ -1004,7 +993,7 @@ vote:
     +
     // voting/voting.py:188
     // fund_min_bal_req.receiver == Global.current_application_address
-    frame_dig -3
+    dig 1
     gtxns Receiver
     global CurrentApplicationAddress
     ==
@@ -1020,7 +1009,7 @@ vote:
     log
     // voting/voting.py:192
     // assert fund_min_bal_req.amount == min_bal_req, "Payment must be the exact min balance"
-    frame_dig -3
+    swap
     gtxns Amount
     ==
     assert // Payment must be the exact min balance
@@ -1032,19 +1021,20 @@ vote:
     // for question_index in urange(questions_count):
     dup
 
-vote_for_header@1:
+vote_for_header@2:
     // voting/voting.py:195
     // for question_index in urange(questions_count):
-    frame_dig 2
-    frame_dig 0
+    frame_dig 3
+    frame_dig 1
     <
-    bz vote_after_for@4
+    bz vote_after_for@5
     // voting/voting.py:196-197
     // # Load the user's vote for this question
     // answer_option_index = answer_ids[question_index].native
-    frame_dig -1
+    frame_dig 0
+    dup
     extract 2 0
-    frame_dig 2
+    frame_dig 3
     dup
     cover 2
     getbyte
@@ -1064,7 +1054,7 @@ vote_for_header@1:
     assert // Answer option index invalid
     // voting/voting.py:200
     // self.increment_vote_in_box(cumulative_offset + answer_option_index)
-    frame_dig 1
+    frame_dig 2
     dup
     cover 2
     uncover 3
@@ -1087,14 +1077,14 @@ vote_for_header@1:
     // voting/voting.py:201
     // cumulative_offset += options_count
     +
-    frame_bury 1
+    frame_bury 2
     // voting/voting.py:202
     // self.votes_by_account[Txn.sender] = answer_ids.copy()
     txn Sender
     dup
     box_del
     pop
-    frame_dig -1
+    uncover 2
     box_put
     // voting/voting.py:203
     // self.voter_count += 1
@@ -1111,10 +1101,10 @@ vote_for_header@1:
     // for question_index in urange(questions_count):
     intc_1 // 1
     +
-    frame_bury 2
-    b vote_for_header@1
+    frame_bury 3
+    b vote_for_header@2
 
-vote_after_for@4:
+vote_after_for@5:
     retsub
 
 

@@ -49,12 +49,10 @@ main_method_route@3:
     assert // can only call when not creating
     // regression_tests/issue_434.py:4
     // class Issue434(ARC4Contract):
-    txna ApplicationArgs 1
-    btoi
+    callsub method
     // regression_tests/issue_434.py:5-6
     // # ref: https://github.com/algorandfoundation/puya/issues/434
     // @arc4.abimethod
-    callsub method
     intc_2 // 1
     b main_after_inlined_test_cases.regression_tests.issue_434.Issue434.__puya_arc4_router__@11
 
@@ -84,25 +82,40 @@ main_after_inlined_test_cases.regression_tests.issue_434.Issue434.__algopy_defau
     b main_after_inlined_test_cases.regression_tests.issue_434.Issue434.__puya_arc4_router__@11
 
 
-// test_cases.regression_tests.issue_434.Issue434.method(c: uint64) -> void:
+// test_cases.regression_tests.issue_434.Issue434.method[routing]() -> void:
 method:
+
+method_block@0:
+    // regression_tests/issue_434.py:4
+    // class Issue434(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    // regression_tests/issue_434.py:5-6
+    // # ref: https://github.com/algorandfoundation/puya/issues/434
+    // @arc4.abimethod
+    callsub test_cases.regression_tests.issue_434.Issue434.method
+    retsub
+
+
+// test_cases.regression_tests.issue_434.Issue434.method(c: uint64) -> void:
+test_cases.regression_tests.issue_434.Issue434.method:
     // regression_tests/issue_434.py:5-7
     // # ref: https://github.com/algorandfoundation/puya/issues/434
     // @arc4.abimethod
     // def method(self, c: UInt64) -> None:
     proto 1 0
 
-method_block@0:
+test_cases.regression_tests.issue_434.Issue434.method_block@0:
 
-method_while_top@1:
+test_cases.regression_tests.issue_434.Issue434.method_while_top@1:
     // regression_tests/issue_434.py:8
     // while Global.opcode_budget() > 350:
     global OpcodeBudget
     pushint 350 // 350
     >
-    bz method_after_while@3
+    bz test_cases.regression_tests.issue_434.Issue434.method_after_while@3
 
-method_while_body@2:
+test_cases.regression_tests.issue_434.Issue434.method_while_body@2:
     // regression_tests/issue_434.py:9
     // assert op.sha3_256(Txn.sender.bytes) != Txn.sender.bytes
     txn Sender
@@ -110,24 +123,24 @@ method_while_body@2:
     txn Sender
     !=
     assert
-    b method_while_top@1
+    b test_cases.regression_tests.issue_434.Issue434.method_while_top@1
 
-method_after_while@3:
+test_cases.regression_tests.issue_434.Issue434.method_after_while@3:
     // regression_tests/issue_434.py:11
     // if c > 0:
     frame_dig -1
     intc_0 // 0
     >
-    bz method_else_body@5
+    bz test_cases.regression_tests.issue_434.Issue434.method_else_body@5
 
-method_if_body@4:
+test_cases.regression_tests.issue_434.Issue434.method_if_body@4:
     // regression_tests/issue_434.py:12
     // x = c + 2
     frame_dig -1
     intc_1 // 2
     +
 
-method_after_if_else@6:
+test_cases.regression_tests.issue_434.Issue434.method_after_if_else@6:
     // regression_tests/issue_434.py:16
     // assert x - 2 == c
     intc_1 // 2
@@ -137,10 +150,10 @@ method_after_if_else@6:
     assert
     retsub
 
-method_else_body@5:
+test_cases.regression_tests.issue_434.Issue434.method_else_body@5:
     // regression_tests/issue_434.py:14
     // x = c + 2
     frame_dig -1
     intc_1 // 2
     +
-    b method_after_if_else@6
+    b test_cases.regression_tests.issue_434.Issue434.method_after_if_else@6

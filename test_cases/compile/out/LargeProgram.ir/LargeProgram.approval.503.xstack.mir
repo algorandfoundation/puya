@@ -24,8 +24,11 @@ subroutine main:
         assert // OnCompletion is not NoOp
         txn ApplicationID                                                            tmp%5#0
         assert // can only call when not creating
-        byte 0x151f7c750000000000001000                                              0x151f7c750000000000001000
-        log
+        // compile/apps.py:37
+        // class LargeProgram(ARC4Contract):
+        callsub get_big_bytes_length
+        // compile/apps.py:38
+        // @arc4.abimethod()
         int 1                                                                        test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                              (𝕏) tmp%0#0 |
         b main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12 (𝕏) tmp%0#0 | 
@@ -33,11 +36,11 @@ subroutine main:
     main_delete_route@4:
         // compile/apps.py:42
         // @arc4.abimethod(allow_actions=["DeleteApplication"])
-        txn OnCompletion                                                             tmp%10#0
-        int DeleteApplication                                                        tmp%10#0,DeleteApplication
-        ==                                                                           tmp%11#0
+        txn OnCompletion                                                             tmp%7#0
+        int DeleteApplication                                                        tmp%7#0,DeleteApplication
+        ==                                                                           tmp%8#0
         assert // OnCompletion is not DeleteApplication
-        txn ApplicationID                                                            tmp%12#0
+        txn ApplicationID                                                            tmp%9#0
         assert // can only call when not creating
         int 1                                                                        test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                              (𝕏) tmp%0#0 |
@@ -46,12 +49,12 @@ subroutine main:
     main_bare_routing@7:
         // compile/apps.py:37
         // class LargeProgram(ARC4Contract):
-        txn OnCompletion                                                             tmp%14#0
+        txn OnCompletion                                                             tmp%11#0
         bz main___algopy_default_create@8 ; b main_after_if_else@11
 
     main___algopy_default_create@8:
-        txn ApplicationID                                                            tmp%15#0
-        !                                                                            tmp%16#0
+        txn ApplicationID                                                            tmp%12#0
+        !                                                                            tmp%13#0
         assert // can only call when creating
         int 1                                                                        test_cases.compile.apps.LargeProgram.__puya_arc4_router__%0#0
         x-store tmp%0#0                                                              (𝕏) tmp%0#0 |
@@ -67,5 +70,15 @@ subroutine main:
     main_after_inlined_test_cases.compile.apps.LargeProgram.__puya_arc4_router__@12: (𝕏) tmp%0#0 |
         x-load tmp%0#0                                                               tmp%0#0
         return
+
+
+// test_cases.compile.apps.LargeProgram.get_big_bytes_length[routing]() -> void:
+subroutine get_big_bytes_length:
+    get_big_bytes_length_block@0:
+        // compile/apps.py:38
+        // @arc4.abimethod()
+        byte 0x151f7c750000000000001000                                              0x151f7c750000000000001000
+        log
+        retsub
 
 

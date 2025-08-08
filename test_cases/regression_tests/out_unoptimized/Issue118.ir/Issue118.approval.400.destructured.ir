@@ -15,10 +15,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%6#0) // can only call when not creating
-        let reinterpret_Encoded(len+uint256[])%0#0: Encoded(len+uint256[]) = (txna ApplicationArgs 1)
-        let tmp%7#0: Encoded(bool1,(len+utf8[])) = test_cases.regression_tests.issue_118.Issue118.verify(reinterpret_Encoded(len+uint256[])%0#0)
-        let tmp%8#0: bytes = (concat 0x151f7c75 tmp%7#0)
-        (log tmp%8#0)
+        test_cases.regression_tests.issue_118.Issue118.verify[routing]()
         let test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
         goto block@11
@@ -27,12 +24,12 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@5: // switch_case_next_L5
         goto block@10
     block@6: // bare_routing_L5
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        switch tmp%9#0 {0u => block@7, * => block@8}
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        switch tmp%7#0 {0u => block@7, * => block@8}
     block@7: // __algopy_default_create_L1
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (== tmp%10#0 0u)
-        (assert tmp%11#0) // can only call when creating
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (== tmp%8#0 0u)
+        (assert tmp%9#0) // can only call when creating
         goto block@12
     block@12: // L1
         goto block@13
@@ -50,6 +47,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         goto block@11
     block@11: // after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router___L1
         return tmp%0#0
+
+subroutine test_cases.regression_tests.issue_118.Issue118.verify[routing]() -> void:
+    block@0: // L5
+        let reinterpret_Encoded(len+uint256[])%0#0: Encoded(len+uint256[]) = (txna ApplicationArgs 1)
+        let tmp%0#0: Encoded(bool1,(len+utf8[])) = test_cases.regression_tests.issue_118.Issue118.verify(reinterpret_Encoded(len+uint256[])%0#0)
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        (log tmp%1#0)
+        return 
 
 subroutine test_cases.regression_tests.issue_118.Issue118.verify(values: Encoded(len+uint256[])) -> Encoded(bool1,(len+utf8[])):
     block@0: // L7

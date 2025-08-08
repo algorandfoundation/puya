@@ -50,17 +50,9 @@ main_log_group_route@4:
     assert // can only call when not creating
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_2 // appl
-    ==
-    assert // transaction type is appl
+    callsub log_group
     // group_side_effects/contract.py:22
     // @arc4.abimethod
-    callsub log_group
     intc_1 // 1
     b main_after_inlined_test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__@12
 
@@ -77,37 +69,9 @@ main_create_group_route@3:
     assert // can only call when not creating
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
-    txn GroupIndex
-    pushint 2 // 2
-    -
-    dup
-    gtxns TypeEnum
-    pushint 3 // acfg
-    ==
-    assert // transaction type is acfg
-    txn GroupIndex
-    intc_1 // 1
-    -
-    dup
-    gtxns TypeEnum
-    intc_2 // appl
-    ==
-    assert // transaction type is appl
+    callsub create_group
     // group_side_effects/contract.py:5
     // @arc4.abimethod
-    callsub create_group
-    swap
-    itob
-    pushbytes 0x
-    swap
-    concat
-    swap
-    itob
-    concat
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     b main_after_inlined_test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__@12
 
@@ -137,8 +101,68 @@ main_after_inlined_test_cases.group_side_effects.contract.AppExpectingEffects.__
     b main_after_inlined_test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__@12
 
 
-// test_cases.group_side_effects.contract.AppExpectingEffects.create_group(asset_create: uint64, app_create: uint64) -> uint64, uint64:
+// test_cases.group_side_effects.contract.AppExpectingEffects.create_group[routing]() -> void:
 create_group:
+
+create_group_block@0:
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
+    txn GroupIndex
+    pushint 2 // 2
+    -
+    dup
+    gtxns TypeEnum
+    pushint 3 // acfg
+    ==
+    assert // transaction type is acfg
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_2 // appl
+    ==
+    assert // transaction type is appl
+    // group_side_effects/contract.py:5
+    // @arc4.abimethod
+    callsub test_cases.group_side_effects.contract.AppExpectingEffects.create_group
+    swap
+    itob
+    pushbytes 0x
+    swap
+    concat
+    swap
+    itob
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    retsub
+
+
+// test_cases.group_side_effects.contract.AppExpectingEffects.log_group[routing]() -> void:
+log_group:
+
+log_group_block@0:
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_2 // appl
+    ==
+    assert // transaction type is appl
+    // group_side_effects/contract.py:22
+    // @arc4.abimethod
+    callsub test_cases.group_side_effects.contract.AppExpectingEffects.log_group
+    retsub
+
+
+// test_cases.group_side_effects.contract.AppExpectingEffects.create_group(asset_create: uint64, app_create: uint64) -> uint64, uint64:
+test_cases.group_side_effects.contract.AppExpectingEffects.create_group:
     // group_side_effects/contract.py:5-10
     // @arc4.abimethod
     // def create_group(
@@ -148,7 +172,7 @@ create_group:
     // ) -> tuple[UInt64, UInt64]:
     proto 2 2
 
-create_group_block@0:
+test_cases.group_side_effects.contract.AppExpectingEffects.create_group_block@0:
     // group_side_effects/contract.py:11
     // assert asset_create.created_asset.id, "expected asset created"
     frame_dig -2
@@ -199,13 +223,13 @@ create_group_block@0:
 
 
 // test_cases.group_side_effects.contract.AppExpectingEffects.log_group(app_call: uint64) -> void:
-log_group:
+test_cases.group_side_effects.contract.AppExpectingEffects.log_group:
     // group_side_effects/contract.py:22-23
     // @arc4.abimethod
     // def log_group(self, app_call: gtxn.ApplicationCallTransaction) -> None:
     proto 1 0
 
-log_group_block@0:
+test_cases.group_side_effects.contract.AppExpectingEffects.log_group_block@0:
     // group_side_effects/contract.py:24
     // assert app_call.app_args(0) == arc4.arc4_signature(
     frame_dig -1

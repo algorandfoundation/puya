@@ -6,20 +6,20 @@ main:
     intcblock 0 1 8 16 128 4272
     bytecblock "tup_bag" 0x151f7c75
     intc_0 // 0
-    dupn 3
+    dupn 2
     pushbytes ""
     dupn 3
     txn NumAppArgs
-    bz main_bare_routing@34
+    bz main_bare_routing@16
     pushbytess 0xa67ea2ab 0x028840ea 0xf75cee9d 0x880b5534 0x53030b41 0x7d39df51 0x7a1e7b43 0x3447847f 0x2ba64852 0xabc9be78 0x73457a19 // method "create_box()void", method "num_tups()uint64", method "add_tup((uint64,uint64))void", method "get_tup(uint64)(uint64,uint64)", method "sum()uint64", method "add_many_tups((uint64,uint64)[])void", method "add_fixed_tups((uint64,uint64)[3])void", method "set_a(uint64)void", method "set_b(uint64)void", method "get_3_tups(uint64)(uint64,uint64)[3]", method "get_all_tups()(uint64,uint64)[]"
     txna ApplicationArgs 0
-    match main_create_box_route@5 main_num_tups_route@6 main_add_tup_route@7 main_get_tup_route@8 main_sum_route@9 main_add_many_tups_route@13 main_add_fixed_tups_route@17 main_set_a_route@21 main_set_b_route@25 main_get_3_tups_route@29 main_get_all_tups_route@30
+    match main_create_box_route@5 main_num_tups_route@6 main_add_tup_route@7 main_get_tup_route@8 main_sum_route@9 main_add_many_tups_route@10 main_add_fixed_tups_route@11 main_set_a_route@12 main_set_b_route@13 main_get_3_tups_route@14 main_get_all_tups_route@15
 
-main_after_if_else@36:
+main_after_if_else@18:
     intc_0 // 0
     return
 
-main_get_all_tups_route@30:
+main_get_all_tups_route@15:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -36,11 +36,11 @@ main_get_all_tups_route@30:
     intc_0 // 0
     bury 3
 
-main_for_header@31:
+main_for_header@21:
     dig 2
     dig 1
     <
-    bz main_after_for@33
+    bz main_after_for@23
     bytec_0 // "tup_bag"
     intc_2 // 8
     intc 4 // 128
@@ -68,9 +68,9 @@ main_for_header@31:
     intc_1 // 1
     +
     bury 3
-    b main_for_header@31
+    b main_for_header@21
 
-main_after_for@33:
+main_after_for@23:
     bytec_1 // 0x151f7c75
     dig 6
     concat
@@ -78,7 +78,7 @@ main_after_for@33:
     intc_1 // 1
     return
 
-main_get_3_tups_route@29:
+main_get_3_tups_route@14:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -136,7 +136,7 @@ main_get_3_tups_route@29:
     intc_1 // 1
     return
 
-main_set_b_route@25:
+main_set_b_route@13:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -154,11 +154,11 @@ main_set_b_route@25:
     intc_0 // 0
     bury 3
 
-main_for_header@26:
+main_for_header@28:
     dig 2
     dig 1
     <
-    bz main_after_for@16
+    bz main_after_for@45
     dig 2
     dup
     intc_2 // 8
@@ -176,20 +176,20 @@ main_for_header@26:
     intc_1 // 1
     +
     bury 3
-    b main_for_header@26
+    b main_for_header@28
 
-main_after_for@16:
+main_after_for@45:
     intc_1 // 1
     return
 
-main_set_a_route@21:
+main_set_a_route@12:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     txna ApplicationArgs 1
-    bury 8
+    bury 7
     callsub _check_owner
     bytec_0 // "tup_bag"
     intc_0 // 0
@@ -200,11 +200,11 @@ main_set_a_route@21:
     intc_0 // 0
     bury 3
 
-main_for_header@22:
+main_for_header@33:
     dig 2
     dig 1
     <
-    bz main_after_for@16
+    bz main_after_for@45
     dig 2
     dup
     intc_2 // 8
@@ -217,14 +217,14 @@ main_for_header@22:
     +
     bytec_0 // "tup_bag"
     swap
-    dig 10
+    dig 9
     box_replace
     intc_1 // 1
     +
     bury 3
-    b main_for_header@22
+    b main_for_header@33
 
-main_add_fixed_tups_route@17:
+main_add_fixed_tups_route@11:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -235,11 +235,11 @@ main_add_fixed_tups_route@17:
     intc_0 // 0
     bury 3
 
-main_for_header@18:
+main_for_header@38:
     dig 2
     pushint 3 // 3
     <
-    bz main_after_for@16
+    bz main_after_for@45
     dig 2
     dup
     intc_3 // 16
@@ -253,9 +253,9 @@ main_for_header@18:
     intc_1 // 1
     +
     bury 3
-    b main_for_header@18
+    b main_for_header@38
 
-main_add_many_tups_route@13:
+main_add_many_tups_route@10:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -270,11 +270,11 @@ main_add_many_tups_route@13:
     intc_0 // 0
     bury 3
 
-main_for_header@14:
+main_for_header@43:
     dig 2
     dig 4
     <
-    bz main_after_for@16
+    bz main_after_for@45
     dig 4
     extract 2 0
     dig 3
@@ -289,7 +289,7 @@ main_for_header@14:
     intc_1 // 1
     +
     bury 3
-    b main_for_header@14
+    b main_for_header@43
 
 main_sum_route@9:
     txn OnCompletion
@@ -308,11 +308,11 @@ main_sum_route@9:
     intc_0 // 0
     bury 3
 
-main_for_header@10:
+main_for_header@48:
     dig 2
     dig 1
     <
-    bz main_after_for@12
+    bz main_after_for@50
     bytec_0 // "tup_bag"
     intc_2 // 8
     intc 4 // 128
@@ -337,9 +337,9 @@ main_for_header@10:
     intc_1 // 1
     +
     bury 3
-    b main_for_header@10
+    b main_for_header@48
 
-main_after_for@12:
+main_after_for@50:
     dig 1
     itob
     bytec_1 // 0x151f7c75
@@ -444,9 +444,9 @@ main_create_box_route@5:
     intc_1 // 1
     return
 
-main_bare_routing@34:
+main_bare_routing@16:
     txn OnCompletion
-    bnz main_after_if_else@36
+    bnz main_after_if_else@18
     txn ApplicationID
     !
     assert // can only call when creating

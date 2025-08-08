@@ -27,20 +27,9 @@ main_verify_route@3:
     assert // can only call when not creating
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
-    txna ApplicationArgs 1
+    callsub verify
     // regression_tests/jira_ak_752.py:13
     // @abimethod
-    callsub verify
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
     pushint 1 // 1
     return
 
@@ -56,25 +45,21 @@ main_bare_routing@6:
     return
 
 
-// test_cases.regression_tests.jira_ak_752.Verifier.verify(proof: bytes) -> bytes:
+// test_cases.regression_tests.jira_ak_752.Verifier.verify[routing]() -> void:
 verify:
-    // regression_tests/jira_ak_752.py:13-17
-    // @abimethod
-    // def verify(
-    //     self,
-    //     proof: DynamicArray[Bytes32],
-    // ) -> algopy.Bytes:
-    proto 1 1
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
+    txna ApplicationArgs 1
     // regression_tests/jira_ak_752.py:18
     // x = proof[8].bytes  # ok
-    frame_dig -1
+    dup
     pushints 258 32 // 258, 32
     extract3
     // regression_tests/jira_ak_752.py:19
     // y = proof[6].bytes + proof[7].bytes  # ok
-    frame_dig -1
+    dig 1
     extract 194 32
-    frame_dig -1
+    uncover 2
     extract 226 32
     swap
     dig 1
@@ -90,4 +75,16 @@ verify:
     concat
     swap
     concat
+    // regression_tests/jira_ak_752.py:13
+    // @abimethod
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
     retsub

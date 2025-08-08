@@ -21,6 +21,38 @@ subroutine test_cases.everything.contract.positive_one() -> uint64:
     block@0: // L86
         return 1u
 
+subroutine test_cases.everything.contract.Everything.create[routing]() -> void:
+    block@0: // L37
+        test_cases.everything.contract.Everything.create()
+        return 
+
+subroutine test_cases.everything.contract.Everything.register[routing]() -> void:
+    block@0: // L37
+        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
+        test_cases.everything.contract.Everything.register(reinterpret_Encoded(len+utf8[])%0#0)
+        return 
+
+subroutine test_cases.everything.contract.Everything.say_hello[routing]() -> void:
+    block@0: // L37
+        let tmp%0#0: Encoded(len+utf8[]) = test_cases.everything.contract.Everything.say_hello()
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        (log tmp%1#0)
+        return 
+
+subroutine test_cases.everything.contract.Everything.calculate[routing]() -> void:
+    block@0: // L37
+        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
+        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
+        let tmp%0#0: Encoded(uint64) = test_cases.everything.contract.Everything.calculate(reinterpret_Encoded(uint64)%0#0, reinterpret_Encoded(uint64)%1#0)
+        let tmp%1#0: bytes = (concat 0x151f7c75 tmp%0#0)
+        (log tmp%1#0)
+        return 
+
+subroutine test_cases.everything.contract.Everything.close_out[routing]() -> void:
+    block@0: // L37
+        test_cases.everything.contract.Everything.close_out()
+        return 
+
 subroutine test_cases.everything.contract.Everything.__init__() -> void:
     block@0: // L38
         return 
@@ -158,7 +190,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%5#0: uint64 = (txn ApplicationID)
         let tmp%6#0: bool = (== tmp%5#0 0u)
         (assert tmp%6#0) // can only call when creating
-        test_cases.everything.contract.Everything.create()
+        test_cases.everything.contract.Everything.create[routing]()
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         goto block@12
@@ -170,8 +202,7 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%10#0: uint64 = (txn ApplicationID)
         let tmp%11#0: bool = (!= tmp%10#0 0u)
         (assert tmp%11#0) // can only call when not creating
-        let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
-        test_cases.everything.contract.Everything.register(reinterpret_Encoded(len+utf8[])%0#0)
+        test_cases.everything.contract.Everything.register[routing]()
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         goto block@12
@@ -182,35 +213,29 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
         let tmp%14#0: uint64 = (txn ApplicationID)
         let tmp%15#0: bool = (!= tmp%14#0 0u)
         (assert tmp%15#0) // can only call when not creating
-        let tmp%16#0: Encoded(len+utf8[]) = test_cases.everything.contract.Everything.say_hello()
-        let tmp%17#0: bytes = (concat 0x151f7c75 tmp%16#0)
-        (log tmp%17#0)
+        test_cases.everything.contract.Everything.say_hello[routing]()
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         goto block@12
     block@6: // calculate_route_L64
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        let tmp%19#0: bool = (== tmp%18#0 NoOp)
-        (assert tmp%19#0) // OnCompletion is not NoOp
-        let tmp%20#0: uint64 = (txn ApplicationID)
-        let tmp%21#0: bool = (!= tmp%20#0 0u)
-        (assert tmp%21#0) // can only call when not creating
-        let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
-        let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
-        let tmp%22#0: Encoded(uint64) = test_cases.everything.contract.Everything.calculate(reinterpret_Encoded(uint64)%0#0, reinterpret_Encoded(uint64)%1#0)
-        let tmp%23#0: bytes = (concat 0x151f7c75 tmp%22#0)
-        (log tmp%23#0)
+        let tmp%16#0: uint64 = (txn OnCompletion)
+        let tmp%17#0: bool = (== tmp%16#0 NoOp)
+        (assert tmp%17#0) // OnCompletion is not NoOp
+        let tmp%18#0: uint64 = (txn ApplicationID)
+        let tmp%19#0: bool = (!= tmp%18#0 0u)
+        (assert tmp%19#0) // can only call when not creating
+        test_cases.everything.contract.Everything.calculate[routing]()
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         goto block@12
     block@7: // close_out_route_L69
-        let tmp%24#0: uint64 = (txn OnCompletion)
-        let tmp%25#0: bool = (== tmp%24#0 CloseOut)
-        (assert tmp%25#0) // OnCompletion is not CloseOut
-        let tmp%26#0: uint64 = (txn ApplicationID)
-        let tmp%27#0: bool = (!= tmp%26#0 0u)
-        (assert tmp%27#0) // can only call when not creating
-        test_cases.everything.contract.Everything.close_out()
+        let tmp%20#0: uint64 = (txn OnCompletion)
+        let tmp%21#0: bool = (== tmp%20#0 CloseOut)
+        (assert tmp%21#0) // OnCompletion is not CloseOut
+        let tmp%22#0: uint64 = (txn ApplicationID)
+        let tmp%23#0: bool = (!= tmp%22#0 0u)
+        (assert tmp%23#0) // can only call when not creating
+        test_cases.everything.contract.Everything.close_out[routing]()
         let test_cases.everything.contract.Everything.__puya_arc4_router__%0#0: bool = 1u
         let tmp%0#0: bool = test_cases.everything.contract.Everything.__puya_arc4_router__%0#0
         goto block@12

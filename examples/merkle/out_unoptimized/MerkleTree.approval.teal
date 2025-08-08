@@ -50,19 +50,9 @@ main_verify_route@4:
     assert // can only call when not creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    txna ApplicationArgs 1
-    txna ApplicationArgs 2
+    callsub verify
     // merkle/contract.py:14
     // @arc4.abimethod
-    callsub verify
-    pushbytes 0x00
-    intc_0 // 0
-    uncover 2
-    setbit
-    pushbytes 0x151f7c75
-    swap
-    concat
-    log
     intc_1 // 1
     b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9
 
@@ -79,10 +69,9 @@ main_create_route@3:
     assert // can only call when creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    txna ApplicationArgs 1
+    callsub create
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
-    callsub create
     intc_1 // 1
     b main_after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router__@9
 
@@ -193,14 +182,49 @@ hash_pair_ternary_false@2:
     b hash_pair_ternary_merge@3
 
 
-// examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
+// examples.merkle.contract.MerkleTree.create[routing]() -> void:
 create:
+
+create_block@0:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    // merkle/contract.py:10
+    // @arc4.abimethod(create="require")
+    callsub examples.merkle.contract.MerkleTree.create
+    retsub
+
+
+// examples.merkle.contract.MerkleTree.verify[routing]() -> void:
+verify:
+
+verify_block@0:
+    // merkle/contract.py:9
+    // class MerkleTree(arc4.ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    // merkle/contract.py:14
+    // @arc4.abimethod
+    callsub examples.merkle.contract.MerkleTree.verify
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    retsub
+
+
+// examples.merkle.contract.MerkleTree.create(root: bytes) -> void:
+examples.merkle.contract.MerkleTree.create:
     // merkle/contract.py:10-11
     // @arc4.abimethod(create="require")
     // def create(self, root: Bytes32) -> None:
     proto 1 0
 
-create_block@0:
+examples.merkle.contract.MerkleTree.create_block@0:
     // merkle/contract.py:12
     // self.root = root.bytes
     bytec_0 // "root"
@@ -210,13 +234,13 @@ create_block@0:
 
 
 // examples.merkle.contract.MerkleTree.verify(proof: bytes, leaf: bytes) -> uint64:
-verify:
+examples.merkle.contract.MerkleTree.verify:
     // merkle/contract.py:14-15
     // @arc4.abimethod
     // def verify(self, proof: Proof, leaf: Bytes32) -> bool:
     proto 2 1
 
-verify_block@0:
+examples.merkle.contract.MerkleTree.verify_block@0:
     // merkle/contract.py:16
     // return self.root == compute_root_hash(proof, leaf.bytes)
     intc_0 // 0
