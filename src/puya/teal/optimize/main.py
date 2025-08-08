@@ -24,13 +24,15 @@ logger = log.get_logger(__name__)
 def optimize_teal_program(
     context: ArtifactCompileContext, teal_program: models.TealProgram
 ) -> None:
+    # O0 will still remove some redundant ops to ensure a feasible program size
     for teal_sub in teal_program.all_subroutines:
         _optimize_subroutine_ops(context, teal_sub)
     maybe_output_intermediate_teal(context, teal_program, qualifier="peephole")
 
-    for teal_sub in teal_program.all_subroutines:
-        _optimize_subroutine_blocks(context, teal_sub)
-    maybe_output_intermediate_teal(context, teal_program, qualifier="block")
+    if context.options.optimization_level > 0:
+        for teal_sub in teal_program.all_subroutines:
+            _optimize_subroutine_blocks(context, teal_sub)
+        maybe_output_intermediate_teal(context, teal_program, qualifier="block")
 
     gather_program_constants(teal_program)
     if context.options.optimization_level > 0:
@@ -76,7 +78,8 @@ def _optimize_block(block: models.TealBlock, *, level: int) -> None:
             modified = perform_constant_stack_shuffling(block) or modified
             modified = simplify_repeated_rotation_ops(block) or modified
         modified = peephole(block, level) or modified
-
+    if level == 0:
+        return
     # we don't do dup/dupn collapse in the above loop, but after it.
     # it's easier to deal with expanded dup/dupn instructions above when looking at
     # stack shuffling etc, but once it's done we save ops / program size by collapsing them
