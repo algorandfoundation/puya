@@ -63,12 +63,15 @@ def _txn(
     )
 
 
-def _txn_app_args(index: int, loc: SourceLocation) -> awst_nodes.IntrinsicCall:
+def _txn_app_args(
+    index: int, loc: SourceLocation, *, error_message: str | None = None
+) -> awst_nodes.IntrinsicCall:
     return awst_nodes.IntrinsicCall(
         op_code="txna",
         immediates=["ApplicationArgs", index],
         source_location=loc,
         wtype=wtypes.bytes_wtype,
+        error_message=error_message,
     )
 
 
@@ -124,21 +127,23 @@ def _is_zero(value: awst_nodes.Expression) -> awst_nodes.Expression:
     )
 
 
-def return_(value: bool, location: SourceLocation) -> awst_nodes.Expression:  # noqa: FBT001
-    return awst_nodes.IntrinsicCall(
-        op_code="return",
-        immediates=[],
-        stack_args=[awst_nodes.BoolConstant(value=value, source_location=location)],
-        wtype=wtypes.void_wtype,
-        source_location=location,
+def return_(value: bool, location: SourceLocation) -> awst_nodes.Statement:  # noqa: FBT001
+    return awst_nodes.ExpressionStatement(
+        awst_nodes.IntrinsicCall(
+            op_code="return",
+            immediates=[],
+            stack_args=[awst_nodes.BoolConstant(value=value, source_location=location)],
+            wtype=wtypes.void_wtype,
+            source_location=location,
+        )
     )
 
 
-def reject(location: SourceLocation) -> awst_nodes.Expression:
+def reject(location: SourceLocation) -> awst_nodes.Statement:
     return return_(False, location)  # noqa: FBT003
 
 
-def approve(location: SourceLocation) -> awst_nodes.Expression:
+def approve(location: SourceLocation) -> awst_nodes.Statement:
     return return_(True, location)  # noqa: FBT003
 
 
@@ -470,7 +475,10 @@ def route_abi_methods(
     return create_block(
         location,
         "abi_routing",
-        *_maybe_switch(_txn_app_args(0, location), method_routing_cases),
+        *_maybe_switch(
+            _txn_app_args(0, location, error_message="contract does not allow bare method calls"),
+            method_routing_cases,
+        ),
     ), arc4_wrapper_methods
 
 
@@ -503,17 +511,23 @@ def create_abi_router(
             abi_methods[method] = sig
 
     abi_routing, abi_wrapper_methods = route_abi_methods(router_location, abi_methods)
-    bare_routing = route_bare_methods(router_location, bare_methods)
-    num_app_args = _txn("NumAppArgs", wtypes.uint64_wtype, router_location)
-    router = [
-        awst_nodes.IfElse(
-            condition=_non_zero(num_app_args),
-            if_branch=abi_routing,
-            else_branch=bare_routing,
-            source_location=router_location,
-        ),
-        reject(router_location),
-    ]
+    router: list[awst_nodes.Statement]
+    if not bare_methods:
+        router = [
+            *abi_routing.body,
+            reject(router_location),
+        ]
+    else:
+        bare_routing = route_bare_methods(router_location, bare_methods)
+        router = [
+            awst_nodes.IfElse(
+                condition=_non_zero(_txn("NumAppArgs", wtypes.uint64_wtype, router_location)),
+                if_branch=abi_routing,
+                else_branch=bare_routing,
+                source_location=router_location,
+            ),
+            reject(router_location),
+        ]
     approval_program = awst_nodes.ContractMethod(
         cref=contract.id,
         member_name="__puya_arc4_router__",

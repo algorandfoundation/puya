@@ -563,7 +563,7 @@ class FunctionIRBuilder(
         match call.op_code:
             case "err":
                 return self._add_assert(
-                    condition_expr=None, error_message=None, loc=call.source_location
+                    condition_expr=None, error_message=call.error_message, loc=call.source_location
                 )
             case "return":
                 assert not call.immediates, f"return intrinsic had immediates: {call.immediates}"
@@ -576,7 +576,9 @@ class FunctionIRBuilder(
             case "assert":
                 (condition_expr,) = call.stack_args
                 return self._add_assert(
-                    condition_expr=condition_expr, error_message=None, loc=call.source_location
+                    condition_expr=condition_expr,
+                    error_message=call.error_message,
+                    loc=call.source_location,
                 )
             case _:
                 args = [self.visit_and_materialise_single(arg) for arg in call.stack_args]
@@ -586,6 +588,7 @@ class FunctionIRBuilder(
                     args=args,
                     immediates=list(call.immediates),
                     types=types.wtype_to_ir_types(call.wtype, call.source_location),
+                    error_message=call.error_message,
                 )
 
     def visit_group_transaction_reference(
