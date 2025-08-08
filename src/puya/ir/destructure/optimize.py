@@ -2,7 +2,6 @@ import contextlib
 import itertools
 
 from puya import log
-from puya.errors import InternalError
 from puya.ir import models
 from puya.ir.optimize.collapse_blocks import BlockReferenceReplacer
 from puya.utils import not_none, unique
@@ -75,62 +74,35 @@ def _block_deduplication(subroutine: models.Subroutine) -> None:
 
 
 def _lift_returns(subroutine: models.Subroutine) -> None:
-    next_tmp_id = None
-    for block in subroutine.body:
-        successors = block.successors
-        if len(successors) <= 1 or block in successors:
-            continue
-        terminator = not_none(block.terminator)
-        try:
-            (single_pair,) = {
-                (_get_constant_return(not_none(t.terminator)), tuple(t.predecessors))
-                for t in successors
-                if type(t.terminator) is not models.Fail
-            }
-            sole_constant_return_or_none, (single_pred,) = single_pair
-        except ValueError:
-            continue
-        assert single_pred.terminator is terminator
-        if sole_constant_return_or_none is None:
-            continue
-        value = sole_constant_return_or_none
-        our_tmp_prefix = f"lifted{models.TMP_VAR_INDICATOR}"
-
-        if next_tmp_id is None:
-            next_tmp_id = max(
-                (
-                    int(r.name.split(models.TMP_VAR_INDICATOR)[1])
-                    for r in subroutine.get_assigned_registers()
-                    if r.name.startswith(our_tmp_prefix)
-                ),
-                default=-1,
-            )
-        next_tmp_id += 1
-        target = models.Register(
-            ir_type=value.ir_type,
-            name=f"{our_tmp_prefix}{next_tmp_id}",
-            version=0,
-            source_location=value.source_location,
-        )
-        lifted_assignment = models.Assignment(
-            source=value,
-            targets=[target],
-            source_location=value.source_location,
-        )
-        block.ops.insert(0, lifted_assignment)
-        for succ in successors:
-            match succ.terminator:
-                case models.SubroutineReturn(result=[_]):
-                    succ.terminator.result[:] = [target]
-                case models.ProgramExit():
-                    succ.terminator.result = target
-                case models.Fail():
-                    pass
-                case _:
-                    raise InternalError(
-                        f"unhandled terminator node for lifting: {type(succ.terminator).__name__}",
-                        succ.source_location,
-                    )
+    if len(subroutine.body) < 2:
+        return
+    exit_values = {_get_constant_return(not_none(b.terminator)) for b in subroutine.body}
+    exit_values.discard(None)
+    try:
+        (value,) = exit_values
+    except ValueError:
+        return
+    if value is None:
+        return
+    target = models.Register(
+        ir_type=value.ir_type,
+        name=f"lifted{models.TMP_VAR_INDICATOR}return",
+        version=0,
+        source_location=value.source_location,
+    )
+    lifted_assignment = models.Assignment(
+        source=value,
+        targets=[target],
+        source_location=value.source_location,
+    )
+    subroutine.body[0].ops.insert(0, lifted_assignment)
+    for b in subroutine.body:
+        match b.terminator:
+            case models.SubroutineReturn():
+                assert len(b.terminator.result) == 1
+                b.terminator.result[:] = [target]
+            case models.ProgramExit():
+                b.terminator.result = target
 
 
 def _get_constant_return(t: models.ControlOp) -> models.Constant | None:
