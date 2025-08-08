@@ -46,8 +46,6 @@ assert _STACK_OPS <= OP_SPECS.keys(), "invalid stack op"  # noqa: SIM300
 def assemble_bytecode_and_debug_info(
     ctx: AssembleContext, program: teal.TealProgram
 ) -> models.AssembledProgram:
-    function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
-
     version_bytes = _encode_varuint(program.avm_version)
     pc_events = defaultdict[int, DebugEvent](lambda: DebugEvent())
     pc_ops = dict[int, models.AVMOp]()
@@ -56,42 +54,55 @@ def assemble_bytecode_and_debug_info(
 
     # pc includes version header
     pc = len(version_bytes)
-    # first pass lowers teal ops, calculate pcs, and captures debug info
+    # first pass lowers teal ops, and calculate pcs
     for subroutine in program.all_subroutines:
-        current_event = pc_events[pc]
-        current_event["subroutine"] = subroutine.signature.name
-        current_event["params"] = {
-            p.local_id: p.atype.name or "" for p in subroutine.signature.parameters
-        }
-        stack = list[str]()
         for block in subroutine.blocks:
-            current_event = pc_events[pc]
-            # update stack with correct values on entry to a block
-            f_stack_height = block.entry_stack_height - len(block.x_stack_in)
-            stack[f_stack_height:] = block.x_stack_in
             assert block.label not in label_pcs, "expected unique block labels"
             label_pcs[block.label] = pc
-            current_event["block"] = block.label
-            current_event["stack_in"] = stack.copy()
-            defined = set[str]()
 
             for op in block.ops:
                 current_event = pc_events[pc]
+                if op.error_message:
+                    current_event["error"] = op.error_message
                 avm_op = _lower_op(ctx, op)
                 # actual label offsets can't be determined until all PC values are known
                 # so just use a placeholder value initially
                 op_size = len(_encode_op(avm_op, get_label_offset=lambda _: 0))
                 assert op_size, "expected non empty bytecode"
-                _add_op_debug_events(
-                    current_event,
-                    function_block_ids,
-                    op,
-                    # note: stack & defined are mutated
-                    stack,
-                    defined,
-                )
                 pc_ops[pc] = avm_op
                 pc += op_size
+
+    # iterate again to capture debug info using calculated pcs
+    if ctx.options.debug_level:
+        function_block_ids = {s.blocks[0].label: s.signature.name for s in program.all_subroutines}
+        pc_ops_iter = iter((*pc_ops, pc))
+        pc = next(pc_ops_iter)
+        for subroutine in program.all_subroutines:
+            current_event = pc_events[pc]
+            current_event["subroutine"] = subroutine.signature.name
+            current_event["params"] = {
+                p.local_id: p.atype.name or "" for p in subroutine.signature.parameters
+            }
+            stack = list[str]()
+            for block in subroutine.blocks:
+                current_event = pc_events[pc]
+                # update stack with correct values on entry to a block
+                f_stack_height = block.entry_stack_height - len(block.x_stack_in)
+                stack[f_stack_height:] = block.x_stack_in
+                current_event["block"] = block.label
+                current_event["stack_in"] = stack.copy()
+                defined = set[str]()
+
+                for op in block.ops:
+                    _add_op_debug_events(
+                        pc_events[pc],
+                        function_block_ids,
+                        op,
+                        # note: stack & defined are mutated
+                        stack,
+                        defined,
+                    )
+                    pc = next(pc_ops_iter)
 
     # all pc values, including pc after final op
     pcs = [*pc_ops, pc]
@@ -170,8 +181,6 @@ def _add_op_debug_events(
         event["callsub"] = subroutine_ids[func_block]
     elif op.op_code == "retsub":
         event["retsub"] = True
-    if op.error_message:
-        event["error"] = op.error_message
     event["op"] = op.teal()
 
     apply_stack_manipulations(op.stack_manipulations, stack=stack, defined=defined)
