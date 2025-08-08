@@ -237,18 +237,10 @@ def _optimize_program_ir(
     artifact_ir: ModuleArtifact,
     qualifier: str,
 ) -> None:
-    if isinstance(artifact_ir, LogicSignature):
-        routable_method_ids = None
-    else:
-        routable_method_ids = {a4m.id for a4m in artifact_ir.metadata.arc4_methods}
-    ref = artifact_ir.metadata.ref
     logger.debug(
-        f"optimizing {program.kind} program of {ref} at level {context.options.optimization_level}"
+        f"optimizing {program.kind} program of {artifact_ir.metadata.ref} at level {context.options.optimization_level}"
     )
-
-    optimize_program_ir(
-        context, program, routable_method_ids=routable_method_ids, qualifier=qualifier
-    )
+    optimize_program_ir(context, program, qualifier=qualifier)
 
 
 def _lower_aggregate_ir(
