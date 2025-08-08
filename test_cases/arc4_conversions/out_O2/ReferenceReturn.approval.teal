@@ -3,10 +3,13 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 0 1
     bytecblock 0x151f7c75 "accounts" "assets" "apps" 0x151f7c7500000000000004d2
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@15
+    intc_1 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -18,7 +21,7 @@ main:
 main_return_accounts_route@12:
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 0
+    intc_0 // 0
     bytec_1 // "accounts"
     app_global_get_ex
     assert // check self.accounts exists
@@ -26,13 +29,13 @@ main_return_accounts_route@12:
     swap
     concat
     log
-    intc_0 // 1
+    dup
     return
 
 main_return_assets_route@11:
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 0
+    intc_0 // 0
     bytec_2 // "assets"
     app_global_get_ex
     assert // check self.assets exists
@@ -40,13 +43,13 @@ main_return_assets_route@11:
     swap
     concat
     log
-    intc_0 // 1
+    dup
     return
 
 main_return_apps_route@10:
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 0
+    intc_0 // 0
     bytec_3 // "apps"
     app_global_get_ex
     assert // check self.apps exists
@@ -54,7 +57,7 @@ main_return_apps_route@10:
     swap
     concat
     log
-    intc_0 // 1
+    dup
     return
 
 main_store_accounts_route@9:
@@ -63,7 +66,7 @@ main_store_accounts_route@9:
     bytec_1 // "accounts"
     txna ApplicationArgs 1
     app_global_put
-    intc_0 // 1
+    dup
     return
 
 main_store_assets_route@8:
@@ -72,7 +75,7 @@ main_store_assets_route@8:
     bytec_2 // "assets"
     txna ApplicationArgs 1
     app_global_put
-    intc_0 // 1
+    dup
     return
 
 main_store_apps_route@7:
@@ -81,7 +84,7 @@ main_store_apps_route@7:
     bytec_3 // "apps"
     txna ApplicationArgs 1
     app_global_put
-    intc_0 // 1
+    dup
     return
 
 main_store_route@6:
@@ -101,7 +104,7 @@ main_store_route@6:
     pushbytes "app"
     swap
     app_global_put
-    intc_0 // 1
+    dup
     return
 
 main_app_ret_route@5:
@@ -109,7 +112,7 @@ main_app_ret_route@5:
     assert // can only call when not creating
     bytec 4 // 0x151f7c7500000000000004d2
     log
-    intc_0 // 1
+    dup
     return
 
 main_asset_ret_route@4:
@@ -117,7 +120,7 @@ main_asset_ret_route@4:
     assert // can only call when not creating
     bytec 4 // 0x151f7c7500000000000004d2
     log
-    intc_0 // 1
+    dup
     return
 
 main_acc_ret_route@3:
@@ -127,7 +130,7 @@ main_acc_ret_route@3:
     txn Sender
     concat
     log
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@15:
@@ -137,5 +140,5 @@ main_bare_routing@15:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    intc_1 // 1
     return

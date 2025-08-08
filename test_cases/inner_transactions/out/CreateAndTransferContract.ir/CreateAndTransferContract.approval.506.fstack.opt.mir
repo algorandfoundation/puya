@@ -1,52 +1,57 @@
 // Op                                                                    Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    declare uint64 lifted%0#0
+    main_block@0:                                                        (𝕗) lifted%0#0 |
         // inner_transactions/asset_transfer.py:10
         // class CreateAndTransferContract(ARC4Contract):
-        txn NumAppArgs                                                   tmp%0#1
-        bz main_bare_routing@6 ; b main_abi_routing@2
+        txn NumAppArgs                                                   (𝕗) lifted%0#0 | tmp%0#1
+        bz main_bare_routing@6 ; b main_abi_routing@2                    (𝕗) lifted%0#0 |
 
-    main_abi_routing@2:
-        // inner_transactions/asset_transfer.py:10
-        // class CreateAndTransferContract(ARC4Contract):
-        txn OnCompletion                                                 tmp%2#0
-        !                                                                tmp%3#0
-        assert // OnCompletion is not NoOp
-        txna ApplicationArgs 0                                           tmp%4#0
-        method create_and_transfer()void                                 tmp%4#0,Method(create_and_transfer()void)
-        l-load tmp%4#0 1                                                 Method(create_and_transfer()void),tmp%4#0
-        match main_create_and_transfer_route@3 ; b main_after_if_else@10
-
-    main_create_and_transfer_route@3:
+    main_abi_routing@2:                                                  (𝕗) lifted%0#0 |
         // inner_transactions/asset_transfer.py:11
         // @arc4.abimethod()
-        txn ApplicationID                                                tmp%5#0
-        assert // can only call when not creating
+        int 1                                                            (𝕗) lifted%0#0 | lifted%0#0
+        f-store lifted%0#0                                               (𝕗) lifted%0#0 |
         // inner_transactions/asset_transfer.py:10
         // class CreateAndTransferContract(ARC4Contract):
-        callsub create_and_transfer
+        txn OnCompletion                                                 (𝕗) lifted%0#0 | tmp%2#0
+        !                                                                (𝕗) lifted%0#0 | tmp%3#0
+        assert // OnCompletion is not NoOp                               (𝕗) lifted%0#0 |
+        txna ApplicationArgs 0                                           (𝕗) lifted%0#0 | tmp%4#0
+        method create_and_transfer()void                                 (𝕗) lifted%0#0 | tmp%4#0,Method(create_and_transfer()void)
+        l-load tmp%4#0 1                                                 (𝕗) lifted%0#0 | Method(create_and_transfer()void),tmp%4#0
+        match main_create_and_transfer_route@3 ; b main_after_if_else@10 (𝕗) lifted%0#0 |
+
+    main_create_and_transfer_route@3:                                    (𝕗) lifted%0#0 |
         // inner_transactions/asset_transfer.py:11
         // @arc4.abimethod()
-        int 1                                                            1
-        return
-
-    main_bare_routing@6:
+        txn ApplicationID                                                (𝕗) lifted%0#0 | tmp%5#0
+        assert // can only call when not creating                        (𝕗) lifted%0#0 |
         // inner_transactions/asset_transfer.py:10
         // class CreateAndTransferContract(ARC4Contract):
-        txn OnCompletion                                                 tmp%7#0
-        !                                                                not%tmp%7#0
-        assert
-        txn ApplicationID                                                tmp%8#0
-        !                                                                tmp%9#0
-        assert // can only call when creating
-        int 1                                                            1
-        return
+        callsub create_and_transfer                                      (𝕗) lifted%0#0 |
+        // inner_transactions/asset_transfer.py:11
+        // @arc4.abimethod()
+        f-load lifted%0#0                                                (𝕗) lifted%0#0 | lifted%0#0
+        return                                                           (𝕗) lifted%0#0 |
 
-    main_after_if_else@10:
+    main_bare_routing@6:                                                 (𝕗) lifted%0#0 |
         // inner_transactions/asset_transfer.py:10
         // class CreateAndTransferContract(ARC4Contract):
-        err
+        txn OnCompletion                                                 (𝕗) lifted%0#0 | tmp%7#0
+        !                                                                (𝕗) lifted%0#0 | not%tmp%7#0
+        assert                                                           (𝕗) lifted%0#0 |
+        txn ApplicationID                                                (𝕗) lifted%0#0 | tmp%8#0
+        !                                                                (𝕗) lifted%0#0 | tmp%9#0
+        assert // can only call when creating                            (𝕗) lifted%0#0 |
+        int 1                                                            (𝕗) lifted%0#0 | 1
+        return                                                           (𝕗) lifted%0#0 |
+
+    main_after_if_else@10:                                               (𝕗) lifted%0#0 |
+        // inner_transactions/asset_transfer.py:10
+        // class CreateAndTransferContract(ARC4Contract):
+        err                                                              (𝕗) lifted%0#0 |
 
 
 // test_cases.inner_transactions.asset_transfer.CreateAndTransferContract.create_and_transfer[routing]() -> void:

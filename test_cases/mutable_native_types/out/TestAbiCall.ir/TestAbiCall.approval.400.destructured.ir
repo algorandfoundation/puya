@@ -3,6 +3,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@11
     block@2: // abi_routing_L102
+        let lifted%0#0: bool = 1u
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
@@ -12,32 +13,32 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struct[routing]()
-        exit 1u
+        exit lifted%0#0
     block@4: // test_nested_struct_route_L122
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_struct[routing]()
-        exit 1u
+        exit lifted%0#0
     block@5: // test_dynamic_struct_route_L149
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_struct[routing]()
-        exit 1u
+        exit lifted%0#0
     block@6: // test_fixed_array_route_L188
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array[routing]()
-        exit 1u
+        exit lifted%0#0
     block@7: // test_native_array_route_L214
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_array[routing]()
-        exit 1u
+        exit lifted%0#0
     block@8: // test_log_route_L242
         let tmp%15#0: uint64 = (txn ApplicationID)
         (assert tmp%15#0) // can only call when not creating
         test_cases.mutable_native_types.abi_call.TestAbiCall.test_log[routing]()
-        exit 1u
+        exit lifted%0#0
     block@11: // bare_routing_L102
         let tmp%17#0: uint64 = (txn OnCompletion)
         let not%tmp%17#0: bool = (! tmp%17#0)
@@ -54,7 +55,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_struc
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 5u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOuCDAQkN408BBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4MAIUAeQBtAGEAVQBJAD0AMQAlABkADQABADEZFEQxGESIAN4iQzEZFEQxGESIAMgiQzEZFEQxGESIALUiQzEZFEQxGESIAJ8iQzEZFEQxGESIAIwiQzEZFEQxGESIAHciQzEZFEQxGESIAGUiQzEZFEQxGESIAFAiQzEZFEQxGESIAD4iQzEZFEQxGESIACkiQzEZFEQxGESIABciQzEZgQUSRDEYRCJDMRkURDEYFEQiQyk2GgFniSMpZUQoTFCwiSo2GgFniSMqZUQoTFCwiSs2GgFniSMrZUQoTFCwiScENhoBZ4kjJwRlRChMULCJJwU2GgFniSMnBWVEKExQsIkjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLCJ)
+        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJygAAxG0EA7iNFAYIMBCQ3jTwEEbGblQTSi5ZKBOoYZV8Euzv9twRG7BSgBJtNCSYETw3rUARZZkq2BBJdE3YEgY5KYgSbvhAyNhoAjgwAhQB5AG0AYQBVAEkAPQAxACUAGQANAAEAMRkURDEYRIgA3klDMRkURDEYRIgAyElDMRkURDEYRIgAtUlDMRkURDEYRIgAn0lDMRkURDEYRIgAjElDMRkURDEYRIgAd0lDMRkURDEYRIgAZUlDMRkURDEYRIgAUElDMRkURDEYRIgAPklDMRkURDEYRIgAKUlDMRkURDEYRIgAF0lDMRmBBRJEMRhESUMxGRREMRgURCNDKTYaAWeJIillRChMULCJKjYaAWeJIiplRChMULCJKzYaAWeJIitlRChMULCJJwQ2GgFniSInBGVEKExQsIknBTYaAWeJIicFZUQoTFCwiSIpZUSwIiplRLAiK2VEsCInBGVEsCInBWVEsIk=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -127,7 +128,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_nested_stru
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 5u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOuCDAQkN408BBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4MAIUAeQBtAGEAVQBJAD0AMQAlABkADQABADEZFEQxGESIAN4iQzEZFEQxGESIAMgiQzEZFEQxGESIALUiQzEZFEQxGESIAJ8iQzEZFEQxGESIAIwiQzEZFEQxGESIAHciQzEZFEQxGESIAGUiQzEZFEQxGESIAFAiQzEZFEQxGESIAD4iQzEZFEQxGESIACkiQzEZFEQxGESIABciQzEZgQUSRDEYRCJDMRkURDEYFEQiQyk2GgFniSMpZUQoTFCwiSo2GgFniSMqZUQoTFCwiSs2GgFniSMrZUQoTFCwiScENhoBZ4kjJwRlRChMULCJJwU2GgFniSMnBWVEKExQsIkjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLCJ)
+        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJygAAxG0EA7iNFAYIMBCQ3jTwEEbGblQTSi5ZKBOoYZV8Euzv9twRG7BSgBJtNCSYETw3rUARZZkq2BBJdE3YEgY5KYgSbvhAyNhoAjgwAhQB5AG0AYQBVAEkAPQAxACUAGQANAAEAMRkURDEYRIgA3klDMRkURDEYRIgAyElDMRkURDEYRIgAtUlDMRkURDEYRIgAn0lDMRkURDEYRIgAjElDMRkURDEYRIgAd0lDMRkURDEYRIgAZUlDMRkURDEYRIgAUElDMRkURDEYRIgAPklDMRkURDEYRIgAKUlDMRkURDEYRIgAF0lDMRmBBRJEMRhESUMxGRREMRgURCNDKTYaAWeJIillRChMULCJKjYaAWeJIiplRChMULCJKzYaAWeJIitlRChMULCJJwQ2GgFniSInBGVEKExQsIknBTYaAWeJIicFZUQoTFCwiSIpZUSwIiplRLAiK2VEsCInBGVEsCInBWVEsIk=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -208,7 +209,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_dynamic_str
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 5u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOuCDAQkN408BBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4MAIUAeQBtAGEAVQBJAD0AMQAlABkADQABADEZFEQxGESIAN4iQzEZFEQxGESIAMgiQzEZFEQxGESIALUiQzEZFEQxGESIAJ8iQzEZFEQxGESIAIwiQzEZFEQxGESIAHciQzEZFEQxGESIAGUiQzEZFEQxGESIAFAiQzEZFEQxGESIAD4iQzEZFEQxGESIACkiQzEZFEQxGESIABciQzEZgQUSRDEYRCJDMRkURDEYFEQiQyk2GgFniSMpZUQoTFCwiSo2GgFniSMqZUQoTFCwiSs2GgFniSMrZUQoTFCwiScENhoBZ4kjJwRlRChMULCJJwU2GgFniSMnBWVEKExQsIkjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLCJ)
+        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJygAAxG0EA7iNFAYIMBCQ3jTwEEbGblQTSi5ZKBOoYZV8Euzv9twRG7BSgBJtNCSYETw3rUARZZkq2BBJdE3YEgY5KYgSbvhAyNhoAjgwAhQB5AG0AYQBVAEkAPQAxACUAGQANAAEAMRkURDEYRIgA3klDMRkURDEYRIgAyElDMRkURDEYRIgAtUlDMRkURDEYRIgAn0lDMRkURDEYRIgAjElDMRkURDEYRIgAd0lDMRkURDEYRIgAZUlDMRkURDEYRIgAUElDMRkURDEYRIgAPklDMRkURDEYRIgAKUlDMRkURDEYRIgAF0lDMRmBBRJEMRhESUMxGRREMRgURCNDKTYaAWeJIillRChMULCJKjYaAWeJIiplRChMULCJKzYaAWeJIitlRChMULCJJwQ2GgFniSInBGVEKExQsIknBTYaAWeJIicFZUQoTFCwiSIpZUSwIiplRLAiK2VEsCInBGVEsCInBWVEsIk=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -323,7 +324,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_fixed_array
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 5u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOuCDAQkN408BBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4MAIUAeQBtAGEAVQBJAD0AMQAlABkADQABADEZFEQxGESIAN4iQzEZFEQxGESIAMgiQzEZFEQxGESIALUiQzEZFEQxGESIAJ8iQzEZFEQxGESIAIwiQzEZFEQxGESIAHciQzEZFEQxGESIAGUiQzEZFEQxGESIAFAiQzEZFEQxGESIAD4iQzEZFEQxGESIACkiQzEZFEQxGESIABciQzEZgQUSRDEYRCJDMRkURDEYFEQiQyk2GgFniSMpZUQoTFCwiSo2GgFniSMqZUQoTFCwiSs2GgFniSMrZUQoTFCwiScENhoBZ4kjJwRlRChMULCJJwU2GgFniSMnBWVEKExQsIkjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLCJ)
+        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJygAAxG0EA7iNFAYIMBCQ3jTwEEbGblQTSi5ZKBOoYZV8Euzv9twRG7BSgBJtNCSYETw3rUARZZkq2BBJdE3YEgY5KYgSbvhAyNhoAjgwAhQB5AG0AYQBVAEkAPQAxACUAGQANAAEAMRkURDEYRIgA3klDMRkURDEYRIgAyElDMRkURDEYRIgAtUlDMRkURDEYRIgAn0lDMRkURDEYRIgAjElDMRkURDEYRIgAd0lDMRkURDEYRIgAZUlDMRkURDEYRIgAUElDMRkURDEYRIgAPklDMRkURDEYRIgAKUlDMRkURDEYRIgAF0lDMRmBBRJEMRhESUMxGRREMRgURCNDKTYaAWeJIillRChMULCJKjYaAWeJIiplRChMULCJKzYaAWeJIitlRChMULCJJwQ2GgFniSInBGVEKExQsIknBTYaAWeJIicFZUQoTFCwiSIpZUSwIiplRLAiK2VEsCInBGVEsCInBWVEsIk=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -400,7 +401,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_native_arra
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 5u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOuCDAQkN408BBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4MAIUAeQBtAGEAVQBJAD0AMQAlABkADQABADEZFEQxGESIAN4iQzEZFEQxGESIAMgiQzEZFEQxGESIALUiQzEZFEQxGESIAJ8iQzEZFEQxGESIAIwiQzEZFEQxGESIAHciQzEZFEQxGESIAGUiQzEZFEQxGESIAFAiQzEZFEQxGESIAD4iQzEZFEQxGESIACkiQzEZFEQxGESIABciQzEZgQUSRDEYRCJDMRkURDEYFEQiQyk2GgFniSMpZUQoTFCwiSo2GgFniSMqZUQoTFCwiSs2GgFniSMrZUQoTFCwiScENhoBZ4kjJwRlRChMULCJJwU2GgFniSMnBWVEKExQsIkjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLCJ)
+        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJygAAxG0EA7iNFAYIMBCQ3jTwEEbGblQTSi5ZKBOoYZV8Euzv9twRG7BSgBJtNCSYETw3rUARZZkq2BBJdE3YEgY5KYgSbvhAyNhoAjgwAhQB5AG0AYQBVAEkAPQAxACUAGQANAAEAMRkURDEYRIgA3klDMRkURDEYRIgAyElDMRkURDEYRIgAtUlDMRkURDEYRIgAn0lDMRkURDEYRIgAjElDMRkURDEYRIgAd0lDMRkURDEYRIgAZUlDMRkURDEYRIgAUElDMRkURDEYRIgAPklDMRkURDEYRIgAKUlDMRkURDEYRIgAF0lDMRmBBRJEMRhESUMxGRREMRgURCNDKTYaAWeJIillRChMULCJKjYaAWeJIiplRChMULCJKzYaAWeJIitlRChMULCJJwQ2GgFniSInBGVEKExQsIknBTYaAWeJIicFZUQoTFCwiSIpZUSwIiplRLAiK2VEsCInBGVEsCInBWVEsIk=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit
@@ -479,7 +480,7 @@ subroutine test_cases.mutable_native_types.abi_call.TestAbiCall.test_log[routing
         itxn_begin
         ((itxn_field GlobalNumByteSlice) 5u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiACAQAmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJyMRtBAOuCDAQkN408BBGxm5UE0ouWSgTqGGVfBLs7/bcERuwUoASbTQkmBE8N61AEWWZKtgQSXRN2BIGOSmIEm74QMjYaAI4MAIUAeQBtAGEAVQBJAD0AMQAlABkADQABADEZFEQxGESIAN4iQzEZFEQxGESIAMgiQzEZFEQxGESIALUiQzEZFEQxGESIAJ8iQzEZFEQxGESIAIwiQzEZFEQxGESIAHciQzEZFEQxGESIAGUiQzEZFEQxGESIAFAiQzEZFEQxGESIAD4iQzEZFEQxGESIACkiQzEZFEQxGESIABciQzEZgQUSRDEYRCJDMRkURDEYFEQiQyk2GgFniSMpZUQoTFCwiSo2GgFniSMqZUQoTFCwiSs2GgFniSMrZUQoTFCwiScENhoBZ4kjJwRlRChMULCJJwU2GgFniSMnBWVEKExQsIkjKWVEsCMqZUSwIytlRLAjJwRlRLAjJwVlRLCJ)
+        ((itxn_field ApprovalProgramPages) CiACAAEmBgQVH3x1DGZpeGVkX3N0cnVjdA1uZXN0ZWRfc3RydWN0DmR5bmFtaWNfc3RydWN0CWZpeGVkX2FycgpuYXRpdmVfYXJygAAxG0EA7iNFAYIMBCQ3jTwEEbGblQTSi5ZKBOoYZV8Euzv9twRG7BSgBJtNCSYETw3rUARZZkq2BBJdE3YEgY5KYgSbvhAyNhoAjgwAhQB5AG0AYQBVAEkAPQAxACUAGQANAAEAMRkURDEYRIgA3klDMRkURDEYRIgAyElDMRkURDEYRIgAtUlDMRkURDEYRIgAn0lDMRkURDEYRIgAjElDMRkURDEYRIgAd0lDMRkURDEYRIgAZUlDMRkURDEYRIgAUElDMRkURDEYRIgAPklDMRkURDEYRIgAKUlDMRkURDEYRIgAF0lDMRmBBRJEMRhESUMxGRREMRgURCNDKTYaAWeJIillRChMULCJKjYaAWeJIiplRChMULCJKzYaAWeJIitlRChMULCJJwQ2GgFniSInBGVEKExQsIknBTYaAWeJIicFZUQoTFCwiSIpZUSwIiplRLAiK2VEsCInBGVEsCInBWVEsIk=)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
         itxn_submit

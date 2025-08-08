@@ -5,10 +5,18 @@
 main:
     intcblock 0 1 2 8
     bytecblock "box" "glob" "loc" 0x0000 "map" 0x00020000000000000001000a000362617a 0x00086d6f646966696564
+    pushbytes ""
+    dup
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@8
+    // state_mutations/contract.py:36
+    // @arc4.abimethod
+    intc_1 // 1
+    bury 2
+    // state_mutations/contract.py:22
+    // class Contract(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -27,7 +35,7 @@ main_get_route@7:
     callsub get
     // state_mutations/contract.py:51
     // @arc4.abimethod
-    intc_1 // 1
+    dig 1
     return
 
 main_modify_route@6:
@@ -40,7 +48,7 @@ main_modify_route@6:
     callsub modify
     // state_mutations/contract.py:44
     // @arc4.abimethod
-    intc_1 // 1
+    dig 1
     return
 
 main_append_route@5:
@@ -53,10 +61,12 @@ main_append_route@5:
     callsub append
     // state_mutations/contract.py:36
     // @arc4.abimethod
-    intc_1 // 1
+    dig 1
     return
 
 main_bare_routing@8:
+    intc_1 // 1
+    bury 1
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     txn OnCompletion
@@ -111,14 +121,14 @@ main_opt_in@9:
     box_put
     // state_mutations/contract.py:29
     // @arc4.baremethod(allow_actions=["OptIn"])
-    intc_1 // 1
+    dup
     return
 
 main___algopy_default_create@10:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return
 
 

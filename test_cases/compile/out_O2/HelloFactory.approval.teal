@@ -3,10 +3,13 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 6 0 1 5
-    bytecblock base64(CoEBQw==) 0x151f7c75 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBAGaCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADcALAABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAKExnIkOBBDEZjgEAAQAxGEQiQw==) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CiABASYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQBdggMETFxhugQkN408BNCiggA2GgCOAwA3ACwAAQAxGRREMRhENhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAAEAMRhEIkM=) 0x0003686579 "hey there" "hi there" base64(CjEbQQA7ggIE9eT9TQQkN408NhoAjgIADQABADEZgQUSRDEYRIEBQzEZFEQxGESADBUffHUAAAAAAAAQALCBAUMxGRREMRgURIEBQw==) 0xf5e4fd4d 0x000568656c6c6f
+    intcblock 6 0 5 1
+    bytecblock base64(CoEBQw==) 0x151f7c75 0x24378d3c 0xd0a28200 0x0005776f726c64 base64(CiYCCGdyZWV0aW5nAClJMRhAAAMoKWcxG0EAbYEBRQKCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADkALQABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwSwFDMRmBBRJEMRhESwFDMRkURDEYFEQ2GgFXAgAoTGdLAUOBAUUBgQQxGY4BAAEAMRhESUM=) 0x4c5c61ba 0x20df3a54 0x00057468657265 base64(CiYCCGdyZWV0aW5nBHRtcGyAAEkxGEAAAygpZzEbQQBkgQFFAoIDBExcYboEJDeNPATQooIANhoAjgMAOQAtAAEAMRkURDEYRDYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULBLAUMxGYEFEkQxGERLAUMxGRREMRgUREsBQ4EBRQGBBDEZjgEAAQAxGERJQw==) 0x0003686579 "hey there" "hi there" base64(CoAAMRtBAD2BAUUBggIE9eT9TQQkN408NhoAjgIADAABADEZgQUSRDEYRElDMRkURDEYRIAMFR98dQAAAAAAABAAsElDMRkURDEYFESBAUM=) 0xf5e4fd4d 0x000568656c6c6f
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@18
+    intc_3 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -19,11 +22,11 @@ main_test_abi_call_create_params_route@15:
     txn ApplicationID
     assert // can only call when not creating
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBAGaCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADcALAABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAKExnIkOBBDEZjgEAAQAxGEQiQw==)
+    bytec 5 // base64(CiYCCGdyZWV0aW5nAClJMRhAAAMoKWcxG0EAbYEBRQKCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADkALQABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwSwFDMRmBBRJEMRhESwFDMRkURDEYFEQ2GgFXAgAoTGdLAUOBAUUBgQQxGY4BAAEAMRhESUM=)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
@@ -58,7 +61,7 @@ main_test_abi_call_create_params_route@15:
     ==
     assert
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -68,7 +71,7 @@ main_test_abi_call_create_params_route@15:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    intc_2 // 1
+    dup
     return
 
 main_test_other_constants_route@14:
@@ -79,7 +82,7 @@ main_test_other_constants_route@14:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiACAQAmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAxGEAAECgnBGcpJwVnKicGZysnB2eCAwTZKFp0BCQ3jTwEWwwjdTYaAI4DAFEARgABADEZFEQxGEQ2GgFXAgAjKWVEgAEwoEkVIgkiWCMoZUSAASBQTwJQTFAjKmVEUCMrZURQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFESADBUffHUAAAAAAAAAAbAiQw==)
+    pushbytes base64(CiACAAEmCAhncmVldGluZwNudW0HYWRkcmVzcwZtZXRob2QEdG1wbAFCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAACAADEYQAAQKCcEZyknBWcqJwZnKycHZyNFAYIDBNkoWnQEJDeNPARbDCN1NhoAjgMAUQBGAAEAMRkURDEYRDYaAVcCACIpZUSAATCgSRUjCSNYIihlRIABIFBPAlBMUCIqZURQIitlRFBJFRZXBgJMUIAEFR98dUxQsElDMRmBBRJEMRhESUMxGRREMRgURIAMFR98dQAAAAAAAAABsElD)
     itxn_field ApprovalProgramPages
     pushbytes 0xd9285a74 // method "create()uint64"
     itxn_field ApplicationArgs
@@ -112,7 +115,7 @@ main_test_other_constants_route@14:
     ==
     assert
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -122,7 +125,7 @@ main_test_other_constants_route@14:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    intc_2 // 1
+    dup
     return
 
 main_test_arc4_update_route@13:
@@ -137,11 +140,11 @@ main_test_arc4_update_route@13:
     itxn_field GlobalNumUint
     pushint 2 // 2
     itxn_field GlobalNumByteSlice
-    intc_2 // 1
+    intc_3 // 1
     itxn_field ExtraProgramPages
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 9 // base64(CiABASYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQBdggMETFxhugQkN408BNCiggA2GgCOAwA3ACwAAQAxGRREMRhENhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAAEAMRhEIkM=)
+    bytec 9 // base64(CiYCCGdyZWV0aW5nBHRtcGyAAEkxGEAAAygpZzEbQQBkgQFFAoIDBExcYboEJDeNPATQooIANhoAjgMAOQAtAAEAMRkURDEYRDYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULBLAUMxGYEFEkQxGERLAUMxGRREMRgUREsBQ4EBRQGBBDEZjgEAAQAxGERJQw==)
     itxn_field ApprovalProgramPages
     bytec 6 // method "create()void"
     itxn_field ApplicationArgs
@@ -176,7 +179,7 @@ main_test_arc4_update_route@13:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBAGaCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADcALAABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAKExnIkOBBDEZjgEAAQAxGEQiQw==)
+    bytec 5 // base64(CiYCCGdyZWV0aW5nAClJMRhAAAMoKWcxG0EAbYEBRQKCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADkALQABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwSwFDMRmBBRJEMRhESwFDMRkURDEYFEQ2GgFXAgAoTGdLAUOBAUUBgQQxGY4BAAEAMRhESUM=)
     itxn_field ApprovalProgramPages
     pushint 4 // UpdateApplication
     itxn_field OnCompletion
@@ -210,7 +213,7 @@ main_test_arc4_update_route@13:
     ==
     assert
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -220,7 +223,7 @@ main_test_arc4_update_route@13:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    intc_2 // 1
+    dup
     return
 
 main_test_arc4_create_modified_compiled_route@12:
@@ -229,7 +232,7 @@ main_test_arc4_create_modified_compiled_route@12:
     itxn_begin
     pushint 3 // 3
     itxn_field LocalNumUint
-    intc_3 // 5
+    intc_2 // 5
     itxn_field LocalNumByteSlice
     pushint 4 // 4
     itxn_field GlobalNumUint
@@ -237,7 +240,7 @@ main_test_arc4_create_modified_compiled_route@12:
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBAGaCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADcALAABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAKExnIkOBBDEZjgEAAQAxGEQiQw==)
+    bytec 5 // base64(CiYCCGdyZWV0aW5nAClJMRhAAAMoKWcxG0EAbYEBRQKCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADkALQABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwSwFDMRmBBRJEMRhESwFDMRkURDEYFEQ2GgFXAgAoTGdLAUOBAUUBgQQxGY4BAAEAMRhESUM=)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
@@ -264,7 +267,7 @@ main_test_arc4_create_modified_compiled_route@12:
     dup
     app_params_get AppLocalNumByteSlice
     assert // application exists
-    intc_3 // 5
+    intc_2 // 5
     ==
     assert
     dup
@@ -296,7 +299,7 @@ main_test_arc4_create_modified_compiled_route@12:
     ==
     assert
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -306,7 +309,7 @@ main_test_arc4_create_modified_compiled_route@12:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    intc_2 // 1
+    dup
     return
 
 main_test_arc4_create_large_route@11:
@@ -315,7 +318,7 @@ main_test_arc4_create_large_route@11:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 13 // base64(CjEbQQA7ggIE9eT9TQQkN408NhoAjgIADQABADEZgQUSRDEYRIEBQzEZFEQxGESADBUffHUAAAAAAAAQALCBAUMxGRREMRgURIEBQw==)
+    bytec 13 // base64(CoAAMRtBAD2BAUUBggIE9eT9TQQkN408NhoAjgIADAABADEZgQUSRDEYRElDMRkURDEYRIAMFR98dQAAAAAAABAAsElDMRkURDEYFESBAUM=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -346,7 +349,7 @@ main_test_arc4_create_large_route@11:
     ==
     assert
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     itxn_field ApplicationID
     bytec_2 // method "delete()void"
@@ -356,18 +359,18 @@ main_test_arc4_create_large_route@11:
     intc_1 // 0
     itxn_field Fee
     itxn_submit
-    intc_2 // 1
+    dup
     return
 
 main_test_arc4_create_prfx_route@10:
     txn ApplicationID
     assert // can only call when not creating
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiABASYCCGdyZWV0aW5nBXByZngyMRhAAAMoKWcxG0EAXYIDBExcYboEJDeNPATQooIANhoAjgMANwAsAAEAMRkURDEYRDYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQABADEYRCJD)
+    pushbytes base64(CiYCCGdyZWV0aW5nBXByZngygABJMRhAAAMoKWcxG0EAZIEBRQKCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADkALQABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwSwFDMRmBBRJEMRhESwFDMRkURDEYFERLAUOBAUUBgQQxGY4BAAEAMRhESUM=)
     itxn_field ApprovalProgramPages
     bytec 6 // method "create()void"
     itxn_field ApplicationArgs
@@ -397,7 +400,7 @@ main_test_arc4_create_prfx_route@10:
     assert // application log value is not the result of an ABI return
     extract 6 0
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     swap
     itxn_field ApplicationID
@@ -411,18 +414,18 @@ main_test_arc4_create_prfx_route@10:
     pushbytes "prfx2 world"
     ==
     assert
-    intc_2 // 1
+    dup
     return
 
 main_test_arc4_create_tmpl_route@9:
     txn ApplicationID
     assert // can only call when not creating
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 9 // base64(CiABASYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQBdggMETFxhugQkN408BNCiggA2GgCOAwA3ACwAAQAxGRREMRhENhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAAEAMRhEIkM=)
+    bytec 9 // base64(CiYCCGdyZWV0aW5nBHRtcGyAAEkxGEAAAygpZzEbQQBkgQFFAoIDBExcYboEJDeNPATQooIANhoAjgMAOQAtAAEAMRkURDEYRDYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULBLAUMxGYEFEkQxGERLAUMxGRREMRgUREsBQ4EBRQGBBDEZjgEAAQAxGERJQw==)
     itxn_field ApprovalProgramPages
     bytec 6 // method "create()void"
     itxn_field ApplicationArgs
@@ -452,7 +455,7 @@ main_test_arc4_create_tmpl_route@9:
     assert // application log value is not the result of an ABI return
     extract 6 0
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     swap
     itxn_field ApplicationID
@@ -466,18 +469,18 @@ main_test_arc4_create_tmpl_route@9:
     pushbytes "tmpl2 world"
     ==
     assert
-    intc_2 // 1
+    dup
     return
 
 main_test_arc4_create_route@8:
     txn ApplicationID
     assert // can only call when not creating
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBAGaCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADcALAABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAKExnIkOBBDEZjgEAAQAxGEQiQw==)
+    bytec 5 // base64(CiYCCGdyZWV0aW5nAClJMRhAAAMoKWcxG0EAbYEBRQKCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADkALQABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwSwFDMRmBBRJEMRhESwFDMRkURDEYFEQ2GgFXAgAoTGdLAUOBAUUBgQQxGY4BAAEAMRhESUM=)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
@@ -509,7 +512,7 @@ main_test_arc4_create_route@8:
     assert // application log value is not the result of an ABI return
     extract 6 0
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     swap
     itxn_field ApplicationID
@@ -523,7 +526,7 @@ main_test_arc4_create_route@8:
     pushbytes "hello world"
     ==
     assert
-    intc_2 // 1
+    dup
     return
 
 main_test_compile_contract_large_route@7:
@@ -532,7 +535,7 @@ main_test_compile_contract_large_route@7:
     itxn_begin
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 13 // base64(CjEbQQA7ggIE9eT9TQQkN408NhoAjgIADQABADEZgQUSRDEYRIEBQzEZFEQxGESADBUffHUAAAAAAAAQALCBAUMxGRREMRgURIEBQw==)
+    bytec 13 // base64(CoAAMRtBAD2BAUUBggIE9eT9TQQkN408NhoAjgIADAABADEZgQUSRDEYRElDMRkURDEYRIAMFR98dQAAAAAAABAAsElDMRkURDEYFESBAUM=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -559,7 +562,7 @@ main_test_compile_contract_large_route@7:
     ==
     assert // application log value is not the result of an ABI return
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -573,18 +576,18 @@ main_test_compile_contract_large_route@7:
     pushbytes 0x0000000000001000
     b==
     assert
-    intc_2 // 1
+    dup
     return
 
 main_test_compile_contract_prfx_route@6:
     txn ApplicationID
     assert // can only call when not creating
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiABASYCCGdyZWV0aW5nAmhpMRhAAAMoKWcxG0EAXYIDBExcYboEJDeNPATQooIANhoAjgMANwAsAAEAMRkURDEYRDYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULAiQzEZgQUSRDEYRCJDMRkURDEYFEQiQ4EEMRmOAQABADEYRCJD)
+    pushbytes base64(CiYCCGdyZWV0aW5nAmhpgABJMRhAAAMoKWcxG0EAZIEBRQKCAwRMXGG6BCQ3jTwE0KKCADYaAI4DADkALQABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwSwFDMRmBBRJEMRhESwFDMRkURDEYFERLAUOBAUUBgQQxGY4BAAEAMRhESUM=)
     itxn_field ApprovalProgramPages
     bytec 6 // method "create()void"
     itxn_field ApplicationArgs
@@ -615,7 +618,7 @@ main_test_compile_contract_prfx_route@6:
     ==
     assert // application log value is not the result of an ABI return
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -629,18 +632,18 @@ main_test_compile_contract_prfx_route@6:
     pushbytes 0x0008686920776f726c64
     ==
     assert
-    intc_2 // 1
+    dup
     return
 
 main_test_compile_contract_tmpl_route@5:
     txn ApplicationID
     assert // can only call when not creating
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 9 // base64(CiABASYCCGdyZWV0aW5nBHRtcGwxGEAAAygpZzEbQQBdggMETFxhugQkN408BNCiggA2GgCOAwA3ACwAAQAxGRREMRhENhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsCJDMRmBBRJEMRhEIkMxGRREMRgURCJDgQQxGY4BAAEAMRhEIkM=)
+    bytec 9 // base64(CiYCCGdyZWV0aW5nBHRtcGyAAEkxGEAAAygpZzEbQQBkgQFFAoIDBExcYboEJDeNPATQooIANhoAjgMAOQAtAAEAMRkURDEYRDYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULBLAUMxGYEFEkQxGERLAUMxGRREMRgUREsBQ4EBRQGBBDEZjgEAAQAxGERJQw==)
     itxn_field ApprovalProgramPages
     bytec 6 // method "create()void"
     itxn_field ApplicationArgs
@@ -671,7 +674,7 @@ main_test_compile_contract_tmpl_route@5:
     ==
     assert // application log value is not the result of an ABI return
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -685,18 +688,18 @@ main_test_compile_contract_tmpl_route@5:
     pushbytes 0x000968657920776f726c64
     ==
     assert
-    intc_2 // 1
+    dup
     return
 
 main_test_compile_contract_route@4:
     txn ApplicationID
     assert // can only call when not creating
     itxn_begin
-    intc_2 // 1
+    intc_3 // 1
     itxn_field GlobalNumByteSlice
     bytec_0 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec 5 // base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBAGaCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADcALAABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwIkMxGYEFEkQxGEQiQzEZFEQxGBRENhoBVwIAKExnIkOBBDEZjgEAAQAxGEQiQw==)
+    bytec 5 // base64(CiYCCGdyZWV0aW5nAClJMRhAAAMoKWcxG0EAbYEBRQKCAwQg3zpUBCQ3jTwE0KKCADYaAI4DADkALQABADEZFEQxGEQ2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwSwFDMRmBBRJEMRhESwFDMRkURDEYFEQ2GgFXAgAoTGdLAUOBAUUBgQQxGY4BAAEAMRhESUM=)
     itxn_field ApprovalProgramPages
     bytec 7 // method "create(string)void"
     itxn_field ApplicationArgs
@@ -729,7 +732,7 @@ main_test_compile_contract_route@4:
     ==
     assert // application log value is not the result of an ABI return
     itxn_begin
-    intc_3 // DeleteApplication
+    intc_2 // DeleteApplication
     itxn_field OnCompletion
     bytec_2 // method "delete()void"
     itxn_field ApplicationArgs
@@ -743,7 +746,7 @@ main_test_compile_contract_route@4:
     pushbytes 0x000b68656c6c6f20776f726c64
     ==
     assert
-    intc_2 // 1
+    dup
     return
 
 main_test_logicsig_route@3:
@@ -751,7 +754,7 @@ main_test_logicsig_route@3:
     assert // can only call when not creating
     pushbytes base32(CUPXY5NG6NZFDJMMVA333JIXVH3QODXEXAFDRD7EIYKGW26UHM562XK44U)
     log
-    intc_2 // 1
+    dup
     return
 
 main_bare_routing@18:
@@ -761,5 +764,5 @@ main_bare_routing@18:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_2 // 1
+    intc_3 // 1
     return

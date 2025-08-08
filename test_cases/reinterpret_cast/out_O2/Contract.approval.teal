@@ -3,8 +3,11 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@7
+    pushint 1 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -18,7 +21,7 @@ main_test_bytes_to_biguint_route@4:
     assert // can only call when not creating
     pushint 0 // 0
     assert
-    pushint 1 // 1
+    dup
     return
 
 main_bytes_to_bool_route@3:
@@ -26,7 +29,7 @@ main_bytes_to_bool_route@3:
     assert // can only call when not creating
     pushbytes 0x151f7c7500
     log
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@7:

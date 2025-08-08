@@ -22,6 +22,10 @@ subroutine main:
         bz main_bare_routing@7 ; b main_abi_routing@4
 
     main_abi_routing@4:
+        // compile/apps.py:24
+        // @arc4.abimethod(allow_actions=["DeleteApplication"])
+        int 1                                                                        1
+        v-store lifted%0#0
         // compile/apps.py:20
         // class HelloBase(ARC4Contract):
         txna ApplicationArgs 0                                                       tmp%2#0
@@ -42,7 +46,7 @@ subroutine main:
         txn ApplicationID                                                            tmp%5#0
         l-load tmp%5#0 0                                                             tmp%5#0
         assert // can only call when not creating
-        int 1                                                                        1
+        v-load lifted%0#0                                                            lifted%0#0
         return
 
     main_greet_route@6:
@@ -61,10 +65,14 @@ subroutine main:
         callsub greet
         // compile/apps.py:32
         // @arc4.abimethod()
-        int 1                                                                        1
+        v-load lifted%0#0                                                            lifted%0#0
         return
 
     main_bare_routing@7:
+        // compile/apps.py:28
+        // @arc4.baremethod(allow_actions=["UpdateApplication"])
+        int 1                                                                        1
+        v-store lifted%1#0
         // compile/apps.py:20
         // class HelloBase(ARC4Contract):
         txn OnCompletion                                                             tmp%11#0
@@ -79,7 +87,7 @@ subroutine main:
         txn ApplicationID                                                            tmp%12#0
         l-load tmp%12#0 0                                                            tmp%12#0
         assert // can only call when not creating
-        int 1                                                                        1
+        v-load lifted%1#0                                                            lifted%1#0
         return
 
     main___algopy_default_create@9:
@@ -88,7 +96,7 @@ subroutine main:
         !                                                                            tmp%15#0
         l-load tmp%15#0 0                                                            tmp%15#0
         assert // can only call when creating
-        int 1                                                                        1
+        v-load lifted%1#0                                                            lifted%1#0
         return
 
     main_after_if_else@10:

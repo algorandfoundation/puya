@@ -5,6 +5,7 @@
 main:
     intcblock 1 0 4 10 50500
     bytecblock 0x6c697374696e6773
+    pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
     // marketplace_demo/marketplace_with_tups.py:40
@@ -17,6 +18,12 @@ main_after_if_else@2:
     // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@14
+    // marketplace_demo/marketplace_with_tups.py:79
+    // @arc4.abimethod(readonly=True, name="getListingsMbr")
+    intc_0 // 1
+    bury 1
+    // marketplace_demo/marketplace_with_tups.py:38
+    // class DigitalMarketplaceWithTups(arc4.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -35,7 +42,7 @@ main_acceptBid_route@13:
     callsub accept_bid
     // marketplace_demo/marketplace_with_tups.py:237
     // @arc4.abimethod(name="acceptBid")
-    intc_0 // 1
+    dup
     return
 
 main_bid_route@12:
@@ -48,7 +55,7 @@ main_bid_route@12:
     callsub bid
     // marketplace_demo/marketplace_with_tups.py:201
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_withdraw_route@11:
@@ -61,7 +68,7 @@ main_withdraw_route@11:
     callsub withdraw
     // marketplace_demo/marketplace_with_tups.py:182
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_buy_route@10:
@@ -74,7 +81,7 @@ main_buy_route@10:
     callsub buy
     // marketplace_demo/marketplace_with_tups.py:151
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_setPrice_route@9:
@@ -87,7 +94,7 @@ main_setPrice_route@9:
     callsub set_price
     // marketplace_demo/marketplace_with_tups.py:138
     // @arc4.abimethod(name="setPrice")
-    intc_0 // 1
+    dup
     return
 
 main_deposit_route@8:
@@ -100,7 +107,7 @@ main_deposit_route@8:
     callsub deposit
     // marketplace_demo/marketplace_with_tups.py:121
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_firstDeposit_route@7:
@@ -113,7 +120,7 @@ main_firstDeposit_route@7:
     callsub first_deposit
     // marketplace_demo/marketplace_with_tups.py:94
     // @arc4.abimethod(name="firstDeposit")
-    intc_0 // 1
+    dup
     return
 
 main_allowAsset_route@6:
@@ -126,7 +133,7 @@ main_allowAsset_route@6:
     callsub allow_asset
     // marketplace_demo/marketplace_with_tups.py:83
     // @arc4.abimethod(name="allowAsset")
-    intc_0 // 1
+    dup
     return
 
 main_getListingsMbr_route@5:
@@ -136,7 +143,7 @@ main_getListingsMbr_route@5:
     assert // can only call when not creating
     pushbytes 0x151f7c75000000000000c544
     log
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@14:

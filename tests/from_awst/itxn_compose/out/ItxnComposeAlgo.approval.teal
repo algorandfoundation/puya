@@ -5,8 +5,11 @@
 main:
     intcblock 1 0 6 32
     bytecblock 0xd0a28200 0x0002686f
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@7
+    intc_0 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -19,14 +22,14 @@ main_conditionalBegin_route@4:
     txn ApplicationID
     assert // can only call when not creating
     callsub conditionalBegin
-    intc_0 // 1
+    dup
     return
 
 main_distribute_route@3:
     txn ApplicationID
     assert // can only call when not creating
     callsub distribute
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@7:
@@ -148,7 +151,7 @@ conditionalBegin:
     itxn_field GlobalNumByteSlice
     pushbytes base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnggQEAJIlrgQkN408BKDoGHIE0KKCADYaAI4EACMAGAANAAEAMRkURDEYRIgALyJDMRmBBBJEMRhEIkMxGYEFEkQxGEQiQzEZFEQxGBREiAACIkM2GgFXAgAoTGeJNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIk=)
+    pushbytes base64(CiYCCGdyZWV0aW5nACkxGEAAAygpZ4EBRQGCBAQAkiWuBCQ3jTwEoOgYcgTQooIANhoAjgQAIwAYAA0AAQAxGRREMRhEiAAvSUMxGYEEEkQxGERJQzEZgQUSRDEYRElDMRkURDEYFESIAAJJQzYaAVcCAChMZ4k2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwiQ==)
     itxn_field ApprovalProgramPages
     intc_1 // 0
     itxn_field OnCompletion

@@ -4,11 +4,18 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 1 10 TMPL_A_MULT
-    bytecblock 0x30313233343536373839 " "
+    bytecblock "" 0x30313233343536373839 " "
+    bytec_0 // ""
     // debug/contract.py:4
     // class DebugContract(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@6
+    // debug/contract.py:5
+    // @arc4.abimethod
+    intc_0 // 1
+    bury 1
+    // debug/contract.py:4
+    // class DebugContract(arc4.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -27,7 +34,7 @@ main_test_route@3:
     callsub test
     // debug/contract.py:5
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@6:
@@ -111,7 +118,7 @@ itoa:
     bz itoa_after_if_else@2
     // debug/contract.py:54
     // digits = Bytes(b"0123456789")
-    bytec_0 // 0x30313233343536373839
+    bytec_1 // 0x30313233343536373839
     // debug/contract.py:57
     // return digits[i]
     frame_dig -1
@@ -139,7 +146,7 @@ itoa_after_if_else@2:
     %
     // debug/contract.py:54
     // digits = Bytes(b"0123456789")
-    bytec_0 // 0x30313233343536373839
+    bytec_1 // 0x30313233343536373839
     // debug/contract.py:58
     // return itoa(i // radix) + digits[i % radix]
     swap
@@ -156,7 +163,7 @@ test:
     proto 0 0
     pushint 0 // 0
     dup
-    pushbytes ""
+    bytec_0 // ""
     dup
     txna ApplicationArgs 1
     btoi
@@ -299,11 +306,11 @@ test_after_if_else@21:
     callsub itoa
     // debug/contract.py:36
     // log(aye, bee, cea, sep=" ")
-    bytec_1 // " "
+    bytec_2 // " "
     concat
     frame_dig 0
     concat
-    bytec_1 // " "
+    bytec_2 // " "
     concat
     frame_dig 1
     concat

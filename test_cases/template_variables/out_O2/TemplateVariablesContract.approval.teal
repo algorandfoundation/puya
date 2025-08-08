@@ -5,8 +5,12 @@
 main:
     intcblock 1 64 TMPL_DELETABLE TMPL_UPDATABLE
     bytecblock 0x151f7c75 TMPL_SOME_BIG_UINT TMPL_SOME_BYTES
+    pushbytes ""
+    dup
     txn NumAppArgs
     bz main_bare_routing@7
+    intc_0 // 1
+    bury 2
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -33,7 +37,7 @@ main_get_big_uint_route@4:
     swap
     concat
     log
-    intc_0 // 1
+    dig 1
     return
 
 main_get_bytes_route@3:
@@ -50,10 +54,12 @@ main_get_bytes_route@3:
     swap
     concat
     log
-    intc_0 // 1
+    dig 1
     return
 
 main_bare_routing@7:
+    intc_0 // 1
+    bury 1
     txn OnCompletion
     switch main___algopy_default_create@10 main_after_if_else@13 main_after_if_else@13 main_after_if_else@13 main_on_update@8 main_on_delete@9
     err
@@ -63,7 +69,7 @@ main_on_delete@9:
     assert // can only call when not creating
     intc_2 // TMPL_DELETABLE
     assert
-    intc_0 // 1
+    dup
     return
 
 main_on_update@8:
@@ -71,12 +77,12 @@ main_on_update@8:
     assert // can only call when not creating
     intc_3 // TMPL_UPDATABLE
     assert
-    intc_0 // 1
+    dup
     return
 
 main___algopy_default_create@10:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    dup
     return

@@ -4,16 +4,20 @@
 // test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0
-    bytecblock "greeting"
+    bytecblock "" "greeting"
+    bytec_0 // ""
+    dup
     txn ApplicationID
     bnz main_after_if_else@2
-    bytec_0 // "greeting"
-    pushbytes ""
+    bytec_1 // "greeting"
+    bytec_0 // ""
     app_global_put
 
 main_after_if_else@2:
     txn NumAppArgs
     bz main_bare_routing@7
+    intc_0 // 1
+    bury 2
     pushbytess 0x24378d3c 0xd0a28200 // method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
     match main_delete_route@5 main_greet_route@6
@@ -28,7 +32,7 @@ main_greet_route@6:
     txna ApplicationArgs 1
     extract 2 0
     intc_1 // 0
-    bytec_0 // "greeting"
+    bytec_1 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
     pushbytes " "
@@ -45,7 +49,7 @@ main_greet_route@6:
     swap
     concat
     log
-    intc_0 // 1
+    dig 1
     return
 
 main_delete_route@5:
@@ -55,10 +59,12 @@ main_delete_route@5:
     assert // OnCompletion is not DeleteApplication
     txn ApplicationID
     assert // can only call when not creating
-    intc_0 // 1
+    dig 1
     return
 
 main_bare_routing@7:
+    intc_0 // 1
+    bury 1
     pushint 4 // 4
     intc_1 // 0
     txn OnCompletion
@@ -69,11 +75,11 @@ main___algopy_default_create@9:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    dup
     return
 
 main_update@8:
     txn ApplicationID
     assert // can only call when not creating
-    intc_0 // 1
+    dup
     return

@@ -1,95 +1,102 @@
 // Op                                                                                    Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
-    main_block@0:
+    declare uint64 lifted%0#0, lifted%1#0
+    main_block@0:                                                                        (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:5
         // class TemplateVariablesContract(arc4.ARC4Contract):
-        txn NumAppArgs                                                                   tmp%0#1
-        bz main_bare_routing@7 ; b main_abi_routing@2
+        txn NumAppArgs                                                                   (𝕗) lifted%0#0,lifted%1#0 | tmp%0#1
+        bz main_bare_routing@7 ; b main_abi_routing@2                                    (𝕗) lifted%0#0,lifted%1#0 |
 
-    main_abi_routing@2:
-        // template_variables/contract.py:5
-        // class TemplateVariablesContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                 tmp%2#0
-        !                                                                                tmp%3#0
-        assert // OnCompletion is not NoOp
-        txna ApplicationArgs 0                                                           tmp%4#0
-        method get_bytes()byte[]                                                         tmp%4#0,Method(get_bytes()byte[])
-        method get_big_uint()uint512                                                     tmp%4#0,Method(get_bytes()byte[]),Method(get_big_uint()uint512)
-        l-load tmp%4#0 2                                                                 Method(get_bytes()byte[]),Method(get_big_uint()uint512),tmp%4#0
-        match main_get_bytes_route@3 main_get_big_uint_route@4 ; b main_after_if_else@13
-
-    main_get_bytes_route@3:
+    main_abi_routing@2:                                                                  (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:6
         // @arc4.abimethod()
-        txn ApplicationID                                                                tmp%5#0
-        assert // can only call when not creating
+        int 1                                                                            (𝕗) lifted%0#0,lifted%1#0 | lifted%0#0
+        f-store lifted%0#0                                                               (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:5
         // class TemplateVariablesContract(arc4.ARC4Contract):
-        callsub get_bytes
+        txn OnCompletion                                                                 (𝕗) lifted%0#0,lifted%1#0 | tmp%2#0
+        !                                                                                (𝕗) lifted%0#0,lifted%1#0 | tmp%3#0
+        assert // OnCompletion is not NoOp                                               (𝕗) lifted%0#0,lifted%1#0 |
+        txna ApplicationArgs 0                                                           (𝕗) lifted%0#0,lifted%1#0 | tmp%4#0
+        method get_bytes()byte[]                                                         (𝕗) lifted%0#0,lifted%1#0 | tmp%4#0,Method(get_bytes()byte[])
+        method get_big_uint()uint512                                                     (𝕗) lifted%0#0,lifted%1#0 | tmp%4#0,Method(get_bytes()byte[]),Method(get_big_uint()uint512)
+        l-load tmp%4#0 2                                                                 (𝕗) lifted%0#0,lifted%1#0 | Method(get_bytes()byte[]),Method(get_big_uint()uint512),tmp%4#0
+        match main_get_bytes_route@3 main_get_big_uint_route@4 ; b main_after_if_else@13 (𝕗) lifted%0#0,lifted%1#0 |
+
+    main_get_bytes_route@3:                                                              (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:6
         // @arc4.abimethod()
-        int 1                                                                            1
-        return
-
-    main_get_big_uint_route@4:
-        // template_variables/contract.py:10
-        // @arc4.abimethod()
-        txn ApplicationID                                                                tmp%7#0
-        assert // can only call when not creating
+        txn ApplicationID                                                                (𝕗) lifted%0#0,lifted%1#0 | tmp%5#0
+        assert // can only call when not creating                                        (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:5
         // class TemplateVariablesContract(arc4.ARC4Contract):
-        callsub get_big_uint
+        callsub get_bytes                                                                (𝕗) lifted%0#0,lifted%1#0 |
+        // template_variables/contract.py:6
+        // @arc4.abimethod()
+        f-load lifted%0#0                                                                (𝕗) lifted%0#0,lifted%1#0 | lifted%0#0
+        return                                                                           (𝕗) lifted%0#0,lifted%1#0 |
+
+    main_get_big_uint_route@4:                                                           (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:10
         // @arc4.abimethod()
-        int 1                                                                            1
-        return
-
-    main_bare_routing@7:
+        txn ApplicationID                                                                (𝕗) lifted%0#0,lifted%1#0 | tmp%7#0
+        assert // can only call when not creating                                        (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:5
         // class TemplateVariablesContract(arc4.ARC4Contract):
-        txn OnCompletion                                                                 tmp%9#0
-        switch main___algopy_default_create@10 main_after_if_else@13 main_after_if_else@13 main_after_if_else@13 main_on_update@8 main_on_delete@9 ; b main_after_if_else@13 
+        callsub get_big_uint                                                             (𝕗) lifted%0#0,lifted%1#0 |
+        // template_variables/contract.py:10
+        // @arc4.abimethod()
+        f-load lifted%0#0                                                                (𝕗) lifted%0#0,lifted%1#0 | lifted%0#0
+        return                                                                           (𝕗) lifted%0#0,lifted%1#0 |
 
-    main_on_update@8:
+    main_bare_routing@7:                                                                 (𝕗) lifted%0#0,lifted%1#0 |
+        int 1                                                                            (𝕗) lifted%0#0,lifted%1#0 | lifted%1#0
+        f-store lifted%1#0                                                               (𝕗) lifted%0#0,lifted%1#0 |
+        // template_variables/contract.py:5
+        // class TemplateVariablesContract(arc4.ARC4Contract):
+        txn OnCompletion                                                                 (𝕗) lifted%0#0,lifted%1#0 | tmp%9#0
+        switch main___algopy_default_create@10 main_after_if_else@13 main_after_if_else@13 main_after_if_else@13 main_on_update@8 main_on_delete@9 ; b main_after_if_else@13 (𝕗) lifted%0#0,lifted%1#0 | 
+
+    main_on_update@8:                                                                    (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:15
         // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        txn ApplicationID                                                                tmp%10#0
-        assert // can only call when not creating
+        txn ApplicationID                                                                (𝕗) lifted%0#0,lifted%1#0 | tmp%10#0
+        assert // can only call when not creating                                        (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:17
         // assert TemplateVar[bool]("UPDATABLE")
-        int TMPL_UPDATABLE                                                               TMPL_UPDATABLE
-        assert
+        int TMPL_UPDATABLE                                                               (𝕗) lifted%0#0,lifted%1#0 | TMPL_UPDATABLE
+        assert                                                                           (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:15
         // @arc4.baremethod(allow_actions=["UpdateApplication"])
-        int 1                                                                            1
-        return
+        f-load lifted%1#0                                                                (𝕗) lifted%0#0,lifted%1#0 | lifted%1#0
+        return                                                                           (𝕗) lifted%0#0,lifted%1#0 |
 
-    main_on_delete@9:
+    main_on_delete@9:                                                                    (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:19
         // @arc4.baremethod(allow_actions=["DeleteApplication"])
-        txn ApplicationID                                                                tmp%12#0
-        assert // can only call when not creating
+        txn ApplicationID                                                                (𝕗) lifted%0#0,lifted%1#0 | tmp%12#0
+        assert // can only call when not creating                                        (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:21
         // assert TemplateVar[UInt64]("DELETABLE")
-        int TMPL_DELETABLE                                                               TMPL_DELETABLE
-        assert
+        int TMPL_DELETABLE                                                               (𝕗) lifted%0#0,lifted%1#0 | TMPL_DELETABLE
+        assert                                                                           (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:19
         // @arc4.baremethod(allow_actions=["DeleteApplication"])
-        int 1                                                                            1
-        return
+        f-load lifted%1#0                                                                (𝕗) lifted%0#0,lifted%1#0 | lifted%1#0
+        return                                                                           (𝕗) lifted%0#0,lifted%1#0 |
 
-    main___algopy_default_create@10:
-        txn ApplicationID                                                                tmp%14#0
-        !                                                                                tmp%15#0
-        assert // can only call when creating
-        int 1                                                                            1
-        return
+    main___algopy_default_create@10:                                                     (𝕗) lifted%0#0,lifted%1#0 |
+        txn ApplicationID                                                                (𝕗) lifted%0#0,lifted%1#0 | tmp%14#0
+        !                                                                                (𝕗) lifted%0#0,lifted%1#0 | tmp%15#0
+        assert // can only call when creating                                            (𝕗) lifted%0#0,lifted%1#0 |
+        f-load lifted%1#0                                                                (𝕗) lifted%0#0,lifted%1#0 | lifted%1#0
+        return                                                                           (𝕗) lifted%0#0,lifted%1#0 |
 
-    main_after_if_else@13:
+    main_after_if_else@13:                                                               (𝕗) lifted%0#0,lifted%1#0 |
         // template_variables/contract.py:5
         // class TemplateVariablesContract(arc4.ARC4Contract):
-        err
+        err                                                                              (𝕗) lifted%0#0,lifted%1#0 |
 
 
 // test_cases.template_variables.contract.TemplateVariablesContract.get_bytes[routing]() -> void:

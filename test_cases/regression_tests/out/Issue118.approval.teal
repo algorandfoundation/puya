@@ -5,10 +5,18 @@
 main:
     intcblock 1 0
     bytecblock 0x00030000
+    pushbytes ""
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@6
+    // regression_tests/issue_118.py:6-7
+    // # ref: https://github.com/algorandfoundation/puya/issues/118
+    // @abimethod
+    intc_0 // 1
+    bury 1
+    // regression_tests/issue_118.py:5
+    // class Issue118(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -29,7 +37,7 @@ main_verify_route@3:
     // regression_tests/issue_118.py:6-7
     // # ref: https://github.com/algorandfoundation/puya/issues/118
     // @abimethod
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@6:

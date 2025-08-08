@@ -5,8 +5,12 @@
 main:
     intcblock 0 1 2 8
     bytecblock "box" "glob" "loc" "map" 0x00086d6f646966696564 0x00020000000000000001000a000362617a 0x0000
+    pushbytes ""
+    dup
     txn NumAppArgs
     bz main_bare_routing@8
+    intc_1 // 1
+    bury 2
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -50,7 +54,7 @@ main_get_route@7:
     swap
     concat
     log
-    intc_1 // 1
+    dig 1
     return
 
 main_modify_route@6:
@@ -223,7 +227,7 @@ main_modify_route@6:
     box_del
     pop
     box_put
-    intc_1 // 1
+    dig 1
     return
 
 main_append_route@5:
@@ -296,10 +300,12 @@ main_append_route@5:
     box_del
     pop
     box_put
-    intc_1 // 1
+    dig 1
     return
 
 main_bare_routing@8:
+    intc_1 // 1
+    bury 1
     txn OnCompletion
     switch main___algopy_default_create@10 main_opt_in@9
     err
@@ -328,14 +334,14 @@ main_opt_in@9:
     pop
     bytec 6 // 0x0000
     box_put
-    intc_1 // 1
+    dup
     return
 
 main___algopy_default_create@10:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_1 // 1
+    dup
     return
 
 

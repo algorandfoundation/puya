@@ -3,8 +3,9 @@
 
 // test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1 0
+    intcblock 0 1
     bytecblock "greeting" "num" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
+    pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
     // compile/apps.py:78
@@ -29,6 +30,10 @@ main:
     app_global_put
 
 main_after_if_else@2:
+    // compile/apps.py:83
+    // @arc4.abimethod(create="require")
+    intc_1 // 1
+    bury 1
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     pushbytess 0xd9285a74 0x24378d3c 0x5b0c2375 // method "create()uint64", method "delete()void", method "greet(string)byte[]"
@@ -49,7 +54,7 @@ main_greet_route@6:
     callsub greet
     // compile/apps.py:91
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_delete_route@5:
@@ -61,7 +66,7 @@ main_delete_route@5:
     assert // OnCompletion is not DeleteApplication
     txn ApplicationID
     assert // can only call when not creating
-    intc_0 // 1
+    dup
     return
 
 main_create_route@4:
@@ -75,7 +80,7 @@ main_create_route@4:
     assert // can only call when creating
     pushbytes 0x151f7c750000000000000001
     log
-    intc_0 // 1
+    dup
     return
 
 
@@ -87,7 +92,7 @@ greet:
     extract 2 0
     // compile/apps.py:93
     // num_alpha = (self.num + 48).bytes[-1]
-    intc_1 // 0
+    intc_0 // 0
     bytec_1 // "num"
     app_global_get_ex
     assert // check self.num exists
@@ -95,13 +100,13 @@ greet:
     b+
     dup
     len
-    intc_0 // 1
+    intc_1 // 1
     -
-    intc_0 // 1
+    intc_1 // 1
     extract3
     // compile/apps.py:95
     // self.greeting.bytes + b" " + name.bytes + num_alpha + self.address.bytes + self.method
-    intc_1 // 0
+    intc_0 // 0
     bytec_0 // "greeting"
     app_global_get_ex
     assert // check self.greeting exists
@@ -111,12 +116,12 @@ greet:
     concat
     swap
     concat
-    intc_1 // 0
+    intc_0 // 0
     bytec_2 // "address"
     app_global_get_ex
     assert // check self.address exists
     concat
-    intc_1 // 0
+    intc_0 // 0
     bytec_3 // "method"
     app_global_get_ex
     assert // check self.method exists

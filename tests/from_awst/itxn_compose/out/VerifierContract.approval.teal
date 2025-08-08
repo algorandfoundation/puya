@@ -4,8 +4,11 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 1
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@6
+    intc_0 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -18,7 +21,7 @@ main_verify_route@3:
     txn ApplicationID
     assert // can only call when not creating
     callsub verify
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@6:

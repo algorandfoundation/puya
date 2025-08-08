@@ -3,8 +3,11 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@6
+    pushint 1 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -20,7 +23,7 @@ main_check_sig_with_logic_sig_only_op_compiles_route@3:
     pushbytes base32(L5ABA6JEVE3VADKIBQPVT6JSLFSNTU6P3Z5OCNRGA4LMRYA7WKBA) // addr L5ABA6JEVE3VADKIBQPVT6JSLFSNTU6P3Z5OCNRGA4LMRYA7WKBCSLJBGI
     ==
     assert // expected to be signed by logic sig
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@6:

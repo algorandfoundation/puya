@@ -4,10 +4,17 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 1000
+    pushbytes ""
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@6
+    // inner_transactions/asset_transfer.py:11
+    // @arc4.abimethod()
+    intc_1 // 1
+    bury 1
+    // inner_transactions/asset_transfer.py:10
+    // class CreateAndTransferContract(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -26,7 +33,7 @@ main_create_and_transfer_route@3:
     callsub create_and_transfer
     // inner_transactions/asset_transfer.py:11
     // @arc4.abimethod()
-    intc_1 // 1
+    dup
     return
 
 main_bare_routing@6:

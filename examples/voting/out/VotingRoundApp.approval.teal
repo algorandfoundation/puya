@@ -5,6 +5,7 @@
 main:
     intcblock 0 1 10 8
     bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" 0x068101 0x30313233343536373839 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options"
+    pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
     // voting/voting.py:51
@@ -20,6 +21,10 @@ main:
     app_global_put
 
 main_after_if_else@2:
+    // voting/voting.py:58
+    // @arc4.abimethod(create="require")
+    intc_1 // 1
+    bury 1
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     txn OnCompletion
@@ -40,7 +45,7 @@ main_vote_route@8:
     callsub vote
     // voting/voting.py:169
     // @arc4.abimethod
-    intc_1 // 1
+    dup
     return
 
 main_get_preconditions_route@7:
@@ -53,7 +58,7 @@ main_get_preconditions_route@7:
     callsub get_preconditions
     // voting/voting.py:160
     // @arc4.abimethod(readonly=True)
-    intc_1 // 1
+    dup
     return
 
 main_close_route@6:
@@ -66,7 +71,7 @@ main_close_route@6:
     callsub close
     // voting/voting.py:110
     // @arc4.abimethod
-    intc_1 // 1
+    dup
     return
 
 main_bootstrap_route@5:
@@ -79,7 +84,7 @@ main_bootstrap_route@5:
     callsub bootstrap
     // voting/voting.py:82
     // @arc4.abimethod
-    intc_1 // 1
+    dup
     return
 
 main_create_route@4:
@@ -93,7 +98,7 @@ main_create_route@4:
     callsub create
     // voting/voting.py:58
     // @arc4.abimethod(create="require")
-    intc_1 // 1
+    dup
     return
 
 

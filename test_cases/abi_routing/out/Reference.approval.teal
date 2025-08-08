@@ -5,6 +5,7 @@
 main:
     intcblock 1 0 123 2
     bytecblock 0x151f7c75 "asa" 0x151f7c7500000000000001c8 "local_uint" "local_bytes"
+    pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
     // abi_routing/contract.py:26
@@ -37,6 +38,12 @@ main_after_if_else@2:
     // class Reference(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@20
+    // abi_routing/contract.py:40
+    // @arc4.abimethod
+    intc_0 // 1
+    bury 1
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
     pushbytess 0xd78db35b 0x01040023 0x3a5353fc 0xd2f2f53c 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8", method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
     txna ApplicationArgs 0
     match main_noop_with_uint64_route@5 main_opt_in_route@6 main_all_the_things_route@7 main_mixed_oca_route@8 main_opt_into_asset_route@9 main_with_transactions_route@10 main_compare_assets_route@11 main_get_address_route@12 main_get_asset_route@13 main_get_application_route@14 main_get_an_int_route@15 main_method_with_default_args_route@16 main_method_with_15_args_route@17 main_method_with_more_than_15_args_route@18 main_hello_with_algopy_string_route@19
@@ -59,7 +66,7 @@ main_hello_with_algopy_string_route@19:
     callsub hello_with_algopy_string
     // abi_routing/contract.py:295
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_method_with_more_than_15_args_route@18:
@@ -75,7 +82,7 @@ main_method_with_more_than_15_args_route@18:
     callsub method_with_more_than_15_args
     // abi_routing/contract.py:229
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_method_with_15_args_route@17:
@@ -91,7 +98,7 @@ main_method_with_15_args_route@17:
     callsub method_with_15_args
     // abi_routing/contract.py:191
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_method_with_default_args_route@16:
@@ -139,7 +146,7 @@ main_method_with_default_args_route@16:
     //         "bytes_from_local": "local_bytes",
     //     }
     // )
-    intc_0 // 1
+    dup
     return
 
 main_get_an_int_route@15:
@@ -152,7 +159,7 @@ main_get_an_int_route@15:
     assert // can only call when not creating
     pushbytes 0x151f7c750000000000000003
     log
-    intc_0 // 1
+    dup
     return
 
 main_get_application_route@14:
@@ -165,7 +172,7 @@ main_get_application_route@14:
     assert // can only call when not creating
     bytec_2 // 0x151f7c7500000000000001c8
     log
-    intc_0 // 1
+    dup
     return
 
 main_get_asset_route@13:
@@ -178,7 +185,7 @@ main_get_asset_route@13:
     assert // can only call when not creating
     bytec_2 // 0x151f7c7500000000000001c8
     log
-    intc_0 // 1
+    dup
     return
 
 main_get_address_route@12:
@@ -191,7 +198,7 @@ main_get_address_route@12:
     assert // can only call when not creating
     pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
     log
-    intc_0 // 1
+    dup
     return
 
 main_compare_assets_route@11:
@@ -207,7 +214,7 @@ main_compare_assets_route@11:
     callsub compare_assets
     // abi_routing/contract.py:122
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_with_transactions_route@10:
@@ -223,7 +230,7 @@ main_with_transactions_route@10:
     callsub with_transactions
     // abi_routing/contract.py:109
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_opt_into_asset_route@9:
@@ -239,7 +246,7 @@ main_opt_into_asset_route@9:
     callsub opt_into_asset
     // abi_routing/contract.py:92
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_mixed_oca_route@8:
@@ -274,7 +281,7 @@ main_mixed_oca_route@8:
     //     create="disallow",
     //     readonly=True,
     // )
-    intc_0 // 1
+    dup
     return
 
 main_all_the_things_route@7:
@@ -294,7 +301,7 @@ main_all_the_things_route@7:
     //     create="allow",
     //     readonly=True,
     // )
-    intc_0 // 1
+    dup
     return
 
 main_opt_in_route@6:
@@ -311,7 +318,7 @@ main_opt_in_route@6:
     callsub opt_in
     // abi_routing/contract.py:45
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
-    intc_0 // 1
+    dup
     return
 
 main_noop_with_uint64_route@5:
@@ -327,7 +334,7 @@ main_noop_with_uint64_route@5:
     callsub noop_with_uint64
     // abi_routing/contract.py:40
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@20:

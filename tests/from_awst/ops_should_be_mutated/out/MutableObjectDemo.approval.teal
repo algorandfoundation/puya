@@ -3,8 +3,11 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@6
+    pushint 1 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -17,7 +20,7 @@ main_setPlugin_route@3:
     txn ApplicationID
     assert // can only call when not creating
     callsub setPlugin
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@6:

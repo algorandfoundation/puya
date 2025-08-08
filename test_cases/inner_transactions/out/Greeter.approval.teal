@@ -5,6 +5,7 @@
 main:
     intcblock 0 1 6
     bytecblock "hello_app" 0x151f7c75
+    pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
     // inner_transactions/c2c.py:8
@@ -18,6 +19,12 @@ main_after_if_else@2:
     // class Greeter(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@7
+    // inner_transactions/c2c.py:10
+    // @arc4.abimethod()
+    intc_1 // 1
+    bury 1
+    // inner_transactions/c2c.py:6
+    // class Greeter(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -36,7 +43,7 @@ main_log_greetings_route@6:
     callsub log_greetings
     // inner_transactions/c2c.py:23
     // @arc4.abimethod()
-    intc_1 // 1
+    dup
     return
 
 main_bootstrap_route@5:
@@ -49,7 +56,7 @@ main_bootstrap_route@5:
     callsub bootstrap
     // inner_transactions/c2c.py:10
     // @arc4.abimethod()
-    intc_1 // 1
+    dup
     return
 
 main_bare_routing@7:

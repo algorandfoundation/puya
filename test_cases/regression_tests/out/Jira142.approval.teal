@@ -3,10 +3,17 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    pushbytes ""
     // regression_tests/jira_142.py:8
     // class Jira142(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@6
+    // regression_tests/jira_142.py:13
+    // @arc4.abimethod
+    pushint 1 // 1
+    bury 1
+    // regression_tests/jira_142.py:8
+    // class Jira142(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -28,7 +35,7 @@ main_battle_route@3:
     log
     // regression_tests/jira_142.py:13
     // @arc4.abimethod
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@6:

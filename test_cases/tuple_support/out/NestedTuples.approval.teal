@@ -4,17 +4,18 @@
 // test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 1 0 2 8
-    bytecblock 0x151f7c75 "box" "twm" "build_nested_call_count" "pwl" 0x0004
+    bytecblock 0x151f7c75 "box" "" "twm" "build_nested_call_count" "pwl" 0x0004
+    bytec_2 // ""
     txn ApplicationID
     bnz main_after_if_else@2
     // tuple_support/nested_tuples.py:50
     // self.build_nested_call_count = UInt64(0)
-    bytec_3 // "build_nested_call_count"
+    bytec 4 // "build_nested_call_count"
     intc_1 // 0
     app_global_put
     // tuple_support/nested_tuples.py:52
     // self.twm = TupleWithMutable(
-    bytec_2 // "twm"
+    bytec_3 // "twm"
     pushbytes 0x0004000600000000000000000000000c000e00000000
     // tuple_support/nested_tuples.py:52-59
     // self.twm = TupleWithMutable(
@@ -32,6 +33,12 @@ main_after_if_else@2:
     // class NestedTuples(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@19
+    // tuple_support/nested_tuples.py:61
+    // @arc4.abimethod()
+    intc_0 // 1
+    bury 1
+    // tuple_support/nested_tuples.py:48
+    // class NestedTuples(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -50,7 +57,7 @@ main_nested_named_tuple_params_route@18:
     callsub nested_named_tuple_params
     // tuple_support/nested_tuples.py:161
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_named_tuple_route@17:
@@ -63,7 +70,7 @@ main_named_tuple_route@17:
     callsub named_tuple
     // tuple_support/nested_tuples.py:156
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_nested_tuple_params_route@16:
@@ -76,7 +83,7 @@ main_nested_tuple_params_route@16:
     callsub nested_tuple_params
     // tuple_support/nested_tuples.py:149
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_run_tests_route@15:
@@ -89,7 +96,7 @@ main_run_tests_route@15:
     callsub run_tests
     // tuple_support/nested_tuples.py:120
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_mutate_tuple_in_storage_currently_supported_method_route@14:
@@ -102,7 +109,7 @@ main_mutate_tuple_in_storage_currently_supported_method_route@14:
     callsub mutate_tuple_in_storage_currently_supported_method
     // tuple_support/nested_tuples.py:114
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_mutate_local_tuple_route@13:
@@ -115,7 +122,7 @@ main_mutate_local_tuple_route@13:
     callsub mutate_local_tuple
     // tuple_support/nested_tuples.py:95
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_load_tuple_from_local_state_or_default_route@12:
@@ -128,7 +135,7 @@ main_load_tuple_from_local_state_or_default_route@12:
     callsub load_tuple_from_local_state_or_default
     // tuple_support/nested_tuples.py:90
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_load_tuple_from_box_or_default_route@11:
@@ -141,7 +148,7 @@ main_load_tuple_from_box_or_default_route@11:
     callsub load_tuple_from_box_or_default
     // tuple_support/nested_tuples.py:86
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_maybe_load_tuple_from_box_route@10:
@@ -154,7 +161,7 @@ main_maybe_load_tuple_from_box_route@10:
     callsub maybe_load_tuple_from_box
     // tuple_support/nested_tuples.py:81
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_load_tuple_from_box_route@9:
@@ -167,7 +174,7 @@ main_load_tuple_from_box_route@9:
     callsub load_tuple_from_box
     // tuple_support/nested_tuples.py:77
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_is_tuple_in_box_route@8:
@@ -180,7 +187,7 @@ main_is_tuple_in_box_route@8:
     callsub is_tuple_in_box
     // tuple_support/nested_tuples.py:73
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_store_tuple_in_box_route@7:
@@ -193,7 +200,7 @@ main_store_tuple_in_box_route@7:
     callsub store_tuple_in_box
     // tuple_support/nested_tuples.py:69
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_load_tuple_route@6:
@@ -206,7 +213,7 @@ main_load_tuple_route@6:
     callsub load_tuple
     // tuple_support/nested_tuples.py:65
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_store_tuple_route@5:
@@ -219,7 +226,7 @@ main_store_tuple_route@5:
     callsub store_tuple
     // tuple_support/nested_tuples.py:61
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@19:
@@ -379,7 +386,7 @@ test_nested_singles_after_if_else@2:
 store_tuple:
     // tuple_support/nested_tuples.py:63
     // self.pwl = pwl
-    bytec 4 // "pwl"
+    bytec 5 // "pwl"
     // tuple_support/nested_tuples.py:48
     // class NestedTuples(ARC4Contract):
     txna ApplicationArgs 1
@@ -394,7 +401,7 @@ load_tuple:
     // tuple_support/nested_tuples.py:67
     // return self.pwl
     intc_1 // 0
-    bytec 4 // "pwl"
+    bytec 5 // "pwl"
     app_global_get_ex
     assert // check self.pwl exists
     // tuple_support/nested_tuples.py:65
@@ -529,7 +536,7 @@ maybe_load_tuple_from_box_ternary_merge@4:
 maybe_load_tuple_from_box_ternary_false@3:
     // tuple_support/nested_tuples.py:83
     // maybe_value, exists = self.box.maybe(key)
-    pushbytes ""
+    bytec_2 // ""
     dup
     b maybe_load_tuple_from_box_ternary_merge@4
 
@@ -683,7 +690,7 @@ mutate_tuple_in_storage_currently_supported_method:
     // tuple_support/nested_tuples.py:116
     // arr2 = self.twm.arr.copy()
     intc_1 // 0
-    bytec_2 // "twm"
+    bytec_3 // "twm"
     app_global_get_ex
     assert // check self.twm exists
     dup
@@ -773,14 +780,14 @@ mutate_tuple_in_storage_currently_supported_method:
     swap
     itob
     extract 6 2
-    bytec 5 // 0x0004
+    bytec 6 // 0x0004
     swap
     concat
     uncover 2
     concat
     swap
     concat
-    bytec_2 // "twm"
+    bytec_3 // "twm"
     swap
     app_global_put
     retsub
@@ -791,7 +798,7 @@ run_tests:
     // tuple_support/nested_tuples.py:48
     // class NestedTuples(ARC4Contract):
     proto 0 0
-    pushbytes ""
+    bytec_2 // ""
     // tuple_support/nested_tuples.py:136
     // test_intrinsics(UInt64(1), UInt64(2))
     intc_0 // 1
@@ -885,7 +892,7 @@ run_tests_for_body@17:
     assert
     // tuple_support/nested_tuples.py:168
     // self.build_nested_call_count += 1
-    bytec_3 // "build_nested_call_count"
+    bytec 4 // "build_nested_call_count"
     intc_0 // 1
     app_global_put
     // tuple_support/nested_tuples.py:120
@@ -1051,7 +1058,7 @@ nested_tuple_params:
     swap
     itob
     extract 6 2
-    bytec 5 // 0x0004
+    bytec 6 // 0x0004
     swap
     concat
     uncover 2

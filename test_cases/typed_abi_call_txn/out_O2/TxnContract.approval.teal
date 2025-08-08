@@ -5,8 +5,11 @@
 main:
     intcblock 1 3
     bytecblock 0x61 0x62 0x151f7c75
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@8
+    intc_0 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -39,7 +42,7 @@ main_call_with_acfg_no_return_route@5:
     assert // b is not b
     gtxns CreatedAssetID
     assert // expected asset id
-    intc_0 // 1
+    dup
     return
 
 main_call_with_acfg_route@4:
@@ -72,7 +75,7 @@ main_call_with_acfg_route@4:
     swap
     concat
     log
-    intc_0 // 1
+    dup
     return
 
 main_call_with_txn_route@3:
@@ -105,7 +108,7 @@ main_call_with_txn_route@3:
     swap
     concat
     log
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@8:

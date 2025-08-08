@@ -4,10 +4,17 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     bytecblock 0x068101
+    pushbytes ""
     // regression_tests/branch_to_proto.py:4
     // class VRFVerifier(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@6
+    // regression_tests/branch_to_proto.py:5
+    // @arc4.abimethod
+    pushint 1 // 1
+    bury 1
+    // regression_tests/branch_to_proto.py:4
+    // class VRFVerifier(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -26,7 +33,7 @@ main_verify_route@3:
     callsub verify
     // regression_tests/branch_to_proto.py:5
     // @arc4.abimethod
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@6:

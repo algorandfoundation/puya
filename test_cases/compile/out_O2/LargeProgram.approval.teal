@@ -3,8 +3,11 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@7
+    pushint 1 // 1
+    bury 1
     pushbytess 0xf5e4fd4d 0x24378d3c // method "get_big_bytes_length()uint64", method "delete()void"
     txna ApplicationArgs 0
     match main_get_big_bytes_length_route@3 main_delete_route@4
@@ -17,7 +20,7 @@ main_delete_route@4:
     assert // OnCompletion is not DeleteApplication
     txn ApplicationID
     assert // can only call when not creating
-    pushint 1 // 1
+    dup
     return
 
 main_get_big_bytes_length_route@3:
@@ -28,7 +31,7 @@ main_get_big_bytes_length_route@3:
     assert // can only call when not creating
     pushbytes 0x151f7c750000000000001000
     log
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@7:

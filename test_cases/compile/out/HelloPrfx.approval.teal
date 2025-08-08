@@ -3,8 +3,9 @@
 
 // test_cases.compile.apps.HelloPrfx.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 1
     bytecblock "greeting" PRFX_GREETING
+    pushbytes ""
+    dup
     txn ApplicationID
     bnz main_after_if_else@2
     // compile/apps.py:69
@@ -18,6 +19,12 @@ main_after_if_else@2:
     // class HelloPrfx(HelloBase):
     txn NumAppArgs
     bz main_bare_routing@8
+    // compile/apps.py:71
+    // @arc4.abimethod(create="require")
+    pushint 1 // 1
+    bury 2
+    // compile/apps.py:67
+    // class HelloPrfx(HelloBase):
     pushbytess 0x4c5c61ba 0x24378d3c 0xd0a28200 // method "create()void", method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
     match main_create_route@5 main_delete_route@6 main_greet_route@7
@@ -36,7 +43,7 @@ main_greet_route@7:
     callsub greet
     // compile/apps.py:32
     // @arc4.abimethod()
-    intc_0 // 1
+    dig 1
     return
 
 main_delete_route@6:
@@ -48,7 +55,7 @@ main_delete_route@6:
     assert // OnCompletion is not DeleteApplication
     txn ApplicationID
     assert // can only call when not creating
-    intc_0 // 1
+    dig 1
     return
 
 main_create_route@5:
@@ -60,10 +67,14 @@ main_create_route@5:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    dig 1
     return
 
 main_bare_routing@8:
+    // compile/apps.py:28
+    // @arc4.baremethod(allow_actions=["UpdateApplication"])
+    pushint 1 // 1
+    bury 1
     // compile/apps.py:67
     // class HelloPrfx(HelloBase):
     pushint 4 // 4
@@ -76,7 +87,7 @@ main_update@9:
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID
     assert // can only call when not creating
-    intc_0 // 1
+    dup
     return
 
 

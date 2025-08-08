@@ -3,6 +3,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@26
     block@2: // abi_routing_L31
+        let lifted%0#0: bool = 1u
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
@@ -19,7 +20,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%0#3) // a is not a
         let tmp%1#3: bool = (== b#0 0x62)
         (assert tmp%1#3) // b is not b
-        exit 1u
+        exit lifted%0#0
     block@4: // echo_route_L37
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
@@ -33,31 +34,31 @@ main algopy.arc4.ARC4Contract.approval_program:
         let replace%0#0: bytes = ((replace2 0) concat%0#0 as_u16_bytes%0#0)
         let tmp%1#1: bytes = (concat 0x151f7c75 replace%0#0)
         (log tmp%1#1)
-        exit 1u
+        exit lifted%0#0
     block@5: // no_args_route_L41
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
         (log 0x151f7c75000000000000002a)
-        exit 1u
+        exit lifted%0#0
     block@6: // log_route_L45
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
         let value#2: bytes = (txna ApplicationArgs 1)
         (log value#2)
-        exit 1u
+        exit lifted%0#0
     block@7: // log_route_L49
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
         let value#2: bytes = (txna ApplicationArgs 1)
         (log value#2)
-        exit 1u
+        exit lifted%0#0
     block@8: // log_route_L53
         let tmp%15#0: uint64 = (txn ApplicationID)
         (assert tmp%15#0) // can only call when not creating
         let value#2: bytes = (txna ApplicationArgs 1)
         let tmp%0#24: string = ((extract 2 0) value#2)
         (log tmp%0#24)
-        exit 1u
+        exit lifted%0#0
     block@9: // log_route_L57
         let tmp%17#0: uint64 = (txn ApplicationID)
         (assert tmp%17#0) // can only call when not creating
@@ -65,14 +66,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%get_bit%0#0: bool = (getbit value#2 0u)
         let select%0#0: bytes = (select 0x46616c7365 0x54727565 aggregate%get_bit%0#0)
         (log select%0#0)
-        exit 1u
+        exit lifted%0#0
     block@10: // log_route_L61
         let tmp%19#0: uint64 = (txn ApplicationID)
         (assert tmp%19#0) // can only call when not creating
         let value#2: bytes = (txna ApplicationArgs 1)
         let tmp%0#5: bytes = ((extract 2 0) value#2)
         (log tmp%0#5)
-        exit 1u
+        exit lifted%0#0
     block@11: // log_route_L65
         let tmp%21#0: uint64 = (txn ApplicationID)
         (assert tmp%21#0) // can only call when not creating
@@ -88,13 +89,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert check%1#0) // application exists
         let tmp%3#7: bytes = (concat tmp%1#1 value%1#0)
         (log tmp%3#7)
-        exit 1u
+        exit lifted%0#0
     block@12: // log_route_L69
         let tmp%23#0: uint64 = (txn ApplicationID)
         (assert tmp%23#0) // can only call when not creating
         let address#0: bytes = (txna ApplicationArgs 1)
         (log address#0)
-        exit 1u
+        exit lifted%0#0
     block@13: // echo_native_string_route_L73
         let tmp%25#0: uint64 = (txn ApplicationID)
         (assert tmp%25#0) // can only call when not creating
@@ -107,7 +108,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%encoded_value%1#0: bytes = (concat aggregate%length_uint16%1#0 tmp%0#5)
         let tmp%3#7: bytes = (concat 0x151f7c75 aggregate%encoded_value%1#0)
         (log tmp%3#7)
-        exit 1u
+        exit lifted%0#0
     block@14: // echo_native_bytes_route_L77
         let tmp%27#0: uint64 = (txn ApplicationID)
         (assert tmp%27#0) // can only call when not creating
@@ -120,7 +121,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%encoded_value%2#0: bytes = (concat aggregate%length_uint16%2#0 tmp%0#5)
         let tmp%3#7: bytes = (concat 0x151f7c75 aggregate%encoded_value%2#0)
         (log tmp%3#7)
-        exit 1u
+        exit lifted%0#0
     block@15: // echo_native_uint64_route_L81
         let tmp%29#0: uint64 = (txn ApplicationID)
         (assert tmp%29#0) // can only call when not creating
@@ -130,7 +131,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%val_as_bytes%1#0: bytes[8] = (itob tmp%0#1)
         let tmp%3#7: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%1#0)
         (log tmp%3#7)
-        exit 1u
+        exit lifted%0#0
     block@16: // echo_native_biguint_route_L85
         let tmp%31#0: uint64 = (txn ApplicationID)
         (assert tmp%31#0) // can only call when not creating
@@ -143,7 +144,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%arc4_encoded%0#0: bytes[64] = (b| tmp%0#13 aggregate%bzero%0#0)
         let tmp%3#7: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%0#0)
         (log tmp%3#7)
-        exit 1u
+        exit lifted%0#0
     block@17: // echo_resource_by_index_route_L89
         let tmp%33#0: uint64 = (txn ApplicationID)
         (assert tmp%33#0) // can only call when not creating
@@ -177,7 +178,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%head%2#0: bytes = (concat aggregate%head%1#0 acc#0)
         let tmp%10#2: bytes = (concat 0x151f7c75 aggregate%head%2#0)
         (log tmp%10#2)
-        exit 1u
+        exit lifted%0#0
     block@18: // echo_resource_by_value_route_L103
         let tmp%35#0: uint64 = (txn ApplicationID)
         (assert tmp%35#0) // can only call when not creating
@@ -203,7 +204,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%head%5#0: bytes = (concat aggregate%head%4#0 acc#0)
         let tmp%7#1: bytes = (concat 0x151f7c75 aggregate%head%5#0)
         (log tmp%7#1)
-        exit 1u
+        exit lifted%0#0
     block@19: // echo_native_tuple_route_L117
         let tmp%37#0: uint64 = (txn ApplicationID)
         (assert tmp%37#0) // can only call when not creating
@@ -243,7 +244,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%concat%1#0: bytes = (concat aggregate%concat%0#0 aggregate%encoded_value%4#0)
         let tmp%9#1: bytes = (concat 0x151f7c75 aggregate%concat%1#0)
         (log tmp%9#1)
-        exit 1u
+        exit lifted%0#0
     block@20: // echo_nested_tuple_route_L123
         let tmp%39#0: uint64 = (txn ApplicationID)
         (assert tmp%39#0) // can only call when not creating
@@ -305,7 +306,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%concat%6#0: bytes = (concat aggregate%concat%5#0 aggregate%concat%4#0)
         let tmp%11#1: bytes = (concat 0x151f7c75 aggregate%concat%6#0)
         (log tmp%11#1)
-        exit 1u
+        exit lifted%0#0
     block@21: // return_args_after_14th_route_L134
         let tmp%41#0: uint64 = (txn ApplicationID)
         (assert tmp%41#0) // can only call when not creating
@@ -335,7 +336,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%encoded_value%8#0: bytes = (concat aggregate%length_uint16%8#0 last_arg#0)
         let tmp%1#1: bytes = (concat 0x151f7c75 aggregate%encoded_value%8#0)
         (log tmp%1#1)
-        exit 1u
+        exit lifted%0#0
     block@22: // logs_are_equal_route_L162
         let tmp%43#0: uint64 = (txn ApplicationID)
         (assert tmp%43#0) // can only call when not creating
@@ -357,14 +358,14 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%2#2)
         let tmp%6#1: bytes = (concat 0x151f7c75 aggregate%encoded_bool%0#0)
         (log tmp%6#1)
-        exit 1u
+        exit lifted%0#0
     block@23: // echo_log_struct_route_L166
         let tmp%45#0: uint64 = (txn ApplicationID)
         (assert tmp%45#0) // can only call when not creating
         let log#0: Encoded(uint64,(len+utf8[])) = (txna ApplicationArgs 1)
         let tmp%1#1: bytes = (concat 0x151f7c75 log#0)
         (log tmp%1#1)
-        exit 1u
+        exit lifted%0#0
     block@26: // bare_routing_L31
         let tmp%47#0: uint64 = (txn OnCompletion)
         let not%tmp%47#0: bool = (! tmp%47#0)

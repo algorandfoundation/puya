@@ -3,10 +3,17 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    pushbytes ""
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@6
+    // regression_tests/jira_ak_752.py:13
+    // @abimethod
+    pushint 1 // 1
+    bury 1
+    // regression_tests/jira_ak_752.py:12
+    // class Verifier(algopy.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -25,7 +32,7 @@ main_verify_route@3:
     callsub verify
     // regression_tests/jira_ak_752.py:13
     // @abimethod
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@6:

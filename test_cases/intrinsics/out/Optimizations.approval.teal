@@ -3,12 +3,18 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1
     bytecblock 0x0020
+    pushbytes ""
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@10
+    // intrinsics/optimizations.py:5
+    // @arc4.abimethod()
+    pushint 1 // 1
+    bury 1
+    // intrinsics/optimizations.py:4
+    // class Optimizations(arc4.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -27,7 +33,7 @@ main_all_route@7:
     callsub all
     // intrinsics/optimizations.py:21
     // @arc4.abimethod()
-    intc_0 // 1
+    dup
     return
 
 main_keccak256_route@6:
@@ -37,7 +43,7 @@ main_keccak256_route@6:
     assert // can only call when not creating
     pushbytes 0x151f7c750020592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba
     log
-    intc_0 // 1
+    dup
     return
 
 main_sha512_256_route@5:
@@ -47,7 +53,7 @@ main_sha512_256_route@5:
     assert // can only call when not creating
     pushbytes 0x151f7c750020ff20018851481c25bfc2e5d0c1e1fa57dac2a237a1a96192f99a10da47aa5442
     log
-    intc_0 // 1
+    dup
     return
 
 main_sha3_256_route@4:
@@ -57,7 +63,7 @@ main_sha3_256_route@4:
     assert // can only call when not creating
     pushbytes 0x151f7c750020e167f68d6563d75bb25f3aa49c29ef612d41352dc00606de7cbd630bb2665f51
     log
-    intc_0 // 1
+    dup
     return
 
 main_sha256_route@3:
@@ -67,7 +73,7 @@ main_sha256_route@3:
     assert // can only call when not creating
     pushbytes 0x151f7c750020a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
     log
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@10:
@@ -79,7 +85,7 @@ main_bare_routing@10:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    pushint 1 // 1
     return
 
 

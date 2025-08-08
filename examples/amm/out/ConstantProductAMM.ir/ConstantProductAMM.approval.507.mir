@@ -1,87 +1,92 @@
 // Op                                                                                             Stack (out)
 // examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
-    main_block@0:
-        txn ApplicationID                                                                         tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2
+    declare uint64 lifted%0#0
+    main_block@0:                                                                                 (𝕗) lifted%0#0 |
+        txn ApplicationID                                                                         (𝕗) lifted%0#0 | tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2                                          (𝕗) lifted%0#0 |
 
-    main_call___init__@1:
+    main_call___init__@1:                                                                         (𝕗) lifted%0#0 |
         // amm/contract.py:33
         // self.asset_a = Asset()
-        byte "asset_a"                                                                            "asset_a"
-        int 0                                                                                     "asset_a",0
-        app_global_put
+        byte "asset_a"                                                                            (𝕗) lifted%0#0 | "asset_a"
+        int 0                                                                                     (𝕗) lifted%0#0 | "asset_a",0
+        app_global_put                                                                            (𝕗) lifted%0#0 |
         // amm/contract.py:35
         // self.asset_b = Asset()
-        byte "asset_b"                                                                            "asset_b"
-        int 0                                                                                     "asset_b",0
-        app_global_put
+        byte "asset_b"                                                                            (𝕗) lifted%0#0 | "asset_b"
+        int 0                                                                                     (𝕗) lifted%0#0 | "asset_b",0
+        app_global_put                                                                            (𝕗) lifted%0#0 |
         // amm/contract.py:37
         // self.governor = Txn.sender
-        txn Sender                                                                                tmp%0#2
-        byte "governor"                                                                           tmp%0#2,"governor"
-        l-load tmp%0#2 1                                                                          "governor",tmp%0#2
-        app_global_put
+        txn Sender                                                                                (𝕗) lifted%0#0 | tmp%0#2
+        byte "governor"                                                                           (𝕗) lifted%0#0 | tmp%0#2,"governor"
+        l-load tmp%0#2 1                                                                          (𝕗) lifted%0#0 | "governor",tmp%0#2
+        app_global_put                                                                            (𝕗) lifted%0#0 |
         // amm/contract.py:39
         // self.pool_token = Asset()
-        byte "pool_token"                                                                         "pool_token"
-        int 0                                                                                     "pool_token",0
-        app_global_put
+        byte "pool_token"                                                                         (𝕗) lifted%0#0 | "pool_token"
+        int 0                                                                                     (𝕗) lifted%0#0 | "pool_token",0
+        app_global_put                                                                            (𝕗) lifted%0#0 |
         // amm/contract.py:41
         // self.ratio = UInt64(0)
-        byte "ratio"                                                                              "ratio"
-        int 0                                                                                     "ratio",0
-        app_global_put
-        b main_after_if_else@2
+        byte "ratio"                                                                              (𝕗) lifted%0#0 | "ratio"
+        int 0                                                                                     (𝕗) lifted%0#0 | "ratio",0
+        app_global_put                                                                            (𝕗) lifted%0#0 |
+        b main_after_if_else@2                                                                    (𝕗) lifted%0#0 |
 
-    main_after_if_else@2:
+    main_after_if_else@2:                                                                         (𝕗) lifted%0#0 |
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        txn NumAppArgs                                                                            tmp%0#3
-        bz main_bare_routing@10 ; b main_abi_routing@4
+        txn NumAppArgs                                                                            (𝕗) lifted%0#0 | tmp%0#3
+        bz main_bare_routing@10 ; b main_abi_routing@4                                            (𝕗) lifted%0#0 |
 
-    main_abi_routing@4:
-        // amm/contract.py:27
-        // class ConstantProductAMM(ARC4Contract):
-        txn OnCompletion                                                                          tmp%2#0
-        !                                                                                         tmp%3#0
-        assert // OnCompletion is not NoOp
-        txna ApplicationArgs 0                                                                    tmp%4#0
-        method set_governor(address)void                                                          tmp%4#0,Method(set_governor(address)void)
-        method bootstrap(pay,asset,asset)uint64                                                   tmp%4#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64)
-        method mint(axfer,axfer,asset,asset,asset)void                                            tmp%4#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void)
-        method burn(axfer,asset,asset,asset)void                                                  tmp%4#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void)
-        method swap(axfer,asset,asset)void                                                        tmp%4#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void),Method(swap(axfer,asset,asset)void)
-        l-load tmp%4#0 5                                                                          Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void),Method(swap(axfer,asset,asset)void),tmp%4#0
-        match main_set_governor_route@5 main_bootstrap_route@6 main_mint_route@7 main_burn_route@8 main_swap_route@9 ; b main_after_if_else@12 
-
-    main_set_governor_route@5:
+    main_abi_routing@4:                                                                           (𝕗) lifted%0#0 |
         // amm/contract.py:43
         // @arc4.abimethod()
-        txn ApplicationID                                                                         tmp%5#0
-        assert // can only call when not creating
+        int 1                                                                                     (𝕗) lifted%0#0 | lifted%0#0
+        f-store lifted%0#0                                                                        (𝕗) lifted%0#0 |
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        callsub set_governor
+        txn OnCompletion                                                                          (𝕗) lifted%0#0 | tmp%2#0
+        !                                                                                         (𝕗) lifted%0#0 | tmp%3#0
+        assert // OnCompletion is not NoOp                                                        (𝕗) lifted%0#0 |
+        txna ApplicationArgs 0                                                                    (𝕗) lifted%0#0 | tmp%4#0
+        method set_governor(address)void                                                          (𝕗) lifted%0#0 | tmp%4#0,Method(set_governor(address)void)
+        method bootstrap(pay,asset,asset)uint64                                                   (𝕗) lifted%0#0 | tmp%4#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64)
+        method mint(axfer,axfer,asset,asset,asset)void                                            (𝕗) lifted%0#0 | tmp%4#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void)
+        method burn(axfer,asset,asset,asset)void                                                  (𝕗) lifted%0#0 | tmp%4#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void)
+        method swap(axfer,asset,asset)void                                                        (𝕗) lifted%0#0 | tmp%4#0,Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void),Method(swap(axfer,asset,asset)void)
+        l-load tmp%4#0 5                                                                          (𝕗) lifted%0#0 | Method(set_governor(address)void),Method(bootstrap(pay,asset,asset)uint64),Method(mint(axfer,axfer,asset,asset,asset)void),Method(burn(axfer,asset,asset,asset)void),Method(swap(axfer,asset,asset)void),tmp%4#0
+        match main_set_governor_route@5 main_bootstrap_route@6 main_mint_route@7 main_burn_route@8 main_swap_route@9 ; b main_after_if_else@12 (𝕗) lifted%0#0 | 
+
+    main_set_governor_route@5:                                                                    (𝕗) lifted%0#0 |
         // amm/contract.py:43
         // @arc4.abimethod()
-        int 1                                                                                     1
-        return
-
-    main_bootstrap_route@6:
-        // amm/contract.py:49
-        // @arc4.abimethod(resource_encoding="index")
-        txn ApplicationID                                                                         tmp%7#0
-        assert // can only call when not creating
+        txn ApplicationID                                                                         (𝕗) lifted%0#0 | tmp%5#0
+        assert // can only call when not creating                                                 (𝕗) lifted%0#0 |
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        callsub bootstrap
+        callsub set_governor                                                                      (𝕗) lifted%0#0 |
+        // amm/contract.py:43
+        // @arc4.abimethod()
+        f-load lifted%0#0                                                                         (𝕗) lifted%0#0 | lifted%0#0
+        return                                                                                    (𝕗) lifted%0#0 |
+
+    main_bootstrap_route@6:                                                                       (𝕗) lifted%0#0 |
         // amm/contract.py:49
         // @arc4.abimethod(resource_encoding="index")
-        int 1                                                                                     1
-        return
+        txn ApplicationID                                                                         (𝕗) lifted%0#0 | tmp%7#0
+        assert // can only call when not creating                                                 (𝕗) lifted%0#0 |
+        // amm/contract.py:27
+        // class ConstantProductAMM(ARC4Contract):
+        callsub bootstrap                                                                         (𝕗) lifted%0#0 |
+        // amm/contract.py:49
+        // @arc4.abimethod(resource_encoding="index")
+        f-load lifted%0#0                                                                         (𝕗) lifted%0#0 | lifted%0#0
+        return                                                                                    (𝕗) lifted%0#0 |
 
-    main_mint_route@7:
+    main_mint_route@7:                                                                            (𝕗) lifted%0#0 |
         // amm/contract.py:81-88
         // @arc4.abimethod(
         //     default_args={
@@ -91,11 +96,11 @@ subroutine main:
         //     },
         //     resource_encoding="index",
         // )
-        txn ApplicationID                                                                         tmp%9#0
-        assert // can only call when not creating
+        txn ApplicationID                                                                         (𝕗) lifted%0#0 | tmp%9#0
+        assert // can only call when not creating                                                 (𝕗) lifted%0#0 |
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        callsub mint
+        callsub mint                                                                              (𝕗) lifted%0#0 |
         // amm/contract.py:81-88
         // @arc4.abimethod(
         //     default_args={
@@ -105,10 +110,10 @@ subroutine main:
         //     },
         //     resource_encoding="index",
         // )
-        int 1                                                                                     1
-        return
+        f-load lifted%0#0                                                                         (𝕗) lifted%0#0 | lifted%0#0
+        return                                                                                    (𝕗) lifted%0#0 |
 
-    main_burn_route@8:
+    main_burn_route@8:                                                                            (𝕗) lifted%0#0 |
         // amm/contract.py:148-155
         // @arc4.abimethod(
         //     default_args={
@@ -118,11 +123,11 @@ subroutine main:
         //     },
         //     resource_encoding="index",
         // )
-        txn ApplicationID                                                                         tmp%11#0
-        assert // can only call when not creating
+        txn ApplicationID                                                                         (𝕗) lifted%0#0 | tmp%11#0
+        assert // can only call when not creating                                                 (𝕗) lifted%0#0 |
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        callsub burn
+        callsub burn                                                                              (𝕗) lifted%0#0 |
         // amm/contract.py:148-155
         // @arc4.abimethod(
         //     default_args={
@@ -132,10 +137,10 @@ subroutine main:
         //     },
         //     resource_encoding="index",
         // )
-        int 1                                                                                     1
-        return
+        f-load lifted%0#0                                                                         (𝕗) lifted%0#0 | lifted%0#0
+        return                                                                                    (𝕗) lifted%0#0 |
 
-    main_swap_route@9:
+    main_swap_route@9:                                                                            (𝕗) lifted%0#0 |
         // amm/contract.py:206-212
         // @arc4.abimethod(
         //     default_args={
@@ -144,11 +149,11 @@ subroutine main:
         //     },
         //     resource_encoding="index",
         // )
-        txn ApplicationID                                                                         tmp%13#0
-        assert // can only call when not creating
+        txn ApplicationID                                                                         (𝕗) lifted%0#0 | tmp%13#0
+        assert // can only call when not creating                                                 (𝕗) lifted%0#0 |
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        callsub swap
+        callsub swap                                                                              (𝕗) lifted%0#0 |
         // amm/contract.py:206-212
         // @arc4.abimethod(
         //     default_args={
@@ -157,25 +162,25 @@ subroutine main:
         //     },
         //     resource_encoding="index",
         // )
-        int 1                                                                                     1
-        return
+        f-load lifted%0#0                                                                         (𝕗) lifted%0#0 | lifted%0#0
+        return                                                                                    (𝕗) lifted%0#0 |
 
-    main_bare_routing@10:
+    main_bare_routing@10:                                                                         (𝕗) lifted%0#0 |
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        txn OnCompletion                                                                          tmp%15#0
-        !                                                                                         not%tmp%15#0
-        assert
-        txn ApplicationID                                                                         tmp%16#0
-        !                                                                                         tmp%17#0
-        assert // can only call when creating
-        int 1                                                                                     1
-        return
+        txn OnCompletion                                                                          (𝕗) lifted%0#0 | tmp%15#0
+        !                                                                                         (𝕗) lifted%0#0 | not%tmp%15#0
+        assert                                                                                    (𝕗) lifted%0#0 |
+        txn ApplicationID                                                                         (𝕗) lifted%0#0 | tmp%16#0
+        !                                                                                         (𝕗) lifted%0#0 | tmp%17#0
+        assert // can only call when creating                                                     (𝕗) lifted%0#0 |
+        int 1                                                                                     (𝕗) lifted%0#0 | 1
+        return                                                                                    (𝕗) lifted%0#0 |
 
-    main_after_if_else@12:
+    main_after_if_else@12:                                                                        (𝕗) lifted%0#0 |
         // amm/contract.py:27
         // class ConstantProductAMM(ARC4Contract):
-        err
+        err                                                                                       (𝕗) lifted%0#0 |
 
 
 // examples.amm.contract.do_asset_transfer(receiver: bytes, asset: uint64, amount: uint64) -> void:

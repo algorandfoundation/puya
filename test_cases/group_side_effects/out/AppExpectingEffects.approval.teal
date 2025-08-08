@@ -5,10 +5,17 @@
 main:
     intcblock 1 6
     bytecblock 0x151f7c75
+    pushbytes ""
     // group_side_effects/contract.py:4
     // class AppExpectingEffects(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@7
+    // group_side_effects/contract.py:5
+    // @arc4.abimethod
+    intc_0 // 1
+    bury 1
+    // group_side_effects/contract.py:4
+    // class AppExpectingEffects(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -27,7 +34,7 @@ main_log_group_route@4:
     callsub log_group
     // group_side_effects/contract.py:22
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_create_group_route@3:
@@ -40,7 +47,7 @@ main_create_group_route@3:
     callsub create_group
     // group_side_effects/contract.py:5
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@7:

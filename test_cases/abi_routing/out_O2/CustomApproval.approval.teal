@@ -3,6 +3,7 @@
 
 // test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_with_init() -> uint64:
 main:
+    pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
     txn ApplicationID
@@ -25,6 +26,8 @@ main_after_if_else@2:
 main_after_if_else@6:
     txn NumAppArgs
     bz main_bare_routing@12
+    pushint 1 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -45,7 +48,7 @@ main_add_one_route@11:
     swap
     concat
     log
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@12:

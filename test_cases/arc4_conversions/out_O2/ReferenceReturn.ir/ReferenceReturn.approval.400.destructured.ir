@@ -3,6 +3,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@15
     block@2: // abi_routing_L4
+        let lifted%0#0: bool = 1u
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
@@ -14,17 +15,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%0#3: account = (txn Sender)
         let tmp%2#3: bytes = (concat 0x151f7c75 tmp%0#3)
         (log tmp%2#3)
-        exit 1u
+        exit lifted%0#0
     block@4: // asset_ret_route_L9
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
         (log 0x151f7c7500000000000004d2)
-        exit 1u
+        exit lifted%0#0
     block@5: // app_ret_route_L13
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
         (log 0x151f7c7500000000000004d2)
-        exit 1u
+        exit lifted%0#0
     block@6: // store_route_L17
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
@@ -36,25 +37,25 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "acc" acc#0)
         (app_global_put "asset" asset#0)
         (app_global_put "app" app#0)
-        exit 1u
+        exit lifted%0#0
     block@7: // store_apps_route_L23
         let tmp%13#0: uint64 = (txn ApplicationID)
         (assert tmp%13#0) // can only call when not creating
         let apps#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
         (app_global_put "apps" apps#0)
-        exit 1u
+        exit lifted%0#0
     block@8: // store_assets_route_L27
         let tmp%15#0: uint64 = (txn ApplicationID)
         (assert tmp%15#0) // can only call when not creating
         let assets#0: Encoded(len+uint64[]) = (txna ApplicationArgs 1)
         (app_global_put "assets" assets#0)
-        exit 1u
+        exit lifted%0#0
     block@9: // store_accounts_route_L31
         let tmp%17#0: uint64 = (txn ApplicationID)
         (assert tmp%17#0) // can only call when not creating
         let accounts#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
         (app_global_put "accounts" accounts#0)
-        exit 1u
+        exit lifted%0#0
     block@10: // return_apps_route_L35
         let tmp%19#0: uint64 = (txn ApplicationID)
         (assert tmp%19#0) // can only call when not creating
@@ -62,7 +63,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert maybe_exists%0#0) // check self.apps exists
         let tmp%1#1: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%1#1)
-        exit 1u
+        exit lifted%0#0
     block@11: // return_assets_route_L39
         let tmp%21#0: uint64 = (txn ApplicationID)
         (assert tmp%21#0) // can only call when not creating
@@ -70,7 +71,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert maybe_exists%0#0) // check self.assets exists
         let tmp%1#1: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%1#1)
-        exit 1u
+        exit lifted%0#0
     block@12: // return_accounts_route_L43
         let tmp%23#0: uint64 = (txn ApplicationID)
         (assert tmp%23#0) // can only call when not creating
@@ -78,7 +79,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert maybe_exists%0#0) // check self.accounts exists
         let tmp%1#1: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%1#1)
-        exit 1u
+        exit lifted%0#0
     block@15: // bare_routing_L4
         let tmp%25#0: uint64 = (txn OnCompletion)
         let not%tmp%25#0: bool = (! tmp%25#0)

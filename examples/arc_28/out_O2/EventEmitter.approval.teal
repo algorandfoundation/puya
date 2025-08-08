@@ -3,8 +3,11 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    pushbytes ""
     txn NumAppArgs
     bz main_bare_routing@7
+    pushint 1 // 1
+    bury 1
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -23,7 +26,7 @@ main_emit_ufixed_route@4:
     swap
     concat
     log
-    pushint 1 // 1
+    dup
     return
 
 main_emit_swapped_route@3:
@@ -40,7 +43,7 @@ main_emit_swapped_route@3:
     dup
     log
     log
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@7:

@@ -3,11 +3,19 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 1 0 8 2
+    intcblock 0 1 8 2
+    bytecblock ""
+    bytec_0 // ""
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@8
+    // regression_tests/leftover_branch.py:5
+    // @arc4.abimethod
+    intc_1 // 1
+    bury 1
+    // regression_tests/leftover_branch.py:4
+    // class BranchElimination(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -26,7 +34,7 @@ main_calculate_route@5:
     callsub calculate
     // regression_tests/leftover_branch.py:29
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_umm2_route@4:
@@ -39,7 +47,7 @@ main_umm2_route@4:
     callsub umm2
     // regression_tests/leftover_branch.py:18
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_umm_route@3:
@@ -52,7 +60,7 @@ main_umm_route@3:
     callsub umm
     // regression_tests/leftover_branch.py:5
     // @arc4.abimethod
-    intc_0 // 1
+    dup
     return
 
 main_bare_routing@8:
@@ -64,7 +72,7 @@ main_bare_routing@8:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    intc_1 // 1
     return
 
 
@@ -72,7 +80,7 @@ main_bare_routing@8:
 hmm:
     // regression_tests/leftover_branch.py:55
     // return False
-    intc_1 // 0
+    intc_0 // 0
     retsub
 
 
@@ -80,7 +88,7 @@ hmm:
 hmm_uint64:
     // regression_tests/leftover_branch.py:60
     // return UInt64(0)
-    intc_1 // 0
+    intc_0 // 0
     retsub
 
 
@@ -89,18 +97,18 @@ umm:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
     proto 0 0
-    pushbytes ""
+    bytec_0 // ""
     dupn 2
     // regression_tests/leftover_branch.py:7
     // ahuh = UInt64(0)
-    intc_1 // 0
+    intc_0 // 0
 
 umm_while_top@2:
     // regression_tests/leftover_branch.py:9
     // for _i in urange(hmm_uint64()):
     callsub hmm_uint64
     frame_bury 2
-    intc_1 // 0
+    intc_0 // 0
     frame_bury 0
 
 umm_for_header@4:
@@ -141,7 +149,7 @@ umm_after_if_else@11:
     // regression_tests/leftover_branch.py:9
     // for _i in urange(hmm_uint64()):
     frame_dig 0
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 0
     b umm_for_header@4
@@ -167,10 +175,10 @@ umm2:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
     proto 0 0
-    pushbytes ""
+    bytec_0 // ""
     // regression_tests/leftover_branch.py:20
     // ahuh = UInt64(0)
-    intc_1 // 0
+    intc_0 // 0
 
 umm2_while_top@2:
     // regression_tests/leftover_branch.py:22
@@ -213,15 +221,15 @@ calculate:
     // regression_tests/leftover_branch.py:4
     // class BranchElimination(ARC4Contract):
     proto 0 0
-    intc_1 // 0
+    intc_0 // 0
     dupn 2
-    pushbytes ""
+    bytec_0 // ""
     dupn 5
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     // regression_tests/leftover_branch.py:35
     // total = UInt64(0)
-    intc_1 // 0
+    intc_0 // 0
     // regression_tests/leftover_branch.py:36
     // num_boosts = UInt64(0)
     dup
@@ -230,9 +238,9 @@ calculate:
     txna ApplicationArgs 1
     // regression_tests/leftover_branch.py:38
     // for i in urange(nested_list.length):
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
-    intc_1 // 0
+    intc_0 // 0
 
 calculate_for_header@2:
     // regression_tests/leftover_branch.py:38
@@ -266,16 +274,16 @@ calculate_for_header@2:
     frame_bury 1
     // regression_tests/leftover_branch.py:40
     // last_inner_list_index = inner_list.length - 1
-    intc_1 // 0
+    intc_0 // 0
     extract_uint16
     dup
     frame_bury 3
-    intc_0 // 1
+    intc_1 // 1
     -
     frame_bury 6
     // regression_tests/leftover_branch.py:41
     // for j in urange(inner_list.length):
-    intc_1 // 0
+    intc_0 // 0
     frame_bury 5
 
 calculate_for_header@4:
@@ -322,14 +330,14 @@ calculate_for_header@4:
     // regression_tests/leftover_branch.py:46
     // total += 1
     frame_dig 11
-    intc_0 // 1
+    intc_1 // 1
     +
     dup
     frame_bury 11
     // regression_tests/leftover_branch.py:47
     // next_value = inner_list[j + 1]
     frame_dig 5
-    intc_0 // 1
+    intc_1 // 1
     +
     intc_2 // 8
     *
@@ -354,7 +362,7 @@ calculate_for_header@4:
     // regression_tests/leftover_branch.py:50
     // num_boosts += 1
     frame_dig 12
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 7
     frame_bury 8
@@ -373,7 +381,7 @@ calculate_after_if_else@11:
     // regression_tests/leftover_branch.py:41
     // for j in urange(inner_list.length):
     frame_dig 5
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 5
     b calculate_for_header@4
@@ -382,7 +390,7 @@ calculate_after_for@13:
     // regression_tests/leftover_branch.py:38
     // for i in urange(nested_list.length):
     frame_dig 14
-    intc_0 // 1
+    intc_1 // 1
     +
     frame_bury 14
     b calculate_for_header@2

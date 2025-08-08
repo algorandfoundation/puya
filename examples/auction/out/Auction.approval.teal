@@ -5,6 +5,7 @@
 main:
     intcblock 0 1 4
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
+    pushbytes ""
     txn ApplicationID
     bnz main_after_if_else@2
     // auction/contract.py:18
@@ -38,6 +39,12 @@ main_after_if_else@2:
     // class Auction(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@11
+    // auction/contract.py:25
+    // @arc4.abimethod
+    intc_1 // 1
+    bury 1
+    // auction/contract.py:16
+    // class Auction(ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -56,7 +63,7 @@ main_claim_asset_route@10:
     callsub claim_asset
     // auction/contract.py:97
     // @arc4.abimethod
-    intc_1 // 1
+    dup
     return
 
 main_claim_bids_route@9:
@@ -69,7 +76,7 @@ main_claim_bids_route@9:
     callsub claim_bids
     // auction/contract.py:82
     // @arc4.abimethod
-    intc_1 // 1
+    dup
     return
 
 main_bid_route@8:
@@ -82,7 +89,7 @@ main_bid_route@8:
     callsub bid
     // auction/contract.py:66
     // @arc4.abimethod
-    intc_1 // 1
+    dup
     return
 
 main_opt_in_route@7:
@@ -90,7 +97,7 @@ main_opt_in_route@7:
     // @arc4.abimethod
     txn ApplicationID
     assert // can only call when not creating
-    intc_1 // 1
+    dup
     return
 
 main_start_auction_route@6:
@@ -103,7 +110,7 @@ main_start_auction_route@6:
     callsub start_auction
     // auction/contract.py:40
     // @arc4.abimethod
-    intc_1 // 1
+    dup
     return
 
 main_opt_into_asset_route@5:
@@ -116,7 +123,7 @@ main_opt_into_asset_route@5:
     callsub opt_into_asset
     // auction/contract.py:25
     // @arc4.abimethod
-    intc_1 // 1
+    dup
     return
 
 main_bare_routing@11:

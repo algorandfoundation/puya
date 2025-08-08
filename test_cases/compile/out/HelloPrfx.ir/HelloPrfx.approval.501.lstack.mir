@@ -22,6 +22,10 @@ subroutine main:
         bz main_bare_routing@8 ; b main_abi_routing@4
 
     main_abi_routing@4:
+        // compile/apps.py:71
+        // @arc4.abimethod(create="require")
+        int 1                                                              1
+        v-store lifted%0#0
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
         txna ApplicationArgs 0                                             tmp%2#0
@@ -44,7 +48,7 @@ subroutine main:
         !                                                                  tmp%6#0
         l-load tmp%6#0 0                                                   tmp%6#0
         assert // can only call when creating
-        int 1                                                              1
+        v-load lifted%0#0                                                  lifted%0#0
         return
 
     main_delete_route@6:
@@ -59,7 +63,7 @@ subroutine main:
         txn ApplicationID                                                  tmp%9#0
         l-load tmp%9#0 0                                                   tmp%9#0
         assert // can only call when not creating
-        int 1                                                              1
+        v-load lifted%0#0                                                  lifted%0#0
         return
 
     main_greet_route@7:
@@ -78,10 +82,14 @@ subroutine main:
         callsub greet
         // compile/apps.py:32
         // @arc4.abimethod()
-        int 1                                                              1
+        v-load lifted%0#0                                                  lifted%0#0
         return
 
     main_bare_routing@8:
+        // compile/apps.py:28
+        // @arc4.baremethod(allow_actions=["UpdateApplication"])
+        int 1                                                              1
+        v-store lifted%1#0
         // compile/apps.py:67
         // class HelloPrfx(HelloBase):
         txn OnCompletion                                                   tmp%15#0
@@ -95,7 +103,7 @@ subroutine main:
         txn ApplicationID                                                  tmp%16#0
         l-load tmp%16#0 0                                                  tmp%16#0
         assert // can only call when not creating
-        int 1                                                              1
+        v-load lifted%1#0                                                  lifted%1#0
         return
 
     main_after_if_else@10:

@@ -3,10 +3,17 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    pushbytes ""
     // avm_12/contract.py:9
     // class Contract(ARC4Contract, avm_version=12):
     txn NumAppArgs
     bz main_bare_routing@6
+    // avm_12/contract.py:10
+    // @arc4.abimethod
+    pushint 1 // 1
+    bury 1
+    // avm_12/contract.py:9
+    // class Contract(ARC4Contract, avm_version=12):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -25,7 +32,7 @@ main_test_new_ops_route@3:
     callsub test_new_ops
     // avm_12/contract.py:10
     // @arc4.abimethod
-    pushint 1 // 1
+    dup
     return
 
 main_bare_routing@6:

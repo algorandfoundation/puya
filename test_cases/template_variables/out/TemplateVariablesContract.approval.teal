@@ -5,10 +5,18 @@
 main:
     intcblock 1 64 TMPL_DELETABLE TMPL_UPDATABLE
     bytecblock 0x151f7c75 TMPL_SOME_BYTES TMPL_SOME_BIG_UINT
+    pushbytes ""
+    dup
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@7
+    // template_variables/contract.py:6
+    // @arc4.abimethod()
+    intc_0 // 1
+    bury 2
+    // template_variables/contract.py:5
+    // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -31,7 +39,7 @@ main_get_big_uint_route@4:
     callsub get_big_uint
     // template_variables/contract.py:10
     // @arc4.abimethod()
-    intc_0 // 1
+    dig 1
     return
 
 main_get_bytes_route@3:
@@ -44,10 +52,12 @@ main_get_bytes_route@3:
     callsub get_bytes
     // template_variables/contract.py:6
     // @arc4.abimethod()
-    intc_0 // 1
+    dig 1
     return
 
 main_bare_routing@7:
+    intc_0 // 1
+    bury 1
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     txn OnCompletion
@@ -65,7 +75,7 @@ main_on_delete@9:
     assert
     // template_variables/contract.py:19
     // @arc4.baremethod(allow_actions=["DeleteApplication"])
-    intc_0 // 1
+    dup
     return
 
 main_on_update@8:
@@ -79,14 +89,14 @@ main_on_update@8:
     assert
     // template_variables/contract.py:15
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
-    intc_0 // 1
+    dup
     return
 
 main___algopy_default_create@10:
     txn ApplicationID
     !
     assert // can only call when creating
-    intc_0 // 1
+    dup
     return
 
 
