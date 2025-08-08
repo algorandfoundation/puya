@@ -285,8 +285,8 @@ def _compile_program(
     ref: ContractReference | LogicSigReference,
     program: TealProgram,
 ) -> _CompiledProgram:
-    assembled = assemble_program(context, ref, program)
     teal_src = emit_teal(context, program)
+    assembled = assemble_program(context, ref, program)
     return _CompiledProgram(
         teal=program,
         teal_src=teal_src,
