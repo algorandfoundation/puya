@@ -68,7 +68,9 @@ def analyse_subroutines_for_inlining(
     # also, it impacts the debugging experience
     skip_routable_ids = frozenset[str]()
     if context.options.optimization_level < 2:
-        skip_routable_ids = frozenset(routable_method_ids or ())
+        skip_routable_ids = frozenset(
+            sub.id for sub in program.subroutines if sub.id.endswith("[routing]")
+        )
 
     for sub in program.subroutines:
         if sub.inline is None:

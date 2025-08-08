@@ -77,7 +77,7 @@ class IRBuildContext(CompileContext):
             contract = self.root
             if not (
                 isinstance(contract, awst_nodes.Contract)
-                and isinstance(caller, awst_nodes.ContractMethod)
+                # and isinstance(caller, awst_nodes.ContractMethod)
             ):
                 raise CodeError(
                     "call to contract method from outside of contract class",

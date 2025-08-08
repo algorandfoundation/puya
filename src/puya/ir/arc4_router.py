@@ -7,6 +7,7 @@ from puya import (
     artifact_metadata as md,
     log,
 )
+from puya.artifact_metadata import ARC4ABIMethod
 from puya.avm import OnCompletionAction
 from puya.awst import (
     nodes as awst_nodes,
@@ -392,38 +393,60 @@ def _map_abi_args(
                 yield abi_arg
 
 
+def _build_abi_wrapper(
+    method: ARC4ABIMethod, sig: AWSTContractMethodSignature, location: SourceLocation
+) -> awst_nodes.Subroutine:
+    abi_loc = method.config_location
+    use_reference_alias = method.resource_encoding == "index"
+    abi_args = list(
+        _map_abi_args(sig.parameter_types, location, use_reference_alias=use_reference_alias)
+    )
+    method_result = call(abi_loc, sig, *abi_args)
+    match sig.return_type:
+        case wtypes.void_wtype:
+            call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
+        case wtypes.ARC4Type():
+            call_and_maybe_log = log_arc4_result(abi_loc, method_result)
+        case _:
+            converted_return_type = wtype_to_arc4_wtype(sig.return_type, abi_loc)
+            arc4_encoded = awst_nodes.ARC4Encode(
+                value=method_result,
+                wtype=converted_return_type,
+                source_location=method_result.source_location,
+            )
+            call_and_maybe_log = log_arc4_result(abi_loc, arc4_encoded)
+    qualified_name = ".".join((sig.target.cref, sig.target.member_name))
+    wrapper_method = awst_nodes.Subroutine(
+        args=[],
+        return_type=wtypes.void_wtype,
+        body=awst_nodes.Block(
+            body=[call_and_maybe_log],
+            source_location=location,
+        ),
+        documentation=awst_nodes.MethodDocumentation(),
+        name=sig.target.member_name,
+        id=f"{qualified_name}[routing]",
+        source_location=location,
+    )
+    return wrapper_method
+
+
 def route_abi_methods(
     location: SourceLocation,
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
-) -> awst_nodes.Block:
+) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
     method_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     seen_signatures = set[str]()
+    arc4_wrapper_methods = list[awst_nodes.Subroutine]()
     for method, sig in methods.items():
         abi_loc = method.config_location
-        use_reference_alias = method.resource_encoding == "index"
-        abi_args = list(
-            _map_abi_args(sig.parameter_types, location, use_reference_alias=use_reference_alias)
-        )
-        method_result = call(abi_loc, sig, *abi_args)
-        match sig.return_type:
-            case wtypes.void_wtype:
-                call_and_maybe_log = awst_nodes.ExpressionStatement(method_result)
-            case wtypes.ARC4Type():
-                call_and_maybe_log = log_arc4_result(abi_loc, method_result)
-            case _:
-                converted_return_type = wtype_to_arc4_wtype(sig.return_type, abi_loc)
-                arc4_encoded = awst_nodes.ARC4Encode(
-                    value=method_result,
-                    wtype=converted_return_type,
-                    source_location=method_result.source_location,
-                )
-                call_and_maybe_log = log_arc4_result(abi_loc, arc4_encoded)
-
         arc4_signature = method.signature
         if not set_add(seen_signatures, arc4_signature):
             raise CodeError(
                 f"Cannot have duplicate ARC-4 method signatures: {arc4_signature}", abi_loc
             )
+        wrapper_method = _build_abi_wrapper(method, sig, location)
+        arc4_wrapper_methods.append(wrapper_method)
         method_routing_cases[
             awst_nodes.MethodConstant(source_location=location, value=arc4_signature)
         ] = create_block(
@@ -431,14 +454,21 @@ def route_abi_methods(
             f"{method.name}_route",
             *check_allowed_oca(method.allowed_completion_types, abi_loc),
             *assert_create_state(method),
-            call_and_maybe_log,
+            awst_nodes.ExpressionStatement(
+                awst_nodes.SubroutineCallExpression(
+                    target=awst_nodes.SubroutineID(wrapper_method.id),
+                    args=[],
+                    wtype=wtypes.void_wtype,
+                    source_location=location,
+                )
+            ),
             approve(abi_loc),
         )
     return create_block(
         location,
         "abi_routing",
         *_maybe_switch(_txn_app_args(0, location), method_routing_cases),
-    )
+    ), arc4_wrapper_methods
 
 
 def _maybe_switch(
@@ -459,7 +489,7 @@ def _maybe_switch(
 def create_abi_router(
     contract: awst_nodes.Contract,
     arc4_methods_with_signatures: Mapping[md.ARC4Method, AWSTContractMethodSignature],
-) -> awst_nodes.ContractMethod:
+) -> tuple[awst_nodes.ContractMethod, Sequence[awst_nodes.Subroutine]]:
     router_location = contract.source_location
     abi_methods = {}
     bare_methods = {}
@@ -469,7 +499,7 @@ def create_abi_router(
         else:
             abi_methods[method] = sig
 
-    abi_routing = route_abi_methods(router_location, abi_methods)
+    abi_routing, abi_wrapper_methods = route_abi_methods(router_location, abi_methods)
     bare_routing = route_bare_methods(router_location, bare_methods)
     num_app_args = _txn("NumAppArgs", wtypes.uint64_wtype, router_location)
     router = [
@@ -492,7 +522,7 @@ def create_abi_router(
         arc4_method_config=None,
         inline=True,
     )
-    return approval_program
+    return approval_program, abi_wrapper_methods
 
 
 def _reference_type_array(wtype: wtypes.WType) -> str | None:
