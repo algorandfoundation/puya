@@ -133,6 +133,15 @@ def _optimize_pair(a: models.TealOp, b: models.TealOp) -> tuple[list[models.Teal
         # `dig 1; dig 1` -> `dup2`
         case models.TealOpUInt8(op_code="dig", n=1), models.TealOpUInt8(op_code="dig", n=1):
             return [models.Dup2(source_location=a.source_location or b.source_location)], True
+        # int 0; return -> err
+        case models.Int(value=0), models.Return() as ret_zero:
+            return [
+                models.Err(
+                    source_location=ret_zero.source_location,
+                    comment=ret_zero.comment,
+                    error_message=ret_zero.error_message,
+                )
+            ], True
     return [a, b], False
 
 
