@@ -1,46 +1,46 @@
-// Op                                                                                 Stack (out)
+// Op                                                      Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
-        txn NumAppArgs                                                                tmp%0#1
+        txn NumAppArgs                                     tmp%0#1
         bz main_bare_routing@6 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls tmp%2#0
-        method hello(string)string                                                    tmp%2#0,Method(hello(string)string)
-        l-load tmp%2#0 1                                                              Method(hello(string)string),tmp%2#0
+        txna ApplicationArgs 0                             tmp%2#0
+        method hello(string)string                         tmp%2#0,Method(hello(string)string)
+        l-load tmp%2#0 1                                   Method(hello(string)string),tmp%2#0
         match main_hello_route@3 ; b main_after_if_else@10
 
     main_hello_route@3:
         // hello_world_arc4/contract.py:10
         // @arc4.abimethod
-        txn OnCompletion                                                              tmp%3#0
-        !                                                                             tmp%4#0
+        txn OnCompletion                                   tmp%3#0
+        !                                                  tmp%4#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                             tmp%5#0
+        txn ApplicationID                                  tmp%5#0
         assert // can only call when not creating
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
         callsub hello
         // hello_world_arc4/contract.py:10
         // @arc4.abimethod
-        int 1                                                                         1
+        int 1                                              1
         return
 
     main_bare_routing@6:
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
-        txn OnCompletion                                                              tmp%7#0
-        !                                                                             not%tmp%7#0
+        txn OnCompletion                                   tmp%7#0
+        !                                                  not%tmp%7#0
         assert
-        txn ApplicationID                                                             tmp%8#0
-        !                                                                             tmp%9#0
+        txn ApplicationID                                  tmp%8#0
+        !                                                  tmp%9#0
         assert // can only call when creating
-        int 1                                                                         1
+        int 1                                              1
         return
 
     main_after_if_else@10:
@@ -54,24 +54,24 @@ subroutine hello:
     hello_block@0:
         // hello_world_arc4/contract.py:9
         // class HelloWorldContract(ARC4Contract):
-        txna ApplicationArgs 1                                                        reinterpret_Encoded(len+utf8[])%0#0
-        extract 2 0                                                                   name#0
+        txna ApplicationArgs 1                             reinterpret_Encoded(len+utf8[])%0#0
+        extract 2 0                                        name#0
         // hello_world_arc4/contract.py:12
         // return "Hello, " + name
-        byte "Hello, "                                                                name#0,"Hello, "
-        l-load name#0 1                                                               "Hello, ",name#0
-        concat                                                                        tmp%0#1
+        byte "Hello, "                                     name#0,"Hello, "
+        l-load name#0 1                                    "Hello, ",name#0
+        concat                                             tmp%0#1
         // hello_world_arc4/contract.py:10
         // @arc4.abimethod
-        l-load-copy tmp%0#1 0                                                         tmp%0#1,tmp%0#1 (copy)
-        len                                                                           tmp%0#1,aggregate%length%0#0
-        itob                                                                          tmp%0#1,aggregate%as_bytes%0#0
-        extract 6 2                                                                   tmp%0#1,aggregate%length_uint16%0#0
-        l-load tmp%0#1 1                                                              aggregate%length_uint16%0#0,tmp%0#1
-        concat                                                                        aggregate%encoded_value%0#0
-        byte 0x151f7c75                                                               aggregate%encoded_value%0#0,0x151f7c75
-        l-load aggregate%encoded_value%0#0 1                                          0x151f7c75,aggregate%encoded_value%0#0
-        concat                                                                        tmp%3#0
+        l-load-copy tmp%0#1 0                              tmp%0#1,tmp%0#1 (copy)
+        len                                                tmp%0#1,aggregate%length%0#0
+        itob                                               tmp%0#1,aggregate%as_bytes%0#0
+        extract 6 2                                        tmp%0#1,aggregate%length_uint16%0#0
+        l-load tmp%0#1 1                                   aggregate%length_uint16%0#0,tmp%0#1
+        concat                                             aggregate%encoded_value%0#0
+        byte 0x151f7c75                                    aggregate%encoded_value%0#0,0x151f7c75
+        l-load aggregate%encoded_value%0#0 1               0x151f7c75,aggregate%encoded_value%0#0
+        concat                                             tmp%3#0
         log
         retsub
 

@@ -1,64 +1,64 @@
-// Op                                                                                 Stack (out)
+// Op                                                                          Stack (out)
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
         // regression_tests/jira_241.py:4
         // class Jira241(ARC4Contract):
-        txn NumAppArgs                                                                tmp%0#1
-        l-load tmp%0#1 0                                                              tmp%0#1
+        txn NumAppArgs                                                         tmp%0#1
+        l-load tmp%0#1 0                                                       tmp%0#1
         bz main_bare_routing@7 ; b main_abi_routing@2
 
     main_abi_routing@2:
         // regression_tests/jira_241.py:4
         // class Jira241(ARC4Contract):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls tmp%2#0
-        method oh_no(bool)void                                                        tmp%2#0,Method(oh_no(bool)void)
-        method oh_yes(bool)void                                                       tmp%2#0,Method(oh_no(bool)void),Method(oh_yes(bool)void)
-        l-load tmp%2#0 2                                                              Method(oh_no(bool)void),Method(oh_yes(bool)void),tmp%2#0
+        txna ApplicationArgs 0                                                 tmp%2#0
+        method oh_no(bool)void                                                 tmp%2#0,Method(oh_no(bool)void)
+        method oh_yes(bool)void                                                tmp%2#0,Method(oh_no(bool)void),Method(oh_yes(bool)void)
+        l-load tmp%2#0 2                                                       Method(oh_no(bool)void),Method(oh_yes(bool)void),tmp%2#0
         match main_oh_no_route@3 main_oh_yes_route@4 ; b main_after_if_else@11
 
     main_oh_no_route@3:
         // regression_tests/jira_241.py:5
         // @arc4.abimethod(default_args={"wrong_size": False})
-        txn OnCompletion                                                              tmp%3#0
-        l-load tmp%3#0 0                                                              tmp%3#0
-        !                                                                             tmp%4#0
-        l-load tmp%4#0 0                                                              tmp%4#0
+        txn OnCompletion                                                       tmp%3#0
+        l-load tmp%3#0 0                                                       tmp%3#0
+        !                                                                      tmp%4#0
+        l-load tmp%4#0 0                                                       tmp%4#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                             tmp%5#0
-        l-load tmp%5#0 0                                                              tmp%5#0
+        txn ApplicationID                                                      tmp%5#0
+        l-load tmp%5#0 0                                                       tmp%5#0
         assert // can only call when not creating
-        int 1                                                                         1
+        int 1                                                                  1
         return
 
     main_oh_yes_route@4:
         // regression_tests/jira_241.py:9
         // @arc4.abimethod(default_args={"wrong_size": True})
-        txn OnCompletion                                                              tmp%7#0
-        l-load tmp%7#0 0                                                              tmp%7#0
-        !                                                                             tmp%8#0
-        l-load tmp%8#0 0                                                              tmp%8#0
+        txn OnCompletion                                                       tmp%7#0
+        l-load tmp%7#0 0                                                       tmp%7#0
+        !                                                                      tmp%8#0
+        l-load tmp%8#0 0                                                       tmp%8#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                             tmp%9#0
-        l-load tmp%9#0 0                                                              tmp%9#0
+        txn ApplicationID                                                      tmp%9#0
+        l-load tmp%9#0 0                                                       tmp%9#0
         assert // can only call when not creating
-        int 1                                                                         1
+        int 1                                                                  1
         return
 
     main_bare_routing@7:
         // regression_tests/jira_241.py:4
         // class Jira241(ARC4Contract):
-        txn OnCompletion                                                              tmp%11#0
-        l-load tmp%11#0 0                                                             tmp%11#0
-        !                                                                             not%tmp%11#0
-        l-load not%tmp%11#0 0                                                         not%tmp%11#0
+        txn OnCompletion                                                       tmp%11#0
+        l-load tmp%11#0 0                                                      tmp%11#0
+        !                                                                      not%tmp%11#0
+        l-load not%tmp%11#0 0                                                  not%tmp%11#0
         assert
-        txn ApplicationID                                                             tmp%12#0
-        l-load tmp%12#0 0                                                             tmp%12#0
-        !                                                                             tmp%13#0
-        l-load tmp%13#0 0                                                             tmp%13#0
+        txn ApplicationID                                                      tmp%12#0
+        l-load tmp%12#0 0                                                      tmp%12#0
+        !                                                                      tmp%13#0
+        l-load tmp%13#0 0                                                      tmp%13#0
         assert // can only call when creating
-        int 1                                                                         1
+        int 1                                                                  1
         return
 
     main_after_if_else@11:
