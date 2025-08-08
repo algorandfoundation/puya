@@ -6,9 +6,6 @@ main:
     intcblock 0 1
     bytecblock "my_uint" "counter" "global_uint" "global_bytes" "my_bytes"
     intc_0 // 0
-    // augmented_assignment/contract.py:48
-    // return True
-    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // augmented_assignment/contract.py:18
@@ -31,7 +28,7 @@ main_after_if_else@2:
     // augmented_assignment/contract.py:23
     // me = op.Txn.sender
     txn Sender
-    bury 2
+    bury 1
     // augmented_assignment/contract.py:25
     // if op.Txn.on_completion == OnCompleteAction.OptIn:
     txn OnCompletion
@@ -40,8 +37,7 @@ main_after_if_else@2:
     bz main_after_if_else@5
     // augmented_assignment/contract.py:26
     // self.my_uint[me] = UInt64(0)
-    dig 1
-    dup
+    dupn 2
     bytec_0 // "my_uint"
     intc_0 // 0
     app_local_put
@@ -67,7 +63,7 @@ main_after_if_else@5:
     // augmented_assignment/contract.py:33-34
     // # local augmented assignment
     // self.my_uint[me] += n
-    dig 3
+    dig 2
     dup
     cover 2
     intc_0 // 0
@@ -167,6 +163,9 @@ main_after_if_else@5:
     assert // this should not error
 
 main_after_if_else@7:
+    // augmented_assignment/contract.py:48
+    // return True
+    intc_1 // 1
     return
 
 

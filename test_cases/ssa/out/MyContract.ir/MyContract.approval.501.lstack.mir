@@ -2,10 +2,6 @@
 // test_cases.ssa.contract.MyContract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // ssa/contract.py:31
-        // return UInt64(3)
-        int 3                                        3
-        v-store lifted%return#0
         // ssa/contract.py:11
         // a = a * b
         int 60                                       60
@@ -135,7 +131,7 @@ subroutine main:
     main_else_body@12:
         // ssa/contract.py:31
         // return UInt64(3)
-        v-load lifted%return#0                       lifted%return#0
+        int 3                                        3
         return
 
     main_else_body@15:
@@ -214,15 +210,15 @@ subroutine main:
         +                                            c#0
         // ssa/contract.py:37
         // c_bytes = op.itob(c)
-        l-load c#0 0                                 c#0
-        itob                                         c_bytes#0
+        l-load-copy c#0 0                            c#0,c#0 (copy)
+        itob                                         c#0,c_bytes#0
         // ssa/contract.py:38
         // log(c_bytes)
-        l-load c_bytes#0 0                           c_bytes#0
-        log
+        l-load c_bytes#0 0                           c#0,c_bytes#0
+        log                                          c#0
         // ssa/contract.py:41
         // return c
-        v-load lifted%return#0                       lifted%return#0
+        l-load c#0 0                                 c#0
         return
 
 

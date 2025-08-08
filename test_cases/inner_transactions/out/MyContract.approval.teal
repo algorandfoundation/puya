@@ -9,9 +9,6 @@ main:
     dupn 3
     pushbytes ""
     dupn 2
-    // inner_transactions/contract.py:37
-    // return True
-    pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // inner_transactions/contract.py:24
@@ -44,6 +41,9 @@ main_after_if_else@2:
     match main_switch_case_0@5 main_switch_case_1@6 main_switch_case_2@7 main_switch_case_3@8
 
 main_after_if_else@11:
+    // inner_transactions/contract.py:37
+    // return True
+    pushint 1 // 1
     return
 
 main_switch_case_3@8:
@@ -190,7 +190,7 @@ main_switch_case_3@8:
     bytec_0 // 0x098101
     ==
     assert // expected clear_state_pages
-    return
+    b main_after_if_else@11
 
 main_switch_case_2@7:
     // inner_transactions/contract.py:190-207
@@ -732,13 +732,13 @@ main_switch_case_2@7:
     // assert app1.txn_id != app2.txn_id
     !=
     assert
-    return
+    b main_after_if_else@11
 
 main_switch_case_1@6:
     intc_0 // 0
-    bury 6
+    bury 5
     pushbytes ""
-    bury 2
+    bury 1
     // inner_transactions/contract.py:90
     // if op.Txn.num_app_args:
     txn NumAppArgs
@@ -746,19 +746,19 @@ main_switch_case_1@6:
     // inner_transactions/contract.py:91
     // args = Bytes(b"1"), Bytes(b"2")
     bytec_2 // 0x31
-    bury 8
-    bytec_3 // 0x32
     bury 7
+    bytec_3 // 0x32
+    bury 6
     // inner_transactions/contract.py:95
     // app_args=args,
     pushint 2 // 2
-    bury 4
+    bury 3
     // inner_transactions/contract.py:96
     // on_completion=OnCompleteAction.NoOp,
     intc_0 // NoOp
-    bury 2
+    bury 1
     pushint 1 // 1
-    bury 3
+    bury 2
     // inner_transactions/contract.py:97
     // note=b"with args param set",
     bytec 19 // 0x77697468206172677320706172616d20736574
@@ -768,23 +768,23 @@ main_after_if_else@19:
     // create_app_txn = create_app_params.submit()
     itxn_begin
     itxn_field Note
-    dig 2
-    bz main_next_field@21
     dig 1
+    bz main_next_field@21
+    dup
     itxn_field OnCompletion
 
 main_next_field@21:
-    dig 7
-    itxn_field ApplicationArgs
     dig 6
     itxn_field ApplicationArgs
-    dig 3
+    dig 5
+    itxn_field ApplicationArgs
+    dig 2
     intc_3 // 3
     >=
     // inner_transactions/contract.py:106
     // create_app_txn = create_app_params.submit()
     bz main_next_field@23
-    dig 5
+    dig 4
     itxn_field ApplicationArgs
 
 main_next_field@23:
@@ -806,7 +806,7 @@ main_next_field@23:
     // create_app_txn = create_app_params.submit()
     itxn_submit
     itxn Note
-    bury 5
+    bury 4
     // inner_transactions/contract.py:107
     // assert create_app_txn.app_args(0) == b"1", "correct args used 1"
     itxna ApplicationArgs 0
@@ -871,30 +871,30 @@ main_next_field@23:
     assert // correct args used 2
     // inner_transactions/contract.py:118
     // assert create_app_txn.note == b"with args param set"
-    dig 4
+    dig 3
     bytec 19 // 0x77697468206172677320706172616d20736574
     ==
     assert
-    return
+    b main_after_if_else@11
 
 main_else_body@18:
     // inner_transactions/contract.py:103
     // app_args=(Bytes(b"3"), Bytes(b"4"), Bytes(b"5")),
     bytec 6 // 0x33
-    bury 8
-    bytec 7 // 0x34
     bury 7
-    bytec 8 // 0x35
+    bytec 7 // 0x34
     bury 6
+    bytec 8 // 0x35
+    bury 5
     intc_3 // 3
-    bury 4
+    bury 3
     // inner_transactions/contract.py:104
     // note=b"no args param set",
     pushbytes 0x6e6f206172677320706172616d20736574
     // inner_transactions/contract.py:100
     // create_app_params = itxn.ApplicationCall(
     intc_0 // 0
-    bury 4
+    bury 3
     b main_after_if_else@19
 
 main_switch_case_0@5:
@@ -1125,4 +1125,4 @@ main_switch_case_0@5:
     // # unassigned result
     // itxn.submit_txns(app_create_params, asset_params)
     itxn_submit
-    return
+    b main_after_if_else@11
