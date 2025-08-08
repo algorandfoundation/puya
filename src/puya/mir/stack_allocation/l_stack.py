@@ -6,6 +6,7 @@ from puya import log
 from puya.mir import models as mir
 from puya.mir.context import ProgramMIRContext
 from puya.mir.stack import Stack
+from puya.mir.visitor import DefaultMIRVisitor
 from puya.mir.vla import VariableLifetimeAnalysis
 
 logger = log.get_logger(__name__)
@@ -17,10 +18,11 @@ class UsagePair:
     b: mir.AbstractLoad
     a_index: int
     b_index: int
+    distance: int
 
     @staticmethod
     def by_distance(pair: "UsagePair") -> tuple[int, int, int]:
-        return pair.b_index - pair.a_index, pair.a_index, pair.b_index
+        return pair.distance, pair.a_index, pair.b_index
 
 
 def l_stack_allocation(ctx: ProgramMIRContext, sub: mir.MemorySubroutine) -> None:
@@ -29,7 +31,7 @@ def l_stack_allocation(ctx: ProgramMIRContext, sub: mir.MemorySubroutine) -> Non
     # see also https://users.ece.cmu.edu/~koopman/stack_compiler/stack_co.html#appendix
     for block in sub.body:
         usage_pairs = _find_usage_pairs(block)
-        _copy_usage_pairs(sub, block, usage_pairs)
+        _copy_usage_pairs(block, usage_pairs)
     _dead_store_removal(sub)
     if ctx.options.optimization_level:
         _implicit_store_removal(sub)
@@ -54,20 +56,35 @@ def _find_usage_pairs(block: mir.MemoryBasicBlock) -> list[UsagePair]:
         for (a_index, a), (b_index, b) in itertools.pairwise(uses):
             if isinstance(b, mir.AbstractStore):
                 continue  # skip redefines, if they are used they will be picked up in next pair
-            pairs.append(UsagePair(a=a, b=b, a_index=a_index, b_index=b_index))
+            pairs.append(
+                UsagePair(a=a, b=b, distance=b_index - a_index, a_index=a_index, b_index=b_index)
+            )
 
     return sorted(pairs, key=UsagePair.by_distance)
 
 
-def _copy_usage_pairs(
-    sub: mir.MemorySubroutine, block: mir.MemoryBasicBlock, pairs: list[UsagePair]
-) -> None:
+@attrs.define
+class _LStackHeight(DefaultMIRVisitor[None]):
+    depth: int = 0
+
+    def visit_load_l_stack(self, load: mir.LoadLStack) -> None:
+        if load.copy:
+            self.depth += 1
+
+    def visit_default(self, op: mir.BaseOp) -> None:
+        assert self.depth >= op.consumes, f"l-stack too small for {op}"
+        self.depth += len(op.produces) - op.consumes
+
+
+def _copy_usage_pairs(block: mir.MemoryBasicBlock, pairs: list[UsagePair]) -> None:
     # 1. copy define or use to bottom of l-stack
     # 2. replace usage with instruction to rotate the value from the bottom of l-stack to the top
 
     # to copy: dup, cover {stack_height}
     # to rotate: uncover {stack_height} - 1
     replaced_ops = dict[mir.StoreOp | mir.LoadOp, mir.LoadOp]()
+    stack = _LStackHeight()
+    last_insert_index = 0
     for pair in pairs:
         # note: pairs may refer to ops that have been replaced by an earlier iteration
         a = replaced_ops.get(pair.a, pair.a)
@@ -80,11 +97,18 @@ def _copy_usage_pairs(
 
         # insert replacement before store, or after load
         insert_index = a_index if isinstance(a, mir.AbstractStore) else a_index + 1
-        stack = Stack.begin_block(sub, block)
-        for op in block.mem_ops[:insert_index]:
-            op.accept(stack)
+        if insert_index > last_insert_index:
+            # if insert index is after last can continue stack calculation from last index
+            start_index = last_insert_index
+        else:
+            # otherwise start from the bottom of the stack again
+            start_index = 0
+            stack.depth = 0
+        last_insert_index = insert_index
+        for idx in range(start_index, insert_index):
+            block.mem_ops[idx].accept(stack)
         dup = mir.StoreLStack(
-            depth=len(stack.l_stack) - 1,
+            depth=stack.depth - 1,
             local_id=local_id,
             # leave a copy for the original consumer of this value which is either:
             #   a.) the virtual store we are inserting before
