@@ -10,8 +10,6 @@ main:
     pushbytess 0x1ecad34c 0x90d29762 // method "distribute(address[],pay,uint64)void", method "conditionalBegin(uint64)void"
     txna ApplicationArgs 0
     match main_distribute_route@3 main_conditionalBegin_route@4
-
-main_after_if_else@11:
     err
 
 main_conditionalBegin_route@4:
@@ -36,7 +34,8 @@ main_distribute_route@3:
 
 main_bare_routing@7:
     txn OnCompletion
-    bnz main_after_if_else@11
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
@@ -152,7 +151,7 @@ conditionalBegin:
     itxn_field GlobalNumByteSlice
     pushbytes base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtBACOCBAQAkiWuBCQ3jTwEoOgYcgTQooIANhoAjgQAIwAYAA0AAQAxGRREMRhEiAAvIkMxGYEEEkQxGEQiQzEZgQUSRDEYRCJDMRkURDEYFESIAAIiQzYaAVcCAChMZ4k2GgFXAgCBAChlRIABIFBMUEkVFlcGAkxQgAQVH3x1TFCwiQ==)
+    pushbytes base64(CiABASYBCGdyZWV0aW5nMRhAAAQogABnMRtEggQEAJIlrgQkN408BKDoGHIE0KKCADYaAI4EACMAGAANAAEAMRkURDEYRIgALyJDMRmBBBJEMRhEIkMxGYEFEkQxGEQiQzEZFEQxGBREiAACIkM2GgFXAgAoTGeJNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIk=)
     itxn_field ApprovalProgramPages
     intc_1 // 0
     itxn_field OnCompletion

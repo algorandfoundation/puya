@@ -10,8 +10,6 @@ main:
     pushbytes 0xd3ad7a55 // method "method(uint64)void"
     txna ApplicationArgs 0
     match main_method_route@3
-
-main_after_if_else@10:
     err
 
 main_method_route@3:
@@ -24,19 +22,19 @@ main_method_route@3:
     btoi
     bury 1
 
-main_while_top@15:
+main_while_top@14:
     global OpcodeBudget
     pushint 350 // 350
     >
-    bz main_if_body@18
+    bz main_if_body@17
     txn Sender
     sha3_256
     txn Sender
     !=
     assert
-    b main_while_top@15
+    b main_while_top@14
 
-main_if_body@18:
+main_if_body@17:
     dup
     intc_0 // 2
     +
@@ -50,7 +48,8 @@ main_if_body@18:
 
 main_bare_routing@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating

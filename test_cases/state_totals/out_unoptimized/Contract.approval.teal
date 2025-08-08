@@ -3,7 +3,6 @@
 
 // test_cases.state_totals.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0
 
 main_block@0:
     txn ApplicationID
@@ -43,7 +42,7 @@ approval_program_block@1:
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
     txn NumAppArgs
-    intc_0 // 0
+    pushint 0 // 0
     !=
     bz approval_program_bare_routing@3
 
@@ -55,10 +54,7 @@ approval_program_after_if_else@7:
     //     arc4.ARC4Contract,
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
-    intc_0 // 0
-
-approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8:
-    retsub
+    err
 
 approval_program_bare_routing@3:
     // state_totals/contract.py:6-9
@@ -67,7 +63,7 @@ approval_program_bare_routing@3:
     //     state_totals=StateTotals(local_bytes=1, global_uints=GLOBAL_UINTS),
     // ):
     txn OnCompletion
-    intc_0 // 0
+    pushint 0 // 0
     swap
     match approval_program_create@4
 
@@ -80,9 +76,9 @@ approval_program_create@4:
     // state_totals/contract.py:14
     // @arc4.baremethod(create="require")
     txn ApplicationID
-    intc_0 // 0
+    pushint 0 // 0
     ==
     assert // can only call when creating
     callsub create
     pushint 1 // 1
-    b approval_program_after_inlined_test_cases.state_totals.contract.Contract.__puya_arc4_router__@8
+    return

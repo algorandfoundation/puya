@@ -1,8 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: uint64 = (txn NumAppArgs)
-        goto tmp%0#1 ? block@2 : block@8
-    block@2: // abi_routing_L9
+        (assert tmp%0#1)
         let tmp%2#0: bytes = (txna ApplicationArgs 0)
         switch tmp%2#0 {method "create(byte[32])void" => block@3, method "verify(byte[32][],byte[32])bool" => block@4, * => block@8}
     block@3: // create_route_L10
@@ -13,9 +12,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#0: bool = (! tmp%5#0)
         (assert tmp%6#0) // can only call when creating
         examples.merkle.contract.MerkleTree.create[routing]()
-        let examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
-        goto block@9
+        exit 1u
     block@4: // verify_route_L14
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
@@ -23,15 +20,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
         examples.merkle.contract.MerkleTree.verify[routing]()
-        let examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
-        goto block@9
+        exit 1u
     block@8: // after_if_else_L9
-        let examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = examples.merkle.contract.MerkleTree.__puya_arc4_router__%0#0
-        goto block@9
-    block@9: // after_inlined_examples.merkle.contract.MerkleTree.__puya_arc4_router___L1
-        return tmp%0#0
+        fail
 
 subroutine examples.merkle.contract.MerkleTree.create[routing]() -> void:
     block@0: // L9

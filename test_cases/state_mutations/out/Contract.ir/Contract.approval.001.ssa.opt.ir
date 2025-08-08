@@ -235,7 +235,7 @@ subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -
         let tmp%6#0: bool = (!= tmp%5#0 0u)
         (assert tmp%5#0) // can only call when not creating
         test_cases.state_mutations.contract.Contract.append[routing]()
-        return 1u
+        exit 1u
     block@3: // modify_route_L44
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
@@ -244,7 +244,7 @@ subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -
         let tmp%10#0: bool = (!= tmp%9#0 0u)
         (assert tmp%9#0) // can only call when not creating
         test_cases.state_mutations.contract.Contract.modify[routing]()
-        return 1u
+        exit 1u
     block@4: // get_route_L51
         let tmp%11#0: uint64 = (txn OnCompletion)
         let tmp%12#0: bool = (! tmp%11#0)
@@ -253,7 +253,7 @@ subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -
         let tmp%14#0: bool = (!= tmp%13#0 0u)
         (assert tmp%13#0) // can only call when not creating
         test_cases.state_mutations.contract.Contract.get[routing]()
-        return 1u
+        exit 1u
     block@7: // bare_routing_L22
         let tmp%15#0: uint64 = (txn OnCompletion)
         goto_nth [block@9, block@8][tmp%15#0] else goto block@12
@@ -269,14 +269,14 @@ subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -
         let materialized_values%0#0: account = (txn Sender)
         let box_prefixed_key%0#0: bytes = (concat "map" materialized_values%0#0)
         box_write(box_prefixed_key%0#0, encoded_array%0#0)
-        return 1u
+        exit 1u
     block@9: // __algopy_default_create_L1
         let tmp%18#0: uint64 = (txn ApplicationID)
         let tmp%19#0: bool = (! tmp%18#0)
         (assert tmp%19#0) // can only call when creating
-        return 1u
+        exit 1u
     block@12: // after_if_else_L22
-        return 0u
+        fail
 
 subroutine test_cases.state_mutations.contract.Contract.append[routing]() -> void:
     block@0: // L22

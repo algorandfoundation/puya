@@ -40,15 +40,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%20#0: bool = (== values%3#3 42u)
         (assert tmp%20#0)
         let _i#0: uint64 = 0u
-        goto block@175
-    block@175: // for_header_L505
+        goto block@174
+    block@174: // for_header_L505
         let continue_looping%0#0: bool = (< _i#0 3u)
-        goto continue_looping%0#0 ? block@176 : block@177
-    block@176: // for_body_L506
+        goto continue_looping%0#0 ? block@175 : block@176
+    block@175: // for_body_L506
         let (tmp%0#35: bytes, arr#0: bytes) = _puya_lib.arc4.dynamic_array_pop_fixed_size(arr#0, 8u)
         let _i#0: uint64 = (+ _i#0 1u)
-        goto block@175
-    block@177: // after_for_L505
+        goto block@174
+    block@176: // after_for_L505
         let aggregate%array_length%7#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%23#1: bool = (== aggregate%array_length%7#0 4u)
         (assert tmp%23#1)
@@ -92,9 +92,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%41#2: bool = (== values%7#3 23u)
         (assert tmp%41#2)
         (app_global_put "a" arr#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@4: // test_biguint_array_route_L130
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
@@ -118,11 +116,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#3: bool = (b== aggregate%encoded_element%9#0 0b)
         (assert tmp%10#3)
         let i#0: uint64 = 0u
-        goto block@170
-    block@170: // for_header_L512
+        goto block@169
+    block@169: // for_header_L512
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@171 : block@172
-    block@171: // for_body_L513
+        goto continue_looping%0#0 ? block@170 : block@171
+    block@170: // for_body_L513
         let tmp%0#34: biguint = (itob i#0)
         let aggregate%arc4_encoded%1#0: bytes[64] = (b| tmp%0#34 aggregate%bzero%0#0)
         let concat%0#1: bytes = (concat arr#0 aggregate%arc4_encoded%1#0) // on error: max array length exceeded
@@ -132,8 +130,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_u16_bytes%0#1: bytes = ((extract 6 2) as_bytes%0#1)
         let arr#0: bytes = ((replace2 0) concat%0#1 as_u16_bytes%0#1)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@170
-    block@172: // after_for_L512
+        goto block@169
+    block@171: // after_for_L512
         let aggregate%array_length%17#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%13#2: bool = (== aggregate%array_length%17#0 6u)
         (assert tmp%13#2)
@@ -186,9 +184,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%33#1)
         (box_del 0x62696775696e74)
         (box_put 0x62696775696e74 arr#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@5: // test_bool_array_route_L155
         let tmp%11#0: uint64 = (txn OnCompletion)
         let tmp%12#0: bool = (! tmp%11#0)
@@ -199,51 +195,51 @@ main algopy.arc4.ARC4Contract.approval_program:
         let length#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x0000
         let i#0: uint64 = 0u
-        goto block@149
-    block@149: // for_header_L160
+        goto block@148
+    block@148: // for_header_L160
         let continue_looping%0#0: bool = (< i#0 length#0)
-        goto continue_looping%0#0 ? block@150 : block@151
-    block@150: // for_body_L161
+        goto continue_looping%0#0 ? block@149 : block@150
+    block@149: // for_body_L161
         let tmp%2#1: uint64 = (txn NumAppArgs)
         let tmp%3#5: bool = (== i#0 tmp%2#1)
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%3#5)
         let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(arr#0, aggregate%encoded_bool%0#0, 1u, 8u)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@149
-    block@151: // after_for_L160
+        goto block@148
+    block@150: // after_for_L160
         let array_length#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%6#1: bool = (== array_length#0 length#0)
         (assert tmp%6#1)
-        goto length#0 ? block@152 : block@153
-    block@152: // if_body_L166
+        goto length#0 ? block@151 : block@152
+    block@151: // if_body_L166
         (assert array_length#0) // index access is out of bounds
         let aggregate%get_bit%0#0: uint64 = (getbit arr#0 16u)
         let tmp%8#0: bool = (! aggregate%get_bit%0#0)
         (assert tmp%8#0) // expected element 0 to be False
-        goto block@153
-    block@153: // after_if_else_L165
+        goto block@152
+    block@152: // after_if_else_L165
         let tmp%9#1: bool = (> length#0 1u)
-        goto tmp%9#1 ? block@154 : block@155
-    block@154: // if_body_L168
+        goto tmp%9#1 ? block@153 : block@154
+    block@153: // if_body_L168
         let aggregate%lt%1#0: bool = (< 1u array_length#0)
         (assert aggregate%lt%1#0) // index access is out of bounds
         let aggregate%get_bit%1#0: uint64 = (getbit arr#0 17u)
         let tmp%10#3: bool = (! aggregate%get_bit%1#0)
         (assert tmp%10#3) // expected element 1 to be False
-        goto block@155
-    block@155: // after_if_else_L167
+        goto block@154
+    block@154: // after_if_else_L167
         let tmp%11#4: bool = (> length#0 2u)
-        goto tmp%11#4 ? block@156 : block@157
-    block@156: // if_body_L170
+        goto tmp%11#4 ? block@155 : block@156
+    block@155: // if_body_L170
         let aggregate%lt%2#0: bool = (< 2u array_length#0)
         (assert aggregate%lt%2#0) // index access is out of bounds
         let aggregate%get_bit%2#0: uint64 = (getbit arr#0 18u)
         (assert aggregate%get_bit%2#0) // expected element 2 to be True
-        goto block@157
-    block@157: // after_if_else_L169
+        goto block@156
+    block@156: // after_if_else_L169
         let tmp%12#0: bool = (> length#0 3u)
-        goto tmp%12#0 ? block@158 : block@159
-    block@158: // if_body_L172
+        goto tmp%12#0 ? block@157 : block@158
+    block@157: // if_body_L172
         let tmp%13#0: uint64 = (- length#0 1u)
         let aggregate%lt%3#0: bool = (< tmp%13#0 array_length#0)
         (assert aggregate%lt%3#0) // index access is out of bounds
@@ -251,11 +247,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%get_bit%3#0: uint64 = (getbit arr#0 aggregate%add%3#0)
         let tmp%14#1: bool = (! aggregate%get_bit%3#0)
         (assert tmp%14#1) // expected last element to be False
-        goto block@159
-    block@159: // after_if_else_L171
+        goto block@158
+    block@158: // after_if_else_L171
         (app_global_put "g" arr#0)
-        goto length#0 ? block@160 : block@161
-    block@160: // if_body_L176
+        goto length#0 ? block@159 : block@160
+    block@159: // if_body_L176
         let length_minus_1#0: uint64 = (- array_length#0 1u)
         let tmp%2#0: bytes = (itob length_minus_1#0)
         let tmp%3#3: bytes = ((extract 6 0) tmp%2#0)
@@ -270,11 +266,9 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%20#4: uint64 = (- length#0 1u)
         let tmp%21#3: bool = (== aggregate%array_length%29#0 tmp%20#4)
         (assert tmp%21#3)
-        goto block@161
-    block@161: // after_if_else_L175
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        goto block@160
+    block@160: // after_if_else_L175
+        exit 1u
     block@6: // test_fixed_size_tuple_array_route_L179
         let tmp%15#0: uint64 = (txn OnCompletion)
         let tmp%16#0: bool = (! tmp%15#0)
@@ -283,11 +277,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%17#0) // can only call when not creating
         let arr#0: bytes = 0x0000
         let i#0: uint64 = 0u
-        goto block@144
-    block@144: // for_header_L184
+        goto block@143
+    block@143: // for_header_L184
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@145 : block@146
-    block@145: // for_body_L185
+        goto continue_looping%0#0 ? block@144 : block@145
+    block@144: // for_body_L185
         let i#21: uint64 = (+ i#0 1u)
         let tmp%3#0: uint64 = (+ i#0 2u)
         let aggregate%val_as_bytes%4#0: bytes[8] = (itob i#21)
@@ -300,8 +294,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_u16_bytes%0#1: bytes = ((extract 6 2) as_bytes%0#1)
         let arr#0: bytes = ((replace2 0) concat%0#1 as_u16_bytes%0#1)
         let i#0: uint64 = i#21
-        goto block@144
-    block@146: // after_for_L184
+        goto block@143
+    block@145: // after_for_L184
         let aggregate%array_length%31#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%6#1: bool = (== aggregate%array_length%31#0 5u)
         (assert tmp%6#1)
@@ -344,9 +338,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%28#0: bool = (&& tmp%26#1 tmp%27#1)
         (assert tmp%28#0)
         (app_global_put "c" arr#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@7: // test_fixed_size_named_tuple_array_route_L197
         let tmp%19#0: uint64 = (txn OnCompletion)
         let tmp%20#0: bool = (! tmp%19#0)
@@ -355,11 +347,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%21#0) // can only call when not creating
         let arr#0: bytes = 0x0000
         let i#0: uint64 = 0u
-        goto block@139
-    block@139: // for_header_L202
+        goto block@138
+    block@138: // for_header_L202
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@140 : block@141
-    block@140: // for_body_L203
+        goto continue_looping%0#0 ? block@139 : block@140
+    block@139: // for_body_L203
         let tmp%2#1: uint64 = (% i#0 2u)
         let tmp%3#5: bool = (! tmp%2#1)
         let tmp%4#1: uint64 = (* i#0 3u)
@@ -376,8 +368,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_u16_bytes%0#1: bytes = ((extract 6 2) as_bytes%0#1)
         let arr#0: bytes = ((replace2 0) concat%0#1 as_u16_bytes%0#1)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@139
-    block@141: // after_for_L202
+        goto block@138
+    block@140: // after_for_L202
         let aggregate%array_length%36#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%9#1: bool = (== aggregate%array_length%36#0 5u)
         (assert tmp%9#1)
@@ -390,9 +382,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert bar#0)
         (assert baz#0)
         (app_global_put "d" arr#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@8: // test_dynamic_sized_tuple_array_route_L212
         let tmp%23#0: uint64 = (txn OnCompletion)
         let tmp%24#0: bool = (! tmp%23#0)
@@ -401,11 +391,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%25#0) // can only call when not creating
         let arr#0: bytes = 0x0000
         let i#0: uint64 = 0u
-        goto block@131
-    block@131: // for_header_L217
+        goto block@130
+    block@130: // for_header_L217
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@132 : block@133
-    block@132: // for_body_L218
+        goto continue_looping%0#0 ? block@131 : block@132
+    block@131: // for_body_L218
         let i#21: uint64 = (+ i#0 1u)
         let tmp%3#3: bytes = (bzero i#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -420,17 +410,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%concat%1#0: bytes = (concat 0x0002 aggregate%concat%0#0)
         let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%1#0)
         let i#0: uint64 = i#21
-        goto block@131
-    block@133: // after_for_L217
+        goto block@130
+    block@132: // after_for_L217
         let aggregate%array_length%38#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%6#1: bool = (== aggregate%array_length%38#0 5u)
         (assert tmp%6#1)
         let i#0: uint64 = 0u
-        goto block@134
-    block@134: // for_header_L221
+        goto block@133
+    block@133: // for_header_L221
         let continue_looping%1#0: bool = (< i#0 5u)
-        goto continue_looping%1#0 ? block@135 : block@136
-    block@135: // for_body_L222
+        goto continue_looping%1#0 ? block@134 : block@135
+    block@134: // for_body_L222
         let aggregate%array_head_and_tail%0#0: bytes = ((extract 2 0) arr#0)
         let aggregate%item_offset_offset%0#0: uint64 = (* i#0 2u)
         let aggregate%item_offset%0#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%0#0 aggregate%item_offset_offset%0#0)
@@ -452,8 +442,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#3: bool = (== tmp%9#0 i#0)
         (assert tmp%10#3) // expected 2nd element to be correct
         let i#0: uint64 = i#21
-        goto block@134
-    block@136: // after_for_L221
+        goto block@133
+    block@135: // after_for_L221
         let (tmp%11#1: bytes, arr#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
         let aggregate%array_length%40#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%16#0: bool = (== aggregate%array_length%40#0 4u)
@@ -494,9 +484,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%26#1: bool = (&& tmp%23#1 tmp%25#1)
         (assert tmp%26#1) // expected 4, 3
         (app_global_put "e" arr#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@9: // test_dynamic_sized_named_tuple_array_route_L231
         let tmp%27#0: uint64 = (txn OnCompletion)
         let tmp%28#0: bool = (! tmp%27#0)
@@ -505,11 +493,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%29#0) // can only call when not creating
         let arr#0: bytes = 0x0000
         let i#0: uint64 = 0u
-        goto block@123
-    block@123: // for_header_L236
+        goto block@122
+    block@122: // for_header_L236
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@124 : block@125
-    block@124: // for_body_L237
+        goto continue_looping%0#0 ? block@123 : block@124
+    block@123: // for_body_L237
         let i#21: uint64 = (+ i#0 1u)
         let tmp%3#9: string = test_cases.array.immutable.times(i#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -524,17 +512,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%concat%3#0: bytes = (concat 0x0002 aggregate%concat%2#0)
         let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%3#0)
         let i#0: uint64 = i#21
-        goto block@123
-    block@125: // after_for_L236
+        goto block@122
+    block@124: // after_for_L236
         let aggregate%array_length%45#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%6#1: bool = (== aggregate%array_length%45#0 5u)
         (assert tmp%6#1)
         let i#0: uint64 = 0u
-        goto block@126
-    block@126: // for_header_L240
+        goto block@125
+    block@125: // for_header_L240
         let continue_looping%1#0: bool = (< i#0 5u)
-        goto continue_looping%1#0 ? block@127 : block@128
-    block@127: // for_body_L241
+        goto continue_looping%1#0 ? block@126 : block@127
+    block@126: // for_body_L241
         let aggregate%array_head_and_tail%3#0: bytes = ((extract 2 0) arr#0)
         let aggregate%item_offset_offset%3#0: uint64 = (* i#0 2u)
         let aggregate%item_offset%3#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%3#0 aggregate%item_offset_offset%3#0)
@@ -556,8 +544,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%10#3: bool = (== aggregate%item1%7#0 tmp%9#4)
         (assert tmp%10#3) // expected 2nd element to be correct
         let i#0: uint64 = i#21
-        goto block@126
-    block@128: // after_for_L240
+        goto block@125
+    block@127: // after_for_L240
         let (tmp%11#1: bytes, arr#0: bytes) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(arr#0)
         let aggregate%array_length%47#0: uint64 = (extract_uint16 arr#0 0u)
         let tmp%16#0: bool = (== aggregate%array_length%47#0 4u)
@@ -596,9 +584,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%24#0: bool = (&& tmp%22#1 tmp%23#1)
         (assert tmp%24#0) // expected 4, 3
         (app_global_put "f" arr#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@10: // test_implicit_conversion_log_route_L250
         let tmp%31#0: uint64 = (txn OnCompletion)
         let tmp%32#0: bool = (! tmp%31#0)
@@ -607,9 +593,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%33#0) // can only call when not creating
         let arr#0: bytes = (txna ApplicationArgs 1)
         (log arr#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@11: // test_implicit_conversion_emit_route_L254
         let tmp%35#0: uint64 = (txn OnCompletion)
         let tmp%36#0: bool = (! tmp%35#0)
@@ -619,9 +603,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arr#0: bytes = (txna ApplicationArgs 1)
         let event%0#0: bytes = (concat 0xfa40c0530002 arr#0)
         (log event%0#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@12: // test_nested_array_route_L258
         let tmp%39#0: uint64 = (txn OnCompletion)
         let tmp%40#0: bool = (! tmp%39#0)
@@ -632,18 +614,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arr_to_add#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = (txna ApplicationArgs 2)
         let i#0: uint64 = 0u
-        goto block@108
-    block@108: // for_header_L263
+        goto block@107
+    block@107: // for_header_L263
         let continue_looping%0#0: bool = (< i#0 arr_to_add#0)
-        goto continue_looping%0#0 ? block@109 : block@113
-    block@109: // for_body_L264
+        goto continue_looping%0#0 ? block@108 : block@112
+    block@108: // for_body_L264
         let extra_arr#0: Encoded(len+uint64[]) = 0x0000
         let j#0: uint64 = 0u
-        goto block@110
-    block@110: // for_header_L265
+        goto block@109
+    block@109: // for_header_L265
         let continue_looping%1#0: bool = (< j#0 i#0)
-        goto continue_looping%1#0 ? block@111 : block@112
-    block@111: // for_body_L266
+        goto continue_looping%1#0 ? block@110 : block@111
+    block@110: // for_body_L266
         let aggregate%val_as_bytes%9#0: bytes[8] = (itob j#0)
         let concat%0#1: bytes = (concat extra_arr#0 aggregate%val_as_bytes%9#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 extra_arr#0 0u)
@@ -652,23 +634,23 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_u16_bytes%0#1: bytes = ((extract 6 2) as_bytes%0#1)
         let extra_arr#0: Encoded(len+uint64[]) = ((replace2 0) concat%0#1 as_u16_bytes%0#1)
         let j#0: uint64 = (+ j#0 1u)
-        goto block@110
-    block@112: // after_for_L265
+        goto block@109
+    block@111: // after_for_L265
         let extract_uint16%1#0: uint64 = (extract_uint16 arr#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
         let aggregate%concat%5#0: bytes = (concat 0x0002 extra_arr#0)
         let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%1#0, extract_to_end%0#0, 1u, aggregate%concat%5#0)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@108
-    block@113: // after_for_L263
+        goto block@107
+    block@112: // after_for_L263
         let totals#0: Encoded(len+uint64[]) = 0x0000
         let aggregate%array_length%51#0: uint64 = (extract_uint16 arr#0 0u)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@114
-    block@114: // for_header_L271
+        goto block@113
+    block@113: // for_header_L271
         let continue_looping%2#0: bool = (< item_index_internal%0#0 aggregate%array_length%51#0)
-        goto continue_looping%2#0 ? block@115 : block@116
-    block@115: // for_body_L272
+        goto continue_looping%2#0 ? block@114 : block@115
+    block@114: // for_body_L272
         let aggregate%array_head_and_tail%6#0: bytes = ((extract 2 0) arr#0)
         let aggregate%item_offset_offset%6#0: uint64 = (* item_index_internal%0#0 2u)
         let aggregate%item_offset%6#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%6#0 aggregate%item_offset_offset%6#0)
@@ -679,18 +661,18 @@ main algopy.arc4.ARC4Contract.approval_program:
         let total#0: uint64 = 0u
         let aggregate%array_length%52#0: uint64 = (extract_uint16 inner_arr#0 0u)
         let item_index_internal%0#9: uint64 = 0u
-        goto block@163
-    block@163: // for_header_L520
+        goto block@162
+    block@162: // for_header_L520
         let continue_looping%0#0: bool = (< item_index_internal%0#9 aggregate%array_length%52#0)
-        goto continue_looping%0#0 ? block@164 : block@165
-    block@164: // for_body_L521
+        goto continue_looping%0#0 ? block@163 : block@164
+    block@163: // for_body_L521
         let aggregate%array_trimmed%20#0: bytes = ((extract 2 0) inner_arr#0)
         let aggregate%bytes_offset%20#0: uint64 = (* item_index_internal%0#9 8u)
         let i#0: uint64 = (extract_uint64 aggregate%array_trimmed%20#0 aggregate%bytes_offset%20#0)
         let total#0: uint64 = (+ total#0 i#0)
         let item_index_internal%0#9: uint64 = (+ item_index_internal%0#9 1u)
-        goto block@163
-    block@165: // after_for_L520
+        goto block@162
+    block@164: // after_for_L520
         let aggregate%val_as_bytes%10#0: bytes[8] = (itob total#0)
         let concat%1#0: bytes = (concat totals#0 aggregate%val_as_bytes%10#0) // on error: max array length exceeded
         let extract_uint16%2#0: uint64 = (extract_uint16 totals#0 0u)
@@ -699,13 +681,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_u16_bytes%1#0: bytes = ((extract 6 2) as_bytes%1#0)
         let totals#0: Encoded(len+uint64[]) = ((replace2 0) concat%1#0 as_u16_bytes%1#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@114
-    block@116: // after_for_L271
+        goto block@113
+    block@115: // after_for_L271
         let tmp%2#0: bytes = (concat 0x151f7c75 totals#0)
         (log tmp%2#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@13: // test_bit_packed_tuples_route_L276
         let tmp%43#0: uint64 = (txn OnCompletion)
         let tmp%44#0: bool = (! tmp%43#0)
@@ -717,11 +697,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let arr8#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = 0x0000
         let arr9#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = 0x0000
         let i#0: uint64 = 0u
-        goto block@103
-    block@103: // for_header_L287
+        goto block@102
+    block@102: // for_header_L287
         let continue_looping%0#0: bool = (< i#0 5u)
-        goto continue_looping%0#0 ? block@104 : block@105
-    block@104: // for_body_L288
+        goto continue_looping%0#0 ? block@103 : block@104
+    block@103: // for_body_L288
         let tmp%8#0: bool = (! i#0)
         let tmp%9#1: bool = (== i#0 1u)
         let aggregate%encoded_bool%2#0: bytes[1] = (setbit 0x00 0u tmp%8#0)
@@ -774,8 +754,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_u16_bytes%3#0: bytes = ((extract 6 2) as_bytes%3#0)
         let arr9#0: Encoded(len+(uint64,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,bool1,uint64)[]) = ((replace2 0) concat%3#0 as_u16_bytes%3#0)
         let i#0: uint64 = i#21
-        goto block@103
-    block@105: // after_for_L287
+        goto block@102
+    block@104: // after_for_L287
         let aggregate%array_length%57#0: uint64 = (extract_uint16 arr2#0 0u)
         let tmp%42#1: bool = (== aggregate%array_length%57#0 5u)
         (assert tmp%42#1)
@@ -792,9 +772,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         (app_global_put "bool7" arr7#0)
         (app_global_put "bool8" arr8#0)
         (app_global_put "bool9" arr9#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@14: // sum_uints_and_lengths_and_trues_route_L341
         let tmp%47#0: uint64 = (txn OnCompletion)
         let tmp%48#0: bool = (! tmp%47#0)
@@ -811,45 +789,45 @@ main algopy.arc4.ARC4Contract.approval_program:
         let sum1#0: uint64 = 0u
         let aggregate%array_length%61#0: uint64 = (extract_uint16 arr1#0 0u)
         let item_index_internal%0#0: uint64 = 0u
-        goto block@83
-    block@83: // for_header_L350
+        goto block@82
+    block@82: // for_header_L350
         let continue_looping%0#0: bool = (< item_index_internal%0#0 aggregate%array_length%61#0)
-        goto continue_looping%0#0 ? block@84 : block@85
-    block@84: // for_body_L351
+        goto continue_looping%0#0 ? block@83 : block@84
+    block@83: // for_body_L351
         let aggregate%array_trimmed%21#0: bytes = ((extract 2 0) arr1#0)
         let aggregate%bytes_offset%21#0: uint64 = (* item_index_internal%0#0 8u)
         let i#0: uint64 = (extract_uint64 aggregate%array_trimmed%21#0 aggregate%bytes_offset%21#0)
         let sum1#0: uint64 = (+ sum1#0 i#0)
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@83
-    block@85: // after_for_L350
+        goto block@82
+    block@84: // after_for_L350
         let aggregate%array_length%62#0: uint64 = (extract_uint16 arr2#0 0u)
         let item_index_internal%1#0: uint64 = 0u
-        goto block@86
-    block@86: // for_header_L352
+        goto block@85
+    block@85: // for_header_L352
         let continue_looping%1#0: bool = (< item_index_internal%1#0 aggregate%array_length%62#0)
-        goto continue_looping%1#0 ? block@87 : block@90
-    block@87: // for_body_L353
+        goto continue_looping%1#0 ? block@86 : block@89
+    block@86: // for_body_L353
         let aggregate%add%4#0: uint64 = (+ item_index_internal%1#0 16u)
         let b#0: bool = (getbit arr2#0 aggregate%add%4#0)
         let sum2#10: uint64 = sum2#0
-        goto b#0 ? block@88 : block@89
-    block@88: // if_body_L354
+        goto b#0 ? block@87 : block@88
+    block@87: // if_body_L354
         let sum2#0: uint64 = (+ sum2#0 1u)
         let sum2#10: uint64 = sum2#0
-        goto block@89
-    block@89: // after_if_else_L353
+        goto block@88
+    block@88: // after_if_else_L353
         let sum2#0: uint64 = sum2#10
         let item_index_internal%1#0: uint64 = (+ item_index_internal%1#0 1u)
-        goto block@86
-    block@90: // after_for_L352
+        goto block@85
+    block@89: // after_for_L352
         let aggregate%array_length%63#0: uint64 = (extract_uint16 arr3#0 0u)
         let item_index_internal%2#0: uint64 = 0u
-        goto block@91
-    block@91: // for_header_L355
+        goto block@90
+    block@90: // for_header_L355
         let continue_looping%2#0: bool = (< item_index_internal%2#0 aggregate%array_length%63#0)
-        goto continue_looping%2#0 ? block@92 : block@97
-    block@92: // for_body_L356
+        goto continue_looping%2#0 ? block@91 : block@96
+    block@91: // for_body_L356
         let aggregate%array_trimmed%22#0: bytes = ((extract 2 0) arr3#0)
         let aggregate%bytes_offset%22#0: uint64 = (* item_index_internal%2#0 9u)
         let aggregate%encoded_element%22#0: bytes = (extract3 aggregate%array_trimmed%22#0 aggregate%bytes_offset%22#0 9u) // on error: index access is out of bounds
@@ -858,32 +836,32 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tup.baz#0: bool = (getbit aggregate%encoded_element%22#0 65u)
         let sum3#0: uint64 = (+ sum3#0 tup.foo#0)
         let sum3#15: uint64 = sum3#0
-        goto tup.bar#0 ? block@93 : block@94
-    block@93: // if_body_L358
+        goto tup.bar#0 ? block@92 : block@93
+    block@92: // if_body_L358
         let sum3#0: uint64 = (+ sum3#0 1u)
         let sum3#15: uint64 = sum3#0
-        goto block@94
-    block@94: // after_if_else_L357
+        goto block@93
+    block@93: // after_if_else_L357
         let sum3#0: uint64 = sum3#15
         let sum3#15: uint64 = sum3#0
-        goto tup.baz#0 ? block@95 : block@96
-    block@95: // if_body_L360
+        goto tup.baz#0 ? block@94 : block@95
+    block@94: // if_body_L360
         let sum3#0: uint64 = (+ sum3#0 1u)
         let sum3#15: uint64 = sum3#0
-        goto block@96
-    block@96: // after_if_else_L359
+        goto block@95
+    block@95: // after_if_else_L359
         let sum3#0: uint64 = sum3#15
         let item_index_internal%2#0: uint64 = (+ item_index_internal%2#0 1u)
-        goto block@91
-    block@97: // after_for_L355
+        goto block@90
+    block@96: // after_for_L355
         let aggregate%array_length%64#0: uint64 = (extract_uint16 arr4#0 0u)
         let item_index_internal%3#0: uint64 = 0u
         let idx#0: uint64 = item_index_internal%3#0
-        goto block@98
-    block@98: // for_header_L361
+        goto block@97
+    block@97: // for_header_L361
         let continue_looping%3#0: bool = (< idx#0 aggregate%array_length%64#0)
-        goto continue_looping%3#0 ? block@99 : block@100
-    block@99: // for_body_L362
+        goto continue_looping%3#0 ? block@98 : block@99
+    block@98: // for_body_L362
         let aggregate%array_head_and_tail%8#0: bytes = ((extract 2 0) arr4#0)
         let aggregate%item_offset_offset%8#0: uint64 = (* idx#0 2u)
         let aggregate%item_offset%8#0: uint64 = (extract_uint16 aggregate%array_head_and_tail%8#0 aggregate%item_offset_offset%8#0)
@@ -905,8 +883,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%9#1: bool = (== tmp%6#2 idx#0)
         (assert tmp%9#1) // expected string length to match index
         let idx#0: uint64 = aggregate%next_index%6#0
-        goto block@98
-    block@100: // after_for_L361
+        goto block@97
+    block@99: // after_for_L361
         let aggregate%val_as_bytes%17#0: bytes[8] = (itob sum1#0)
         let aggregate%val_as_bytes%18#0: bytes[8] = (itob sum2#0)
         let aggregate%head%40#0: bytes = (concat aggregate%val_as_bytes%17#0 aggregate%val_as_bytes%18#0)
@@ -916,9 +894,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%head%42#0: bytes = (concat aggregate%head%41#0 aggregate%val_as_bytes%20#0)
         let tmp%5#2: bytes = (concat 0x151f7c75 aggregate%head%42#0)
         (log tmp%5#2)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@15: // test_uint64_return_route_L368
         let tmp%51#0: uint64 = (txn OnCompletion)
         let tmp%52#0: bool = (! tmp%51#0)
@@ -929,11 +905,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let append#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x0003000000000000000100000000000000020000000000000003
         let i#0: uint64 = 0u
-        goto block@78
-    block@78: // for_header_L371
+        goto block@77
+    block@77: // for_header_L371
         let continue_looping%0#0: bool = (< i#0 append#0)
-        goto continue_looping%0#0 ? block@79 : block@80
-    block@79: // for_body_L372
+        goto continue_looping%0#0 ? block@78 : block@79
+    block@78: // for_body_L372
         let aggregate%val_as_bytes%24#0: bytes[8] = (itob i#0)
         let concat%0#1: bytes = (concat arr#0 aggregate%val_as_bytes%24#0) // on error: max array length exceeded
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
@@ -942,13 +918,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_u16_bytes%0#1: bytes = ((extract 6 2) as_bytes%0#1)
         let arr#0: bytes = ((replace2 0) concat%0#1 as_u16_bytes%0#1)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@78
-    block@80: // after_for_L371
+        goto block@77
+    block@79: // after_for_L371
         let tmp%2#0: bytes = (concat 0x151f7c75 arr#0)
         (log tmp%2#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@16: // test_bool_return_route_L375
         let tmp%55#0: uint64 = (txn OnCompletion)
         let tmp%56#0: bool = (! tmp%55#0)
@@ -959,17 +933,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let append#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x0005a8
         let i#0: uint64 = 0u
-        goto block@73
-    block@73: // for_header_L378
+        goto block@72
+    block@72: // for_header_L378
         let continue_looping%0#0: bool = (< i#0 append#0)
-        goto continue_looping%0#0 ? block@74 : block@80
-    block@74: // for_body_L379
+        goto continue_looping%0#0 ? block@73 : block@79
+    block@73: // for_body_L379
         let tmp%0#1: uint64 = (% i#0 2u)
         let tmp%1#12: bool = (! tmp%0#1)
         let aggregate%encoded_bool%8#0: bytes[1] = (setbit 0x00 0u tmp%1#12)
         let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_bits(arr#0, aggregate%encoded_bool%8#0, 1u, 8u)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@73
+        goto block@72
     block@17: // test_tuple_return_route_L382
         let tmp%59#0: uint64 = (txn OnCompletion)
         let tmp%60#0: bool = (! tmp%59#0)
@@ -980,11 +954,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let append#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x0001000000000000000080
         let i#0: uint64 = 0u
-        goto block@68
-    block@68: // for_header_L385
+        goto block@67
+    block@67: // for_header_L385
         let continue_looping%0#0: bool = (< i#0 append#0)
-        goto continue_looping%0#0 ? block@69 : block@80
-    block@69: // for_body_L386
+        goto continue_looping%0#0 ? block@68 : block@79
+    block@68: // for_body_L386
         let tmp%0#1: uint64 = (% i#0 2u)
         let tmp%1#12: bool = (! tmp%0#1)
         let tmp%2#1: uint64 = (% i#0 3u)
@@ -1000,7 +974,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_u16_bytes%0#1: bytes = ((extract 6 2) as_bytes%0#1)
         let arr#0: bytes = ((replace2 0) concat%0#1 as_u16_bytes%0#1)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@68
+        goto block@67
     block@18: // test_dynamic_tuple_return_route_L389
         let tmp%63#0: uint64 = (txn OnCompletion)
         let tmp%64#0: bool = (! tmp%63#0)
@@ -1011,11 +985,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let append#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let arr#0: bytes = 0x000100020000000000000000000a000548656c6c6f
         let i#0: uint64 = 0u
-        goto block@63
-    block@63: // for_header_L392
+        goto block@62
+    block@62: // for_header_L392
         let continue_looping%0#0: bool = (< i#0 append#0)
-        goto continue_looping%0#0 ? block@64 : block@80
-    block@64: // for_body_L393
+        goto continue_looping%0#0 ? block@63 : block@79
+    block@63: // for_body_L393
         let tmp%0#15: string = test_cases.array.immutable.times(i#0)
         let extract_uint16%0#0: uint64 = (extract_uint16 arr#0 0u)
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
@@ -1029,7 +1003,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let aggregate%concat%9#0: bytes = (concat 0x0002 aggregate%concat%8#0)
         let arr#0: bytes = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, 1u, aggregate%concat%9#0)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@63
+        goto block@62
     block@19: // test_convert_to_array_and_back_route_L396
         let tmp%67#0: uint64 = (txn OnCompletion)
         let tmp%68#0: bool = (! tmp%67#0)
@@ -1042,11 +1016,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let extract_to_end%0#0: bytes = ((extract 2 0) arr#0)
         store(local.0, extract_to_end%0#0)
         let i#0: uint64 = 0u
-        goto block@58
-    block@58: // for_header_L402
+        goto block@57
+    block@57: // for_header_L402
         let continue_looping%0#0: bool = (< i#0 append#0)
-        goto continue_looping%0#0 ? block@59 : block@60
-    block@59: // for_body_L403
+        goto continue_looping%0#0 ? block@58 : block@59
+    block@58: // for_body_L403
         let tmp%0#1: uint64 = (% i#0 2u)
         let tmp%1#12: bool = (! tmp%0#1)
         let tmp%2#1: uint64 = (% i#0 3u)
@@ -1059,8 +1033,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let concat%1#0: bytes = (concat slot_contents%1#0 aggregate%head%62#0) // on error: max array length exceeded
         store(local.0, concat%1#0)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@58
-    block@60: // after_for_L402
+        goto block@57
+    block@59: // after_for_L402
         let slot_contents%2#0: Encoded((uint64,bool1,bool1)[]) = load(local.0)
         let aggregate%bytes_len%0#0: uint64 = (len slot_contents%2#0)
         let aggregate%array_len%0#0: uint64 = (/ aggregate%bytes_len%0#0 9u)
@@ -1069,9 +1043,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let converted_array%0#0: Encoded(len+(uint64,bool1,bool1)[]) = (concat as_u16_bytes%0#1 slot_contents%2#0)
         let tmp%2#0: bytes = (concat 0x151f7c75 converted_array%0#0)
         (log tmp%2#0)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@20: // test_concat_with_arc4_tuple_route_L406
         let tmp%71#0: uint64 = (txn OnCompletion)
         let tmp%72#0: bool = (! tmp%71#0)
@@ -1088,9 +1060,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let result#0: bytes = ((replace2 0) concat%0#1 as_u16_bytes%0#1)
         let tmp%1#1: bytes = (concat 0x151f7c75 result#0)
         (log tmp%1#1)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@21: // test_concat_with_native_tuple_route_L414
         let tmp%75#0: uint64 = (txn OnCompletion)
         let tmp%76#0: bool = (! tmp%75#0)
@@ -1105,9 +1075,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let result#0: bytes = ((replace2 0) concat%0#1 0x0004)
         let tmp%3#3: bytes = (concat 0x151f7c75 result#0)
         (log tmp%3#3)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@22: // test_dynamic_concat_with_arc4_tuple_route_L422
         let tmp%79#0: uint64 = (txn OnCompletion)
         let tmp%80#0: bool = (! tmp%79#0)
@@ -1119,9 +1087,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let result#0: bytes = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x000200040007000161000162, data%0#0, 2u)
         let tmp%1#1: bytes = (concat 0x151f7c75 result#0)
         (log tmp%1#1)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@23: // test_dynamic_concat_with_native_tuple_route_L430
         let tmp%83#0: uint64 = (txn OnCompletion)
         let tmp%84#0: bool = (! tmp%83#0)
@@ -1138,9 +1104,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let result#0: bytes = _puya_lib.arc4.dynamic_array_concat_byte_length_head(0x000200040007000161000162, concat%1#0, 2u)
         let tmp%3#3: bytes = (concat 0x151f7c75 result#0)
         (log tmp%3#3)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@24: // test_concat_immutable_dynamic_route_L438
         let tmp%87#0: uint64 = (txn OnCompletion)
         let tmp%88#0: bool = (! tmp%87#0)
@@ -1156,9 +1120,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%0#0, extract_to_end%0#0, aggregate%array_length%66#0, extract_to_end%1#0)
         let tmp%1#1: bytes = (concat 0x151f7c75 as_Encoded(len+(uint64,(len+utf8[]))[])%0#0)
         (log tmp%1#1)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@25: // test_immutable_arc4_route_L444
         let tmp%91#0: uint64 = (txn OnCompletion)
         let tmp%92#0: bool = (! tmp%91#0)
@@ -1175,9 +1137,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let imm#0: Encoded(len+(uint64,uint64)[]) = (replace3 imm#0 aggregate%write_offset_with_length_header%1#0 aggregate%encoded_element%23#0)
         let tmp%1#1: bytes = (concat 0x151f7c75 imm#0)
         (log tmp%1#1)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@26: // test_imm_fixed_arr_route_L450
         let tmp%95#0: uint64 = (txn OnCompletion)
         let tmp%96#0: bool = (! tmp%95#0)
@@ -1197,31 +1157,31 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%6#1: bool = (!= arr1#0 arr2#0)
         (assert tmp%6#1) // expected arrays to be different
         let i#0: uint64 = 0u
-        goto block@38
-    block@38: // for_header_L459
+        goto block@37
+    block@37: // for_header_L459
         let continue_looping%0#0: bool = (< i#0 3u)
-        goto continue_looping%0#0 ? block@39 : block@40
-    block@39: // for_body_L460
+        goto continue_looping%0#0 ? block@38 : block@39
+    block@38: // for_body_L460
         let aggregate%write_offset%2#0: uint64 = (* i#0 16u)
         let arr1#0: bytes = (replace3 arr1#0 aggregate%write_offset%2#0 struct12#0)
         let i#0: uint64 = (+ i#0 1u)
-        goto block@38
-    block@40: // after_for_L459
+        goto block@37
+    block@39: // after_for_L459
         let tmp%8#0: bool = (== arr1#0 arr2#0)
         (assert tmp%8#0) // expected arrays to be the same
         let item_index_internal%0#0: uint64 = 0u
-        goto block@41
-    block@41: // for_header_L464
+        goto block@40
+    block@40: // for_header_L464
         let continue_looping%1#0: bool = (< item_index_internal%0#0 3u)
-        goto continue_looping%1#0 ? block@42 : block@43
-    block@42: // for_body_L465
+        goto continue_looping%1#0 ? block@41 : block@42
+    block@41: // for_body_L465
         let aggregate%bytes_offset%26#0: uint64 = (* item_index_internal%0#0 16u)
         let struct_it#0: Encoded(uint64,uint64) = (extract3 arr1#0 aggregate%bytes_offset%26#0 16u) // on error: index access is out of bounds
         let tmp%9#1: bool = (== struct_it#0 struct12#0)
         (assert tmp%9#1) // expected items on iteration to be the same
         let item_index_internal%0#0: uint64 = (+ item_index_internal%0#0 1u)
-        goto block@41
-    block@43: // after_for_L464
+        goto block@40
+    block@42: // after_for_L464
         (app_global_put "imm_fixed_arr" arr1#0)
         let tmp%13#0: uint64 = test_cases.array.immutable.sum_imm_fixed(arr1#0)
         let tmp%14#1: bool = (== tmp%13#0 15u)
@@ -1234,25 +1194,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert maybe_exists%1#0) // check self.imm_fixed_arr exists
         let tmp%1#1: bytes = (concat 0x151f7c75 maybe_value%1#0)
         (log tmp%1#1)
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@29: // bare_routing_L93
         let tmp%99#0: uint64 = (txn OnCompletion)
-        goto tmp%99#0 ? block@33 : block@30
-    block@30: // __algopy_default_create_L1
+        let not%tmp%99#0: bool = (! tmp%99#0)
+        (assert not%tmp%99#0)
         let tmp%100#0: uint64 = (txn ApplicationID)
         let tmp%101#0: bool = (! tmp%100#0)
         (assert tmp%101#0) // can only call when creating
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
+        exit 1u
     block@33: // after_if_else_L93
-        let test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router__%0#0
-        goto block@34
-    block@34: // after_inlined_test_cases.array.immutable.ImmutableArrayContract.__puya_arc4_router___L1
-        return tmp%0#0
+        fail
 
 subroutine _puya_lib.arc4.dynamic_array_pop_fixed_size(array: bytes, fixed_byte_size: uint64) -> <bytes, bytes>:
     block@0: // L44

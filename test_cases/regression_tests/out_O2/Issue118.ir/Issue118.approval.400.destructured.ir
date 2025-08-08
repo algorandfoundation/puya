@@ -16,34 +16,26 @@ main algopy.arc4.ARC4Contract.approval_program:
         let val1#0: Encoded(bool8) = (setbit 0x00 0u tmp%0#1)
         let aggregate%array_length%0#0: uint64 = (extract_uint16 values#0 0u)
         let tmp%4#0: bool = (!= aggregate%array_length%0#0 2u)
-        goto tmp%4#0 ? block@15 : block@16
-    block@15: // if_body_L13
+        goto tmp%4#0 ? block@14 : block@15
+    block@14: // if_body_L13
         let aggregate%concat%0#0: bytes = (concat val1#0 0x00030000)
         let tmp%0#2: Encoded(bool1,(len+utf8[])) = aggregate%concat%0#0
-        goto block@17
-    block@16: // after_if_else_L12
+        goto block@16
+    block@15: // after_if_else_L12
         let aggregate%concat%1#0: bytes = (concat val1#0 0x00030000)
         let tmp%0#2: Encoded(bool1,(len+utf8[])) = aggregate%concat%1#0
-        goto block@17
-    block@17: // after_inlined_test_cases.regression_tests.issue_118.Issue118.verify_L5
+        goto block@16
+    block@16: // after_inlined_test_cases.regression_tests.issue_118.Issue118.verify_L5
         let tmp%1#1: bytes = (concat 0x151f7c75 tmp%0#2)
         (log tmp%1#1)
-        let test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
-        goto block@11
+        exit 1u
     block@6: // bare_routing_L5
         let tmp%7#0: uint64 = (txn OnCompletion)
-        goto tmp%7#0 ? block@10 : block@7
-    block@7: // __algopy_default_create_L1
+        let not%tmp%7#0: bool = (! tmp%7#0)
+        (assert not%tmp%7#0)
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
-        let test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
-        goto block@11
+        exit 1u
     block@10: // after_if_else_L5
-        let test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router__%0#0
-        goto block@11
-    block@11: // after_inlined_test_cases.regression_tests.issue_118.Issue118.__puya_arc4_router___L1
-        return tmp%0#0
+        fail

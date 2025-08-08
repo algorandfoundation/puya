@@ -12,9 +12,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%5#0: uint64 = (txn ApplicationID)
         (assert tmp%5#0) // can only call when not creating
         test_cases.group_side_effects.contract.AppExpectingEffects.create_group[routing]()
-        let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0
-        goto block@12
+        exit 1u
     block@4: // log_group_route_L22
         let tmp%7#0: uint64 = (txn OnCompletion)
         let tmp%8#0: bool = (! tmp%7#0)
@@ -22,25 +20,17 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%9#0: uint64 = (txn ApplicationID)
         (assert tmp%9#0) // can only call when not creating
         test_cases.group_side_effects.contract.AppExpectingEffects.log_group[routing]()
-        let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0
-        goto block@12
+        exit 1u
     block@7: // bare_routing_L4
         let tmp%11#0: uint64 = (txn OnCompletion)
-        goto tmp%11#0 ? block@11 : block@8
-    block@8: // __algopy_default_create_L1
+        let not%tmp%11#0: bool = (! tmp%11#0)
+        (assert not%tmp%11#0)
         let tmp%12#0: uint64 = (txn ApplicationID)
         let tmp%13#0: bool = (! tmp%12#0)
         (assert tmp%13#0) // can only call when creating
-        let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0: bool = 1u
-        let tmp%0#0: bool = test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0
-        goto block@12
+        exit 1u
     block@11: // after_if_else_L4
-        let test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0: bool = 0u
-        let tmp%0#0: bool = test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router__%0#0
-        goto block@12
-    block@12: // after_inlined_test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc4_router___L1
-        return tmp%0#0
+        fail
 
 subroutine test_cases.group_side_effects.contract.AppExpectingEffects.create_group[routing]() -> void:
     block@0: // L4

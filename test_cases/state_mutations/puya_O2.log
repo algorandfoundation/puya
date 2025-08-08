@@ -920,6 +920,8 @@ debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: simplifying a switch with constants into goto nth
 debug: simplified terminator of block@7 from switch tmp%15#0 {1u => block@8, 0u => block@9, * => block@10} to goto_nth [block@9, block@8][tmp%15#0] else goto block@10
+debug: simplifying exit 0 to err
+debug: simplified terminator of block@12 from exit 0u to fail
 debug: Optimizer: Remove Linear Jump
 debug: Replaced predecessor block@21 with block@2 in block@22
 debug: Merged linear block@21 into block@2
@@ -1237,6 +1239,7 @@ debug: Replaced predecessor block@1 with block@0 in block@2
 debug: Merged linear block@1 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
+debug: Removing unreachable blocks: block@10
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -1283,6 +1286,7 @@ debug: Replaced predecessor block@3 with block@0 in block@4
 debug: Merged linear block@3 into block@0
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
+debug: Removing unreachable blocks: block@12
 debug: Optimizer: Repeated Expression Elimination
 debug: Optimizer: Encode Decode Pair Elimination
 debug: Optimizer: Merge Chained Aggregate Reads
@@ -1558,18 +1562,15 @@ debug: Optimizer: Inner Txn Field Replacer
 debug: Optimizer: Replace Compiled References
 debug: Optimizer: Simplify Control Ops
 debug: Optimizer: Remove Linear Jump
-debug: Replaced predecessor block@17 with block@5 in block@18
+debug: Replaced predecessor block@16 with block@5 in block@17
+debug: Merged linear block@16 into block@5
 debug: Merged linear block@17 into block@5
-debug: Replaced predecessor block@18 with block@5 in block@12
-debug: Merged linear block@18 into block@5
-debug: Replaced predecessor block@15 with block@6 in block@16
+debug: Replaced predecessor block@14 with block@6 in block@15
+debug: Merged linear block@14 into block@6
 debug: Merged linear block@15 into block@6
-debug: Replaced predecessor block@16 with block@6 in block@12
-debug: Merged linear block@16 into block@6
-debug: Replaced predecessor block@13 with block@7 in block@14
+debug: Replaced predecessor block@12 with block@7 in block@13
+debug: Merged linear block@12 into block@7
 debug: Merged linear block@13 into block@7
-debug: Replaced predecessor block@14 with block@7 in block@12
-debug: Merged linear block@14 into block@7
 debug: Optimizer: Remove Empty Blocks
 debug: Optimizer: Remove Unreachable Blocks
 debug: Optimizer: Repeated Expression Elimination
@@ -2370,10 +2371,8 @@ debug: Coalescing maybe_value%1#0 with [maybe_value%1#1]
 debug: Coalescing maybe_exists%1#0 with [maybe_exists%1#2, maybe_exists%1#1]
 debug: Coalescing materialized_values%0#0 with [materialized_values%0#3, materialized_values%0#2, materialized_values%0#1]
 debug: Coalescing box_prefixed_key%0#0 with [box_prefixed_key%0#3, box_prefixed_key%0#2, box_prefixed_key%0#1]
-debug: Coalescing test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0 with [test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#1, test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#2, test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#3, test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#4, test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#5]
-debug: Coalescing tmp%0#1 with [tmp%0#6]
 debug: Coalescing tmp%0#3 with [tmp%0#5]
-debug: Coalescing resulted in 52 replacement/s
+debug: Coalescing resulted in 35 replacement/s
 debug: Sequentializing parallel copies in test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init
 debug: Performing post-SSA optimizations at level 2
 debug: Performing SSA IR destructuring for _puya_lib.arc4.dynamic_array_concat_dynamic_element
@@ -2473,8 +2472,6 @@ debug: Inserted main_append_route@5.ops[38]: 'l-store-copy tmp%2#2 0'
 debug: Replaced main_append_route@5.ops[40]: 'v-load tmp%2#2' with 'l-load tmp%2#2'
 debug: Inserted main_append_route@5.ops[95]: 'l-store-copy box_prefixed_key%0#0 0'
 debug: Replaced main_append_route@5.ops[97]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
-debug: Inserted main_append_route@5.ops[123]: 'l-store-copy test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_append_route@5.ops[125]: 'v-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0'
 debug: Inserted main_append_route@5.ops[17]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced main_append_route@5.ops[20]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted main_append_route@5.ops[28]: 'l-store-copy extract_to_end%0#0 0'
@@ -2557,8 +2554,6 @@ debug: Inserted main_modify_route@6.ops[257]: 'l-store-copy aggregate%substring3
 debug: Replaced main_modify_route@6.ops[259]: 'v-load aggregate%substring3%6#0' with 'l-load aggregate%substring3%6#0'
 debug: Inserted main_modify_route@6.ops[267]: 'l-store-copy aggregate%data_up_to_item%3#0 0'
 debug: Replaced main_modify_route@6.ops[269]: 'v-load aggregate%data_up_to_item%3#0' with 'l-load aggregate%data_up_to_item%3#0'
-debug: Inserted main_modify_route@6.ops[287]: 'l-store-copy test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_modify_route@6.ops[289]: 'v-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0'
 debug: Inserted main_modify_route@6.ops[17]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced main_modify_route@6.ops[20]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted main_modify_route@6.ops[43]: 'l-store-copy aggregate%next_item_offset%0#0 0'
@@ -2737,8 +2732,6 @@ debug: Inserted main_get_route@7.ops[68]: 'l-store-copy tmp%3#1 0'
 debug: Replaced main_get_route@7.ops[70]: 'v-load tmp%3#1' with 'l-load tmp%3#1'
 debug: Inserted main_get_route@7.ops[75]: 'l-store-copy tmp%1#1 0'
 debug: Replaced main_get_route@7.ops[77]: 'v-load tmp%1#1' with 'l-load tmp%1#1'
-debug: Inserted main_get_route@7.ops[80]: 'l-store-copy test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_get_route@7.ops[82]: 'v-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0'
 debug: Inserted main_get_route@7.ops[17]: 'l-store-copy maybe_exists%0#0 1'
 debug: Replaced main_get_route@7.ops[20]: 'v-load maybe_exists%0#0' with 'l-load maybe_exists%0#0'
 debug: Inserted main_get_route@7.ops[29]: 'l-store-copy maybe_exists%1#0 1'
@@ -2771,8 +2764,6 @@ debug: Inserted main_opt_in@9.ops[15]: 'l-store-copy tmp%0#3 0'
 debug: Replaced main_opt_in@9.ops[17]: 'v-load tmp%0#3' with 'l-load tmp%0#3'
 debug: Inserted main_opt_in@9.ops[26]: 'l-store-copy box_prefixed_key%0#0 0'
 debug: Replaced main_opt_in@9.ops[28]: 'v-load box_prefixed_key%0#0' with 'l-load box_prefixed_key%0#0'
-debug: Inserted main_opt_in@9.ops[35]: 'l-store-copy test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_opt_in@9.ops[37]: 'v-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0'
 debug: Inserted main_opt_in@9.ops[22]: 'l-store-copy materialized_values%0#0 0'
 debug: Replaced main_opt_in@9.ops[25]: 'v-load materialized_values%0#0' with 'l-load materialized_values%0#0'
 debug: Inserted main_opt_in@9.ops[30]: 'l-store-copy box_prefixed_key%0#0 0'
@@ -2781,10 +2772,6 @@ debug: Inserted main___algopy_default_create@10.ops[1]: 'l-store-copy tmp%18#0 0
 debug: Replaced main___algopy_default_create@10.ops[3]: 'v-load tmp%18#0' with 'l-load tmp%18#0'
 debug: Inserted main___algopy_default_create@10.ops[5]: 'l-store-copy tmp%19#0 0'
 debug: Replaced main___algopy_default_create@10.ops[7]: 'v-load tmp%19#0' with 'l-load tmp%19#0'
-debug: Inserted main___algopy_default_create@10.ops[10]: 'l-store-copy test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main___algopy_default_create@10.ops[12]: 'v-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0'
-debug: Inserted main_after_if_else@11.ops[1]: 'l-store-copy test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0 0'
-debug: Replaced main_after_if_else@11.ops[3]: 'v-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0' with 'l-load test_cases.state_mutations.contract.Contract.__puya_arc4_router__%0#0'
 debug: Inserted dynamic_array_concat_dynamic_element_for_header@1.ops[3]: 'l-store-copy continue_looping%0#0 0'
 debug: Replaced dynamic_array_concat_dynamic_element_for_header@1.ops[5]: 'v-load continue_looping%0#0' with 'l-load continue_looping%0#0'
 debug: Inserted dynamic_array_concat_dynamic_element_for_body@2.ops[7]: 'l-store-copy tmp%3#0 0'
@@ -2893,14 +2880,7 @@ debug: Inserted dynamic_array_replace_dynamic_element_for_body@3.ops[3]: 'l-stor
 debug: Replaced dynamic_array_replace_dynamic_element_for_body@3.ops[26]: 'v-load head_offset#0' with 'l-load head_offset#0'
 debug: Inserted dynamic_array_replace_dynamic_element_after_for@5.ops[3]: 'l-store-copy tmp%4#0 0'
 debug: Replaced dynamic_array_replace_dynamic_element_after_for@5.ops[5]: 'v-load tmp%4#0' with 'l-load tmp%4#0'
-debug: Found 3 edge set/s for test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init
-debug: Allocated 1 variable/s to x-stack: tmp%0#1
-debug: shared x-stack for main_append_route@5 -> main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12: tmp%0#1
-debug: shared x-stack for main_modify_route@6 -> main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12: tmp%0#1
-debug: shared x-stack for main_get_route@7 -> main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12: tmp%0#1
-debug: shared x-stack for main_opt_in@9 -> main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12: tmp%0#1
-debug: shared x-stack for main___algopy_default_create@10 -> main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12: tmp%0#1
-debug: shared x-stack for main_after_if_else@11 -> main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12: tmp%0#1
+debug: Found 2 edge set/s for test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init
 debug: Found 4 edge set/s for _puya_lib.arc4.dynamic_array_concat_dynamic_element
 debug: Found 2 edge set/s for _puya_lib.arc4.dynamic_array_replace_dynamic_element
 debug: _puya_lib.arc4.dynamic_array_concat_dynamic_element f-stack entry: ['item_offset_adjustment#2']
@@ -2912,15 +2892,10 @@ debug: optimizing TEAL subroutine ops _puya_lib.arc4.dynamic_array_concat_dynami
 debug: optimizing TEAL subroutine ops _puya_lib.arc4.dynamic_array_replace_dynamic_element(source: bytes, new_item: bytes, index: uint64) -> bytes:
 debug: Replaced 'Uncover(source_location=INTERNAL:271:10-65, comment=None, error_message=None, stack_manipulations=(StackPop(depth=3), StackExtend(local_ids=('array_head_and_tail#0',)), StackDefine(local_ids=('array_head_and_tail#0',))), n=3, op_code='uncover', consumes=4, produces=4); Uncover(source_location=INTERNAL:271:10-65, comment=None, error_message=None, stack_manipulations=(StackPop(depth=2), StackExtend(local_ids=('end_offset#0',)), StackDefine(local_ids=('end_offset#0',))), n=2, op_code='uncover', consumes=3, produces=3); Uncover(source_location=INTERNAL:271:10-65, comment=None, error_message=None, stack_manipulations=(StackPop(depth=3), StackExtend(local_ids=('end_of_tail#0',)), StackDefine(local_ids=('end_of_tail#0',))), n=3, op_code='uncover', consumes=4, produces=4)' with 'Cover(source_location=None, comment=None, error_message=None, stack_manipulations=(), n=3, op_code='cover', consumes=4, produces=4); Cover(source_location=None, comment=None, error_message=None, stack_manipulations=(), n=1, op_code='cover', consumes=2, produces=2)', reducing by 1 ops by search
 debug: optimizing TEAL subroutine blocks test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
-debug: replacing `b main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12` with `return`
-debug: replacing `b main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12` with `return`
-debug: replacing `b main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12` with `return`
-debug: replacing `b main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12` with `return`
-debug: replacing `b main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12` with `return`
+state_mutations/contract.py:22 debug: replacing `b main_after_if_else@11` with `err`
 debug: inlining single reference block main_block@0 into main
 debug: inlining single reference block main_abi_routing@4 into main
-debug: inlining single reference block main_after_inlined_test_cases.state_mutations.contract.Contract.__puya_arc4_router__@12 into main_after_if_else@11
-debug: removing explicit jump to fall-through block main_after_if_else@11
+debug: inlining single reference block main_after_if_else@11 into main
 debug: optimizing TEAL subroutine blocks _puya_lib.arc4.dynamic_array_concat_dynamic_element(array_items_count: uint64, array_head_and_tail: bytes, new_items_count: uint64, new_head_and_tail: bytes) -> bytes:
 debug: inlining single reference block dynamic_array_concat_dynamic_element_block@0 into dynamic_array_concat_dynamic_element
 debug: inlining single reference block dynamic_array_concat_dynamic_element_for_body@2 into dynamic_array_concat_dynamic_element_for_header@1

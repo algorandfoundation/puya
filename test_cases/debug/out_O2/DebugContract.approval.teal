@@ -14,8 +14,6 @@ main:
     pushbytes 0x53574bff // method "test(uint64,uint64,uint64)uint64"
     txna ApplicationArgs 0
     match main_test_route@3
-
-main_after_if_else@10:
     err
 
 main_test_route@3:
@@ -50,19 +48,19 @@ main_test_route@3:
     dup
     bury 5
     <
-    bz main_else_body@16
+    bz main_else_body@15
     dig 6
     dig 2
     +
     bury 7
 
-main_after_if_else@25:
+main_after_if_else@24:
     dig 6
     dig 5
     +
     dig 3
     <
-    bz main_else_body@27
+    bz main_else_body@26
     dig 6
     dup
     dig 3
@@ -70,7 +68,7 @@ main_after_if_else@25:
     *
     bury 7
 
-main_after_if_else@28:
+main_after_if_else@27:
     dig 4
     dup
     callsub itoa
@@ -88,13 +86,13 @@ main_after_if_else@28:
     >
     swap
     bury 7
-    bz main_after_if_else@30
+    bz main_after_if_else@29
     dig 6
     dig 3
     +
     bury 6
 
-main_after_if_else@30:
+main_after_if_else@29:
     dig 5
     dup
     bury 8
@@ -103,13 +101,13 @@ main_after_if_else@30:
     <
     swap
     bury 7
-    bz main_after_if_else@32
+    bz main_after_if_else@31
     dig 6
     dig 5
     +
     bury 6
 
-main_after_if_else@32:
+main_after_if_else@31:
     dig 5
     dup
     bury 8
@@ -120,13 +118,13 @@ main_after_if_else@32:
     >
     swap
     bury 7
-    bz main_after_if_else@34
+    bz main_after_if_else@33
     dig 6
     dig 1
     *
     bury 6
 
-main_after_if_else@34:
+main_after_if_else@33:
     dig 5
     dup
     callsub itoa
@@ -147,58 +145,59 @@ main_after_if_else@34:
     intc_0 // 1
     return
 
-main_else_body@27:
+main_else_body@26:
     dig 4
     dup
     dig 2
     callsub some_func
     *
     bury 5
-    b main_after_if_else@28
+    b main_after_if_else@27
 
-main_else_body@16:
+main_else_body@15:
     dig 6
     dig 3
     <
-    bz main_else_body@18
+    bz main_else_body@17
     dig 6
     dig 1
     +
     bury 7
-    b main_after_if_else@25
+    b main_after_if_else@24
 
-main_else_body@18:
+main_else_body@17:
     dig 4
     dig 7
     <
-    bz main_else_body@20
+    bz main_else_body@19
     dig 6
     pushint 3 // 3
     *
     bury 7
-    b main_after_if_else@25
+    b main_after_if_else@24
 
-main_else_body@20:
+main_else_body@19:
     dig 4
     dup
     dig 8
     >
     swap
     bury 5
-    bz main_after_if_else@22
+    bz main_after_if_else@21
     dig 4
     dig 7
     +
     bury 4
 
-main_after_if_else@22:
+main_after_if_else@21:
     dig 3
     bury 5
-    b main_after_if_else@25
+    b main_after_if_else@24
 
 main_bare_routing@6:
     txn OnCompletion
-    bnz main_after_if_else@10
+    !
+    assert
     txn ApplicationID
     !
     assert // can only call when creating
