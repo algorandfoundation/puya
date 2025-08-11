@@ -11,14 +11,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
     txna ApplicationArgs 0
     match main_append_route@5 main_modify_route@6 main_get_route@7
     err
 
 main_get_route@7:
-    txn ApplicationID
-    assert // can only call when not creating
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -54,8 +54,6 @@ main_get_route@7:
     return
 
 main_modify_route@6:
-    txn ApplicationID
-    assert // can only call when not creating
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex
@@ -226,8 +224,6 @@ main_modify_route@6:
     return
 
 main_append_route@5:
-    txn ApplicationID
-    assert // can only call when not creating
     intc_0 // 0
     bytec_1 // "glob"
     app_global_get_ex

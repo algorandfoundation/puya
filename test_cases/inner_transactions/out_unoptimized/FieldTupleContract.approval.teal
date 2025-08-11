@@ -23,6 +23,10 @@ main_abi_routing@2:
     intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
     pushbytes 0x1ca2c07e // method "test_assign_tuple()void"
     pushbytes 0xec6cd0a8 // method "test_assign_tuple_mixed()void"
@@ -39,12 +43,6 @@ main_after_if_else@11:
     err
 
 main_test_assign_tuple_mixed_route@4:
-    // inner_transactions/field_tuple_assignment.py:85
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // inner_transactions/field_tuple_assignment.py:24
     // class FieldTupleContract(ARC4Contract):
     callsub test_assign_tuple_mixed
@@ -54,12 +52,6 @@ main_test_assign_tuple_mixed_route@4:
     return
 
 main_test_assign_tuple_route@3:
-    // inner_transactions/field_tuple_assignment.py:25
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // inner_transactions/field_tuple_assignment.py:24
     // class FieldTupleContract(ARC4Contract):
     callsub test_assign_tuple

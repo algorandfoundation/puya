@@ -2,8 +2,8 @@
 // test_cases.state_proxies.contract.StateProxyContract.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // state_proxies/contract.py:31
-        // @arc4.abimethod(allow_actions=["OptIn"], create="require")
+        // state_proxies/contract.py:37
+        // @arc4.abimethod()
         int 1                                                                                     1
         f-store lifted%return#0                                                                   (𝕗) lifted%return#0 |
         txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%0#0
@@ -39,41 +39,23 @@ subroutine main:
     main_after_if_else@2:                                                                         (𝕗) lifted%return#0 |
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls             (𝕗) lifted%return#0 | tmp%0#3
-        method create()void                                                                       (𝕗) lifted%return#0 | tmp%0#3,Method(create()void)
-        method clear()void                                                                        (𝕗) lifted%return#0 | tmp%0#3,Method(create()void),Method(clear()void)
-        method order_of_eval_global()void                                                         (𝕗) lifted%return#0 | tmp%0#3,Method(create()void),Method(clear()void),Method(order_of_eval_global()void)
-        method order_of_eval_local()void                                                          (𝕗) lifted%return#0 | tmp%0#3,Method(create()void),Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void)
-        method order_of_eval_box()void                                                            (𝕗) lifted%return#0 | tmp%0#3,Method(create()void),Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void)
-        l-load tmp%0#3 5                                                                          (𝕗) lifted%return#0 | Method(create()void),Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void),tmp%0#3
-        match main_create_route@4 main_clear_route@5 main_order_of_eval_global_route@6 main_order_of_eval_local_route@7 main_order_of_eval_box_route@8 ; b main_switch_case_default@9 (𝕗) lifted%return#0 | 
+        txn OnCompletion                                                                          (𝕗) lifted%return#0 | tmp%0#2
+        bz main_simple_routes@4 ; b main_other_routes@9                                           (𝕗) lifted%return#0 |
 
-    main_create_route@4:                                                                          (𝕗) lifted%return#0 |
-        // state_proxies/contract.py:31
-        // @arc4.abimethod(allow_actions=["OptIn"], create="require")
-        txn OnCompletion                                                                          (𝕗) lifted%return#0 | tmp%1#2
-        int OptIn                                                                                 (𝕗) lifted%return#0 | tmp%1#2,OptIn
-        ==                                                                                        (𝕗) lifted%return#0 | tmp%2#0
-        assert // OnCompletion is not OptIn                                                       (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%3#0
-        !                                                                                         (𝕗) lifted%return#0 | tmp%4#0
-        assert // can only call when creating                                                     (𝕗) lifted%return#0 |
+    main_simple_routes@4:                                                                         (𝕗) lifted%return#0 |
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-        callsub create                                                                            (𝕗) lifted%return#0 |
-        // state_proxies/contract.py:31
-        // @arc4.abimethod(allow_actions=["OptIn"], create="require")
-        f-load lifted%return#0                                                                    (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                    (𝕗) lifted%return#0 |
+        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%2#0
+        assert // can only call when not creating                                                 (𝕗) lifted%return#0 |
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls             (𝕗) lifted%return#0 | tmp%4#0
+        method clear()void                                                                        (𝕗) lifted%return#0 | tmp%4#0,Method(clear()void)
+        method order_of_eval_global()void                                                         (𝕗) lifted%return#0 | tmp%4#0,Method(clear()void),Method(order_of_eval_global()void)
+        method order_of_eval_local()void                                                          (𝕗) lifted%return#0 | tmp%4#0,Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void)
+        method order_of_eval_box()void                                                            (𝕗) lifted%return#0 | tmp%4#0,Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void)
+        l-load tmp%4#0 4                                                                          (𝕗) lifted%return#0 | Method(clear()void),Method(order_of_eval_global()void),Method(order_of_eval_local()void),Method(order_of_eval_box()void),tmp%4#0
+        match main_clear_route@5 main_order_of_eval_global_route@6 main_order_of_eval_local_route@7 main_order_of_eval_box_route@8 ; b main_after_if_else@11 (𝕗) lifted%return#0 | 
 
     main_clear_route@5:                                                                           (𝕗) lifted%return#0 |
-        // state_proxies/contract.py:37
-        // @arc4.abimethod()
-        txn OnCompletion                                                                          (𝕗) lifted%return#0 | tmp%5#0
-        !                                                                                         (𝕗) lifted%return#0 | tmp%6#0
-        assert // OnCompletion is not NoOp                                                        (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%7#0
-        assert // can only call when not creating                                                 (𝕗) lifted%return#0 |
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
         callsub clear                                                                             (𝕗) lifted%return#0 |
@@ -83,13 +65,6 @@ subroutine main:
         return                                                                                    (𝕗) lifted%return#0 |
 
     main_order_of_eval_global_route@6:                                                            (𝕗) lifted%return#0 |
-        // state_proxies/contract.py:44
-        // @arc4.abimethod()
-        txn OnCompletion                                                                          (𝕗) lifted%return#0 | tmp%9#0
-        !                                                                                         (𝕗) lifted%return#0 | tmp%10#0
-        assert // OnCompletion is not NoOp                                                        (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%11#0
-        assert // can only call when not creating                                                 (𝕗) lifted%return#0 |
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
         callsub order_of_eval_global                                                              (𝕗) lifted%return#0 |
@@ -99,13 +74,6 @@ subroutine main:
         return                                                                                    (𝕗) lifted%return#0 |
 
     main_order_of_eval_local_route@7:                                                             (𝕗) lifted%return#0 |
-        // state_proxies/contract.py:49
-        // @arc4.abimethod()
-        txn OnCompletion                                                                          (𝕗) lifted%return#0 | tmp%13#0
-        !                                                                                         (𝕗) lifted%return#0 | tmp%14#0
-        assert // OnCompletion is not NoOp                                                        (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%15#0
-        assert // can only call when not creating                                                 (𝕗) lifted%return#0 |
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
         callsub order_of_eval_local                                                               (𝕗) lifted%return#0 |
@@ -115,13 +83,6 @@ subroutine main:
         return                                                                                    (𝕗) lifted%return#0 |
 
     main_order_of_eval_box_route@8:                                                               (𝕗) lifted%return#0 |
-        // state_proxies/contract.py:54
-        // @arc4.abimethod()
-        txn OnCompletion                                                                          (𝕗) lifted%return#0 | tmp%17#0
-        !                                                                                         (𝕗) lifted%return#0 | tmp%18#0
-        assert // OnCompletion is not NoOp                                                        (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%19#0
-        assert // can only call when not creating                                                 (𝕗) lifted%return#0 |
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
         callsub order_of_eval_box                                                                 (𝕗) lifted%return#0 |
@@ -130,7 +91,33 @@ subroutine main:
         f-load lifted%return#0                                                                    (𝕗) lifted%return#0 | lifted%return#0
         return                                                                                    (𝕗) lifted%return#0 |
 
-    main_switch_case_default@9:                                                                   (𝕗) lifted%return#0 |
+    main_other_routes@9:                                                                          (𝕗) lifted%return#0 |
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls             (𝕗) lifted%return#0 | tmp%5#0
+        method create()void                                                                       (𝕗) lifted%return#0 | tmp%5#0,Method(create()void)
+        l-load tmp%5#0 1                                                                          (𝕗) lifted%return#0 | Method(create()void),tmp%5#0
+        match main_create_route@10 ; b main_after_if_else@11                                      (𝕗) lifted%return#0 |
+
+    main_create_route@10:                                                                         (𝕗) lifted%return#0 |
+        // state_proxies/contract.py:31
+        // @arc4.abimethod(allow_actions=["OptIn"], create="require")
+        txn OnCompletion                                                                          (𝕗) lifted%return#0 | tmp%6#0
+        int OptIn                                                                                 (𝕗) lifted%return#0 | tmp%6#0,OptIn
+        ==                                                                                        (𝕗) lifted%return#0 | tmp%7#0
+        assert // OnCompletion is not OptIn                                                       (𝕗) lifted%return#0 |
+        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%8#0
+        !                                                                                         (𝕗) lifted%return#0 | tmp%9#0
+        assert // can only call when creating                                                     (𝕗) lifted%return#0 |
+        // state_proxies/contract.py:17
+        // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+        callsub create                                                                            (𝕗) lifted%return#0 |
+        // state_proxies/contract.py:31
+        // @arc4.abimethod(allow_actions=["OptIn"], create="require")
+        f-load lifted%return#0                                                                    (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                                    (𝕗) lifted%return#0 |
+
+    main_after_if_else@11:                                                                        (𝕗) lifted%return#0 |
         // state_proxies/contract.py:17
         // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
         err                                                                                       (𝕗) lifted%return#0 |

@@ -5,8 +5,8 @@
 main:
     intcblock 42 1 0
     bytecblock "g1" "l1" 0x6c32 "box_map"
-    // state_proxies/contract.py:31
-    // @arc4.abimethod(allow_actions=["OptIn"], create="require")
+    // state_proxies/contract.py:37
+    // @arc4.abimethod()
     intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
@@ -34,19 +34,16 @@ main:
 main_after_if_else@2:
     // state_proxies/contract.py:17
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
-    pushbytess 0x4c5c61ba 0x44977246 0xbd8868b9 0xd0e289b0 0x74445702 // method "create()void", method "clear()void", method "order_of_eval_global()void", method "order_of_eval_local()void", method "order_of_eval_box()void"
+    txn OnCompletion
+    bnz main_other_routes@9
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytess 0x44977246 0xbd8868b9 0xd0e289b0 0x74445702 // method "clear()void", method "order_of_eval_global()void", method "order_of_eval_local()void", method "order_of_eval_box()void"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_create_route@4 main_clear_route@5 main_order_of_eval_global_route@6 main_order_of_eval_local_route@7 main_order_of_eval_box_route@8
+    match main_clear_route@5 main_order_of_eval_global_route@6 main_order_of_eval_local_route@7 main_order_of_eval_box_route@8
     err
 
 main_order_of_eval_box_route@8:
-    // state_proxies/contract.py:54
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     // state_proxies/contract.py:17
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     callsub order_of_eval_box
@@ -55,13 +52,6 @@ main_order_of_eval_box_route@8:
     return
 
 main_order_of_eval_local_route@7:
-    // state_proxies/contract.py:49
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     // state_proxies/contract.py:17
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     callsub order_of_eval_local
@@ -70,13 +60,6 @@ main_order_of_eval_local_route@7:
     return
 
 main_order_of_eval_global_route@6:
-    // state_proxies/contract.py:44
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     // state_proxies/contract.py:17
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     callsub order_of_eval_global
@@ -85,13 +68,6 @@ main_order_of_eval_global_route@6:
     return
 
 main_clear_route@5:
-    // state_proxies/contract.py:37
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     // state_proxies/contract.py:17
     // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
     callsub clear
@@ -99,7 +75,15 @@ main_clear_route@5:
     // @arc4.abimethod()
     return
 
-main_create_route@4:
+main_other_routes@9:
+    // state_proxies/contract.py:17
+    // class StateProxyContract(ARC4Contract, state_totals=StateTotals(global_uints=3)):
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@10
+    err
+
+main_create_route@10:
     // state_proxies/contract.py:31
     // @arc4.abimethod(allow_actions=["OptIn"], create="require")
     txn OnCompletion

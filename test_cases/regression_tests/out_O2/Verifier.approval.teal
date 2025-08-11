@@ -9,14 +9,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
     txna ApplicationArgs 0
     match main_verify_route@3
     err
 
 main_verify_route@3:
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 1
     dup
     pushints 258 32 // 258, 32

@@ -5,17 +5,45 @@
 main:
     intcblock 0 1
     bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
-    // everything/contract.py:41
-    // @abimethod(create="require")
+    // everything/contract.py:56
+    // @abimethod
     intc_1 // 1
     // everything/contract.py:37
     // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    pushbytess 0x4c5c61ba 0xbd6099e5 0x5d5c84c7 0xfd07264e 0x1658aa2f // method "create()void", method "register(string)void", method "say_hello()string", method "calculate(uint64,uint64)uint64", method "close_out()void"
+    txn OnCompletion
+    bnz main_other_routes@7
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytess 0x5d5c84c7 0xfd07264e // method "say_hello()string", method "calculate(uint64,uint64)uint64"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_create_route@4 main_register_route@5 main_say_hello_route@6 main_calculate_route@7 main_close_out_route@8
+    match main_say_hello_route@5 main_calculate_route@6
     err
 
-main_close_out_route@8:
+main_calculate_route@6:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    callsub calculate
+    // everything/contract.py:64
+    // @abimethod
+    return
+
+main_say_hello_route@5:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    callsub say_hello
+    // everything/contract.py:56
+    // @abimethod
+    return
+
+main_other_routes@7:
+    // everything/contract.py:37
+    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+    pushbytess 0x4c5c61ba 0xbd6099e5 0x1658aa2f // method "create()void", method "register(string)void", method "close_out()void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@8 main_register_route@9 main_close_out_route@10
+    err
+
+main_close_out_route@10:
     // everything/contract.py:69
     // @abimethod(allow_actions=["CloseOut"])
     txn OnCompletion
@@ -31,37 +59,7 @@ main_close_out_route@8:
     // @abimethod(allow_actions=["CloseOut"])
     return
 
-main_calculate_route@7:
-    // everything/contract.py:64
-    // @abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    callsub calculate
-    // everything/contract.py:64
-    // @abimethod
-    return
-
-main_say_hello_route@6:
-    // everything/contract.py:56
-    // @abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // everything/contract.py:37
-    // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-    callsub say_hello
-    // everything/contract.py:56
-    // @abimethod
-    return
-
-main_register_route@5:
+main_register_route@9:
     // everything/contract.py:47
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     intc_1 // 1
@@ -79,7 +77,7 @@ main_register_route@5:
     // @abimethod(allow_actions=["NoOp", "OptIn"])
     return
 
-main_create_route@4:
+main_create_route@8:
     // everything/contract.py:41
     // @abimethod(create="require")
     txn OnCompletion

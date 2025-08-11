@@ -2,33 +2,68 @@
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // everything/contract.py:41
-        // @abimethod(create="require")
+        // everything/contract.py:56
+        // @abimethod
         int 1                                                                           1
         v-store lifted%return#0
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls   tmp%0#2
-        method create()void                                                             tmp%0#2,Method(create()void)
-        method register(string)void                                                     tmp%0#2,Method(create()void),Method(register(string)void)
-        method say_hello()string                                                        tmp%0#2,Method(create()void),Method(register(string)void),Method(say_hello()string)
-        method calculate(uint64,uint64)uint64                                           tmp%0#2,Method(create()void),Method(register(string)void),Method(say_hello()string),Method(calculate(uint64,uint64)uint64)
-        method close_out()void                                                          tmp%0#2,Method(create()void),Method(register(string)void),Method(say_hello()string),Method(calculate(uint64,uint64)uint64),Method(close_out()void)
-        l-load tmp%0#2 5                                                                Method(create()void),Method(register(string)void),Method(say_hello()string),Method(calculate(uint64,uint64)uint64),Method(close_out()void),tmp%0#2
-        match main_create_route@4 main_register_route@5 main_say_hello_route@6 main_calculate_route@7 main_close_out_route@8 ; b main_switch_case_default@9 
+        txn OnCompletion                                                                tmp%0#2
+        l-load tmp%0#2 0                                                                tmp%0#2
+        bz main_simple_routes@4 ; b main_other_routes@7
 
-    main_create_route@4:
+    main_simple_routes@4:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        txn ApplicationID                                                               tmp%2#0
+        l-load tmp%2#0 0                                                                tmp%2#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls   tmp%4#0
+        method say_hello()string                                                        tmp%4#0,Method(say_hello()string)
+        method calculate(uint64,uint64)uint64                                           tmp%4#0,Method(say_hello()string),Method(calculate(uint64,uint64)uint64)
+        l-load tmp%4#0 2                                                                Method(say_hello()string),Method(calculate(uint64,uint64)uint64),tmp%4#0
+        match main_say_hello_route@5 main_calculate_route@6 ; b main_after_if_else@11
+
+    main_say_hello_route@5:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        callsub say_hello
+        // everything/contract.py:56
+        // @abimethod
+        v-load lifted%return#0                                                          lifted%return#0
+        return
+
+    main_calculate_route@6:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        callsub calculate
+        // everything/contract.py:64
+        // @abimethod
+        v-load lifted%return#0                                                          lifted%return#0
+        return
+
+    main_other_routes@7:
+        // everything/contract.py:37
+        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls   tmp%5#0
+        method create()void                                                             tmp%5#0,Method(create()void)
+        method register(string)void                                                     tmp%5#0,Method(create()void),Method(register(string)void)
+        method close_out()void                                                          tmp%5#0,Method(create()void),Method(register(string)void),Method(close_out()void)
+        l-load tmp%5#0 3                                                                Method(create()void),Method(register(string)void),Method(close_out()void),tmp%5#0
+        match main_create_route@8 main_register_route@9 main_close_out_route@10 ; b main_after_if_else@11 
+
+    main_create_route@8:
         // everything/contract.py:41
         // @abimethod(create="require")
-        txn OnCompletion                                                                tmp%1#0
-        l-load tmp%1#0 0                                                                tmp%1#0
-        !                                                                               tmp%2#0
-        l-load tmp%2#0 0                                                                tmp%2#0
+        txn OnCompletion                                                                tmp%6#0
+        l-load tmp%6#0 0                                                                tmp%6#0
+        !                                                                               tmp%7#0
+        l-load tmp%7#0 0                                                                tmp%7#0
         assert // OnCompletion is not NoOp
-        txn ApplicationID                                                               tmp%3#0
-        l-load tmp%3#0 0                                                                tmp%3#0
-        !                                                                               tmp%4#0
-        l-load tmp%4#0 0                                                                tmp%4#0
+        txn ApplicationID                                                               tmp%8#0
+        l-load tmp%8#0 0                                                                tmp%8#0
+        !                                                                               tmp%9#0
+        l-load tmp%9#0 0                                                                tmp%9#0
         assert // can only call when creating
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
@@ -38,20 +73,20 @@ subroutine main:
         v-load lifted%return#0                                                          lifted%return#0
         return
 
-    main_register_route@5:
+    main_register_route@9:
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
-        txn OnCompletion                                                                tmp%5#0
-        int 1                                                                           tmp%5#0,1
-        l-load tmp%5#0 1                                                                1,tmp%5#0
-        shl                                                                             tmp%6#0
-        l-load tmp%6#0 0                                                                tmp%6#0
-        int 3                                                                           tmp%6#0,3
-        &                                                                               tmp%7#0
-        l-load tmp%7#0 0                                                                tmp%7#0
+        txn OnCompletion                                                                tmp%10#0
+        int 1                                                                           tmp%10#0,1
+        l-load tmp%10#0 1                                                               1,tmp%10#0
+        shl                                                                             tmp%11#0
+        l-load tmp%11#0 0                                                               tmp%11#0
+        int 3                                                                           tmp%11#0,3
+        &                                                                               tmp%12#0
+        l-load tmp%12#0 0                                                               tmp%12#0
         assert // OnCompletion is not one of NoOp, OptIn
-        txn ApplicationID                                                               tmp%8#0
-        l-load tmp%8#0 0                                                                tmp%8#0
+        txn ApplicationID                                                               tmp%13#0
+        l-load tmp%13#0 0                                                               tmp%13#0
         assert // can only call when not creating
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
@@ -61,55 +96,17 @@ subroutine main:
         v-load lifted%return#0                                                          lifted%return#0
         return
 
-    main_say_hello_route@6:
-        // everything/contract.py:56
-        // @abimethod
-        txn OnCompletion                                                                tmp%10#0
-        l-load tmp%10#0 0                                                               tmp%10#0
-        !                                                                               tmp%11#0
-        l-load tmp%11#0 0                                                               tmp%11#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                               tmp%12#0
-        l-load tmp%12#0 0                                                               tmp%12#0
-        assert // can only call when not creating
-        // everything/contract.py:37
-        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        callsub say_hello
-        // everything/contract.py:56
-        // @abimethod
-        v-load lifted%return#0                                                          lifted%return#0
-        return
-
-    main_calculate_route@7:
-        // everything/contract.py:64
-        // @abimethod
-        txn OnCompletion                                                                tmp%14#0
-        l-load tmp%14#0 0                                                               tmp%14#0
-        !                                                                               tmp%15#0
-        l-load tmp%15#0 0                                                               tmp%15#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                               tmp%16#0
-        l-load tmp%16#0 0                                                               tmp%16#0
-        assert // can only call when not creating
-        // everything/contract.py:37
-        // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        callsub calculate
-        // everything/contract.py:64
-        // @abimethod
-        v-load lifted%return#0                                                          lifted%return#0
-        return
-
-    main_close_out_route@8:
+    main_close_out_route@10:
         // everything/contract.py:69
         // @abimethod(allow_actions=["CloseOut"])
-        txn OnCompletion                                                                tmp%18#0
-        l-load tmp%18#0 0                                                               tmp%18#0
-        int CloseOut                                                                    tmp%18#0,CloseOut
-        ==                                                                              tmp%19#0
-        l-load tmp%19#0 0                                                               tmp%19#0
+        txn OnCompletion                                                                tmp%15#0
+        l-load tmp%15#0 0                                                               tmp%15#0
+        int CloseOut                                                                    tmp%15#0,CloseOut
+        ==                                                                              tmp%16#0
+        l-load tmp%16#0 0                                                               tmp%16#0
         assert // OnCompletion is not CloseOut
-        txn ApplicationID                                                               tmp%20#0
-        l-load tmp%20#0 0                                                               tmp%20#0
+        txn ApplicationID                                                               tmp%17#0
+        l-load tmp%17#0 0                                                               tmp%17#0
         assert // can only call when not creating
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
@@ -119,7 +116,7 @@ subroutine main:
         v-load lifted%return#0                                                          lifted%return#0
         return
 
-    main_switch_case_default@9:
+    main_after_if_else@11:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
         err

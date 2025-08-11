@@ -772,31 +772,34 @@ approval_program_block@1:
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     txn OnCompletion
-    intc_1 // NoOp
+    intc_1 // 0
     ==
-    assert // OnCompletion is not NoOp
+    bz approval_program_other_routes@8
+
+approval_program_simple_routes@2:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    pushbytes 0x96a97181 // method "new_game((uint64,uint64))void"
     pushbytes 0x17a079b3 // method "join_game((uint64,uint64))void"
     pushbytes 0xbb9f1147 // method "whose_turn()uint8"
     pushbytes 0x9eebf58e // method "play((uint64,uint64))void"
-    uncover 4
-    match approval_program_new_game_route@2 approval_program_join_game_route@3 approval_program_whose_turn_route@4 approval_program_play_route@5
+    uncover 3
+    match approval_program_join_game_route@3 approval_program_whose_turn_route@4 approval_program_play_route@5
 
 approval_program_switch_case_default@6:
 
 approval_program_switch_case_next@7:
+
+approval_program_after_if_else@12:
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     err
 
 approval_program_play_route@5:
-    // tictactoe/tictactoe.py:47
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     callsub play
@@ -806,12 +809,6 @@ approval_program_play_route@5:
     return
 
 approval_program_whose_turn_route@4:
-    // tictactoe/tictactoe.py:43
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     callsub whose_turn
@@ -821,12 +818,6 @@ approval_program_whose_turn_route@4:
     return
 
 approval_program_join_game_route@3:
-    // tictactoe/tictactoe.py:37
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     callsub join_game
@@ -835,7 +826,26 @@ approval_program_join_game_route@3:
     intc_0 // 1
     return
 
-approval_program_new_game_route@2:
+approval_program_other_routes@8:
+    // tictactoe/tictactoe.py:15
+    // class TicTacToeContract(arc4.ARC4Contract):
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    pushbytes 0x96a97181 // method "new_game((uint64,uint64))void"
+    swap
+    match approval_program_new_game_route@9
+
+approval_program_switch_case_default@10:
+
+approval_program_switch_case_next@11:
+    b approval_program_after_if_else@12
+
+approval_program_new_game_route@9:
+    // tictactoe/tictactoe.py:20
+    // @arc4.abimethod(create="allow")
+    txn OnCompletion
+    intc_1 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     callsub new_game

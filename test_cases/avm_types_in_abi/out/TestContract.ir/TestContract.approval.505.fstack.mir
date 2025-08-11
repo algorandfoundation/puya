@@ -2,26 +2,50 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // avm_types_in_abi/contract.py:5
-        // @arc4.abimethod(allow_actions=["NoOp"], create="require")
+        // avm_types_in_abi/contract.py:19
+        // @arc4.abimethod
         int 1                                                                         1
         f-store lifted%return#0                                                       (𝕗) lifted%return#0 |
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
         txn OnCompletion                                                              (𝕗) lifted%return#0 | tmp%0#1
-        !                                                                             (𝕗) lifted%return#0 | tmp%1#0
-        assert // OnCompletion is not NoOp                                            (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls (𝕗) lifted%return#0 | tmp%2#0
-        method create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string) (𝕗) lifted%return#0 | tmp%2#0,Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string))
-        method tuple_of_arc4((uint8,address))(uint8,address)                          (𝕗) lifted%return#0 | tmp%2#0,Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),Method(tuple_of_arc4((uint8,address))(uint8,address))
-        l-load tmp%2#0 2                                                              (𝕗) lifted%return#0 | Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),Method(tuple_of_arc4((uint8,address))(uint8,address)),tmp%2#0
-        match main_create_route@2 main_tuple_of_arc4_route@3 ; b main_switch_case_default@4 (𝕗) lifted%return#0 | 
+        bz main_simple_routes@2 ; b main_other_routes@6                               (𝕗) lifted%return#0 |
 
-    main_create_route@2:                                                              (𝕗) lifted%return#0 |
+    main_simple_routes@2:                                                             (𝕗) lifted%return#0 |
+        // avm_types_in_abi/contract.py:4
+        // class TestContract(arc4.ARC4Contract):
+        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%2#0
+        assert // can only call when not creating                                     (𝕗) lifted%return#0 |
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls (𝕗) lifted%return#0 | tmp%4#0
+        method tuple_of_arc4((uint8,address))(uint8,address)                          (𝕗) lifted%return#0 | tmp%4#0,Method(tuple_of_arc4((uint8,address))(uint8,address))
+        l-load tmp%4#0 1                                                              (𝕗) lifted%return#0 | Method(tuple_of_arc4((uint8,address))(uint8,address)),tmp%4#0
+        match main_tuple_of_arc4_route@3 ; b main_after_if_else@10                    (𝕗) lifted%return#0 |
+
+    main_tuple_of_arc4_route@3:                                                       (𝕗) lifted%return#0 |
+        // avm_types_in_abi/contract.py:4
+        // class TestContract(arc4.ARC4Contract):
+        callsub tuple_of_arc4                                                         (𝕗) lifted%return#0 |
+        // avm_types_in_abi/contract.py:19
+        // @arc4.abimethod
+        f-load lifted%return#0                                                        (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                        (𝕗) lifted%return#0 |
+
+    main_other_routes@6:                                                              (𝕗) lifted%return#0 |
+        // avm_types_in_abi/contract.py:4
+        // class TestContract(arc4.ARC4Contract):
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls (𝕗) lifted%return#0 | tmp%5#0
+        method create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string) (𝕗) lifted%return#0 | tmp%5#0,Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string))
+        l-load tmp%5#0 1                                                              (𝕗) lifted%return#0 | Method(create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)),tmp%5#0
+        match main_create_route@7 ; b main_after_if_else@10                           (𝕗) lifted%return#0 |
+
+    main_create_route@7:                                                              (𝕗) lifted%return#0 |
         // avm_types_in_abi/contract.py:5
         // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%3#0
-        !                                                                             (𝕗) lifted%return#0 | tmp%4#0
+        txn OnCompletion                                                              (𝕗) lifted%return#0 | tmp%6#0
+        !                                                                             (𝕗) lifted%return#0 | tmp%7#0
+        assert // OnCompletion is not NoOp                                            (𝕗) lifted%return#0 |
+        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%8#0
+        !                                                                             (𝕗) lifted%return#0 | tmp%9#0
         assert // can only call when creating                                         (𝕗) lifted%return#0 |
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
@@ -31,20 +55,7 @@ subroutine main:
         f-load lifted%return#0                                                        (𝕗) lifted%return#0 | lifted%return#0
         return                                                                        (𝕗) lifted%return#0 |
 
-    main_tuple_of_arc4_route@3:                                                       (𝕗) lifted%return#0 |
-        // avm_types_in_abi/contract.py:19
-        // @arc4.abimethod
-        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%5#0
-        assert // can only call when not creating                                     (𝕗) lifted%return#0 |
-        // avm_types_in_abi/contract.py:4
-        // class TestContract(arc4.ARC4Contract):
-        callsub tuple_of_arc4                                                         (𝕗) lifted%return#0 |
-        // avm_types_in_abi/contract.py:19
-        // @arc4.abimethod
-        f-load lifted%return#0                                                        (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                        (𝕗) lifted%return#0 |
-
-    main_switch_case_default@4:                                                       (𝕗) lifted%return#0 |
+    main_after_if_else@10:                                                            (𝕗) lifted%return#0 |
         // avm_types_in_abi/contract.py:4
         // class TestContract(arc4.ARC4Contract):
         err                                                                           (𝕗) lifted%return#0 |

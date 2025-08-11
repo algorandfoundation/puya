@@ -18,69 +18,45 @@ subroutine test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMa
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "getListingsMbr()uint64" => block@2, method "allowAsset(pay,uint64)void" => block@3, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@4, method "deposit(axfer,uint64)void" => block@5, method "setPrice(uint64,uint64,uint64)void" => block@6, method "buy(address,uint64,uint64,pay,uint64)void" => block@7, method "withdraw(uint64,uint64)void" => block@8, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@9, method "acceptBid(uint64,uint64)void" => block@10, * => block@17}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        (assert tmp%4#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "getListingsMbr()uint64" => block@2, method "allowAsset(pay,uint64)void" => block@3, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@4, method "deposit(axfer,uint64)void" => block@5, method "setPrice(uint64,uint64,uint64)void" => block@6, method "buy(address,uint64,uint64,pay,uint64)void" => block@7, method "withdraw(uint64,uint64)void" => block@8, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@9, method "acceptBid(uint64,uint64)void" => block@10, * => block@17}
     block@2: // getListingsMbr_route_L78
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%5#0) // can only call when not creating
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.get_listings_mbr[routing]()
         exit 1u
     block@3: // allowAsset_route_L82
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        let tmp%8#0: bool = (!= tmp%7#0 0u)
-        (assert tmp%7#0) // can only call when not creating
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.allow_asset[routing]()
         exit 1u
     block@4: // firstDeposit_route_L93
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%9#0) // can only call when not creating
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit[routing]()
         exit 1u
     block@5: // deposit_route_L120
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        let tmp%12#0: bool = (!= tmp%11#0 0u)
-        (assert tmp%11#0) // can only call when not creating
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit[routing]()
         exit 1u
     block@6: // setPrice_route_L137
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        let tmp%14#0: bool = (!= tmp%13#0 0u)
-        (assert tmp%13#0) // can only call when not creating
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price[routing]()
         exit 1u
     block@7: // buy_route_L150
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        let tmp%16#0: bool = (!= tmp%15#0 0u)
-        (assert tmp%15#0) // can only call when not creating
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy[routing]()
         exit 1u
     block@8: // withdraw_route_L181
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        let tmp%18#0: bool = (!= tmp%17#0 0u)
-        (assert tmp%17#0) // can only call when not creating
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw[routing]()
         exit 1u
     block@9: // bid_route_L200
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        let tmp%20#0: bool = (!= tmp%19#0 0u)
-        (assert tmp%19#0) // can only call when not creating
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid[routing]()
         exit 1u
     block@10: // acceptBid_route_L236
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        let tmp%22#0: bool = (!= tmp%21#0 0u)
-        (assert tmp%21#0) // can only call when not creating
         test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid[routing]()
         exit 1u
     block@13: // bare_routing_L37
-        let tmp%23#0: uint64 = (txn OnCompletion)
-        goto tmp%23#0 ? block@17 : block@14
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        goto tmp%7#0 ? block@17 : block@14
     block@14: // __algopy_default_create_L1
-        let tmp%24#0: uint64 = (txn ApplicationID)
-        let tmp%25#0: bool = (! tmp%24#0)
-        (assert tmp%25#0) // can only call when creating
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // can only call when creating
         exit 1u
     block@17: // after_if_else_L37
         fail

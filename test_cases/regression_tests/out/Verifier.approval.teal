@@ -13,16 +13,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
     txna ApplicationArgs 0
     match main_verify_route@3
     err
 
 main_verify_route@3:
-    // regression_tests/jira_ak_752.py:13
-    // @abimethod
-    txn ApplicationID
-    assert // can only call when not creating
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     callsub verify

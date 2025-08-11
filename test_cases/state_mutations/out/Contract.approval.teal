@@ -15,16 +15,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x526e8bbf 0x95fef13d 0x0c29444b // method "append()void", method "modify()void", method "get()(uint64,string)[]"
     txna ApplicationArgs 0
     match main_append_route@5 main_modify_route@6 main_get_route@7
     err
 
 main_get_route@7:
-    // state_mutations/contract.py:51
-    // @arc4.abimethod
-    txn ApplicationID
-    assert // can only call when not creating
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     callsub get
@@ -33,10 +31,6 @@ main_get_route@7:
     return
 
 main_modify_route@6:
-    // state_mutations/contract.py:44
-    // @arc4.abimethod
-    txn ApplicationID
-    assert // can only call when not creating
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     callsub modify
@@ -45,10 +39,6 @@ main_modify_route@6:
     return
 
 main_append_route@5:
-    // state_mutations/contract.py:36
-    // @arc4.abimethod
-    txn ApplicationID
-    assert // can only call when not creating
     // state_mutations/contract.py:22
     // class Contract(ARC4Contract):
     callsub append

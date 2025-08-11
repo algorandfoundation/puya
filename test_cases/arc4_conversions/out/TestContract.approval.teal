@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 6 0 1 2
-    bytecblock 0x0020 0x002a base64(CoEBQw==) base64(CoEBMRtBAPGCDQQzs0meBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjg0AhQB6AG8AZABZAE4AQwA4AC0AIgAXAAwAAQAxGRREMRhEiAERQzEZFEQxGESIAPpDMRkURDEYRIgA40MxGRREMRhEiADMQzEZFEQxGESIALVDMRkURDEYRIgAnkMxGRREMRhEiACHQzEZFEQxGESIAHBDMRkURDEYRIgAWUMxGRREMRhEiABCQzEZFEQxGESIACtDMRkURDEYRIgAFEMxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=) 0x33b3499e 0x000b48656c6c6f20576f726c64 0x000d000b48656c6c6f20576f726c64 0x8d762fdf 0x00080000000000000000 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0x004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0xe5cacd06 0x000180 0x0003 0x0000000000000000 0x0004 0x89af557b 0x001a0003000000000000000100000000000000020000000000000003 0x00030006 0x0006
+    bytecblock 0x0020 0x002a base64(CoEBQw==) base64(CoEBMRtBAKwxGUAAjzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwALQApACUAIQAdABkAFQARAA0ACQAFAAEAiADSQ4gAwkOIALJDiACiQ4gAkkOIAIJDiAByQ4gAYkOIAFJDiABCQ4gAMkOIACJDgAQzs0meNhoAjgEAAQAxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=) 0x33b3499e 0x000b48656c6c6f20576f726c64 0x000d000b48656c6c6f20576f726c64 0x8d762fdf 0x00080000000000000000 0x2d329ee1 0x6a4ddf73 0xd6e0b7bc 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0x004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0xe5cacd06 0x000180 0x0003 0x0000000000000000 0x0004 0x89af557b 0x001a0003000000000000000100000000000000020000000000000003 0x00030006 0x0006
     // arc4_conversions/contract.py:23
     // @arc4.abimethod()
     intc_2 // 1
@@ -17,16 +17,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0xc36825ff 0x620ac6f0 0x344a880b 0xa92e03c4 0x6c4f8453 0x7bda9a46 0x9a3f8f9b // method "test_literal_encoding()void", method "test_native_encoding()void", method "test_arc4_encoding()void", method "test_array_uint64_encoding()void", method "test_array_static_encoding()void", method "test_array_dynamic_encoding()void", method "test_bytes_to_fixed(bool)void"
     txna ApplicationArgs 0
     match main_test_literal_encoding_route@3 main_test_native_encoding_route@4 main_test_arc4_encoding_route@5 main_test_array_uint64_encoding_route@6 main_test_array_static_encoding_route@7 main_test_array_dynamic_encoding_route@8 main_test_bytes_to_fixed_route@9
     err
 
 main_test_bytes_to_fixed_route@9:
-    // arc4_conversions/contract.py:178
-    // @arc4.abimethod
-    txn ApplicationID
-    assert // can only call when not creating
     // arc4_conversions/contract.py:20-22
     // # note these tests are using abi_call in order to test different scenarios of ARC-4 encoding
     // # these should be replaced with a more simplified algopy.arc4.encode/decode when it is available
@@ -37,10 +35,6 @@ main_test_bytes_to_fixed_route@9:
     return
 
 main_test_array_dynamic_encoding_route@8:
-    // arc4_conversions/contract.py:150
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // arc4_conversions/contract.py:20-22
     // # note these tests are using abi_call in order to test different scenarios of ARC-4 encoding
     // # these should be replaced with a more simplified algopy.arc4.encode/decode when it is available
@@ -51,10 +45,6 @@ main_test_array_dynamic_encoding_route@8:
     return
 
 main_test_array_static_encoding_route@7:
-    // arc4_conversions/contract.py:126
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // arc4_conversions/contract.py:20-22
     // # note these tests are using abi_call in order to test different scenarios of ARC-4 encoding
     // # these should be replaced with a more simplified algopy.arc4.encode/decode when it is available
@@ -65,10 +55,6 @@ main_test_array_static_encoding_route@7:
     return
 
 main_test_array_uint64_encoding_route@6:
-    // arc4_conversions/contract.py:102
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // arc4_conversions/contract.py:20-22
     // # note these tests are using abi_call in order to test different scenarios of ARC-4 encoding
     // # these should be replaced with a more simplified algopy.arc4.encode/decode when it is available
@@ -79,10 +65,6 @@ main_test_array_uint64_encoding_route@6:
     return
 
 main_test_arc4_encoding_route@5:
-    // arc4_conversions/contract.py:74
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // arc4_conversions/contract.py:20-22
     // # note these tests are using abi_call in order to test different scenarios of ARC-4 encoding
     // # these should be replaced with a more simplified algopy.arc4.encode/decode when it is available
@@ -93,10 +75,6 @@ main_test_arc4_encoding_route@5:
     return
 
 main_test_native_encoding_route@4:
-    // arc4_conversions/contract.py:46
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // arc4_conversions/contract.py:20-22
     // # note these tests are using abi_call in order to test different scenarios of ARC-4 encoding
     // # these should be replaced with a more simplified algopy.arc4.encode/decode when it is available
@@ -107,10 +85,6 @@ main_test_native_encoding_route@4:
     return
 
 main_test_literal_encoding_route@3:
-    // arc4_conversions/contract.py:23
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // arc4_conversions/contract.py:20-22
     // # note these tests are using abi_call in order to test different scenarios of ARC-4 encoding
     // # these should be replaced with a more simplified algopy.arc4.encode/decode when it is available
@@ -168,7 +142,7 @@ test_literal_encoding:
     itxn_begin
     bytec_2 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CoEBMRtBAPGCDQQzs0meBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjg0AhQB6AG8AZABZAE4AQwA4AC0AIgAXAAwAAQAxGRREMRhEiAERQzEZFEQxGESIAPpDMRkURDEYRIgA40MxGRREMRhEiADMQzEZFEQxGESIALVDMRkURDEYRIgAnkMxGRREMRhEiACHQzEZFEQxGESIAHBDMRkURDEYRIgAWUMxGRREMRhEiABCQzEZFEQxGESIACtDMRkURDEYRIgAFEMxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
+    bytec_3 // base64(CoEBMRtBAKwxGUAAjzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwALQApACUAIQAdABkAFQARAA0ACQAFAAEAiADSQ4gAwkOIALJDiACiQ4gAkkOIAIJDiAByQ4gAYkOIAFJDiABCQ4gAMkOIACJDgAQzs0meNhoAjgEAAQAxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -298,7 +272,7 @@ test_native_encoding:
     itxn_begin
     bytec_2 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CoEBMRtBAPGCDQQzs0meBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjg0AhQB6AG8AZABZAE4AQwA4AC0AIgAXAAwAAQAxGRREMRhEiAERQzEZFEQxGESIAPpDMRkURDEYRIgA40MxGRREMRhEiADMQzEZFEQxGESIALVDMRkURDEYRIgAnkMxGRREMRhEiACHQzEZFEQxGESIAHBDMRkURDEYRIgAWUMxGRREMRhEiABCQzEZFEQxGESIACtDMRkURDEYRIgAFEMxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
+    bytec_3 // base64(CoEBMRtBAKwxGUAAjzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwALQApACUAIQAdABkAFQARAA0ACQAFAAEAiADSQ4gAwkOIALJDiACiQ4gAkkOIAIJDiAByQ4gAYkOIAFJDiABCQ4gAMkOIACJDgAQzs0meNhoAjgEAAQAxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -464,7 +438,7 @@ test_arc4_encoding:
     itxn_begin
     bytec_2 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CoEBMRtBAPGCDQQzs0meBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjg0AhQB6AG8AZABZAE4AQwA4AC0AIgAXAAwAAQAxGRREMRhEiAERQzEZFEQxGESIAPpDMRkURDEYRIgA40MxGRREMRhEiADMQzEZFEQxGESIALVDMRkURDEYRIgAnkMxGRREMRhEiACHQzEZFEQxGESIAHBDMRkURDEYRIgAWUMxGRREMRhEiABCQzEZFEQxGESIACtDMRkURDEYRIgAFEMxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
+    bytec_3 // base64(CoEBMRtBAKwxGUAAjzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwALQApACUAIQAdABkAFQARAA0ACQAFAAEAiADSQ4gAwkOIALJDiACiQ4gAkkOIAIJDiAByQ4gAYkOIAFJDiABCQ4gAMkOIACJDgAQzs0meNhoAjgEAAQAxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -627,7 +601,7 @@ test_array_uint64_encoding:
     itxn_begin
     bytec_2 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CoEBMRtBAPGCDQQzs0meBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjg0AhQB6AG8AZABZAE4AQwA4AC0AIgAXAAwAAQAxGRREMRhEiAERQzEZFEQxGESIAPpDMRkURDEYRIgA40MxGRREMRhEiADMQzEZFEQxGESIALVDMRkURDEYRIgAnkMxGRREMRhEiACHQzEZFEQxGESIAHBDMRkURDEYRIgAWUMxGRREMRhEiABCQzEZFEQxGESIACtDMRkURDEYRIgAFEMxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
+    bytec_3 // base64(CoEBMRtBAKwxGUAAjzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwALQApACUAIQAdABkAFQARAA0ACQAFAAEAiADSQ4gAwkOIALJDiACiQ4gAkkOIAIJDiAByQ4gAYkOIAFJDiABCQ4gAMkOIACJDgAQzs0meNhoAjgEAAQAxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -802,7 +776,7 @@ test_array_static_encoding:
     itxn_begin
     bytec_2 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CoEBMRtBAPGCDQQzs0meBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjg0AhQB6AG8AZABZAE4AQwA4AC0AIgAXAAwAAQAxGRREMRhEiAERQzEZFEQxGESIAPpDMRkURDEYRIgA40MxGRREMRhEiADMQzEZFEQxGESIALVDMRkURDEYRIgAnkMxGRREMRhEiACHQzEZFEQxGESIAHBDMRkURDEYRIgAWUMxGRREMRhEiABCQzEZFEQxGESIACtDMRkURDEYRIgAFEMxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
+    bytec_3 // base64(CoEBMRtBAKwxGUAAjzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwALQApACUAIQAdABkAFQARAA0ACQAFAAEAiADSQ4gAwkOIALJDiACiQ4gAkkOIAIJDiAByQ4gAYkOIAFJDiABCQ4gAMkOIACJDgAQzs0meNhoAjgEAAQAxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -1000,7 +974,7 @@ test_array_dynamic_encoding:
     itxn_begin
     bytec_2 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CoEBMRtBAPGCDQQzs0meBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjg0AhQB6AG8AZABZAE4AQwA4AC0AIgAXAAwAAQAxGRREMRhEiAERQzEZFEQxGESIAPpDMRkURDEYRIgA40MxGRREMRhEiADMQzEZFEQxGESIALVDMRkURDEYRIgAnkMxGRREMRhEiACHQzEZFEQxGESIAHBDMRkURDEYRIgAWUMxGRREMRhEiABCQzEZFEQxGESIACtDMRkURDEYRIgAFEMxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
+    bytec_3 // base64(CoEBMRtBAKwxGUAAjzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwALQApACUAIQAdABkAFQARAA0ACQAFAAEAiADSQ4gAwkOIALJDiACiQ4gAkkOIAIJDiAByQ4gAYkOIAFJDiABCQ4gAMkOIACJDgAQzs0meNhoAjgEAAQAxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum
@@ -1327,7 +1301,7 @@ test_bytes_to_fixed:
     itxn_begin
     bytec_2 // base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    bytec_3 // base64(CoEBMRtBAPGCDQQzs0meBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjg0AhQB6AG8AZABZAE4AQwA4AC0AIgAXAAwAAQAxGRREMRhEiAERQzEZFEQxGESIAPpDMRkURDEYRIgA40MxGRREMRhEiADMQzEZFEQxGESIALVDMRkURDEYRIgAnkMxGRREMRhEiACHQzEZFEQxGESIAHBDMRkURDEYRIgAWUMxGRREMRhEiABCQzEZFEQxGESIACtDMRkURDEYRIgAFEMxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
+    bytec_3 // base64(CoEBMRtBAKwxGUAAjzEYRIIMBI12L98ELTKe4QRqTd9zBNbgt7wE5crNBgSJr1V7BEbhlr0E8ziG2gQllblaBD9VJmsEfSQJRQQDUaneNhoAjgwALQApACUAIQAdABkAFQARAA0ACQAFAAEAiADSQ4gAwkOIALJDiACiQ4gAkkOIAIJDiAByQ4gAYkOIAFJDiABCQ4gAMkOIACJDgAQzs0meNhoAjgEAAQAxGYEFEkQxGERDMRkURDEYFERDNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBNhoCVwIAEkSJNhoBMQASRIk=)
     itxn_field ApprovalProgramPages
     intc_0 // appl
     itxn_field TypeEnum

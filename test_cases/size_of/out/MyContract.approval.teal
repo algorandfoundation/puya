@@ -13,6 +13,8 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytes 0xa78000de // method "test()void"
     txna ApplicationArgs 0
     match main_test_route@3
@@ -21,8 +23,6 @@ main:
 main_test_route@3:
     // size_of/contract.py:12
     // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     return
 
 main_bare_routing@6:

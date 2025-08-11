@@ -1390,32 +1390,35 @@ approval_program_block@1:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     txn OnCompletion
-    intc_0 // NoOp
+    intc_0 // 0
     ==
-    assert // OnCompletion is not NoOp
+    bz approval_program_other_routes@9
+
+approval_program_simple_routes@2:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
     pushbytes 0xa4e8d164 // method "bootstrap(pay)void"
     pushbytes 0x9656047a // method "close()void"
     pushbytes 0xbcb15896 // method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)"
     pushbytes 0x84a53c6e // method "vote(pay,byte[],uint8[])void"
-    uncover 5
-    match approval_program_create_route@2 approval_program_bootstrap_route@3 approval_program_close_route@4 approval_program_get_preconditions_route@5 approval_program_vote_route@6
+    uncover 4
+    match approval_program_bootstrap_route@3 approval_program_close_route@4 approval_program_get_preconditions_route@5 approval_program_vote_route@6
 
 approval_program_switch_case_default@7:
 
 approval_program_switch_case_next@8:
+
+approval_program_after_if_else@13:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     err
 
 approval_program_vote_route@6:
-    // voting/voting.py:169
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     callsub vote
@@ -1425,12 +1428,6 @@ approval_program_vote_route@6:
     return
 
 approval_program_get_preconditions_route@5:
-    // voting/voting.py:160
-    // @arc4.abimethod(readonly=True)
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     callsub get_preconditions
@@ -1440,12 +1437,6 @@ approval_program_get_preconditions_route@5:
     return
 
 approval_program_close_route@4:
-    // voting/voting.py:110
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     callsub close
@@ -1455,12 +1446,6 @@ approval_program_close_route@4:
     return
 
 approval_program_bootstrap_route@3:
-    // voting/voting.py:82
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
     callsub bootstrap
@@ -1469,9 +1454,26 @@ approval_program_bootstrap_route@3:
     intc_1 // 1
     return
 
-approval_program_create_route@2:
+approval_program_other_routes@9:
+    // voting/voting.py:49
+    // class VotingRoundApp(ARC4Contract):
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    pushbytes 0xae897f6b // method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void"
+    swap
+    match approval_program_create_route@10
+
+approval_program_switch_case_default@11:
+
+approval_program_switch_case_next@12:
+    b approval_program_after_if_else@13
+
+approval_program_create_route@10:
     // voting/voting.py:58
     // @arc4.abimethod(create="require")
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
     txn ApplicationID
     intc_0 // 0
     ==

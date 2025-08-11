@@ -12,12 +12,12 @@ subroutine test_cases.inlining.contract.NeverReturns.__puya_arc4_router__() -> b
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "err()void" => block@2, * => block@3}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        (assert tmp%5#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "err()void" => block@2, * => block@3}
     block@2: // err_route_L35
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
         test_cases.inlining.contract.NeverReturns.err[routing]()
         exit 1u
     block@3: // switch_case_default_L34

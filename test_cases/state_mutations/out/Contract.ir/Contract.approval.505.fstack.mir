@@ -17,18 +17,16 @@ subroutine main:
         txn OnCompletion                                                               (𝕗) lifted%return#0 | tmp%2#0
         !                                                                              (𝕗) lifted%return#0 | tmp%3#0
         assert // OnCompletion is not NoOp                                             (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0                                                         (𝕗) lifted%return#0 | tmp%4#0
-        method append()void                                                            (𝕗) lifted%return#0 | tmp%4#0,Method(append()void)
-        method modify()void                                                            (𝕗) lifted%return#0 | tmp%4#0,Method(append()void),Method(modify()void)
-        method get()(uint64,string)[]                                                  (𝕗) lifted%return#0 | tmp%4#0,Method(append()void),Method(modify()void),Method(get()(uint64,string)[])
-        l-load tmp%4#0 3                                                               (𝕗) lifted%return#0 | Method(append()void),Method(modify()void),Method(get()(uint64,string)[]),tmp%4#0
+        txn ApplicationID                                                              (𝕗) lifted%return#0 | tmp%4#0
+        assert // can only call when not creating                                      (𝕗) lifted%return#0 |
+        txna ApplicationArgs 0                                                         (𝕗) lifted%return#0 | tmp%6#0
+        method append()void                                                            (𝕗) lifted%return#0 | tmp%6#0,Method(append()void)
+        method modify()void                                                            (𝕗) lifted%return#0 | tmp%6#0,Method(append()void),Method(modify()void)
+        method get()(uint64,string)[]                                                  (𝕗) lifted%return#0 | tmp%6#0,Method(append()void),Method(modify()void),Method(get()(uint64,string)[])
+        l-load tmp%6#0 3                                                               (𝕗) lifted%return#0 | Method(append()void),Method(modify()void),Method(get()(uint64,string)[]),tmp%6#0
         match main_append_route@5 main_modify_route@6 main_get_route@7 ; b main_after_if_else@11 (𝕗) lifted%return#0 | 
 
     main_append_route@5:                                                               (𝕗) lifted%return#0 |
-        // state_mutations/contract.py:36
-        // @arc4.abimethod
-        txn ApplicationID                                                              (𝕗) lifted%return#0 | tmp%5#0
-        assert // can only call when not creating                                      (𝕗) lifted%return#0 |
         // state_mutations/contract.py:22
         // class Contract(ARC4Contract):
         callsub append                                                                 (𝕗) lifted%return#0 |
@@ -38,10 +36,6 @@ subroutine main:
         return                                                                         (𝕗) lifted%return#0 |
 
     main_modify_route@6:                                                               (𝕗) lifted%return#0 |
-        // state_mutations/contract.py:44
-        // @arc4.abimethod
-        txn ApplicationID                                                              (𝕗) lifted%return#0 | tmp%7#0
-        assert // can only call when not creating                                      (𝕗) lifted%return#0 |
         // state_mutations/contract.py:22
         // class Contract(ARC4Contract):
         callsub modify                                                                 (𝕗) lifted%return#0 |
@@ -51,10 +45,6 @@ subroutine main:
         return                                                                         (𝕗) lifted%return#0 |
 
     main_get_route@7:                                                                  (𝕗) lifted%return#0 |
-        // state_mutations/contract.py:51
-        // @arc4.abimethod
-        txn ApplicationID                                                              (𝕗) lifted%return#0 | tmp%9#0
-        assert // can only call when not creating                                      (𝕗) lifted%return#0 |
         // state_mutations/contract.py:22
         // class Contract(ARC4Contract):
         callsub get                                                                    (𝕗) lifted%return#0 |
@@ -66,13 +56,13 @@ subroutine main:
     main_bare_routing@8:                                                               (𝕗) lifted%return#0 |
         // state_mutations/contract.py:22
         // class Contract(ARC4Contract):
-        txn OnCompletion                                                               (𝕗) lifted%return#0 | tmp%11#0
+        txn OnCompletion                                                               (𝕗) lifted%return#0 | tmp%7#0
         switch main___algopy_default_create@10 main_opt_in@9 ; b main_after_if_else@11 (𝕗) lifted%return#0 |
 
     main_opt_in@9:                                                                     (𝕗) lifted%return#0 |
         // state_mutations/contract.py:29
         // @arc4.baremethod(allow_actions=["OptIn"])
-        txn ApplicationID                                                              (𝕗) lifted%return#0 | tmp%12#0
+        txn ApplicationID                                                              (𝕗) lifted%return#0 | tmp%8#0
         assert // can only call when not creating                                      (𝕗) lifted%return#0 |
         // state_mutations/contract.py:31
         // self.glob.value = MyArray()
@@ -123,8 +113,8 @@ subroutine main:
         return                                                                         (𝕗) lifted%return#0 |
 
     main___algopy_default_create@10:                                                   (𝕗) lifted%return#0 |
-        txn ApplicationID                                                              (𝕗) lifted%return#0 | tmp%14#0
-        !                                                                              (𝕗) lifted%return#0 | tmp%15#0
+        txn ApplicationID                                                              (𝕗) lifted%return#0 | tmp%10#0
+        !                                                                              (𝕗) lifted%return#0 | tmp%11#0
         assert // can only call when creating                                          (𝕗) lifted%return#0 |
         f-load lifted%return#0                                                         (𝕗) lifted%return#0 | lifted%return#0
         return                                                                         (𝕗) lifted%return#0 |

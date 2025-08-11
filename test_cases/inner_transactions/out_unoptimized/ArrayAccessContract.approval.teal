@@ -23,6 +23,10 @@ main_abi_routing@2:
     intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
     pushbytes 0x89a8220a // method "test_branching_array_call(bool)void"
     swap
@@ -38,12 +42,6 @@ main_after_if_else@10:
     err
 
 main_test_branching_array_call_route@3:
-    // inner_transactions/array_access.py:21
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
     callsub test_branching_array_call

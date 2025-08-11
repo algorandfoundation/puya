@@ -330,102 +330,76 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@1: // L54
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@13
+        goto tmp%1#0 ? block@2 : block@18
     block@2: // abi_routing_L54
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "create()void" => block@3, method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@4, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@5, method "emits_error((uint64,string,(byte[],uint8)))void" => block@6, method "emitter()void" => block@7, method "conditional_emit(bool)void" => block@8, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@9, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@10, * => block@11}
-    block@3: // create_route_L81
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: uint64 = (shl 1u tmp%3#0)
-        let tmp%5#0: uint64 = (& tmp%4#0 3u)
-        (assert tmp%5#0) // OnCompletion is not one of NoOp, OptIn
-        test_cases.arc_56.contract.Contract.create[routing]()
-        exit 1u
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 0u)
+        goto tmp%3#0 ? block@3 : block@13
+    block@3: // simple_routes_L54
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        (assert tmp%5#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@4, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@5, method "emits_error((uint64,string,(byte[],uint8)))void" => block@6, method "emitter()void" => block@7, method "conditional_emit(bool)void" => block@8, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@9, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@10, * => block@11}
     block@4: // struct_arg_route_L89
-        let tmp%6#0: uint64 = (txn OnCompletion)
-        let tmp%7#0: bool = (== tmp%6#0 NoOp)
-        (assert tmp%7#0) // OnCompletion is not NoOp
-        let tmp%8#0: uint64 = (txn ApplicationID)
-        let tmp%9#0: bool = (!= tmp%8#0 0u)
-        (assert tmp%9#0) // can only call when not creating
         test_cases.arc_56.contract.Contract.struct_arg[routing]()
         exit 1u
     block@5: // struct_return_route_L95
-        let tmp%10#0: uint64 = (txn OnCompletion)
-        let tmp%11#0: bool = (== tmp%10#0 NoOp)
-        (assert tmp%11#0) // OnCompletion is not NoOp
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (!= tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when not creating
         test_cases.arc_56.contract.Contract.struct_return[routing]()
         exit 1u
     block@6: // emits_error_route_L100
-        let tmp%14#0: uint64 = (txn OnCompletion)
-        let tmp%15#0: bool = (== tmp%14#0 NoOp)
-        (assert tmp%15#0) // OnCompletion is not NoOp
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (!= tmp%16#0 0u)
-        (assert tmp%17#0) // can only call when not creating
         test_cases.arc_56.contract.Contract.errors[routing]()
         exit 1u
     block@7: // emitter_route_L104
-        let tmp%18#0: uint64 = (txn OnCompletion)
-        let tmp%19#0: bool = (== tmp%18#0 NoOp)
-        (assert tmp%19#0) // OnCompletion is not NoOp
-        let tmp%20#0: uint64 = (txn ApplicationID)
-        let tmp%21#0: bool = (!= tmp%20#0 0u)
-        (assert tmp%21#0) // can only call when not creating
         test_cases.arc_56.contract.Contract.emitter[routing]()
         exit 1u
     block@8: // conditional_emit_route_L114
-        let tmp%22#0: uint64 = (txn OnCompletion)
-        let tmp%23#0: bool = (== tmp%22#0 NoOp)
-        (assert tmp%23#0) // OnCompletion is not NoOp
-        let tmp%24#0: uint64 = (txn ApplicationID)
-        let tmp%25#0: bool = (!= tmp%24#0 0u)
-        (assert tmp%25#0) // can only call when not creating
         test_cases.arc_56.contract.Contract.conditional_emit[routing]()
         exit 1u
     block@9: // template_value_route_L123
-        let tmp%26#0: uint64 = (txn OnCompletion)
-        let tmp%27#0: bool = (== tmp%26#0 NoOp)
-        (assert tmp%27#0) // OnCompletion is not NoOp
-        let tmp%28#0: uint64 = (txn ApplicationID)
-        let tmp%29#0: bool = (!= tmp%28#0 0u)
-        (assert tmp%29#0) // can only call when not creating
         test_cases.arc_56.contract.Contract.template_value[routing]()
         exit 1u
     block@10: // with_constant_defaults_route_L132
-        let tmp%30#0: uint64 = (txn OnCompletion)
-        let tmp%31#0: bool = (== tmp%30#0 NoOp)
-        (assert tmp%31#0) // OnCompletion is not NoOp
-        let tmp%32#0: uint64 = (txn ApplicationID)
-        let tmp%33#0: bool = (!= tmp%32#0 0u)
-        (assert tmp%33#0) // can only call when not creating
         test_cases.arc_56.contract.Contract.with_constant_defaults[routing]()
         exit 1u
     block@11: // switch_case_default_L54
         goto block@12
     block@12: // switch_case_next_L54
-        goto block@18
-    block@13: // bare_routing_L54
-        let tmp%34#0: uint64 = (txn OnCompletion)
-        switch tmp%34#0 {0u => block@14, 1u => block@14, 5u => block@15, * => block@16}
-    block@14: // bare_create_L77
+        goto block@17
+    block@13: // other_routes_L54
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "create()void" => block@14, * => block@15}
+    block@14: // create_route_L81
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: uint64 = (shl 1u tmp%8#0)
+        let tmp%10#0: uint64 = (& tmp%9#0 3u)
+        (assert tmp%10#0) // OnCompletion is not one of NoOp, OptIn
+        test_cases.arc_56.contract.Contract.create[routing]()
+        exit 1u
+    block@15: // switch_case_default_L54
+        goto block@16
+    block@16: // switch_case_next_L54
+        goto block@17
+    block@17: // after_if_else_L54
+        goto block@23
+    block@18: // bare_routing_L54
+        let tmp%11#0: uint64 = (txn OnCompletion)
+        switch tmp%11#0 {0u => block@19, 1u => block@19, 5u => block@20, * => block@21}
+    block@19: // bare_create_L77
         test_cases.arc_56.contract.Contract.bare_create()
         exit 1u
-    block@15: // transient_L85
-        let tmp%35#0: uint64 = (txn ApplicationID)
-        let tmp%36#0: bool = (== tmp%35#0 0u)
-        (assert tmp%36#0) // can only call when creating
+    block@20: // transient_L85
+        let tmp%12#0: uint64 = (txn ApplicationID)
+        let tmp%13#0: bool = (== tmp%12#0 0u)
+        (assert tmp%13#0) // can only call when creating
         test_cases.arc_56.contract.Contract.transient()
         exit 1u
-    block@16: // switch_case_default_L54
-        goto block@17
-    block@17: // switch_case_next_L54
-        goto block@18
-    block@18: // after_if_else_L54
+    block@21: // switch_case_default_L54
+        goto block@22
+    block@22: // switch_case_next_L54
+        goto block@23
+    block@23: // after_if_else_L54
         exit 0u
-    block@19: // after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router___L1
+    block@24: // after_inlined_test_cases.arc_56.contract.Contract.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0

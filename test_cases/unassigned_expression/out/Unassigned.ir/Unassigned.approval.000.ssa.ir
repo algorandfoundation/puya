@@ -16,24 +16,18 @@ subroutine test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_rout
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (== tmp%2#0 NoOp)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "discard_op()void" => block@2, method "discard_subroutine()void" => block@3, method "discard_constants()void" => block@4, * => block@5}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        (assert tmp%5#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "discard_op()void" => block@2, method "discard_subroutine()void" => block@3, method "discard_constants()void" => block@4, * => block@5}
     block@2: // discard_op_route_L5
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
         test_cases.unassigned_expression.contract.Unassigned.discard_op[routing]()
         exit 1u
     block@3: // discard_subroutine_route_L9
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        let tmp%8#0: bool = (!= tmp%7#0 0u)
-        (assert tmp%8#0) // can only call when not creating
         test_cases.unassigned_expression.contract.Unassigned.discard_subroutine[routing]()
         exit 1u
     block@4: // discard_constants_route_L13
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when not creating
         test_cases.unassigned_expression.contract.Unassigned.discard_constants[routing]()
         exit 1u
     block@5: // switch_case_default_L4
@@ -41,12 +35,12 @@ subroutine test_cases.unassigned_expression.contract.Unassigned.__puya_arc4_rout
     block@6: // switch_case_next_L4
         goto block@11
     block@7: // bare_routing_L4
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        switch tmp%11#0 {0u => block@8, * => block@9}
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        switch tmp%7#0 {0u => block@8, * => block@9}
     block@8: // __algopy_default_create_L1
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (== tmp%12#0 0u)
-        (assert tmp%13#0) // can only call when creating
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (== tmp%8#0 0u)
+        (assert tmp%9#0) // can only call when creating
         test_cases.unassigned_expression.contract.Unassigned.__algopy_default_create()
         exit 1u
     block@9: // switch_case_default_L4

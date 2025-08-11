@@ -18,11 +18,11 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "opt_into_asset(uint64)void" => block@5, method "start_auction(uint64,uint64,axfer)void" => block@6, method "opt_in()void" => block@7, method "bid(pay)void" => block@8, method "claim_bids()void" => block@9, method "claim_asset(uint64)void" => block@10, * => block@13}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "opt_into_asset(uint64)void" => block@5, method "start_auction(uint64,uint64,axfer)void" => block@6, method "opt_in()void" => block@7, method "bid(pay)void" => block@8, method "claim_bids()void" => block@9, method "claim_asset(uint64)void" => block@10, * => block@13}
     block@5: // opt_into_asset_route_L25
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let asset#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let tmp%0#2: account = (txn Sender)
@@ -43,8 +43,6 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         itxn_submit
         exit lifted%return#0
     block@6: // start_auction_route_L40
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        (assert tmp%7#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let starting_price#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let reinterpret_Encoded(uint64)%1#0: Encoded(uint64) = (txna ApplicationArgs 2)
@@ -63,23 +61,19 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%3#0: bool = (! maybe_value%0#0)
         (assert tmp%3#0) // auction already started
         let tmp%4#3: account = ((gtxns AssetReceiver) axfer#0)
-        let tmp%5#1: account = (global CurrentApplicationAddress)
-        let tmp%6#0: bool = (== tmp%4#3 tmp%5#1)
-        (assert tmp%6#0) // axfer must transfer to this app
+        let tmp%5#0: account = (global CurrentApplicationAddress)
+        let tmp%6#1: bool = (== tmp%4#3 tmp%5#0)
+        (assert tmp%6#1) // axfer must transfer to this app
         let tmp%7#0: uint64 = ((gtxns AssetAmount) axfer#0)
         (app_global_put "asa_amount" tmp%7#0)
         let tmp%8#0: uint64 = (global LatestTimestamp)
-        let tmp%9#0: uint64 = (+ tmp%8#0 length#0)
-        (app_global_put "auction_end" tmp%9#0)
+        let tmp%9#1: uint64 = (+ tmp%8#0 length#0)
+        (app_global_put "auction_end" tmp%9#1)
         (app_global_put "previous_bid" starting_price#0)
         exit lifted%return#0
     block@7: // opt_in_route_L62
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
         exit lifted%return#0
     block@8: // bid_route_L66
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        (assert tmp%11#0) // can only call when not creating
         let tmp%0#3: uint64 = (txn GroupIndex)
         let pay#0: uint64 = (- tmp%0#3 1u)
         let gtxn_type%0#0: uint64 = ((gtxns TypeEnum) pay#0)
@@ -94,19 +88,17 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%3#1: account = (txn Sender)
         let tmp%4#2: bool = (== tmp%2#3 tmp%3#1)
         (assert tmp%4#2) // payment sender must match transaction sender
-        let tmp%5#0: uint64 = ((gtxns Amount) pay#0)
+        let tmp%5#1: uint64 = ((gtxns Amount) pay#0)
         let (maybe_value%1#2: uint64, maybe_exists%1#0: bool) = (app_global_get_ex 0u "previous_bid")
         (assert maybe_exists%1#0) // check self.previous_bid exists
-        let tmp%6#0: bool = (> tmp%5#0 maybe_value%1#2)
-        (assert tmp%6#0) // Bid must be higher than previous bid
-        (app_global_put "previous_bid" tmp%5#0)
+        let tmp%6#1: bool = (> tmp%5#1 maybe_value%1#2)
+        (assert tmp%6#1) // Bid must be higher than previous bid
+        (app_global_put "previous_bid" tmp%5#1)
         (app_global_put "previous_bidder" tmp%2#3)
         let tmp%10#0: account = (txn Sender)
-        (app_local_put tmp%10#0 "claim" tmp%5#0)
+        (app_local_put tmp%10#0 "claim" tmp%5#1)
         exit lifted%return#0
     block@9: // claim_bids_route_L82
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
         let tmp%0#2: account = (txn Sender)
         let (original_amount#0: uint64, maybe_exists%0#0: bool) = (app_local_get_ex tmp%0#2 0u "claim")
         (assert maybe_exists%0#0) // check self.claimable_amount exists for account
@@ -129,13 +121,11 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         ((itxn_field TypeEnum) pay)
         ((itxn_field Fee) 0u)
         itxn_submit
-        let tmp%4#1: uint64 = (- original_amount#0 amount#1)
-        let tmp%5#1: account = (txn Sender)
-        (app_local_put tmp%5#1 "claim" tmp%4#1)
+        let tmp%4#0: uint64 = (- original_amount#0 amount#1)
+        let tmp%5#0: account = (txn Sender)
+        (app_local_put tmp%5#0 "claim" tmp%4#0)
         exit lifted%return#0
     block@10: // claim_asset_route_L97
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        (assert tmp%15#0) // can only call when not creating
         let reinterpret_Encoded(uint64)%0#0: Encoded(uint64) = (txna ApplicationArgs 1)
         let asset#0: uint64 = (btoi reinterpret_Encoded(uint64)%0#0)
         let tmp%0#3: uint64 = (global LatestTimestamp)
@@ -157,12 +147,12 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         itxn_submit
         exit lifted%return#0
     block@11: // bare_routing_L16
-        let tmp%17#0: uint64 = (txn OnCompletion)
-        let not%tmp%17#0: bool = (! tmp%17#0)
-        (assert not%tmp%17#0)
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        let tmp%19#0: bool = (! tmp%18#0)
-        (assert tmp%19#0) // can only call when creating
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let not%tmp%7#0: bool = (! tmp%7#0)
+        (assert not%tmp%7#0)
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // can only call when creating
         exit lifted%return#0
     block@13: // after_if_else_L16
         fail

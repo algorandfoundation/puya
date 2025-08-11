@@ -17,16 +17,14 @@ subroutine main:
         txn OnCompletion                                                                          tmp%2#0
         !                                                                                         tmp%3#0
         assert // OnCompletion is not NoOp
-        txna ApplicationArgs 0                                                                    tmp%4#0
-        method test_implicit_conversion_abi_call(uint64[],uint64)void                             tmp%4#0,Method(test_implicit_conversion_abi_call(uint64[],uint64)void)
-        l-load tmp%4#0 1                                                                          Method(test_implicit_conversion_abi_call(uint64[],uint64)void),tmp%4#0
+        txn ApplicationID                                                                         tmp%4#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0                                                                    tmp%6#0
+        method test_implicit_conversion_abi_call(uint64[],uint64)void                             tmp%6#0,Method(test_implicit_conversion_abi_call(uint64[],uint64)void)
+        l-load tmp%6#0 1                                                                          Method(test_implicit_conversion_abi_call(uint64[],uint64)void),tmp%6#0
         match main_test_implicit_conversion_abi_call_route@3 ; b main_after_if_else@10
 
     main_test_implicit_conversion_abi_call_route@3:
-        // array/unused_opt_allowed.py:13
-        // @arc4.abimethod()
-        txn ApplicationID                                                                         tmp%5#0
-        assert // can only call when not creating
         // array/unused_opt_allowed.py:12
         // class AbiCallContract(arc4.ARC4Contract):
         callsub test_implicit_conversion_abi_call

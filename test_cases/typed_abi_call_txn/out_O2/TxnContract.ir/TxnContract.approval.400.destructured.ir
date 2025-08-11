@@ -7,11 +7,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "call_with_txn(byte[],txn,byte[])uint64" => block@3, method "call_with_acfg(byte[],acfg,byte[])uint64" => block@4, method "call_with_acfg_no_return(byte[],acfg,byte[])void" => block@5, * => block@12}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "call_with_txn(byte[],txn,byte[])uint64" => block@3, method "call_with_acfg(byte[],acfg,byte[])uint64" => block@4, method "call_with_acfg_no_return(byte[],acfg,byte[])void" => block@5, * => block@12}
     block@3: // call_with_txn_route_L12
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
         let a#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
         let tmp%1#1: uint64 = (txn GroupIndex)
@@ -25,15 +25,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%2#0: uint64 = ((gtxns TypeEnum) acfg#0)
         let tmp%3#0: bool = (== tmp%2#0 acfg)
         (assert tmp%3#0) // expected asset config
-        let tmp%4#3: uint64 = ((gtxns CreatedAssetID) acfg#0)
-        (assert tmp%4#3) // expected asset id
-        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%4#3)
+        let tmp%4#0: uint64 = ((gtxns CreatedAssetID) acfg#0)
+        (assert tmp%4#0) // expected asset id
+        let aggregate%val_as_bytes%0#0: bytes[8] = (itob tmp%4#0)
         let tmp%5#1: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%5#1)
         exit lifted%return#0
     block@4: // call_with_acfg_route_L20
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        (assert tmp%7#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
         let a#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
         let tmp%1#1: uint64 = (txn GroupIndex)
@@ -54,8 +52,6 @@ main algopy.arc4.ARC4Contract.approval_program:
         (log tmp%5#1)
         exit lifted%return#0
     block@5: // call_with_acfg_no_return_route_L27
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
         let reinterpret_Encoded(len+uint8[])%0#0: Encoded(len+uint8[]) = (txna ApplicationArgs 1)
         let a#0: bytes = ((extract 2 0) reinterpret_Encoded(len+uint8[])%0#0)
         let tmp%1#1: uint64 = (txn GroupIndex)
@@ -73,12 +69,12 @@ main algopy.arc4.ARC4Contract.approval_program:
         (assert tmp%2#0) // expected asset id
         exit lifted%return#0
     block@8: // bare_routing_L11
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let not%tmp%11#0: bool = (! tmp%11#0)
-        (assert not%tmp%11#0)
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        let tmp%13#0: bool = (! tmp%12#0)
-        (assert tmp%13#0) // can only call when creating
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let not%tmp%7#0: bool = (! tmp%7#0)
+        (assert not%tmp%7#0)
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // can only call when creating
         exit lifted%return#0
     block@12: // after_if_else_L11
         fail

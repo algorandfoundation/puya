@@ -11,14 +11,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x1ca2c07e 0xec6cd0a8 // method "test_assign_tuple()void", method "test_assign_tuple_mixed()void"
     txna ApplicationArgs 0
     match main_test_assign_tuple_route@3 main_test_assign_tuple_mixed_route@4
     err
 
 main_test_assign_tuple_mixed_route@4:
-    txn ApplicationID
-    assert // can only call when not creating
     itxn_begin
     bytec_1 // 0x3161
     itxn_field ApplicationArgs
@@ -46,8 +46,6 @@ main_test_assign_tuple_mixed_route@4:
     return
 
 main_test_assign_tuple_route@3:
-    txn ApplicationID
-    assert // can only call when not creating
     pushint 42 // 42
     itob
     intc_3 // 1

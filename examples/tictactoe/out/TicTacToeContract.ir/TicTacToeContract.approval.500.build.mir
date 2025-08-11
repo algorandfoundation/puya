@@ -2,8 +2,8 @@
 // examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // tictactoe/tictactoe.py:20
-        // @arc4.abimethod(create="allow")
+        // tictactoe/tictactoe.py:37
+        // @arc4.abimethod
         int 1                                                                          1
         v-store lifted%return#0
         // tictactoe/tictactoe.py:15
@@ -11,35 +11,24 @@ subroutine main:
         txn OnCompletion                                                               tmp%0#2
         v-store tmp%0#2
         v-load tmp%0#2                                                                 tmp%0#2
-        !                                                                              tmp%1#0
-        v-store tmp%1#0
-        v-load tmp%1#0                                                                 tmp%1#0
-        assert // OnCompletion is not NoOp
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls  tmp%2#0
-        v-store tmp%2#0
-        method new_game((uint64,uint64))void                                           Method(new_game((uint64,uint64))void)
-        method join_game((uint64,uint64))void                                          Method(new_game((uint64,uint64))void),Method(join_game((uint64,uint64))void)
-        method whose_turn()uint8                                                       Method(new_game((uint64,uint64))void),Method(join_game((uint64,uint64))void),Method(whose_turn()uint8)
-        method play((uint64,uint64))void                                               Method(new_game((uint64,uint64))void),Method(join_game((uint64,uint64))void),Method(whose_turn()uint8),Method(play((uint64,uint64))void)
-        v-load tmp%2#0                                                                 Method(new_game((uint64,uint64))void),Method(join_game((uint64,uint64))void),Method(whose_turn()uint8),Method(play((uint64,uint64))void),tmp%2#0
-        match main_new_game_route@4 main_join_game_route@5 main_whose_turn_route@6 main_play_route@7 ; b main_switch_case_default@8 
+        bz main_simple_routes@4 ; b main_other_routes@8
 
-    main_new_game_route@4:
+    main_simple_routes@4:
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
-        callsub new_game
-        // tictactoe/tictactoe.py:20
-        // @arc4.abimethod(create="allow")
-        v-load lifted%return#0                                                         lifted%return#0
-        return
+        txn ApplicationID                                                              tmp%2#0
+        v-store tmp%2#0
+        v-load tmp%2#0                                                                 tmp%2#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls  tmp%4#0
+        v-store tmp%4#0
+        method join_game((uint64,uint64))void                                          Method(join_game((uint64,uint64))void)
+        method whose_turn()uint8                                                       Method(join_game((uint64,uint64))void),Method(whose_turn()uint8)
+        method play((uint64,uint64))void                                               Method(join_game((uint64,uint64))void),Method(whose_turn()uint8),Method(play((uint64,uint64))void)
+        v-load tmp%4#0                                                                 Method(join_game((uint64,uint64))void),Method(whose_turn()uint8),Method(play((uint64,uint64))void),tmp%4#0
+        match main_join_game_route@5 main_whose_turn_route@6 main_play_route@7 ; b main_after_if_else@10 
 
     main_join_game_route@5:
-        // tictactoe/tictactoe.py:37
-        // @arc4.abimethod
-        txn ApplicationID                                                              tmp%3#0
-        v-store tmp%3#0
-        v-load tmp%3#0                                                                 tmp%3#0
-        assert // can only call when not creating
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
         callsub join_game
@@ -49,12 +38,6 @@ subroutine main:
         return
 
     main_whose_turn_route@6:
-        // tictactoe/tictactoe.py:43
-        // @arc4.abimethod
-        txn ApplicationID                                                              tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                 tmp%5#0
-        assert // can only call when not creating
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
         callsub whose_turn
@@ -64,12 +47,6 @@ subroutine main:
         return
 
     main_play_route@7:
-        // tictactoe/tictactoe.py:47
-        // @arc4.abimethod
-        txn ApplicationID                                                              tmp%7#0
-        v-store tmp%7#0
-        v-load tmp%7#0                                                                 tmp%7#0
-        assert // can only call when not creating
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
         callsub play
@@ -78,7 +55,34 @@ subroutine main:
         v-load lifted%return#0                                                         lifted%return#0
         return
 
-    main_switch_case_default@8:
+    main_other_routes@8:
+        // tictactoe/tictactoe.py:15
+        // class TicTacToeContract(arc4.ARC4Contract):
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls  tmp%5#0
+        v-store tmp%5#0
+        method new_game((uint64,uint64))void                                           Method(new_game((uint64,uint64))void)
+        v-load tmp%5#0                                                                 Method(new_game((uint64,uint64))void),tmp%5#0
+        match main_new_game_route@9 ; b main_after_if_else@10
+
+    main_new_game_route@9:
+        // tictactoe/tictactoe.py:20
+        // @arc4.abimethod(create="allow")
+        txn OnCompletion                                                               tmp%6#0
+        v-store tmp%6#0
+        v-load tmp%6#0                                                                 tmp%6#0
+        !                                                                              tmp%7#0
+        v-store tmp%7#0
+        v-load tmp%7#0                                                                 tmp%7#0
+        assert // OnCompletion is not NoOp
+        // tictactoe/tictactoe.py:15
+        // class TicTacToeContract(arc4.ARC4Contract):
+        callsub new_game
+        // tictactoe/tictactoe.py:20
+        // @arc4.abimethod(create="allow")
+        v-load lifted%return#0                                                         lifted%return#0
+        return
+
+    main_after_if_else@10:
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
         err

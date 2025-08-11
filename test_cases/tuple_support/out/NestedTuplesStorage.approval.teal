@@ -5,8 +5,8 @@
 main:
     intcblock 0 1
     bytecblock "tup" 0x000a "box" "glob" "loc" 0x000a000000000000000000010000000000000000 0x00010000000000000000
-    // tuple_support/tuple_storage.py:23
-    // @arc4.abimethod(allow_actions=["OptIn"])
+    // tuple_support/tuple_storage.py:28
+    // @arc4.abimethod()
     intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
@@ -49,20 +49,17 @@ main_after_if_else@2:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@10
-    pushbytess 0xbec76d87 0xacc253ae 0xe844940c 0x6222ef1a 0x1b269b50 // method "bootstrap()void", method "mutate_tuple(uint64)void", method "mutate_box(uint64)void", method "mutate_global(uint64)void", method "mutate_local(uint64)void"
+    bz main_bare_routing@12
+    txn OnCompletion
+    bnz main_other_routes@10
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytess 0xacc253ae 0xe844940c 0x6222ef1a 0x1b269b50 // method "mutate_tuple(uint64)void", method "mutate_box(uint64)void", method "mutate_global(uint64)void", method "mutate_local(uint64)void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@5 main_mutate_tuple_route@6 main_mutate_box_route@7 main_mutate_global_route@8 main_mutate_local_route@9
+    match main_mutate_tuple_route@6 main_mutate_box_route@7 main_mutate_global_route@8 main_mutate_local_route@9
     err
 
 main_mutate_local_route@9:
-    // tuple_support/tuple_storage.py:40
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     callsub mutate_local
@@ -71,13 +68,6 @@ main_mutate_local_route@9:
     return
 
 main_mutate_global_route@8:
-    // tuple_support/tuple_storage.py:36
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     callsub mutate_global
@@ -86,13 +76,6 @@ main_mutate_global_route@8:
     return
 
 main_mutate_box_route@7:
-    // tuple_support/tuple_storage.py:32
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     callsub mutate_box
@@ -101,13 +84,6 @@ main_mutate_box_route@7:
     return
 
 main_mutate_tuple_route@6:
-    // tuple_support/tuple_storage.py:28
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     callsub mutate_tuple
@@ -115,7 +91,15 @@ main_mutate_tuple_route@6:
     // @arc4.abimethod()
     return
 
-main_bootstrap_route@5:
+main_other_routes@10:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    pushbytes 0xbec76d87 // method "bootstrap()void"
+    txna ApplicationArgs 0
+    match main_bootstrap_route@11
+    err
+
+main_bootstrap_route@11:
     // tuple_support/tuple_storage.py:23
     // @arc4.abimethod(allow_actions=["OptIn"])
     txn OnCompletion
@@ -131,7 +115,7 @@ main_bootstrap_route@5:
     // @arc4.abimethod(allow_actions=["OptIn"])
     return
 
-main_bare_routing@10:
+main_bare_routing@12:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     txn OnCompletion

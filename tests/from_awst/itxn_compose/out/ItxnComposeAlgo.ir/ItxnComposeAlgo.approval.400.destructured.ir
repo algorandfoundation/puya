@@ -7,25 +7,23 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "distribute(address[],pay,uint64)void" => block@3, method "conditionalBegin(uint64)void" => block@4, * => block@11}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "distribute(address[],pay,uint64)void" => block@3, method "conditionalBegin(uint64)void" => block@4, * => block@11}
     block@3: // distribute_route_L19
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
         tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]()
         exit lifted%return#0
     block@4: // conditionalBegin_route_L53
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        (assert tmp%7#0) // can only call when not creating
         tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]()
         exit lifted%return#0
     block@7: // bare_routing_L18
-        let tmp%9#0: uint64 = (txn OnCompletion)
-        let not%tmp%9#0: bool = (! tmp%9#0)
-        (assert not%tmp%9#0)
-        let tmp%10#0: uint64 = (txn ApplicationID)
-        let tmp%11#0: bool = (! tmp%10#0)
-        (assert tmp%11#0) // can only call when creating
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let not%tmp%7#0: bool = (! tmp%7#0)
+        (assert not%tmp%7#0)
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // can only call when creating
         exit lifted%return#0
     block@11: // after_if_else_L18
         fail
@@ -92,7 +90,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegi
         ((itxn_field ApplicationArgs) 0x00024869)
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5ngQExGEAABCiAAGeCBAQAkiWuBCQ3jTwEoOgYcgTQooIANhoAjgQAIAAWAAwAAQAxGRREMRhEiAArQzEZgQQSRDEYREMxGYEFEkQxGERDMRkURDEYFESIAAFDNhoBVwIAKExniTYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCJ)
+        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxGUAAFTEYRIAE0KKCADYaAI4BAAEAiABIQ4IDBACSJa4EJDeNPASg6BhyNhoAjgMAFQALAAEAMRmBBBJEMRhEQzEZgQUSRDEYREMxGRREMRgURIgAAUM2GgFXAgAoTGeJNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIk=)
         ((itxn_field OnCompletion) 0u)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)

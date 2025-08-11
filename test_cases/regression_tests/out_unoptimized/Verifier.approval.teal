@@ -22,6 +22,10 @@ main_abi_routing@2:
     intc_1 // NoOp
     ==
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
     pushbytes 0x49e82748 // method "verify(byte[32][])byte[]"
     swap
@@ -37,12 +41,6 @@ main_after_if_else@10:
     err
 
 main_verify_route@3:
-    // regression_tests/jira_ak_752.py:13
-    // @abimethod
-    txn ApplicationID
-    intc_1 // 0
-    !=
-    assert // can only call when not creating
     // regression_tests/jira_ak_752.py:12
     // class Verifier(algopy.ARC4Contract):
     callsub verify

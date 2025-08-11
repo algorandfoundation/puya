@@ -15,16 +15,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x0ab53563 0xea6a6ade 0x2381ff80 0x00b50f1c // method "test_call_with_txn(byte[],byte[],uint64)void", method "test_call_with_acfg(byte[],byte[],uint64)void", method "test_call_with_infer(byte[],byte[],uint64)void", method "test_call_with_acfg_no_return(byte[],byte[],uint64)void"
     txna ApplicationArgs 0
     match main_test_call_with_txn_route@3 main_test_call_with_acfg_route@4 main_test_call_with_infer_route@5 main_test_call_with_acfg_no_return_route@6
     err
 
 main_test_call_with_acfg_no_return_route@6:
-    // typed_abi_call_txn/caller.py:61
-    // @arc4.abimethod
-    txn ApplicationID
-    assert // can only call when not creating
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     callsub test_call_with_acfg_no_return
@@ -33,10 +31,6 @@ main_test_call_with_acfg_no_return_route@6:
     return
 
 main_test_call_with_infer_route@5:
-    // typed_abi_call_txn/caller.py:46
-    // @arc4.abimethod
-    txn ApplicationID
-    assert // can only call when not creating
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     callsub test_call_with_infer
@@ -45,10 +39,6 @@ main_test_call_with_infer_route@5:
     return
 
 main_test_call_with_acfg_route@4:
-    // typed_abi_call_txn/caller.py:31
-    // @arc4.abimethod
-    txn ApplicationID
-    assert // can only call when not creating
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     callsub test_call_with_acfg
@@ -57,10 +47,6 @@ main_test_call_with_acfg_route@4:
     return
 
 main_test_call_with_txn_route@3:
-    // typed_abi_call_txn/caller.py:15
-    // @arc4.abimethod
-    txn ApplicationID
-    assert // can only call when not creating
     // typed_abi_call_txn/caller.py:14
     // class Caller(ARC4Contract):
     callsub test_call_with_txn

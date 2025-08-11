@@ -23,6 +23,10 @@ main_abi_routing@2:
     intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
     pushbytes 0xbc66eb62 // method "verify(uint256[])(bool,string)"
     swap
@@ -38,13 +42,6 @@ main_after_if_else@10:
     err
 
 main_verify_route@3:
-    // regression_tests/issue_118.py:6-7
-    // # ref: https://github.com/algorandfoundation/puya/issues/118
-    // @abimethod
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     callsub verify

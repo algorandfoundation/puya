@@ -23,6 +23,10 @@ main_abi_routing@2:
     intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
     pushbytes 0x6ac4a557 // method "test_array_rebinding()void"
     swap
@@ -38,12 +42,6 @@ main_after_if_else@10:
     err
 
 main_test_array_rebinding_route@3:
-    // arc4_types/mutable_params2.py:5
-    // @arc4.abimethod()
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     callsub test_array_rebinding

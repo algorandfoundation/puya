@@ -9,14 +9,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytes 0x02bece11 // method "hello(string)string"
     txna ApplicationArgs 0
     match main_hello_route@3
     err
 
 main_hello_route@3:
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 1
     extract 2 0
     pushbytes "Hello, "

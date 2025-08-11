@@ -2,61 +2,51 @@ main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let lifted%return#0: bool = 1u
         let tmp%0#1: uint64 = (txn OnCompletion)
-        let tmp%1#0: bool = (! tmp%0#1)
-        (assert tmp%1#0) // OnCompletion is not NoOp
-        let tmp%2#0: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
-        switch tmp%2#0 {method "create()void" => block@2, method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@12}
-    block@2: // create_route_L12
-        let tmp%3#0: uint64 = (txn ApplicationID)
-        let tmp%4#0: bool = (! tmp%3#0)
-        (assert tmp%4#0) // can only call when creating
-        exit lifted%return#0
+        goto tmp%0#1 ? block@14 : block@2
+    block@2: // simple_routes_L11
+        let tmp%2#0: uint64 = (txn ApplicationID)
+        (assert tmp%2#0) // can only call when not creating
+        let tmp%4#0: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
+        switch tmp%4#0 {method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@18}
     block@3: // pay_route_L31
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.pay[routing]()
         exit lifted%return#0
     block@4: // key_route_L40
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        (assert tmp%7#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.key[routing]()
         exit lifted%return#0
     block@5: // asset_config_route_L51
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.asset_config[routing]()
         exit lifted%return#0
     block@6: // asset_transfer_route_L68
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        (assert tmp%11#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.asset_transfer[routing]()
         exit lifted%return#0
     block@7: // asset_freeze_route_L77
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.asset_freeze[routing]()
         exit lifted%return#0
     block@8: // application_call_route_L85
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        (assert tmp%15#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.application_call[routing]()
         exit lifted%return#0
     block@9: // multiple_txns_route_L111
-        let tmp%17#0: uint64 = (txn ApplicationID)
-        (assert tmp%17#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.multiple_txns[routing]()
         exit lifted%return#0
     block@10: // any_txn_route_L121
-        let tmp%19#0: uint64 = (txn ApplicationID)
-        (assert tmp%19#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.any_txn[routing]()
         exit lifted%return#0
     block@11: // group_init_route_L131
-        let tmp%21#0: uint64 = (txn ApplicationID)
-        (assert tmp%21#0) // can only call when not creating
         test_cases.transaction.contract.TransactionContract.group_init[routing]()
         exit lifted%return#0
-    block@12: // switch_case_default_L11
+    block@14: // other_routes_L11
+        let tmp%5#0: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
+        switch tmp%5#0 {method "create()void" => block@15, * => block@18}
+    block@15: // create_route_L12
+        let tmp%6#0: uint64 = (txn OnCompletion)
+        let tmp%7#0: bool = (! tmp%6#0)
+        (assert tmp%7#0) // OnCompletion is not NoOp
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // can only call when creating
+        exit lifted%return#0
+    block@18: // after_if_else_L11
         fail
 
 subroutine test_cases.transaction.contract.TransactionContract.pay[routing]() -> void:

@@ -17,17 +17,15 @@ subroutine main:
         txn OnCompletion                                                                 (𝕗) lifted%return#0 | tmp%2#0
         !                                                                                (𝕗) lifted%return#0 | tmp%3#0
         assert // OnCompletion is not NoOp                                               (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0                                                           (𝕗) lifted%return#0 | tmp%4#0
-        method create_group(acfg,appl)(uint64,uint64)                                    (𝕗) lifted%return#0 | tmp%4#0,Method(create_group(acfg,appl)(uint64,uint64))
-        method log_group(appl)void                                                       (𝕗) lifted%return#0 | tmp%4#0,Method(create_group(acfg,appl)(uint64,uint64)),Method(log_group(appl)void)
-        l-load tmp%4#0 2                                                                 (𝕗) lifted%return#0 | Method(create_group(acfg,appl)(uint64,uint64)),Method(log_group(appl)void),tmp%4#0
+        txn ApplicationID                                                                (𝕗) lifted%return#0 | tmp%4#0
+        assert // can only call when not creating                                        (𝕗) lifted%return#0 |
+        txna ApplicationArgs 0                                                           (𝕗) lifted%return#0 | tmp%6#0
+        method create_group(acfg,appl)(uint64,uint64)                                    (𝕗) lifted%return#0 | tmp%6#0,Method(create_group(acfg,appl)(uint64,uint64))
+        method log_group(appl)void                                                       (𝕗) lifted%return#0 | tmp%6#0,Method(create_group(acfg,appl)(uint64,uint64)),Method(log_group(appl)void)
+        l-load tmp%6#0 2                                                                 (𝕗) lifted%return#0 | Method(create_group(acfg,appl)(uint64,uint64)),Method(log_group(appl)void),tmp%6#0
         match main_create_group_route@3 main_log_group_route@4 ; b main_after_if_else@11 (𝕗) lifted%return#0 |
 
     main_create_group_route@3:                                                           (𝕗) lifted%return#0 |
-        // group_side_effects/contract.py:5
-        // @arc4.abimethod
-        txn ApplicationID                                                                (𝕗) lifted%return#0 | tmp%5#0
-        assert // can only call when not creating                                        (𝕗) lifted%return#0 |
         // group_side_effects/contract.py:4
         // class AppExpectingEffects(ARC4Contract):
         callsub create_group                                                             (𝕗) lifted%return#0 |
@@ -37,10 +35,6 @@ subroutine main:
         return                                                                           (𝕗) lifted%return#0 |
 
     main_log_group_route@4:                                                              (𝕗) lifted%return#0 |
-        // group_side_effects/contract.py:22
-        // @arc4.abimethod
-        txn ApplicationID                                                                (𝕗) lifted%return#0 | tmp%7#0
-        assert // can only call when not creating                                        (𝕗) lifted%return#0 |
         // group_side_effects/contract.py:4
         // class AppExpectingEffects(ARC4Contract):
         callsub log_group                                                                (𝕗) lifted%return#0 |
@@ -52,11 +46,11 @@ subroutine main:
     main_bare_routing@7:                                                                 (𝕗) lifted%return#0 |
         // group_side_effects/contract.py:4
         // class AppExpectingEffects(ARC4Contract):
-        txn OnCompletion                                                                 (𝕗) lifted%return#0 | tmp%9#0
-        !                                                                                (𝕗) lifted%return#0 | not%tmp%9#0
+        txn OnCompletion                                                                 (𝕗) lifted%return#0 | tmp%7#0
+        !                                                                                (𝕗) lifted%return#0 | not%tmp%7#0
         assert                                                                           (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                (𝕗) lifted%return#0 | tmp%10#0
-        !                                                                                (𝕗) lifted%return#0 | tmp%11#0
+        txn ApplicationID                                                                (𝕗) lifted%return#0 | tmp%8#0
+        !                                                                                (𝕗) lifted%return#0 | tmp%9#0
         assert // can only call when creating                                            (𝕗) lifted%return#0 |
         f-load lifted%return#0                                                           (𝕗) lifted%return#0 | lifted%return#0
         return                                                                           (𝕗) lifted%return#0 |

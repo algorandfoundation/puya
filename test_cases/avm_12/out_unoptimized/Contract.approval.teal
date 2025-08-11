@@ -22,6 +22,10 @@ main_abi_routing@2:
     intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
     pushbytes 0xc2b8dd8a // method "test_new_ops()void"
     swap
@@ -37,12 +41,6 @@ main_after_if_else@10:
     err
 
 main_test_new_ops_route@3:
-    // avm_12/contract.py:10
-    // @arc4.abimethod
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // avm_12/contract.py:9
     // class Contract(ARC4Contract, avm_version=12):
     callsub test_new_ops

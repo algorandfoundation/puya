@@ -14,14 +14,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0xaec250ef 0xbd4b223f 0x847f775f // method "umm()uint64", method "umm2()void", method "calculate(uint64[][],uint64)void"
     txna ApplicationArgs 0
     match main_umm_route@3 main_umm2_route@4 main_calculate_route@5
     err
 
 main_calculate_route@5:
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 1
     dup
     bury 19
@@ -168,8 +168,6 @@ main_if_body@37:
     return
 
 main_umm2_route@4:
-    txn ApplicationID
-    assert // can only call when not creating
     intc_0 // 0
     bury 12
 
@@ -199,8 +197,6 @@ main_after_if_else@36:
     return
 
 main_umm_route@3:
-    txn ApplicationID
-    assert // can only call when not creating
     intc_0 // 0
     bury 12
 

@@ -4,8 +4,8 @@
 // test_cases.compile.apps.HelloBase.__algopy_entrypoint_with_init() -> uint64:
 main:
     bytecblock "greeting"
-    // compile/apps.py:24
-    // @arc4.abimethod(allow_actions=["DeleteApplication"])
+    // compile/apps.py:32
+    // @arc4.abimethod()
     pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
@@ -19,20 +19,17 @@ main_after_if_else@2:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
-    pushbytess 0x24378d3c 0xd0a28200 // method "delete()void", method "greet(string)string"
+    bz main_bare_routing@9
+    txn OnCompletion
+    bnz main_other_routes@7
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0xd0a28200 // method "greet(string)string"
     txna ApplicationArgs 0
-    match main_delete_route@5 main_greet_route@6
+    match main_greet_route@6
     err
 
 main_greet_route@6:
-    // compile/apps.py:32
-    // @arc4.abimethod()
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     callsub greet
@@ -40,7 +37,15 @@ main_greet_route@6:
     // @arc4.abimethod()
     return
 
-main_delete_route@5:
+main_other_routes@7:
+    // compile/apps.py:20
+    // class HelloBase(ARC4Contract):
+    pushbytes 0x24378d3c // method "delete()void"
+    txna ApplicationArgs 0
+    match main_delete_route@8
+    err
+
+main_delete_route@8:
     // compile/apps.py:24
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
@@ -51,21 +56,21 @@ main_delete_route@5:
     assert // can only call when not creating
     return
 
-main_bare_routing@7:
+main_bare_routing@9:
     // compile/apps.py:20
     // class HelloBase(ARC4Contract):
     pushints 4 0 // 4, 0
     txn OnCompletion
-    match main_update@8 main___algopy_default_create@9
+    match main_update@10 main___algopy_default_create@11
     err
 
-main___algopy_default_create@9:
+main___algopy_default_create@11:
     txn ApplicationID
     !
     assert // can only call when creating
     return
 
-main_update@8:
+main_update@10:
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID

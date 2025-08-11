@@ -8,16 +8,15 @@ main:
     dupn 2
     intc_0 // 1
     txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    pushbytess 0x4c5c61ba 0x6b680318 0x16c4a32d 0x639872d6 0x50f8f1c3 0x5b3a00cf 0xcd62293d 0x02ea72e5 0x3056840b 0x96ef9a95 // method "create()void", method "pay(pay)void", method "key(keyreg)void", method "asset_config(acfg)void", method "asset_transfer(axfer)void", method "asset_freeze(afrz)void", method "application_call(appl)void", method "multiple_txns(appl,appl,appl)void", method "any_txn(txn,txn,txn)void", method "group_init(txn,txn,txn)void"
+    bnz main_other_routes@14
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytess 0x6b680318 0x16c4a32d 0x639872d6 0x50f8f1c3 0x5b3a00cf 0xcd62293d 0x02ea72e5 0x3056840b 0x96ef9a95 // method "pay(pay)void", method "key(keyreg)void", method "asset_config(acfg)void", method "asset_transfer(axfer)void", method "asset_freeze(afrz)void", method "application_call(appl)void", method "multiple_txns(appl,appl,appl)void", method "any_txn(txn,txn,txn)void", method "group_init(txn,txn,txn)void"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_create_route@2 main_pay_route@3 main_key_route@4 main_asset_config_route@5 main_asset_transfer_route@6 main_asset_freeze_route@7 main_application_call_route@8 main_multiple_txns_route@9 main_any_txn_route@10 main_group_init_route@11
+    match main_pay_route@3 main_key_route@4 main_asset_config_route@5 main_asset_transfer_route@6 main_asset_freeze_route@7 main_application_call_route@8 main_multiple_txns_route@9 main_any_txn_route@10 main_group_init_route@11
     err
 
 main_group_init_route@11:
-    txn ApplicationID
-    assert // can only call when not creating
     txn GroupIndex
     intc_3 // 3
     -
@@ -33,7 +32,7 @@ main_group_init_route@11:
     bury 3
     intc_1 // 0
 
-main_for_body@14:
+main_for_body@22:
     swap
     dup
     gtxns GroupIndex
@@ -43,7 +42,7 @@ main_for_body@14:
     gtxns TxID
     ==
     assert
-    switch main_for_header_1@15 main_for_header_2@16
+    switch main_for_header_1@23 main_for_header_2@24
     dig 3
     gtxns TxID
     intc_1 // 0
@@ -52,19 +51,17 @@ main_for_body@14:
     assert
     return
 
-main_for_header_2@16:
+main_for_header_2@24:
     dig 1
     intc_2 // 2
-    b main_for_body@14
+    b main_for_body@22
 
-main_for_header_1@15:
+main_for_header_1@23:
     dig 2
     intc_0 // 1
-    b main_for_body@14
+    b main_for_body@22
 
 main_any_txn_route@10:
-    txn ApplicationID
-    assert // can only call when not creating
     txn GroupIndex
     intc_3 // 3
     -
@@ -78,28 +75,26 @@ main_any_txn_route@10:
     bury 3
     intc_1 // 0
 
-main_for_body@20:
+main_for_body@28:
     swap
     gtxns GroupIndex
     dig 1
     ==
     assert
-    switch main_for_header_1@21 main_for_header_2@22
+    switch main_for_header_1@29 main_for_header_2@30
     return
 
-main_for_header_2@22:
+main_for_header_2@30:
     dig 1
     intc_2 // 2
-    b main_for_body@20
+    b main_for_body@28
 
-main_for_header_1@21:
+main_for_header_1@29:
     dig 2
     intc_0 // 1
-    b main_for_body@20
+    b main_for_body@28
 
 main_multiple_txns_route@9:
-    txn ApplicationID
-    assert // can only call when not creating
     txn GroupIndex
     intc_3 // 3
     -
@@ -128,28 +123,26 @@ main_multiple_txns_route@9:
     assert // transaction type is appl
     intc_1 // 0
 
-main_for_body@26:
+main_for_body@34:
     swap
     gtxns GroupIndex
     dig 1
     ==
     assert
-    switch main_for_header_1@27 main_for_header_2@28
+    switch main_for_header_1@35 main_for_header_2@36
     return
 
-main_for_header_2@28:
+main_for_header_2@36:
     dig 1
     intc_2 // 2
-    b main_for_body@26
+    b main_for_body@34
 
-main_for_header_1@27:
+main_for_header_1@35:
     dig 2
     intc_0 // 1
-    b main_for_body@26
+    b main_for_body@34
 
 main_application_call_route@8:
-    txn ApplicationID
-    assert // can only call when not creating
     txn GroupIndex
     intc_0 // 1
     -
@@ -242,8 +235,6 @@ main_application_call_route@8:
     return
 
 main_asset_freeze_route@7:
-    txn ApplicationID
-    assert // can only call when not creating
     txn GroupIndex
     intc_0 // 1
     -
@@ -267,8 +258,6 @@ main_asset_freeze_route@7:
     return
 
 main_asset_transfer_route@6:
-    txn ApplicationID
-    assert // can only call when not creating
     txn GroupIndex
     intc_0 // 1
     -
@@ -302,8 +291,6 @@ main_asset_transfer_route@6:
     return
 
 main_asset_config_route@5:
-    txn ApplicationID
-    assert // can only call when not creating
     txn GroupIndex
     intc_0 // 1
     -
@@ -360,8 +347,6 @@ main_asset_config_route@5:
     return
 
 main_key_route@4:
-    txn ApplicationID
-    assert // can only call when not creating
     txn GroupIndex
     intc_0 // 1
     -
@@ -390,8 +375,6 @@ main_key_route@4:
     return
 
 main_pay_route@3:
-    txn ApplicationID
-    assert // can only call when not creating
     txn GroupIndex
     intc_0 // 1
     -
@@ -418,7 +401,16 @@ main_pay_route@3:
     assert // close_remainder_to
     return
 
-main_create_route@2:
+main_other_routes@14:
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@15
+    err
+
+main_create_route@15:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
     txn ApplicationID
     !
     assert // can only call when creating

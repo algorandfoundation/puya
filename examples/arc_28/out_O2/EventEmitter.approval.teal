@@ -9,14 +9,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x0a9542cd 0x71a3151f // method "emit_swapped(uint64,uint64)void", method "emit_ufixed(ufixed256x16,ufixed64x2)void"
     txna ApplicationArgs 0
     match main_emit_swapped_route@3 main_emit_ufixed_route@4
     err
 
 main_emit_ufixed_route@4:
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     concat
@@ -27,8 +27,6 @@ main_emit_ufixed_route@4:
     return
 
 main_emit_swapped_route@3:
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 2
     txna ApplicationArgs 1
     concat

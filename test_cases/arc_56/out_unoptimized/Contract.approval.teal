@@ -700,13 +700,24 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@13
+    bz approval_program_bare_routing@18
 
 approval_program_abi_routing@2:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    ==
+    bz approval_program_other_routes@13
+
+approval_program_simple_routes@3:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
-    pushbytes 0x4c5c61ba // method "create()void"
     pushbytes 0x97e8e4a7 // method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64"
     pushbytes 0x76c4de11 // method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)"
     pushbytes 0xc1ca7709 // method "emits_error((uint64,string,(byte[],uint8)))void"
@@ -714,41 +725,21 @@ approval_program_abi_routing@2:
     pushbytes 0x59fc5282 // method "conditional_emit(bool)void"
     pushbytes 0x9d9eecb0 // method "template_value()((byte[],uint8),uint64,string,uint8)"
     pushbytes 0x5e8eef9a // method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void"
-    uncover 8
-    match approval_program_create_route@3 approval_program_struct_arg_route@4 approval_program_struct_return_route@5 approval_program_emits_error_route@6 approval_program_emitter_route@7 approval_program_conditional_emit_route@8 approval_program_template_value_route@9 approval_program_with_constant_defaults_route@10
+    uncover 7
+    match approval_program_struct_arg_route@4 approval_program_struct_return_route@5 approval_program_emits_error_route@6 approval_program_emitter_route@7 approval_program_conditional_emit_route@8 approval_program_template_value_route@9 approval_program_with_constant_defaults_route@10
 
 approval_program_switch_case_default@11:
 
 approval_program_switch_case_next@12:
 
-approval_program_after_if_else@18:
+approval_program_after_if_else@17:
+
+approval_program_after_if_else@23:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     err
 
 approval_program_with_constant_defaults_route@10:
-    // arc_56/contract.py:132-144
-    // @arc4.abimethod(
-    //     default_args={
-    //         "a": arc4.UInt64(123),
-    //         "c": Bytes(b"123"),
-    //         "b": UInt64(234),
-    //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
-    //         "e": (UInt64(42), String("on the edge")),
-    //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
-    //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
-    //         "h": constant_method(),
-    //         "i": echo_number(UInt64(1234)),
-    //     }
-    // )
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     callsub with_constant_defaults
@@ -770,16 +761,6 @@ approval_program_with_constant_defaults_route@10:
     return
 
 approval_program_template_value_route@9:
-    // arc_56/contract.py:123
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     callsub template_value
@@ -789,16 +770,6 @@ approval_program_template_value_route@9:
     return
 
 approval_program_conditional_emit_route@8:
-    // arc_56/contract.py:114
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     callsub conditional_emit
@@ -808,16 +779,6 @@ approval_program_conditional_emit_route@8:
     return
 
 approval_program_emitter_route@7:
-    // arc_56/contract.py:104
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     callsub emitter
@@ -827,16 +788,6 @@ approval_program_emitter_route@7:
     return
 
 approval_program_emits_error_route@6:
-    // arc_56/contract.py:100
-    // @arc4.abimethod(name="emits_error", readonly=True)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     callsub errors
@@ -846,16 +797,6 @@ approval_program_emits_error_route@6:
     return
 
 approval_program_struct_return_route@5:
-    // arc_56/contract.py:95
-    // @arc4.abimethod(readonly=True)
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     callsub struct_return
@@ -865,16 +806,6 @@ approval_program_struct_return_route@5:
     return
 
 approval_program_struct_arg_route@4:
-    // arc_56/contract.py:89
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     callsub struct_arg
@@ -883,7 +814,20 @@ approval_program_struct_arg_route@4:
     intc_1 // 1
     return
 
-approval_program_create_route@3:
+approval_program_other_routes@13:
+    // arc_56/contract.py:54
+    // class Contract(ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0x4c5c61ba // method "create()void"
+    swap
+    match approval_program_create_route@14
+
+approval_program_switch_case_default@15:
+
+approval_program_switch_case_next@16:
+    b approval_program_after_if_else@17
+
+approval_program_create_route@14:
     // arc_56/contract.py:81
     // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
     txn OnCompletion
@@ -901,7 +845,7 @@ approval_program_create_route@3:
     intc_1 // 1
     return
 
-approval_program_bare_routing@13:
+approval_program_bare_routing@18:
     // arc_56/contract.py:54
     // class Contract(ARC4Contract):
     txn OnCompletion
@@ -909,14 +853,14 @@ approval_program_bare_routing@13:
     intc_1 // 1
     pushint 5 // 5
     uncover 3
-    match approval_program_bare_create@14 approval_program_bare_create@14 approval_program_transient@15
+    match approval_program_bare_create@19 approval_program_bare_create@19 approval_program_transient@20
 
-approval_program_switch_case_default@16:
+approval_program_switch_case_default@21:
 
-approval_program_switch_case_next@17:
-    b approval_program_after_if_else@18
+approval_program_switch_case_next@22:
+    b approval_program_after_if_else@23
 
-approval_program_transient@15:
+approval_program_transient@20:
     // arc_56/contract.py:85
     // @arc4.baremethod(create="require", allow_actions=["DeleteApplication"])
     txn ApplicationID
@@ -927,7 +871,7 @@ approval_program_transient@15:
     intc_1 // 1
     return
 
-approval_program_bare_create@14:
+approval_program_bare_create@19:
     // arc_56/contract.py:77
     // @arc4.baremethod(create="allow", allow_actions=["NoOp", "OptIn"])
     callsub bare_create

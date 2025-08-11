@@ -22,6 +22,10 @@ main_abi_routing@2:
     intc_0 // NoOp
     ==
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
     pushbytes 0x456eeace // method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])"
     pushbytes 0x6f9f5bf0 // method "test_tuple((uint64,uint512,string,byte[]))void"
@@ -38,12 +42,6 @@ main_after_if_else@11:
     err
 
 main_test_tuple_route@4:
-    // named_tuples/contract.py:31
-    // @arc4.abimethod()
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // named_tuples/contract.py:15
     // class NamedTuplesContract(arc4.ARC4Contract):
     callsub test_tuple
@@ -53,12 +51,6 @@ main_test_tuple_route@4:
     return
 
 main_build_tuple_route@3:
-    // named_tuples/contract.py:16
-    // @arc4.abimethod()
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // named_tuples/contract.py:15
     // class NamedTuplesContract(arc4.ARC4Contract):
     callsub build_tuple

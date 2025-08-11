@@ -544,159 +544,103 @@ subroutine algopy.arc4.ARC4Contract.approval_program() -> bool:
     block@1: // L24
         let tmp%0#1: uint64 = (txn NumAppArgs)
         let tmp%1#0: bool = (!= tmp%0#1 0u)
-        goto tmp%1#0 ? block@2 : block@20
+        goto tmp%1#0 ? block@2 : block@25
     block@2: // abi_routing_L24
-        let tmp%2#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%2#0 {method "noop_with_uint64(uint64)uint8" => block@3, method "opt_in(uint64,byte[])void" => block@4, method "all_the_things(uint64)uint8" => block@5, method "mixed_oca(uint64)uint8" => block@6, method "opt_into_asset(uint64)void" => block@7, method "with_transactions(uint64,uint64,pay,uint64)void" => block@8, method "compare_assets(uint64,uint64)void" => block@9, method "get_address()address" => block@10, method "get_asset()uint64" => block@11, method "get_application()uint64" => block@12, method "get_an_int()uint64" => block@13, method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void" => block@14, method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]" => block@15, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64" => block@16, method "hello_with_algopy_string(string)string" => block@17, * => block@18}
-    block@3: // noop_with_uint64_route_L40
-        let tmp%3#0: uint64 = (txn OnCompletion)
-        let tmp%4#0: bool = (== tmp%3#0 NoOp)
-        (assert tmp%4#0) // OnCompletion is not NoOp
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        let tmp%6#0: bool = (!= tmp%5#0 0u)
-        (assert tmp%6#0) // can only call when not creating
+        let tmp%2#0: uint64 = (txn OnCompletion)
+        let tmp%3#0: bool = (== tmp%2#0 0u)
+        goto tmp%3#0 ? block@3 : block@18
+    block@3: // simple_routes_L24
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        let tmp%5#0: bool = (!= tmp%4#0 0u)
+        (assert tmp%5#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "noop_with_uint64(uint64)uint8" => block@4, method "opt_into_asset(uint64)void" => block@5, method "with_transactions(uint64,uint64,pay,uint64)void" => block@6, method "compare_assets(uint64,uint64)void" => block@7, method "get_address()address" => block@8, method "get_asset()uint64" => block@9, method "get_application()uint64" => block@10, method "get_an_int()uint64" => block@11, method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void" => block@12, method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]" => block@13, method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64" => block@14, method "hello_with_algopy_string(string)string" => block@15, * => block@16}
+    block@4: // noop_with_uint64_route_L40
         test_cases.abi_routing.contract.Reference.noop_with_uint64[routing]()
         exit 1u
-    block@4: // opt_in_route_L45
-        let tmp%7#0: uint64 = (txn OnCompletion)
-        let tmp%8#0: bool = (== tmp%7#0 OptIn)
-        (assert tmp%8#0) // OnCompletion is not OptIn
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        let tmp%10#0: bool = (!= tmp%9#0 0u)
-        (assert tmp%10#0) // can only call when not creating
-        test_cases.abi_routing.contract.Reference.opt_in[routing]()
-        exit 1u
-    block@5: // all_the_things_route_L50
-        test_cases.abi_routing.contract.Reference.full_abi_config[routing]()
-        exit 1u
-    block@6: // mixed_oca_route_L66
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        let tmp%12#0: uint64 = (shl 1u tmp%11#0)
-        let tmp%13#0: uint64 = (& tmp%12#0 37u)
-        (assert tmp%13#0) // OnCompletion is not one of NoOp, CloseOut, DeleteApplication
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        let tmp%15#0: bool = (!= tmp%14#0 0u)
-        (assert tmp%15#0) // can only call when not creating
-        test_cases.abi_routing.contract.Reference.mixed_oca[routing]()
-        exit 1u
-    block@7: // opt_into_asset_route_L92
-        let tmp%16#0: uint64 = (txn OnCompletion)
-        let tmp%17#0: bool = (== tmp%16#0 NoOp)
-        (assert tmp%17#0) // OnCompletion is not NoOp
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        let tmp%19#0: bool = (!= tmp%18#0 0u)
-        (assert tmp%19#0) // can only call when not creating
+    block@5: // opt_into_asset_route_L92
         test_cases.abi_routing.contract.Reference.opt_into_asset[routing]()
         exit 1u
-    block@8: // with_transactions_route_L109
-        let tmp%20#0: uint64 = (txn OnCompletion)
-        let tmp%21#0: bool = (== tmp%20#0 NoOp)
-        (assert tmp%21#0) // OnCompletion is not NoOp
-        let tmp%22#0: uint64 = (txn ApplicationID)
-        let tmp%23#0: bool = (!= tmp%22#0 0u)
-        (assert tmp%23#0) // can only call when not creating
+    block@6: // with_transactions_route_L109
         test_cases.abi_routing.contract.Reference.with_transactions[routing]()
         exit 1u
-    block@9: // compare_assets_route_L122
-        let tmp%24#0: uint64 = (txn OnCompletion)
-        let tmp%25#0: bool = (== tmp%24#0 NoOp)
-        (assert tmp%25#0) // OnCompletion is not NoOp
-        let tmp%26#0: uint64 = (txn ApplicationID)
-        let tmp%27#0: bool = (!= tmp%26#0 0u)
-        (assert tmp%27#0) // can only call when not creating
+    block@7: // compare_assets_route_L122
         test_cases.abi_routing.contract.Reference.compare_assets[routing]()
         exit 1u
-    block@10: // get_address_route_L126
-        let tmp%28#0: uint64 = (txn OnCompletion)
-        let tmp%29#0: bool = (== tmp%28#0 NoOp)
-        (assert tmp%29#0) // OnCompletion is not NoOp
-        let tmp%30#0: uint64 = (txn ApplicationID)
-        let tmp%31#0: bool = (!= tmp%30#0 0u)
-        (assert tmp%31#0) // can only call when not creating
+    block@8: // get_address_route_L126
         test_cases.abi_routing.contract.Reference.get_address[routing]()
         exit 1u
-    block@11: // get_asset_route_L130
-        let tmp%32#0: uint64 = (txn OnCompletion)
-        let tmp%33#0: bool = (== tmp%32#0 NoOp)
-        (assert tmp%33#0) // OnCompletion is not NoOp
-        let tmp%34#0: uint64 = (txn ApplicationID)
-        let tmp%35#0: bool = (!= tmp%34#0 0u)
-        (assert tmp%35#0) // can only call when not creating
+    block@9: // get_asset_route_L130
         test_cases.abi_routing.contract.Reference.get_asset[routing]()
         exit 1u
-    block@12: // get_application_route_L134
-        let tmp%36#0: uint64 = (txn OnCompletion)
-        let tmp%37#0: bool = (== tmp%36#0 NoOp)
-        (assert tmp%37#0) // OnCompletion is not NoOp
-        let tmp%38#0: uint64 = (txn ApplicationID)
-        let tmp%39#0: bool = (!= tmp%38#0 0u)
-        (assert tmp%39#0) // can only call when not creating
+    block@10: // get_application_route_L134
         test_cases.abi_routing.contract.Reference.get_app[routing]()
         exit 1u
-    block@13: // get_an_int_route_L138
-        let tmp%40#0: uint64 = (txn OnCompletion)
-        let tmp%41#0: bool = (== tmp%40#0 NoOp)
-        (assert tmp%41#0) // OnCompletion is not NoOp
-        let tmp%42#0: uint64 = (txn ApplicationID)
-        let tmp%43#0: bool = (!= tmp%42#0 0u)
-        (assert tmp%43#0) // can only call when not creating
+    block@11: // get_an_int_route_L138
         test_cases.abi_routing.contract.Reference.get_a_int[routing]()
         exit 1u
-    block@14: // method_with_default_args_route_L142
-        let tmp%44#0: uint64 = (txn OnCompletion)
-        let tmp%45#0: bool = (== tmp%44#0 NoOp)
-        (assert tmp%45#0) // OnCompletion is not NoOp
-        let tmp%46#0: uint64 = (txn ApplicationID)
-        let tmp%47#0: bool = (!= tmp%46#0 0u)
-        (assert tmp%47#0) // can only call when not creating
+    block@12: // method_with_default_args_route_L142
         test_cases.abi_routing.contract.Reference.method_with_default_args[routing]()
         exit 1u
-    block@15: // method_with_15_args_route_L191
-        let tmp%48#0: uint64 = (txn OnCompletion)
-        let tmp%49#0: bool = (== tmp%48#0 NoOp)
-        (assert tmp%49#0) // OnCompletion is not NoOp
-        let tmp%50#0: uint64 = (txn ApplicationID)
-        let tmp%51#0: bool = (!= tmp%50#0 0u)
-        (assert tmp%51#0) // can only call when not creating
+    block@13: // method_with_15_args_route_L191
         test_cases.abi_routing.contract.Reference.method_with_15_args[routing]()
         exit 1u
-    block@16: // method_with_more_than_15_args_route_L229
-        let tmp%52#0: uint64 = (txn OnCompletion)
-        let tmp%53#0: bool = (== tmp%52#0 NoOp)
-        (assert tmp%53#0) // OnCompletion is not NoOp
-        let tmp%54#0: uint64 = (txn ApplicationID)
-        let tmp%55#0: bool = (!= tmp%54#0 0u)
-        (assert tmp%55#0) // can only call when not creating
+    block@14: // method_with_more_than_15_args_route_L229
         test_cases.abi_routing.contract.Reference.method_with_more_than_15_args[routing]()
         exit 1u
-    block@17: // hello_with_algopy_string_route_L295
-        let tmp%56#0: uint64 = (txn OnCompletion)
-        let tmp%57#0: bool = (== tmp%56#0 NoOp)
-        (assert tmp%57#0) // OnCompletion is not NoOp
-        let tmp%58#0: uint64 = (txn ApplicationID)
-        let tmp%59#0: bool = (!= tmp%58#0 0u)
-        (assert tmp%59#0) // can only call when not creating
+    block@15: // hello_with_algopy_string_route_L295
         test_cases.abi_routing.contract.Reference.hello_with_algopy_string[routing]()
         exit 1u
-    block@18: // switch_case_default_L24
-        goto block@19
-    block@19: // switch_case_next_L24
+    block@16: // switch_case_default_L24
+        goto block@17
+    block@17: // switch_case_next_L24
         goto block@24
-    block@20: // bare_routing_L24
-        let tmp%60#0: uint64 = (txn OnCompletion)
-        switch tmp%60#0 {0u => block@21, 1u => block@21, 2u => block@21, 4u => block@21, 5u => block@21, * => block@22}
-    block@21: // bare_abi_config_L79
-        let tmp%61#0: uint64 = (txn ApplicationID)
-        let tmp%62#0: bool = (== tmp%61#0 0u)
-        (assert tmp%62#0) // can only call when creating
-        test_cases.abi_routing.contract.Reference.bare_abi_config()
+    block@18: // other_routes_L24
+        let tmp%7#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%7#0 {method "opt_in(uint64,byte[])void" => block@19, method "all_the_things(uint64)uint8" => block@20, method "mixed_oca(uint64)uint8" => block@21, * => block@22}
+    block@19: // opt_in_route_L45
+        let tmp%8#0: uint64 = (txn OnCompletion)
+        let tmp%9#0: bool = (== tmp%8#0 OptIn)
+        (assert tmp%9#0) // OnCompletion is not OptIn
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (!= tmp%10#0 0u)
+        (assert tmp%11#0) // can only call when not creating
+        test_cases.abi_routing.contract.Reference.opt_in[routing]()
+        exit 1u
+    block@20: // all_the_things_route_L50
+        test_cases.abi_routing.contract.Reference.full_abi_config[routing]()
+        exit 1u
+    block@21: // mixed_oca_route_L66
+        let tmp%12#0: uint64 = (txn OnCompletion)
+        let tmp%13#0: uint64 = (shl 1u tmp%12#0)
+        let tmp%14#0: uint64 = (& tmp%13#0 37u)
+        (assert tmp%14#0) // OnCompletion is not one of NoOp, CloseOut, DeleteApplication
+        let tmp%15#0: uint64 = (txn ApplicationID)
+        let tmp%16#0: bool = (!= tmp%15#0 0u)
+        (assert tmp%16#0) // can only call when not creating
+        test_cases.abi_routing.contract.Reference.mixed_oca[routing]()
         exit 1u
     block@22: // switch_case_default_L24
         goto block@23
     block@23: // switch_case_next_L24
         goto block@24
     block@24: // after_if_else_L24
+        goto block@29
+    block@25: // bare_routing_L24
+        let tmp%17#0: uint64 = (txn OnCompletion)
+        switch tmp%17#0 {0u => block@26, 1u => block@26, 2u => block@26, 4u => block@26, 5u => block@26, * => block@27}
+    block@26: // bare_abi_config_L79
+        let tmp%18#0: uint64 = (txn ApplicationID)
+        let tmp%19#0: bool = (== tmp%18#0 0u)
+        (assert tmp%19#0) // can only call when creating
+        test_cases.abi_routing.contract.Reference.bare_abi_config()
+        exit 1u
+    block@27: // switch_case_default_L24
+        goto block@28
+    block@28: // switch_case_next_L24
+        goto block@29
+    block@29: // after_if_else_L24
         exit 0u
-    block@25: // after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router___L1
+    block@30: // after_inlined_test_cases.abi_routing.contract.Reference.__puya_arc4_router___L1
         let tmp%0#0: bool = undefined
         return tmp%0#0

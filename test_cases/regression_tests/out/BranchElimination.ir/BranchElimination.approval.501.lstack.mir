@@ -20,19 +20,17 @@ subroutine main:
         !                                                     tmp%3#0
         l-load tmp%3#0 0                                      tmp%3#0
         assert // OnCompletion is not NoOp
-        txna ApplicationArgs 0                                tmp%4#0
-        method umm()uint64                                    tmp%4#0,Method(umm()uint64)
-        method umm2()void                                     tmp%4#0,Method(umm()uint64),Method(umm2()void)
-        method calculate(uint64[][],uint64)void               tmp%4#0,Method(umm()uint64),Method(umm2()void),Method(calculate(uint64[][],uint64)void)
-        l-load tmp%4#0 3                                      Method(umm()uint64),Method(umm2()void),Method(calculate(uint64[][],uint64)void),tmp%4#0
+        txn ApplicationID                                     tmp%4#0
+        l-load tmp%4#0 0                                      tmp%4#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0                                tmp%6#0
+        method umm()uint64                                    tmp%6#0,Method(umm()uint64)
+        method umm2()void                                     tmp%6#0,Method(umm()uint64),Method(umm2()void)
+        method calculate(uint64[][],uint64)void               tmp%6#0,Method(umm()uint64),Method(umm2()void),Method(calculate(uint64[][],uint64)void)
+        l-load tmp%6#0 3                                      Method(umm()uint64),Method(umm2()void),Method(calculate(uint64[][],uint64)void),tmp%6#0
         match main_umm_route@3 main_umm2_route@4 main_calculate_route@5 ; b main_after_if_else@12 
 
     main_umm_route@3:
-        // regression_tests/leftover_branch.py:5
-        // @arc4.abimethod
-        txn ApplicationID                                     tmp%5#0
-        l-load tmp%5#0 0                                      tmp%5#0
-        assert // can only call when not creating
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
         callsub umm
@@ -42,11 +40,6 @@ subroutine main:
         return
 
     main_umm2_route@4:
-        // regression_tests/leftover_branch.py:18
-        // @arc4.abimethod
-        txn ApplicationID                                     tmp%7#0
-        l-load tmp%7#0 0                                      tmp%7#0
-        assert // can only call when not creating
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
         callsub umm2
@@ -56,11 +49,6 @@ subroutine main:
         return
 
     main_calculate_route@5:
-        // regression_tests/leftover_branch.py:29
-        // @arc4.abimethod
-        txn ApplicationID                                     tmp%9#0
-        l-load tmp%9#0 0                                      tmp%9#0
-        assert // can only call when not creating
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
         callsub calculate
@@ -72,15 +60,15 @@ subroutine main:
     main_bare_routing@8:
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
-        txn OnCompletion                                      tmp%11#0
-        l-load tmp%11#0 0                                     tmp%11#0
-        !                                                     not%tmp%11#0
-        l-load not%tmp%11#0 0                                 not%tmp%11#0
+        txn OnCompletion                                      tmp%7#0
+        l-load tmp%7#0 0                                      tmp%7#0
+        !                                                     not%tmp%7#0
+        l-load not%tmp%7#0 0                                  not%tmp%7#0
         assert
-        txn ApplicationID                                     tmp%12#0
-        l-load tmp%12#0 0                                     tmp%12#0
-        !                                                     tmp%13#0
-        l-load tmp%13#0 0                                     tmp%13#0
+        txn ApplicationID                                     tmp%8#0
+        l-load tmp%8#0 0                                      tmp%8#0
+        !                                                     tmp%9#0
+        l-load tmp%9#0 0                                      tmp%9#0
         assert // can only call when creating
         v-load lifted%return#0                                lifted%return#0
         return

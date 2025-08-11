@@ -11,20 +11,18 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x1ecad34c 0x90d29762 // method "distribute(address[],pay,uint64)void", method "conditionalBegin(uint64)void"
     txna ApplicationArgs 0
     match main_distribute_route@3 main_conditionalBegin_route@4
     err
 
 main_conditionalBegin_route@4:
-    txn ApplicationID
-    assert // can only call when not creating
     callsub conditionalBegin
     return
 
 main_distribute_route@3:
-    txn ApplicationID
-    assert // can only call when not creating
     callsub distribute
     return
 
@@ -146,7 +144,7 @@ conditionalBegin:
     itxn_field GlobalNumByteSlice
     pushbytes base64(CoEBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CiYBCGdyZWV0aW5ngQExGEAABCiAAGeCBAQAkiWuBCQ3jTwEoOgYcgTQooIANhoAjgQAIAAWAAwAAQAxGRREMRhEiAArQzEZgQQSRDEYREMxGYEFEkQxGERDMRkURDEYFESIAAFDNhoBVwIAKExniTYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCJ)
+    pushbytes base64(CiYBCGdyZWV0aW5ngQExGEAABCiAAGcxGUAAFTEYRIAE0KKCADYaAI4BAAEAiABIQ4IDBACSJa4EJDeNPASg6BhyNhoAjgMAFQALAAEAMRmBBBJEMRhEQzEZgQUSRDEYREMxGRREMRgURIgAAUM2GgFXAgAoTGeJNhoBVwIAgQAoZUSAASBQTFBJFRZXBgJMUIAEFR98dUxQsIk=)
     itxn_field ApprovalProgramPages
     intc_0 // 0
     itxn_field OnCompletion

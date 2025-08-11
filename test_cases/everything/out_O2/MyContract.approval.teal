@@ -7,35 +7,16 @@ main:
     bytecblock "counter" base32(VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJPQ) "name" 0x151f7c75
     intc_0 // 0
     intc_1 // 1
-    pushbytess 0x4c5c61ba 0xbd6099e5 0x5d5c84c7 0xfd07264e 0x1658aa2f // method "create()void", method "register(string)void", method "say_hello()string", method "calculate(uint64,uint64)uint64", method "close_out()void"
+    txn OnCompletion
+    bnz main_other_routes@7
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytess 0x5d5c84c7 0xfd07264e // method "say_hello()string", method "calculate(uint64,uint64)uint64"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_create_route@4 main_register_route@5 main_say_hello_route@6 main_calculate_route@7 main_close_out_route@8
+    match main_say_hello_route@5 main_calculate_route@6
     err
 
-main_close_out_route@8:
-    txn OnCompletion
-    pushint 2 // CloseOut
-    ==
-    assert // OnCompletion is not CloseOut
-    txn ApplicationID
-    assert // can only call when not creating
-    intc_0 // 0
-    bytec_0 // "counter"
-    app_global_get_ex
-    assert // check self.counter exists
-    intc_1 // 1
-    -
-    bytec_0 // "counter"
-    swap
-    app_global_put
-    return
-
-main_calculate_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_calculate_route@6:
     txna ApplicationArgs 2
     txna ApplicationArgs 1
     btoi
@@ -52,12 +33,7 @@ main_calculate_route@7:
     log
     return
 
-main_say_hello_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_say_hello_route@5:
     txn Sender
     bytec_1 // addr VCMJKWOY5P5P7SKMZFFOCEROPJCZOTIJMNIYNUCKH7LRO45JMJP6UYBIJA
     !=
@@ -68,17 +44,17 @@ main_say_hello_route@6:
     app_local_get_ex
     swap
     bury 3
-    bnz main_after_if_else@16
+    bnz main_after_if_else@25
     pushbytes 0x000f486f77647920737472616e67657221
 
-main_after_inlined_test_cases.everything.contract.Everything.say_hello@17:
+main_after_inlined_test_cases.everything.contract.Everything.say_hello@26:
     bytec_3 // 0x151f7c75
     swap
     concat
     log
     return
 
-main_after_if_else@16:
+main_after_if_else@25:
     dig 1
     extract 2 0
     pushbytes 0x000748656c6c6f2c20
@@ -98,9 +74,33 @@ main_after_if_else@16:
     itob
     extract 6 2
     replace2 0
-    b main_after_inlined_test_cases.everything.contract.Everything.say_hello@17
+    b main_after_inlined_test_cases.everything.contract.Everything.say_hello@26
 
-main_register_route@5:
+main_other_routes@7:
+    pushbytess 0x4c5c61ba 0xbd6099e5 0x1658aa2f // method "create()void", method "register(string)void", method "close_out()void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@8 main_register_route@9 main_close_out_route@10
+    err
+
+main_close_out_route@10:
+    txn OnCompletion
+    pushint 2 // CloseOut
+    ==
+    assert // OnCompletion is not CloseOut
+    txn ApplicationID
+    assert // can only call when not creating
+    intc_0 // 0
+    bytec_0 // "counter"
+    app_global_get_ex
+    assert // check self.counter exists
+    intc_1 // 1
+    -
+    bytec_0 // "counter"
+    swap
+    app_global_put
+    return
+
+main_register_route@9:
     intc_1 // 1
     txn OnCompletion
     shl
@@ -118,13 +118,13 @@ main_register_route@5:
     txn OnCompletion
     intc_1 // OptIn
     ==
-    bz main_after_if_else@21
+    bz main_after_if_else@17
     intc_0 // 0
     dup
     bytec_2 // "name"
     app_local_get_ex
     bury 1
-    bnz main_after_if_else@21
+    bnz main_after_if_else@17
     intc_0 // 0
     bytec_0 // "counter"
     app_global_get_ex
@@ -135,14 +135,14 @@ main_register_route@5:
     swap
     app_global_put
 
-main_after_if_else@21:
+main_after_if_else@17:
     intc_0 // 0
     bytec_2 // "name"
     dig 3
     app_local_put
     return
 
-main_create_route@4:
+main_create_route@8:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp

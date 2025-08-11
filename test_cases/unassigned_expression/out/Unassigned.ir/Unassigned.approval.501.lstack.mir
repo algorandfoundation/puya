@@ -20,52 +20,46 @@ subroutine main:
         !                                             tmp%3#0
         l-load tmp%3#0 0                              tmp%3#0
         assert // OnCompletion is not NoOp
-        txna ApplicationArgs 0                        tmp%4#0
-        method discard_op()void                       tmp%4#0,Method(discard_op()void)
-        method discard_subroutine()void               tmp%4#0,Method(discard_op()void),Method(discard_subroutine()void)
-        method discard_constants()void                tmp%4#0,Method(discard_op()void),Method(discard_subroutine()void),Method(discard_constants()void)
-        l-load tmp%4#0 3                              Method(discard_op()void),Method(discard_subroutine()void),Method(discard_constants()void),tmp%4#0
+        txn ApplicationID                             tmp%4#0
+        l-load tmp%4#0 0                              tmp%4#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0                        tmp%6#0
+        method discard_op()void                       tmp%6#0,Method(discard_op()void)
+        method discard_subroutine()void               tmp%6#0,Method(discard_op()void),Method(discard_subroutine()void)
+        method discard_constants()void                tmp%6#0,Method(discard_op()void),Method(discard_subroutine()void),Method(discard_constants()void)
+        l-load tmp%6#0 3                              Method(discard_op()void),Method(discard_subroutine()void),Method(discard_constants()void),tmp%6#0
         match main_discard_op_route@3 main_discard_subroutine_route@4 main_discard_constants_route@5 ; b main_after_if_else@12 
 
     main_discard_op_route@3:
         // unassigned_expression/contract.py:5
         // @arc4.abimethod()
-        txn ApplicationID                             tmp%5#0
-        l-load tmp%5#0 0                              tmp%5#0
-        assert // can only call when not creating
         v-load lifted%return#0                        lifted%return#0
         return
 
     main_discard_subroutine_route@4:
         // unassigned_expression/contract.py:9
         // @arc4.abimethod()
-        txn ApplicationID                             tmp%7#0
-        l-load tmp%7#0 0                              tmp%7#0
-        assert // can only call when not creating
         v-load lifted%return#0                        lifted%return#0
         return
 
     main_discard_constants_route@5:
         // unassigned_expression/contract.py:13
         // @arc4.abimethod()
-        txn ApplicationID                             tmp%9#0
-        l-load tmp%9#0 0                              tmp%9#0
-        assert // can only call when not creating
         v-load lifted%return#0                        lifted%return#0
         return
 
     main_bare_routing@8:
         // unassigned_expression/contract.py:4
         // class Unassigned(ARC4Contract):
-        txn OnCompletion                              tmp%11#0
-        l-load tmp%11#0 0                             tmp%11#0
-        !                                             not%tmp%11#0
-        l-load not%tmp%11#0 0                         not%tmp%11#0
+        txn OnCompletion                              tmp%7#0
+        l-load tmp%7#0 0                              tmp%7#0
+        !                                             not%tmp%7#0
+        l-load not%tmp%7#0 0                          not%tmp%7#0
         assert
-        txn ApplicationID                             tmp%12#0
-        l-load tmp%12#0 0                             tmp%12#0
-        !                                             tmp%13#0
-        l-load tmp%13#0 0                             tmp%13#0
+        txn ApplicationID                             tmp%8#0
+        l-load tmp%8#0 0                              tmp%8#0
+        !                                             tmp%9#0
+        l-load tmp%9#0 0                              tmp%9#0
         assert // can only call when creating
         v-load lifted%return#0                        lifted%return#0
         return

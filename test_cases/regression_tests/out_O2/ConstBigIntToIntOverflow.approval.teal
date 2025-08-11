@@ -11,14 +11,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x58db7ce9 0xc95c01ca // method "get_abs_bound1(uint64)uint64", method "get_abs_bound2()uint64"
     txna ApplicationArgs 0
     match main_get_abs_bound1_route@3 main_get_abs_bound2_route@4
     err
 
 main_get_abs_bound2_route@4:
-    txn ApplicationID
-    assert // can only call when not creating
     bytec_0 // 0x010000000000000000
     btoi
     itob
@@ -29,8 +29,6 @@ main_get_abs_bound2_route@4:
     return
 
 main_get_abs_bound1_route@3:
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
     pushint 0 // 0

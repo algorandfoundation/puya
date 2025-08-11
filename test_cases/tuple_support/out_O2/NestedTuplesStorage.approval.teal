@@ -30,18 +30,17 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@10
-    pushbytess 0xbec76d87 0xacc253ae 0xe844940c 0x6222ef1a 0x1b269b50 // method "bootstrap()void", method "mutate_tuple(uint64)void", method "mutate_box(uint64)void", method "mutate_global(uint64)void", method "mutate_local(uint64)void"
+    bz main_bare_routing@12
+    txn OnCompletion
+    bnz main_other_routes@10
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytess 0xacc253ae 0xe844940c 0x6222ef1a 0x1b269b50 // method "mutate_tuple(uint64)void", method "mutate_box(uint64)void", method "mutate_global(uint64)void", method "mutate_local(uint64)void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@5 main_mutate_tuple_route@6 main_mutate_box_route@7 main_mutate_global_route@8 main_mutate_local_route@9
+    match main_mutate_tuple_route@6 main_mutate_box_route@7 main_mutate_global_route@8 main_mutate_local_route@9
     err
 
 main_mutate_local_route@9:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 1
     txn Sender
     dup
@@ -81,11 +80,6 @@ main_mutate_local_route@9:
     return
 
 main_mutate_global_route@8:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 1
     intc_0 // 0
     bytec_3 // "glob"
@@ -123,11 +117,6 @@ main_mutate_global_route@8:
     return
 
 main_mutate_box_route@7:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 1
     bytec_2 // "box"
     box_get
@@ -167,11 +156,6 @@ main_mutate_box_route@7:
     return
 
 main_mutate_tuple_route@6:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     txna ApplicationArgs 1
     intc_0 // 0
     bytec_0 // "tup"
@@ -208,7 +192,13 @@ main_mutate_tuple_route@6:
     app_global_put
     return
 
-main_bootstrap_route@5:
+main_other_routes@10:
+    pushbytes 0xbec76d87 // method "bootstrap()void"
+    txna ApplicationArgs 0
+    match main_bootstrap_route@11
+    err
+
+main_bootstrap_route@11:
     txn OnCompletion
     intc_1 // OptIn
     ==
@@ -237,7 +227,7 @@ main_bootstrap_route@5:
     app_local_put
     return
 
-main_bare_routing@10:
+main_bare_routing@12:
     txn OnCompletion
     !
     assert

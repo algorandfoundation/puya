@@ -14,16 +14,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytes 0x6ac4a557 // method "test_array_rebinding()void"
     txna ApplicationArgs 0
     match main_test_array_rebinding_route@3
     err
 
 main_test_array_rebinding_route@3:
-    // arc4_types/mutable_params2.py:5
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // arc4_types/mutable_params2.py:4
     // class MutableParams2(arc4.ARC4Contract):
     callsub test_array_rebinding

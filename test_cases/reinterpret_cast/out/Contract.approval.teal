@@ -13,16 +13,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x4034b731 0x7e9fd4cf // method "bytes_to_bool()bool", method "test_bytes_to_biguint()void"
     txna ApplicationArgs 0
     match main_bytes_to_bool_route@3 main_test_bytes_to_biguint_route@4
     err
 
 main_test_bytes_to_biguint_route@4:
-    // reinterpret_cast/contract.py:9
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // reinterpret_cast/contract.py:11
     // assert bytes_to_biguint()
     pushint 0 // 0
@@ -34,8 +32,6 @@ main_test_bytes_to_biguint_route@4:
 main_bytes_to_bool_route@3:
     // reinterpret_cast/contract.py:5
     // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     pushbytes 0x151f7c7500
     log
     return

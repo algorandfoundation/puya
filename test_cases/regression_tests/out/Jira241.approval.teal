@@ -13,6 +13,8 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x1e3e4374 0xd7a938c9 // method "oh_no(bool)void", method "oh_yes(bool)void"
     txna ApplicationArgs 0
     match main_oh_no_route@3 main_oh_yes_route@4
@@ -21,15 +23,11 @@ main:
 main_oh_yes_route@4:
     // regression_tests/jira_241.py:9
     // @arc4.abimethod(default_args={"wrong_size": True})
-    txn ApplicationID
-    assert // can only call when not creating
     return
 
 main_oh_no_route@3:
     // regression_tests/jira_241.py:5
     // @arc4.abimethod(default_args={"wrong_size": False})
-    txn ApplicationID
-    assert // can only call when not creating
     return
 
 main_bare_routing@7:

@@ -3,7 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0 1 8
+    intcblock 1 0 8
     bytecblock 0x151f7c75 0x48656c6c6f20576f726c64
 
 main_block@0:
@@ -12,7 +12,7 @@ main_block@1:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn NumAppArgs
-    intc_0 // 0
+    intc_1 // 0
     !=
     bz main_bare_routing@10
 
@@ -20,9 +20,13 @@ main_abi_routing@2:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn OnCompletion
-    intc_0 // NoOp
+    intc_1 // NoOp
     ==
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_1 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
     pushbytes 0x86db3e46 // method "sha256()byte[]"
     pushbytes 0x5468f98b // method "sha3_256()byte[]"
@@ -42,85 +46,55 @@ main_after_if_else@14:
     err
 
 main_all_route@7:
-    // intrinsics/optimizations.py:21
-    // @arc4.abimethod()
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     callsub all
     // intrinsics/optimizations.py:21
     // @arc4.abimethod()
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_keccak256_route@6:
-    // intrinsics/optimizations.py:17
-    // @arc4.abimethod()
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     callsub keccak256
     // intrinsics/optimizations.py:17
     // @arc4.abimethod()
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_sha512_256_route@5:
-    // intrinsics/optimizations.py:13
-    // @arc4.abimethod()
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     callsub sha512_256
     // intrinsics/optimizations.py:13
     // @arc4.abimethod()
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_sha3_256_route@4:
-    // intrinsics/optimizations.py:9
-    // @arc4.abimethod()
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     callsub sha3_256
     // intrinsics/optimizations.py:9
     // @arc4.abimethod()
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_sha256_route@3:
-    // intrinsics/optimizations.py:5
-    // @arc4.abimethod()
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     callsub sha256
     // intrinsics/optimizations.py:5
     // @arc4.abimethod()
-    intc_1 // 1
+    intc_0 // 1
     return
 
 main_bare_routing@10:
     // intrinsics/optimizations.py:4
     // class Optimizations(arc4.ARC4Contract):
     txn OnCompletion
-    intc_0 // 0
+    intc_1 // 0
     swap
     match main___algopy_default_create@11
 
@@ -131,14 +105,14 @@ main_switch_case_next@13:
 
 main___algopy_default_create@11:
     txn ApplicationID
-    intc_0 // 0
+    intc_1 // 0
     ==
     assert // can only call when creating
 
 main_block@16:
 
 main_after_inlined_test_cases.intrinsics.optimizations.Optimizations.__algopy_default_create@17:
-    intc_1 // 1
+    intc_0 // 1
     return
 
 

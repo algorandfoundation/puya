@@ -24,16 +24,14 @@ main_after_if_else@2:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x786b6291 0x33fb5d48 // method "bootstrap()uint64", method "log_greetings(string)void"
     txna ApplicationArgs 0
     match main_bootstrap_route@5 main_log_greetings_route@6
     err
 
 main_log_greetings_route@6:
-    // inner_transactions/c2c.py:23
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     callsub log_greetings
@@ -42,10 +40,6 @@ main_log_greetings_route@6:
     return
 
 main_bootstrap_route@5:
-    // inner_transactions/c2c.py:10
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // inner_transactions/c2c.py:6
     // class Greeter(ARC4Contract):
     callsub bootstrap

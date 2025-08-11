@@ -5,13 +5,28 @@
 main:
     pushint 1 // 1
     txn NumAppArgs
-    bz main_bare_routing@7
-    pushbytess 0xf5e4fd4d 0x24378d3c // method "get_big_bytes_length()uint64", method "delete()void"
+    bz main_bare_routing@12
+    txn OnCompletion
+    bnz main_other_routes@7
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0xf5e4fd4d // method "get_big_bytes_length()uint64"
     txna ApplicationArgs 0
-    match main_get_big_bytes_length_route@3 main_delete_route@4
+    match main_get_big_bytes_length_route@4
     err
 
-main_delete_route@4:
+main_get_big_bytes_length_route@4:
+    pushbytes 0x151f7c750000000000001000
+    log
+    return
+
+main_other_routes@7:
+    pushbytes 0x24378d3c // method "delete()void"
+    txna ApplicationArgs 0
+    match main_delete_route@8
+    err
+
+main_delete_route@8:
     txn OnCompletion
     pushint 5 // DeleteApplication
     ==
@@ -20,17 +35,7 @@ main_delete_route@4:
     assert // can only call when not creating
     return
 
-main_get_big_bytes_length_route@3:
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    pushbytes 0x151f7c750000000000001000
-    log
-    return
-
-main_bare_routing@7:
+main_bare_routing@12:
     txn OnCompletion
     !
     assert

@@ -15,6 +15,8 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytess 0x2fcaddf6 0x37f64cf3 // method "get_bytes()byte[]", method "get_big_uint()uint512"
     txna ApplicationArgs 0
     match main_get_bytes_route@3 main_get_big_uint_route@4
@@ -25,10 +27,6 @@ main_after_if_else@13:
     err
 
 main_get_big_uint_route@4:
-    // template_variables/contract.py:10
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     callsub get_big_uint
@@ -37,10 +35,6 @@ main_get_big_uint_route@4:
     return
 
 main_get_bytes_route@3:
-    // template_variables/contract.py:6
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // template_variables/contract.py:5
     // class TemplateVariablesContract(arc4.ARC4Contract):
     callsub get_bytes

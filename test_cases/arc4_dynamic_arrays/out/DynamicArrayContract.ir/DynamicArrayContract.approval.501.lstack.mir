@@ -20,22 +20,20 @@ subroutine main:
         !                                                                           tmp%3#0
         l-load tmp%3#0 0                                                            tmp%3#0
         assert // OnCompletion is not NoOp
-        txna ApplicationArgs 0                                                      tmp%4#0
-        method test_static_elements()void                                           tmp%4#0,Method(test_static_elements()void)
-        method test_dynamic_elements()void                                          tmp%4#0,Method(test_static_elements()void),Method(test_dynamic_elements()void)
-        method test_mixed_single_dynamic_elements()void                             tmp%4#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void)
-        method test_mixed_multiple_dynamic_elements()void                           tmp%4#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void)
-        method test_nested_struct_replacement()void                                 tmp%4#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void),Method(test_nested_struct_replacement()void)
-        method test_nested_tuple_modification()void                                 tmp%4#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void),Method(test_nested_struct_replacement()void),Method(test_nested_tuple_modification()void)
-        l-load tmp%4#0 6                                                            Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void),Method(test_nested_struct_replacement()void),Method(test_nested_tuple_modification()void),tmp%4#0
+        txn ApplicationID                                                           tmp%4#0
+        l-load tmp%4#0 0                                                            tmp%4#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0                                                      tmp%6#0
+        method test_static_elements()void                                           tmp%6#0,Method(test_static_elements()void)
+        method test_dynamic_elements()void                                          tmp%6#0,Method(test_static_elements()void),Method(test_dynamic_elements()void)
+        method test_mixed_single_dynamic_elements()void                             tmp%6#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void)
+        method test_mixed_multiple_dynamic_elements()void                           tmp%6#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void)
+        method test_nested_struct_replacement()void                                 tmp%6#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void),Method(test_nested_struct_replacement()void)
+        method test_nested_tuple_modification()void                                 tmp%6#0,Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void),Method(test_nested_struct_replacement()void),Method(test_nested_tuple_modification()void)
+        l-load tmp%6#0 6                                                            Method(test_static_elements()void),Method(test_dynamic_elements()void),Method(test_mixed_single_dynamic_elements()void),Method(test_mixed_multiple_dynamic_elements()void),Method(test_nested_struct_replacement()void),Method(test_nested_tuple_modification()void),tmp%6#0
         match main_test_static_elements_route@3 main_test_dynamic_elements_route@4 main_test_mixed_single_dynamic_elements_route@5 main_test_mixed_multiple_dynamic_elements_route@6 main_test_nested_struct_replacement_route@7 main_test_nested_tuple_modification_route@8 ; b main_after_if_else@15 
 
     main_test_static_elements_route@3:
-        // arc4_dynamic_arrays/contract.py:39
-        // @arc4.abimethod()
-        txn ApplicationID                                                           tmp%5#0
-        l-load tmp%5#0 0                                                            tmp%5#0
-        assert // can only call when not creating
         // arc4_dynamic_arrays/contract.py:38
         // class DynamicArrayContract(ARC4Contract):
         callsub test_static_elements
@@ -45,11 +43,6 @@ subroutine main:
         return
 
     main_test_dynamic_elements_route@4:
-        // arc4_dynamic_arrays/contract.py:55
-        // @arc4.abimethod()
-        txn ApplicationID                                                           tmp%7#0
-        l-load tmp%7#0 0                                                            tmp%7#0
-        assert // can only call when not creating
         // arc4_dynamic_arrays/contract.py:38
         // class DynamicArrayContract(ARC4Contract):
         callsub test_dynamic_elements
@@ -59,11 +52,6 @@ subroutine main:
         return
 
     main_test_mixed_single_dynamic_elements_route@5:
-        // arc4_dynamic_arrays/contract.py:74
-        // @arc4.abimethod()
-        txn ApplicationID                                                           tmp%9#0
-        l-load tmp%9#0 0                                                            tmp%9#0
-        assert // can only call when not creating
         // arc4_dynamic_arrays/contract.py:38
         // class DynamicArrayContract(ARC4Contract):
         callsub test_mixed_single_dynamic_elements
@@ -73,11 +61,6 @@ subroutine main:
         return
 
     main_test_mixed_multiple_dynamic_elements_route@6:
-        // arc4_dynamic_arrays/contract.py:97
-        // @arc4.abimethod()
-        txn ApplicationID                                                           tmp%11#0
-        l-load tmp%11#0 0                                                           tmp%11#0
-        assert // can only call when not creating
         // arc4_dynamic_arrays/contract.py:38
         // class DynamicArrayContract(ARC4Contract):
         callsub test_mixed_multiple_dynamic_elements
@@ -89,18 +72,10 @@ subroutine main:
     main_test_nested_struct_replacement_route@7:
         // arc4_dynamic_arrays/contract.py:114
         // @arc4.abimethod()
-        txn ApplicationID                                                           tmp%13#0
-        l-load tmp%13#0 0                                                           tmp%13#0
-        assert // can only call when not creating
         v-load lifted%return#0                                                      lifted%return#0
         return
 
     main_test_nested_tuple_modification_route@8:
-        // arc4_dynamic_arrays/contract.py:141
-        // @arc4.abimethod()
-        txn ApplicationID                                                           tmp%15#0
-        l-load tmp%15#0 0                                                           tmp%15#0
-        assert // can only call when not creating
         // arc4_dynamic_arrays/contract.py:38
         // class DynamicArrayContract(ARC4Contract):
         callsub test_nested_tuple_modification
@@ -112,15 +87,15 @@ subroutine main:
     main_bare_routing@11:
         // arc4_dynamic_arrays/contract.py:38
         // class DynamicArrayContract(ARC4Contract):
-        txn OnCompletion                                                            tmp%17#0
-        l-load tmp%17#0 0                                                           tmp%17#0
-        !                                                                           not%tmp%17#0
-        l-load not%tmp%17#0 0                                                       not%tmp%17#0
+        txn OnCompletion                                                            tmp%7#0
+        l-load tmp%7#0 0                                                            tmp%7#0
+        !                                                                           not%tmp%7#0
+        l-load not%tmp%7#0 0                                                        not%tmp%7#0
         assert
-        txn ApplicationID                                                           tmp%18#0
-        l-load tmp%18#0 0                                                           tmp%18#0
-        !                                                                           tmp%19#0
-        l-load tmp%19#0 0                                                           tmp%19#0
+        txn ApplicationID                                                           tmp%8#0
+        l-load tmp%8#0 0                                                            tmp%8#0
+        !                                                                           tmp%9#0
+        l-load tmp%9#0 0                                                            tmp%9#0
         assert // can only call when creating
         v-load lifted%return#0                                                      lifted%return#0
         return

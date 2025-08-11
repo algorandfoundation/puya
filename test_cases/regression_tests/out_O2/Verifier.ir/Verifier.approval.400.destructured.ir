@@ -7,11 +7,11 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "verify(byte[32][])byte[]" => block@3, * => block@10}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "verify(byte[32][])byte[]" => block@3, * => block@10}
     block@3: // verify_route_L13
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
         let proof#0: Encoded(len+uint8[32][]) = (txna ApplicationArgs 1)
         let x#0: bytes = (extract3 proof#0 258u 32u)
         let aggregate%encoded_element%1#0: bytes = ((extract 194 32) proof#0)

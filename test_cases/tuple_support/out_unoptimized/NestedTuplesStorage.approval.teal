@@ -524,40 +524,43 @@ approval_program_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz approval_program_bare_routing@10
+    bz approval_program_bare_routing@15
 
 approval_program_abi_routing@2:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
+    txn OnCompletion
+    intc_0 // 0
+    ==
+    bz approval_program_other_routes@10
+
+approval_program_simple_routes@3:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     txna ApplicationArgs 0
-    pushbytes 0xbec76d87 // method "bootstrap()void"
     pushbytes 0xacc253ae // method "mutate_tuple(uint64)void"
     pushbytes 0xe844940c // method "mutate_box(uint64)void"
     pushbytes 0x6222ef1a // method "mutate_global(uint64)void"
     pushbytes 0x1b269b50 // method "mutate_local(uint64)void"
-    uncover 5
-    match approval_program_bootstrap_route@3 approval_program_mutate_tuple_route@4 approval_program_mutate_box_route@5 approval_program_mutate_global_route@6 approval_program_mutate_local_route@7
+    uncover 4
+    match approval_program_mutate_tuple_route@4 approval_program_mutate_box_route@5 approval_program_mutate_global_route@6 approval_program_mutate_local_route@7
 
 approval_program_switch_case_default@8:
 
 approval_program_switch_case_next@9:
 
-approval_program_after_if_else@16:
+approval_program_after_if_else@14:
+
+approval_program_after_if_else@21:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     err
 
 approval_program_mutate_local_route@7:
-    // tuple_support/tuple_storage.py:40
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     callsub mutate_local
@@ -567,16 +570,6 @@ approval_program_mutate_local_route@7:
     return
 
 approval_program_mutate_global_route@6:
-    // tuple_support/tuple_storage.py:36
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     callsub mutate_global
@@ -586,16 +579,6 @@ approval_program_mutate_global_route@6:
     return
 
 approval_program_mutate_box_route@5:
-    // tuple_support/tuple_storage.py:32
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     callsub mutate_box
@@ -605,16 +588,6 @@ approval_program_mutate_box_route@5:
     return
 
 approval_program_mutate_tuple_route@4:
-    // tuple_support/tuple_storage.py:28
-    // @arc4.abimethod()
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     callsub mutate_tuple
@@ -623,7 +596,20 @@ approval_program_mutate_tuple_route@4:
     intc_1 // 1
     return
 
-approval_program_bootstrap_route@3:
+approval_program_other_routes@10:
+    // tuple_support/tuple_storage.py:11
+    // class NestedTuplesStorage(arc4.ARC4Contract):
+    txna ApplicationArgs 0
+    pushbytes 0xbec76d87 // method "bootstrap()void"
+    swap
+    match approval_program_bootstrap_route@11
+
+approval_program_switch_case_default@12:
+
+approval_program_switch_case_next@13:
+    b approval_program_after_if_else@14
+
+approval_program_bootstrap_route@11:
     // tuple_support/tuple_storage.py:23
     // @arc4.abimethod(allow_actions=["OptIn"])
     txn OnCompletion
@@ -642,27 +628,27 @@ approval_program_bootstrap_route@3:
     intc_1 // 1
     return
 
-approval_program_bare_routing@10:
+approval_program_bare_routing@15:
     // tuple_support/tuple_storage.py:11
     // class NestedTuplesStorage(arc4.ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match approval_program___algopy_default_create@11
+    match approval_program___algopy_default_create@16
 
-approval_program_switch_case_default@14:
+approval_program_switch_case_default@19:
 
-approval_program_switch_case_next@15:
-    b approval_program_after_if_else@16
+approval_program_switch_case_next@20:
+    b approval_program_after_if_else@21
 
-approval_program___algopy_default_create@11:
+approval_program___algopy_default_create@16:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-approval_program_block@12:
+approval_program_block@17:
 
-approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_default_create@13:
+approval_program_after_inlined_test_cases.tuple_support.tuple_storage.NestedTuplesStorage.__algopy_default_create@18:
     intc_1 // 1
     return

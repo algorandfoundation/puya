@@ -17,44 +17,34 @@ main examples.auction.contract.Auction.__algopy_entrypoint_with_init:
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "opt_into_asset(uint64)void" => block@5, method "start_auction(uint64,uint64,axfer)void" => block@6, method "opt_in()void" => block@7, method "bid(pay)void" => block@8, method "claim_bids()void" => block@9, method "claim_asset(uint64)void" => block@10, * => block@13}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "opt_into_asset(uint64)void" => block@5, method "start_auction(uint64,uint64,axfer)void" => block@6, method "opt_in()void" => block@7, method "bid(pay)void" => block@8, method "claim_bids()void" => block@9, method "claim_asset(uint64)void" => block@10, * => block@13}
     block@5: // opt_into_asset_route_L25
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
         examples.auction.contract.Auction.opt_into_asset[routing]()
         exit 1u
     block@6: // start_auction_route_L40
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        (assert tmp%7#0) // can only call when not creating
         examples.auction.contract.Auction.start_auction[routing]()
         exit 1u
     block@7: // opt_in_route_L62
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
         exit 1u
     block@8: // bid_route_L66
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        (assert tmp%11#0) // can only call when not creating
         examples.auction.contract.Auction.bid[routing]()
         exit 1u
     block@9: // claim_bids_route_L82
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
         examples.auction.contract.Auction.claim_bids[routing]()
         exit 1u
     block@10: // claim_asset_route_L97
-        let tmp%15#0: uint64 = (txn ApplicationID)
-        (assert tmp%15#0) // can only call when not creating
         examples.auction.contract.Auction.claim_asset[routing]()
         exit 1u
     block@11: // bare_routing_L16
-        let tmp%17#0: uint64 = (txn OnCompletion)
-        let not%tmp%17#0: bool = (! tmp%17#0)
-        (assert not%tmp%17#0)
-        let tmp%18#0: uint64 = (txn ApplicationID)
-        let tmp%19#0: bool = (! tmp%18#0)
-        (assert tmp%19#0) // can only call when creating
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let not%tmp%7#0: bool = (! tmp%7#0)
+        (assert not%tmp%7#0)
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // can only call when creating
         exit 1u
     block@13: // after_if_else_L16
         fail

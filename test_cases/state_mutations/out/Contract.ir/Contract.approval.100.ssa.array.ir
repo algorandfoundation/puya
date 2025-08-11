@@ -6,29 +6,25 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "append()void" => block@5, method "modify()void" => block@6, method "get()(uint64,string)[]" => block@7, * => block@11}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "append()void" => block@5, method "modify()void" => block@6, method "get()(uint64,string)[]" => block@7, * => block@11}
     block@5: // append_route_L36
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
         test_cases.state_mutations.contract.Contract.append[routing]()
         exit 1u
     block@6: // modify_route_L44
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        (assert tmp%7#0) // can only call when not creating
         test_cases.state_mutations.contract.Contract.modify[routing]()
         exit 1u
     block@7: // get_route_L51
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
         test_cases.state_mutations.contract.Contract.get[routing]()
         exit 1u
     block@8: // bare_routing_L22
-        let tmp%11#0: uint64 = (txn OnCompletion)
-        goto_nth [block@10, block@9][tmp%11#0] else goto block@11
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        goto_nth [block@10, block@9][tmp%7#0] else goto block@11
     block@9: // opt_in_L29
-        let tmp%12#0: uint64 = (txn ApplicationID)
-        (assert tmp%12#0) // can only call when not creating
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        (assert tmp%8#0) // can only call when not creating
         let aggregate%as_bytes%0#0: bytes[8] = (itob 0u)
         let aggregate%len_u16%0#0: bytes = ((extract 6 2) aggregate%as_bytes%0#0)
         let aggregate%as_Encoded(len+(uint64,(len+utf8[]))[])%0#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%len_u16%0#0
@@ -44,9 +40,9 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         (box_put box_prefixed_key%0#0 encoded_array%0#0)
         exit 1u
     block@10: // __algopy_default_create_L1
-        let tmp%14#0: uint64 = (txn ApplicationID)
-        let tmp%15#0: bool = (! tmp%14#0)
-        (assert tmp%15#0) // can only call when creating
+        let tmp%10#0: uint64 = (txn ApplicationID)
+        let tmp%11#0: bool = (! tmp%10#0)
+        (assert tmp%11#0) // can only call when creating
         exit 1u
     block@11: // after_if_else_L22
         fail

@@ -5,8 +5,8 @@
 main:
     intcblock 0 1
     bytecblock "greeting" "num" "address" "method" TMPL_GREETING TMPL_NUM TMPL_ACCOUNT TMPL_METHOD
-    // compile/apps.py:83
-    // @arc4.abimethod(create="require")
+    // compile/apps.py:91
+    // @arc4.abimethod()
     intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
@@ -34,19 +34,16 @@ main:
 main_after_if_else@2:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
-    pushbytess 0xd9285a74 0x24378d3c 0x5b0c2375 // method "create()uint64", method "delete()void", method "greet(string)byte[]"
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_create_route@4 main_delete_route@5 main_greet_route@6
-    err
-
-main_greet_route@6:
-    // compile/apps.py:91
-    // @arc4.abimethod()
     txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
+    bnz main_other_routes@6
     txn ApplicationID
     assert // can only call when not creating
+    pushbytes 0x5b0c2375 // method "greet(string)byte[]"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_greet_route@5
+    err
+
+main_greet_route@5:
     // compile/apps.py:76
     // class HelloOtherConstants(ARC4Contract):
     callsub greet
@@ -54,7 +51,15 @@ main_greet_route@6:
     // @arc4.abimethod()
     return
 
-main_delete_route@5:
+main_other_routes@6:
+    // compile/apps.py:76
+    // class HelloOtherConstants(ARC4Contract):
+    pushbytess 0xd9285a74 0x24378d3c // method "create()uint64", method "delete()void"
+    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    match main_create_route@7 main_delete_route@8
+    err
+
+main_delete_route@8:
     // compile/apps.py:87
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
@@ -65,7 +70,7 @@ main_delete_route@5:
     assert // can only call when not creating
     return
 
-main_create_route@4:
+main_create_route@7:
     // compile/apps.py:83
     // @arc4.abimethod(create="require")
     txn OnCompletion

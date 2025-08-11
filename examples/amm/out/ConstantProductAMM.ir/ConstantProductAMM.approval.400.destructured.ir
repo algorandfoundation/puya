@@ -18,40 +18,32 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         let tmp%2#0: uint64 = (txn OnCompletion)
         let tmp%3#0: bool = (! tmp%2#0)
         (assert tmp%3#0) // OnCompletion is not NoOp
-        let tmp%4#0: bytes = (txna ApplicationArgs 0)
-        switch tmp%4#0 {method "set_governor(address)void" => block@5, method "bootstrap(pay,asset,asset)uint64" => block@6, method "mint(axfer,axfer,asset,asset,asset)void" => block@7, method "burn(axfer,asset,asset,asset)void" => block@8, method "swap(axfer,asset,asset)void" => block@9, * => block@12}
+        let tmp%4#0: uint64 = (txn ApplicationID)
+        (assert tmp%4#0) // can only call when not creating
+        let tmp%6#0: bytes = (txna ApplicationArgs 0)
+        switch tmp%6#0 {method "set_governor(address)void" => block@5, method "bootstrap(pay,asset,asset)uint64" => block@6, method "mint(axfer,axfer,asset,asset,asset)void" => block@7, method "burn(axfer,asset,asset,asset)void" => block@8, method "swap(axfer,asset,asset)void" => block@9, * => block@12}
     block@5: // set_governor_route_L43
-        let tmp%5#0: uint64 = (txn ApplicationID)
-        (assert tmp%5#0) // can only call when not creating
         examples.amm.contract.ConstantProductAMM.set_governor[routing]()
         exit lifted%return#0
     block@6: // bootstrap_route_L49
-        let tmp%7#0: uint64 = (txn ApplicationID)
-        (assert tmp%7#0) // can only call when not creating
         examples.amm.contract.ConstantProductAMM.bootstrap[routing]()
         exit lifted%return#0
     block@7: // mint_route_L81
-        let tmp%9#0: uint64 = (txn ApplicationID)
-        (assert tmp%9#0) // can only call when not creating
         examples.amm.contract.ConstantProductAMM.mint[routing]()
         exit lifted%return#0
     block@8: // burn_route_L148
-        let tmp%11#0: uint64 = (txn ApplicationID)
-        (assert tmp%11#0) // can only call when not creating
         examples.amm.contract.ConstantProductAMM.burn[routing]()
         exit lifted%return#0
     block@9: // swap_route_L206
-        let tmp%13#0: uint64 = (txn ApplicationID)
-        (assert tmp%13#0) // can only call when not creating
         examples.amm.contract.ConstantProductAMM.swap[routing]()
         exit lifted%return#0
     block@10: // bare_routing_L27
-        let tmp%15#0: uint64 = (txn OnCompletion)
-        let not%tmp%15#0: bool = (! tmp%15#0)
-        (assert not%tmp%15#0)
-        let tmp%16#0: uint64 = (txn ApplicationID)
-        let tmp%17#0: bool = (! tmp%16#0)
-        (assert tmp%17#0) // can only call when creating
+        let tmp%7#0: uint64 = (txn OnCompletion)
+        let not%tmp%7#0: bool = (! tmp%7#0)
+        (assert not%tmp%7#0)
+        let tmp%8#0: uint64 = (txn ApplicationID)
+        let tmp%9#0: bool = (! tmp%8#0)
+        (assert tmp%9#0) // can only call when creating
         exit lifted%return#0
     block@12: // after_if_else_L27
         fail

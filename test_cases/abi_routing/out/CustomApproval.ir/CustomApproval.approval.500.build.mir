@@ -75,19 +75,17 @@ subroutine main:
         v-store tmp%3#1
         v-load tmp%3#1                                                                       tmp%3#1
         assert // OnCompletion is not NoOp
-        txna ApplicationArgs 0                                                               tmp%4#1
+        txn ApplicationID                                                                    tmp%4#1
         v-store tmp%4#1
+        v-load tmp%4#1                                                                       tmp%4#1
+        assert // can only call when not creating
+        txna ApplicationArgs 0                                                               tmp%6#0
+        v-store tmp%6#0
         method add_one(uint64)uint64                                                         Method(add_one(uint64)uint64)
-        v-load tmp%4#1                                                                       Method(add_one(uint64)uint64),tmp%4#1
+        v-load tmp%6#0                                                                       Method(add_one(uint64)uint64),tmp%6#0
         match main_add_one_route@11 ; b main_after_if_else@13
 
     main_add_one_route@11:
-        // abi_routing/custom_approval.py:23
-        // @arc4.abimethod
-        txn ApplicationID                                                                    tmp%5#0
-        v-store tmp%5#0
-        v-load tmp%5#0                                                                       tmp%5#0
-        assert // can only call when not creating
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
         callsub add_one

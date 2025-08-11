@@ -13,16 +13,14 @@ main:
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     pushbytes 0xd3479e65 // method "some_value()uint64"
     txna ApplicationArgs 0
     match main_some_value_route@3
     err
 
 main_some_value_route@3:
-    // group_side_effects/other.py:5
-    // @arc4.abimethod()
-    txn ApplicationID
-    assert // can only call when not creating
     // group_side_effects/other.py:4
     // class AppCall(ARC4Contract):
     callsub some_value

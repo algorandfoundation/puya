@@ -39,24 +39,21 @@ main_after_if_else@2:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@20
-    pushbytess 0xd78db35b 0x01040023 0x3a5353fc 0xd2f2f53c 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8", method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
+    bz main_bare_routing@22
+    txn OnCompletion
+    bnz main_other_routes@18
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytess 0xd78db35b 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
     txna ApplicationArgs 0
-    match main_noop_with_uint64_route@5 main_opt_in_route@6 main_all_the_things_route@7 main_mixed_oca_route@8 main_opt_into_asset_route@9 main_with_transactions_route@10 main_compare_assets_route@11 main_get_address_route@12 main_get_asset_route@13 main_get_application_route@14 main_get_an_int_route@15 main_method_with_default_args_route@16 main_method_with_15_args_route@17 main_method_with_more_than_15_args_route@18 main_hello_with_algopy_string_route@19
+    match main_noop_with_uint64_route@6 main_opt_into_asset_route@7 main_with_transactions_route@8 main_compare_assets_route@9 main_get_address_route@10 main_get_asset_route@11 main_get_application_route@12 main_get_an_int_route@13 main_method_with_default_args_route@14 main_method_with_15_args_route@15 main_method_with_more_than_15_args_route@16 main_hello_with_algopy_string_route@17
 
-main_after_if_else@22:
+main_after_if_else@24:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     err
 
-main_hello_with_algopy_string_route@19:
-    // abi_routing/contract.py:295
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_hello_with_algopy_string_route@17:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     callsub hello_with_algopy_string
@@ -64,14 +61,7 @@ main_hello_with_algopy_string_route@19:
     // @arc4.abimethod
     return
 
-main_method_with_more_than_15_args_route@18:
-    // abi_routing/contract.py:229
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_method_with_more_than_15_args_route@16:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     callsub method_with_more_than_15_args
@@ -79,14 +69,7 @@ main_method_with_more_than_15_args_route@18:
     // @arc4.abimethod
     return
 
-main_method_with_15_args_route@17:
-    // abi_routing/contract.py:191
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_method_with_15_args_route@15:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     callsub method_with_15_args
@@ -94,30 +77,7 @@ main_method_with_15_args_route@17:
     // @arc4.abimethod
     return
 
-main_method_with_default_args_route@16:
-    // abi_routing/contract.py:142-158
-    // @arc4.abimethod(
-    //     default_args={
-    //         "asset_from_storage": "asa",
-    //         "asset_from_function": get_asset,
-    //         "account_from_storage": "creator",
-    //         "account_from_function": "get_address",
-    //         "application_from_storage": "app",
-    //         "application_from_function": get_app,
-    //         "bytes_from_storage": "some_bytes",
-    //         "int_from_storage": "an_int",
-    //         "int_from_function": "get_a_int",
-    //         "int_from_const": arc4.UInt32(123),
-    //         "str_from_const": arc4.String("abc"),
-    //         "int_from_local": "local_uint",
-    //         "bytes_from_local": "local_bytes",
-    //     }
-    // )
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_method_with_default_args_route@14:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     callsub method_with_default_args
@@ -141,62 +101,35 @@ main_method_with_default_args_route@16:
     // )
     return
 
-main_get_an_int_route@15:
+main_get_an_int_route@13:
     // abi_routing/contract.py:138
     // @arc4.abimethod(readonly=True, name="get_an_int")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     pushbytes 0x151f7c750000000000000003
     log
     return
 
-main_get_application_route@14:
+main_get_application_route@12:
     // abi_routing/contract.py:134
     // @arc4.abimethod(readonly=True, name="get_application")
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     bytec_2 // 0x151f7c7500000000000001c8
     log
     return
 
-main_get_asset_route@13:
+main_get_asset_route@11:
     // abi_routing/contract.py:130
     // @arc4.abimethod(readonly=True)
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     bytec_2 // 0x151f7c7500000000000001c8
     log
     return
 
-main_get_address_route@12:
+main_get_address_route@10:
     // abi_routing/contract.py:126
     // @arc4.abimethod(readonly=True)
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
     log
     return
 
-main_compare_assets_route@11:
-    // abi_routing/contract.py:122
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_compare_assets_route@9:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     callsub compare_assets
@@ -204,14 +137,7 @@ main_compare_assets_route@11:
     // @arc4.abimethod
     return
 
-main_with_transactions_route@10:
-    // abi_routing/contract.py:109
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_with_transactions_route@8:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     callsub with_transactions
@@ -219,14 +145,7 @@ main_with_transactions_route@10:
     // @arc4.abimethod
     return
 
-main_opt_into_asset_route@9:
-    // abi_routing/contract.py:92
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
+main_opt_into_asset_route@7:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     callsub opt_into_asset
@@ -234,7 +153,23 @@ main_opt_into_asset_route@9:
     // @arc4.abimethod
     return
 
-main_mixed_oca_route@8:
+main_noop_with_uint64_route@6:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    callsub noop_with_uint64
+    // abi_routing/contract.py:40
+    // @arc4.abimethod
+    return
+
+main_other_routes@18:
+    // abi_routing/contract.py:24
+    // class Reference(ARC4Contract):
+    pushbytess 0x01040023 0x3a5353fc 0xd2f2f53c // method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8"
+    txna ApplicationArgs 0
+    match main_opt_in_route@19 main_all_the_things_route@20 main_mixed_oca_route@21
+    err
+
+main_mixed_oca_route@21:
     // abi_routing/contract.py:66-74
     // @arc4.abimethod(
     //     allow_actions=[
@@ -268,7 +203,7 @@ main_mixed_oca_route@8:
     // )
     return
 
-main_all_the_things_route@7:
+main_all_the_things_route@20:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     callsub full_abi_config
@@ -287,7 +222,7 @@ main_all_the_things_route@7:
     // )
     return
 
-main_opt_in_route@6:
+main_opt_in_route@19:
     // abi_routing/contract.py:45
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     txn OnCompletion
@@ -303,29 +238,14 @@ main_opt_in_route@6:
     // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
     return
 
-main_noop_with_uint64_route@5:
-    // abi_routing/contract.py:40
-    // @arc4.abimethod
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub noop_with_uint64
-    // abi_routing/contract.py:40
-    // @arc4.abimethod
-    return
-
-main_bare_routing@20:
+main_bare_routing@22:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     txn OnCompletion
-    switch main_bare_abi_config@21 main_bare_abi_config@21 main_bare_abi_config@21 main_after_if_else@22 main_bare_abi_config@21 main_bare_abi_config@21
+    switch main_bare_abi_config@23 main_bare_abi_config@23 main_bare_abi_config@23 main_after_if_else@24 main_bare_abi_config@23 main_bare_abi_config@23
     err
 
-main_bare_abi_config@21:
+main_bare_abi_config@23:
     // abi_routing/contract.py:79-88
     // @arc4.baremethod(
     //     allow_actions=[
