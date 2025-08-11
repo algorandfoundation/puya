@@ -480,10 +480,10 @@ def route_abi_methods(
         other_routing_methods.update(default_routing_methods)
         default_routing_methods.clear()
 
-    custom_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
+    other_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
     for method, wrapper_method in other_routing_methods.items():
         abi_loc = method.config_location
-        custom_routing_cases[
+        other_routing_cases[
             awst_nodes.MethodConstant(source_location=location, value=method.signature)
         ] = create_block(
             abi_loc,
@@ -521,9 +521,9 @@ def route_abi_methods(
         )
 
     default_routing_switch = _maybe_switch(method_arg(), default_routing_cases)
-    custom_routing_switch = _maybe_switch(method_arg(), custom_routing_cases)
+    other_routing_switch = _maybe_switch(method_arg(), other_routing_cases)
 
-    if default_routing_switch and custom_routing_switch:
+    if default_routing_cases and other_routing_cases:
         abi_routing_block = create_block(
             location,
             "abi_routing",
@@ -538,7 +538,7 @@ def route_abi_methods(
                 else_branch=create_block(
                     location,
                     "other_routes",
-                    *custom_routing_switch,
+                    *other_routing_switch,
                 ),
                 source_location=location,
             ),
@@ -551,11 +551,11 @@ def route_abi_methods(
             *assert_create_state(awst_nodes.ARC4CreateOption.disallow, location),
             *default_routing_switch,
         )
-    elif custom_routing_switch:
+    elif other_routing_cases:
         abi_routing_block = create_block(
             location,
             "abi_routing",
-            *custom_routing_switch,
+            *other_routing_switch,
         )
     else:
         abi_routing_block = create_block(location, "abi_routing")
