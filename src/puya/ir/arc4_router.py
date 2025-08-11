@@ -460,104 +460,69 @@ def route_abi_methods(
     location: SourceLocation,
     methods: Mapping[md.ARC4ABIMethod, AWSTContractMethodSignature],
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
-    arc4_wrapper_methods = list[awst_nodes.Subroutine]()
+    _check_for_duplicates(methods)
 
-    default_routing_methods = {}
-    other_routing_methods = {}
+    allowed_methods_by_scenario = dict[tuple[OnCompletionAction, bool], list[md.ARC4ABIMethod]]()
+    arc4_wrapper_methods = dict[md.ARC4ABIMethod, awst_nodes.Subroutine]()
     for method, sig in methods.items():
         wrapper_method = _build_abi_wrapper(method, sig, location)
-        arc4_wrapper_methods.append(wrapper_method)
-        match method:
-            case md.ARC4ABIMethod(
-                allowed_completion_types=[OnCompletionAction.NoOp],
-                create=awst_nodes.ARC4CreateOption.disallow,
-            ):
-                default_routing_methods[method] = wrapper_method
-            case _:
-                other_routing_methods[method] = wrapper_method
+        arc4_wrapper_methods[method] = wrapper_method
+        match method.create:
+            case awst_nodes.ARC4CreateOption.allow:
+                creates = [True, False]
+            case awst_nodes.ARC4CreateOption.disallow:
+                creates = [False]
+            case awst_nodes.ARC4CreateOption.require:
+                creates = [True]
+            case unexpected:
+                typing.assert_never(unexpected)
 
-    if len(default_routing_methods) == 1:
-        other_routing_methods.update(default_routing_methods)
-        default_routing_methods.clear()
+        for oca in method.allowed_completion_types:
+            for create in creates:
+                allowed_methods_by_scenario.setdefault((oca, create), []).append(method)
 
-    other_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
-    for method, wrapper_method in other_routing_methods.items():
-        abi_loc = method.config_location
-        other_routing_cases[
-            awst_nodes.MethodConstant(source_location=location, value=method.signature)
-        ] = create_block(
-            abi_loc,
-            f"{method.name}_route",
-            *check_allowed_oca(method.allowed_completion_types, abi_loc),
-            *assert_create_state(method.create, abi_loc),
-            awst_nodes.ExpressionStatement(
-                awst_nodes.SubroutineCallExpression(
-                    target=awst_nodes.SubroutineID(wrapper_method.id),
-                    args=[],
-                    wtype=wtypes.void_wtype,
-                    source_location=location,
-                )
-            ),
-        )
-
-    default_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
-    for method, wrapper_method in default_routing_methods.items():
-        abi_loc = method.config_location
-        default_routing_cases[
-            awst_nodes.MethodConstant(source_location=location, value=method.signature)
-        ] = create_block(
-            abi_loc,
-            f"{method.name}_route",
-            awst_nodes.ExpressionStatement(
-                awst_nodes.SubroutineCallExpression(
-                    target=awst_nodes.SubroutineID(wrapper_method.id),
-                    args=[],
-                    wtype=wtypes.void_wtype,
-                    source_location=location,
-                )
-            ),
-        )
-
-    default_routing_switch = _maybe_switch(method_arg(), default_routing_cases)
-    other_routing_switch = _maybe_switch(method_arg(), other_routing_cases)
-
-    if default_routing_cases and other_routing_cases:
-        abi_routing_block = create_block(
-            location,
-            "abi_routing",
-            awst_nodes.IfElse(
-                condition=_is_zero(on_completion(location)),
-                if_branch=create_block(
-                    location,
-                    "simple_routes",
-                    *assert_create_state(awst_nodes.ARC4CreateOption.disallow, location),
-                    *default_routing_switch,
+    app_id_non_zero = awst_nodes.ReinterpretCast(
+        expr=awst_nodes.Not(
+            expr=_txn("ApplicationID", wtypes.bool_wtype, location), source_location=location
+        ),
+        wtype=wtypes.uint64_wtype,
+        source_location=location,
+    )
+    oca_lshift = left_shift(on_completion(location), location)
+    cmp = awst_nodes.UInt64BinaryOperation(
+        left=app_id_non_zero,
+        right=oca_lshift,
+        op=awst_nodes.UInt64BinaryOperator.add,
+        source_location=location,
+    )
+    scenarios = {}
+    for (oca, create), methods_ in allowed_methods_by_scenario.items():
+        scenario_routes = dict[awst_nodes.Expression, awst_nodes.Block]()
+        for method in methods_:
+            wrapper_method = arc4_wrapper_methods[method]
+            abi_loc = method.config_location
+            scenario_routes[
+                awst_nodes.MethodConstant(source_location=location, value=method.signature)
+            ] = create_block(
+                abi_loc,
+                f"{method.name}_route",
+                awst_nodes.ExpressionStatement(
+                    awst_nodes.SubroutineCallExpression(
+                        target=awst_nodes.SubroutineID(wrapper_method.id),
+                        args=[],
+                        wtype=wtypes.void_wtype,
+                        source_location=location,
+                    )
                 ),
-                else_branch=create_block(
-                    location,
-                    "other_routes",
-                    *other_routing_switch,
-                ),
-                source_location=location,
-            ),
+            )
+        scenario_switch = _maybe_switch(method_arg(), scenario_routes)
+        compare_constant: awst_nodes.Expression = constant(
+            (oca.value << 1) + (1 if create else 0), location
         )
-    elif default_routing_switch:
-        abi_routing_block = create_block(
-            location,
-            "abi_routing",
-            *check_allowed_oca([OnCompletionAction.NoOp], location),
-            *assert_create_state(awst_nodes.ARC4CreateOption.disallow, location),
-            *default_routing_switch,
-        )
-    elif other_routing_cases:
-        abi_routing_block = create_block(
-            location,
-            "abi_routing",
-            *other_routing_switch,
-        )
-    else:
-        abi_routing_block = create_block(location, "abi_routing")
-    return abi_routing_block, arc4_wrapper_methods
+        scenarios[compare_constant] = create_block(location, None, *scenario_switch)
+
+    abi_routing_block = create_block(location, "abi_routing", *_maybe_switch(cmp, scenarios))
+    return abi_routing_block, list(arc4_wrapper_methods.values())
 
 
 def _maybe_switch(
