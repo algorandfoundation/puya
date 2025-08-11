@@ -462,51 +462,64 @@ def route_abi_methods(
 ) -> tuple[awst_nodes.Block, list[awst_nodes.Subroutine]]:
     arc4_wrapper_methods = list[awst_nodes.Subroutine]()
 
-    custom_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
-    default_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
+    default_routing_methods = {}
+    other_routing_methods = {}
     for method, sig in methods.items():
-        abi_loc = method.config_location
         wrapper_method = _build_abi_wrapper(method, sig, location)
         arc4_wrapper_methods.append(wrapper_method)
-
         match method:
             case md.ARC4ABIMethod(
                 allowed_completion_types=[OnCompletionAction.NoOp],
                 create=awst_nodes.ARC4CreateOption.disallow,
             ):
-                default_routing_cases[
-                    awst_nodes.MethodConstant(source_location=location, value=method.signature)
-                ] = create_block(
-                    abi_loc,
-                    f"{method.name}_route",
-                    awst_nodes.ExpressionStatement(
-                        awst_nodes.SubroutineCallExpression(
-                            target=awst_nodes.SubroutineID(wrapper_method.id),
-                            args=[],
-                            wtype=wtypes.void_wtype,
-                            source_location=location,
-                        )
-                    ),
-                    approve(abi_loc),
-                )
+                default_routing_methods[method] = wrapper_method
             case _:
-                custom_routing_cases[
-                    awst_nodes.MethodConstant(source_location=location, value=method.signature)
-                ] = create_block(
-                    abi_loc,
-                    f"{method.name}_route",
-                    *check_allowed_oca(method.allowed_completion_types, abi_loc),
-                    *assert_create_state(method.create, abi_loc),
-                    awst_nodes.ExpressionStatement(
-                        awst_nodes.SubroutineCallExpression(
-                            target=awst_nodes.SubroutineID(wrapper_method.id),
-                            args=[],
-                            wtype=wtypes.void_wtype,
-                            source_location=location,
-                        )
-                    ),
-                    approve(abi_loc),
+                other_routing_methods[method] = wrapper_method
+
+    if len(default_routing_methods) == 1:
+        other_routing_methods.update(default_routing_methods)
+        default_routing_methods.clear()
+
+    custom_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
+    for method, wrapper_method in other_routing_methods.items():
+        abi_loc = method.config_location
+        custom_routing_cases[
+            awst_nodes.MethodConstant(source_location=location, value=method.signature)
+        ] = create_block(
+            abi_loc,
+            f"{method.name}_route",
+            *check_allowed_oca(method.allowed_completion_types, abi_loc),
+            *assert_create_state(method.create, abi_loc),
+            awst_nodes.ExpressionStatement(
+                awst_nodes.SubroutineCallExpression(
+                    target=awst_nodes.SubroutineID(wrapper_method.id),
+                    args=[],
+                    wtype=wtypes.void_wtype,
+                    source_location=location,
                 )
+            ),
+            approve(abi_loc),
+        )
+
+    default_routing_cases = dict[awst_nodes.Expression, awst_nodes.Block]()
+    for method, wrapper_method in default_routing_methods.items():
+        abi_loc = method.config_location
+        default_routing_cases[
+            awst_nodes.MethodConstant(source_location=location, value=method.signature)
+        ] = create_block(
+            abi_loc,
+            f"{method.name}_route",
+            awst_nodes.ExpressionStatement(
+                awst_nodes.SubroutineCallExpression(
+                    target=awst_nodes.SubroutineID(wrapper_method.id),
+                    args=[],
+                    wtype=wtypes.void_wtype,
+                    source_location=location,
+                )
+            ),
+            approve(abi_loc),
+        )
+
     default_routing_switch = _maybe_switch(method_arg(), default_routing_cases)
     custom_routing_switch = _maybe_switch(method_arg(), custom_routing_cases)
 
