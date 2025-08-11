@@ -3,11 +3,8 @@
 
 // test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
 main:
-    intcblock 0 6
+    intcblock 0 1 6
     bytecblock "hello_app" 0x151f7c75
-    // inner_transactions/c2c.py:10
-    // @arc4.abimethod()
-    pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // inner_transactions/c2c.py:8
@@ -28,24 +25,8 @@ main_after_if_else@2:
     assert // can only call when not creating
     pushbytess 0x786b6291 0x33fb5d48 // method "bootstrap()uint64", method "log_greetings(string)void"
     txna ApplicationArgs 0
-    match main_bootstrap_route@5 main_log_greetings_route@6
+    match bootstrap log_greetings
     err
-
-main_log_greetings_route@6:
-    // inner_transactions/c2c.py:6
-    // class Greeter(ARC4Contract):
-    callsub log_greetings
-    // inner_transactions/c2c.py:23
-    // @arc4.abimethod()
-    return
-
-main_bootstrap_route@5:
-    // inner_transactions/c2c.py:6
-    // class Greeter(ARC4Contract):
-    callsub bootstrap
-    // inner_transactions/c2c.py:10
-    // @arc4.abimethod()
-    return
 
 main_bare_routing@7:
     // inner_transactions/c2c.py:6
@@ -56,6 +37,7 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
+    intc_1 // 1
     return
 
 
@@ -86,7 +68,7 @@ bootstrap:
     itxn_field ApprovalProgramPages
     // inner_transactions/c2c.py:14
     // itxn.ApplicationCall(
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -126,7 +108,8 @@ bootstrap:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]() -> void:
@@ -154,7 +137,7 @@ log_greetings:
     itxn_field ApplicationArgs
     // inner_transactions/c2c.py:25
     // hello_call = itxn.ApplicationCall(
-    intc_1 // appl
+    intc_2 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -179,4 +162,7 @@ log_greetings:
     swap
     concat
     log
-    retsub
+    // inner_transactions/c2c.py:23
+    // @arc4.abimethod()
+    intc_1 // 1
+    return

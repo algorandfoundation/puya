@@ -19,10 +19,10 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.__puya_arc4_rout
         switch tmp%6#0 {method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])" => block@2, method "test_tuple((uint64,uint512,string,byte[]))void" => block@3, * => block@4}
     block@2: // build_tuple_route_L16
         test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]()
-        exit 1u
+        goto block@5
     block@3: // test_tuple_route_L31
         test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]()
-        exit 1u
+        goto block@5
     block@4: // switch_case_default_L15
         goto block@5
     block@5: // switch_case_next_L15
@@ -57,14 +57,14 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[rout
         let tmp%8#0: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = bytes_encode<(uint64,uint512,(len+utf8[]),(len+uint8[]))>(tmp%4#0, tmp%5#0, tmp%6#0, tmp%7#0)
         let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
         (log tmp%9#0)
-        return 
+        exit 1u
 
 subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]() -> void:
     block@0: // L15
         let reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = (txna ApplicationArgs 1)
         let (tmp%0#0: uint64, tmp%1#0: biguint, tmp%2#0: string, tmp%3#0: bytes) = decode_bytes<(uint64,biguint,string,bytes,)>(reinterpret_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0)
         test_cases.named_tuples.contract.NamedTuplesContract.test_tuple(tmp%0#0, tmp%1#0, tmp%2#0, tmp%3#0)
-        return 
+        exit 1u
 
 subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple(a: uint64, b: biguint, c: string, d: bytes) -> <uint64, biguint, string, bytes>:
     block@0: // L16

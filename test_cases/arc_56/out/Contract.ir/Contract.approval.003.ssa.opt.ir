@@ -12,25 +12,25 @@ main test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init:
         switch tmp%6#0 {method "struct_arg((uint64,string,(byte[],uint8)),(byte[],uint8))uint64" => block@6, method "struct_return((uint64,string,(byte[],uint8)))(byte[],uint8)" => block@7, method "emits_error((uint64,string,(byte[],uint8)))void" => block@8, method "emitter()void" => block@9, method "conditional_emit(bool)void" => block@10, method "template_value()((byte[],uint8),uint64,string,uint8)" => block@11, method "with_constant_defaults(uint64,uint64,byte[],(uint64,uint64),(uint64,string),string[2],string[],uint64,uint64)void" => block@12, * => block@18}
     block@6: // struct_arg_route_L89
         test_cases.arc_56.contract.Contract.struct_arg[routing]()
-        exit 1u
+        goto block@18
     block@7: // struct_return_route_L95
         test_cases.arc_56.contract.Contract.struct_return[routing]()
-        exit 1u
+        goto block@18
     block@8: // emits_error_route_L100
         test_cases.arc_56.contract.Contract.errors[routing]()
-        exit 1u
+        goto block@18
     block@9: // emitter_route_L104
         test_cases.arc_56.contract.Contract.emitter[routing]()
-        exit 1u
+        goto block@18
     block@10: // conditional_emit_route_L114
         test_cases.arc_56.contract.Contract.conditional_emit[routing]()
-        exit 1u
+        goto block@18
     block@11: // template_value_route_L123
         test_cases.arc_56.contract.Contract.template_value[routing]()
-        exit 1u
+        goto block@18
     block@12: // with_constant_defaults_route_L132
         test_cases.arc_56.contract.Contract.with_constant_defaults[routing]()
-        exit 1u
+        goto block@18
     block@13: // other_routes_L54
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
         switch tmp%7#0 {method "create()void" => block@14, * => block@18}
@@ -63,7 +63,7 @@ subroutine test_cases.arc_56.contract.Contract.struct_arg[routing]() -> void:
         let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(42u)
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
         (log tmp%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.struct_return[routing]() -> void:
     block@0: // L54
@@ -71,7 +71,7 @@ subroutine test_cases.arc_56.contract.Contract.struct_return[routing]() -> void:
         let s#0: Encoded((len+uint8[]),uint8) = extract_value(arg#0, 2)
         let tmp%1#0: bytes = (concat 0x151f7c75 s#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.errors[routing]() -> void:
     block@0: // L54
@@ -79,7 +79,7 @@ subroutine test_cases.arc_56.contract.Contract.errors[routing]() -> void:
         let tuple_item%0#0: Encoded(uint64) = extract_value(arg#0, 0)
         let tmp%0#0: bool = (== tuple_item%0#0 0x00)
         (assert tmp%0#0) // this will error
-        return 
+        exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
     block@0: // L54
@@ -93,7 +93,7 @@ subroutine test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
         let tmp%5#0: Encoded((len+utf8[]),((len+uint8[]),uint8)) = bytes_encode<((len+utf8[]),((len+uint8[]),uint8))>(tmp%2#0, tmp%4#0)
         let event%1#0: bytes = (concat method "Anonymous(string,(byte[],uint8))" tmp%5#0)
         (log event%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.conditional_emit[routing]() -> void:
     block@0: // L54
@@ -109,7 +109,7 @@ subroutine test_cases.arc_56.contract.Contract.conditional_emit[routing]() -> vo
         (log event%0#0)
         goto block@3
     block@3: // after_if_else_L116
-        return 
+        exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.template_value[routing]() -> void:
     block@0: // L54
@@ -120,7 +120,7 @@ subroutine test_cases.arc_56.contract.Contract.template_value[routing]() -> void
         let tmp%4#0: Encoded(((len+uint8[]),uint8),uint64,(len+utf8[]),uint8) = bytes_encode<(((len+uint8[]),uint8),uint64,(len+utf8[]),uint8)>(tmp%0#0, tmp%1#0, tmp%2#0, tmp%3#0)
         let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
         (log tmp%5#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc_56.contract.Contract.with_constant_defaults[routing]() -> void:
     block@0: // L54
@@ -183,4 +183,4 @@ subroutine test_cases.arc_56.contract.Contract.with_constant_defaults[routing]()
         (assert tmp%13#0)
         let tmp%14#0: bool = (== i#0 1234u)
         (assert tmp%14#0)
-        return 
+        exit 1u

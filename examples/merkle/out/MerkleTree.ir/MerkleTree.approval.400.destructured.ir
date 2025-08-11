@@ -1,8 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let lifted%return#0: bool = 1u
         let tmp%0#1: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
-        switch tmp%0#1 {method "create(byte[32])void" => block@2, method "verify(byte[32][],byte[32])bool" => block@3, * => block@4}
+        switch tmp%0#1 {method "create(byte[32])void" => block@2, method "verify(byte[32][],byte[32])bool" => block@3, * => block@5}
     block@2: // create_route_L10
         let tmp%1#0: uint64 = (txn OnCompletion)
         let tmp%2#0: bool = (! tmp%1#0)
@@ -11,7 +10,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // can only call when creating
         examples.merkle.contract.MerkleTree.create[routing]()
-        exit lifted%return#0
+        goto block@5
     block@3: // verify_route_L14
         let tmp%5#0: uint64 = (txn OnCompletion)
         let tmp%6#0: bool = (! tmp%5#0)
@@ -19,15 +18,15 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
         examples.merkle.contract.MerkleTree.verify[routing]()
-        exit lifted%return#0
-    block@4: // switch_case_default_L9
+        goto block@5
+    block@5: // switch_case_next_L9
         fail
 
 subroutine examples.merkle.contract.MerkleTree.create[routing]() -> void:
     block@0: // L9
         let root#0: Encoded(uint8[32]) = (txna ApplicationArgs 1)
         (app_global_put "root" root#0)
-        return 
+        exit 1u
 
 subroutine examples.merkle.contract.MerkleTree.verify[routing]() -> void:
     block@0: // L9
@@ -63,4 +62,4 @@ subroutine examples.merkle.contract.MerkleTree.verify[routing]() -> void:
         let aggregate%encoded_bool%0#0: bytes[1] = (setbit 0x00 0u tmp%0#1)
         let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%encoded_bool%0#0)
         (log tmp%2#0)
-        return 
+        exit 1u

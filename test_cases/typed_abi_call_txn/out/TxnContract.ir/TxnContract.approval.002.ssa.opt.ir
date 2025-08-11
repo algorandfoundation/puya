@@ -12,13 +12,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "call_with_txn(byte[],txn,byte[])uint64" => block@3, method "call_with_acfg(byte[],acfg,byte[])uint64" => block@4, method "call_with_acfg_no_return(byte[],acfg,byte[])void" => block@5, * => block@12}
     block@3: // call_with_txn_route_L12
         test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn[routing]()
-        exit 1u
+        goto block@12
     block@4: // call_with_acfg_route_L20
         test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg[routing]()
-        exit 1u
+        goto block@12
     block@5: // call_with_acfg_no_return_route_L27
         test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return[routing]()
-        exit 1u
+        goto block@12
     block@8: // bare_routing_L11
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -50,7 +50,7 @@ subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_txn[
         let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(tmp%4#1)
         let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
         (log tmp%5#0)
-        return 
+        exit 1u
 
 subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg[routing]() -> void:
     block@0: // L11
@@ -72,7 +72,7 @@ subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg
         let tmp%4#0: Encoded(uint64) = bytes_encode<uint64>(tmp%2#1)
         let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
         (log tmp%5#0)
-        return 
+        exit 1u
 
 subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return[routing]() -> void:
     block@0: // L11
@@ -91,4 +91,4 @@ subroutine test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg
         (assert tmp%1#1) // b is not b
         let tmp%2#1: uint64 = ((gtxns CreatedAssetID) acfg#0)
         (assert tmp%2#1) // expected asset id
-        return 
+        exit 1u

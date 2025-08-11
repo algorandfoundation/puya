@@ -12,22 +12,22 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "test_static_elements()void" => block@3, method "test_dynamic_elements()void" => block@4, method "test_mixed_single_dynamic_elements()void" => block@5, method "test_mixed_multiple_dynamic_elements()void" => block@6, method "test_nested_struct_replacement()void" => block@7, method "test_nested_tuple_modification()void" => block@8, * => block@15}
     block@3: // test_static_elements_route_L39
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_static_elements[routing]()
-        exit 1u
+        goto block@15
     block@4: // test_dynamic_elements_route_L55
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements[routing]()
-        exit 1u
+        goto block@15
     block@5: // test_mixed_single_dynamic_elements_route_L74
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements[routing]()
-        exit 1u
+        goto block@15
     block@6: // test_mixed_multiple_dynamic_elements_route_L97
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements[routing]()
-        exit 1u
+        goto block@15
     block@7: // test_nested_struct_replacement_route_L114
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement[routing]()
-        exit 1u
+        goto block@15
     block@8: // test_nested_tuple_modification_route_L141
         test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification[routing]()
-        exit 1u
+        goto block@15
     block@11: // bare_routing_L38
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -394,7 +394,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_sta
         let (tmp%11#0: bytes, array#3: Encoded(len+(uint64,uint8[2])[])) = _puya_lib.arc4.dynamic_array_pop_fixed_size(array#2, 10u)
         let tmp%13#0: bool = (== tmp%11#0 struct1#0)
         (assert tmp%13#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dynamic_elements[routing]() -> void:
     block@0: // L38
@@ -534,7 +534,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_dyn
         let tmp%15#0: bool = (== tmp%13#0 struct1#0)
         (assert tmp%15#0)
         (log array#5)
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_single_dynamic_elements[routing]() -> void:
     block@0: // L38
@@ -679,7 +679,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let array_item%3#0: Encoded(uint64,(len+utf8[]),uint64) = aggregate%substring3%4#0
         let tmp%26#0: bool = (== array_item%3#0 struct1#0)
         (assert tmp%26#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mixed_multiple_dynamic_elements[routing]() -> void:
     block@0: // L38
@@ -796,7 +796,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_mix
         let (tmp%15#0: bytes, array#3: Encoded(len+(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64)[])) = _puya_lib.arc4.dynamic_array_pop_dynamic_element(array#2)
         let tmp%17#0: bool = (== tmp%15#0 struct1#0)
         (assert tmp%17#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_struct_replacement[routing]() -> void:
     block@0: // L38
@@ -954,7 +954,7 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let struct2#1: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = aggregate%updated_data%3#0
         let tmp%25#0: bool = (== struct1#0 struct2#1)
         (assert tmp%25#0) // struct1 does not match struct2
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nested_tuple_modification[routing]() -> void:
     block@0: // L38
@@ -1132,4 +1132,4 @@ subroutine test_cases.arc4_dynamic_arrays.contract.DynamicArrayContract.test_nes
         let tup2#1: Encoded((uint64,uint8[2]),((len+utf8[]),(len+utf8[])),(uint64,uint8[2]),(uint64,(len+utf8[]),uint64,(len+uint16[]),uint64),((len+utf8[]),(len+utf8[]))) = aggregate%updated_data%3#0
         let tmp%31#0: bool = (== tup1#0 tup2#1)
         (assert tmp%31#0) // tup1 does not match tup2
-        return 
+        exit 1u

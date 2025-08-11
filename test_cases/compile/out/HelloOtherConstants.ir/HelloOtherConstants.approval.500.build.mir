@@ -43,7 +43,7 @@ subroutine main:
         method delete()void                                                                       Method(create()uint64),Method(delete()void)
         method greet(string)byte[]                                                                Method(create()uint64),Method(delete()void),Method(greet(string)byte[])
         v-load tmp%0#2                                                                            Method(create()uint64),Method(delete()void),Method(greet(string)byte[]),tmp%0#2
-        match main_create_route@4 main_delete_route@5 main_greet_route@6 ; b main_switch_case_default@7 
+        match main_create_route@4 main_delete_route@5 main_greet_route@6 ; b main_switch_case_next@7 
 
     main_create_route@4:
         // compile/apps.py:83
@@ -102,12 +102,9 @@ subroutine main:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
         callsub greet
-        // compile/apps.py:91
-        // @arc4.abimethod()
-        v-load lifted%return#0                                                                    lifted%return#0
-        return
+        b main_switch_case_next@7
 
-    main_switch_case_default@7:
+    main_switch_case_next@7:
         // compile/apps.py:76
         // class HelloOtherConstants(ARC4Contract):
         err
@@ -212,6 +209,7 @@ subroutine greet:
         v-store tmp%3#0
         v-load tmp%3#0                                                                            tmp%3#0
         log
-        retsub
+        int 1                                                                                     1
+        return
 
 

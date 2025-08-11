@@ -2,73 +2,60 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // arc4_types/uint_overflow.py:5
-        // @arc4.abimethod()
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        txn NumAppArgs                                                                       tmp%0#1
+        bz main_bare_routing@8 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        txn OnCompletion                                                                     tmp%2#0
+        !                                                                                    tmp%3#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                    tmp%4#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0                                                               tmp%6#0
+        method test_uint8()void                                                              tmp%6#0,Method(test_uint8()void)
+        method test_uint16()void                                                             tmp%6#0,Method(test_uint8()void),Method(test_uint16()void)
+        method test_uint32()void                                                             tmp%6#0,Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void)
+        l-load tmp%6#0 3                                                                     Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void),tmp%6#0
+        match main_test_uint8_route@3 main_test_uint16_route@4 main_test_uint32_route@5 ; b main_after_if_else@12 
+
+    main_test_uint8_route@3:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        callsub test_uint8
+        b main_after_if_else@12
+
+    main_test_uint16_route@4:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        callsub test_uint16
+        b main_after_if_else@12
+
+    main_test_uint32_route@5:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        callsub test_uint32
+        b main_after_if_else@12
+
+    main_bare_routing@8:
+        // arc4_types/uint_overflow.py:4
+        // class UIntOverflow(arc4.ARC4Contract):
+        txn OnCompletion                                                                     tmp%7#0
+        !                                                                                    not%tmp%7#0
+        assert
+        txn ApplicationID                                                                    tmp%8#0
+        !                                                                                    tmp%9#0
+        assert // can only call when creating
         int 1                                                                                1
-        f-store lifted%return#0                                                              (𝕗) lifted%return#0 |
-        // arc4_types/uint_overflow.py:4
-        // class UIntOverflow(arc4.ARC4Contract):
-        txn NumAppArgs                                                                       (𝕗) lifted%return#0 | tmp%0#1
-        bz main_bare_routing@8 ; b main_abi_routing@2                                        (𝕗) lifted%return#0 |
+        return
 
-    main_abi_routing@2:                                                                      (𝕗) lifted%return#0 |
+    main_after_if_else@12:
         // arc4_types/uint_overflow.py:4
         // class UIntOverflow(arc4.ARC4Contract):
-        txn OnCompletion                                                                     (𝕗) lifted%return#0 | tmp%2#0
-        !                                                                                    (𝕗) lifted%return#0 | tmp%3#0
-        assert // OnCompletion is not NoOp                                                   (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                    (𝕗) lifted%return#0 | tmp%4#0
-        assert // can only call when not creating                                            (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0                                                               (𝕗) lifted%return#0 | tmp%6#0
-        method test_uint8()void                                                              (𝕗) lifted%return#0 | tmp%6#0,Method(test_uint8()void)
-        method test_uint16()void                                                             (𝕗) lifted%return#0 | tmp%6#0,Method(test_uint8()void),Method(test_uint16()void)
-        method test_uint32()void                                                             (𝕗) lifted%return#0 | tmp%6#0,Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void)
-        l-load tmp%6#0 3                                                                     (𝕗) lifted%return#0 | Method(test_uint8()void),Method(test_uint16()void),Method(test_uint32()void),tmp%6#0
-        match main_test_uint8_route@3 main_test_uint16_route@4 main_test_uint32_route@5 ; b main_after_if_else@12 (𝕗) lifted%return#0 | 
-
-    main_test_uint8_route@3:                                                                 (𝕗) lifted%return#0 |
-        // arc4_types/uint_overflow.py:4
-        // class UIntOverflow(arc4.ARC4Contract):
-        callsub test_uint8                                                                   (𝕗) lifted%return#0 |
-        // arc4_types/uint_overflow.py:5
-        // @arc4.abimethod()
-        f-load lifted%return#0                                                               (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                               (𝕗) lifted%return#0 |
-
-    main_test_uint16_route@4:                                                                (𝕗) lifted%return#0 |
-        // arc4_types/uint_overflow.py:4
-        // class UIntOverflow(arc4.ARC4Contract):
-        callsub test_uint16                                                                  (𝕗) lifted%return#0 |
-        // arc4_types/uint_overflow.py:10
-        // @arc4.abimethod()
-        f-load lifted%return#0                                                               (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                               (𝕗) lifted%return#0 |
-
-    main_test_uint32_route@5:                                                                (𝕗) lifted%return#0 |
-        // arc4_types/uint_overflow.py:4
-        // class UIntOverflow(arc4.ARC4Contract):
-        callsub test_uint32                                                                  (𝕗) lifted%return#0 |
-        // arc4_types/uint_overflow.py:15
-        // @arc4.abimethod()
-        f-load lifted%return#0                                                               (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                               (𝕗) lifted%return#0 |
-
-    main_bare_routing@8:                                                                     (𝕗) lifted%return#0 |
-        // arc4_types/uint_overflow.py:4
-        // class UIntOverflow(arc4.ARC4Contract):
-        txn OnCompletion                                                                     (𝕗) lifted%return#0 | tmp%7#0
-        !                                                                                    (𝕗) lifted%return#0 | not%tmp%7#0
-        assert                                                                               (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                    (𝕗) lifted%return#0 | tmp%8#0
-        !                                                                                    (𝕗) lifted%return#0 | tmp%9#0
-        assert // can only call when creating                                                (𝕗) lifted%return#0 |
-        f-load lifted%return#0                                                               (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                               (𝕗) lifted%return#0 |
-
-    main_after_if_else@12:                                                                   (𝕗) lifted%return#0 |
-        // arc4_types/uint_overflow.py:4
-        // class UIntOverflow(arc4.ARC4Contract):
-        err                                                                                  (𝕗) lifted%return#0 |
+        err
 
 
 // test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8[routing]() -> void:
@@ -92,7 +79,10 @@ subroutine test_uint8:
         byte 0x01                                                                            too_big#0,0x01
         !=                                                                                   tmp%3#0
         assert // this should not happen
-        retsub
+        // arc4_types/uint_overflow.py:5
+        // @arc4.abimethod()
+        int 1                                                                                1
+        return
 
 
 // test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16[routing]() -> void:
@@ -116,7 +106,10 @@ subroutine test_uint16:
         byte 0x0001                                                                          too_big#0,0x0001
         !=                                                                                   tmp%3#0
         assert // this should not happen
-        retsub
+        // arc4_types/uint_overflow.py:10
+        // @arc4.abimethod()
+        int 1                                                                                1
+        return
 
 
 // test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32[routing]() -> void:
@@ -140,6 +133,9 @@ subroutine test_uint32:
         byte 0x00000001                                                                      too_big#0,0x00000001
         !=                                                                                   tmp%3#0
         assert // this should not happen
-        retsub
+        // arc4_types/uint_overflow.py:15
+        // @arc4.abimethod()
+        int 1                                                                                1
+        return
 
 

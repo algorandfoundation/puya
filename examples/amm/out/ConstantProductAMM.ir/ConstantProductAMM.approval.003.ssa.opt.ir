@@ -23,19 +23,19 @@ main examples.amm.contract.ConstantProductAMM.__algopy_entrypoint_with_init:
         switch tmp%6#0 {method "set_governor(address)void" => block@5, method "bootstrap(pay,asset,asset)uint64" => block@6, method "mint(axfer,axfer,asset,asset,asset)void" => block@7, method "burn(axfer,asset,asset,asset)void" => block@8, method "swap(axfer,asset,asset)void" => block@9, * => block@12}
     block@5: // set_governor_route_L43
         examples.amm.contract.ConstantProductAMM.set_governor[routing]()
-        exit 1u
+        goto block@12
     block@6: // bootstrap_route_L49
         examples.amm.contract.ConstantProductAMM.bootstrap[routing]()
-        exit 1u
+        goto block@12
     block@7: // mint_route_L81
         examples.amm.contract.ConstantProductAMM.mint[routing]()
-        exit 1u
+        goto block@12
     block@8: // burn_route_L148
         examples.amm.contract.ConstantProductAMM.burn[routing]()
-        exit 1u
+        goto block@12
     block@9: // swap_route_L206
         examples.amm.contract.ConstantProductAMM.swap[routing]()
-        exit 1u
+        goto block@12
     block@10: // bare_routing_L27
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -64,7 +64,7 @@ subroutine examples.amm.contract.ConstantProductAMM.set_governor[routing]() -> v
         let new_governor#0: account = decode_bytes<account>(reinterpret_Encoded(uint8[32])%0#0)
         examples.amm.contract.ConstantProductAMM._check_is_governor()
         (app_global_put "governor" new_governor#0)
-        return 
+        exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.bootstrap[routing]() -> void:
     block@0: // L27
@@ -136,7 +136,7 @@ subroutine examples.amm.contract.ConstantProductAMM.bootstrap[routing]() -> void
         let tmp%6#0: Encoded(uint64) = bytes_encode<uint64>(maybe_value%3#0)
         let tmp%7#0: bytes = (concat 0x151f7c75 tmp%6#0)
         (log tmp%7#0)
-        return 
+        exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.mint[routing]() -> void:
     block@0: // L27
@@ -248,7 +248,7 @@ subroutine examples.amm.contract.ConstantProductAMM.mint[routing]() -> void:
         (assert maybe_exists%5#0) // check self.pool_token exists
         examples.amm.contract.do_asset_transfer(tmp%30#0, maybe_value%5#0, to_mint#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
-        return 
+        exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.burn[routing]() -> void:
     block@0: // L27
@@ -312,7 +312,7 @@ subroutine examples.amm.contract.ConstantProductAMM.burn[routing]() -> void:
         (assert maybe_exists%5#0) // check self.asset_b exists
         examples.amm.contract.do_asset_transfer(tmp%21#0, maybe_value%5#0, b_amt#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
-        return 
+        exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM.swap[routing]() -> void:
     block@0: // L27
@@ -374,7 +374,7 @@ subroutine examples.amm.contract.ConstantProductAMM.swap[routing]() -> void:
         let tmp%15#0: account = (txn Sender)
         examples.amm.contract.do_asset_transfer(tmp%15#0, out_asset#2, to_swap#0)
         examples.amm.contract.ConstantProductAMM._update_ratio()
-        return 
+        exit 1u
 
 subroutine examples.amm.contract.ConstantProductAMM._update_ratio() -> void:
     block@0: // L258

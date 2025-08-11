@@ -12,10 +12,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "build_tuple(uint64,uint512,string,byte[])(uint64,uint512,string,byte[])" => block@3, method "test_tuple((uint64,uint512,string,byte[]))void" => block@4, * => block@11}
     block@3: // build_tuple_route_L16
         test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[routing]()
-        exit 1u
+        goto block@11
     block@4: // test_tuple_route_L31
         test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]()
-        exit 1u
+        goto block@11
     block@7: // bare_routing_L15
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -73,7 +73,7 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.build_tuple[rout
         let tmp%8#0: Encoded(uint64,uint512,(len+utf8[]),(len+uint8[])) = aggregate%as_Encoded(uint64,uint512,(len+utf8[]),(len+uint8[]))%0#0
         let tmp%9#0: bytes = (concat 0x151f7c75 tmp%8#0)
         (log tmp%9#0)
-        return 
+        exit 1u
 
 subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routing]() -> void:
     block@0: // L15
@@ -100,4 +100,4 @@ subroutine test_cases.named_tuples.contract.NamedTuplesContract.test_tuple[routi
         let tmp%4#0: account = (txn Sender)
         let tmp%5#0: bool = (== value.d#0 tmp%4#0)
         (assert tmp%5#0)
-        return 
+        exit 1u

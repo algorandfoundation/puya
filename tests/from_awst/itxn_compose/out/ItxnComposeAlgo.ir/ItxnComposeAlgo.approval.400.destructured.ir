@@ -1,6 +1,5 @@
 main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram:
     block@0: // L1
-        let lifted%return#0: bool = 1u
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@7
     block@2: // abi_routing_L18
@@ -13,10 +12,10 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
         switch tmp%6#0 {method "distribute(address[],pay,uint64)void" => block@3, method "conditionalBegin(uint64)void" => block@4, * => block@11}
     block@3: // distribute_route_L19
         tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[routing]()
-        exit lifted%return#0
+        goto block@11
     block@4: // conditionalBegin_route_L53
         tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]()
-        exit lifted%return#0
+        goto block@11
     block@7: // bare_routing_L18
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -24,7 +23,7 @@ main @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalP
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
-        exit lifted%return#0
+        exit 1u
     block@11: // after_if_else_L18
         fail
 
@@ -79,7 +78,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.distribute[rout
         ((itxn_field TypeEnum) 3u)
         ((itxn_field Fee) 0u)
         itxn_submit
-        return 
+        exit 1u
 
 subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegin[routing]() -> void:
     block@0: // L18
@@ -90,7 +89,7 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegi
         ((itxn_field ApplicationArgs) 0x00024869)
         ((itxn_field GlobalNumByteSlice) 1u)
         ((itxn_field ClearStateProgramPages) CoEBQw==)
-        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5ngQExGEAABCiAAGeCBAQAkiWuBCQ3jTwEoOgYcgTQooIANhoAjgQAIAAWAAwAAQAxGRREMRhEiAArQzEZgQQSRDEYREMxGYEFEkQxGERDMRkURDEYFESIAAFDNhoBVwIAKExniTYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCJ)
+        ((itxn_field ApprovalProgramPages) CiYBCGdyZWV0aW5ngQExGEAABCiAAGeCBAQAkiWuBCQ3jTwEoOgYcgTQooIANhoAjgQAHwAVAAsAAQAxGRREMRhEQgArMRmBBBJEMRhEQzEZgQUSRDEYREMxGRREMRgUREIAADYaAVcCAChMZ4EBQzYaAVcCAIEAKGVEgAEgUExQSRUWVwYCTFCABBUffHVMULCBAUM=)
         ((itxn_field OnCompletion) 0u)
         ((itxn_field TypeEnum) appl)
         ((itxn_field Fee) 0u)
@@ -124,4 +123,4 @@ subroutine tests/approvals/itxn-compose.algo.ts::ItxnComposeAlgo.conditionalBegi
         goto block@3
     block@9: // after_for_L57
         itxn_submit
-        return 
+        exit 1u

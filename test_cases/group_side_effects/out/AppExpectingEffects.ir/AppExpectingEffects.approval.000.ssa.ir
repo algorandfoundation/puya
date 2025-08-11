@@ -19,10 +19,10 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.__puya_arc
         switch tmp%6#0 {method "create_group(acfg,appl)(uint64,uint64)" => block@2, method "log_group(appl)void" => block@3, * => block@4}
     block@2: // create_group_route_L5
         test_cases.group_side_effects.contract.AppExpectingEffects.create_group[routing]()
-        exit 1u
+        goto block@5
     block@3: // log_group_route_L22
         test_cases.group_side_effects.contract.AppExpectingEffects.log_group[routing]()
-        exit 1u
+        goto block@5
     block@4: // switch_case_default_L4
         goto block@5
     block@5: // switch_case_next_L4
@@ -59,7 +59,7 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.create_gro
         let tmp%4#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(tmp%2#0, tmp%3#0)
         let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
         (log tmp%5#0)
-        return 
+        exit 1u
 
 subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group[routing]() -> void:
     block@0: // L4
@@ -69,7 +69,7 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group[
         let gtxn_type_matches%0#0: bool = (== gtxn_type%0#0 appl)
         (assert gtxn_type_matches%0#0) // transaction type is appl
         test_cases.group_side_effects.contract.AppExpectingEffects.log_group(gtxn_idx%0#0)
-        return 
+        exit 1u
 
 subroutine test_cases.group_side_effects.contract.AppExpectingEffects.create_group(asset_create: uint64, app_create: uint64) -> <uint64, uint64>:
     block@0: // L5

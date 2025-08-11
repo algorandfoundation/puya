@@ -5,9 +5,6 @@
 main:
     intcblock 0 1 32
     bytecblock "root"
-    // merkle/contract.py:10
-    // @arc4.abimethod(create="require")
-    intc_1 // 1
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     pushbytess 0x8424203b 0xc0290ad5 // method "create(byte[32])void", method "verify(byte[32][],byte[32])bool"
@@ -25,10 +22,7 @@ main_verify_route@3:
     assert // can only call when not creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    callsub verify
-    // merkle/contract.py:14
-    // @arc4.abimethod
-    return
+    b verify
 
 main_create_route@2:
     // merkle/contract.py:10
@@ -41,10 +35,7 @@ main_create_route@2:
     assert // can only call when creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    callsub create
-    // merkle/contract.py:10
-    // @arc4.abimethod(create="require")
-    return
+    b create
 
 
 // examples.merkle.contract.MerkleTree.create[routing]() -> void:
@@ -58,14 +49,16 @@ create:
     // merkle/contract.py:12
     // self.root = root.bytes
     app_global_put
-    retsub
+    // merkle/contract.py:10
+    // @arc4.abimethod(create="require")
+    intc_1 // 1
+    return
 
 
 // examples.merkle.contract.MerkleTree.verify[routing]() -> void:
 verify:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     dup
     txna ApplicationArgs 2
@@ -148,4 +141,5 @@ verify_after_for@7:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return

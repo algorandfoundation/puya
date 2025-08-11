@@ -16,16 +16,16 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         switch tmp%4#0 {method "bootstrap(pay)void" => block@5, method "close()void" => block@6, method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)" => block@7, method "vote(pay,byte[],uint8[])void" => block@8, * => block@11}
     block@5: // bootstrap_route_L82
         examples.voting.voting.VotingRoundApp.bootstrap[routing]()
-        exit 1u
+        goto block@11
     block@6: // close_route_L110
         examples.voting.voting.VotingRoundApp.close[routing]()
-        exit 1u
+        goto block@11
     block@7: // get_preconditions_route_L160
         examples.voting.voting.VotingRoundApp.get_preconditions[routing]()
-        exit 1u
+        goto block@11
     block@8: // vote_route_L169
         examples.voting.voting.VotingRoundApp.vote[routing]()
-        exit 1u
+        goto block@11
     block@9: // other_routes_L49
         let tmp%5#0: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
         switch tmp%5#0 {method "create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void" => block@10, * => block@11}
@@ -37,7 +37,7 @@ main examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init:
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
         examples.voting.voting.VotingRoundApp.create[routing]()
-        exit 1u
+        goto block@11
     block@11: // after_if_else_L49
         fail
 
@@ -145,7 +145,7 @@ subroutine examples.voting.voting.VotingRoundApp.create[routing]() -> void:
         (assert tmp%6#0) // Can't have more than 128 vote options
         (app_global_put "option_counts" option_counts#0)
         (app_global_put "total_options" total_options#1)
-        return 
+        exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.bootstrap[routing]() -> void:
     block@0: // L49
@@ -175,7 +175,7 @@ subroutine examples.voting.voting.VotingRoundApp.bootstrap[routing]() -> void:
         (assert tmp%9#0) // Payment must be for the exact min balance requirement
         let tmp%10#0: bool = (box_create "V" tally_box_size#0)
         (assert tmp%10#0)
-        return 
+        exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
     block@0: // L49
@@ -288,7 +288,7 @@ subroutine examples.voting.voting.VotingRoundApp.close[routing]() -> void:
         itxn_submit
         let tmp%27#0: uint64 = (itxn CreatedAssetID)
         (app_global_put "nft_asset_id" tmp%27#0)
-        return 
+        exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
     block@0: // L49
@@ -319,7 +319,7 @@ subroutine examples.voting.voting.VotingRoundApp.get_preconditions[routing]() ->
         let tmp%8#0: Encoded(uint64,uint64,uint64,uint64) = aggregate%as_Encoded(uint64,uint64,uint64,uint64)%0#0
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%8#0)
         (log tmp%2#0)
-        return 
+        exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
     block@0: // L49
@@ -404,7 +404,7 @@ subroutine examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
         let question_index#2: uint64 = (+ question_index#1 1u)
         goto block@2
     block@5: // after_for_L195
-        return 
+        exit 1u
 
 subroutine examples.voting.voting.VotingRoundApp.voting_open() -> bool:
     block@0: // L205

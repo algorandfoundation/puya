@@ -2,10 +2,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // typed_abi_call_txn/txn_contract.py:12
-        // @arc4.abimethod
-        int 1                                                                       1
-        v-store lifted%return#0
         // typed_abi_call_txn/txn_contract.py:11
         // class TxnContract(ARC4Contract):
         txn NumAppArgs                                                              tmp%0#1
@@ -39,28 +35,19 @@ subroutine main:
         // typed_abi_call_txn/txn_contract.py:11
         // class TxnContract(ARC4Contract):
         callsub call_with_txn
-        // typed_abi_call_txn/txn_contract.py:12
-        // @arc4.abimethod
-        v-load lifted%return#0                                                      lifted%return#0
-        return
+        b main_after_if_else@12
 
     main_call_with_acfg_route@4:
         // typed_abi_call_txn/txn_contract.py:11
         // class TxnContract(ARC4Contract):
         callsub call_with_acfg
-        // typed_abi_call_txn/txn_contract.py:20
-        // @arc4.abimethod
-        v-load lifted%return#0                                                      lifted%return#0
-        return
+        b main_after_if_else@12
 
     main_call_with_acfg_no_return_route@5:
         // typed_abi_call_txn/txn_contract.py:11
         // class TxnContract(ARC4Contract):
         callsub call_with_acfg_no_return
-        // typed_abi_call_txn/txn_contract.py:27
-        // @arc4.abimethod
-        v-load lifted%return#0                                                      lifted%return#0
-        return
+        b main_after_if_else@12
 
     main_bare_routing@8:
         // typed_abi_call_txn/txn_contract.py:11
@@ -79,7 +66,7 @@ subroutine main:
         v-store tmp%9#0
         v-load tmp%9#0                                                              tmp%9#0
         assert // can only call when creating
-        v-load lifted%return#0                                                      lifted%return#0
+        int 1                                                                       1
         return
 
     main_after_if_else@12:
@@ -154,7 +141,8 @@ subroutine call_with_txn:
         v-store tmp%5#0
         v-load tmp%5#0                                                              tmp%5#0
         log
-        retsub
+        int 1                                                                       1
+        return
 
 
 // test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg[routing]() -> void:
@@ -221,7 +209,8 @@ subroutine call_with_acfg:
         v-store tmp%5#0
         v-load tmp%5#0                                                              tmp%5#0
         log
-        retsub
+        int 1                                                                       1
+        return
 
 
 // test_cases.typed_abi_call_txn.txn_contract.TxnContract.call_with_acfg_no_return[routing]() -> void:
@@ -277,6 +266,9 @@ subroutine call_with_acfg_no_return:
         v-store tmp%2#1
         v-load tmp%2#1                                                              tmp%2#1
         assert // expected asset id
-        retsub
+        // typed_abi_call_txn/txn_contract.py:27
+        // @arc4.abimethod
+        int 1                                                                       1
+        return
 
 

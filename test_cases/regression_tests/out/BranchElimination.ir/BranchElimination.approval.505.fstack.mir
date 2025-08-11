@@ -2,73 +2,60 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // regression_tests/leftover_branch.py:5
-        // @arc4.abimethod
+        // regression_tests/leftover_branch.py:4
+        // class BranchElimination(ARC4Contract):
+        txn NumAppArgs                                                                                                     tmp%0#1
+        bz main_bare_routing@8 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // regression_tests/leftover_branch.py:4
+        // class BranchElimination(ARC4Contract):
+        txn OnCompletion                                                                                                   tmp%2#0
+        !                                                                                                                  tmp%3#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                                                  tmp%4#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0                                                                                             tmp%6#0
+        method umm()uint64                                                                                                 tmp%6#0,Method(umm()uint64)
+        method umm2()void                                                                                                  tmp%6#0,Method(umm()uint64),Method(umm2()void)
+        method calculate(uint64[][],uint64)void                                                                            tmp%6#0,Method(umm()uint64),Method(umm2()void),Method(calculate(uint64[][],uint64)void)
+        l-load tmp%6#0 3                                                                                                   Method(umm()uint64),Method(umm2()void),Method(calculate(uint64[][],uint64)void),tmp%6#0
+        match main_umm_route@3 main_umm2_route@4 main_calculate_route@5 ; b main_after_if_else@12 
+
+    main_umm_route@3:
+        // regression_tests/leftover_branch.py:4
+        // class BranchElimination(ARC4Contract):
+        callsub umm
+        b main_after_if_else@12
+
+    main_umm2_route@4:
+        // regression_tests/leftover_branch.py:4
+        // class BranchElimination(ARC4Contract):
+        callsub umm2
+        b main_after_if_else@12
+
+    main_calculate_route@5:
+        // regression_tests/leftover_branch.py:4
+        // class BranchElimination(ARC4Contract):
+        callsub calculate
+        b main_after_if_else@12
+
+    main_bare_routing@8:
+        // regression_tests/leftover_branch.py:4
+        // class BranchElimination(ARC4Contract):
+        txn OnCompletion                                                                                                   tmp%7#0
+        !                                                                                                                  not%tmp%7#0
+        assert
+        txn ApplicationID                                                                                                  tmp%8#0
+        !                                                                                                                  tmp%9#0
+        assert // can only call when creating
         int 1                                                                                                              1
-        f-store lifted%return#0                                                                                            (𝕗) lifted%return#0 |
-        // regression_tests/leftover_branch.py:4
-        // class BranchElimination(ARC4Contract):
-        txn NumAppArgs                                                                                                     (𝕗) lifted%return#0 | tmp%0#1
-        bz main_bare_routing@8 ; b main_abi_routing@2                                                                      (𝕗) lifted%return#0 |
+        return
 
-    main_abi_routing@2:                                                                                                    (𝕗) lifted%return#0 |
+    main_after_if_else@12:
         // regression_tests/leftover_branch.py:4
         // class BranchElimination(ARC4Contract):
-        txn OnCompletion                                                                                                   (𝕗) lifted%return#0 | tmp%2#0
-        !                                                                                                                  (𝕗) lifted%return#0 | tmp%3#0
-        assert // OnCompletion is not NoOp                                                                                 (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                                                  (𝕗) lifted%return#0 | tmp%4#0
-        assert // can only call when not creating                                                                          (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0                                                                                             (𝕗) lifted%return#0 | tmp%6#0
-        method umm()uint64                                                                                                 (𝕗) lifted%return#0 | tmp%6#0,Method(umm()uint64)
-        method umm2()void                                                                                                  (𝕗) lifted%return#0 | tmp%6#0,Method(umm()uint64),Method(umm2()void)
-        method calculate(uint64[][],uint64)void                                                                            (𝕗) lifted%return#0 | tmp%6#0,Method(umm()uint64),Method(umm2()void),Method(calculate(uint64[][],uint64)void)
-        l-load tmp%6#0 3                                                                                                   (𝕗) lifted%return#0 | Method(umm()uint64),Method(umm2()void),Method(calculate(uint64[][],uint64)void),tmp%6#0
-        match main_umm_route@3 main_umm2_route@4 main_calculate_route@5 ; b main_after_if_else@12 (𝕗) lifted%return#0 | 
-
-    main_umm_route@3:                                                                                                      (𝕗) lifted%return#0 |
-        // regression_tests/leftover_branch.py:4
-        // class BranchElimination(ARC4Contract):
-        callsub umm                                                                                                        (𝕗) lifted%return#0 |
-        // regression_tests/leftover_branch.py:5
-        // @arc4.abimethod
-        f-load lifted%return#0                                                                                             (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                                             (𝕗) lifted%return#0 |
-
-    main_umm2_route@4:                                                                                                     (𝕗) lifted%return#0 |
-        // regression_tests/leftover_branch.py:4
-        // class BranchElimination(ARC4Contract):
-        callsub umm2                                                                                                       (𝕗) lifted%return#0 |
-        // regression_tests/leftover_branch.py:18
-        // @arc4.abimethod
-        f-load lifted%return#0                                                                                             (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                                             (𝕗) lifted%return#0 |
-
-    main_calculate_route@5:                                                                                                (𝕗) lifted%return#0 |
-        // regression_tests/leftover_branch.py:4
-        // class BranchElimination(ARC4Contract):
-        callsub calculate                                                                                                  (𝕗) lifted%return#0 |
-        // regression_tests/leftover_branch.py:29
-        // @arc4.abimethod
-        f-load lifted%return#0                                                                                             (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                                             (𝕗) lifted%return#0 |
-
-    main_bare_routing@8:                                                                                                   (𝕗) lifted%return#0 |
-        // regression_tests/leftover_branch.py:4
-        // class BranchElimination(ARC4Contract):
-        txn OnCompletion                                                                                                   (𝕗) lifted%return#0 | tmp%7#0
-        !                                                                                                                  (𝕗) lifted%return#0 | not%tmp%7#0
-        assert                                                                                                             (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                                                  (𝕗) lifted%return#0 | tmp%8#0
-        !                                                                                                                  (𝕗) lifted%return#0 | tmp%9#0
-        assert // can only call when creating                                                                              (𝕗) lifted%return#0 |
-        f-load lifted%return#0                                                                                             (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                                             (𝕗) lifted%return#0 |
-
-    main_after_if_else@12:                                                                                                 (𝕗) lifted%return#0 |
-        // regression_tests/leftover_branch.py:4
-        // class BranchElimination(ARC4Contract):
-        err                                                                                                                (𝕗) lifted%return#0 |
+        err
 
 
 // test_cases.regression_tests.leftover_branch.hmm() -> uint64:
@@ -185,7 +172,8 @@ subroutine umm:
         l-load aggregate%val_as_bytes%0#0 1                                                                                (𝕗) _i#0,ahuh#15,tmp%0#1,ahuh#0 | 0x151f7c75,aggregate%val_as_bytes%0#0
         concat                                                                                                             (𝕗) _i#0,ahuh#15,tmp%0#1,ahuh#0 | tmp%2#0
         log                                                                                                                (𝕗) _i#0,ahuh#15,tmp%0#1,ahuh#0 |
-        retsub
+        int 1                                                                                                              (𝕗) _i#0,ahuh#15,tmp%0#1,ahuh#0 | 1
+        return                                                                                                             (𝕗) _i#0,ahuh#15,tmp%0#1,ahuh#0 |
 
 
 // test_cases.regression_tests.leftover_branch.BranchElimination.umm2[routing]() -> void:
@@ -250,7 +238,10 @@ subroutine umm2:
         bz umm2_while_top@2 ; b umm2_if_body@10                                                                            (𝕗) ahuh#11,ahuh#0 |
 
     umm2_if_body@10:                                                                                                       (𝕗) ahuh#11,ahuh#0 |
-        retsub
+        // regression_tests/leftover_branch.py:18
+        // @arc4.abimethod
+        int 1                                                                                                              (𝕗) ahuh#11,ahuh#0 | 1
+        return                                                                                                             (𝕗) ahuh#11,ahuh#0 |
 
 
 // test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]() -> void:
@@ -478,6 +469,9 @@ subroutine calculate:
         b calculate_for_header@2                                                                                           (𝕗) aggregate%array_trimmed%0#0,inner_list#0,value#0,aggregate%array_length%2#0,continue_looping%0#0,j#0,last_inner_list_index#0,num_boosts#15,total#16,nested_list#0,threshold#0,total#0,num_boosts#0,aggregate%array_length%0#0,i#0 |
 
     calculate_after_for@15:                                                                                                (𝕗) aggregate%array_trimmed%0#0,inner_list#0,value#0,aggregate%array_length%2#0,continue_looping%0#0,j#0,last_inner_list_index#0,num_boosts#15,total#16,nested_list#0,threshold#0,total#0,num_boosts#0,aggregate%array_length%0#0,i#0 |
-        retsub
+        // regression_tests/leftover_branch.py:29
+        // @arc4.abimethod
+        int 1                                                                                                              (𝕗) aggregate%array_trimmed%0#0,inner_list#0,value#0,aggregate%array_length%2#0,continue_looping%0#0,j#0,last_inner_list_index#0,num_boosts#15,total#16,nested_list#0,threshold#0,total#0,num_boosts#0,aggregate%array_length%0#0,i#0 | 1
+        return                                                                                                             (𝕗) aggregate%array_trimmed%0#0,inner_list#0,value#0,aggregate%array_length%2#0,continue_looping%0#0,j#0,last_inner_list_index#0,num_boosts#15,total#16,nested_list#0,threshold#0,total#0,num_boosts#0,aggregate%array_length%0#0,i#0 |
 
 

@@ -2,10 +2,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // merkle/contract.py:10
-        // @arc4.abimethod(create="require")
-        int 1                                                                                  1
-        v-store lifted%return#0
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
         txna ApplicationArgs 0 // on error: contract does not allow bare method calls          tmp%0#1
@@ -13,7 +9,7 @@ subroutine main:
         method create(byte[32])void                                                            Method(create(byte[32])void)
         method verify(byte[32][],byte[32])bool                                                 Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool)
         v-load tmp%0#1                                                                         Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool),tmp%0#1
-        match main_create_route@2 main_verify_route@3 ; b main_switch_case_default@4
+        match main_create_route@2 main_verify_route@3 ; b main_switch_case_next@5
 
     main_create_route@2:
         // merkle/contract.py:10
@@ -35,10 +31,7 @@ subroutine main:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
         callsub create
-        // merkle/contract.py:10
-        // @arc4.abimethod(create="require")
-        v-load lifted%return#0                                                                 lifted%return#0
-        return
+        b main_switch_case_next@5
 
     main_verify_route@3:
         // merkle/contract.py:14
@@ -57,12 +50,9 @@ subroutine main:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
         callsub verify
-        // merkle/contract.py:14
-        // @arc4.abimethod
-        v-load lifted%return#0                                                                 lifted%return#0
-        return
+        b main_switch_case_next@5
 
-    main_switch_case_default@4:
+    main_switch_case_next@5:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
         err
@@ -80,7 +70,10 @@ subroutine create:
         byte "root"                                                                            "root"
         v-load root#0                                                                          "root",root#0
         app_global_put
-        retsub
+        // merkle/contract.py:10
+        // @arc4.abimethod(create="require")
+        int 1                                                                                  1
+        return
 
 
 // examples.merkle.contract.MerkleTree.verify[routing]() -> void:
@@ -199,6 +192,7 @@ subroutine verify:
         v-store tmp%2#0
         v-load tmp%2#0                                                                         tmp%2#0
         log
-        retsub
+        int 1                                                                                  1
+        return
 
 

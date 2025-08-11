@@ -2,63 +2,53 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // inner_transactions_assignment/contract.py:12
-        // @arc4.abimethod
+        // inner_transactions_assignment/contract.py:11
+        // class Contract(ARC4Contract):
+        txn NumAppArgs                                                     tmp%0#1
+        bz main_bare_routing@7 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // inner_transactions_assignment/contract.py:11
+        // class Contract(ARC4Contract):
+        txn OnCompletion                                                   tmp%2#0
+        !                                                                  tmp%3#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                  tmp%4#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0                                             tmp%6#0
+        method test_itxn_slice()void                                       tmp%6#0,Method(test_itxn_slice()void)
+        method test_itxn_nested()void                                      tmp%6#0,Method(test_itxn_slice()void),Method(test_itxn_nested()void)
+        l-load tmp%6#0 2                                                   Method(test_itxn_slice()void),Method(test_itxn_nested()void),tmp%6#0
+        match main_test_itxn_slice_route@3 main_test_itxn_nested_route@4 ; b main_after_if_else@11 
+
+    main_test_itxn_slice_route@3:
+        // inner_transactions_assignment/contract.py:11
+        // class Contract(ARC4Contract):
+        callsub test_itxn_slice
+        b main_after_if_else@11
+
+    main_test_itxn_nested_route@4:
+        // inner_transactions_assignment/contract.py:11
+        // class Contract(ARC4Contract):
+        callsub test_itxn_nested
+        b main_after_if_else@11
+
+    main_bare_routing@7:
+        // inner_transactions_assignment/contract.py:11
+        // class Contract(ARC4Contract):
+        txn OnCompletion                                                   tmp%7#0
+        !                                                                  not%tmp%7#0
+        assert
+        txn ApplicationID                                                  tmp%8#0
+        !                                                                  tmp%9#0
+        assert // can only call when creating
         int 1                                                              1
-        f-store lifted%return#0                                            (𝕗) lifted%return#0 |
-        // inner_transactions_assignment/contract.py:11
-        // class Contract(ARC4Contract):
-        txn NumAppArgs                                                     (𝕗) lifted%return#0 | tmp%0#1
-        bz main_bare_routing@7 ; b main_abi_routing@2                      (𝕗) lifted%return#0 |
+        return
 
-    main_abi_routing@2:                                                    (𝕗) lifted%return#0 |
+    main_after_if_else@11:
         // inner_transactions_assignment/contract.py:11
         // class Contract(ARC4Contract):
-        txn OnCompletion                                                   (𝕗) lifted%return#0 | tmp%2#0
-        !                                                                  (𝕗) lifted%return#0 | tmp%3#0
-        assert // OnCompletion is not NoOp                                 (𝕗) lifted%return#0 |
-        txn ApplicationID                                                  (𝕗) lifted%return#0 | tmp%4#0
-        assert // can only call when not creating                          (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0                                             (𝕗) lifted%return#0 | tmp%6#0
-        method test_itxn_slice()void                                       (𝕗) lifted%return#0 | tmp%6#0,Method(test_itxn_slice()void)
-        method test_itxn_nested()void                                      (𝕗) lifted%return#0 | tmp%6#0,Method(test_itxn_slice()void),Method(test_itxn_nested()void)
-        l-load tmp%6#0 2                                                   (𝕗) lifted%return#0 | Method(test_itxn_slice()void),Method(test_itxn_nested()void),tmp%6#0
-        match main_test_itxn_slice_route@3 main_test_itxn_nested_route@4 ; b main_after_if_else@11 (𝕗) lifted%return#0 | 
-
-    main_test_itxn_slice_route@3:                                          (𝕗) lifted%return#0 |
-        // inner_transactions_assignment/contract.py:11
-        // class Contract(ARC4Contract):
-        callsub test_itxn_slice                                            (𝕗) lifted%return#0 |
-        // inner_transactions_assignment/contract.py:12
-        // @arc4.abimethod
-        f-load lifted%return#0                                             (𝕗) lifted%return#0 | lifted%return#0
-        return                                                             (𝕗) lifted%return#0 |
-
-    main_test_itxn_nested_route@4:                                         (𝕗) lifted%return#0 |
-        // inner_transactions_assignment/contract.py:11
-        // class Contract(ARC4Contract):
-        callsub test_itxn_nested                                           (𝕗) lifted%return#0 |
-        // inner_transactions_assignment/contract.py:29
-        // @arc4.abimethod
-        f-load lifted%return#0                                             (𝕗) lifted%return#0 | lifted%return#0
-        return                                                             (𝕗) lifted%return#0 |
-
-    main_bare_routing@7:                                                   (𝕗) lifted%return#0 |
-        // inner_transactions_assignment/contract.py:11
-        // class Contract(ARC4Contract):
-        txn OnCompletion                                                   (𝕗) lifted%return#0 | tmp%7#0
-        !                                                                  (𝕗) lifted%return#0 | not%tmp%7#0
-        assert                                                             (𝕗) lifted%return#0 |
-        txn ApplicationID                                                  (𝕗) lifted%return#0 | tmp%8#0
-        !                                                                  (𝕗) lifted%return#0 | tmp%9#0
-        assert // can only call when creating                              (𝕗) lifted%return#0 |
-        f-load lifted%return#0                                             (𝕗) lifted%return#0 | lifted%return#0
-        return                                                             (𝕗) lifted%return#0 |
-
-    main_after_if_else@11:                                                 (𝕗) lifted%return#0 |
-        // inner_transactions_assignment/contract.py:11
-        // class Contract(ARC4Contract):
-        err                                                                (𝕗) lifted%return#0 |
+        err
 
 
 // test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice[routing]() -> void:
@@ -162,7 +152,10 @@ subroutine test_itxn_slice:
         byte 0x70617932                                                    sliced_txns.1.Note#0,0x70617932
         ==                                                                 tmp%1#0
         assert
-        retsub
+        // inner_transactions_assignment/contract.py:12
+        // @arc4.abimethod
+        int 1                                                              1
+        return
 
 
 // test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested[routing]() -> void:
@@ -342,6 +335,9 @@ subroutine test_itxn_nested:
         byte 0x70617935                                                    nested_tuple.1.1.Note#0,0x70617935
         ==                                                                 tmp%12#0
         assert
-        retsub
+        // inner_transactions_assignment/contract.py:29
+        // @arc4.abimethod
+        int 1                                                              1
+        return
 
 

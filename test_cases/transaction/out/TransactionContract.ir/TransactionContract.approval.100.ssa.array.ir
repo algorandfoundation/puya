@@ -9,31 +9,31 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%4#0 {method "pay(pay)void" => block@3, method "key(keyreg)void" => block@4, method "asset_config(acfg)void" => block@5, method "asset_transfer(axfer)void" => block@6, method "asset_freeze(afrz)void" => block@7, method "application_call(appl)void" => block@8, method "multiple_txns(appl,appl,appl)void" => block@9, method "any_txn(txn,txn,txn)void" => block@10, method "group_init(txn,txn,txn)void" => block@11, * => block@18}
     block@3: // pay_route_L31
         test_cases.transaction.contract.TransactionContract.pay[routing]()
-        exit 1u
+        goto block@18
     block@4: // key_route_L40
         test_cases.transaction.contract.TransactionContract.key[routing]()
-        exit 1u
+        goto block@18
     block@5: // asset_config_route_L51
         test_cases.transaction.contract.TransactionContract.asset_config[routing]()
-        exit 1u
+        goto block@18
     block@6: // asset_transfer_route_L68
         test_cases.transaction.contract.TransactionContract.asset_transfer[routing]()
-        exit 1u
+        goto block@18
     block@7: // asset_freeze_route_L77
         test_cases.transaction.contract.TransactionContract.asset_freeze[routing]()
-        exit 1u
+        goto block@18
     block@8: // application_call_route_L85
         test_cases.transaction.contract.TransactionContract.application_call[routing]()
-        exit 1u
+        goto block@18
     block@9: // multiple_txns_route_L111
         test_cases.transaction.contract.TransactionContract.multiple_txns[routing]()
-        exit 1u
+        goto block@18
     block@10: // any_txn_route_L121
         test_cases.transaction.contract.TransactionContract.any_txn[routing]()
-        exit 1u
+        goto block@18
     block@11: // group_init_route_L131
         test_cases.transaction.contract.TransactionContract.group_init[routing]()
-        exit 1u
+        goto block@18
     block@14: // other_routes_L11
         let tmp%5#0: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
         switch tmp%5#0 {method "create()void" => block@15, * => block@18}
@@ -67,7 +67,7 @@ subroutine test_cases.transaction.contract.TransactionContract.pay[routing]() ->
         let tmp%6#0: account = (global ZeroAddress)
         let tmp%7#0: bool = (== tmp%5#0 tmp%6#0)
         (assert tmp%7#0) // close_remainder_to
-        return 
+        exit 1u
 
 subroutine test_cases.transaction.contract.TransactionContract.key[routing]() -> void:
     block@0: // L11
@@ -88,7 +88,7 @@ subroutine test_cases.transaction.contract.TransactionContract.key[routing]() ->
         let tmp%13#0: bytes = ((gtxns StateProofPK) txn#0)
         let tmp%14#0: uint64 = (len tmp%13#0)
         (assert tmp%14#0) // state_proof_key
-        return 
+        exit 1u
 
 subroutine test_cases.transaction.contract.TransactionContract.asset_config[routing]() -> void:
     block@0: // L11
@@ -131,7 +131,7 @@ subroutine test_cases.transaction.contract.TransactionContract.asset_config[rout
         let tmp%29#0: account = (global ZeroAddress)
         let tmp%30#0: bool = (!= tmp%28#0 tmp%29#0)
         (assert tmp%30#0) // clawback
-        return 
+        exit 1u
 
 subroutine test_cases.transaction.contract.TransactionContract.asset_transfer[routing]() -> void:
     block@0: // L11
@@ -157,7 +157,7 @@ subroutine test_cases.transaction.contract.TransactionContract.asset_transfer[ro
         let tmp%11#0: account = (global ZeroAddress)
         let tmp%12#0: bool = (!= tmp%10#0 tmp%11#0)
         (assert tmp%12#0) // asset_close_to
-        return 
+        exit 1u
 
 subroutine test_cases.transaction.contract.TransactionContract.asset_freeze[routing]() -> void:
     block@0: // L11
@@ -175,7 +175,7 @@ subroutine test_cases.transaction.contract.TransactionContract.asset_freeze[rout
         (assert tmp%4#0) // freeze_account
         let tmp%5#0: bool = ((gtxns FreezeAssetFrozen) txn#0)
         (assert tmp%5#0) // frozen
-        return 
+        exit 1u
 
 subroutine test_cases.transaction.contract.TransactionContract.application_call[routing]() -> void:
     block@0: // L11
@@ -237,7 +237,7 @@ subroutine test_cases.transaction.contract.TransactionContract.application_call[
         let tmp%48#0: bytes = ((gtxnsas ClearStateProgramPages) txn#0 0u)
         let tmp%49#0: uint64 = (len tmp%48#0)
         (assert tmp%49#0) // clear_state_program_pages(0)
-        return 
+        exit 1u
 
 subroutine test_cases.transaction.contract.TransactionContract.multiple_txns[routing]() -> void:
     block@0: // L11
@@ -272,7 +272,7 @@ subroutine test_cases.transaction.contract.TransactionContract.multiple_txns[rou
         let index#3: uint64 = 2u
         goto block@2
     block@6: // after_for_L118
-        return 
+        exit 1u
 
 subroutine test_cases.transaction.contract.TransactionContract.any_txn[routing]() -> void:
     block@0: // L11
@@ -298,7 +298,7 @@ subroutine test_cases.transaction.contract.TransactionContract.any_txn[routing](
         let index#3: uint64 = 2u
         goto block@2
     block@6: // after_for_L128
-        return 
+        exit 1u
 
 subroutine test_cases.transaction.contract.TransactionContract.group_init[routing]() -> void:
     block@0: // L11
@@ -330,7 +330,7 @@ subroutine test_cases.transaction.contract.TransactionContract.group_init[routin
         let tmp%4#0: bytes = ((gtxns TxID) 0u)
         let tmp%5#0: bool = (== tmp%3#0 tmp%4#0)
         (assert tmp%5#0)
-        return 
+        exit 1u
 
 subroutine test_cases.transaction.contract.TransactionContract._common_checks(txn: uint64) -> void:
     block@0: // L16

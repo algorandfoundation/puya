@@ -12,10 +12,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "get_bytes()byte[]" => block@3, method "get_big_uint()uint512" => block@4, * => block@13}
     block@3: // get_bytes_route_L6
         test_cases.template_variables.contract.TemplateVariablesContract.get_bytes[routing]()
-        exit 1u
+        goto block@13
     block@4: // get_big_uint_route_L10
         test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint[routing]()
-        exit 1u
+        goto block@13
     block@7: // bare_routing_L5
         let tmp%7#0: uint64 = (txn OnCompletion)
         goto_nth [block@10, block@13, block@13, block@13, block@8, block@9][tmp%7#0] else goto block@13
@@ -46,7 +46,7 @@ subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_
         let aggregate%encoded_value%0#0: bytes = (concat aggregate%length_uint16%0#0 value#0)
         let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%encoded_value%0#0)
         (log tmp%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_big_uint[routing]() -> void:
     block@0: // L5
@@ -58,4 +58,4 @@ subroutine test_cases.template_variables.contract.TemplateVariablesContract.get_
         let aggregate%arc4_encoded%0#0: bytes[64] = (b| x#0 aggregate%bzero%0#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 aggregate%arc4_encoded%0#0)
         (log tmp%1#0)
-        return 
+        exit 1u

@@ -4,8 +4,8 @@
 // test_cases.compile.apps.Hello.__algopy_entrypoint_with_init() -> uint64:
 main:
     bytecblock "greeting"
-    // compile/apps.py:53
-    // @arc4.abimethod(create="require")
+    // compile/apps.py:24
+    // @arc4.abimethod(allow_actions=["DeleteApplication"])
     pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
@@ -35,10 +35,7 @@ main_greet_route@7:
     assert // can only call when not creating
     // compile/apps.py:52
     // class Hello(HelloBase):
-    callsub greet
-    // compile/apps.py:32
-    // @arc4.abimethod()
-    return
+    b greet
 
 main_delete_route@6:
     // compile/apps.py:24
@@ -62,10 +59,7 @@ main_create_route@5:
     assert // can only call when creating
     // compile/apps.py:52
     // class Hello(HelloBase):
-    callsub create
-    // compile/apps.py:53
-    // @arc4.abimethod(create="require")
-    return
+    b create
 
 main_bare_routing@8:
     // compile/apps.py:52
@@ -94,7 +88,10 @@ create:
     bytec_0 // "greeting"
     swap
     app_global_put
-    retsub
+    // compile/apps.py:53
+    // @arc4.abimethod(create="require")
+    pushint 1 // 1
+    return
 
 
 // test_cases.compile.apps.HelloBase.greet[routing]() -> void:
@@ -125,4 +122,5 @@ greet:
     swap
     concat
     log
-    retsub
+    pushint 1 // 1
+    return

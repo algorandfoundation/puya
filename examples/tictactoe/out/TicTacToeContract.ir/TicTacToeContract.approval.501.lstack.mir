@@ -2,10 +2,6 @@
 // examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // tictactoe/tictactoe.py:37
-        // @arc4.abimethod
-        int 1                                                                          1
-        v-store lifted%return#0
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
         txn OnCompletion                                                               tmp%0#2
@@ -29,28 +25,19 @@ subroutine main:
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
         callsub join_game
-        // tictactoe/tictactoe.py:37
-        // @arc4.abimethod
-        v-load lifted%return#0                                                         lifted%return#0
-        return
+        b main_after_if_else@10
 
     main_whose_turn_route@6:
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
         callsub whose_turn
-        // tictactoe/tictactoe.py:43
-        // @arc4.abimethod
-        v-load lifted%return#0                                                         lifted%return#0
-        return
+        b main_after_if_else@10
 
     main_play_route@7:
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
         callsub play
-        // tictactoe/tictactoe.py:47
-        // @arc4.abimethod
-        v-load lifted%return#0                                                         lifted%return#0
-        return
+        b main_after_if_else@10
 
     main_other_routes@8:
         // tictactoe/tictactoe.py:15
@@ -71,10 +58,7 @@ subroutine main:
         // tictactoe/tictactoe.py:15
         // class TicTacToeContract(arc4.ARC4Contract):
         callsub new_game
-        // tictactoe/tictactoe.py:20
-        // @arc4.abimethod(create="allow")
-        v-load lifted%return#0                                                         lifted%return#0
-        return
+        b main_after_if_else@10
 
     main_after_if_else@10:
         // tictactoe/tictactoe.py:15
@@ -212,7 +196,10 @@ subroutine new_game:
         byte "turns"                                                                   "turns"
         int 0                                                                          "turns",0
         app_global_put
-        retsub
+        // tictactoe/tictactoe.py:20
+        // @arc4.abimethod(create="allow")
+        int 1                                                                          1
+        return
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.join_game[routing]() -> void:
@@ -250,7 +237,10 @@ subroutine join_game:
         l-load move.0#0 2                                                              move.1#0,0x02,move.0#0
         l-load move.1#0 2                                                              0x02,move.0#0,move.1#0
         callsub make_move
-        retsub
+        // tictactoe/tictactoe.py:37
+        // @arc4.abimethod
+        int 1                                                                          1
+        return
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]() -> void:
@@ -277,7 +267,8 @@ subroutine whose_turn:
         concat                                                                         tmp%1#0
         l-load tmp%1#0 0                                                               tmp%1#0
         log
-        retsub
+        int 1                                                                          1
+        return
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.play[routing]() -> void:
@@ -376,7 +367,10 @@ subroutine play:
         v-load move.0#0                                                                player#0,move.0#0
         v-load move.1#0                                                                player#0,move.0#0,move.1#0
         callsub make_move
-        retsub
+        // tictactoe/tictactoe.py:47
+        // @arc4.abimethod
+        int 1                                                                          1
+        return
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: bytes, move.0: uint64, move.1: uint64) -> void:

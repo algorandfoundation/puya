@@ -5,9 +5,6 @@
 main:
     intcblock 1 0 64
     bytecblock 0x151f7c75
-    // avm_types_in_abi/contract.py:5
-    // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-    intc_0 // 1
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     pushbytess 0xfb716652 0x7ea64078 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)", method "tuple_of_arc4((uint8,address))(uint8,address)"
@@ -25,10 +22,7 @@ main_tuple_of_arc4_route@3:
     assert // can only call when not creating
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
-    callsub tuple_of_arc4
-    // avm_types_in_abi/contract.py:19
-    // @arc4.abimethod
-    return
+    b tuple_of_arc4
 
 main_create_route@2:
     // avm_types_in_abi/contract.py:5
@@ -41,10 +35,7 @@ main_create_route@2:
     assert // can only call when creating
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
-    callsub create
-    // avm_types_in_abi/contract.py:5
-    // @arc4.abimethod(allow_actions=["NoOp"], create="require")
-    return
+    b create
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:
@@ -164,7 +155,8 @@ create:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 
 // test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4[routing]() -> void:
@@ -195,4 +187,5 @@ tuple_of_arc4:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return

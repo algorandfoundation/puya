@@ -12,37 +12,37 @@ main test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_in
         switch tmp%6#0 {method "fixed_struct_arg((uint64,uint64))void" => block@6, method "fixed_struct_ret()(uint64,uint64)" => block@7, method "nested_struct_arg(((uint64,uint64),uint64))void" => block@8, method "nested_struct_ret()((uint64,uint64),uint64)" => block@9, method "dynamic_struct_arg((uint64,uint64,byte[],string,(uint64,uint64)[]))void" => block@10, method "dynamic_struct_ret()(uint64,uint64,byte[],string,(uint64,uint64)[])" => block@11, method "fixed_arr_arg((uint64,uint64)[3])void" => block@12, method "fixed_arr_ret()(uint64,uint64)[3]" => block@13, method "native_arr_arg((uint64,uint64)[])void" => block@14, method "native_arr_ret()(uint64,uint64)[]" => block@15, method "log_it()void" => block@16, * => block@21}
     block@6: // fixed_struct_arg_route_L53
         test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg[routing]()
-        exit 1u
+        goto block@21
     block@7: // fixed_struct_ret_route_L57
         test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret[routing]()
-        exit 1u
+        goto block@21
     block@8: // nested_struct_arg_route_L61
         test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg[routing]()
-        exit 1u
+        goto block@21
     block@9: // nested_struct_ret_route_L65
         test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret[routing]()
-        exit 1u
+        goto block@21
     block@10: // dynamic_struct_arg_route_L69
         test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg[routing]()
-        exit 1u
+        goto block@21
     block@11: // dynamic_struct_ret_route_L73
         test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret[routing]()
-        exit 1u
+        goto block@21
     block@12: // fixed_arr_arg_route_L77
         test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg[routing]()
-        exit 1u
+        goto block@21
     block@13: // fixed_arr_ret_route_L81
         test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret[routing]()
-        exit 1u
+        goto block@21
     block@14: // native_arr_arg_route_L85
         test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg[routing]()
-        exit 1u
+        goto block@21
     block@15: // native_arr_ret_route_L89
         test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret[routing]()
-        exit 1u
+        goto block@21
     block@16: // log_it_route_L93
         test_cases.mutable_native_types.abi_call.CallMe.log_it[routing]()
-        exit 1u
+        goto block@21
     block@17: // other_routes_L41
         let tmp%7#0: bytes = (txna ApplicationArgs 0)
         switch tmp%7#0 {method "delete()void" => block@18, * => block@21}
@@ -53,7 +53,7 @@ main test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_in
         let tmp%10#0: uint64 = (txn ApplicationID)
         (assert tmp%10#0) // can only call when not creating
         test_cases.mutable_native_types.abi_call.CallMe.delete[routing]()
-        exit 1u
+        goto block@21
     block@19: // bare_routing_L41
         let tmp%12#0: uint64 = (txn OnCompletion)
         let not%tmp%12#0: bool = (! tmp%12#0)
@@ -67,13 +67,13 @@ main test_cases.mutable_native_types.abi_call.CallMe.__algopy_entrypoint_with_in
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.delete[routing]() -> void:
     block@0: // L41
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_arg[routing]() -> void:
     block@0: // L41
         let arg#0: Encoded(uint64,uint64) = (txna ApplicationArgs 1)
         (app_global_put "fixed_struct" arg#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret[routing]() -> void:
     block@0: // L41
@@ -81,13 +81,13 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_struct_ret[rout
         (assert maybe_exists%0#0) // check self.fixed_struct exists
         let tmp%1#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_arg[routing]() -> void:
     block@0: // L41
         let arg#0: Encoded((uint64,uint64),uint64) = (txna ApplicationArgs 1)
         (app_global_put "nested_struct" arg#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret[routing]() -> void:
     block@0: // L41
@@ -95,13 +95,13 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.nested_struct_ret[rou
         (assert maybe_exists%0#0) // check self.nested_struct exists
         let tmp%1#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_arg[routing]() -> void:
     block@0: // L41
         let arg#0: Encoded(uint64,uint64,(len+uint8[]),(len+utf8[]),(len+(uint64,uint64)[])) = (txna ApplicationArgs 1)
         (app_global_put "dynamic_struct" arg#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret[routing]() -> void:
     block@0: // L41
@@ -109,13 +109,13 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.dynamic_struct_ret[ro
         (assert maybe_exists%0#0) // check self.dynamic_struct exists
         let tmp%1#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_arg[routing]() -> void:
     block@0: // L41
         let arg#0: Encoded((uint64,uint64)[3]) = (txna ApplicationArgs 1)
         (app_global_put "fixed_arr" arg#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret[routing]() -> void:
     block@0: // L41
@@ -123,13 +123,13 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.fixed_arr_ret[routing
         (assert maybe_exists%0#0) // check self.fixed_arr exists
         let tmp%1#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.native_arr_arg[routing]() -> void:
     block@0: // L41
         let arg#0: Encoded(len+(uint64,uint64)[]) = (txna ApplicationArgs 1)
         (app_global_put "native_arr" arg#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret[routing]() -> void:
     block@0: // L41
@@ -137,7 +137,7 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.native_arr_ret[routin
         (assert maybe_exists%0#0) // check self.native_arr exists
         let tmp%1#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.abi_call.CallMe.log_it[routing]() -> void:
     block@0: // L41
@@ -156,4 +156,4 @@ subroutine test_cases.mutable_native_types.abi_call.CallMe.log_it[routing]() -> 
         let (maybe_value%4#0: bytes, maybe_exists%4#0: bool) = (app_global_get_ex 0u "native_arr")
         (assert maybe_exists%4#0) // check self.native_arr exists
         (log maybe_value%4#0)
-        return 
+        exit 1u

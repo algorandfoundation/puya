@@ -53,34 +53,34 @@ main test_cases.mutable_native_types.contract.Contract.__algopy_entrypoint_with_
         exit 1u
     block@7: // add_payment_route_L131
         test_cases.mutable_native_types.contract.Contract.add_payment[routing]()
-        exit 1u
+        goto block@19
     block@8: // increment_payment_route_L137
         test_cases.mutable_native_types.contract.Contract.increment_payment[routing]()
-        exit 1u
+        goto block@19
     block@9: // create_storage_route_L142
         test_cases.mutable_native_types.contract.Contract.create_storage[routing]()
-        exit 1u
+        goto block@19
     block@10: // local_struct_route_L149
         test_cases.mutable_native_types.contract.Contract.local_struct[routing]()
-        exit 1u
+        goto block@19
     block@11: // delete_storage_route_L161
         test_cases.mutable_native_types.contract.Contract.delete_storage[routing]()
-        exit 1u
+        goto block@19
     block@12: // struct_arg_route_L168
         test_cases.mutable_native_types.contract.Contract.struct_arg[routing]()
-        exit 1u
+        goto block@19
     block@13: // struct_return_route_L178
         test_cases.mutable_native_types.contract.Contract.struct_return[routing]()
-        exit 1u
+        goto block@19
     block@14: // tup_return_route_L182
         test_cases.mutable_native_types.contract.Contract.tup_return[routing]()
-        exit 1u
+        goto block@19
     block@15: // calculate_sum_route_L186
         test_cases.mutable_native_types.contract.Contract.calculate_sum[routing]()
-        exit 1u
+        goto block@19
     block@16: // test_arr_route_L197
         test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
-        exit 1u
+        goto block@19
     block@17: // bare_routing_L71
         let tmp%7#1: uint64 = (txn OnCompletion)
         let not%tmp%7#1: bool = (! tmp%7#1)
@@ -136,7 +136,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.add_payment[routing
         (assert maybe_exists%3#0) // check self.num_payments exists
         let tmp%1#0: uint64 = (+ maybe_value%3#0 1u)
         (app_global_put "num_payments" tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.increment_payment[routing]() -> void:
     block@0: // L71
@@ -158,7 +158,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.increment_payment[r
         let aggregate%updated_data%0#0: bytes = ((replace2 40) aggregate%encoded_element%0#0 aggregate%val_as_bytes%0#0)
         let aggregate%updated_array%0#0: bytes = (replace3 maybe_value%1#0 aggregate%bytes_offset%0#0 aggregate%updated_data%0#0)
         (app_global_put "payments" aggregate%updated_array%0#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.create_storage[routing]() -> void:
     block@0: // L71
@@ -177,7 +177,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.create_storage[rout
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_replace box_prefixed_key%0#0 0u aggregate%extract%0#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routing]() -> void:
     block@0: // L71
@@ -197,7 +197,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.local_struct[routin
         let a#1: Encoded(uint8[32],uint64,uint64) = test_cases.mutable_native_types.contract.do_something(a#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 a#1)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.delete_storage[routing]() -> void:
     block@0: // L71
@@ -210,7 +210,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.delete_storage[rout
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_del box_prefixed_key%0#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]() -> void:
     block@0: // L71
@@ -234,7 +234,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_arg[routing]
         let encoded_value%0#0: bytes[8] = (itob box_key#0)
         let box_prefixed_key%0#0: bytes = (concat "box_map" encoded_value%0#0)
         (box_replace box_prefixed_key%0#0 0u a#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.struct_return[routing]() -> void:
     block@0: // L71
@@ -243,7 +243,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.struct_return[routi
         let aggregate%extract%0#0: bytes = ((extract 0 16) maybe_value%0#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 aggregate%extract%0#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.tup_return[routing]() -> void:
     block@0: // L71
@@ -252,7 +252,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.tup_return[routing]
         let aggregate%extract%0#0: bytes = ((extract 32 16) maybe_value%0#0)
         let tmp%3#0: bytes = (concat 0x151f7c75 aggregate%extract%0#0)
         (log tmp%3#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum[routing]() -> void:
     block@0: // L71
@@ -283,7 +283,7 @@ subroutine test_cases.mutable_native_types.contract.Contract.calculate_sum[routi
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob result#3)
         let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]() -> void:
     block@0: // L71
@@ -391,4 +391,4 @@ subroutine test_cases.mutable_native_types.contract.Contract.test_arr[routing]()
         (assert aggregate%array_len%3#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 result#1)
         (log tmp%1#0)
-        return 
+        exit 1u

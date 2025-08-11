@@ -5,9 +5,6 @@
 main:
     intcblock 0 1 8 16 144
     bytecblock 0x 0x151f7c75 "count" 0x00 0x0000
-    // array/static_size.py:41
-    // @arc4.abimethod()
-    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // array/static_size.py:39
@@ -28,64 +25,8 @@ main_after_if_else@2:
     assert // can only call when not creating
     pushbytess 0x28d7c1b8 0xfa9cb973 0x6039a240 0xf8fd68a7 0x1f028db1 0x096b3a59 0x8d6e3a25 // method "test_array(uint64,uint64,uint64,uint64)uint64", method "test_extend_from_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]", method "test_extend_from_arc4_tuple(((uint64,uint64),(uint64,uint64)))(uint64,uint64)[]", method "test_bool_array(uint64)uint64", method "test_arc4_conversion(uint64)uint64[]", method "sum_array(uint64[])uint64", method "test_arc4_bool()bool[]"
     txna ApplicationArgs 0
-    match main_test_array_route@5 main_test_extend_from_tuple_route@6 main_test_extend_from_arc4_tuple_route@7 main_test_bool_array_route@8 main_test_arc4_conversion_route@9 main_sum_array_route@10 main_test_arc4_bool_route@11
+    match test_array test_extend_from_tuple test_extend_from_arc4_tuple test_bool_array test_arc4_conversion sum_array test_arc4_bool
     err
-
-main_test_arc4_bool_route@11:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    callsub test_arc4_bool
-    // array/static_size.py:138
-    // @arc4.abimethod()
-    return
-
-main_sum_array_route@10:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    callsub sum_array
-    // array/static_size.py:112
-    // @arc4.abimethod()
-    return
-
-main_test_arc4_conversion_route@9:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    callsub test_arc4_conversion
-    // array/static_size.py:94
-    // @arc4.abimethod()
-    return
-
-main_test_bool_array_route@8:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    callsub test_bool_array
-    // array/static_size.py:75
-    // @arc4.abimethod()
-    return
-
-main_test_extend_from_arc4_tuple_route@7:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    callsub test_extend_from_arc4_tuple
-    // array/static_size.py:67
-    // @arc4.abimethod()
-    return
-
-main_test_extend_from_tuple_route@6:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    callsub test_extend_from_tuple
-    // array/static_size.py:57
-    // @arc4.abimethod()
-    return
-
-main_test_array_route@5:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    callsub test_array
-    // array/static_size.py:41
-    // @arc4.abimethod()
-    return
 
 main_bare_routing@12:
     // array/static_size.py:37
@@ -96,6 +37,7 @@ main_bare_routing@12:
     txn ApplicationID
     !
     assert // can only call when creating
+    intc_1 // 1
     return
 
 
@@ -190,13 +132,12 @@ dynamic_array_concat_bits_after_while@5:
 
 // test_cases.array.static_size.StaticSizeContract.test_array[routing]() -> void:
 test_array:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    proto 0 0
     intc_0 // 0
     dup
     bytec_0 // ""
     dupn 5
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
@@ -509,7 +450,8 @@ test_array_after_for@15:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // test_cases.array.static_size.StaticSizeContract.test_extend_from_tuple[routing]() -> void:
@@ -577,7 +519,8 @@ test_extend_from_tuple:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // test_cases.array.static_size.StaticSizeContract.test_extend_from_arc4_tuple[routing]() -> void:
@@ -605,16 +548,16 @@ test_extend_from_arc4_tuple:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // test_cases.array.static_size.StaticSizeContract.test_bool_array[routing]() -> void:
 test_bool_array:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    proto 0 0
     bytec_0 // ""
     dupn 3
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
     dup
@@ -734,16 +677,16 @@ test_bool_array_after_for@11:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // test_cases.array.static_size.StaticSizeContract.test_arc4_conversion[routing]() -> void:
 test_arc4_conversion:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    proto 0 0
     bytec_0 // ""
     dupn 3
+    // array/static_size.py:37
+    // class StaticSizeContract(arc4.ARC4Contract):
     txna ApplicationArgs 1
     btoi
     dup
@@ -857,14 +800,14 @@ test_arc4_conversion_after_for@11:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // test_cases.array.static_size.StaticSizeContract.sum_array[routing]() -> void:
 sum_array:
     // array/static_size.py:37
     // class StaticSizeContract(arc4.ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     // array/static_size.py:115
     // arr.extend(arc4_arr)
@@ -914,14 +857,12 @@ sum_array_after_for@5:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // test_cases.array.static_size.StaticSizeContract.test_arc4_bool[routing]() -> void:
 test_arc4_bool:
-    // array/static_size.py:37
-    // class StaticSizeContract(arc4.ARC4Contract):
-    proto 0 0
     // array/static_size.py:141
     // arr.append(arc4.Bool(Txn.sender == Txn.receiver))
     txn Sender
@@ -1111,7 +1052,8 @@ test_arc4_bool_after_for@5:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // test_cases.array.static_size.StaticSizeContract.xtra() -> uint64, uint64, bytes, bytes, bytes:

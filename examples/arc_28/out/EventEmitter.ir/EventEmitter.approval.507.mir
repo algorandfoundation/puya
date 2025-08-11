@@ -2,63 +2,53 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // arc_28/contract.py:12
-        // @arc4.abimethod
-        int 1                                                  lifted%return#0
-        f-store lifted%return#0                                (𝕗) lifted%return#0 |
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txn NumAppArgs                                         (𝕗) lifted%return#0 | tmp%0#1
-        bz main_bare_routing@7 ; b main_abi_routing@2          (𝕗) lifted%return#0 |
+        txn NumAppArgs                                         tmp%0#1
+        bz main_bare_routing@7 ; b main_abi_routing@2
 
-    main_abi_routing@2:                                        (𝕗) lifted%return#0 |
+    main_abi_routing@2:
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txn OnCompletion                                       (𝕗) lifted%return#0 | tmp%2#0
-        !                                                      (𝕗) lifted%return#0 | tmp%3#0
-        assert // OnCompletion is not NoOp                     (𝕗) lifted%return#0 |
-        txn ApplicationID                                      (𝕗) lifted%return#0 | tmp%4#0
-        assert // can only call when not creating              (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0                                 (𝕗) lifted%return#0 | tmp%6#0
-        method emit_swapped(uint64,uint64)void                 (𝕗) lifted%return#0 | tmp%6#0,Method(emit_swapped(uint64,uint64)void)
-        method emit_ufixed(ufixed256x16,ufixed64x2)void        (𝕗) lifted%return#0 | tmp%6#0,Method(emit_swapped(uint64,uint64)void),Method(emit_ufixed(ufixed256x16,ufixed64x2)void)
-        l-load tmp%6#0 2                                       (𝕗) lifted%return#0 | Method(emit_swapped(uint64,uint64)void),Method(emit_ufixed(ufixed256x16,ufixed64x2)void),tmp%6#0
-        match main_emit_swapped_route@3 main_emit_ufixed_route@4 ; b main_after_if_else@11 (𝕗) lifted%return#0 | 
+        txn OnCompletion                                       tmp%2#0
+        !                                                      tmp%3#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                      tmp%4#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0                                 tmp%6#0
+        method emit_swapped(uint64,uint64)void                 tmp%6#0,Method(emit_swapped(uint64,uint64)void)
+        method emit_ufixed(ufixed256x16,ufixed64x2)void        tmp%6#0,Method(emit_swapped(uint64,uint64)void),Method(emit_ufixed(ufixed256x16,ufixed64x2)void)
+        l-load tmp%6#0 2                                       Method(emit_swapped(uint64,uint64)void),Method(emit_ufixed(ufixed256x16,ufixed64x2)void),tmp%6#0
+        match main_emit_swapped_route@3 main_emit_ufixed_route@4 ; b main_after_if_else@11 
 
-    main_emit_swapped_route@3:                                 (𝕗) lifted%return#0 |
+    main_emit_swapped_route@3:
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        callsub emit_swapped                                   (𝕗) lifted%return#0 |
-        // arc_28/contract.py:12
-        // @arc4.abimethod
-        f-load lifted%return#0                                 (𝕗) lifted%return#0 | lifted%return#0
-        return                                                 (𝕗) lifted%return#0 |
+        callsub emit_swapped
+        b main_after_if_else@11
 
-    main_emit_ufixed_route@4:                                  (𝕗) lifted%return#0 |
+    main_emit_ufixed_route@4:
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        callsub emit_ufixed                                    (𝕗) lifted%return#0 |
-        // arc_28/contract.py:18
-        // @arc4.abimethod()
-        f-load lifted%return#0                                 (𝕗) lifted%return#0 | lifted%return#0
-        return                                                 (𝕗) lifted%return#0 |
+        callsub emit_ufixed
+        b main_after_if_else@11
 
-    main_bare_routing@7:                                       (𝕗) lifted%return#0 |
+    main_bare_routing@7:
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        txn OnCompletion                                       (𝕗) lifted%return#0 | tmp%7#0
-        !                                                      (𝕗) lifted%return#0 | not%tmp%7#0
-        assert                                                 (𝕗) lifted%return#0 |
-        txn ApplicationID                                      (𝕗) lifted%return#0 | tmp%8#0
-        !                                                      (𝕗) lifted%return#0 | tmp%9#0
-        assert // can only call when creating                  (𝕗) lifted%return#0 |
-        f-load lifted%return#0                                 (𝕗) lifted%return#0 | lifted%return#0
-        return                                                 (𝕗) lifted%return#0 |
+        txn OnCompletion                                       tmp%7#0
+        !                                                      not%tmp%7#0
+        assert
+        txn ApplicationID                                      tmp%8#0
+        !                                                      tmp%9#0
+        assert // can only call when creating
+        int 1                                                  1
+        return
 
-    main_after_if_else@11:                                     (𝕗) lifted%return#0 |
+    main_after_if_else@11:
         // arc_28/contract.py:11
         // class EventEmitter(ARC4Contract):
-        err                                                    (𝕗) lifted%return#0 |
+        err
 
 
 // examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void:
@@ -85,7 +75,10 @@ subroutine emit_swapped:
         // arc4.emit("Swapped", b, a)
         l-load event%0#0 0                                     event%0#0
         log
-        retsub
+        // arc_28/contract.py:12
+        // @arc4.abimethod
+        int 1                                                  1
+        return
 
 
 // examples.arc_28.contract.EventEmitter.emit_ufixed[routing]() -> void:
@@ -104,6 +97,9 @@ subroutine emit_ufixed:
         l-load aggregate%head%1#0 1                            Method(AnEvent(ufixed256x16,ufixed64x2)),aggregate%head%1#0
         concat                                                 event%0#0
         log
-        retsub
+        // arc_28/contract.py:18
+        // @arc4.abimethod()
+        int 1                                                  1
+        return
 
 

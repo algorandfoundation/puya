@@ -1,6 +1,5 @@
 main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_init:
     block@0: // L1
-        let lifted%return#0: bool = 1u
         let tmp%0#2: uint64 = (txn OnCompletion)
         goto tmp%0#2 ? block@8 : block@4
     block@4: // simple_routes_L15
@@ -10,13 +9,13 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         switch tmp%4#0 {method "join_game((uint64,uint64))void" => block@5, method "whose_turn()uint8" => block@6, method "play((uint64,uint64))void" => block@7, * => block@10}
     block@5: // join_game_route_L37
         examples.tictactoe.tictactoe.TicTacToeContract.join_game[routing]()
-        exit lifted%return#0
+        goto block@10
     block@6: // whose_turn_route_L43
         examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]()
-        exit lifted%return#0
+        goto block@10
     block@7: // play_route_L47
         examples.tictactoe.tictactoe.TicTacToeContract.play[routing]()
-        exit lifted%return#0
+        goto block@10
     block@8: // other_routes_L15
         let tmp%5#0: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
         switch tmp%5#0 {method "new_game((uint64,uint64))void" => block@9, * => block@10}
@@ -25,7 +24,7 @@ main examples.tictactoe.tictactoe.TicTacToeContract.__algopy_entrypoint_with_ini
         let tmp%7#0: bool = (! tmp%6#0)
         (assert tmp%7#0) // OnCompletion is not NoOp
         examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]()
-        exit lifted%return#0
+        goto block@10
     block@10: // after_if_else_L15
         fail
 
@@ -73,7 +72,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() ->
         let aggregate%updated_array%1#0: bytes = (replace3 maybe_value%0#0 aggregate%bytes_offset%0#0 aggregate%updated_array%0#0)
         (app_global_put "game" aggregate%updated_array%1#0)
         (app_global_put "turns" 0u)
-        return 
+        exit 1u
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game[routing]() -> void:
     block@0: // L15
@@ -86,7 +85,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.join_game[routing]() -
         let tmp%1#1: account = (txn Sender)
         (app_global_put "challenger" tmp%1#1)
         examples.tictactoe.tictactoe.TicTacToeContract.make_move(0x02, move.0#0, move.1#0)
-        return 
+        exit 1u
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]() -> void:
     block@0: // L15
@@ -96,7 +95,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]() 
         let select%0#0: Encoded(uint8) = (select 0x02 0x01 tmp%0#1)
         let tmp%1#0: bytes = (concat 0x151f7c75 select%0#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.play[routing]() -> void:
     block@0: // L15
@@ -129,7 +128,7 @@ subroutine examples.tictactoe.tictactoe.TicTacToeContract.play[routing]() -> voi
         goto block@4
     block@4: // after_if_else_L50
         examples.tictactoe.tictactoe.TicTacToeContract.make_move(player#0, move.0#0, move.1#0)
-        return 
+        exit 1u
 
 subroutine examples.tictactoe.tictactoe.TicTacToeContract.make_move(player: Encoded(uint8), move.0: uint64, move.1: uint64) -> void:
     block@0: // L60

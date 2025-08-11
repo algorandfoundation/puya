@@ -14,13 +14,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "test_uint8()void" => block@3, method "test_uint16()void" => block@4, method "test_uint32()void" => block@5, * => block@12}
     block@3: // test_uint8_route_L5
         test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8[routing]()
-        exit 1u
+        goto block@12
     block@4: // test_uint16_route_L10
         test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16[routing]()
-        exit 1u
+        goto block@12
     block@5: // test_uint32_route_L15
         test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32[routing]()
-        exit 1u
+        goto block@12
     block@8: // bare_routing_L4
         let tmp%7#0: uint64 = (txn OnCompletion)
         goto tmp%7#0 ? block@12 : block@9
@@ -40,7 +40,7 @@ subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint8[routing](
         let too_big#0: Encoded(uint8) = bytes_encode<uint8>(tmp%1#0)
         let tmp%3#0: bool = (!= too_big#0 0x01)
         (assert tmp%3#0) // this should not happen
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16[routing]() -> void:
     block@0: // L4
@@ -49,7 +49,7 @@ subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16[routing]
         let too_big#0: Encoded(uint16) = bytes_encode<uint16>(tmp%1#0)
         let tmp%3#0: bool = (!= too_big#0 0x0001)
         (assert tmp%3#0) // this should not happen
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32[routing]() -> void:
     block@0: // L4
@@ -58,7 +58,7 @@ subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32[routing]
         let too_big#0: Encoded(uint32) = bytes_encode<uint32>(tmp%1#0)
         let tmp%3#0: bool = (!= too_big#0 0x00000001)
         (assert tmp%3#0) // this should not happen
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_types.uint_overflow.UIntOverflow.__algopy_default_create() -> void:
     block@0: // L1

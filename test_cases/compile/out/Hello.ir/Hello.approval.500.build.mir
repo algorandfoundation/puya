@@ -2,8 +2,8 @@
 // test_cases.compile.apps.Hello.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // compile/apps.py:53
-        // @arc4.abimethod(create="require")
+        // compile/apps.py:24
+        // @arc4.abimethod(allow_actions=["DeleteApplication"])
         int 1                                                    1
         v-store lifted%return#0
         txn ApplicationID                                        tmp%0#0
@@ -58,10 +58,7 @@ subroutine main:
         // compile/apps.py:52
         // class Hello(HelloBase):
         callsub create
-        // compile/apps.py:53
-        // @arc4.abimethod(create="require")
-        v-load lifted%return#0                                   lifted%return#0
-        return
+        b main_after_if_else@10
 
     main_delete_route@6:
         // compile/apps.py:24
@@ -98,10 +95,7 @@ subroutine main:
         // compile/apps.py:52
         // class Hello(HelloBase):
         callsub greet
-        // compile/apps.py:32
-        // @arc4.abimethod()
-        v-load lifted%return#0                                   lifted%return#0
-        return
+        b main_after_if_else@10
 
     main_bare_routing@8:
         // compile/apps.py:52
@@ -143,7 +137,10 @@ subroutine create:
         byte "greeting"                                          "greeting"
         v-load greeting#0                                        "greeting",greeting#0
         app_global_put
-        retsub
+        // compile/apps.py:53
+        // @arc4.abimethod(create="require")
+        int 1                                                    1
+        return
 
 
 // test_cases.compile.apps.HelloBase.greet[routing]() -> void:
@@ -194,6 +191,7 @@ subroutine greet:
         v-store tmp%3#0
         v-load tmp%3#0                                           tmp%3#0
         log
-        retsub
+        int 1                                                    1
+        return
 
 

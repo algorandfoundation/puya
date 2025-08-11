@@ -3,9 +3,6 @@
 
 // test_cases.diamond_mro.derived.Derived.__algopy_entrypoint_with_init() -> uint64:
 main:
-    // diamond_mro/gp.py:11
-    // @arc4.abimethod(create="require")
-    pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // diamond_mro/derived.py:9
@@ -43,10 +40,7 @@ main_method_route@5:
     assert // can only call when not creating
     // diamond_mro/derived.py:7
     // class Derived(Base1, Base2):
-    callsub method
-    // diamond_mro/derived.py:12
-    // @arc4.abimethod
-    return
+    b method
 
 main_create_route@4:
     // diamond_mro/gp.py:11
@@ -57,6 +51,7 @@ main_create_route@4:
     txn ApplicationID
     !
     assert // can only call when creating
+    pushint 1 // 1
     return
 
 
@@ -78,4 +73,7 @@ method:
     // log("gp.method")
     pushbytes "gp.method"
     log
-    retsub
+    // diamond_mro/derived.py:12
+    // @arc4.abimethod
+    pushint 1 // 1
+    return

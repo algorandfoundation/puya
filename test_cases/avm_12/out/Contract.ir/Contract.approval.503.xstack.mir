@@ -2,10 +2,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // avm_12/contract.py:10
-        // @arc4.abimethod
-        int 1                                                     1
-        v-store lifted%return#0
         // avm_12/contract.py:9
         // class Contract(ARC4Contract, avm_version=12):
         txn NumAppArgs                                            tmp%0#1
@@ -30,10 +26,7 @@ subroutine main:
         // avm_12/contract.py:9
         // class Contract(ARC4Contract, avm_version=12):
         callsub test_new_ops
-        // avm_12/contract.py:10
-        // @arc4.abimethod
-        v-load lifted%return#0                                    lifted%return#0
-        return
+        b main_after_if_else@10
 
     main_bare_routing@6:
         // avm_12/contract.py:9
@@ -44,7 +37,7 @@ subroutine main:
         txn ApplicationID                                         tmp%8#0
         !                                                         tmp%9#0
         assert // can only call when creating
-        v-load lifted%return#0                                    lifted%return#0
+        int 1                                                     1
         return
 
     main_after_if_else@10:
@@ -66,6 +59,9 @@ subroutine test_new_ops:
         falcon_verify                                             tmp%1#0
         !                                                         tmp%2#0
         assert
-        retsub
+        // avm_12/contract.py:10
+        // @arc4.abimethod
+        int 1                                                     1
+        return
 
 

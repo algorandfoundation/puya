@@ -1,6 +1,5 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let lifted%return#0: bool = 1u
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@7
     block@2: // abi_routing_L11
@@ -13,10 +12,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "test_itxn_slice()void" => block@3, method "test_itxn_nested()void" => block@4, * => block@11}
     block@3: // test_itxn_slice_route_L12
         test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice[routing]()
-        exit lifted%return#0
+        goto block@11
     block@4: // test_itxn_nested_route_L29
         test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested[routing]()
-        exit lifted%return#0
+        goto block@11
     block@7: // bare_routing_L11
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -24,7 +23,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
-        exit lifted%return#0
+        exit 1u
     block@11: // after_if_else_L11
         fail
 
@@ -63,7 +62,7 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
         (assert tmp%0#0)
         let tmp%1#0: bool = (== sliced_txns.1.Note#0 0x70617932)
         (assert tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested[routing]() -> void:
     block@0: // L11
@@ -126,4 +125,4 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
         (assert tmp%11#0)
         let tmp%12#0: bool = (== nested_tuple.1.1.Note#0 0x70617935)
         (assert tmp%12#0)
-        return 
+        exit 1u

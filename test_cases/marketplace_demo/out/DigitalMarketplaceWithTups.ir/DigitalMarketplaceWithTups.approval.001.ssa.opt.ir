@@ -25,31 +25,31 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         switch tmp%6#0 {method "getListingsMbr()uint64" => block@2, method "allowAsset(pay,uint64)void" => block@3, method "firstDeposit(pay,axfer,uint64,uint64)void" => block@4, method "deposit(axfer,uint64)void" => block@5, method "setPrice(uint64,uint64,uint64)void" => block@6, method "buy(address,uint64,uint64,pay,uint64)void" => block@7, method "withdraw(uint64,uint64)void" => block@8, method "bid(address,uint64,uint64,pay,uint64,uint64)void" => block@9, method "acceptBid(uint64,uint64)void" => block@10, * => block@17}
     block@2: // getListingsMbr_route_L79
         test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.get_listings_mbr[routing]()
-        exit 1u
+        goto block@17
     block@3: // allowAsset_route_L83
         test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.allow_asset[routing]()
-        exit 1u
+        goto block@17
     block@4: // firstDeposit_route_L94
         test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.first_deposit[routing]()
-        exit 1u
+        goto block@17
     block@5: // deposit_route_L121
         test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.deposit[routing]()
-        exit 1u
+        goto block@17
     block@6: // setPrice_route_L138
         test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set_price[routing]()
-        exit 1u
+        goto block@17
     block@7: // buy_route_L151
         test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy[routing]()
-        exit 1u
+        goto block@17
     block@8: // withdraw_route_L182
         test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.withdraw[routing]()
-        exit 1u
+        goto block@17
     block@9: // bid_route_L201
         test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.bid[routing]()
-        exit 1u
+        goto block@17
     block@10: // acceptBid_route_L237
         test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid[routing]()
-        exit 1u
+        goto block@17
     block@13: // bare_routing_L38
         let tmp%7#0: uint64 = (txn OnCompletion)
         goto tmp%7#0 ? block@17 : block@14
@@ -67,7 +67,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#1)
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
         (log tmp%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.allow_asset[routing]() -> void:
     block@0: // L38
@@ -98,7 +98,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
-        return 
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.first_deposit[routing]() -> void:
     block@0: // L38
@@ -149,7 +149,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%21#0: account = (global ZeroAddress)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%18#0, unitary_price#0, tmp%21#0, 0u, 0u)
         box_write(box_prefixed_key%0#0, encoded_for_storage%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.deposit[routing]() -> void:
     block@0: // L38
@@ -180,7 +180,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%16#0: uint64 = (+ existing.deposited#0 tmp%8#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%16#0, existing.unitaryPrice#0, existing.bidder#0, existing.bid#0, existing.bidUnitaryPrice#0)
         box_write(box_prefixed_key%0#0, encoded_for_storage%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.set_price[routing]() -> void:
     block@0: // L38
@@ -197,7 +197,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let (existing.deposited#0: uint64, existing.unitaryPrice#0: uint64, existing.bidder#0: account, existing.bid#0: uint64, existing.bidUnitaryPrice#0: uint64) = decode_bytes<(uint64,uint64,account,uint64,uint64,)>(storage_value%0#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(existing.deposited#0, unitary_price#0, existing.bidder#0, existing.bid#0, existing.bidUnitaryPrice#0)
         box_write(box_prefixed_key%0#0, encoded_for_storage%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.buy[routing]() -> void:
     block@0: // L38
@@ -242,7 +242,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
-        return 
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.withdraw[routing]() -> void:
     block@0: // L38
@@ -287,7 +287,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
-        return 
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.bid[routing]() -> void:
     block@0: // L38
@@ -344,7 +344,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%18#0: account = (txn Sender)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(listing.deposited#0, listing.unitaryPrice#0, tmp%18#0, quantity#0, unitary_price#0)
         box_write(box_prefixed_key%0#0, encoded_for_storage%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.accept_bid[routing]() -> void:
     block@0: // L38
@@ -389,7 +389,7 @@ subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceW
         let tmp%11#0: uint64 = (- listing.bid#0 min_quantity#0)
         let encoded_for_storage%2#0: Encoded(uint64,uint64,uint8[32],uint64,uint64) = bytes_encode<(uint64,uint64,uint8[32],uint64,uint64)>(tmp%10#0, listing.unitaryPrice#0, listing.bidder#0, tmp%11#0, listing.bidUnitaryPrice#0)
         box_write(box_prefixed_key%0#0, encoded_for_storage%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.marketplace_demo.marketplace_with_tups.DigitalMarketplaceWithTups.listings_box_mbr() -> uint64:
     block@0: // L43

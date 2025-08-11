@@ -18,16 +18,8 @@ main:
     assert // can only call when not creating
     pushbytess 0x86db3e46 0x5468f98b 0x3c539b61 0xe6b8cd41 0xb15dc12a // method "sha256()byte[]", method "sha3_256()byte[]", method "sha512_256()byte[]", method "keccak256()byte[]", method "all(byte[])(byte[],byte[],byte[],byte[])"
     txna ApplicationArgs 0
-    match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 main_all_route@7
+    match main_sha256_route@3 main_sha3_256_route@4 main_sha512_256_route@5 main_keccak256_route@6 all
     err
-
-main_all_route@7:
-    // intrinsics/optimizations.py:4
-    // class Optimizations(arc4.ARC4Contract):
-    callsub all
-    // intrinsics/optimizations.py:21
-    // @arc4.abimethod()
-    return
 
 main_keccak256_route@6:
     // intrinsics/optimizations.py:17
@@ -147,4 +139,5 @@ all:
     swap
     concat
     log
-    retsub
+    pushint 1 // 1
+    return

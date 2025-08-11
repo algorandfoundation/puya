@@ -1,6 +1,5 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let lifted%return#0: bool = 1u
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@7
     block@2: // abi_routing_L4
@@ -13,10 +12,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "create_group(acfg,appl)(uint64,uint64)" => block@3, method "log_group(appl)void" => block@4, * => block@11}
     block@3: // create_group_route_L5
         test_cases.group_side_effects.contract.AppExpectingEffects.create_group[routing]()
-        exit lifted%return#0
+        goto block@11
     block@4: // log_group_route_L22
         test_cases.group_side_effects.contract.AppExpectingEffects.log_group[routing]()
-        exit lifted%return#0
+        goto block@11
     block@7: // bare_routing_L4
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -24,7 +23,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
-        exit lifted%return#0
+        exit 1u
     block@11: // after_if_else_L4
         fail
 
@@ -57,7 +56,7 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.create_gro
         let aggregate%head%1#0: bytes = (concat aggregate%val_as_bytes%0#0 aggregate%val_as_bytes%1#0)
         let tmp%5#0: bytes = (concat 0x151f7c75 aggregate%head%1#0)
         (log tmp%5#0)
-        return 
+        exit 1u
 
 subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group[routing]() -> void:
     block@0: // L4
@@ -84,4 +83,4 @@ subroutine test_cases.group_side_effects.contract.AppExpectingEffects.log_group[
         let tmp%11#0: biguint = (itob tmp%10#0)
         let tmp%12#0: bool = (b== tmp%4#0 tmp%11#0)
         (assert tmp%12#0)
-        return 
+        exit 1u

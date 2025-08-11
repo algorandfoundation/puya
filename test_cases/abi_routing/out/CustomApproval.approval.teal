@@ -3,9 +3,6 @@
 
 // test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_with_init() -> uint64:
 main:
-    // abi_routing/custom_approval.py:23
-    // @arc4.abimethod
-    pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // abi_routing/custom_approval.py:9
@@ -51,10 +48,7 @@ main_add_one_route@11:
     assert // can only call when not creating
     // abi_routing/custom_approval.py:6
     // class CustomApproval(ARC4Contract):
-    callsub add_one
-    // abi_routing/custom_approval.py:23
-    // @arc4.abimethod
-    return
+    b add_one
 
 main_bare_routing@12:
     // abi_routing/custom_approval.py:6
@@ -65,6 +59,7 @@ main_bare_routing@12:
     txn ApplicationID
     !
     assert // can only call when creating
+    pushint 1 // 1
     return
 
 
@@ -85,4 +80,5 @@ add_one:
     swap
     concat
     log
-    retsub
+    pushint 1 // 1
+    return

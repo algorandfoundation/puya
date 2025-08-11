@@ -30,22 +30,22 @@ subroutine examples.auction.contract.Auction.__puya_arc4_router__() -> bool:
         switch tmp%6#0 {method "opt_into_asset(uint64)void" => block@2, method "start_auction(uint64,uint64,axfer)void" => block@3, method "opt_in()void" => block@4, method "bid(pay)void" => block@5, method "claim_bids()void" => block@6, method "claim_asset(uint64)void" => block@7, * => block@14}
     block@2: // opt_into_asset_route_L25
         examples.auction.contract.Auction.opt_into_asset[routing]()
-        exit 1u
+        goto block@14
     block@3: // start_auction_route_L40
         examples.auction.contract.Auction.start_auction[routing]()
-        exit 1u
+        goto block@14
     block@4: // opt_in_route_L62
         examples.auction.contract.Auction.opt_in[routing]()
-        exit 1u
+        goto block@14
     block@5: // bid_route_L66
         examples.auction.contract.Auction.bid[routing]()
-        exit 1u
+        goto block@14
     block@6: // claim_bids_route_L82
         examples.auction.contract.Auction.claim_bids[routing]()
-        exit 1u
+        goto block@14
     block@7: // claim_asset_route_L97
         examples.auction.contract.Auction.claim_asset[routing]()
-        exit 1u
+        goto block@14
     block@10: // bare_routing_L16
         let tmp%7#0: uint64 = (txn OnCompletion)
         goto tmp%7#0 ? block@14 : block@11
@@ -77,7 +77,7 @@ subroutine examples.auction.contract.Auction.opt_into_asset[routing]() -> void:
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
-        return 
+        exit 1u
 
 subroutine examples.auction.contract.Auction.start_auction[routing]() -> void:
     block@0: // L16
@@ -108,11 +108,11 @@ subroutine examples.auction.contract.Auction.start_auction[routing]() -> void:
         let tmp%9#0: uint64 = (+ tmp%8#0 length#0)
         (app_global_put "auction_end" tmp%9#0)
         (app_global_put "previous_bid" starting_price#0)
-        return 
+        exit 1u
 
 subroutine examples.auction.contract.Auction.opt_in[routing]() -> void:
     block@0: // L16
-        return 
+        exit 1u
 
 subroutine examples.auction.contract.Auction.bid[routing]() -> void:
     block@0: // L16
@@ -139,7 +139,7 @@ subroutine examples.auction.contract.Auction.bid[routing]() -> void:
         (app_global_put "previous_bidder" tmp%2#0)
         let tmp%10#0: account = (txn Sender)
         (app_local_put tmp%10#0 "claim" tmp%5#0)
-        return 
+        exit 1u
 
 subroutine examples.auction.contract.Auction.claim_bids[routing]() -> void:
     block@0: // L16
@@ -168,7 +168,7 @@ subroutine examples.auction.contract.Auction.claim_bids[routing]() -> void:
         let tmp%4#0: uint64 = (- original_amount#0 amount#2)
         let tmp%5#0: account = (txn Sender)
         (app_local_put tmp%5#0 "claim" tmp%4#0)
-        return 
+        exit 1u
 
 subroutine examples.auction.contract.Auction.claim_asset[routing]() -> void:
     block@0: // L16
@@ -193,4 +193,4 @@ subroutine examples.auction.contract.Auction.claim_asset[routing]() -> void:
         ((itxn_field TypeEnum) axfer)
         ((itxn_field Fee) 0u)
         itxn_submit
-        return 
+        exit 1u

@@ -3,10 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    // regression_tests/issue_434.py:5-6
-    // # ref: https://github.com/algorandfoundation/puya/issues/434
-    // @arc4.abimethod
-    pushint 1 // 1
+    intcblock 2 1
     // regression_tests/issue_434.py:4
     // class Issue434(ARC4Contract):
     txn NumAppArgs
@@ -27,11 +24,7 @@ main_method_route@3:
     assert // can only call when not creating
     // regression_tests/issue_434.py:4
     // class Issue434(ARC4Contract):
-    callsub method
-    // regression_tests/issue_434.py:5-6
-    // # ref: https://github.com/algorandfoundation/puya/issues/434
-    // @arc4.abimethod
-    return
+    b method
 
 main_bare_routing@6:
     // regression_tests/issue_434.py:4
@@ -42,6 +35,7 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
+    intc_1 // 1
     return
 
 
@@ -49,7 +43,6 @@ main_bare_routing@6:
 method:
     // regression_tests/issue_434.py:4
     // class Issue434(ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     btoi
 
@@ -77,23 +70,27 @@ method_after_while@4:
     // regression_tests/issue_434.py:12
     // x = c + 2
     frame_dig 0
-    pushint 2 // 2
+    intc_0 // 2
     +
 
 method_after_if_else@7:
     // regression_tests/issue_434.py:16
     // assert x - 2 == c
-    pushint 2 // 2
+    intc_0 // 2
     -
     frame_dig 0
     ==
     assert
-    retsub
+    // regression_tests/issue_434.py:5-6
+    // # ref: https://github.com/algorandfoundation/puya/issues/434
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 method_else_body@6:
     // regression_tests/issue_434.py:14
     // x = c + 2
     frame_dig 0
-    pushint 2 // 2
+    intc_0 // 2
     +
     b method_after_if_else@7

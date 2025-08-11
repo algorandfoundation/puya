@@ -3,11 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
+    intcblock 1 0
     bytecblock 0x00030000
-    // regression_tests/issue_118.py:6-7
-    // # ref: https://github.com/algorandfoundation/puya/issues/118
-    // @abimethod
-    pushint 1 // 1
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
     txn NumAppArgs
@@ -28,11 +25,7 @@ main_verify_route@3:
     assert // can only call when not creating
     // regression_tests/issue_118.py:5
     // class Issue118(ARC4Contract):
-    callsub verify
-    // regression_tests/issue_118.py:6-7
-    // # ref: https://github.com/algorandfoundation/puya/issues/118
-    // @abimethod
-    return
+    b verify
 
 main_bare_routing@6:
     // regression_tests/issue_118.py:5
@@ -43,6 +36,7 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
+    intc_0 // 1
     return
 
 
@@ -56,7 +50,7 @@ verify:
     //     bool(Txn.num_app_args)
     // )  # use a non constant value so the repeated expression is not simplified
     pushbytes 0x00
-    pushint 0 // 0
+    intc_1 // 0
     // regression_tests/issue_118.py:10
     // bool(Txn.num_app_args)
     txn NumAppArgs
@@ -68,7 +62,7 @@ verify:
     swap
     // regression_tests/issue_118.py:12
     // if values.length != 2:
-    pushint 0 // 0
+    intc_1 // 0
     extract_uint16
     pushint 2 // 2
     !=
@@ -86,7 +80,8 @@ verify_after_inlined_test_cases.regression_tests.issue_118.Issue118.verify@4:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 verify_after_if_else@3:
     // regression_tests/issue_118.py:14

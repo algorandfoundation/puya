@@ -3,11 +3,8 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 6 0
+    intcblock 1 6 0
     bytecblock 0x098101 0x31 0x32 0x33
-    // inner_transactions/array_access.py:21
-    // @arc4.abimethod
-    pushint 1 // 1
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
     txn NumAppArgs
@@ -27,10 +24,7 @@ main_test_branching_array_call_route@3:
     assert // can only call when not creating
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
-    callsub test_branching_array_call
-    // inner_transactions/array_access.py:21
-    // @arc4.abimethod
-    return
+    b test_branching_array_call
 
 main_bare_routing@6:
     // inner_transactions/array_access.py:20
@@ -41,6 +35,7 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
+    intc_0 // 1
     return
 
 
@@ -48,7 +43,6 @@ main_bare_routing@6:
 test_branching_array_call:
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     // inner_transactions/array_access.py:23
     // if maybe:
@@ -79,9 +73,9 @@ test_branching_array_call:
     itxn_field ApprovalProgramPages
     // inner_transactions/array_access.py:24
     // create_app_txn = itxn.ApplicationCall(
-    intc_0 // appl
+    intc_1 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // inner_transactions/array_access.py:24-28
     // create_app_txn = itxn.ApplicationCall(
@@ -108,7 +102,12 @@ test_branching_array_call_after_if_else@6:
     bytec_2 // 0x32
     ==
     assert // correct args used 2
-    retsub
+
+test_branching_array_call_after_if_else@9:
+    // inner_transactions/array_access.py:21
+    // @arc4.abimethod
+    intc_0 // 1
+    return
 
 test_branching_array_call_else_body@8:
     // inner_transactions/array_access.py:40
@@ -129,7 +128,7 @@ test_branching_array_call_else_body@8:
     pushbytes 0x35
     ==
     assert // correct args used 3
-    retsub
+    b test_branching_array_call_after_if_else@9
 
 test_branching_array_call_else_body@4:
     // inner_transactions/array_access.py:30-35
@@ -162,9 +161,9 @@ test_branching_array_call_else_body@4:
     itxn_field ApprovalProgramPages
     // inner_transactions/array_access.py:30
     // create_app_txn = itxn.ApplicationCall(
-    intc_0 // appl
+    intc_1 // appl
     itxn_field TypeEnum
-    intc_1 // 0
+    intc_2 // 0
     itxn_field Fee
     // inner_transactions/array_access.py:30-35
     // create_app_txn = itxn.ApplicationCall(

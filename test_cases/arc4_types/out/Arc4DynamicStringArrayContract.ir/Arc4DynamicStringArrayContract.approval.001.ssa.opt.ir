@@ -14,10 +14,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "xyz()string[]" => block@3, method "xyz_raw()string[]" => block@4, * => block@11}
     block@3: // xyz_route_L5
         test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz[routing]()
-        exit 1u
+        goto block@11
     block@4: // xyz_raw_route_L13
         test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing]()
-        exit 1u
+        goto block@11
     block@7: // bare_routing_L4
         let tmp%7#0: uint64 = (txn OnCompletion)
         goto tmp%7#0 ? block@11 : block@8
@@ -38,7 +38,7 @@ subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayCont
         let encoded_array%0#0: Encoded(len+(len+utf8[])[]) = bytes_encode<(len+(len+utf8[])[])>(tmp%0#1, tmp%1#1, tmp%2#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 encoded_array%0#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.xyz_raw[routing]() -> void:
     block@0: // L4
@@ -48,7 +48,7 @@ subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayCont
         let raw#0: Encoded(len+(len+uint8[])[]) = bytes_encode<(len+(len+uint8[])[])>(encoded_array%0#0, encoded_array%1#0, encoded_array%2#0)
         let tmp%1#0: bytes = (concat 0x151f7c75 raw#0)
         (log tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.arc4_types.dynamic_string_array.Arc4DynamicStringArrayContract.__algopy_default_create() -> void:
     block@0: // L1

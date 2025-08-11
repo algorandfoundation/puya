@@ -15,12 +15,8 @@ main:
     assert // can only call when not creating
     pushbytess 0x0f4c11ca 0x13a588c8 // method "buildArray()uint64[]", method "doThings()void"
     txna ApplicationArgs 0
-    match main_buildArray_route@3 main_doThings_route@4
+    match main_buildArray_route@3 doThings
     err
-
-main_doThings_route@4:
-    callsub doThings
-    return
 
 main_buildArray_route@3:
     pushbytes 0x151f7c7500040000000000000001000000000000000200000000000000030000000000000004
@@ -66,7 +62,6 @@ dynamic_array_pop_fixed_size:
 
 // tests/approvals/native-arrays.algo.ts::NativeArraysAlgo.doThings[routing]() -> void:
 doThings:
-    proto 0 0
     intc_1 // 0
     dupn 2
     pushint 5 // 5
@@ -551,7 +546,8 @@ doThings_bool_merge@106:
 
 doThings_bool_merge@125:
     assert // assert target is match for conditions
-    retsub
+    intc_0 // 1
+    return
 
 doThings_bool_false@124:
     intc_1 // 0

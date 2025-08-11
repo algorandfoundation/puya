@@ -5,8 +5,8 @@
 main:
     intcblock 1 0 123 2
     bytecblock 0x151f7c75 "asa" 0x151f7c7500000000000001c8 "local_uint" "local_bytes"
-    // abi_routing/contract.py:40
-    // @arc4.abimethod
+    // abi_routing/contract.py:126
+    // @arc4.abimethod(readonly=True)
     intc_0 // 1
     txn ApplicationID
     bnz main_after_if_else@2
@@ -46,60 +46,12 @@ main_after_if_else@2:
     assert // can only call when not creating
     pushbytess 0xd78db35b 0xd8f62d9a 0xb8431119 0xc416372d 0x7fad9780 0x2fdf95a4 0x1399826c 0xa1300821 0x6137dc37 0x5732195a 0xf6096c82 0x9023bb19 // method "noop_with_uint64(uint64)uint8", method "opt_into_asset(uint64)void", method "with_transactions(uint64,uint64,pay,uint64)void", method "compare_assets(uint64,uint64)void", method "get_address()address", method "get_asset()uint64", method "get_application()uint64", method "get_an_int()uint64", method "method_with_default_args(uint64,uint64,address,address,uint64,uint64,byte[3],uint64,uint64,uint32,string,uint64,byte[])void", method "method_with_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[])byte[]", method "method_with_more_than_15_args(uint64,uint64,uint64,uint64,uint64,uint64,uint64,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[],byte[],uint64,pay,uint64,uint64)uint64", method "hello_with_algopy_string(string)string"
     txna ApplicationArgs 0
-    match main_noop_with_uint64_route@6 main_opt_into_asset_route@7 main_with_transactions_route@8 main_compare_assets_route@9 main_get_address_route@10 main_get_asset_route@11 main_get_application_route@12 main_get_an_int_route@13 main_method_with_default_args_route@14 main_method_with_15_args_route@15 main_method_with_more_than_15_args_route@16 main_hello_with_algopy_string_route@17
+    match noop_with_uint64 opt_into_asset with_transactions compare_assets main_get_address_route@10 main_get_asset_route@11 main_get_application_route@12 main_get_an_int_route@13 method_with_default_args method_with_15_args method_with_more_than_15_args hello_with_algopy_string
 
 main_after_if_else@24:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     err
-
-main_hello_with_algopy_string_route@17:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub hello_with_algopy_string
-    // abi_routing/contract.py:295
-    // @arc4.abimethod
-    return
-
-main_method_with_more_than_15_args_route@16:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub method_with_more_than_15_args
-    // abi_routing/contract.py:229
-    // @arc4.abimethod
-    return
-
-main_method_with_15_args_route@15:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub method_with_15_args
-    // abi_routing/contract.py:191
-    // @arc4.abimethod
-    return
-
-main_method_with_default_args_route@14:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub method_with_default_args
-    // abi_routing/contract.py:142-158
-    // @arc4.abimethod(
-    //     default_args={
-    //         "asset_from_storage": "asa",
-    //         "asset_from_function": get_asset,
-    //         "account_from_storage": "creator",
-    //         "account_from_function": "get_address",
-    //         "application_from_storage": "app",
-    //         "application_from_function": get_app,
-    //         "bytes_from_storage": "some_bytes",
-    //         "int_from_storage": "an_int",
-    //         "int_from_function": "get_a_int",
-    //         "int_from_const": arc4.UInt32(123),
-    //         "str_from_const": arc4.String("abc"),
-    //         "int_from_local": "local_uint",
-    //         "bytes_from_local": "local_bytes",
-    //     }
-    // )
-    return
 
 main_get_an_int_route@13:
     // abi_routing/contract.py:138
@@ -129,44 +81,12 @@ main_get_address_route@10:
     log
     return
 
-main_compare_assets_route@9:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub compare_assets
-    // abi_routing/contract.py:122
-    // @arc4.abimethod
-    return
-
-main_with_transactions_route@8:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub with_transactions
-    // abi_routing/contract.py:109
-    // @arc4.abimethod
-    return
-
-main_opt_into_asset_route@7:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub opt_into_asset
-    // abi_routing/contract.py:92
-    // @arc4.abimethod
-    return
-
-main_noop_with_uint64_route@6:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub noop_with_uint64
-    // abi_routing/contract.py:40
-    // @arc4.abimethod
-    return
-
 main_other_routes@18:
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
     pushbytess 0x01040023 0x3a5353fc 0xd2f2f53c // method "opt_in(uint64,byte[])void", method "all_the_things(uint64)uint8", method "mixed_oca(uint64)uint8"
     txna ApplicationArgs 0
-    match main_opt_in_route@19 main_all_the_things_route@20 main_mixed_oca_route@21
+    match main_opt_in_route@19 full_abi_config main_mixed_oca_route@21
     err
 
 main_mixed_oca_route@21:
@@ -190,37 +110,7 @@ main_mixed_oca_route@21:
     assert // can only call when not creating
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
-    callsub mixed_oca
-    // abi_routing/contract.py:66-74
-    // @arc4.abimethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         "CloseOut",
-    //         "DeleteApplication",
-    //     ],
-    //     create="disallow",
-    //     readonly=True,
-    // )
-    return
-
-main_all_the_things_route@20:
-    // abi_routing/contract.py:24
-    // class Reference(ARC4Contract):
-    callsub full_abi_config
-    // abi_routing/contract.py:50-61
-    // @arc4.abimethod(
-    //     allow_actions=[
-    //         "NoOp",
-    //         OnCompleteAction.OptIn,
-    //         "CloseOut",
-    //         OnCompleteAction.UpdateApplication,
-    //         OnCompleteAction.DeleteApplication,
-    //     ],
-    //     name="all_the_things",
-    //     create="allow",
-    //     readonly=True,
-    // )
-    return
+    b mixed_oca
 
 main_opt_in_route@19:
     // abi_routing/contract.py:45
@@ -233,10 +123,7 @@ main_opt_in_route@19:
     assert // can only call when not creating
     // abi_routing/contract.py:24
     // class Reference(ARC4Contract):
-    callsub opt_in
-    // abi_routing/contract.py:45
-    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
-    return
+    b opt_in
 
 main_bare_routing@22:
     // abi_routing/contract.py:24
@@ -303,7 +190,8 @@ noop_with_uint64:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.opt_in[routing]() -> void:
@@ -326,7 +214,10 @@ opt_in:
     bytec 4 // "local_bytes"
     uncover 2
     app_local_put
-    retsub
+    // abi_routing/contract.py:45
+    // @arc4.abimethod(allow_actions=[OnCompleteAction.OptIn])
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.full_abi_config[routing]() -> void:
@@ -365,7 +256,8 @@ full_abi_config:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.mixed_oca[routing]() -> void:
@@ -401,7 +293,8 @@ mixed_oca:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.opt_into_asset[routing]() -> void:
@@ -454,7 +347,10 @@ opt_into_asset:
     // abi_routing/contract.py:107
     // op.ITxnCreate.submit()
     itxn_submit
-    retsub
+    // abi_routing/contract.py:92
+    // @arc4.abimethod
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.with_transactions[routing]() -> void:
@@ -502,7 +398,10 @@ with_transactions:
     intc_3 // 2
     ==
     assert // is correct int
-    retsub
+    // abi_routing/contract.py:109
+    // @arc4.abimethod
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.compare_assets[routing]() -> void:
@@ -517,7 +416,10 @@ compare_assets:
     // assert asset_a == asset_b, "asset a == b"
     ==
     assert // asset a == b
-    retsub
+    // abi_routing/contract.py:122
+    // @arc4.abimethod
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.method_with_default_args[routing]() -> void:
@@ -645,7 +547,26 @@ method_with_default_args:
     assert // check self.local_bytes exists for account
     ==
     assert
-    retsub
+    // abi_routing/contract.py:142-158
+    // @arc4.abimethod(
+    //     default_args={
+    //         "asset_from_storage": "asa",
+    //         "asset_from_function": get_asset,
+    //         "account_from_storage": "creator",
+    //         "account_from_function": "get_address",
+    //         "application_from_storage": "app",
+    //         "application_from_function": get_app,
+    //         "bytes_from_storage": "some_bytes",
+    //         "int_from_storage": "an_int",
+    //         "int_from_function": "get_a_int",
+    //         "int_from_const": arc4.UInt32(123),
+    //         "str_from_const": arc4.String("abc"),
+    //         "int_from_local": "local_uint",
+    //         "bytes_from_local": "local_bytes",
+    //     }
+    // )
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.method_with_15_args[routing]() -> void:
@@ -849,7 +770,8 @@ method_with_15_args:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.method_with_more_than_15_args[routing]() -> void:
@@ -1329,7 +1251,8 @@ method_with_more_than_15_args:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 
 // test_cases.abi_routing.contract.Reference.hello_with_algopy_string[routing]() -> void:
@@ -1357,4 +1280,5 @@ hello_with_algopy_string:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return

@@ -5,9 +5,6 @@
 main:
     intcblock 0 1 3 8
     bytecblock "game" "turns" "challenger" "winner" 0x01 0x02 "host"
-    // tictactoe/tictactoe.py:37
-    // @arc4.abimethod
-    intc_1 // 1
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
     txn OnCompletion
@@ -16,32 +13,8 @@ main:
     assert // can only call when not creating
     pushbytess 0x17a079b3 0xbb9f1147 0x9eebf58e // method "join_game((uint64,uint64))void", method "whose_turn()uint8", method "play((uint64,uint64))void"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_join_game_route@5 main_whose_turn_route@6 main_play_route@7
+    match join_game whose_turn play
     err
-
-main_play_route@7:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    callsub play
-    // tictactoe/tictactoe.py:47
-    // @arc4.abimethod
-    return
-
-main_whose_turn_route@6:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    callsub whose_turn
-    // tictactoe/tictactoe.py:43
-    // @arc4.abimethod
-    return
-
-main_join_game_route@5:
-    // tictactoe/tictactoe.py:15
-    // class TicTacToeContract(arc4.ARC4Contract):
-    callsub join_game
-    // tictactoe/tictactoe.py:37
-    // @arc4.abimethod
-    return
 
 main_other_routes@8:
     // tictactoe/tictactoe.py:15
@@ -59,17 +32,13 @@ main_new_game_route@9:
     assert // OnCompletion is not NoOp
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
-    callsub new_game
-    // tictactoe/tictactoe.py:20
-    // @arc4.abimethod(create="allow")
-    return
+    b new_game
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.new_game[routing]() -> void:
 new_game:
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -162,7 +131,10 @@ new_game_bool_merge@9:
     bytec_1 // "turns"
     intc_0 // 0
     app_global_put
-    retsub
+    // tictactoe/tictactoe.py:20
+    // @arc4.abimethod(create="allow")
+    intc_1 // 1
+    return
 
 new_game_bool_false@8:
     intc_0 // 0
@@ -198,7 +170,10 @@ join_game:
     bytec 5 // 0x02
     cover 2
     callsub make_move
-    retsub
+    // tictactoe/tictactoe.py:37
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.whose_turn[routing]() -> void:
@@ -221,14 +196,14 @@ whose_turn:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // examples.tictactoe.tictactoe.TicTacToeContract.play[routing]() -> void:
 play:
     // tictactoe/tictactoe.py:15
     // class TicTacToeContract(arc4.ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     dup
     intc_0 // 0
@@ -272,7 +247,10 @@ play_after_if_else@4:
     frame_dig 0
     frame_dig 1
     callsub make_move
-    retsub
+    // tictactoe/tictactoe.py:47
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 play_else_body@3:
     // tictactoe/tictactoe.py:54

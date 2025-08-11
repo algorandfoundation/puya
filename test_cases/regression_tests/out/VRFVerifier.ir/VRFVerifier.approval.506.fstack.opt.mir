@@ -2,55 +2,48 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
+        // regression_tests/branch_to_proto.py:4
+        // class VRFVerifier(ARC4Contract):
+        txn NumAppArgs                                                        tmp%0#1
+        bz main_bare_routing@6 ; b main_abi_routing@2
+
+    main_abi_routing@2:
+        // regression_tests/branch_to_proto.py:4
+        // class VRFVerifier(ARC4Contract):
+        txna ApplicationArgs 0                                                tmp%2#0
+        method verify(byte[],byte[],byte[])(byte[],bool)                      tmp%2#0,Method(verify(byte[],byte[],byte[])(byte[],bool))
+        l-load tmp%2#0 1                                                      Method(verify(byte[],byte[],byte[])(byte[],bool)),tmp%2#0
+        match main_verify_route@3 ; b main_after_if_else@10
+
+    main_verify_route@3:
         // regression_tests/branch_to_proto.py:5
         // @arc4.abimethod
-        int 1                                                                 lifted%return#0
-        f-store lifted%return#0                                               (𝕗) lifted%return#0 |
+        txn OnCompletion                                                      tmp%3#0
+        !                                                                     tmp%4#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                     tmp%5#0
+        assert // can only call when not creating
         // regression_tests/branch_to_proto.py:4
         // class VRFVerifier(ARC4Contract):
-        txn NumAppArgs                                                        (𝕗) lifted%return#0 | tmp%0#1
-        bz main_bare_routing@6 ; b main_abi_routing@2                         (𝕗) lifted%return#0 |
+        callsub verify
+        b main_after_if_else@10
 
-    main_abi_routing@2:                                                       (𝕗) lifted%return#0 |
+    main_bare_routing@6:
         // regression_tests/branch_to_proto.py:4
         // class VRFVerifier(ARC4Contract):
-        txna ApplicationArgs 0                                                (𝕗) lifted%return#0 | tmp%2#0
-        method verify(byte[],byte[],byte[])(byte[],bool)                      (𝕗) lifted%return#0 | tmp%2#0,Method(verify(byte[],byte[],byte[])(byte[],bool))
-        l-load tmp%2#0 1                                                      (𝕗) lifted%return#0 | Method(verify(byte[],byte[],byte[])(byte[],bool)),tmp%2#0
-        match main_verify_route@3 ; b main_after_if_else@10                   (𝕗) lifted%return#0 |
+        txn OnCompletion                                                      tmp%7#0
+        !                                                                     not%tmp%7#0
+        assert
+        txn ApplicationID                                                     tmp%8#0
+        !                                                                     tmp%9#0
+        assert // can only call when creating
+        int 1                                                                 1
+        return
 
-    main_verify_route@3:                                                      (𝕗) lifted%return#0 |
-        // regression_tests/branch_to_proto.py:5
-        // @arc4.abimethod
-        txn OnCompletion                                                      (𝕗) lifted%return#0 | tmp%3#0
-        !                                                                     (𝕗) lifted%return#0 | tmp%4#0
-        assert // OnCompletion is not NoOp                                    (𝕗) lifted%return#0 |
-        txn ApplicationID                                                     (𝕗) lifted%return#0 | tmp%5#0
-        assert // can only call when not creating                             (𝕗) lifted%return#0 |
+    main_after_if_else@10:
         // regression_tests/branch_to_proto.py:4
         // class VRFVerifier(ARC4Contract):
-        callsub verify                                                        (𝕗) lifted%return#0 |
-        // regression_tests/branch_to_proto.py:5
-        // @arc4.abimethod
-        f-load lifted%return#0                                                (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                (𝕗) lifted%return#0 |
-
-    main_bare_routing@6:                                                      (𝕗) lifted%return#0 |
-        // regression_tests/branch_to_proto.py:4
-        // class VRFVerifier(ARC4Contract):
-        txn OnCompletion                                                      (𝕗) lifted%return#0 | tmp%7#0
-        !                                                                     (𝕗) lifted%return#0 | not%tmp%7#0
-        assert                                                                (𝕗) lifted%return#0 |
-        txn ApplicationID                                                     (𝕗) lifted%return#0 | tmp%8#0
-        !                                                                     (𝕗) lifted%return#0 | tmp%9#0
-        assert // can only call when creating                                 (𝕗) lifted%return#0 |
-        f-load lifted%return#0                                                (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                (𝕗) lifted%return#0 |
-
-    main_after_if_else@10:                                                    (𝕗) lifted%return#0 |
-        // regression_tests/branch_to_proto.py:4
-        // class VRFVerifier(ARC4Contract):
-        err                                                                   (𝕗) lifted%return#0 |
+        err
 
 
 // test_cases.regression_tests.branch_to_proto.VRFVerifier.verify[routing]() -> void:
@@ -119,6 +112,7 @@ subroutine verify:
         l-load aggregate%concat%0#0 1                                         (𝕗) message#0,proof#0,pk#0 | 0x151f7c75,aggregate%concat%0#0
         concat                                                                (𝕗) message#0,proof#0,pk#0 | tmp%6#0
         log                                                                   (𝕗) message#0,proof#0,pk#0 |
-        retsub
+        int 1                                                                 (𝕗) message#0,proof#0,pk#0 | 1
+        return                                                                (𝕗) message#0,proof#0,pk#0 |
 
 

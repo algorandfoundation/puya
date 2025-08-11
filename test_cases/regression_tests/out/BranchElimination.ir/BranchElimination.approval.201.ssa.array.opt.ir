@@ -12,13 +12,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "umm()uint64" => block@3, method "umm2()void" => block@4, method "calculate(uint64[][],uint64)void" => block@5, * => block@12}
     block@3: // umm_route_L5
         test_cases.regression_tests.leftover_branch.BranchElimination.umm[routing]()
-        exit 1u
+        goto block@12
     block@4: // umm2_route_L18
         test_cases.regression_tests.leftover_branch.BranchElimination.umm2[routing]()
-        exit 1u
+        goto block@12
     block@5: // calculate_route_L29
         test_cases.regression_tests.leftover_branch.BranchElimination.calculate[routing]()
-        exit 1u
+        goto block@12
     block@8: // bare_routing_L4
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -82,7 +82,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm[rou
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob ahuh#1)
         let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%2#0)
-        return 
+        exit 1u
     block@15: // after_if_else_L14
         goto block@2
 
@@ -115,7 +115,7 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.umm2[ro
         let tmp%5#0: bool = test_cases.regression_tests.leftover_branch.hmm()
         goto tmp%5#0 ? block@10 : block@11
     block@10: // if_body_L27
-        return 
+        exit 1u
     block@11: // after_if_else_L26
         goto block@2
 
@@ -190,4 +190,4 @@ subroutine test_cases.regression_tests.leftover_branch.BranchElimination.calcula
         let i#2: uint64 = (+ i#1 1u)
         goto block@2
     block@15: // after_for_L38
-        return 
+        exit 1u

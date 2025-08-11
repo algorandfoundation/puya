@@ -2,10 +2,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // inner_transactions/asset_transfer.py:11
-        // @arc4.abimethod()
-        int 1                                                            1
-        v-store lifted%return#0
         // inner_transactions/asset_transfer.py:10
         // class CreateAndTransferContract(ARC4Contract):
         txn NumAppArgs                                                   tmp%0#1
@@ -34,10 +30,7 @@ subroutine main:
         // inner_transactions/asset_transfer.py:10
         // class CreateAndTransferContract(ARC4Contract):
         callsub create_and_transfer
-        // inner_transactions/asset_transfer.py:11
-        // @arc4.abimethod()
-        v-load lifted%return#0                                           lifted%return#0
-        return
+        b main_after_if_else@10
 
     main_bare_routing@6:
         // inner_transactions/asset_transfer.py:10
@@ -52,7 +45,7 @@ subroutine main:
         !                                                                tmp%9#0
         l-load tmp%9#0 0                                                 tmp%9#0
         assert // can only call when creating
-        v-load lifted%return#0                                           lifted%return#0
+        int 1                                                            1
         return
 
     main_after_if_else@10:
@@ -171,6 +164,9 @@ subroutine create_and_transfer:
         //     xfer_asset=new_asset,
         // ).submit()
         itxn_submit
-        retsub
+        // inner_transactions/asset_transfer.py:11
+        // @arc4.abimethod()
+        int 1                                                            1
+        return
 
 

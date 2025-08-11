@@ -4,9 +4,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     bytecblock 0x068101
-    // regression_tests/branch_to_proto.py:5
-    // @arc4.abimethod
-    pushint 1 // 1
     // regression_tests/branch_to_proto.py:4
     // class VRFVerifier(ARC4Contract):
     txn NumAppArgs
@@ -26,10 +23,7 @@ main_verify_route@3:
     assert // can only call when not creating
     // regression_tests/branch_to_proto.py:4
     // class VRFVerifier(ARC4Contract):
-    callsub verify
-    // regression_tests/branch_to_proto.py:5
-    // @arc4.abimethod
-    return
+    b verify
 
 main_bare_routing@6:
     // regression_tests/branch_to_proto.py:4
@@ -40,6 +34,7 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
+    pushint 1 // 1
     return
 
 
@@ -47,7 +42,6 @@ main_bare_routing@6:
 verify:
     // regression_tests/branch_to_proto.py:4
     // class VRFVerifier(ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     extract 2 0
     txna ApplicationArgs 2
@@ -102,4 +96,5 @@ verify_after_while@7:
     swap
     concat
     log
-    retsub
+    pushint 1 // 1
+    return

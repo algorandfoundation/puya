@@ -18,10 +18,10 @@ main test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init:
         switch tmp%6#0 {method "bootstrap()uint64" => block@5, method "log_greetings(string)void" => block@6, * => block@9}
     block@5: // bootstrap_route_L10
         test_cases.inner_transactions.c2c.Greeter.bootstrap[routing]()
-        exit 1u
+        goto block@9
     block@6: // log_greetings_route_L23
         test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]()
-        exit 1u
+        goto block@9
     block@7: // bare_routing_L6
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -54,7 +54,7 @@ subroutine test_cases.inner_transactions.c2c.Greeter.bootstrap[routing]() -> voi
         let tmp%1#0: Encoded(uint64) = aggregate%as_Encoded(uint64)%0#0
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
         (log tmp%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]() -> void:
     block@0: // L6
@@ -76,4 +76,4 @@ subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]() ->
         let tmp%4#0: string = ((extract 2 0) greeting#0)
         let tmp%5#0: bytes = (concat "HelloWorld returned: " tmp%4#0)
         (log tmp%5#0)
-        return 
+        exit 1u

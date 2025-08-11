@@ -27,72 +27,8 @@ main_after_if_else@2:
     assert // can only call when not creating
     pushbytess 0xd98ef6a9 0x6a4e7fca 0x12f08c98 0x9b4b8234 0x4d8b23d8 0x52ac5df7 0xe3aeb25c 0x3234b711 0xcc826346 // method "getListingsMbr()uint64", method "allowAsset(pay,uint64)void", method "firstDeposit(pay,axfer,uint64,uint64)void", method "deposit(axfer,uint64)void", method "setPrice(uint64,uint64,uint64)void", method "buy(address,uint64,uint64,pay,uint64)void", method "withdraw(uint64,uint64)void", method "bid(address,uint64,uint64,pay,uint64,uint64)void", method "acceptBid(uint64,uint64)void"
     txna ApplicationArgs 0
-    match main_getListingsMbr_route@5 main_allowAsset_route@6 main_firstDeposit_route@7 main_deposit_route@8 main_setPrice_route@9 main_buy_route@10 main_withdraw_route@11 main_bid_route@12 main_acceptBid_route@13
+    match main_getListingsMbr_route@5 allow_asset first_deposit deposit set_price buy withdraw bid accept_bid
     err
-
-main_acceptBid_route@13:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    callsub accept_bid
-    // marketplace_demo/marketplace_with_mutable_struct.py:236
-    // @arc4.abimethod(name="acceptBid")
-    return
-
-main_bid_route@12:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    callsub bid
-    // marketplace_demo/marketplace_with_mutable_struct.py:200
-    // @arc4.abimethod
-    return
-
-main_withdraw_route@11:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    callsub withdraw
-    // marketplace_demo/marketplace_with_mutable_struct.py:181
-    // @arc4.abimethod
-    return
-
-main_buy_route@10:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    callsub buy
-    // marketplace_demo/marketplace_with_mutable_struct.py:150
-    // @arc4.abimethod
-    return
-
-main_setPrice_route@9:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    callsub set_price
-    // marketplace_demo/marketplace_with_mutable_struct.py:137
-    // @arc4.abimethod(name="setPrice")
-    return
-
-main_deposit_route@8:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    callsub deposit
-    // marketplace_demo/marketplace_with_mutable_struct.py:120
-    // @arc4.abimethod
-    return
-
-main_firstDeposit_route@7:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    callsub first_deposit
-    // marketplace_demo/marketplace_with_mutable_struct.py:93
-    // @arc4.abimethod(name="firstDeposit")
-    return
-
-main_allowAsset_route@6:
-    // marketplace_demo/marketplace_with_mutable_struct.py:37
-    // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    callsub allow_asset
-    // marketplace_demo/marketplace_with_mutable_struct.py:82
-    // @arc4.abimethod(name="allowAsset")
-    return
 
 main_getListingsMbr_route@5:
     // marketplace_demo/marketplace_with_mutable_struct.py:78
@@ -172,7 +108,10 @@ allow_asset:
     //     xfer_asset=asset, asset_receiver=Global.current_application_address, asset_amount=0
     // ).submit()
     itxn_submit
-    retsub
+    // marketplace_demo/marketplace_with_mutable_struct.py:82
+    // @arc4.abimethod(name="allowAsset")
+    intc_0 // 1
+    return
 
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.first_deposit[routing]() -> void:
@@ -321,7 +260,10 @@ first_deposit:
     swap
     concat
     box_put
-    retsub
+    // marketplace_demo/marketplace_with_mutable_struct.py:93
+    // @arc4.abimethod(name="firstDeposit")
+    intc_0 // 1
+    return
 
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.deposit[routing]() -> void:
@@ -417,7 +359,10 @@ deposit:
     swap
     concat
     box_put
-    retsub
+    // marketplace_demo/marketplace_with_mutable_struct.py:120
+    // @arc4.abimethod
+    intc_0 // 1
+    return
 
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.set_price[routing]() -> void:
@@ -481,7 +426,10 @@ set_price:
     swap
     concat
     box_put
-    retsub
+    // marketplace_demo/marketplace_with_mutable_struct.py:137
+    // @arc4.abimethod(name="setPrice")
+    intc_0 // 1
+    return
 
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.buy[routing]() -> void:
@@ -630,14 +578,16 @@ buy:
     //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=quantity
     // ).submit()
     itxn_submit
-    retsub
+    // marketplace_demo/marketplace_with_mutable_struct.py:150
+    // @arc4.abimethod
+    intc_0 // 1
+    return
 
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.withdraw[routing]() -> void:
 withdraw:
     // marketplace_demo/marketplace_with_mutable_struct.py:37
     // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     btoi
     dup
@@ -784,14 +734,16 @@ withdraw_after_if_else@4:
     //     xfer_asset=asset, asset_receiver=Txn.sender, asset_amount=listing.deposited
     // ).submit()
     itxn_submit
-    retsub
+    // marketplace_demo/marketplace_with_mutable_struct.py:181
+    // @arc4.abimethod
+    intc_0 // 1
+    return
 
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.bid[routing]() -> void:
 bid:
     // marketplace_demo/marketplace_with_mutable_struct.py:37
     // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     txna ApplicationArgs 2
     btoi
@@ -976,14 +928,16 @@ bid_after_if_else@4:
     frame_dig 4
     swap
     box_put
-    retsub
+    // marketplace_demo/marketplace_with_mutable_struct.py:200
+    // @arc4.abimethod
+    intc_0 // 1
+    return
 
 
 // test_cases.marketplace_demo.marketplace_with_mutable_struct.DigitalMarketplaceWithStruct.accept_bid[routing]() -> void:
 accept_bid:
     // marketplace_demo/marketplace_with_mutable_struct.py:37
     // class DigitalMarketplaceWithStruct(arc4.ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     btoi
     dup
@@ -1140,7 +1094,10 @@ accept_bid_ternary_merge@4:
     frame_dig 1
     swap
     box_put
-    retsub
+    // marketplace_demo/marketplace_with_mutable_struct.py:236
+    // @arc4.abimethod(name="acceptBid")
+    intc_0 // 1
+    return
 
 accept_bid_ternary_false@3:
     frame_dig 5

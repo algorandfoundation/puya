@@ -12,13 +12,13 @@ main test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init:
         switch tmp%6#0 {method "append()void" => block@5, method "modify()void" => block@6, method "get()(uint64,string)[]" => block@7, * => block@11}
     block@5: // append_route_L36
         test_cases.state_mutations.contract.Contract.append[routing]()
-        exit 1u
+        goto block@11
     block@6: // modify_route_L44
         test_cases.state_mutations.contract.Contract.modify[routing]()
-        exit 1u
+        goto block@11
     block@7: // get_route_L51
         test_cases.state_mutations.contract.Contract.get[routing]()
-        exit 1u
+        goto block@11
     block@8: // bare_routing_L22
         let tmp%7#0: uint64 = (txn OnCompletion)
         goto_nth [block@10, block@9][tmp%7#0] else goto block@11
@@ -329,7 +329,7 @@ subroutine test_cases.state_mutations.contract.Contract.append[routing]() -> voi
         let as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, tmp%1#0)
         (box_del box_prefixed_key%0#0)
         (box_put box_prefixed_key%0#0 as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)
-        return 
+        exit 1u
 
 subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> void:
     block@0: // L22
@@ -450,7 +450,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> voi
         let updated_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = aggregate%updated_array%3#0
         (box_del box_prefixed_key%0#0)
         (box_put box_prefixed_key%0#0 updated_array%3#0)
-        return 
+        exit 1u
 
 subroutine test_cases.state_mutations.contract.Contract.get[routing]() -> void:
     block@0: // L22
@@ -475,4 +475,4 @@ subroutine test_cases.state_mutations.contract.Contract.get[routing]() -> void:
         (assert tmp%3#0) // expected map == global
         let tmp%1#0: bytes = (concat 0x151f7c75 a1#0)
         (log tmp%1#0)
-        return 
+        exit 1u

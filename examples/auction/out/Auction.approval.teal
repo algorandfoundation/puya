@@ -5,7 +5,7 @@
 main:
     intcblock 0 1 4
     bytecblock "auction_end" "previous_bid" "previous_bidder" "asa_amount" "asa" "claim"
-    // auction/contract.py:25
+    // auction/contract.py:62
     // @arc4.abimethod
     intc_1 // 1
     txn ApplicationID
@@ -48,51 +48,11 @@ main_after_if_else@2:
     assert // can only call when not creating
     pushbytess 0xd8f62d9a 0xf0aa7023 0x30c6d58a 0xdb7fe843 0xe654625b 0x59b2ab26 // method "opt_into_asset(uint64)void", method "start_auction(uint64,uint64,axfer)void", method "opt_in()void", method "bid(pay)void", method "claim_bids()void", method "claim_asset(uint64)void"
     txna ApplicationArgs 0
-    match main_opt_into_asset_route@5 main_start_auction_route@6 main_opt_in_route@7 main_bid_route@8 main_claim_bids_route@9 main_claim_asset_route@10
+    match opt_into_asset start_auction main_opt_in_route@7 bid claim_bids claim_asset
     err
-
-main_claim_asset_route@10:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    callsub claim_asset
-    // auction/contract.py:97
-    // @arc4.abimethod
-    return
-
-main_claim_bids_route@9:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    callsub claim_bids
-    // auction/contract.py:82
-    // @arc4.abimethod
-    return
-
-main_bid_route@8:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    callsub bid
-    // auction/contract.py:66
-    // @arc4.abimethod
-    return
 
 main_opt_in_route@7:
     // auction/contract.py:62
-    // @arc4.abimethod
-    return
-
-main_start_auction_route@6:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    callsub start_auction
-    // auction/contract.py:40
-    // @arc4.abimethod
-    return
-
-main_opt_into_asset_route@5:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    callsub opt_into_asset
-    // auction/contract.py:25
     // @arc4.abimethod
     return
 
@@ -162,7 +122,10 @@ opt_into_asset:
     //     xfer_asset=asset,
     // ).submit()
     itxn_submit
-    retsub
+    // auction/contract.py:25
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
 // examples.auction.contract.Auction.start_auction[routing]() -> void:
@@ -227,7 +190,10 @@ start_auction:
     bytec_1 // "previous_bid"
     swap
     app_global_put
-    retsub
+    // auction/contract.py:40
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
 // examples.auction.contract.Auction.bid[routing]() -> void:
@@ -290,14 +256,14 @@ bid:
     bytec 5 // "claim"
     uncover 2
     app_local_put
-    retsub
+    // auction/contract.py:66
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
 // examples.auction.contract.Auction.claim_bids[routing]() -> void:
 claim_bids:
-    // auction/contract.py:16
-    // class Auction(ARC4Contract):
-    proto 0 0
     // auction/contract.py:84
     // amount = original_amount = self.claimable_amount[Txn.sender]
     txn Sender
@@ -364,7 +330,10 @@ claim_bids_after_if_else@3:
     bytec 5 // "claim"
     uncover 2
     app_local_put
-    retsub
+    // auction/contract.py:82
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
 // examples.auction.contract.Auction.claim_asset[routing]() -> void:
@@ -424,4 +393,7 @@ claim_asset:
     //     asset_amount=self.asa_amount,
     // ).submit()
     itxn_submit
-    retsub
+    // auction/contract.py:97
+    // @arc4.abimethod
+    intc_1 // 1
+    return

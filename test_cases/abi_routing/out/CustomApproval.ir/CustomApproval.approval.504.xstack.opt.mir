@@ -2,10 +2,6 @@
 // test_cases.abi_routing.custom_approval.CustomApproval.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // abi_routing/custom_approval.py:23
-        // @arc4.abimethod
-        int 1                                                                                1
-        v-store lifted%return#0
         txn ApplicationID                                                                    tmp%0#0
         bz main_call___init__@1 ; b main_after_if_else@2
 
@@ -68,10 +64,7 @@ subroutine main:
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
         callsub add_one
-        // abi_routing/custom_approval.py:23
-        // @arc4.abimethod
-        v-load lifted%return#0                                                               lifted%return#0
-        return
+        b main_after_if_else@13
 
     main_bare_routing@12:
         // abi_routing/custom_approval.py:6
@@ -82,7 +75,7 @@ subroutine main:
         txn ApplicationID                                                                    tmp%8#0
         !                                                                                    tmp%9#0
         assert // can only call when creating
-        v-load lifted%return#0                                                               lifted%return#0
+        int 1                                                                                1
         return
 
     main_after_if_else@13:
@@ -109,6 +102,7 @@ subroutine add_one:
         l-load aggregate%val_as_bytes%0#0 1                                                  0x151f7c75,aggregate%val_as_bytes%0#0
         concat                                                                               tmp%3#0
         log
-        retsub
+        int 1                                                                                1
+        return
 
 

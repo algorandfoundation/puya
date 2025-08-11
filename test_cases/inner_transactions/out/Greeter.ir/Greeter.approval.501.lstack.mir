@@ -2,10 +2,6 @@
 // test_cases.inner_transactions.c2c.Greeter.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // inner_transactions/c2c.py:10
-        // @arc4.abimethod()
-        int 1                                                                            1
-        v-store lifted%return#0
         txn ApplicationID                                                                tmp%0#0
         l-load tmp%0#0 0                                                                 tmp%0#0
         bz main_call___init__@1 ; b main_after_if_else@2
@@ -46,19 +42,13 @@ subroutine main:
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
         callsub bootstrap
-        // inner_transactions/c2c.py:10
-        // @arc4.abimethod()
-        v-load lifted%return#0                                                           lifted%return#0
-        return
+        b main_after_if_else@9
 
     main_log_greetings_route@6:
         // inner_transactions/c2c.py:6
         // class Greeter(ARC4Contract):
         callsub log_greetings
-        // inner_transactions/c2c.py:23
-        // @arc4.abimethod()
-        v-load lifted%return#0                                                           lifted%return#0
-        return
+        b main_after_if_else@9
 
     main_bare_routing@7:
         // inner_transactions/c2c.py:6
@@ -73,7 +63,7 @@ subroutine main:
         !                                                                                tmp%9#0
         l-load tmp%9#0 0                                                                 tmp%9#0
         assert // can only call when creating
-        v-load lifted%return#0                                                           lifted%return#0
+        int 1                                                                            1
         return
 
     main_after_if_else@9:
@@ -155,7 +145,8 @@ subroutine bootstrap:
         concat                                                                           tmp%2#0
         l-load tmp%2#0 0                                                                 tmp%2#0
         log
-        retsub
+        int 1                                                                            1
+        return
 
 
 // test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]() -> void:
@@ -216,6 +207,9 @@ subroutine log_greetings:
         concat                                                                           tmp%5#0
         l-load tmp%5#0 0                                                                 tmp%5#0
         log
-        retsub
+        // inner_transactions/c2c.py:23
+        // @arc4.abimethod()
+        int 1                                                                            1
+        return
 
 

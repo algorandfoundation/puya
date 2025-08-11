@@ -19,7 +19,7 @@ main test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init:
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // can only call when creating
         test_cases.compile.apps.HelloOtherConstants.create[routing]()
-        exit 1u
+        goto block@7
     block@5: // delete_route_L87
         let tmp%5#0: uint64 = (txn OnCompletion)
         let tmp%6#0: bool = (== tmp%5#0 DeleteApplication)
@@ -27,7 +27,7 @@ main test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init:
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
         test_cases.compile.apps.HelloOtherConstants.delete[routing]()
-        exit 1u
+        goto block@7
     block@6: // greet_route_L91
         let tmp%9#0: uint64 = (txn OnCompletion)
         let tmp%10#0: bool = (! tmp%9#0)
@@ -35,8 +35,8 @@ main test_cases.compile.apps.HelloOtherConstants.__algopy_entrypoint_with_init:
         let tmp%11#0: uint64 = (txn ApplicationID)
         (assert tmp%11#0) // can only call when not creating
         test_cases.compile.apps.HelloOtherConstants.greet[routing]()
-        exit 1u
-    block@7: // switch_case_default_L76
+        goto block@7
+    block@7: // switch_case_next_L76
         fail
 
 subroutine test_cases.compile.apps.HelloOtherConstants.create[routing]() -> void:
@@ -44,11 +44,11 @@ subroutine test_cases.compile.apps.HelloOtherConstants.create[routing]() -> void
         let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(1u)
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
         (log tmp%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.compile.apps.HelloOtherConstants.delete[routing]() -> void:
     block@0: // L76
-        return 
+        exit 1u
 
 subroutine test_cases.compile.apps.HelloOtherConstants.greet[routing]() -> void:
     block@0: // L76
@@ -74,4 +74,4 @@ subroutine test_cases.compile.apps.HelloOtherConstants.greet[routing]() -> void:
         let tmp%2#0: Encoded(len+uint8[]) = bytes_encode<(len+uint8[])>(tmp%7#0)
         let tmp%3#0: bytes = (concat 0x151f7c75 tmp%2#0)
         (log tmp%3#0)
-        return 
+        exit 1u

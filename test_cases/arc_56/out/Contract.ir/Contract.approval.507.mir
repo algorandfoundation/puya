@@ -2,8 +2,8 @@
 // test_cases.arc_56.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // arc_56/contract.py:89
-        // @arc4.abimethod()
+        // arc_56/contract.py:81
+        // @arc4.abimethod(create="allow", allow_actions=["NoOp", "OptIn"])
         int 1                                                                            lifted%return#0
         f-store lifted%return#0                                                          (𝕗) lifted%return#0 |
         // arc_56/contract.py:54
@@ -37,76 +37,43 @@ subroutine main:
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
         callsub struct_arg                                                               (𝕗) lifted%return#0 |
-        // arc_56/contract.py:89
-        // @arc4.abimethod()
-        f-load lifted%return#0                                                           (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                           (𝕗) lifted%return#0 |
+        b main_after_if_else@18                                                          (𝕗) lifted%return#0 |
 
     main_struct_return_route@7:                                                          (𝕗) lifted%return#0 |
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
         callsub struct_return                                                            (𝕗) lifted%return#0 |
-        // arc_56/contract.py:95
-        // @arc4.abimethod(readonly=True)
-        f-load lifted%return#0                                                           (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                           (𝕗) lifted%return#0 |
+        b main_after_if_else@18                                                          (𝕗) lifted%return#0 |
 
     main_emits_error_route@8:                                                            (𝕗) lifted%return#0 |
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
         callsub errors                                                                   (𝕗) lifted%return#0 |
-        // arc_56/contract.py:100
-        // @arc4.abimethod(name="emits_error", readonly=True)
-        f-load lifted%return#0                                                           (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                           (𝕗) lifted%return#0 |
+        b main_after_if_else@18                                                          (𝕗) lifted%return#0 |
 
     main_emitter_route@9:                                                                (𝕗) lifted%return#0 |
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
         callsub emitter                                                                  (𝕗) lifted%return#0 |
-        // arc_56/contract.py:104
-        // @arc4.abimethod()
-        f-load lifted%return#0                                                           (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                           (𝕗) lifted%return#0 |
+        b main_after_if_else@18                                                          (𝕗) lifted%return#0 |
 
     main_conditional_emit_route@10:                                                      (𝕗) lifted%return#0 |
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
         callsub conditional_emit                                                         (𝕗) lifted%return#0 |
-        // arc_56/contract.py:114
-        // @arc4.abimethod()
-        f-load lifted%return#0                                                           (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                           (𝕗) lifted%return#0 |
+        b main_after_if_else@18                                                          (𝕗) lifted%return#0 |
 
     main_template_value_route@11:                                                        (𝕗) lifted%return#0 |
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
         callsub template_value                                                           (𝕗) lifted%return#0 |
-        // arc_56/contract.py:123
-        // @arc4.abimethod()
-        f-load lifted%return#0                                                           (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                           (𝕗) lifted%return#0 |
+        b main_after_if_else@18                                                          (𝕗) lifted%return#0 |
 
     main_with_constant_defaults_route@12:                                                (𝕗) lifted%return#0 |
         // arc_56/contract.py:54
         // class Contract(ARC4Contract):
         callsub with_constant_defaults                                                   (𝕗) lifted%return#0 |
-        // arc_56/contract.py:132-144
-        // @arc4.abimethod(
-        //     default_args={
-        //         "a": arc4.UInt64(123),
-        //         "c": Bytes(b"123"),
-        //         "b": UInt64(234),
-        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
-        //         "e": (UInt64(42), String("on the edge")),
-        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
-        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
-        //         "h": constant_method(),
-        //         "i": echo_number(UInt64(1234)),
-        //     }
-        // )
-        f-load lifted%return#0                                                           (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                           (𝕗) lifted%return#0 |
+        b main_after_if_else@18                                                          (𝕗) lifted%return#0 |
 
     main_other_routes@13:                                                                (𝕗) lifted%return#0 |
         // arc_56/contract.py:54
@@ -181,7 +148,8 @@ subroutine struct_arg:
         // @arc4.abimethod()
         byte 0x151f7c75000000000000002a                                                  0x151f7c75000000000000002a
         log
-        retsub
+        int 1                                                                            1
+        return
 
 
 // test_cases.arc_56.contract.Contract.struct_return[routing]() -> void:
@@ -207,7 +175,8 @@ subroutine struct_return:
         l-load s#0 1                                                                     0x151f7c75,s#0
         concat                                                                           tmp%1#0
         log
-        retsub
+        int 1                                                                            1
+        return
 
 
 // test_cases.arc_56.contract.Contract.errors[routing]() -> void:
@@ -222,7 +191,10 @@ subroutine errors:
         byte 0x00                                                                        aggregate%extract%0#0,0x00
         ==                                                                               tmp%0#0
         assert // this will error
-        retsub
+        // arc_56/contract.py:100
+        // @arc4.abimethod(name="emits_error", readonly=True)
+        int 1                                                                            1
+        return
 
 
 // test_cases.arc_56.contract.Contract.emitter[routing]() -> void:
@@ -240,7 +212,10 @@ subroutine emitter:
         // )
         byte 0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32                      0x1e72af4e0004000b000568656c6c6f00032a000668656c6c6f32
         log
-        retsub
+        // arc_56/contract.py:104
+        // @arc4.abimethod()
+        int 1                                                                            1
+        return
 
 
 // test_cases.arc_56.contract.Contract.conditional_emit[routing]() -> void:
@@ -267,7 +242,10 @@ subroutine conditional_emit:
         b conditional_emit_after_if_else@3
 
     conditional_emit_after_if_else@3:
-        retsub
+        // arc_56/contract.py:114
+        // @arc4.abimethod()
+        int 1                                                                            1
+        return
 
 
 // test_cases.arc_56.contract.Contract.template_value[routing]() -> void:
@@ -322,7 +300,8 @@ subroutine template_value:
         l-load aggregate%concat%1#0 1                                                    0x151f7c75,aggregate%concat%1#0
         concat                                                                           tmp%5#0
         log
-        retsub
+        int 1                                                                            1
+        return
 
 
 // test_cases.arc_56.contract.Contract.with_constant_defaults[routing]() -> void:
@@ -476,6 +455,21 @@ subroutine with_constant_defaults:
         int 1234                                                                         (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | i#0,1234
         ==                                                                               (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | tmp%14#0
         assert                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 |
-        retsub
+        // arc_56/contract.py:132-144
+        // @arc4.abimethod(
+        //     default_args={
+        //         "a": arc4.UInt64(123),
+        //         "c": Bytes(b"123"),
+        //         "b": UInt64(234),
+        //         "d": EventOnly(x=arc4.UInt64(1), y=arc4.UInt64(2)),
+        //         "e": (UInt64(42), String("on the edge")),
+        //         "f": arc4.StaticArray(arc4.String("hi"), arc4.String("there!")),
+        //         "g": arc4.DynamicArray(arc4.String("one"), arc4.String("two")),
+        //         "h": constant_method(),
+        //         "i": echo_number(UInt64(1234)),
+        //     }
+        // )
+        int 1                                                                            (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 | 1
+        return                                                                           (𝕗) d#0,e.0#0,e.1#0,f#0,g#0,h#0,i#0 |
 
 

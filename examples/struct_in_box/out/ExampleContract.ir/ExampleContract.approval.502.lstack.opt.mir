@@ -2,10 +2,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // struct_in_box/contract.py:30
-        // @arc4.abimethod()
-        int 1                                                                 1
-        v-store lifted%return#0
         // struct_in_box/contract.py:10
         // class ExampleContract(ARC4Contract):
         txn NumAppArgs                                                        tmp%0#1
@@ -30,28 +26,19 @@ subroutine main:
         // struct_in_box/contract.py:10
         // class ExampleContract(ARC4Contract):
         callsub add_user
-        // struct_in_box/contract.py:30
-        // @arc4.abimethod()
-        v-load lifted%return#0                                                lifted%return#0
-        return
+        b main_after_if_else@12
 
     main_attach_asset_to_user_route@4:
         // struct_in_box/contract.py:10
         // class ExampleContract(ARC4Contract):
         callsub attach_asset_to_user
-        // struct_in_box/contract.py:35
-        // @arc4.abimethod()
-        v-load lifted%return#0                                                lifted%return#0
-        return
+        b main_after_if_else@12
 
     main_get_user_route@5:
         // struct_in_box/contract.py:10
         // class ExampleContract(ARC4Contract):
         callsub get_user
-        // struct_in_box/contract.py:41
-        // @arc4.abimethod()
-        v-load lifted%return#0                                                lifted%return#0
-        return
+        b main_after_if_else@12
 
     main_bare_routing@8:
         // struct_in_box/contract.py:10
@@ -62,7 +49,7 @@ subroutine main:
         txn ApplicationID                                                     tmp%8#0
         !                                                                     tmp%9#0
         assert // can only call when creating
-        v-load lifted%return#0                                                lifted%return#0
+        int 1                                                                 1
         return
 
     main_after_if_else@12:
@@ -102,7 +89,10 @@ subroutine add_user:
         l-load user_id#0 0                                                    user#0,user_id#0
         l-load user#0 1                                                       user_id#0,user#0
         box_put
-        retsub
+        // struct_in_box/contract.py:30
+        // @arc4.abimethod()
+        int 1                                                                 1
+        return
 
 
 // examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[routing]() -> void:
@@ -138,7 +128,10 @@ subroutine attach_asset_to_user:
         l-load box_key#0 0                                                    user#1,box_key#0
         l-load user#1 1                                                       box_key#0,user#1
         box_put
-        retsub
+        // struct_in_box/contract.py:35
+        // @arc4.abimethod()
+        int 1                                                                 1
+        return
 
 
 // examples.struct_in_box.contract.ExampleContract.get_user[routing]() -> void:
@@ -159,6 +152,7 @@ subroutine get_user:
         l-load box_data#0 1                                                   0x151f7c75,box_data#0
         concat                                                                tmp%1#0
         log
-        retsub
+        int 1                                                                 1
+        return
 
 

@@ -4,9 +4,6 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     bytecblock 0x010000000000000000 0x151f7c75
-    // regression_tests/biguint_opt.py:5
-    // @arc4.abimethod()
-    pushint 1 // 1
     // regression_tests/biguint_opt.py:4
     // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
     txn NumAppArgs
@@ -18,24 +15,8 @@ main:
     assert // can only call when not creating
     pushbytess 0x58db7ce9 0xc95c01ca // method "get_abs_bound1(uint64)uint64", method "get_abs_bound2()uint64"
     txna ApplicationArgs 0
-    match main_get_abs_bound1_route@3 main_get_abs_bound2_route@4
+    match get_abs_bound1 get_abs_bound2
     err
-
-main_get_abs_bound2_route@4:
-    // regression_tests/biguint_opt.py:4
-    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-    callsub get_abs_bound2
-    // regression_tests/biguint_opt.py:17
-    // @arc4.abimethod()
-    return
-
-main_get_abs_bound1_route@3:
-    // regression_tests/biguint_opt.py:4
-    // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-    callsub get_abs_bound1
-    // regression_tests/biguint_opt.py:5
-    // @arc4.abimethod()
-    return
 
 main_bare_routing@7:
     // regression_tests/biguint_opt.py:4
@@ -46,6 +27,7 @@ main_bare_routing@7:
     txn ApplicationID
     !
     assert // can only call when creating
+    pushint 1 // 1
     return
 
 
@@ -53,7 +35,6 @@ main_bare_routing@7:
 get_abs_bound1:
     // regression_tests/biguint_opt.py:4
     // class ConstBigIntToIntOverflow(arc4.ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     btoi
     // regression_tests/biguint_opt.py:7
@@ -82,7 +63,8 @@ get_abs_bound1_after_if_else@3:
     swap
     concat
     log
-    retsub
+    pushint 1 // 1
+    return
 
 
 // test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2[routing]() -> void:
@@ -100,4 +82,5 @@ get_abs_bound2:
     swap
     concat
     log
-    retsub
+    pushint 1 // 1
+    return

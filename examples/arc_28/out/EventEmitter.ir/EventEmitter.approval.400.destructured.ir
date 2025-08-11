@@ -1,6 +1,5 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let lifted%return#0: bool = 1u
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@7
     block@2: // abi_routing_L11
@@ -13,10 +12,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "emit_swapped(uint64,uint64)void" => block@3, method "emit_ufixed(ufixed256x16,ufixed64x2)void" => block@4, * => block@11}
     block@3: // emit_swapped_route_L12
         examples.arc_28.contract.EventEmitter.emit_swapped[routing]()
-        exit lifted%return#0
+        goto block@11
     block@4: // emit_ufixed_route_L18
         examples.arc_28.contract.EventEmitter.emit_ufixed[routing]()
-        exit lifted%return#0
+        goto block@11
     block@7: // bare_routing_L11
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -24,7 +23,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
-        exit lifted%return#0
+        exit 1u
     block@11: // after_if_else_L11
         fail
 
@@ -37,7 +36,7 @@ subroutine examples.arc_28.contract.EventEmitter.emit_swapped[routing]() -> void
         (log event%0#0)
         (log event%0#0)
         (log event%0#0)
-        return 
+        exit 1u
 
 subroutine examples.arc_28.contract.EventEmitter.emit_ufixed[routing]() -> void:
     block@0: // L11
@@ -46,4 +45,4 @@ subroutine examples.arc_28.contract.EventEmitter.emit_ufixed[routing]() -> void:
         let aggregate%head%1#0: bytes = (concat a#0 b#0)
         let event%0#0: bytes = (concat method "AnEvent(ufixed256x16,ufixed64x2)" aggregate%head%1#0)
         (log event%0#0)
-        return 
+        exit 1u

@@ -14,16 +14,16 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "test_call_with_txn(byte[],byte[],uint64)void" => block@3, method "test_call_with_acfg(byte[],byte[],uint64)void" => block@4, method "test_call_with_infer(byte[],byte[],uint64)void" => block@5, method "test_call_with_acfg_no_return(byte[],byte[],uint64)void" => block@6, * => block@13}
     block@3: // test_call_with_txn_route_L15
         test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn[routing]()
-        exit 1u
+        goto block@13
     block@4: // test_call_with_acfg_route_L31
         test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg[routing]()
-        exit 1u
+        goto block@13
     block@5: // test_call_with_infer_route_L46
         test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer[routing]()
-        exit 1u
+        goto block@13
     block@6: // test_call_with_acfg_no_return_route_L61
         test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg_no_return[routing]()
-        exit 1u
+        goto block@13
     block@9: // bare_routing_L14
         let tmp%7#0: uint64 = (txn OnCompletion)
         goto tmp%7#0 ? block@13 : block@10
@@ -68,7 +68,7 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_txn[routin
         let asset_id#0: uint64 = decode_bytes<uint64>(tmp%2#1)
         let tmp%6#0: bool = (!= asset_id#0 0u)
         (assert asset_id#0) // expected asset id
-        return 
+        exit 1u
 
 subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg[routing]() -> void:
     block@0: // L14
@@ -98,7 +98,7 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg[routi
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        return 
+        exit 1u
 
 subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer[routing]() -> void:
     block@0: // L14
@@ -128,7 +128,7 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_infer[rout
         let tmp%3#0: bytes = ((extract 0 4) awst_tmp%0#0)
         let tmp%4#0: bool = (== tmp%3#0 0x151f7c75)
         (assert tmp%4#0) // application log value is not the result of an ABI return
-        return 
+        exit 1u
 
 subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg_no_return[routing]() -> void:
     block@0: // L14
@@ -162,7 +162,7 @@ subroutine test_cases.typed_abi_call_txn.caller.Caller.test_call_with_acfg_no_re
         let asset_id#0: uint64 = (gitxn 0 CreatedAssetID)
         let tmp%5#0: bool = (!= asset_id#0 0u)
         (assert asset_id#0) // expected asset to be created
-        return 
+        exit 1u
 
 subroutine test_cases.typed_abi_call_txn.caller.Caller.__algopy_default_create() -> void:
     block@0: // L1

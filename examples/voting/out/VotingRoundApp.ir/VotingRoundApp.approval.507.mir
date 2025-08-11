@@ -2,110 +2,91 @@
 // examples.voting.voting.VotingRoundApp.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // voting/voting.py:82
-        // @arc4.abimethod
-        int 1                                                                                     lifted%return#0
-        f-store lifted%return#0                                                                   (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%0#0
-        bz main_call___init__@1 ; b main_after_if_else@2                                          (𝕗) lifted%return#0 |
+        txn ApplicationID                                                                         tmp%0#0
+        bz main_call___init__@1 ; b main_after_if_else@2
 
-    main_call___init__@1:                                                                         (𝕗) lifted%return#0 |
+    main_call___init__@1:
         // voting/voting.py:51
         // self.is_bootstrapped = False
-        byte "is_bootstrapped"                                                                    (𝕗) lifted%return#0 | "is_bootstrapped"
-        int 0                                                                                     (𝕗) lifted%return#0 | "is_bootstrapped",0
-        app_global_put                                                                            (𝕗) lifted%return#0 |
+        byte "is_bootstrapped"                                                                    "is_bootstrapped"
+        int 0                                                                                     "is_bootstrapped",0
+        app_global_put
         // voting/voting.py:53
         // self.voter_count = UInt64(0)
-        byte "voter_count"                                                                        (𝕗) lifted%return#0 | "voter_count"
-        int 0                                                                                     (𝕗) lifted%return#0 | "voter_count",0
-        app_global_put                                                                            (𝕗) lifted%return#0 |
-        b main_after_if_else@2                                                                    (𝕗) lifted%return#0 |
+        byte "voter_count"                                                                        "voter_count"
+        int 0                                                                                     "voter_count",0
+        app_global_put
+        b main_after_if_else@2
 
-    main_after_if_else@2:                                                                         (𝕗) lifted%return#0 |
+    main_after_if_else@2:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        txn OnCompletion                                                                          (𝕗) lifted%return#0 | tmp%0#2
-        bz main_simple_routes@4 ; b main_other_routes@9                                           (𝕗) lifted%return#0 |
+        txn OnCompletion                                                                          tmp%0#2
+        bz main_simple_routes@4 ; b main_other_routes@9
 
-    main_simple_routes@4:                                                                         (𝕗) lifted%return#0 |
+    main_simple_routes@4:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%2#0
-        assert // can only call when not creating                                                 (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls             (𝕗) lifted%return#0 | tmp%4#0
-        method bootstrap(pay)void                                                                 (𝕗) lifted%return#0 | tmp%4#0,Method(bootstrap(pay)void)
-        method close()void                                                                        (𝕗) lifted%return#0 | tmp%4#0,Method(bootstrap(pay)void),Method(close()void)
-        method get_preconditions(byte[])(uint64,uint64,uint64,uint64)                             (𝕗) lifted%return#0 | tmp%4#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64))
-        method vote(pay,byte[],uint8[])void                                                       (𝕗) lifted%return#0 | tmp%4#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void)
-        l-load tmp%4#0 4                                                                          (𝕗) lifted%return#0 | Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void),tmp%4#0
-        match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8 ; b main_after_if_else@11 (𝕗) lifted%return#0 | 
+        txn ApplicationID                                                                         tmp%2#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls             tmp%4#0
+        method bootstrap(pay)void                                                                 tmp%4#0,Method(bootstrap(pay)void)
+        method close()void                                                                        tmp%4#0,Method(bootstrap(pay)void),Method(close()void)
+        method get_preconditions(byte[])(uint64,uint64,uint64,uint64)                             tmp%4#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64))
+        method vote(pay,byte[],uint8[])void                                                       tmp%4#0,Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void)
+        l-load tmp%4#0 4                                                                          Method(bootstrap(pay)void),Method(close()void),Method(get_preconditions(byte[])(uint64,uint64,uint64,uint64)),Method(vote(pay,byte[],uint8[])void),tmp%4#0
+        match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8 ; b main_after_if_else@11 
 
-    main_bootstrap_route@5:                                                                       (𝕗) lifted%return#0 |
+    main_bootstrap_route@5:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        callsub bootstrap                                                                         (𝕗) lifted%return#0 |
-        // voting/voting.py:82
-        // @arc4.abimethod
-        f-load lifted%return#0                                                                    (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                    (𝕗) lifted%return#0 |
+        callsub bootstrap
+        b main_after_if_else@11
 
-    main_close_route@6:                                                                           (𝕗) lifted%return#0 |
+    main_close_route@6:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        callsub close                                                                             (𝕗) lifted%return#0 |
-        // voting/voting.py:110
-        // @arc4.abimethod
-        f-load lifted%return#0                                                                    (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                    (𝕗) lifted%return#0 |
+        callsub close
+        b main_after_if_else@11
 
-    main_get_preconditions_route@7:                                                               (𝕗) lifted%return#0 |
+    main_get_preconditions_route@7:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        callsub get_preconditions                                                                 (𝕗) lifted%return#0 |
-        // voting/voting.py:160
-        // @arc4.abimethod(readonly=True)
-        f-load lifted%return#0                                                                    (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                    (𝕗) lifted%return#0 |
+        callsub get_preconditions
+        b main_after_if_else@11
 
-    main_vote_route@8:                                                                            (𝕗) lifted%return#0 |
+    main_vote_route@8:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        callsub vote                                                                              (𝕗) lifted%return#0 |
-        // voting/voting.py:169
-        // @arc4.abimethod
-        f-load lifted%return#0                                                                    (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                    (𝕗) lifted%return#0 |
+        callsub vote
+        b main_after_if_else@11
 
-    main_other_routes@9:                                                                          (𝕗) lifted%return#0 |
+    main_other_routes@9:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls             (𝕗) lifted%return#0 | tmp%5#0
-        method create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void               (𝕗) lifted%return#0 | tmp%5#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void)
-        l-load tmp%5#0 1                                                                          (𝕗) lifted%return#0 | Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),tmp%5#0
-        match main_create_route@10 ; b main_after_if_else@11                                      (𝕗) lifted%return#0 |
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls             tmp%5#0
+        method create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void               tmp%5#0,Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void)
+        l-load tmp%5#0 1                                                                          Method(create(string,byte[],string,uint64,uint64,uint8[],uint64,string)void),tmp%5#0
+        match main_create_route@10 ; b main_after_if_else@11
 
-    main_create_route@10:                                                                         (𝕗) lifted%return#0 |
+    main_create_route@10:
         // voting/voting.py:58
         // @arc4.abimethod(create="require")
-        txn OnCompletion                                                                          (𝕗) lifted%return#0 | tmp%6#0
-        !                                                                                         (𝕗) lifted%return#0 | tmp%7#0
-        assert // OnCompletion is not NoOp                                                        (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                         (𝕗) lifted%return#0 | tmp%8#0
-        !                                                                                         (𝕗) lifted%return#0 | tmp%9#0
-        assert // can only call when creating                                                     (𝕗) lifted%return#0 |
+        txn OnCompletion                                                                          tmp%6#0
+        !                                                                                         tmp%7#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                         tmp%8#0
+        !                                                                                         tmp%9#0
+        assert // can only call when creating
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        callsub create                                                                            (𝕗) lifted%return#0 |
-        // voting/voting.py:58
-        // @arc4.abimethod(create="require")
-        f-load lifted%return#0                                                                    (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                    (𝕗) lifted%return#0 |
+        callsub create
+        b main_after_if_else@11
 
-    main_after_if_else@11:                                                                        (𝕗) lifted%return#0 |
+    main_after_if_else@11:
         // voting/voting.py:49
         // class VotingRoundApp(ARC4Contract):
-        err                                                                                       (𝕗) lifted%return#0 |
+        err
 
 
 // _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
@@ -351,7 +332,10 @@ subroutine create:
         byte "total_options"                                                                      (𝕗) option_counts#0,aggregate%array_length%0#0,total_options#0,item_index_internal%0#0 | total_options#0,"total_options"
         l-load total_options#0 1                                                                  (𝕗) option_counts#0,aggregate%array_length%0#0,total_options#0,item_index_internal%0#0 | "total_options",total_options#0
         app_global_put                                                                            (𝕗) option_counts#0,aggregate%array_length%0#0,total_options#0,item_index_internal%0#0 |
-        retsub
+        // voting/voting.py:58
+        // @arc4.abimethod(create="require")
+        int 1                                                                                     (𝕗) option_counts#0,aggregate%array_length%0#0,total_options#0,item_index_internal%0#0 | 1
+        return                                                                                    (𝕗) option_counts#0,aggregate%array_length%0#0,total_options#0,item_index_internal%0#0 |
 
 
 // examples.voting.voting.VotingRoundApp.bootstrap[routing]() -> void:
@@ -451,7 +435,10 @@ subroutine bootstrap:
         l-load tally_box_size#0 1                                                                 "V",tally_box_size#0
         box_create                                                                                tmp%10#0
         assert
-        retsub
+        // voting/voting.py:82
+        // @arc4.abimethod
+        int 1                                                                                     1
+        return
 
 
 // examples.voting.voting.VotingRoundApp.close[routing]() -> void:
@@ -914,7 +901,10 @@ subroutine close:
         // )
         l-load tmp%27#0 1                                                                         (𝕗) aggregate%array_trimmed%0#0,note#17,question_options#0,current_index#15,option_index#0,tmp%18#0,note#0,current_index#0,maybe_value%5#0,aggregate%array_length%0#0,question_index#0 | "nft_asset_id",tmp%27#0
         app_global_put                                                                            (𝕗) aggregate%array_trimmed%0#0,note#17,question_options#0,current_index#15,option_index#0,tmp%18#0,note#0,current_index#0,maybe_value%5#0,aggregate%array_length%0#0,question_index#0 |
-        retsub
+        // voting/voting.py:110
+        // @arc4.abimethod
+        int 1                                                                                     (𝕗) aggregate%array_trimmed%0#0,note#17,question_options#0,current_index#15,option_index#0,tmp%18#0,note#0,current_index#0,maybe_value%5#0,aggregate%array_length%0#0,question_index#0 | 1
+        return                                                                                    (𝕗) aggregate%array_trimmed%0#0,note#17,question_options#0,current_index#15,option_index#0,tmp%18#0,note#0,current_index#0,maybe_value%5#0,aggregate%array_length%0#0,question_index#0 |
 
 
 // examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
@@ -967,7 +957,8 @@ subroutine get_preconditions:
         l-load aggregate%head%3#0 1                                                               0x151f7c75,aggregate%head%3#0
         concat                                                                                    tmp%2#0
         log
-        retsub
+        int 1                                                                                     1
+        return
 
 
 // examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
@@ -1175,7 +1166,10 @@ subroutine vote:
         b vote_for_header@2                                                                       (𝕗) answer_ids#0,questions_count#0,cumulative_offset#0,question_index#0 |
 
     vote_after_for@5:                                                                             (𝕗) answer_ids#0,questions_count#0,cumulative_offset#0,question_index#0 |
-        retsub
+        // voting/voting.py:169
+        // @arc4.abimethod
+        int 1                                                                                     (𝕗) answer_ids#0,questions_count#0,cumulative_offset#0,question_index#0 | 1
+        return                                                                                    (𝕗) answer_ids#0,questions_count#0,cumulative_offset#0,question_index#0 |
 
 
 // examples.voting.voting.VotingRoundApp.voting_open() -> uint64:

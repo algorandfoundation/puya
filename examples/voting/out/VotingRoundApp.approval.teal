@@ -5,9 +5,6 @@
 main:
     intcblock 0 1 10 8
     bytecblock "is_bootstrapped" "voter_count" "option_counts" "V" "vote_id" "close_time" 0x068101 0x30313233343536373839 "snapshot_public_key" "metadata_ipfs_cid" "start_time" "end_time" "quorum" "nft_image_url" "total_options"
-    // voting/voting.py:82
-    // @arc4.abimethod
-    intc_1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
     // voting/voting.py:51
@@ -31,40 +28,8 @@ main_after_if_else@2:
     assert // can only call when not creating
     pushbytess 0xa4e8d164 0x9656047a 0xbcb15896 0x84a53c6e // method "bootstrap(pay)void", method "close()void", method "get_preconditions(byte[])(uint64,uint64,uint64,uint64)", method "vote(pay,byte[],uint8[])void"
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    match main_bootstrap_route@5 main_close_route@6 main_get_preconditions_route@7 main_vote_route@8
+    match bootstrap close get_preconditions vote
     err
-
-main_vote_route@8:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    callsub vote
-    // voting/voting.py:169
-    // @arc4.abimethod
-    return
-
-main_get_preconditions_route@7:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    callsub get_preconditions
-    // voting/voting.py:160
-    // @arc4.abimethod(readonly=True)
-    return
-
-main_close_route@6:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    callsub close
-    // voting/voting.py:110
-    // @arc4.abimethod
-    return
-
-main_bootstrap_route@5:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    callsub bootstrap
-    // voting/voting.py:82
-    // @arc4.abimethod
-    return
 
 main_other_routes@9:
     // voting/voting.py:49
@@ -85,10 +50,7 @@ main_create_route@10:
     assert // can only call when creating
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    callsub create
-    // voting/voting.py:58
-    // @arc4.abimethod(create="require")
-    return
+    b create
 
 
 // _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
@@ -193,7 +155,6 @@ itoa_after_if_else@2:
 create:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    proto 0 0
     txna ApplicationArgs 1
     extract 2 0
     txna ApplicationArgs 2
@@ -316,7 +277,10 @@ create_after_for@4:
     bytec 14 // "total_options"
     swap
     app_global_put
-    retsub
+    // voting/voting.py:58
+    // @arc4.abimethod(create="require")
+    intc_1 // 1
+    return
 
 
 // examples.voting.voting.VotingRoundApp.bootstrap[routing]() -> void:
@@ -412,14 +376,14 @@ bootstrap:
     swap
     box_create
     assert
-    retsub
+    // voting/voting.py:82
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
 // examples.voting.voting.VotingRoundApp.close[routing]() -> void:
 close:
-    // voting/voting.py:49
-    // class VotingRoundApp(ARC4Contract):
-    proto 0 0
     intc_0 // 0
     dupn 2
     pushbytes ""
@@ -836,7 +800,10 @@ close_after_for@15:
     //     .created_asset.id
     // )
     app_global_put
-    retsub
+    // voting/voting.py:110
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
 // examples.voting.voting.VotingRoundApp.get_preconditions[routing]() -> void:
@@ -886,14 +853,14 @@ get_preconditions:
     swap
     concat
     log
-    retsub
+    intc_1 // 1
+    return
 
 
 // examples.voting.voting.VotingRoundApp.vote[routing]() -> void:
 vote:
     // voting/voting.py:49
     // class VotingRoundApp(ARC4Contract):
-    proto 0 0
     txn GroupIndex
     intc_1 // 1
     -
@@ -1080,7 +1047,10 @@ vote_for_header@2:
     b vote_for_header@2
 
 vote_after_for@5:
-    retsub
+    // voting/voting.py:169
+    // @arc4.abimethod
+    intc_1 // 1
+    return
 
 
 // examples.voting.voting.VotingRoundApp.voting_open() -> uint64:

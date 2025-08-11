@@ -1,7 +1,7 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
         let tmp%0#1: bytes = (txna ApplicationArgs 0) // on error: contract does not allow bare method calls
-        switch tmp%0#1 {method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)" => block@2, method "tuple_of_arc4((uint8,address))(uint8,address)" => block@3, * => block@4}
+        switch tmp%0#1 {method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)" => block@2, method "tuple_of_arc4((uint8,address))(uint8,address)" => block@3, * => block@5}
     block@2: // create_route_L5
         let tmp%1#0: uint64 = (txn OnCompletion)
         let tmp%2#0: bool = (! tmp%1#0)
@@ -10,7 +10,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%4#0: bool = (! tmp%3#0)
         (assert tmp%4#0) // can only call when creating
         test_cases.avm_types_in_abi.contract.TestContract.create[routing]()
-        exit 1u
+        goto block@5
     block@3: // tuple_of_arc4_route_L19
         let tmp%5#0: uint64 = (txn OnCompletion)
         let tmp%6#0: bool = (! tmp%5#0)
@@ -18,8 +18,8 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%7#0: uint64 = (txn ApplicationID)
         (assert tmp%7#0) // can only call when not creating
         test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4[routing]()
-        exit 1u
-    block@4: // switch_case_default_L4
+        goto block@5
+    block@5: // switch_case_next_L4
         fail
 
 subroutine test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -> void:
@@ -97,7 +97,7 @@ subroutine test_cases.avm_types_in_abi.contract.TestContract.create[routing]() -
         let tmp%15#0: Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[])) = aggregate%as_Encoded(bool1,uint64,(len+uint8[]),uint512,(len+utf8[]))%0#0
         let tmp%16#0: bytes = (concat 0x151f7c75 tmp%15#0)
         (log tmp%16#0)
-        return 
+        exit 1u
 
 subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4[routing]() -> void:
     block@0: // L4
@@ -113,4 +113,4 @@ subroutine test_cases.avm_types_in_abi.contract.TestContract.tuple_of_arc4[routi
         (assert tmp%3#1)
         let tmp%5#0: bytes = (concat 0x151f7c75 reinterpret_Encoded(uint8,uint8[32])%0#0)
         (log tmp%5#0)
-        return 
+        exit 1u

@@ -1,6 +1,5 @@
 main algopy.arc4.ARC4Contract.approval_program:
     block@0: // L1
-        let lifted%return#0: bool = 1u
         let tmp%0#1: uint64 = (txn NumAppArgs)
         goto tmp%0#1 ? block@2 : block@8
     block@2: // abi_routing_L10
@@ -13,13 +12,13 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "add_user((string,uint64,uint64))void" => block@3, method "attach_asset_to_user(uint64,uint64)void" => block@4, method "get_user(uint64)(string,uint64,uint64)" => block@5, * => block@12}
     block@3: // add_user_route_L30
         examples.struct_in_box.contract.ExampleContract.add_user[routing]()
-        exit lifted%return#0
+        goto block@12
     block@4: // attach_asset_to_user_route_L35
         examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[routing]()
-        exit lifted%return#0
+        goto block@12
     block@5: // get_user_route_L41
         examples.struct_in_box.contract.ExampleContract.get_user[routing]()
-        exit lifted%return#0
+        goto block@12
     block@8: // bare_routing_L10
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -27,7 +26,7 @@ main algopy.arc4.ARC4Contract.approval_program:
         let tmp%8#0: uint64 = (txn ApplicationID)
         let tmp%9#0: bool = (! tmp%8#0)
         (assert tmp%9#0) // can only call when creating
-        exit lifted%return#0
+        exit 1u
     block@12: // after_if_else_L10
         fail
 
@@ -40,7 +39,7 @@ subroutine examples.struct_in_box.contract.ExampleContract.add_user[routing]() -
         (assert tmp%1#0) // User with id must not exist
         (box_del user_id#0)
         (box_put user_id#0 user#0)
-        return 
+        exit 1u
 
 subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[routing]() -> void:
     block@0: // L10
@@ -52,7 +51,7 @@ subroutine examples.struct_in_box.contract.ExampleContract.attach_asset_to_user[
         let box_key#0: bytes = ((extract 2 8) user#1)
         (box_del box_key#0)
         (box_put box_key#0 user#1)
-        return 
+        exit 1u
 
 subroutine examples.struct_in_box.contract.ExampleContract.get_user[routing]() -> void:
     block@0: // L10
@@ -61,4 +60,4 @@ subroutine examples.struct_in_box.contract.ExampleContract.get_user[routing]() -
         (assert exists#0) // User with that id does not exist
         let tmp%1#0: bytes = (concat 0x151f7c75 box_data#0)
         (log tmp%1#0)
-        return 
+        exit 1u

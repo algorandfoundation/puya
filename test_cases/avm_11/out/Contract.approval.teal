@@ -3,10 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    intcblock 0
-    // avm_11/contract.py:5
-    // @arc4.abimethod
-    pushint 1 // 1
+    intcblock 0 1
     // avm_11/contract.py:4
     // class Contract(ARC4Contract, avm_version=11):
     txn NumAppArgs
@@ -26,10 +23,7 @@ main_test_new_ops_route@3:
     assert // can only call when not creating
     // avm_11/contract.py:4
     // class Contract(ARC4Contract, avm_version=11):
-    callsub test_new_ops
-    // avm_11/contract.py:5
-    // @arc4.abimethod
-    return
+    b test_new_ops
 
 main_bare_routing@6:
     // avm_11/contract.py:4
@@ -40,6 +34,7 @@ main_bare_routing@6:
     txn ApplicationID
     !
     assert // can only call when creating
+    intc_1 // 1
     return
 
 
@@ -129,4 +124,7 @@ test_new_ops:
     intc_0 // 0
     voter_params_get VoterIncentiveEligible
     popn 2
-    retsub
+    // avm_11/contract.py:5
+    // @arc4.abimethod
+    intc_1 // 1
+    return

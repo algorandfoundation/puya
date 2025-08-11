@@ -3,9 +3,7 @@
 
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
-    // arc4_types/uint_overflow.py:5
-    // @arc4.abimethod()
-    pushint 1 // 1
+    intcblock 1
     // arc4_types/uint_overflow.py:4
     // class UIntOverflow(arc4.ARC4Contract):
     txn NumAppArgs
@@ -17,32 +15,8 @@ main:
     assert // can only call when not creating
     pushbytess 0xea71ee7d 0xe31958f9 0xc7ed8497 // method "test_uint8()void", method "test_uint16()void", method "test_uint32()void"
     txna ApplicationArgs 0
-    match main_test_uint8_route@3 main_test_uint16_route@4 main_test_uint32_route@5
+    match test_uint8 test_uint16 test_uint32
     err
-
-main_test_uint32_route@5:
-    // arc4_types/uint_overflow.py:4
-    // class UIntOverflow(arc4.ARC4Contract):
-    callsub test_uint32
-    // arc4_types/uint_overflow.py:15
-    // @arc4.abimethod()
-    return
-
-main_test_uint16_route@4:
-    // arc4_types/uint_overflow.py:4
-    // class UIntOverflow(arc4.ARC4Contract):
-    callsub test_uint16
-    // arc4_types/uint_overflow.py:10
-    // @arc4.abimethod()
-    return
-
-main_test_uint8_route@3:
-    // arc4_types/uint_overflow.py:4
-    // class UIntOverflow(arc4.ARC4Contract):
-    callsub test_uint8
-    // arc4_types/uint_overflow.py:5
-    // @arc4.abimethod()
-    return
 
 main_bare_routing@8:
     // arc4_types/uint_overflow.py:4
@@ -53,6 +27,7 @@ main_bare_routing@8:
     txn ApplicationID
     !
     assert // can only call when creating
+    intc_0 // 1
     return
 
 
@@ -75,7 +50,10 @@ test_uint8:
     pushbytes 0x01
     !=
     assert // this should not happen
-    retsub
+    // arc4_types/uint_overflow.py:5
+    // @arc4.abimethod()
+    intc_0 // 1
+    return
 
 
 // test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint16[routing]() -> void:
@@ -97,7 +75,10 @@ test_uint16:
     pushbytes 0x0001
     !=
     assert // this should not happen
-    retsub
+    // arc4_types/uint_overflow.py:10
+    // @arc4.abimethod()
+    intc_0 // 1
+    return
 
 
 // test_cases.arc4_types.uint_overflow.UIntOverflow.test_uint32[routing]() -> void:
@@ -119,4 +100,7 @@ test_uint32:
     pushbytes 0x00000001
     !=
     assert // this should not happen
-    retsub
+    // arc4_types/uint_overflow.py:15
+    // @arc4.abimethod()
+    intc_0 // 1
+    return

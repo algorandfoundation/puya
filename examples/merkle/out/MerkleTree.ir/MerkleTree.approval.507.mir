@@ -2,55 +2,45 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 subroutine main:
     main_block@0:
-        // merkle/contract.py:10
-        // @arc4.abimethod(create="require")
-        int 1                                                                                  lifted%return#0
-        f-store lifted%return#0                                                                (𝕗) lifted%return#0 |
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls          (𝕗) lifted%return#0 | tmp%0#1
-        method create(byte[32])void                                                            (𝕗) lifted%return#0 | tmp%0#1,Method(create(byte[32])void)
-        method verify(byte[32][],byte[32])bool                                                 (𝕗) lifted%return#0 | tmp%0#1,Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool)
-        l-load tmp%0#1 2                                                                       (𝕗) lifted%return#0 | Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool),tmp%0#1
-        match main_create_route@2 main_verify_route@3 ; b main_switch_case_default@4           (𝕗) lifted%return#0 |
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls          tmp%0#1
+        method create(byte[32])void                                                            tmp%0#1,Method(create(byte[32])void)
+        method verify(byte[32][],byte[32])bool                                                 tmp%0#1,Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool)
+        l-load tmp%0#1 2                                                                       Method(create(byte[32])void),Method(verify(byte[32][],byte[32])bool),tmp%0#1
+        match main_create_route@2 main_verify_route@3 ; b main_switch_case_next@5
 
-    main_create_route@2:                                                                       (𝕗) lifted%return#0 |
+    main_create_route@2:
         // merkle/contract.py:10
         // @arc4.abimethod(create="require")
-        txn OnCompletion                                                                       (𝕗) lifted%return#0 | tmp%1#0
-        !                                                                                      (𝕗) lifted%return#0 | tmp%2#0
-        assert // OnCompletion is not NoOp                                                     (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                      (𝕗) lifted%return#0 | tmp%3#0
-        !                                                                                      (𝕗) lifted%return#0 | tmp%4#0
-        assert // can only call when creating                                                  (𝕗) lifted%return#0 |
+        txn OnCompletion                                                                       tmp%1#0
+        !                                                                                      tmp%2#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                      tmp%3#0
+        !                                                                                      tmp%4#0
+        assert // can only call when creating
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        callsub create                                                                         (𝕗) lifted%return#0 |
-        // merkle/contract.py:10
-        // @arc4.abimethod(create="require")
-        f-load lifted%return#0                                                                 (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                 (𝕗) lifted%return#0 |
+        callsub create
+        b main_switch_case_next@5
 
-    main_verify_route@3:                                                                       (𝕗) lifted%return#0 |
+    main_verify_route@3:
         // merkle/contract.py:14
         // @arc4.abimethod
-        txn OnCompletion                                                                       (𝕗) lifted%return#0 | tmp%5#0
-        !                                                                                      (𝕗) lifted%return#0 | tmp%6#0
-        assert // OnCompletion is not NoOp                                                     (𝕗) lifted%return#0 |
-        txn ApplicationID                                                                      (𝕗) lifted%return#0 | tmp%7#0
-        assert // can only call when not creating                                              (𝕗) lifted%return#0 |
+        txn OnCompletion                                                                       tmp%5#0
+        !                                                                                      tmp%6#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                      tmp%7#0
+        assert // can only call when not creating
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        callsub verify                                                                         (𝕗) lifted%return#0 |
-        // merkle/contract.py:14
-        // @arc4.abimethod
-        f-load lifted%return#0                                                                 (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                                 (𝕗) lifted%return#0 |
+        callsub verify
+        b main_switch_case_next@5
 
-    main_switch_case_default@4:                                                                (𝕗) lifted%return#0 |
+    main_switch_case_next@5:
         // merkle/contract.py:9
         // class MerkleTree(arc4.ARC4Contract):
-        err                                                                                    (𝕗) lifted%return#0 |
+        err
 
 
 // examples.merkle.contract.MerkleTree.create[routing]() -> void:
@@ -64,7 +54,10 @@ subroutine create:
         byte "root"                                                                            root#0,"root"
         l-load root#0 1                                                                        "root",root#0
         app_global_put
-        retsub
+        // merkle/contract.py:10
+        // @arc4.abimethod(create="require")
+        int 1                                                                                  1
+        return
 
 
 // examples.merkle.contract.MerkleTree.verify[routing]() -> void:
@@ -174,6 +167,7 @@ subroutine verify:
         l-load aggregate%encoded_bool%0#0 1                                                    (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,idx#0,computed#1 | 0x151f7c75,aggregate%encoded_bool%0#0
         concat                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,idx#0,computed#1 | tmp%2#0
         log                                                                                    (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,idx#0,computed#1 |
-        retsub
+        int 1                                                                                  (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,idx#0,computed#1 | 1
+        return                                                                                 (𝕗) proof#0,maybe_value%0#0,aggregate%array_length%0#0,idx#0,computed#1 |
 
 

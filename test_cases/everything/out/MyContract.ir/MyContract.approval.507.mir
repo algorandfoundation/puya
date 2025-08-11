@@ -2,112 +2,93 @@
 // test_cases.everything.contract.Everything.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // everything/contract.py:56
-        // @abimethod
-        int 1                                                                           lifted%return#0
-        f-store lifted%return#0                                                         (𝕗) lifted%return#0 |
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txn OnCompletion                                                                (𝕗) lifted%return#0 | tmp%0#2
-        bz main_simple_routes@4 ; b main_other_routes@7                                 (𝕗) lifted%return#0 |
+        txn OnCompletion                                                                tmp%0#2
+        bz main_simple_routes@4 ; b main_other_routes@7
 
-    main_simple_routes@4:                                                               (𝕗) lifted%return#0 |
+    main_simple_routes@4:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txn ApplicationID                                                               (𝕗) lifted%return#0 | tmp%2#0
-        assert // can only call when not creating                                       (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls   (𝕗) lifted%return#0 | tmp%4#0
-        method say_hello()string                                                        (𝕗) lifted%return#0 | tmp%4#0,Method(say_hello()string)
-        method calculate(uint64,uint64)uint64                                           (𝕗) lifted%return#0 | tmp%4#0,Method(say_hello()string),Method(calculate(uint64,uint64)uint64)
-        l-load tmp%4#0 2                                                                (𝕗) lifted%return#0 | Method(say_hello()string),Method(calculate(uint64,uint64)uint64),tmp%4#0
-        match main_say_hello_route@5 main_calculate_route@6 ; b main_after_if_else@11   (𝕗) lifted%return#0 |
+        txn ApplicationID                                                               tmp%2#0
+        assert // can only call when not creating
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls   tmp%4#0
+        method say_hello()string                                                        tmp%4#0,Method(say_hello()string)
+        method calculate(uint64,uint64)uint64                                           tmp%4#0,Method(say_hello()string),Method(calculate(uint64,uint64)uint64)
+        l-load tmp%4#0 2                                                                Method(say_hello()string),Method(calculate(uint64,uint64)uint64),tmp%4#0
+        match main_say_hello_route@5 main_calculate_route@6 ; b main_after_if_else@11
 
-    main_say_hello_route@5:                                                             (𝕗) lifted%return#0 |
+    main_say_hello_route@5:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        callsub say_hello                                                               (𝕗) lifted%return#0 |
-        // everything/contract.py:56
-        // @abimethod
-        f-load lifted%return#0                                                          (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                          (𝕗) lifted%return#0 |
+        callsub say_hello
+        b main_after_if_else@11
 
-    main_calculate_route@6:                                                             (𝕗) lifted%return#0 |
+    main_calculate_route@6:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        callsub calculate                                                               (𝕗) lifted%return#0 |
-        // everything/contract.py:64
-        // @abimethod
-        f-load lifted%return#0                                                          (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                          (𝕗) lifted%return#0 |
+        callsub calculate
+        b main_after_if_else@11
 
-    main_other_routes@7:                                                                (𝕗) lifted%return#0 |
+    main_other_routes@7:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls   (𝕗) lifted%return#0 | tmp%5#0
-        method create()void                                                             (𝕗) lifted%return#0 | tmp%5#0,Method(create()void)
-        method register(string)void                                                     (𝕗) lifted%return#0 | tmp%5#0,Method(create()void),Method(register(string)void)
-        method close_out()void                                                          (𝕗) lifted%return#0 | tmp%5#0,Method(create()void),Method(register(string)void),Method(close_out()void)
-        l-load tmp%5#0 3                                                                (𝕗) lifted%return#0 | Method(create()void),Method(register(string)void),Method(close_out()void),tmp%5#0
-        match main_create_route@8 main_register_route@9 main_close_out_route@10 ; b main_after_if_else@11 (𝕗) lifted%return#0 | 
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls   tmp%5#0
+        method create()void                                                             tmp%5#0,Method(create()void)
+        method register(string)void                                                     tmp%5#0,Method(create()void),Method(register(string)void)
+        method close_out()void                                                          tmp%5#0,Method(create()void),Method(register(string)void),Method(close_out()void)
+        l-load tmp%5#0 3                                                                Method(create()void),Method(register(string)void),Method(close_out()void),tmp%5#0
+        match main_create_route@8 main_register_route@9 main_close_out_route@10 ; b main_after_if_else@11 
 
-    main_create_route@8:                                                                (𝕗) lifted%return#0 |
+    main_create_route@8:
         // everything/contract.py:41
         // @abimethod(create="require")
-        txn OnCompletion                                                                (𝕗) lifted%return#0 | tmp%6#0
-        !                                                                               (𝕗) lifted%return#0 | tmp%7#0
-        assert // OnCompletion is not NoOp                                              (𝕗) lifted%return#0 |
-        txn ApplicationID                                                               (𝕗) lifted%return#0 | tmp%8#0
-        !                                                                               (𝕗) lifted%return#0 | tmp%9#0
-        assert // can only call when creating                                           (𝕗) lifted%return#0 |
+        txn OnCompletion                                                                tmp%6#0
+        !                                                                               tmp%7#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                               tmp%8#0
+        !                                                                               tmp%9#0
+        assert // can only call when creating
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        callsub create                                                                  (𝕗) lifted%return#0 |
-        // everything/contract.py:41
-        // @abimethod(create="require")
-        f-load lifted%return#0                                                          (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                          (𝕗) lifted%return#0 |
+        callsub create
+        b main_after_if_else@11
 
-    main_register_route@9:                                                              (𝕗) lifted%return#0 |
+    main_register_route@9:
         // everything/contract.py:47
         // @abimethod(allow_actions=["NoOp", "OptIn"])
-        txn OnCompletion                                                                (𝕗) lifted%return#0 | tmp%10#0
-        int 1                                                                           (𝕗) lifted%return#0 | tmp%10#0,1
-        l-load tmp%10#0 1                                                               (𝕗) lifted%return#0 | 1,tmp%10#0
-        shl                                                                             (𝕗) lifted%return#0 | tmp%11#0
-        int 3                                                                           (𝕗) lifted%return#0 | tmp%11#0,3
-        &                                                                               (𝕗) lifted%return#0 | tmp%12#0
-        assert // OnCompletion is not one of NoOp, OptIn                                (𝕗) lifted%return#0 |
-        txn ApplicationID                                                               (𝕗) lifted%return#0 | tmp%13#0
-        assert // can only call when not creating                                       (𝕗) lifted%return#0 |
+        txn OnCompletion                                                                tmp%10#0
+        int 1                                                                           tmp%10#0,1
+        l-load tmp%10#0 1                                                               1,tmp%10#0
+        shl                                                                             tmp%11#0
+        int 3                                                                           tmp%11#0,3
+        &                                                                               tmp%12#0
+        assert // OnCompletion is not one of NoOp, OptIn
+        txn ApplicationID                                                               tmp%13#0
+        assert // can only call when not creating
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        callsub register                                                                (𝕗) lifted%return#0 |
-        // everything/contract.py:47
-        // @abimethod(allow_actions=["NoOp", "OptIn"])
-        f-load lifted%return#0                                                          (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                          (𝕗) lifted%return#0 |
+        callsub register
+        b main_after_if_else@11
 
-    main_close_out_route@10:                                                            (𝕗) lifted%return#0 |
+    main_close_out_route@10:
         // everything/contract.py:69
         // @abimethod(allow_actions=["CloseOut"])
-        txn OnCompletion                                                                (𝕗) lifted%return#0 | tmp%15#0
-        int CloseOut                                                                    (𝕗) lifted%return#0 | tmp%15#0,CloseOut
-        ==                                                                              (𝕗) lifted%return#0 | tmp%16#0
-        assert // OnCompletion is not CloseOut                                          (𝕗) lifted%return#0 |
-        txn ApplicationID                                                               (𝕗) lifted%return#0 | tmp%17#0
-        assert // can only call when not creating                                       (𝕗) lifted%return#0 |
+        txn OnCompletion                                                                tmp%15#0
+        int CloseOut                                                                    tmp%15#0,CloseOut
+        ==                                                                              tmp%16#0
+        assert // OnCompletion is not CloseOut
+        txn ApplicationID                                                               tmp%17#0
+        assert // can only call when not creating
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        callsub close_out                                                               (𝕗) lifted%return#0 |
-        // everything/contract.py:69
-        // @abimethod(allow_actions=["CloseOut"])
-        f-load lifted%return#0                                                          (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                          (𝕗) lifted%return#0 |
+        callsub close_out
+        b main_after_if_else@11
 
-    main_after_if_else@11:                                                              (𝕗) lifted%return#0 |
+    main_after_if_else@11:
         // everything/contract.py:37
         // class Everything(ARC4Contract, MyMiddleBase, name="MyContract"):
-        err                                                                             (𝕗) lifted%return#0 |
+        err
 
 
 // test_cases.everything.contract.Everything.create[routing]() -> void:
@@ -134,7 +115,10 @@ subroutine create:
         byte "counter"                                                                  "counter"
         int 0                                                                           "counter",0
         app_global_put
-        retsub
+        // everything/contract.py:41
+        // @abimethod(create="require")
+        int 1                                                                           1
+        return
 
 
 // test_cases.everything.contract.Everything.register[routing]() -> void:
@@ -201,7 +185,10 @@ subroutine register:
         byte "name"                                                                     (𝕗) name#0 | 0,"name"
         f-load name#0                                                                   (𝕗) name#0 | 0,"name",name#0
         app_local_put                                                                   (𝕗) name#0 |
-        retsub
+        // everything/contract.py:47
+        // @abimethod(allow_actions=["NoOp", "OptIn"])
+        int 1                                                                           (𝕗) name#0 | 1
+        return                                                                          (𝕗) name#0 |
 
 
 // test_cases.everything.contract.Everything.say_hello[routing]() -> void:
@@ -277,7 +264,8 @@ subroutine say_hello:
         x-load tmp%0#0                                                                  (𝕗) name#0 | 0x151f7c75,tmp%0#0
         concat                                                                          (𝕗) name#0 | tmp%1#0
         log                                                                             (𝕗) name#0 |
-        retsub
+        int 1                                                                           (𝕗) name#0 | 1
+        return                                                                          (𝕗) name#0 |
 
 
 // test_cases.everything.contract.Everything.calculate[routing]() -> void:
@@ -307,7 +295,8 @@ subroutine calculate:
         l-load aggregate%val_as_bytes%0#0 1                                             0x151f7c75,aggregate%val_as_bytes%0#0
         concat                                                                          tmp%1#0
         log
-        retsub
+        int 1                                                                           1
+        return
 
 
 // test_cases.everything.contract.Everything.close_out[routing]() -> void:
@@ -329,6 +318,9 @@ subroutine close_out:
         byte "counter"                                                                  tmp%1#0,"counter"
         l-load tmp%1#0 1                                                                "counter",tmp%1#0
         app_global_put
-        retsub
+        // everything/contract.py:69
+        // @abimethod(allow_actions=["CloseOut"])
+        int 1                                                                           1
+        return
 
 

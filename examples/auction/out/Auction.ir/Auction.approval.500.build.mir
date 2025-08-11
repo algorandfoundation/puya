@@ -2,7 +2,7 @@
 // examples.auction.contract.Auction.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // auction/contract.py:25
+        // auction/contract.py:62
         // @arc4.abimethod
         int 1                                                                                1
         v-store lifted%return#0
@@ -78,19 +78,13 @@ subroutine main:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
         callsub opt_into_asset
-        // auction/contract.py:25
-        // @arc4.abimethod
-        v-load lifted%return#0                                                               lifted%return#0
-        return
+        b main_after_if_else@13
 
     main_start_auction_route@6:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
         callsub start_auction
-        // auction/contract.py:40
-        // @arc4.abimethod
-        v-load lifted%return#0                                                               lifted%return#0
-        return
+        b main_after_if_else@13
 
     main_opt_in_route@7:
         // auction/contract.py:62
@@ -102,28 +96,19 @@ subroutine main:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
         callsub bid
-        // auction/contract.py:66
-        // @arc4.abimethod
-        v-load lifted%return#0                                                               lifted%return#0
-        return
+        b main_after_if_else@13
 
     main_claim_bids_route@9:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
         callsub claim_bids
-        // auction/contract.py:82
-        // @arc4.abimethod
-        v-load lifted%return#0                                                               lifted%return#0
-        return
+        b main_after_if_else@13
 
     main_claim_asset_route@10:
         // auction/contract.py:16
         // class Auction(ARC4Contract):
         callsub claim_asset
-        // auction/contract.py:97
-        // @arc4.abimethod
-        v-load lifted%return#0                                                               lifted%return#0
-        return
+        b main_after_if_else@13
 
     main_bare_routing@11:
         // auction/contract.py:16
@@ -218,7 +203,10 @@ subroutine opt_into_asset:
         //     xfer_asset=asset,
         // ).submit()
         itxn_submit
-        retsub
+        // auction/contract.py:25
+        // @arc4.abimethod
+        int 1                                                                                1
+        return
 
 
 // examples.auction.contract.Auction.start_auction[routing]() -> void:
@@ -318,7 +306,10 @@ subroutine start_auction:
         byte "previous_bid"                                                                  "previous_bid"
         v-load starting_price#0                                                              "previous_bid",starting_price#0
         app_global_put
-        retsub
+        // auction/contract.py:40
+        // @arc4.abimethod
+        int 1                                                                                1
+        return
 
 
 // examples.auction.contract.Auction.bid[routing]() -> void:
@@ -407,7 +398,10 @@ subroutine bid:
         byte "claim"                                                                         tmp%10#0,"claim"
         v-load tmp%5#0                                                                       tmp%10#0,"claim",tmp%5#0
         app_local_put
-        retsub
+        // auction/contract.py:66
+        // @arc4.abimethod
+        int 1                                                                                1
+        return
 
 
 // examples.auction.contract.Auction.claim_bids[routing]() -> void:
@@ -500,7 +494,10 @@ subroutine claim_bids:
         byte "claim"                                                                         tmp%5#0,"claim"
         v-load tmp%4#0                                                                       tmp%5#0,"claim",tmp%4#0
         app_local_put
-        retsub
+        // auction/contract.py:82
+        // @arc4.abimethod
+        int 1                                                                                1
+        return
 
 
 // examples.auction.contract.Auction.claim_asset[routing]() -> void:
@@ -578,6 +575,9 @@ subroutine claim_asset:
         //     asset_amount=self.asa_amount,
         // ).submit()
         itxn_submit
-        retsub
+        // auction/contract.py:97
+        // @arc4.abimethod
+        int 1                                                                                1
+        return
 
 

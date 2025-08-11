@@ -21,46 +21,46 @@ main test_cases.tuple_support.nested_tuples.NestedTuples.__algopy_entrypoint_wit
         switch tmp%6#0 {method "store_tuple(((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[]))void" => block@5, method "load_tuple()((uint64,uint64,(uint64,byte[],string)),(uint64,byte[],string)[])" => block@6, method "store_tuple_in_box((uint64,uint64))void" => block@7, method "is_tuple_in_box((uint64,uint64))bool" => block@8, method "load_tuple_from_box((uint64,uint64))(uint64,uint64)" => block@9, method "maybe_load_tuple_from_box((uint64,uint64))((uint64,uint64),bool)" => block@10, method "load_tuple_from_box_or_default((uint64,uint64))(uint64,uint64)" => block@11, method "load_tuple_from_local_state_or_default(string)(uint64,uint64)" => block@12, method "mutate_local_tuple()(uint64[],(uint64,byte[],string))" => block@13, method "mutate_tuple_in_storage_currently_supported_method()void" => block@14, method "run_tests()bool" => block@15, method "nested_tuple_params((string,(byte[],(uint64))))(byte[],(string,uint64))" => block@16, method "named_tuple((uint64,byte[],string))(uint64,byte[],string)" => block@17, method "nested_named_tuple_params((uint64,uint64,(uint64,byte[],string)))(uint64,uint64,(uint64,byte[],string))" => block@18, * => block@21}
     block@5: // store_tuple_route_L61
         test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple[routing]()
-        exit 1u
+        goto block@21
     block@6: // load_tuple_route_L65
         test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple[routing]()
-        exit 1u
+        goto block@21
     block@7: // store_tuple_in_box_route_L69
         test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_box[routing]()
-        exit 1u
+        goto block@21
     block@8: // is_tuple_in_box_route_L73
         test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box[routing]()
-        exit 1u
+        goto block@21
     block@9: // load_tuple_from_box_route_L77
         test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box[routing]()
-        exit 1u
+        goto block@21
     block@10: // maybe_load_tuple_from_box_route_L81
         test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_from_box[routing]()
-        exit 1u
+        goto block@21
     block@11: // load_tuple_from_box_or_default_route_L86
         test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box_or_default[routing]()
-        exit 1u
+        goto block@21
     block@12: // load_tuple_from_local_state_or_default_route_L90
         test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_local_state_or_default[routing]()
-        exit 1u
+        goto block@21
     block@13: // mutate_local_tuple_route_L95
         test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple[routing]()
-        exit 1u
+        goto block@21
     block@14: // mutate_tuple_in_storage_currently_supported_method_route_L114
         test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_storage_currently_supported_method[routing]()
-        exit 1u
+        goto block@21
     block@15: // run_tests_route_L120
         test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing]()
-        exit 1u
+        goto block@21
     block@16: // nested_tuple_params_route_L149
         test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params[routing]()
-        exit 1u
+        goto block@21
     block@17: // named_tuple_route_L156
         test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple[routing]()
-        exit 1u
+        goto block@21
     block@18: // nested_named_tuple_params_route_L161
         test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params[routing]()
-        exit 1u
+        goto block@21
     block@19: // bare_routing_L48
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -122,7 +122,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple[routi
     block@0: // L48
         let reinterpret_Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))%0#0: Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[])) = (txna ApplicationArgs 1)
         (app_global_put "pwl" reinterpret_Encoded((uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))),(len+(uint64,(len+uint8[]),(len+utf8[]))[]))%0#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple[routing]() -> void:
     block@0: // L48
@@ -130,7 +130,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple[routin
         (assert maybe_exists%0#0) // check self.pwl exists
         let tmp%7#0: bytes = (concat 0x151f7c75 maybe_value%0#0)
         (log tmp%7#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_box[routing]() -> void:
     block@0: // L48
@@ -140,7 +140,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.store_tuple_in_bo
         let box_prefixed_key%0#0: bytes = (concat "box" reinterpret_Encoded(uint64,uint64)%0#0)
         let encoded_for_storage%1#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(key.a#0, tmp%0#1)
         box_write(box_prefixed_key%0#0, encoded_for_storage%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box[routing]() -> void:
     block@0: // L48
@@ -150,7 +150,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.is_tuple_in_box[r
         let tmp%3#0: Encoded(bool8) = bytes_encode<bool8>(maybe_exists%0#0)
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
         (log tmp%4#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box[routing]() -> void:
     block@0: // L48
@@ -159,7 +159,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
         let storage_value%0#0: bytes = box_read(box_prefixed_key%0#0)
         let tmp%5#0: bytes = (concat 0x151f7c75 storage_value%0#0)
         (log tmp%5#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_from_box[routing]() -> void:
     block@0: // L48
@@ -180,7 +180,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.maybe_load_tuple_
         let tmp%5#0: Encoded((uint64,uint64),bool1) = bytes_encode<((uint64,uint64),bool1)>(maybe_value.a#0, maybe_value.b#0, exists#0)
         let tmp%6#0: bytes = (concat 0x151f7c75 tmp%5#0)
         (log tmp%6#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_box_or_default[routing]() -> void:
     block@0: // L48
@@ -200,7 +200,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_b
         let tmp%4#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(ternary_result%0.a#2, ternary_result%0.b#2)
         let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
         (log tmp%5#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_local_state_or_default[routing]() -> void:
     block@0: // L48
@@ -222,7 +222,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.load_tuple_from_l
         let tmp%3#0: Encoded(uint64,uint64) = bytes_encode<(uint64,uint64)>(ternary_result%0.a#2, ternary_result%0.b#2)
         let tmp%4#0: bytes = (concat 0x151f7c75 tmp%3#0)
         (log tmp%4#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tuple[routing]() -> void:
     block@0: // L48
@@ -258,7 +258,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_local_tupl
         let tmp%4#0: Encoded((len+uint64[]),(uint64,(len+uint8[]),(len+utf8[]))) = bytes_encode<((len+uint64[]),(uint64,(len+uint8[]),(len+utf8[])))>(twm.arr#2, 0u, 0x, "")
         let tmp%5#0: bytes = (concat 0x151f7c75 tmp%4#0)
         (log tmp%5#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_storage_currently_supported_method[routing]() -> void:
     block@0: // L48
@@ -277,7 +277,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.mutate_tuple_in_s
         let (awst_tmp%0#0: Encoded(len+uint64[]), awst_tmp%1#0: uint64, awst_tmp%2#0: bytes, awst_tmp%3#0: string) = decode_bytes<(Encoded(len+uint64[]),(uint64,bytes,string,),)>(maybe_value%1#0)
         let encoded_for_storage%0#0: Encoded((len+uint64[]),(uint64,(len+uint8[]),(len+utf8[]))) = bytes_encode<((len+uint64[]),(uint64,(len+uint8[]),(len+utf8[])))>(arr2#1, awst_tmp%1#0, awst_tmp%2#0, awst_tmp%3#0)
         (app_global_put "twm" encoded_for_storage%0#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing]() -> void:
     block@0: // L48
@@ -383,7 +383,7 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.run_tests[routing
         let tmp%1#0: Encoded(bool8) = bytes_encode<bool8>(1u)
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
         (log tmp%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_params[routing]() -> void:
     block@0: // L48
@@ -392,21 +392,21 @@ subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_tuple_para
         let tmp%6#0: Encoded((len+uint8[]),((len+utf8[]),uint64)) = bytes_encode<((len+uint8[]),((len+utf8[]),uint64))>(args.1.0#0, args.0#0, args.1.1.0#0)
         let tmp%7#0: bytes = (concat 0x151f7c75 tmp%6#0)
         (log tmp%7#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.named_tuple[routing]() -> void:
     block@0: // L48
         let reinterpret_Encoded(uint64,(len+uint8[]),(len+utf8[]))%0#0: Encoded(uint64,(len+uint8[]),(len+utf8[])) = (txna ApplicationArgs 1)
         let tmp%7#0: bytes = (concat 0x151f7c75 reinterpret_Encoded(uint64,(len+uint8[]),(len+utf8[]))%0#0)
         (log tmp%7#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.nested_named_tuple_params[routing]() -> void:
     block@0: // L48
         let reinterpret_Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))%0#0: Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[]))) = (txna ApplicationArgs 1)
         let tmp%11#0: bytes = (concat 0x151f7c75 reinterpret_Encoded(uint64,uint64,(uint64,(len+uint8[]),(len+utf8[])))%0#0)
         (log tmp%11#0)
-        return 
+        exit 1u
 
 subroutine test_cases.tuple_support.nested_tuples.NestedTuples.build_nested() -> <string, uint64, bytes>:
     block@0: // L166

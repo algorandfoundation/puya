@@ -12,10 +12,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "get_abs_bound1(uint64)uint64" => block@3, method "get_abs_bound2()uint64" => block@4, * => block@11}
     block@3: // get_abs_bound1_route_L5
         test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound1[routing]()
-        exit 1u
+        goto block@11
     block@4: // get_abs_bound2_route_L17
         test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2[routing]()
-        exit 1u
+        goto block@11
     block@7: // bare_routing_L4
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -41,7 +41,7 @@ subroutine test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob abs_bound#2)
         let tmp%3#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%3#0)
-        return 
+        exit 1u
 
 subroutine test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_abs_bound2[routing]() -> void:
     block@0: // L4
@@ -49,4 +49,4 @@ subroutine test_cases.regression_tests.biguint_opt.ConstBigIntToIntOverflow.get_
         let aggregate%val_as_bytes%0#0: bytes[8] = (itob abs_bound#0)
         let tmp%2#0: bytes = (concat 0x151f7c75 aggregate%val_as_bytes%0#0)
         (log tmp%2#0)
-        return 
+        exit 1u

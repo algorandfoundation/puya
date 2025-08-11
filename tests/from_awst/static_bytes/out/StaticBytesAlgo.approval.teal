@@ -3,8 +3,8 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
+    intcblock 1 32
     bytecblock 0x151f7c75
-    pushint 1 // 1
     txn NumAppArgs
     bz main_bare_routing@11
     txn OnCompletion
@@ -14,32 +14,8 @@ main:
     assert // can only call when not creating
     pushbytess 0x25bb3465 0x63fbedbe 0x5c6f499c 0xd71280ea 0xa78000de 0xb976788f // method "hashAddresses(byte[32],byte[32])byte[32]", method "receiveB32(byte[32])byte[32]", method "receiveBytes(byte[],uint64)void", method "returnLength(byte[32])uint64", method "test()void", method "testArray()void"
     txna ApplicationArgs 0
-    match main_hashAddresses_route@3 main_receiveB32_route@4 main_receiveBytes_route@5 main_returnLength_route@6 main_test_route@7 main_testArray_route@8
+    match hashAddresses receiveB32 receiveBytes returnLength test testArray
     err
-
-main_testArray_route@8:
-    callsub testArray
-    return
-
-main_test_route@7:
-    callsub test
-    return
-
-main_returnLength_route@6:
-    callsub returnLength
-    return
-
-main_receiveBytes_route@5:
-    callsub receiveBytes
-    return
-
-main_receiveB32_route@4:
-    callsub receiveB32
-    return
-
-main_hashAddresses_route@3:
-    callsub hashAddresses
-    return
 
 main_bare_routing@11:
     txn OnCompletion
@@ -48,6 +24,7 @@ main_bare_routing@11:
     txn ApplicationID
     !
     assert // can only call when creating
+    intc_0 // 1
     return
 
 
@@ -61,7 +38,8 @@ hashAddresses:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32[routing]() -> void:
@@ -70,14 +48,15 @@ receiveB32:
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     dup
     len
-    pushint 32 // 32
+    intc_1 // 32
     ==
     assert // invalid size
     bytec_0 // 0x151f7c75
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveBytes[routing]() -> void:
@@ -90,7 +69,8 @@ receiveBytes:
     len
     ==
     assert
-    retsub
+    intc_0 // 1
+    return
 
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.returnLength[routing]() -> void:
@@ -102,7 +82,8 @@ returnLength:
     swap
     concat
     log
-    retsub
+    intc_0 // 1
+    return
 
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.test[routing]() -> void:
@@ -113,7 +94,8 @@ test:
     pushbytes "abcdefghabcdefghabcdefghabcdefgh"
     callsub tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32
     pop
-    retsub
+    intc_0 // 1
+    return
 
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.testArray[routing]() -> void:
@@ -129,7 +111,8 @@ testArray:
     txn Sender
     ==
     assert
-    retsub
+    intc_0 // 1
+    return
 
 
 // tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32(b: bytes) -> bytes:
@@ -137,7 +120,7 @@ tests/approvals/static-bytes.algo.ts::StaticBytesAlgo.receiveB32:
     proto 1 1
     frame_dig -1
     len
-    pushint 32 // 32
+    intc_1 // 32
     ==
     assert
     frame_dig -1

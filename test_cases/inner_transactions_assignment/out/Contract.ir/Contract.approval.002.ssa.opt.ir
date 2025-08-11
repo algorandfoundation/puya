@@ -12,10 +12,10 @@ main algopy.arc4.ARC4Contract.approval_program:
         switch tmp%6#0 {method "test_itxn_slice()void" => block@3, method "test_itxn_nested()void" => block@4, * => block@11}
     block@3: // test_itxn_slice_route_L12
         test_cases.inner_transactions_assignment.contract.Contract.test_itxn_slice[routing]()
-        exit 1u
+        goto block@11
     block@4: // test_itxn_nested_route_L29
         test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested[routing]()
-        exit 1u
+        goto block@11
     block@7: // bare_routing_L11
         let tmp%7#0: uint64 = (txn OnCompletion)
         let not%tmp%7#0: bool = (! tmp%7#0)
@@ -62,7 +62,7 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
         (assert tmp%0#0)
         let tmp%1#0: bool = (== sliced_txns.1.Note#0 0x70617932)
         (assert tmp%1#0)
-        return 
+        exit 1u
 
 subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_nested[routing]() -> void:
     block@0: // L11
@@ -136,4 +136,4 @@ subroutine test_cases.inner_transactions_assignment.contract.Contract.test_itxn_
         (assert tmp%12#0)
         let tmp%13#0: bool = (== nested_tuple.2#1 0x746865726532)
         (assert tmp%13#0)
-        return 
+        exit 1u

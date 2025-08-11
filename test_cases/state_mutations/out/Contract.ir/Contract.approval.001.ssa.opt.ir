@@ -235,13 +235,13 @@ subroutine test_cases.state_mutations.contract.Contract.__puya_arc4_router__() -
         switch tmp%6#0 {method "append()void" => block@2, method "modify()void" => block@3, method "get()(uint64,string)[]" => block@4, * => block@12}
     block@2: // append_route_L36
         test_cases.state_mutations.contract.Contract.append[routing]()
-        exit 1u
+        goto block@12
     block@3: // modify_route_L44
         test_cases.state_mutations.contract.Contract.modify[routing]()
-        exit 1u
+        goto block@12
     block@4: // get_route_L51
         test_cases.state_mutations.contract.Contract.get[routing]()
-        exit 1u
+        goto block@12
     block@7: // bare_routing_L22
         let tmp%7#0: uint64 = (txn OnCompletion)
         goto_nth [block@9, block@8][tmp%7#0] else goto block@12
@@ -299,7 +299,7 @@ subroutine test_cases.state_mutations.contract.Contract.append[routing]() -> voi
         let extract_to_end%3#0: bytes = ((extract 2 0) storage_value%1#0)
         let as_Encoded(len+(uint64,(len+utf8[]))[])%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = _puya_lib.arc4.dynamic_array_concat_dynamic_element(extract_uint16%3#0, extract_to_end%3#0, 1u, tmp%1#0)
         box_write(box_prefixed_key%0#0, as_Encoded(len+(uint64,(len+utf8[]))[])%3#0)
-        return 
+        exit 1u
 
 subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> void:
     block@0: // L22
@@ -321,7 +321,7 @@ subroutine test_cases.state_mutations.contract.Contract.modify[routing]() -> voi
         let storage_value%1#0: bytes = box_read(box_prefixed_key%0#0)
         let updated_array%3#0: Encoded(len+(uint64,(len+utf8[]))[]) = replace_value(storage_value%1#0, 0u, 1, tmp%0#0)
         box_write(box_prefixed_key%0#0, updated_array%3#0)
-        return 
+        exit 1u
 
 subroutine test_cases.state_mutations.contract.Contract.get[routing]() -> void:
     block@0: // L22
@@ -342,4 +342,4 @@ subroutine test_cases.state_mutations.contract.Contract.get[routing]() -> void:
         (assert tmp%3#0) // expected map == global
         let tmp%1#0: bytes = (concat 0x151f7c75 a1#0)
         (log tmp%1#0)
-        return 
+        exit 1u

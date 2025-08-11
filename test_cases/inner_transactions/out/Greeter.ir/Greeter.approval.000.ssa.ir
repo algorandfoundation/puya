@@ -25,10 +25,10 @@ subroutine test_cases.inner_transactions.c2c.Greeter.__puya_arc4_router__() -> b
         switch tmp%6#0 {method "bootstrap()uint64" => block@2, method "log_greetings(string)void" => block@3, * => block@4}
     block@2: // bootstrap_route_L10
         test_cases.inner_transactions.c2c.Greeter.bootstrap[routing]()
-        exit 1u
+        goto block@5
     block@3: // log_greetings_route_L23
         test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]()
-        exit 1u
+        goto block@5
     block@4: // switch_case_default_L6
         goto block@5
     block@5: // switch_case_next_L6
@@ -55,13 +55,13 @@ subroutine test_cases.inner_transactions.c2c.Greeter.bootstrap[routing]() -> voi
         let tmp%1#0: Encoded(uint64) = bytes_encode<uint64>(tmp%0#0)
         let tmp%2#0: bytes = (concat 0x151f7c75 tmp%1#0)
         (log tmp%2#0)
-        return 
+        exit 1u
 
 subroutine test_cases.inner_transactions.c2c.Greeter.log_greetings[routing]() -> void:
     block@0: // L6
         let reinterpret_Encoded(len+utf8[])%0#0: Encoded(len+utf8[]) = (txna ApplicationArgs 1)
         test_cases.inner_transactions.c2c.Greeter.log_greetings(reinterpret_Encoded(len+utf8[])%0#0)
-        return 
+        exit 1u
 
 subroutine test_cases.inner_transactions.c2c.Greeter.__init__() -> void:
     block@0: // L7

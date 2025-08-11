@@ -2,8 +2,8 @@
 // test_cases.state_mutations.contract.Contract.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // state_mutations/contract.py:36
-        // @arc4.abimethod
+        // state_mutations/contract.py:29
+        // @arc4.baremethod(allow_actions=["OptIn"])
         int 1                                                                          1
         v-store lifted%return#0
         // state_mutations/contract.py:22
@@ -34,28 +34,19 @@ subroutine main:
         // state_mutations/contract.py:22
         // class Contract(ARC4Contract):
         callsub append
-        // state_mutations/contract.py:36
-        // @arc4.abimethod
-        v-load lifted%return#0                                                         lifted%return#0
-        return
+        b main_after_if_else@11
 
     main_modify_route@6:
         // state_mutations/contract.py:22
         // class Contract(ARC4Contract):
         callsub modify
-        // state_mutations/contract.py:44
-        // @arc4.abimethod
-        v-load lifted%return#0                                                         lifted%return#0
-        return
+        b main_after_if_else@11
 
     main_get_route@7:
         // state_mutations/contract.py:22
         // class Contract(ARC4Contract):
         callsub get
-        // state_mutations/contract.py:51
-        // @arc4.abimethod
-        v-load lifted%return#0                                                         lifted%return#0
-        return
+        b main_after_if_else@11
 
     main_bare_routing@8:
         // state_mutations/contract.py:22
@@ -464,7 +455,10 @@ subroutine append:
         l-load box_prefixed_key%0#0 1                                                  as_Encoded(len+(uint64,(len+utf8[]))[])%3#0,box_prefixed_key%0#0
         l-load as_Encoded(len+(uint64,(len+utf8[]))[])%3#0 1                           box_prefixed_key%0#0,as_Encoded(len+(uint64,(len+utf8[]))[])%3#0
         box_put
-        retsub
+        // state_mutations/contract.py:36
+        // @arc4.abimethod
+        int 1                                                                          1
+        return
 
 
 // test_cases.state_mutations.contract.Contract.modify[routing]() -> void:
@@ -693,7 +687,10 @@ subroutine modify:
         l-load box_prefixed_key%0#0 1                                                  aggregate%updated_array%3#0,box_prefixed_key%0#0
         l-load aggregate%updated_array%3#0 1                                           box_prefixed_key%0#0,aggregate%updated_array%3#0
         box_put
-        retsub
+        // state_mutations/contract.py:44
+        // @arc4.abimethod
+        int 1                                                                          1
+        return
 
 
 // test_cases.state_mutations.contract.Contract.get[routing]() -> void:
@@ -759,6 +756,7 @@ subroutine get:
         concat                                                                         tmp%1#0
         l-load tmp%1#0 0                                                               tmp%1#0
         log
-        retsub
+        int 1                                                                          1
+        return
 
 
