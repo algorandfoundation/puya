@@ -10,17 +10,19 @@ main:
     // class HelloWorldContract(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@6
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     pushbytes 0x02bece11 // method "hello(string)string"
     txna ApplicationArgs 0
     match main_hello_route@3
     err
 
 main_hello_route@3:
+    // hello_world_arc4/contract.py:10
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     // hello_world_arc4/contract.py:9
     // class HelloWorldContract(ARC4Contract):
     callsub hello

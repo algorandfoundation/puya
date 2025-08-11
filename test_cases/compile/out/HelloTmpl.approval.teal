@@ -4,8 +4,8 @@
 // test_cases.compile.apps.HelloTmpl.__algopy_entrypoint_with_init() -> uint64:
 main:
     bytecblock "greeting" TMPL_GREETING
-    // compile/apps.py:32
-    // @arc4.abimethod()
+    // compile/apps.py:62
+    // @arc4.abimethod(create="require")
     pushint 1 // 1
     txn ApplicationID
     bnz main_after_if_else@2
@@ -19,17 +19,20 @@ main_after_if_else@2:
     // compile/apps.py:58
     // class HelloTmpl(HelloBase):
     txn NumAppArgs
-    bz main_bare_routing@10
-    txn OnCompletion
-    bnz main_other_routes@7
-    txn ApplicationID
-    assert // can only call when not creating
-    pushbytes 0xd0a28200 // method "greet(string)string"
+    bz main_bare_routing@8
+    pushbytess 0x4c5c61ba 0x24378d3c 0xd0a28200 // method "create()void", method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
-    match main_greet_route@6
+    match main_create_route@5 main_delete_route@6 main_greet_route@7
     err
 
-main_greet_route@6:
+main_greet_route@7:
+    // compile/apps.py:32
+    // @arc4.abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     // compile/apps.py:58
     // class HelloTmpl(HelloBase):
     callsub greet
@@ -37,15 +40,7 @@ main_greet_route@6:
     // @arc4.abimethod()
     return
 
-main_other_routes@7:
-    // compile/apps.py:58
-    // class HelloTmpl(HelloBase):
-    pushbytess 0x4c5c61ba 0x24378d3c // method "create()void", method "delete()void"
-    txna ApplicationArgs 0
-    match main_create_route@8 main_delete_route@9
-    err
-
-main_delete_route@9:
+main_delete_route@6:
     // compile/apps.py:24
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
@@ -56,7 +51,7 @@ main_delete_route@9:
     assert // can only call when not creating
     return
 
-main_create_route@8:
+main_create_route@5:
     // compile/apps.py:62
     // @arc4.abimethod(create="require")
     txn OnCompletion
@@ -67,15 +62,15 @@ main_create_route@8:
     assert // can only call when creating
     return
 
-main_bare_routing@10:
+main_bare_routing@8:
     // compile/apps.py:58
     // class HelloTmpl(HelloBase):
     pushint 4 // 4
     txn OnCompletion
-    match main_update@11
+    match main_update@9
     err
 
-main_update@11:
+main_update@9:
     // compile/apps.py:28
     // @arc4.baremethod(allow_actions=["UpdateApplication"])
     txn ApplicationID

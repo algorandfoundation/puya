@@ -12,17 +12,19 @@ main:
     // class ArrayAccessContract(ARC4Contract):
     txn NumAppArgs
     bz main_bare_routing@6
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     pushbytes 0x89a8220a // method "test_branching_array_call(bool)void"
     txna ApplicationArgs 0
     match main_test_branching_array_call_route@3
     err
 
 main_test_branching_array_call_route@3:
+    // inner_transactions/array_access.py:21
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     // inner_transactions/array_access.py:20
     // class ArrayAccessContract(ARC4Contract):
     callsub test_branching_array_call

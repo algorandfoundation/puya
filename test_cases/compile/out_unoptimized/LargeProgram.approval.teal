@@ -13,40 +13,37 @@ main_block@1:
     txn NumAppArgs
     intc_0 // 0
     !=
-    bz main_bare_routing@12
+    bz main_bare_routing@7
 
 main_abi_routing@2:
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
-    txn OnCompletion
-    intc_0 // 0
-    ==
-    bz main_other_routes@7
-
-main_simple_routes@3:
-    // compile/apps.py:37
-    // class LargeProgram(ARC4Contract):
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     txna ApplicationArgs 0
+    pushbytes 0x24378d3c // method "delete()void"
     pushbytes 0xf5e4fd4d // method "get_big_bytes_length()uint64"
-    swap
-    match main_get_big_bytes_length_route@4
+    uncover 2
+    match main_delete_route@3 main_get_big_bytes_length_route@4
 
 main_switch_case_default@5:
 
 main_switch_case_next@6:
 
 main_after_if_else@11:
-
-main_after_if_else@16:
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
     err
 
 main_get_big_bytes_length_route@4:
+    // compile/apps.py:38
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
     callsub get_big_bytes_length
@@ -55,20 +52,7 @@ main_get_big_bytes_length_route@4:
     intc_1 // 1
     return
 
-main_other_routes@7:
-    // compile/apps.py:37
-    // class LargeProgram(ARC4Contract):
-    txna ApplicationArgs 0
-    pushbytes 0x24378d3c // method "delete()void"
-    swap
-    match main_delete_route@8
-
-main_switch_case_default@9:
-
-main_switch_case_next@10:
-    b main_after_if_else@11
-
-main_delete_route@8:
+main_delete_route@3:
     // compile/apps.py:42
     // @arc4.abimethod(allow_actions=["DeleteApplication"])
     txn OnCompletion
@@ -87,28 +71,28 @@ main_delete_route@8:
     intc_1 // 1
     return
 
-main_bare_routing@12:
+main_bare_routing@7:
     // compile/apps.py:37
     // class LargeProgram(ARC4Contract):
     txn OnCompletion
     intc_0 // 0
     swap
-    match main___algopy_default_create@13
+    match main___algopy_default_create@8
 
-main_switch_case_default@14:
+main_switch_case_default@9:
 
-main_switch_case_next@15:
-    b main_after_if_else@16
+main_switch_case_next@10:
+    b main_after_if_else@11
 
-main___algopy_default_create@13:
+main___algopy_default_create@8:
     txn ApplicationID
     intc_0 // 0
     ==
     assert // can only call when creating
 
-main_block@18:
+main_block@13:
 
-main_after_inlined_test_cases.compile.apps.LargeProgram.__algopy_default_create@19:
+main_after_inlined_test_cases.compile.apps.LargeProgram.__algopy_default_create@14:
     intc_1 // 1
     return
 

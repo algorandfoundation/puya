@@ -52,17 +52,19 @@ subroutine main:
     main_abi_routing@10:
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
-        txn OnCompletion                                                                     tmp%2#1
-        !                                                                                    tmp%3#1
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                                                    tmp%4#1
-        assert // can only call when not creating
-        txna ApplicationArgs 0                                                               tmp%6#0
-        method add_one(uint64)uint64                                                         tmp%6#0,Method(add_one(uint64)uint64)
-        l-load tmp%6#0 1                                                                     Method(add_one(uint64)uint64),tmp%6#0
+        txna ApplicationArgs 0                                                               tmp%2#0
+        method add_one(uint64)uint64                                                         tmp%2#0,Method(add_one(uint64)uint64)
+        l-load tmp%2#0 1                                                                     Method(add_one(uint64)uint64),tmp%2#0
         match main_add_one_route@11 ; b main_after_if_else@13
 
     main_add_one_route@11:
+        // abi_routing/custom_approval.py:23
+        // @arc4.abimethod
+        txn OnCompletion                                                                     tmp%3#1
+        !                                                                                    tmp%4#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                                                    tmp%5#0
+        assert // can only call when not creating
         // abi_routing/custom_approval.py:6
         // class CustomApproval(ARC4Contract):
         callsub add_one

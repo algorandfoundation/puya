@@ -18,14 +18,6 @@ main_block@1:
 main_abi_routing@2:
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
-    txn OnCompletion
-    intc_0 // NoOp
-    ==
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     txna ApplicationArgs 0
     pushbytes 0x48e9ed7c // method "create_and_transfer()void"
     swap
@@ -41,6 +33,16 @@ main_after_if_else@10:
     err
 
 main_create_and_transfer_route@3:
+    // inner_transactions/asset_transfer.py:11
+    // @arc4.abimethod()
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     // inner_transactions/asset_transfer.py:10
     // class CreateAndTransferContract(ARC4Contract):
     callsub create_and_transfer

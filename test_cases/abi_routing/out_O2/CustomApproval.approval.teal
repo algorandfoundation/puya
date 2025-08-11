@@ -26,17 +26,17 @@ main_after_if_else@2:
 main_after_if_else@6:
     txn NumAppArgs
     bz main_bare_routing@12
-    txn OnCompletion
-    !
-    assert // OnCompletion is not NoOp
-    txn ApplicationID
-    assert // can only call when not creating
     pushbytes 0x03b5c0af // method "add_one(uint64)uint64"
     txna ApplicationArgs 0
     match main_add_one_route@11
     err
 
 main_add_one_route@11:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     txna ApplicationArgs 1
     btoi
     pushint 1 // 1

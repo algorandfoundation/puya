@@ -11,33 +11,30 @@ main_block@0:
 main_block@1:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // 0
-    ==
-    bz main_other_routes@6
-
-main_simple_routes@2:
-    // avm_types_in_abi/contract.py:4
-    // class TestContract(arc4.ARC4Contract):
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    pushbytes 0xfb716652 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
     pushbytes 0x7ea64078 // method "tuple_of_arc4((uint8,address))(uint8,address)"
-    swap
-    match main_tuple_of_arc4_route@3
+    uncover 2
+    match main_create_route@2 main_tuple_of_arc4_route@3
 
 main_switch_case_default@4:
 
 main_switch_case_next@5:
-
-main_after_if_else@10:
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     err
 
 main_tuple_of_arc4_route@3:
+    // avm_types_in_abi/contract.py:19
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     // avm_types_in_abi/contract.py:4
     // class TestContract(arc4.ARC4Contract):
     callsub tuple_of_arc4
@@ -46,20 +43,7 @@ main_tuple_of_arc4_route@3:
     intc_1 // 1
     return
 
-main_other_routes@6:
-    // avm_types_in_abi/contract.py:4
-    // class TestContract(arc4.ARC4Contract):
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    pushbytes 0xfb716652 // method "create(bool,uint64,byte[],uint512,string,(bool,uint64,byte[],uint512,string))(bool,uint64,byte[],uint512,string)"
-    swap
-    match main_create_route@7
-
-main_switch_case_default@8:
-
-main_switch_case_next@9:
-    b main_after_if_else@10
-
-main_create_route@7:
+main_create_route@2:
     // avm_types_in_abi/contract.py:5
     // @arc4.abimethod(allow_actions=["NoOp"], create="require")
     txn OnCompletion

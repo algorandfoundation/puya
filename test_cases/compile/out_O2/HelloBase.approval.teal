@@ -13,17 +13,18 @@ main:
 
 main_after_if_else@2:
     txn NumAppArgs
-    bz main_bare_routing@9
-    txn OnCompletion
-    bnz main_other_routes@7
-    txn ApplicationID
-    assert // can only call when not creating
-    pushbytes 0xd0a28200 // method "greet(string)string"
+    bz main_bare_routing@7
+    pushbytess 0x24378d3c 0xd0a28200 // method "delete()void", method "greet(string)string"
     txna ApplicationArgs 0
-    match main_greet_route@6
+    match main_delete_route@5 main_greet_route@6
     err
 
 main_greet_route@6:
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
     txna ApplicationArgs 1
     extract 2 0
     pushint 0 // 0
@@ -46,13 +47,7 @@ main_greet_route@6:
     log
     return
 
-main_other_routes@7:
-    pushbytes 0x24378d3c // method "delete()void"
-    txna ApplicationArgs 0
-    match main_delete_route@8
-    err
-
-main_delete_route@8:
+main_delete_route@5:
     txn OnCompletion
     pushint 5 // DeleteApplication
     ==
@@ -61,19 +56,19 @@ main_delete_route@8:
     assert // can only call when not creating
     return
 
-main_bare_routing@9:
+main_bare_routing@7:
     pushints 4 0 // 4, 0
     txn OnCompletion
-    match main_update@10 main___algopy_default_create@11
+    match main_update@8 main___algopy_default_create@9
     err
 
-main___algopy_default_create@11:
+main___algopy_default_create@9:
     txn ApplicationID
     !
     assert // can only call when creating
     return
 
-main_update@10:
+main_update@8:
     txn ApplicationID
     assert // can only call when not creating
     return

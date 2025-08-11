@@ -2,8 +2,8 @@
 // test_cases.diamond_mro.derived.Derived.__algopy_entrypoint_with_init() -> uint64:
 subroutine main:
     main_block@0:
-        // diamond_mro/derived.py:12
-        // @arc4.abimethod
+        // diamond_mro/gp.py:11
+        // @arc4.abimethod(create="require")
         int 1                                                                         1
         f-store lifted%return#0                                                       (𝕗) lifted%return#0 |
         txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%0#0
@@ -31,20 +31,32 @@ subroutine main:
     main_after_if_else@2:                                                             (𝕗) lifted%return#0 |
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
-        txn OnCompletion                                                              (𝕗) lifted%return#0 | tmp%0#2
-        bz main_simple_routes@4 ; b main_other_routes@6                               (𝕗) lifted%return#0 |
+        txna ApplicationArgs 0 // on error: contract does not allow bare method calls (𝕗) lifted%return#0 | tmp%0#2
+        method create()void                                                           (𝕗) lifted%return#0 | tmp%0#2,Method(create()void)
+        method method()void                                                           (𝕗) lifted%return#0 | tmp%0#2,Method(create()void),Method(method()void)
+        l-load tmp%0#2 2                                                              (𝕗) lifted%return#0 | Method(create()void),Method(method()void),tmp%0#2
+        match main_create_route@4 main_method_route@5 ; b main_switch_case_default@6  (𝕗) lifted%return#0 |
 
-    main_simple_routes@4:                                                             (𝕗) lifted%return#0 |
-        // diamond_mro/derived.py:7
-        // class Derived(Base1, Base2):
-        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%2#0
-        assert // can only call when not creating                                     (𝕗) lifted%return#0 |
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls (𝕗) lifted%return#0 | tmp%4#0
-        method method()void                                                           (𝕗) lifted%return#0 | tmp%4#0,Method(method()void)
-        l-load tmp%4#0 1                                                              (𝕗) lifted%return#0 | Method(method()void),tmp%4#0
-        match main_method_route@5 ; b main_after_if_else@8                            (𝕗) lifted%return#0 |
+    main_create_route@4:                                                              (𝕗) lifted%return#0 |
+        // diamond_mro/gp.py:11
+        // @arc4.abimethod(create="require")
+        txn OnCompletion                                                              (𝕗) lifted%return#0 | tmp%1#0
+        !                                                                             (𝕗) lifted%return#0 | tmp%2#0
+        assert // OnCompletion is not NoOp                                            (𝕗) lifted%return#0 |
+        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%3#0
+        !                                                                             (𝕗) lifted%return#0 | tmp%4#0
+        assert // can only call when creating                                         (𝕗) lifted%return#0 |
+        f-load lifted%return#0                                                        (𝕗) lifted%return#0 | lifted%return#0
+        return                                                                        (𝕗) lifted%return#0 |
 
     main_method_route@5:                                                              (𝕗) lifted%return#0 |
+        // diamond_mro/derived.py:12
+        // @arc4.abimethod
+        txn OnCompletion                                                              (𝕗) lifted%return#0 | tmp%5#0
+        !                                                                             (𝕗) lifted%return#0 | tmp%6#0
+        assert // OnCompletion is not NoOp                                            (𝕗) lifted%return#0 |
+        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%7#0
+        assert // can only call when not creating                                     (𝕗) lifted%return#0 |
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
         callsub method                                                                (𝕗) lifted%return#0 |
@@ -53,27 +65,7 @@ subroutine main:
         f-load lifted%return#0                                                        (𝕗) lifted%return#0 | lifted%return#0
         return                                                                        (𝕗) lifted%return#0 |
 
-    main_other_routes@6:                                                              (𝕗) lifted%return#0 |
-        // diamond_mro/derived.py:7
-        // class Derived(Base1, Base2):
-        txna ApplicationArgs 0 // on error: contract does not allow bare method calls (𝕗) lifted%return#0 | tmp%5#0
-        method create()void                                                           (𝕗) lifted%return#0 | tmp%5#0,Method(create()void)
-        l-load tmp%5#0 1                                                              (𝕗) lifted%return#0 | Method(create()void),tmp%5#0
-        match main_create_route@7 ; b main_after_if_else@8                            (𝕗) lifted%return#0 |
-
-    main_create_route@7:                                                              (𝕗) lifted%return#0 |
-        // diamond_mro/gp.py:11
-        // @arc4.abimethod(create="require")
-        txn OnCompletion                                                              (𝕗) lifted%return#0 | tmp%6#0
-        !                                                                             (𝕗) lifted%return#0 | tmp%7#0
-        assert // OnCompletion is not NoOp                                            (𝕗) lifted%return#0 |
-        txn ApplicationID                                                             (𝕗) lifted%return#0 | tmp%8#0
-        !                                                                             (𝕗) lifted%return#0 | tmp%9#0
-        assert // can only call when creating                                         (𝕗) lifted%return#0 |
-        f-load lifted%return#0                                                        (𝕗) lifted%return#0 | lifted%return#0
-        return                                                                        (𝕗) lifted%return#0 |
-
-    main_after_if_else@8:                                                             (𝕗) lifted%return#0 |
+    main_switch_case_default@6:                                                       (𝕗) lifted%return#0 |
         // diamond_mro/derived.py:7
         // class Derived(Base1, Base2):
         err                                                                           (𝕗) lifted%return#0 |

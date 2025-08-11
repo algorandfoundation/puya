@@ -10,17 +10,19 @@ subroutine main:
     main_abi_routing@2:
         // inlining/contract.py:34
         // class NeverReturns(arc4.ARC4Contract):
-        txn OnCompletion                                 tmp%2#0
-        !                                                tmp%3#0
-        assert // OnCompletion is not NoOp
-        txn ApplicationID                                tmp%4#0
-        assert // can only call when not creating
-        txna ApplicationArgs 0                           tmp%6#0
-        method err()void                                 tmp%6#0,Method(err()void)
-        l-load tmp%6#0 1                                 Method(err()void),tmp%6#0
+        txna ApplicationArgs 0                           tmp%2#0
+        method err()void                                 tmp%2#0,Method(err()void)
+        l-load tmp%2#0 1                                 Method(err()void),tmp%2#0
         match main_err_route@3 ; b main_after_if_else@10
 
     main_err_route@3:
+        // inlining/contract.py:35
+        // @arc4.abimethod()
+        txn OnCompletion                                 tmp%3#0
+        !                                                tmp%4#0
+        assert // OnCompletion is not NoOp
+        txn ApplicationID                                tmp%5#0
+        assert // can only call when not creating
         // inlining/contract.py:37
         // op.err()
         err

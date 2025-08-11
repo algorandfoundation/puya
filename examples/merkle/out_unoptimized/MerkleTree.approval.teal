@@ -11,33 +11,30 @@ main_block@0:
 main_block@1:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
-    txn OnCompletion
-    intc_0 // 0
-    ==
-    bz main_other_routes@6
-
-main_simple_routes@2:
-    // merkle/contract.py:9
-    // class MerkleTree(arc4.ARC4Contract):
-    txn ApplicationID
-    intc_0 // 0
-    !=
-    assert // can only call when not creating
     txna ApplicationArgs 0 // on error: contract does not allow bare method calls
+    pushbytes 0x8424203b // method "create(byte[32])void"
     pushbytes 0xc0290ad5 // method "verify(byte[32][],byte[32])bool"
-    swap
-    match main_verify_route@3
+    uncover 2
+    match main_create_route@2 main_verify_route@3
 
 main_switch_case_default@4:
 
 main_switch_case_next@5:
-
-main_after_if_else@10:
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     err
 
 main_verify_route@3:
+    // merkle/contract.py:14
+    // @arc4.abimethod
+    txn OnCompletion
+    intc_0 // NoOp
+    ==
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    intc_0 // 0
+    !=
+    assert // can only call when not creating
     // merkle/contract.py:9
     // class MerkleTree(arc4.ARC4Contract):
     callsub verify
@@ -46,20 +43,7 @@ main_verify_route@3:
     intc_1 // 1
     return
 
-main_other_routes@6:
-    // merkle/contract.py:9
-    // class MerkleTree(arc4.ARC4Contract):
-    txna ApplicationArgs 0 // on error: contract does not allow bare method calls
-    pushbytes 0x8424203b // method "create(byte[32])void"
-    swap
-    match main_create_route@7
-
-main_switch_case_default@8:
-
-main_switch_case_next@9:
-    b main_after_if_else@10
-
-main_create_route@7:
+main_create_route@2:
     // merkle/contract.py:10
     // @arc4.abimethod(create="require")
     txn OnCompletion
