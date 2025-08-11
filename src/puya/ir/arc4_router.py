@@ -271,67 +271,14 @@ def uint64_sub(
     )
 
 
-def bit_packed_oca(
-    allowed_oca: Iterable[OnCompletionAction], location: SourceLocation
+def uint64_add(
+    lhs: awst_nodes.Expression, rhs: awst_nodes.Expression, location: SourceLocation
 ) -> awst_nodes.Expression:
-    """Returns an integer constant, where each bit corresponding to an OnCompletionAction is
-    set to 1 if that action is allowed. This allows comparing a transaction's on completion value
-    against a set of allowed actions using a bitwise and op"""
-    bit_packed_value = 0
-    for value in allowed_oca:
-        bit_packed_value |= 1 << value.value
-    return constant(bit_packed_value, location)
-
-
-def check_allowed_oca(
-    allowed_ocas: Sequence[OnCompletionAction], location: SourceLocation
-) -> Sequence[awst_nodes.Statement]:
-    not_allowed_ocas = sorted(
-        a for a in ALL_VALID_APPROVAL_ON_COMPLETION_ACTIONS if a not in allowed_ocas
-    )
-    if not not_allowed_ocas:
-        # all actions are allowed, don't need to check
-        return ()
-    match allowed_ocas, not_allowed_ocas:
-        case [[single_allowed], _]:
-            condition: awst_nodes.Expression = awst_nodes.NumericComparisonExpression(
-                lhs=on_completion(location),
-                rhs=awst_nodes.UInt64Constant(
-                    source_location=location,
-                    value=single_allowed.value,
-                    teal_alias=single_allowed.name,
-                ),
-                operator=awst_nodes.NumericComparison.eq,
-                source_location=location,
-            )
-        case _, [single_disallowed]:
-            condition = awst_nodes.NumericComparisonExpression(
-                lhs=on_completion(location),
-                rhs=awst_nodes.UInt64Constant(
-                    source_location=location,
-                    value=single_disallowed.value,
-                    teal_alias=single_disallowed.name,
-                ),
-                operator=awst_nodes.NumericComparison.ne,
-                source_location=location,
-            )
-        case _:
-            condition = bit_and(
-                left_shift(on_completion(location), location),
-                bit_packed_oca(allowed_ocas, location),
-                location,
-            )
-    oca_desc = ", ".join(a.name for a in allowed_ocas)
-    if len(allowed_ocas) > 1:
-        oca_desc = f"one of {oca_desc}"
-    return (
-        awst_nodes.ExpressionStatement(
-            awst_nodes.AssertExpression(
-                condition=condition,
-                error_message=f"OnCompletion is not {oca_desc}",
-                source_location=location,
-            )
-        ),
+    return awst_nodes.UInt64BinaryOperation(
+        source_location=location,
+        left=lhs,
+        op=awst_nodes.UInt64BinaryOperator.add,
+        right=rhs,
     )
 
 
@@ -481,19 +428,16 @@ def route_abi_methods(
             for create in creates:
                 allowed_methods_by_scenario.setdefault((oca, create), []).append(method)
 
-    app_id_non_zero = awst_nodes.ReinterpretCast(
-        expr=awst_nodes.Not(
-            expr=_txn("ApplicationID", wtypes.bool_wtype, location), source_location=location
+    cmp = uint64_add(
+        awst_nodes.ReinterpretCast(
+            expr=awst_nodes.Not(
+                expr=_txn("ApplicationID", wtypes.bool_wtype, location), source_location=location
+            ),
+            wtype=wtypes.uint64_wtype,
+            source_location=location,
         ),
-        wtype=wtypes.uint64_wtype,
-        source_location=location,
-    )
-    oca_lshift = left_shift(on_completion(location), location)
-    cmp = awst_nodes.UInt64BinaryOperation(
-        left=app_id_non_zero,
-        right=oca_lshift,
-        op=awst_nodes.UInt64BinaryOperator.add,
-        source_location=location,
+        left_shift(on_completion(location), location),
+        location,
     )
     scenarios = {}
     for (oca, create), methods_ in allowed_methods_by_scenario.items():
