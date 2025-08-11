@@ -24,7 +24,8 @@ class TealBuilder(MIRVisitor[None]):
         cls, mir_sub: mir.MemorySubroutine, *, slot_allocation: mir.SlotAllocation | None = None
     ) -> teal.TealSubroutine:
         first_label = mir_sub.body[0].block_name
-        proto_block = _build_preamble(first_label, mir_sub, slot_allocation)
+        use_proto = _NeedsProto.check(mir_sub)
+        proto_block = _build_preamble(first_label, mir_sub, slot_allocation, use_proto=use_proto)
         result = teal.TealSubroutine(
             is_main=mir_sub.is_main,
             signature=mir_sub.signature,
@@ -43,7 +44,7 @@ class TealBuilder(MIRVisitor[None]):
                 continue
             builder = cls(
                 next_block_label=next_block_label,
-                use_frame=not mir_sub.is_main,
+                use_frame=use_proto,
                 label_stack=label_stack,
             )
             for op in mir_block.ops:
@@ -449,12 +450,16 @@ def _lstack_manipulations(op: mir.BaseOp) -> list[teal.StackManipulation]:
 
 
 def _build_preamble(
-    first_label: str, mir_sub: mir.MemorySubroutine, slot_allocation: mir.SlotAllocation | None
+    first_label: str,
+    mir_sub: mir.MemorySubroutine,
+    slot_allocation: mir.SlotAllocation | None,
+    *,
+    use_proto: bool,
 ) -> teal.TealBlock:
     assert mir_sub.pre_alloc is not None, "f-stack allocation should have been performed"
     preamble = list[teal.TealOp]()
     # insert proto op if needed
-    if _NeedsProto.check(mir_sub):
+    if use_proto:
         preamble.append(
             teal.Proto(
                 parameters=len(mir_sub.signature.parameters),
